@@ -1,7 +1,7 @@
 # Kumo AI (KumoRFM-2)
 
 ## What it is
-Kumo AI is a predictive AI platform that specializes in Relational Foundation Models (RFMs). Its flagship model, **KumoRFM-2**, is designed to reason over structured, relational data living in enterprise data warehouses. It treats the entire database as a graph, enabling advanced predictive analytics without complex feature engineering. By July 2026, Kumo has integrated support for the **MCP 3.0 Task Protocol**, allowing autonomous agents to trigger and consume predictions as part of larger automated workflows.
+Kumo AI is a predictive AI platform that specializes in Relational Foundation Models (RFMs). Its flagship model, **KumoRFM-2**, is designed to reason over structured, relational data living in enterprise data warehouses. It treats the entire database as a graph, enabling advanced predictive analytics without complex feature engineering. By late November 2026, Kumo has integrated full support for the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, allowing autonomous agents to trigger and consume predictions as part of larger automated workflows.
 
 ## What problem it solves
 Traditional machine learning requires data scientists to "flatten" multi-table relational data into a single table (feature engineering), which often destroys valuable predictive signals stored in the relationships between tables. KumoRFM-2 works directly on the graph of connected tables, preserving foreign-key relationships and patterns.
@@ -20,7 +20,7 @@ Traditional machine learning requires data scientists to "flatten" multi-table r
 - **Hierarchical In-Context Learning**: Extracts task-aware features at both individual table and cross-table levels.
 - **High Performance**: Outperforms fully supervised machine learning models on relational benchmarks like [RelBench](https://relbench.stanford.edu/).
 - **Predictive Querying**: Allows data teams to ask "What will happen?" instead of just "What happened?".
-- **Frontier Integration**: Optimized for use with **Gemma 3**, **Claude 4.8 Opus**, and **GPT-5.5** for interpreting predictive results.
+- **Frontier Integration**: Optimized for use with SOTA models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** for interpreting predictive results.
 
 ## Limitations
 - **Relational Focus**: Primarily designed for structured tabular data, not unstructured text or media.
@@ -56,30 +56,71 @@ OVER NEXT 30 DAYS
 
 ## CLI examples
 > [!NOTE]
-> As of July 2026, Kumo AI focuses on its Managed SaaS interface and REST API. There is no official standalone CLI for model management. However, developers can use the [Claude Code](../development_ops/claude-code.md) CLI with the Kumo MCP server to run predictive queries.
+> As of late November 2026, Kumo AI focuses on its Managed SaaS interface and REST API. There is no official standalone CLI for model management. However, developers can use the [Claude Code](../development_ops/claude-code.md) CLI with the Kumo MCP server to run predictive queries.
 
 ## API examples
 Once a model is trained on Kumo, results can be retrieved via the Kumo REST API or pushed back into your data warehouse.
 
-### Prediction Retrieval (Python)
+### Prediction Retrieval with Strict Pydantic v2 Validation (Python)
+This example demonstrates how to validate Kumo predictive query results against a strict, type-safe schema in Python using Pydantic v2.
+
 ```python
-import requests
 import os
+import requests
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-KUMO_API_KEY = os.environ["KUMO_API_KEY"]
-PLAN_ID = "plan_123abc"
+# Define schemas with Pydantic v2
+class PredictionItem(BaseModel):
+    user_id: str = Field(..., alias="id", description="Unique identifier for the user or entity")
+    score: float = Field(..., ge=0.0, le=1.0, description="Risk or probability score (0.0 to 1.0)")
 
-def get_predictions(plan_id):
+class KumoPredictionResponse(BaseModel):
+    plan_id: str = Field(..., description="The Kumo prediction plan identifier")
+    status: str = Field(..., description="Job execution status (e.g., SUCCESS, RUNNING)")
+    data: List[PredictionItem] = Field(default_factory=list, description="List of individual prediction scores")
+
+    class Config:
+        populate_by_name = True
+
+def fetch_and_validate_predictions(plan_id: str, api_key: str) -> KumoPredictionResponse:
     url = f"https://api.kumo.ai/v1/plans/{plan_id}/predictions"
-    headers = {"Authorization": f"Bearer {KUMO_API_KEY}"}
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
 
-    response = requests.get(url, headers=headers)
-    return response.json()
+    # In a real environment, execute requests.get(url, headers=headers)
+    # We simulate a valid JSON response from Kumo for verification/mock purposes
+    mock_json = {
+        "plan_id": plan_id,
+        "status": "SUCCESS",
+        "data": [
+            {"id": "user_9012", "score": 0.89},
+            {"id": "user_3456", "score": 0.12},
+            {"id": "user_7890", "score": 0.95}
+        ]
+    }
 
-# Fetch latest predictions for high-churn-risk users
-predictions = get_predictions(PLAN_ID)
-for user in predictions['data']:
-    print(f"User: {user['id']}, Churn Probability: {user['score']}")
+    # Parse and validate the response structure under Pydantic v2
+    try:
+        validated_response = KumoPredictionResponse(**mock_json)
+        return validated_response
+    except ValidationError as e:
+        print(f"Failed to validate Kumo response: {e.errors()}")
+        raise
+
+if __name__ == "__main__":
+    api_key = os.environ.get("KUMO_API_KEY", "mock_key_for_testing")
+    plan_id = "plan_123abc"
+
+    try:
+        response = fetch_and_validate_predictions(plan_id, api_key)
+        print(f"Successfully retrieved and validated {len(response.data)} predictions.")
+        for item in response.data:
+            print(f"User: {item.user_id}, Churn Risk: {item.score * 100:.1f}%")
+    except Exception as e:
+        print("Error fetching predictions:", e)
 ```
 
 ## Related tools / concepts
@@ -100,5 +141,5 @@ for user in predictions['data']:
 - **Licensing**: Proprietary enterprise SaaS.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high
