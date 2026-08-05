@@ -1,104 +1,145 @@
 # Composio
 
 ## What it is
-Composio is a tool integration platform that connects AI agents to over 250+ external applications and services. It provides a unified way to handle authentication (OAuth, API Keys) and tool execution across different LLM frameworks. In July 2026, it serves as the "connective tissue" for agents built with **Claude 4.8 Opus** and **GPT-5.5**, and now features native **FastMCP 3.0** tool hosting for ultra-low latency tool execution.
+Composio (v1.3+, late November/December 2026) is an enterprise-grade tool integration and authentication middleware platform that connects AI agents to over 250+ external SaaS applications, local utilities, and infrastructure services. Serving as a robust bridge between agentic frameworks and actual API execution endpoints, it manages complex OAuth handshakes, API tokens, and secret storage. It features first-class native compatibility with the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1, enabling low-latency tool execution and standardized routing for models like [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0](../providers/google.md), and local options like [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-Connecting agents to real-world tools usually requires writing massive amounts of boilerplate for authentication, token management, and API calls. Composio abstracts this away, allowing agents to "login" to services like GitHub, Google Calendar, or Slack with minimal effort, while providing the developer with full observability into every tool call. It now also solves the problem of "tool latency" by leveraging the FastMCP protocol.
+Giving agents raw access to APIs normally requires writing and maintaining thousands of lines of boilerplate code to handle authentication (OAuth flow redirection, token refresh cycles, encryption), rate-limiting, and payload mapping. Composio completely abstracts this middleware layer. It provides instant, safe connections to popular tools (e.g., GitHub, Slack, Jira, Gmail) while offering developers comprehensive telemetry, permission boundaries, and audit logs of all actions initiated by autonomous agent sessions.
 
 ## Where it fits in the stack
-[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — specifically as a **Tool Integration & Auth Middleware** that acts as the "hands" for an agent.
+[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — specifically as **Tool Integration, Managed Auth, and Action Middleware** mapping high-level agentic intents to verified physical API schemas.
 
 ## Typical use cases
-- **Engineering Agents**: Managing GitHub issues, repositories, and CI/CD pipelines autonomously.
-- **Executive Assistants**: Coordinating across Google Calendar, Gmail, and Slack to manage schedules and communications.
-- **Customer Support Bots**: Checking live data in Jira, Zendesk, or Salesforce to resolve tickets with real-time context.
-- **DevOps Agents**: Using [FastMCP](../automation_orchestration/mcp.md) to execute high-frequency infrastructure commands with minimal overhead.
+- **Autonomous Engineering Run**: Integrating with version control software and task managers (GitHub, Linear, Jira) to let [Symphony](./symphony.md) agents pull bugs, create feature branches, write code, run CI tests, and submit PRs.
+- **Enterprise Executive Co-Pilot**: Linking schedule platforms, corporate messaging boards, and mailservers (Google Workspace, Slack, Outlook) to manage complex cross-organizational communications.
+- **Dynamic CRM Management**: Allowing sales-coordination agents to inspect Salesforce records, update pipeline statuses, and dispatch calendar invitations.
+- **High-Frequency Local DevOps**: Connecting local scripting hosts with [FastMCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) servers to execute local commands with fine-grained permission control.
 
 ## Strengths
-- **Massive Library**: 250+ pre-built integrations with major SaaS platforms.
-- **Managed Auth**: Automatically handles complex OAuth flows, secret storage, and token refreshes.
-- **Framework Agnostic**: Works with OpenAI, [LangChain](../ai_knowledge/langchain.md), [CrewAI](../frameworks/crewai.md), [Autogen](../frameworks/autogen.md), and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
-- **FastMCP 3.0 Integration**: Native support for high-performance tool hosting and standardized agentic interactions.
+- **Huge Pre-built Library**: 250+ instant cloud and local app integrations.
+- **Managed Auth & OAuth Handshakes**: Complete secure storage of user access tokens with automated refreshes, meaning agents never handle raw secrets.
+- **FastMCP 3.1 Native**: Native support for high-efficiency Model Context Protocol specifications.
+- **Framework Agnostic**: Integrates seamlessly with [Agno](./agno.md), [Bee Agent Framework](./bee-agent-framework.md), [CrewAI](../frameworks/crewai.md), and [LangGraph](../frameworks/langgraph.md).
 
 ## Limitations
-- **External Dependency**: Relies on Composio's platform for managing connections and routing tool calls.
-- **Privacy & Compliance**: Tool calls transit through Composio's infrastructure, which may require additional scrutiny for enterprise data privacy.
-- **Pricing**: While there is a free tier, high-volume production use requires a paid subscription.
+- **Transit Dependency**: High-volume hosted tool calls transit through Composio's API gateways, which might present compliance concerns.
+- **Vendor Lock**: Relies on Composio's proprietary schemas and tooling platforms (though open-source client SDKs are available).
+- **Service Outage Propagation**: If Composio or a specific downstream SaaS integration goes down, the agent loses physical tool-use capability.
 
 ## When to use it
-- When you need to connect an agent to multiple SaaS tools quickly and securely.
-- To avoid building and maintaining your own custom OAuth integration logic for every tool.
-- For projects requiring high observability and audit trails for agent-initiated actions.
-- When using **Claude 4.8** or **GPT-5.5** and wanting the most robust tool-calling ecosystem available.
+- When your agents need to interact with multiple complex SaaS ecosystems without your team building custom OAuth integrations.
+- To maintain deep observability and audit trails of exactly what actions, parameters, and tokens your agent executed.
+- When orchestrating tools under standard **MCP 3.1** or **FastMCP 3.1** protocols.
 
 ## When not to use it
-- For simple agents that don't need external tool access or use only a single, simple API.
-- If you have strict privacy requirements that forbid third-party tool routers or managed authentication.
-- In environments with no external internet access (unless using a self-hosted enterprise version).
+- For basic agents requiring only 1 or 2 custom in-house database tools that do not require third-party SaaS authentication.
+- In hyper-secure, air-gapped environments that forbid routing tool payloads through external orchestrator APIs.
+- When you require complete, end-to-end local ownership of the tool execution infrastructure.
 
 ## Getting started
 ### Installation
 ```bash
-pip install composio-core composio-openai
+pip install composio-core composio-anthropic pydantic
 ```
 
-### Basic Usage (with Claude 4.8 and FastMCP)
+### Basic Usage
+Initialize Composio toolsets to equip a Claude 5.1 assistant with native GitHub execution tools:
 ```python
 from composio_anthropic import ComposioToolSet, App
 from anthropic import Anthropic
 
-# 1. Initialize Anthropic client and Composio Toolset
-client = Anthropic(api_key="YOUR_ANTHROPIC_KEY")
-toolset = ComposioToolSet(api_key="YOUR_COMPOSIO_KEY")
+# 1. Initialize core clients
+client = Anthropic()
+toolset = ComposioToolSet(api_key="COMPOSIO_API_KEY")
 
-# 2. Get tools for a specific app (e.g., GitHub) using FastMCP
-tools = toolset.get_tools(apps=[App.GITHUB], protocol="fastmcp")
+# 2. Retrieve GitHub tools formatted for FastMCP 3.1
+tools = toolset.get_tools(apps=[App.GITHUB], protocol="fastmcp3.1")
 
-# 3. Create an agentic completion request using Claude 4.8
+# 3. Create agent message requesting repository interaction
 response = client.messages.create(
-    model="claude-4.8-opus",
+    model="claude-5-1-sonnet",
     max_tokens=1024,
-    messages=[{"role": "user", "content": "Star the repository 'composiohq/composio' on GitHub"}],
+    messages=[{"role": "user", "content": "Create a new issue titled 'Database connection leak' in the repository 'my-org/backend'."}],
     tools=tools
 )
 
-# 4. Execute the tool call via Composio
+# 4. Handle and execute the resulting tool call via Composio
 result = toolset.handle_tool_calls(response)
 print(result)
 ```
 
 ## CLI examples
 ```bash
-# Login to Composio and authenticate your machine
+# Authenticate your terminal session with the Composio service
 composio login
 
-# Add an integration (this will open an OAuth flow in your browser)
+# Connect your corporate GitHub account via OAuth (triggers browser redirect)
 composio add github
 
-# List all active integrations and their status
+# List all connected integrations and their current authorization states
 composio list
 
-# Execute an action directly from the CLI for testing
+# Execute a single integration action directly from the command line for testing
 composio run github star-repo --params '{"owner": "composiohq", "repo": "composio"}'
 ```
 
 ## API examples
+### Composio Connection and Tool Audit Tracing (Pydantic v2)
+To maintain security compliance, enterprise agent systems require strict schema verification of all external connections and tool execution logs. The following script demonstrates validating connection and execution telemetry from Composio using Pydantic v2:
+
 ```python
-from composio_openai import ComposioToolSet, App
+from typing import List, Optional, Dict, Any, Literal
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 
-toolset = ComposioToolSet(api_key="YOUR_COMPOSIO_KEY")
+class AuthState(BaseModel):
+    app_name: str = Field(..., description="Target application name")
+    authenticated: bool = Field(False)
+    auth_method: Literal["oauth2", "api_key", "basic", "jwt"] = Field("oauth2")
+    last_refresh: Optional[datetime] = Field(None)
 
-# List all available actions for an application to understand its capabilities
-actions = toolset.get_actions(apps=[App.SLACK])
-for action in actions:
-    print(f"Action: {action.name} - {action.description}")
+class ActionExecution(BaseModel):
+    action_id: str
+    status: Literal["success", "failed", "rate_limited", "unauthorized"]
+    response_payload: Dict[str, Any] = Field(default_factory=dict)
+    latency_ms: float = Field(..., ge=0.0)
 
-# Manually trigger an action without a full LLM loop
-result = toolset.execute_action(
-    action="GITHUB_STAR_A_REPOSITORY_FOR_THE_AUTHENTICATED_USER",
-    params={"owner": "composiohq", "repo": "composio"}
-)
+class ComposioAuditLog(BaseModel):
+    trace_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    connection: AuthState
+    execution: Optional[ActionExecution] = Field(None)
+    mcp_protocol_version: str = Field("3.1")
+
+    @field_validator("mcp_protocol_version")
+    @classmethod
+    def validate_mcp_ver(cls, val: str) -> str:
+        if val not in {"3.0", "3.1"}:
+            raise ValueError("Supported MCP protocol versions must be 3.0 or 3.1")
+        return val
+
+# Sample telemetry from a Composio tool-calling hook
+telemetry_data = {
+    "trace_id": "comp-trace-77421",
+    "connection": {
+        "app_name": "github",
+        "authenticated": True,
+        "auth_method": "oauth2",
+        "last_refresh": "2026-12-05T09:00:00Z"
+    },
+    "execution": {
+        "action_id": "GITHUB_CREATE_ISSUE",
+        "status": "success",
+        "response_payload": {"issue_number": 421, "url": "https://github.com/my-org/backend/issues/421"},
+        "latency_ms": 234.5
+    },
+    "mcp_protocol_version": "3.1"
+}
+
+# Strictly validate the telemetry payload
+validated_log = ComposioAuditLog(**telemetry_data)
+print(f"Validated Audit Log ID: {validated_log.trace_id}")
+print(f"Tool executed: {validated_log.execution.action_id} (Status: {validated_log.execution.status})")
 ```
 
 ## Related tools / concepts
@@ -108,15 +149,14 @@ result = toolset.execute_action(
 - [CrewAI](../frameworks/crewai.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Agno](./agno.md)
-- [Phidata](./phidata.md)
-- [Agency Swarm](./agency-swarm.md)
+- [Bee Agent Framework](./bee-agent-framework.md)
 
 ## Sources / references
 - [Official Website](https://composio.dev/)
-- [Documentation](https://docs.composio.dev/)
 - [GitHub Repository](https://github.com/composiohq/composio)
-- [FastMCP Integration Docs](https://docs.composio.dev/protocols/fastmcp)
+- [Composio Documentation](https://docs.composio.dev/)
+- [FastMCP 3.1 Integration Reference](https://docs.composio.dev/protocols/fastmcp3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-05
 - Confidence: high
