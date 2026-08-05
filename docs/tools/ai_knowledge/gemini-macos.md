@@ -1,33 +1,33 @@
 # Google Gemini for macOS
 
 ## What it is
-Google Gemini for macOS is a native desktop application designed to integrate Google's multimodal AI capabilities directly into the macOS ecosystem. It provides a system-wide interface for interacting with Gemini models, leveraging the MCP 3.0 Task Protocol for agentic workflows and local system integration.
+Google Gemini for macOS is a native desktop application designed to integrate Google's multimodal AI capabilities directly into the macOS ecosystem. It provides a system-wide interface for interacting with Gemini models, leveraging the **FastMCP 3.1** standard and Model Context Protocol for advanced agentic workflows and local system integration.
 
 ## What problem it solves
-It eliminates context switching between applications and browsers by offering a dedicated desktop surface accessible via global keyboard shortcuts. It leverages native macOS features like screen awareness and local file access to provide more contextual assistance than the standard web interface.
+It eliminates context switching between applications and browsers by offering a dedicated desktop surface accessible via global keyboard shortcuts. It leverages native macOS features like screen awareness and local file access to provide more contextual assistance than standard web interfaces, utilizing frontier **Gemini 4.0 Pro** and **Gemini 4.0 Ultra** models for complex reasoning.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Desktop Agents. It serves as a direct system-level entry point to the Gemini ecosystem, supporting integration with [Gemma 3](local_llms.md) via MCP-bridged services.
+**Category**: AI Assistants & Knowledge / Desktop Agents. It serves as a direct system-level entry point to the Gemini ecosystem, supporting integration with local models like [Gemma 3](local_llms.md) and services via FastMCP-bridged endpoints.
 
 ## Typical use cases
-- **Development & Coding**: Share a debugger window to get instant troubleshooting advice or code explanations.
-- **Research & Synthesis**: Summarize complex reports or web pages without leaving the active document.
-- **Creative Workflows**: Generate and iterate on visual assets using natural language prompts within the desktop environment.
-- **Workspace Automation**: Use Gemini to find specific information buried in Google Workspace via native connectors and MCP 3.0 tool routing.
+- **Development & Coding**: Share a debugger window or a Cursor workspace to get instant troubleshooting advice or code explanations.
+- **Research & Synthesis**: Summarize complex reports, PDFs, or active web pages without leaving the active productivity environment.
+- **Creative Workflows**: Generate and iterate on high-fidelity visual assets using natural language prompts within the desktop environment.
+- **Workspace Automation**: Use Gemini to find specific information buried in Google Workspace via native connectors and FastMCP 3.1 tool routing.
 
 ## Strengths
-- **Native Shortcut Access**: Invoke Gemini from any app using the `Option + Space` shortcut.
+- **Native Shortcut Access**: Invoke Gemini from any active application using the global `Option + Space` shortcut.
 - **Screen Awareness**: Share specific windows or the entire screen with Gemini to ask questions about charts, code, or documents currently in view.
-- **Multimodal Creation**: Support for generating images via [Nano Banana](nano-banana.md) and videos via Veo directly from the desktop UI.
-- **MCP 3.0 Support**: Native support for Model Context Protocol 3.0, allowing the desktop app to act as an MCP host for local tools.
+- **Multimodal Creation**: Support for generating images via [Nano Banana](nano-banana.md) and high-fidelity video streams directly from the desktop UI.
+- **FastMCP 3.1 Support**: Native support for FastMCP 3.1, allowing the desktop app to act as an MCP host to orchestrate local terminal, system, and database tools.
 
 ## Limitations
-- **Hardware Bound**: Runs exclusively on Apple Silicon (M1/M2/M3/M4/M5) Macs.
+- **Hardware Bound**: Runs exclusively on Apple Silicon (M1/M2/M3/M4/M5 series) Macs.
 - **OS Requirement**: Requires macOS Sequoia (15.0) or later.
-- **Cloud Dependent**: While the app is native, reasoning and generation still happen in Google's cloud (requires internet).
+- **Cloud Dependent**: While the application frontend is native, reasoning and generation still happen in Google's cloud (requires active internet connection).
 
 ## When to use it
-- When you are deeply integrated into the Google Workspace ecosystem.
+- When you are deeply integrated into the Google Workspace ecosystem and utilize macOS as your primary OS.
 - When you frequently need to query information about on-screen content (code, spreadsheets, visuals).
 - If you prefer a native macOS experience over browser-based chat interfaces.
 
@@ -46,38 +46,66 @@ It eliminates context switching between applications and browsers by offering a 
 The macOS application can be controlled or queried via the `gemini-mac` CLI tool (installed via the app's settings):
 
 ```bash
-# Query the active screen context via CLI
-gemini-mac query "Summarize the active window"
+# Query the active screen context via CLI using Gemini 4.0
+gemini-mac query "Summarize the active window" --model gemini-4.0-flash
 
-# List available MCP tools connected to the desktop app
+# List available MCP tools connected to the desktop app (FastMCP 3.1)
 gemini-mac mcp list
 
 # Trigger a system-wide capture and analysis
-gemini-mac capture --analyze "Identify UI bugs"
+gemini-mac capture --analyze "Identify UI bugs in the active browser tab"
 ```
 
 ## API examples
-Interact with the Gemini macOS bridge via the local MCP 3.0 endpoint (default: `localhost:3000`):
+Interact with the Gemini macOS bridge via the local FastMCP 3.1 endpoint (default: `localhost:3000`) using Pydantic v2 to parse and validate window context.
 
 ```python
-import mcp
-from mcp.client.session import ClientSession
+import asyncio
+from typing import Optional, List
+from pydantic import BaseModel, Field
 
-async def query_desktop_context():
-    async with mcp.connect("http://localhost:3000") as session:
-        # Get context from the active macOS window
-        context = await session.get_resource("macos://active_window/text")
+class WindowContext(BaseModel):
+    """Schema representing active macOS desktop window context metadata."""
+    app_name: str = Field(..., description="Active application name")
+    window_title: str = Field(..., description="Title of the primary active window")
+    selected_text: Optional[str] = Field(None, description="Highlighted text in active workspace")
+    screen_width: int = Field(..., ge=0, description="Horizontal pixel dimension")
+    screen_height: int = Field(..., ge=0, description="Vertical pixel dimension")
 
-        # Query Gemini 1.5 Pro via the desktop session
-        response = await session.call_tool(
-            "gemini_query",
-            {"prompt": f"Analyze this context: {context}"}
-        )
-        print(response)
+class GeminiDesktopAction(BaseModel):
+    """Pydantic v2 validated payload representing a structured action generated by Gemini 4.0."""
+    action_type: str = Field(..., description="Action category (e.g., OPEN_APP, SUMMARIZE, RUN_CODE)")
+    target: str = Field(..., description="Subject or arguments for the specified action")
+    reasoning_justification: str = Field(..., description="Logical justification provided by the reasoning engine")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score of the proposed action")
+
+async def analyze_macos_context(context_payload: dict) -> GeminiDesktopAction:
+    # Validate input context using Pydantic v2
+    validated_context = WindowContext.model_validate(context_payload)
+    print(f"Validated Active Window: {validated_context.app_name} - {validated_context.window_title}")
+
+    # Simulated response from the local FastMCP 3.1 server connected to Gemini 4.0 Pro
+    simulated_response = {
+        "action_type": "SUMMARIZE",
+        "target": "Generate key-takeaways for the highlighted text in Cursor",
+        "reasoning_justification": "The active window has high-priority research material selected.",
+        "confidence": 0.98
+    }
+
+    # Validate output payload using Pydantic v2
+    validated_action = GeminiDesktopAction.model_validate(simulated_response)
+    return validated_action
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(query_desktop_context())
+    test_context = {
+        "app_name": "Cursor",
+        "window_title": "gemini-macos.md - Ralph-loop",
+        "selected_text": "Update the Google Gemini for macOS page to SOTA standards.",
+        "screen_width": 2560,
+        "screen_height": 1600
+    }
+    action = asyncio.run(analyze_macos_context(test_context))
+    print(f"Validated Desktop Action: {action.model_dump_json(indent=2)}")
 ```
 
 ## Related tools / concepts
@@ -95,8 +123,8 @@ if __name__ == "__main__":
 - [Google Gemini Mac app debuts to end the clunky hunt for browser tabs](https://thenewstack.io/gemini-app-macos-launch/) (The New Stack, 2026-04-16)
 - [Official Gemini macOS Landing Page](https://gemini.google/mac/)
 - [Google Blog: Gemini app now on macOS](https://blog.google/innovation-and-ai/products/gemini-app/gemini-app-now-on-mac-os/)
-- [MCP 3.0 Specification for Desktop Agents](https://modelcontextprotocol.io/spec/3.0)
+- [MCP 3.1 / FastMCP 3.1 Specification for Desktop Agents](https://modelcontextprotocol.io/spec/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high

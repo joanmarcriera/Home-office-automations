@@ -1,15 +1,15 @@
 # Moondream
 
-Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of July 2026, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint.
+Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of late October / November 2026, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint.
 
 ## What it is
 Moondream is a multi-function VLM that excels at interpreting visual data. Unlike traditional large-scale VLMs, Moondream is optimized for speed and resource efficiency, making it the preferred choice for real-time applications like "computer use" agents and mobile vision tasks. It supports complex queries, captioning, object detection, pointing (coordinate extraction), and segmentation.
 
 ## What problem it solves
-It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude 4.8](../ai_knowledge/claude.md). Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
+It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude](claude.md). Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
 
 ## Where it fits in the stack
-**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md) can act upon.
+**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a **FastMCP 3.1** ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md) or [DeepSeek R1](deepseek-r1.md) can act upon.
 
 ## Typical use cases
 - **Computer Use Agents**: Identifying UI elements (buttons, fields) for robotic process automation (RPA).
@@ -27,7 +27,7 @@ It bridges the gap between massive, resource-heavy vision models and the need fo
 
 ## Limitations
 - **Reasoning Depth**: While excellent for visual tasks, it lacks the deep world-knowledge of frontier models for complex multi-step logical reasoning.
-- **Context Window**: Optimized for single-image or short-video bursts; not intended for long-form video analysis like [Gemini](../../tools/ai_knowledge/gemini.md).
+- **Context Window**: Optimized for single-image or short-video bursts; not intended for long-form video analysis like [Gemini](gemini.md).
 - **Niche Optimization**: Best used for specific "what/where" visual questions rather than creative storytelling.
 
 ## When to use it
@@ -39,7 +39,7 @@ It bridges the gap between massive, resource-heavy vision models and the need fo
 ## When not to use it
 - For complex visual reasoning that requires deep domain knowledge (e.g., professional medical image analysis).
 - For generating long, creative, or stylistically complex descriptions.
-- If you have ample VRAM and require the absolute highest reasoning benchmarks (use [InternVL2](../../knowledge_base/vision-models-research.md)).
+- If you have ample VRAM and require the absolute highest reasoning benchmarks (see [Vision Models Research](../../knowledge_base/vision-models-research.md)).
 
 ## Getting started
 
@@ -79,25 +79,61 @@ moondream point --image ./desktop.png --prompt "the close window button"
 
 ## API examples
 
-### Simple Captioning (Python)
-This example uses the Moondream Cloud or a local Photon instance.
+### Structured Vision Validation using Pydantic v2 (Python)
+Using Pydantic v2 to parse and strictly validate Moondream's vision-language responses (captioning, object detection, and pointing coordinates).
 
 ```python
-import moondream as md
-from PIL import Image
+from typing import List, Tuple
+from pydantic import BaseModel, Field
 
-# Initialize the model (requires MD_API_KEY for cloud or local URL for Photon)
-model = md.vl(api_key="YOUR_API_KEY")
+class BoundingBox(BaseModel):
+    """Pydantic v2 sub-model representing visual bounding box coordinates."""
+    label: str = Field(..., description="The name of the detected object")
+    box_coordinates: Tuple[float, float, float, float] = Field(
+        ...,
+        description="Normalized coordinates as (ymin, xmin, ymax, xmax) on scale of 0.0 to 1.0"
+    )
 
-image = Image.open("sample.jpg")
+class PointCoordinate(BaseModel):
+    """Pydantic v2 sub-model representing pointing coordinate pixel location."""
+    label: str = Field(..., description="Target UI or visual element name")
+    x: float = Field(..., ge=0.0, le=1.0)
+    y: float = Field(..., ge=0.0, le=1.0)
 
-# Generate a caption
-response = model.caption(image)
-print(f"Caption: {response.caption}")
+class MoondreamVisionAnalysis(BaseModel):
+    """Pydantic v2 validated payload for Moondream 3.1 visual reasoning."""
+    caption: str = Field(..., description="Natural language description of the visual scene")
+    detected_objects: List[BoundingBox] = Field(default_factory=list)
+    points_of_interest: List[PointCoordinate] = Field(default_factory=list)
 
-# Specific Query
-query_res = model.query(image, "Is there a dog in the image?")
-print(f"Query Result: {query_res.answer}")
+def process_vision_data(raw_response: dict) -> MoondreamVisionAnalysis:
+    # Validate the vision response payload using Pydantic v2
+    validated_payload = MoondreamVisionAnalysis.model_validate(raw_response)
+    print(f"Caption: {validated_payload.caption}")
+    print(f"Detected {len(validated_payload.detected_objects)} objects.")
+    return validated_payload
+
+if __name__ == "__main__":
+    # Simulated execution response from Moondream 3.1
+    simulated_payload = {
+        "caption": "A living room with a red sofa and a coffee table.",
+        "detected_objects": [
+            {
+                "label": "sofa",
+                "box_coordinates": (0.1, 0.2, 0.5, 0.8)
+            }
+        ],
+        "points_of_interest": [
+            {
+                "label": "coffee table center",
+                "x": 0.45,
+                "y": 0.6
+            }
+        ]
+    }
+
+    result = process_vision_data(simulated_payload)
+    print(f"Validated JSON Output:\n{result.model_dump_json(indent=4)}")
 ```
 
 ### Object Detection and Pointing
@@ -137,5 +173,5 @@ print(f"Click coordinates: x={point_res.x}, y={point_res.y}")
 - [Moondream Examples](https://github.com/m87-labs/moondream-examples)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high

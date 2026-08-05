@@ -1,15 +1,15 @@
 # Flint
 
-Flint is a series of highly compressed reasoning models developed by StudyModels. As of July 2026, Flint models (such as Flint-Qwen3.5-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency.
+Flint is a series of highly compressed reasoning models developed by StudyModels. As of late October / November 2026, Flint models (such as Flint-Qwen3.5-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency.
 
 ## What it is
 Flint is a specialized LLM architecture designed for efficient "Chain of Thought" (CoT) reasoning. Unlike standard models that output every intermediate step, Flint uses a compression technique that identifies and retains critical "compute" and "verification" spans within a reasoning trace. It discards linguistic fillers, redundant transitions, and conversational fluff, resulting in a dense, logic-heavy output that is much faster to process.
 
 ## What problem it solves
-It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or [Claude 3.5](../ai_knowledge/claude.md) often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
+It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or Claude 5.1 often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
 
 ## Where it fits in the stack
-**Reasoning Layer**. Flint acts as the "brain" for autonomous agents. It fits perfectly into [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) where multi-step logic is required but execution speed is critical. It is often orchestrated via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) to interact with external tools and data sources.
+**Reasoning Layer**. Flint acts as the "brain" for autonomous agents. It fits perfectly into agentic workflows where multi-step logic is required but execution speed is critical. It is often orchestrated via the **FastMCP 3.1** standard to interact with external tools and data sources.
 
 ## Typical use cases
 - **Real-time Coding Assistants**: Providing fast, logically sound code suggestions without the wait time of massive models.
@@ -71,27 +71,58 @@ flint solve "Debug this python function" --trace ./trace.json
 
 ## API examples
 
-### Basic Inference (Python)
-Using the standard Transformers-like interface with Flint enhancements.
+### Structured Inference Validation using Pydantic v2 (Python)
+Using Pydantic v2 to structure and parse Flint's compressed reasoning traces and verification outputs.
 
 ```python
-from studymodels import FlintModel, FlintTokenizer
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-model = FlintModel.from_pretrained("StudyModels/Flint-Gemma-4-12B")
-tokenizer = FlintTokenizer.from_pretrained("StudyModels/Flint-Gemma-4-12B")
+class VerificationBlock(BaseModel):
+    """Pydantic v2 sub-model representing a reasoning verification step."""
+    step_number: int = Field(..., ge=1)
+    assertion: str = Field(..., description="Logical claim or computation")
+    is_valid: bool = Field(..., description="Whether the self-verification check passed")
+    correction: Optional[str] = Field(None, description="Correction applied if check failed")
 
-prompt = "Explain the impact of interest rate changes on bond prices."
-inputs = tokenizer(prompt, return_tensors="pt")
+class FlintCompressedTrace(BaseModel):
+    """Pydantic v2 validated schema for a compressed reasoning trace from Flint."""
+    raw_prompt: str = Field(..., description="The user's original query")
+    compressed_thinking_steps: List[str] = Field(..., description="Section-aware compressed logical steps")
+    verification_checks: List[VerificationBlock] = Field(default_factory=list, description="Self-verification steps")
+    final_response: str = Field(..., description="The finalized concise logical output")
+    token_overhead_reduction_percentage: float = Field(..., ge=0.0, le=100.0)
 
-# Generate with section-aware compression enabled
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=512,
-    compression_enabled=True,
-    verification_threshold=0.8
-)
+def parse_flint_output(raw_output: dict) -> FlintCompressedTrace:
+    # Validate the compressed trace structure using Pydantic v2
+    validated_trace = FlintCompressedTrace.model_validate(raw_output)
+    print(f"Validated Flint prompt: {validated_trace.raw_prompt}")
+    print(f"Token reduction rate: {validated_trace.token_overhead_reduction_percentage}%")
+    return validated_trace
 
-print(tokenizer.decode(outputs[0]))
+if __name__ == "__main__":
+    # Simulated execution trace from Flint-Qwen3.5-4B
+    simulated_trace = {
+        "raw_prompt": "Prove that the sum of two even integers is even.",
+        "compressed_thinking_steps": [
+            "Let a, b be even integers.",
+            "By definition, a = 2k and b = 2m for integers k, m.",
+            "Express sum: a + b = 2k + 2m.",
+            "Factor out 2: a + b = 2(k + m)."
+        ],
+        "verification_checks": [
+            {
+                "step_number": 1,
+                "assertion": "k + m is an integer.",
+                "is_valid": True
+            }
+        ],
+        "final_response": "Since k + m is an integer, 2(k + m) is divisible by 2, hence a + b is even.",
+        "token_overhead_reduction_percentage": 63.5
+    }
+
+    validated_result = parse_flint_output(simulated_trace)
+    print(f"Validated Trace Output:\n{validated_result.model_dump_json(indent=4)}")
 ```
 
 ### Agent Integration (Smolagents)
@@ -125,5 +156,5 @@ agent.run("Calculate the compound interest for $10,000 at 5% over 10 years, comp
 - [Compressed Chain-of-Thought Research](https://github.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high

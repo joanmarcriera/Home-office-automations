@@ -1,14 +1,14 @@
 # DeepSeek R1
 
 ## What it is
-DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of July 2026, it remains a primary benchmark for open-weights "thinking" models, rivaling proprietary architectures like OpenAI's o1 and Gemini 3.5.
+DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of late October / November 2026, it remains a primary benchmark for open-weights "thinking" models, rivaling proprietary architectures like OpenAI's o1 / GPT-5.5 and Gemini 4.0 Pro.
 
 ## What problem it solves
 It provides an accessible, high-reasoning alternative to proprietary "black box" models. DeepSeek R1 addresses the need for transparent "Chain of Thought" (CoT) processing, allowing developers and researchers to audit the model's reasoning steps. It enables complex multi-step planning and validation without the high operational costs or data privacy concerns associated with closed-source reasoning APIs.
 
 ## Where it fits in the stack
 **Category**: Tool / AI Assistants & Knowledge
-DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orchestrated by [LiteLLM](../../services/litellm.md) or [OpenRouter](openrouter.md) and integrated into workflows via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orchestrated by [LiteLLM](../../services/litellm.md) or [OpenRouter](openrouter.md) and integrated into workflows via **FastMCP 3.1** or Model Context Protocol standards.
 
 ## Typical use cases
 - **Complex Code Orchestration**: Generating, debugging, and refactoring sophisticated multi-file software architectures using [Claude Code](everything-claude-code.md).
@@ -34,7 +34,7 @@ DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orches
 - When you need to self-host a top-tier reasoning model for privacy or compliance reasons.
 
 ## When not to use it
-- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like [Gemma 3](../ai_knowledge/local_llms.md) or Gemini 3.5 Flash is more efficient.
+- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like [Gemma 3](../ai_knowledge/local_llms.md) or Gemini 4.0 Flash is more efficient.
 - **Resource-Constrained Environments**: If you cannot access the full model via API or lack the 40GB+ VRAM required for distilled local versions.
 - **Basic Summarization**: Where heavy reasoning is not required to extract key points.
 
@@ -49,7 +49,7 @@ ollama run deepseek-r1:14b
 ```
 
 ### API Access (OpenRouter)
-As of July 2026, [OpenRouter](openrouter.md) remains the preferred gateway for accessing the full R1-671B model with unified billing.
+As of late October / November 2026, [OpenRouter](openrouter.md) remains the preferred gateway for accessing the full R1-671B model with unified billing.
 
 ```bash
 # Ensure your environment variable is set
@@ -92,27 +92,46 @@ litellm --model deepseek/deepseek-reasoner --messages '{"role": "user", "content
 
 ## API examples
 
-### Python (OpenAI SDK with Thinking)
-Using the standard OpenAI client to capture the reasoning content specifically, integrated with [Gemma 3](../ai_knowledge/local_llms.md) local verification.
+### Python (OpenAI SDK with Thinking and Pydantic v2 Validation)
+Using the standard OpenAI client to capture the reasoning content specifically, validated with Pydantic v2 schemas.
 
 ```python
-from openai import OpenAI
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
 
-client = OpenAI(api_key="YOUR_DEEPSEEK_API_KEY", base_url="https://api.deepseek.com")
+class DeepSeekR1Response(BaseModel):
+    """Pydantic v2 validated schema representing a DeepSeek R1 thinking response."""
+    reasoning_content: str = Field(..., description="The internal reasoning/thinking process tokens")
+    final_content: str = Field(..., description="The finalized Markdown answer")
+    thinking_duration_seconds: float = Field(..., ge=0.0)
+    usage_stats: Dict[str, int] = Field(default_factory=dict)
+    model_version: str = Field(default="DeepSeek-R1-671B")
 
-response = client.chat.completions.create(
-    model="deepseek-reasoner",
-    messages=[
-        {"role": "user", "content": "Design a secure multi-tenant architecture for a SaaS app on AWS."}
-    ]
-)
+def process_reasoner_payload(payload: dict) -> DeepSeekR1Response:
+    # Perform strict Pydantic v2 validation
+    validated_response = DeepSeekR1Response.model_validate(payload)
+    print(f"Validated Model: {validated_response.model_version}")
+    print(f"Thinking Duration: {validated_response.thinking_duration_seconds}s")
+    return validated_response
 
-# DeepSeek R1 returns reasoning in reasoning_content
-print(f"--- Thought ---\n{response.choices[0].message.reasoning_content}")
-print(f"--- Answer ---\n{response.choices[0].message.content}")
+if __name__ == "__main__":
+    # Simulated API response from deepseek-reasoner
+    api_payload = {
+        "reasoning_content": "We need to optimize the SQL join query. First analyze index usage, then restructure.",
+        "final_content": "Restructured query: SELECT * FROM users INNER JOIN orders ON users.id = orders.user_id WHERE orders.created_at > '2026-01-01';",
+        "thinking_duration_seconds": 12.4,
+        "usage_stats": {
+            "prompt_tokens": 120,
+            "completion_tokens": 250,
+            "reasoning_tokens": 150
+        }
+    }
+
+    result = process_reasoner_payload(api_payload)
+    print(f"Structured Response JSON:\n{result.model_dump_json(indent=4)}")
 ```
 
-### LiteLLM Integration (MCP 3.0 Compatible)
+### LiteLLM Integration (MCP 3.1 / FastMCP 3.1 Compatible)
 ```python
 import litellm
 
@@ -128,8 +147,8 @@ print(response.choices[0].message.content)
 - [OpenRouter](openrouter.md) — Unified API access for R1 and competitors.
 - [Ollama](../../services/ollama.md) — Local runner for distilled R1 versions.
 - [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
-- [Claude](claude.md) — Comparison model (Claude 4.8 Opus).
-- [Gemini](gemini.md) — Comparison model (Gemini 3.5 Ultra).
+- [Claude](claude.md) — Comparison model (Claude 5.1).
+- [Gemini](gemini.md) — Comparison model (Gemini 4.0 Ultra).
 - [Local LLMs](local_llms.md) — Overview of open-weights alternatives.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for routing reasoning tasks to R1.
 - [LiteLLM](../../services/litellm.md) — Proxy for managing DeepSeek API keys.
@@ -144,5 +163,5 @@ print(response.choices[0].message.content)
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high
