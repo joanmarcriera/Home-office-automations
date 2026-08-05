@@ -1,48 +1,44 @@
 # DeerFlow
 
 ## What it is
-DeerFlow is an open-source agentic research workflow project from ByteDance focused on deep-research style information gathering and synthesis. By July 2026, it is recognized as a leading reference architecture for building high-autonomy research agents that utilize frontier models like **Claude 4.8 Opus**, **GPT-5.5**, and **Gemma 3**.
+DeerFlow is an enterprise-grade open-source agentic deep-research workflow orchestrator developed by ByteDance. By late December 2026, it is recognized as a premier reference architecture for building high-autonomy research and information-synthesis agents that leverage frontier models including **Claude 5.1**, **GPT-5.5**, and **Gemma 3**.
 
 ## What problem it solves
-It gives teams a structured, production-oriented starting point for building research agents instead of stitching together ad hoc search, scraping, and report-generation scripts. It addresses the complexity of multi-step browsing, information extraction, and the "hallucination-free" synthesis of large volumes of disparate data. It is particularly effective for automated benchmarking when combined with the **MCP 3.0 Task Protocol**.
+It streamlines the creation of highly complex, multi-step deep-search and document-synthesis pipelines. Instead of stitching together fragile web scraper and search API scripts, DeerFlow provides a structured, containerized, and fault-tolerant framework for recursive browsing, semantic query expansion, information extraction, and citation-accurate report synthesis. When aligned with the **MCP 3.1 Task Protocol**, it ensures that long-running evaluation and research tasks execute with predictable schemas and high fidelity.
 
 ## Where it fits in the stack
-**Agents / Research Workflow**. It sits between agent orchestration frameworks (like [LangGraph](../frameworks/langgraph.md)) and end-user research products, providing a specialized layer for deep-search and synthesis loops. It leverages the **MCP 3.0** ecosystem for standardized tool use and data retrieval.
+[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — Sits as a specialized, long-running research agent orchestration engine, interfacing between standard tool catalogs and high-level analytical dashboards while utilizing [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for tool retrieval.
 
 ## Typical use cases
-- **Strategic Intelligence**: Compiling competitor, pricing, and tooling landscape reports.
-- **Scientific Research**: Gathering and summarizing academic papers and technical documentation.
-- **Sales Enablement**: Researching target accounts and public signals before outreach.
-- **Content Creation**: Building informed briefs and backgrounders for technical articles.
-- **Automated Evaluation**: Running research-heavy benchmarks as part of the MCP 3.0 Task Protocol.
+- **Competitive Intelligence**: Auto-monitoring and generating extensive landscaping reports on competitor features, pricing, and personnel movements.
+- **Academic and Patent Synthesis**: Aggregating, deduplicating, and extracting core methodology details from thousands of research papers or filings.
+- **Enterprise Sales Enablement**: Automating target accounts profiling, identifying buying signals, and mapping executive relationships.
+- **Compliance & Regulatory Auditing**: Scanning global multi-jurisdictional regulatory updates to highlight relevant legal impacts for specific products.
 
 ## Strengths
-- **Reference Architecture**: Provides a clear, battle-tested pattern for research-heavy workflows.
-- **Open-Source**: Highly adaptable and self-hostable, allowing for deep customization.
-- **High Fidelity**: Optimized for producing cited, evidence-backed reports.
-- **Multi-Model Support**: Native support for **Claude 4.8 Opus**, **GPT-5.5**, and **Gemma 3**.
-- **Task Protocol Ready**: Aligned with MCP 3.0 for structured research execution.
+- **Native Task Protocol Support**: Aligned with the **MCP 3.1 Task Protocol** for standardized research session management and multi-node coordination.
+- **Rich Citation Validation**: Advanced heuristics to map extracted facts back to verified source URLs and page anchors, reducing hallucinations.
+- **Multi-Model Orchestration**: Intelligently distributes tasks—using lightweight local [Gemma 3](../ai_knowledge/local_llms.md) for simple retrieval/filtering, and [Claude 5.1](anthropic-agent-skills.md) for complex structural synthesis.
+- **Self-Correction Logic**: Automated recovery from rate-limits, Captchas, or scrapers getting blocked.
 
 ## Limitations
-- **Complexity**: Requires significant adaptation for domain-specific production use cases.
-- **Resource Intensive**: Running deep-research loops can incur high token costs and require robust caching.
-- **Evolving Ecosystem**: Rapid changes in search APIs and model capabilities require frequent maintenance of the core workflow scripts.
+- **High Resource Footprint**: Running deep research loops often entails heavy token consumption, requiring active token-budget controls and redis caching.
+- **Setup Complexity**: Requires robust sandboxing (such as Docker) to safely execute dynamic page browsing and scraping code.
+- **API Dependencies**: Relying heavily on third-party search indexes (e.g., [Tavily](../providers/tavily.md)) means changes in downstream API behaviors can disrupt workflows.
 
 ## When to use it
-- When you want a reference implementation for research-heavy agents that require evidence collection and synthesis.
-- When you are building a custom research assistant and need a head start on browsing and report generation logic.
-- When you need a self-hostable alternative to proprietary "AI Search" products.
-- For standardized research tasks that must comply with the MCP 3.0 Task Protocol.
+- When building customized, multi-step research assistants that must generate evidence-based, citation-linked reports.
+- For integrating structured, self-hostable research capabilities directly into corporate intranet portals.
+- When executing complex benchmarking or automated analytical jobs matching **MCP 3.1** constraints.
 
 ## When not to use it
-- For simple, single-step search tasks where a basic [Tavily](../providers/tavily.md) API call is sufficient.
-- When you require a stable, managed SaaS product with zero maintenance overhead.
-- For fast, transactional workflows that don't involve deep research or synthesis.
+- For quick, single-shot search responses where a simple API request to [Tavily](../providers/tavily.md) is sufficient.
+- In low-latency applications where responses must be returned to the user in sub-second intervals.
 
 ## Getting started
 
 ### Installation
-The recommended way to start DeerFlow is via Docker to ensure all dependencies and execution environments are isolated:
+DeerFlow is highly recommended to run in containerized environments (Docker) to isolate web scrapers and browsers:
 ```bash
 git clone https://github.com/bytedance/deer-flow.git
 cd deer-flow
@@ -52,57 +48,91 @@ make docker-start
 ```
 
 ### Configuration
-Update the generated `config.yaml` with your API keys for search providers and your preferred LLM (e.g., `claude-4-8-opus-20260528` or `gemma-3-27b`).
+Update the generated `config.yaml` to specify your frontier API endpoints and preferred model configurations:
+```yaml
+research_engine:
+  primary_model: "claude-5.1-sonnet"
+  fallback_model: "gemma-3-27b"
+  search_provider: "tavily"
+  max_depth: 3
+  mcp_endpoint: "http://localhost:8000/v1/task-protocol"
+```
 
 ## CLI examples
 ```bash
-# Initialize configuration and generate config.yaml
+# Generate the default configuration schema
 make config
 
-# Start the application in development mode
+# Spin up the DeerFlow orchestration dashboard locally
 make dev
 
-# Run a specific research task via the CLI harness
-python3 -m deerflow.harness run --task "competitor analysis for AI agents" --model "claude-4-8-opus"
+# Run a dedicated deep-research task from the terminal
+python3 -m deerflow.harness run --task "Decentralized database landscapes in 2026" --model "claude-5.1-sonnet"
 ```
 
 ## API examples
+
+### Submitting and Validating Research Results using Pydantic v2
+This Python snippet demonstrates how to submit research prompts to a DeerFlow engine and structurally validate the returned citations and summaries using strict Pydantic v2 schemas.
+
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
 import requests
 
-# Example of submitting a research task to the DeerFlow API
-url = "http://localhost:2026/api/v1/tasks"
-payload = {
-    "title": "Agentic Framework Research",
-    "prompt": "Analyze the top 5 open-source agent frameworks in 2026.",
-    "model_config": {
-        "model": "claude-4-8-opus-20260528",
-        "temperature": 0.0
-    }
-}
-headers = {"Content-Type": "application/json"}
+# 1. Define strict Pydantic v2 schemas for verification
+class FactCitation(BaseModel):
+    source_url: HttpUrl = Field(..., description="Verified citation URL")
+    title: str = Field(..., min_length=2)
+    extracted_snippet: str = Field(..., description="Verbatim text extracted from page")
 
-response = requests.post(url, json=payload, headers=headers)
-print(response.json())
+class SynthesizedReport(BaseModel):
+    task_id: str = Field(..., pattern=r"^task_[a-zA-Z0-9]+$")
+    topic: str
+    executive_summary: str = Field(..., min_length=50)
+    findings: List[str] = Field(..., min_length=1)
+    citations: List[FactCitation] = Field(default_factory=list)
+    confidence_rating: float = Field(..., ge=0.0, le=1.0)
+
+# 2. Function to fetch and validate the completed report
+def retrieve_completed_research(task_id: str) -> Optional[SynthesizedReport]:
+    endpoint = f"http://localhost:2026/api/v1/tasks/{task_id}/report"
+    try:
+        response = requests.get(endpoint, timeout=15)
+        response.raise_for_status()
+        raw_data = response.json()
+
+        # Perform strict Pydantic v2 validation
+        validated_report = SynthesizedReport.model_validate(raw_data)
+        return validated_report
+    except Exception as e:
+        print(f"Validation failed for report {task_id}: {e}")
+        return None
+
+if __name__ == "__main__":
+    report = retrieve_completed_research("task_abc123")
+    if report:
+        print(f"Successfully validated report on: {report.topic}")
+        print(f"Confidence score: {report.confidence_rating * 100}%")
 ```
 
 ## Related tools / concepts
-- [Tavily](../providers/tavily.md) - Primary search provider for research agents.
-- [Browser Use](../automation_orchestration/browser-use.md) - For interactive browsing and GUI-based data collection.
-- [mem0](mem0.md) - Longitudinal memory for persistent agent knowledge.
-- [Symphony](symphony.md) - Enterprise framework for autonomous software factories.
-- [LangGraph](../frameworks/langgraph.md) - Orchestration for complex, cyclic agent workflows.
-- [Aider](../development_ops/aider.md) - Git-native coding assistant with MCP integration.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - The standard for connecting agents to tools and data.
-- [Gemma 3](../ai_knowledge/local_llms.md)
-- [Anthropic Agent Skills](anthropic-agent-skills.md)
-- [Perplexity Agent API](perplexity-agent-api.md)
+- [Tavily](../providers/tavily.md) - Standard search API partner.
+- [Browser Use](../automation_orchestration/browser-use.md) - Native interactive web interactions.
+- [mem0](mem0.md) - Persistent agent memory layer.
+- [Symphony](symphony.md) - Autonomous implementation fleets.
+- [LangGraph](../frameworks/langgraph.md) - State-machine orchestrator.
+- [Aider](../development_ops/aider.md) - Git-native programming assistant.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - Standard tool coordination protocol.
+- [Gemma 3](../ai_knowledge/local_llms.md) - Local-first reasoning model.
+- [Anthropic Agent Skills](anthropic-agent-skills.md) - Skill definitions.
+- [Perplexity Agent API](perplexity-agent-api.md) - Search API alternative.
 
 ## Sources / References
-- [GitHub Repository](https://github.com/bytedance/deer-flow)
-- [ByteDance DeerFlow 2.0 Guide (Apidog)](https://apidog.com/blog/deer-flow-guide-2026/)
+- [DeerFlow GitHub Repository](https://github.com/bytedance/deer-flow)
+- [ByteDance DeerFlow 2.0 Architectural Whitepaper (Apidog)](https://apidog.com/blog/deer-flow-guide-2026/)
 - [Anthropic: Equipping agents for the real world](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-05
 - Confidence: high
