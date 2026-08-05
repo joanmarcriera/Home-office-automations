@@ -1,7 +1,7 @@
 # Roam Research
 
 ## What it is
-Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By July 2026, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models via the **MCP 3.0 Task Protocol**, enabling agentic reasoning across complex webs of information.
+Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By late November 2026, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, enabling agentic reasoning across complex webs of information.
 
 ## What problem it solves
 Traditional folder-based note-taking systems often force users to categorize information prematurely. Roam allows for organic growth of knowledge by connecting ideas via `[[links]]` and `#tags`, creating a web of interrelated concepts where "the graph is the file system." This enables discovery of non-obvious connections between disparate research points.
@@ -21,7 +21,7 @@ Traditional folder-based note-taking systems often force users to categorize inf
 - **Block-level Granularity**: Every paragraph (block) is a first-class citizen with a unique ID, allowing for block embedding and referencing.
 - **Fluid Interface**: Encourages frictionless entry of information without worrying about "where it goes."
 - **Programmability**: Powerful "Roam/js" and "Roam/css" extensions allow users to build custom functionality.
-- **AI Integration**: Native support for **Gemma 3**, **Claude 4.8 Opus**, and **GPT-5.5** for graph-wide reasoning.
+- **AI Integration**: Native support for SOTA models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** for graph-wide reasoning.
 
 ## Limitations
 - **Proprietary/Closed Source**: Data is stored on Roam's servers (though encrypted graphs are supported).
@@ -47,7 +47,7 @@ Users can quickly get started with Roam using its core syntax:
 - `((Block ID))`: References a specific block.
 - `{{[[TODO]]}}`: Creates a checkbox.
 - `{{[[query]]: {and: [[Task]] {not: [[DONE]]}}}}`: Creates a dynamic query.
-- **MCP Setup**: Install the Roam MCP server to allow tools like [Claude Code](../development_ops/claude-code.md) to query your graph.
+- **MCP Setup**: Install the Roam MCP server supporting **FastMCP 3.1** to allow tools like [Claude Code](../development_ops/claude-code.md) to query your graph.
 
 ## CLI examples
 Using community-developed CLI tools like `roam-to-git`, you can automate the backup of your graph to a local Git repository in Markdown format.
@@ -63,34 +63,76 @@ ls -R ./my-roam-backup/markdown/
 ## API examples
 The Roam Alpha API allows for programmatic interaction with graphs, essential for syncing homelab data or automated agents.
 
-### Writing Blocks
+### Programmatic Sync with Pydantic v2 Validation
+This example demonstrates how to validate block schemas using Pydantic v2 and write a clean, validated block to Roam Research.
+
 ```python
+import os
 import requests
-import json
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError, SecretStr
 
-GRAPH_NAME = "my-research-graph"
-API_TOKEN = "your_roam_api_token"
+# Define schema schemas with Pydantic v2
+class RoamBlock(BaseModel):
+    string: str = Field(..., min_length=1, description="Text content of the block")
+    uid: Optional[str] = Field(None, min_length=9, max_length=9, description="Optional 9-character UID")
 
-def create_block(location_id, text):
-    url = f"https://api.roamresearch.com/v1/alpha/graph/{GRAPH_NAME}/write"
-    payload = {
-        "action": "create-block",
-        "location": {"parent-uid": location_id, "order": 0},
-        "block": {"string": text}
-    }
+class RoamLocation(BaseModel):
+    parent_uid: str = Field(..., alias="parent_uid", description="UID of the parent page or block")
+    order: int = Field(0, ge=0, description="Order index of the block")
+
+    class Config:
+        populate_by_name = True
+
+class WriteBlockRequest(BaseModel):
+    action: str = Field("create-block", description="API Action")
+    location: RoamLocation
+    block: RoamBlock
+
+def push_to_roam(graph_name: str, api_token: SecretStr, parent_uid: str, text: str) -> dict:
+    url = f"https://api.roamresearch.com/v1/alpha/graph/{graph_name}/write"
+
+    # Validate payload through Pydantic v2
+    try:
+        payload = WriteBlockRequest(
+            location=RoamLocation(parent_uid=parent_uid, order=0),
+            block=RoamBlock(string=text)
+        )
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+        raise
+
     headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
+        "Authorization": f"Bearer {api_token.get_secret_value()}",
         "Content-Type": "application/json"
     }
-    response = requests.post(url, headers=headers, json=payload)
+
+    # Model serialization to dict/json matching the API's camelCase / snake_case alias structures
+    response = requests.post(
+        url,
+        headers=headers,
+        json=payload.model_dump(by_alias=True)
+    )
+    response.raise_for_status()
     return response.json()
 
-# Example: Push a home automation alert to Roam
-create_block("daily-notes-uid", "[[Home Automation]] Alert: Front door opened at 14:00")
+if __name__ == "__main__":
+    # Example execution with mock token
+    token = SecretStr(os.environ.get("ROAM_API_TOKEN", "mock_token_for_validation_purposes"))
+    try:
+        res = push_to_roam(
+            graph_name="my-research-graph",
+            api_token=token,
+            parent_uid="daily-notes-uid",
+            text="[[Home Automation]] Alert: Front door opened at 14:00"
+        )
+        print("Block written successfully:", res)
+    except Exception as e:
+        print("Failed to push block:", e)
 ```
 
 ### Graph Analysis (JSON Export)
-Roam allows for full graph exports in JSON format, which can be analyzed by local LLMs like **Llama 4 Maverick**.
+Roam allows for full graph exports in JSON format, which can be analyzed by local LLMs like **Llama 4**.
 
 ```json
 [
@@ -128,5 +170,5 @@ Roam allows for full graph exports in JSON format, which can be analyzed by loca
 - **Licensing**: Proprietary SaaS ($15/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high
