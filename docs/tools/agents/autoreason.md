@@ -1,7 +1,7 @@
 # AutoReason
 
 ## What it is
-AutoReason (v2026.7.x+, July 2026) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) and [Gemma 3](../ai_knowledge/local_llms.md) to compete with proprietary reasoning models like the O4 series.
+AutoReason (v2026.11.x+, late November 2026) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) and [Gemma 3](../ai_knowledge/local_llms.md) to compete with proprietary reasoning models like the O4 and Gemini 4.0 series.
 
 ## What problem it solves
 It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate large "search spaces" in complex logic, mathematics, or code problems where the first answer is rarely the correct one, effectively reducing hallucinations through automated self-critique.
@@ -17,7 +17,7 @@ It addresses the limitations of standard chain-of-thought prompting by providing
 - **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models like [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## Strengths
-- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it via the **MCP 3.0 Task Protocol**.
+- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it via the **MCP 3.1 Task Protocol**.
 - **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek, [Gemma 3](../ai_knowledge/local_llms.md)).
 - **Structured Trace**: Provides a complete, auditable log of every reasoning step and correction.
 - **Flexibility**: Can be integrated with any Python-based verification tool or MCP-enabled service.
@@ -63,6 +63,8 @@ python -m autoreason.mcp_server --port 18795
 ```
 
 ## API examples
+
+### Example: Basic Reasoner Setup
 ```python
 from autoreason import Reasoner
 
@@ -71,13 +73,72 @@ reasoner = Reasoner(
     model="nous-hermes-3-llama-3.1-70b",
     verifier="python_interpreter"
 )
+```
 
-# Solve a complex causal reasoning task
-result = reasoner.solve("Simulate the impact of a 2% interest rate hike on the housing market.")
+### Example: Pydantic v2 Reasoning Trace and Validation Schema
+In rigorous automated self-critique workflows, AutoReason utilizes structured JSON schemas to trace, score, and correct intermediate steps. This program demonstrates validating this multi-hop reasoning sequence via **Pydantic v2**.
 
-# Access the final answer and the iterative reasoning trace
-print(f"Final Answer: {result.final_answer}")
-print(f"Total Iterations: {len(result.iterations)}")
+```python
+import sys
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field, field_validator
+
+# Define Pydantic v2 structures for reasoning hops
+class ReasoningHop(BaseModel):
+    hop_id: int = Field(..., description="Sequential index of the reasoning step")
+    hypothesis: str = Field(..., description="Actionable hypothesis or mathematical step")
+    evidence: str = Field(..., description="Grounded logic or execution outputs supporting this hop")
+    status: Literal["SUCCESS", "FAILED", "INCONCLUSIVE"]
+
+class ReasoningTrace(BaseModel):
+    task: str = Field(..., description="The high-level prompt or problem to solve")
+    hops: List[ReasoningHop]
+    final_solution: Optional[str] = Field(None, description="The validated solution path")
+    total_tokens_consumed: int = Field(..., gt=0)
+
+    @field_validator('hops')
+    @classmethod
+    def check_sequential_integrity(cls, hops_list: List[ReasoningHop]) -> List[ReasoningHop]:
+        # Validate that hops are sequential without jumps
+        for i, hop in enumerate(hops_list):
+            if hop.hop_id != i + 1:
+                raise ValueError(f"Reasoning hops must be strictly sequential (expected hop_id {i + 1}, got {hop.hop_id}).")
+        return hops_list
+
+def validate_reasoning_trace(raw_trace: dict) -> None:
+    try:
+        validated_trace = ReasoningTrace.model_validate(raw_trace)
+        print(f"Reasoning trace validated successfully for task: '{validated_trace.task}'")
+        print(f"Total Hops Checked: {len(validated_trace.hops)}")
+        print(f"Final Solution Validated: {validated_trace.final_solution is not None}")
+    except Exception as e:
+        print(f"Reasoning trace validation error: {e}", file=sys.stderr)
+
+if __name__ == "__main__":
+    print("Initializing AutoReason structured trace validation (Pydantic v2)...")
+
+    # Mock data representing a verified self-correction trace
+    mock_trace_payload = {
+        "task": "Find the runtime bug in search routing algorithm",
+        "hops": [
+            {
+                "hop_id": 1,
+                "hypothesis": "Checking if division by zero occurs in weighted distance calculation.",
+                "evidence": "Executed distance_calc with zero-distance node. Program threw ZeroDivisionError.",
+                "status": "FAILED"
+            },
+            {
+                "hop_id": 2,
+                "hypothesis": "Introduce a epsilon-guard check before performing division in routing.",
+                "evidence": "Applied fix and re-ran distance_calc. ZeroDivisionError successfully bypassed.",
+                "status": "SUCCESS"
+            }
+        ],
+        "final_solution": "Injected small epsilon float constant to distance denominator.",
+        "total_tokens_consumed": 2450
+    }
+
+    validate_reasoning_trace(mock_trace_payload)
 ```
 
 ## Related tools / concepts
@@ -96,5 +157,5 @@ print(f"Total Iterations: {len(result.iterations)}")
 - [Nous Research Blog: Iterative Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-27
 - Confidence: high
