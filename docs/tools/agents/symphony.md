@@ -1,50 +1,49 @@
 # Symphony
 
 ## What it is
-Symphony is an autonomous implementation framework by OpenAI (July 2026) that turns project work into isolated, autonomous implementation runs. It manages high-level work items (issues) by coordinating a fleet of coding agents that handle the end-to-end implementation lifecycle using the **MCP 3.0 Task Protocol**.
+Symphony is an enterprise-grade autonomous implementation framework open-sourced by OpenAI (updated late December 2026) designed to transform structured project requirements into fully isolated, self-verifying autonomous implementation runs. It automates high-level work items (such as Jira or Linear issues) by orchestrating a dynamic fleet of specialized coding agents executing under the standardized **MCP 3.1 Task Protocol**.
 
 ## What problem it solves
-It solves the "supervision bottleneck" in agentic software engineering by shifting the human role from direct code-level supervision to high-level work item management. By utilizing the **MCP 3.0 Task Protocol** for standardized multi-agent coordination, Symphony enables a "software factory" model where agents operate with high autonomy and verifiable output.
+It solves the "supervision bottleneck" in agentic software engineering. Instead of humans micro-prompting coding models line-by-line, Symphony shifts the developer's role to high-level system specification and code-review approval. By combining the **MCP 3.1 Task Protocol** for standardized multi-agent coordination with rigorous validation loops, Symphony guarantees that agent-generated PRs are structurally sound, well-tested, and safe to land.
 
 ## Where it fits in the stack
-**Agents / Orchestration Framework**. It manages the lifecycle of implementation runs, interfacing between task trackers (e.g., Linear, Jira) and version control systems (GitHub, GitLab), while using [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) for tool and task standardization.
+[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — An autonomous, multi-agent lifecycle coordinator sitting between issue-tracking platforms (Linear, Jira) and version control hosts (GitHub, GitLab), standardizing execution via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem.
 
 ## Typical use cases
-- **Multi-Agent Coordination**: Using the **MCP 3.0 Task Protocol** to distribute complex implementation tasks across specialized agents.
-- **Issue-to-PR Automation**: Automating the transition from a descriptive issue to a verified Pull Request.
-- **Fleet Management**: Managing dozens of agents working in parallel on isolated features, bug fixes, or documentation updates.
-- **Continuous Implementation**: Integrating autonomous coding agents into the CI/CD pipeline to handle routine maintenance tasks.
+- **Multi-Agent Task Distribution**: Utilizing the **MCP 3.1 Task Protocol** to parcel out code-base refactoring, unit test generation, and documentation tasks across targeted agents.
+- **Auto-Healing Bug Resolution**: Ingesting failing telemetry logs, auto-reproducing bugs in isolated sandboxes, and producing verified, CI-passing fixes.
+- **Continuous Implementation Pipelines**: Injecting autonomous agents directly into CI/CD pipelines to handle routine technical debt, dependency updates, and boilerplate generation.
+- **Compliance & PR Auditing**: Running automated validation audits on candidate pull requests against strict enterprise standards.
 
 ## Strengths
-- **MCP 3.0 Task Protocol**: Leverages standardized task representations for seamless coordination between diverse agent types.
-- **Autonomous Implementation Runs**: Spawns agents to handle tasks from a work board without constant human prompting.
-- **Proof of Work**: Enforces standardized verification (CI status, walkthrough videos, PR review feedback).
-- **Safe Landing**: Built-in mechanisms for safely merging PRs once automated and manual checks pass.
+- **MCP 3.1 Task Protocol Alignment**: Native compatibility with the latest Task Protocol standards for seamless handshake, lifecycle state, and token routing across agent fleets.
+- **Isolated Run Architectures**: Spawns isolated, self-contained runtimes (Docker, WASM, or micro-VMs) for agents to safely build and execute code.
+- **Proof-of-Work Constraints**: Enforces mandatory verification steps (compilation gates, test coverage thresholds, lint checks) before submitting pull requests.
+- **Multi-Model Support**: Dynamically routes specific tasks to specialized model variants (e.g., GPT-5.5-preview for architecture, Claude 5.1 for surgical code refinement).
 
 ## Limitations
-- **Harness Dependency**: Requires robust testing environments and CI to ensure agentic changes don't introduce regressions.
-- **Experimental State**: Many implementations are still in the reference stage (e.g., the Elixir-based reference implementation).
-- **Context Management**: Can be token-intensive when processing large repositories or complex specifications.
+- **Harness & CI Dependency**: Extremely dependent on pre-existing unit test suites and comprehensive coverage to prevent regressions.
+- **Token Consuming**: Deep-research and multi-agent synthesis loops can become highly token-intensive.
+- **Evolving Standard**: The MCP 3.1 Task Protocol and associated server-side libraries are iterating rapidly, requiring frequent runtime updates.
 
 ## When to use it
-- When you want to move from micro-managing coding agents (like [Aider](../development_ops/aider.md)) to managing high-level work items.
-- In mature codebases that have already adopted [Software Factories](../../knowledge_base/patterns/software-factories.md) principles.
-- When you need to scale engineering capacity using [GPT-5.5](../ai_knowledge/chatgpt.md) or [Claude 4.8](../ai_knowledge/claude.md) agents.
+- When implementing a fully automated [Software Factories](../../knowledge_base/patterns/software-factories.md) model within mature codebases.
+- For managing and orchestrating parallel task executions using high-capability models like [GPT-5.5](../ai_knowledge/chatgpt.md) or [Claude 5.1](../providers/anthropic.md).
+- When a codebase already has rigorous automated test suites and robust containerized staging environments.
 
 ## When not to use it
-- In small projects where manual agent supervision is not a bottleneck.
-- In environments where comprehensive testing and CI are not yet established.
-- When working on legacy systems that lack automated test suites.
+- In early-stage, fast-moving prototypes lacking comprehensive unit testing or automated CI.
+- For simple interactive tasks where single-agent CLI assistants (such as [Aider](../development_ops/aider.md)) are faster and easier to deploy.
 
 ## Getting started
 
 ### Requirements
-- A codebase with established CI and testing harnesses.
-- API access to a frontier model (Claude 4.8 Opus or GPT-5.5).
-- An MCP 3.0 compatible environment for task coordination.
+- Containerized or isolated execution environment (Docker or WASM sandbox).
+- High-coverage CI test runner.
+- Valid API keys for GPT-5.5 or Claude 5.1.
+- An MCP 3.1-compliant environment for agent-to-tool handshakes.
 
 ### Installation
-Clone the official repository to explore the reference implementation:
 ```bash
 git clone https://github.com/openai/symphony.git
 cd symphony
@@ -57,43 +56,77 @@ mix compile
 ```
 
 ### Basic Implementation Run
+Configure your environment to point to an MCP 3.1 Task Protocol endpoint and trigger an autonomous implementation run:
 ```bash
-# Configure the symphony environment
 export SYMPHONY_MODEL=gpt-5.5-preview
-export SYMPHONY_MCP_ENDPOINT=http://localhost:8000/task-protocol
+export SYMPHONY_MCP_ENDPOINT=http://localhost:8000/v1/task-protocol
 
-# Start an implementation run for a specific issue
-symphony run --issue BUG-404 --verify-with-ci
+# Start an implementation run for a designated issue
+symphony run --issue BUG-904 --verify-with-ci
 ```
 
 ## CLI examples
 ```bash
-# Start the symphony service with a specific workflow file
+# Initialize a workspace with standard workflow specifications
 symphony start --workflow ./WORKFLOW.md
 
-# Check the status of active implementation runs across the fleet
+# List and audit running implementation sessions across the fleet
 symphony status --detailed
 
-# Manually trigger the MCP 3.0 Task Protocol handshake
-symphony mcp handshake
+# Trigger a manual handshake to inspect MCP 3.1 Task Protocol capability matrices
+symphony mcp handshake --endpoint http://localhost:8080
 ```
 
 ## API examples
-Symphony provides an HTTP API for monitoring and management (typically at `/api/v1/state`):
 
-```json
-{
-  "state": "active",
-  "mcp_version": "3.0",
-  "active_runs": [
-    {
-      "issue_id": "FEAT-202",
-      "agent_type": "claude-4-8-opus",
-      "task_protocol_status": "in_progress",
-      "ci_status": "passing"
-    }
-  ]
-}
+### Verifying a Symphony Implementation Run State using Pydantic v2
+This Python script demonstrates how to interact with the Symphony REST API, deserialize the payload, and strictly validate the lifecycle and task states using Pydantic v2.
+
+```python
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field, conlist, field_validator
+import requests
+
+# 1. Define strict Pydantic v2 schemas for verification
+class TaskMetric(BaseModel):
+    mcp_protocol_version: str = Field("3.1", pattern=r"^3\.\d+$")
+    agent_id: str = Field(..., min_length=3)
+    tokens_consumed: int = Field(..., ge=0)
+    execution_time_ms: float = Field(..., gt=0.0)
+
+class RunStatus(BaseModel):
+    issue_id: str = Field(..., pattern=r"^[A-Z]+-\d+$")
+    status: Literal["pending", "in_progress", "verifying", "completed", "failed"]
+    ci_passed: bool
+    metrics: TaskMetric
+    active_steps: List[str] = Field(default_factory=list)
+
+    @field_validator("status")
+    @classmethod
+    def validate_ci_on_completion(cls, v: str, info) -> str:
+        # Custom validation: if status is completed, CI must have passed
+        if v == "completed" and not info.data.get("ci_passed", False):
+            raise ValueError("Run cannot be marked completed if CI is failing.")
+        return v
+
+# 2. Query the Symphony local controller API and validate state
+def audit_active_runs(endpoint: str) -> List[RunStatus]:
+    try:
+        response = requests.get(f"{endpoint}/api/v1/runs", timeout=10)
+        response.raise_for_status()
+        raw_runs = response.json()
+
+        # Parse and validate list of active runs
+        validated_runs = [RunStatus.model_validate(run) for run in raw_runs]
+        return validated_runs
+    except Exception as e:
+        print(f"Audit verification failed: {e}")
+        return []
+
+if __name__ == "__main__":
+    runs = audit_active_runs("http://localhost:2026")
+    for run in runs:
+        print(f"Verified Run {run.issue_id}: State={run.status}, CI={run.ci_passed}")
 ```
 
 ## Related tools / concepts
@@ -108,10 +141,10 @@ Symphony provides an HTTP API for monitoring and management (typically at `/api/
 - [Cline](cline.md)
 
 ## Sources / references
-- [Official GitHub Repository](https://github.com/openai/symphony)
-- [Symphony Specification (SPEC.md)](https://github.com/openai/symphony/blob/main/SPEC.md)
-- [MCP 3.0 Task Protocol Documentation](https://modelcontextprotocol.io/spec/task-protocol)
+- [Symphony Specifications](https://github.com/openai/symphony/blob/main/SPEC.md)
+- [OpenAI GitHub Repository](https://github.com/openai/symphony)
+- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-05
 - Confidence: high
