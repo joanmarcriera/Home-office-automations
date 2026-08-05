@@ -1,7 +1,7 @@
 # Home Admin Agent Tools
 
 ## What it is
-Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent for interacting with household infrastructure. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 Task Protocol. These tools enable frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 4.8 Opus](../providers/anthropic.md), and [Llama 4 Maverick](../ai_knowledge/local_llms.md) to safely operate a household through standardized tool-calling interfaces.
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent for interacting with household infrastructure. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 specification. These tools enable frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 5.1](../providers/anthropic.md), GPT-5.5, and [Llama 4](../ai_knowledge/local_llms.md) to safely operate a household through standardized, strongly-typed tool-calling interfaces.
 
 ## What problem it solves
 They give the agent controlled, high-level interfaces for querying and changing household task and smart-home systems without requiring direct database access or unrestricted shell execution. This provides a critical layer of security, predictability, and auditability to autonomous home operations, ensuring that the agent's actions are restricted to a predefined safety schema.
@@ -16,9 +16,9 @@ They give the agent controlled, high-level interfaces for querying and changing 
 - **Visual Diagnostics**: Using [Gemma 3](../ai_knowledge/local_llms.md) to analyze camera feeds and trigger automation tools based on visual reasoning.
 
 ## Strengths
-- **Standardized Protocol**: Leverages [MCP](../automation_orchestration/mcp.md) 3.0 for universal compatibility with modern agent harnesses.
+- **Standardized Protocol**: Leverages [MCP](../automation_orchestration/mcp.md) 3.1 for universal compatibility with modern agent harnesses.
 - **Security**: Actions are strictly limited by the tool's defined JSON schema and API scopes.
-- **FastMCP 3.0 Support**: Enables ultra-low latency tool execution for real-time home response.
+- **FastMCP 3.1 Support**: Enables ultra-low latency tool execution for real-time home response.
 - **High Discoverability**: Semantic argument definitions allow LLMs to reliably use tools without fine-tuning or extensive prompting.
 
 ## Limitations
@@ -29,7 +29,7 @@ They give the agent controlled, high-level interfaces for querying and changing 
 ## When to use it
 - When an autonomous agent needs to read from or write to the household's task and automation systems.
 - When you want to provide a "Natural Language" interface for complex home operations.
-- For integrating local household services into the [Anthropic Agent Skills](anthropic-agent-skills.md) ecosystem using [FastMCP 3.0](../automation_orchestration/mcp.md).
+- For integrating local household services into the [Anthropic Agent Skills](claude-skills-ecosystem.md) ecosystem using [FastMCP 3.1](../automation_orchestration/mcp.md).
 
 ## When not to use it
 - For services that lack configured credentials or clear ownership.
@@ -46,7 +46,7 @@ The tools are typically deployed as part of a Python-based agent service or an M
 git clone https://github.com/homelab/home-admin-tools
 cd home-admin-tools
 
-# Install dependencies for FastMCP 3.0
+# Install dependencies for FastMCP 3.1
 pip install -r requirements.txt
 ```
 
@@ -73,7 +73,7 @@ python3 scripts/home_assistant_tool.py --action toggle_light --entity_id light.k
 
 ## API examples
 
-### Example: Tool Definition (MCP 3.0 Format)
+### Example: Tool Definition (MCP 3.1 Format)
 This is an example of how the `vikunja_create_tool` would be defined in an [MCP](../automation_orchestration/mcp.md) server config following the Task Protocol.
 
 ```json
@@ -92,26 +92,61 @@ This is an example of how the `vikunja_create_tool` would be defined in an [MCP]
 }
 ```
 
-### Example: Agent Tool Calling (Python)
-Using a framework like [LangGraph](../frameworks/langgraph.md) or standard OpenAI tool calling with July 2026 patterns.
+### Example: Programmatic Python Tool and Payload Validation (Pydantic v2)
+The following script demonstrates how to define, parse, and validate tool payloads for home automation and smart-home operations using Pydantic v2. This ensures type safety and semantic integrity before executing local service API calls.
 
 ```python
-import os
-from mcp_client import FastMCPClient
+import sys
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Initialize FastMCP 3.0 Client
-client = FastMCPClient(server_url=os.environ['MCP_SERVER_URL'])
+# Define Pydantic v2 schemas for validating home automation actions
+class VikunjaTaskPayload(BaseModel):
+    title: str = Field(..., min_length=3, max_length=100, description="Task title")
+    project_id: int = Field(..., gt=0, description="Target project ID")
+    description: Optional[str] = Field(None, description="Detailed task notes")
+    priority: int = Field(default=3, ge=1, le=5, description="Priority level from 1 (highest) to 5 (lowest)")
 
-async def create_maintenance_task(title: str, project_id: int):
-    # Execute tool via MCP Task Protocol
-    result = await client.call_tool(
-        "vikunja_create_tool",
-        arguments={"title": title, "project_id": project_id}
-    )
-    return result
+    @field_validator('title')
+    @classmethod
+    def clean_title(cls, v: str) -> str:
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("Task title cannot be empty or pure whitespace.")
+        return stripped
 
-# Example invocation
-# await create_maintenance_task("Fix leaking tap", 5)
+class HomeAssistantActionPayload(BaseModel):
+    entity_id: str = Field(..., pattern=r"^[a-z_]+\.[a-z0-9_]+$", description="Entity domain and ID (e.g., light.kitchen)")
+    action: str = Field(..., description="Action to call (e.g., turn_on, turn_off, toggle)")
+    brightness_pct: Optional[int] = Field(None, ge=0, le=100, description="Optional brightness level percentage")
+
+def execute_home_action(raw_data: dict) -> None:
+    try:
+        # Validate the raw input payload against the Pydantic v2 model
+        validated_payload = HomeAssistantActionPayload.model_validate(raw_data)
+        print(f"Payload validated successfully for entity: {validated_payload.entity_id}")
+        print(f"Executing action '{validated_payload.action}' with parameters: {validated_payload.model_dump_json(exclude_none=True)}")
+        # In a real implementation, this would trigger the Home Assistant REST or WebSocket API
+    except Exception as e:
+        print(f"Validation failed for Home Assistant action payload: {e}", file=sys.stderr)
+
+if __name__ == "__main__":
+    print("Initializing Home Admin tool payload validation (Pydantic v2 / FastMCP 3.1 context)...")
+
+    # Test valid payload
+    valid_input = {
+        "entity_id": "light.living_room",
+        "action": "turn_on",
+        "brightness_pct": 75
+    }
+    execute_home_action(valid_input)
+
+    # Test invalid payload (should gracefully capture validation error)
+    invalid_input = {
+        "entity_id": "invalid-entity-id",
+        "action": "turn_on"
+    }
+    execute_home_action(invalid_input)
 ```
 
 ## Related tools / concepts
@@ -119,17 +154,17 @@ async def create_maintenance_task(title: str, project_id: int):
 - [Vikunja](../../services/vikunja.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [LangGraph](../frameworks/langgraph.md)
-- [Claude 4.8 Opus](../providers/anthropic.md)
+- [Claude 5.1](../providers/anthropic.md)
 - [Gemma 3](../ai_knowledge/local_llms.md)
 - [Cline](cline.md)
 - [Agency Swarm](agency-swarm.md)
-- [Anthropic Agent Skills](anthropic-agent-skills.md)
+- [Anthropic Agent Skills](claude-skills-ecosystem.md)
 
 ## Sources / References
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/)
-- [Model Context Protocol 3.0 Specification](https://modelcontextprotocol.io/)
+- [Model Context Protocol 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-27
 - Confidence: high

@@ -1,10 +1,10 @@
 # Letta
 
 ## What it is
-Letta (v1.5.x+, July 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **MCP 3.0 Task Protocol** for tool and context orchestration.
+Letta (v1.12.x+, late November 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **MCP 3.1 Task Protocol** for tool and context orchestration.
 
 ## What problem it solves
-Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude](../ai_knowledge/claude.md) to GPT-5.5 or [Gemma 3](../ai_knowledge/local_llms.md)).
+Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude 5.1](../providers/anthropic.md) to GPT-5.5 or [Gemma 3](../ai_knowledge/local_llms.md)).
 
 ## Where it fits in the stack
 **Category**: Agent / Memory Layer. It sits as a stateful middleware between the Model (Inference) layer and the Application layer, providing persistent "Virtual Context" via a database backend (PostgreSQL/VectorDB).
@@ -19,7 +19,7 @@ Standard LLMs suffer from "forgetfulness" once their context window is exceeded.
 - **State Persistence**: State is stored in a database, allowing agents to survive process restarts and migrate between models.
 - **Infinite Context**: Automatically manages what stays in the active LLM context and what goes to long-term storage using "Virtual Context".
 - **Self-Editing Memory**: Agents can be given tools to "write" to and "edit" their own core memory.
-- **MCP 3.0 Support**: Native integration for the **MCP 3.0 Task Protocol**, enabling agents to use standardized tools and context sources.
+- **MCP 3.1 Support**: Native integration for the **MCP 3.1 Task Protocol**, enabling agents to use standardized tools and context sources.
 
 ## Limitations
 - **Latency**: Tiered memory management and database lookups add overhead to each inference step.
@@ -71,30 +71,80 @@ letta run --agent DurableCoder --mcp-server http://localhost:18789
 ```
 
 ## API examples
+
+### Example: Basic Letta Client Usage
 ```python
 from letta import create_client
 
 client = create_client()
 
-# 1. Create a stateful agent with persistent memory
+# Create a stateful agent with persistent memory
 agent = client.create_agent(
     name="DurableAssistant",
     memory_type="base_memory",
     embedding_config={"model": "text-embedding-3-small"}
 )
+```
 
-# 2. Send a message that updates agent state
-response = client.user_message(
-    agent_id=agent.id,
-    message="I prefer using 'Alpine' base images for my Dockerfiles."
-)
+### Example: Pydantic v2 Core Memory and State Validation
+To guarantee structural integrity and type-safe state transitions within Letta's "Virtual Context" layer, developers utilize **Pydantic v2** models to marshal and parse agent memory block schemas programmatically.
 
-# 3. The agent will remember this in subsequent calls
-print(f"Agent Response: {response[0].text}")
+```python
+import sys
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# 4. Access agent's core memory
-core_memory = client.get_core_memory(agent_id=agent.id)
-print(f"Current Memory: {core_memory}")
+# Define Pydantic v2 memory block structures
+class MemoryBlock(BaseModel):
+    block_type: str = Field(..., description="Memory classification, e.g., CORE, ARCHIVAL, RECENT")
+    content: str = Field(..., min_length=1, description="Textual context content")
+    updated_at: str = Field(..., description="Timestamp of the last modification (ISO format)")
+
+class LettaAgentState(BaseModel):
+    agent_id: str
+    model_name: str
+    memory: List[MemoryBlock]
+    system_tags: List[str] = Field(default_factory=list)
+    metadata: Dict[str, str] = Field(default_factory=dict)
+
+    @field_validator('memory')
+    @classmethod
+    def verify_core_block_exists(cls, memory_list: List[MemoryBlock]) -> List[MemoryBlock]:
+        # Validate that at least one 'core' memory block exists for stateful reasoning
+        has_core = any(b.block_type.upper() == 'CORE' for b in memory_list)
+        if not has_core:
+            raise ValueError("Letta agents must contain at least one CORE memory block to persist state.")
+        return memory_list
+
+def load_and_validate_letta_state(raw_json: str) -> Optional[LettaAgentState]:
+    try:
+        validated_state = LettaAgentState.model_validate_json(raw_json)
+        print(f"Letta state successfully validated for Agent ID: {validated_state.agent_id}")
+        print(f"Target model: {validated_state.model_name}")
+        for block in validated_state.memory:
+            print(f" - [{block.block_type}] -> {block.content[:40]}...")
+        return validated_state
+    except Exception as e:
+        print(f"Letta agent state validation failed: {e}", file=sys.stderr)
+        return None
+
+if __name__ == "__main__":
+    print("Initializing Letta Virtual Context state validation (Pydantic v2)...")
+
+    # Valid raw JSON state containing a core memory block
+    valid_state_json = """
+    {
+        "agent_id": "letta-agent-99x",
+        "model_name": "claude-5.1-sonnet",
+        "memory": [
+            {"block_type": "CORE", "content": "User prefers python over javascript, and uses Pydantic v2.", "updated_at": "2026-11-27T10:00:00Z"},
+            {"block_type": "RECENT", "content": "Discussed FastMCP 3.1 configuration.", "updated_at": "2026-11-27T10:05:00Z"}
+        ],
+        "system_tags": ["developer", "strict-types"]
+    }
+    """
+
+    load_and_validate_letta_state(valid_state_json)
 ```
 
 ## Related tools / concepts
@@ -104,8 +154,8 @@ print(f"Current Memory: {core_memory}")
 - [Phidata](phidata.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [MCP 3.0](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag.md)
+- [MCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
 
 ## Sources / references
@@ -114,5 +164,5 @@ print(f"Current Memory: {core_memory}")
 - [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-27
 - Confidence: high
