@@ -1,15 +1,15 @@
 # Flint
 
-Flint is a series of highly compressed reasoning models developed by StudyModels. As of July 2026, Flint models (such as Flint-Qwen3.5-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency.
+Flint is a series of highly compressed reasoning models developed by StudyModels. As of late October / November 2026, Flint models (such as Flint-Qwen3.6-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency, fully compatible with **FastMCP 3.1** protocol schemas.
 
 ## What it is
-Flint is a specialized LLM architecture designed for efficient "Chain of Thought" (CoT) reasoning. Unlike standard models that output every intermediate step, Flint uses a compression technique that identifies and retains critical "compute" and "verification" spans within a reasoning trace. It discards linguistic fillers, redundant transitions, and conversational fluff, resulting in a dense, logic-heavy output that is much faster to process.
+Flint is a specialized LLM architecture designed for highly efficient "Chain of Thought" (CoT) reasoning. Unlike standard models that output every intermediate step, Flint uses an advanced compression technique that identifies and retains critical "compute" and "verification" spans within a reasoning trace. It discards linguistic fillers, redundant transitions, and conversational fluff, resulting in a dense, logic-heavy output that is much faster to process.
 
 ## What problem it solves
-It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or [Claude 3.5](../ai_knowledge/claude.md) often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
+It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or [Claude 5.1](../ai_knowledge/claude.md) often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
 
 ## Where it fits in the stack
-**Reasoning Layer**. Flint acts as the "brain" for autonomous agents. It fits perfectly into [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) where multi-step logic is required but execution speed is critical. It is often orchestrated via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) to interact with external tools and data sources.
+**Reasoning Layer**. Flint acts as the "brain" for autonomous agents. It fits perfectly into [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) where multi-step logic is required but execution speed is critical. It is often orchestrated via the **FastMCP 3.1** spec to interact with external tools and data sources.
 
 ## Typical use cases
 - **Real-time Coding Assistants**: Providing fast, logically sound code suggestions without the wait time of massive models.
@@ -29,7 +29,7 @@ It addresses the "token tax" of long-form reasoning. High-reasoning models like 
 - **New Ecosystem**: While compatible with [vLLM](../infrastructure/vllm.md), some specialized compression features require updated kernels for maximum efficiency.
 
 ## When to use it
-- When you need "O1-level" reasoning on consumer-grade hardware (e.g., 8GB-16GB VRAM).
+- When you need "O1/R1-level" reasoning on consumer-grade hardware (e.g., 8GB-16GB VRAM).
 - For background agent tasks where the user doesn't need to read the full chain of thought.
 - When minimizing API costs or local power consumption is a primary constraint.
 
@@ -48,11 +48,11 @@ pip install studymodels-flint
 ```
 
 ### Local Hosting
-To run Flint-Qwen3.5-4B locally with GGUF quantization:
+To run Flint-Qwen3.6-4B locally with GGUF quantization:
 
 ```bash
 # Download and run via llama.cpp
-llama-server -m ./models/flint-qwen3.5-4b-q8_0.gguf -c 4096
+llama-server -m ./models/flint-qwen3.6-4b-q8_0.gguf -c 4096
 ```
 
 ## CLI examples
@@ -70,41 +70,60 @@ flint solve "Debug this python function" --trace ./trace.json
 ```
 
 ## API examples
-
-### Basic Inference (Python)
-Using the standard Transformers-like interface with Flint enhancements.
+This example demonstrates programmatically querying Flint and parsing the compressed trace parameters using **Pydantic v2** validation to ensure correct execution context in FastMCP 3.1 environments.
 
 ```python
-from studymodels import FlintModel, FlintTokenizer
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field, confloat
 
-model = FlintModel.from_pretrained("StudyModels/Flint-Gemma-4-12B")
-tokenizer = FlintTokenizer.from_pretrained("StudyModels/Flint-Gemma-4-12B")
+class FlintTraceVerification(BaseModel):
+    step_id: int = Field(..., description="The sequence index of the reasoning step")
+    has_verification_block: bool = Field(..., description="Whether the trace step retains self-correction checks")
+    compression_ratio: float = Field(..., ge=0.0, le=1.0, description="The token compression ratio applied to this step")
+    key_symbols: List[str] = Field(default_factory=list, description="Core logic/code symbols retained in the compressed trace")
 
-prompt = "Explain the impact of interest rate changes on bond prices."
-inputs = tokenizer(prompt, return_tensors="pt")
+class FlintQueryResult(BaseModel):
+    model_name: str = Field(..., description="The exact Flint model name and version utilized")
+    prompt: str = Field(..., description="The original logical query")
+    retained_traces: List[FlintTraceVerification] = Field(..., description="List of compressed reasoning trace steps")
+    final_output: str = Field(..., description="The synthesized logic-heavy final output")
 
-# Generate with section-aware compression enabled
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=512,
-    compression_enabled=True,
-    verification_threshold=0.8
-)
+async def parse_and_verify_flint_reasoning(data: dict):
+    # Validate the result returned by a local Flint instance using Pydantic v2
+    validated_result = FlintQueryResult(**data)
 
-print(tokenizer.decode(outputs[0]))
-```
+    print(f"Verified Flint Model: {validated_result.model_name}")
+    print(f"Original Query: {validated_result.prompt}")
 
-### Agent Integration (Smolagents)
-Using Flint as a fast reasoning engine for an autonomous agent.
+    for trace in validated_result.retained_traces:
+        print(f"  Step {trace.step_id}: Compression: {trace.compression_ratio:.2f} | Has self-verification: {trace.has_verification_block}")
 
-```python
-from smolagents import CodeAgent, FlintLLM
+    print(f"Final logical output:\n{validated_result.final_output}")
+    return {"status": "success", "steps_processed": len(validated_result.retained_traces)}
 
-# FlintLLM wrapper handles the compressed traces for the agent
-model = FlintLLM(model_id="StudyModels/Flint-Qwen3.5-4B")
-agent = CodeAgent(tools=[], model=model)
+if __name__ == "__main__":
+    sample_payload = {
+        "model_name": "StudyModels/Flint-Qwen3.6-4B-MTP",
+        "prompt": "Write an optimized Fibonacci function in Python with memoization.",
+        "retained_traces": [
+            {
+                "step_id": 1,
+                "has_verification_block": True,
+                "compression_ratio": 0.65,
+                "key_symbols": ["memo", "O(n)", "recursion"]
+            },
+            {
+                "step_id": 2,
+                "has_verification_block": False,
+                "compression_ratio": 0.82,
+                "key_symbols": ["cache", "base_case"]
+            }
+        ],
+        "final_output": "def fib(n, memo={}):\n    if n in memo: return memo[n]\n    if n <= 1: return n\n    memo[n] = fib(n-1, memo) + fib(n-2, memo)\n    return memo[n]"
+    }
 
-agent.run("Calculate the compound interest for $10,000 at 5% over 10 years, compounded monthly.")
+    asyncio.run(parse_and_verify_flint_reasoning(sample_payload))
 ```
 
 ## Related tools / concepts
@@ -125,5 +144,5 @@ agent.run("Calculate the compound interest for $10,000 at 5% over 10 years, comp
 - [Compressed Chain-of-Thought Research](https://github.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high
