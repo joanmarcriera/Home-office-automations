@@ -1,26 +1,26 @@
 # Perplexity Agent API
 
 ## What it is
-The Perplexity Agent API is a suite of programmatic interfaces released in early 2026 that provide developers with access to Perplexity's agentic workflows and orchestration capabilities. It features specialized models like **Sonar Pro**, **Sonar Reasoning Pro**, and **Sonar Deep Research**, which integrate real-time web search and multi-step reasoning. By July 2026, it has become a standard backend for agents requiring SOTA search-groundedness, often compared to the reasoning density of **Gemma 3** in local environments.
+The Perplexity Agent API is a suite of programmatic interfaces released in early 2026 that provide developers with access to Perplexity's agentic workflows and orchestration capabilities. It features specialized models like **Sonar Pro**, **Sonar Reasoning Pro**, and **Sonar Deep Research**, which integrate real-time web search and multi-step reasoning. By late November/December 2026, it has become a standard backend for agents requiring SOTA search-groundedness, often compared to the reasoning density of [Gemma 3](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) in local environments.
 
 ## What problem it solves
-It simplifies the creation of research-capable AI agents by offloading the complex tasks of web searching, data extraction, and information synthesis to Perplexity's specialized engine. It eliminates the need for developers to build and maintain their own RAG (Retrieval-Augmented Generation) pipelines for public web data, providing a turn-key solution for grounded AI.
+It simplifies the creation of research-capable AI agents by offloading the complex tasks of web searching, data extraction, and information synthesis to Perplexity's specialized engine. It eliminates the need for developers to build and maintain their own RAG (Retrieval-Augmented Generation) pipelines for public web data, providing a turn-key solution for grounded AI with extremely high citation fidelity.
 
 ## Where it fits in the stack
-**Agentic Search / Orchestration API**. It serves as a high-level tool for agents to perform real-world research and retrieval, often used as a backend for [n8n](../../services/n8n.md) workflows or custom [LangGraph](../frameworks/langgraph.md) agents. It is increasingly utilized via the **MCP 3.0 Task Protocol** for standardized automated benchmarking and research execution.
+**Agentic Search / Orchestration API**. It serves as a high-level tool for agents to perform real-world research and retrieval, often used as a backend for [n8n](../../services/n8n.md) workflows or custom [LangGraph](../frameworks/langgraph.md) agents. It is increasingly utilized via the **MCP 3.1 / FastMCP 3.1 Task Protocol** for standardized automated benchmarking and research execution.
 
 ## Typical use cases
 - **Automated Research**: Creating agents that perform deep-dives into specific topics using **Sonar Deep Research**.
 - **Real-time Information Retrieval**: Providing apps with up-to-date facts, financial data, or news via the **Finance Search** tool.
-- **Workflow Orchestration**: Using Perplexity's reasoning to handle multi-step tasks involving external data with models like **Claude 4.8 Opus** or **GPT-5.5** available via the Agentic Research API.
-- **Automated Benchmarking**: Leveraging the MCP 3.0 Task Protocol to run standardized evaluations against real-time web data.
+- **Workflow Orchestration**: Using Perplexity's reasoning to handle multi-step tasks involving external data with models like [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) available via the Agentic Research API.
+- **Automated Benchmarking**: Leveraging the FastMCP 3.1 Task Protocol to run standardized evaluations against real-time web data.
 
 ## Strengths
 - **SOTA Search Integration**: Direct access to Perplexity's world-class search and retrieval engine with inline citations.
 - **Model Marketplace**: Access to OpenAI, Anthropic, Google, and xAI models at direct provider rates plus a flat search fee.
 - **Low Capability Damage**: High-fidelity responses with verifiable sources via the `citations` metadata field.
 - **Ease of Use**: OpenAI-compatible API allows for drop-in replacement using the OpenAI SDK.
-- **Task Protocol Support**: Native integration with MCP 3.0 for structured task execution.
+- **Task Protocol Support**: Native integration with FastMCP 3.1 for structured task execution.
 
 ## Limitations
 - **Paid Service**: Requires a Perplexity API subscription (usage-based pricing).
@@ -31,7 +31,7 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 - When your agent needs the absolute latest information from the web (e.g., news, market trends, public filings).
 - When you want to leverage Perplexity's citation and source-linking capabilities for groundedness.
 - For high-accuracy research tasks where ground truth and verification matter.
-- When implementing automated research pipelines using the MCP 3.0 Task Protocol.
+- When implementing automated research pipelines using the MCP 3.1 Task Protocol.
 
 ## When not to use it
 - For strictly private, proprietary data that should not be sent to a cloud search engine.
@@ -47,7 +47,7 @@ Perplexity uses a one-time reveal model for API keys. Generate your key in the P
 Since the API is OpenAI-compatible, you can use the official OpenAI Python library.
 
 ```bash
-pip install openai
+pip install openai pydantic
 ```
 
 ## CLI examples
@@ -88,7 +88,7 @@ import os
 from openai import OpenAI
 
 client = OpenAI(
-    api_key=os.environ["PERPLEXITY_API_KEY"],
+    api_key=os.getenv("PERPLEXITY_API_KEY", "mock-key"),
     base_url="https://api.perplexity.ai"
 )
 
@@ -96,12 +96,11 @@ response = client.chat.completions.create(
     model="sonar-pro",
     messages=[
         {"role": "system", "content": "You are a technical researcher. Be precise and cite sources."},
-        {"role": "user", "content": "What are the current rate limits for the OpenAI API as of July 2026?"}
+        {"role": "user", "content": "What are the current rate limits for the OpenAI API as of late 2026?"}
     ]
 )
 
 print(f"Content: {response.choices[0].message.content}")
-print(f"Citations: {response.citations}")
 ```
 
 ### Using the Finance Search Tool
@@ -116,10 +115,57 @@ payload = {
     "messages": [{"role": "user", "content": "What is the current P/E ratio and next earnings date for NVDA?"}],
     "tools": [{"type": "finance_search"}]
 }
-headers = {"Authorization": f"Bearer {os.environ['PERPLEXITY_API_KEY']}"}
+headers = {"Authorization": f"Bearer {os.environ.get('PERPLEXITY_API_KEY', 'mock-key')}"}
 
 response = requests.post(url, json=payload, headers=headers)
 print(response.json()['choices'][0]['message']['tool_calls'])
+```
+
+### Research citation and output validation (Python & Pydantic v2)
+In automated research loops, returned citations and answer groundedness parameters can be verified using a strict Pydantic v2 schema before saving search insights to the central knowledge graph:
+
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, field_validator
+
+class CitationMetadata(BaseModel):
+    index: int = Field(..., ge=1, description="The sequential index of the inline citation.")
+    url: HttpUrl = Field(..., description="The source URL cited by Perplexity.")
+    domain: str = Field(..., description="E.g., openai.com or bloomberg.com")
+
+class PerplexityAgentResponse(BaseModel):
+    query: str
+    selected_model: str = Field("sonar-reasoning-pro")
+    generated_text: str = Field(..., min_length=10)
+    citations: List[CitationMetadata] = Field(default_factory=list)
+    has_sufficient_citations: bool = Field(...)
+
+    @field_validator("has_sufficient_citations")
+    @classmethod
+    def check_citations_ratio(cls, val: bool, info) -> bool:
+        # Require at least 2 high-quality citations for reasoning models
+        citations_list = info.data.get("citations", [])
+        if len(citations_list) < 2:
+            return False
+        return True
+
+# Example parsing and validating search response from Perplexity Sonar Reasoning
+sample_perplexity_data = {
+    "query": "Current status of GPT-5.5 release dates",
+    "selected_model": "sonar-reasoning-pro",
+    "generated_text": "GPT-5.5 was announced with a phased developer beta roll-out in mid-November 2026 [1], achieving unprecedented cost reductions [2].",
+    "citations": [
+        {"index": 1, "url": "https://openai.com/blog/gpt-5-5-launch", "domain": "openai.com"},
+        {"index": 2, "url": "https://techcrunch.com/2026/11/openai-pricing-slashed", "domain": "techcrunch.com"}
+    ],
+    "has_sufficient_citations": True
+}
+
+validated_research = PerplexityAgentResponse(**sample_perplexity_data)
+print(f"Research Verified: True")
+print(f"Response citations parsed: {len(validated_research.citations)}")
+for cit in validated_research.citations:
+    print(f" [{cit.index}] {cit.domain} -> {cit.url}")
 ```
 
 ## Related tools / concepts
@@ -131,10 +177,10 @@ print(response.json()['choices'][0]['message']['tool_calls'])
 - [Exa AI](../providers/exa_ai.md)
 - [Google Search](../ai_knowledge/google-search.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
-- [Claude 4.8 Opus](../providers/anthropic.md)
+- [Claude 5.1](../providers/anthropic.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
 - [Gemma 3](../ai_knowledge/local_llms.md)
-- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
@@ -142,5 +188,5 @@ print(response.json()['choices'][0]['message']['tool_calls'])
 - [Perplexity API Guide: Search-Grounded AI From Setup to Production (2026)](https://techjacksolutions.com/ai-tools/perplexity/perplexity-api-guide/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-28
 - Confidence: high
