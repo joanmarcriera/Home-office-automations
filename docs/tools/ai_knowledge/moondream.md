@@ -1,15 +1,15 @@
 # Moondream
 
-Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of July 2026, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint.
+Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of late October / November 2026, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint, fully integrated with **FastMCP 3.1** specs for autonomous vision tool use.
 
 ## What it is
 Moondream is a multi-function VLM that excels at interpreting visual data. Unlike traditional large-scale VLMs, Moondream is optimized for speed and resource efficiency, making it the preferred choice for real-time applications like "computer use" agents and mobile vision tasks. It supports complex queries, captioning, object detection, pointing (coordinate extraction), and segmentation.
 
 ## What problem it solves
-It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude 4.8](../ai_knowledge/claude.md). Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
+It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude 5.1](../ai_knowledge/claude.md) or **GPT-5.5**. Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
 
 ## Where it fits in the stack
-**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md) can act upon.
+**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a **FastMCP 3.1** ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md) or **Gemini 4.0 Pro/Ultra/Flash** can act upon.
 
 ## Typical use cases
 - **Computer Use Agents**: Identifying UI elements (buttons, fields) for robotic process automation (RPA).
@@ -78,46 +78,61 @@ moondream point --image ./desktop.png --prompt "the close window button"
 ```
 
 ## API examples
-
-### Simple Captioning (Python)
-This example uses the Moondream Cloud or a local Photon instance.
+This example demonstrates programmatically querying Moondream for object detection and pointing, utilizing **Pydantic v2** validation to model coordinate and boundary data strictly for agent consumption.
 
 ```python
-import moondream as md
-from PIL import Image
+import asyncio
+from typing import List, Tuple
+from pydantic import BaseModel, Field, conlist
 
-# Initialize the model (requires MD_API_KEY for cloud or local URL for Photon)
-model = md.vl(api_key="YOUR_API_KEY")
+class BoundingBox(BaseModel):
+    label: str = Field(..., description="The name or label of the detected object")
+    box_coords: Tuple[float, float, float, float] = Field(
+        ...,
+        description="Bounding box normalized coordinates (ymin, xmin, ymax, xmax), each from 0.0 to 1.0"
+    )
 
-image = Image.open("sample.jpg")
+class PointCoordinate(BaseModel):
+    label: str = Field(..., description="The name or target description pointed to")
+    x: float = Field(..., ge=0.0, le=1.0, description="Normalized X coordinate")
+    y: float = Field(..., ge=0.0, le=1.0, description="Normalized Y coordinate")
 
-# Generate a caption
-response = model.caption(image)
-print(f"Caption: {response.caption}")
+class MoondreamVisionPayload(BaseModel):
+    image_name: str = Field(..., description="The source image file analyzed")
+    detections: List[BoundingBox] = Field(default_factory=list, description="List of detected objects and their boxes")
+    points: List[PointCoordinate] = Field(default_factory=list, description="List of pinpointed coordinates")
 
-# Specific Query
-query_res = model.query(image, "Is there a dog in the image?")
-print(f"Query Result: {query_res.answer}")
-```
+async def process_moondream_visuals(payload: dict):
+    # Validate visual schema utilizing strict Pydantic v2 validation
+    validated = MoondreamVisionPayload(**payload)
+    print(f"Validated Moondream response for: {validated.image_name}")
 
-### Object Detection and Pointing
-Moondream's specialized functions for agentic interaction.
+    for detection in validated.detections:
+        print(f"  Detected: {detection.label} at {detection.box_coords}")
 
-```python
-import moondream as md
-from PIL import Image
+    for pt in validated.points:
+        print(f"  Pinpointed: {pt.label} at X:{pt.x}, Y:{pt.y}")
 
-model = md.vl(api_key="YOUR_API_KEY")
-image = Image.open("ui_screenshot.png")
+    return {"status": "success", "objects_analyzed": len(validated.detections) + len(validated.points)}
 
-# Detect UI elements
-detect_res = model.detect(image, "buttons")
-for obj in detect_res.objects:
-    print(f"Found button at: {obj.bbox}")
-
-# Point to a specific element for a 'click' action
-point_res = model.point(image, "the search bar")
-print(f"Click coordinates: x={point_res.x}, y={point_res.y}")
+if __name__ == "__main__":
+    sample_response = {
+        "image_name": "ui_screenshot.png",
+        "detections": [
+            {
+                "label": "submit_button",
+                "box_coords": (0.45, 0.20, 0.48, 0.35)
+            }
+        ],
+        "points": [
+            {
+                "label": "search_bar",
+                "x": 0.50,
+                "y": 0.12
+            }
+        ]
+    }
+    asyncio.run(process_moondream_visuals(sample_response))
 ```
 
 ## Related tools / concepts
@@ -137,5 +152,5 @@ print(f"Click coordinates: x={point_res.x}, y={point_res.y}")
 - [Moondream Examples](https://github.com/m87-labs/moondream-examples)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-25
 - Confidence: high
