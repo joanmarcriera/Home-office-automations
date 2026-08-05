@@ -1,10 +1,10 @@
 # Bee Agent Framework
 
 ## What it is
-The Bee Agent Framework (v1.x+, July 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.0) and [MCP 3.0 Task Protocol](../../knowledge_base/agent_protocols.md) support.
+The Bee Agent Framework (v1.4+, late November/December 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.1) and [MCP 3.1 / FastMCP 3.1 Task Protocol](../../knowledge_base/agent_protocols.md) support.
 
 ## What problem it solves
-It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready. It is specifically optimized for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models.
+It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready. It is specifically optimized for [Gemma 3](../ai_knowledge/local_llms.md), [Qwen 3.6](../ai_knowledge/local_llms.md), and other frontier models like [GPT-5.5](../ai_knowledge/openai.md) and [Claude 5.1](../providers/anthropic.md).
 
 ## Where it fits in the stack
 **Category**: Agent Orchestration Framework. It sits between the Model/Inference layer (supporting 10+ providers like Watsonx, Ollama, and OpenAI) and the Tool/Infrastructure layer, managing state, memory, and tool execution.
@@ -19,7 +19,7 @@ It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirem
 - **Reliability**: Built-in safeguards and policy enforcement agents to minimize agent drift and failure.
 - **Observability**: Industry-leading execution tracing and OpenTelemetry integration.
 - **Language Parity**: Simultaneous support for TypeScript and Python with identical architectural patterns.
-- **Protocol Native**: Full, first-class support for MCP 3.0 and the Agentic Session Orchestration pattern.
+- **Protocol Native**: Full, first-class support for MCP 3.1 and the Agentic Session Orchestration pattern.
 - **Governance**: Hosted by the Linux Foundation under open governance for long-term stability.
 
 ## Limitations
@@ -43,11 +43,11 @@ It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirem
 ### Installation
 === "TypeScript"
     ```bash
-    npm install beeai-framework
+    npm install @beeai/framework
     ```
 === "Python"
     ```bash
-    pip install beeai-framework
+    pip install beeai-framework pydantic
     ```
 
 ### Basic Agent Setup
@@ -56,25 +56,25 @@ Initialize a Bee agent with a provider (e.g., Watsonx or OpenAI) and a set of to
 ## CLI examples
 ```bash
 # Initialize a new Bee project template
-beeai init my-enterprise-agent
+beeai init my-enterprise-agent --template multi-agent
 
 # Start the Bee development server with live-reloading
-beeai dev --port 18788
+beeai dev --port 18788 --verbose
 
-# Validate MCP server connectivity using Task Protocol
-beeai mcp verify http://localhost:18790 --protocol task
+# Validate MCP server connectivity using Task Protocol and FastMCP 3.1
+beeai mcp verify http://localhost:18790 --protocol task-v3.1
 ```
 
 ## API examples
 === "TypeScript"
     ```typescript
-    import { BeeAgent } from "beeai-framework/agents/bee/agent";
-    import { UnstructuredRawModel } from "beeai-framework/backend/unstructured";
-    import { DuckDuckGoSearchTool } from "beeai-framework/tools/search/duckduckgo";
+    import { BeeAgent } from "@beeai/framework/agents/bee/agent";
+    import { UnstructuredRawModel } from "@beeai/framework/backend/unstructured";
+    import { DuckDuckGoSearchTool } from "@beeai/framework/tools/search/duckduckgo";
 
     async function main() {
         const agent = new BeeAgent({
-            llm: new UnstructuredRawModel({ modelId: "gpt-4o" }),
+            llm: new UnstructuredRawModel({ modelId: "gpt-5.5-preview" }),
             tools: [new DuckDuckGoSearchTool()],
             memory: []
         });
@@ -91,7 +91,7 @@ beeai mcp verify http://localhost:18790 --protocol task
     from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
 
     agent = BeeAgent(
-        llm=ChatModel.from_name("openai:gpt-4o"),
+        llm=ChatModel.from_name("openai:gpt-5.5"),
         tools=[DuckDuckGoSearchTool()],
         memory=[]
     )
@@ -100,16 +100,79 @@ beeai mcp verify http://localhost:18790 --protocol task
     print(response.result.text)
     ```
 
+### Strict Schema Trace Verification (Python & Pydantic v2)
+To enforce strict reliability, enterprise deployments use Pydantic v2 to validate execution trace schemas and token usage parameters generated by the Bee Agent:
+
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
+
+class ToolInvocationSchema(BaseModel):
+    tool_name: str = Field(..., description="The name of the invoked MCP or native tool.")
+    arguments: dict = Field(default_factory=dict, description="Input arguments passed to the tool.")
+    execution_time_ms: float = Field(..., ge=0.0)
+    success: bool = Field(True)
+
+class TokenTelemetry(BaseModel):
+    prompt_tokens: int = Field(..., ge=0)
+    completion_tokens: int = Field(..., ge=0)
+    total_tokens: int = Field(..., ge=0)
+
+class BeeAgentTrace(BaseModel):
+    trace_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    model_name: str
+    steps_count: int = Field(..., ge=1)
+    confidence_score: float = Field(..., ge=0.0, le=1.0)
+    tool_calls: List[ToolInvocationSchema] = Field(default_factory=list)
+    telemetry: TokenTelemetry
+    status: str = Field("success")
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, val: str) -> str:
+        allowed = {"success", "failed", "policy_violated", "halted"}
+        if val not in allowed:
+            raise ValueError(f"Status must be one of {allowed}")
+        return val
+
+# Example parsing and verifying a trace generated by the agentic run
+sample_trace_data = {
+    "trace_id": "bee-trace-88942-2026",
+    "model_name": "gpt-5.5-sol",
+    "steps_count": 3,
+    "confidence_score": 0.96,
+    "tool_calls": [
+        {
+            "tool_name": "DuckDuckGoSearchTool",
+            "arguments": {"query": "FastMCP 3.1 specifications"},
+            "execution_time_ms": 142.5,
+            "success": True
+        }
+    ],
+    "telemetry": {
+        "prompt_tokens": 1250,
+        "completion_tokens": 480,
+        "total_tokens": 1730
+    },
+    "status": "success"
+}
+
+validated_trace = BeeAgentTrace(**sample_trace_data)
+print(f"Verified Trace ID: {validated_trace.trace_id} with Status: {validated_trace.status}")
+```
+
 ## Related tools / concepts
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
-- [MCP 3.0](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [MCP 3.1 / FastMCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 - [Phidata](phidata.md)
 - [Superpowers](superpowers.md)
 - [Agno](agno.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Local LLMs (Gemma 3, Qwen 3.6)](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [BeeAI Framework GitHub Repository](https://github.com/i-am-bee/beeai-framework)
@@ -117,5 +180,5 @@ beeai mcp verify http://localhost:18790 --protocol task
 - [IBM Research: AI Agent Reliability with BeeAI](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-28
 - Confidence: high

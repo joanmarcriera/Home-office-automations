@@ -1,24 +1,24 @@
 # NVIDIA NeMo Claw
 
 ## What it is
-NVIDIA NeMo Claw is an enterprise-grade agent orchestration framework designed for building, deploying, and managing high-performance AI agents. As of July 2026, it serves as the primary agentic layer within the [NVIDIA NIM](../providers/nvidia.md) ecosystem, specifically optimized for the NVIDIA Rubin and Blackwell architectures. NeMo Claw provides a standardized runtime for agentic reasoning, native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) support, and deep integration with TensorRT-LLM for low-latency tool execution.
+NVIDIA NeMo Claw is an enterprise-grade agent orchestration framework designed for building, deploying, and managing high-performance AI agents. As of late November/December 2026, it serves as the primary agentic layer within the [NVIDIA NIM](../providers/nvidia.md) ecosystem, optimized for the NVIDIA Rubin and Blackwell architectures. NeMo Claw provides a standardized runtime for agentic reasoning, native Model Context Protocol (MCP 3.1) support, and deep integration with TensorRT-LLM for low-latency tool execution.
 
 ## What problem it solves
-NeMo Claw addresses the "inference-to-action" latency gap in production agent deployments. It simplifies the orchestration of complex, multi-agent systems by providing standardized patterns for model serving via NVIDIA NIM, secure tool-calling validation, and sandboxed execution. It solves the scalability challenges of deploying agents across [K3s clusters](../infrastructure/k3s.md) and provides built-in mechanisms for MCP 3.0 Task Protocol coordination, ensuring reliable tool use in industrial environments.
+NeMo Claw addresses the "inference-to-action" latency gap in production agent deployments. It simplifies the orchestration of complex, multi-agent systems by providing standardized patterns for model serving via NVIDIA NIM, secure tool-calling validation, and sandboxed execution. It solves the scalability challenges of deploying agents across [K3s clusters](../infrastructure/k3s.md) and provides built-in mechanisms for MCP 3.1 / FastMCP 3.1 Task Protocol coordination, ensuring reliable tool use in industrial environments.
 
 ## Where it fits in the stack
-NeMo Claw sits in the **Agent Framework / Orchestration Layer**. It functions as the management plane that connects NVIDIA-optimized models (like [Nemotron](../ai_knowledge/nemotron.md) and Llama 4) to external tools and enterprise data sources, leveraging the [NVIDIA AI Enterprise](../providers/nvidia.md) stack for hardware-accelerated performance.
+NeMo Claw sits in the **Agent Framework / Orchestration Layer**. It functions as the management plane that connects NVIDIA-optimized models (like [Nemotron](../ai_knowledge/nemotron.md), Qwen 3.6, and Llama 4) to external tools and enterprise data sources, leveraging the [NVIDIA AI Enterprise](../providers/nvidia.md) stack for hardware-accelerated performance.
 
 ## Typical use cases
 - **Autonomous Data Center Management**: Coordinating agents on Rubin-class clusters to monitor power distribution and optimize cooling in real-time.
-- **Industrial Multi-Agent Orchestration**: Managing fleets of specialized agents in smart factories using [MCP 3.0](../automation_orchestration/mcp.md) for tool discovery and execution.
+- **Industrial Multi-Agent Orchestration**: Managing fleets of specialized agents in smart factories using FastMCP 3.1 for tool discovery and execution.
 - **Enterprise-Grade Customer Support**: Deploying high-throughput agents with persistent memory and secure tool access via NVIDIA NIM.
 - **GPU-Accelerated Scientific Research**: Automating high-fidelity simulations and data analysis on NVIDIA DGX systems.
 
 ## Strengths
-- **Rubin Architecture Optimization**: Native support for the NVIDIA Rubin architecture, providing unprecedented efficiency for agentic reasoning loops.
+- **Rubin & Blackwell Architecture Optimization**: Native support for the NVIDIA Rubin and Blackwell architectures, providing unprecedented efficiency for agentic reasoning loops.
 - **NVIDIA NIM Integration**: Seamlessly pulls and manages models via NVIDIA Inference Microservices (NIM), now in General Availability (GA).
-- **Native MCP 3.0 Support**: Full implementation of the MCP 3.0 Task Protocol for standardized tool-calling and agent coordination.
+- **Native FastMCP 3.1 Support**: Full implementation of the MCP 3.1 Task Protocol for standardized tool-calling and agent coordination.
 - **Production-Ready Scalability**: Optimized for deployment in [Docker](../infrastructure/docker.md) and Kubernetes environments using the NVIDIA GPU Operator.
 - **Security & Guardrails**: Integrated with NeMo Guardrails to ensure agent outputs and tool calls remain safe and compliant.
 
@@ -48,10 +48,10 @@ docker run --gpus all -p 8000:8000 nvcr.io/nim/nvidia/nemotron-4-340b-instruct:l
 ```
 
 ### Installation
-Install the NeMo Claw SDK and the MCP 3.0 client:
+Install the NeMo Claw SDK and the MCP 3.1 client:
 
 ```bash
-pip install nemoclaw-sdk mcp-python-sdk
+pip install nemoclaw-sdk mcp-python-sdk pydantic
 ```
 
 ### Hello World Agent
@@ -93,23 +93,54 @@ nemoclaw guardrails update ./configs/security-policy.yaml
 ```
 
 ## API examples
-NeMo Claw provides an MCP-compliant REST API for interacting with agents:
+
+### NeMo Claw Telemetry & Response Schema Verification (Pydantic v2)
+For mission-critical operations, NeMo Claw execution payloads and tool dispatch telemetry can be strictly validated using Pydantic v2. This ensures no malformed tool calls enter physical data center execution layers:
 
 ```python
-import requests
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 
-# Query a NeMo Claw agent endpoint with MCP tool context
-url = "http://nemoclaw-server:9000/v1/execute"
-payload = {
-    "agent_id": "production-monitor",
-    "prompt": "Optimize GPU power limits on node-04",
-    "mcp_version": "3.0",
-    "stream": True
+class NIMInferenceMetrics(BaseModel):
+    gpu_utilization: float = Field(..., ge=0.0, le=100.0, description="NVIDIA Rubin/Blackwell GPU utilization percentage.")
+    time_to_first_token_ms: float = Field(..., ge=0.0)
+    tokens_per_second: float = Field(..., ge=0.0)
+
+class NeMoClawPayload(BaseModel):
+    agent_id: str
+    run_id: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    n_tokens: int = Field(..., ge=1)
+    mcp_server_invoked: Optional[str] = None
+    telemetry_metrics: NIMInferenceMetrics
+    security_verdict: str = Field("approved")
+
+    @field_validator("security_verdict")
+    @classmethod
+    def check_verdict(cls, val: str) -> str:
+        allowed = {"approved", "blocked", "flagged_by_guardrails"}
+        if val not in allowed:
+            raise ValueError(f"Verdict must be one of {allowed}")
+        return val
+
+# Verify incoming execution response from a NeMo Claw REST interface
+sample_payload = {
+    "agent_id": "production-monitor-rubin01",
+    "run_id": "claw-run-44810-2026",
+    "n_tokens": 1056,
+    "mcp_server_invoked": "http://localhost:8080/mcp/fastmcp-3.1",
+    "telemetry_metrics": {
+        "gpu_utilization": 82.5,
+        "time_to_first_token_ms": 11.4,
+        "tokens_per_second": 120.5
+    },
+    "security_verdict": "approved"
 }
 
-response = requests.post(url, json=payload, stream=True)
-for line in response.iter_lines():
-    print(line.decode('utf-8'))
+validated_run = NeMoClawPayload(**sample_payload)
+print(f"Validated Run ID: {validated_run.run_id}")
+print(f"Inference Speed: {validated_run.telemetry_metrics.tokens_per_second} tok/sec")
 ```
 
 ## Related tools / concepts
@@ -124,9 +155,9 @@ for line in response.iter_lines():
 ## Sources / references
 - [NVIDIA Developer Blog: NeMo Claw GA and Rubin Support (July 2026)](https://developer.nvidia.com/blog/nemoclaw-ga-rubin-architecture)
 - [Official NVIDIA NeMo Documentation](https://docs.nvidia.com/nemoclaw/)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.org/docs/task-protocol)
+- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.org/docs/task-protocol)
 - [NVIDIA NIM User Guide](https://docs.nvidia.com/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-28
 - Confidence: high

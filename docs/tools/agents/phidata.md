@@ -1,13 +1,13 @@
-# Phidata
+# Phidata (Agno)
 
 ## What it is
-Phidata is a Python-native framework for building AI assistants with memory, knowledge, and tools. As of July 2026, Phidata (and its evolved ecosystem, [Agno](agno.md)) serves as a primary bridge for transforming standard LLMs into functional, stateful agents. It enables developers to store session data in relational databases, perform Retrieval-Augmented Generation (RAG) across diverse data sources, and execute complex toolsets via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
+Phidata is a Python-native framework for building AI assistants with memory, knowledge, and tools. As of late November/December 2026, Phidata has fully transitioned and rebranded into the **Agno** framework (v3.x). It serves as a primary enterprise bridge for transforming raw LLMs into stateful, autonomous agents, offering native integration with the [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) and FastMCP 3.1.
 
 ## What problem it solves
-Phidata addresses the "statelessness" of raw LLMs by providing standardized abstractions for session management and long-term memory. It simplifies the integration of [Vector Databases](../infrastructure/pinecone.md) and traditional storage like PostgreSQL, ensuring that retrieval-augmented generation is performant. By supporting native tool-calling and the MCP 3.0 Task Protocol, it reduces the boilerplate required to connect AI agents to enterprise software stacks.
+Phidata (Agno) addresses the "statelessness" and non-deterministic behavior of standard LLMs by providing clean, object-oriented abstractions for session management and long-term memory. It simplifies the integration of [Vector Databases](../infrastructure/pinecone.md) and relational storage like PostgreSQL, ensuring that retrieval-augmented generation (RAG) is highly performant. By supporting native tool-calling and FastMCP 3.1, it reduces the boilerplate required to connect AI agents to complex software stacks.
 
 ## Where it fits in the stack
-**Agent Orchestration Framework**. It sits between the model layer (e.g., [OpenAI](../ai_knowledge/openai.md), [Anthropic](../providers/anthropic.md)) and the infrastructure layer, coordinating how agents retrieve data, use tools, and persist state.
+**Agent Orchestration Framework**. It sits between the model layer (e.g., [OpenAI](../ai_knowledge/openai.md), [Anthropic](../providers/anthropic.md)) and the infrastructure/database layer, coordinating how agents retrieve data, use tools, and persist state across sessions.
 
 ## Typical use cases
 - **Enterprise Knowledge Assistants**: Building agents that query internal documentation stored in PDF, CSV, or SQL formats.
@@ -16,15 +16,15 @@ Phidata addresses the "statelessness" of raw LLMs by providing standardized abst
 - **Developer Tooling Agents**: Automating software workflows by integrating with [GitHub](../development_ops/github-pages.md) and local development environments.
 
 ## Strengths
-- **Pythonic Design**: Offers a clean, object-oriented API that feels natural to Python developers.
-- **Native MCP 3.0 Support**: Seamlessly integrates with MCP servers using FastMCP for rapid tool discovery and execution.
-- **Optimized for Gemma 3**: Includes specialized prompts and handling for [Gemma 3](../ai_knowledge/local_llms.md) to maximize reasoning capabilities in open-weights environments.
+- **Pythonic Design**: Offers an intuitive, object-oriented API that feels natural to Python developers.
+- **Native FastMCP 3.1 Support**: Seamlessly integrates with MCP servers using FastMCP for rapid tool discovery and execution.
+- **Optimized for Gemma 3**: Includes specialized prompt templates and structural handling for [Gemma 3](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) to maximize reasoning.
 - **Robust Observability**: Standard integration with [AgentOps](../process_understanding/agentops.md) for execution graphs and [ClickHouse](../process_understanding/clickhouse.md) for high-volume session telemetry.
 - **Persistence Flexibility**: Out-of-the-box support for PostgreSQL, SQLite, and MongoDB.
 
 ## Limitations
-- **Ecosystem Transition**: Users must navigate the rebranding and feature migration from Phidata v1 to the Agno ecosystem.
-- **Orchestration Overhead**: For extremely simple, one-off scripts, the framework's abstractions may introduce unnecessary complexity.
+- **Ecosystem Transition**: Users must transition their legacy `phi` imports to the new `agno` SDK as Phidata v1 is deprecated.
+- **Orchestration Overhead**: For simple, single-turn prompts, the framework's abstractions may introduce unnecessary latency.
 - **Multi-Agent Scaling**: While capable, managing massive swarms of 50+ agents may require more manual tuning compared to specialized multi-agent kernels.
 
 ## When to use it
@@ -40,16 +40,16 @@ Phidata addresses the "statelessness" of raw LLMs by providing standardized abst
 ## Getting started
 ### Installation
 ```bash
-pip install phidata openai duckduckgo-search
+pip install agno openai duckduckgo-search pydantic
 ```
 
 ### Hello-World Example
 Initialize a basic research agent using GPT-5.5:
 
 ```python
-from phi.agent import Agent
-from phi.model.openai import OpenAIChat
-from phi.tools.duckduckgo import DuckDuckGo
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.tools.duckduckgo import DuckDuckGo
 
 # Create the assistant
 agent = Agent(
@@ -61,40 +61,64 @@ agent = Agent(
 )
 
 # Run a query
-agent.print_response("Summarize the impact of MCP 3.0 on AI agent interoperability.", stream=True)
+agent.print_response("Summarize the impact of FastMCP 3.1 on AI agent interoperability.", stream=True)
 ```
 
 ## CLI examples
 ```bash
-# Initialize a new Phidata project structure
-phi init
+# Initialize a new Agno project structure
+agno init
 
-# Start Phidata-managed resources (e.g., PostgreSQL for memory)
-phi start
+# Start Agno-managed resources (e.g., PostgreSQL for memory)
+agno start
 
 # Check the status of active agents and storage backends
-phi status
+agno status
 
-# Stop all local Phidata services
-phi stop
+# Stop all local Agno services
+agno stop
 ```
 
 ## API examples
-Implementing an agent with persistent SQLite memory:
+
+### Structured Agent Outputs (Python & Pydantic v2)
+Agno offers native structured response validation. This example defines a strict schema using Pydantic v2 to validate a research agent's structured report on AI tools:
 
 ```python
-from phi.agent import Agent
-from phi.storage.agent.sqlite import SqlAgentStorage
+from typing import List
+from pydantic import BaseModel, Field
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
 
-# Define an agent with persistent storage
+# Define the structured output schema
+class ToolComparison(BaseModel):
+    tool_name: str = Field(..., description="Name of the agentic tool.")
+    primary_use_case: str = Field(..., description="Primary use case or application.")
+    strengths: List[str] = Field(..., description="Key strengths of this tool.")
+    limitations: List[str] = Field(..., description="Limitations or drawbacks.")
+    confidence_rating: float = Field(..., description="Our confidence rating from 0.0 to 1.0.", ge=0.0, le=1.0)
+
+class AIAnalysisReport(BaseModel):
+    topic: str = Field(..., description="The main research topic.")
+    summary: str = Field(..., description="High-level synthesis of findings.")
+    comparisons: List[ToolComparison] = Field(..., description="List of comparative tools analyzed.")
+
+# Initialize the Agent with a response model
 agent = Agent(
-    storage=SqlAgentStorage(table_name="customer_support", db_file="agents.db"),
-    add_history_to_messages=True,
-    num_history_responses=3,
+    model=OpenAIChat(id="gpt-5.5-sol"),
+    response_model=AIAnalysisReport,
+    description="You are an expert market analyst synthesizing tool directories.",
 )
 
-# The agent will remember the user ID across different script executions
-agent.print_response("My user ID is 'AGENT-X'. Remember this for my next visit.")
+# Fetch the structured response
+response = agent.run("Compare Phidata (Agno) vs Bee Agent Framework.")
+
+# The response.content is guaranteed to be an instance of AIAnalysisReport
+report: AIAnalysisReport = response.content
+print(f"Report Topic: {report.topic}")
+print(f"Summary: {report.summary}")
+for comparison in report.comparisons:
+    print(f"- {comparison.tool_name} (Confidence: {comparison.confidence_rating})")
 ```
 
 ## Related tools / concepts
@@ -105,11 +129,11 @@ agent.print_response("My user ID is 'AGENT-X'. Remember this for my next visit."
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) (The standard for tool-LLM communication)
 
 ## Sources / references
-- [Official Phidata Website](https://www.phidata.com/)
-- [Phidata GitHub Repository](https://github.com/agno-agi/phidata)
+- [Official Agno Website](https://www.agno.com/)
+- [Agno GitHub Repository](https://github.com/agno-agi/agno)
 - [Agno Documentation](https://docs.agno.com/)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-28
 - Confidence: high
