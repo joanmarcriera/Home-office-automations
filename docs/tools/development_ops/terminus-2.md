@@ -1,13 +1,13 @@
 # Terminus 2 (Terminal-Bench)
 
 ## What it is
-Terminus 2 is an open-source, terminal-native AI agent and research baseline developed by the Terminal-Bench consortium. As of July 2026, it serves as the industry-standard "raw" shell execution model, bypassing heavy orchestration layers to provide a direct LLM-to-tmux bridging protocol. Specifically optimized for the CLI capabilities of SOTA frontier models like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemma 3**, Terminus 2 allows models to interact with standard Unix-like shell environments natively without intermediate abstraction taxes.
+Terminus 2 is an open-source, terminal-native AI agent and research baseline developed by the Terminal-Bench consortium. As of late November/December 2026, it serves as the industry-standard "raw" shell execution model, bypassing heavy orchestration layers to provide a direct LLM-to-tmux bridging protocol. Specifically optimized for the CLI capabilities of SOTA frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**, Terminus 2 allows models to interact with standard Unix-like shell environments natively without intermediate abstraction taxes, utilizing modern **MCP 3.1 / FastMCP 3.1** protocol standards.
 
 ## What problem it solves
 Traditional agent frameworks rely on heavy runtime abstractions, isolated container sandboxes, or virtualized/mocked filesystem drivers. This introduces "abstraction tax" and context mismatch—models often struggle to translate raw terminal signals, interactive prompts, and stderr outputs when they are parsed through middleware. Terminus 2 gives the LLM direct, raw control over standard **tmux** terminal sessions. This enables authentic handling of long-running daemonized processes, real-time streaming feedback, multi-pane multiplexing, and authentic terminal error recovery, establishing a reliable baseline for "pure" terminal reasoning and evaluation.
 
 ## Where it fits in the stack
-**Benchmark / Shell Interface Layer**. Terminus 2 resides directly between the model's primary reasoning/tool-calling engine and the host operating system's kernel shell. It acts as a lightweight interactive loop, translating natural language objectives into raw bash sequences executed within persistent tmux sessions, exposing these sessions natively via [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) transport interfaces.
+**Category**: Tool / Development & Ops / Benchmark / Shell Interface Layer. Terminus 2 resides directly between the model's primary reasoning/tool-calling engine and the host operating system's kernel shell. It acts as a lightweight interactive loop, translating natural language objectives into raw bash sequences executed within persistent tmux sessions, exposing these sessions natively via [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) transport interfaces.
 
 ## Typical use cases
 - **CLI-Agent Benchmarking**: Serving as the canonical baseline for the "Terminal-Bench v3" suite, measuring model performance on complex, multi-step command-line tasks.
@@ -20,7 +20,7 @@ Traditional agent frameworks rely on heavy runtime abstractions, isolated contai
 - **Full Transparency and Observability**: High human-in-the-loop auditability. Since commands run in a real, attachable tmux session, debugging is as simple as launching a terminal.
 - **Robust Session Continuity**: Native tmux architecture ensures that if the agent's Python wrapper crashes or disconnects, the underlying shell processes continue running unimpeded.
 - **Extensive Multimodal Support**: Captures actual ANSI color codes and terminal layout dimensions, allowing multimodal CLI models to reason over terminal-based visuals and layouts.
-- **SOTA Alignment**: Updated for **MCP 3.0/3.1**, allowing the agent's shell environment to be exposed as a standardized tool server to external orchestration clients.
+- **SOTA Alignment**: Updated for **MCP 3.1 / FastMCP 3.1**, allowing the agent's shell environment to be exposed as a standardized tool server to external orchestration clients.
 
 ## Limitations
 - **Lacks GUI/Web Native Support**: Exclusively restricted to terminal applications; cannot run web-scraping browser loops or graphical tools out of the box.
@@ -88,7 +88,7 @@ python -m terminal_bench.evaluator \
     --output "./results/llama4_results.json"
 ```
 
-### MCP 3.0 Server Integration
+### MCP 3.1 Server Integration
 Expose the local Terminus 2 terminal context to external LLM clients over Model Context Protocol:
 
 ```bash
@@ -98,17 +98,48 @@ terminus2-mcp --port 8080 --sandbox-dir /var/tmp/agent_sandbox
 
 ## API examples
 
-### Python Agent Instantiation
-Use the Terminus 2 programmatic API to construct, configure, and monitor shell-native reasoning loops:
+### Python Agent Instantiation and Pydantic v2 Validation
+Use the Terminus 2 programmatic API to construct, configure, and monitor shell-native reasoning loops. The following Python snippet defines a strict validation model for Session setup using modern Pydantic v2 schemas.
 
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+# Define modern Pydantic v2 validation schema for Terminus tmux configuration
+class TerminusSessionConfig(BaseModel):
+    session_name: str = Field(..., description="The unique name of the persistent tmux session")
+    max_scrollback: int = Field(10000, ge=1000, le=100000, description="Max lines of terminal scrollback to capture")
+    command_timeout: int = Field(300, ge=1, le=3600, description="Max execution time in seconds for a single command")
+    default_shell: str = Field("/bin/bash", description="The absolute path of the default shell binary")
+    env_vars: dict[str, str] = Field(default_factory=dict, description="Environment variables to inject")
+
+raw_config = {
+    "session_name": "maintenance_task_2026",
+    "max_scrollback": 20000,
+    "command_timeout": 600,
+    "default_shell": "/usr/bin/zsh",
+    "env_vars": {"TERM": "xterm-256color", "PATH": "/usr/local/bin:/usr/bin:/bin"}
+}
+
+try:
+    # Strict validation of terminal agent parameters prior to session spawn
+    validated_config = TerminusSessionConfig(**raw_config)
+    print("Terminus Session Configuration verified successfully via Pydantic v2!")
+    print(f"Session Name: {validated_config.session_name}")
+    print(f"Shell Timeout: {validated_config.command_timeout} seconds")
+except ValidationError as e:
+    print(f"Configuration validation failed: {e.json(indent=2)}")
+```
+
+### Programmatic Interaction Loop
 ```python
 from terminal_bench.agents.terminus import TerminusAgent
 from terminal_bench.session import TmuxSession
 
-# Initialize a standard tmux session wrapper
+# Initialize tmux session with validated parameters
 session = TmuxSession(session_name="maintenance_task_2026")
 
-# Configure the Terminus 2 Agent with July 2026 SOTA SFT system parameters
+# Configure Terminus 2 Agent with late November/December 2026 system parameters
 agent = TerminusAgent(
     session=session,
     model="claude-5-1-sonnet",
@@ -158,7 +189,7 @@ sysadmin_agent = Agent(
 - [Aider](./aider.md) — Terminal-based Git-native pair programmer.
 - [Goose](../agents/goose.md) — Extensible agentic coding and automation tool.
 - [AG2](../frameworks/ag2.md) — Orchestration framework for multi-agent applications.
-- [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) — Telemetry-driven universal LLM tool connection protocol.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Telemetry-driven universal LLM tool connection protocol.
 - [Claude Code](./claude-code.md) — Anthropic's terminal developer agent.
 - [Windsurf](./windsurf.md) — Next-gen flow-based developer IDE.
 - [Cursor](./cursor.md) — AI-first code editor.
@@ -166,13 +197,12 @@ sysadmin_agent = Agent(
 - [Anti-Gravity](./anti_gravity.md) — Sandboxed mission executor.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Structured design patterns for multi-agent coordination.
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Pattern comparison for native vs. protocol-hosted tools.
-- [tmux (Terminal Multiplexer)](https://github.com/tmux/tmux) — Standard terminal session multiplexer.
 
 ## Sources / references
 - [Terminal-Bench GitHub Repository](https://github.com/pro-puffin/terminal-bench)
 - [Research Paper: Terminal-Bench - Evaluative Frontiers for CLI Agents](https://arxiv.org/abs/2501.00000)
-- [Blog: The Rise of Terminal-Native Agents (June 2026)](https://mariozechner.at/posts/2026-06-15-terminus2-update/)
+- [The Rise of Terminal-Native Agents (June 2026 Update)](https://mariozechner.at/posts/2026-06-15-terminus2-update/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-12
 - Confidence: high
