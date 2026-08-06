@@ -1,20 +1,20 @@
 # Mycelium
 
 ## What it is
-Mycelium is an enterprise-grade, Clojure-based framework and architectural pattern for building robust, observable AI systems using state machines and formal contracts. As of July 2026, it is the primary implementation of the 'Cellular Agent Architecture', where complex, multi-turn reasoning workflows are decomposed into isolated, functional 'cells' that communicate exclusively via strongly-typed Malli schemas.
+Mycelium is an enterprise-grade, Clojure-based framework and architectural pattern for building robust, observable AI systems using state machines and formal contracts. As of late November/December 2026, it is the primary implementation of the 'Cellular Agent Architecture', where complex, multi-turn reasoning workflows are decomposed into isolated, functional 'cells' that communicate exclusively via strongly-typed Malli schemas.
 
 ## What problem it solves
 It eliminates 'prompt spaghetti' and 'state drift' in complex agentic systems by enforcing strict boundaries and data contracts between reasoning nodes. By providing a formal harness for LLMs, Mycelium ensures that agentic outputs are validated against machine-readable contracts before execution, preventing raw LLM hallucination from causing cascading downstream failures. This makes multi-step agentic reasoning predictable, testable, and debuggable at scale.
 
 ## Where it fits in the stack
-**Orchestration / Control Plane**. Mycelium sits above the LLM inference layer (LiteLLM, Claude 5.1, Llama 4, and Gemma 3) and acts as the supervisor for agentic state. It is often used as the 'logical backbone' for enterprise environments where reliability, strict verification, and deep observability are prioritized over rapid, ad-hoc prototyping.
+**Orchestration / Control Plane**. Mycelium sits above the LLM inference layer (LiteLLM, Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3) and acts as the supervisor for agentic state. It is often used as the 'logical backbone' for enterprise environments where reliability, strict verification, and deep observability are prioritized over rapid, ad-hoc prototyping.
 
 ## Typical use cases
 - **Multi-Agent Coding Factories**: Coordinating specialized, specialized agents for planning, implementation, and testing with strict handoff protocols and contract-based verification.
 - **Mission-Critical Decision Support**: Systems where every agentic reasoning step must be traceable, auditable, and validated against a schema before triggering real-world side effects.
 - **Complex State Management**: Workflows that require long-running persistence, recursive nesting, and high-fidelity 'flight recording' (telemetry) for multi-agent loops.
 - **Functional AI Pipelines**: Leveraging Clojure's immutability, software transactional memory (STM), and concurrency for high-throughput, fault-tolerant agentic tasks.
-- **MCP-Orchestrated Environments**: Dynamically routing tasks from Model Context Protocol (MCP 3.0/3.1) clients to specialized Clojure cells for secure execution.
+- **MCP-Orchestrated Environments**: Dynamically routing tasks from Model Context Protocol (MCP 3.1/FastMCP 3.1) clients to specialized Clojure cells for secure execution.
 
 ## Strengths
 - **Formal Verification**: Uses Malli schemas for input/output validation, preventing malformed or hallucinated LLM responses from propagating.
@@ -41,9 +41,9 @@ It eliminates 'prompt spaghetti' and 'state drift' in complex agentic systems by
 ## Getting started
 
 ### Installation (deps.edn)
-Add the July 2026 stable release to your Clojure project:
+Add the late 2026 stable release to your Clojure project:
 ```clojure
-{:deps {mycelium/mycelium {:mvn/version "2026.7.15"}}}
+{:deps {mycelium/mycelium {:mvn/version "2026.11.30"}}}
 ```
 
 ### Basic Cell Definition
@@ -81,9 +81,14 @@ mycelium-trace export --id last --format json > trace.json
 
 ## API examples
 
-### Schema-Driven Agent Handoff
-Mycelium ensures that data passing between agents (cells) is always valid.
+### Schema-Driven Agent Handoff (Malli Contract Validation)
+Mycelium ensures that data passing between agents (cells) is always valid using Malli schemas, which provide runtime verification similar to Python's Pydantic.
+
 ```clojure
+(require '[malli.core :as ml]
+         '[mycelium.core :as m])
+
+;; Define strict Malli schema contract
 (def AgentContract
   [:map
    [:intent [:enum :refactor :debug :feature]]
@@ -95,10 +100,14 @@ Mycelium ensures that data passing between agents (cells) is always valid.
 (m/register-cell!
   {:id :agent-dispatcher
    :output-schema AgentContract
-   :fn (fn [in] (llm-call :claude-5.1 (build-prompt in)))})
+   :fn (fn [in]
+         ;; Calls frontier models (e.g., Claude 5.1) and returns mapped result
+         (let [raw-response (m/llm-call :claude-5-1 (m/build-prompt in))]
+           ;; Output will be strictly validated against output-schema (AgentContract) by Mycelium
+           raw-response))})
 ```
 
-### Model Context Protocol (MCP 3.0/3.1) Client Integration
+### Model Context Protocol (MCP 3.1 / FastMCP 3.1) Client Integration
 Mycelium cells can interact directly with MCP servers to discover and consume tools in real-time, matching modern agent paradigms.
 ```clojure
 ;; Initialize an MCP client connection within the cellular framework
@@ -123,7 +132,7 @@ Mycelium cells can interact directly with MCP servers to discover and consume to
 - [Software Factories](../../knowledge_base/patterns/software-factories.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [LiteLLM](../../services/litellm.md)
-- [MCP 3.0](../automation_orchestration/mcp.md)
+- [MCP 3.1](../automation_orchestration/mcp.md)
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [AG2](ag2.md)
 - [LangGraph](langgraph.md)
@@ -138,6 +147,5 @@ Mycelium cells can interact directly with MCP servers to discover and consume to
 - [Malli Schema Specification](https://github.com/metosin/malli)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-11
 - Confidence: high
