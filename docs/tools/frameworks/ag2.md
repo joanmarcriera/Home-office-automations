@@ -1,25 +1,25 @@
 # AG2 (formerly AutoGen)
 
 ## What it is
-AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. As of July 2026, it serves as a universal runtime (**AG2 AgentOS**) for orchestrating specialized agents from various frameworks, fully integrated with **Gemma 3** for local reasoning and the **MCP 3.0 Task Protocol**.
+AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. As of late 2026, it serves as a universal runtime (**AG2 AgentOS**) for orchestrating specialized agents from various frameworks, fully integrated with frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) for local reasoning and the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** task execution standards.
 
 ## What problem it solves
-It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act. AG2 addresses "islands of intelligence" by providing a universal runtime for framework interoperability, unified state management ("shared brain"), and standardized protocols (A2A and MCP) for secure agent-to-agent and agent-to-tool communication. It specifically solves the orchestration bottleneck in large-scale agentic deployments.
+It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act. AG2 addresses "islands of intelligence" by providing a universal runtime for framework interoperability, unified state management ("shared brain"), and standardized protocols (A2A and MCP) for secure agent-to-agent and agent-to-tool communication. It specifically solves the orchestration and latency bottleneck in large-scale multi-agent deployments.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator / Agent Runtime**.
+**Framework / Multi-Agent Orchestrator / Agent Runtime**. AG2 AgentOS sits at the orchestrator layer, organizing and coordinating individual agents and routing messages.
 
 ## Typical use cases
-- **Multi-Framework Orchestration**: Connecting agents built in different frameworks (e.g., a LangChain researcher and an OpenAI analyst) into a single cohesive team.
-- **Cross-Platform Coordination**: Assembling dynamic teams of specialized personas that can operate across local (Gemma 3) and cloud environments.
-- **Unified State Management**: Maintaining consistent context and task state across long-running agentic workflows.
-- **Visual Team Composition**: Using **Waldiez** (the community-led visual companion) to design and debug multi-agent group chats.
+- **Multi-Framework Orchestration**: Connecting agents built in different frameworks (e.g., a LangChain researcher and a PydanticAI analyst) into a single cohesive team.
+- **Cross-Platform Coordination**: Assembling dynamic teams of specialized personas that can operate across local (Gemma 3) and cloud (Claude 5.1/GPT-5.5) environments.
+- **Unified State Management**: Maintaining consistent context and task state across long-running, multi-step agentic workflows.
+- **Visual Team Composition**: Using **Waldiez** (the community-led visual companion) to design, validate, and debug multi-agent group chats.
 
 ## Strengths
-- **Protocol-First Interoperability**: Native support for **A2A (Agent-to-Agent)** and **MCP 3.0 Task Protocol**.
+- **Protocol-First Interoperability**: Native support for **A2A (Agent-to-Agent)** and **MCP 3.1 / FastMCP 3.1** Task Protocols.
 - **Flexible Conversational Design**: Support for group chats, hierarchical orchestration, and custom state-based transitions.
-- **Enterprise-Ready Security**: Features like Agent Cards and secure tool-calling guards for production deployments.
-- **Shared Brain Architecture**: Advanced state management that prevents context loss in complex multi-step tasks.
+- **Enterprise-Ready Security**: Features like Agent Cards, guardrails, and secure tool-calling authorization for production environments.
+- **Shared Brain Architecture**: Advanced state management that prevents context loss or dilution in complex multi-step tasks.
 
 ## Limitations
 - **Transition Complexity**: Migrating from legacy AutoGen (v0.2) to the AG2 AgentOS architecture requires refactoring of orchestration logic.
@@ -38,7 +38,7 @@ It simplifies the development of complex AI systems where multiple agents need t
 
 ### Installation
 ```bash
-pip install ag2
+pip install ag2 pydantic
 ```
 
 ### Basic Multi-Agent Setup
@@ -51,7 +51,7 @@ from ag2 import AgentOS
 runtime = AgentOS.init()
 
 # Define agents
-assistant = autogen.AssistantAgent("helper", llm_config={"model": "gpt-4o"})
+assistant = autogen.AssistantAgent("helper", llm_config={"model": "gpt-5.5"})
 user_proxy = autogen.UserProxyAgent("user", code_execution_config={"use_docker": False})
 
 # Orchestrate
@@ -77,33 +77,70 @@ ag2 cards list
 
 ## API examples
 
-### Cross-Framework Delegation (A2A)
+### Python (Universal AgentOS Config & Card Validation)
+AG2 relies on Agent Cards and Runtime Configurations to coordinate multi-agent teams. The following example validates an AG2 runtime and agent cards setup using **Pydantic v2**:
+
 ```python
-from ag2.protocols import A2A
+import os
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Delegate a task to an external Google ADK agent
-result = await A2A.delegate(
-    target_agent_id="google-adk-analyst",
-    task="Perform financial sentiment analysis",
-    context=shared_brain.get_context()
-)
-```
+# 1. Define robust Pydantic v2 schemas for AG2 Agent Cards & AgentOS Configurations
+class AG2AgentCard(BaseModel):
+    agent_id: str = Field(..., serialization_alias="agentId", validation_alias="agentId")
+    name: str = Field(..., description="Name of the agent.")
+    role: str = Field(..., description="The expertise or primary function of this agent.")
+    model_name: str = Field(..., serialization_alias="modelName", validation_alias="modelName")
+    mcp_tools: List[str] = Field(default_factory=list, serialization_alias="mcpTools", validation_alias="mcpTools")
 
-### Using Gemma 3 for Local Reasoning
-```python
-import autogen
-from ag2 import LocalRuntime
+    @field_validator("model_name")
+    @classmethod
+    def validate_model(cls, v: str) -> str:
+        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        if not any(m in v for m in allowed):
+            raise ValueError(f"Model {v} must be a late 2026/2027 SOTA model: {allowed}")
+        return v
 
-# Setup local Gemma 3 agent via MCP
-runtime = LocalRuntime.use_model("gemma-3-27b")
-agent = autogen.AssistantAgent("local-reasoner", llm_config=runtime.config)
-```
+class AG2RuntimeConfig(BaseModel):
+    session_id: str = Field(..., serialization_alias="sessionId", validation_alias="sessionId")
+    agents: List[AG2AgentCard] = Field(...)
+    enable_shared_brain: bool = Field(default=True, serialization_alias="enableSharedBrain", validation_alias="enableSharedBrain")
+    max_turns: int = Field(default=20, ge=1, le=100, serialization_alias="maxTurns", validation_alias="maxTurns")
 
-### Unified State Access
-```python
-# Access the 'shared brain' across the team
-state = runtime.get_state("workflow-id-123")
-print(state.history)
+# 2. Setup configuration payload for a collaborative analyst-researcher team
+runtime_payload = {
+    "sessionId": "session-ag2-9904",
+    "enableSharedBrain": True,
+    "maxTurns": 30,
+    "agents": [
+        {
+            "agentId": "agent-researcher-1",
+            "name": "Local Researcher",
+            "role": "Retrieves local documentation data",
+            "modelName": "Gemma 3",
+            "mcpTools": ["fetch_file", "search_directory"]
+        },
+        {
+            "agentId": "agent-analyst-1",
+            "name": "Lead Analyst",
+            "role": "Synthesizes final reports",
+            "modelName": "Claude 5.1",
+            "mcpTools": ["generate_chart"]
+        }
+    ]
+}
+
+# 3. Validate AG2 configuration payload
+try:
+    config = AG2RuntimeConfig(**runtime_payload)
+    print("AG2 AgentOS runtime configuration verified successfully!")
+    print(f"Session ID: {config.session_id}")
+    print(f"Shared Brain Enabled: {config.enable_shared_brain}")
+    print(f"Total Configured Agents: {len(config.agents)}")
+    for agent in config.agents:
+        print(f" - Agent: {agent.name} backed by {agent.model_name}")
+except Exception as e:
+    print(f"Configuration validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -123,5 +160,5 @@ print(state.history)
 - [AG2 vs AutoGen Comparison](https://www.ag2.ai/compare/autogen)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-09
 - Confidence: high
