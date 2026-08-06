@@ -1,48 +1,42 @@
 # Distilabel
 
 ## What it is
-Distilabel is an open-source framework designed for scalable and reliable synthetic data generation and AI feedback. As of June 2026, it is the industry standard for creating high-quality datasets for fine-tuning frontier models like Claude 4.8 and GPT-5.5. It allows developers to build complex pipelines that leverage Large Language Models (LLMs) to generate, augment, and filter datasets, incorporating "LLM-as-a-judge" patterns to ensure data quality.
+Distilabel is an open-source framework designed for scalable, high-fidelity synthetic data generation and structured AI feedback (RLHF / RLAIF). As of late 2026, Distilabel has progressed to **v2.3.0+**, establishing itself as an industry standard for preparing training and fine-tuning datasets for frontier models like Claude 5.1 and GPT-5.5. It enables developers to construct complex multi-step pipelines that orchestrate LLMs to generate, mutate, score, and filter datasets using advanced "LLM-as-a-judge" patterns.
 
 ## What problem it solves
-Creating high-quality datasets for LLM training remains a significant bottleneck. Manual labeling is slow and expensive, while naive synthetic generation often produces noisy or repetitive data. Distilabel addresses these challenges by:
-- **Standardizing Pipeline Construction**: Providing a declarative way to define data generation and labeling steps.
-- **Scaling Generation**: Natively supporting parallel execution and integration with various LLM providers (Anthropic, OpenAI, [vLLM](../../tools/infrastructure/vllm.md), [Ollama](../../services/ollama.md)).
-- **Ensuring Data Quality**: Built-in components for filtering, scoring, and verifying synthetic samples using advanced reasoning models.
-- **Reducing Alignment Costs**: Streamlining the creation of preference datasets for DPO and RLHF workflows.
+Creating high-quality instruction and preference datasets for model training is a major bottleneck in AI development. Manual labeling is expensive and slow, while raw synthetic generation without filtering is prone to redundancy and noise. Distilabel solves these problems by:
+- **Declarative Pipelines**: Providing a clear, standard way to define data generation and feedback steps as Python pipelines.
+- **Robust Scale**: Native support for parallel execution across model APIs (Anthropic, OpenAI) and high-throughput local backends like [vLLM](../../tools/infrastructure/vllm.md) or [Ollama](../../services/ollama.md).
+- **High Data Quality**: Built-in scoring, ranking, and deduplication modules that filter out low-quality data.
+- **Dynamic Tool Calling**: Native Model Context Protocol (MCP 3.1) support to supply synthetic agents with live tools during generation.
 
 ## Where it fits in the stack
-Distilabel sits in the **Frameworks/Data-Generation** layer. It is the primary engine for data preparation that precedes the fine-tuning stage, serving as the "upstream" source for tools like [Unsloth](../../tools/infrastructure/unsloth.md), [Axolotl](axolotl.md), or [LLaMA Factory](llama-factory.md).
+Distilabel sits in the **Frameworks / Data-Generation** layer. It serves as the primary data engineering and preparation pipeline that feeds model-training frameworks like [Unsloth](../../tools/infrastructure/unsloth.md), [Axolotl](axolotl.md), and [LLaMA Factory](llama-factory.md).
 
 ## Typical use cases
-- **Instruction Data Generation**: Generating thousands of varied prompts and responses from a few seed examples (Self-Instruct).
-- **Preference Dataset Creation**: Generating multiple responses to the same prompt and using a stronger model like Claude 4.8 to rank them.
-- **RAG Data Augmentation**: Generating synthetic questions and answers from a corpus of documents to train specialized embedding or retrieval models.
-- **Domain Adaptation**: Creating niche datasets for specialized fields like coding, medicine, or law where public data is scarce.
-- **Synthetic Agentic Data**: Generating multi-step tool-use trajectories for agent training.
+- **Evol-Instruct Pipelines**: Taking simple prompt seeds and evolving them into highly complex multi-turn instructions using frontier models.
+- **Preference Dataset Creation (RLHF/DPO)**: Generating multiple responses to a prompt and using Claude 5.1 as a judge to score and output structured pairwise preferences.
+- **VLM/RAG Data Enrichment**: Synthesizing high-quality question-answering pairs from document repositories or image databases.
+- **Agent Trajectory Synthesis**: Simulating multi-step tool-use conversations using MCP 3.1 servers to train specialized action models.
 
 ## Strengths
-- **Provider Agnostic**: Seamlessly switch between local models ([Ollama](../../services/ollama.md)) and cloud APIs (Anthropic, OpenAI).
-- **Reliable Pipeline Logic**: Handles retries, rate limiting, and caching out of the box.
-- **Rich Component Library**: Includes pre-built tasks for common patterns (e.g., UltraFeedback, Evol-Instruct, DEITA).
-- **Integration with Hugging Face**: Direct support for loading from and pushing to the Hugging Face Hub.
-- **Scalability**: Designed to handle millions of samples via distributed processing.
-- **MCP 3.0 Integration**: Supports the Model Context Protocol for automated tool discovery during generation.
+- **Provider Agnostic**: Switch easily between local backends (vLLM, Ollama) and commercial APIs (Anthropic, OpenAI, Gemini).
+- **Enterprise Reliability**: Handles API rate limits, connection retries, state caching, and step-by-step pipeline recovery.
+- **Rich Library**: Pre-built components for standard datasets (e.g., UltraFeedback, DEITA, self-instruct).
+- **Hugging Face Hub Native**: Directly loads from and pushes to the Hugging Face Hub.
 
 ## Limitations
-- **Cost Management**: Generating large datasets via frontier APIs (e.g., GPT-5.5) can be extremely expensive.
-- **Model Bias**: Synthetic data inherits the biases and reasoning patterns of the generator models.
-- **Pipeline Complexity**: Designing effective "multi-step" pipelines requires deep expertise in prompt engineering and dataset theory.
+- **Cost Accumulation**: Running large-scale data generation using commercial frontier model APIs can result in very high token costs.
+- **Prompt Sensitivity**: Quality is deeply tied to system prompt engineering; subtle model updates can alter generation distributions.
 
 ## When to use it
-- When you need to scale from hundreds to tens of thousands of high-quality training examples.
-- When you want to implement automated "LLM-as-a-judge" workflows for data validation.
-- When you need to generate preference data (pairs of good/bad responses) for alignment training.
-- When you want to leverage frontier models like Claude 4.8 to improve the quality of data for smaller, specialized models.
+- When you need to scale fine-tuning data from hundreds of seeds to tens of thousands of highly varied instruction-response pairs.
+- To set up automated, reproducible "LLM-as-a-judge" data filtering and scoring systems.
+- When generating structured preference pairs (chosen vs. rejected) for DPO/RLHF alignment.
 
 ## When not to use it
-- If you only need a handful of examples that can be written manually.
-- If you don't have access to sufficiently capable generator models (either local or via API).
-- If your data needs are purely extractive and don't involve generative reasoning.
+- For basic data loading or simple filtering that can be accomplished with standard pandas or Hugging Face `datasets` scripts.
+- If you lack access to capable generator models (either local GPUs or commercial APIs).
 
 ## Getting started
 
@@ -51,9 +45,7 @@ Distilabel sits in the **Frameworks/Data-Generation** layer. It is the primary e
 pip install distilabel[vllm,anthropic,openai]
 ```
 
-### Hello-world
-A minimal script to generate a response using a pipeline:
-
+### Minimal Python Example
 ```python
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
@@ -61,28 +53,27 @@ from distilabel.llms import AnthropicLLM
 
 with Pipeline(name="hello-world") as pipeline:
     loader = LoadDataFromHub(repo_id="instruction-dataset")
-    llm = AnthropicLLM(model="claude-4-8-opus-20260528")
-    # ... define steps ...
+    llm = AnthropicLLM(model="claude-5-1-sonnet")
+    # ... define pipeline steps ...
 ```
 
 ## CLI examples
-Distilabel provides a CLI for managing and running pipelines.
 
 ```bash
-# Run a pipeline from a configuration file
-distilabel pipeline run --config pipeline.yaml
+# Run a declarative pipeline from a YAML configuration file
+distilabel pipeline run --config my_pipeline.yaml
 
-# List all available local pipelines
-distilabel pipeline list
+# Check the status of active pipelines
+distilabel pipeline status
 
-# Check the version and environment info
-distilabel --version
+# List installed distilabel pipeline templates
+distilabel templates list
 ```
 
 ## API examples
 
 ### Generating Evol-Instructions
-Using Claude 4.8 to evolve a dataset of instructions for increased complexity.
+Using Claude 5.1 to evolve instruction complexity over multiple iterations:
 
 ```python
 from distilabel.pipeline import Pipeline
@@ -92,7 +83,7 @@ from distilabel.llms import AnthropicLLM
 
 with Pipeline(name="evol-instruct-pipeline") as pipeline:
     loader = LoadDataFromHub(repo_id="HuggingFaceH4/instruction-dataset")
-    llm = AnthropicLLM(model="claude-4-8-opus-20260528")
+    llm = AnthropicLLM(model="claude-5-1-sonnet")
 
     evolve = EvolInstruction(
         llm=llm,
@@ -105,21 +96,74 @@ if __name__ == "__main__":
     pipeline.run()
 ```
 
+### Python (Preference Dataset Record Validation with Pydantic v2)
+To ensure downstream training runs do not crash due to malformed JSON, synthetic records (such as UltraFeedback-style preference scores or DPO pairs) should be validated using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Dict, Any, Optional, Literal
+from pydantic import BaseModel, Field, field_validator
+
+# 1. Define the validation schema for a Preference alignment pair
+class PreferenceEvaluation(BaseModel):
+    judge_model: str = Field(..., serialization_alias="judgeModel", validation_alias="judgeModel")
+    score: float = Field(..., ge=1.0, le=10.0)
+    critique: str
+
+class PreferenceDatasetRecord(BaseModel):
+    record_id: str = Field(..., serialization_alias="recordId", validation_alias="recordId")
+    instruction: str
+    chosen_response: str = Field(..., serialization_alias="chosenResponse", validation_alias="chosenResponse")
+    rejected_response: str = Field(..., serialization_alias="rejectedResponse", validation_alias="rejectedResponse")
+    evaluation: PreferenceEvaluation
+
+    @field_validator("chosen_response", "rejected_response")
+    @classmethod
+    def validate_responses(cls, v: str) -> str:
+        if len(v.strip()) < 10:
+            raise ValueError("Response text is too short to be viable training data.")
+        return v
+
+# 2. Simulated Distilabel pipeline output payload for a single synthetic instruction
+distilabel_record_payload = {
+    "recordId": "rec-distilabel-552",
+    "instruction": "Explain quantum superposition in simple words.",
+    "chosenResponse": "Imagine a spinning coin. While spinning, it's both heads and tails at once. That's superposition.",
+    "rejectedResponse": "It is a linear combination of all possible eigenstates in a Hilbert space prior to measurement.",
+    "evaluation": {
+        "judgeModel": "Claude 5.1",
+        "score": 9.5,
+        "critique": "The chosen response uses a great spinning coin analogy, making it highly accessible compared to the rejected jargon."
+    }
+}
+
+# 3. Perform strict validation
+try:
+    record = PreferenceDatasetRecord(**distilabel_record_payload)
+    print("Distilabel synthetic dataset record validated successfully via Pydantic v2!")
+    print(f"Record ID: {record.record_id}")
+    print(f"Instruction: {record.instruction}")
+    print(f"Chosen (Score: {record.evaluation.score}): {record.chosen_response}")
+    print(f"Critique: {record.evaluation.critique}")
+except Exception as e:
+    print(f"Record validation failed: {e}")
+```
+
 ## Related tools / concepts
-- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The primary beneficiary of distilabel output.
-- [Unsloth](../../tools/infrastructure/unsloth.md) — For training on the generated data.
-- [Axolotl](axolotl.md) — For training on the generated data.
-- [vLLM](../../tools/infrastructure/vllm.md) — Often used as the high-speed generation backend for distilabel.
-- [Ollama](../../services/ollama.md) — Can be used for local, private data generation.
-- [Glaive](../../tools/ai_knowledge/glaive.md) — A platform for generating synthetic agentic data.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — For agentic tool calling in pipelines.
-- [Instructor](instructor.md) — For structured data extraction.
+- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The primary training method utilizing generated data.
+- [Unsloth](../../tools/infrastructure/unsloth.md) — For ultra-fast single-GPU model fine-tuning.
+- [Axolotl](axolotl.md) — For multi-GPU configuration-driven training.
+- [vLLM](../../tools/infrastructure/vllm.md) — Highly optimized generation engine used as a backend.
+- [Ollama](../../services/ollama.md) — Simple local inference backend.
+- [Glaive](../../tools/ai_knowledge/glaive.md) — Enterprise synthetic agentic data platform.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Used to power tool usage in synthetic agents.
+- [Instructor](instructor.md) — For structured output extraction.
 
 ## Sources / references
 - [Distilabel Documentation](https://distilabel.argilla.io/)
 - [Argilla GitHub Repository](https://github.com/argilla-io/distilabel)
-- [Synthetic Data Generation for LLMs (Guide)](https://distilabel.argilla.io/latest/sections/getting_started/quickstart/)
+- [Synthetic Data Generation for LLMs Guide](https://distilabel.argilla.io/latest/sections/getting_started/quickstart/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-10
 - Confidence: high
