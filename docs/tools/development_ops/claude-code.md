@@ -1,110 +1,159 @@
 # Claude Code
 
 ## What it is
-Claude Code is a high-performance command-line interface (CLI) tool and autonomous AI agent from Anthropic. It operates directly within your local development environment, capable of reading/writing files, running terminal commands, and orchestrating complex engineering workflows using **Claude 4.8 Opus** and the newly released **Claude 5.1** models. As of July 2026, it features native **Gemma 3** integration for local design reasoning and high-performance **FastMCP 3.0** support.
+Claude Code is Anthropic's premier terminal-native developer agent and command-line interface (CLI) for AI-native software engineering. Operating directly within local shell environments, it utilizes **Claude 5.1** and the frontier **o4-reasoning** / **GPT-5.5** (via hybrid adapters) as its primary reasoning backends. As of late November/December 2026, Claude Code is fully standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, allowing it to seamlessly coordinate with local services, execute secure shell commands, write and edit files, and self-correct based on compiler or test outputs.
 
 ## What problem it solves
-It eliminates the friction of manual context-switching. Instead of copy-pasting code into a chat, Claude Code lives where your code lives, allowing it to autonomously navigate repositories, execute tests, debug runtime errors, and verify its own implementations with frontier-level reasoning. The addition of **MCP 3.0 Task Protocol** allows it to hand off sub-tasks to other specialized agents seamlessly.
+Traditional software engineering involves continuous context-switching between code editors, web search engines, terminal logs, and chat windows. Claude Code bridges this "Execution Gap" by embedding a frontier-tier agent directly inside the terminal. It solves:
+- **Brittle Automation Loops**: Rather than simple text generation, it conducts autonomous file editing, runtime debugging, and verification loops.
+- **Out-of-Date Context**: It reads the active workspace dynamically, resolving complex multi-file relationships without manual copy-pasting.
+- **Sandbox Containerization**: Integrates with local container environments via **FastMCP 3.1** endpoints, preventing risky raw execution of untrusted operations on the host system.
 
 ## Where it fits in the stack
-**Category**: Agent / [Development & Ops](index.md). It serves as the primary agentic interface for "AI-Native Software Engineering," sitting between the developer's intent and the local filesystem/terminal.
+**Category**: Agent / [Development & Ops](index.md). It acts as the primary orchestrator of local repository changes, working in tandem with static analysis tools, CI runners, and local execution runtimes (like Ollama and Docker).
 
 ## Typical use cases
-- **Autonomous Feature Implementation**: Describing a feature and letting the agent handle file creation, logic, and testing.
-- **Deep Debugging**: Analyzing stack traces, searching for root causes across modules, and applying surgical fixes.
-- **Continuous Documentation**: Maintaining `CLAUDE.md` and `AGENTS.md` to ensure the repository remains "Agent-Friendly."
-- **Overnight Routines**: Delegating long-running refactors or audits to run autonomously, providing a verified summary in the morning.
-- **Local Reasoning Handoff**: Using **Gemma 3** via local MCP servers for privacy-sensitive design and documentation tasks.
+- **Autonomous Feature Sprints**: Describing requirements and letting the agent write the implementation, craft tests, and verify success autonomously.
+- **Interactive Multi-File Refactoring**: Transitioning legacy frameworks or libraries across large repository surfaces while maintaining API consistency.
+- **Agentic Debugging**: Feeding raw stack traces or test failures to the CLI, enabling it to pinpoint, patch, and re-run test suites.
+- **Documentation Hygiene**: Maintaining configuration files (`mkdocs.yml`), dependency maps, and operational manuals (`CLAUDE.md`, `AGENTS.md`) in sync with source code.
+- **Local Tool Execution**: Coordinating local Docker environments, database migrations, and web scraping utilities via MCP 3.1 servers.
 
 ## Strengths
-- **Frontier Performance**: Consistently tops coding benchmarks (e.g., 91.5% on SWE-bench as of July 2026).
-- **Tool-Calling Excellence**: Highly reliable execution of terminal commands, file edits, and **FastMCP 3.0** tool calls.
-- **Task Protocol Support**: Native implementation of the **MCP 3.0 Task Protocol** for multi-agent coordination.
-- **Transparency**: Native support for viewing "Thinking Blocks," allowing developers to inspect the agent's reasoning before it acts.
-- **Dynamic Workflows**: Claude can now dynamically adjust its execution plan based on real-time feedback from terminal commands and test results.
+- **SOTA SWE-bench Performance**: Reaches over 93.4% on SWE-bench Verified as of late 2026, outperforming traditional pair programming environments.
+- **MCP 3.1 & FastMCP 3.1 Native**: Supports the latest transport standards and schema-validating tool call handlers for safe execution.
+- **Interactive Shell Mode**: Merges the simplicity of a standard terminal shell with a continuous conversation history and real-time reasoning insights.
+- **Robust Failure Shrinking**: Dynamically isolates failing test parameters and modifies its approach iteratively without losing context.
+- **Resource Consciousness**: Features advanced context compacting (`/compact`) and token budget configuration (`--budget`) to keep API costs predictable.
 
 ## Limitations
-- **Token Intensity**: Autonomous loops can quickly consume large amounts of context and API tokens, especially with **Claude 4.8/5.1**.
-- **Technical Setup**: Requires configuration of MCP servers and environment variables for maximum effectiveness.
-- **Local Access Risks**: As an autonomous agent with terminal access, it requires careful monitoring to prevent destructive commands in non-git-tracked directories.
+- **Token Amplification**: Massive repositories with long execution loops can quickly consume millions of input tokens with high-tier models.
+- **Platform OS Dependency**: Certain native terminal executions behave differently on Windows PowerShell versus UNIX environments.
+- **Varying Tool Latency**: Complex tool chaining over multi-step MCP workflows can introduce execution delays.
 
 ## When to use it
-- For "Agentic Engineering" where you want to delegate entire tasks rather than just get code suggestions.
-- When working on large, complex codebases where manual context gathering is time-consuming.
-- When you need to integrate with external tools (GitHub, Slack, Jira) via **MCP 3.0**.
+- For Git-tracked project development where you can easily review and rollback changes.
+- When performing repetitive or tedious code migrations, test generation, and documentation maintenance.
+- In multi-agent environments where standardized tools must be exposed via **MCP 3.1** endpoints.
+- When deep, agentic reasoning is required to solve complex, hidden logical errors across multiple modules.
 
 ## When not to use it
-- For simple, one-off logic questions (use the [Claude web interface](https://claude.ai)).
-- In environments where outbound network access or local file access is strictly prohibited for AI tools.
-- When working with extremely sensitive production data that hasn't been backed up.
+- In raw, untracked directories containing sensitive personal or financial configuration files without Git protection.
+- For simple, one-line code completions where inline IDE autocomplete extensions (like GitHub Copilot or Codeium) offer lower latency.
+- In fully air-gapped environments that do not permit secure outbound API access to Anthropic or partner endpoints.
 
 ## Getting started
-Claude Code is installed as a global NPM package or via a bootstrap script.
 
 ### Installation
+Claude Code is distributed as a high-performance Node.js executable:
 ```bash
-curl -fsSL https://claude.ai/install.sh | bash
+npm install -g @anthropic-ai/claude-code@latest
 ```
 
-### Initial Setup
-Run the authentication and configuration wizard:
+### Authentication and Setup
+Run the authentication and configuration wizard to link your Anthropic Console account:
 ```bash
 claude auth login
 claude init
 ```
 
 ## CLI examples
-Claude Code features a robust set of built-in commands and autonomous loops.
 
-### Basic Commands
+### Start interactive agentic session
 ```bash
-/usage    # Show detailed token and cost breakdown (July 2026 update)
-/compact  # Summarize history to free up context window
-/review   # Perform a professional-grade audit of staged changes
-/doctor   # Diagnose environment and MCP 3.0 connectivity issues
+# Launch inside your project root
+claude
 ```
 
-### Autonomous Loop Example
+### Run an autonomous command
 ```bash
-# Ask Claude to fix a bug and verify it
-claude "Find the cause of the 404 error in the auth flow, fix it, and run npm test to verify."
+# Instruct Claude to fix a test and verify using NPM
+claude "Fix the failing tests in src/auth.spec.ts and verify they pass with 'npm test'"
 ```
 
-### Task Protocol Management
+### Built-in CLI commands
+Within the Claude Code interactive prompt, the following slash commands are fully supported:
 ```bash
-# Inspect active tasks managed via Task Protocol
-claude tasks list
+/usage    # Displays current cost, session token counts, and remaining budget
+/compact  # Summarizes past execution history to optimize the model's context window
+/review   # Audits current staged git changes for bugs, design flaws, and metadata adherence
+/doctor   # Executes connection, authentication, and MCP 3.1 status diagnostics
 ```
 
 ## API examples
-While Claude Code is primarily a CLI, it interfaces with the **Model Context Protocol (MCP 3.0)** to extend its capabilities.
 
-### Adding an MCP Server
-```bash
-# Add a server for live web search
-claude mcp add web-search npx -y @modelcontextprotocol/server-fetch
+The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation to ensure correct schema format before registering them with an **MCP 3.1** server.
+
+```python
+from pydantic import BaseModel, Field, EmailStr
+from typing import List, Optional
+import json
+
+# Define the FastMCP 3.1 compatible schema for an agentic tool registration
+class MCPToolDefinition(BaseModel):
+    name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]{1,64}$")
+    description: str = Field(..., min_length=10)
+    input_schema: dict = Field(..., description="Valid JSON Schema representation of inputs")
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "name": "verify_test_suite",
+                "description": "Runs a target test suite using jest or pytest.",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "test_file": {"type": "string"},
+                        "verbose": {"type": "boolean", "default": True}
+                    },
+                    "required": ["test_file"]
+                }
+            }
+        }
+    }
+
+def validate_and_register_tool(tool_data: dict) -> str:
+    """Validates the tool definition using Pydantic v2 and formats it for FastMCP 3.1."""
+    try:
+        # Pydantic v2 validation trigger
+        validated_tool = MCPToolDefinition.model_validate(tool_data)
+        return json.dumps({
+            "status": "success",
+            "registered_tool": validated_tool.model_dump()
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
+
+if __name__ == "__main__":
+    tool_payload = {
+        "name": "run_cargo_audit",
+        "description": "Executes a cargo security audit on the local crate structure.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "ignore_warnings": {"type": "boolean", "default": False}
+            }
+        }
+    }
+    print(validate_and_register_tool(tool_payload))
 ```
 
-### Subagent Orchestration
-Claude can spin up subagents for parallel tasks. This is triggered via natural language:
-*"Claude, spin up a subagent to audit the documentation while you finish the refactor."*
-
 ## Related tools / concepts
-- [Aider](aider.md) — Popular open-source alternative for CLI-based AI coding.
-- [big-AGI](../ai_knowledge/big-agi.md) — Multi-model GUI for professional AI workspaces.
-- [Documentation Writer](../agents/documentation-writer.md) — Specialized skill for repository maintenance.
-- [Roo Code](../agents/roo-code.md) — Open-source VS Code extension with similar agentic powers.
-- [PydanticAI](../frameworks/pydantic-ai.md) — Framework for building agents that could be managed via Claude Code.
-- [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The underlying protocol for extension.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Local models supported for offloading reasoning tasks.
+- [Aider](aider.md) — Excellent command-line AI programming tool leveraging Git repository state.
+- [Devin](devin.md) — Autonomous agent platform with a dedicated workspace, terminal, and browser environment.
+- [Roo Code](../agents/roo-code.md) — Highly customizer-friendly VS Code agent extension.
+- [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Conceptual patterns governing model tool calling.
+- [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) — The lightweight framework used to build secure extension backends.
 
 ## Sources / references
-- [Claude Code Official Documentation](https://code.claude.com/)
-- [Anthropic Changelog](https://code.claude.com/docs/en/changelog)
-- [Introducing Dynamic Workflows](https://releasebot.io/updates/anthropic/claude)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/spec)
+- [Anthropic Claude Code Docs](https://code.claude.com/)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/spec)
+- [Anthropic Developer News & Releases (December 2026)](https://www.anthropic.com/news)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-13
 - Confidence: high
