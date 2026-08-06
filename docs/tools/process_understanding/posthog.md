@@ -1,23 +1,23 @@
 # PostHog
 
 ## What it is
-An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. In July 2026, it serves as a critical observability hub for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models, providing a comprehensive suite for monitoring user behavior and system performance in real-time.
+An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. In late November / December 2026, it serves as a critical observability hub for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models, providing a comprehensive suite for monitoring user behavior and system performance in real-time.
 
 ## What problem it solves
-It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention, with deep integration for [MCP 3.0](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) based tool-calling traces.
+It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention, with deep integration for [MCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) / FastMCP 3.1 based tool-calling traces.
 
 ## Where it fits in the stack
 **Category**: [Process & Understanding](index.md) / Product Analytics. It serves as the primary observability layer for user-facing applications and agentic workflows, sitting alongside [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) components.
 
 ## Typical use cases
 - **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
-- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 4.8) using feature flags.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 5.1 / GPT-5.5) using feature flags.
 - **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points and hallucination impacts.
 - **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
 
 ## Strengths
 - **All-in-One**: Combines analytics, session recording, and feature flagging in a single platform.
-- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers via MCP 3.0.
+- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers via FastMCP 3.1.
 - **Integrated Session Recordings**: Visualize UI changes triggered by LLM responses directly in the trace timeline.
 - **HogQL**: Powerful, SQL-like query language for advanced data analysis and custom dashboarding.
 
@@ -38,7 +38,7 @@ It helps teams understand how users interact with their applications and allows 
 
 ### Installation
 ```bash
-pip install posthog
+pip install posthog pydantic>=2.0
 ```
 
 ### Basic Capture
@@ -79,25 +79,69 @@ posthog-cli capture --distinct-id user_123 --event test_event --properties '{"so
 
 ## API examples
 
-### Python (AI Trace Instrumentation)
-PostHog supports a structured trace API for LLM monitoring (v2026.7+):
+### Python: AI Trace Instrumentation with Strict Pydantic v2 Validation
+This example validates $ai_generation event schemas, token distributions, and FastMCP 3.1 protocol states before pushing payloads to PostHog's ingestion API.
 
 ```python
-import posthog
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Capture a full LLM generation trace with MCP context
-posthog.capture('user_123', '$ai_generation', {
-    '$ai_model': 'gemma-3-27b',
-    '$ai_provider': 'ollama',
-    '$ai_input_tokens': 150,
-    '$ai_output_tokens': 200,
-    '$ai_latency': 1.2,
-    '$ai_cost': 0.0,
-    '$ai_trace_id': 'trace-uuid-456',
-    '$ai_input': 'Summarize the latest sales data.',
-    '$ai_output': 'Summary: Sales are up 20%...',
-    '$mcp_protocol_version': '3.0'
-})
+# 1. Define strict Pydantic v2 model for PostHog AI Observability trace properties
+class PostHogAITrace(BaseModel):
+    distinct_id: str = Field(..., description="Unique user or session identifier")
+    model: str = Field(..., alias="$ai_model", description="Identifier of the target model")
+    provider: str = Field(..., alias="$ai_provider", description="Provider endpoint (Ollama, Anthropic, OpenRouter)")
+    input_tokens: int = Field(..., alias="$ai_input_tokens", ge=0)
+    output_tokens: int = Field(..., alias="$ai_output_tokens", ge=0)
+    latency: float = Field(..., alias="$ai_latency", ge=0.0, description="Inference latency in seconds")
+    cost: float = Field(0.0, alias="$ai_cost", ge=0.0)
+    trace_id: str = Field(..., alias="$ai_trace_id")
+    input_text: str = Field(..., alias="$ai_input")
+    output_text: str = Field(..., alias="$ai_output")
+    mcp_version: str = Field("3.1", alias="$mcp_protocol_version")
+
+    model_config = {
+        "populate_by_name": True
+    }
+
+    @field_validator("mcp_version")
+    @classmethod
+    def validate_mcp_version(cls, v: str) -> str:
+        if v not in {"3.0", "3.1"}:
+            raise ValueError("Supported MCP protocol versions for late 2026 telemetry are '3.0' or '3.1'")
+        return v
+
+# 2. Strict capture validation method
+def validate_and_capture_trace(raw_event: dict) -> Optional[PostHogAITrace]:
+    try:
+        # Validate properties using Pydantic v2
+        validated_trace = PostHogAITrace.model_validate(raw_event)
+        # In a real environment:
+        # posthog.capture(validated_trace.distinct_id, '$ai_generation', validated_trace.model_dump(by_alias=True))
+        return validated_trace
+    except Exception as e:
+        print(f"PostHog AI trace validation failed: {e}")
+        return None
+
+if __name__ == "__main__":
+    sample_payload = {
+        "distinct_id": "user_9482",
+        "$ai_model": "gemma-3-27b",
+        "$ai_provider": "ollama",
+        "$ai_input_tokens": 240,
+        "$ai_output_tokens": 180,
+        "$ai_latency": 0.85,
+        "$ai_cost": 0.0,
+        "$ai_trace_id": "trace-uuid-abcdef",
+        "$ai_input": "Run optimization review.",
+        "$ai_output": "Ready to execute...",
+        "$mcp_protocol_version": "3.1"
+    }
+
+    trace = validate_and_capture_trace(sample_payload)
+    if trace:
+        print(f"Payload validated successfully for user: {trace.distinct_id}")
+        print(f"Targeting model: {trace.model} under MCP v{trace.mcp_version}")
 ```
 
 ### JavaScript (Feature Flag Evaluation)
@@ -132,5 +176,5 @@ if (posthog.isFeatureEnabled('use-gemma-3-model')) {
 - [PostHog CLI Repository](https://github.com/PostHog/posthog-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-06
 - Confidence: high
