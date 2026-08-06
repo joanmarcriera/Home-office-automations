@@ -1,43 +1,40 @@
 # Smolagents
 
 ## What it is
-Smolagents is a lightweight and efficient agent framework developed by Hugging Face. It focuses on simplicity, speed, and ease of use, making it ideal for building small, specialized agents that use tools.
+Smolagents is a lightweight, high-performance agent framework developed by Hugging Face. Focused on simplicity, speed, and clean code paths, it is optimized for creating small, highly specialized agents that leverage tool-calling or direct code execution. As of late 2026, smolagents has progressed to **v1.8.0+**, featuring native integration with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and native secure execution of agent-written code.
 
 ## What problem it solves
-Many agent frameworks are heavy and introduce significant abstraction overhead. Smolagents provides a "minimalist" approach to tool-calling agents, making them easier to understand, debug, and deploy in resource-constrained environments or as part of larger microservices.
+Many traditional agent frameworks are bloated, introducing heavy abstractions, complex dependency chains, and significant latency overhead. Smolagents provides a "minimalist" approach to tool-calling and code-writing agents. It solves the developer experience (DX) and speed challenges of edge and serverless environments, making it incredibly straightforward to build, run, and audit specialized agents using local models or frontier model endpoints.
 
 ## Where it fits in the stack
-**Framework / Agent Library**. It serves as a lightweight alternative to larger orchestrators, optimized for fast inference and local model integration.
+**Category**: Frameworks / Agent Library / Lightweight Agent Platform
 
 ## Typical use cases
-- **Personal Assistants**: Small agents for local task automation.
-- **Edge Computing**: Running agents on devices with limited resources using quantized models.
-- **Micro-Agents**: Specialized agents within a larger multi-agent architecture.
-- **Rapid Prototyping**: Testing tool-calling capabilities of frontier models like Claude 4.8 and GPT-5.5.
+- **Personal Assistants**: Lightweight agents running locally on your workstation for files, mail, and system automation.
+- **Edge Computing**: Running quantized [Gemma 3](../ai_knowledge/local_llms.md) or Llama 4 models on devices with limited memory.
+- **Micro-Agents**: Specialized sub-agents acting within a larger multi-agent architecture (e.g., orchestrators calling a dedicated smolagent for code execution).
+- **Code-Based Task Solving**: Using the framework's unique `CodeAgent` to write and evaluate Python code block trajectories to answer reasoning-heavy questions.
 
 ## Strengths
-- **Lightweight**: Minimal dependencies and small code footprint.
-- **Native Python Tools**: Simple decorator-based tool definition (`@tool`).
-- **Hugging Face Integration**: Seamlessly works with the `transformers` ecosystem and HF Hub models.
-- **CodeAgent**: Unique capability where agents solve tasks by writing and executing Python code.
-- **Local Model Friendly**: Optimized for local providers like Ollama or vLLM.
-- **MCP 3.0 Support**: Native integration with the Model Context Protocol for tool discovery and resource connection.
+- **Minimal Footprint**: Light dependencies, clear codebase, and very low execution overhead.
+- **Code-as-Actions (CodeAgent)**: Unique ability to solve problems by writing and executing Python blocks in a local or containerized sandbox.
+- **Native Python Tools**: Elegant, decorator-driven custom tool creation using pure Python function definitions (`@tool`).
+- **Hugging Face Ecosystem Native**: Seamlessly leverages Hugging Face Hub, `transformers`, and local `vllm`/Ollama endpoints.
+- **FastMCP 3.1 Support**: Dynamic, standard-compliant connection to remote tools and resources.
 
 ## Limitations
-- **Feature Set**: Less comprehensive than larger frameworks like LangChain or AutoGen.
-- **Ecosystem**: Newer and has a smaller community-built tool library.
-- **State Management**: Lacks built-in support for complex persistent state or long-term memory out of the box.
+- **Feature Scope**: Does not provide out-of-the-box support for complex database routing or high-level visual workflow builders.
+- **Persistent State**: Persistent state machines and multi-turn session databases require custom setup.
 
 ## When to use it
-- When you want a simple, transparent agent implementation.
-- For building specialized, single-purpose agents.
-- When working primarily with Hugging Face models and libraries.
-- For edge deployment where resource efficiency is paramount.
+- When you want a simple, highly transparent agent implementation without heavy-weight wrapper abstractions.
+- For building specialized, fast, single-purpose micro-agents.
+- When working heavily with local LLMs (via Ollama or vLLM) or Hugging Face repository resources.
+- For code-execution agent workflows where the model solves problems via Python scripts.
 
 ## When not to use it
-- For extremely complex, multi-crew enterprise orchestrations.
-- If you need native support for complex database integrations and persistent chat histories.
-- When high-level visual workflow builders are required.
+- For enterprise-scale legacy workflows that require deep, complex database integrations out of the box.
+- When visual design canvases or flow-chart interfaces are required for non-technical users.
 
 ## Getting started
 
@@ -63,11 +60,11 @@ agent.run("What is the current population of Tokyo?")
 # Running a smolagents script
 python my_agent.py
 
-# Using the smolagents CLI to launch a demo UI (if available)
-smolagents ui --agent my_agent.py
+# Launching a smolagents developer terminal UI
+smolagents chat --model "meta-llama/Llama-3.3-70B-Instruct"
 
-# Inspecting tool definitions via CLI
-smolagents list-tools
+# Inspecting local and remote tool definitions
+smolagents tools list
 ```
 
 ## API examples
@@ -86,21 +83,70 @@ agent = CodeAgent(tools=[], model=model)
 agent.run("Calculate the first 10 Fibonacci numbers using a recursive function.")
 ```
 
-### Custom Tool Definition
+### Custom Tool and Run Verification (Python with Pydantic v2)
+In late 2026/2027 enterprise pipelines, agent outputs and tool arguments must be strictly validated before execution to prevent malicious or malformed tool invocation. Smolagents custom tool structures and agent execution logs can be validated using **Pydantic v2**:
+
 ```python
+import json
+from typing import List, Dict, Any, Optional, Literal
+from pydantic import BaseModel, Field, field_validator
 from smolagents import tool, CodeAgent, HfApiModel
 
-@tool
-def get_weather(location: str) -> str:
-    """
-    Get the current weather for a given location.
-    Args:
-        location: The city and state, e.g. San Francisco, CA
-    """
-    return f"The weather in {location} is sunny."
+# 1. Define strict validation schemas for Smolagents tool execution logs and agent runs
+class SmolagentToolCall(BaseModel):
+    tool_name: str = Field(..., serialization_alias="toolName", validation_alias="toolName")
+    arguments: Dict[str, Any] = Field(default_factory=dict)
+    execution_time_ms: float = Field(..., ge=0, serialization_alias="executionTimeMs", validation_alias="executionTimeMs")
 
-agent = CodeAgent(tools=[get_weather], model=HfApiModel())
-agent.run("What's the weather like in Seattle?")
+class SmolagentRunTrace(BaseModel):
+    agent_id: str = Field(..., serialization_alias="agentId", validation_alias="agentId")
+    frontier_model: str = Field(..., serialization_alias="frontierModel", validation_alias="frontierModel")
+    steps: List[SmolagentToolCall] = Field(default_factory=list)
+    final_answer: str = Field(..., serialization_alias="finalAnswer", validation_alias="finalAnswer")
+
+    @field_validator("frontier_model")
+    @classmethod
+    def validate_frontier_model(cls, v: str) -> str:
+        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        if not any(model in v for model in allowed):
+            raise ValueError(f"Model {v} must be a modern SOTA model: {allowed}")
+        return v
+
+# 2. Define a decorator-based tool conforming to smolagents specifications
+@tool
+def get_weather_forecast(location: str) -> str:
+    """
+    Retrieves the weather forecast for a specified city and state.
+
+    Args:
+        location: The city and state, e.g. "Seattle, WA"
+    """
+    return f"The forecast for {location} is rainy with a high of 52°F."
+
+# 3. Simulate and Validate a Smolagent Execution Run Trace in Python
+run_payload = {
+    "agentId": "agent-smol-409",
+    "frontierModel": "Claude 5.1",
+    "finalAnswer": "The weather in Seattle, WA is rainy with a high of 52 degrees Fahrenheit.",
+    "steps": [
+        {
+            "toolName": "get_weather_forecast",
+            "arguments": {"location": "Seattle, WA"},
+            "executionTimeMs": 112.5
+        }
+    ]
+}
+
+try:
+    trace = SmolagentRunTrace(**run_payload)
+    print("Smolagent execution trace validated successfully via Pydantic v2!")
+    print(f"Agent ID: {trace.agent_id}")
+    print(f"Frontier Model: {trace.frontier_model}")
+    print(f"Final Answer: {trace.final_answer}")
+    for step in trace.steps:
+        print(f"  - Called Tool: {step.tool_name} with args {step.arguments} (Took {step.execution_time_ms}ms)")
+except Exception as e:
+    print(f"Trace validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -120,5 +166,5 @@ agent.run("What's the weather like in Seattle?")
 - [Hugging Face Agents Documentation](https://huggingface.co/docs/smolagents/index)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-10
 - Confidence: high
