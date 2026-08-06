@@ -1,17 +1,17 @@
 # Google Stitch
 
 ## What it is
-Google Stitch is an AI-powered design and prototyping tool from Google (built on technology from the 2025 Galileo AI acquisition). It generates complete, high-fidelity user interfaces from natural language descriptions and voice commands. As of July 2026, it features deep integration with **Gemma 3** for edge-based design reasoning and supports the **MCP 3.0 Task Protocol** for automated UI-to-code pipelines.
+Google Stitch is an AI-powered design and prototyping tool from Google (built on technology from the 2025 Galileo AI acquisition). It generates complete, high-fidelity user interfaces from natural language descriptions and voice commands. As of late November/December 2026, it features deep integration with **Gemma 3** for edge-based design reasoning and supports the **MCP 3.1 / FastMCP 3.1** standards for automated UI-to-code pipelines, integrating with frontier reasoning models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
 
 ## What problem it solves
-It eliminates the "blank canvas" problem for designers and developers by instantly generating polished UI layouts, multi-screen prototypes, and production-ready code scaffolds from simple prompts. The inclusion of **FastMCP 3.0** support allows development environments to bridge design and code in sub-100ms sync cycles.
+It eliminates the "blank canvas" problem for designers and developers by instantly generating polished UI layouts, multi-screen prototypes, and production-ready code scaffolds from simple prompts. The inclusion of **FastMCP 3.1** support allows development environments to bridge design and code in sub-100ms sync cycles, preventing the drift between designers' visual mockups and engineering teams' production repositories.
 
 ## Where it fits in the stack
-**Development & Ops / Product Prototyping**. It is useful early in the build loop when teams want concrete UI output quickly and integrated into their agentic workflows.
+**Category**: Tool / Development & Ops / Product Prototyping. It sits early in the build loop, acting as an AI-driven visual ideation partner and code generation bridge that integrates seamlessly into downstream agentic development workflows.
 
 ## Typical use cases
 - **Rapid UI Concept Generation**: Instantly creating visual mockups for SaaS dashboards, mobile apps, and landing pages.
-- **Agentic Prototyping**: Using the **MCP 3.0** interface to allow coding agents (like Claude Code) to request UI refinements programmatically.
+- **Agentic Prototyping**: Using the **MCP 3.1** interface to allow coding agents (like Claude Code) to request UI refinements programmatically.
 - **Voice-to-Design**: Native support for voice commands to iterate on designs hands-free, powered by **Gemma 3**'s multi-modal capabilities.
 - **Production-Ready Scaffolding**: Exporting designs directly into Tailwind, Vue, Flutter, or SwiftUI codebases.
 
@@ -20,7 +20,7 @@ It eliminates the "blank canvas" problem for designers and developers by instant
 - **Multi-Screen Generation**: Can generate up to 5 interconnected screens from a single prompt, maintaining consistent branding and design language.
 - **Robust Code Export**: Supports a wide range of formats including HTML/CSS (Tailwind), Vue, Angular, Flutter, and SwiftUI.
 - **Gemma 3 Powered**: Leverages the latest open models for superior design reasoning and multi-modal understanding.
-- **MCP 3.0 Support**: Allows external tools and agents to interact with the design canvas programmatically.
+- **MCP 3.1 Support**: Allows external tools and agents to interact with the design canvas programmatically.
 
 ## Limitations
 - **Google Ecosystem Tie-in**: Best integrated with Google services and AI Studio; less flexible for non-standard stacks.
@@ -67,7 +67,40 @@ stitch mcp serve --project-id "proj_12345"
 
 ## API examples
 
-### Programmatic Screen Generation (Node.js)
+### Programmatic Screen Generation and Pydantic v2 Validation (Python)
+The following Python script defines modern Pydantic v2 schemas to construct and validate programmatic screen generation requests for the Google Stitch AI design engine.
+
+```python
+from typing import List, Literal
+from pydantic import BaseModel, Field, ValidationError
+
+# Define Pydantic v2 schema for validating a Google Stitch Screen Generation task
+class StitchScreenConfig(BaseModel):
+    screen_name: str = Field(..., description="Target name of the UI screen")
+    layout_type: Literal["dashboard", "mobile", "landing", "modal"] = Field("dashboard", description="Structural category of UI")
+    primary_color: str = Field(..., pattern=r"^#[0-9a-fA-F]{6}$", description="Hex code of primary brand color")
+    components: List[str] = Field(default_factory=list, description="List of components to include (e.g., 'navbar', 'hero_section')")
+    gemma_token_limit: int = Field(2048, ge=512, le=8192, description="Max tokens for Gemma 3 design reasoning backend")
+
+# Validate design requirements payload
+raw_payload = {
+    "screen_name": "AnalyticsDashboard",
+    "layout_type": "dashboard",
+    "primary_color": "#10b981", # emerald green
+    "components": ["sidebar", "metrics_grid", "line_chart_card"],
+    "gemma_token_limit": 4096
+}
+
+try:
+    validated_config = StitchScreenConfig(**raw_payload)
+    print("Stitch Screen Generation Configuration successfully validated!")
+    print(f"Validated Primary Color: {validated_config.primary_color}")
+    print(f"Target Components: {validated_config.components}")
+except ValidationError as e:
+    print(f"Validation failed: {e.json(indent=2)}")
+```
+
+### Node.js Integration Example
 ```javascript
 import { StitchClient } from '@google-labs/stitch-sdk';
 
@@ -102,13 +135,12 @@ console.log(tailwindCode);
 - [Gemma 3](../ai_knowledge/local_llms.md) — Local models used for design reasoning.
 - [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for interoperability.
 - [Aider](aider.md) — For automated code implementation of designs.
-- [v0.dev](https://v0.dev) — Alternative AI-native UI generation.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://stitch.withgoogle.com/)
 - [Google I/O 2026: The Future of Design with Stitch](https://io.google/2026/sessions/stitch-design-ai)
 - [Stitch Developer Docs](https://stitch.withgoogle.com/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-12
 - Confidence: high

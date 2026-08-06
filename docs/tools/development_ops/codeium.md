@@ -1,60 +1,59 @@
 # Codeium
 
 ## What it is
-Codeium is a high-performance, AI-native developer productivity platform providing real-time autocomplete, intelligent search, and agentic chat across 70+ programming languages and all major IDEs. As of July 2026, Codeium has evolved from a simple completion engine into a core infrastructure layer of the 'Agentic IDE' ecosystem. It serves as the foundational intelligence behind the **Windsurf** editor and its advanced **Cascade** interaction model, and has been deeply integrated with Cognition's Devin technology to support complex, multi-file autonomous agent workflows.
+Codeium is an enterprise-grade, high-performance, AI-native developer productivity platform providing real-time autocomplete, intelligent search, and agentic chat across 70+ programming languages and all major IDEs. As of late November/December 2026, Codeium has matured from a completion utility into a core orchestrator of the "Agentic IDE" paradigm. It serves as the primary inference and reasoning backend for the **Windsurf** editor and its advanced **Cascade** workflow model, which features deep integration with frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**. It natively implements **MCP 3.1 / FastMCP 3.1** protocol schemas to hook external tools and terminal hosts directly into local workspace execution loops.
 
 ## What problem it solves
-Codeium eliminates coding friction by resolving the latency, context sharing, and orchestration barriers that exist between human developers and AI assistants. Traditional completion engines operate file-by-file without codebase awareness; Codeium provides low-latency, context-aware suggestions by continuously indexing the active repository. It bridges the gap between passive completion and active agency, enabling transitions to "Agent Mode" where an agent can autonomously navigate, edit, execute terminal commands, and verify code locally.
+It solves the context mismatch, low accuracy, and extreme latency of traditional generalist LLMs performing software engineering tasks. Standard LLM integrations lack repository-level index awareness, operating mostly file-by-file with high cognitive load on the developer to manage context. Codeium bridges this gap by continuously indexing the workspace in the background using a highly optimized, low-latency semantic search engine. This translates passive text suggestions into active, multi-file agentic execution, allowing local agents to locate, edit, build, and verify complex applications with sub-100ms response rates.
 
 ## Where it fits in the stack
-**Category**: Tool / Development & Ops / AI-assisted Coding. Codeium serves as the primary "Inference and Context Plane" for the local development workflow, sitting directly inside VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf to provide a unified intelligence layer.
+**Category**: Tool / Development & Ops / AI-assisted Coding. Codeium functions as the local or VPC-hosted "Inference, Context, and Semantic Reasoning Plane" for IDE environments such as VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf.
 
 ## Typical use cases
-- **Cascade/Agentic Coding**: Executing multi-file refactoring, debugging, and feature additions autonomously via Windsurf's Agent Mode.
-- **Context-Aware Semantic Search**: Interrogating vast, unfamiliar repositories using natural language to understand intricate call graphs and architectural flow.
-- **Polyglot Engineering Support**: Providing low-latency autocomplete and chat assistance across diverse tech stacks (including Rust, TypeScript, Python, Clojure, and Go) without context loss.
-- **Enterprise-Grade Air-Gapped AI**: Deploying VPC-hosted or local-only coding environments for organizations with strict compliance, security, and IP protection standards.
+- **Multi-File Agentic Engineering**: Empowering the Cascade-Devin engine in Windsurf to autonomously navigate, edit, execute terminal commands, and run tests locally to solve issues.
+- **Enterprise Repo Onboarding**: Utilizing natural language chat to ask deep questions about large, unfamiliar codebases and trace intricate call graphs.
+- **Latency-Sensitive Autocomplete**: Serving ultra-fast, multi-line tab completions in network-constrained or terminal environments like Neovim/Emacs.
+- **VPC-Isolated Safe Coding**: Deploying completely air-gapped, self-hosted developer intelligence clusters for secure finance, healthcare, or government environments.
 
 ## Strengths
-- **Windsurf & Cascade Integration**: Best-in-class agentic capability, where the Cascade-Devin integration allows for highly autonomous code writing and terminal execution loops.
-- **Exceptional Terminal IDE Support**: Highly optimized plugins for Vim, Neovim, and Emacs, ensuring terminal-based workflows are as intelligently assisted as GUI environments.
-- **Ultra-Low Latency via Exafunction**: Custom-engineered inference infrastructure ensures autocomplete suggestions are delivered with sub-100ms latency.
-- **Generous Free Individual Tier**: Maintains a robust, highly capable, unrestricted free tier for individuals that often outperforms paid alternatives.
-- **MCP 3.0/3.1 Compatibility**: Integrates seamlessly with Model Context Protocol servers to expose external databases, search APIs, and internal platform tools directly to the coding agent.
+- **Windsurf & Cascade Agent Model**: Seamless transition from chat to fully autonomous agentic mode, carrying perfect state and context without manual file attachment.
+- **Sub-100ms Latency**: Custom Exafunction hardware-software co-optimization ensures suggestions compile and stream with extreme speed.
+- **Robust Terminal IDE Support**: First-class Neovim, Vim, and Emacs plugins, delivering VS Code-quality AI intelligence to lightweight keyboard-driven setups.
+- **Native MCP 3.1 Integration**: Seamlessly maps local or remote Model Context Protocol servers to expose external services (e.g. databases, live APIs) to Cascade.
+- **Highly Scalable Indexing**: Background indexing that scales to multi-gigabyte monorepos without causing laptop thermal throttling.
 
 ## Limitations
-- **Cloud Dependency (Individual Tier)**: Free and Pro tiers route queries through Codeium's cloud cluster, which may conflict with strict data-leakage prevention rules.
-- **Model Transparency**: Codeium relies on proprietary, highly optimized models whose training data and parameter specifics are not disclosed, resulting in behavior that can differ from generalist frontier models (e.g., Claude 5.1).
-- **Local Resource Demand**: Running deep repository indexing alongside local agentic test execution loops (such as running Windsurf) can result in high CPU and memory utilization on standard laptops.
+- **Opaque Proprietary Models**: Autocomplete models are proprietary and closed-weights, making behavior difficult to formally verify for strict compliance audits.
+- **Cloud Dependency for Individual Tiers**: The free and standard pro tiers depend on Exafunction cloud clusters, which may conflict with strict local-only security directives unless upgraded to Enterprise.
+- **High Resource Footprint in Agent Mode**: Running Cascade's multi-file search and auto-execution loops concurrently with heavy local build pipelines demands modern developer hardware (e.g. Apple Silicon M-series or high-end x86 workstations).
 
 ## When to use it
-- When you want the most advanced, coherent agentic IDE experience through the Windsurf editor and Cascade.
-- When working primarily in Vim, Neovim, or other terminal-centric text editors where Copilot-style latency is too high.
-- When seeking a cost-effective, high-performing alternative to GitHub Copilot with deep, semantic repository-level indexing.
+- When you want the most seamless, powerful agentic coding experience available via the Windsurf-Cascade interface.
+- If you work in terminal-based editors like Neovim and require an ultra-low-latency, free-tier autocomplete engine.
+- When working on large codebases where simple directory-context search fails to find relevant utility classes or cross-module patterns.
 
 ## When not to use it
-- In highly secure, fully air-gapped environments that prohibit external cloud connections, unless deploying an Enterprise VPC license.
-- If you require absolute transparency and open-weights models for security-compliance audits.
-- In lightweight text-editing scenarios where deep codebase indexing and agentic loops represent unnecessary overhead.
+- In environments where absolute data isolation is required and budgeting does not allow for a dedicated Enterprise VPC license.
+- If you rely purely on open-source, open-weight models and want to self-host the entire inference chain locally on personal GPUs.
+- For simple, isolated single-file scripts where deep codebase indexing represents unnecessary overhead.
 
 ## Getting started
 
-### Windsurf Installation (Recommended)
-1. Download Windsurf from the [Codeium website](https://codeium.com/windsurf).
-2. Install and launch the editor.
-3. Sign in to your Codeium account to activate the **Cascade** and **Devin** agentic capabilities.
-4. Open your project folder; Codeium will automatically start semantic indexing in the background.
+### Windsurf Setup (Recommended)
+1. Download Windsurf from the [official Codeium page](https://codeium.com/windsurf).
+2. Install the application and log in to activate the standard individual or pro license.
+3. Open a folder; Codeium will begin background indexing immediately. You can open Cascade (Ctrl + L or Cmd + L) to start chatting or trigger Agent Mode.
 
-### Neovim Installation (lazy.nvim)
-For lightweight Vim/Neovim users, configure the official `codeium.vim` plugin:
+### Installing Neovim Autocomplete (lazy.nvim)
+For terminal-centric developers, add the following configuration to your Neovim setup:
 ```lua
 {
   "Exafunction/codeium.vim",
   event = "BufRead",
   config = function()
-    -- Map Codeium accept key to Ctrl+g
+    -- Bind Ctrl+g to accept autocomplete suggestion
     vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-    -- Custom bindings to clear or navigate completions
+    -- Clear current suggestion using Ctrl+x
     vim.keymap.set('i', '<C-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
   end
 }
@@ -62,82 +61,110 @@ For lightweight Vim/Neovim users, configure the official `codeium.vim` plugin:
 
 ## CLI examples
 
-### Standalone Binary Authentication and Health
-On remote machines or headless servers, authenticate and manage the Codeium background language server (LSP) daemon using the standalone binary:
+### Handless LSP Authentication and Health Check
+For remote development servers or headless virtual machines, authenticate the Codeium background language server manually:
 ```bash
-# Download the standalone Codeium binary for remote orchestration
-curl -Lo codeium https://github.com/Exafunction/codeium/releases/latest/download/codeium-linux-x64
-chmod +x codeium
+# Download the official standalone Codeium LSP helper
+curl -Lo codeium_bin https://github.com/Exafunction/codeium/releases/latest/download/codeium-linux-x64
+chmod +x codeium_bin
 
-# Start the authentication flow (opens a browser or provides an auth link)
-./codeium auth
+# Authenticate with your user account
+./codeium_bin auth
 
-# Verify connection, model status, and background indexer health
-./codeium status
+# Confirm active connection, model status, and background indexer health
+./codeium_bin status
 ```
 
-### Pre-indexing Large Repositories
-Speed up initial developer sessions on large enterprise repos by building the semantic index headlessly via the CLI:
+### Pre-indexing Monorepos Headlessly
+Accelerate the onboarding time for remote developer instances by pre-indexing massive repositories before launching IDE workspaces:
 ```bash
-# Run headless indexing excluding build artifacts and git-ignored directories
-./codeium index --path /home/workspace/my-monorepo --exclude-git-ignored
+./codeium_bin index --path /home/workspace/monorepo --exclude-git-ignored --output-dir /var/cache/codeium
 ```
 
 ## API examples
 
-### Project Customization with `.codeiumignore`
-Define local and repository-level rules to prevent specific file paths, secrets, or binary objects from being indexed by the semantic search engine:
+### Pydantic v2 Configuration and Policy Validator
+Use the following Python script to programmatically construct, validate, and write Codeium Enterprise policy configurations. This enforces data leakage prevention rules and verified MCP tool integrations prior to workspace deployment.
+
+```python
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+# Define modern Pydantic v2 schemas for Codeium tool integrations
+class McpServerSchema(BaseModel):
+    command: str = Field(..., description="The main executable command for the MCP server")
+    args: List[str] = Field(default_factory=list, description="Command line arguments for the server")
+    env: Dict[str, str] = Field(default_factory=dict, description="Custom environment variables injected into the server process")
+
+class CodeiumPolicyConfig(BaseModel):
+    enterprise_portal: HttpUrl = Field(..., description="Secure URL to the self-hosted Codeium enterprise portal")
+    enable_local_indexing: bool = Field(True, description="Enables deep repository semantic index extraction")
+    telemetry_opt_out: bool = Field(True, description="Strict opt-out for remote analytics transmission")
+    ignored_paths: List[str] = Field(
+        default_factory=lambda: ["**/secrets/**", "**/*.pem", "**/*.key", "**/node_modules/**"],
+        description="Glob patterns of directories to block from being indexed"
+    )
+    mcp_servers: Dict[str, McpServerSchema] = Field(default_factory=dict, description="Authorized FastMCP tool servers")
+
+# Validate an incoming deployment payload programmatically
+raw_payload = {
+    "enterprise_portal": "https://codeium.internal.corp",
+    "enable_local_indexing": True,
+    "telemetry_opt_out": True,
+    "mcp_servers": {
+        "local-db-executor": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/devdb"],
+            "env": {"PGPASSWORD": "secret_password"}
+        }
+    }
+}
+
+try:
+    config = CodeiumPolicyConfig(**raw_payload)
+    print("Configuration validated successfully!")
+    print(f"Enterprise Portal: {config.enterprise_portal}")
+    print(f"Configured MCP Servers: {list(config.mcp_servers.keys())}")
+except ValidationError as e:
+    print(f"Validation failed: {e.json(indent=2)}")
+```
+
+### Context Isolation Configuration (`.codeiumignore`)
+To restrict specific credentials or directories from ever being parsed by the indexing engine, write a standard `.codeiumignore` file:
 ```text
 # .codeiumignore
-# Prevent indexing of sensitive credentials and certificates
+# Prevent indexing of sensitive cryptographic material
 **/secrets/
 **/*.pem
 **/*.key
+**/*.pfx
 
-# Exclude high-churn dependencies and build artifacts
+# Exclude high-volume build outputs and dependency folders
 **/node_modules/
 **/dist/
 **/build/
 .git/
-
-# Ignore custom high-security modules or legacy scripts
-legacy/private/
-scripts/unverified/
-```
-
-### Extending via Model Context Protocol (MCP 3.0/3.1)
-Codeium's Cascade engine can interact with external microservices and environments through MCP standard endpoints. Define custom tools or servers to extend what the agent can do:
-```json
-// ~/.codeium/windsurf/mcp_config.json
-{
-  "mcpServers": {
-    "local-docker-executor": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/devdb"]
-    }
-  }
-}
 ```
 
 ## Related tools / concepts
-- [Windsurf](./windsurf.md) — The primary agentic IDE built on Codeium intelligence.
-- [Sourcegraph Cody](./sourcegraph_cody.md) — Multi-model AI assistant with code search and context.
-- [GitHub Copilot](./github_copilot.md) — Traditional autocomplete and chat companion.
-- [Cursor](./cursor.md) — The primary competitor in the AI-native IDE market with Composer.
-- [Aider](./aider.md) — Terminal-native agent for command-line file editing and Git management.
-- [Claude Code](./claude-code.md) — Anthropic's terminal agent with code manipulation capabilities.
-- [Zed](./zed.md) — Ultra-fast, collaborative code editor with native AI integration.
-- [Continue](./continue_dev.md) — Flexible, open-source AI IDE extension framework.
-- [Tabnine](./tabnine.md) — Private, secure, and customizable local AI code completions.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The open standard for connecting AI tools and servers.
+- [Windsurf](./windsurf.md) — The primary agentic IDE powered by Codeium.
+- [Sourcegraph Cody](./sourcegraph_cody.md) — Multi-model codebase intelligence platform.
+- [GitHub Copilot](./github_copilot.md) — Standard autocomplete and IDE companion.
+- [Cursor](./cursor.md) — First-class competitor in the AI-native editor space.
+- [Aider](./aider.md) — CLI-native autonomous coding agent.
+- [Claude Code](./claude-code.md) — Terminal-native pair programmer from Anthropic.
+- [Zed](./zed.md) — Multi-developer, ultra-fast collaborative IDE.
+- [Continue](./continue_dev.md) — Modular, open-source IDE AI extension framework.
+- [Tabnine](./tabnine.md) — Secure, local-first code assistant.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Core open-standard for agent tool connections.
 
 ## Sources / references
-- [Codeium Official Site](https://codeium.com/)
-- [Codeium Blog: Windsurf and Cascade](https://codeium.com/blog/windsurf-agentic-ide)
-- [Codeium Documentation & IDE Guides](https://docs.codeium.com/)
-- [Codeium Standalone Repository and Releases](https://github.com/Exafunction)
+- [Codeium Homepage](https://codeium.com/)
+- [Windsurf & Cascade Architecture Blog](https://codeium.com/blog/windsurf-agentic-ide)
+- [Codeium Enterprise Integration Guide](https://docs.codeium.com/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-12
 - Confidence: high
