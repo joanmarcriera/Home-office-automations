@@ -1,27 +1,27 @@
 # Cloud Code
 
 ## What it is
-Cloud Code (July 2026 SOTA Edition) is a powerful suite of IDE extensions (VS Code, JetBrains) from Google Cloud designed to accelerate the development, deployment, and management of cloud-native applications. It features native, deep integration with Gemini 3.5 Code Assist (Ultra, Flash, Pro) for AI-driven Kubernetes YAML generation, Terraform authoring, and real-time debugging of services running on GKE (Google Kubernetes Engine) and Cloud Run. Under the hood, it utilizes Gemini Spark for workspace-level orchestration and Gemini Omni for multimodal system architecture analysis, alongside native Model Context Protocol (MCP 3.0/3.1) support to connect development contexts with external cloud infrastructure tools.
+Cloud Code (Late November/December 2026 SOTA Edition) is a powerful suite of IDE extensions (VS Code, JetBrains) from Google Cloud designed to accelerate the development, deployment, and management of cloud-native applications. It features native, deep integration with **Gemini 4.0 Code Assist** (Ultra, Flash, Pro) for AI-driven Kubernetes YAML generation, Terraform authoring, and real-time debugging of services running on GKE (Google Kubernetes Engine) and Cloud Run. Under the hood, it utilizes Gemini Spark for workspace-level orchestration and Gemini Omni for multimodal system architecture analysis, alongside native Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) support to connect development contexts with external cloud infrastructure tools.
 
 ## What problem it solves
 Cloud Code eliminates the "Context Switching Tax" by bringing complex cloud operations directly into the developer's primary workspace. It simplifies the management of Kubernetes clusters, automates the "inner loop" development cycle via Skaffold, and provides secure, integrated access to Google Cloud services like Secret Manager and Cloud Logging. It bridges the gap between local code environments and remote deployment states by exposing standardized telemetry and diagnostics directly to IDE-hosted AI assistants.
 
 ## Where it fits in the stack
-**Development & Ops**. Cloud Code acts as the primary interface for developers working within the Google Cloud ecosystem, bridging local development and remote infrastructure. It integrates with IDE-hosted agents (like Claude Code, Droid, and Cody) by exposing workspace telemetry and cluster runtimes through local MCP 3.0 server interfaces.
+**Development & Ops**. Cloud Code acts as the primary interface for developers working within the Google Cloud ecosystem, bridging local development and remote infrastructure. It integrates with IDE-hosted agents (like Claude Code, Droid, and Cody) by exposing workspace telemetry and cluster runtimes through local **MCP 3.1 / FastMCP 3.1** server interfaces.
 
 ## Typical use cases
 - **Kubernetes Inner Loop**: Real-time iterative development where code changes are automatically built, pushed, and deployed to GKE.
-- **AI-Assisted Infrastructure-as-Code**: Using Gemini 3.5 to generate, lint, and validate Terraform or Kubernetes manifests.
+- **AI-Assisted Infrastructure-as-Code**: Using Gemini 4.0 to generate, lint, and validate Terraform or Kubernetes manifests.
 - **Remote Debugging**: Setting breakpoints and inspecting execution states in microservices running live on Cloud Run or GKE clusters.
 - **Cloud Native Security**: Managing secrets and IAM roles directly from the IDE during development.
 - **Multimodal Cloud Auditing**: Injecting system architecture diagrams into Gemini Omni to automatically configure Cloud Code environment bindings.
 
 ## Strengths
-- **Native Gemini 3.5 Integration**: Built-in, high-token context-aware assistant optimized for Kubernetes and GCP configurations.
+- **Native Gemini 4.0 Integration**: Built-in, high-token context-aware assistant optimized for Kubernetes and GCP configurations.
 - **Skaffold-Powered**: Best-in-class support for real-time application hot-reloading on Kubernetes.
 - **Deep GCP Integration**: Seamless authentication and management for Secret Manager, Cloud KMS, and Cloud Logging.
 - **Rich Debugging**: Seamless, integrated support for Cloud Run and GKE debugging workflows.
-- **MCP 3.0 Client Core**: Allows Gemini Code Assist to leverage MCP-hosted terminal, database, or API tools within the workspace.
+- **MCP 3.1 Client Core**: Allows Gemini Code Assist to leverage MCP-hosted terminal, database, or API tools within the workspace.
 
 ## Limitations
 - **GCP Focus**: While it supports generic Kubernetes clusters, its most advanced features (Gemini, Secret Manager) are Google-specific.
@@ -92,8 +92,8 @@ if __name__ == "__main__":
     list_cluster_pods()
 ```
 
-### Vertex AI Gemini 3.5 Code Assist Snippet
-The following example demonstrates invoking Gemini 3.5 Pro programmatically to generate compliant Kubernetes deployment manifests from within a Cloud Code workspace pipeline:
+### Vertex AI Gemini 4.0 Code Assist Snippet
+The following example demonstrates invoking Gemini 4.0 Pro programmatically to generate compliant Kubernetes deployment manifests from within a Cloud Code workspace pipeline:
 
 ```python
 import vertexai
@@ -103,7 +103,7 @@ from vertexai.generative_models import GenerativeModel
 vertexai.init(project="my-gcp-project", location="us-central1")
 
 # Load the SOTA code-generation model
-model = GenerativeModel("gemini-3.5-pro")
+model = GenerativeModel("gemini-4.0-pro")
 
 prompt = """
 Generate a Kubernetes Deployment YAML for a Python Flask application.
@@ -115,6 +115,83 @@ Generate a Kubernetes Deployment YAML for a Python Flask application.
 
 response = model.generate_content(prompt)
 print(response.text)
+```
+
+### Deploy Specification Validation with Pydantic v2
+The following copy-pasteable Python script demonstrates how developers can leverage Pydantic v2 schemas to parse, validate, and verify local Cloud Code target deployment configs and GKE/Run resources.
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict
+import json
+
+class CloudRunServiceConfig(BaseModel):
+    service_name: str = Field(..., pattern=r"^[a-z0-9-]{3,63}$")
+    region: str = Field("us-central1")
+    concurrency: int = Field(80, ge=1, le=1000)
+    memory_limit: str = Field("512Mi", pattern=r"^\d+(Mi|Gi)$")
+    cpu_cores: int = Field(1, ge=1, le=8)
+
+class CloudCodeDeploySpec(BaseModel):
+    project_id: str = Field(..., pattern=r"^[a-z0-9-]{6,30}$")
+    target_cluster: Optional[str] = Field(None, description="GKE GAV cluster name.")
+    cloud_run_service: Optional[CloudRunServiceConfig] = None
+    skaffold_profile: str = Field("default")
+    mcp_telemetry_enabled: bool = True
+
+    @field_validator("target_cluster")
+    @classmethod
+    def validate_gke_or_run(cls, v: Optional[str]) -> Optional[str]:
+        return v
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "project_id": "my-gcp-project",
+                "target_cluster": "gke-dev-cluster",
+                "cloud_run_service": {
+                    "service_name": "auth-service",
+                    "region": "us-east1",
+                    "concurrency": 100,
+                    "memory_limit": "256Mi",
+                    "cpu_cores": 1
+                },
+                "skaffold_profile": "dev",
+                "mcp_telemetry_enabled": True
+            }
+        }
+    }
+
+def validate_cloud_code_spec(payload: dict) -> str:
+    """Validates deployment specification for Cloud Code context using Pydantic v2."""
+    try:
+        spec = CloudCodeDeploySpec.model_validate(payload)
+        return json.dumps({
+            "status": "success",
+            "validated_spec": spec.model_dump()
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
+
+if __name__ == "__main__":
+    payload = {
+        "project_id": "my-agent-sandbox-99",
+        "target_cluster": "gke-production-mesh",
+        "cloud_run_service": {
+            "service_name": "gateway-api",
+            "region": "europe-west1",
+            "concurrency": 250,
+            "memory_limit": "1Gi",
+            "cpu_cores": 2
+        },
+        "skaffold_profile": "prod-optimized",
+        "mcp_telemetry_enabled": True
+    }
+    print(validate_cloud_code_spec(payload))
 ```
 
 ## Related tools / concepts
@@ -139,6 +216,5 @@ print(response.text)
 - [Gemini Code Assist in Cloud Code](https://cloud.google.com/gemini/docs/codeassist/overview)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-14
 - Confidence: high

@@ -1,13 +1,13 @@
 # Anti-Gravity
 
 ## What it is
-Anti-Gravity (v2026.4.x+) is Google's premier agentic development and execution framework, engineered to build, orchestrate, and deploy autonomous AI agents capable of navigating, reasoning about, and modifying complex software ecosystems. It provides high-level, production-grade abstractions for "Missions" (long-horizon tasks) and "Surfaces" (the agent's operational and environmental context). Natively leveraging the Gemini 3.5 series (Ultra, Flash, and Pro), Gemini Spark (for autonomous multi-agent orchestration), and Gemini Omni (for multimodal and generative media reasoning), Anti-Gravity offers native code execution, massive context windows (2M+ tokens), and native integration with the Model Context Protocol (MCP 3.0/3.1) to expose agent environments and tool calls seamlessly.
+Anti-Gravity (v2026.12.x+) is Google's premier agentic development and execution framework, engineered to build, orchestrate, and deploy autonomous AI agents capable of navigating, reasoning about, and modifying complex software ecosystems. It provides high-level, production-grade abstractions for "Missions" (long-horizon tasks) and "Surfaces" (the agent's operational and environmental context). Natively leveraging the **Gemini 4.0** series (Ultra, Flash, and Pro), Gemini Spark (for autonomous multi-agent orchestration), and Gemini Omni (for multimodal and generative media reasoning), Anti-Gravity offers native code execution, massive context windows (2M+ tokens), and native integration with the Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) to expose agent environments and tool calls seamlessly.
 
 ## What problem it solves
 Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering. Typical agent setups suffer from brittle tool-calling loops, high error-propagation rates on large-scale refactoring tasks, and sandbox isolation limits. It simplifies the creation of agents that can safely refactor multi-million line codebases, resolve complex cross-repository dependencies, and maintain execution state over long-running asynchronous tasks. Furthermore, it implements an ultra-secure, SHARP-compliant, and VPC-isolated execution sandbox, ensuring that autonomous agent actions are contained without exposing the host operating system to damage or unauthorized network exfiltration.
 
 ## Where it fits in the stack
-**Development & Ops / Agent Execution Layer**. Anti-Gravity resides as a central development and runtime orchestration layer within the Vertex AI Agent Builder and Google Cloud environments. It acts as the bridge between raw foundational model reasoning and stateful, real-world development environments (git repositories, CI/CD runtimes, and local filesystems). It exposes standardized MCP 3.0/3.1 server endpoints, allowing any external compatible agent (such as Claude Code, Terminus 2, or Droid) to utilize Anti-Gravity's secure sandboxes as execution surfaces.
+**Development & Ops / Agent Execution Layer**. Anti-Gravity resides as a central development and runtime orchestration layer within the Vertex AI Agent Builder and Google Cloud environments. It acts as the bridge between raw foundational model reasoning and stateful, real-world development environments (git repositories, CI/CD runtimes, and local filesystems). It exposes standardized **MCP 3.1 / FastMCP 3.1** server endpoints, allowing any external compatible agent (such as Claude Code, Terminus 2, or Droid) to utilize Anti-Gravity's secure sandboxes as execution surfaces.
 
 ## Typical use cases
 - **Autonomous Repository Refactoring**: Large-scale migrations (e.g., Python 3.10 to 3.13, or legacy Java architectures to Go/Python) across hundreds of distributed microservices.
@@ -17,8 +17,8 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 - **Legacy Code Modernization**: Systematically parsing, documenting, and rewriting deprecated COBOL or Java systems into cloud-native architectures.
 
 ## Strengths
-- **Native Gemini & Multi-Model Integration**: Deeply optimized for Gemini 3.5's 2M+ token context window, Gemini Spark's autonomous planning, and partner-model connectors (Claude 5.1, Llama 4).
-- **Model Context Protocol (MCP 3.0/3.1) Native Support**: Exposes development surfaces, toolboxes, and agent runtimes as standardized, streaming telemetry-enabled MCP servers.
+- **Native Gemini 4.0 & Multi-Model Integration**: Deeply optimized for Gemini 4.0's 2M+ token context window, Gemini Spark's autonomous planning, and partner-model connectors (Claude 5.1, Llama 4).
+- **Model Context Protocol (MCP 3.1 / FastMCP 3.1) Native Support**: Exposes development surfaces, toolboxes, and agent runtimes as standardized, streaming telemetry-enabled MCP servers.
 - **Stateful Mission Abstraction**: Out-of-the-box support for multi-step, long-running processes with built-in checkpointing, rollback triggers, and human-in-the-loop steering feedback.
 - **SHARP-Compliant Security Sandboxing**: Built-in isolation with Google Cloud IAM, VPC Service Controls, and automated code-integrity scanning to guarantee strict execution boundaries.
 - **Advanced Observability and Tracing**: Complete observability of agent thought loops, tool executions, and system resource metrics via Google Cloud Operations Suite integration.
@@ -44,7 +44,7 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 ### 1. Installation
 The Anti-Gravity SDK is available as part of the Google Cloud AI library:
 ```bash
-pip install google-cloud-antigravity==2026.7.0
+pip install google-cloud-antigravity==2026.12.0
 ```
 
 ### 2. Authentication and Setup
@@ -81,7 +81,7 @@ mission:
   antigravity missions launch --config mission.yaml --mode autonomous
   ```
 
-- **Expose an Anti-Gravity Surface as an MCP 3.0 Server**:
+- **Expose an Anti-Gravity Surface as an MCP 3.1 Server**:
   ```bash
   antigravity surfaces serve --id "auth-service-workspace" --protocol mcp --port 8080
   ```
@@ -103,7 +103,7 @@ mission:
 
 ## API examples
 
-### Programmatic Gemini 3.5 Pro Mission
+### Programmatic Gemini 4.0 Pro Mission
 This example shows how to launch and orchestrate a long-horizon software engineering mission using the Python SDK:
 
 ```python
@@ -119,14 +119,14 @@ surface = antigravity.Surface(
     context_depth="high"
 )
 
-# Launch an autonomous mission with Gemini 3.5 Pro
+# Launch an autonomous mission with Gemini 4.0 Pro
 mission = client.create_mission(
     parent="projects/my-proj/locations/us-central1",
     mission={
         "name": "dependency-audit-mission",
         "goal": "Identify and resolve all deprecated library imports and security vulnerabilities in package.json",
         "surface": surface,
-        "model": "gemini-3.5-pro",
+        "model": "gemini-4.0-pro",
         "mode": antigravity.MissionMode.AUTONOMOUS
     }
 )
@@ -134,38 +134,81 @@ mission = client.create_mission(
 print(f"Mission {mission.name} launched. Status: {mission.status}")
 ```
 
-### Exposing an Anti-Gravity Surface for Claude 5.1 via MCP
-The following example demonstrates how to set up an Anti-Gravity sandboxed workspace surface, wrap it in a FastMCP/MCP 3.0 server structure, and allow an external Claude 5.1 client to perform secure operations:
+### Robust Mission Config Validation with Pydantic v2
+The following example shows how to programmatically model, validate, and verify an Anti-Gravity mission and sandbox profile using Pydantic v2 to ensure proper formatting prior to execution.
 
 ```python
-import mcp.server.fastmcp as fastmcp
-from google.cloud import antigravity
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional
+import json
 
-# Initialize FastMCP Server
-mcp_server = fastmcp.FastMCP("Anti-Gravity Sandbox Link")
+class SandboxProfile(BaseModel):
+    profile_name: str = Field(..., min_length=3, max_length=50)
+    vpc_isolated: bool = True
+    allowed_ports: List[int] = Field(default_factory=list)
+    resource_limits: Dict[str, str] = Field(default_factory=lambda: {"cpu": "2", "memory": "4Gi"})
 
-# Instantiate Anti-Gravity client and active surface session
-client = antigravity.AgentServiceClient()
-surface_session = client.start_surface_session(
-    surface_id="projects/my-proj/surfaces/workspace-123",
-    sandbox_profile="restricted-execution"
-)
+    @field_validator("allowed_ports")
+    @classmethod
+    def validate_ports(cls, ports: List[int]) -> List[int]:
+        for port in ports:
+            if not (1 <= port <= 65535):
+                raise ValueError(f"Port {port} must be between 1 and 65535.")
+        return ports
 
-@mcp_server.tool()
-def execute_sandboxed_command(command: str) -> str:
-    """Executes a development command securely inside the Anti-Gravity sandbox environment."""
-    response = surface_session.execute_command(command)
-    return response.output
+class MissionConfig(BaseModel):
+    name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    goal: str = Field(..., min_length=10)
+    sandbox_profile: SandboxProfile
+    model_name: str = Field("gemini-4.0-pro")
+    mcp_version: str = Field("3.1", pattern=r"^3\.1$")
 
-@mcp_server.tool()
-def query_repository_index(query: str) -> list[str]:
-    """Queries the semantic index of the repository surface for file locations and symbols."""
-    results = surface_session.semantic_search(query)
-    return [res.filepath for res in results]
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "name": "legacy-to-pytest-migration",
+                "goal": "Migrate all legacy unittest files to pytest under /tests directory.",
+                "sandbox_profile": {
+                    "profile_name": "secure-isolation",
+                    "vpc_isolated": True,
+                    "allowed_ports": [443, 8080],
+                    "resource_limits": {"cpu": "4", "memory": "8Gi"}
+                },
+                "model_name": "gemini-4.0-pro",
+                "mcp_version": "3.1"
+            }
+        }
+    }
+
+def validate_and_parse_mission(payload: dict) -> str:
+    """Validates Anti-Gravity mission configuration using Pydantic v2."""
+    try:
+        mission = MissionConfig.model_validate(payload)
+        return json.dumps({
+            "status": "success",
+            "validated_payload": mission.model_dump()
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
 
 if __name__ == "__main__":
-    # Start the standard MCP stdio transport loop
-    mcp_server.run()
+    payload = {
+        "name": "legacy-to-pytest-migration",
+        "goal": "Migrate all legacy unittest files to pytest under /tests directory.",
+        "sandbox_profile": {
+            "profile_name": "secure-isolation",
+            "vpc_isolated": True,
+            "allowed_ports": [443, 8080],
+            "resource_limits": {"cpu": "4", "memory": "8Gi"}
+        },
+        "model_name": "gemini-4.0-pro",
+        "mcp_version": "3.1"
+    }
+    print(validate_and_parse_mission(payload))
 ```
 
 ## Related tools / concepts
@@ -186,8 +229,8 @@ if __name__ == "__main__":
 ## Sources / references
 - [Build with Google Anti-Gravity (Google Developers Blog)](https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/)
 - [Vertex AI Antigravity Documentation](https://cloud.google.com/vertex-ai/docs/agent-builder/antigravity-overview)
-- [Google Cloud Agentic Architecture Guide (July 2026)](https://cloud.google.com/architecture/ai-agents)
+- [Google Cloud Agentic Architecture Guide (December 2026)](https://cloud.google.com/architecture/ai-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-14
 - Confidence: high
