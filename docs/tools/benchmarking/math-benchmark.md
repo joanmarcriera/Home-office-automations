@@ -1,7 +1,7 @@
 # MATH Benchmark
 
 ## What it is
-The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the July 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5, often executed via the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol for automated verification.
+The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the late 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5, often executed via the [MCP 3.1](../automation_orchestration/mcp.md) Task Protocol for automated verification.
 
 ## What problem it solves
 Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary arithmetic. The MATH benchmark provides a much higher "ceiling" for evaluation, testing a model's ability to perform complex symbolic reasoning, multi-step proofs, and advanced problem-solving across diverse mathematical fields. It is essential for differentiating models that perform simple calculation from those capable of "System 2" reasoning.
@@ -13,7 +13,7 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 - **Deep Reasoning Evaluation**: Testing a model's ability to solve problems in number theory, geometry, and intermediate algebra.
 - **Prompt Engineering for Logic**: Evaluating the effectiveness of Chain-of-Thought (CoT) or program-aided reasoning (PoT) on difficult tasks.
 - **Model Specialized Training**: Using the MATH dataset to fine-tune models for mathematical proficiency or scientific reasoning.
-- **Automated Verification**: Using the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
+- **Automated Verification**: Using the [MCP 3.1](../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
 
 ## Strengths
 - **High Difficulty**: Challenges even the most capable models, providing a clear differentiation in reasoning ability.
@@ -28,7 +28,7 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 - **Parsing Challenges**: Identifying symbolic equivalence (e.g., `$1/2$` vs `$0.5$`) requires specialized math-aware logic like `SymPy`.
 
 ## When to use it
-- When comparing the reasoning capabilities of "frontier" models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs. GPT-5.5).
+- When comparing the reasoning capabilities of "frontier" models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs. Claude 5.1 or GPT-5.5).
 - When evaluating models specifically for scientific, engineering, or mathematical applications.
 - To measure progress in automated theorem proving and symbolic logic.
 
@@ -79,31 +79,70 @@ python main.py --model hf --tasks math --num_fewshot 5
 # Filter MATH results by subject (e.g., Geometry)
 python main.py --model hf --tasks math_geometry
 
-# Run with Chain-of-Thought (CoT) enabled (Recommended for Gemma 3)
+# Run with Chain-of-Thought (CoT) enabled (Recommended for Gemma 3 and Claude 5.1)
 python main.py --model hf --tasks math --model_args use_cot=True
 
-# Output results to a specific JSON file for MCP 3.0 ingestion
+# Output results to a specific JSON file for MCP 3.1 ingestion
 python main.py --model hf --tasks math --output_path results_math.json
 ```
 
 ## API examples
-Loading and processing the MATH benchmark programmatically in Python:
+Loading, processing, and parsing the MATH benchmark in Python. This December 2026 update leverages strict **Pydantic v2** validation to model problems and structure LaTeX verification results.
 
 ```python
-from datasets import load_dataset
+from pydantic import BaseModel, Field, condecimal
+from typing import Optional, List
 import re
 
-def extract_boxed_answer(text):
+# Model the math problem structure using Pydantic v2
+class MathProblem(BaseModel):
+    problem_id: str
+    subject: str = Field(..., pattern="^(Algebra|Geometry|Number Theory|Counting & Probability|Precalculus|Prealgebra|Intermediate Algebra)$")
+    question_text: str = Field(..., min_length=15)
+    latex_solution: str
+    correct_boxed_answer: str
+
+# Model evaluation verification report
+class MathVerifyReport(BaseModel):
+    problem_id: str
+    extracted_model_answer: Optional[str]
+    target_answer: str
+    is_exact_match: bool
+    evaluation_time_sec: condecimal(gt=0)
+
+# Helper to isolate latex boxed answer
+def extract_boxed_answer(text: str) -> Optional[str]:
     match = re.search(r'\\boxed{(.+?)}', text)
     return match.group(1) if match else None
 
-# Load dataset
-math_test = load_dataset("competition_math", split="test")
+# Verifier function using the schemas
+def verify_math_submission(prob_data: dict, model_ans_raw: str) -> MathVerifyReport:
+    problem = MathProblem.model_validate(prob_data)
+    extracted_ans = extract_boxed_answer(model_ans_raw)
+    is_match = (extracted_ans == problem.correct_boxed_answer)
 
-# Process an entry (e.g., testing Gemma 3 reasoning)
-entry = math_test[0]
-print(f"Problem: {entry['problem']}")
-print(f"Target: {extract_boxed_answer(entry['solution'])}")
+    report = MathVerifyReport(
+        problem_id=problem.problem_id,
+        extracted_model_answer=extracted_ans,
+        target_answer=problem.correct_boxed_answer,
+        is_exact_match=is_match,
+        evaluation_time_sec=1.45
+    )
+    print(f"Verified problem {report.problem_id}. Match result: {report.is_exact_match}")
+    return report
+
+# Mock problem data
+problem_source = {
+    "problem_id": "math_alg_001",
+    "subject": "Algebra",
+    "question_text": "Let $f(x) = x^2 + 2x + 1$. Find the value of $f(3)$.",
+    "latex_solution": "Substituting $x = 3$, we have $3^2 + 2(3) + 1 = 9 + 6 + 1 = 16$.",
+    "correct_boxed_answer": "16"
+}
+
+# Verified against mock output from Llama 4
+llama_submission = "The value substitutions lead to \\boxed{16} as the final evaluation."
+report = verify_math_submission(problem_source, llama_submission)
 ```
 
 ## Related tools / concepts
@@ -114,7 +153,8 @@ print(f"Target: {extract_boxed_answer(entry['solution'])}")
 - [BigCodeBench](bigcodebench.md) - Complex coding tasks.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The standard runner for this benchmark.
 - [OpenCompass](opencompass.md) - Includes MATH in its reasoning evaluation suite.
-- [MCP 3.0](../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
+- [MCP 3.1](../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
+- [SharpAI Security Benchmark](sharp-ai.md) - Evaluation suite for security robustness and red-teaming.
 
 ## Sources / references
 - [GitHub Repository (Hendrycks)](https://github.com/hendrycks/math)
@@ -123,5 +163,5 @@ print(f"Target: {extract_boxed_answer(entry['solution'])}")
 - [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high

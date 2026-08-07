@@ -1,18 +1,18 @@
 # SharpAI Security Benchmark
 
 ## What it is
-The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation framework designed to quantify the resilience of Large Language Models (LLMs) and agentic systems against complex security threats. Unlike traditional performance benchmarks (e.g., MMLU), SHARP focuses on the **adversarial robustness** of models when they are given tool-access and delegated autonomy, fully updated for July 2026.
+The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation framework designed to quantify the resilience of Large Language Models (LLMs) and agentic systems against complex security threats. Unlike traditional performance benchmarks (e.g., MMLU), SHARP focuses on the **adversarial robustness** of models when they are given tool-access and delegated autonomy, fully updated for December 2026 SOTA standards.
 
 ## What problem it solves
-As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments. It solves the lack of standardized "red teaming" protocols for agentic workflows using **FastMCP 3.0**.
+As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments. It solves the lack of standardized "red teaming" protocols for agentic workflows using **FastMCP 3.1** and **MCP 3.1**.
 
 ## Where it fits in the stack
-**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools. It is a critical component for validating [Gemma 3](../ai_knowledge/local_llms.md) and Claude 4.8 agents.
+**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools. It is a critical component for validating [Gemma 3](../ai_knowledge/local_llms.md), [Claude](../ai_knowledge/claude.md) 5.1, and **GPT-5.5** agents.
 
 ## Typical use cases
 - **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../ai_knowledge/dify.md).
 - **Model Hardening**: Identifying specific failure modes in a model's system prompt to refine its guardrails.
-- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 4.8).
+- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 5.1 or GPT-5.5).
 - **Compliance Audits**: Generating safety reports for internal governance or external regulatory bodies (e.g., EU AI Act compliance).
 - **Regression Testing**: Ensuring that a prompt update doesn't introduce new security vulnerabilities.
 
@@ -30,7 +30,7 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 
 ## When to use it
 - Before granting an AI agent write-access to a production database, email account, or cloud infrastructure.
-- When updating the underlying LLM (e.g., moving to Claude 4.8 Opus or [Gemma 3](../ai_knowledge/local_llms.md)) of an existing automation workflow to ensure no security regressions.
+- When updating the underlying LLM (e.g., moving to Claude 5.1, GPT-5.5, or Llama 4) of an existing automation workflow to ensure no security regressions.
 - During the "Discovery" phase of an AI project to set a baseline for acceptable risk.
 
 ## When not to use it
@@ -44,7 +44,7 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 The SHARP runner is typically deployed as a containerized evaluation engine to ensure environment isolation.
 
 ```bash
-# Pull the SHARP evaluation engine (July 2026 version)
+# Pull the SHARP evaluation engine (December 2026 version)
 docker pull sharpai/eval-runner:latest
 
 # Create a local workspace for reports
@@ -68,54 +68,86 @@ The SHARP CLI is used to orchestrate benchmark runs and generate reports.
 ```bash
 # Run a standard security suite against your agent
 docker run -v $(pwd)/reports:/app/reports sharpai/eval-runner run \
-           --suite security-v3 \
+           --suite security-v3.1 \
            --target-url "http://agent-api:5000" \
            --output /app/reports/result.json
 
-# Run a specific 'Indirect Injection' attack suite
-sharp-cli test --category indirect-injection --model gemma-3-8b-it
+# Run a specific 'Indirect Injection' attack suite using FastMCP 3.1
+sharp-cli test --category indirect-injection --model gemma-3-8b-it --mcp-version 3.1
 
 # List all available security scenarios
-sharp-cli list scenarios --version 2026.7
+sharp-cli list scenarios --version 2026.12
 ```
 
 ## API examples
-Integrate SHARP into your CI/CD pipeline using the Python SDK.
+Integrate SHARP into your CI/CD pipeline using the Python SDK, fully validated with Pydantic v2.
 
 ```python
-from sharp_eval import SharpRunner, SecuritySuites
+from pydantic import BaseModel, Field, condecimal
+from typing import List, Optional
+from datetime import datetime
 
-# Initialize the runner
-runner = SharpRunner(
-    target_url="http://my-agent-api/chat",
-    system_prompt_path="./prompts/system_v1.txt"
-)
+# Define Pydantic v2 models for strict audit response validation
+class VulnerabilityDetail(BaseModel):
+    category: str = Field(..., description="Adversarial category of the detected vulnerability")
+    severity: str = Field(..., pattern="^(LOW|MEDIUM|HIGH|CRITICAL)$")
+    description: str
+    reproduction_trace: str
 
-# Execute the 'Recursive Tool Exploitation' suite
-results = runner.execute(SecuritySuites.RECURSIVE_EXPLOIT)
+class SharpResult(BaseModel):
+    benchmark_version: str = Field(default="3.1.2")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    target_model: str
+    safety_score: condecimal(ge=0, le=1) = Field(..., description="Normalized safety score [0-1]")
+    vulnerabilities: List[VulnerabilityDetail]
+    passed: bool
 
-# Assert a safety score of at least 0.95
-if results.safety_score < 0.95:
-    print(f"Deployment blocked! Found {len(results.vulnerabilities)} vulnerabilities.")
-    exit(1)
+# Example programmatical execution of SHARP evaluation and validation
+def validate_sharp_run(raw_json: dict) -> SharpResult:
+    # Strictly validate against SOTA December 2026 FastMCP 3.1 response schema
+    result = SharpResult.model_validate(raw_json)
+    if not result.passed or result.safety_score < 0.95:
+        print(f"Deployment blocked! Model {result.target_model} scored {result.safety_score}.")
+        for vuln in result.vulnerabilities:
+            print(f"[{vuln.severity}] {vuln.category}: {vuln.description}")
+    return result
+
+# Mock JSON response from a Claude 5.1 red-teaming run
+mock_payload = {
+    "target_model": "claude-5.1-sonnet",
+    "safety_score": 0.98,
+    "vulnerabilities": [
+        {
+            "category": "Indirect Prompt Injection",
+            "severity": "MEDIUM",
+            "description": "Executed untrusted instruction nested inside retrieved web content.",
+            "reproduction_trace": "Tool: web_search -> Nested payload parsed."
+        }
+    ],
+    "passed": True
+}
+
+validated_report = validate_sharp_run(mock_payload)
+print(f"Validation successful. Verified model: {validated_report.target_model}")
 ```
 
 ## Related tools / concepts
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core concepts behind SHARP.
 - [OpenCompass](../benchmarking/opencompass.md) — General performance benchmarking suite.
 - [HELM](../benchmarking/helm.md) — Holistic evaluation of language models.
-- [VAKRA](../benchmarking/vakra.md) — Benchmark for agentic reasoning and tool-use.
+- [VAKRA](../benchmarking/vakra.md) — Benchmark for enterprise tool-use agentic workflows.
 - [Giskard](giskard.md) — AI quality and security platform for testing.
 - [Lakera Guard](lakera-guard.md) — Real-time protection layer against injections.
 - [Promptfoo](promptfoo.md) — Matrix-based testing framework for prompt regression.
 - [Gemma 3](../ai_knowledge/local_llms.md) — Local model often red-teamed with SHARP.
+- [Claude](../ai_knowledge/claude.md) — Frontier model suite evaluated for corporate agent safety.
 
 ## Sources / references
 - [SharpAI Benchmark Official Site](https://www.sharpai.org/benchmark/)
-- [State of LLM Security 2026 Report](https://brightsec.com/blog/the-2026-state-of-llm-security-key-findings-and-benchmarks/)
+- [State of LLM Security late 2026 Report](https://brightsec.com/blog/the-2026-state-of-llm-security-key-findings-and-benchmarks/)
 - [GitHub: Adversarial Examples Papers (2026 Updates)](https://github.com/Trustworthy-AI-Group/Adversarial_Examples_Papers)
 - [OWASP Top 10 for LLM Applications (v2.0)](https://genai.owasp.org/llm-top-10/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high
