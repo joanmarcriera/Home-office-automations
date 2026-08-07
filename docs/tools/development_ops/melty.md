@@ -1,7 +1,7 @@
 # Melty
 
 ## What it is
-Melty is an open-source, AI-native Integrated Development Environment (IDE) designed to act as a stateful, "human-in-the-loop" collaborator that understands the intent behind every change. Built on a fully transparent VS Code-fork foundation, Melty implements a continuous "Intent-State" synchronization loop. As of July 2026, Melty fully supports frontier SOTA 2026 models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6). Rather than acting as a simple passive autocomplete helper, Melty operates as an active pair programmer, tracking real-time development context, terminal outputs, and git diffs to co-author software iteratively alongside the developer.
+Melty is an open-source, AI-native Integrated Development Environment (IDE) designed to act as a stateful, "human-in-the-loop" collaborator that understands the intent behind every change. Built on a fully transparent VS Code-fork foundation, Melty implements a continuous "Intent-State" synchronization loop. As of December 2026, Melty fully supports frontier SOTA late 2026 models (such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6). Rather than acting as a simple passive autocomplete helper, Melty operates as an active pair programmer, tracking real-time development context, terminal outputs, and git diffs to co-author software iteratively alongside the developer.
 
 ## What problem it solves
 Solves the cognitive friction and "black box" generation issues associated with traditional AI coding assistants. Standard tools often generate massive code dumps that are disconnected from the developer’s high-level architecture or current design patterns. Melty addresses this by tracking the developer's "Intent" incrementally across terminal sessions, compiler messages, and version control states. It reduces code-review overhead, mitigates model hallucinations by grounding context in current git diffs, and eliminates the risk of silent, untracked modifications by managing changes through explicit state verification loops.
@@ -18,8 +18,8 @@ Solves the cognitive friction and "black box" generation issues associated with 
 ## Strengths
 - **Open-Source Transparency**: Fully open-source codebase, allowing deep, enterprise-level modifications, custom branding, and absolute privacy compliance.
 - **Stateful Git & Terminal Tracking**: Natively listens to local git diff changes and terminal output streams, allowing models to immediately self-correct errors if a build or test command fails.
-- **Native MCP 3.0/3.1 Integration**: Operates as a robust Model Context Protocol client, enabling developers to connect third-party MCP servers for dynamic database query execution, file system management, and real-time cloud resource access.
-- **Multi-Model Orchestration**: Supports swappable local and remote models, allowing developers to execute heavy-weight tasks with Claude 5.1 or GPT-5.5, and light-weight local autocompletion tasks using local Gemma 3 or Qwen 3.6 instances via Ollama.
+- **Native MCP 3.1 / FastMCP 3.1 Integration**: Operates as a robust Model Context Protocol client, enabling developers to connect third-party MCP servers for dynamic database query execution, file system management, and real-time cloud resource access.
+- **Multi-Model Orchestration**: Supports swappable local and remote models, allowing developers to execute heavy-weight tasks with Claude 5.1, GPT-5.5, or Gemini 4.0 Pro, and light-weight local autocompletion tasks using local Gemma 3 or Qwen 3.6 instances via Ollama.
 
 ## Limitations
 - **Ecosystem Footprint**: Although built as a VS Code fork, some specialized extensions or proprietary visual features (such as side-by-side interactive timelines) are still maturing.
@@ -110,14 +110,23 @@ export class DatabaseOptimizerExtension implements MeltyExtension {
 ```
 
 ### Subprocess Workspace State Check (Python)
-Integrate external validation engines with Melty's active "Intent-State" loop via standard output.
+Integrate external validation engines with Melty's active "Intent-State" loop via standard output. This example uses robust Pydantic v2 validation to enforce schema correctness of the returned session state.
 
 ```python
 import subprocess
 import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-def get_melty_session_state() -> dict:
-    """Queries Melty's headless daemon to retrieve active intent and changed file paths."""
+class MeltySessionState(BaseModel):
+    current_intent: str = Field(..., description="The high-level objective/intent currently tracked by Melty")
+    staged_diff_files: List[str] = Field(default_factory=list, description="List of files with uncommitted changes")
+    active_mcp_servers: List[str] = Field(default_factory=list, description="Currently connected MCP 3.1 server URIs")
+    model_provider: str = Field(..., description="LLM provider name, e.g., 'anthropic' or 'ollama'")
+    model_name: str = Field(..., description="The model currently in use, e.g., 'claude-5.1'")
+
+def get_melty_session_state() -> Optional[MeltySessionState]:
+    """Queries Melty's headless daemon and parses state with strict Pydantic v2 validation."""
     try:
         response = subprocess.run(
             ["melty", "state", "--json"],
@@ -125,17 +134,23 @@ def get_melty_session_state() -> dict:
             text=True,
             check=True
         )
-        return json.loads(response.stdout)
+        parsed_json = json.loads(response.stdout)
+        # Enforce strict validation via Pydantic v2
+        state = MeltySessionState.model_validate(parsed_json)
+        return state
     except subprocess.CalledProcessError as e:
         print(f"Error fetching Melty state: {e.stderr}")
-        return {}
+        return None
+    except ValidationError as e:
+        print(f"Melty session state schema mismatch: {e}")
+        return None
 
 if __name__ == "__main__":
     state = get_melty_session_state()
-    active_intent = state.get("current_intent", "None")
-    changed_files = state.get("staged_diff_files", [])
-    print(f"Active Intent: {active_intent}")
-    print(f"Pending changes in {len(changed_files)} files.")
+    if state:
+        print(f"Active Intent: {state.current_intent}")
+        print(f"Pending changes in {len(state.staged_diff_files)} files.")
+        print(f"Model In Use: {state.model_name} via {state.model_provider}")
 ```
 
 ## Related tools / concepts
@@ -158,8 +173,8 @@ if __name__ == "__main__":
 - [Melty Labs Official Website](https://melty.sh/)
 - [Melty GitHub Repository](https://github.com/meltylabs/melty)
 - [Melty Technical Architecture Wiki](https://github.com/meltylabs/melty/wiki)
-- [Model Context Protocol v3.0 Specification](https://modelcontextprotocol.org)
+- [Model Context Protocol v3.1 Specification](https://modelcontextprotocol.org)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-15
 - Confidence: high
