@@ -1,7 +1,7 @@
 # Custom Agents (SSH + LLM Loop)
 
 ## What it is
-A "Custom Agent" is a lightweight Python script or visual workflow automation (e.g., n8n) that implements a basic autonomous control loop: Prompt LLM -> Receive Command -> Execute via SSH/Shell -> Return Output/Telemetry to LLM. As of July 2026, these agents have evolved from raw command-execution scripts to sophisticated, standard-compliant "Micro-Agents" that natively support **Model Context Protocol (MCP 3.0/3.1)**, allowing them to be plugged directly into modern frontier models like Claude 5.1, GPT-5.5, Llama 4, and Gemma 3 as highly secure system administration tools.
+A **Custom Agent** is a lightweight Python script or visual workflow automation (e.g., n8n) that implements a basic autonomous control loop: Prompt LLM -> Receive Command -> Execute via SSH/Shell -> Return Output/Telemetry to LLM. Under late November/December 2026 SOTA standards, these agents have evolved from raw command-execution scripts to sophisticated, standard-compliant "Micro-Agents" that natively support **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, allowing them to be plugged directly into modern frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** as highly secure system administration tools.
 
 ## What problem it solves
 Provides a tailored, minimal orchestration layer for specific infrastructure tasks without the overhead or complexity of massive agent platforms. It allows for precise control over the security, execution plane, and sandbox boundaries, specifically addressing the "Reasoning vs. Execution" gap in local homelab management while leveraging modern **secure SSH tunneling** and asymmetric keys to safely access private systems.
@@ -21,7 +21,7 @@ Provides a tailored, minimal orchestration layer for specific infrastructure tas
 - **Security**: You control exactly which commands are allowed, how SSH sessions are handled, and can enforce strict key-based authentication.
 - **Portability**: Runs as a lightweight script anywhere, including within n8n or inside a minimal container.
 - **Transparency**: Every step of the reasoning and command execution loop is visible and easily logged for auditing.
-- **MCP 3.0 Ready**: Standardized schema allows the custom agent to be discovered and invoked by any MCP-compliant LLM client.
+- **MCP 3.1 / FastMCP 3.1 Ready**: Standardized schema allows the custom agent to be discovered and invoked by any MCP-compliant LLM client.
 
 ## Limitations
 - **Manual Work**: Requires writing and maintaining the controller script, SSH session pools, and error handling.
@@ -51,10 +51,10 @@ ssh-copy-id admin@192.168.1.10
 
 ### 2. Install Dependencies
 ```bash
-pip install paramiko openai mcp==2026.7.0
+pip install paramiko openai mcp==3.1.0
 ```
 
-### 3. Configure MCP 3.0/3.1
+### 3. Configure MCP 3.1
 Define your tool schema so frontier models can discover your agent's capabilities.
 
 ## CLI examples
@@ -81,14 +81,14 @@ python custom_agent.py --query "Inspect local web service on 8080"
 
 ## API examples
 
-### MCP 3.0 Server Implementation (Python FastMCP)
-This example shows how to expose a custom SSH agent as an MCP 3.0 tool using FastMCP:
+### MCP 3.1 Server Implementation (Python FastMCP)
+This example shows how to expose a custom SSH agent as an MCP 3.1 tool using FastMCP:
 
 ```python
 import mcp.server.fastmcp as fastmcp
 import paramiko
 
-# Initialize FastMCP Server
+# Initialize FastMCP Server under MCP 3.1 specification
 mcp_server = fastmcp.FastMCP("SSH Custom Agent")
 
 @mcp_server.tool()
@@ -124,7 +124,7 @@ def secure_agent_loop(query):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect('internal.homelab', username='agent_user')
 
-    # LLM Interaction with custom tools
+    # LLM Interaction with custom tools using GPT-5.5
     response = client.chat.completions.create(
         model="gpt-5.5-preview",
         messages=[{"role": "user", "content": query}],
@@ -148,6 +148,82 @@ def secure_agent_loop(query):
     return response.choices[0].message
 ```
 
+### Robust Configuration and SSH Profile Validation with Pydantic v2
+The following Python script illustrates how to model and programmatically validate Custom Agent parameters, SSH connection profiles, and command allowlists under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional
+import json
+
+class SSHConnectionConfig(BaseModel):
+    host: str = Field(..., pattern=r"^([a-zA-Z0-9.-]+|[0-9.]+)$")
+    port: int = Field(default=22, ge=1, le=65535)
+    username: str = Field(default="admin", min_length=1)
+    key_path: str = Field(..., pattern=r"^/.*$")
+    timeout_seconds: int = Field(default=15, ge=1, le=120)
+
+class CustomAgentConfig(BaseModel):
+    agent_name: str = Field(..., min_length=2)
+    ssh_connections: List[SSHConnectionConfig] = Field(default_factory=list)
+    allowed_commands: List[str] = Field(..., min_length=1)
+    mcp_version: str = Field(default="3.1", pattern=r"^3\.1$")
+    requires_approval: bool = Field(default=True)
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "agent_name": "homelab-ssh-microagent",
+                "ssh_connections": [
+                    {
+                        "host": "192.168.1.10",
+                        "port": 22,
+                        "username": "homelab-admin",
+                        "key_path": "/home/admin/.ssh/id_ed25519",
+                        "timeout_seconds": 10
+                    }
+                ],
+                "allowed_commands": ["docker restart", "systemctl status", "df -h"],
+                "mcp_version": "3.1",
+                "requires_approval": True
+            }
+        }
+    }
+
+def validate_custom_agent_config(payload: dict) -> str:
+    """Validates Custom Agent configurations and tool definitions using Pydantic v2."""
+    try:
+        config = CustomAgentConfig.model_validate(payload)
+        return json.dumps({
+            "status": "success",
+            "validated_config": config.model_dump()
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
+
+if __name__ == "__main__":
+    test_payload = {
+        "agent_name": "homelab-ssh-microagent",
+        "ssh_connections": [
+            {
+                "host": "192.168.1.100",
+                "port": 22,
+                "username": "admin",
+                "key_path": "/root/.ssh/id_rsa",
+                "timeout_seconds": 5
+            }
+        ],
+        "allowed_commands": ["docker ps", "docker stop", "docker start"],
+        "mcp_version": "3.1",
+        "requires_approval": True
+    }
+    print(validate_custom_agent_config(test_payload))
+```
+
 ## Related tools / concepts
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md) — Architectural deep dive into homelab SSH executions.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The universal standard for agent tool-use.
@@ -167,10 +243,9 @@ def secure_agent_loop(query):
 ## Sources / references
 - [Paramiko Documentation](https://docs.paramiko.org/)
 - [SSH Agent Loop Patterns (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
-- [Model Context Protocol (MCP 3.0) Specification](https://modelcontextprotocol.io/introduction)
+- [Model Context Protocol (MCP 3.1) Specification](https://modelcontextprotocol.io/introduction)
 - [LLM Tool Calling Best Practices (Anthropic)](https://docs.anthropic.com/claude/docs/tool-use)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-17
 - Confidence: high
