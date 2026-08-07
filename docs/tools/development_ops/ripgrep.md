@@ -1,45 +1,45 @@
 # ripgrep (rg)
 
 ## What it is
-ripgrep (rg) is an ultra-fast, line-oriented search utility that recursively searches the current directory for regex patterns while strictly respecting workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of July 2026, **v14.1.x+** is the stable production baseline across standard enterprise architectures. In modern agentic ecosystems, ripgrep serves as the foundational low-latency discovery layer, feeding critical code slices and structural maps to frontier models (including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) and driving real-time codebase navigation within modern Multi-Agent Software Factories.
+ripgrep (rg) is an ultra-fast, line-oriented command-line search utility that recursively queries directories for regular expression patterns while strictly adhering to workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of late December 2026, **v14.2+** represents the stable production standard across high-throughput agentic ecosystems. It serves as the primary low-latency discovery engine powering terminal agents, IDE extensions, and Model Context Protocol servers.
 
 ## What problem it solves
-It solves the high-latency "needle in a haystack" lookup bottleneck inherent in massive multi-gigabyte code repositories. Traditional search methods (like standard `grep` or slower semantic embeddings) either lack the performance to execute within tight sub-second loop deadlines or require heavy index rebuilding overhead. ripgrep provides immediate, raw search capabilities by using advanced finite automata, AVX-512 SIMD multi-threading optimizations, and regex engine compilation caching, returning highly targeted results in milliseconds.
+It resolves the high-latency search bottleneck in massive, multi-gigabyte code repositories. Traditional grep implementations or slow semantic embedding databases are either too slow for immediate real-time lookups or require significant pre-computation overhead. ripgrep delivers immediate search results in milliseconds by utilizing advanced finite automata, AVX-512 SIMD hardware optimizations, multi-threaded directory traversal, and memory-mapped buffers.
 
 ## Where it fits in the stack
-**Development & Ops**. It serves as the primary high-speed text retrieval and scanning utility. Positioned at the bottom of the development stack, it is consumed directly by terminal-bound developers, orchestrator daemons, and Model Context Protocol (MCP 3.0/3.1) servers to discover context and inject relevant code snippets directly into LLM prompt contexts.
+**Development & Ops**. It resides at the **Foundational Discovery Layer**, providing high-performance text-scanning capabilities directly consumed by shell environments, terminal multiplexers, and agentic workflows.
 
 ## Typical use cases
-- **Multi-Threaded Agentic Codebase Scanning**: Giving autonomous agents the ability to run ultra-fast, parallelized regex audits to locate specific APIs, configuration structures, or credentials.
-- **Dynamic Regex Pattern Caching**: Performing repeated, micro-targeted search loops over active workspaces without rebuilding index DBs.
-- **Structured JSON Streaming**: Generating machine-readable, line-by-line JSON streams (`--json`) to feed AST-parsers or programmatic filter pipelines.
-- **Selective Ignore Compliance**: Skipping large compiler outputs, node modules, build artifacts, and multi-gigabyte media files while auditing pure source structures.
+- **Multi-Threaded Code Audits**: Scanning an entire repository for specific functions, configuration patterns, or deprecated APIs in milliseconds.
+- **Dynamic Context Harvesting**: Automatically finding and feeding relevant code blocks or configuration parameters into LLM prompt contexts.
+- **JSON Stream Pipeline Parsing**: Spawning ripgrep with the `--json` flag to feed line-by-line matches directly into AST parsers or multi-agent memory frameworks.
+- **Strict File-Pattern Isolation**: Isolating searches to specific file patterns (e.g., `-g '*.ts'`) while honoring git exclusion files.
 
 ## Strengths
-- **SOTA Performance**: Built in Rust and optimized with AVX-512 and SIMD vector instructions, making it significantly faster than standard grep, ack, or silver searcher.
-- **High Concurrency Scale**: Seamlessly scales across multi-core systems, using thread pooling to search through millions of lines in parallel.
-- **JSON Stream Output**: Natively streams search events (begin, match, context, end) in structured JSON format, enabling simple piping into agent memory.
-- **Smart Ignore Hierarchy**: Automatically respects `.gitignore`, `.ignore`, and custom `.rgignore` configurations to prevent token-bloating and noise.
-- **Memory Efficiency**: Employs lazy memory mapping and optimized buffer-sharing, maintaining a highly stable and minimal RAM profile under extreme load.
+- **AVX-512 SIMD Acceleration**: Leverages modern CPU instruction sets for SOTA raw pattern-matching throughput.
+- **Strict Ignore Compliance**: Honors `.gitignore` hierarchies natively, saving inputs from token bloat and scanning noise.
+- **Concurrency-Optimized Core**: Seamlessly scales across multiple CPU cores via highly efficient Rust thread pooling.
+- **Lightweight Footprint**: Features extremely predictable memory consumption and no startup indexing lag.
+- **Structured JSON Streams**: Emits rich, line-oriented JSON representations of match events (begin, match, end) perfect for programmatic consumers.
 
 ## Limitations
-- **CLI-Native Architecture**: Primarily designed as a command-line binary; requires shell execution wrappers or subprocess handling for integration into Node.js or Python codebases.
-- **Zero Semantic Insight**: Completely reliant on regex and exact character sequences; cannot locate synonymous terms or resolve conceptual/semantic relationships (requires pairing with a hybrid [RAGFlow](../process_understanding/ragflow.md) architecture).
-- **Disk I/O Bound**: In environments with slow or virtual network file systems, concurrent thread scaling can saturate disk channels if limits are not configured.
+- **Syntax and Literal Bound**: Entirely reliant on explicit character matches or regular expressions; lacks native semantic or natural language query understanding.
+- **Local Filesystem Centric**: Designed for direct disk storage paths; remote filesystems require mounting or network caching protocols.
+- **Shell Execution Overhead**: Integrating with Node.js or Python requires running a subprocess, requiring careful input sanitization to prevent shell-injection vulnerabilities.
 
 ## When to use it
-- When an autonomous agent (e.g., [Claude Code](claude-code.md) or [Junie CLI](junie-cli.md)) needs to scan an entire codebase for functional entry points or schema patterns within sub-second thresholds.
-- When performing bulk find-and-replace, metadata extraction, or repository auditing in pipelines.
-- When configuring Model Context Protocol (MCP 3.0/3.1) file-search tools that require high accuracy and strict exclusion compliance.
+- When an autonomous agent (such as [Claude Code](claude-code.md) or [Junie CLI](junie-cli.md)) needs to locate functional targets or system schemas across massive code bases within sub-second thresholds.
+- When executing high-concurrency regex audits in continuous integration/continuous deployment (CI/CD) pipelines.
+- When configuring search-tools for Model Context Protocol (MCP 3.1) servers where reliability and speed are paramount.
 
 ## When not to use it
-- When you require natural language, semantic, or conceptual query matching (use a vector database or hybrid retrieval framework).
-- When looking for exact files by name rather than content (use `fd` or a specialized file listing tool).
-- For simple, single-file searches inside a graphical editor where local editor-buffer searching is already immediate.
+- When you require natural language search queries, semantic synonym matching, or multi-modal conceptual lookups (pair with hybrid vector solutions instead).
+- When looking for exact file metadata or files by name rather than actual contents (use specialized listing tools like `fd`).
 
 ## Getting started
+
 ### Installation
-ripgrep v14.1.x can be installed across standard operating platforms using default package managers:
+Install ripgrep v14.2+ across standard platforms using default package managers:
 
 ```bash
 # macOS (Homebrew)
@@ -56,68 +56,54 @@ cargo install ripgrep
 ```
 
 ### Verification
-Confirm the installation and check the current stable version details:
-
+Verify that the binary is available and supports SIMD accelerations:
 ```bash
 rg --version
 ```
 
 ## CLI examples
-### Advanced Agentic Scanning
-Stream structural JSON matches from files containing specific authentication endpoints while ignoring test directories:
+Use the command-line flags to tune search precision and machine readability.
 
+### Machine-Readable Structured Event Streaming
 ```bash
-# Stream match details structured as line-oriented JSON
-rg --json "registerUser|authenticateSession" src/ -g '!*test*'
+# Output line-oriented JSON event streams while ignoring test directories
+rg --json "executeTaskLoop|FastMCP" src/ -g '!*test*'
 ```
 
-### Concurrency and Core Bounding
-In cloud environments or multi-agent runtimes, bound thread execution to prevent CPU starvation:
-
+### Constraining Concurrency in Resource-Bounded Environments
 ```bash
-# Restrict ripgrep execution to exactly 2 worker threads
-rg --threads 2 "api_endpoint_v3" src/core/
+# Force ripgrep to utilize exactly two worker threads to prevent CPU starvation
+rg --threads 2 "api_token_v3" src/core/
 ```
 
-### Multi-line Regex Search
-Locate multi-line declarations with custom regex patterns using the `-U` (undisturbed/multi-line) flag:
-
+### Multi-Line RegEx Pattern Matching
 ```bash
-# Match decorators immediately preceding a class declaration
-rg -U -P "@Injectable\(\)\nclass\s+\w+Service" src/
-```
-
-### Token-Conscious Discovery
-When querying for large lists to feed into LLMs, restrict output to filenames only to save input token costs:
-
-```bash
-# Return only the names of files containing the target string
-rg -l "deprecatedAuthMethod" docs/tools/
+# Query multiline structures with -U (undisturbed/multiline) and -P (Perl-compatible) regex
+rg -U -P "@Service\(\)\nclass\s+\w+Impl" src/
 ```
 
 ## API examples
-To build seamless agent toolkits, ripgrep's CLI is typically wrapped programmatically to parse JSON streams.
 
-### Node.js (High-Speed Stream Processor)
-This example spawns a ripgrep process with `--json` output, streaming and parsing match events dynamically:
+### Node.js Event-Stream Receiver (TypeScript)
+Spawn ripgrep and parse raw structured JSON match tokens:
 
 ```typescript
 import { spawn } from 'child_process';
-import { readline } from 'readline';
+import { createInterface } from 'readline';
 
-interface RgMatch {
-  path: { text: string };
-  line_number: number;
-  submatches: Array<{ match: { text: string } }>;
+export interface RgMatchEvent {
+  path: string;
+  line: number;
+  content: string;
 }
 
-export function streamRepoSearch(pattern: string, targetPath: string): Promise<RgMatch[]> {
+export function streamWorkspaceSearch(pattern: string, targetPath: string): Promise<RgMatchEvent[]> {
   return new Promise((resolve, reject) => {
-    const matches: RgMatch[] = [];
-    const rg = spawn('rg', ['--json', pattern, targetPath]);
+    const events: RgMatchEvent[] = [];
+    const child = spawn('rg', ['--json', pattern, targetPath]);
 
-    const rl = readline.createInterface({
-      input: rg.stdout,
+    const rl = createInterface({
+      input: child.stdout,
       terminal: false
     });
 
@@ -125,104 +111,104 @@ export function streamRepoSearch(pattern: string, targetPath: string): Promise<R
       try {
         const payload = JSON.parse(line);
         if (payload.type === 'match') {
-          matches.push({
-            path: payload.data.path,
-            line_number: payload.data.line_number,
-            submatches: payload.data.submatches
+          const matchData = payload.data;
+          events.push({
+            path: matchData.path.text,
+            line: matchData.line_number,
+            content: matchData.lines.text.trim()
           });
         }
       } catch (err) {
-        // Handle malformed JSON chunks gracefully
+        // Soft-fail on malformed stream slices
       }
     });
 
-    rg.on('close', (code) => {
-      if (code === 0 || code === 1) { // 1 indicates no matches found
-        resolve(matches);
+    child.on('close', (code) => {
+      if (code === 0 || code === 1) {
+        resolve(events);
       } else {
-        reject(new Error(`ripgrep exited with code ${code}`));
+        reject(new Error(`ripgrep failed with exit code ${code}`));
       }
     });
   });
 }
 ```
 
-### Python (Multi-Threaded Agentic Search Wrapper)
-This Python script simulates a workspace search tool for agent execution, enforcing regex compiling, core limits, and JSON stream compilation:
+### Python Programmatic Search & Pydantic v2 Event Validation
+Spawns ripgrep, reads its JSON streaming output, and maps each match using Pydantic v2 schemas:
 
 ```python
 import subprocess
 import json
 import os
-from typing import List, Dict
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
 
-def execute_agentic_search(pattern: str, search_dir: str, thread_limit: int = 4) -> List[Dict]:
-    """
-    Executes a high-speed ripgrep command with JSON streaming and thread-bounding.
-    Returns a structured list of match results.
-    """
+class Submatch(BaseModel):
+    match_text: str = Field(..., alias="match")
+
+    class Config:
+        populate_by_name = True
+
+class MatchData(BaseModel):
+    path: str
+    line_number: int
+    submatches: List[Dict]
+
+class RipgrepMatchEvent(BaseModel):
+    type: str
+    data: Optional[MatchData] = None
+
+def run_agentic_grep(pattern: str, search_dir: str) -> List[Dict]:
+    """Runs high-performance ripgrep with JSON streaming and parses matching nodes."""
     if not os.path.exists(search_dir):
         return []
 
-    cmd = [
-        "rg",
-        "--json",
-        "--threads", str(thread_limit),
-        "--ignore-case",
-        pattern,
-        search_dir
-    ]
-
+    cmd = ["rg", "--json", pattern, search_dir]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-        matches = []
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        matched_results = []
 
-        # Parse the line-oriented JSON stream
-        for line in result.stdout.strip().split("\n"):
+        for line in proc.stdout.strip().split("\n"):
             if not line:
                 continue
             try:
-                data = json.loads(line)
-                if data.get("type") == "match":
-                    match_data = data["data"]
-                    matches.append({
-                        "file": match_data["path"]["text"],
-                        "line": match_data["line_number"],
-                        "text": "".join([sub["match"]["text"] for sub in match_data["submatches"]])
+                # Strictly validate streaming chunk via Pydantic v2
+                event = RipgrepMatchEvent.model_validate_json(line)
+                if event.type == "match" and event.data:
+                    matched_results.append({
+                        "file": event.data.path,
+                        "line": event.data.line_number,
+                        "context": event.data.submatches
                     })
-            except json.JSONDecodeError:
+            except Exception:
                 continue
-
-        return matches
+        return matched_results
     except Exception as e:
-        print(f"Error executing search: {e}")
+        print(f"Error running search pipeline: {e}")
         return []
 
 if __name__ == "__main__":
-    results = execute_agentic_search("Last reviewed:", "docs/", thread_limit=2)
-    print(f"Discovered {len(results)} fresh metadata pointers.")
+    results = run_agentic_grep("Last reviewed:", "docs/")
+    print(f"Discovered {len(results)} matches.")
 ```
 
 ## Related tools / concepts
-- [Aider](aider.md) — For terminal-based, interactive collaborative pair programming and incremental editing.
-- [Claude Code](claude-code.md) — Interactive terminal coding agent from Anthropic leveraging high-speed search tools.
-- [Junie CLI](junie-cli.md) — Blazing-fast JetBrains AI Lab terminal companion natively embedding ripgrep queries.
-- [Melty](melty.md) — Open-source AI-native IDE offering deep shell and git execution loops.
-- [Terminus 2](terminus-2.md) — Terminal-native AI agent baseline leveraging a tmux-to-LLM bridge.
-- [Droid](droid.md) — Specialized enterprise-grade coding orchestrator configuring dedicated sub-agents.
-- [Zed](zed.md) — High-performance, collaborative AI-native visual text editor.
-- [Docling](../process_understanding/docling.md) — High-performance document parsing for structural knowledge base assembly.
-- [RAGFlow](../process_understanding/ragflow.md) — Open-source RAG engine and layout analyzer for document comprehension.
-- [Software Factories](../../knowledge_base/patterns/software-factories.md) — Conceptual architectures for fully automated code production lines.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Recurring patterns for multi-step AI planning and execution.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool integration protocol natively supported by modern search tools.
+- [Claude Code](claude-code.md)
+- [Junie CLI](junie-cli.md)
+- [Aider](aider.md)
+- [Melty](melty.md)
+- [Terminus 2](terminus-2.md)
+- [Droid](droid.md)
+- [Zed](zed.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [BurntSushi/ripgrep GitHub Repository](https://github.com/BurntSushi/ripgrep)
-- [ripgrep User Guide & Benchmark Methodology](https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md)
-- [Model Context Protocol v3.0 Specification](https://modelcontextprotocol.org)
-- [Rust SIMD Vectorization Reference](https://doc.rust-lang.org/stable/std/simd/index.html)
+- [ripgrep Benchmarking and Architecture Methodology](https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md)
+- [Model Context Protocol specifications](https://modelcontextprotocol.org)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high

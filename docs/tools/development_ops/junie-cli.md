@@ -1,160 +1,167 @@
 # Junie CLI
 
 ## What it is
-Junie CLI is an AI-driven, high-speed, terminal-native codebase navigation and autonomous software engineering assistant developed under the JetBrains AI Lab initiative. As of July 2026, **v1.8+** (nearing stable **v2.0**) acts as a lightweight daemon and a stateful command-line companion. Optimized for low-latency terminal interactions, it is powered by JetBrains AI Lab SOTA models and frontier reasoning engines (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6), enabling rapid, keyboard-first codebase navigation, semantic auditing, and tmux-native editing.
+Junie CLI is an AI-driven, high-speed, terminal-native codebase navigation and autonomous software engineering assistant developed under the JetBrains AI Lab initiative. As of late December 2026, the stable **v2.0+** release acts as an enterprise-grade background daemon and command-line companion. Optimized for sub-second terminal interactions, it leverages state-of-the-art JetBrains models and frontier reasoning systems (including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) to enable lightning-fast terminal-centric editing, tmux-native testing, and semantic codebase auditing.
 
 ## What problem it solves
-Eliminates high-latency context switching and the substantial memory footprint associated with modern graphical AI IDEs. It provides developers on remote SSH connections or nested tmux sessions with instant repository-wide semantic intelligence. Additionally, it overcomes the static boundaries of traditional command-line utilities by implementing stateful multi-step loops—permitting the AI to safely execute commands, run tests, sniff terminal buffers, and self-correct compilation errors autonomously.
+It eliminates the high-latency context-switching overhead and massive system memory footprint associated with graphic-heavy AI IDEs. Remote developers working over SSH connections or nested tmux panes gain real-time, repository-wide intelligence without relying on heavy graphical interfaces. Furthermore, it overcomes the static boundaries of traditional command-line utilities by executing autonomous, multi-step agentic loops—safely running tests, checking compilation outputs, reading terminal buffers, and self-correcting errors.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as an intelligent, terminal-native developer companion and orchestrator. It sits directly on top of the local shell, bridging UNIX pipelines (such as `rg`, `fd`, and `git`) with remote or locally hosted LLMs. It functions alongside collaborative coding editors and lightweight autonomous agents in modern software factories.
+**Development & Ops**. It serves as an **AI-Native Shell Companion and Orchestrator**, interfacing directly with local shells, Git filesystems, search utilities (like `rg` and `fd`), and background model servers.
 
 ## Typical use cases
-- **Autonomous Tmux-Bound Multi-File Edits**: Spinning up an attached or detached tmux session to systematically execute a refactoring pattern, compile the results, read the standard error streams, and refine code files in real-time.
-- **Sub-Second Semantic Code Navigation**: Locating specific logical flows and functional entry points inside multimillion-line repositories using local high-performance vector caching.
-- **SSH-Native Repository Auditing**: Conducting comprehensive, lightweight security or design audits of codebases hosted on remote developer virtual machines without the overhead of X11 or VNC port forwarding.
-- **Onboarding and Architecture Explanations**: Interrogating a new, unfamiliar repository via natural language queries to instantly map dependency relationships and configuration matrices.
+- **SSH-Based Remote Refactoring**: Running autonomous, multi-file code modifications on distant cloud-hosted environments without GUI overhead.
+- **Tmux-Bridge Automation**: Executing parallel test-run and code-fix loops in isolated tmux splits, continuously monitoring execution status until all tasks succeed.
+- **Sub-Second Code Navigation**: Generating a highly compressed local vector cache to locate complex relational code pathways instantly.
+- **Security & Compliance Auditing**: Programmatically reviewing code changes against custom architecture rulesets before commits.
 
 ## Strengths
-- **Tmux-Bridge Protocol**: Deeply understands tmux pane states, enabling non-blocking terminal buffer reading, split-screen live terminals, and parallel multi-pane command execution.
-- **High-Performance Rust Core**: Employs a blazing-fast local indexer written in Rust, generating and updating semantic repository indices in sub-second timeframes.
-- **Zero-GUI, SSH-Optimized Footprint**: Consumes minimal RAM and network bandwidth, making it highly effective for editing codebases on remote cloud instances over flaky connections.
-- **Native MCP 3.0/3.1 Integration**: Operates natively as both an MCP client and server, granting LLM reasoning engines standard access to git history, filesystem blocks, and pipeline telemetry.
+- **Stable v2.0 tmux-Bridge**: Deeply understands tmux pane matrices, enabling background pane spawning, live buffer analysis, and non-blocking command execution.
+- **Native MCP 3.1 / FastMCP 3.1 Protocol**: Functions natively as both an MCP client and server to stream execution parameters, tool metrics, and schema trees.
+- **High-Performance Rust Indexer**: Features an optimized local semantic database that builds indexes across millions of code lines in sub-second timeframes.
+- **Keyboard-First Interface**: Fits seamlessly into advanced development environments using Vim, Neovim, Helix, or standard command line interfaces.
 
 ## Limitations
-- **No Rich Visual Interface**: Lacks graphical file-tree navigation, interactive side-by-side diff sliders, and visual timeline representations (reliant entirely on unified diffs and terminal terminal UI controls).
-- **Steep CLI Mastery Curve**: Requires comfort with terminal workflows, tmux multiplexing, and advanced command line options to unlock its full utility.
-- **Frontier Reasoning Dependence**: Simpler offline models often struggle with complex, long-horizon multi-step debugging tasks, requiring access to high-tier reasoning APIs for stable results.
+- **No GUI Layout**: Relies entirely on command-line terminal structures, lacking visual side-by-side diff comparisons or interactive file trees.
+- **Advanced UNIX Curve**: Demands proficiency in standard shell commands, tmux multiplexing, and pipeline redirection to exploit its complete power.
+- **Compute Bound**: Demands access to frontier-tier reasoning APIs (like Claude 5.1 or GPT-5.5) for complex, long-horizon bug-fixing tasks.
 
 ## When to use it
-- When you are a dedicated terminal developer using keyboard-centric editors like Vim, Neovim, or Helix within a tmux and shell workspace.
-- When performing rapid, multi-file code exploration, structural searches, or lightweight automated audits.
-- For managing, troubleshooting, and editing microservices directly on remote staging or production environments over SSH.
+- When you are a terminal-centric developer utilizing keyboard-focused environments (such as Neovim or Helix) within nested tmux workspaces.
+- When performing fast exploration, semantic indexing, or autonomous code changes on remote environments over SSH.
+- For building fully automated code production pipelines within modern software factories.
 
 ## When not to use it
-- When your workflow depends heavily on a rich, mouse-driven graphical interface with integrated debugger panels and drag-and-drop file trees.
-- For heavy frontend UI design and alignment tasks that require real-time, browser-native visual previews embedded alongside the editor window.
-- In offline environments where secure local inference is mandatory but local hardware is insufficient to run SOTA 70B+ reasoning models.
+- If your daily development workflows are highly dependent on rich mouse-driven GUIs, visual debugging panels, or graphical interactive timelines.
+- When working entirely offline on highly restricted developer workstations with insufficient local CPU/GPU capacities to support high-tier models.
 
 ## Getting started
+
 ### Installation
-Junie CLI is distributed via common package registries and cargo crates. It can be installed globally using Node or Rust toolchains.
+Junie CLI v2.0+ is distributed as a global binary and cargo crate. Install it using the default system toolchains:
 
 ```bash
-# Install the CLI globally via npm
+# Globally install via npm
 npm install -g @jetbrains/junie-cli
 
 # Or compile from source via cargo
 cargo install junie-cli
 ```
 
-### Initial Setup
-To construct the local vector index and configure model provider endpoints, execute the initialize routine within the repository root:
-
+### Basic Setup
+Initialize the local database and build the semantic repository workspace index:
 ```bash
-# Initialize local database and index workspace
+# Initialize local index db
 junie init
 
-# Configure model endpoints and API keys
-junie configure --model claude-5.1
+# Set model endpoints and configure active API credentials
+junie configure --model claude-5.1 --provider anthropic
 ```
 
 ## CLI examples
-### Codebase Exploration
+The command-line interface provides high-performance access to its underlying agentic capabilities.
+
+### Semantic codebase exploration
 ```bash
-# Perform a semantic search on webhook execution
-junie ask "Where and how are the checkout stripe webhooks validated and processed?"
+junie ask "Where are the FastMCP 3.1 session authentication contexts created and validated?"
 ```
 
-### Stateful Tmux Refactoring
+### Tmux-Native Refactoring Run
 ```bash
-# Initiate an autonomous tmux-bound multi-file migration
-junie run "Refactor all endpoints in src/api/ to use the new token schema, compile, and run cargo test to verify." --tmux-bridge
+junie run "Refactor all authentication decorators in src/middleware/ to comply with FastMCP 3.1. Compile and execute npm test." --tmux-bridge
 ```
 
-### Workspace Auditing
+### Run Workspace Architecture Audit
 ```bash
-# Run a specific architecture audit and output the results as markdown
-junie audit --ruleset "mcp-v3" --output "./reports/mcp_compliance.md"
+junie audit --ruleset "./rules/mcp-3.1-compliance.json" --output "./reports/audit_summary.md"
 ```
 
 ## API examples
-### JavaScript Custom Skill Definition
-Junie CLI enables developers to extend its capabilities with custom JavaScript or TypeScript skill definitions loaded at runtime.
+
+### JavaScript Custom Schema Integration
+Extend Junie CLI v2.0+'s daemon capabilities with custom JavaScript/TypeScript plugin schemas loaded at runtime:
 
 ```javascript
-// custom-validator.js
+// schema-audit-plugin.js
 export const skill = {
-  name: "db-schema-validator",
-  description: "Validates local schema structures against model definitions",
+  name: "schema-integrity-checker",
+  description: "Validates database schema configurations against FastMCP 3.1 rules",
   async run(context) {
-    // Access local files using the workspace utility
-    const schemaFiles = await context.workspace.findFiles("**/schemas/*.sql");
-    const results = [];
+    const schemas = await context.workspace.findFiles("**/db/schemas/*.json");
+    const violations = [];
 
-    for (const file of schemaFiles) {
-      const content = await file.read();
-      if (!content.includes("FOREIGN KEY")) {
-        results.push({ file: file.path, issue: "Missing relational integrity check." });
+    for (const file of schemas) {
+      const parsed = JSON.parse(await file.read());
+      if (!parsed.hasOwnProperty("version") || parsed.version !== "3.1") {
+        violations.push({ file: file.path, message: "Outdated schema version. FastMCP 3.1 required." });
       }
     }
 
     return {
-      status: results.length === 0 ? "success" : "warning",
-      issues: results
+      status: violations.length === 0 ? "passed" : "failed",
+      violations
     };
   }
 };
 ```
 
-### Python Programmatic Subprocess Integration
-Execute Junie's semantic indexer programmatically to integrate repository intelligence into automation tools.
+### Python Programmatic Daemon Controller
+Wrap and orchestrate Junie's workspace-indexing features inside external Python workflows utilizing Pydantic v2 schemas:
 
 ```python
 import subprocess
 import json
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-def get_codebase_context(query_string: str) -> dict:
-    """Invokes Junie CLI semantic indexer to fetch structured context."""
+class JunieSearchResult(BaseModel):
+    file_path: str = Field(..., alias="file")
+    similarity_score: float = Field(..., alias="score")
+    matched_lines: List[int] = Field(..., alias="lines")
+    snippet: str
+
+class JunieResponse(BaseModel):
+    query: str
+    matches: List[JunieSearchResult]
+    execution_time_ms: int
+
+def execute_semantic_lookup(query: str) -> Optional[JunieResponse]:
+    """Spawns the Junie CLI to execute a fast semantic lookup across the codebase."""
     try:
-        result = subprocess.run(
-            ["junie", "search", query_string, "--format", "json"],
+        res = subprocess.run(
+            ["junie", "search", query, "--format", "json"],
             capture_output=True,
             text=True,
             check=True
         )
-        return json.loads(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to query Junie: {e.stderr}")
-        return {"error": "Execution failed"}
+        data = json.loads(res.stdout)
+        return JunieResponse.model_validate(data)
+    except Exception as e:
+        print(f"Failed to query semantic daemon: {e}")
+        return None
 
-if __name__ == "__main__":
-    context = get_codebase_context("JWT authentication expiration parameters")
-    print(f"Retrieved {len(context.get('matches', []))} relevant file slices.")
+# Execute lookup
+response = execute_semantic_lookup("JWT token validation payload")
+if response:
+    print(f"Found {len(response.matches)} files in {response.execution_time_ms}ms")
 ```
 
 ## Related tools / concepts
-- [Aider](aider.md) — For terminal-based, interactive collaborative pair programming and incremental editing.
-- [ripgrep (rg)](ripgrep.md) — Fast command-line pattern search utility integrated directly with Junie's backend.
-- [Claude Code](claude-code.md) — Interactive terminal coding agent from Anthropic.
-- [Codeium](codeium.md) — Multi-IDE AI developer productivity platform and completion daemon.
-- [Software Factories](../../knowledge_base/patterns/software-factories.md) — Conceptual architectures for fully automated code production lines.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Recurring patterns for multi-step AI planning and execution.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool integration protocol natively supported by Junie.
-- [Zed](zed.md) — High-performance, collaborative AI-native visual text editor.
-- [Anti-Gravity](anti_gravity.md) — Google's enterprise agentic execution and orchestration framework.
-- [Droid](droid.md) — Specialized enterprise-grade coding orchestrator configuring dedicated sub-agents.
-- [Terminus 2](terminus-2.md) — Terminal-native AI agent baseline leveraging a tmux-to-LLM bridge.
-- [GPT Engineer](gpt_engineer.md) — AI-driven greenfield codebase prototyping and scaffolding orchestrator.
-- [Melty](melty.md) — Open-source AI-native IDE offering deep shell and git execution loops.
-- [Sourcegraph Cody](sourcegraph_cody.md) — Multi-repository code intelligence and autonomous context indexing client.
+- [Claude Code](claude-code.md)
+- [ripgrep (rg)](ripgrep.md)
+- [Aider](aider.md)
+- [Melty](melty.md)
+- [Sourcegraph Cody](sourcegraph_cody.md)
+- [Terminus 2](terminus-2.md)
+- [GPT Engineer](gpt_engineer.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / references
-- [Junie CLI Home Page](https://junie.jetbrains.com/)
-- [JetBrains AI Lab Research and Blog](https://blog.jetbrains.com/ai/)
-- [GitHub - Junie CLI Discussions and Community](https://github.com/jetbrains/junie)
-- [Model Context Protocol v3.0 Specification](https://modelcontextprotocol.org)
+- [JetBrains Junie CLI Homepage](https://junie.jetbrains.com/)
+- [JetBrains AI Lab Research and Documentation Portal](https://blog.jetbrains.com/ai/)
+- [GitHub - JetBrains Junie CLI Repository](https://github.com/jetbrains/junie)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high

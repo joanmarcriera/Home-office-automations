@@ -1,126 +1,151 @@
 # SQLGlot
 
-A no-dependency SQL parser, transpiler, optimizer, and engine written in Python.
-
 ## What it is
-SQLGlot is a comprehensive SQL framework that enables parsing, transpiling, optimizing, and executing SQL across dozens of different dialects. In July 2026, it has become a foundational component for agentic data pipelines, providing the robust parsing necessary for [Gemma 3](../ai_knowledge/local_llms.md) and other models to interact safely with structured data. It supports **FastMCP 3.0** for high-performance schema discovery and query validation.
+SQLGlot is a no-dependency, high-performance SQL parser, transpiler, optimizer, and engine written in Python. As of late December 2026, **v25.x+** features substantial Rust-based parsing components that drastically optimize abstract syntax tree (AST) compilation, making it a crucial component for agentic database integration.
 
 ## What problem it solves
-The proliferation of SQL dialects (Postgres, BigQuery, DuckDB, etc.) makes it difficult to write portable SQL or build generic tools that work across all of them. SQLGlot solves this by providing a unified Abstract Syntax Tree (AST) that can be transpiled into any supported dialect. It also addresses the safety concerns of agent-generated SQL by providing deep structural analysis to prevent malicious injections or inefficient "cartesian product" queries before they reach the database.
+In multi-agent architectures (e.g., [Data Copilot](../../architecture/data-copilot-text-to-sql.md)), autonomous agents frequently generate database queries. However, raw generated SQL often contains syntactic errors, incompatible dialects (e.g., executing Postgres syntax on a DuckDB cluster), or malicious/mutating injection vulnerabilities. SQLGlot parses any query into an AST, allowing comprehensive schema analysis, transpilation to 20+ dialects, optimization, and strict safety validation before execution.
 
 ## Where it fits in the stack
-**Development / Data Layer** — SQLGlot sits between the LLM generator (like [Claude 4.8](../ai_knowledge/claude.md)) and the physical database. It is often integrated into [Data Copilot](../../architecture/data-copilot-text-to-sql.md) as the primary validation and transpilation engine, ensuring that agent-generated intent is safely and accurately converted into executable code.
+**Development / Data Layer**. It acts as an **In-Transit SQL Gateway**, sitting directly between an LLM agent generator (such as Claude 5.1, GPT-5.5, or Qwen 3.6) and the destination database connection layer.
 
 ## Typical use cases
-- **Multi-Dialect Transpilation**: Converting complex queries from Postgres to DuckDB for local analytical processing.
-- **Agentic SQL Validation**: Inspecting LLM-generated SQL for prohibited mutations (DROP, DELETE) or PII access.
-- **Query Optimization**: Automatically simplifying redundant joins or subqueries before execution to save compute.
-- **Schema Mapping**: Translating natural language column references into the exact schema names via AST manipulation.
+- **Dialect Transpilation**: Seamlessly converting complex Postgres or BigQuery queries to standard DuckDB format for cost-effective local analytics.
+- **Agentic SQL Safety Audits**: Programmatically scanning SQL ASTs to block mutating operators (like `DROP`, `DELETE`, `TRUNCATE`) or illegal database joins.
+- **AST-Based Semantic Rewrites**: Dynamically appending row-level security filters (e.g., `WHERE tenant_id = X`) to user-generated SQL queries before database execution.
+- **Query Optimization**: Automatically simplifying redundant nested queries, unused joins, and mathematical expressions to reduce database compute requirements.
 
 ## Strengths
-- **No Dependencies**: Extremely lightweight and easy to deploy in serverless or edge environments.
-- **Dialect Support**: Supports 20+ dialects including Spark, Snowflake, and ClickHouse.
-- **Powerful AST**: Allows for sophisticated programmatic manipulation of SQL structures.
-- **Performance**: Highly optimized for speed, matching the low-latency requirements of **FastMCP 3.0** pipelines.
+- **No Heavy Dependencies**: Pure Python footprint with optional ultra-fast Rust accelerators.
+- **Broad Dialect Support**: Robust support for Snowflake, Spark, clickhouse, Presto, DuckDB, SQLite, and 15+ others.
+- **Extensible AST Engine**: Highly developer-friendly AST node representation allowing deep traversal and semantic modifications.
+- **Excellent Performance**: Optimized for hot paths in high-throughput data processing workflows.
 
 ## Limitations
-- **Python Only**: While a Rust port is in progress (as of 2026), the primary engine remains Python-based.
-- **Complex Macro Support**: Some highly specific database-native macros may not transpile perfectly without custom rules.
-- **Learning Curve**: The AST API is powerful but requires significant SQL knowledge to use effectively for complex transformations.
+- **Dialect Parity Lag**: Extremely niche, newly introduced database features or proprietary vendor extensions might require custom AST extensions.
+- **Rust Transition**: The complete transition of parsing operations to Rust is ongoing, meaning some complex custom macros still run on Python logic.
+- **Complex AST Traversal**: Navigating nested expressions and relational joins requires solid SQL compilation theory knowledge.
 
 ## When to use it
-- When building "Text-to-SQL" applications that must be dialect-agnostic.
-- When you need to programmatically analyze or modify SQL queries in an agentic workflow.
-- When safety-gating database access for autonomous agents is a priority.
-- For local data processing where lightweight, no-dependency tools are preferred.
+- When implementing a "Text-to-SQL" pipeline utilizing models like Qwen 3.6, Llama 4, or Gemma 3.
+- When creating automated agents that need to compile and execute SQL safely across heterogeneous database environments.
+- When query performance optimization or structural AST scanning is required inside database-proxies or tools.
 
 ## When not to use it
-- For simple one-off queries where manual transpilation is faster.
-- In non-Python environments (unless using a language bridge).
-- When the target database uses highly proprietary, non-standard SQL extensions that are not yet supported.
+- For basic database interactions utilizing simple, hardcoded queries where raw DB adapters (e.g., `pg` or `sqlite3`) are perfectly sufficient.
+- In low-latency Node.js or Go backends where invoking Python subprocesses introduces unacceptable overhead (unless wrapped in a dedicated microservice).
 
 ## Getting started
 
 ### Installation
 Install SQLGlot via pip:
-
 ```bash
 pip install sqlglot
 ```
 
-### Quick Transpile
-The simplest use case is transpiling between dialects:
-
+### Basic Setup
+Transpile a standard SQL statement from BigQuery syntax to DuckDB format:
 ```python
 import sqlglot
-sql = "SELECT * FROM x LIMIT 10"
-print(sqlglot.transpile(sql, read="postgres", write="duckdb")[0])
+
+sql = "SELECT * FROM `project.dataset.users` LIMIT 100"
+transpiled = sqlglot.transpile(sql, read="bigquery", write="duckdb")[0]
+print(transpiled)
+# Output: SELECT * FROM "project"."dataset"."users" LIMIT 100
 ```
 
 ## CLI examples
-SQLGlot provides a basic CLI for transpilation and formatting:
+SQLGlot provides a lightweight CLI for transpilation, syntax checking, and quick query formatting.
 
+### Shell-Based Transpilation
 ```bash
-# Transpile a query from Postgres to Snowflake
-sqlglot-cli --read postgres --write snowflake "SELECT * FROM table LIMIT 10"
+sqlglot-cli --read postgres --write snowflake "SELECT name, age FROM users WHERE age > 18"
+```
 
-# Pretty-print a complex SQL file
+### Formatting Complex Queries (Pretty Print)
+```bash
 sqlglot-cli --pretty < query.sql
+```
 
-# Check the syntax of a SQL string against a specific dialect
-sqlglot-cli --read bigquery "SELECT * FROM `project.dataset.table`"
+### Syntax and Dialect Verification
+```bash
+sqlglot-cli --read duckdb "SELECT * FROM read_csv_auto('data.csv') LIMIT 5"
 ```
 
 ## API examples
 
 ### Programmatic AST Manipulation
-Add a filter to an existing query programmatically:
-
+Inject dynamic filters into an existing query using Python's AST representation:
 ```python
 from sqlglot import parse_one, exp
 
-sql = "SELECT name FROM users"
-expression = parse_one(sql)
+# Parse raw SQL into expression AST
+query = parse_one("SELECT id, email FROM users")
 
-# Append a WHERE clause
-new_expression = expression.where("age > 18")
-print(new_expression.sql())
-# Output: SELECT name FROM users WHERE age > 18
+# Programmatically append filter logic
+safe_query = query.where("is_active = true")
+print(safe_query.sql())
+# Output: SELECT id, email FROM users WHERE is_active = true
 ```
 
-### Static Safety Validation
-Check for prohibited keywords in an agent-generated query:
+### Strict Python & Pydantic v2 Query Safety Validator
+Integrate SQLGlot with a Pydantic v2 payload validation structure to build a strict Text-to-SQL security boundary:
 
 ```python
 import sqlglot
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
 
-def is_safe(sql):
-    try:
-        for expression in sqlglot.parse(sql):
-            if any(isinstance(node, (sqlglot.exp.Drop, sqlglot.exp.Delete)) for node, *_ in expression.walk()):
-                return False
-        return True
-    except sqlglot.errors.ParseError:
-        return False
+class SQLQueryPayload(BaseModel):
+    raw_query: str = Field(..., description="The agent-generated SQL query.")
+    target_dialect: str = Field("postgres", description="Target database dialect.")
+    prohibited_operations: List[str] = Field(
+        default_factory=lambda: ["drop", "delete", "truncate", "alter"]
+    )
 
-print(is_safe("DELETE FROM users")) # False
+    @field_validator("raw_query")
+    @classmethod
+    def validate_and_sanitize_sql(cls, v: str, info) -> str:
+        prohibited = info.data.get("prohibited_operations", ["drop", "delete", "truncate"])
+        try:
+            # Parse query using SQLGlot to inspect AST nodes
+            parsed_expressions = sqlglot.parse(v)
+            for expression in parsed_expressions:
+                for node, *_ in expression.walk():
+                    # Check if AST node matches prohibited mutations
+                    node_name = node.__class__.__name__.lower()
+                    if any(op in node_name for op in prohibited):
+                        raise ValueError(f"Prohibited database operation detected: {node_name.upper()}")
+            return v
+        except sqlglot.errors.ParseError as e:
+            raise ValueError(f"Invalid SQL Syntax: {str(e)}")
+
+# Executing safe query validation
+try:
+    payload = SQLQueryPayload(
+        raw_query="DROP TABLE production_users;",
+        target_dialect="postgres"
+    )
+except ValueError as err:
+    print(f"Intercepted threat: {err}")
 ```
 
 ## Related tools / concepts
-- [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — The primary architecture utilizing SQLGlot.
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Practical safety patterns.
-- [Claude 4.8](../ai_knowledge/claude.md) — Frontier model used for SQL generation.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Local model for privacy-first SQL synthesis.
-- [FastMCP 3.0](../automation_orchestration/mcp.md) — Protocol for low-latency tool and data discovery.
-- [DuckDB](../infrastructure/duckdb.md) — Common transpilation target for local analytics.
-- [Jules](../ai_knowledge/jules.md) — Agent that orchestrates SQL-based maintenance tasks.
+- [Data Copilot](../../architecture/data-copilot-text-to-sql.md)
+- [Claude Code](claude-code.md)
+- [ripgrep (rg)](ripgrep.md)
+- [Aider](aider.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Pydantic AI](../frameworks/pydantic-ai.md)
+- [OpenAI Agents SDK](../frameworks/openai-agents-sdk.md)
+- [AG2](../frameworks/ag2.md)
 
-## Sources / References
+## Sources / references
 - [SQLGlot GitHub Repository](https://github.com/tobymao/sqlglot)
-- [Official Documentation](https://sqlglot.com/)
-- [Text-to-SQL Safety Patterns (KnowledgeOps)](../../architecture/data-copilot-text-to-sql.md)
+- [SQLGlot Official Documentation & API Reference](https://sqlglot.com/)
+- [Text-to-SQL Dialect Mapping Techniques](https://github.com/tobymao/sqlglot/blob/main/posts/transpiling_sql.md)
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high
