@@ -1,27 +1,27 @@
 # Factory AI Droid CLI
 
 ## What it is
-Factory AI Droid (v2026.7.x+) is an enterprise-grade AI coding agent designed to automate complex, multi-step development workflows. It operates as a "knowledge-aware" orchestrator that utilizes specialized sub-agents ("Droids") to perform domain-specific tasks such as code reviews, security hardening, and feature implementation. Droid leverages the latest July 2026 frontier models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) and is configured via a `droid.yml` manifest to maintain deep project-specific context, while natively integrating with the Model Context Protocol (MCP 3.0/3.1) standard to extend its execution capabilities.
+Factory AI Droid (v2026.12.x+) is an enterprise-grade AI coding agent designed to automate complex, multi-step development workflows. It operates as a "knowledge-aware" orchestrator that utilizes specialized sub-agents ("Droids") to perform domain-specific tasks such as code reviews, security hardening, and feature implementation. Droid leverages the SOTA late 2026 frontier models (**Claude 5.1**, **GPT-5.5**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**) and is configured via a `droid.yml` manifest to maintain deep project-specific context, while natively integrating with the Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) standard to extend its execution capabilities.
 
 ## What problem it solves
 Droid solves the "Execution Gap" in AI-assisted development by moving beyond simple completions to autonomous task completion. It automates repetitive engineering toil—like updating API schemas across multiple layers, performing semantic security scans, and maintaining architectural consistency—allowing human engineers to focus on high-level system design. It eliminates brittle tool-calling setups by standardizing agentic actions via stream-aware MCP protocols and secure sandbox execution environments.
 
 ## Where it fits in the stack
-**Development & Ops**. Droid functions as a CLI-based agentic layer that sits between the developer's intent and the file system/Git. It is frequently integrated into CI/CD pipelines as an autonomous "Junior Engineer" or "Security Auditor." It can also act as an MCP 3.0 client, interacting with external databases, sandboxed runtimes, or custom tools exposed by other parts of the infrastructure.
+**Development & Ops**. Droid functions as a CLI-based agentic layer that sits between the developer's intent and the file system/Git. It is frequently integrated into CI/CD pipelines as an autonomous "Junior Engineer" or "Security Auditor." It can also act as an MCP 3.1 client, interacting with external databases, sandboxed runtimes, or custom tools exposed by other parts of the infrastructure.
 
 ## Typical use cases
 - **Autonomous Feature Development**: Implementing full-stack features from a natural language specification.
 - **Continuous Security Hardening**: Identifying and automatically patching vulnerabilities found in static or dynamic analysis.
 - **Architectural Enforcement**: Ensuring that new code follows project-defined patterns (e.g., proper dependency injection).
 - **Automated Dependency Updates**: Updating library versions and refactoring breaking changes across the codebase.
-- **MCP-Enabled Workspace Navigation**: Querying external documentation, API definitions, or local Docker environments via standard MCP 3.0 server interfaces.
+- **MCP-Enabled Workspace Navigation**: Querying external documentation, API definitions, or local Docker environments via standard MCP 3.1 server interfaces.
 
 ## Strengths
 - **Specialized Multi-Agent System**: Domain-specific Droids (Infra, Security, Frontend) provide higher precision than general-purpose agents.
 - **Deep Context Awareness**: The `droid.yml` configuration allows for fine-grained control over the agent's "sight" and "rules."
 - **CI/CD Native**: Seamlessly integrates with GitHub Actions, GitLab CI, and Jenkins for automated PR reviews and fixes.
 - **Human-in-the-Loop**: Supports interactive "chat" modes for collaborative task refinement and approval gates.
-- **MCP 3.0/3.1 Compliance**: Fully compatible with Model Context Protocol servers, allowing standard-based extension of the agent's toolbox.
+- **MCP 3.1 / FastMCP 3.1 Compliance**: Fully compatible with Model Context Protocol servers, allowing standard-based extension of the agent's toolbox.
 
 ## Limitations
 - **Configuration Overhead**: Complex repositories require a well-maintained `droid.yml` to maximize performance.
@@ -32,7 +32,7 @@ Droid solves the "Execution Gap" in AI-assisted development by moving beyond sim
 - When you need to automate large-scale refactoring or maintenance tasks across a private codebase.
 - In enterprise environments where strict architectural rules must be enforced autonomously.
 - To augment a small engineering team with specialized AI agents for security or infrastructure.
-- When you want an agent that natively integrates with MCP 3.0 servers to control external sandboxes.
+- When you want an agent that natively integrates with MCP 3.1 servers to control external sandboxes.
 
 ## When not to use it
 - For simple, single-file edits where [Aider](./aider.md) or [Cline](../agents/cline.md) is faster.
@@ -44,16 +44,15 @@ Droid is installed via `npm` or `brew` and requires a Factory AI account.
 
 ### 1. Installation
 ```bash
-npm install -g @factory-ai/droid
+npm install -g @factory-ai/droid@latest
 ```
 
 ### 2. Configuration (`droid.yml`)
 Create a manifest in your repository root:
 ```yaml
-version: 3.0
-project:
-  name: "Service-Mesh-Core"
-  stack: ["typescript", "rust", "kubernetes"]
+version: 3.1
+project: "Service-Mesh-Core"
+stack: ["typescript", "rust", "kubernetes"]
 droids:
   - name: "security-droid"
     type: "auditor"
@@ -123,6 +122,102 @@ async function runAudit() {
 runAudit();
 ```
 
+### Manifest Validator with Pydantic v2
+The following copy-pasteable Python script demonstrates how developers can use Pydantic v2 schemas to parse, validate, and verify the structure of a `droid.yml` manifest before executing Droid commands.
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
+import json
+
+class DroidAgentConfig(BaseModel):
+    name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    type: str = Field(..., pattern=r"^(coder|auditor|operator)$")
+    scope: List[str] = Field(default_factory=list)
+    rules: List[str] = Field(default_factory=list)
+
+class MCPServerConfig(BaseModel):
+    name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
+    command: str
+    args: List[str] = Field(default_factory=list)
+
+class DroidManifest(BaseModel):
+    version: str = Field("3.1", pattern=r"^3\.1$")
+    project_name: str = Field(..., alias="project")
+    stack: List[str] = Field(default_factory=list)
+    droids: List[DroidAgentConfig] = Field(default_factory=list)
+    mcp_servers: List[MCPServerConfig] = Field(default_factory=list)
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "version": "3.1",
+                "project": "Service-Mesh-Core",
+                "stack": ["typescript", "rust"],
+                "droids": [
+                    {
+                        "name": "security-droid",
+                        "type": "auditor",
+                        "scope": ["src/auth/**"],
+                        "rules": ["Enforce secure cookie attributes"]
+                    }
+                ],
+                "mcp_servers": [
+                    {
+                        "name": "filesystem-mcp",
+                        "command": "npx",
+                        "args": ["@modelcontextprotocol/server-filesystem", "/workspace"]
+                    }
+                ]
+            }
+        }
+    }
+
+def validate_droid_manifest(yaml_payload: dict) -> str:
+    """Validates the droid.yml configuration manifest using Pydantic v2."""
+    try:
+        manifest = DroidManifest.model_validate(yaml_payload)
+        return json.dumps({
+            "status": "success",
+            "validated_manifest": manifest.model_dump(by_alias=True)
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
+
+if __name__ == "__main__":
+    payload = {
+        "version": "3.1",
+        "project": "Service-Mesh-Core",
+        "stack": ["typescript", "rust", "kubernetes"],
+        "droids": [
+            {
+                "name": "security-droid",
+                "type": "auditor",
+                "scope": ["src/auth/**", "src/crypto/**"],
+                "rules": ["No hardcoded secrets", "Use TLS 1.3"]
+            },
+            {
+                "name": "refactor-droid",
+                "type": "coder",
+                "scope": ["src/**/*.ts"],
+                "rules": ["Prefer async/await over raw promises"]
+            }
+        ],
+        "mcp_servers": [
+            {
+                "name": "filesystem-mcp",
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"]
+            }
+        ]
+    }
+    print(validate_droid_manifest(payload))
+```
+
 ## Related tools / concepts
 - [Aider](./aider.md) — Terminal-based collaborative coding partner.
 - [Anti-Gravity](./anti_gravity.md) — Google's enterprise agent orchestration and sandbox framework.
@@ -143,6 +238,5 @@ runAudit();
 - [Autonomous Development Patterns (2026 Whitepaper)](https://factory.ai/resources/autonomous-patterns-2026)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-14
 - Confidence: high
