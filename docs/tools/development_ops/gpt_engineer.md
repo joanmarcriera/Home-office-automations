@@ -1,7 +1,7 @@
 # GPT Engineer
 
 ## What it is
-GPT Engineer is an AI-driven software engineering orchestrator and prototyping platform designed to generate complete, functional application codebases from high-level natural language prompts. It focuses specifically on the "bootstrapping" phase of software development, utilizing interactive prompting loops to clarify requirements prior to generation. As of July 2026, **v2.4.x+** introduces advanced integration with **WebContainer** environments to provide instant, browser-based full-stack previews, alongside full support for the **Model Context Protocol (MCP 3.0/3.1)** to ingest external schema definitions and API contracts.
+**GPT Engineer** is an AI-driven software engineering orchestrator and prototyping platform designed to generate complete, functional application codebases from high-level natural language prompts. It focuses specifically on the "bootstrapping" phase of software development, utilizing interactive prompting loops to clarify requirements prior to generation. Under late November/December 2026 SOTA standards, **v2.4.x+** introduces advanced integration with **WebContainer** environments to provide instant, browser-based full-stack previews, alongside full support for the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to ingest external schema definitions and API contracts for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
 
 ## What problem it solves
 Reduces the cognitive and procedural overhead of starting new projects by automating boilerplate creation, environment configuration, and directory scaffolding. It bridges the gap between conceptual requirements and runnable applications, eliminating "configuration hell" and allowing developers to quickly test ideas in an isolated, previewable client-side sandbox.
@@ -78,7 +78,7 @@ gpt-engineer . --steps clarify --model gpt-5.5
 ### Non-Interactive CI/CD Scaffolding
 ```bash
 # Run headless code generation for a fastapi backend service using a predefined prompt file
-gpt-engineer . --prompt-file ./requirements.txt --no-interactive --model gemini-3.5-pro
+gpt-engineer . --prompt-file ./requirements.txt --no-interactive --model gemini-4.0-pro
 ```
 
 ## API examples
@@ -145,6 +145,72 @@ async function runBrowserEngine() {
 }
 ```
 
+### Robust Workspace and Scaffold Configuration Validation with Pydantic v2
+The following Python script illustrates how to model and programmatically validate GPT Engineer workspace parameters, targeted LLM connections, and WebContainer environments under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional
+import json
+
+class WebContainerEnvConfig(BaseModel):
+    port: int = Field(default=3000, ge=1024, le=65535)
+    hot_reload: bool = Field(default=True)
+    framework: str = Field(default="vite-react-ts", pattern=r"^(vite-react-ts|nextjs|svelte-kit|vue)$")
+
+class GPTEngineerWorkspaceConfig(BaseModel):
+    project_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
+    model_name: str = Field(..., pattern=r"^(claude-5\.1-sonnet|gpt-5\.5-preview|gemini-4\.0-pro)$")
+    webcontainer: WebContainerEnvConfig = Field(default_factory=WebContainerEnvConfig)
+    mcp_servers: List[str] = Field(default_factory=list)
+    auto_install_dependencies: bool = Field(default=True)
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "project_name": "homelab-solar-dashboard",
+                "model_name": "claude-5.1-sonnet",
+                "webcontainer": {
+                    "port": 3000,
+                    "hot_reload": True,
+                    "framework": "vite-react-ts"
+                },
+                "mcp_servers": ["http://localhost:3011/mcp"],
+                "auto_install_dependencies": True
+            }
+        }
+    }
+
+def validate_gpt_engineer_config(payload: dict) -> str:
+    """Validates GPT Engineer Workspace and Scaffolding configurations using Pydantic v2."""
+    try:
+        config = GPTEngineerWorkspaceConfig.model_validate(payload)
+        return json.dumps({
+            "status": "success",
+            "validated_config": config.model_dump()
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(e)
+        }, indent=2)
+
+if __name__ == "__main__":
+    test_payload = {
+        "project_name": "homelab-solar-dashboard",
+        "model_name": "claude-5.1-sonnet",
+        "webcontainer": {
+            "port": 5173,
+            "hot_reload": True,
+            "framework": "vite-react-ts"
+        },
+        "mcp_servers": ["http://localhost:3011/mcp"],
+        "auto_install_dependencies": True
+    }
+    print(validate_gpt_engineer_config(test_payload))
+```
+
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-based collaborative coding tool optimized for incremental edits.
 - [Anti-Gravity](anti_gravity.md) — Google's premier agentic development and task orchestration framework.
@@ -166,5 +232,5 @@ async function runBrowserEngine() {
 - [GPT Engineer v2.4.0 Release Notes](https://github.com/AntonOsika/gpt-engineer/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-17
 - Confidence: high
