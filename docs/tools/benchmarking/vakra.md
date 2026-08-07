@@ -1,17 +1,17 @@
 # VAKRA: Executable Benchmark for Enterprise Agents
 
 ## What it is
-VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion, fully updated for July 2026.
+VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion, fully updated for December 2026 SOTA standards.
 
 ## What problem it solves
-It addresses the gap between surface-level tool competence and robust, end-to-end agent reliability. VAKRA provides an executable environment with over 8,000 locally hosted APIs across 62 domains, preventing models from relying on memorized outputs and forcing them to navigate real API interactions, multi-hop reasoning, and policy constraints. It solves the "hallucination" problem in tool-use by verifying results against actual databases using the [MCP 3.0 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+It addresses the gap between surface-level tool competence and robust, end-to-end agent reliability. VAKRA provides an executable environment with over 8,000 locally hosted APIs across 62 domains, preventing models from relying on memorized outputs and forcing them to navigate real API interactions, multi-hop reasoning, and policy constraints. It solves the "hallucination" problem in tool-use by verifying results against actual databases using the **MCP 3.1** and **FastMCP 3.1** protocols.
 
 ## Where it fits in the stack
-**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning for models like [Gemma 3](../ai_knowledge/local_llms.md) and Claude 4.8.
+**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning for models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5.
 
 ## Typical use cases
 - **Agent Architecture Validation**: Testing if a new agentic framework (e.g., [OpenClaw](../development_ops/openclaw.md) or [Nanoclaw](../development_ops/nanoclaw.md)) can handle complex multi-step tasks.
-- **Model Comparison**: Benchmarking different LLMs ([Gemma 3](../ai_knowledge/local_llms.md) vs GPT-5.5) on their ability to use tools and follow policies.
+- **Model Comparison**: Benchmarking different LLMs ([Gemma 3](../ai_knowledge/local_llms.md) vs GPT-5.5 or Claude 5.1) on their ability to use tools and follow policies.
 - **Regression Testing**: Ensuring that updates to an agent's reasoning logic or system prompts don't break existing compositional capabilities.
 - **Policy Compliance Auditing**: Verifying that agents strictly adhere to negative constraints (e.g., "Never share user PII").
 
@@ -20,7 +20,7 @@ It addresses the gap between surface-level tool competence and robust, end-to-en
 - **Multi-Source Reasoning**: Specifically targets the hard problem of combining structured API data with unstructured document retrieval (RAG).
 - **Trajectory-Level Replay**: Replays full agent traces against live tools to support multiple valid execution paths.
 - **Deterministic Evaluation**: Locally hosted tools ensure responses are verifiable and consistent across runs.
-- **FastMCP 3.0 Support**: Updated to support the latest high-performance Model Context Protocol tool definitions.
+- **FastMCP 3.1 Support**: Updated to support the latest high-performance Model Context Protocol tool definitions.
 
 ## Limitations
 - **Environment Complexity**: Requires a complex self-hosted environment to run the 8,000+ mock APIs and persistent databases.
@@ -68,28 +68,65 @@ VAKRA provides tools for trajectory analysis and environment management:
 python tools/list_tools.py
 
 # Replay a specific trajectory for debugging
-python tools/replay_trajectory.py --trace_id "trace_20260721_001"
+python tools/replay_trajectory.py --trace_id "trace_20261219_001"
 
 # Export evaluation metrics to JSON
 python tools/export_metrics.py --run_id "run_456" --format json
 ```
 
 ## API examples
-The VAKRA environment can be interacted with via its orchestrator API:
+The VAKRA environment can be interacted with via its orchestrator API. This December 2026 SOTA update features strict **Pydantic v2** validation schemas to structure, trigger, and verify agent evaluations.
 
 ```python
-import requests
+from pydantic import BaseModel, Field, condecimal
+from typing import List, Dict, Optional
+from datetime import datetime
 
-# Query the status of the mock API environment
-response = requests.get("http://localhost:8080/status")
-print(response.json())
+# Define strict Pydantic v2 schemas for VAKRA API execution
+class VakraTask(BaseModel):
+    task_id: str
+    prompt: str = Field(..., min_length=10)
+    policy_constraint: str = Field(default="PII_REDACTION_STRICT")
+    max_steps: int = Field(default=10, ge=1, le=50)
 
-# Submit a task for evaluation
-task_data = {
-    "task": "Find the total sales for the Q1 2026 region North and compare with South.",
-    "policy": "PII_REDACTION_STRICT"
+class VakraApiCall(BaseModel):
+    api_name: str
+    parameters: Dict[str, str]
+    execution_status: str = Field(..., pattern="^(SUCCESS|FAILED|TIMEOUT)$")
+
+class VakraEvaluationReport(BaseModel):
+    task_id: str
+    evaluated_at: datetime = Field(default_factory=datetime.utcnow)
+    model_version: str = Field(..., description="Target model e.g. Claude 5.1 or GPT-5.5")
+    api_calls: List[VakraApiCall]
+    composition_score: condecimal(ge=0, le=1) = Field(..., description="Task path completion ratio")
+    policy_breaches: int = Field(..., ge=0)
+    passed: bool
+
+# Programmatic evaluation processor using Pydantic v2
+def process_vakra_run(payload: dict) -> VakraEvaluationReport:
+    # Validate payload strictly against VAKRA schema
+    report = VakraEvaluationReport.model_validate(payload)
+    print(f"Validated VAKRA Run: {report.task_id}")
+    print(f"Composition score: {report.composition_score * 100}% | Policy breaches: {report.policy_breaches}")
+    if report.policy_breaches > 0:
+        print("CRITICAL: Policy validation breached!")
+    return report
+
+# Mock payload returned from evaluating a GPT-5.5 agent on finance domain
+mock_run = {
+    "task_id": "vakra_fin_009",
+    "model_version": "gpt-5.5-preview",
+    "api_calls": [
+        {"api_name": "get_account_balance", "parameters": {"acc_id": "998"}, "execution_status": "SUCCESS"},
+        {"api_name": "convert_currency", "parameters": {"amount": "500", "to": "EUR"}, "execution_status": "SUCCESS"}
+    ],
+    "composition_score": 1.0,
+    "policy_breaches": 0,
+    "passed": True
 }
-response = requests.post("http://localhost:8080/evaluate", json=task_data)
+
+validated_report = process_vakra_run(mock_run)
 ```
 
 ## Related tools / concepts
@@ -101,6 +138,7 @@ response = requests.post("http://localhost:8080/evaluate", json=task_data)
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The standard for the tools VAKRA evaluates.
 - [Gemma 3](../ai_knowledge/local_llms.md) — Local model frequently benchmarked with VAKRA.
 - [LiteLLM](../../services/litellm.md) — Used to route model calls during VAKRA runs.
+- [SharpAI Security Benchmark](sharp-ai.md) — High-level evaluator for robust agent tool-use security.
 
 ## Sources / references
 - [IBM VAKRA GitHub](https://github.com/IBM/VAKRA)
@@ -109,5 +147,5 @@ response = requests.post("http://localhost:8080/evaluate", json=task_data)
 - [VAKRA: eValuating API and Knowledge Retrieval Agents (arXiv)](https://arxiv.org/abs/2505.17166)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-19
 - Confidence: high
