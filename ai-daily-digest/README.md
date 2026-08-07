@@ -1,5 +1,62 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-07
+
+## Digest fallback for 2026-08-07
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Improving GPT‑5.6 Sol in ChatGPT—and expanding access to GPT-5.6 Luna for free users](https://openai.com/index/improving-gpt-5-6-sol-in-chatgpt) (OpenAI Blog)
+2. [Working with the American Psychological Association on youth mental health and AI](https://openai.com/index/openai-and-apa-partner-to-advance-responsible-ai) (OpenAI Blog)
+3. [From asking to doing: How the world is putting ChatGPT to work](https://openai.com/index/how-the-world-is-putting-chatgpt-to-work) (OpenAI Blog)
+4. [Baseten on Hugging Face Inference Providers 🔥](https://huggingface.co/blog/baseten) (Hugging Face Blog)
+5. [Friday humor](https://www.reddit.com/r/LocalLLaMA/comments/1vhmyje/friday_humor/) (r/LocalLLaMA)
+6. [cant wait for llms to be benchmaxxed on this /s](https://www.reddit.com/r/LocalLLaMA/comments/1vhpamn/cant_wait_for_llms_to_be_benchmaxxed_on_this_s/) (r/LocalLLaMA)
+7. [Qwen 3.8 Max now ranked as best overall model ahead of Opus 5 by Artificial Analysis agentic index](https://www.reddit.com/r/LocalLLaMA/comments/1vhd416/qwen_38_max_now_ranked_as_best_overall_model/) (r/LocalLLaMA)
+8. [BBC is running article titled "Artificial Intelligence used to design brand new viruses" ... cue the "We must regulate Open Weights Models to prevent the next Covid or worse" articles in 3... 2..](https://www.reddit.com/r/LocalLLaMA/comments/1vhn36d/bbc_is_running_article_titled_artificial/) (r/LocalLLaMA)
+9. [AMD Acquires Taalas to Advance Compute Solutions for Rapidly Growing AI Inference Market](https://www.reddit.com/r/LocalLLaMA/comments/1vhrdo3/amd_acquires_taalas_to_advance_compute_solutions/) (r/LocalLLaMA)
+10. [🟩 NVIDIA's whole speech stack just went local. ASR + TTS + codec, quantized to GGUF, running on-device via NeMo-Speech.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1vhjeqy/nvidias_whole_speech_stack_just_went_local_asr/) (r/LocalLLaMA)
+11. [They almost catched up on Frontier performance, so now catching up on prices](https://www.reddit.com/r/LocalLLaMA/comments/1vh2pss/they_almost_catched_up_on_frontier_performance_so/) (r/LocalLLaMA)
+12. [I ported vLLM's serving stack to C++20: 66 MiB binary, no Python at inference, output checked token-for-token against vLLM](https://www.reddit.com/r/LocalLLaMA/comments/1vh9lx4/i_ported_vllms_serving_stack_to_c20_66_mib_binary/) (r/LocalLLaMA)
+13. [My issue with Artificial Analysis's 'intelligence index'](https://www.reddit.com/r/LocalLLaMA/comments/1vhoyw1/my_issue_with_artificial_analysiss_intelligence/) (r/LocalLLaMA)
+14. [Scotoma-2: Gemma4, but with less annoying slop and better writing.](https://www.reddit.com/r/LocalLLaMA/comments/1vhf70c/scotoma2_gemma4_but_with_less_annoying_slop_and/) (r/LocalLLaMA)
+15. [EschaLabs/Qwen3.6-35B-A3B-Escha-W2 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1vhqihc/eschalabsqwen3635ba3beschaw2_hugging_face/) (r/LocalLLaMA)
+16. [I compared even more parsers on 14 PDF-parsing capabilities using different types](https://www.reddit.com/r/LocalLLaMA/comments/1vh7bxu/i_compared_even_more_parsers_on_14_pdfparsing/) (r/LocalLLaMA)
+17. [KV cache quantization benchmarks: 413 pairs tested on Qwen 3.6 27B, Gemma 4 31B. KLD with BeeLlama.cpp v0.4.0: KVarN 6-bit beats q8_0, precision tail 1024 dominates](https://www.reddit.com/r/LocalLLaMA/comments/1vhaabz/kv_cache_quantization_benchmarks_413_pairs_tested/) (r/LocalLLaMA)
+18. [AI clickbait](https://www.reddit.com/r/LocalLLaMA/comments/1vh9k14/ai_clickbait/) (r/LocalLLaMA)
+19. [Echo Dot 2 can run 28M LLM at decent speed](https://www.reddit.com/r/LocalLLaMA/comments/1vhocl8/echo_dot_2_can_run_28m_llm_at_decent_speed/) (r/LocalLLaMA)
+20. [Custom Water Cooled Quad 7900 XTX Build 96 GB VRAM](https://www.reddit.com/r/LocalLLaMA/comments/1vhs70b/custom_water_cooled_quad_7900_xtx_build_96_gb_vram/) (r/LocalLLaMA)
+21. [nvidia/NVIDIA-Nemotron-Parse-2.0 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1vh7lzy/nvidianvidianemotronparse20_hugging_face/) (r/LocalLLaMA)
+22. [Please talk me out of this GPU upgrade](https://www.reddit.com/r/LocalLLaMA/comments/1vhopw3/please_talk_me_out_of_this_gpu_upgrade/) (r/LocalLLaMA)
+23. [Dual 3090 setup: 400 pp t/s to 1600 pp t/s on Qwen 3.6 27B... with slightly lower tps.](https://www.reddit.com/r/LocalLLaMA/comments/1vhkln6/dual_3090_setup_400_pp_ts_to_1600_pp_ts_on_qwen/) (r/LocalLLaMA)
+24. [How come artificialanalysis.ai ranks Gemma4 above Qwen3.6 27b in SciCode](https://www.reddit.com/r/LocalLLaMA/comments/1vh4490/how_come_artificialanalysisai_ranks_gemma4_above/) (r/LocalLLaMA)
+25. [nvidias nemotron omni only loads its text half on a mac, so i wrote the vision and audio towers in mlx](https://www.reddit.com/r/LocalLLaMA/comments/1vhb69g/nvidias_nemotron_omni_only_loads_its_text_half_on/) (r/LocalLLaMA)
+26. [Anyone else with dual 3090s and like 50gb ram trying to run DSV4 💀](https://www.reddit.com/r/LocalLLaMA/comments/1vhkfcd/anyone_else_with_dual_3090s_and_like_50gb_ram/) (r/LocalLLaMA)
+27. [[AINews] AMD buys Taalas](https://www.latent.space/p/ainews-amd-buys-taalas) (Latent Space)
+28. [GPT-5.6 Sol just got better in one place and stayed the same everywhere else](https://thenewstack.io/gpt-sol-chatgpt-split/) (The New Stack)
+29. [Why AI tools know nothing about your company — until now](https://thenewstack.io/cloudflare-os-agentic-workspace-security/) (The New Stack)
+30. [Your AI agent’s next tool call may be valid but wrong. AWS’s Dogwood promises to fix that.](https://thenewstack.io/aws-dogwood-agent-policies/) (The New Stack)
+31. [Free agents: How AWS Kiro could untie agents from editors](https://thenewstack.io/kiro-agent-client-protocol/) (The New Stack)
+32. [The blank-check AI coding era is dead. Here’s what comes next.](https://thenewstack.io/microsoft-copilot-token-budgets/) (The New Stack)
+33. [Why Todoist says less AI can deliver more](https://thenewstack.io/doist-ai-automation-code/) (The New Stack)
+34. [“Just rewrite it”: What platform teams really think about modernization](https://thenewstack.io/nutanix-dual-native-architecture/) (The New Stack)
+35. [Say goodbye to K8s GPU pain: How DRA changes everything](https://thenewstack.io/kubernetes-dra-gpu-scheduling/) (The New Stack)
+36. [Anthropic recommends a git worktree per agent. Your runtime infra makes that a problem.](https://thenewstack.io/agent-native-runtime-branching/) (The New Stack)
+37. [WeatherNext: AI model achieves breakthrough in forecasting cyclones](https://deepmind.google/blog/weathernext-ai-model-achieves-breakthrough-in-forecasting-cyclones/) (Google DeepMind Blog)
+38. [Azure API Management Adds Dedicated AI Gateway Tier, Governing Models and MCP Tools](https://www.infoq.com/news/2026/08/azure-apim-ai-gateway-tier/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+39. [Presentation: From ms to µs: OSS Valkey Architecture Patterns for Modern AI](https://www.infoq.com/presentations/valkey-architecture-patterns/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+40. [Article: Runtime-Agnostic AI Workflows: A Pattern for Production Durability and Fast Eval Iteration](https://www.infoq.com/articles/ai-workflow-pattern/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+41. [When Semantic Chunking Beats Fixed-Size Splitting](https://blog.n8n.io/semantic-chunking/) (n8n Blog)
+42. [The Best AI Observability Tools for Engineering Teams](https://blog.n8n.io/ai-observability-tools/) (n8n Blog)
+43. [AI Agent Sandboxes: A Guide to Isolation and Secure Execution](https://blog.n8n.io/ai-agent-sandbox/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-08-06
 
 ## Digest fallback for 2026-08-06
