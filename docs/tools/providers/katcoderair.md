@@ -115,6 +115,51 @@ completion = client.chat.completions.create(
 print(completion.choices[0].message.content)
 ```
 
+### Structured Output and Schema Validation (Pydantic v2)
+This example demonstrates how an OpenAI-compatible client connecting to a local KatCoderAir instance parses and strictly validates code refactoring outputs using **Pydantic v2**.
+
+```python
+import os
+from pydantic import BaseModel, Field, ValidationError
+from openai import OpenAI
+
+# Initialize client to connect to local KatCoderAir endpoint (running on localhost)
+client = OpenAI(
+    base_url="http://localhost:8080/v1",
+    api_key="local-dev-key"
+)
+
+# Define Pydantic v2 schema for structured code refactoring outputs
+class RefactoringResult(BaseModel):
+    original_code: str = Field(description="The source code before refactoring")
+    refactored_code: str = Field(description="The cleaner, optimized code output")
+    explanations: list[str] = Field(default_factory=list, description="Reasoning and optimization steps taken")
+
+try:
+    response = client.chat.completions.create(
+        model="katcoderair-v2.5",
+        messages=[
+            {"role": "system", "content": "You are KatCoderAir. Refactor the code and output ONLY valid JSON matching the requested schema."},
+            {"role": "user", "content": "Code: def add(a, b): return a+b"}
+        ],
+        response_format={
+            "type": "json_object",
+            "schema": RefactoringResult.model_json_schema()
+        }
+    )
+
+    # Strictly validate output with Pydantic v2
+    raw_content = response.choices[0].message.content
+    result = RefactoringResult.model_validate_json(raw_content)
+    print(f"Refactored Code:\n{result.refactored_code}")
+    print(f"Optimizations: {', '.join(result.explanations)}")
+
+except ValidationError as e:
+    print(f"Pydantic validation failed: {e}")
+except Exception as e:
+    print(f"API call to local KatCoderAir failed: {e}")
+```
+
 ## Related tools / concepts
 - [Local LLMs](../ai_knowledge/local_llms.md) — Standard overview of open weights models.
 - [DeepSeek](deepseek.md) — The flagship MoE open-weight models.
@@ -130,5 +175,5 @@ print(completion.choices[0].message.content)
 - [Reddit LocalLLaMA Thread: KatCoderAir v2.5 Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1uwbe7w/katcoderair_v25_open_model_soon/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

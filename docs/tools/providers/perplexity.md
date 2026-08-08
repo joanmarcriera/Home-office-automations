@@ -1,13 +1,13 @@
 # Perplexity
 
 ## What it is
-Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of July 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 4.8](../ai_knowledge/claude.md), and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
+Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of December 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 5.1](../ai_knowledge/claude.md), and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
 
 ## What problem it solves
 It addresses the "hallucination" and "knowledge cutoff" problems of traditional LLMs by grounding every response in current web data. Perplexity can search the internet in real-time to provide up-to-date information with verifiable citations, allowing for rapid verification of facts, technical specifications, and market trends.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Search. It acts as a specialized inference retrieval layer for tasks that require live data, such as news analysis, market research, or technical troubleshooting for new releases. It is often integrated into agentic workflows via its OpenAI-compatible API to provide real-time grounding for autonomous agents using [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+**Category**: Provider / AI Search. It acts as a specialized inference retrieval layer for tasks that require live data, such as news analysis, market research, or technical troubleshooting for new releases. It is often integrated into agentic workflows via its OpenAI-compatible API to provide real-time grounding for autonomous agents using [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) or **FastMCP 3.1** standards.
 
 ## Typical use cases
 - **Technical Research**: Discovering the latest stable versions of libraries, APIs, and frameworks with cited documentation.
@@ -16,13 +16,13 @@ It addresses the "hallucination" and "knowledge cutoff" problems of traditional 
 - **Research Agents**: Automating the collection of cited information for reports and technical audits.
 - **Autonomous Browsing**: Leveraging the "Computer" orchestration layer for multi-step web research.
 
-### Model Routing (July 2026)
+### Model Routing (December 2026)
 | Model | Primary Use Case | Default? |
 | :--- | :--- | :--- |
 | **Sonar Small / Medium** | Fast, high-volume search tasks and simple extraction | No |
 | **Sonar Reasoning** | Standard research tasks requiring a balance of speed and depth | Yes |
 | **Sonar Reasoning Pro** | Complex, multi-step research, deep analysis, and high-stakes reasoning | No (Premium) |
-| **Agent API** | Supports third-party models like [Claude 4.8](../ai_knowledge/claude.md) for tool-calling | No |
+| **Agent API** | Supports third-party models like [Claude 5.1](../ai_knowledge/claude.md) for tool-calling | No |
 
 ## Strengths
 - **Verifiable Citations**: Every claim is linked to a source, drastically reducing hallucinations.
@@ -40,7 +40,7 @@ It addresses the "hallucination" and "knowledge cutoff" problems of traditional 
 ## When to use it
 - When you need the most up-to-date information available on the web.
 - When source verification and citations are critical for your work.
-- For conductng rapid research on topics outside your immediate expertise.
+- For conducting rapid research on topics outside your immediate expertise.
 - For [n8n](../../services/n8n.md) workflows using the native Perplexity node.
 
 ## When not to use it
@@ -57,19 +57,23 @@ Sign up at [perplexity.ai](https://www.perplexity.ai/) to access the conversatio
 Perplexity provides an OpenAI-compatible API, easily manageable via [LiteLLM](../../services/litellm.md).
 
 ```bash
-pip install openai
+pip install openai pydantic
 export PPLX_API_KEY="your-api-key"
 ```
 
 ### Minimal API Example (Python)
 ```python
+import os
 from openai import OpenAI
 
-client = OpenAI(api_key="YOUR_PPLX_API_KEY", base_url="https://api.perplexity.ai")
+client = OpenAI(
+    api_key=os.environ.get("PPLX_API_KEY", "mock-key"),
+    base_url="https://api.perplexity.ai"
+)
 
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
-    messages=[{"role": "user", "content": "What is the status of FastMCP 3.0 adoption in July 2026?"}]
+    messages=[{"role": "user", "content": "What is the status of FastMCP 3.1 adoption in December 2026?"}]
 )
 print(response.choices[0].message.content)
 ```
@@ -84,7 +88,7 @@ curl -X POST https://api.perplexity.ai/chat/completions \
   -d '{
     "model": "sonar-reasoning-pro",
     "messages": [
-      {"role": "user", "content": "Latest stable version of Kubernetes as of July 2026."}
+      {"role": "user", "content": "Latest stable version of Kubernetes as of December 2026."}
     ]
   }'
 ```
@@ -105,16 +109,20 @@ sonar-cli models list
 
 ### Python (OpenAI SDK with citations)
 ```python
+import os
 from openai import OpenAI
 
-client = OpenAI(api_key="YOUR_API_KEY", base_url="https://api.perplexity.ai")
+client = OpenAI(
+    api_key=os.environ.get("PPLX_API_KEY", "mock-key"),
+    base_url="https://api.perplexity.ai"
+)
 
 # Using 'sonar-reasoning-pro' for complex research tasks
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
     messages=[
         {"role": "system", "content": "Be precise and cited."},
-        {"role": "user", "content": "Research the current status of EKS Auto Mode in July 2026."}
+        {"role": "user", "content": "Research the current status of EKS Auto Mode in December 2026."}
     ]
 )
 
@@ -122,26 +130,62 @@ content = response.choices[0].message.content
 print(f"Citations and Analysis: {content}")
 ```
 
-### Structured Output (JSON Mode)
+### Structured Output and Schema Validation (Pydantic v2)
+This example demonstrates how to retrieve and strictly validate search results from Perplexity's API using **Pydantic v2**.
+
 ```python
-response = client.chat.completions.create(
-    model="sonar-reasoning",
-    messages=[
-        {"role": "system", "content": "Return a JSON object with 'summary' and 'sources'."},
-        {"role": "user", "content": "Research the latest developments in MCP 3.0."}
-    ],
-    response_format={ "type": "json_object" }
+import os
+from pydantic import BaseModel, Field, ValidationError
+from openai import OpenAI
+
+# Initialize OpenAI client to connect to Perplexity's API
+client = OpenAI(
+    api_key=os.environ.get("PPLX_API_KEY", "mock-key"),
+    base_url="https://api.perplexity.ai"
 )
+
+# Define Pydantic v2 structured response schema for search outcomes
+class SearchCitation(BaseModel):
+    source_url: str = Field(description="URL of the cited source")
+    relevance_score: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score of relevance")
+
+class SearchResponse(BaseModel):
+    summary: str = Field(description="Synthesized summary of the search results")
+    citations: list[SearchCitation] = Field(default_factory=list, description="List of source citations")
+
+try:
+    response = client.chat.completions.create(
+        model="sonar-reasoning-pro",
+        messages=[
+            {"role": "system", "content": "You are a precise search parser. Output JSON matching the requested schema strictly."},
+            {"role": "user", "content": "Query: What is the current status of FastMCP 3.1 adoption in December 2026?"}
+        ],
+        response_format={
+            "type": "json_object",
+            "schema": SearchResponse.model_json_schema()
+        }
+    )
+
+    # Parse and validate using Pydantic v2 model_validate_json
+    raw_content = response.choices[0].message.content
+    search_data = SearchResponse.model_validate_json(raw_content)
+    print(f"Summary: {search_data.summary}")
+    print(f"Citations: {len(search_data.citations)} sources verified.")
+
+except ValidationError as e:
+    print(f"Pydantic validation error: {e}")
+except Exception as e:
+    print(f"Request failed: {e}")
 ```
 
 ### Integration with Agentic Frameworks
-Perplexity can be used as a `tool` within agentic frameworks following [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) standards.
+Perplexity can be used as a `tool` within agentic frameworks following [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) / FastMCP 3.1 standards.
 
 ```python
 # Simplified pseudocode for agentic tool use
 def web_search(query: str):
     return client.chat.completions.create(
-        model="sonar-pro",
+        model="sonar-reasoning-pro",
         messages=[{"role": "user", "content": query}]
     ).choices[0].message.content
 ```
@@ -160,8 +204,8 @@ def web_search(query: str):
 - [Perplexity Official Website](https://www.perplexity.ai/)
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
 - [Perplexity Model Catalog](https://docs.perplexity.ai/docs/model-cards)
-- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/fastmcp)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

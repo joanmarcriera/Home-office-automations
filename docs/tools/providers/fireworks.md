@@ -1,7 +1,7 @@
 # Fireworks AI
 
 ## What it is
-Fireworks AI is a high-performance inference platform providing an ultra-fast API for running and fine-tuning open-source generative AI models (Llama 4, Gemma 3, Qwen 2.5). As of July 2026, it is recognized for its proprietary "FireAttention" optimization stack and full support for the **MCP 3.0 Task Protocol**, which allows for standardized, automated benchmarking of frontier open-weights models.
+Fireworks AI is a high-performance inference platform providing an ultra-fast API for running and fine-tuning open-source generative AI models (Llama 4, Gemma 3, Qwen 3.6). As of December 2026, it is recognized for its proprietary "FireAttention" optimization stack and full support for the **FastMCP 3.1 Task Protocol**, which allows for standardized, automated benchmarking and seamless tool-calling of frontier open-weights models.
 
 ## What problem it solves
 It provides reliable, low-latency, and cost-effective access to the latest open-source models, eliminating the performance overhead of standard GPU deployments and the complexity of managing private inference infrastructure. It solves the "speed-to-token" bottleneck for real-time agentic workflows.
@@ -10,7 +10,7 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 **Inference Provider**. Fireworks AI sits in the **Infrastructure** layer, providing the raw compute and model serving capability that powers higher-level agentic frameworks. It serves as a performance-optimized alternative to self-hosting via [vLLM](../infrastructure/vllm.md) or using general-purpose providers like [Together AI](together.md).
 
 ## Typical use cases
-- **Automated Benchmarking**: Leveraging the **MCP 3.0 Task Protocol** to perform high-throughput evaluation of models like Gemma 3 and Llama 4.
+- **Automated Benchmarking**: Leveraging the **FastMCP 3.1 Task Protocol** to perform high-throughput evaluation of models like Gemma 3, Qwen 3.6, and Llama 4.
 - **High-Throughput Applications**: Production apps requiring many concurrent, low-latency LLM requests for real-time interaction.
 - **Function Calling**: Using optimized models for reliable structured data extraction and autonomous tool use.
 - **Custom Model Deployment**: Deploying specialized fine-tuned models on dedicated, scalable infrastructure via LoRA adapters.
@@ -20,7 +20,7 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 - **Extreme Speed**: The FireAttention engine provides exceptionally high throughput and low time-to-first-token (TTFT).
 - **Gemma 3 Optimization**: Native support and hardware-level optimizations for the Gemma 3 model family.
 - **LoRA Support**: Native, first-class support for deploying and switching between custom LoRA adapters with zero cold-start latency.
-- **MCP 3.0 Integration**: Standardized integration for automated task execution and monitoring via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
+- **FastMCP 3.1 Integration**: Standardized integration for automated task execution and monitoring via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 - **Developer Experience**: Fully OpenAI-compatible API ensures seamless migration from other providers.
 
 ## Limitations
@@ -35,26 +35,30 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 - When building real-time interactive agents using [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## When not to use it
-- If your application requires proprietary "frontier" models like `claude-4-8-opus-20260528`.
+- If your application requires proprietary "frontier" models like `claude-5-1-sonnet` or `gpt-5-5-preview`.
 - For extremely niche or research models that are not included in their curated performance-optimized list.
 - If strict data sovereignty requires 100% on-premises local hosting (see [TGI](../infrastructure/tgi.md)).
 
 ## Getting started
-To start using Fireworks AI, install the official Python SDK:
+To start using Fireworks AI, install the official Python SDK or use the OpenAI-compatible SDK:
 
 ```bash
-pip install fireworks-ai
+pip install fireworks-ai pydantic openai
 ```
 
 Initialize the client and run a basic chat completion:
 
 ```python
-import fireworks.client
 import os
+from openai import OpenAI
 
-fireworks.client.api_key = os.environ["FIREWORKS_API_KEY"]
+# Fireworks AI is fully OpenAI-compatible.
+client = OpenAI(
+    base_url="https://api.fireworks.ai/inference/v1",
+    api_key=os.environ.get("FIREWORKS_API_KEY", "mock-key")
+)
 
-response = fireworks.client.ChatCompletion.create(
+response = client.chat.completions.create(
     model="accounts/fireworks/models/gemma-3-27b-it",
     messages=[{"role": "user", "content": "Hello Fireworks! Tell me about Gemma 3."}]
 )
@@ -95,37 +99,62 @@ curl https://api.fireworks.ai/inference/v1/embeddings \
 ## API examples
 
 ### Structured Output (Function Calling)
-Fireworks supports function calling via Pydantic or JSON schemas for reliable data extraction.
+Fireworks supports function calling via Pydantic or JSON schemas for reliable data extraction. This example demonstrates strict **Pydantic v2** validation.
 
 ```python
-from pydantic import BaseModel
-import fireworks.client
 import os
+from pydantic import BaseModel, Field, ValidationError
+from openai import OpenAI
 
-fireworks.client.api_key = os.environ["FIREWORKS_API_KEY"]
-
-class ToolOutput(BaseModel):
-    action: str
-    priority: int
-
-response = fireworks.client.ChatCompletion.create(
-    model="accounts/fireworks/models/gemma-3-27b-it",
-    messages=[{"role": "user", "content": "Task: Update database, Priority: 1"}],
-    response_format={"type": "json_object", "schema": ToolOutput.model_json_schema()}
+client = OpenAI(
+    base_url="https://api.fireworks.ai/inference/v1",
+    api_key=os.environ.get("FIREWORKS_API_KEY", "mock-key")
 )
-print(response.choices[0].message.content)
+
+# Define our Pydantic v2 structured response schema
+class ExecutionPlan(BaseModel):
+    task_name: str = Field(description="Name of the execution task")
+    priority: int = Field(default=1, ge=1, le=5, description="Priority level from 1 to 5")
+    actions: list[str] = Field(default_factory=list, description="Sub-steps required to complete the task")
+
+try:
+    response = client.chat.completions.create(
+        model="accounts/fireworks/models/qwen-36b-instruct",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that responds ONLY with valid JSON matching the schema requested."},
+            {"role": "user", "content": "Task: Upgrade database schema, Priority: 1. Actions: Stop app, Run migrations, Restart app."}
+        ],
+        response_format={
+            "type": "json_object",
+            "schema": ExecutionPlan.model_json_schema()
+        }
+    )
+
+    # Parse and validate the response strictly using Pydantic v2 model_validate_json
+    raw_content = response.choices[0].message.content
+    plan = ExecutionPlan.model_validate_json(raw_content)
+    print(f"Validated Plan: {plan.task_name} (Priority {plan.priority})")
+    print(f"Steps: {', '.join(plan.actions)}")
+
+except ValidationError as e:
+    print(f"Schema validation failed: {e}")
+except Exception as e:
+    print(f"API call failed: {e}")
 ```
 
 ### LoRA Adapter Usage
 Deploying a custom adapter over a base model.
 
 ```python
-import fireworks.client
 import os
+from openai import OpenAI
 
-fireworks.client.api_key = os.environ["FIREWORKS_API_KEY"]
+client = OpenAI(
+    base_url="https://api.fireworks.ai/inference/v1",
+    api_key=os.environ.get("FIREWORKS_API_KEY", "mock-key")
+)
 
-response = fireworks.client.ChatCompletion.create(
+response = client.chat.completions.create(
     model="accounts/your-account/models/your-base-model",
     extra_body={"lora_adapter": "accounts/your-account/models/your-adapter-id"},
     messages=[{"role": "user", "content": "Generate code in my specific style."}]
@@ -149,8 +178,8 @@ response = fireworks.client.ChatCompletion.create(
 - [Fireworks AI Docs](https://docs.fireworks.ai/)
 - [Model Directory](https://fireworks.ai/models)
 - [FireAttention Benchmarks](https://fireworks.ai/blog/fireattention)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/3.0/task-protocol)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/3.1/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
