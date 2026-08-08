@@ -1,19 +1,19 @@
 # Cohere
 
 ## What it is
-Cohere is an enterprise-focused AI platform providing large language models (Command R family), embeddings, and reranking models. As of July 2026, it is a leader in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search, known for its focus on data privacy, sovereign deployment options, and native **MCP 3.0** support for enterprise tool orchestration.
+Cohere is an enterprise-focused AI platform providing large language models (Command R family), embeddings, and reranking models. As of December 2026, it is a leader in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search, known for its focus on data privacy, sovereign deployment options, and native **FastMCP 3.1** support for enterprise tool orchestration.
 
 ## What problem it solves
 Cohere provides high-performance models specifically optimized for RAG, complex tool use, and multilingual applications. It solves the "hallucination problem" in RAG systems through native, automated citations and addresses the difficulty of high-precision search with its industry-standard reranking endpoint. It also streamlines enterprise agent deployment via standardized protocols.
 
 ## Where it fits in the stack
-**Provider / Embedding / Reranking**. Cohere sits at the core of the reasoning and retrieval layer. While it competes with providers like OpenAI and Anthropic, it is often used as a specialized retrieval-enhancement layer (via Rerank) alongside models like `claude-4-8-opus-20260528` or GPT-5.5.
+**Category**: Provider / Embedding / Reranking. Cohere sits at the core of the reasoning and retrieval layer. While it competes with providers like OpenAI and Anthropic, it is often used as a specialized retrieval-enhancement layer (via Rerank) alongside models like `claude-5-1-sonnet` or GPT-5.5.
 
 ## Typical use cases
 - **Enterprise RAG**: Using Command R+ for complex retrieval-augmented generation with native citation grounding.
 - **Multilingual Search**: Using Cohere Embed to power semantic search across 100+ languages with a single vector space.
 - **Search Relevance Optimization**: Using Cohere Rerank as a "cross-encoder" step to significantly improve the accuracy of initial keyword or vector search results.
-- **Agentic Workflows**: Leveraging **MCP 3.0** to build agents that orchestrate complex enterprise tool calls with high reliability.
+- **Agentic Workflows**: Leveraging **FastMCP 3.1** to build agents that orchestrate complex enterprise tool calls with high reliability.
 
 ## Strengths
 - **RAG Native**: Command R family is specifically trained for RAG, offering high citation accuracy and better handling of "noisy" retrieval results.
@@ -23,7 +23,7 @@ Cohere provides high-performance models specifically optimized for RAG, complex 
 - **Optimized Tool Use**: High reliability in following complex tool schemas and executing multi-step reasoning using standard protocols.
 
 ## Limitations
-- **Creativity**: Generally less focused on creative writing or artistic tasks compared to models like GPT-4o.
+- **Creativity**: Generally less focused on creative writing or artistic tasks compared to models like GPT-5.5.
 - **Multimodal**: Native image generation and deep multimodal reasoning have historically been less central than their text and retrieval focus.
 - **Ecosystem Size**: Smaller community-built library ecosystem compared to the OpenAI "monolith."
 
@@ -42,7 +42,7 @@ Cohere provides high-performance models specifically optimized for RAG, complex 
 To start using Cohere, install the official Python SDK:
 
 ```bash
-pip install cohere
+pip install cohere pydantic
 ```
 
 Initialize the client and run a basic chat completion:
@@ -51,7 +51,7 @@ Initialize the client and run a basic chat completion:
 import cohere
 import os
 
-co = cohere.Client(api_key=os.environ["COHERE_API_KEY"])
+co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 response = co.chat(
     model="command-r-plus",
@@ -107,7 +107,7 @@ Using Cohere's native ability to cite its sources during RAG.
 import cohere
 import os
 
-co = cohere.Client(api_key=os.environ["COHERE_API_KEY"])
+co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 response = co.chat(
     model="command-r-plus",
@@ -127,7 +127,7 @@ Improving search results across different languages.
 import cohere
 import os
 
-co = cohere.Client(api_key=os.environ["COHERE_API_KEY"])
+co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 results = co.rerank(
     model="rerank-multilingual-v3.0",
@@ -139,9 +139,45 @@ for res in results.results:
     print(f"Doc: {res.document['text']}, Score: {res.relevance_score}")
 ```
 
+### Structured Output and Schema Validation (Pydantic v2)
+This example demonstrates how to parse and strictly validate structured responses from Cohere's API using **Pydantic v2**.
+
+```python
+import os
+import json
+import cohere
+from pydantic import BaseModel, Field, ValidationError
+
+# Initialize the Cohere client
+co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
+
+class GroundedFact(BaseModel):
+    statement: str = Field(description="The primary factual statement extracted")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence in the fact extraction")
+    sources: list[str] = Field(default_factory=list, description="Associated source documents cited")
+
+try:
+    # Call the chat endpoint requesting JSON output format
+    response = co.chat(
+        model="command-r-plus",
+        message="Research Command R+ specifications and respond ONLY with a JSON object containing 'statement' (string), 'confidence' (float), and 'sources' (list of strings)."
+    )
+
+    # Parse and validate strictly using Pydantic v2
+    data = json.loads(response.text)
+    fact = GroundedFact.model_validate(data)
+    print(f"Validated Fact: {fact.statement} (Confidence: {fact.confidence})")
+    print(f"Citations: {', '.join(fact.sources)}")
+
+except ValidationError as e:
+    print(f"Pydantic validation failed: {e}")
+except Exception as e:
+    print(f"Cohere request failed: {e}")
+```
+
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The primary general-purpose competitor.
-- [Anthropic](anthropic.md) — Known for Claude 4.8 and high-reasoning models.
+- [Anthropic](anthropic.md) — Known for Claude 5.1 and high-reasoning models.
 - [Mistral](mistral.md) — Performance-oriented open-weights provider.
 - [DeepSeek](deepseek.md) — Efficient retrieval and reasoning models.
 - [Pinecone](../infrastructure/pinecone.md) — Vector database for storing Cohere Embeddings.
@@ -156,8 +192,8 @@ for res in results.results:
 - [Cohere Documentation](https://docs.cohere.com/)
 - [Cohere Rerank Overview](https://cohere.com/rerank)
 - [Command R+ Model Details](https://cohere.com/blog/command-r-plus-microsoft-azure)
-- [MCP 3.0 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
+- [FastMCP 3.1 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
