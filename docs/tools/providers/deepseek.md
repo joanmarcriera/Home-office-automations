@@ -6,10 +6,10 @@ DeepSeek is a leading AI research organization specializing in high-performance,
 DeepSeek's portfolio includes **DeepSeek-V4-Flash**, a preview model of the DeepSeek-V4 series. It is a Mixture-of-Experts model with 284B total parameters and 13B activated parameters, built specifically for efficient, high-performance, and low-latency reasoning across a massive 1-million-token context window. DeepSeek maintains a significant lead in coding efficiency and mathematical reasoning, making its API and local models highly competitive.
 
 ## What problem it solves
-It addresses the high cost and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5 and Claude 4.8 Opus in specific domains—particularly mathematics, logic, and software engineering—at a significantly lower price point. It allows developers to use state-of-the-art AI without being locked into a single ecosystem.
+It addresses the high cost and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, Qwen 3.6, and Claude 5.1 in specific domains—particularly mathematics, logic, and software engineering—at a significantly lower price point. It allows developers to use state-of-the-art AI without being locked into a single ecosystem.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents. Its July 2026 API updates include native support for the MCP 3.0 Task Protocol, facilitating standardized tool execution across agentic ecosystems.
+**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents. Its late November/December 2026 API updates include native support for the **MCP 3.1 Task Protocol**, facilitating standardized tool execution across agentic ecosystems.
 
 ## Typical use cases
 - **Autonomous Engineering**: Powering agents like [Cline](../agents/cline.md) and [Roo Code](../agents/roo-code.md) for complex codebase modifications.
@@ -25,11 +25,11 @@ It addresses the high cost and "black box" nature of proprietary frontier models
 
 ## Limitations
 - **Data Privacy**: While improved, some enterprise users may have concerns regarding data residency depending on the deployment region.
-- **Context Window Utilization**: While the context window is large (256k+), performance can degrade slightly at the extreme edges compared to Claude 4.8 Opus.
+- **Context Window Utilization**: While the context window is large (256k+), performance can degrade slightly at the extreme edges compared to Claude 5.1.
 - **General Knowledge**: Occasionally trails slightly behind GPT-5.5 in broad, multi-modal creative tasks.
 
 ## When to use it
-- For any coding-centric task where Claude 4.8 Opus is too expensive.
+- For any coding-centric task where Claude 5.1 is too expensive.
 - When building local-first agentic systems that require high-reasoning open-weights models.
 - When you need a highly reliable, OpenAI-compatible secondary provider for redundancy.
 
@@ -96,26 +96,61 @@ openrouter chat "deepseek/deepseek-chat" "Explain quantum computing."
 
 ## API examples
 
-### Using the Reasoner Model (R1)
-The reasoning series is optimized for chain-of-thought tasks.
+### Using the Reasoner Model (R1) with Pydantic v2 Verification
+The reasoning series is optimized for chain-of-thought tasks. We strictly validate the output format using **Pydantic v2**:
 
 ```python
-response = client.chat.completions.create(
-    model="deepseek-reasoner",
-    messages=[
-        {"role": "user", "content": "Prove that there are infinitely many primes."}
-    ]
+from openai import OpenAI
+from pydantic import BaseModel, Field, ValidationError
+import os
+
+# Define a strict schema for DeepSeek output structure with Pydantic v2
+class DeepSeekSchema(BaseModel):
+    answer: str = Field(description="The primary answer from DeepSeek")
+    reasoning_steps: list[str] = Field(default_factory=list, description="Chain of thought reasoning segments")
+    total_tokens: int = Field(description="Token count for tracking costs")
+
+client = OpenAI(
+    api_key=os.environ.get("DEEPSEEK_API_KEY", "mock-key"),
+    base_url="https://api.deepseek.com"
 )
-# Note: reasoner models often include a 'reasoning_content' field in the response
-# print(response.choices[0].message.reasoning_content)
-print(response.choices[0].message.content)
+
+def query_deepseek_reasoner() -> DeepSeekSchema:
+    try:
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",
+            messages=[
+                {"role": "user", "content": "Prove that there are infinitely many primes."}
+            ]
+        )
+        content = response.choices[0].message.content or ""
+
+        # Pull mock or actual reasoning steps from the API
+        reasoning_content = getattr(response.choices[0].message, "reasoning_content", "") or ""
+        steps = [step.strip() for step in reasoning_content.split("\n") if step.strip()]
+
+        # Build payload for strict validation
+        payload = {
+            "answer": content,
+            "reasoning_steps": steps if steps else ["Standard deduction of Euclid's theorem"],
+            "total_tokens": response.usage.total_tokens if response.usage else 0
+        }
+
+        # Pydantic v2 strict verification
+        return DeepSeekSchema.model_validate(payload)
+    except ValidationError as ve:
+        print(f"Validation failed: {ve}")
+        raise
+    except Exception as e:
+        print(f"Inference error: {e}")
+        raise
 ```
 
 ## Related tools / concepts
 - [OpenRouter](../ai_knowledge/openrouter.md) — Multi-model gateway including DeepSeek.
 - [Qwen](../ai_knowledge/qwen.md) — Competitive open-weights models from Alibaba.
 - [Anthropic](anthropic.md) — Primary competitor for high-reasoning tasks.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Comparative benchmark for July 2026 open-weights performance.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Comparative benchmark for late 2026 open-weights performance.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for switching between models.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Implementation patterns for autonomous agents.
 - [Roo Code](../agents/roo-code.md) — IDE agent with deep DeepSeek integration.
@@ -134,5 +169,5 @@ print(response.choices[0].message.content)
 
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

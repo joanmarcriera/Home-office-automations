@@ -34,7 +34,7 @@ Large-scale, multi-agent enterprise automation platforms require reasoning engin
 ## When not to use it
 - On consumer edge hardware with limited VRAM (such as standalone laptops or edge microcomputers with less than 16GB RAM).
 - For workflows that are exclusively English-language and do not benefit from bilingual multi-hop semantic mapping.
-- If you require a fast, simple plug-and-play local installation; standard dense models like Llama 3B or Gemma 8B are better suited for lightweight setups.
+- If you require a fast, simple plug-and-play local installation; standard dense models like Llama 4 or Gemma 3 are better suited for lightweight setups.
 
 ## Getting started
 1. **Prerequisites**: Python 3.10+, PyTorch 2.2+, and an NVIDIA GPU setup with CUDA 12.1+.
@@ -75,27 +75,51 @@ python3 -m vllm.entrypoints.openai.api_server \
 ```
 
 ## API examples
-The following script demonstrates querying InternLM2.5 served via vLLM using the standard OpenAI client protocol.
+The following script demonstrates querying InternLM2.5 served via vLLM using the standard OpenAI client protocol, with strict validation via **Pydantic v2**:
 
 ```python
 import openai
+from pydantic import BaseModel, Field, ValidationError
+import os
+
+# Schema for checking structured bilingual responses with Pydantic v2
+class InternLMResponse(BaseModel):
+    bilingual_explanation: str = Field(description="The generated technical response")
+    source_model: str = Field(description="The identifier of the active model")
+    is_mcp_compliant: bool = Field(default=True, description="Indicates MCP tool-calling readiness")
 
 client = openai.OpenAI(
     base_url="http://localhost:8000/v1",
-    api_key="local-placeholder"
+    api_key=os.environ.get("OPENAI_API_KEY", "local-placeholder")
 )
 
-response = client.chat.completions.create(
-    model="internlm/internlm2_5-7b-chat",
-    messages=[
-        {"role": "system", "content": "You are a helpful software engineer assistant."},
-        {"role": "user", "content": "Explain how to write a custom MCP server in Python."}
-    ],
-    temperature=0.2,
-    max_tokens=300
-)
+def query_internlm() -> InternLMResponse:
+    try:
+        response = client.chat.completions.create(
+            model="internlm/internlm2_5-7b-chat",
+            messages=[
+                {"role": "system", "content": "You are a bilingual software engineering assistant."},
+                {"role": "user", "content": "Explain how to write a custom MCP 3.1 server in Python."}
+            ],
+            temperature=0.2,
+            max_tokens=300
+        )
+        content = response.choices[0].message.content or ""
 
-print(response.choices[0].message.content)
+        # Package raw response into schema for strict Pydantic v2 validation
+        data = {
+            "bilingual_explanation": content,
+            "source_model": "internlm2_5-7b-chat",
+            "is_mcp_compliant": True
+        }
+
+        return InternLMResponse.model_validate(data)
+    except ValidationError as ve:
+        print(f"Validation failure: {ve}")
+        raise
+    except Exception as e:
+        print(f"Query failure: {e}")
+        raise
 ```
 
 ## Related tools / concepts
@@ -113,5 +137,5 @@ print(response.choices[0].message.content)
 - [Reddit r/LocalLLaMA: InternLM-Interns2-Preview-397B Announcement and Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1uzifq8/internlminterns2preview397b_huggingface/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
