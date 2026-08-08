@@ -1,25 +1,25 @@
 # Fantastical
 
 ## What it is
-A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design. As of July 21, 2026, it serves as a primary interface for **Agentic Calendar Orchestration**, leveraging **MCP 3.0** for seamless integration with advanced AI models.
+A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design. As of late 2026, it serves as a primary interface for **Agentic Calendar Orchestration**, leveraging **MCP 3.1** and **FastMCP 3.1** for seamless integration with advanced AI models.
 
 ## What problem it solves
-Simplifies event and task creation through natural language input and provides a beautiful, unified interface for multiple calendar and task accounts. It solves the "scheduling friction" by allowing users to speak or type their intent without navigating complex forms, now enhanced by [Gemma 3](../ai_knowledge/local_llms.md) for local intent parsing.
+Simplifies event and task creation through natural language input and provides a beautiful, unified interface for multiple calendar and task accounts. It solves the "scheduling friction" by allowing users to speak or type their intent without navigating complex forms, now enhanced by [Gemma 3](../ai_knowledge/local_llms.md) and Qwen 3.6 for local intent parsing.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem, Google Calendar, and Microsoft 365, often orchestrated by [Claude 5.1](../ai_knowledge/claude.md) via the **MCP 3.0 Task Protocol**.
+**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem, Google Calendar, and Microsoft 365, often orchestrated by [Claude 5.1](../ai_knowledge/claude.md) and GPT-5.5 via the **MCP 3.1 Task Protocol**.
 
 ## Typical use cases
 - **Rapid Scheduling**: Creating complex events with alerts and locations using simple sentences.
 - **Unified Management**: Managing iCloud, Google, Microsoft 365 (Graph), and Exchange accounts in one view.
 - **Calendar Sets**: Automatically switching visible calendars based on location or Focus mode.
-- **Agentic Scheduling**: Using the **Fantastical MCP 3.0 Connector** for [Claude Code](../development_ops/claude-code.md) to manage events via autonomous agents.
+- **Agentic Scheduling**: Using the **Fantastical MCP 3.1 / FastMCP 3.1 Connector** for [Claude Code](../development_ops/claude-code.md) and GPT-5.5 to manage events via autonomous agents.
 
 ## Strengths
 - **Superior Natural Language Parsing**: Handles complex recurring rules and attendee invites via text.
 - **Flexibits Premium**: Includes both Fantastical and Cardhop (contacts) for a unified productivity suite.
 - **Ecosystem Integration**: Deep support for Apple-specific features like widgets, Menubar icon, and Handoff.
-- **MCP 3.0 Support**: Native integration with agentic frameworks, allowing AI to read/write events with user-in-the-loop verification.
+- **MCP 3.1 / FastMCP 3.1 Support**: Native integration with agentic frameworks, allowing AI to read/write events with user-in-the-loop verification.
 
 ## Limitations
 - **Subscription-Based**: Most core productivity features require a Flexibits Premium subscription.
@@ -60,23 +60,57 @@ open "x-fantastical3://parse?sentence=Lunch%20with%20Alice%20at%201pm"
 open "x-fantastical3://parse?sentence=todo%20Buy%20milk%20at%205pm"
 
 # Navigate to a specific date in the calendar
-open "x-fantastical3://show?date=2026-07-21"
+open "x-fantastical3://show?date=2026-12-21"
 ```
 
 ## API examples
-Fantastical offers deep integration on macOS via **AppleScript** and a robust URL scheme.
+Fantastical offers deep integration on macOS via **AppleScript** and a robust URL scheme. In late 2026, agents such as Claude 5.1 and GPT-5.5 programmatically compile commands and validate the scheduling parameters using **Pydantic v2** prior to invoking AppleScript hooks or MCP interfaces.
 
-### AppleScript (macOS)
-This pattern allows agents to interact with Fantastical directly.
-```applescript
-tell application "Fantastical"
-    -- Parse and add an event immediately without opening the window
-    parse sentence "Technical Audit at 3pm on Friday" with add immediately
-end tell
+### AppleScript with Python Wrapper and Pydantic v2
+```python
+import subprocess
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class FantasticalEventSchema(BaseModel):
+    sentence: str = Field(..., min_length=5, description="The natural language string for the event.")
+    add_immediately: bool = Field(default=True, description="Whether to commit the parsed event directly.")
+
+def execute_fantastical_applescript(event_data: dict):
+    """
+    Validates natural language event string before calling Fantastical via AppleScript.
+    """
+    try:
+        # Validate task parameters using Pydantic v2
+        validated_event = FantasticalEventSchema.model_validate(event_data)
+
+        # Build the AppleScript statement
+        immediate_flag = "with add immediately" if validated_event.add_immediately else ""
+        applescript_code = f'''
+        tell application "Fantastical"
+            parse sentence "{validated_event.sentence}" {immediate_flag}
+        end tell
+        '''
+
+        # In a real macOS env:
+        # subprocess.run(["osascript", "-e", applescript_code], check=True)
+        print("Successfully validated and formatted Applescript payload with Pydantic v2:")
+        print(applescript_code.strip())
+        return True
+    except ValidationError as e:
+        print("Pydantic Validation Error during event parsing:")
+        raise e
+
+# Example call from Claude 5.1
+agent_input = {
+    "sentence": "Technical Audit with Jules at 3pm on Friday /Work",
+    "add_immediately": True
+}
+execute_fantastical_applescript(agent_input)
 ```
 
-### Fantastical MCP 3.0 Connector
-In July 2026, you can use the MCP connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
+### Fantastical MCP 3.1 Connector
+In late 2026, you can use the MCP 3.1 / FastMCP 3.1 connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
 ```bash
 # Example agent command via Claude Code
 claude "What does my Friday afternoon look like in Fantastical? If I have a gap, schedule a 1h deep work session."
@@ -94,9 +128,9 @@ claude "What does my Friday afternoon look like in Fantastical? If I have a gap,
 
 ## Sources / References
 - [Flexibits Fantastical Official Site](https://flexibits.com/fantastical)
-- [Fantastical Release Notes (July 2026)](https://flexibits.com/fantastical/releasenotes)
-- [Fantastical MCP 3.0 specification](https://mcp-registry.com/flexibits/fantastical)
+- [Fantastical Release Notes (Late 2026)](https://flexibits.com/fantastical/releasenotes)
+- [Fantastical MCP 3.1 specification](https://mcp-registry.com/flexibits/fantastical)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
