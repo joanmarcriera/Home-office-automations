@@ -7,10 +7,10 @@ Monolith is a developer-centric, agent-optimized open-source model series develo
 Standard general-purpose large language models are highly prone to formatting errors (such as outputting invalid JSON during complex tool calls) and struggle with long-horizon logical planning. Monolith solves these development challenges by embedding rigid grammar alignment and agentic planning constructs directly into the model's core representation. It yields near-perfect compliance with complex JSON schemas and outputs programmatic commands with extreme speed and structural integrity.
 
 ## Where it fits in the stack
-**AI Model / Local LLM / Agent & Developer Provider**. Monolith sits at the localized intelligence layer of the development stack. It acts as the core planner and orchestrator for autonomous agent nodes, integrating seamlessly with local Integrated Development Environments (IDEs), command-line dev interfaces, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) server architectures.
+**AI Model / Local LLM / Agent & Developer Provider**. Monolith sits at the localized intelligence layer of the development stack. It acts as the core planner and orchestrator for autonomous agent nodes, integrating seamlessly with local Integrated Development Environments (IDEs), command-line dev interfaces, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) server architectures, such as FastMCP 3.1.
 
 ## Typical use cases
-- **High-Speed Autonomous Coding**: Serving as the task-routing and structural code-generation planner in multi-agent software engineering workflows.
+- **High-Speed Autonomous Coding**: Serving as the task-routing and structural code-generation planner in multi-agent software engineering workflows coordinating models like Claude 5.1 and GPT-5.5.
 - **Rigid Structured JSON Generation**: Powering backend automation pipelines that require guaranteed compliance with structured schema templates (e.g., REST API payloads).
 - **Multi-Step Tool Orchestration**: Parsing user intent, scheduling sequence actions, and calling consecutive terminal commands or external database tools.
 - **Database Schema Analysis & SQL Generation**: Safely translating natural language queries into valid database queries on secure local servers.
@@ -32,15 +32,15 @@ Standard general-purpose large language models are highly prone to formatting er
 - For local offline development environments where quick reasoning speeds and direct code generation are prioritized over friendly conversation.
 
 ## When not to use it
-- As a general-purpose, customer-facing support chatbot where conversational empathy, storytelling, or broad general knowledge is required.
+- As a general-purpose, customer-facing support chatbot where conversational empathy, storytelling, or broad general knowledge is required (where frontier models like Claude 5.1, Gemini 4.0 Pro, or GPT-5.5 excel).
 - For non-technical translation tasks or creative writing brainstorm sessions.
-- If your system does not utilize tool-calling, APIs, or structured program logic; standard general-purpose models like Llama or Gemma are more versatile.
+- If your system does not utilize tool-calling, APIs, or structured program logic; standard general-purpose models like Llama 4, Qwen 3.6, or Gemma 3 are more versatile.
 
 ## Getting started
-1. **Prerequisites**: Ensure you have Python 3.10+, PyTorch 2.0+, and an NVIDIA GPU or Apple Silicon system with sufficient memory.
-2. **Library Setup**: Install the required Transformers framework packages:
+1. **Prerequisites**: Ensure you have Python 3.10+, PyTorch 2.4+, and an NVIDIA GPU or Apple Silicon system with sufficient memory.
+2. **Library Setup**: Install the required Transformers framework packages and Pydantic v2:
    ```bash
-   pip install transformers accelerate torch sentencepiece
+   pip install transformers accelerate torch sentencepiece pydantic>=2.0.0
    ```
 3. **Model Initialization**: Load the Monolith-10 model using Hugging Face's API:
    ```python
@@ -79,11 +79,25 @@ curl http://localhost:8000/v1/chat/completions \
 ```
 
 ## API examples
-The following script demonstrates how to leverage Monolith-10 to dynamically select and format tool arguments based on user input.
+The following script demonstrates how to leverage Monolith-10 to dynamically select and format tool arguments based on user input, strictly validated using **Pydantic v2**.
 
 ```python
 import json
+from typing import Literal, Union
+from pydantic import BaseModel, Field, ValidationError
 import openai
+
+# Define strict schemas using Pydantic v2
+class GCalSyncReferenceArgs(BaseModel):
+    target_db_url: str = Field(..., description="Target database connection string URL.")
+    force_sync: bool = Field(default=False, description="Whether to force synchronize references.")
+
+class PaperlessExportTextArgs(BaseModel):
+    export_dir: str = Field(..., description="Directory path to export text files.")
+
+class SelectedToolCall(BaseModel):
+    tool_name: Literal["gcal_sync_reference", "paperless_export_text"] = Field(..., description="The name of the tool selected.")
+    arguments: Union[GCalSyncReferenceArgs, PaperlessExportTextArgs] = Field(..., description="Arguments for the selected tool.")
 
 client = openai.OpenAI(
     base_url="http://localhost:8000/v1",
@@ -101,22 +115,30 @@ Available tools:
 response = client.chat.completions.create(
     model="basaltlabs/monolith-10",
     messages=[
-        {"role": "system", "content": "You are an agent orchestrator. Output only the selected tool call in raw JSON."},
+        {"role": "system", "content": "You are an agent orchestrator. Output only the selected tool call in raw JSON matching the schema."},
         {"role": "user", "content": prompt}
     ],
     temperature=0.0
 )
 
 try:
-    plan = json.loads(response.choices[0].message.content)
-    print("Structured Agent Decision Plan:")
-    print(json.dumps(plan, indent=2))
+    # Safely load JSON content
+    raw_content = response.choices[0].message.content
+    parsed_json = json.loads(raw_content)
+
+    # Strictly validate against Pydantic model
+    validated_plan = SelectedToolCall.model_validate(parsed_json)
+
+    print("Structured Agent Decision Plan (Validated with Pydantic v2):")
+    print(validated_plan.model_dump_json(indent=2))
 except json.JSONDecodeError:
-    print("Raw output:", response.choices[0].message.content)
+    print("JSON Decode Error. Raw output:", response.choices[0].message.content)
+except ValidationError as e:
+    print("Pydantic Validation Error:", e)
 ```
 
 ## Related tools / concepts
-- [DeepSeek](./deepseek.md) — Advanced open-source models with high coding and logical reasoning capabilities.
+- [DeepSeek](./deepseek.md) — Advanced open-source models with high coding and logical reasoning capabilities including DeepSeek-V3.
 - [Mistral AI](./mistral.md) — Efficient dense and Mixture-of-Experts local models optimized for high performance.
 - [Together AI](./together.md) — High-performance inference provider hosting developer and agentic models.
 - [Ollama](../../services/ollama.md) — Standard framework for running, packing, and managing localized language models.
@@ -130,5 +152,5 @@ except json.JSONDecodeError:
 - [Agentic Reasoning and Schema-Steering Standards](https://github.com/basaltlabs/monolith)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
