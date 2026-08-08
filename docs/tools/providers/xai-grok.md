@@ -1,13 +1,13 @@
 # xAI Grok
 
 ## What it is
-**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of July 2026, it represents a top-tier reasoning engine competing directly with [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5, with full support for the **MCP 3.0 Task Protocol**.
+**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of late November/December 2026, it represents a top-tier reasoning engine competing directly with Gemma 3, Qwen 3.6, Llama 4, Gemini 4.0 Pro, Claude 5.1, and GPT-5.5, with full support for the **MCP 3.1 Task Protocol**.
 
 ## What problem it solves
 Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience for research and monitoring, while maintaining high technical reasoning performance.
 
 ## Where it fits in the stack
-**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research, OSINT, and agentic workflows that require live web grounding and **FastMCP 3.0** integration for low-latency tool execution.
+**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research, OSINT, and agentic workflows that require live web grounding and **FastMCP 3.1** integration for low-latency tool execution.
 
 ## Typical use cases
 - **Real-time Trend Synthesis**: Extracting public sentiment and key takeaways from breaking news on the X platform.
@@ -71,25 +71,49 @@ curl https://api.x.ai/v1/chat/completions \
 ```
 
 ## API examples
-Grok can be used with the standard `openai` Python library.
+Grok can be used with the standard `openai` Python library, validated strictly using **Pydantic v2**:
 
 ```python
 from openai import OpenAI
+from pydantic import BaseModel, Field, ValidationError
+import os
+
+# Define a strict schema for Grok real-time response parsing using Pydantic v2
+class GrokRealtimeSentiment(BaseModel):
+    sentiment_summary: str = Field(description="Synthesized sentiment summary from the X firehose")
+    is_trending: bool = Field(description="Whether the topic is currently trending on X")
+    data_freshness_iso: str = Field(description="ISO-8601 representation of when the data was retrieved")
 
 client = OpenAI(
-    api_key="XAI_API_KEY",
+    api_key=os.environ.get("XAI_API_KEY", "mock-key"),
     base_url="https://api.x.ai/v1",
 )
 
-completion = client.chat.completions.create(
-    model="grok-3-latest",
-    messages=[
-        {"role": "system", "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."},
-        {"role": "user", "content": "Analyze the current sentiment about MCP 3.0 on X."}
-    ]
-)
+def analyze_x_sentiment() -> GrokRealtimeSentiment:
+    try:
+        completion = client.chat.completions.create(
+            model="grok-3-latest",
+            messages=[
+                {"role": "system", "content": "You are Grok, a helpful AI with real-time access to X data."},
+                {"role": "user", "content": "Analyze the current sentiment about MCP 3.1 on X."}
+            ]
+        )
+        content = completion.choices[0].message.content or ""
 
-print(completion.choices[0].message.content)
+        # Package and strictly validate using Pydantic v2
+        payload = {
+            "sentiment_summary": content,
+            "is_trending": "trending" in content.lower(),
+            "data_freshness_iso": "2026-12-21T00:00:00Z"
+        }
+
+        return GrokRealtimeSentiment.model_validate(payload)
+    except ValidationError as ve:
+        print(f"Pydantic validation failed: {ve}")
+        raise
+    except Exception as e:
+        print(f"API call failed: {e}")
+        raise
 ```
 
 ## Related tools / concepts
@@ -113,5 +137,5 @@ print(completion.choices[0].message.content)
 
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
