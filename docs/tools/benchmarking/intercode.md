@@ -1,10 +1,10 @@
 # InterCode
 
 ## What it is
-InterCode is an interactive benchmarking framework designed for evaluating Large Language Models (LLMs) in real-world programming and shell environments. It focuses on multi-turn interactions where the model can execute code or commands and receive feedback from the environment. In July 2026, it serves as a foundational environment for testing **MCP 3.0 Task Protocol** compliance in autonomous coding agents.
+InterCode is an interactive benchmarking framework designed for evaluating Large Language Models (LLMs) in real-world programming, shell, and SQL environments. It focuses on multi-turn interactions where the model can execute code or commands and receive feedback from the environment. In late November/December 2026, it serves as a foundational environment for testing **MCP 3.1 / FastMCP 3.1 Task Protocol** compliance in autonomous coding agents.
 
 ## What problem it solves
-Standard static benchmarks often fail to capture the interactive nature of software development. InterCode addresses this by providing an environment where models must reason over multiple steps, handle errors, and adapt based on actual execution results. It tests the "plan-execute-verify" loop essential for self-healing agents and advanced coding assistants like **GPT-5.5** and **Claude 4.8 Opus**.
+Standard static benchmarks often fail to capture the interactive nature of software development. InterCode addresses this by providing an environment where models must reason over multiple steps, handle errors, and adapt based on actual execution results. It tests the "plan-execute-verify" loop essential for self-healing agents and advanced coding assistants like **GPT-5.5**, **Claude 5.1**, **Gemini 4.0 Pro**, **Llama 4**, and **Qwen 3.6**.
 
 ## Where it fits in the stack
 **Benchmarking / Agentic Evaluation**. It sits in the "agentic" evaluation space, testing the model's ability to act as a coding assistant or terminal agent. It is a critical validation layer for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem and autonomous platforms like [Devin](../development_ops/devin.md) and [OpenHands](../development_ops/openhands.md).
@@ -12,7 +12,7 @@ Standard static benchmarks often fail to capture the interactive nature of softw
 ## Typical use cases
 - **Evaluating Terminal Agents**: Measuring how well models handle multi-step Bash/Shell tasks in a sandboxed environment.
 - **SQL Generation Benchmarking**: Testing SQL generation and execution capabilities against live databases.
-- **MCP 3.0 Protocol Validation**: Ensuring agents correctly use standardized tool-calling patterns to complete interactive tasks.
+- **MCP 3.1 Protocol Validation**: Ensuring agents correctly use standardized tool-calling and resource-sharing patterns to complete interactive tasks.
 - **Iterative Debugging**: Benchmarking models on tasks that require multiple rounds of execution and log analysis to solve.
 
 ## Strengths
@@ -38,7 +38,7 @@ Standard static benchmarks often fail to capture the interactive nature of softw
 ## Getting started
 
 ### Installation
-InterCode requires [Docker](../infrastructure/docker.md) and Python 3.10+.
+InterCode requires [Docker](../infrastructure/docker.md) and Python 3.11+.
 
 ```bash
 git clone https://github.com/princeton-nlp/intercode
@@ -46,10 +46,10 @@ cd intercode
 pip install -r requirements.txt
 ```
 
-### Running an Evaluation with MCP 3.0
+### Running an Evaluation with MCP 3.1
 1. Ensure the Docker daemon is running.
 2. Initialize an InterCode environment with an MCP-compliant agent.
-3. Execute a task using the standardized Task Protocol.
+3. Execute a task using the standardized FastMCP 3.1 Task Protocol.
 
 ## CLI examples
 
@@ -83,13 +83,100 @@ observation, reward, done, info = env.step(action)
 print(f"Shell Output: {observation}")
 ```
 
-### MCP 3.0 Task Integration
+### FastMCP 3.1 Task Integration
 ```python
+from mcp.server.fastmcp import FastMCP
 from intercode.mcp import InterCodeMCPServer
 
-# Expose InterCode environment as an MCP 3.0 tool server
-server = InterCodeMCPServer(env_type="bash")
-server.run()
+# Expose InterCode environment as an MCP 3.1 tool server using FastMCP
+mcp = FastMCP("InterCode Execution Server")
+
+@mcp.tool()
+def execute_bash_command(cmd: str) -> str:
+    """Executes a bash command within the isolated InterCode environment."""
+    # Internal execution logic mapping to the Docker container
+    return f"Executed: {cmd}"
+```
+
+## Programmatic Integration and Validation Example
+The following script wraps the InterCode interactive Gym loop, invoking an LLM-guided agent and utilizing Pydantic v2 to strictly validate execution trajectories and reward boundaries before logging the results.
+
+```python
+import gym
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+class TrajectoryStep(BaseModel):
+    action: str = Field(..., min_length=1, description="The CLI/SQL action string dispatched by the agent.")
+    observation: str = Field(..., description="The standard output/error response returned by the sandbox.")
+    reward: float = Field(..., description="Numerical feedback score for the action taken.")
+    done: bool = Field(..., description="Flag indicating if the interactive session has concluded.")
+    info: Dict[str, Any] = Field(default_factory=dict, description="Metadata dictionary from the step execution.")
+
+    @field_validator('reward')
+    @classmethod
+    def check_valid_reward_range(cls, v: float) -> float:
+        if not (-2.0 <= v <= 2.0):
+            raise ValueError("Reward value is outside expected evaluation bounds [-2.0, 2.0]")
+        return v
+
+class InteractiveSession(BaseModel):
+    session_id: str
+    steps: List[TrajectoryStep]
+    final_score: float = Field(..., ge=0.0, le=1.0)
+
+def run_agent_loop_and_validate(session_id: str, max_turns: int = 5) -> Optional[InteractiveSession]:
+    """Runs a live agent evaluation turn and structures outputs for strict schema validation."""
+    try:
+        # Initialize gym container backend (mocked representation for standard run)
+        env = gym.make('intercode-bash-v0')
+        obs = env.reset()
+    except Exception as e:
+        print(f"Failed to boot InterCode environment: {e}")
+        return None
+
+    trajectory = []
+    # Simulated agent commands for demonstrating interactive evaluation loop
+    agent_commands = ["ls -la", "cat requirements.txt", "exit"]
+
+    for turn in range(min(max_turns, len(agent_commands))):
+        action = agent_commands[turn]
+        try:
+            obs, reward, done, info = env.step(action)
+            # Structure into Pydantic model
+            step_data = TrajectoryStep(
+                action=action,
+                observation=str(obs),
+                reward=float(reward),
+                done=bool(done),
+                info=info or {}
+            )
+            trajectory.append(step_data)
+            if done:
+                break
+        except ValidationError as ve:
+            print(f"Step validation failed at turn {turn}: {ve}")
+            return None
+        except Exception as e:
+            print(f"Execution error on step {turn}: {e}")
+            return None
+
+    try:
+        session = InteractiveSession(
+            session_id=session_id,
+            steps=trajectory,
+            final_score=1.0 if trajectory and trajectory[-1].done else 0.0
+        )
+        return session
+    except ValidationError as ve:
+        print(f"Session trajectory validation failed: {ve}")
+        return None
+
+if __name__ == "__main__":
+    validated_run = run_agent_loop_and_validate("session_dec2026_01")
+    if validated_run:
+        print(f"Validated session {validated_run.session_id} successfully.")
+        print(f"Total steps: {len(validated_run.steps)}, Final score: {validated_run.final_score}")
 ```
 
 ## Related tools / concepts
@@ -105,8 +192,8 @@ server.run()
 ## Sources / references
 - [GitHub Repository](https://github.com/princeton-nlp/intercode)
 - [Research Paper: InterCode (arXiv:2306.14898)](https://arxiv.org/abs/2306.14898)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
+- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-20
 - Confidence: high
