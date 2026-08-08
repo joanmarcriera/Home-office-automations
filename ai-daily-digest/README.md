@@ -1,5 +1,68 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-08
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 📌 **OpenAI Astra Delay**: OpenAI is delaying the release of its "Astra" model after internal testing revealed critical cybersecurity capabilities that require further safeguarding.
+* 🚀 **Local LLM Performance**: Significant updates to `llama.cpp` are delivering massive speedups (up to 3.6x) for x86 CPUs and improved quantized-KV decode on Intel Battlemage.
+* 🛠️ **Agentic Infrastructure**: Cloudflare has launched "Cloudflare Computer," providing stateful, persistent environments for AI agents to move beyond ephemeral containers.
+* 🏢 **Enterprise Coding Agents**: A trend is emerging where major firms (Coinbase, Shopify, Ramp, Spotify) are building custom internal coding agents while still relying on frontier models like Anthropic's for the underlying intelligence.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Proprietary
+* **OpenAI Astra**: Internal testing has flagged "critical cyber capabilities," leading OpenAI to strengthen security controls before release. [The New Stack](https://thenewstack.io/openai-astra-cybersecurity-delay/) | [OpenAI Blog](https://openai.com/index/responding-next-frontier-critical-cyber-capabilities)
+* **Meta Muse Code**: Meta announced a new coding agent for complex software engineering, though reports suggest a trade-off regarding data privacy. [The New Stack](https://thenewstack.io/meta-muse-code/)
+
+### Open-Weight & Local Models
+* 🔥 **Genesis-Science-1**: The U.S. Department of Energy and Arcee have unveiled the first open-weight model specifically for scientific research. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vijp8y/us_department_of_energy_launches_the_genesis_open/)
+* **DeepSeek-V4-Flash (0731)**: Community reports are mixed; while some praise it as a "workhorse" for coding and OS admin, others find it unreliable for non-coding office tasks. [r/LocalLLaMA (Praise)](https://www.reddit.com/r/LocalLLaMA/comments/1vio0x6/deepseek_v4_flash_0731_appreciation_post/) | [r/LocalLLaMA (Critique)](https://www.reddit.com/r/LocalLLaMA/comments/1vikgrj/is_anyone_else_finding_deepseekv4flash_unreliable/)
+* **Moonshot Kimi K3**: Reports indicate one of China's most powerful models has moved toward an open-weight release. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vhwilp/an_openweight_model_too_moonshot_joins_the_race/)
+* **LiquidAI LFM2.5-2.6B**: A new "tiny" model showing competitive benchmarks against much larger models. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vi0d4i/lfm2526b_modelkv_cache_quantization_report/)
+* **Qwen 3.6/3.8**: Users are benchmarking the 35B-A3B MoE vs 27B dense, finding the MoE version ~4x faster with a surprisingly small quality gap in coding. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vinr66/qwen_35ba3b_moe_vs_27b_dense_in_local_coding/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Infrastructure & Frameworks
+* **Cloudflare Computer**: A new open-source runtime providing AI agents with persistent, stateful environments instead of short-lived containers. [InfoQ](https://www.infoq.com/news/2026/08/cloudflare-computer-agents/)
+* **Claude Code**: "Auto Mode" is set to become the default, reducing the need for constant human approval of agent actions. [The New Stack](https://thenewstack.io/claude-code-auto-mode/)
+* **parakeet.wgsl**: High-performance ASR (Automatic Speech Recognition) running directly in the browser via WebGPU and SIMD WASM. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vi77dr/parakeetwgsl_fast_accurate_asr_in_the_browser_via/)
+
+### `llama.cpp` Optimizations
+* **x86 CPU Boost**: A new PR adds x86 VNNI implementation for Q2_0, increasing throughput by 3.0–3.6x. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vhz989/a_llamacpp_pr_makes_q2_0_3036x_faster_on_x86_cpus/)
+* **Intel Battlemage**: A SYCL kernel switch has reportedly increased quantized-KV decode speed by up to 169% at 118K context. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vi6hmw/llamacpp_pr_reports_up_to_169_faster_quantizedkv/)
+* **RPC Loading**: A PR has reduced 300GB model load times from 5 minutes to 1 minute 30 seconds. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vilcil/i_got_tired_of_my_300gb_model_loads_taking_5min/)
+
+---
+
+## 🏢 Industry News & Enterprise
+
+### AI in Production
+* **Incident Response**: Instacart has built "Blueberry," an AI assistant for on-call engineers to investigate production incidents via Slack using MCP integrations. [InfoQ](https://www.infoq.com/news/2026/08/instacart-blueberry-sre-ai/)
+* **Spotify "Honk"**: Spotify developed a custom agent to handle fleet-wide codebase migrations, focusing on decoupling CI verification from the agent. [InfoQ](https://www.infoq.com/presentations/spotify-ai-codebase-migration-agent/)
+* **Tax Advisory**: HSP GRUPPE is utilizing ChatGPT Enterprise to increase capacity and quality in tax advisory services. [OpenAI Blog](https://openai.com/index/hsp-gruppe)
+
+### Security & Ethics
+* **The Hugging Face Incident**: A detailed timeline has emerged regarding an "accidental attack" by OpenAI against Hugging Face. [Simon Willison](https://simonwillison.net/2026/Aug/7/openai-timeline/)
+* **Supply Chain Attack**: A recent npm attack affected 400+ packages, using provenance attestations as camouflage. [The New Stack](https://thenewstack.io/npm-supply-chain-worm-attack/)
+* **The "Kill Switch"**: Analysis suggests that the concept of an AI kill switch is oversimplified and ignores the complexity of cloud infrastructure. [The New Stack](https://thenewstack.io/ai-kill-switch-infrastructure/)
+
+---
+
+## 🏠 Home Automation & Hardware
+* **Local AI Hardware**: Users are hacking Echo Dots to run local LLMs and speech recognition via Home Assistant. [r/homeassistant](https://www.reddit.com/r/homeassistant/comments/1vhofep/hacked_and_debloated_an_echo_dot_2_local_llm/)
+* **HomeCritters**: An ESP32-based AI pet that integrates with Home Assistant to provide a companion experience. [r/homeassistant](https://www.reddit.com/r/homeassistant/comments/1vi2w21/homecritters_an_esp32_ai_pet_that_talks_thinks/)
+* **GPU Safety**: An RTX 5090 owner released an open-source tool to shut down PCs if the 12VHPWR cable draws excessive power. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vhy2e6/rtx_5090_owner_built_an_opensource_tool_that/)
+
+---
+
+
 ## 📅 Digest for 2026-08-07
 
 ## Digest fallback for 2026-08-07
