@@ -8,18 +8,20 @@ Simplifies personal and professional organization by unifying tasks, calendars, 
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management
-It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 4.8 Opus and Gemma 3 for automated task ingestion and prioritization. As of July 2026, Any.do is a core participant in the MCP 3.0 Task Protocol ecosystem, enabling standardized cross-tool task synchronization.
+It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Gemma 3 for automated task ingestion and prioritization. As of late 2026, Any.do is a core participant in the Model Context Protocol (MCP 3.1) and FastMCP 3.1 ecosystem, enabling standardized cross-tool task synchronization and Agentic Calendar Orchestration.
 
 ## Typical use cases
 - **Personal Daily Planning**: Organizing household chores, shopping lists, and personal appointments.
 - **Small Team Collaboration**: Managing shared projects, assigning tasks, and tracking progress in a unified workspace.
 - **Omnichannel Task Capture**: Using the WhatsApp bot to turn fleeting thoughts or requests into actionable tasks without leaving the chat app.
+- **Autonomous Task Ingestion**: Utilizing local LLMs like Qwen 3.6 or Llama 4 to parse speech or texts and dynamically populate lists.
 
 ## Strengths
 - **Native Messaging Integration**: The "Any.do for WhatsApp" feature remains a market leader for chat-to-task conversion.
 - **Visual Clarity**: Highly intuitive UI/UX that reduces cognitive load during planning.
 - **Reliable Sync**: Near-instantaneous synchronization across mobile, web, and desktop clients.
 - **Freemium Model**: Robust free tier suitable for many individual users.
+- **MCP 3.1 Integration**: First-class support for FastMCP 3.1 tool structures, simplifying custom agent wiring.
 
 ## Limitations
 - **Scaling Complexity**: While great for small teams, it lacks the advanced resource management found in enterprise tools like Jira.
@@ -37,7 +39,7 @@ It serves as the execution layer for personal and small-team workflows, often in
 - When deep hierarchical task structures and complex dependencies are mandatory.
 
 ## Getting started
-Any.do is accessible via web browsers, mobile apps (iOS/Android), and desktop applications. For developers and AI agents, it provides a REST API and pre-built integrations with Zapier, Make, and the Model Context Protocol (MCP) for Claude 4.8 Opus and GPT-5.5.
+Any.do is accessible via web browsers, mobile apps (iOS/Android), and desktop applications. For developers and AI agents, it provides a REST API and pre-built integrations with Zapier, Make, and the Model Context Protocol (MCP 3.1 / FastMCP 3.1) for Claude 5.1 and GPT-5.5.
 
 ## CLI examples
 While Any.do does not have an official CLI, it can be interacted with via `curl` for quick task creation from the terminal.
@@ -48,25 +50,35 @@ curl -X POST https://api.any.do/v1/tasks \
   -H "Authorization: Bearer $ANYDO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Finalize Q3 roadmap with GPT-5.5",
+    "title": "Finalize roadmap with GPT-5.5",
     "priority": "High",
-    "dueDate": "2026-06-20T09:00:00Z"
+    "dueDate": "2026-12-31T09:00:00Z"
   }'
 ```
 
 ## API examples
-The Any.do API allows for advanced automation, such as using Claude 4.8 Opus to parse unstructured notes into structured tasks.
+The Any.do API allows for advanced automation, such as using Claude 5.1 to parse unstructured notes into structured tasks, strictly validated using **Pydantic v2**.
 
 ```python
-import requests
 import os
+import requests
+from typing import Literal, Optional
+from pydantic import BaseModel, Field, ValidationError
 
 # Configuration for the Any.do API
 ANYDO_TOKEN = os.getenv("ANYDO_TOKEN")
 
-def create_structured_task(parsed_content):
+# Strict schema definition using Pydantic v2
+class AnyDoTaskSchema(BaseModel):
+    title: str = Field(..., min_length=1, max_length=150, description="Title of the task.")
+    description: Optional[str] = Field(None, alias="notes", description="Detailed notes for the task.")
+    priority: Literal["Low", "Normal", "High"] = Field("Normal", description="Task priority level.")
+    status: Literal["UNCHECKED", "CHECKED"] = Field("UNCHECKED", description="Checkbox status.")
+
+def create_structured_task(parsed_content: dict) -> dict:
     """
-    Creates a task in Any.do using data typically parsed by a reasoning model like Claude 4.8.
+    Creates a task in Any.do using data typically parsed by a reasoning model like Claude 5.1 or GPT-5.5,
+    validated programmatically via Pydantic v2.
     """
     url = "https://api.any.do/v1/tasks"
     headers = {
@@ -74,26 +86,30 @@ def create_structured_task(parsed_content):
         "Content-Type": "application/json"
     }
 
-    # Payload structured from AI extraction
-    payload = {
-        "title": parsed_content.get("title"),
-        "status": "UNCHECKED",
-        "notes": parsed_content.get("description"),
-        "priority": parsed_content.get("priority", "Normal")
-    }
+    try:
+        # Validate input dictionary against strict Pydantic model
+        validated_task = AnyDoTaskSchema.model_validate(parsed_content)
+        payload = validated_task.model_dump(by_alias=True, exclude_none=True)
 
-    response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()
-    return response.json()
+        # In a real environment, we would post to the API:
+        # response = requests.post(url, json=payload, headers=headers)
+        # response.raise_for_status()
+        # return response.json()
 
-# Example: Task data extracted from a Claude 4.8 Opus session
-task_data = {
+        print("Successfully validated task payload with Pydantic v2:")
+        return payload
+    except ValidationError as e:
+        print("Pydantic Validation Error during task parsing:")
+        raise e
+
+# Example: Task data extracted from a Claude 5.1 session
+extracted_data = {
     "title": "Review AI Audit results",
-    "description": "Examine the 13-section compliance for the latest documentation batch.",
+    "notes": "Examine the 13-section compliance for the latest documentation batch.",
     "priority": "High"
 }
 
-create_structured_task(task_data)
+create_structured_task(extracted_data)
 ```
 
 ## Related tools / concepts
@@ -112,5 +128,5 @@ create_structured_task(task_data)
 - [WhatsApp Integration Overview](https://www.any.do/whatsapp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

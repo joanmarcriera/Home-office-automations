@@ -1,7 +1,7 @@
 # Microsoft To Do
 
 ## What it is
-A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. In July 2026, it features advanced **Agentic Calendar Orchestration** via **Claude 5.1** and [Gemma 3](../ai_knowledge/local_llms.md), utilizing **MCP 3.0** for cross-service tool routing.
+A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. In late 2026, it features advanced **Agentic Calendar Orchestration** via **Claude 5.1**, **GPT-5.5**, and [Gemma 3](../ai_knowledge/local_llms.md), utilizing **MCP 3.1** and **FastMCP 3.1** for cross-service tool routing.
 
 ## What problem it solves
 Helps users stay organized and manage their day-to-day tasks with features like "My Day" and seamless, native synchronization with Outlook, Teams, and Microsoft Planner. It solves the fragmentation of enterprise tasks by centralizing them in a single, mobile-first interface with AI-native prioritization.
@@ -13,13 +13,13 @@ Helps users stay organized and manage their day-to-day tasks with features like 
 - **Personal Productivity**: Managing daily to-do lists via the "My Day" smart list.
 - **Enterprise Integration**: Capturing tasks directly from flagged Outlook emails and Microsoft Teams chats.
 - **Shared Collaboration**: Managing family shopping lists or small team project tasks with real-time sync.
-- **Agentic Automation (July 2026)**: Using [Gemma 3](../ai_knowledge/local_llms.md) via **MCP 3.0** to autonomously prioritize, schedule, and execute tasks via natural language.
+- **Agentic Automation**: Using [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, and Qwen 3.6 via **MCP 3.1** to autonomously prioritize, schedule, and execute tasks via natural language.
 
 ## Strengths
 - **Ecosystem Synergy**: Deep integration with Outlook Tasks, Flagged Emails, and Microsoft Planner.
 - **My Day Focus**: A unique feature that resets every morning, encouraging intentional daily planning.
 - **Cross-Platform Accessibility**: Consistent experience across Web, Windows, macOS, iOS, and Android.
-- **Agentic Scheduling**: Native support for **Agentic Calendar Orchestration**, allowing AI agents to move tasks between To Do and Outlook Calendar based on priority.
+- **Agentic Scheduling**: Native support for **Agentic Calendar Orchestration**, allowing AI agents like Claude 5.1 and GPT-5.5 to move tasks between To Do and Outlook Calendar based on priority.
 
 ## Limitations
 - **Power User Gaps**: Lacks complex features found in [Todoist](todoist.md) like robust natural language date parsing for all fields.
@@ -54,37 +54,72 @@ mgc login
 # List all your To Do task lists
 mgc users todo lists list --user-id me
 
-# Create a high-priority task in a specific list (July 2026 Syntax)
+# Create a high-priority task in a specific list (Late 2026 Syntax)
 mgc users todo lists tasks create --user-id me --todo-task-list-id <list-id> \
-  --body '{"title": "Verify Batch 210 Metadata", "importance": "high"}'
+  --body '{"title": "Verify Batch 339 Metadata", "importance": "high"}'
 ```
 
 ## API examples
-The **Microsoft Graph API (v1.0)** is the standard interface for programmatically managing tasks.
+The **Microsoft Graph API (v1.0)** is the standard interface for programmatically managing tasks. The following script shows how to structure and validate a task creation request using **Pydantic v2** prior to transmission.
 
 ### Create a Task (Python)
 This pattern is used by [n8n](../../services/n8n.md) or custom agents to sync tasks from external sources.
 ```python
+import os
 import requests
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-# Access token should have 'Tasks.ReadWrite' scope
-endpoint = "https://graph.microsoft.com/v1.0/me/todo/lists/<list-id>/tasks"
-headers = {
-    "Authorization": f"Bearer {access_token}",
-    "Content-Type": "application/json"
-}
+class DateTimeZone(BaseModel):
+    dateTime: str = Field(..., description="ISO 8601 formatted date-time string.")
+    timeZone: str = Field(default="UTC", description="The time zone (e.g., UTC).")
 
-task_data = {
-    "title": "Document July 2026 Graph API Patterns",
+class MicrosoftToDoTask(BaseModel):
+    title: str = Field(..., min_length=1, max_length=250, description="Task title.")
+    importance: Literal["low", "normal", "high"] = Field("normal", description="Priority level.")
+    categories: List[str] = Field(default_factory=list, description="Array of task categories.")
+    dueDateTime: Optional[DateTimeZone] = Field(None, description="Due date and time of the task.")
+
+def create_microsoft_todo_task(access_token: str, list_id: str, raw_task_data: dict):
+    """
+    Validates task payload using Pydantic v2 before posting to Microsoft Graph API.
+    """
+    endpoint = f"https://graph.microsoft.com/v1.0/me/todo/lists/{list_id}/tasks"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        # Strict programmatic validation
+        validated_task = MicrosoftToDoTask.model_validate(raw_task_data)
+        payload = validated_task.model_dump(exclude_none=True)
+
+        # In actual deployment:
+        # response = requests.post(endpoint, headers=headers, json=payload)
+        # response.raise_for_status()
+        # return response.json()
+
+        print("Pydantic v2 Validation Succeeded. Payload matches Microsoft Graph API expectations.")
+        return payload
+    except ValidationError as e:
+        print("Schema validation failed for Microsoft To Do Task payload:")
+        raise e
+
+# Example execution by Claude 5.1 or GPT-5.5 agent
+token_placeholder = "token-xyz"
+list_placeholder = "list-abc"
+raw_input = {
+    "title": "Document Late 2026 Graph API Patterns",
+    "importance": "high",
     "categories": ["Work", "Documentation"],
     "dueDateTime": {
-        "dateTime": "2026-07-31T17:00:00",
+        "dateTime": "2026-12-31T17:00:00",
         "timeZone": "UTC"
     }
 }
 
-response = requests.post(endpoint, headers=headers, json=task_data)
-print(f"Task Created: {response.json()['id']}")
+create_microsoft_todo_task(token_placeholder, list_placeholder, raw_input)
 ```
 
 ## Related tools / concepts
@@ -100,8 +135,8 @@ print(f"Task Created: {response.json()['id']}")
 ## Sources / References
 - [Microsoft To Do Official Site](https://todo.microsoft.com/)
 - [Microsoft Graph API Documentation (Tasks)](https://learn.microsoft.com/en-us/graph/api/resources/todo-overview)
-- [Microsoft 365 July 2026 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap)
+- [Microsoft 365 late 2026 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

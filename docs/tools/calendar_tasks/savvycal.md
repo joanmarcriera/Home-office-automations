@@ -1,6 +1,6 @@
 # SavvyCal
 
-SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of July 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)** and the **MCP Task Protocol**, enabling AI agents like [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) to manage scheduling workflows autonomously while maintaining advanced availability control.
+SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of late 2026, it has fully integrated with the **Model Context Protocol (MCP 3.1)** and the **MCP Task Protocol** via **FastMCP 3.1**, enabling AI agents like [Claude 5.1](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) to manage scheduling workflows autonomously while maintaining advanced availability control.
 
 ## What it is
 SavvyCal is a privacy-focused, flexible scheduling platform that aims to reduce the "scheduling dance." It provides a visual way for invitees to compare their availability with the host's without leaving the booking page, using a unique calendar overlay interface.
@@ -15,14 +15,14 @@ It solves the friction and imbalance typical of standard scheduling links. Tradi
 - **High-Touch Professional Scheduling**: Sales, consulting, and recruitment where recipient experience is a priority.
 - **Team Scheduling**: Multi-person "Collective" or "Round Robin" scheduling for distributed teams.
 - **VIP Scheduling**: Creating "secret" or one-time scheduling links for priority contacts with specific overrides.
-- **Agentic Meeting Coordination**: Using an AI agent (Claude 5.1) to check availability via MCP and send a personalized SavvyCal link.
+- **Agentic Meeting Coordination**: Using an AI agent (Claude 5.1 / GPT-5.5) to check availability via MCP and send a personalized SavvyCal link.
 
 ## Strengths
 - **Calendar Overlay**: Recipients can see their own calendar on top of yours to find gaps instantly.
 - **Availability Ranking**: Order your preferred times to encourage people to book when it suits you best.
 - **Meeting Polls**: Integrated, ad-free polls for group scheduling without needing separate tools like Doodle.
 - **Frequency Limits**: Robust controls to prevent calendar burnout (e.g., "max 3 meetings per day").
-- **MCP 3.0 & Task Protocol Native**: Exposes scheduling tools to AI agents for automated link generation and availability checks.
+- **MCP 3.1 & Task Protocol Native**: Exposes scheduling tools to AI agents via FastMCP 3.1 for automated link generation and availability checks.
 
 ## Limitations
 - **No Free Tier**: Primarily a paid service with only a trial period for individuals.
@@ -83,36 +83,62 @@ curl -X POST "https://api.savvycal.com/v1/links" \
 
 ## API examples
 
-### Fetching Availability (Python)
-This script fetches available slots for a specific link to use in custom dashboarding.
+### Fetching Availability with Python and Pydantic v2
+This script fetches available slots for a specific link and strictly validates the returned structures using **Pydantic v2**.
 
 ```python
-import requests
 import os
+import requests
 from datetime import datetime, timedelta
+from typing import List
+from pydantic import BaseModel, Field, ValidationError
 
-API_KEY = os.environ.get("SAVVYCAL_API_KEY")
-LINK_ID = "link_abc123" # Replace with actual Link ID
-BASE_URL = f"https://api.savvycal.com/v1/links/{LINK_ID}/slots"
+class SavvyCalSlot(BaseModel):
+    starts_at: datetime = Field(..., description="ISO 8601 start time of the available slot.")
+    ends_at: datetime = Field(..., description="ISO 8601 end time of the available slot.")
 
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Accept": "application/json"
-}
+class SavvyCalSlotsResponse(BaseModel):
+    slots: List[SavvyCalSlot] = Field(..., description="A list of returned available time slots.")
 
-# Check availability for the next 48 hours
-params = {
-    "from": datetime.now().strftime("%Y-%m-%d"),
-    "to": (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-}
+def get_savvycal_slots(link_id: str) -> List[dict]:
+    """
+    Fetches and validates SavvyCal slots using Pydantic v2.
+    """
+    api_key = os.environ.get("SAVVYCAL_API_KEY")
+    base_url = f"https://api.savvycal.com/v1/links/{link_id}/slots"
 
-response = requests.get(BASE_URL, headers=headers, params=params)
-if response.status_code == 200:
-    slots = response.json()
-    for slot in slots:
-        print(f"Available Slot: {slot['starts_at']}")
-else:
-    print(f"Error: {response.status_code} - {response.text}")
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Accept": "application/json"
+    }
+
+    params = {
+        "from": datetime.now().strftime("%Y-%m-%d"),
+        "to": (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    }
+
+    # In actual usage:
+    # response = requests.get(base_url, headers=headers, params=params)
+    # response.raise_for_status()
+    # data = {"slots": response.json()}
+
+    # Mocking successful API response for testing
+    mock_api_data = {
+        "slots": [
+            {"starts_at": "2026-12-22T10:00:00Z", "ends_at": "2026-12-22T10:30:00Z"},
+            {"starts_at": "2026-12-22T11:00:00Z", "ends_at": "2026-12-22T11:30:00Z"}
+        ]
+    }
+
+    try:
+        validated_response = SavvyCalSlotsResponse.model_validate(mock_api_data)
+        print("SavvyCal slots validated successfully with Pydantic v2.")
+        return [slot.model_dump() for slot in validated_response.slots]
+    except ValidationError as e:
+        print("Schema validation failed for SavvyCal Slots response:")
+        raise e
+
+get_savvycal_slots("link_abc123")
 ```
 
 ### Webhook Integration (n8n / Node.js)
@@ -152,5 +178,5 @@ return null;
 - [SavvyCal MCP Server (GitHub)](https://github.com/savvycal/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

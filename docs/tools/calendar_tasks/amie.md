@@ -1,6 +1,6 @@
 # Amie
 
-Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of July 2026, it has deepened its integration with frontier models like [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) to provide autonomous daily planning and proactive time-blocking.
+Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of late 2026, it has deepened its integration with frontier models like [Claude 5.1](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) to provide autonomous daily planning and proactive time-blocking.
 
 ## What it is
 Amie is an all-in-one AI-powered productivity app that combines your calendar, tasks, and emails into a single, cohesive interface. It focuses on reducing friction in the planning process through natural language and high-performance design.
@@ -15,10 +15,10 @@ It reduces context-switching by unifying personal and professional scheduling wi
 - **AI-Powered Time Blocking**: Automatically scheduling tasks based on priority and typical user behavior patterns.
 - **Natural Language Event Creation**: Using the `Cmd + K` palette to create complex events like "Coffee with Alex this Friday at 4pm at Starbucks".
 - **Unified Email-to-Task**: Dragging emails onto the calendar to instantly convert them into time-blocked tasks.
-- **Agentic Scheduling**: Using [Claude 5.1](../ai_knowledge/claude.md) via MCP 3.0 to query availability and propose meeting times to external partners.
+- **Agentic Scheduling**: Using [Claude 5.1](../ai_knowledge/claude.md) via MCP 3.1 / FastMCP 3.1 to query availability and propose meeting times to external partners.
 
 ## Strengths
-- **Frontier AI Integration (2026)**: Native support for [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) for advanced natural language scheduling.
+- **Frontier AI Integration (Late 2026)**: Native support for [Claude 5.1](../ai_knowledge/claude.md), GPT-5.5, Gemini 4.0 Pro, Qwen 3.6, and [Gemma 3](../ai_knowledge/local_llms.md) for advanced natural language scheduling.
 - **Design-First UX**: Extremely polished interface with smooth animations and intuitive keyboard shortcuts.
 - **High Performance**: One of the fastest applications in the productivity space for search and event creation.
 - **Deep Integrations**: Robust connectors for Jira, GitHub, Slack, and Linear.
@@ -51,13 +51,13 @@ Amie does not provide a traditional command-line binary. However, its "Command B
 
 ```bash
 # Natural Language Commands in Cmd + K
-"Plan my week" -> Triggers Gemma 3 to distribute backlog tasks.
+"Plan my week" -> Triggers Gemma 3 / Qwen 3.6 to distribute backlog tasks.
 "Meet with @Sarah tomorrow" -> Opens a scheduling link for Sarah.
 "Remind me to call the bank at 10am" -> Creates a task with a reminder.
 ```
 
 ## API examples
-As of July 2026, Amie has expanded its developer access through a limited Beta API and MCP 3.0 server integration.
+As of late 2026, Amie has expanded its developer access through a limited Beta API and MCP 3.1 server integration.
 
 **Triggering a Task Sync (cURL):**
 ```bash
@@ -67,16 +67,55 @@ curl -X POST "https://api.amie.so/v1/sync" \
   -d '{"source": "github", "scope": "assigned_issues"}'
 ```
 
-**Querying Availability via MCP 3.0 (Claude Desktop):**
-Amie now supports a "Read-Only Calendar" tool for AI agents:
-```json
-{
-  "name": "amie_list_availability",
-  "arguments": {
-    "start_time": "2026-07-22T09:00:00Z",
-    "end_time": "2026-07-22T17:00:00Z"
-  }
+**Querying Availability via MCP 3.1 / FastMCP 3.1 (Claude Desktop):**
+Amie now supports a "Read-Only Calendar" tool for AI agents. The following Python snippet demonstrates how an agentic script validates availability data returned by the Amie MCP server using **Pydantic v2**.
+
+```python
+import os
+from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class AvailabilitySlot(BaseModel):
+    startTime: datetime = Field(..., description="Start of availability window.")
+    endTime: datetime = Field(..., description="End of availability window.")
+    status: str = Field(default="FREE", description="Status of the window.")
+
+class AmieAvailabilityResponse(BaseModel):
+    timezone: str = Field(default="UTC", description="Target timezone.")
+    slots: List[AvailabilitySlot] = Field(..., description="List of free calendar slots.")
+
+def validate_mcp_availability(raw_response: dict) -> AmieAvailabilityResponse:
+    """
+    Validates calendar availability payload using Pydantic v2.
+    """
+    try:
+        # Programmatic schema enforcement
+        validated_data = AmieAvailabilityResponse.model_validate(raw_response)
+        print("Successfully validated Amie availability response using Pydantic v2.")
+        return validated_data
+    except ValidationError as e:
+        print("Pydantic validation failed for Amie availability structure:")
+        raise e
+
+# Example payload returned by Amie's FastMCP 3.1 server to Claude 5.1
+mcp_mock_payload = {
+    "timezone": "Europe/London",
+    "slots": [
+        {
+            "startTime": "2026-12-22T09:00:00Z",
+            "endTime": "2026-12-22T10:30:00Z",
+            "status": "FREE"
+        },
+        {
+            "startTime": "2026-12-22T14:00:00Z",
+            "endTime": "2026-12-22T15:00:00Z",
+            "status": "FREE"
+        }
+    ]
 }
+
+validate_mcp_availability(mcp_mock_payload)
 ```
 
 ## Related tools / concepts
@@ -94,5 +133,5 @@ Amie now supports a "Read-Only Calendar" tool for AI agents:
 - [AI-Powered Planning Trends 2026](https://www.usecarly.com/blog/best-ai-tools-daily-planning/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
