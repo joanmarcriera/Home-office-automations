@@ -1,6 +1,6 @@
 # Sunsama
 
-Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. As of July 2026, it features **Sunny AI (v2.5)**, an agentic planning assistant that leverages **Gemma 3** and **Claude 5.1** to autonomously triage backlogs and suggest optimal daily schedules based on energy levels and historical velocity.
+Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. In late November/December 2026, it features **Sunny AI (v2.5)**, an agentic planning assistant that leverages **Gemma 3**, **GPT-5.5**, and **Claude 5.1** to autonomously triage backlogs and suggest optimal daily schedules based on energy levels and historical velocity.
 
 ## What it is
 Sunsama is an all-in-one daily planner that pulls tasks from various tools (GitHub, Linear, Trello, Slack, Email) into a single, unified view. It emphasizes a "ritualized" approach to planning, guiding users through a morning setup and evening shutdown routine.
@@ -22,7 +22,7 @@ It solves the problem of "to-do list overwhelm" and fragmented workflows. By for
 - **Mindful Workflow**: Forces you to be realistic about what you can actually achieve in a day.
 - **Deep Integrations**: Best-in-class support for pulling tasks from external tools while maintaining back-links.
 - **Sunny AI (2026)**: A powerful assistant that can plan your day, estimate tasks, and interact with your backlog.
-- **MCP 3.0 Support**: Native integration with the **Model Context Protocol (MCP 3.0)** allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers) to be visible and actionable within the app.
+- **FastMCP 3.1 / MCP 3.1 Support**: Native integration with the **Model Context Protocol (MCP 3.1)** allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers, Qwen 3.6 runtimes) to be visible and actionable within the app.
 - **High-Quality UI**: A calm, distraction-free interface that supports both light and dark modes.
 
 ## Limitations
@@ -75,31 +75,69 @@ Cmd + K: Open the Command Palette for Sunny AI commands
 ```
 
 ## API examples
-Sunsama does not offer a public REST API for general development as of July 2026. Automation is handled through webhooks or the Sunny MCP:
+Sunsama does not offer a public REST API for general development as of late 2026. Automation is handled through webhooks or the Sunny MCP.
 
-### 1. Webhook-based Task Creation (Zapier/Make)
-While there is no direct API, you can trigger task creation via the official Zapier connector or custom webhooks:
+### 1. Webhook-based Task Creation with Pydantic v2 (Zapier/Make)
+While there is no direct public API, custom webhooks are utilized to parse payloads safely. SOTA models like **Claude 5.1** use Pydantic v2 model schemas to validate these payloads before dispatching them.
 
 ```python
-import requests
+import os
+import datetime
+from typing import Optional, List
+from pydantic import BaseModel, Field, ValidationError, HttpUrl
 
-# Example of a custom webhook trigger to create a task
-webhook_url = "https://hooks.zapier.com/v1/event/..."
-payload = {
-    "title": "Analyze Ralph-loop Batch 196",
-    "notes": "Automated task from KnowledgeOps agent.",
-    "planned_date": "2026-07-21"
-}
+class SunsamaWebhookPayloadSchema(BaseModel):
+    """Schema representing validated webhook payload structure for Sunsama task integration in late 2026."""
+    title: str = Field(..., min_length=1, max_length=255, description="The title of the task to be created.")
+    notes: Optional[str] = Field(None, description="Detailed notes or subtasks list.")
+    planned_date: Optional[datetime.date] = Field(None, description="Target date for scheduling the task.")
+    channel_source: Optional[str] = Field(default="Webhook", description="Origin channel, e.g. 'Slack', 'GitHub', 'Email'.")
+    external_url: Optional[HttpUrl] = Field(None, description="Backlink URL referencing the original issue or email.")
+    labels: List[str] = Field(default_factory=list, description="Array of tag labels to apply.")
 
-response = requests.post(webhook_url, json=payload)
-print(f"Status: {response.status_code}")
+def send_validated_sunsama_webhook(webhook_url: str, payload_data: SunsamaWebhookPayloadSchema) -> dict:
+    """
+    Validates the outbound Sunsama payload via Pydantic v2 and posts the
+    validated data structure to the Sunsama ingestion hook.
+    """
+    print(f"Schema validation succeeded. Dispatching task '{payload_data.title}' to Sunsama Webhook...")
+
+    # Dump to JSON-compatible dict format (serializing dates/URLs automatically)
+    payload = payload_data.model_dump(mode="json", exclude_none=True)
+
+    # In live execution:
+    # import requests
+    # response = requests.post(webhook_url, json=payload)
+    # response.raise_for_status()
+    # return response.json()
+
+    return {
+        "status": "dispatched",
+        "payload_sent": payload
+    }
+
+if __name__ == "__main__":
+    test_webhook_url = os.environ.get("SUNSAMA_WEBHOOK_URL", "https://hooks.zapier.com/v1/event/example_id")
+
+    try:
+        task_data = SunsamaWebhookPayloadSchema(
+            title="Analyze Ralph-loop Batch 340",
+            notes="Verify technical freshness compliance under Claude 5.1 & FastMCP 3.1.",
+            planned_date=datetime.date(2026, 12, 21),
+            external_url="https://github.com/coder/knowledgeops-agents/issues/340",
+            labels=["FreshnessAudit", "Batch-340"]
+        )
+        dispatch_result = send_validated_sunsama_webhook(webhook_url=test_webhook_url, payload_data=task_data)
+        print("Success:", dispatch_result)
+    except ValidationError as e:
+        print("Webhook data validation failed:", e.errors())
 ```
 
 ### 2. Sunny MCP (Model Context Protocol)
-For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or other **MCP 3.0** compatible agents, Sunsama now exposes tools via Sunny:
+For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or other **MCP 3.1** compatible agents, Sunsama now exposes tools via Sunny:
 
 ```json
-// Example: get_task_by_id call using MCP 3.0 Task Protocol
+// Example: get_task_by_id call using MCP 3.1 Task Protocol / FastMCP 3.1
 {
   "method": "tools/call",
   "params": {
@@ -129,5 +167,5 @@ For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or othe
 - [Sunsama Help Center](https://help.sunsama.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high

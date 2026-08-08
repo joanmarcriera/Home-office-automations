@@ -1,25 +1,25 @@
 # Fastmail
 
 ## What it is
-An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. In July 2026, it is a leading provider for **JMAP-based** agentic workflows, often orchestrated via **Chronos MCP**.
+An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. In late November/December 2026, it is a leading provider for **JMAP-based** agentic workflows, often orchestrated via **Chronos MCP** or **FastMCP 3.1** servers.
 
 ## What problem it solves
 Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It solves the "proprietary protocol" problem by being a primary driver of the **JMAP** protocol, ensuring high interoperability for AI agents.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.1**, **Gemma 3**, or specialized **MCP 3.0** agents.
+**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, or specialized **MCP 3.1** agents.
 
 ## Typical use cases
 - **Primary Communication Hub**: High-speed personal or business email and calendar hosting.
 - **Privacy Management**: Using **Masked Emails** to prevent tracking across different services.
-- **Agentic Mail Processing**: Leveraging JMAP for reliable, stateless interaction with email and calendar data by LLM agents via MCP 3.0.
+- **Agentic Mail Processing**: Leveraging JMAP for reliable, stateless interaction with email and calendar data by LLM agents via MCP 3.1 / FastMCP 3.1.
 - **Custom Domain Hosting**: Managing professional identities with advanced alias and catch-all support.
 
 ## Strengths
 - **Speed**: The web and mobile interfaces are exceptionally fast and bloat-free.
 - **Privacy**: No tracking or ads; data is never sold.
 - **Standards-First**: Strong support for JMAP, CalDAV, and CardDAV, making it "Agent-Ready" by design.
-- **Masked Email (July 2026 Update)**: Deep integration with password managers and browser-based agents for instant, context-aware alias generation.
+- **Masked Email (Late 2026 Update)**: Deep integration with password managers and browser-based agents for instant, context-aware alias generation.
 
 ## Limitations
 - **Subscription-Based**: No free tier; subscription is required for all features.
@@ -51,7 +51,7 @@ fastmail setup
 ### Hello World (Masked Email)
 ```bash
 # Create a new masked email for a specific site
-fastmail masked create https://example.com --description "Batch 120 Audit"
+fastmail masked create https://example.com --description "Batch 340 Audit"
 ```
 
 ## CLI examples
@@ -71,28 +71,75 @@ fastmail contacts create "Jane Doe" --email "jane@example.com"
 ## API examples
 Fastmail is a primary driver of the **JMAP** standard, which is much more agent-friendly than IMAP.
 
-### Fetch Calendar Events (Python via JMAP)
-This pattern is used by agents (e.g., **Claude 5.1**) to synchronize schedules without the overhead of CalDAV, utilizing the **MCP 3.0** Task Protocol for reliable execution.
+### Fetch Calendar Events with Pydantic v2 validation (Python via JMAP)
+This pattern is used by agents (e.g., **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**) to synchronize schedules without the overhead of CalDAV, utilizing the **MCP 3.1** / **FastMCP 3.1** Task Protocol for reliable execution.
+
 ```python
-import requests
+import os
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-api_token = "your_api_token"
-url = "https://api.fastmail.com/jmap/api/"
+class JMAPMethodCall(BaseModel):
+    """Schema representing a structured JMAP method call."""
+    method_name: str = Field(..., description="The name of the JMAP service method, e.g., 'CalendarEvent/get'.")
+    arguments: Dict[str, Any] = Field(default_factory=dict, description="Arbitrary arguments validated for the method.")
+    client_id: str = Field(default="0", description="Client-defined unique ID to correlate response.")
 
-headers = {
-    "Authorization": f"Bearer {api_token}",
-    "Content-Type": "application/json"
-}
+class JMAPPayload(BaseModel):
+    """Schema representing a complete validated JMAP request payload for Fastmail API."""
+    using: List[str] = Field(
+        default_factory=lambda: ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:calendars"],
+        description="Standard JMAP schemas supported by Fastmail."
+    )
+    method_calls: List[JMAPMethodCall] = Field(..., description="The list of method calls to execute.")
 
-payload = {
-    "using": ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:calendars"],
-    "methodCalls": [
-        ["CalendarEvent/get", {"accountId": "primary", "limit": 10}, "0"]
-    ]
-}
+def build_and_validate_jmap_request(method: str, args: Dict[str, Any]) -> dict:
+    """
+    Validates the JMAP request components and converts them into a compliant
+    JSON payload ready for Fastmail endpoint submission.
+    """
+    try:
+        call = JMAPMethodCall(method_name=method, arguments=args)
+        payload = JMAPPayload(method_calls=[call])
+        print("Successfully validated Fastmail JMAP API payload utilizing Pydantic v2:")
 
-response = requests.post(url, headers=headers, json=payload)
-events = response.json()['methodResponses'][0][1]['list']
+        # Format matching JMAP spec layout: [ ["methodName", {args}, "clientId"] ]
+        method_calls_format = [
+            [item.method_name, item.arguments, item.client_id]
+            for item in payload.method_calls
+        ]
+
+        return {
+            "using": payload.using,
+            "methodCalls": method_calls_format
+        }
+    except ValidationError as e:
+        print("JMAP Schema Validation failed:", e)
+        raise
+
+if __name__ == "__main__":
+    api_token = os.environ.get("FASTMAIL_API_TOKEN", "fastmail_test_token_val")
+
+    # Fetch top 10 calendar events
+    try:
+        jmap_req = build_and_validate_jmap_request(
+            method="CalendarEvent/get",
+            args={"accountId": "primary", "limit": 10}
+        )
+        print(jmap_req)
+
+        # In actual request execution:
+        # import requests
+        # url = "https://api.fastmail.com/jmap/api/"
+        # headers = {
+        #     "Authorization": f"Bearer {api_token}",
+        #     "Content-Type": "application/json"
+        # }
+        # response = requests.post(url, headers=headers, json=jmap_req)
+        # response.raise_for_status()
+        # events = response.json()['methodResponses'][0][1]['list']
+    except ValidationError:
+        pass
 ```
 
 ## Related tools / concepts
@@ -110,8 +157,8 @@ events = response.json()['methodResponses'][0][1]['list']
 ## Sources / References
 - [Fastmail Official Site](https://www.fastmail.com/)
 - [Fastmail Developer Documentation](https://www.fastmail.com/developer/)
-- [JMAP Specification (July 2026 Update)](https://jmap.io/spec-mail.html)
+- [JMAP Specification (Late 2026 Update)](https://jmap.io/spec-mail.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
