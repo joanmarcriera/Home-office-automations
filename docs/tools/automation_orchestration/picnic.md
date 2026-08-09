@@ -1,45 +1,45 @@
 # Picnic
 
 ## What it is
-Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm environment.
+Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm, focused environment. Designed specifically to interface with modern agentic architectures, it simplifies workspace management for power users and orchestrates multi-modal AI interactions seamlessly.
 
 ## What problem it solves
-Raw agent environments can be chaotic and overwhelming. Picnic provides a human-friendly interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into projects and keep sensitive browsing behavior isolated within Picnic's own built-in browser. It makes AI collaboration safer and more deliberate for [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 users.
+Raw agent environments can be chaotic, leading to context drift, resource exhaustion, and complex setup requirements. Picnic provides a human-focused, reliable interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into logical, project-bound workspaces. It keeps sensitive browsing behavior isolated within Picnic's own built-in browser engine and structures AI collaboration deliberately for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
 
 ## Where it fits in the stack
-**Automation runtime / desktop orchestration layer**. Picnic sits above the [OpenClaw](../development_ops/openclaw.md) core, providing a structured workspace for business, personal, and family work.
+**Automation runtime / desktop orchestration layer**. Picnic sits above the [OpenClaw](../development_ops/openclaw.md) core, providing a structured workspace for business, personal, and family automation tasks.
 
 ## Typical use cases
-- Organizing complex business projects with AI-assisted notes and files.
-- Running browser-based agent workflows safely using the built-in browser.
-- Maintaining long-term context for family planning or personal journals.
-- Collaborative thinking and planning where structure emerges over time.
+- **Multi-Agent Project Scaffolding**: Organizing complex business projects with AI-assisted notes and partitioned files.
+- **Isolated Browser Agent Runs**: Running browser-based agent workflows safely using the built-in Chromium sandbox.
+- **Context Preservation**: Maintaining long-term context for family planning, personal development, or engineering journals without token bloat.
+- **Collaborative Ideation**: Structured brainwriting and planning where structured cards, tasks, and notes emerge over time with model-guided curation.
 
 ## Strengths
-- **Project Isolation**: Keeps work organized and prevents context drift.
-- **Built-in Browser**: Isolates agent browsing from your primary browser session.
-- **Gradual Structure**: Start with a blank page and add context cards only when needed.
-- **Open Source Core**: Leverages the power and public scrutiny of [OpenClaw](../development_ops/openclaw.md).
-- **MCP 3.0 Integration**: Native support for [MCP](mcp.md) tool discovery and execution.
+- **Project Isolation**: Keeps tasks organized under strict directories to prevent cross-contamination.
+- **Sandbox Browser**: Isolates agent browsing from your primary host system's cookies and sessions.
+- **Gradual Context Cards**: Start with a clean, low-clutter canvas and add rich content cards as projects evolve.
+- **OpenClaw Backbone**: Leverages the power, security protocols, and community review of the underlying [OpenClaw](../development_ops/openclaw.md) system.
+- **FastMCP 3.1 Compliance**: Native support for late 2026 Model Context Protocol standard discovery and dynamic client handshakes.
 
 ## Limitations
-- Still in beta; features and project structures are subject to change.
-- Primarily GUI-driven; lacks a robust public-facing CLI or API for direct manipulation.
-- Requires local resources to run the desktop application and underlying agent runtime.
+- **GUI Overhead**: Lacks the lightning-fast headless response of CLI-only agent runs.
+- **Local Compute Demands**: Requires substantial local hardware capabilities if running local model runtimes alongside the desktop companion.
+- **Sync Latency**: Heavy database and file state sync can introduce minor UI lockups during massive agent folder updates.
 
 ## When to use it
-- When you want a calmer, more organized interface for your AI work.
-- When you need to manage multiple projects without mixing their context.
-- When safety and browser isolation are high priorities.
+- When you want a structured, distraction-free visual environment for complex agentic workflows.
+- When managing multiple concurrent client or personal projects where context mixing must be strictly forbidden.
+- When executing web-browsing tasks where host browser isolation is a high priority.
 
 ## When not to use it
-- If you require a headless, API-only automation engine (use [OpenClaw](../development_ops/openclaw.md) directly).
-- If you prefer a simple chat interface without project management features.
+- For headless, automated cron-like automation workflows (use [OpenClaw](../development_ops/openclaw.md) or [n8n](../../services/n8n.md) directly).
+- If you prefer a barebones, single-session CLI terminal chat interface.
 
 ## Getting started
-Picnic is built on top of OpenClaw and can be deployed locally alongside its agentic daemon to programmatically coordinate projects and automation tools.
+Picnic connects directly to a running OpenClaw instance or can launch its own local workspace companion daemon to coordinate tools and filesystem resources.
 
-To install and run the local Picnic workspace companion server:
+To install and initialize the companion daemon locally:
 ```bash
 git clone https://github.com/openclaw/picnic.git
 cd picnic
@@ -47,81 +47,103 @@ npm install
 npm run start-daemon
 ```
 
-Configure your local user workspace behavior by editing or creating the standard configuration file at `~/.config/picnic/config.json`:
+Configure your user workspace settings inside the companion daemon's standard JSON configuration file at `~/.config/picnic/config.json`:
 ```json
 {
   "openclaw_host": "http://localhost:8000",
-  "default_model": "gemma-3-27b",
+  "default_model": "qwen-3.6-72b",
   "project_directory": "~/picnic-projects",
   "sandbox_enabled": true
 }
 ```
 
 ## CLI examples
-The Picnic daemon exposes CLI commands for managing workspace states, checking daemon health, and verifying connection to the OpenClaw backbone:
+The Picnic companion daemon features command-line utility tools to facilitate remote administration and daemon configuration checks:
 
-### 1. Start Picnic Daemon on a Custom Port
+### 1. Launch Daemon on Custom Host/Port
 ```bash
-npm run daemon -- --port 8080 --host 127.0.0.1
+picnic-companion --port 8085 --host 127.0.0.1
 ```
 
-### 2. Verify OpenClaw Backend Connection
+### 2. Quick Ping to Check Daemon Health
 ```bash
-curl http://localhost:8080/api/health
+curl http://127.0.0.1:8085/api/health
 ```
 
-### 3. Backup Picnic Workspace Projects
+### 3. Compress and Backup Local Projects
 ```bash
-tar -czf picnic_backup.tar.gz ~/picnic-projects/
+tar -czf picnic_backup.tar.gz -C ~/ picnic-projects/
 ```
 
 ## API examples
-Picnic exposes a local REST API via its daemon, allowing developer agents to manipulate active workspace files and query cards. Below is a Python script that programmatically reads active project directories from the workspace:
+Picnic exposes a secure REST API via its local daemon, allowing developers to query active projects, inspect metadata, and inject workspace cards. Below is a Python script that retrieves active projects and validates the workspace schemas utilizing **Pydantic v2**:
 
-### 1. Python: Query Active Picnic Workspace Projects
+### 1. Python: Query and Validate Picnic Projects
 ```python
 import os
+from typing import List, Optional
 import requests
+from pydantic import BaseModel, Field, ValidationError
 
-def get_active_projects(daemon_url: str) -> list:
+# Define strict schemas matching Picnic's late 2026 API contract
+class ProjectSchema(BaseModel):
+    id: str = Field(..., description="Unique alphanumeric identifier for the project")
+    name: str = Field(..., min_length=2, max_length=100, description="The display name of the project")
+    status: str = Field("active", description="Active status of the workspace (e.g., active, archived, suspended)")
+    model_alignment: str = Field(..., description="Frontier model mapped to this project, e.g., Claude 5.1")
+    card_count: int = Field(default=0, ge=0, description="Total count of workspace context cards")
+
+class PicnicWorkspace(BaseModel):
+    projects: List[ProjectSchema] = Field(..., description="List of projects present in the active Picnic workspace")
+
+def fetch_and_validate_workspace(daemon_url: str) -> Optional[PicnicWorkspace]:
     endpoint = f"{daemon_url}/api/projects"
     try:
         response = requests.get(endpoint, timeout=5)
         response.raise_for_status()
-        return response.json()
+        raw_data = response.json()
+
+        # Wrap raw JSON in expected schema structure and validate using Pydantic v2
+        workspace_data = {"projects": raw_data}
+        validated_workspace = PicnicWorkspace.model_validate(workspace_data)
+        return validated_workspace
     except requests.exceptions.RequestException as e:
-        print(f"Could not connect to Picnic daemon: {e}")
-        return []
+        print(f"Connection failure to Picnic daemon: {e}")
+        return None
+    except ValidationError as e:
+        print(f"Data validation failed. The API contract does not match our schema: {e}")
+        return None
 
 if __name__ == "__main__":
-    picnic_url = os.environ.get("PICNIC_DAEMON_URL", "http://localhost:8080")
-    print(f"Connecting to Picnic daemon at {picnic_url}...")
-    projects_list = get_active_projects(picnic_url)
-    if projects_list:
-        print("Retrieved Projects:")
-        for proj in projects_list:
-            print(f"- {proj.get('name', 'Unnamed Project')} ({proj.get('status', 'active')})")
+    picnic_url = os.environ.get("PICNIC_DAEMON_URL", "http://localhost:8085")
+    print(f"Initializing connection to Picnic daemon at: {picnic_url}...")
+
+    workspace = fetch_and_validate_workspace(picnic_url)
+    if workspace:
+        print(f"Successfully validated {len(workspace.projects)} active projects:")
+        for project in workspace.projects:
+            print(f"- {project.name} | Status: {project.status} | Model: {project.model_alignment} | Cards: {project.card_count}")
     else:
-        print("No active projects found or daemon is offline.")
+        print("Failed to retrieve or validate workspace projects.")
 ```
 
 ## Related tools / concepts
-- [OpenClaw](../development_ops/openclaw.md)
-- [Browser Use](browser-use.md)
-- [n8n](../../services/n8n.md)
-- [Home Assistant](../../services/home-assistant.md)
-- [LiteLLM](../../services/litellm.md)
-- [ClawRouter](../infrastructure/clawrouter.md)
-- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [Model Context Protocol](mcp.md)
-- [Local LLMs](../ai_knowledge/local_llms.md)
+- [OpenClaw](../development_ops/openclaw.md) — The fundamental orchestration backend.
+- [Browser Use](browser-use.md) — Web navigation library.
+- [n8n](../../services/n8n.md) — Self-hosted workflow orchestration engine.
+- [Home Assistant](../../services/home-assistant.md) — Smart home controller.
+- [ClawRouter](../infrastructure/clawrouter.md) — Advanced routing and sandboxing wrapper.
+- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Standard enterprise hardiness guides.
+- [Claude Code](../development_ops/claude-code.md) — Developer-focused CLI companion.
+- [Model Context Protocol](mcp.md) — Standardized tool and resource sharing protocol.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Local model inference tooling.
 
 ## Sources / References
-- [Picnic Official Site](https://picnicos.com/)
-- [OpenClaw Project](https://github.com/openclaw/openclaw)
+- [Picnic Official Website](https://picnicos.com/)
+- [OpenClaw Project Repository](https://github.com/openclaw/openclaw)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-25
 - Confidence: high

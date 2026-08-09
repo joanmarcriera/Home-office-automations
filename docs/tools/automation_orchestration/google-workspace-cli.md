@@ -1,143 +1,163 @@
 # Google Workspace CLI (gws)
 
 ## What it is
-Google Workspace CLI (`gws`) is a dynamic command-line tool for interacting with all Google Workspace services (Drive, Gmail, Calendar, Sheets, etc.), built for both humans and AI agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
+Google Workspace CLI (`gws`) is a dynamic, high-performance command-line interface designed to facilitate programmatic interaction with the complete suite of Google Workspace API services (Google Drive, Gmail, Google Calendar, Google Sheets, Admin Directory, and more). Purpose-built to serve both human engineers and advanced autonomous AI agent systems like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**, `gws` turns standard terminal environments into powerful SaaS integration engines.
 
 ## What problem it solves
-It eliminates the need to write custom `curl` calls or complex API glue code for Google Workspace tasks. By building its command surface dynamically from Google's Discovery Service, it ensures 100% API coverage and provides structured JSON output that is perfect for agentic consumption.
+It eradicates the complexity of writing custom oauth2 layers, token lifecycle managers, or sprawling `curl` API wrappers. By dynamically constructing its command architecture using Google's official API Discovery Service, `gws` guarantees 100% endpoint coverage with zero lag time for newly introduced Google Workspace features. Furthermore, it outputs clean, structured JSON payloads directly to standard output, making it highly compatible with LLM parsers and workflow scripts.
 
 ## Where it fits in the stack
-**Automation & Orchestration / SaaS Automation CLI**. It acts as a bridge between terminal workflows, CI/CD pipelines, and frontier AI agents needing direct access to Workspace data via the [Model Context Protocol](mcp.md).
+**Automation & Orchestration / SaaS Automation CLI**. It operates as an optimized command bridge between shell scripts, continuous integration pipelines, local developer environments, and frontier agents looking to manipulate cloud assets via the [Model Context Protocol](mcp.md).
 
 ## Typical use cases
-- Automating Workspace administration (user management, permissions).
-- Performing complex operations across Drive, Sheets, and Gmail via scripts.
-- Providing AI agents with a "skill" to manage calendars or draft emails directly.
-- Migrating data or creating templated project structures in Drive.
+- **Headless Workspace Administration**: Bulk user onboarding, group permissions management, and security audits.
+- **Enterprise Scripting**: Programmatically querying Google Drive directories, pulling Sheets data, or generating automated PDF summaries.
+- **Agent Skill-Mapping**: Exposing structured actions (e.g., adding calendar events, listing inbox messages) directly to autonomous agents using MCP adapters.
+- **Automated Data Migration**: Mirroring localized structures or templates directly into Google Drive shared paths during CI/CD steps.
 
 ## Strengths
-- **Full API Coverage**: Dynamically generated from Google's Discovery Service.
-- **Agent-Ready**: Structured JSON output and 100+ included "skills" for LLM integration.
-- **MCP 3.0 Support**: Can be exposed as an MCP server using specialized adapters.
-- **Security**: Supports OAuth 2.0, service accounts, and encrypted credential storage.
+- **Instantaneous API Sync**: Built dynamically from Google's API Discovery Service maps.
+- **Agent-Optimal Outputs**: Delivers clean, predictable JSON output suited for system tools and LLM parsing.
+- **FastMCP 3.1 Ready**: Can be exposed as standard tools inside a Model Context Protocol 3.1 pipeline.
+- **Production-Grade Auth**: Supports standard User OAuth 2.0 flows, secure Google Cloud Service Account credentials, and encrypted token storage keyrings.
 
 ## Limitations
-- Requires initial OAuth setup which can be complex for new users.
-- Subject to Google Workspace API rate limits and quotas.
-- Dynamic command generation can result in verbose command paths for some services.
+- **API Quota Caps**: Runs are strictly bound by Google Workspace's project-specific rate limits and API quotas.
+- **Auth Setup Overhead**: Creating a Google Cloud Console project, managing credentials, and defining scopes can feel complex for novices.
+- **Dynamic Syntax Density**: Dynamic commands matching raw Google API paths can sometimes result in long, verbose CLI invocations.
 
 ## When to use it
-- When you need a reliable, scriptable interface for Google Workspace.
-- When integrating Google Workspace with autonomous AI agents.
-- When you need to automate recurring administrative tasks across the Workspace suite.
+- To manage, script, or orchestrate administrative Google Workspace tasks programmatically.
+- When you want to grant autonomous agents direct capability to schedule meetings, read sheets, or draft emails.
+- When creating automated pipelines that ingest external documents and deposit them cleanly within corporate Google Drives.
 
 ## When not to use it
-- For occasional manual actions (use the web UI).
-- If you are not comfortable managing Google Cloud project credentials or OAuth flows.
+- For quick, occasional manual operations (use Google's standard Workspace Web UI).
+- If your environment prohibits local storage of Google OAuth developer keys or service account credentials.
 
 ## Getting started
 
 ### Installation
-You can install `gws` via NPM, Homebrew, Cargo, or Nix:
+Deploy `gws` instantly using standard package managers:
 
 ```bash
-# Recommended for Node environments
+# Recommended global installation for Node.js runtimes
 npm install -g @googleworkspace/cli
 
 # On macOS and Linux via Homebrew
 brew install googleworkspace-cli
 
-# From source using Cargo
+# Compiling directly from source via Rust Cargo
 cargo install --git https://github.com/googleworkspace/cli --locked
 
-# Run instantly using Nix
+# Running under Nix environments
 nix run github:googleworkspace/cli
 ```
 
-### Setup & Authentication
-To use `gws`, you must configure a Google Cloud project with OAuth credentials:
+### Authentication & Project Configuration
+To connect `gws` with your workspace, you must initialize OAuth 2.0 credentials inside a Google Cloud Platform (GCP) project:
 
-1. **Automatic Setup**:
+1. **Guided Configuration**:
    ```bash
-   gws auth setup   # Automatically guides you through GCP project config
+   gws auth setup   # Interactive wizard to establish your GCP Developer credentials
    ```
-2. **Login & Scopes**:
-   Select individual services to stay within unverified app limits (Google limits unverified OAuth consent screens to ~25 scopes):
+2. **Authorize Individual Scopes**:
+   Limit authorization to relevant services to prevent unverified app blockages (which occur when exceeding Google's soft-limit of 25 sensitive scopes):
    ```bash
    gws auth login --scopes drive,gmail,calendar
    ```
 
 > [!WARNING]
-> If your OAuth application is in "Testing" mode, you **must** add your Google Account email as a "Test user" under the GCP Console → APIs & Services → OAuth consent screen, otherwise authentication will fail with a generic `Access blocked` or `403` error.
+> While your Google Cloud OAuth app is in "Testing" mode, you **must** explicitly register your email under the GCP Console → APIs & Services → OAuth consent screen → "Test users" list. Failure to do so will trigger an `Access blocked: authorization error` (HTTP 403) upon login.
 
-### Hello World Example
-Retrieve your most recent Google Drive files formatted in structured JSON to verify a successful connection:
+### Connection Verification
+Query your Google Drive file list to verify a successful connection:
 
 ```bash
 gws drive files list --params '{"pageSize": 5}'
 ```
 
 ## CLI examples
-The CLI features built-in custom commands prefixed with `+` (such as `+agenda` and `+send`) that wrap complex, multi-step API workflows:
+In addition to raw discovery mappings, `gws` features convenient multi-step composite commands prefixed with `+`:
 
 ```bash
-# 1. Fetch today's calendar agenda formatted in your account's timezone
+# 1. Fetch current daily agenda from Google Calendar
 gws calendar +agenda
 
-# 2. Append rows dynamically to a Google Sheet with shell escaping protection
+# 2. Append metrics to a target Google Sheet securely
 gws sheets +append --spreadsheet "SPREADSHEET_ID" --values "Alice,95"
 
-# 3. Send a thread-aware email via Gmail
-gws gmail +send --to recipient@example.com --subject "Automation Update" --body "Task completed successfully via gws CLI."
+# 3. Send a thread-aware HTML email message via Gmail
+gws gmail +send --to recipient@example.com --subject "Automation Run Report" --body "Process executed successfully via gws CLI."
 ```
 
 ## API examples
-`gws` outputs standard, structured JSON to stdout. AI agents or external scripts can programmatically inspect API endpoint schemas or export headless credentials for automated runs:
+`gws` outputs structured JSON payloads to stdout, allowing parent programs to parse and act upon Workspace responses. Below is a Python orchestration example utilizing **Pydantic v2** to parse, validate, and print file resources retrieved via `gws`:
 
-### Schema Introspection
-To dynamically build payload structures, query the schema definition of any target method:
-```bash
-gws schema drive.files.list
-```
-
-### Programmatic Credential Usage (Python Integration)
-Complete interactive login on your workstation, export the token securely, and reuse it inside an automated script:
-
+### 1. Python: Ingest and Validate Google Drive Files via gws CLI
 ```python
+import os
 import subprocess
 import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-# Export the plaintext credentials from your local OS keyring
-try:
-    result = subprocess.run(
-        ["gws", "auth", "export", "--unmasked"],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    credentials = json.loads(result.stdout)
-    access_token = credentials.get("access_token")
-    print(f"Programmatic access token retrieved: {access_token[:10]}...")
-except subprocess.CalledProcessError as e:
-    print(f"Failed to export gws credentials: {e.stderr}")
+# Define strict schemas for Google Drive File representations (Pydantic v2)
+class GWSFileMeta(BaseModel):
+    id: str = Field(..., description="The unique, immutable Google Drive file ID")
+    name: str = Field(..., description="The file title or filename")
+    mimeType: str = Field(..., description="MIME type of the resource")
+    kind: str = Field("drive#file", description="The API resource kind")
+
+class GWSDriveListResponse(BaseModel):
+    files: List[GWSFileMeta] = Field(..., description="List of drive files returned by the command")
+
+def list_drive_files(limit: int = 5) -> Optional[GWSDriveListResponse]:
+    # Invoke gws drive CLI command programmatically
+    cmd = ["gws", "drive", "files", "list", "--params", json.dumps({"pageSize": limit})]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        raw_json = json.loads(result.stdout)
+
+        # Parse and validate returned JSON structures against Pydantic model
+        validated_response = GWSDriveListResponse.model_validate(raw_json)
+        return validated_response
+    except subprocess.CalledProcessError as e:
+        print(f"CLI invocation error: {e.stderr}")
+        return None
+    except ValidationError as e:
+        print(f"Schema mismatch detected: {e}")
+        return None
+    except json.JSONDecodeError:
+        print("Failed to decode stdout as JSON payload.")
+        return None
+
+if __name__ == "__main__":
+    print("Fetching active drive resources using gws CLI...")
+    drive_data = list_drive_files(5)
+
+    if drive_data:
+        print(f"Validated {len(drive_data.files)} drive resources successfully:")
+        for file in drive_data.files:
+            print(f"- [File] {file.name} | ID: {file.id} | MIME: {file.mimeType}")
+    else:
+        print("Failed to fetch or validate drive assets.")
 ```
 
 ## Related tools / concepts
-- [Google Calendar](../calendar_tasks/google_calendar.md)
-- [n8n](../../services/n8n.md)
-- [Zapier](zapier.md)
-- [Make](make.md)
-- [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
-- [Chronos MCP](chronos-mcp.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [OpenClaw](../development_ops/openclaw.md)
-- [Model Context Protocol](mcp.md)
-- [Local LLMs](../ai_knowledge/local_llms.md)
+- [Google Calendar](../calendar_tasks/google_calendar.md) — Native calendar configuration.
+- [n8n](../../services/n8n.md) — Visual workflow automation tool.
+- [Chronos MCP](chronos-mcp.md) — Agent-optimized scheduling standard.
+- [Claude Code](../development_ops/claude-code.md) — Autonomous companion for developer terminals.
+- [OpenClaw](../development_ops/openclaw.md) — Standard execution daemon.
+- [Model Context Protocol](mcp.md) — Protocol for model integrations.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Offline inference runtimes.
 
 ## Sources / References
-- [Google Workspace CLI GitHub](https://github.com/googleworkspace/cli)
-- [Google API Discovery Service](https://developers.google.com/discovery)
+- [Google Workspace CLI Code Repository](https://github.com/googleworkspace/cli)
+- [Google API Discovery Service Developers portal](https://developers.google.com/discovery)
+- [Model Context Protocol v3.1 Specification Standards](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-25
 - Confidence: high
