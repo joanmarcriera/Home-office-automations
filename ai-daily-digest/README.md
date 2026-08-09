@@ -1,5 +1,63 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-09
+
+# AI & Tech Daily Digest
+
+## Executive Summary
+* 🔥 **Industry Standardization**: Five major AI rivals (OpenAI, AWS, Cursor, GitHub, and Microsoft) have backed **Agent Plugins 1.0.0**, a portable package format for reusable agent components.
+* 🚀 **Local LLM Breakthroughs**: New efforts in "trimming" models (removing multi-lingual data) have seen Kimi K3 shrink from 711GB to 478GB while maintaining intelligence.
+* 🛠️ **Hardware Speculation**: Rumors of an **RTX 5090 96GB** appearing on Alibaba have sparked significant discussion in the local LLM community.
+* 🛡️ **Bot Detection**: Cloudflare has launched **Precursor**, a behavioral analysis engine designed to detect AI agents and bots via mouse and keyboard patterns rather than CAPTCHAs.
+
+---
+
+## 🚀 Models & Releases
+
+**Kimi K3 Optimization**
+* **Size Reduction**: A new "REAP" version of Kimi K3 has been released, reducing the size from 711GB to 478GB by removing multi-lingual data and keeping English intact. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vjanps/kimi_k3_unsloth_iq2xxs_from_711gb_down_to_478gb/)
+* **Local Performance**: Users are reporting successful local runs of Kimi K3 using `llama.cpp` over RPC across multiple clusters. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj0hil/my_first_run_of_kimi_k3_locally/)
+
+**Small Language Models (SLMs)**
+* **LFM 2.6B**: Users are praising the speed (up to 260T/s) and utility of LFM 2.6B for quick summaries and Linux command lookups. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vjgp6r/lfm_26b_is_a_lot_of_fun/)
+* **Phi Series**: Community debate continues regarding the status of Microsoft's Phi series, questioning if "Phi 5" is on the horizon. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj8bxf/is_microsoftphi_dead/)
+
+---
+
+## 🛠️ Tools & Agents
+
+**Standardization & Infrastructure**
+* 📌 **Agent Plugins 1.0.0**: A new shared plugin standard backed by OpenAI, AWS, Cursor, GitHub, and Microsoft aims to make agent components portable and reusable. [Source: The New Stack](https://thenewstack.io/agent-plugins-open-standard/)
+* **Real-time Voice Stack**: A community member built a local voice pipeline using Parakeet STT $\rightarrow$ Qwen 2.5 7B $\rightarrow$ Qwen3-TTS via Ollama. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj3b7m/i_built_a_local_realtime_voice_stack_for_ollama/)
+* **C Inference Engine**: A developer shared progress on a zero-dependency C99 inference engine for BitNet (1.58-bit), achieving 36 tok/s on a Xeon CPU. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj1cin/building_a_zerodependency_c_inference_engine_for/)
+
+---
+
+## 🔬 Research & Analysis
+
+**Tokenization Insights**
+* **Qwen vs. Gemma**: An analysis reveals a massive difference in how Qwen and Gemma tokenize code. Qwen tokenizes a 330-line JS file into 1,609 tokens, while Gemma uses 4,258, potentially explaining Qwen's superior coding performance. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vjb15v/no_wonder_qwen_and_gemma_are_so_different/)
+
+**Performance Engineering**
+* **OpenAI's Speed**: Martin Spier discussed how OpenAI uses always-on AI agents to automate profiling and regression detection to keep ChatGPT fast. [Source: InfoQ](https://www.infoq.com/presentations/openai-performance-engineering-agentic-coding/)
+* **Self-Evaluation**: Experiments with Gemma4 12B suggest that repeated generation combined with model-led self-evaluation significantly improves summary quality. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj1d1i/repeated_generation_is_worth_it_and/)
+
+---
+
+## 🏢 Industry & Hardware
+
+**Hardware News & Rumors**
+* 📌 **RTX 5090 96GB**: Potential sightings of a 96GB VRAM variant of the 5090 on Alibaba have the local LLM community excited. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vjcljq/rtx_5090_96gb_spotted_on_alibaba/)
+* **Memory Crisis**: Reports suggest that memory capacity for 2027 is already reportedly sold out, signaling a continued "RAMageddon." [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1viqtgm/2027_memory_capacity_is_reportedly_sold_out/)
+* **PCI-E P2P**: Users report that enabling PCI-E peer-to-peer for consumer Nvidia cards in vLLM setups yields significant performance gains. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vj7wey/enabling_pcie_p2p_for_consumer_nvidia_cards_will/)
+
+**Enterprise AI**
+* **Adoption vs. Usage**: A critical look at how "seat activations" in enterprises do not necessarily equate to actual productive AI usage. [Source: The New Stack](https://thenewstack.io/ai-adoption-versus-usage/)
+* **Security**: n8n reported a security incident involving a third-party tool, Metabase, which has since been patched. [Source: n8n Blog](https://blog.n8n.io/metabase-security-incident-update/)
+
+---
+
+
 ## 📅 Digest for 2026-08-08
 
 # AI & Technology Daily Digest
