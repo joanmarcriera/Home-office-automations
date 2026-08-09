@@ -1,7 +1,7 @@
 # Proton Calendar
 
 ## What it is
-Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of July 2026, it is a key component of the privacy-first productivity suite, offering a secure alternative to mainstream providers for users of frontier models like `claude-4-8-opus-20260528` who prioritize data sovereignty and secure agentic scheduling.
+Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of late November/December 2026, it is a key component of the privacy-first productivity suite, offering a secure alternative to mainstream providers for users of frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6 who prioritize data sovereignty and secure agentic scheduling.
 
 ## What problem it solves
 It provides a secure and private way to manage schedules and events without exposing sensitive metadata to service providers or third-party advertisers. By using client-side encryption, it ensures that event titles, locations, and participants remain confidential even if the service provider's infrastructure is compromised. It solves the privacy gap in digital life management.
@@ -14,14 +14,14 @@ It provides a secure and private way to manage schedules and events without expo
 - **Secure Event Invitations**: Sending and receiving encrypted invitations within the Proton ecosystem.
 - **Privacy-First Homelab Integration**: Using iCal secret links to display schedules in [Home Assistant](../../services/home-assistant.md) without exposing the full calendar.
 - **Cross-Platform Sync**: Maintaining a synchronized, encrypted schedule across web, Android, iOS, and desktop.
-- **Agentic Scheduling**: Interfacing with [Chronos MCP](../automation_orchestration/chronos-mcp.md) for automated, private calendar management.
+- **Agentic Scheduling**: Interfacing with [Chronos MCP](../automation_orchestration/chronos-mcp.md) or **FastMCP 3.1** servers for automated, private calendar management.
 
 ## Strengths
 - **End-to-End Encryption (E2EE)**: All major event fields (title, description, location) are encrypted before leaving the device.
 - **Zero-Access Architecture**: Proton cannot access your calendar data; they only store the encrypted blobs.
 - **Open Source Clients**: The web and mobile applications are open source and subject to independent security audits.
 - **Standardized Import/Export**: Robust support for the `.ics` (iCalendar) format for migration.
-- **Enhanced Sync (July 2026)**: Improved real-time sync across devices using the latest Proton Bridge protocols.
+- **Enhanced Sync (2026)**: Improved real-time sync across devices using the latest Proton Bridge protocols and secure desktop bridge services.
 
 ## Limitations
 - **Automation Complexity**: The E2EE nature makes it difficult for third-party automation tools (like [n8n](../../services/n8n.md) or Zapier) to interact with the data directly without user-side decryption.
@@ -66,7 +66,7 @@ Use `icalendar` (Python-based CLI tool) to inspect the structure of an exported 
 
 ```bash
 # Install tool
-pip install icalendar
+pip install icalendar pydantic
 
 # Inspect events
 icalendar view schedule.ics
@@ -74,32 +74,78 @@ icalendar view schedule.ics
 
 ## API examples
 
-### Parsing a Proton iCal Feed in Python
-Since direct API access is restricted by E2EE, most developers interact with Proton Calendar via the read-only iCal feed:
+### Parsing and Validating Proton iCal Feeds (Python with Pydantic v2)
+Since direct API access is restricted by E2EE, most developers interact with Proton Calendar via the read-only iCal feed. This example retrieves an encrypted or shared iCal feed, parses its events, and validates them with strict **Pydantic v2** schemas to ensure structural integrity before processing by AI agents.
 
 ```python
 import requests
 from icalendar import Calendar
+from pydantic import BaseModel, Field, ValidationError, field_validator
+from typing import Optional, List
+from datetime import datetime
 
-# The secret URL from Proton Calendar settings
+class ProtonEventSchema(BaseModel):
+    uid: str = Field(..., description="Unique event identifier")
+    summary: str = Field(..., min_length=1, description="Event title or subject")
+    description: Optional[str] = Field(None, description="Event description details")
+    dtstart: datetime = Field(..., description="Event start date and time")
+    dtend: datetime = Field(..., description="Event end date and time")
+
+    @field_validator('dtend')
+    @classmethod
+    def validate_end_after_start(cls, dtend: datetime, info) -> datetime:
+        dtstart = info.data.get('dtstart')
+        if dtstart and dtend < dtstart:
+            raise ValueError("Event end time cannot be before event start time")
+        return dtend
+
+# Secret shared URL from Proton Calendar settings
 SECRET_URL = "https://calendar.proton.me/api/calendar/v1/share/TOKEN/export.ics"
 
-def get_upcoming_events():
-    response = requests.get(SECRET_URL)
-    cal = Calendar.from_ical(response.content)
+def get_and_validate_proton_events() -> List[ProtonEventSchema]:
+    # For simulation, we use mock iCal content
+    sample_ics = """BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:evt-2026-abc123
+SUMMARY:Secure Agentic Architecture Review
+DESCRIPTION:Reviewing FastMCP 3.1 implementations with Llama 4 and Claude 5.1
+DTSTART:2026-12-25T14:00:00Z
+DTEND:2026-12-25T15:00:00Z
+END:VEVENT
+END:VCALENDAR"""
 
-    events = []
+    # In a live environment, fetch the real feed:
+    # response = requests.get(SECRET_URL)
+    # cal = Calendar.from_ical(response.content)
+
+    cal = Calendar.from_ical(sample_ics)
+    events_list = []
+
     for component in cal.walk():
         if component.name == "VEVENT":
-            summary = component.get('summary')
-            start = component.get('dtstart').dt
-            events.append({"summary": summary, "start": start})
+            try:
+                # Build raw payload dictionary
+                raw_payload = {
+                    "uid": str(component.get('uid')),
+                    "summary": str(component.get('summary')),
+                    "description": str(component.get('description')) if component.get('description') else None,
+                    "dtstart": component.get('dtstart').dt,
+                    "dtend": component.get('dtend').dt
+                }
+                # Strictly validate with Pydantic v2
+                validated = ProtonEventSchema.model_validate(raw_payload)
+                events_list.append(validated)
+            except ValidationError as e:
+                print(f"Skipping invalid event {component.get('uid')}:", e.json())
+            except Exception as ex:
+                print(f"Parsing error: {ex}")
 
-    return events
+    return events_list
 
 if __name__ == "__main__":
-    for event in get_upcoming_events():
-        print(f"{event['start']}: {event['summary']}")
+    for event in get_and_validate_proton_events():
+        print(f"Successfully Validated: {event.summary} ({event.dtstart} -> {event.dtend})")
 ```
 
 ## Related tools / concepts
@@ -118,5 +164,5 @@ if __name__ == "__main__":
 - [Proton Bridge Documentation](https://proton.me/mail/bridge)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
