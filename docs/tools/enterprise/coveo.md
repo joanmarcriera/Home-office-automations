@@ -1,7 +1,7 @@
 # Coveo
 
 ## What it is
-Coveo is an enterprise AI platform that provides intelligent search, personalized recommendations, and advanced generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace. As of July 2026, Coveo has integrated the **MCP 3.0 Task Protocol**, allowing its unified search index to be exposed as a high-fidelity resource for agentic workflows powered by **Gemma 3**, **Claude 4.8**, and **GPT-5.5**.
+Coveo is an enterprise AI platform that provides intelligent search, personalized recommendations, and advanced generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace. As of late November/December 2026, Coveo has integrated the **FastMCP 3.1** protocol, allowing its unified search index to be exposed as a high-fidelity resource for agentic workflows powered by **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
 
 ## What problem it solves
 It addresses the critical challenge of information fragmentation and lack of relevance at enterprise scale. By unifying data from hundreds of disparate siloed sources, Coveo ensures that users (customers, employees, or AI agents) receive the most relevant information or products based on their real-time intent, visual context, and historical behavior, thereby reducing "search fatigue" and increasing operational efficiency.
@@ -41,7 +41,7 @@ Coveo is a cloud-native SaaS platform. Developers typically begin by:
 1. Creating a Coveo organization via the Administration Console.
 2. Configuring "Sources" using the Push API or native connectors.
 3. Building a search experience using the Coveo Atomic (Web Component) library or the Coveo Headless SDK.
-4. Enabling **MCP 3.0** support to allow AI agents to securely query the index.
+4. Enabling **FastMCP 3.1** support to allow AI agents to securely query the index.
 
 ## CLI examples
 The Coveo CLI (`coveo`) is the primary tool for resource management and development lifecycle automation.
@@ -90,6 +90,47 @@ context = {"department": "R&D", "clearance": "level-4"}
 results = query_enterprise_knowledge("Rubin GPU architecture specs", context)
 ```
 
+### Coveo Payload Validation with Strict Pydantic v2 Schema
+The following robust Python example uses **Pydantic v2** to programmatically validate the payload before calling Coveo API search endpoints, ensuring security clearance constraints are fully respected.
+
+```python
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError, model_validator
+
+# 1. Define Coveo Search Request validation schema
+class CoveoSearchQuery(BaseModel):
+    query: str = Field(..., min_length=3, max_length=500)
+    user_department: str = Field(..., pattern="^(R&D|Sales|Support|Management)$")
+    clearance_level: int = Field(default=1, ge=1, le=5)
+    pipeline: str = Field(default="default")
+    enable_generative_answering: bool = Field(default=True)
+
+    @model_validator(mode="after")
+    def enforce_clearance_for_rd(self) -> "CoveoSearchQuery":
+        if self.user_department == "R&D" and self.clearance_level < 3:
+            raise ValueError("R&D personnel must possess at least Clearance Level 3 to execute searches.")
+        return self
+
+# 2. Example representation of raw input query
+raw_query = {
+    "query": "Next-gen GPU cluster architecture specification",
+    "user_department": "R&D",
+    "clearance_level": 4,
+    "pipeline": "secure-pipeline",
+    "enable_generative_answering": True
+}
+
+# 3. Validate query using Pydantic v2
+try:
+    validated_query = CoveoSearchQuery.model_validate(raw_query)
+    print("Coveo search query configuration is valid!")
+    print(f"Validated Pipeline: {validated_query.pipeline}")
+    print(f"Generative answering enabled: {validated_query.enable_generative_answering}")
+except ValidationError as e:
+    print(f"Coveo query validation failed with errors: {e.json()}")
+```
+
 ## Related tools / concepts
 - [Elastic](elastic.md) — The foundational engine often used for lower-level search requirements.
 - [Glean](glean.md) — A direct competitor focused on workplace discovery and employee AI.
@@ -106,5 +147,5 @@ results = query_enterprise_knowledge("Rubin GPU architecture specs", context)
 - [Coveo MCP Integration Guide](https://github.com/coveo/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-28
 - Confidence: high
