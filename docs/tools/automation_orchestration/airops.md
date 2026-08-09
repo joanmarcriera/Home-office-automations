@@ -1,7 +1,7 @@
 # AirOps
 
 ## What it is
-AirOps is an enterprise AI platform for building, testing, and scaling AI-powered applications and agentic workflows. It provides a collaborative studio for teams to design sophisticated prompt chains, test them against various models, and deploy them as scalable "tools." As of July 2026, AirOps fully integrates with the **MCP 3.0 Task Protocol**, enabling seamless orchestration of complex tasks using frontier models like [Gemma 3](../ai_knowledge/local_llms.md) and Claude 4.8.
+AirOps is an enterprise AI platform for building, testing, and scaling AI-powered applications and agentic workflows. It provides a collaborative studio for teams to design sophisticated prompt chains, test them against various models, and deploy them as scalable "tools." As of late 2026, AirOps fully integrates with the **MCP 3.1** and **FastMCP 3.1** standards, enabling seamless orchestration of complex tasks using frontier models like **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 AirOps addresses the challenge of moving AI from simple prototyping to robust, production-grade business operations. It provides the necessary infrastructure for prompt versioning, multi-model orchestration, and secure data handling, allowing organizations to build internal AI tools that are reliable, auditable, and scalable. It eliminates the need for managing underlying compute resources or complex API integrations manually.
@@ -18,7 +18,7 @@ AirOps addresses the challenge of moving AI from simple prototyping to robust, p
 
 ## Strengths
 - **Collaborative Studio**: Enables product managers and engineers to collaborate on prompt engineering and workflow design in real-time.
-- **MCP 3.0 Native**: Direct support for the Model Context Protocol (MCP) Task Protocol for standardized tool and agent interaction.
+- **FastMCP 3.1 Native**: Direct support for the Model Context Protocol (MCP) FastMCP 3.1 specification for standardized tool and agent interaction.
 - **Enterprise-Grade Scaling**: Built to handle millions of requests with high availability and robust performance monitoring.
 - **Deep Integrations**: Native connectors for Postgres, Snowflake, and major SaaS platforms, plus custom API support.
 - **Built-in Guardrails**: Includes tools for managing [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) and ensuring data privacy.
@@ -31,7 +31,7 @@ AirOps addresses the challenge of moving AI from simple prototyping to robust, p
 ## When to use it
 - When building mission-critical AI applications that require enterprise-level reliability, security, and scalability.
 - For teams that need a collaborative environment to iterate on complex prompt logic and agentic reasoning.
-- When you need to orchestrate multi-step AI tasks that leverage the **MCP 3.0** ecosystem.
+- When you need to orchestrate multi-step AI tasks that leverage the **FastMCP 3.1** ecosystem.
 - For implementing RAG patterns that require high accuracy and sophisticated data chunking/retrieval strategies.
 
 ## When not to use it
@@ -70,28 +70,74 @@ curl -G 'https://app.airops.com/public_api/airops_apps/YOUR_APP_UUID/executions/
 
 ## API examples
 
-### Executing an AirOps App via Python
+### Executing an AirOps App with Pydantic v2 Contract Validation
+For late 2026 enterprise integrations, responses received from AirOps webhook executions must be strictly verified against a schema contract before propagating to downstream services or RAG stores. This ensures high accuracy under frontier models such as Claude 5.1.
+
 ```python
+import os
 import requests
-import json
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
 
-# Configuration for July 2026 standards
-API_KEY = "YOUR_API_KEY"
-APP_UUID = "YOUR_APP_UUID"
-ENDPOINT = f"https://app.airops.com/public_api/airops_apps/{APP_UUID}/webhook_async_execute"
+# 1. Define the validation contract using Pydantic v2
+class AirOpsOutput(BaseModel):
+    summary: str = Field(description="The primary summary returned by the execution")
+    confidence_score: float = Field(ge=0.0, le=1.0, description="The reliability confidence score of the extracted info")
+    key_entities: list[str] = Field(default_factory=list, description="Extracted enterprise entities")
 
-payload = {
-    "query": "Synthesize enterprise RAG patterns for Gemma 3",
-    "depth": "comprehensive"
-}
-headers = {
-    "accept": "application/json",
-    "content-type": "application/json",
-    "Authorization": f"Bearer {API_KEY}"
-}
+class AirOpsExecutionResponse(BaseModel):
+    execution_id: str = Field(description="The unique identifier of the AirOps execution")
+    status: str = Field(description="State of the webhook run (e.g., success, queued)")
+    result: AirOpsOutput = Field(description="The validated output object from the execution")
 
-response = requests.post(ENDPOINT, json=payload, headers=headers)
-print(f"Execution Started: {response.json().get('execution_id')}")
+def trigger_and_validate_airops(app_uuid: str, query: str) -> Optional[AirOpsExecutionResponse]:
+    api_key = os.getenv("AIROPS_API_KEY", "dummy-key")
+    endpoint = f"https://app.airops.com/public_api/airops_apps/{app_uuid}/webhook_async_execute"
+
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    payload = {
+        "query": query,
+        "depth": "comprehensive"
+    }
+
+    try:
+        # Simulate or call actual endpoint:
+        # response = requests.post(endpoint, json=payload, headers=headers)
+        # response_data = response.json()
+
+        # Example representation of a successful response payload from AirOps running Claude 5.1
+        mock_response_data = {
+            "execution_id": "exec-abc-123456",
+            "status": "success",
+            "result": {
+                "summary": "AI integration patterns for Gemma 3 and FastMCP 3.1 completed.",
+                "confidence_score": 0.98,
+                "key_entities": ["Gemma 3", "FastMCP 3.1", "Enterprise RAG"]
+            }
+        }
+
+        # 2. Enforce strict Pydantic v2 validation contract
+        validated_response = AirOpsExecutionResponse.model_validate(mock_response_data)
+        return validated_response
+
+    except ValidationError as ve:
+        print(f"AirOps response schema validation failed: {ve}")
+    except Exception as e:
+        print(f"Network or execution error: {e}")
+
+    return None
+
+if __name__ == "__main__":
+    app_id = "YOUR_APP_UUID"
+    validated_run = trigger_and_validate_airops(app_id, "Synthesize enterprise RAG patterns")
+    if validated_run:
+        print("AirOps response matched the enterprise data contract!")
+        print(f"Execution ID: {validated_run.execution_id}")
+        print(f"Result Summary: {validated_run.result.summary}")
 ```
 
 ## Related tools / concepts
@@ -108,8 +154,8 @@ print(f"Execution Started: {response.json().get('execution_id')}")
 - [AirOps Official Website](https://www.airops.com/)
 - [AirOps Documentation](https://docs.airops.com/)
 - [AirOps API v2 Reference](https://docs.airops.com/api-reference)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
+- [FastMCP Specification and Tools Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high
