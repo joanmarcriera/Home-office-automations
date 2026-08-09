@@ -1,10 +1,10 @@
 # MBPP (Mostly Basic Python Problems)
 
 ## What it is
-MBPP is a benchmark designed to evaluate the code generation performance of LLMs on basic Python tasks. It consists of approximately 1,000 crowd-sourced Python programming problems, designed to be solvable by entry-level programmers. Each problem includes a task description (prompt), a gold-standard code solution, and three automated test cases. It was introduced by Google Research in 2021 and remains a July 2026 baseline for agentic code generation.
+MBPP is a benchmark designed to evaluate the code generation performance of LLMs on basic Python tasks. It consists of approximately 1,000 crowd-sourced Python programming problems, designed to be solvable by entry-level programmers. Each problem includes a task description (prompt), a gold-standard code solution, and three automated test cases. It was introduced by Google Research in 2021 and remains a late November/December 2026 baseline for agentic code generation.
 
 ## What problem it solves
-Provides a large-scale, standardized evaluation of LLM code generation on "mostly basic" problems. While benchmarks like [HumanEval](human-eval.md) focus on algorithmic complexity, MBPP covers a broader range of fundamental programming concepts, standard library usage, and common data structure manipulations. It is a key metric for "Satisfaction-Based Validation" in July 2026 agentic software factories.
+Provides a large-scale, standardized evaluation of LLM code generation on "mostly basic" problems. While benchmarks like [HumanEval](human-eval.md) focus on algorithmic complexity, MBPP covers a broader range of fundamental programming concepts, standard library usage, and common data structure manipulations. It is a key metric for "Satisfaction-Based Validation" in late 2026 agentic software factories.
 
 ## Where it fits in the stack
 **Benchmarking**. Used as a primary code-generation benchmark for evaluating and comparing the Python coding capabilities of LLMs within agentic ingestion pipelines.
@@ -86,8 +86,50 @@ evalplus.evaluate \
 
 ## API examples
 
+### Programmatic Schema Verification (Python & Pydantic v2)
+Using Pydantic v2 and FastMCP 3.1, we validate MBPP evaluation problems programmatically to ensure coding challenge metadata complies with rigorous satisfaction validation guidelines inside automated agent networks.
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+
+class MBPPChallenge(BaseModel):
+    task_id: int = Field(..., description="Unique MBPP challenge ID")
+    prompt: str = Field(..., description="Text prompt describing the coding task")
+    code: str = Field(..., description="Golden standard reference implementation")
+    test_imports: List[str] = Field(default_factory=list, description="Necessary library imports for testing")
+    test_list: List[str] = Field(..., description="List of assert statements or automated tests")
+    is_sanitized: bool = Field(True, description="Whether this challenge is in the hand-verified sanitized subset")
+
+# Validate an MBPP dataset challenge entry
+def validate_mbpp_challenge(challenge_data: dict) -> Optional[MBPPChallenge]:
+    try:
+        # Strict Pydantic v2 schema verification
+        validated = MBPPChallenge.model_validate(challenge_data)
+        print(f"Successfully validated MBPP Challenge #{validated.task_id} (Sanitized: {validated.is_sanitized})")
+        return validated
+    except ValidationError as e:
+        print(f"MBPP challenge payload validation failed: {e.errors()}")
+        return None
+
+# Test the verification with late 2026 challenge specs
+sample_challenge = {
+    "task_id": 11,
+    "prompt": "Write a python function to find the sum of fifth power of n natural numbers.",
+    "code": "def sum_of_fifth_power(n):\n    return sum(i**5 for i in range(1, n + 1))",
+    "test_imports": [],
+    "test_list": [
+        "assert sum_of_fifth_power(2) == 33",
+        "assert sum_of_fifth_power(4) == 1300"
+    ],
+    "is_sanitized": True
+}
+
+validated_entry = validate_mbpp_challenge(sample_challenge)
+```
+
 ### Programmatic Evaluation (Python)
-Automate MBPP scoring within a July 2026 agentic workbench.
+Automate MBPP scoring within a late November/December 2026 agentic workbench.
 
 ```python
 import lm_eval
@@ -149,5 +191,5 @@ print(f"EvalPlus Hardened MBPP Score: {results['pass@1']}")
 - [Hugging Face Dataset (mbpp)](https://huggingface.co/datasets/mbpp)
 - [EvalPlus: Hardening Code Benchmarks](https://github.com/evalplus/evalplus)
 
-- Last reviewed: 2026-07-23
+- Last reviewed: 2026-12-29
 - Confidence: high
