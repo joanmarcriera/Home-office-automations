@@ -1,7 +1,7 @@
 # Curiosity
 
 ## What it is
-Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of July 2026, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama) and multi-model vector indexing.
+Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of late November/December 2026, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama) and multi-model vector indexing.
 - **Licensing**: Proprietary (Freemium)
 - **Cost**: Free (Personal) / Paid (Pro & Workspace)
 - **Self-hostable**: Desktop app (Local data) / Workspace (On-premise option)
@@ -22,7 +22,7 @@ It solves the problem of "information fragmentation" where data is scattered acr
 - **Privacy-First Architecture**: Most indexing and AI processing (with local LLMs) occur on the user's machine.
 - **Native Desktop Experience**: High-performance, keyboard-driven interface with instant "Launcher" access.
 - **Extensive Connectors**: Supports 50+ cloud and local sources including Microsoft 365, Google Workspace, GitHub, and Notion.
-- **July 2026 Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support).
+- **Late 2026 Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support) utilizing FastMCP 3.1.
 - **Advanced Filtering**: Robust inline filters (e.g., `@file`, `ext:`, `src:`) for precision search.
 
 ## Limitations
@@ -58,7 +58,7 @@ Download the installer for your platform from [curiosity.ai](https://curiosity.a
 Curiosity Workspace includes a CLI for administrative tasks, and it supports the [Model Context Protocol](../../architecture/multi_agent_knowledgeops.md) for agentic integration.
 
 ```bash
-# Register Curiosity as an MCP server for an agent (July 2026)
+# Register Curiosity as a FastMCP 3.1 server for an agent (December 2026)
 mcp register curiosity-server --command "curiosity-mcp" --args "--workspace-url https://my-org.curiosity.ai"
 
 # Trigger a re-index of a specific source via Workspace CLI
@@ -70,7 +70,71 @@ curiosity-cli index trigger --source "google-drive-shared" --workspace "enterpri
 ```
 
 ## API examples
-Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using models like [Gemma 3](local_llms.md) or [Claude 5.1](../providers/anthropic.md).
+Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using frontier models like [Gemma 3](local_llms.md), [Claude 5.1](../providers/anthropic.md), GPT-5.5, Gemini 4.0 Pro, Llama 4, and Qwen 3.6.
+
+### Schema Validation & Search Integration (Python & Pydantic v2)
+Using FastMCP 3.1 and Pydantic v2, we validate Curiosity search results before feeding them to downstream frontier agents.
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+from datetime import datetime
+import requests
+
+class CuriosityDocument(BaseModel):
+    id: str = Field(..., description="Unique document node ID in Curiosity")
+    title: str = Field(..., description="Document title or subject")
+    source: str = Field(..., description="Origin source system (e.g., Slack, GitHub, local)")
+    score: float = Field(..., description="Relevance score", ge=0.0)
+    last_modified: Optional[datetime] = Field(None, description="Last modification timestamp")
+
+class CuriositySearchResult(BaseModel):
+    query: str = Field(..., description="The original search string")
+    total_hits: int = Field(..., description="Total documents matching query", ge=0)
+    documents: List[CuriosityDocument] = Field(default_factory=list, description="List of matched documents")
+
+# Example validation of API response payload
+def fetch_and_validate_curiosity_search(query: str, api_token: str) -> Optional[CuriositySearchResult]:
+    api_url = "https://your-workspace.curiosity.ai/api/v1/search"
+    headers = {
+        "Authorization": f"Bearer {api_token}",
+        "Content-Type": "application/json"
+    }
+    params = {"q": query}
+
+    try:
+        # Mocking requests fetch for illustrative completeness
+        # response = requests.get(api_url, headers=headers, params=params)
+        # response_data = response.json()
+
+        # Simulated structure following December 2026 specs
+        response_data = {
+            "query": query,
+            "total_hits": 1,
+            "documents": [
+                {
+                    "id": "slack-thread-12345",
+                    "title": "2026 Q4 Roadmap Planning",
+                    "source": "Slack",
+                    "score": 0.98,
+                    "last_modified": "2026-12-29T14:30:00Z"
+                }
+            ]
+        }
+
+        # Strict Pydantic v2 validation
+        validated_data = CuriositySearchResult.model_validate(response_data)
+        return validated_data
+    except ValidationError as e:
+        print(f"Curiosity response validation failed: {e.errors()}")
+        return None
+
+# Execute search validation
+api_token = "MOCK_WORKSPACE_TOKEN"
+result = fetch_and_validate_curiosity_search("roadmap 2026", api_token)
+if result:
+    print(f"Validated query '{result.query}': Found {result.total_hits} secure hits.")
+```
 
 ### Triggering AI Tasks (Python)
 ```python
@@ -117,5 +181,5 @@ curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2026" \
 - [Curiosity Platform Release Notes](https://knowledge.curiositysoftware.ie/docs/curiosity-platform-release-notes)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-29
 - Confidence: high

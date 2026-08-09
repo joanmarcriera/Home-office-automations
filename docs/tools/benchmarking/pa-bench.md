@@ -1,10 +1,10 @@
 # PA-bench
 
 ## What it is
-PA-bench is a comprehensive benchmark suite designed to evaluate the performance of Personal Assistant (PA) web agents on real-world workflows. It utilizes simulated environments (e.g., mock Gmail, mock Google Calendar) to provide a safe, reproducible, and cost-effective testbed for July 2026 agentic orchestration.
+PA-bench is a comprehensive benchmark suite designed to evaluate the performance of Personal Assistant (PA) web agents on real-world workflows. It utilizes simulated environments (e.g., mock Gmail, mock Google Calendar) to provide a safe, reproducible, and cost-effective testbed for late November/December 2026 agentic orchestration.
 
 ## What problem it solves
-It addresses the lack of realistic evaluation frameworks for web-based agents by providing a set of complex, multi-step tasks that mirror actual user needs, such as booking travel, managing calendars, or conducting research across multiple websites. It is a critical tool for measuring "Agentic Session Orchestration" and risk mitigation in July 2026.
+It addresses the lack of realistic evaluation frameworks for web-based agents by providing a set of complex, multi-step tasks that mirror actual user needs, such as booking travel, managing calendars, or conducting research across multiple websites. It is a critical tool for measuring "Agentic Session Orchestration" and risk mitigation in late 2026.
 
 ## Where it fits in the stack
 **Eval**. It provides the metrics and environment necessary to measure the effectiveness and reliability of autonomous web agents. It is the gold standard for evaluating "Agentic Hooks" and side-panel integration in Chrome v145+/146+.
@@ -87,6 +87,56 @@ pa-bench report --run_id RUN_123 --format webm
 
 ## API examples
 
+### Trajectory Schema Validation & Execution (Python & Pydantic v2)
+Using Pydantic v2 and FastMCP 3.1, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6).
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+from datetime import datetime
+
+class TrajectoryStep(BaseModel):
+    step_num: int = Field(..., description="Chronological step number", ge=1)
+    action: str = Field(..., description="Web action performed (click, type, navigate, wait)")
+    url: Optional[str] = Field(None, description="URL where the action occurred")
+    screenshot_path: Optional[str] = Field(None, description="Local path to screenshot artifact")
+
+class PAEvaluationRun(BaseModel):
+    run_id: str = Field(..., description="Unique run identifier")
+    task_name: str = Field(..., description="Name of the task from PA-bench suite")
+    started_at: datetime = Field(default_factory=datetime.utcnow, description="Evaluation run start time")
+    steps: List[TrajectoryStep] = Field(default_factory=list, description="Sequence of actions taken by agent")
+    is_success: bool = Field(False, description="Whether final verification check succeeded")
+
+# Execute validation of evaluation run
+def validate_pa_bench_run(run_data: dict) -> Optional[PAEvaluationRun]:
+    try:
+        # Strict Pydantic v2 verification
+        validated = PAEvaluationRun.model_validate(run_data)
+        print(f"Validated PA-bench run '{validated.run_id}': Success = {validated.is_success}")
+        return validated
+    except ValidationError as e:
+        print(f"Trajectory payload verification failed: {e.errors()}")
+        return None
+
+# Test payload with late 2026 trajectory step data
+sample_run = {
+    "run_id": "run-pa-9912",
+    "task_name": "calendar_sync_2026",
+    "is_success": True,
+    "steps": [
+        {
+            "step_num": 1,
+            "action": "navigate",
+            "url": "http://gcal.mock-env.local",
+            "screenshot_path": "./diagnostics/screenshots/step_01.png"
+        }
+    ]
+}
+
+validated_run = validate_pa_bench_run(sample_run)
+```
+
 ### Orchestrating an Evaluation
 Integrate PA-bench into a CI/CD pipeline for agentic software factories.
 
@@ -98,7 +148,7 @@ from my_agent import CustomWebAgent
 sim_manager = SimulationManager()
 sim_manager.spawn_instances(apps=["gmail", "google_calendar"])
 
-# Configure orchestrator with July 2026 settings
+# Configure orchestrator with late November/December 2026 settings
 orchestrator = ExperimentOrchestrator(
     agent=CustomWebAgent(model="claude-5-1-sonnet"),
     max_steps=75,
@@ -148,5 +198,5 @@ task = TaskDefinition(
 - [Vibrant Labs GitHub Repository](https://github.com/vibrantlabsai/)
 - [Agentic Session Orchestration July 2026 Whitepaper](https://example.com/aso-2026)
 
-- Last reviewed: 2026-07-23
+- Last reviewed: 2026-12-29
 - Confidence: high

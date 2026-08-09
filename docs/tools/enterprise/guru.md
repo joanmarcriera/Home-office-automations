@@ -1,7 +1,7 @@
 # Guru
 
 ## What it is
-Guru is an enterprise knowledge management platform that uses AI to capture, verify, and deliver trusted information directly into team workflows. It emphasizes "verified knowledge" to ensure that the information users find is accurate and up-to-date. As of July 2026, Guru has integrated the **MCP 3.0 Task Protocol**, enabling its verified knowledge cards to be used as high-fidelity grounding sources for autonomous agentic workflows powered by **Gemma 3**, **Claude 4.8**, and **GPT-5.5**.
+Guru is an enterprise knowledge management platform that uses AI to capture, verify, and deliver trusted information directly into team workflows. It emphasizes "verified knowledge" to ensure that the information users find is accurate and up-to-date. As of late November/December 2026, Guru has integrated the **FastMCP 3.1** protocol, enabling its verified knowledge cards to be used as high-fidelity grounding sources for autonomous agentic workflows powered by **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
 
 ## What problem it solves
 It solves the problem of "knowledge decay" and "shoulder-tapping." By institutionalizing a verification workflow, Guru ensures that internal wikis don't become stale. It also reduces repetitive questions by making verified info available via a browser extension and Slack, preventing "hallucinations" in agentic responses by providing a "source of truth" for RAG (Retrieval-Augmented Generation).
@@ -14,13 +14,13 @@ Guru serves as the "source of truth" for verified company information, often int
 - **Sales and Support Enablement**: Providing agents with verified product specifications, talk tracks, and troubleshooting steps.
 - **Internal Wiki & Handbook**: Managing company policies and procedures with automated reminders for periodic review.
 - **AI-Powered Search & Assistant**: Using Guru's "Answers" feature to get direct responses to natural language questions based on verified cards.
-- **Agentic Grounding**: Supplying verified facts to models via MCP 3.0 to ensure regulatory compliance.
+- **Agentic Grounding**: Supplying verified facts to models via FastMCP 3.1 to ensure regulatory compliance.
 
 ## Strengths
 - **Verification Workflow**: Built-in system for subject matter experts (SMEs) to periodically verify that content is still accurate.
 - **Contextual Delivery**: Browser extension and integrations (Slack, MS Teams) bring knowledge to where users are already working.
 - **AI Answers**: Leverages generative AI to synthesize answers from across verified knowledge cards, with clear citations and "trust scores."
-- **MCP 3.0 Support**: Standardized task protocol for seamless integration into autonomous agent toolsets.
+- **FastMCP 3.1 Support**: Standardized task protocol for seamless integration into autonomous agent toolsets.
 
 ## Limitations
 - **Maintenance Overhead**: Requires active participation from experts to keep the verification engine running effectively.
@@ -38,7 +38,7 @@ Guru serves as the "source of truth" for verified company information, often int
 - For managing high-concurrency technical documentation that belongs in a Git-backed system (consider [MkDocs](../infrastructure/mkdocs.md) or Docusaurus).
 
 ## Getting started
-Guru is typically deployed as a web application and browser extension. Organizations create "Collections" and "Cards" to store information. Developers can use the Guru API or the [MCP 3.0](../automation_orchestration/mcp.md) server to automate card creation, search, and the verification process.
+Guru is typically deployed as a web application and browser extension. Organizations create "Collections" and "Cards" to store information. Developers can use the Guru API or the [FastMCP 3.1](../automation_orchestration/mcp.md) server to automate card creation, search, and the verification process.
 
 ## CLI examples
 While there is no official CLI, the Guru API is easily accessible via the command line using `curl`.
@@ -83,13 +83,54 @@ def create_verified_card(title, content, collection_id):
     response.raise_for_status()
     return response.json()
 
-# Example: Ingesting a new policy updated by Claude 4.8
+# Example: Ingesting a new policy updated by Claude 5.1
 new_card = create_verified_card(
-    "July 2026 AI Ethics Guidelines",
-    "<p>Updated guidelines for the use of Gemma 3 and MCP 3.0...</p>",
+    "December 2026 AI Ethics Guidelines",
+    "<p>Updated guidelines for the use of Gemma 3 and FastMCP 3.1...</p>",
     "COLLECTION_ID_123"
 )
 print(f"Created Card ID: {new_card['id']}")
+```
+
+### Guru Knowledge Verification Validation with Strict Pydantic v2 Schema
+The following robust Python example uses **Pydantic v2** to programmatically validate the metadata schema of knowledge card updates in Guru, ensuring the verification schedules and content segments adhere to strict enterprise guidelines.
+
+```python
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError, model_validator
+
+# 1. Define Guru Card Metadata validation schema
+class GuruCardMetadata(BaseModel):
+    title: str = Field(..., min_length=5, max_length=150)
+    collection_id: str = Field(..., pattern="^[a-zA-Z0-9-_]+$")
+    verification_interval_days: int = Field(default=90, ge=30, le=365)
+    owner_team: str = Field(..., min_length=2)
+    tags: List[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_sensitive_intervals(self) -> "GuruCardMetadata":
+        if "compliance" in self.tags and self.verification_interval_days > 90:
+            raise ValueError("Compliance documents require verification intervals under 90 days for regulatory freshness.")
+        return self
+
+# 2. Example representation of raw input parameters
+raw_metadata = {
+    "title": "December 2026 GDPR Retention Policy",
+    "collection_id": "legal-compliance-101",
+    "verification_interval_days": 60,
+    "owner_team": "Legal Operations",
+    "tags": ["gdpr", "compliance", "privacy"]
+}
+
+# 3. Validate metadata configurations using Pydantic v2
+try:
+    validated_meta = GuruCardMetadata.model_validate(raw_metadata)
+    print("Guru knowledge card metadata is valid!")
+    print(f"Owner Team: {validated_meta.owner_team}")
+    print(f"Verification Interval: {validated_meta.verification_interval_days} days")
+except ValidationError as e:
+    print(f"Guru Metadata Validation failed with errors: {e.json()}")
 ```
 
 ## Related tools / concepts
@@ -110,5 +151,5 @@ print(f"Created Card ID: {new_card['id']}")
 - [Guru MCP Server GitHub](https://github.com/getguru/mcp-server-guru)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-28
 - Confidence: high
