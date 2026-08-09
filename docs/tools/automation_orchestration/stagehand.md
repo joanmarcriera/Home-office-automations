@@ -1,13 +1,13 @@
 # Stagehand
 
 ## What it is
-Stagehand is a specialized library for "browser-use" automation, designed to make web interactions for AI agents reliable, resilient, and easy to script. As of July 2026, it is maintained by Browserbase and serves as a high-level abstraction over Playwright, specifically optimized for how frontier models like **Claude 4.8 Opus**, **GPT-5.5**, and **Gemma 3** perceive and interact with web pages using both text and vision.
+Stagehand is a specialized library for "browser-use" automation, designed to make web interactions for AI agents reliable, resilient, and easy to script. As of late 2026, it is maintained by Browserbase and serves as a high-level abstraction over Playwright, specifically optimized for how frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** perceive and interact with web pages using both text and vision.
 
 ## What problem it solves
 Traditional web automation (vanilla Playwright, Selenium) is notoriously brittle, often breaking when CSS selectors or DOM structures change. Stagehand solves this by allowing agents to interact with elements based on semantic meaning and visual layout. It leverages LLMs to "heal" broken paths and interpret the UI dynamically, significantly reducing the maintenance overhead of web-based agentic workflows.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Web Automation. It sits between the LLM orchestration layer (like LangGraph or Agency Swarm) and the browser execution engine (Playwright/Browserbase), providing the "semantic bridge" for reliable navigation. In July 2026, it integrates with FastMCP 3.0 for ultra-low latency browser tool hosting.
+**Category**: Automation & Orchestration / Web Automation. It sits between the LLM orchestration layer (like LangGraph or Agency Swarm) and the browser execution engine (Playwright/Browserbase), providing the "semantic bridge" for reliable navigation. In late 2026, it integrates with FastMCP 3.1 for ultra-low latency browser tool hosting.
 
 ## Typical use cases
 - **Agentic Web Browsing**: Enabling an agent to perform multi-step tasks on arbitrary websites (e.g., "Find the cheapest direct flight to Tokyo in October").
@@ -30,7 +30,7 @@ Traditional web automation (vanilla Playwright, Selenium) is notoriously brittle
 ## When to use it
 - When automating websites with frequently changing UIs or obfuscated DOMs.
 - When building autonomous agents that need to navigate the web like a human.
-- When you want to combine the reliability of Playwright with the intelligence of Claude 4.8 or GPT-5.5.
+- When you want to combine the reliability of Playwright with the intelligence of Claude 5.1 or GPT-5.5.
 
 ## When not to use it
 - For high-speed, high-volume scraping of static sites where direct API or simple CSS selectors suffice.
@@ -74,6 +74,8 @@ npx stagehand --version
 ```
 
 ## API examples
+
+### TypeScript API
 ```typescript
 import { Stagehand } from "@browserbase/stagehand";
 import { z } from "zod";
@@ -96,6 +98,45 @@ const elements = await stagehand.page.observe("The 'Add to Cart' button for the 
 await stagehand.close();
 ```
 
+### Python: Validating Extraction Results (Pydantic v2)
+In heterogeneous architectures, Stagehand runs in a Node.js sidecar or MCP server, and outputs extracted JSON. The primary Python orchestrator must validate this structured payload using Pydantic v2 to ensure type-safe ingestion.
+
+```python
+import json
+from typing import List
+from pydantic import BaseModel, Field, ValidationError
+
+class StagehandProductItem(BaseModel):
+    name: str = Field(..., min_length=1, description="Extracted product name")
+    price: str = Field(..., description="Extracted product price string (e.g. '$19.99')")
+
+class StagehandExtractionPayload(BaseModel):
+    items: List[StagehandProductItem] = Field(..., description="List of extracted products")
+
+def validate_extraction_response(raw_json: str) -> StagehandExtractionPayload:
+    """
+    Validates the raw output returned from Stagehand's page.extract endpoint.
+    """
+    try:
+        parsed = json.loads(raw_json)
+        # Handle wrap if Stagehand returned an array directly
+        if isinstance(parsed, list):
+            parsed = {"items": parsed}
+        return StagehandExtractionPayload.model_validate(parsed)
+    except (ValidationError, json.JSONDecodeError) as e:
+        print(f"Extraction parsing failed contract check: {e}")
+        raise
+
+if __name__ == "__main__":
+    extracted_output = '[{"name": "Agentic Orchestrator Pro", "price": "$199/mo"}, {"name": "FastMCP Gateway", "price": "Free"}]'
+    try:
+        validated_data = validate_extraction_response(extracted_output)
+        for product in validated_data.items:
+            print(f"Verified Item: {product.name} at {product.price}")
+    except ValidationError:
+        pass
+```
+
 ## Related tools / concepts
 - [Playwright](../development_ops/playwright.md) — The underlying browser engine.
 - [Browser Use](browser-use.md) — Python-based alternative for agentic browsing.
@@ -105,7 +146,7 @@ await stagehand.close();
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for web agents.
 - [Multi-On](../agents/multion.md) — Managed agentic browsing service.
 - [Tavily](../providers/tavily.md) — Agentic search engine for data gathering.
-- [Model Context Protocol](mcp.md) — For exposing browser capabilities to agents.
+- [Model Context Protocol](mcp.md) (FastMCP 3.1) — Standard for exposing browser capabilities to agents.
 
 ## Sources / references
 - [Stagehand GitHub Repository](https://github.com/browserbase/stagehand)
@@ -113,5 +154,5 @@ await stagehand.close();
 - [Stagehand Documentation](https://docs.browserbase.com/stagehand)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high

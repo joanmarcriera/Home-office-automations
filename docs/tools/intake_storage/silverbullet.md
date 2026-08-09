@@ -1,25 +1,25 @@
 # SilverBullet
 
 ## What it is
-SilverBullet is an open-source, extensible, Markdown-based personal knowledge management system that runs in the browser. It features a unique "Space Script" capability that allows the entire environment to be programmed and queried using JavaScript and a custom query language. As of July 2026, it supports **MCP 3.0 Task Protocol**, allowing it to serve as a programmable backend for agentic workflows.
+SilverBullet is an open-source, extensible, Markdown-based personal knowledge management system that runs in the browser. It features a unique "Space Script" capability that allows the entire environment to be programmed and queried using JavaScript and a custom query language. As of late 2026, it supports the **MCP 3.1 / FastMCP 3.1 Task Protocol**, allowing it to serve as a highly programmable, local-first backend for agentic workflows.
 
 ## What problem it solves
 It combines the simplicity of Markdown with the power of a programmable database. It solves the limitation of static Markdown notes by allowing for live queries, automated indexing, and custom templates that can transform a folder of text files into a functional application (e.g., a task manager, a project tracker, or a library catalog).
 
 ## Where it fits in the stack
-**Category**: Tool / Knowledge Management. It is a "hacker-friendly" alternative to Obsidian or Logseq, specifically designed for users who want to extend their knowledge base using code and queries directly within their notes. In July 2026, it often serves as a local-first source for **Claude 5.1** and **Gemma 3** via its integrated MCP server.
+**Category**: Tool / Knowledge Management. It is a "hacker-friendly" alternative to Obsidian or Logseq, specifically designed for users who want to extend their knowledge base using code and queries directly within their notes. In late 2026, it often serves as a local-first source for advanced reasoning models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** via its integrated MCP server.
 
 ## Typical use cases
 - **Programmable Wiki**: Building an internal knowledge base with automated indexes.
 - **Task Management**: Creating custom task dashboards using live queries.
-- **Agentic Knowledge Retrieval**: Exposing notes to AI agents via MCP 3.0 for autonomous research.
+- **Agentic Knowledge Retrieval**: Exposing notes to AI agents via FastMCP 3.1 for autonomous research.
 - **Data Scraping**: Using Space Scripts to pull information from external APIs into notes.
 - **Personal CRM**: Managing contacts and interactions with structured metadata and automated summaries.
 
 ## Strengths
 - **Extensibility**: Entirely programmable via Space Scripts (JavaScript).
 - **Live Queries**: Built-in SQL-like query language for Markdown blocks.
-- **MCP 3.0 Support**: Native support for the Model Context Protocol in July 2026.
+- **FastMCP 3.1 Support**: Native support for the Model Context Protocol in late 2026.
 - **Web-native**: Runs in the browser but can sync to local storage or a remote server.
 - **PWA support**: Excellent mobile experience via Progressive Web App technology.
 
@@ -76,7 +76,7 @@ silverbullet --port 8080 ./my_space
 # Run in "read-only" mode for public sharing
 silverbullet --readonly ./my_space
 
-# Start the integrated MCP server (v0.8.0+ / July 2026)
+# Start the integrated FastMCP server (v0.9.0+ / late 2026)
 silverbullet mcp ./my_space
 ```
 
@@ -112,6 +112,41 @@ SilverBullet exposes a REST API for space manipulation (requires authentication 
 curl http://localhost:3030/api/pages/Index/content
 ```
 
+### Python: Space Script and Query Validation (Pydantic v2)
+When writing local Python daemons to synchronize, scrape, or extract structured metadata from a SilverBullet space, validating queries prevents malformed objects from polluting markdown databases.
+
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class SilverBulletPageSchema(BaseModel):
+    name: str = Field(..., min_length=1, description="Normalized page title")
+    last_modified: int = Field(..., alias="lastModified", description="Epoch timestamp of last modification")
+    perm: str = Field("rw", pattern="^(ro|rw)$", description="Read-only or read-write permissions")
+    tags: List[str] = Field(default_factory=list, description="Associated space page tags")
+
+def validate_space_page_payload(json_data: str) -> SilverBulletPageSchema:
+    """
+    Validates SilverBullet page metadata fetched via HTTP API using strict Pydantic v2 validation.
+    """
+    try:
+        # Load and parse via Pydantic v2
+        data = json.loads(json_data)
+        return SilverBulletPageSchema.model_validate(data)
+    except (ValidationError, json.JSONDecodeError) as e:
+        print(f"Data verification failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    raw_payload = '{"name": "Index", "lastModified": 1797897600, "perm": "rw", "tags": ["inbox", "work"]}'
+    try:
+        validated_page = validate_space_page_payload(raw_payload)
+        print(f"Validated Page: {validated_page.name} (Tags: {validated_page.tags})")
+    except ValidationError:
+        pass
+```
+
 ## Related tools / concepts
 - [Obsidian](../ai_knowledge/obsidian.md) (Popular Markdown alternative)
 - [Logseq](../ai_knowledge/logseq.md) (Block-based alternative)
@@ -132,5 +167,5 @@ curl http://localhost:3030/api/pages/Index/content
 - [SilverBullet Documentation](https://silverbullet.md/Getting%20Started)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high

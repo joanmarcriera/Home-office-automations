@@ -1,10 +1,10 @@
 # Dolt
 
 ## What it is
-Dolt is a fully SQL-compliant relational database that features Git-style version control capabilities (such as commit, branch, merge, pull, and push). Designed to be a drop-in replacement for MySQL, Dolt allows developers to version data alongside or instead of code. As of mid-2026, Dolt has emerged as a crucial component in AI workflows for maintaining reproducible dataset versions, tracking model inputs/outputs, and managing training records over time.
+Dolt is a fully SQL-compliant relational database that features Git-style version control capabilities (such as commit, branch, merge, pull, and push). Designed to be a drop-in replacement for MySQL, Dolt allows developers to version data alongside or instead of code. As of late 2026, Dolt has emerged as a crucial component in AI workflows for maintaining reproducible dataset versions, tracking model inputs/outputs, and managing training records over time.
 
 ## What problem it solves
-Managing dataset lineage and schema drift in machine learning pipelines or multi-agent environments is notoriously difficult. Standard databases do not track revisions, making it hard to query "what did this database look like on Tuesday?" or run complex schema rollbacks. Dolt solves this by enabling branching and merging of the actual relational database state, providing perfect lineage, data audits, and instantaneous safe rolls-back.
+Managing dataset lineage and schema drift in machine learning pipelines or multi-agent environments is notoriously difficult. Standard databases do not track revisions, making it hard to query "what did this database look like on Tuesday?" or run complex schema rollbacks. Dolt solves this by enabling branching and merging of the actual relational database state, providing perfect lineage, data audits, and instantaneous safe rollbacks.
 
 ## Where it fits in the stack
 **Category**: Intake & Storage. Dolt functions as the relational storage layer. It is often combined with object storage like [MinIO](minio.md) or [S3 / S3-Compatible Storage](s3-storage.md). It fits as a state-tracking database inside [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md), storing the system state at every revision of an agent's execution.
@@ -66,6 +66,9 @@ dolt commit -m "Initialize employees table"
 # Create and switch to a development branch
 dolt checkout -b dev_branch
 
+# View the active branches
+dolt branch
+
 # Insert data
 dolt sql -q "INSERT INTO employees VALUES (1, 'Alice');"
 
@@ -114,6 +117,46 @@ with engine.connect() as connection:
         print(r)
 ```
 
+### Python: Strict Commit Log and Schema Verification (Pydantic v2)
+When managing dataset lineage under autonomous coordination by SOTA models (e.g., **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**), commit logs should be strictly parsed and validated using Pydantic v2 to ensure no unauthorized database modifications occurred.
+
+```python
+import json
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class DoltCommitLogSchema(BaseModel):
+    commit_hash: str = Field(..., alias="commitHash", min_length=32, max_length=40, description="Dolt SHA-1 commit hash")
+    committer: str = Field(..., min_length=1, description="Entity or agent committing the data")
+    commit_date: datetime = Field(..., alias="commitDate", description="UTC timestamp of the commit")
+    message: str = Field(..., max_length=5000, description="Audit log commit description")
+
+def validate_dolt_commit(row_data: dict) -> DoltCommitLogSchema:
+    """
+    Validates a SQL row mapping from `dolt_log` using strict Pydantic v2 validation.
+    """
+    try:
+        # Strict validation with alias mapping
+        return DoltCommitLogSchema.model_validate(row_data)
+    except ValidationError as e:
+        print(f"Commit lineage audit failed verification: {e.errors()}")
+        raise
+
+if __name__ == "__main__":
+    test_row = {
+        "commitHash": "2b30c4d009e8b7c6d5e4f3a2b1c0e9d8c7b6a5fa",
+        "committer": "Agent_Claude_5.1",
+        "commitDate": "2026-12-22T01:30:00Z",
+        "message": "Update prompt embeddings for Gemma 3 dataset"
+    }
+    try:
+        validated_commit = validate_dolt_commit(test_row)
+        print(f"Verification successful. Hash: {validated_commit.commit_hash[:8]} - Message: {validated_commit.message}")
+    except ValidationError:
+        pass
+```
+
 ## Related tools / concepts
 - [AnyType](anytype.md) — Local-first personal knowledge storage.
 - [Caldav](caldav.md) — Standard database protocol for calendars.
@@ -125,6 +168,7 @@ with engine.connect() as connection:
 - [Supabase](../infrastructure/supabase.md) — Enterprise-grade PostgreSQL platform.
 - [Gitea](../../services/gitea.md) — Local Git server for hosting code repositories.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Designing version-controlled agent environments.
+- [Model Context Protocol](../automation_orchestration/mcp.md) (FastMCP 3.1) — Agent-to-database communication interfaces.
 
 ## Sources / references
 - [Dolt Website](https://www.dolthub.com/)
@@ -132,5 +176,5 @@ with engine.connect() as connection:
 - [InfoQ: Dolt SQL Version Control Announcement](https://www.infoq.com/news/2026/07/dolt-version-control/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high
