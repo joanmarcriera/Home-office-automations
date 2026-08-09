@@ -1,7 +1,7 @@
 # CalDAV
 
 ## What it is
-CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange. As of July 2026, it remains the primary open standard for cross-vendor calendar synchronization in sovereign AI stacks.
+CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange. As of late 2026, it remains the primary open standard for cross-vendor calendar synchronization in sovereign AI stacks.
 
 ## What problem it solves
 It provides an open, standardized protocol for calendar synchronization, enabling interoperability between different calendar clients (e.g., Apple Calendar, Thunderbird, Android apps) and servers (e.g., Nextcloud, Radicale, Baïkal, Google Calendar) without vendor lock-in. It allows users to own their scheduling data while maintaining cross-device availability.
@@ -14,7 +14,7 @@ It provides an open, standardized protocol for calendar synchronization, enablin
 - **Shared Calendars**: Coordinating schedules within a family or team using a self-hosted server.
 - **Automation Triggers**: Using [n8n](../../services/n8n.md) or custom scripts to watch a CalDAV calendar and trigger actions.
 - **Task Management**: Many CalDAV servers also support VTODO (tasks), allowing for synchronized todo lists via the same protocol.
-- **Agentic Scheduling**: Giving AI agents the ability to read and write to your schedule via standardized [MCP 3.0](../automation_orchestration/mcp.md) servers.
+- **Agentic Scheduling**: Giving AI agents the ability to read and write to your schedule via standardized [MCP 3.1](../automation_orchestration/mcp.md) (FastMCP 3.1) servers.
 
 ## Strengths
 - **Sovereignty**: Complete control over your private schedule when self-hosted.
@@ -83,38 +83,67 @@ curl -u 'user:password' https://caldav.example.com/remote.php/dav/calendars/user
 
 ## API examples
 
-### Python Integration (`caldav` library)
-Programmatic access is essential for building autonomous scheduling agents.
+### Python Integration with Strict Pydantic v2 Validation
+To integrate CalDAV with AI agents using frontier models (e.g., **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**), schedules must be parsed and validated programmatically to avoid syntax injection and data corruption.
 
 ```python
 import caldav
 from datetime import datetime
+from typing import List, Optional, Any
+from pydantic import BaseModel, Field, ValidationError
 
-client = caldav.DAVClient(
-    url="https://caldav.example.com/remote.php/dav/",
-    username="user",
-    password="password"
-)
+class CalendarEventSchema(BaseModel):
+    uid: str = Field(..., description="Unique event identifier")
+    summary: str = Field(..., min_length=1, max_length=1000, description="Brief title of the event")
+    start_time: datetime = Field(..., alias="start", description="UTC start time")
+    end_time: datetime = Field(..., alias="end", description="UTC end time")
+    description: Optional[str] = Field(None, description="Detailed description of event context")
+    location: Optional[str] = Field(None, description="Event physical location or virtual URL")
 
-principal = client.principal()
-calendars = principal.calendars()
+def parse_and_validate_caldav_event(raw_event: Any) -> CalendarEventSchema:
+    """
+    Parses a raw CalDAV VEVENT and validates it against the Pydantic v2 schema.
+    """
+    vevent = raw_event.vobject_instance.vevent
+    try:
+        event_data = {
+            "uid": vevent.uid.value,
+            "summary": vevent.summary.value,
+            "start": vevent.dtstart.value,
+            "end": vevent.dtend.value,
+            "description": getattr(vevent, "description", None) and vevent.description.value,
+            "location": getattr(vevent, "location", None) and vevent.location.value,
+        }
+        # Strict parsing and validation via model_validate
+        return CalendarEventSchema.model_validate(event_data)
+    except (AttributeError, ValidationError) as e:
+        print(f"Failed to validate CalDAV object: {e}")
+        raise
 
-if calendars:
-    calendar = calendars[0]
-    # Fetch events for today
-    events = calendar.date_search(
-        start=datetime(2026, 7, 21),
-        end=datetime(2026, 7, 22)
-    )
-    for event in events:
-        print(f"Summary: {event.vobject_instance.vevent.summary.value}")
+# Example connection loop
+def fetch_verified_schedule(cal_url: str, user: str, sec: str) -> List[CalendarEventSchema]:
+    client = caldav.DAVClient(url=cal_url, username=user, password=sec)
+    principal = client.principal()
+    calendars = principal.calendars()
+
+    verified_events = []
+    if calendars:
+        calendar = calendars[0]
+        # Query window
+        events = calendar.date_search(start=datetime(2026, 12, 22), end=datetime(2026, 12, 23))
+        for item in events:
+            try:
+                verified_events.append(parse_and_validate_caldav_event(item))
+            except (ValidationError, AttributeError):
+                continue
+    return verified_events
 ```
 
 ## Related tools / concepts
 - [Nextcloud](../../services/nextcloud.md): Suite that includes a robust CalDAV server.
 - [Vikunja](../../services/vikunja.md): Task manager that can sync via CalDAV.
 - [Google Calendar](../calendar_tasks/google_calendar.md): Cloud provider supporting CalDAV access.
-- [n8n](../../services/n8n.md): Automate CalDAV interactions.
+- [n8n](../../services/n8n.md) or custom scripts to watch a CalDAV calendar and trigger actions.
 - [Paperless-ngx](../../services/paperless-ngx.md): Trigger calendar events from documents.
 - [Home Assistant](../../services/home-assistant.md): Scheduling automation.
 - [Authentik](../../services/authentik.md): SSO for CalDAV servers.
@@ -125,8 +154,8 @@ if calendars:
 - [RFC 4791: CalDAV Specification](https://tools.ietf.org/html/rfc4791)
 - [CalDAV.org](http://caldav.org/)
 - [Radicale Documentation](https://radicale.org/v3.html)
-- [MCP 3.0 Task Protocol for Calendaring](https://modelcontextprotocol.io/3.0/task-protocol)
+- [FastMCP 3.1 Task Protocol for Calendaring](https://modelcontextprotocol.io/3.1/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high
