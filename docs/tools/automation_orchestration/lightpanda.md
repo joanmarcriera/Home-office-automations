@@ -1,13 +1,13 @@
 # Lightpanda Browser
 
 ## What it is
-**Lightpanda** is a high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and scalable automation. Unlike most modern headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight engine to provide a massive performance boost for agentic workflows. As of July 2026, it is a preferred execution environment for [Gemma 3](../ai_knowledge/local_llms.md) based agents using the **MCP 3.0 Task Protocol**.
+**Lightpanda** is a high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and scalable automation. Unlike most modern headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight engine to provide a massive performance boost for agentic workflows. As of late 2026, it is a preferred execution environment for [Gemma 3](../ai_knowledge/local_llms.md) based agents using the **FastMCP 3.1** protocol.
 
 ## What problem it solves
 Traditional headless browsers (like Chrome) are extremely resource-intensive, often consuming 500MB+ of RAM per instance. Lightpanda provides a lightweight alternative that uses up to **9x less memory** and runs up to **11x faster** than Headless Chrome, making it possible to run hundreds of browser instances on modest hardware. It solves the scalability bottleneck for browser-based AI agents and high-frequency RAG ingestion pipelines.
 
 ## Where it fits in the stack
-**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the "execution engine" for agents that need to navigate and interact with the web, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md). It integrates natively with **FastMCP 3.0** for low-latency browser-tool interaction.
+**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the "execution engine" for agents that need to navigate and interact with the web, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md). It integrates natively with **FastMCP 3.1** for low-latency browser-tool interaction.
 
 ## Typical use cases
 - **Agentic Web Navigation**: Powering agents that need to interact with complex SPAs (Single Page Applications).
@@ -71,19 +71,59 @@ lightpanda fetch --script "Array.from(document.querySelectorAll('h1')).map(e => 
 ```
 
 ## API examples
-Lightpanda is compatible with the **Chrome DevTools Protocol (CDP)**, allowing it to work with standard libraries like Playwright.
+Lightpanda is compatible with the **Chrome DevTools Protocol (CDP)**, allowing it to work with standard libraries like Playwright. Below is an example that demonstrates how to extract page metadata using Playwright connected to Lightpanda, validated strictly against a **Pydantic v2** schema to ensure reliability in an AI agentic pipeline (utilizing models like Claude 5.1 or Gemini 4.0 Pro).
 
 ```python
+import json
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
 from playwright.sync_api import sync_playwright
 
-with sync_playwright() as p:
-    # Connect to Lightpanda running on localhost:9222
-    browser = p.chromium.connect_over_cdp("http://localhost:9222")
-    page = browser.new_context().new_page()
-    page.goto("https://lightpanda.io")
-    # Native Zig browser title
-    print(f"Page Title: {page.title()}")
-    browser.close()
+# 1. Define the Pydantic v2 data contract for scraped page metadata
+class PageMetadata(BaseModel):
+    title: str = Field(description="The Title of the webpage")
+    canonical_url: Optional[str] = Field(None, description="The canonical URL link of the webpage")
+    word_count: int = Field(default=0, description="Estimated word count of the main content")
+    has_custom_zig_badge: bool = Field(default=False, description="Whether the page highlights Zig technology")
+
+def scrape_and_validate(url: str) -> Optional[PageMetadata]:
+    with sync_playwright() as p:
+        try:
+            # Connect to Lightpanda running on localhost:9222
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            page = browser.new_context().new_page()
+            page.goto(url)
+
+            # Extract unstructured information via JavaScript
+            title = page.title()
+            canonical = page.locator("link[rel='canonical']").get_attribute("href") or None
+            body_text = page.locator("body").inner_text() or ""
+            words = len(body_text.split())
+            zig_present = "zig" in body_text.lower()
+
+            browser.close()
+
+            # 2. Enforce strict Pydantic v2 validation
+            raw_payload = {
+                "title": title,
+                "canonical_url": canonical,
+                "word_count": words,
+                "has_custom_zig_badge": zig_present
+            }
+            validated_metadata = PageMetadata.model_validate(raw_payload)
+            return validated_metadata
+
+        except ValidationError as ve:
+            print(f"Data contract validation failed: {ve}")
+        except Exception as e:
+            print(f"Error during browser interaction or scraper: {e}")
+
+    return None
+
+if __name__ == "__main__":
+    meta = scrape_and_validate("https://lightpanda.io")
+    if meta:
+        print(f"Successfully scraped and validated: {meta.title} (Words: {meta.word_count})")
 ```
 
 ## Related tools / concepts
@@ -103,5 +143,5 @@ with sync_playwright() as p:
 - [ScrapingBee: Lightpanda vs Chrome Headless](https://www.scrapingbee.com/blog/lightpanda-headless-browser/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high

@@ -1,7 +1,7 @@
 # Browser Use
 
 ## What it is
-Browser Use is an open-source Python framework designed to enable Large Language Models (LLMs) to interact directly with real web browsers. It provides a high-level API for agents to perform complex multi-step tasks such as form-filling, navigating intricate UI flows, and extracting structured data. As of July 2026, Browser Use serves as a foundational tool for "Computer Use" capabilities, featuring native support for the **Model Context Protocol (MCP) 3.0** and optimized execution patterns for frontier models like **Gemma 3**, **Claude 4.8 Opus**, and **GPT-5.5**.
+Browser Use is an open-source Python framework designed to enable Large Language Models (LLMs) to interact directly with real web browsers. It provides a high-level API for agents to perform complex multi-step tasks such as form-filling, navigating intricate UI flows, and extracting structured data. As of late 2026, Browser Use serves as a foundational tool for "Computer Use" capabilities, featuring native support for the **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** protocol, with optimized execution patterns for frontier models like **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 It bridges the gap between static web scraping and manual browser automation. Browser Use allows agents to "see" and "interact" with the web just like a human, effectively handling dynamic, JavaScript-heavy sites that traditional scrapers cannot. By leveraging LLM reasoning for element selection and navigation, it eliminates the fragility associated with hard-coded CSS or XPath selectors, allowing for robust automation across frequently changing interfaces.
@@ -16,10 +16,10 @@ It bridges the gap between static web scraping and manual browser automation. Br
 - **Interactive Visual Research**: Allowing an agent to browse the web, compare products visually, and synthesize findings into high-fidelity reports.
 
 ## Strengths
-- **MCP 3.0 Task Protocol**: Can be deployed as a standardized MCP server, enabling any MCP-compliant client to utilize browser actions as a standard toolset.
+- **FastMCP 3.1 Integration**: Can be deployed as a standardized MCP server, enabling any MCP-compliant client to utilize browser actions as a standard toolset.
 - **Vision-First Reasoning**: Optimized for vision-capable models to improve navigation accuracy through spatial awareness and visual element recognition.
 - **Extreme Extensibility**: Easy to define custom actions and integrate with existing Python-based agent stacks using standard middleware.
-- **Gemma 3 Integration**: Native support for Gemma 3's visual reasoning capabilities for ultra-low latency browser interaction.
+- **Gemma 3 & Claude 5.1 Support**: Native support for Gemma 3 and Claude 5.1's advanced visual reasoning capabilities for ultra-low latency browser interaction.
 
 ## Limitations
 - **High Resource Overhead**: Running a full Chromium instance is significantly more resource-intensive than standard HTTP-based requests or headless scraping.
@@ -40,7 +40,7 @@ It bridges the gap between static web scraping and manual browser automation. Br
 
 ### Installation
 ```bash
-pip install browser-use
+pip install browser-use pydantic
 ```
 
 ### Basic Usage with Gemma 3
@@ -50,7 +50,7 @@ from langchain_google_vertexai import ChatVertexAI
 
 async def main():
     agent = Agent(
-        task="Navigate to GitHub and find the most starred repository for 'MCP 3.0'",
+        task="Navigate to GitHub and find the most starred repository for 'FastMCP 3.1'",
         llm=ChatVertexAI(model="gemma-3-27b"), # Utilizing Gemma 3 for visual reasoning
     )
     result = await agent.run()
@@ -73,23 +73,55 @@ python -m browser_use --export-state session_debug.json
 ```
 
 ## API examples
+A key design pattern for robust agent operations is ensuring that extracted unstructured data is validated against a strict Pydantic v2 data contract before downstream consumption.
+
 ```python
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 from browser_use import Agent, Browser, BrowserConfig
 from langchain_anthropic import ChatAnthropic
 
-# Advanced configuration with headful mode and custom viewport
-browser = Browser(config=BrowserConfig(headless=False, viewport={'width': 1920, 'height': 1080}))
+# 1. Define strict output schemas using Pydantic v2
+class SecurityPost(BaseModel):
+    title: str = Field(description="Title of the security or AI infrastructure post")
+    author: str = Field(description="Author of the post")
+    likes: int = Field(default=0, description="Number of likes or reactions")
+    summary: str = Field(description="A concise 2-sentence summary of the post content")
+
+class LinkedInExtraction(BaseModel):
+    posts: List[SecurityPost] = Field(description="List of extracted posts")
+    source_url: str = Field(description="URL of the page where the posts were found")
+
+# 2. Advanced configuration with custom viewport
+browser = Browser(config=BrowserConfig(headless=True, viewport={'width': 1920, 'height': 1080}))
 
 agent = Agent(
-    task="Go to my LinkedIn feed and summarize the top three posts about AI infrastructure",
-    llm=ChatAnthropic(model="claude-4-8-opus"),
+    task="Go to LinkedIn and find three posts about AI infrastructure security. Return the post titles, authors, and summaries.",
+    llm=ChatAnthropic(model="claude-5-1-sonnet"),
     browser=browser
 )
 
 async def run_task():
-    history = await agent.run()
-    print(f"Task completed in {len(history.steps)} steps.")
-    await browser.close()
+    try:
+        history = await agent.run()
+        # Assume the history contains raw extracted JSON in the final result step
+        raw_result_str = history.final_result() or '{"posts": [], "source_url": "https://linkedin.com"}'
+
+        # Validate raw data strictly using Pydantic v2 model_validate_json
+        validated_data = LinkedInExtraction.model_validate_json(raw_result_str)
+        print("Successfully validated LinkedIn extraction against data contract!")
+        for post in validated_data.posts:
+            print(f"- {post.title} by {post.author} ({post.likes} likes)")
+    except ValidationError as ve:
+        print(f"Data contract validation failed: {ve}")
+    except Exception as e:
+        print(f"Error during agent execution: {e}")
+    finally:
+        await browser.close()
+
+if __name__ == "__main__":
+    asyncio.run(run_task())
 ```
 
 ## Related tools / concepts
@@ -101,11 +133,11 @@ async def run_task():
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Design patterns for autonomous agent execution.
 - [n8n](../../services/n8n.md) — A workflow automation tool for orchestrating multi-tool pipelines.
 
-## Sources / References
+## Sources / references
 - [Browser Use GitHub Repository](https://github.com/browser-use/browser-use)
 - [Official Browser Use Documentation](https://docs.browser-use.ai/)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/)
+- [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high

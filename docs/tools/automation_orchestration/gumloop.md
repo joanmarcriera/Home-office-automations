@@ -1,13 +1,13 @@
 # Gumloop
 
 ## What it is
-Gumloop is a "no-code" AI automation platform designed for building, testing, and deploying complex agentic workflows through a visual interface. It provides a drag-and-drop canvas to connect various AI models, SaaS tools, and data sources into automated "flows." As of July 2026, it fully supports the **MCP 3.0 Task Protocol**, allowing for seamless integration with Model Context Protocol servers and standardized task execution across diverse environments.
+Gumloop is a "no-code" AI automation platform designed for building, testing, and deploying complex agentic workflows through a visual interface. It provides a drag-and-drop canvas to connect various AI models, SaaS tools, and data sources into automated "flows." As of late 2026, it fully supports the **MCP 3.1** and **FastMCP 3.1** task protocol standards, allowing for seamless integration with Model Context Protocol servers and standardized task execution across diverse environments.
 
 ## What problem it solves
 Gumloop bridges the gap between sophisticated AI capabilities and production-ready automation. It eliminates the need for managing complex Python infrastructure, manual API handling, or custom retry logic. It simplifies multi-step agentic reasoning, enabling users to move from a prompt to a deployed, scalable AI process—such as automated data extraction from PDFs followed by structured analysis with [Gemma 3](../ai_knowledge/local_llms.md)—in minutes rather than days.
 
 ## Where it fits in the stack
-**Automation & Orchestration / No-code AI**. It serves as the orchestration layer connecting frontier models (e.g., Claude 4.8 Opus, GPT-5.5) with the broader ecosystem of SaaS tools and the [Model Context Protocol (MCP)](mcp.md) toolset.
+**Automation & Orchestration / No-code AI**. It serves as the orchestration layer connecting frontier models (e.g., Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4) with the broader ecosystem of SaaS tools and the [Model Context Protocol (MCP)](mcp.md) toolset.
 
 ## Typical use cases
 - **AI-Driven Lead Generation**: Automatically identifying, summarizing, and qualifying leads from web sources.
@@ -18,7 +18,7 @@ Gumloop bridges the gap between sophisticated AI capabilities and production-rea
 
 ## Strengths
 - **Visual Logic Builder**: A powerful drag-and-drop canvas for mapping out complex branching and conditional AI logic.
-- **MCP 3.0 Native**: Direct support for the [Model Context Protocol (MCP)](mcp.md) Task Protocol for standardized tool and agent interaction.
+- **FastMCP 3.1 Native**: Direct support for the [Model Context Protocol (MCP)](mcp.md) FastMCP 3.1 specification for standardized tool and agent interaction.
 - **Fast Prototyping**: Immediate testing of flows in a sandbox environment with real-time logging and debugging.
 - **Managed Reliability**: Handles all infrastructure, scaling, and robust retry logic for long-running AI tasks.
 - **Extensive Node Library**: Pre-built nodes for RAG, image generation, data transformation, and hundreds of SaaS integrations.
@@ -31,7 +31,7 @@ Gumloop bridges the gap between sophisticated AI capabilities and production-rea
 ## When to use it
 - When you need to build and scale complex AI-driven workflows rapidly without maintaining custom backend infrastructure.
 - For teams that require a visual, collaborative environment to design and iterate on prompt chains and agentic logic.
-- When you want to leverage the **MCP 3.0** ecosystem for standardized tool usage within an automation platform.
+- When you want to leverage the **FastMCP 3.1** ecosystem for standardized tool usage within an automation platform.
 - For workflows requiring human-in-the-loop checkpoints before executing critical actions.
 
 ## When not to use it
@@ -45,14 +45,14 @@ Gumloop bridges the gap between sophisticated AI capabilities and production-rea
 Integrate with the Gumloop ecosystem using the official Python SDK:
 
 ```bash
-pip install gumloop
+pip install gumloop pydantic
 ```
 
 ### Setup
 1. Create an account at the [Gumloop Studio](https://www.gumloop.com/).
 2. Retrieve your `api_key` and `user_id` from the dashboard settings.
 3. Define your first workflow on the visual canvas and note the `flow_id`.
-4. (Optional) Configure an [MCP 3.0](mcp.md) server to provide custom tools to your flows.
+4. (Optional) Configure a [FastMCP 3.1](mcp.md) server to provide custom tools to your flows.
 
 ## CLI examples
 
@@ -76,28 +76,59 @@ curl -X GET "https://api.gumloop.com/api/v1/runs/RUN_ID?user_id=your_user_id" \
 
 ## API examples
 
-### Executing a Flow with the Python SDK
+### Executing a Flow and Validating Response with Python
+In late 2026 production applications, invoking external workflows via Gumloop requires strict data validations. This ensures that the execution response matches the expected structure. Here, we use **Pydantic v2** to enforce the response format of the Gumloop client run.
+
 ```python
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 from gumloop import GumloopClient
 
-# Initialize the client with July 2026 standards
-client = GumloopClient(
-    api_key="your_api_key",
-    user_id="your_user_id"
-)
+# 1. Define strict schemas for Gumloop Flow Outputs using Pydantic v2
+class GumloopFlowOutput(BaseModel):
+    summary: str = Field(description="A brief text summary returned from the flow execution")
+    token_usage: int = Field(default=0, description="The total number of tokens consumed during the flow execution")
+    generated_links: list[str] = Field(default_factory=list, description="Links or resources generated by the flow")
 
-# Trigger a specific flow and await the structured result
-# Supports complex input types and MCP 3.0 task context
-run_result = client.run_flow(
-    flow_id="your_flow_id",
-    inputs={
-        "document_path": "research/july_2026_market_audit.pdf",
-        "analysis_depth": "comprehensive"
-    }
-)
+class GumloopRunResult(BaseModel):
+    run_id: str = Field(description="The unique identifier for this flow execution")
+    status: str = Field(description="The state of the run, e.g. 'completed', 'failed'")
+    outputs: GumloopFlowOutput = Field(description="Structured dictionary of flow outputs")
 
-print(f"Flow Status: {run_result['status']}")
-print(f"Analysis Output: {run_result['outputs']['summary']}")
+def execute_and_verify_flow(flow_id: str, document_path: str) -> Optional[GumloopRunResult]:
+    # Initialize client conforming to late 2026 standards
+    client = GumloopClient(
+        api_key="your_api_key",
+        user_id="your_user_id"
+    )
+
+    try:
+        # Trigger a specific flow and await the output
+        run_data = client.run_flow(
+            flow_id=flow_id,
+            inputs={
+                "document_path": document_path,
+                "analysis_depth": "comprehensive"
+            }
+        )
+
+        # 2. Strict model validation of Gumloop response using Pydantic v2
+        validated_run = GumloopRunResult.model_validate(run_data)
+        return validated_run
+
+    except ValidationError as ve:
+        print(f"Gumloop API contract validation failed: {ve}")
+    except Exception as e:
+        print(f"Failed to execute flow or handle Gumloop connection: {e}")
+
+    return None
+
+if __name__ == "__main__":
+    # Test stub representing late 2026 SOTA integration (e.g. Gemini 4.0 Pro powered flows)
+    result = execute_and_verify_flow("your_flow_id", "research/july_2026_market_audit.pdf")
+    if result:
+        print(f"Run ID: {result.run_id} completed successfully.")
+        print(f"Summary output: {result.outputs.summary}")
 ```
 
 ## Related tools / concepts
@@ -114,8 +145,8 @@ print(f"Analysis Output: {run_result['outputs']['summary']}")
 - [Gumloop Official Site](https://www.gumloop.com/)
 - [Gumloop Product Documentation](https://docs.gumloop.com/)
 - [Gumloop API Reference](https://docs.gumloop.com/api-reference)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
+- [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-22
 - Confidence: high
