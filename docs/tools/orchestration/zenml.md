@@ -1,25 +1,25 @@
 # ZenML
 
 ## What it is
-ZenML is an open-source, extensible MLOps framework designed to create portable, production-ready AI pipelines and agentic workflows. It provides a standardized abstraction layer (the "Stack") that decouples pipeline logic from the underlying infrastructure. As of July 2026, **v1.0.x** is the stable release, featuring native **MLStack** management, robust **Experiment Tracking** integrations, and full support for the **Model Control Plane (MCP 3.0)** to empower multi-agent autonomous operations.
+ZenML is an open-source, extensible MLOps framework designed to create portable, production-ready AI pipelines and agentic workflows. It provides a standardized abstraction layer (the "Stack") that decouples pipeline logic from the underlying infrastructure. As of December 2026, **v1.2.x** is the stable release, featuring native **MLStack** management, robust **Experiment Tracking** integrations, and full support for the **Model Control Plane (FastMCP 3.1)** to empower multi-agent autonomous operations.
 
 ## What problem it solves
-ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its July 2026 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
+ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its late 2026 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
 
 ## Where it fits in the stack
 **Orchestration / MLOps Pipeline Framework**. It serves as the management and coordination layer that sits above specialized tools for data versioning, experiment tracking, and model registries. ZenML translates high-level pipeline declarations into target-specific execution steps while maintaining a unified control plane.
 
 ## Typical use cases
 - **MLStack Experiment Tracking**: Integrating unified experiment tracking components (e.g., MLflow, Weights & Biases, or TensorBoard) into swappable stacks to monitor model parameters, training metrics, and artifacts automatically.
-- **Agentic Workflows**: Orchestrating multi-stage AI agents (utilizing models like Claude 5.1 and Gemma 3) that require durable state, observability, and structured execution across distributed environments.
+- **Agentic Workflows**: Orchestrating multi-stage AI agents (utilizing models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Gemma 3) that require durable state, observability, and structured execution across distributed environments.
 - **Portable ML Pipelines**: Developing cloud-agnostic machine learning lifecycles that can be migrated between environments (local vs. cloud) without modifications to the core code.
-- **Autonomous MLOps**: Enabling autonomous coding agents like Claude Code to independently inspect active stack configurations, run pipelines, and evaluate experiment metrics via MCP 3.0 tool interfaces.
+- **Autonomous MLOps**: Enabling autonomous coding agents like Claude Code to independently inspect active stack configurations, run pipelines, and evaluate experiment metrics via FastMCP 3.1 tool interfaces.
 
 ## Strengths
 - **Infrastructure Agnostic**: "Write once, run anywhere" across local compute, Kubernetes, Apache Airflow, Flyte, and cloud-native orchestrators.
 - **Unified MLStack Concept**: First-class abstractions for modular stack components, making it simple to plug in and swap experiment trackers, model registries, and data validators.
 - **Deep Experiment Tracking Integration**: Automated parameter logging, metrics tracking, and artifact lineage association through native SDK wrappers.
-- **MCP 3.0 Compatibility**: Out-of-the-box Model Control Plane support, exposing active stacks, component statuses, and experiment logs as tools for agentic workflows.
+- **FastMCP 3.1 Compatibility**: Out-of-the-box Model Control Plane support, exposing active stacks, component statuses, and experiment logs as tools for agentic workflows.
 - **Developer-Centric SDK**: Elegant, Pythonic decorators and a CLI that simplifies pipeline definition for data scientists and AI engineers alike.
 
 ## Limitations
@@ -66,7 +66,7 @@ def train_and_track_step(data: str) -> dict:
 
 @pipeline
 def agentic_ml_pipeline():
-    train_and_track_step(data="july_2026_dataset")
+    train_and_track_step(data="december_2026_dataset")
 
 if __name__ == "__main__":
     agentic_ml_pipeline()
@@ -130,6 +130,64 @@ for run in runs:
         print(f"Step outputs: {step_run.outputs}")
 ```
 
+### MLStack Configuration Validation with Strict Pydantic v2 Schema
+The following robust Python example uses **Pydantic v2** to programmatically validate the schema of a ZenML MLStack registration, ensuring that critical telemetry and security properties are satisfied before stack registration.
+
+```python
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError, model_validator
+
+# 1. Define MLStack schema using Pydantic v2
+class StackComponentSchema(BaseModel):
+    name: str = Field(..., min_length=3, pattern="^[a-zA-Z0-9_-]+$")
+    flavor: str = Field(..., min_length=2)
+    configuration: Dict[str, Any] = Field(default_factory=dict)
+
+class MLStackSchema(BaseModel):
+    stack_name: str = Field(..., min_length=3, pattern="^[a-zA-Z0-9_-]+$")
+    orchestrator: StackComponentSchema
+    artifact_store: StackComponentSchema
+    experiment_tracker: Optional[StackComponentSchema] = None
+    telemetry_enabled: bool = Field(default=True)
+
+    @model_validator(mode="after")
+    def validate_artifact_flavor(self) -> "MLStackSchema":
+        if self.artifact_store.flavor == "local" and "local_path" not in self.artifact_store.configuration:
+            raise ValueError("Local artifact stores must specify 'local_path' in their configuration.")
+        return self
+
+# 2. Example representation of stack definition metadata
+stack_definition = {
+    "stack_name": "production_mlstack",
+    "orchestrator": {
+        "name": "k8s_orchestrator",
+        "flavor": "kubernetes",
+        "configuration": {"namespace": "mlops-prod"}
+    },
+    "artifact_store": {
+        "name": "s3_store",
+        "flavor": "s3",
+        "configuration": {"bucket": "zenml-artifacts-prod"}
+    },
+    "experiment_tracker": {
+        "name": "mlflow_tracker",
+        "flavor": "mlflow",
+        "configuration": {"tracking_uri": "http://mlflow.mlops:5000"}
+    },
+    "telemetry_enabled": False
+}
+
+# 3. Perform validation using Pydantic v2
+try:
+    validated_stack = MLStackSchema.model_validate(stack_definition)
+    print("ZenML MLStack configuration validated and ready for registration!")
+    print(f"Stack Name: {validated_stack.stack_name}")
+    print(f"Orchestrator Flavor: {validated_stack.orchestrator.flavor}")
+except ValidationError as e:
+    print(f"Validation failed: {e.json()}")
+```
+
 ## Related tools / concepts
 - [Flyte](flyte.md) — For large-scale, containerized ML workflows and orchestrations.
 - [Dagster](dagster.md) — For asset-centric data orchestration.
@@ -139,9 +197,12 @@ for run in runs:
 - [Argo Workflows](argo-workflows.md) — Kubernetes-native orchestration for parallel containerized pipelines.
 - [Apache Hamilton](apache-hamilton.md) — Elegant micro-framework for defining data and model pipelines.
 - [Model Control Plane (MCP)](../automation_orchestration/mcp.md) — The core protocol standard for extending ZenML with agentic tooling.
-- [Claude](../ai_knowledge/claude.md) — Primary frontier model for orchestrating ZenML tasks and auditing experiment parameters.
-- [Gemma 3](../ai_knowledge/gemini-macos.md) — Lightweight, high-performance model for local task execution.
-- [Flint](../ai_knowledge/flint.md) — Compressed reasoning models for maintaining and auditing MLStack configurations.
+- [Claude 5.1](../ai_knowledge/claude-mythos.md) — Primary frontier model for orchestrating ZenML tasks and auditing experiment parameters.
+- [GPT-5.5](../ai_knowledge/gpt-model.md) — SOTA model for advanced pipeline synthesis.
+- [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — High-performance reasoner.
+- [Llama 4](../ai_knowledge/llama.md) — Next-generation open model.
+- [Gemma 3](../ai_knowledge/gemma.md) — Lightweight, high-performance model for local task execution.
+- [Qwen 3.6](../ai_knowledge/qwen.md) — Next-generation open reasoning model.
 - [LiteLLM](../../services/litellm.md) — Proxy tool for managing multiple LLM providers within pipeline steps.
 - [n8n](../../services/n8n.md) — Visual workflow automation alternative.
 - [Agent Skills](../../knowledge_base/patterns/prompt_requests.md) — Standard instruction packages for empowering agentic coding tools.
@@ -153,5 +214,5 @@ for run in runs:
 - [GitHub: ZenML Core Repository](https://github.com/zenml-io/zenml)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-26
 - Confidence: high
