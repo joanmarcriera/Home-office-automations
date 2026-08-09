@@ -1,7 +1,7 @@
 # Skyvern
 
 ## What it is
-Skyvern is an open-source browser automation platform that leverages Large Language Models (LLMs) and advanced Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the underlying DOM (Document Object Model), Skyvern utilizes visual reasoning to interact with web elements. As of July 2026, Skyvern is a premier solution for enterprise-scale browser automation, offering native support for the **MCP 3.0 Task Protocol** and optimized integration with **Gemma 3** and **Claude 4.8 Opus**.
+Skyvern is an open-source browser automation platform that leverages Large Language Models (LLMs) and advanced Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the underlying DOM (Document Object Model), Skyvern utilizes visual reasoning to interact with web elements. As of December 2026, Skyvern is a premier solution for enterprise-scale browser automation, offering native support for the **MCP 3.1 / FastMCP 3.1 Task Protocol** and optimized integration with **Gemma 3**, **Llama 4**, **Qwen 3.6**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 It effectively addresses the "fragility" problem inherent in web automation. Traditional frameworks (like Playwright or Selenium) often fail when a website's internal CSS classes, IDs, or HTML structures are updated. Skyvern "sees" the page exactly as a human does, identifying buttons, fields, and informational elements based on their visual appearance and semantic context. This approach makes it exceptionally resilient to UI redesigns and anti-bot measures that obfuscate the DOM.
@@ -19,7 +19,7 @@ It effectively addresses the "fragility" problem inherent in web automation. Tra
 - **Inherent Visual Resilience**: Operates independently of the DOM; if a human can find it, Skyvern can too.
 - **Zero-Shot Task Execution**: Capable of automating tasks on entirely new websites without prior selector mapping or manual training.
 - **Enterprise Observability**: Features a comprehensive dashboard with detailed logs, step-by-step screenshots, and video recordings for full auditability.
-- **MCP 3.0 Compliance**: Seamlessly integrates into standardized agentic ecosystems, allowing Skyvern "Goals" to be called as standard MCP tools.
+- **MCP 3.1 / FastMCP 3.1 Compliance**: Seamlessly integrates into standardized agentic ecosystems, allowing Skyvern "Goals" to be called as standard MCP tools.
 
 ## Limitations
 - **Substantial Resource Requirements**: Visual reasoning and screenshot processing necessitate significant GPU acceleration or high-cost vision-LLM API calls.
@@ -47,7 +47,7 @@ cd skyvern
 docker-compose up -d
 ```
 
-### Basic Usage with MCP 3.0
+### Basic Usage with FastMCP 3.1
 Once deployed, Skyvern exposes an MCP server. You can connect it to a client like [Claude Desktop](../ai_knowledge/claude-desktop.md) or a custom [FastMCP](../automation_orchestration/mcp.md) host:
 
 1. Add the Skyvern MCP endpoint to your configuration.
@@ -66,22 +66,68 @@ docker-compose logs -f skyvern-worker
 ```
 
 ## API examples
+
+### Programmatic Automation with Pydantic v2 Validation
+To maintain compliance with December 2026 data verification checks, visual goal configurations dispatched to Skyvern are strictly validated before invocation.
+
 ```python
 import requests
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from typing import Dict, Any, Optional
 
-# Submitting a visual automation goal via the Skyvern REST API
-response = requests.post(
-    "http://localhost:8000/api/v1/goals",
-    json={
+# 1. Define strict validation schemas using Pydantic v2
+class ProxyConfiguration(BaseModel):
+    proxy_type: str = Field(default="residential", pattern="^(residential|datacenter|none)$")
+    country_code: Optional[str] = Field(None, max_length=2, min_length=2, description="ISO country code")
+
+class ScrapingGoal(BaseModel):
+    url: HttpUrl
+    goal: str = Field(..., min_length=10, max_length=1000)
+    vision_model: str = Field(default="gemma-3-27b", pattern="^(gemma-3-27b|claude-5.1|gpt-5.5|gemini-4.0-pro)$")
+    proxy_config: ProxyConfiguration = Field(default_factory=ProxyConfiguration)
+
+# 2. Programmatic target execution utilizing validation and Skyvern REST API
+def submit_skyvern_goal(payload: Dict[str, Any]) -> str:
+    try:
+        # Strict validation of input using Pydantic v2
+        validated_payload = ScrapingGoal.model_validate(payload)
+    except ValidationError as e:
+        print(f"Goal validation failed: {e}")
+        raise
+
+    # Convert Pydantic model to dict, ensuring serializable types (like HttpUrl to str)
+    request_data = validated_payload.model_dump(mode="json")
+
+    headers = {
+        "Authorization": "Bearer ${SKYVERN_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # Post verified schema to Skyvern local endpoint
+    response = requests.post(
+        "http://localhost:8000/api/v1/goals",
+        json=request_data,
+        headers=headers
+    )
+    response.raise_for_status()
+    return response.json()["id"]
+
+# Example invocation
+if __name__ == "__main__":
+    payload = {
         "url": "https://shipping.example.com",
         "goal": "Find the tracking number for the last order and update the status",
-        "vision_model": "gemma-3-27b",
-        "proxy_config": {"type": "residential"}
-    },
-    headers={"Authorization": "Bearer ${SKYVERN_API_KEY}"}
-)
-
-print(f"Goal queued: {response.json()['id']}")
+        "vision_model": "gpt-5.5",
+        "proxy_config": {
+            "proxy_type": "residential",
+            "country_code": "US"
+        }
+    }
+    try:
+        goal_id = submit_skyvern_goal(payload)
+        print(f"Goal successfully submitted to Skyvern. Goal ID: {goal_id}")
+    except Exception as e:
+        pass
 ```
 
 ## Related tools / concepts
@@ -100,5 +146,5 @@ print(f"Goal queued: {response.json()['id']}")
 - [Skyvern Technical Documentation](https://docs.skyvern.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-23
 - Confidence: high

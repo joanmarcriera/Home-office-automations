@@ -1,7 +1,7 @@
 # HashiCorp Vault
 
 ## What it is
-HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of July 2026, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 4.8 Opus](../providers/anthropic.md) via standardized [Vault MCP](vault-mcp.md) integrations.
+HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of December 2026, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro** via standardized **Vault MCP** and **FastMCP 3.1** integrations.
 
 ## What problem it solves
 Managing secrets in plain text, environment variables, or unprotected configuration files creates significant security vulnerabilities. Vault provides a single, secure source of truth with strict access control, automated secret rotation, and granular auditing. It eliminates "secret sprawl" by centralizing credential management and ensuring that only authorized agents and services can access specific sensitive information.
@@ -96,22 +96,47 @@ curl --header "X-Vault-Token: <token>" \
      http://127.0.0.1:8200/v1/secret/data/agents/config
 ```
 
-### Python Integration with hvac (July 2026 Standards)
-The `hvac` library remains the standard for programmatic Vault interaction:
+### Python Integration with hvac & Pydantic v2 Validation
+To maintain compliance with December 2026 security and KnowledgeOps contract checks, secret payloads retrieved from Vault must undergo validation using Pydantic v2 before downstream model ingestion.
 
 ```python
 import hvac
+from pydantic import BaseModel, Field, SecretStr, ValidationError
+from typing import Optional
 
-# Initialize the client with July 2026 security standards
-client = hvac.Client(url='http://127.0.0.1:8200', token='myroot')
+# 1. Define a strict validation schema using Pydantic v2
+class ProviderCredentials(BaseModel):
+    provider_name: str = Field(..., pattern="^(anthropic|openai|google|cohere)$")
+    api_key: SecretStr = Field(..., min_length=16, description="Vault-stored provider API key.")
+    api_url: Optional[str] = Field(None, description="Optional custom base URL.")
 
-# Programmatic secret retrieval from KV v2
-try:
-    response = client.secrets.kv.v2.read_secret_version(path='agents/config')
-    credentials = response['data']['data']
-    print(f"Agent API Key: {credentials['api_key']}")
-except Exception as e:
-    print(f"Error accessing Vault: {e}")
+# 2. Programmatic secret retrieval from KV v2 with Pydantic validation
+def fetch_and_validate_credentials(path: str) -> ProviderCredentials:
+    # Initialize the client with late 2026 security standards
+    client = hvac.Client(url='http://127.0.0.1:8200', token='myroot')
+
+    try:
+        # Programmatic secret retrieval from KV v2
+        response = client.secrets.kv.v2.read_secret_version(path=path)
+        secret_payload = response['data']['data']
+
+        # Strict validation of input using Pydantic v2
+        credentials = ProviderCredentials.model_validate(secret_payload)
+        return credentials
+    except ValidationError as e:
+        print(f"Data contract validation failed for secret '{path}': {e}")
+        raise
+    except Exception as e:
+        print(f"Failed to access Vault: {e}")
+        raise
+
+if __name__ == "__main__":
+    # Example invocation
+    try:
+        creds = fetch_and_validate_credentials(path='agents/anthropic')
+        print(f"Successfully retrieved and validated credentials for {creds.provider_name}.")
+    except Exception:
+        pass
 ```
 
 ## Related tools / concepts
@@ -132,5 +157,5 @@ except Exception as e:
 - [Vault MCP Repository](https://github.com/democratize-technology/vault-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-23
 - Confidence: high

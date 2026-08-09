@@ -2748,12 +2748,6 @@
       ]
     },
     {
-      "id": "tritium",
-      "name": "Tritium",
-      "category": "Frameworks",
-      "doc_path": "docs/tools/frameworks/tritium.md"
-    },
-    {
       "id": "trelliscpp",
       "name": "TrellisCPP",
       "category": "Development & Ops",
@@ -2764,6 +2758,12 @@
       "name": "Trilium Notes",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/services/trilium.md"
+    },
+    {
+      "id": "tritium",
+      "name": "Tritium",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/tritium.md"
     },
     {
       "id": "tubearchivist",
