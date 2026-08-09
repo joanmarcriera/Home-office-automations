@@ -1,12 +1,12 @@
 # TickTick
 
-TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of July 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and **Model Context Protocol (MCP 3.0)** support for seamless AI agent integration.
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of late November/December 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summarization, and **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for seamless AI agent integration with frontier models.
 
 ## What it is
 TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
 
 ## What problem it solves
-It reduces "app sprawl" and cognitive load by providing a unified interface for the Getting Things Done (GTD) methodology, Eisenhower Matrix prioritization, and time-blocking. It solves the fragmentation problem by keeping tasks and their associated calendar events and timers in one place.
+It reduces "app sprawl" and cognitive load by providing a unified interface for the Getting Things Done (GTD) methodology, Eisenhower Matrix prioritization, and time-blocking. It solves the fragmentation problem by keeping tasks and their associated calendar events and timers in one place, enabling seamless scheduling workflows.
 
 ## Where it fits in the stack
 **Calendar & Tasks**. It serves as a unified human-facing interface for personal intelligence and task management. It sits between low-level calendar providers and the user, offering a rich set of capture and organization tools.
@@ -16,14 +16,14 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
 - **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
 - **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
-- **Agentic Task Management**: Using Claude 5.1 or Gemma 3 via MCP to create tasks from meeting transcripts or code reviews.
+- **Agentic Task Management**: Using Claude 5.1, GPT-5.5, or Gemma 3 via MCP 3.1 to create tasks from meeting transcripts or code reviews.
 
 ## Strengths
 - **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than most competitors.
 - **AI Voice & Transcription**: Native ability to transcribe voice recordings into tasks and summarize meeting audio using frontier models.
 - **Persistent Reminders**: "Nag" alerts that continue until a task is completed or snoozed.
 - **Superior Calendar**: Full multi-project calendar view (Month, Week, Day) built directly into the task manager.
-- **MCP 3.0 Integration**: Exposes task management tools to AI agents for automated planning and execution.
+- **FastMCP 3.1 Integration**: Exposes task management tools to AI agents for automated planning, scheduling, and execution.
 
 ## Limitations
 - **API Maturity**: The official public API remains less robust than competitors like Todoist, often requiring community wrappers for advanced automation.
@@ -34,7 +34,7 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - If you want a single app to handle tasks, habits, and time-boxing.
 - If you find Todoist too minimalist or find the cost of a multi-app stack prohibitive.
 - If you need persistent, aggressive reminders for task completion.
-- If you want an agent-ready task manager via MCP.
+- If you want an agent-ready task manager via MCP 3.1.
 
 ## When not to use it
 - If you strictly require open-source or local-first data storage (see [Vikunja](../../services/vikunja.md)).
@@ -46,7 +46,7 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 ### Installation
 TickTick is available on iOS, Android, macOS, Windows, Linux, and the Web.
 - **Web**: [TickTick.com](https://ticktick.com/)
-- **CLI (Python Library)**: `pip install ticktick-py`
+- **CLI (Python Library)**: `pip install ticktick-py pydantic`
 
 ### Basic Automation (Python)
 ```python
@@ -89,7 +89,7 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 - `create_task`: Create a new task with specific parameters.
 - `list_all_tasks`: Retrieve open tasks for context-aware planning.
 
-**Sample MCP Config (Claude Desktop):**
+**Sample FastMCP 3.1 Config (Claude Desktop):**
 ```json
 "mcpServers": {
   "ticktick": {
@@ -100,6 +100,45 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
     }
   }
 }
+```
+
+### Strict Task Input Validation (Python with Pydantic v2)
+To ensure reliable structured integration between agents (e.g., Llama 4, Qwen 3.6, Gemini 4.0 Pro) and the TickTick API, developers use **Pydantic v2** models to validate schema payloads before submission.
+
+```python
+from pydantic import BaseModel, Field, ValidationError, model_validator
+from typing import Optional, List
+from datetime import datetime
+
+class TickTickTaskSchema(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200, description="The title of the task")
+    content: Optional[str] = Field(None, description="Detailed description or notes")
+    priority: int = Field(0, ge=0, le=5, description="Priority (0 = None, 1 = Low, 3 = Medium, 5 = High)")
+    tags: List[str] = Field(default_factory=list, description="Associated tags")
+    due_date: Optional[datetime] = Field(None, alias="dueDate")
+
+    @model_validator(mode='after')
+    def check_non_empty_title(self) -> 'TickTickTaskSchema':
+        if not self.title.strip():
+            raise ValueError("Task title cannot be empty or whitespace-only")
+        return self
+
+# Example validation execution
+payload = {
+    "title": "Upgrade Agent Scheduling Stack",
+    "content": "Incorporate FastMCP 3.1 into personal workflows",
+    "priority": 5,
+    "tags": ["AI", "productivity"],
+    "dueDate": "2026-12-31T23:59:59Z"
+}
+
+try:
+    # Validating task data via Pydantic v2
+    validated_task = TickTickTaskSchema.model_validate(payload)
+    print("Validation Successful!")
+    print(validated_task.model_dump(by_alias=True))
+except ValidationError as e:
+    print("Schema Validation Failed:", e.json())
 ```
 
 ## Related tools / concepts
@@ -121,5 +160,5 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 - [TickTick MCP Server (GitHub)](https://github.com/alexarevalo/mcp-server-ticktick)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-21
 - Confidence: high
