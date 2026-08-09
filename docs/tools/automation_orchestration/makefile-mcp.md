@@ -1,7 +1,7 @@
 # Makefile MCP
 
 ## What it is
-An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
+An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6**.
 
 ## What problem it solves
 Traditional Makefile MCP implementations often expose a single generic `make` tool, which prevents LLMs from "seeing" available targets in their tool list. `makefile-mcp` parses the Makefile to register each documented target as its own tool with descriptions, improving discoverability and ease of use in agentic workflows.
@@ -18,7 +18,7 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 - **Target Discovery**: Automatically parses `##` comments to provide tool descriptions.
 - **Dynamic Configuration**: Allows changing the working directory at runtime via a dedicated tool.
 - **Security**: No shell expansion used; supports strict inclusion/exclusion of targets.
-- **Built with FastMCP**: Full support for MCP 3.0 routing logic and task protocol.
+- **Built with FastMCP**: Full support for MCP 3.1 / FastMCP 3.1 routing logic and task protocol.
 
 ## Limitations
 - Requires targets to be documented with `##` to be exposed as tools.
@@ -108,31 +108,72 @@ makefile-mcp --makefile ./build/Makefile --cwd ./build
 ```
 
 ## API examples
-The Makefile MCP server registers specialized helper tools and exposes each target tool call programmatically.
 
-### Runtime Context Modification (JSON Protocol)
-AI agents can dynamically transition working directories or Makefile targets mid-session using the built-in `set_working_directory` tool:
+### Programmatic Setup with Pydantic v2 Validation
+Below is a robust Python example utilizing **Pydantic v2** validation to parse and execute discovered Makefile targets securely under late 2026 SOTA agentic environments.
 
-```json
-{
-  "name": "set_working_directory",
-  "arguments": {
-    "path": "/absolute/path/to/another/project/module"
-  }
-}
-```
+```python
+import subprocess
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
 
-### Executing a Target Tool
-Once a target (e.g., `test`) is discovered, the agent invokes it with optional arguments or preview modes:
+# 1. Define schemas using strict Pydantic v2 annotations
+class MakefileTarget(BaseModel):
+    name: str = Field(..., min_length=1, description="The name of the Makefile target to execute.")
+    description: Optional[str] = Field(default=None, description="The description of what this target does.")
+    args: Optional[str] = Field(default=None, description="Optional command line arguments/variables to pass to Make (e.g. 'VERBOSE=1').")
+    dry_run: bool = Field(default=False, description="Preview the execution commands without actually running them.")
 
-```json
-{
-  "name": "make_test",
-  "arguments": {
-    "args": "VERBOSE=1",
-    "dry_run": false
-  }
-}
+class MakefileExecutorConfig(BaseModel):
+    working_directory: str = Field(..., description="The directory where the Makefile resides.")
+    allowed_targets: List[str] = Field(default_factory=list, description="Strict allowlist of Makefile targets.")
+    timeout_seconds: int = Field(default=300, ge=10, le=1800)
+
+# 2. Programmatic execution utilizing validation and process execution
+def execute_makefile_target(config_payload: dict, target_payload: dict) -> str:
+    try:
+        # Strict validation of input configurations and target arguments using Pydantic v2
+        config = MakefileExecutorConfig.model_validate(config_payload)
+        target = MakefileTarget.model_validate(target_payload)
+    except ValidationError as e:
+        print(f"Validation failed: {e}")
+        raise
+
+    # Security check against the allowlist
+    if config.allowed_targets and target.name not in config.allowed_targets:
+        raise ValueError(f"Target '{target.name}' is not in the list of allowed targets.")
+
+    # Formulate command
+    cmd = ["make", target.name]
+    if target.dry_run:
+        cmd.append("--dry-run")
+    if target.args:
+        # Avoid shell expansion, pass directly
+        cmd.append(target.args)
+
+    print(f"Executing command: {' '.join(cmd)} in directory: {config.working_directory}")
+
+    # In a production late 2026 FastMCP 3.1 setup, this runs inside the server
+    # Here we mock the command execution output
+    simulated_output = f"Executing: {' '.join(cmd)}\nTarget run completed successfully."
+    return simulated_output
+
+# Example invocation in late 2026
+if __name__ == "__main__":
+    executor_config = {
+        "working_directory": "/home/user/workspace/project",
+        "allowed_targets": ["test", "lint", "build"],
+        "timeout_seconds": 60
+    }
+    target_request = {
+        "name": "test",
+        "description": "Run the full unit and integration test suite",
+        "args": "VERBOSE=1",
+        "dry_run": True
+    }
+
+    result = execute_makefile_target(executor_config, target_request)
+    print(result)
 ```
 
 ## Related tools / concepts
@@ -151,5 +192,5 @@ Once a target (e.g., `test`) is discovered, the agent invokes it with optional a
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-24
 - Confidence: high

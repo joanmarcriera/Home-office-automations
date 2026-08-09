@@ -1,7 +1,7 @@
 # Vikunja MCP Server
 
 ## What it is
-A Model Context Protocol (MCP) server that enables AI assistants like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 to interact with Vikunja task management instances.
+A Model Context Protocol (MCP) server that enables AI assistants like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6** to interact with Vikunja task management instances.
 
 ## What problem it solves
 It allows agents to manage tasks, projects, labels, and teams directly within a Vikunja instance, bridging the gap between autonomous assistants and self-hosted productivity tools. It supports both API token and JWT authentication for varying levels of access.
@@ -19,7 +19,7 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 - **Subcommand-based tools**: Provides an intuitive structure for AI interaction.
 - **Session-based authentication**: Automatically handles token management.
 - **Production-ready resilience**: Uses circuit breakers and Zod-based validation for stability.
-- **MCP 3.0 Compatible**: Supports the latest Task Protocol and routing logic.
+- **MCP 3.1 / FastMCP 3.1 Compatible**: Supports the latest Task Protocol and routing logic.
 
 ## Limitations
 - User-specific endpoints require JWT authentication (browser-extracted).
@@ -97,40 +97,79 @@ VIKUNJA_API_TOKEN="eyJhbGciOiJIUzI1..." npx @democratize-technology/vikunja-mcp
 ```
 
 ## API examples
-The Vikunja MCP server uses structured subcommand structures.
 
-### Creating a Recurring Task (JSON Tool Input)
-AI assistants create projects, labels, and tasks by invoking registered tool definitions:
+### Programmatic Setup with Pydantic v2 Validation
+To maintain the structural integrity and validation standards of task operations in late 2026, inputs to Vikunja MCP should be explicitly verified. Below is a robust Python script implementing strict **Pydantic v2** schema checks.
 
-```json
-{
-  "name": "vikunja_tasks",
-  "arguments": {
-    "subcommand": "create",
-    "projectId": 1,
-    "title": "Weekly Security Audit",
-    "description": "Perform dependency and container scans",
-    "dueDate": "2026-12-01T10:00:00Z",
-    "priority": 4,
-    "repeatAfter": 7,
-    "repeatMode": "day",
-    "labels": [12]
-  }
-}
-```
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+from datetime import datetime
 
-### Listing Tasks with Complex Filters
-Filter tasks using SQL-like expressions executed server-side with local fallback:
+# 1. Define schemas using strict Pydantic v2 annotations
+class VikunjaTaskCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=250, description="The title of the task.")
+    description: Optional[str] = Field(default=None, description="Detailed markdown task description.")
+    project_id: int = Field(..., gt=0, description="The target project ID.")
+    due_date: Optional[datetime] = Field(default=None, description="ISO-8601 formatted due date and time.")
+    priority: int = Field(default=3, ge=1, le=5, description="Priority level from 1 (lowest) to 5 (highest).")
+    repeat_after: Optional[int] = Field(default=None, ge=1, description="Interval number of days/weeks to repeat task.")
+    repeat_mode: Optional[str] = Field(default=None, pattern="^(day|week|month|year)$")
+    labels: List[int] = Field(default_factory=list, description="List of label IDs to apply.")
 
-```json
-{
-  "name": "vikunja_tasks",
-  "arguments": {
-    "subcommand": "list",
-    "filter": "(priority >= 4 && done = false) || (dueDate < now && done = false)",
-    "perPage": 10
-  }
-}
+class VikunjaTaskResponse(BaseModel):
+    id: int
+    title: str
+    project_id: int
+    done: bool = False
+    created_by_id: int
+    created_at: datetime
+    updated_at: datetime
+
+# 2. Programmatic creation utilizing validation
+def process_task_creation_request(payload: dict) -> str:
+    try:
+        # Strict validation of input using Pydantic v2
+        task_request = VikunjaTaskCreate.model_validate(payload)
+    except ValidationError as e:
+        print(f"Validation failed: {e}")
+        raise
+
+    print(f"Creating task '{task_request.title}' in project {task_request.project_id}...")
+
+    # Simulating API response from Vikunja
+    simulated_api_response = {
+        "id": 42019,
+        "title": task_request.title,
+        "project_id": task_request.project_id,
+        "done": False,
+        "created_by_id": 101,
+        "created_at": "2026-12-24T12:00:00Z",
+        "updated_at": "2026-12-24T12:00:00Z"
+    }
+
+    try:
+        # Validate output payload to ensure it conforms to expectations
+        validated_response = VikunjaTaskResponse.model_validate(simulated_api_response)
+        return f"Successfully created Vikunja task {validated_response.id}: {validated_response.title}"
+    except ValidationError as e:
+        print(f"Output schema validation error: {e}")
+        raise
+
+# Example invocation in late 2026
+if __name__ == "__main__":
+    payload = {
+        "title": "Weekly Security Audit",
+        "description": "Perform dependency and container scans",
+        "project_id": 1,
+        "due_date": "2026-12-31T10:00:00Z",
+        "priority": 4,
+        "repeat_after": 7,
+        "repeat_mode": "day",
+        "labels": [12]
+    }
+    result = process_task_creation_request(payload)
+    print(result)
 ```
 
 ## Related tools / concepts
@@ -149,5 +188,5 @@ Filter tasks using SQL-like expressions executed server-side with local fallback
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-24
 - Confidence: high

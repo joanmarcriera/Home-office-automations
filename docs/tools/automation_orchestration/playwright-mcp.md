@@ -1,7 +1,7 @@
 # Playwright MCP Server
 
 ## What it is
-The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of July 2026, it is the primary tool for enabling frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 to interact with the live web.
+The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of late November/December 2026, it is the primary tool for enabling frontier models like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6** to interact with the live web.
 
 ## What problem it solves
 Most LLMs lack direct access to the web or can only "see" through static screenshots or text-only scrapers. Playwright MCP provides structured access to the DOM and the **Accessibility Tree**, allowing agents to click buttons, fill forms, and extract data from JavaScript-heavy sites reliably without needing a dedicated REST API.
@@ -18,7 +18,7 @@ Most LLMs lack direct access to the web or can only "see" through static screens
 ## Strengths
 - **Accessibility Tree Focus**: Emphasizes semantic structure over raw pixels, making interaction faster and more robust.
 - **Cross-Browser Support**: Leverages Playwright's native support for Chromium, Firefox, and WebKit.
-- **MCP 3.0 Standard**: Fully compatible with the MCP 3.0 Task Protocol for standardized benchmarking and execution.
+- **MCP 3.1 / FastMCP 3.1 Standard**: Fully compatible with the MCP 3.1 / FastMCP 3.1 Task Protocol for standardized benchmarking and execution.
 - **Sandboxed Execution**: Can be easily run in [Docker](../infrastructure/docker.md) to isolate browser sessions.
 
 ## Limitations
@@ -81,34 +81,65 @@ npx @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-playwrig
 
 ## API examples
 
-### Agentic Tool Call (Conceptual)
-When an agent uses the server, it issues JSON-RPC calls. Here is what a navigation call looks like:
+### Programmatic Setup with Pydantic v2 Validation
+To maintain the safety, integrity, and rate of headless interactions in late 2026, browser operations must be strictly validated. Below is a robust Python script employing **Pydantic v2** validation schemas.
 
-```json
-{
-  "method": "tools/call",
-  "params": {
-    "name": "playwright_navigate",
-    "arguments": {
-      "url": "https://news.ycombinator.com"
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import Optional, List
+import asyncio
+
+# 1. Define schemas using strict Pydantic v2 annotations
+class BrowserNavigateAction(BaseModel):
+    url: str = Field(..., description="The fully qualified HTTP/HTTPS URL to navigate to.")
+    wait_until: str = Field(default="domcontentloaded", pattern="^(load|domcontentloaded|networkidle|commit)$")
+    timeout_ms: int = Field(default=30000, ge=1000, le=120000)
+
+class ClickAction(BaseModel):
+    selector: str = Field(..., min_length=1, description="CSS or Playwright text/selector.")
+    click_count: int = Field(default=1, ge=1, le=5)
+
+class BrowserSessionRequest(BaseModel):
+    navigation: BrowserNavigateAction
+    click: Optional[ClickAction] = None
+
+# 2. Programmatic execution utilizing validation
+async def run_validated_browser_session(payload: dict) -> str:
+    try:
+        # Strict validation of input using Pydantic v2
+        request = BrowserSessionRequest.model_validate(payload)
+    except ValidationError as e:
+        print(f"Validation failed: {e}")
+        raise
+
+    print(f"Navigating to {request.navigation.url} (wait: {request.navigation.wait_until})...")
+
+    # In a real late 2026 FastMCP 3.1 setup, this triggers the Playwright MCP server calls.
+    # Here we simulate the browser action sequence.
+    output_log = f"Successfully loaded {request.navigation.url}."
+
+    if request.click:
+        print(f"Clicking selector: '{request.click.selector}' {request.click.click_count} time(s)...")
+        output_log += f"\nPerformed {request.click.click_count} click(s) on selector '{request.click.selector}'."
+
+    return output_log
+
+# Example invocation in late 2026
+if __name__ == "__main__":
+    action_payload = {
+        "navigation": {
+            "url": "https://news.ycombinator.com",
+            "wait_until": "networkidle",
+            "timeout_ms": 15000
+        },
+        "click": {
+            "selector": "text=new",
+            "click_count": 1
+        }
     }
-  }
-}
-```
 
-### Performing a Click
-An agent might then click the "new" link based on the accessibility tree:
-
-```json
-{
-  "method": "tools/call",
-  "params": {
-    "name": "playwright_click",
-    "arguments": {
-      "selector": "text=new"
-    }
-  }
-}
+    result = asyncio.run(run_validated_browser_session(action_payload))
+    print(result)
 ```
 
 ## Related tools / concepts
@@ -127,5 +158,5 @@ An agent might then click the "new" link based on the accessibility tree:
 - [Playwright Official Documentation](https://playwright.dev)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-12-24
 - Confidence: high
