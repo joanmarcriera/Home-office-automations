@@ -3,6 +3,8 @@
 ## What it is
 Gemma 4 31B AntiHal is an open-weights, instruction-tuned, multimodal large language model fine-tuned and steered by Specific Labs. Released in April 2026, it is based on Google DeepMind's stable **Gemma 4 31B IT** foundation. By leveraging native activation and representation steering, this specialized variant is explicitly engineered to suppress hallucinated outputs, refuse false premises, and confidently state its limitations, all while maintaining its general benchmark performance under a permissive Apache 2.0 license.
 
+In August 2026, Specific Labs introduced the **Scotoma-2** series of models based on the newly released Google **Gemma 4** base architecture. Scotoma-2 implements several enhancements to the core activation steering routines, focusing specifically on creative and informational writing tasks by purging conversational "slop" and repetitive patterns while maintaining rigorous factual alignment.
+
 ## What problem it solves
 LLMs are notoriously prone to sycophancy (agreeing with incorrect premises to please the user) and hallucinations (asserting incorrect facts with high confidence). Gemma 4 31B AntiHal solves these issues by baking representation steering directly into the model's generation process. Instead of hallucinating details or complying with false assumptions, the model pushes back on false premises (e.g., correcting a historical prompt containing wrong dates or fake events) and declines to generate responses when it lacks high-confidence facts.
 

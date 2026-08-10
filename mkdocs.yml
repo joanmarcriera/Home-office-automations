@@ -455,6 +455,7 @@ nav:
           - Tritium: tools/frameworks/tritium.md
       - Providers:
           - AWS Bedrock: tools/providers/aws-bedrock.md
+          - Baseten: tools/providers/baseten.md
           - Anthropic: tools/providers/anthropic.md
           - Azure OpenAI: tools/providers/azure-openai.md
           - BigSwitch: tools/providers/bigswitch.md
@@ -549,6 +550,7 @@ nav:
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
+          - BeeLlama.cpp: tools/infrastructure/beellama-cpp.md
           - ClawRouter: tools/infrastructure/clawrouter.md
           - Colibri: tools/infrastructure/colibri.md
           - ExLlamaV2: tools/infrastructure/exllamav2.md
@@ -598,6 +600,7 @@ nav:
           - Langfuse: tools/process_understanding/langfuse.md
           - LastMile AI: tools/process_understanding/lastmile.md
           - New Relic AI: tools/process_understanding/new-relic-ai.md
+          - NeMo-Speech.cpp: tools/process_understanding/nemo-speech.md
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
           - OpenTelemetry Collector: tools/process_understanding/opentelemetry-collector.md
