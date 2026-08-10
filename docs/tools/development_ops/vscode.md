@@ -37,8 +37,26 @@ It provides a highly extensible "middle ground" between a simple text editor and
 
 ## Getting started
 
+To get started with Visual Studio Code, you can install it via package manager and launch a hello-world project.
+
 ### Installation
-Download and install for your platform from the [official website](https://code.visualstudio.com/).
+```bash
+# On macOS via Homebrew Cask
+brew install --cask visual-studio-code
+
+# On Ubuntu/Debian via apt
+sudo apt update && sudo apt install code
+```
+
+### Hello-World Example
+To verify your installation and CLI integration, create a simple Python "hello world" file and open it in VS Code:
+```bash
+# Create a hello-world file
+echo 'print("Hello, World from VS Code!")' > hello_world.py
+
+# Launch VS Code and open the file
+code hello_world.py
+```
 
 ### Key Extensions for AI (Late 2026)
 - **GitHub Copilot**: The standard AI completion engine (now with **Claude 5.1** and **Gemini 4.0** support).
@@ -48,24 +66,49 @@ Download and install for your platform from the [official website](https://code.
 
 ## CLI examples
 
-### CLI Usage
-VS Code provides a powerful CLI (`code`) for managing the editor and extensions.
+Visual Studio Code provides a robust command line interface (`code`) for file operations, extension management, and file comparison.
 
 ```bash
-# Open current directory in VS Code
+# 1. Open the current directory in the VS Code window
 code .
 
-# Install an extension from the terminal
+# 2. Install a specific extension from the marketplace
 code --install-extension github.copilot
 
-# Open a diff between two files
+# 3. Open a side-by-side diff comparing two files
 code --diff file1.txt file2.txt
 ```
 
 ## API examples
 
+### VS Code Extension API
+For developers extending VS Code programmatically, here is a minimal Node.js/TypeScript extension snippet displaying a "Hello World" notification.
+
+```javascript
+const vscode = require('vscode');
+
+/**
+ * Activates the VS Code extension.
+ * @param {vscode.ExtensionContext} context
+ */
+function activate(context) {
+    console.log('Congratulations, your extension "hello-world" is now active!');
+
+    // Register a command that shows an information message box
+    let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
+        vscode.window.showInformationMessage('Hello, World from the VS Code API!');
+    });
+
+    context.subscriptions.push(disposable);
+}
+
+module.exports = {
+    activate
+};
+```
+
 ### Optimizing `settings.json` for AI Performance
-To ensure AI extensions don't interfere with standard IDE features or each other, use specific configuration patterns.
+For power users configuring local settings, here is a minimal configuration snippet:
 
 ```json
 {
@@ -73,15 +116,7 @@ To ensure AI extensions don't interfere with standard IDE features or each other
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
-  },
-  "continue.models": [
-    {
-      "title": "Claude 5.1 Opus",
-      "provider": "anthropic",
-      "model": "claude-5-1-opus-20261024",
-      "apiKey": "${env:ANTHROPIC_API_KEY}"
-    }
-  ]
+  }
 }
 ```
 
