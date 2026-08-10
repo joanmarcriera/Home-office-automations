@@ -244,6 +244,7 @@ nav:
           - OpenAI: tools/ai_knowledge/openai.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
+          - Parlor: tools/ai_knowledge/parlor.md
           - Project Genie: tools/ai_knowledge/project-genie.md
           - Python: tools/ai_knowledge/python.md
           - Qwen: tools/ai_knowledge/qwen.md
@@ -477,6 +478,7 @@ nav:
           - Overview: tools/providers/index.md
           - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
+          - Poolside AI: tools/providers/poolside.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
           - Soofi: tools/providers/soofi.md
@@ -540,6 +542,7 @@ nav:
           - Temporal: tools/orchestration/temporal.md
           - ZenML: tools/orchestration/zenml.md
       - Infrastructure:
+          - Chroma: tools/infrastructure/chroma.md
           - Diagrid Catalyst: tools/infrastructure/diagrid-catalyst.md
           - Docker: tools/infrastructure/docker.md
           - DuckDB: tools/infrastructure/duckdb.md

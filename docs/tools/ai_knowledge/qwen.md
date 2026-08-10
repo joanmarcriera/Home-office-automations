@@ -1,7 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of July 2026, the family is spearheaded by **Qwen 3.6-35B-A3B** (an extremely efficient Mixture-of-Experts architecture utilizing roughly 3B active parameters per token) and the high-performance **Qwen 3.6-27B** with native 262k token context window support. It consistently matches or exceeds the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1 and GPT-5.5.
+Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of July 2026, the family is spearheaded by **Qwen 3.6-35B-A3B** (an extremely efficient Mixture-of-Experts architecture utilizing roughly 3B active parameters per token) and the high-performance **Qwen 3.6-27B** with native 262k token context window support. It consistently matches or exceeds the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1 and GPT-5.5. In August 2026, Alibaba Cloud announced the **Qwen 3.8** series, introducing the **Qwen 3.8-27B** variant alongside the flagship **Qwen 3.8 Max**, continuing their lead in open-weights performance and context handling.
 
 ## What problem it solves
 It addresses the dependency on proprietary, cloud-hosted API providers by providing extremely competitive, open-weight reasoning alternatives that can be completely self-hosted. Qwen's highly optimized Mixture-of-Experts (MoE) architecture resolves the local GPU compute bottleneck, enabling developers to execute highly advanced agentic planning, repository-wide indexing, and tool-calling on consumer-grade hardware.
@@ -110,7 +110,8 @@ print(response.choices[0].message.content)
 - [Qwen 3.6-35B-A3B Hugging Face Repository](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
 - [Qwen GitHub Codebase](https://github.com/QwenLM/Qwen)
 - [Reddit discussion on Qwen 3.6 27B context performance](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/)
+- [Qwen 3.8 Announcement on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1ve0psn/qwen3827b_announced_alongside_qwen38max/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-08-10
 - Confidence: high

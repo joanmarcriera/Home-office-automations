@@ -372,6 +372,12 @@
       "doc_path": "docs/tools/ai_knowledge/chatgpt.md"
     },
     {
+      "id": "chroma",
+      "name": "Chroma",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/chroma.md"
+    },
+    {
       "id": "chronos-mcp",
       "name": "Chronos MCP",
       "category": "Automation & Orchestration",
@@ -2191,6 +2197,12 @@
       "doc_path": "docs/tools/process_understanding/parea.md"
     },
     {
+      "id": "parlor",
+      "name": "Parlor",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/parlor.md"
+    },
+    {
       "id": "perplexity",
       "name": "Perplexity",
       "category": "Providers",
@@ -2261,6 +2273,12 @@
       "name": "Plex Automation",
       "category": "Services",
       "doc_path": "docs/services/plex-automation.md"
+    },
+    {
+      "id": "poolside",
+      "name": "Poolside AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/poolside.md"
     },
     {
       "id": "portkey",

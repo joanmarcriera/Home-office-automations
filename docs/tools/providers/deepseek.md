@@ -166,8 +166,9 @@ def query_deepseek_reasoner() -> DeepSeekSchema:
 - [OpenPangu2.0-Flash](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/) — Integrated from daily log reference.
 - [DeepSeek-V4-Flash Release - Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vbidxt/the_official_release_deepseek_v4_flash_is_live_on/)
 - [DeepSeek-V4-Flash Model - HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731)
+- [DeepSeek-V4-Flash-0731 Performance Benchmark on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vdq8en/deepseekv4flash0731_surpasses_fable5_sol_kimik3/)
 
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2026-08-10
 - Confidence: high

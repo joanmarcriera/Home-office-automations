@@ -134,5 +134,5 @@ if __name__ == "__main__":
 - [Reddit r/LocalLLaMA: WASTE engine release discussion](https://www.reddit.com/r/LocalLLaMA/comments/1vdy1nd/github_sqliteaiwaste_run_the_full/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2026-08-10
 - Confidence: high

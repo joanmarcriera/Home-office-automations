@@ -148,6 +148,7 @@ def verify_llama_cpp_health(server_url: str = "http://localhost:8080") -> bool:
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Target model architecture for local deployment.
 - [Quantization Concepts](../ai_knowledge/local_llms.md) - Technical background on weights compression.
 - [GGUF Format](../ai_knowledge/local_llms.md) - The standard file format for llama.cpp.
+- [llama.app](https://www.reddit.com/r/LocalLLaMA/comments/1vdt1i2/psa_llamaapp_mac_app_and_llama_serve_from_llamacpp/) — A Mac companion GUI application built specifically for llama.cpp/llama-server.
 
 ## Sources / references
 - [llama.cpp GitHub Repository](https://github.com/ggml-org/llama.cpp)
@@ -157,7 +158,8 @@ def verify_llama_cpp_health(server_url: str = "http://localhost:8080") -> bool:
 - [MLIR Dialect Stack](https://hiraditya.github.io/posts/mlir-dialect-stack-for-ml/) — Multi-Level Intermediate Representation compilation stack for local ML compilers.
 - [cachyllamas Fork](https://www.reddit.com/r/LocalLLaMA/comments/1v5k08a/cachyllamas_llamacpp_fork_with_persistent_kv/) — llama.cpp fork featuring persistent host KV caching.
 - [TensorSharp vs llama.cpp Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1v6ect8/benchmarks_tensorsharp_vs_llamacpp/) — Performance and throughput comparisons of .NET-based tensor libraries against native C++ execution.
+- [llama.app & llama-serve Mac App PSA on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vdt1i2/psa_llamaapp_mac_app_and_llama_serve_from_llamacpp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2026-08-10
 - Confidence: high
