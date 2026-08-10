@@ -288,10 +288,22 @@
       "doc_path": "docs/playbooks/backup-disaster-recovery.md"
     },
     {
+      "id": "baseten",
+      "name": "Baseten",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/baseten.md"
+    },
+    {
       "id": "bee-agent-framework",
       "name": "Bee Agent Framework",
       "category": "Agents",
       "doc_path": "docs/tools/agents/bee-agent-framework.md"
+    },
+    {
+      "id": "beellama-cpp",
+      "name": "BeeLlama.cpp",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/beellama-cpp.md"
     },
     {
       "id": "bettergpt-150m",
@@ -1943,6 +1955,12 @@
       "name": "NVIDIA NeMo Retriever",
       "category": "Agents",
       "doc_path": "docs/tools/agents/nemo-retriever.md"
+    },
+    {
+      "id": "nemo-speech",
+      "name": "NeMo-Speech.cpp",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/nemo-speech.md"
     },
     {
       "id": "nemoclaw",

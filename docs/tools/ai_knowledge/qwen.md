@@ -3,6 +3,8 @@
 ## What it is
 Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of July 2026, the family is spearheaded by **Qwen 3.6-35B-A3B** (an extremely efficient Mixture-of-Experts architecture utilizing roughly 3B active parameters per token) and the high-performance **Qwen 3.6-27B** with native 262k token context window support. It consistently matches or exceeds the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1 and GPT-5.5. In August 2026, Alibaba Cloud announced the **Qwen 3.8** series, introducing the **Qwen 3.8-27B** variant alongside the flagship **Qwen 3.8 Max**, continuing their lead in open-weights performance and context handling.
 
+Additionally, highly specialized community-driven quantization checkpoints have emerged, such as the **Qwen3.6-35B-A3B-Escha-W2** hosted on Hugging Face. This variant is a 2-bit quantized Mixture-of-Experts checkpoint specifically optimized for extreme local memory efficiency, allowing the massive 35B parameter MoE model to execute seamlessly on devices with as little as 12GB of VRAM while preserving conversational planning performance.
+
 ## What problem it solves
 It addresses the dependency on proprietary, cloud-hosted API providers by providing extremely competitive, open-weight reasoning alternatives that can be completely self-hosted. Qwen's highly optimized Mixture-of-Experts (MoE) architecture resolves the local GPU compute bottleneck, enabling developers to execute highly advanced agentic planning, repository-wide indexing, and tool-calling on consumer-grade hardware.
 
