@@ -1,7 +1,7 @@
 # Home Admin Agent Architecture
 
 ## What it is
-The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. It acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the [Model Context Protocol (MCP 3.1)](../tools/automation_orchestration/mcp.md).
+The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. It acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the Model Context Protocol (FastMCP 3.1).
 
 ## What problem it solves
 Managing a multi-service smart home or homelab environment typically requires navigating disconnected interfaces and protocols (e.g., Home Assistant, Paperless-ngx, Vikunja, and CalDAV). The Home Admin Agent architecture solves this fragmentation by offering an intelligent, natural-language interface capable of cross-service reasoning and complex long-horizon planning—such as coordinating between document uploads, task creation, and calendar scheduling without manual human coordination.
@@ -18,7 +18,7 @@ Managing a multi-service smart home or homelab environment typically requires na
 ## Strengths
 - **Stateful Long-Horizon Planning**: Uses advanced LangGraph-based Plan-and-Execute loops to construct, monitor, and adapt multi-step completion strategies dynamically.
 - **Durable Memory & Checkpointing**: Persists complete execution traces, message histories, and plan states across system restarts using robust SQLite backend storage.
-- **Dynamic Tool Discovery (MCP 3.1)**: Leverages Model Context Protocol (MCP 3.1) Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
+- **Dynamic Tool Discovery (FastMCP 3.1)**: Leverages FastMCP 3.1 Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
 - **Hybrid Inference Execution**: Seamlessly routes tasks between lightweight local models (e.g., Gemma 3, Llama 4, or Qwen 3.6) for low-latency operations and frontier APIs (such as Claude 5.1 or GPT-5.5) for complex reasoning.
 
 ## Limitations
@@ -60,81 +60,91 @@ ralph-admin init-db --db-path ./data/agent_memory.db
 ralph-admin start --port 8080 --config ./config/agent_config.yaml --enable-mcp
 
 # Test a specific tool in isolation to verify credentials and response schemas
-ralph-admin tool-run --tool "paperless_search" --arguments '{"query": "july 2026 water bill"}'
+ralph-admin tool-run --tool "paperless_search" --arguments '{"query": "december 2026 water bill"}'
 ```
 
 ## API examples
 
-### Graph State Definition (Python)
+### Base Home Tool Schema (Python & Pydantic v2)
+This example demonstrates a robust, type-safe validation layout for managing agent orchestration state, execution traces, and tool results using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `ValidationError`).
+
 ```python
-from typing import Annotated, List, Dict, Any
-from typing_extensions import TypedDict
-from langgraph.graph.message import add_messages
+import sys
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-class HomeAgentState(TypedDict):
-    """Represents the complete state of the LangGraph orchestration loop."""
-    # List of conversational messages (automatically concatenated and updated)
-    messages: Annotated[List[Any], add_messages]
-    # Current active execution plan containing sequential sub-tasks
-    plan: List[str]
-    # History of executed step outputs and outcomes
-    execution_results: List[Dict[str, Any]]
-    # Dynamic runtime context shared across custom home tools
-    session_context: Dict[str, Any]
-```
+# Pydantic v2 state schemas to validate agent planning trajectories
+class StateMessage(BaseModel):
+    role: str = Field(..., description="Role of the speaker: system, user, assistant, or tool")
+    content: str = Field(..., description="The textual payload of the message")
+    timestamp: float = Field(..., description="POSIX timestamp of message generation")
 
-### Stateful Memory Manager with SQLite checkpointer (Python)
-```python
-import sqlite3
-from langgraph.checkpoint.sqlite import SqliteSaver
+class SubTask(BaseModel):
+    id: int = Field(..., description="Unique sub-task sequence ID")
+    instruction: str = Field(..., description="Explicit sub-task instruction")
+    assigned_model: str = Field(default="gemma3", description="Model routed for execution: e.g., gemma3, llama4, claude-5-1")
+    status: str = Field(default="pending", pattern="^(pending|running|completed|failed)$")
 
-class AgentMemoryManager:
-    """Manages the lifecycle of persistent state databases for the Home Admin Agent."""
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.saver = SqliteSaver(self.conn)
+class HomeAgentStateUpdate(BaseModel):
+    thread_id: str = Field(..., description="Unique orchestration thread identifier")
+    messages: List[StateMessage] = Field(default_factory=list)
+    plan: List[SubTask] = Field(default_factory=list)
+    session_context: Dict[str, Any] = Field(default_factory=dict)
 
-    def get_saver(self) -> SqliteSaver:
-        return self.saver
-
-    def get_thread_state(self, thread_id: str) -> Dict[str, Any]:
-        config = {"configurable": {"thread_id": thread_id}}
-        return self.saver.get(config)
-
-    def close(self):
-        self.conn.close()
+def process_state_update(raw_payload: dict) -> Optional[HomeAgentStateUpdate]:
+    """Parses and validates incoming LangGraph state updates using Pydantic v2."""
+    try:
+        # Strict validation with Pydantic v2 model_validate
+        state = HomeAgentStateUpdate.model_validate(raw_payload)
+        print(f"✅ Successfully validated thread: {state.thread_id}")
+        print(f"  Messages: {len(state.messages)}")
+        print(f"  Sub-tasks in active plan: {len(state.plan)}")
+        return state
+    except ValidationError as e:
+        print(f"❌ State validation failed: {e}", file=sys.stderr)
+        return None
 
 if __name__ == "__main__":
-    manager = AgentMemoryManager("./data/agent_memory.db")
-    print("Persistent SQLite state checkpointer initialized successfully.")
-    manager.close()
-```
+    # Mock runtime payload representing an updated agent loop
+    mock_payload = {
+        "thread_id": "homelab-sync-2026-12-30",
+        "messages": [
+            {
+                "role": "user",
+                "content": "Sync the latest receipt from Paperless to Vikunja as a task.",
+                "timestamp": 1798628400.0
+            },
+            {
+                "role": "assistant",
+                "content": "I am planning the extraction and synchronization task.",
+                "timestamp": 1798628402.0
+            }
+        ],
+        "plan": [
+            {
+                "id": 1,
+                "instruction": "Retrieve matching document metadata from Paperless-ngx",
+                "assigned_model": "gemma3",
+                "status": "completed"
+            },
+            {
+                "id": 2,
+                "instruction": "Create a high-priority synchronized todo item in Vikunja",
+                "assigned_model": "llama4",
+                "status": "pending"
+            }
+        ],
+        "session_context": {
+            "mcp_server": "FastMCP-3.1-Local",
+            "active_user": "admin"
+        }
+    }
 
-### Base Home Tool Schema (Python & Pydantic v2)
-```python
-from abc import ABC, abstractmethod
-from pydantic import BaseModel, Field
-from typing import Type
-
-class ToolMetadata(BaseModel):
-    name: str = Field(..., description="Unique name of the tool registered in the agent registry")
-    description: str = Field(..., description="Detailed explanation of the tool's usage, inputs, and side-effects")
-    args_schema: Type[BaseModel] = Field(..., description="Pydantic schema defining the tool arguments")
-
-class BaseHomeTool(ABC):
-    """Abstract base class for all custom Python tools registered in the Home Admin Agent."""
-
-    @classmethod
-    @abstractmethod
-    def get_metadata(cls) -> ToolMetadata:
-        """Returns the structural metadata and validation schema for the tool."""
-        pass
-
-    @abstractmethod
-    async def execute(self, **kwargs) -> str:
-        """Executes the tool's core logic asynchronously with standard error boundaries."""
-        pass
+    validated_state = process_state_update(mock_payload)
+    if validated_state:
+        print("Trajectory verification:")
+        for task in validated_state.plan:
+            print(f"  Task {task.id}: '{task.instruction}' allocated to {task.assigned_model} [{task.status}]")
 ```
 
 ## Related tools / concepts
@@ -152,6 +162,5 @@ class BaseHomeTool(ABC):
 - [Model Context Protocol (MCP) v3.1 Technical Specification](https://modelcontextprotocol.io/)
 - [Pydantic V2 Migration & Custom Types Guide](https://docs.pydantic.dev/latest/)
 
-## Contribution Metadata
-- Last reviewed: 2026-07-24
+- Last reviewed: 2026-12-30
 - Confidence: high

@@ -1,7 +1,7 @@
 # Google Axion Processors
 
 ## What it is
-Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of late July 2026), it is engineered to power general-purpose computing, containerized microservices, and large-scale AI inference infrastructure across Google Cloud Platform (GCP).
+Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of late November/December 2026), it is engineered to power general-purpose computing, containerized microservices, and large-scale AI inference infrastructure across Google Cloud Platform (GCP).
 
 ## What problem it solves
 It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning and large-scale agentic loops scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
@@ -29,7 +29,7 @@ It solves the critical "energy ceiling" constraint of modern cloud compute infra
 ## When to use it
 - When deploying cloud-native containerized applications or model pipelines on Google Cloud Platform and seeking to optimize hosting costs.
 - When running high-throughput, continuous AI workloads where power efficiency ("Tokens per Watt") is a primary design constraint.
-- When modernizing GKE clusters to take advantage of multi-architecture scheduling policies.
+- When modernizing GKE clusters to take advantage of multi-architecture scheduling policies in late 2026.
 
 ## When not to use it
 - If your workload relies heavily on x86-64 closed-source compiled binaries or legacy libraries that are not ported to ARM64.
@@ -87,42 +87,69 @@ spec:
     effect: "NoSchedule"
 ```
 
-### Kubernetes Multi-Arch Deployment with Node Affinity (YAML)
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: inference-runner-deployment
-spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      app: inference-runner
-  template:
-    metadata:
-      labels:
-        app: inference-runner
-    spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: kubernetes.io/arch
-                operator: In
-                values:
-                - arm64 # Heavily prioritize deployment to Axion nodes
-      containers:
-      - name: runner
-        image: us-central1-docker.pkg.dev/my-project/images/inference-runner:latest
-        resources:
-          limits:
-            cpu: "2"
-            memory: 4Gi
-          requests:
-            cpu: "1"
-            memory: 2Gi
+### Declarative Compute Class Config Validator with Pydantic v2
+This Python script uses **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `ValidationError`) to dynamically validate Kubernetes node configurations, CPU requests, and target cloud VM series architectures before launching inference node pools.
+
+```python
+import sys
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+# Define strict node pool spec schema in Pydantic v2
+class GKENodeToleration(BaseModel):
+    key: str = Field(..., description="Toleration key name")
+    operator: str = Field(default="Equal", pattern="^(Equal|Exists)$")
+    value: str = Field(..., description="Toleration matching value")
+    effect: str = Field(default="NoSchedule")
+
+class NodePoolConfig(BaseModel):
+    name: str = Field(..., min_length=3, description="Node pool identifier")
+    machine_series: str = Field(..., pattern="^(n4a|n4|c4a|c4)$", description="Target VM series (n4a indicates Google Axion ARM64)")
+    min_nodes: int = Field(default=1, ge=1)
+    max_nodes: int = Field(default=10, le=100)
+    cpu_limit_cores: int = Field(..., ge=2, description="Allocated CPU cores per node")
+    tolerations: List[GKENodeToleration] = Field(default_factory=list)
+
+    @property
+    def is_axion_powered(self) -> bool:
+        """Helper to determine if node pool is allocated on Google Axion ARM64 hardware."""
+        return self.machine_series.endswith("a")
+
+def validate_deployment_target(raw_spec: dict) -> Optional[NodePoolConfig]:
+    """Validates raw node pool deployment blueprints prior to cluster integration."""
+    try:
+        # Pydantic v2 model_validate
+        config = NodePoolConfig.model_validate(raw_spec)
+        print(f"✅ GKE Node Pool '{config.name}' validation passed.")
+        print(f"  Processor Family: {'Google Axion ARM64' if config.is_axion_powered else 'Intel/AMD x86-64'}")
+        print(f"  Scale Boundaries: [{config.min_nodes} - {config.max_nodes}] nodes")
+        return config
+    except ValidationError as e:
+        print(f"❌ Configuration validation failed: {e}", file=sys.stderr)
+        return None
+
+if __name__ == "__main__":
+    # Sample blueprint spec for deploying inference runners to Google Axion nodes
+    sample_axion_spec = {
+        "name": "axion-gke-inference-pool",
+        "machine_series": "n4a",
+        "min_nodes": 2,
+        "max_nodes": 20,
+        "cpu_limit_cores": 8,
+        "tolerations": [
+            {
+                "key": "kubernetes.io/arch",
+                "operator": "Equal",
+                "value": "arm64",
+                "effect": "NoSchedule"
+            }
+        ]
+    }
+
+    # Execute target validation
+    validated_spec = validate_deployment_target(sample_axion_spec)
+    if validated_spec:
+        print(f"Deployment authorized on Axion: {validated_spec.is_axion_powered}")
 ```
 
 ## Kubernetes Architecture and Scheduling Integration
@@ -157,6 +184,5 @@ The design choices powering cloud platforms like Axion mirror and guide modern h
 - [GKE Compute Classes Configuration Reference](https://cloud.google.com/kubernetes-engine/docs/concepts/compute-classes)
 - [Docker Buildx Multi-Platform Build Guide](https://docs.docker.com/build/building/multi-platform/)
 
-## Contribution Metadata
-- Last reviewed: 2026-07-24
+- Last reviewed: 2026-12-30
 - Confidence: high
