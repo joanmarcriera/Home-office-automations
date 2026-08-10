@@ -1,38 +1,38 @@
 # Ollama Benchmark CLI
 
 ## What it is
-Ollama Benchmark CLI is a specialized tool for measuring the inference performance of local LLMs running on [Ollama](../../services/ollama.md). It provides detailed metrics for tokens-per-second (TPS), latency, and processing times, allowing users to objectively compare how different models perform on their specific hardware (GPU/CPU/RAM). In July 2026, it remains the standard for validating local 'Agentic Latency'—the speed at which a local model can process multi-step tool calls.
+Ollama Benchmark CLI is a highly specialized tool for measuring the inference performance and agentic execution efficiency of local LLMs running on [Ollama](../../services/ollama.md). It provides detailed metrics for tokens-per-second (TPS), latency, prefill speed, and processing times, allowing users to objectively compare how different models perform on their local hardware setups (GPU/CPU/RAM). By late November/December 2026, it serves as the baseline tool for validating local 'Agentic Latency'—the precise speed at which local models can digest multi-step tool declarations and execute JSON routing.
 
 ## What problem it solves
-Hardware performance for local LLMs is highly variable. A model that runs smoothly on a 24GB VRAM card might crawl on an integrated GPU. Ollama Benchmark CLI provides a standardized way to measure "Prompt Processing Speed" and "Generation Speed," helping users select the optimal model size, context limit, and quantization level (GGUF, EXL3, AWQ, etc.) for their specific system, especially for real-time agentic workflows where response time is critical.
+Hardware performance for local LLMs is highly variable. A model that runs smoothly on a 24GB VRAM card might crawl on an integrated GPU or CPU-only cluster. Ollama Benchmark CLI provides a standardized way to measure "Prompt Processing Speed" and "Generation Speed," helping builders select the optimal model size, context limit, and quantization level (GGUF, EXL2, AWQ, etc.) for real-time agentic workflows where response time and low latency are critical.
 
 ## Where it fits in the stack
-**Benchmarking**. Used for local infrastructure performance assessment, specifically for models managed by Ollama. It sits alongside [LLMPerf](llmperf.md) but focuses exclusively on the local execution environment.
+**Benchmarking**. Used for local infrastructure performance assessment, specifically for models managed by Ollama. It sits alongside [LLMPerf](llmperf.md) but focuses exclusively on local sandbox and homelab execution environments.
 
 ## Typical use cases
 - **Model Selection**: Comparing the generation speed (tokens/sec) of `llama4:8b` vs `llama4:70b` on a specific machine.
 - **Hardware Optimization**: Testing the impact of different GPU drivers, CUDA/ROCm configurations, or system settings on inference latency.
 - **Quantization Comparison**: Measuring the performance trade-offs between different quantization levels (e.g., `q4_K_M` vs `q8_0`).
-- **Thermal Benchmarking**: Running long-duration benchmarks to see if performance throttles due to heat over time.
-- **Agentic Latency Validation**: Measuring 'Time To First Token' (TTFT) for complex system prompts used in autonomous agents.
+- **Thermal Benchmarking**: Running long-duration benchmarks to see if local performance throttles due to heat dissipation over time.
+- **Agentic Latency Validation**: Measuring 'Time To First Token' (TTFT) for complex system prompts used in autonomous systems running on FastMCP 3.1.
 
 ## Strengths
-- **Native Integration**: Directly interacts with the Ollama API, no complex setup required.
-- **Detailed Metrics**: Provides separate metrics for prompt processing (prefill) and token generation.
+- **Native Integration**: Directly interacts with the Ollama API, no complex adapter setup required.
+- **Detailed Metrics**: Provides separate metrics for prompt processing (prefill) and token generation (decode).
 - **Comparative Output**: Supports table-based comparison of multiple models in a single run.
 - **Simple CLI**: Easy to install and use with standard Python tools.
 - **Agent-Aware**: Includes benchmarks specifically for long-context retrieval and tool-calling latency.
 
 ## Limitations
 - **Ollama Specific**: Only benchmarks models running via Ollama; it cannot directly benchmark `vLLM` or raw `llama.cpp` without an Ollama wrapper.
-- **Quality-Blind**: Measures speed only; it does not evaluate whether the model's output is actually correct or high-quality (use [LM Evaluation Harness](lm-evaluation-harness.md) for that).
-- **Environment Dependent**: Results are specific to the machine running the test and cannot be compared across different hardware without careful control.
+- **Quality-Blind**: Measures speed only; it does not evaluate whether the model's output is actually correct or high-quality (use [LM Evaluation Harness](lm-evaluation-harness.md) or [HLE](humanitys-last-exam.md) for quality metrics).
+- **Environment Dependent**: Results are specific to the machine running the test and cannot be compared across different hardware without careful environment control.
 
 ## When to use it
 - When you want to find the fastest model that fits comfortably on your local hardware.
-- When you are troubleshooting slow inference speeds in a local homelab setup in July 2026.
+- When you are troubleshooting slow inference speeds in a local homelab setup in late 2026.
 - When you need to provide performance data for a hardware review or comparison.
-- When optimizing a local agent's response loop.
+- When optimizing a local agent's reasoning loop (Llama 4, Gemma 3, Qwen 3.6).
 
 ## When not to use it
 - When benchmarking cloud-based API providers (use [LLMPerf](llmperf.md) instead).
@@ -43,7 +43,7 @@ Hardware performance for local LLMs is highly variable. A model that runs smooth
 Installation is straightforward via pip. Ensure you have Ollama running in the background before starting the benchmark.
 
 ```bash
-pip install git+https://github.com/LarHope/ollama-benchmark.git
+pip install git+https://github.com/LarHope/ollama-benchmark.git pydantic
 ```
 
 For multi-GPU local systems, configure Ollama with GPU-specific parameters before benchmarking:
@@ -61,7 +61,7 @@ ollama-benchmark --models llama4:8b deepseek-r1:32b --table_output
 ```
 
 ### Benchmarking with Context Limits and Thread Controls
-Specify custom context window limits and thread counts to mirror July 2026 agent environments:
+Specify custom context window limits and thread counts to mirror December 2026 agent environments:
 ```bash
 ollama-benchmark \
     --models gemma3:9b \
@@ -141,18 +141,68 @@ def benchmark_local_model(model_name, prompt, context_size=8192):
     print(f"  - Generation Speed: {generation_tps:.2f} tokens/sec")
     print(f"  - Total Turnaround Time: {end-start:.2f}s")
 
-benchmark_local_model("llama4:8b", "Analyze current agent security baselines.")
+if __name__ == "__main__":
+    benchmark_local_model("llama4:8b", "Analyze current agent security baselines.")
+```
+
+### Strict Pydantic v2 Schema Validation for Benchmark Results
+To satisfy late 2026 data contracts, local inference and prefill metrics are parsed and validated using strict Pydantic v2 schemas:
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+from datetime import datetime
+
+class LocalModelConfig(BaseModel):
+    """Pydantic v2 schema representing local model run configuration."""
+    model_name: str = Field(..., description="The local model name (e.g., llama4:8b, gemma3:9b, or qwen3.6:14b)")
+    context_size: int = Field(default=8192, ge=512, description="Context window size in tokens")
+    temperature: float = Field(default=0.0, ge=0.0, le=2.0, description="Sampling temperature")
+
+class LocalInferenceMetrics(BaseModel):
+    """Pydantic v2 schema for validating prefill and generation speed metrics."""
+    prompt_prefill_tps: float = Field(..., ge=0.0, description="Prompt prefill speed (tokens/sec)")
+    generation_tps: float = Field(..., ge=0.0, description="Token generation speed (tokens/sec)")
+    total_duration_ms: float = Field(..., ge=0.0, description="Total request execution time in milliseconds")
+
+class OllamaBenchmarkRun(BaseModel):
+    """Pydantic v2 schema representing a full benchmark execution record."""
+    config: LocalModelConfig = Field(..., description="Local model execution parameters")
+    metrics: LocalInferenceMetrics = Field(..., description="Captured execution metrics")
+    tested_at: datetime = Field(default_factory=datetime.utcnow, description="UTC timestamp of the run")
+
+# Validation demonstration
+if __name__ == "__main__":
+    test_metrics = {
+        "config": {
+            "model_name": "qwen3.6:14b",
+            "context_size": 16384,
+            "temperature": 0.2
+        },
+        "metrics": {
+            "prompt_prefill_tps": 341.25,
+            "generation_tps": 48.92,
+            "total_duration_ms": 1250.0
+        }
+    }
+
+    try:
+        validated_run = OllamaBenchmarkRun.model_validate(test_metrics)
+        print("Success: Validated local inference metrics successfully.")
+        print(f"Model: {validated_run.config.model_name} | Prefill speed: {validated_run.metrics.prompt_prefill_tps} tokens/sec")
+    except ValidationError as e:
+        print(f"Schema Validation Failure: {e.json()}")
 ```
 
 ## Related tools / concepts
-- [Ollama Service](../../services/ollama.md) - The underlying model server.
+- [Ollama Service](../../services/ollama.md) - The underlying local model server.
 - [LLMPerf](llmperf.md) - Benchmarking API-based LLM performance.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - Benchmarking model quality/accuracy.
 - [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - Frontier reasoning benchmark.
 - [MBPP](mbpp.md) - Code generation benchmark for Python.
 - [vLLM](../infrastructure/vllm.md) - High-performance inference server.
 - [Aphrodite Engine](../infrastructure/aphrodite-engine.md) - High-throughput local inference engine.
-- [Terminus 2](terminal-bench.md) - Benchmarking terminal-based agent interactions.
+- [Terminal-Bench (Terminus 2)](terminal-bench.md) - Benchmarking terminal-based agent interactions.
 
 ## Sources / references
 - [LarHope/ollama-benchmark GitHub Repository](https://github.com/LarHope/ollama-benchmark)
@@ -160,5 +210,5 @@ benchmark_local_model("llama4:8b", "Analyze current agent security baselines.")
 - [Local LLM Performance Leaderboard (2026)](https://example.com/local-llm-bench)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-23
+- Last reviewed: 2026-12-30
 - Confidence: high

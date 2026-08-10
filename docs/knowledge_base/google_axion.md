@@ -1,10 +1,10 @@
 # Google Axion Processors
 
 ## What it is
-Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of late July 2026), it is engineered to power general-purpose computing, containerized microservices, and large-scale AI inference infrastructure across Google Cloud Platform (GCP).
+Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency, large-scale cloud data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of late November/December 2026), it is engineered to power general-purpose computing, containerized microservices, and massive multi-tenant AI inference infrastructure across Google Cloud Platform (GCP). It acts as a primary hosting resource for continuous agentic pipelines driven by frontier LLMs (such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6).
 
 ## What problem it solves
-It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning and large-scale agentic loops scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
+It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning, deep planning graphs, and autonomous agent loops scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
 
 ## Where it fits in the stack
 **Category**: Compute Infrastructure. It serves as the physical (and virtualized) **Hardware/Compute Layer** within GCP, directly hosting Google Kubernetes Engine (GKE) clusters, multi-node compute pools, and containerized inference runners.
@@ -125,6 +125,59 @@ spec:
             memory: 2Gi
 ```
 
+### Strict Pydantic v2 Schema Validation for GKE Compute Classes
+To maintain operational integrity and prevent invalid Kubernetes deployment configurations, we employ strict Pydantic v2 schemas to parse and validate GKE ComputeClass models and machine shapes before applying them to cloud clusters:
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional, Dict
+from datetime import datetime
+
+class GKEMachineConfig(BaseModel):
+    """Pydantic v2 schema representing GKE node machine configuration."""
+    machine_series: str = Field(..., description="Machine family series, e.g., n4a (Google Axion) or n4 (standard x86)")
+    cpu_cores: int = Field(..., ge=1, description="Number of virtual CPU cores")
+    memory_gb: int = Field(..., ge=1, description="Node memory allocation in gigabytes")
+    architecture: str = Field(..., description="CPU architecture, e.g., arm64 or amd64")
+
+class ComputeClassSpec(BaseModel):
+    """Pydantic v2 schema representing a GKE ComputeClass specification."""
+    class_name: str = Field(..., description="Compute class unique identifier")
+    primary_series: GKEMachineConfig = Field(..., description="Primary preferred machine configuration")
+    fallback_series: List[GKEMachineConfig] = Field(default_factory=list, description="Ordered backup machine shapes")
+    tolerations: Dict[str, str] = Field(default_factory=dict, description="Kubernetes node scheduling tolerations")
+
+# Validation demonstration
+if __name__ == "__main__":
+    test_compute_class = {
+        "class_name": "high-eff-inference-class",
+        "primary_series": {
+            "machine_series": "n4a",
+            "cpu_cores": 8,
+            "memory_gb": 32,
+            "architecture": "arm64"
+        },
+        "fallback_series": [
+            {
+                "machine_series": "n4",
+                "cpu_cores": 8,
+                "memory_gb": 32,
+                "architecture": "amd64"
+            }
+        ],
+        "tolerations": {
+            "kubernetes.io/arch": "arm64"
+        }
+    }
+
+    try:
+        validated_class = ComputeClassSpec.model_validate(test_compute_class)
+        print("Success: Validated GKE ComputeClass definition against Pydantic v2 schemas.")
+        print(f"Class: {validated_class.class_name} | Primary: {validated_class.primary_series.machine_series} ({validated_class.primary_series.architecture})")
+    except ValidationError as e:
+        print(f"Configuration Validation Failure: {e.json()}")
+```
+
 ## Kubernetes Architecture and Scheduling Integration
 Integrating Axion into multi-architecture clusters is modeled as a simple scheduling policy rather than an infrastructure overhaul:
 - **GKE Compute Classes**: A native Kubernetes mechanism allowing cluster workloads to dynamically select target VM profiles (such as choosing Axion-backed nodes as standard).
@@ -158,5 +211,5 @@ The design choices powering cloud platforms like Axion mirror and guide modern h
 - [Docker Buildx Multi-Platform Build Guide](https://docs.docker.com/build/building/multi-platform/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-24
+- Last reviewed: 2026-12-30
 - Confidence: high

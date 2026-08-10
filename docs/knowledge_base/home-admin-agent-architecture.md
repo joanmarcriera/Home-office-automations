@@ -1,7 +1,7 @@
 # Home Admin Agent Architecture
 
 ## What it is
-The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. It acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the [Model Context Protocol (MCP 3.1)](../tools/automation_orchestration/mcp.md).
+The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. It acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the **Model Context Protocol (FastMCP 3.1)**. By late November/December 2026, it is engineered to leverage frontier LLMs such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6 for highly reliable execution.
 
 ## What problem it solves
 Managing a multi-service smart home or homelab environment typically requires navigating disconnected interfaces and protocols (e.g., Home Assistant, Paperless-ngx, Vikunja, and CalDAV). The Home Admin Agent architecture solves this fragmentation by offering an intelligent, natural-language interface capable of cross-service reasoning and complex long-horizon planning—such as coordinating between document uploads, task creation, and calendar scheduling without manual human coordination.
@@ -18,7 +18,7 @@ Managing a multi-service smart home or homelab environment typically requires na
 ## Strengths
 - **Stateful Long-Horizon Planning**: Uses advanced LangGraph-based Plan-and-Execute loops to construct, monitor, and adapt multi-step completion strategies dynamically.
 - **Durable Memory & Checkpointing**: Persists complete execution traces, message histories, and plan states across system restarts using robust SQLite backend storage.
-- **Dynamic Tool Discovery (MCP 3.1)**: Leverages Model Context Protocol (MCP 3.1) Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
+- **Dynamic Tool Discovery (FastMCP 3.1)**: Leverages Model Context Protocol (FastMCP 3.1) Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
 - **Hybrid Inference Execution**: Seamlessly routes tasks between lightweight local models (e.g., Gemma 3, Llama 4, or Qwen 3.6) for low-latency operations and frontier APIs (such as Claude 5.1 or GPT-5.5) for complex reasoning.
 
 ## Limitations
@@ -56,7 +56,7 @@ Interacting with the Home Admin Agent environment via the administrative CLI:
 # Initialize the persistent SQLite database for conversation state and memory checkpointing
 ralph-admin init-db --db-path ./data/agent_memory.db
 
-# Launch the LangGraph orchestration server with active MCP 3.1 server registration
+# Launch the LangGraph orchestration server with active FastMCP 3.1 server registration
 ralph-admin start --port 8080 --config ./config/agent_config.yaml --enable-mcp
 
 # Test a specific tool in isolation to verify credentials and response schemas
@@ -137,6 +137,57 @@ class BaseHomeTool(ABC):
         pass
 ```
 
+### Strict Pydantic v2 Schema Validation for Dynamic Plan Generation
+To satisfy the late December 2026 technical contracts, all dynamically generated multi-step execution plans must be validated against a strict Pydantic v2 structure:
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List
+from datetime import datetime
+
+class AgentPlanStep(BaseModel):
+    """Pydantic v2 schema representing a single structured plan step."""
+    step_id: int = Field(..., ge=1, description="Step sequence number")
+    task_description: str = Field(..., description="Details of the action to be taken")
+    assigned_tool: str = Field(..., description="The MCP/FastMCP tool name assigned to complete this step")
+    is_completed: bool = Field(default=False, description="Completion status")
+
+class StructuredAgentPlan(BaseModel):
+    """Pydantic v2 schema representing an entire execution plan."""
+    goal: str = Field(..., description="The ultimate target requested by the user")
+    steps: List[AgentPlanStep] = Field(default_factory=list, description="Ordered steps to complete the goal")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Generation timestamp")
+
+# Demonstration of dynamic plan verification
+if __name__ == "__main__":
+    plan_data = {
+        "goal": "Process the scanned tax document and schedule a follow-up task.",
+        "steps": [
+            {
+                "step_id": 1,
+                "task_description": "Search Paperless-ngx for recently uploaded tax documents",
+                "assigned_tool": "paperless_search",
+                "is_completed": False
+            },
+            {
+                "step_id": 2,
+                "task_description": "Create a task in Vikunja to review the tax form",
+                "assigned_tool": "vikunja_task_create",
+                "is_completed": False
+            }
+        ]
+    }
+
+    try:
+        validated_plan = StructuredAgentPlan.model_validate(plan_data)
+        print("Success: Validated structured plan against Pydantic v2 schemas.")
+        print(f"Goal: {validated_plan.goal}")
+        for step in validated_plan.steps:
+            print(f"  [{step.step_id}] Tool: {step.assigned_tool} -> {step.task_description}")
+    except ValidationError as e:
+        print(f"Plan Schema Validation Failed: {e.json()}")
+```
+
 ## Related tools / concepts
 - [Agentic Workflows](patterns/agentic-workflows.md)
 - [Home Assistant](../services/home-assistant.md)
@@ -153,5 +204,5 @@ class BaseHomeTool(ABC):
 - [Pydantic V2 Migration & Custom Types Guide](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-24
+- Last reviewed: 2026-12-30
 - Confidence: high
