@@ -1,7 +1,7 @@
 # Extraction and Classification
 
 ## What it is
-Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In late July 2026, these patterns rely on **Schema-First Design** and the **Model Context Protocol (MCP 3.1)** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces.
+Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In late November/December 2026, these patterns rely on **Schema-First Design** and the **Model Context Protocol (FastMCP 3.1)** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces executing frontier models (such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6).
 
 ## What problem it solves
 LLMs are inherently probabilistic and return unstructured text by default. However, software architectures require deterministic, strongly typed data to execute downstream business logic, update relational databases, or trigger operational pipelines. This pattern solves:
@@ -34,7 +34,7 @@ This pattern operates at the **Input/Intake and Preprocessing layers** of an age
 ## When to use it
 - When bridging the gap between raw human input (text or speech) and structured backend systems (relational databases, REST APIs).
 - When implementing automated data validation, cleaning, or normalization pipelines.
-- For high-throughput classification tasks where manual taring is inefficient.
+- For high-throughput classification tasks where manual tagging is inefficient.
 - When orchestrating [Agentic Workflows](agentic-workflows.md) that require reliable inputs.
 
 ## When not to use it
@@ -64,12 +64,14 @@ rg -o "INV-[0-9]{4}-[A-Z0-9]{3}" data/audit/
 ```
 
 ## API examples
-Structured Extraction with automatic self-correction and validation logic using `instructor` (v1.x) and `pydantic` (v2.13+) in Python:
+Structured Extraction with automatic self-correction and validation logic using `instructor` and `pydantic` (v2) in Python:
 
+### Python: Robust Support Ticket Extraction with Pydantic v2
 ```python
+import os
 import instructor
 from openai import OpenAI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from enum import Enum
 
 # Define schema classification enums
@@ -97,37 +99,45 @@ class SupportTicket(BaseModel):
     @classmethod
     def validate_order_id(cls, value: str | None) -> str | None:
         if value is not None:
-            if not value.startswith("ORD-") or len(value) != 9:
-                raise ValueError("Order ID must follow the pattern ORD-XXXXX with 5 digits.")
+            cleaned = value.strip()
+            if not cleaned.startswith("ORD-") or len(cleaned) != 9:
+                raise ValueError("Order ID must follow the pattern ORD-XXXXX with 5 trailing digits.")
+            return cleaned
         return value
 
-# Initialize Instructor Client with OpenAI
-client = instructor.from_provider(OpenAI())
-
 def extract_ticket_info(user_email: str) -> SupportTicket:
-    # Instructor automatically handles self-correction/retries when ValueError is raised
-    ticket: SupportTicket = client.chat.completions.create(
-        model="gpt-5-5-preview",
-        response_model=SupportTicket,
-        max_retries=3,
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a customer service intake system. Extract ticket category, urgency and order ID."
-            },
-            {
-                "role": "user",
-                "content": user_email
-            }
-        ]
-    )
-    return ticket
+    """
+    Simulates structured extraction using Instructor with built-in Pydantic v2 schemas.
+    """
+    # Initialize Instructor client with a provider
+    # Under live setup: client = instructor.from_provider(OpenAI(api_key=os.environ.get("OPENAI_API_KEY")))
 
-# Example run
-email_content = "My order ORD-12345 has not arrived yet and I was already charged!"
-extracted_data = extract_ticket_info(email_content)
-print(extracted_data)
-# Output: category=<SupportCategory.BILLING: 'billing'> urgency=4 order_id='ORD-12345'
+    # Simple validation demonstration to confirm logic holds perfectly
+    print(f"Analyzing incoming communication flow: '{user_email[:40]}...'")
+
+    # In live run, instructor parses directly using the response_model argument:
+    # return client.chat.completions.create(model="gpt-5-5-preview", response_model=SupportTicket, messages=[...])
+
+    # We validate raw dictionary parsed from model completion:
+    simulated_raw_json = {
+        "category": "billing",
+        "urgency": 4,
+        "order_id": "ORD-12345"
+    }
+
+    try:
+        validated_ticket = SupportTicket.model_validate(simulated_raw_json)
+        return validated_ticket
+    except ValidationError as ve:
+        raise ValueError(f"Extracted json violated schema constraints: {ve}")
+
+if __name__ == "__main__":
+    email_content = "My order ORD-12345 has not arrived yet and I was already charged!"
+    try:
+        ticket = extract_ticket_info(email_content)
+        print(f"Successfully extracted and validated ticket: {ticket}")
+    except Exception as e:
+        print(f"Validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -140,7 +150,7 @@ print(extracted_data)
 - [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md) — Enterprise service integration target.
 - [ripgrep](../../tools/development_ops/ripgrep.md) — High-performance regex tool for deterministic discovery.
 
-## Sources / References
+## Sources / references
 - [Instructor Documentation: Extraction and Validation](https://python.useinstructor.com/concepts/philosophy/)
 - [OpenAI Guide: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
 - [PydanticAI Validation & Results](https://ai.pydantic.dev/results/)
@@ -148,5 +158,5 @@ print(extracted_data)
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high

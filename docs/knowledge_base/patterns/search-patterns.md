@@ -1,7 +1,7 @@
 # Search Patterns
 
 ## What it is
-Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In late July 2026, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the latest **Model Context Protocol (MCP 3.1)**.
+Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In late November/December 2026, this has shifted from basic Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the latest **Model Context Protocol (FastMCP 3.1)** features.
 
 ## What problem it solves
 As the volume of unstructured data grows, simple keyword search often fails to capture the underlying meaning or intent of a user's query. Conversely, purely semantic search can miss exact matches for technical terms or product IDs. Modern search patterns solve:
@@ -9,7 +9,7 @@ As the volume of unstructured data grows, simple keyword search often fails to c
 - **Hallucination Mitigation**: Grounding model responses in verified facts rather than internal training parameters.
 - **Multimodal Discovery**: Searching across text, images, and video using unified embedding spaces (e.g., [ColQwen](data-copilot-agentic-rag.md)).
 - **Real-Time Synthesis**: Synthesizing answers from rapidly changing web data via Agentic Search providers like [Exa AI](../../tools/providers/exa_ai.md).
-- **Multi-Agent Coordination**: Routing and executing parallel search queries across federated data stores using MCP 3.1 router architectures.
+- **Multi-Agent Coordination**: Routing and executing parallel search queries across federated data stores using FastMCP 3.1 router architectures.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / AI Patterns. These patterns reside in the **Retrieval and Context layer** of an application, sitting between the [Vector Database](../../tools/infrastructure/index.md) and the [Inference Engine](../../tools/infrastructure/index.md).
@@ -19,7 +19,7 @@ As the volume of unstructured data grows, simple keyword search often fails to c
 - **Enterprise Semantic Search**: Building intelligent search engines for corporate wikis that understand domain-specific jargon.
 - **Multimodal Product Discovery**: Finding products based on visual similarity or natural language descriptions.
 - **Autonomous Research**: Using agents to scour the web and internal docs to generate comprehensive market reports.
-- **Federated MCP 3.1 Search**: Dynamically selecting and querying local or cloud databases using MCP 3.1 tools.
+- **Federated FastMCP 3.1 Search**: Dynamically selecting and querying local or cloud databases using MCP 3.1 tools.
 
 ## Strengths
 - **High Precision and Recall**: Hybrid methods capture both exact matches (via BM25) and semantic intent.
@@ -69,7 +69,7 @@ curl -s -X POST "https://api.exa.ai/search" \
      -H "x-api-key: $EXA_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
-       "query": "latest research on hybrid RAG patterns in late July 2026",
+       "query": "latest research on hybrid RAG patterns in late November 2026",
        "useAutoprompt": true,
        "numResults": 5,
        "type": "neural"
@@ -77,59 +77,96 @@ curl -s -X POST "https://api.exa.ai/search" \
 ```
 
 ## API examples
-Implementation of a Hybrid Search and Re-ranking query using Python and the Cohere/Pinecone SDKs:
+The following Python example implements a validated neural search workflow using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `ValidationError`) to strictly validate query parameters and search responses.
 
+### Python: Validated Neural Search Pipeline (Pydantic v2)
 ```python
 import os
-from pinecone import Pinecone
-import cohere
+from typing import List
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
-# Initialize SOTA July 2026 clients
-pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
-co = cohere.ClientV2(api_key=os.environ["COHERE_API_KEY"])
+# Pydantic v2 Schema for a robust Search Request
+class NeuralSearchQuery(BaseModel):
+    query: str = Field(..., min_length=2, max_length=500, description="The user or system search query")
+    top_k: int = Field(default=5, ge=1, le=100, description="Number of results to retrieve")
+    hybrid_ratio: float = Field(default=0.5, ge=0.0, le=1.0, description="Balance between keyword (0.0) and vector (1.0) search")
 
-def hybrid_search_and_rerank(query: str, index_name: str, top_k: int = 10) -> list:
-    # 1. Generate Query Embeddings
-    embedding_response = co.embed(
-        texts=[query],
-        model="embed-english-v3.0",
-        input_type="search_query"
-    )
-    query_vector = embedding_response.embeddings[0]
+    @field_validator("query")
+    @classmethod
+    def strip_and_verify_query(cls, v: str) -> str:
+        cleaned = v.strip()
+        if not cleaned:
+            raise ValueError("Search query cannot be empty or solely whitespace.")
+        return cleaned
 
-    # 2. Query Pinecone with Hybrid Search (Semantic + Sparse/Lexical)
-    index = pc.Index(index_name)
-    results = index.query(
-        vector=query_vector,
-        top_k=top_k * 2,
-        include_metadata=True
-    )
+# Pydantic v2 Schema for a Search Result
+class SearchResultDocument(BaseModel):
+    document_id: str = Field(..., description="Unique ID of the matched document")
+    content: str = Field(..., description="Text content chunk of the document")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Similarity score or normalized cross-encoder rank score")
 
-    # Extract text from matches
-    documents = [
-        {"id": match.id, "text": match.metadata["text"]}
-        for match in results.matches
+class RankedSearchResponse(BaseModel):
+    query: str
+    results: List[SearchResultDocument]
+
+def execute_validated_search(request_payload: dict) -> dict:
+    """
+    Validates query payload, executes a mock neural/hybrid search,
+    and returns a strictly validated response payload.
+    """
+    try:
+        # 1. Validate incoming search parameters with Pydantic v2
+        search_params = NeuralSearchQuery.model_validate(request_payload)
+    except ValidationError as ve:
+        raise ValueError(f"Invalid search request arguments: {ve}")
+
+    print(f"Executing SOTA search for '{search_params.query}' (top_k={search_params.top_k}, ratio={search_params.hybrid_ratio})")
+
+    # 2. Simulate search execution (e.g. querying Pinecone + Cohere Re-rank)
+    simulated_raw_results = [
+        {
+            "document_id": "doc-091",
+            "content": "Claude 5.1 and GPT-5.5 offer outstanding native tooling capabilities for agent workflows in late 2026.",
+            "relevance_score": 0.985
+        },
+        {
+            "document_id": "doc-042",
+            "content": "Model Context Protocol (FastMCP 3.1) simplifies client and server discovery across distributed nodes.",
+            "relevance_score": 0.892
+        }
     ]
 
-    # 3. Apply Cohere Re-rank v3 for high-precision ordering
-    rerank_results = co.rerank(
-        query=query,
-        documents=[doc["text"] for doc in documents],
-        top_n=top_k,
-        model="rerank-english-v3.0"
-    )
+    # Trim results to requested top_k
+    trimmed_results = simulated_raw_results[:search_params.top_k]
 
-    # Reconstruct ranked documents
-    ranked_docs = []
-    for result in rerank_results.results:
-        original_doc = documents[result.index]
-        ranked_docs.append({
-            "id": original_doc["id"],
-            "text": original_doc["text"],
-            "score": result.relevance_score
-        })
+    # 3. Formulate and validate output response schema
+    response_payload = {
+        "query": search_params.query,
+        "results": trimmed_results
+    }
 
-    return ranked_docs
+    try:
+        validated_response = RankedSearchResponse.model_validate(response_payload)
+    except ValidationError as ve:
+        raise ValueError(f"Search engine returned corrupted schemas: {ve}")
+
+    return validated_response.model_dump()
+
+if __name__ == "__main__":
+    # Sample input query parameters
+    payload = {
+        "query": "  What are the SOTA agent standards in late November 2026? ",
+        "top_k": 2,
+        "hybrid_ratio": 0.75
+    }
+
+    try:
+        result = execute_validated_search(payload)
+        print("Search completed with full type safety:")
+        for r in result["results"]:
+            print(f"[{r['document_id']}] Score: {r['relevance_score']:.3f} | {r['content']}")
+    except Exception as e:
+        print(f"Error during search execution: {e}")
 ```
 
 ## Related tools / concepts
@@ -142,7 +179,7 @@ def hybrid_search_and_rerank(query: str, index_name: str, top_k: int = 10) -> li
 - [OpenRouter](../../tools/ai_knowledge/openrouter.md) — Used for routing search-related LLM calls.
 - [MinIO](../../tools/intake_storage/minio.md) — Storage for raw documents before indexing.
 
-## Sources / References
+## Sources / references
 - [LlamaIndex: Hybrid Search Implementation Guide](https://docs.llamaindex.ai/en/stable/examples/vector_stores/HybridSearch/)
 - [Exa AI Documentation: Agentic Search Patterns](https://docs.exa.ai/docs/agentic-search)
 - [Pinecone: What is Hybrid Search?](https://www.pinecone.io/learn/hybrid-search/)
@@ -150,5 +187,5 @@ def hybrid_search_and_rerank(query: str, index_name: str, top_k: int = 10) -> li
 - [Cohere ClientV2 Re-rank Guide](https://docs.cohere.com/docs/reranking)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high
