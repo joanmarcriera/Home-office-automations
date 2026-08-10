@@ -39,46 +39,90 @@ It drastically reduces the cost and complexity of corporate video production. Tr
 - If you lack the budget for a premium generative video service and only need occasional, low-fidelity content.
 
 ## Getting started
-1. **Account**: Sign up at [synthesia.io](https://www.synthesia.io/).
-2. **Choose Avatar**: Select from the library of 160+ AI avatars.
-3. **Input Script**: Paste your script or use an AI assistant to generate one.
-4. **Select Language**: Choose from 140+ supported languages and voices.
-5. **Generate**: Click generate and download your video or host it on the platform.
+
+To get started with Synthesia's programmatic platform, you can install the required dependencies and execute a basic HTTP handshake.
+
+### Installation
+```bash
+# Synthesia APIs are RESTful; install requests for programmatic integration
+pip install requests
+```
+
+### Hello-World Example
+Below is a simple Python verification script to check your API key validity and print the available video models/voices:
+```python
+import requests
+
+API_KEY = "your_synthesia_api_key"
+
+# Perform a lightweight request to verify integration
+headers = {
+    "Authorization": API_KEY,
+    "Content-Type": "application/json"
+}
+
+try:
+    response = requests.get("https://api.synthesia.io/v3/voices", headers=headers, timeout=10)
+    if response.status_code == 200:
+        print("Connected successfully! Supported voices:", response.json().get("data")[:3])
+    else:
+        print(f"Connection returned status code: {response.status_code}")
+except Exception as e:
+    print(f"Connection verification failed: {e}")
+```
 
 ## CLI examples
-While primarily web-based, Synthesia offers a CLI tool for batch processing and API management:
+
+While Synthesia is primarily configured in the cloud dashboard, technical teams can utilize their batch CLI tool to deploy or track ongoing video rendering tasks.
 
 ```bash
-# List available avatars and their IDs
-synthesia avatars list
+# 1. Retrieve a list of available AI avatar identifiers
+synthesia avatars list --api-key "YOUR_KEY"
 
-# Generate a video from a script file
-synthesia video create --script script.txt --avatar id_123 --output result.mp4
+# 2. Trigger video generation using a script file and target avatar
+synthesia video create --script script.txt --avatar anna_costume_1 --output output.mp4
 
-# Check the status of a video generation job
-synthesia video status --id job_456
+# 3. Poll the render pipeline status for a specific video ID
+synthesia video status --id vid_9812304
 ```
 
 ## API examples
-### Python: Automated Video Generation
+
+### Python (Creating an AI Video)
+For backend pipelines, you can easily request a video generation job by sending a POST request to Synthesia's v3 streaming endpoint.
+
 ```python
 import requests
 
 API_KEY = "YOUR_API_KEY"
+API_URL = "https://api.synthesia.io/v3/videos"
 
-# Define payload for the video generation API
+headers = {
+    "Authorization": API_KEY,
+    "Content-Type": "application/json"
+}
+
+# Video metadata and avatar behavior payload
 payload = {
     "test": False,
     "input": [{
         "scriptText": "Welcome to our July 2026 product update!",
         "avatar": "anna_costume_1",
-        "avatarSettings": {"horizontalAlign": "center", "scale": 1.0}
+        "avatarSettings": {
+            "horizontalAlign": "center",
+            "scale": 1.0
+        }
     }]
 }
 
-headers = {"Authorization": API_KEY, "Content-Type": "application/json"}
-response = requests.post("https://api.synthesia.io/v3/videos", json=payload, headers=headers)
-print(response.json())
+try:
+    response = requests.post(API_URL, json=payload, headers=headers, timeout=15)
+    if response.status_code == 201:
+        print("Video rendering initiated. ID:", response.json().get("id"))
+    else:
+        print(f"API request failed with code {response.status_code}: {response.text}")
+except Exception as e:
+    print("API connection error:", e)
 ```
 
 ## Related tools / concepts

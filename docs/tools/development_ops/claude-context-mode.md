@@ -38,49 +38,62 @@ It reduces prompt sprawl and makes agent behavior more repeatable than pasting l
 
 ## Getting started
 
-To implement basic context mode, create an `AGENTS.md` file in your repository root to define the project's "operating system" for AI assistants.
+To get started with Claude Context Mode, you can install the official Claude Code CLI and set up a repository context file.
 
-1.  **Define the Scope**: Identify what the agent needs to know (architecture, coding style, current priorities).
-2.  **Create the File**: `touch AGENTS.md`
-3.  **Add the Prompt**: Instruct the agent to read this file at the start of every session.
-4.  **Use a Wrapper**: Create an alias or script to automate the context injection.
-
+### Installation
 ```bash
-# Basic setup
-echo "# Agent Instructions\n\n## Standards\n- Use Python 3.11+\n- Follow PEP8" > AGENTS.md
+# Install Claude Code globally via NPM
+npm install -g @anthropic-ai/claude-code
+```
+
+### Hello-World Example
+To bootstrap a project with persistent memory, create an `AGENTS.md` file in the repository root and launch the `claude` CLI:
+```bash
+# 1. Create a basic context file
+echo -e "# Repository Rules\n- Use Node.js v20+\n- Write clean TypeScript" > AGENTS.md
+
+# 2. Start Claude Code with the loaded context
+claude
 ```
 
 ## CLI examples
 
+Here are 3 common CLI commands to manage and inject repository context files during developer workflows.
+
 ```bash
-# Inject repository context using the Claude CLI
-claude --prompt "Project context: $(cat AGENTS.md)"
+# 1. Inject context into a single prompt execution
+claude --prompt "Project context: $(cat AGENTS.md) -- Review current folder structure."
 
-# Update context after a successful task
-claude --prompt "Task complete. Update AGENTS.md to reflect that User Auth is implemented."
+# 2. Append a newly completed feature to your progress log
+claude --prompt "Task complete. Update AGENTS.md progress list with 'Authentication added'."
 
-# Use FastMCP 3.0 to serve dynamic context
+# 3. Serve a directory of context documents using FastMCP 3.0
 uvx mcp-server-context7 --path ./docs/knowledge_base
 ```
 
 ## API examples
 
-While Context Mode is primarily a workflow pattern, it is often automated via `PostToolUse` hooks or wrapper SDKs using **Claude Hooks**.
+### Python (Injecting Context)
+For automated pipelines, you can load and pass the project context file directly to the system prompt of the Anthropic SDK.
 
 ```python
-# Example: Injecting context via the Anthropic Python SDK
 import anthropic
 
+# Initialize the official Anthropic client
 client = anthropic.Anthropic()
-with open("AGENTS.md", "r") as f:
+
+# Read the repository context file
+with open("AGENTS.md", "r", encoding="utf-8") as f:
     context = f.read()
 
+# Send the prompt containing the context to Claude
 response = client.messages.create(
     model="claude-4-8-opus-20260528",
     max_tokens=1024,
-    system=f"Project Context:\n{context}",
-    messages=[{"role": "user", "content": "Refactor the login controller."}]
+    system=f"Project Operating Context:\n{context}",
+    messages=[{"role": "user", "content": "Analyze the codebase structure."}]
 )
+print(response.content)
 ```
 
 ## Related tools / concepts

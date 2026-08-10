@@ -36,68 +36,94 @@ It provides a user-friendly interface for building RAG applications, handling da
 - If you are already committed to a different vector database (e.g., Pinecone, Milvus) and do not wish to use Weaviate.
 
 ## Getting started
-### Docker Deployment
-The most reliable way to run Verba is via Docker Compose, which packages the frontend, backend, and Weaviate database.
 
+To get started with Verba, you can install it using `pip` and run a quick verification script.
+
+### Installation
+```bash
+# Install Verba from PyPI
+pip install goldenverba
+```
+
+### Hello-World Example
+Below is a simple Python snippet to initialize the Verba environment and verify that the module is correctly installed:
+```python
+from goldenverba.components.interfaces import Generator
+
+# Verify the interface can be imported and initialized
+class HelloWorldGenerator(Generator):
+    def __init__(self):
+        super().__init__()
+        self.name = "HelloWorld"
+        self.description = "A simple verification generator for Verba"
+
+    def generate(self, queries, context):
+        return "Hello World from Verba RAG!"
+
+generator = HelloWorldGenerator()
+print(f"Verba {generator.name} initialized: {generator.generate([], '')}")
+```
+
+### Docker Deployment Option
+Alternatively, you can run Verba's full stack (including Weaviate) using Docker Compose:
 ```bash
 git clone https://github.com/weaviate/Verba
 cd Verba
-# Set your API keys in the .env file
 docker compose up -d
 ```
 
-### PIP Installation
-```bash
-pip install goldenverba
-verba start
-```
-
 ## CLI examples
-Verba provides a CLI for managing the application and data.
+
+Verba provides a dedicated command line tool (`verba`) to spin up servers, ingest datasets, and inspect overall health.
 
 ```bash
-# Start the Verba server
-verba start
+# 1. Start the Verba server on port 8000
+verba start --port 8000
 
-# Import data into Verba from a specific path
+# 2. Import documents from a local folder into the knowledge base
 verba import --path ./my_documents/
 
-# Check the status of the Verba environment and connected components
+# 3. View the state of connected databases and API keys
 verba status
 ```
 
 ## API examples
-Verba exposes a backend API that can be used to programmatically ingest data or query the RAG pipeline. Late 2026 pipelines must enforce strict request schema validation using **Pydantic v2**.
 
-### Query validation and invocation (Python)
+### Python (Querying Verba API with Pydantic v2 Validation)
+Verba exposes a backend REST API. The example below validates request schemas using **Pydantic v2** and sends a query to the running server.
+
 ```python
 import requests
 from pydantic import BaseModel, Field
 from typing import Optional
 
-# Define Pydantic v2 validation schema for Verba query endpoint
+# Define validation schema following strict Pydantic v2 guidelines
 class VerbaQueryPayload(BaseModel):
-    query: str = Field(..., min_length=1, description="The query string for the RAG pipeline")
-    conversation_id: Optional[str] = Field(default=None, description="Optional tracker for the conversation context")
-    model: str = Field(default="claude-5-1-sonnet-20261022", description="Frontier model targeting the extraction")
+    query: str = Field(..., min_length=1, description="The search or question string")
+    conversation_id: Optional[str] = Field(default=None, description="Conversation tracker UUID")
+    model: str = Field(default="claude-5-1-sonnet-20261022", description="Target model")
 
-# Validate the raw request payload
+# Payload to validate
 raw_query_data = {
     "query": "How do I configure the OIDC middleware for Traefik?",
     "model": "claude-5-1-sonnet-20261022"
 }
 
 try:
-    # Model validation under Pydantic v2 guidelines
+    # Strict validation under Pydantic v2
     validated_query = VerbaQueryPayload.model_validate(raw_query_data)
-    print(f"Validated query string: '{validated_query.query}'")
+    print(f"Validated query: '{validated_query.query}'")
 
-    url = "http://localhost:8000/api/query"
-    # We submit the validated payload dict using model_dump
-    # response = requests.post(url, json=validated_query.model_dump(exclude_none=True))
-    # print(response.json()["answer"])
+    # Send the request to local Verba API
+    response = requests.post(
+        "http://localhost:8000/api/query",
+        json=validated_query.model_dump(exclude_none=True),
+        timeout=10
+    )
+    if response.status_code == 200:
+        print("Response received:", response.json().get("answer"))
 except Exception as e:
-    print(f"Payload validation failed: {e}")
+    print(f"RAG query pipeline execution failed: {e}")
 ```
 
 ## Related tools / concepts

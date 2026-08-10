@@ -35,43 +35,80 @@ It eliminates the fragmentation of AI interfaces by providing a unified, self-ho
 - If you prefer a "low-code" flow-builder approach rather than a chat-centric interface (see [Langflow](../frameworks/langflow.md)).
 
 ## Getting started
-LobeChat v3.x is primarily deployed via Docker for stability and ease of update.
 
+To get started with LobeChat, you can install the container image using Docker and launch a local instance.
+
+### Installation
 ```bash
-# Quick start using the official setup script
-curl -fsSL https://lobe.li/install.sh | bash
-
-# Or via Docker Compose
+# Pull the official LobeChat image from Docker Hub
 docker pull lobehub/lobe-chat
+```
+
+### Hello-World Example
+Launch LobeChat locally and run a basic endpoint verification using Curl:
+```bash
+# 1. Run the container with a local access code and OpenAI API key
 docker run -d -p 3210:3210 \
-  -e OPENAI_API_KEY=sk-xxxx \
-  -e ACCESS_CODE=lobe66 \
+  -e OPENAI_API_KEY="sk-xxxx" \
+  -e ACCESS_CODE="lobe66" \
   --name lobe-chat \
   lobehub/lobe-chat
+
+# 2. Verify that LobeChat is responding to local web queries
+curl -I http://localhost:3210/
 ```
 
 ## CLI examples
 
-### 1. Update LobeChat Container
+Below are 3 common CLI management operations executed inside the host or within LobeChat's database container.
+
 ```bash
+# 1. Update the LobeChat Docker container to the latest version and restart
 docker pull lobehub/lobe-chat:latest && docker restart lobe-chat
-```
 
-### 2. Check Database Connectivity (for DB version)
-```bash
+# 2. Check Postgres database connectivity (applicable for the DB-backed version)
 docker exec -it lobe-chat-db psql -U lobe -d lobe_chat -c "SELECT version();"
-```
 
-### 3. Initialize MCP Proxy
-```bash
-# Start a local MCP 3.1 proxy to connect LobeChat to protected resources
+# 3. Bootstrapping a local Model Context Protocol (MCP 3.1) Inspector instance
 npx @modelcontextprotocol/inspector lobe-mcp-config.json
 ```
 
 ## API examples
 
-### Configuring a Custom Model via API
-LobeChat allows programmatic configuration of model endpoints.
+### Python (Chat Completion via LobeChat API Gateway)
+LobeChat provides an OpenAI-compatible API gateway. Below is a minimal Python example demonstrating how to send a chat query programmatically.
+
+```python
+import requests
+
+API_URL = "http://localhost:3210/api/openai/v1/chat/completions"
+ACCESS_CODE = "lobe66"
+
+headers = {
+    "Authorization": f"Bearer {ACCESS_CODE}",
+    "Content-Type": "application/json"
+}
+
+payload = {
+    "model": "gpt-4o",
+    "messages": [
+        {"role": "user", "content": "Say hello from LobeChat API!"}
+    ],
+    "temperature": 0.7
+}
+
+try:
+    response = requests.post(API_URL, json=payload, headers=headers, timeout=10)
+    if response.status_code == 200:
+        print("API Response:", response.json()["choices"][0]["message"]["content"])
+    else:
+        print(f"API Request failed with status code {response.status_code}")
+except Exception as e:
+    print(f"LobeChat API handshake failed: {e}")
+```
+
+### Configuring custom models via JSON payload
+For headless workspace configurations, you can register custom model providers using standard JSON definition blocks:
 
 ```json
 {
@@ -85,12 +122,6 @@ LobeChat allows programmatic configuration of model endpoints.
   }
 }
 ```
-
-### Integrating an MCP 3.1 Server
-In the LobeChat settings or via the Agent configuration:
-1. Navigate to **Plugins** -> **MCP**.
-2. Add a new server URL: `http://localhost:18789` (OpenClaw default).
-3. The agent now has access to all tools exposed by the MCP 3.1 gateway.
 
 ## Related tools / concepts
 - [AnythingLLM](anythingllm.md) — All-in-one RAG and agent workspace.
