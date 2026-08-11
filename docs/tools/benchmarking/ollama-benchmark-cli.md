@@ -172,6 +172,7 @@ if __name__ == "__main__":
 - [LarHope/ollama-benchmark GitHub Repository](https://github.com/LarHope/ollama-benchmark)
 - [Ollama API Documentation](https://github.com/ollama/ollama/blob/main/docs/api.md)
 - [Local LLM Performance Leaderboard (2026)](https://example.com/local-llm-bench)
+- [BetterBench: Accurate PP and TPS Measurements](https://www.reddit.com/r/LocalLLaMA/comments/1vgrii0/introducing_betterbench_more_accurate_pp_and_tps/)
 
 - Last reviewed: 2026-12-30
 - Confidence: high

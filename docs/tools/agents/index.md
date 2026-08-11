@@ -32,3 +32,4 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 - [Multi-Agent KnowledgeOps Governance](../../architecture/multi_agent_knowledgeops.md)
 - [Orchestration](../orchestration/index.md)
 - [Frameworks](../frameworks/index.md)
+- [bootai Platform Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1vginkn/bootai/)

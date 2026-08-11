@@ -102,6 +102,7 @@ print(f"Queued: {queue_workflow(wf)}")
 - [OpenArt ComfyUI Workflows](https://openart.ai/workflows/home)
 - [FLUX.1 Announcement](https://www.latent.space/p/ainews-black-forest-labs-flux-3-multimodal) — Multimodal image generation model by Black Forest Labs.
 - [Nunchaku Diffusers](https://huggingface.co/blog/nunchaku-diffusers) — Optimization library for local diffusion model inference.
+- [Scenema Audio for ComfyUI](https://www.reddit.com/r/LocalLLaMA/comments/1vgfmee/scenema_audio_comes_to_comfyui_runs_on_8gb_vram/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01
