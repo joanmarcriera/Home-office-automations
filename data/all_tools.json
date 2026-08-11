@@ -1822,6 +1822,12 @@
       "doc_path": "docs/tools/frameworks/microsoft-agent-framework.md"
     },
     {
+      "id": "microsoft-agent-framework-harness",
+      "name": "Microsoft Agent Framework Harness",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/microsoft-agent-framework-harness.md"
+    },
+    {
       "id": "microsoft-entra-id",
       "name": "Microsoft Entra ID",
       "category": "Enterprise AI",
