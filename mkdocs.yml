@@ -465,6 +465,7 @@ nav:
           - EXAONE: tools/providers/exaone.md
           - Exa AI: tools/providers/exa_ai.md
           - Fireworks AI: tools/providers/fireworks.md
+          - GLM: tools/providers/glm.md
           - Groq: tools/providers/groq.md
           - Hugging Face: tools/providers/huggingface.md
           - InternLM: tools/providers/internlm.md

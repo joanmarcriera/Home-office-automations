@@ -1103,6 +1103,12 @@
       "doc_path": "docs/tools/enterprise/glean.md"
     },
     {
+      "id": "glm",
+      "name": "GLM",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/glm.md"
+    },
+    {
       "id": "gnu-make",
       "name": "GNU Make",
       "category": "Automation & Orchestration",
@@ -1975,12 +1981,6 @@
       "doc_path": "docs/tools/ai_knowledge/nemotron.md"
     },
     {
-      "id": "nvidia-nemotron-parse",
-      "name": "NVIDIA-Nemotron-Parse-2.0",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/process_understanding/nvidia-nemotron-parse.md"
-    },
-    {
       "id": "netlify",
       "name": "Netlify",
       "category": "Development & Ops",
@@ -2021,6 +2021,12 @@
       "name": "NVIDIA",
       "category": "Providers",
       "doc_path": "docs/tools/providers/nvidia.md"
+    },
+    {
+      "id": "nvidia-nemotron-parse",
+      "name": "NVIDIA-Nemotron-Parse-2.0",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/nvidia-nemotron-parse.md"
     },
     {
       "id": "obsidian",
