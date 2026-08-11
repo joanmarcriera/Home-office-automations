@@ -257,6 +257,7 @@ nav:
           - TypingMind: tools/ai_knowledge/typingmind.md
           - Valyu: tools/ai_knowledge/valyu.md
           - Wan-Dancer: tools/ai_knowledge/wan-dancer.md
+          - WeatherNext: tools/ai_knowledge/weathernext.md
       - Automation & Orchestration:
           - Overview: tools/automation_orchestration/index.md
           - AirOps: tools/automation_orchestration/airops.md
@@ -427,6 +428,7 @@ nav:
       - Frameworks:
           - AG2: tools/frameworks/ag2.md
           - Agent Development Kit (ADK): tools/frameworks/google-adk.md
+          - AWS Kiro: tools/frameworks/aws-kiro.md
           - AutoGen: tools/frameworks/autogen.md
           - AutoGen Studio: tools/frameworks/autogen-studio.md
           - Axolotl: tools/frameworks/axolotl.md
@@ -509,6 +511,7 @@ nav:
           - Cline: tools/agents/cline.md
           - Agno: tools/agents/agno.md
           - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
+          - AWS Dogwood: tools/agents/aws-dogwood.md
           - AutoReason: tools/agents/autoreason.md
           - Bee Agent Framework: tools/agents/bee-agent-framework.md
           - Claude Skills Ecosystem: tools/agents/claude-skills-ecosystem.md
@@ -551,6 +554,7 @@ nav:
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
+          - Azure AI Gateway: tools/infrastructure/azure-ai-gateway.md
           - BeeLlama.cpp: tools/infrastructure/beellama-cpp.md
           - ClawRouter: tools/infrastructure/clawrouter.md
           - Colibri: tools/infrastructure/colibri.md
@@ -578,6 +582,7 @@ nav:
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
           - Unsloth: tools/infrastructure/unsloth.md
           - vLLM: tools/infrastructure/vllm.md
+          - Valkey: tools/infrastructure/valkey.md
           - WASTE: tools/infrastructure/waste.md
           - Weaviate: tools/infrastructure/weaviate.md
           - ZSE: tools/infrastructure/zse.md
