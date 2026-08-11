@@ -1,7 +1,7 @@
 # SGLang
 
 ## What it is
-SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention. By late July 2026, it has become the standard high-performance runtime for serving complex multi-agent reasoning chains and large multimodal models.
+SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention. By late December 2026, it has become the standard high-performance runtime for serving complex multi-agent reasoning chains and large multimodal models.
 
 ## What problem it solves
 LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation. It specifically solves the "First Token Latency" (TTFT) problem in long-context multi-turn conversations and agent tool-calling loops.
@@ -20,7 +20,7 @@ LLM applications often involve repetitive prompting, structured output requireme
 - **Fast Structured Generation**: Optimized engine for constrained generation (JSON Schema, regex) using compressed finite state machines.
 - **Chunked Prefill**: Efficiently handles large prompt processing without blocking small generation tasks, improving overall system throughput.
 - **Comprehensive VLM Support**: Native support and high performance for vision-based models with multi-image processing.
-- **Native MCP 3.1 Integration**: Natively processes Model Context Protocol (MCP 3.1) tool definitions, passing structured context directly into the RadixAttention loop for sub-10ms tool routing.
+- **Native FastMCP 3.1 Integration**: Natively processes Model Context Protocol (FastMCP 3.1) tool definitions, passing structured context directly into the RadixAttention loop for sub-10ms tool routing.
 
 ## Limitations
 - **Hardware Bound**: Primarily targets NVIDIA GPUs (CUDA); support for other accelerators (ROCm, Gaudi) is trailing.
@@ -40,7 +40,7 @@ LLM applications often involve repetitive prompting, structured output requireme
 ### Installation
 ```bash
 # Install with all dependencies for local serving on CUDA 12.8
-pip install "sglang[all]" --extra-index-url https://flashinfer.ai/whl/cu128/torch2.4
+pip install "sglang[all]" --extra-index-url https://flashinfer.ai/whl/cu128/torch2.5
 ```
 
 ### Basic Server Launch
@@ -77,7 +77,7 @@ curl http://localhost:30000/stats
 
 ## API examples
 ### Structured Generation (Python SDK with Pydantic v2)
-SGLang allows for highly efficient constrained generation using its native interpreter and standard schema-first Pydantic classes.
+SGLang allows for highly efficient constrained generation using its native interpreter and standard schema-first Pydantic classes (v2.13+).
 
 ```python
 from pydantic import BaseModel, Field
@@ -132,5 +132,5 @@ print(response.choices[0].message.content)
 - [SGLang Blog: Optimization for Agents](https://sgl-project.github.io/blog/agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
