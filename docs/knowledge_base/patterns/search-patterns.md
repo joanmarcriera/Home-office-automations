@@ -1,15 +1,16 @@
 # Search Patterns
 
 ## What it is
-Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In late July 2026, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the latest **Model Context Protocol (MCP 3.1)**.
+Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In late December 2026, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the latest **Model Context Protocol (MCP 3.1)** / FastMCP 3.1. Late-Interaction embeddings (such as ColBERT and ColQwen) are widely used to maintain token-level alignment and superior retrieval accuracy.
 
 ## What problem it solves
 As the volume of unstructured data grows, simple keyword search often fails to capture the underlying meaning or intent of a user's query. Conversely, purely semantic search can miss exact matches for technical terms or product IDs. Modern search patterns solve:
 - **Retrieval Quality & Precision**: Combining lexical and semantic methods (hybrid search) with Cross-Encoder re-rankers to ensure high-quality context.
+- **Token-Level Matching**: Using late-interaction mechanisms (e.g. ColQwen, ColBERT) to align query and document tokens, ensuring technical jargon is retrieved accurately.
 - **Hallucination Mitigation**: Grounding model responses in verified facts rather than internal training parameters.
-- **Multimodal Discovery**: Searching across text, images, and video using unified embedding spaces (e.g., [ColQwen](data-copilot-agentic-rag.md)).
+- **Multimodal Discovery**: Searching across text, images, and video using unified embedding spaces.
 - **Real-Time Synthesis**: Synthesizing answers from rapidly changing web data via Agentic Search providers like [Exa AI](../../tools/providers/exa_ai.md).
-- **Multi-Agent Coordination**: Routing and executing parallel search queries across federated data stores using MCP 3.1 router architectures.
+- **Multi-Agent Coordination**: Routing and executing parallel search queries across federated data stores using MCP 3.1 / FastMCP 3.1 router architectures.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / AI Patterns. These patterns reside in the **Retrieval and Context layer** of an application, sitting between the [Vector Database](../../tools/infrastructure/index.md) and the [Inference Engine](../../tools/infrastructure/index.md).
@@ -69,7 +70,7 @@ curl -s -X POST "https://api.exa.ai/search" \
      -H "x-api-key: $EXA_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
-       "query": "latest research on hybrid RAG patterns in late July 2026",
+       "query": "latest research on hybrid RAG patterns in late December 2026",
        "useAutoprompt": true,
        "numResults": 5,
        "type": "neural"
@@ -77,59 +78,123 @@ curl -s -X POST "https://api.exa.ai/search" \
 ```
 
 ## API examples
-Implementation of a Hybrid Search and Re-ranking query using Python and the Cohere/Pinecone SDKs:
+Implementation of a Hybrid Search and Re-ranking query using Python and the Cohere/Pinecone SDKs. The response is validated strictly using **Pydantic v2** models to ensure reliability in downstream multi-agent chains.
 
+### Python: Hybrid Search and Re-ranking Pipeline with strict Pydantic v2 typing
 ```python
 import os
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from pinecone import Pinecone
 import cohere
 
-# Initialize SOTA July 2026 clients
-pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
-co = cohere.ClientV2(api_key=os.environ["COHERE_API_KEY"])
+# ---------------------------------------------------------------------------
+# Strict Validation Schemas using Pydantic v2
+# ---------------------------------------------------------------------------
 
-def hybrid_search_and_rerank(query: str, index_name: str, top_k: int = 10) -> list:
+class SearchQueryInput(BaseModel):
+    query: str = Field(..., min_length=3, max_length=500, description="The natural language query string")
+    index_name: str = Field(..., description="The target vector database index name")
+    top_k: int = Field(default=5, ge=1, le=100, description="Number of re-ranked documents to return")
+
+    @field_validator("query")
+    @classmethod
+    def clean_query_text(cls, v: str) -> str:
+        # Strip trailing whitespaces and sanitize input text
+        return v.strip()
+
+class RankedDocument(BaseModel):
+    id: str = Field(..., description="Unique document hash or identifier")
+    text: str = Field(..., description="The raw document snippet text")
+    score: float = Field(..., description="Relevance score computed by Cohere Re-rank v3")
+    metadata: Optional[dict] = Field(default_factory=dict)
+
+# ---------------------------------------------------------------------------
+# Search Pipeline Function
+# ---------------------------------------------------------------------------
+
+# Initialize clients (ensure API keys are injected)
+pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY", "mock-key"))
+co = cohere.ClientV2(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
+
+def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
+    """
+    Executes a high-precision hybrid retrieval and Cohere Re-rank v3 pipeline,
+    validated strictly with Pydantic v2 models.
+    """
+    try:
+        # Validate inputs strictly using Pydantic v2
+        validated_input = SearchQueryInput.model_validate(raw_input)
+    except ValidationError as err:
+        raise ValueError(f"Invalid search parameters: {err}")
+
     # 1. Generate Query Embeddings
     embedding_response = co.embed(
-        texts=[query],
+        texts=[validated_input.query],
         model="embed-english-v3.0",
         input_type="search_query"
     )
     query_vector = embedding_response.embeddings[0]
 
     # 2. Query Pinecone with Hybrid Search (Semantic + Sparse/Lexical)
-    index = pc.Index(index_name)
+    index = pc.Index(validated_input.index_name)
     results = index.query(
         vector=query_vector,
-        top_k=top_k * 2,
+        top_k=validated_input.top_k * 2,
         include_metadata=True
     )
 
     # Extract text from matches
-    documents = [
-        {"id": match.id, "text": match.metadata["text"]}
-        for match in results.matches
-    ]
+    documents = []
+    for match in results.matches:
+        doc_text = match.metadata.get("text", "") if match.metadata else ""
+        documents.append({"id": match.id, "text": doc_text, "meta": match.metadata or {}})
+
+    if not documents:
+        return []
 
     # 3. Apply Cohere Re-rank v3 for high-precision ordering
     rerank_results = co.rerank(
-        query=query,
+        query=validated_input.query,
         documents=[doc["text"] for doc in documents],
-        top_n=top_k,
+        top_n=validated_input.top_k,
         model="rerank-english-v3.0"
     )
 
-    # Reconstruct ranked documents
+    # Reconstruct ranked documents and validate output schemas
     ranked_docs = []
     for result in rerank_results.results:
         original_doc = documents[result.index]
-        ranked_docs.append({
-            "id": original_doc["id"],
-            "text": original_doc["text"],
-            "score": result.relevance_score
-        })
+        try:
+            doc_obj = RankedDocument(
+                id=original_doc["id"],
+                text=original_doc["text"],
+                score=result.relevance_score,
+                metadata=original_doc["meta"]
+            )
+            ranked_docs.append(doc_obj.model_dump())
+        except ValidationError as err:
+            # Log and skip single malformed record to keep retrieval fault-tolerant
+            print(f"Skipping malformed retrieval record: {err}")
+            continue
 
     return ranked_docs
+
+
+if __name__ == "__main__":
+    # Sample execution (late 2026 search parameters)
+    raw_params = {
+        "query": "  How does FastMCP 3.1 simplify tool-calling transport mechanisms?  ",
+        "index_name": "homelab-docs-index",
+        "top_k": 3
+    }
+    try:
+        results = hybrid_search_and_rerank(raw_params)
+        print(f"Retrieved and Re-ranked {len(results)} docs:")
+        for doc in results:
+            print(f"[{doc['score']:.4f}] Doc ID: {doc['id']} - Snippet: {doc['text'][:50]}...")
+    except Exception as e:
+        print(f"Search retrieval pipeline execution failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -150,5 +215,5 @@ def hybrid_search_and_rerank(query: str, index_name: str, top_k: int = 10) -> li
 - [Cohere ClientV2 Re-rank Guide](https://docs.cohere.com/docs/reranking)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high

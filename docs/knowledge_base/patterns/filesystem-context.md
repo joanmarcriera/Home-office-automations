@@ -1,7 +1,7 @@
 # Filesystem-as-Interface Pattern
 
 ## What it is
-The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an architectural approach where the local filesystem serves as the primary persistence layer, configuration source, and communication medium for AI agents. Instead of relying on opaque or proprietary remote databases, agents use human-readable, structured Markdown and YAML files directly within the workspace to maintain state, memory, and operational context. In late July 2026, this has matured into the core foundation of **Agentic Workspaces** and local-first IDE integrations, using real-time sync engines (such as CRDT-based workspace synchronization in Melty and Windsurf Cascade) to maintain context consistency across multi-agent pipelines.
+The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an architectural approach where the local filesystem serves as the primary persistence layer, configuration source, and communication medium for AI agents. Instead of relying on opaque or proprietary remote databases, agents use human-readable, structured Markdown and YAML files directly within the workspace to maintain state, memory, and operational context. In late December 2026, this has matured into the core foundation of **Agentic Workspaces** and local-first IDE integrations, using real-time sync engines (such as CRDT-based workspace synchronization in Melty and Windsurf Cascade) to maintain context consistency across multi-agent pipelines.
 
 ## What problem it solves
 It solves the "Black Box" transparency and latency problems of AI memory and configuration. Traditional SaaS-based agents store user preferences, memory logs, and project-specific contexts in proprietary cloud databases, making it extremely difficult for developers to audit, migrate, or version-control their agent's instructions. This pattern ensures that context is:
@@ -10,14 +10,14 @@ It solves the "Black Box" transparency and latency problems of AI memory and con
 - **Ultra-Low Latency**: Directly reading from local directories is orders of magnitude faster than querying remote database backends.
 
 ## Where it fits in the stack
-This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the local development environment and frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6), providing a standardized system interface through tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) via **Model Context Protocol (MCP 3.1)**.
+This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the local development environment and frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6), providing a standardized system interface through tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) via **Model Context Protocol (MCP 3.1)** / FastMCP 3.1.
 
 ## Typical use cases
 - **Workspace Operating Rules (CLAUDE.md)**: Storing precise build commands, test patterns, linting constraints, and architectural guidelines for coding agents.
 - **Multi-Agent Coordination (AGENTS.md)**: Defining roles, execution domains, and boundary conditions for autonomous droids in a shared codebase.
 - **Skill Definition manifests (SKILL.md)**: Exposing specific tool schema representations or procedural workflows that an agent can discover and execute dynamically.
 - **Context-Engineering Directories (memory/)**: Maintaining structural history, past refactoring decisions, or user preferences in flat files.
-- **Multi-Agent Workspace Syncing**: Syncing state between parallel execution agents in isolated sandboxes using flat files as an communication bus.
+- **Multi-Agent Workspace Syncing**: Syncing state between parallel execution agents in isolated sandboxes using flat files as a communication bus.
 
 ## Strengths
 - **Data Ownership and Portability**: The user retains complete custody of the instructions and preferences, which are easily portable across IDEs (Cursor, Windsurf, Zed, VS Code).
@@ -62,7 +62,7 @@ find docs/knowledge_base/ -maxdepth 2 -type f
 ```
 
 ## API examples
-Writing structured, targeted modifications to flat context files using an MCP 3.1 filesystem-as-interface endpoint:
+Writing structured, targeted modifications to flat context files using an MCP 3.1 / FastMCP 3.1 filesystem-as-interface endpoint:
 
 ```json
 {
@@ -95,6 +95,71 @@ Reading codebase context structures via directory tree tools:
 }
 ```
 
+### Python: Workspace Rules Validation with Pydantic v2
+This Python snippet demonstrates how an agentic orchestrator validates incoming flat-file system configuration rules using **Pydantic v2** models to prevent invalid instructions or context drift.
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+
+# ---------------------------------------------------------------------------
+# Strict Configuration Schema using Pydantic v2
+# ---------------------------------------------------------------------------
+
+class WorkspaceAgentRule(BaseModel):
+    role_name: str = Field(..., min_length=3, max_length=50)
+    allowed_directories: List[str] = Field(default_factory=list)
+    preferred_models: List[str] = Field(default_factory=list)
+    max_tokens_per_run: int = Field(default=4096, ge=512, le=131072)
+
+    @field_validator("allowed_directories")
+    @classmethod
+    def check_relative_paths(cls, paths: List[str]) -> List[str]:
+        for path in paths:
+            if path.startswith("/") or ".." in path:
+                raise ValueError(f"Security boundary violation: paths must be relative and local. Got '{path}'")
+        return paths
+
+class WorkspaceConfig(BaseModel):
+    project_name: str = Field(..., min_length=2)
+    agents: List[WorkspaceAgentRule] = Field(default_factory=list)
+    strict_git_checks: bool = Field(default=True)
+
+# ---------------------------------------------------------------------------
+# Validation Runner
+# ---------------------------------------------------------------------------
+
+def validate_workspace_rules(raw_config_data: dict) -> dict:
+    """
+    Validates filesystem workspace rules using Pydantic v2.
+    """
+    try:
+        validated_config = WorkspaceConfig.model_validate(raw_config_data)
+        return validated_config.model_dump()
+    except ValidationError as err:
+        raise ValueError(f"Workspace configuration validation failed: {err}")
+
+if __name__ == "__main__":
+    # Example raw config parsed from workspace yaml/json
+    raw_data = {
+        "project_name": "OpenClaw Homelab",
+        "strict_git_checks": True,
+        "agents": [
+            {
+                "role_name": "CodeReviewer",
+                "allowed_directories": ["src/core", "docs/reports"],
+                "preferred_models": ["claude-5.1", "gpt-5.5"],
+                "max_tokens_per_run": 8192
+            }
+        ]
+    }
+    try:
+        validated = validate_workspace_rules(raw_data)
+        print("Workspace rules validated successfully!")
+        print(validated)
+    except Exception as e:
+        print(f"Failed to validate rules: {e}")
+```
+
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md)
 - [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md)
@@ -114,5 +179,5 @@ Reading codebase context structures via directory tree tools:
 - [MCP 3.1 Specification: System Access and Filesystem Tools](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high

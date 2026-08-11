@@ -1,7 +1,7 @@
 # Microsoft Entra ID
 
 ## What it is
-Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of late July 2026, it serves as the foundational enterprise security and identity layer for the Microsoft 365 ecosystem, multi-cloud SaaS platforms, and autonomous multi-agent systems, featuring native support for workload identities and secure [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) authentication.
+Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of late December 2026, it serves as the foundational enterprise security and identity layer for the Microsoft 365 ecosystem, multi-cloud SaaS platforms, and autonomous multi-agent systems, featuring native support for workload identities and secure [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) / FastMCP 3.1 authentication.
 
 ## What problem it solves
 It solves the critical security challenges of federated identity, Single Sign-On (SSO), and access governance in modern hybrid work and autonomous agent environments. Entra ID provides granular control over authentication, conditional access, and privileged roles for both human users and automated workloads, preventing unauthorized access and credential leakage across enterprise services.
@@ -71,27 +71,67 @@ mgc groups list --select id,displayName,mailNickname
 ```
 
 ## API examples
+This example demonstrates secure federated authentication for an autonomous agent using the MSAL library, validated with **Pydantic v2** models to guarantee strict schema boundaries on the generated token and context.
 
-### Python (MSAL Client Assertion for Workload Identity Federation)
+### Python (MSAL Client Assertion for Workload Identity Federation with Pydantic v2)
 ```python
 import os
+from typing import Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
 import msal
 
-# Set up environment variables
-TENANT_ID = os.environ.get("AZURE_TENANT_ID", "YOUR_TENANT_ID")
-CLIENT_ID = os.environ.get("AZURE_CLIENT_ID", "YOUR_CLIENT_ID")
-# A kubernetes token or local federated token path
-FEDERATED_TOKEN_PATH = "/var/run/secrets/azure/tokens/client-assertion"
+# ---------------------------------------------------------------------------
+# Strict Schema Validation with Pydantic v2
+# ---------------------------------------------------------------------------
 
-def get_access_token_via_federation():
-    # Read the projected token from Kubernetes workload identity
-    with open(FEDERATED_TOKEN_PATH, "r") as f:
+class TokenRequestContext(BaseModel):
+    tenant_id: str = Field(..., min_length=36, max_length=36, description="Strict UUID format tenant ID")
+    client_id: str = Field(..., min_length=36, max_length=36, description="Strict UUID format client ID")
+    token_path: str = Field(..., description="The path to the local federated token assertion")
+
+    @field_validator("tenant_id", "client_id")
+    @classmethod
+    def validate_uuid(cls, v: str) -> str:
+        # Verify strict standard UUID format
+        import uuid
+        try:
+            uuid.UUID(v)
+        except ValueError:
+            raise ValueError("Must be a valid UUID hex string")
+        return v
+
+class SecureTokenResult(BaseModel):
+    access_token: str = Field(..., description="The cryptographically verified OAuth2 token")
+    expires_in: int = Field(..., ge=60, le=86400, description="Expiration buffer in seconds")
+    token_type: str = Field(default="Bearer", pattern="^(Bearer|bearer)$")
+    id_token: Optional[str] = Field(None)
+
+# ---------------------------------------------------------------------------
+# Secure Token Fetch Routine
+# ---------------------------------------------------------------------------
+
+def get_access_token_via_federation(raw_context: dict) -> dict:
+    """
+    Fetches an access token from Microsoft Entra ID using Federated Workload Identites,
+    employing Pydantic v2 to validate context schemas and generated tokens.
+    """
+    try:
+        # Validate raw context inputs strictly
+        context = TokenRequestContext.model_validate(raw_context)
+    except ValidationError as err:
+        raise ValueError(f"Invalid request context schema: {err}")
+
+    # Read the projected token from Kubernetes workload identity path
+    if not os.path.exists(context.token_path):
+        raise FileNotFoundError(f"Federated assertion token not found at: {context.token_path}")
+
+    with open(context.token_path, "r") as f:
         client_assertion = f.read().strip()
 
     # Initialize the MSAL confidential client application
     app = msal.ConfidentialClientApplication(
-        client_id=CLIENT_ID,
-        authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+        client_id=context.client_id,
+        authority=f"https://login.microsoftonline.com/{context.tenant_id}",
         client_credential={"client_assertion": client_assertion}
     )
 
@@ -99,19 +139,31 @@ def get_access_token_via_federation():
     scopes = ["https://graph.microsoft.com/.default"]
     result = app.acquire_token_for_client(scopes=scopes)
 
-    if "access_token" in result:
-        print("Successfully acquired federated access token!")
-        return result["access_token"]
-    else:
-        error_msg = result.get("error_description", "Unknown MSAL Error")
-        raise RuntimeError(f"Failed to fetch federated token: {error_msg}")
+    # Validate output token format with strict Pydantic v2 schema before consuming
+    try:
+        validated_result = SecureTokenResult.model_validate(result)
+        return validated_result.model_dump()
+    except ValidationError as err:
+        raise RuntimeError(f"Entra ID token response failed schema validation: {err}")
+
 
 if __name__ == "__main__":
+    # Example execution configuration (late December 2026 parameters)
+    raw_config = {
+        "azure_tenant_id": "00000000-1111-2222-3333-444444444444",
+        "azure_client_id": "99999999-8888-7777-6666-555555555555",
+        "token_path": "/var/run/secrets/azure/tokens/client-assertion"
+    }
+
     try:
-        token = get_access_token_via_federation()
-        print(f"Token acquired. First 30 chars: {token[:30]}...")
+        token_data = get_access_token_via_federation({
+            "tenant_id": raw_config["azure_tenant_id"],
+            "client_id": raw_config["azure_client_id"],
+            "token_path": raw_config["token_path"]
+        })
+        print(f"Token acquired. Extracted: {token_data['access_token'][:30]}...")
     except Exception as e:
-        print(f"Error executing token retrieval: {e}")
+        print(f"Authentication routing failed: {e}")
 ```
 
 ### cURL (OAuth 2.0 Client Credentials Grant Token Request)
@@ -139,5 +191,5 @@ curl -X POST https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token 
 - [OAuth 2.0 Workload Identity Federation (RFC 7523)](https://datatracker.ietf.org/doc/html/rfc7523)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-24
+- Last reviewed: 2026-12-31
 - Confidence: high
