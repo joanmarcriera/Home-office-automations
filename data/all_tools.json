@@ -264,6 +264,18 @@
       "doc_path": "docs/tools/providers/aws-bedrock.md"
     },
     {
+      "id": "aws-dogwood",
+      "name": "AWS Dogwood",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/aws-dogwood.md"
+    },
+    {
+      "id": "aws-kiro",
+      "name": "AWS Kiro",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/aws-kiro.md"
+    },
+    {
       "id": "axiom-guardian",
       "name": "Axiom Guardian",
       "category": "Development & Ops",
@@ -274,6 +286,12 @@
       "name": "Axolotl",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/axolotl.md"
+    },
+    {
+      "id": "azure-ai-gateway",
+      "name": "Azure AI Gateway",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/azure-ai-gateway.md"
     },
     {
       "id": "azure-openai",
@@ -2856,6 +2874,12 @@
       "doc_path": "docs/tools/benchmarking/vakra.md"
     },
     {
+      "id": "valkey",
+      "name": "Valkey",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/valkey.md"
+    },
+    {
       "id": "valyu",
       "name": "Valyu",
       "category": "AI Assistants & Knowledge",
@@ -2962,6 +2986,12 @@
       "name": "WASTE",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/waste.md"
+    },
+    {
+      "id": "weathernext",
+      "name": "WeatherNext",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/weathernext.md"
     },
     {
       "id": "weaviate",
