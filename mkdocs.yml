@@ -445,6 +445,7 @@ nav:
           - MageVL: tools/frameworks/magevl.md
           - Mastra: tools/frameworks/mastra.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
+          - Microsoft Agent Framework Harness: tools/frameworks/microsoft-agent-framework-harness.md
           - Mycelium: tools/frameworks/mycelium.md
           - NeMo AutoModel: tools/frameworks/nemo-automodel.md
           - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
