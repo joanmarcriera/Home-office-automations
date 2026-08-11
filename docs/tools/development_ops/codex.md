@@ -161,6 +161,8 @@ if __name__ == "__main__":
 - [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
 - [GPT-5.5 and o4 Release Notes (November/December 2026)](https://openai.com/news/)
 - [Gemma 3 for Coding Comparison](https://blog.google/technology/ai/gemma-3-report/)
+- [Meta Muse Code](https://thenewstack.io/meta-muse-code/)
+- [Prime Agent Harness](https://www.reddit.com/r/LocalLLaMA/comments/1vgnmny/prime_agent_a_new_coding_harness_surpassing/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-12-14

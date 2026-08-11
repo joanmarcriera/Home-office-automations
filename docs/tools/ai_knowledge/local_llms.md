@@ -103,6 +103,7 @@ print(response.choices[0].message.content)
 - [G9V-33B Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v46ay5/ai9stars_released_g9v33b/) — 33B local open LLM model released by AI9Stars.
 - [Microsoft Fara-1527B on Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1v3ny84/microsoftfara1527b_hugging_face/) — Extremely large open-weights model family from Microsoft.
 - [SwissAI Apertus v1.5 Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v539p8/swissaiapertusv15_70b8b/) — Open-source LLM series by SwissAI.
+- [US DOE Genesis Open-Source AI Initiative](https://www.reddit.com/r/LocalLLaMA/comments/1vijp8y/us_department_of_energy_launches_the_genesis_open/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01

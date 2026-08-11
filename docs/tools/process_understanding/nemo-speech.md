@@ -138,6 +138,7 @@ if __name__ == "__main__":
 - [GitHub Repository: NVIDIA NeMo Project Codebase](https://github.com/NVIDIA/NeMo)
 - [Reddit r/LocalLLaMA: NVIDIA Speech Stack Goes GGUF and Local](https://www.reddit.com/r/LocalLLaMA/comments/1vhjeqy/nvidias_whole_speech_stack_just_went_local_asr/)
 - [NVIDIA NeMo Conversational AI Architecture Documentation](https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/main/core/core.html)
+- [Parakeet-WGSL Browser ASR](https://www.reddit.com/r/LocalLLaMA/comments/1vi77dr/parakeetwgsl_fast_accurate_asr_in_the_browser_via/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-08-10

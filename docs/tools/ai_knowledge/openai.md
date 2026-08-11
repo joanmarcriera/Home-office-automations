@@ -129,6 +129,7 @@ response = client.chat.completions.create(
 - [Introducing OpenAI Presence](https://openai.com/index/introducing-openai-presence) — Enterprise agent platform from OpenAI.
 - [Advancing the Price-Performance Frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6)
 - [GPT-5.6: Frontier Intelligence that Scales](https://openai.com/index/gpt-5-6/)
+- [Continuous Voice Interaction with GPT-Live](https://openai.com/index/continuous-voice-interaction-with-gpt-live)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01

@@ -167,6 +167,7 @@ validated_meta = validate_stream_metadata(metadata_payload)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 - [v0.dev Documentation](https://v0.dev/docs)
 - [Turborepo Documentation](https://turbo.build/repo/docs)
+- [Vercel Labs Zero AI Agentic Language](https://www.infoq.com/news/2026/08/vercel-ships-zero-ai/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering)
 
 ## Contribution Metadata
 - Last reviewed: 2026-11-05
