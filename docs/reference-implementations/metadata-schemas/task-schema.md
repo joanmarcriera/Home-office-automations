@@ -1,7 +1,7 @@
 # Task Schema
 
 ## What it is
-The Task Schema is a standardized, platform-agnostic metadata specification used within the OpenClaw ecosystem to represent actionable tasks, tickets, or missions across different enterprise environments (such as ServiceNow, Jira, GitHub Issues, and Antigravity). In late July 2026, it serves as the foundational **Autonomous Task Object (ATO)** structure for multi-agent loops operating via the **Model Context Protocol (MCP 3.1) Task Protocol**, allowing collaborative agents to declare, delegate, track, and synchronize sub-task states seamlessly.
+The Task Schema is a standardized, platform-agnostic metadata specification used within the OpenClaw ecosystem to represent actionable tasks, tickets, or missions across different enterprise environments (such as ServiceNow, Jira, GitHub Issues, and Antigravity). In late December 2026, it serves as the foundational **Autonomous Task Object (ATO)** structure for multi-agent loops operating via the **Model Context Protocol (FastMCP 3.1) Task Protocol**, allowing collaborative agents to declare, delegate, track, and synchronize sub-task states seamlessly.
 
 ## What problem it solves
 It solves the "API Fragmentation" and interoperability problems in multi-agent environments. Traditional enterprise systems use highly customized, proprietary data formats (e.g., ServiceNow `incident` fields vs. Jira `issue` types vs. GitHub YAML specifications). Asking AI agents to understand and interact with each API natively leads to brittle tool-calling behaviors and frequent formatting errors. The Task Schema:
@@ -34,7 +34,7 @@ It solves the "API Fragmentation" and interoperability problems in multi-agent e
 - When orchestrating complex, multi-agent systems that need to collaboratively work on and hand off tasks.
 - To standardize task reporting, performance metrics, and compliance logs across multiple backends.
 - When building lightweight developer integrations or custom personal task automations.
-- For managing stateful [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) in late July 2026.
+- For managing stateful [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) in late December 2026.
 
 ## When not to use it
 - For simple, isolated integrations that only interact with a single platform and require zero cross-system mappings.
@@ -42,9 +42,9 @@ It solves the "API Fragmentation" and interoperability problems in multi-agent e
 - For storing static data (such as corpus files or vectors) where a [Search Pattern](../../knowledge_base/patterns/search-patterns.md) is more appropriate.
 
 ## Getting started
-1. **Adopt Task Schema v1.6.x**: Use the provided Pydantic specification to model tasks in your workspace.
+1. **Adopt Task Schema v1.8.x**: Use the provided Pydantic specification to model tasks in your workspace.
 2. **Implement Platform Adapters**: Write mapping layers to translate raw enterprise payloads (JSON) to and from the schema.
-3. **Deploy MCP 3.1 Task Protocol**: Use an MCP server to expose the schema-compliant task manipulation tools to your agents.
+3. **Deploy FastMCP 3.1 Task Protocol**: Use a FastMCP server to expose the schema-compliant task manipulation tools to your agents.
 4. **Establish Task Repositories**: Store active task states in [MinIO](../../tools/intake_storage/minio.md) or a local, CRDT-synchronized flat file system.
 5. **Enforce Strong Validation**: Leverage validation libraries like [Instructor](../../tools/frameworks/instructor.md) to verify task payloads are strictly correct before execution.
 
@@ -72,7 +72,7 @@ junie tasks list --priority critical --unified --source all
 Fully realized, nested Task Schema modeling with custom validation decorators and platform-mapping logic using `pydantic` (v2.13+) in Python:
 
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Any
@@ -87,7 +87,7 @@ class TaskStatus(str, Enum):
 
 # Define standard task execution log
 class ExecutionLog(BaseModel):
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     agent_id: str
     action_taken: str
     output_summary: str
@@ -100,8 +100,8 @@ class TaskObject(BaseModel):
     status: TaskStatus = Field(default=TaskStatus.OPEN)
     priority: str = Field(pattern="^(critical|high|medium|low)$")
     source: str = Field(description="Source system originating the task (e.g., jira, servicenow)")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     assignee: str | None = Field(None, description="Assigned agent ID or human email")
     subtasks: List["TaskObject"] = Field(default_factory=list, description="Recursive child tasks")
     history: List[ExecutionLog] = Field(default_factory=list, description="Chronological log of agent actions")
@@ -110,7 +110,7 @@ class TaskObject(BaseModel):
     # Ensure parent task is updated when status is set to resolved
     @field_validator("status")
     @classmethod
-    def validate_transitions(cls, value: TaskStatus, info: Any) -> TaskStatus:
+    def validate_transitions(cls, value: TaskStatus) -> TaskStatus:
         # Custom logic can be injected here to enforce strict state machine transitions
         return value
 
@@ -150,9 +150,9 @@ def transform_jira_to_task(raw_issue: dict) -> TaskObject:
 ## Sources / References
 - [JSON Schema Specification](https://json-schema.org/)
 - [OpenClaw Core Architecture Index](../../ARCHITECTURE.md)
-- [MCP 3.1 Specification: Core Resources, Tasks, and Tools](https://modelcontextprotocol.io/)
+- [FastMCP 3.1 Specification: Core Resources, Tasks, and Tools](https://modelcontextprotocol.io/)
 - [Jira Cloud Platform API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high

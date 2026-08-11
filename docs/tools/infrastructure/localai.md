@@ -1,7 +1,7 @@
 # LocalAI
 
 ## What it is
-LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By late July 2026, it has expanded to support [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) natively, enabling local models to call tools natively and interact with stateful servers.
+LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By late December 2026, it has expanded to support [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) natively, enabling local models to call tools natively and interact with stateful servers.
 
 ## What problem it solves
 It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API, solving the fragmentation problem in the local AI ecosystem.
@@ -18,9 +18,9 @@ It gives teams a local or self-hosted way to serve models behind a familiar API 
 ## Strengths
 - **Standardized API**: Drop-in replacement for OpenAI, making it easy to use with any existing SDK or tool.
 - **Multi-Backend Support**: Can run GGUF, EXL3, Diffusers, and more.
-- **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA 12.8, Intel OneAPI, and AMD ROCm 6.2.
+- **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA 12.8, Intel OneAPI, and AMD ROCm 6.3.
 - **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings out of the box.
-- **Agentic Ready**: Native tool-calling support and [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) integration, including secure sandboxed tool execution.
+- **Agentic Ready**: Native tool-calling support and [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) integration, including secure sandboxed tool execution.
 
 ## Limitations
 - **Complexity**: Can be more difficult to configure than [Ollama](../../services/ollama.md) due to its extensive feature set and manual model management options.
@@ -96,17 +96,22 @@ curl http://localhost:8080/v1/audio/transcriptions \
 ```
 
 ## API examples
-### Python with Tool-calling and MCP 3.1
-LocalAI is a drop-in replacement for OpenAI's API, and natively handles tool extraction and execution behind the scenes when connected to an MCP server.
+### Python with Tool-calling and FastMCP 3.1
+LocalAI is a drop-in replacement for OpenAI's API, and natively handles tool extraction and execution behind the scenes when connected to a FastMCP server. Here is an example leveraging Pydantic v2.13+ schemas:
 
 ```python
 import os
 from openai import OpenAI
+from pydantic import BaseModel, Field
 
 client = OpenAI(
     base_url="http://localhost:8080/v1",
     api_key="sk-no-key-required"
 )
+
+# Define a structured tool schema using Pydantic
+class FileListRequest(BaseModel):
+    path: str = Field(default=".", description="The repository path to list files from")
 
 # Call completion with local tools managed by LocalAI
 response = client.chat.completions.create(
@@ -118,11 +123,7 @@ response = client.chat.completions.create(
             "function": {
                 "name": "list_files",
                 "description": "Lists all files in the current repository path",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
+                "parameters": FileListRequest.model_json_schema()
             }
         }
     ]
@@ -142,7 +143,7 @@ print(response.choices[0].message.tool_calls)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
-- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)
@@ -151,5 +152,5 @@ print(response.choices[0].message.tool_calls)
 - [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

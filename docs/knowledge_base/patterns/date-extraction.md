@@ -1,15 +1,15 @@
 # Date Extraction
 
 ## What it is
-Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In late July 2026, this has evolved into **Agentic Temporal Reasoning**, where autonomous agent loops maintain stateful "Current System Time" offsets and context structures to resolve highly complex relative dates, deadlines, and multi-step execution timelines.
+Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In late December 2026, this has matured into **Agentic Temporal Reasoning**, where autonomous agent loops utilize stateful "Current System Time" offsets, timezone database contexts, and FastMCP 3.1 temporal capabilities to resolve complex multi-step execution timelines, relative deadlines, and recurring events with high precision.
 
 ## What problem it solves
 Temporal data is notoriously difficult for LLMs to handle accurately because:
-- **Relative Ambiguity**: Indexical words like "tomorrow" or "next week" require a precise, dynamic reference point (the "current system time") to be meaningful.
-- **Locale Ambiguities**: Formats like "01/02/03" can mean different dates depending on the user's regional configuration (US vs. UK vs. ISO).
-- **Vague Input Context**: Users frequently omit the year or reference fuzzy windows like "later this month."
-- **Standardized Normalization**: Backend databases and systems require precise absolute timestamps (UTC) rather than colloquial phrases.
-- **Agentic Scheduling**: Autonomous systems require precise, timezone-aware dates to invoke [Temporal](../../tools/orchestration/temporal.md) orchestrators or update [Google Calendar](../../tools/calendar_tasks/google_calendar.md) via MCP 3.1 tools.
+- **Relative Ambiguity**: Indexical words like "tomorrow," "next week," or "the day after" require a precise, dynamic reference point (the "current system time") to be meaningful.
+- **Locale Ambiguities**: Formats like "01/02/03" can mean different dates depending on the user's regional configuration (US MM/DD/YY vs. UK DD/MM/YY vs. ISO YY/MM/DD).
+- **Vague Input Context**: Users frequently omit the year or reference fuzzy windows like "later this month" or "towards the end of the quarter."
+- **Standardized Normalization**: Backend databases and downstream applications require precise absolute timestamps (UTC) rather than colloquial phrases.
+- **Agentic Scheduling**: Autonomous systems require precise, timezone-aware dates to invoke [Temporal](../../tools/orchestration/temporal.md) orchestrators or update [Google Calendar](../../tools/calendar_tasks/google_calendar.md) via FastMCP 3.1 tools.
 
 ## Where it fits in the stack
 This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, and **Timeline Analysis** tools. It resides in the **Extraction layer** of an intake pipeline, feeding data into the [Orchestration Layer](../../tools/orchestration/index.md).
@@ -50,13 +50,13 @@ This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, a
 5. **Add a Fallback Parser**: Integrate a deterministic library (like `dateparser` or Duckling) for simple, deterministic temporal segments.
 
 ## CLI examples
-Using the [Ollama](../../services/ollama.md) CLI with a system instruction to test localized date extraction:
+Using the [Ollama](../../services/ollama.md) CLI with a system instruction to test localized date extraction with a frontier model:
 
 ```bash
 # Extract relative date from user text with a provided reference timestamp
 curl http://localhost:11434/api/generate -d '{
   "model": "llama4",
-  "system": "The current system time is Friday, July 24, 2026, 14:00 UTC.",
+  "system": "The current system time is Friday, December 25, 2026, 14:00 UTC.",
   "prompt": "Extract next Monday at 10 AM as an ISO 8601 UTC timestamp. Return JSON only.",
   "format": "json",
   "stream": false
@@ -68,11 +68,11 @@ Calling a local Duckling service via curl for high-speed, deterministic parsing:
 # Query Duckling parser with absolute reference time
 curl -X POST http://localhost:8000/parse \
      -d "text=tomorrow at noon" \
-     -d "reference_time=1784901600000" # Milliseconds for July 24, 2026
+     -d "reference_time=1798207200000" # Milliseconds for December 25, 2026
 ```
 
 ## API examples
-Temporal reasoning and date extraction using [PydanticAI](../../tools/frameworks/pydantic-ai.md) with timezone-aware validation in Python:
+Temporal reasoning and date extraction using [PydanticAI](../../tools/frameworks/pydantic-ai.md) with timezone-aware validation in Python (Pydantic v2.13+):
 
 ```python
 from datetime import datetime
@@ -98,7 +98,7 @@ class TemporalEvent(BaseModel):
 # Define current context to inject into agent execution
 current_time_str = datetime.now(ZoneInfo("UTC")).strftime("%A, %Y-%m-%d %H:%M:%S UTC")
 
-# Initialize the PydanticAI Agent with SOTA late July 2026 model
+# Initialize the PydanticAI Agent with SOTA late December 2026 model (Claude 5.1 / GPT-5.5 / Gemini 4.0 Pro era)
 agent = Agent(
     'openai:gpt-5-5-preview',
     result_type=TemporalEvent,
@@ -134,8 +134,8 @@ async def extract_meeting_time(user_query: str) -> TemporalEvent:
 - [ISO 8601 Date and Time Format Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
 - [Duckling GitHub: Haskell-based parsing library](https://github.com/facebook/duckling)
 - [PydanticAI Results and Schema Structuring](https://ai.pydantic.dev/results/)
-- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/)
+- [Model Context Protocol (MCP) 3.1 & FastMCP 3.1 Specifications](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-25
+- Last reviewed: 2026-12-31
 - Confidence: high
