@@ -1975,6 +1975,12 @@
       "doc_path": "docs/tools/ai_knowledge/nemotron.md"
     },
     {
+      "id": "nvidia-nemotron-parse",
+      "name": "NVIDIA-Nemotron-Parse-2.0",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/nvidia-nemotron-parse.md"
+    },
+    {
       "id": "netlify",
       "name": "Netlify",
       "category": "Development & Ops",

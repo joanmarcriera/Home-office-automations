@@ -601,6 +601,7 @@ nav:
           - LastMile AI: tools/process_understanding/lastmile.md
           - New Relic AI: tools/process_understanding/new-relic-ai.md
           - NeMo-Speech.cpp: tools/process_understanding/nemo-speech.md
+          - NVIDIA-Nemotron-Parse-2.0: tools/process_understanding/nvidia-nemotron-parse.md
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
           - OpenTelemetry Collector: tools/process_understanding/opentelemetry-collector.md
