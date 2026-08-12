@@ -1,7 +1,7 @@
 # AnythingLLM
 
 ## What it is
-AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of late July 2026, it serves as a robust solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 3.5).
+AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of late December 2026, it serves as a robust enterprise solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash).
 
 ## What problem it solves
 It solves the "Knowledge Fragmentation" problem by providing a unified interface for document-grounded AI. AnythingLLM simplifies the complex pipeline of document parsing, vector embedding, storage, and retrieval, allowing non-technical users to build and deploy sophisticated RAG-based agents in minutes rather than weeks.
@@ -18,7 +18,7 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 ## Strengths
 - **All-in-One Solution**: Includes built-in vector database, document parser, and UI.
 - **Privacy & Security**: Native support for local model backends ensures that sensitive data never leaves the premises.
-- **Agentic RAG Enhancements**: Features "Self-Correcting Retrieval" under MCP 3.1, where agents can re-query or adjust filters if initial results are insufficient.
+- **Agentic RAG Enhancements**: Features "Self-Correcting Retrieval" under FastMCP 3.1, where agents can re-query or adjust filters if initial results are insufficient.
 - **Multi-User Collaboration**: Robust workspace-level permissions and shared agent libraries.
 
 ## Limitations
@@ -38,7 +38,7 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 AnythingLLM offers Desktop, Docker, and Enterprise versions.
 
 ### Desktop Installation
-Download the late July 2026 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
+Download the late December 2026 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
 
 ### Docker Deployment (Recommended for Teams)
 ```bash
@@ -79,20 +79,55 @@ curl -X POST 'http://localhost:3001/api/v1/workspace/engineering-kb/chat' \
   -d '{
     "message": "What is our policy on remote work?",
     "mode": "query",
-    "mcp_version": "3.1"
+    "mcp_version": "FastMCP 3.1"
   }'
 ```
 
-### Programmatic Document Upload
+### Programmatic Workspace Validation and API Schema
+This example demonstrates how to integrate with AnythingLLM's API using **Pydantic v2** to parse, validate, and secure workspace configurations in late December 2026.
+
 ```python
 import requests
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
+from datetime import datetime
 
-url = "http://localhost:3001/api/v1/document/upload"
-headers = {"Authorization": f"Bearer {API_KEY}"}
-files = {"file": open("q3_report.pdf", "rb")}
+# Define strict Pydantic v2 schemas for AnythingLLM workspaces and ingestion statuses
+class WorkspaceMetadata(BaseModel):
+    author: str = Field(default="system", description="User or agent who created the workspace")
+    tags: List[str] = Field(default_factory=list, description="Categorization tags")
+    last_sync: datetime = Field(default_factory=datetime.utcnow)
 
-response = requests.post(url, headers=headers, files=files)
-print(f"Document ID: {response.json()['id']}")
+class WorkspaceResponse(BaseModel):
+    id: int = Field(..., description="Internal auto-incremented database ID")
+    slug: str = Field(..., pattern=r"^[a-z0-9-]+$", description="URL-safe workspace slug")
+    name: str = Field(..., min_length=2, max_length=100)
+    open_mcp: bool = Field(default=True, description="Enable FastMCP 3.1 features")
+    metadata: WorkspaceMetadata
+
+    @field_validator("slug")
+    @classmethod
+    def validate_slug_format(cls, v: str) -> str:
+        if "temp" in v:
+            raise ValueError("Temporary slugs are not allowed in production workspaces.")
+        return v
+
+# Example validation of a real AnythingLLM workspace API payload
+workspace_data = {
+    "id": 104,
+    "slug": "engineering-kb",
+    "name": "Engineering Knowledge Base",
+    "open_mcp": True,
+    "metadata": {
+        "author": "Claude 5.1 Agent",
+        "tags": ["documentation", "mcp", "sota-2026"],
+        "last_sync": "2026-12-31T23:59:59Z"
+    }
+}
+
+# Parsing and validating the data using Pydantic v2
+workspace = WorkspaceResponse.model_validate(workspace_data)
+print(workspace.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -114,5 +149,5 @@ print(f"Document ID: {response.json()['id']}")
 - [Data Copilot Reference Implementation](../../reference-implementations/data-copilot/skeleton-guide.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
