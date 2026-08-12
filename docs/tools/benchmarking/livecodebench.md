@@ -10,7 +10,7 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6).
+- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6).
 - **Contamination Diagnostics**: Identifying whether high performance on legacy benchmarks is inflated by pre-training memorization.
 - **Holistic Code Assessment**: Evaluating models across three distinct scenarios: code generation, code execution reasoning (predicting program output), and automated debugging/self-repair.
 - **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (MCP 3.1) execution servers.
@@ -63,7 +63,7 @@ python -m lcb_runner.evaluation.main \
     --model "anthropic/claude-5.1" \
     --scenario "codegeneration" \
     --start_date "2026-01-01" \
-    --end_date "2026-07-01"
+    --end_date "2026-12-31"
 ```
 
 ### Running Execution Reasoning
@@ -91,10 +91,10 @@ python -m lcb_runner.evaluation.main \
 A typical problem instance returned by the LCB dataset loader contains comprehensive metadata:
 ```json
 {
-    "question_id": "lcb-2026-03-45",
+    "question_id": "lcb-2026-12-45",
     "title": "Subarray Sum Queries",
     "platform": "Codeforces",
-    "release_date": "2026-03-15T14:30:00",
+    "release_date": "2026-12-15T14:30:00",
     "difficulty": "Hard",
     "question_content": "Implement a dynamic range query...",
     "test_cases": {
@@ -107,20 +107,36 @@ A typical problem instance returned by the LCB dataset loader contains comprehen
 ### Programmatic Ingestion and Run Hook
 Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows:
 ```python
-from lcb_runner.utils.scenarios import Scenario
-from lcb_runner.runner.parser import get_args
-from lcb_runner.evaluation.main import run_eval_pipeline
+from pydantic import BaseModel, Field
+from typing import List, Dict
 
-# Initialize configuration programmatically
-args = get_args()
-args.model = "meta-llama/llama-4-70b-instruct"
-args.scenario = Scenario.codegeneration
-args.difficulty = "Medium"
-args.use_docker = True
+class TestSuite(BaseModel):
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
 
-# Execute evaluation pipeline
-# results = run_eval_pipeline(args)
-# print(f"Pass@1 Accuracy: {results['pass_1']:.2f}")
+class LCBProblem(BaseModel):
+    question_id: str = Field(..., alias="questionId")
+    title: str
+    difficulty: str
+    test_cases: TestSuite = Field(..., alias="testCases")
+
+    class Config:
+        populate_by_name = True
+
+# Validate active LCB evaluation schema
+raw_problem = {
+    "questionId": "lcb-2026-12-45",
+    "title": "Subarray Sum Queries",
+    "difficulty": "Hard",
+    "testCases": {
+        "inputs": ["[[1, 2], [3, 4]]"],
+        "outputs": ["[7]"]
+    }
+}
+
+problem = LCBProblem.model_validate(raw_problem)
+print(f"Validated LCB Problem: {problem.title} ({problem.difficulty})")
+print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
 ```
 
 ## Related tools / concepts
@@ -143,5 +159,5 @@ args.use_docker = True
 - [LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code (arXiv)](https://arxiv.org/abs/2403.07974)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

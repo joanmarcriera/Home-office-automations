@@ -1,7 +1,7 @@
 # OpenSwarm
 
 ## What it is
-OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of late July 2026, OpenSwarm features native support for the **Model Context Protocol (MCP 3.1)** Task Protocol, enabling seamless coordination of complex, long-running agentic tasks.
+OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of late December 2026, OpenSwarm features native support for the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocols, enabling seamless coordination of complex, long-running agentic tasks.
 
 ## What problem it solves
 It simplifies the coordination of multiple AI agents performing complex, interdependent tasks across project management and version control systems, reducing the manual overhead of managing individual agent runs. It bridges the gap between raw LLM APIs and the specific workflows used by engineering teams.
@@ -87,7 +87,7 @@ import { OpenSwarm } from '@intrect/openswarm';
 
 const swarm = new OpenSwarm({
   provider: 'anthropic',
-  model: 'claude-5.1-opus-20260715'
+  model: 'claude-5.1-opus-20261215'
 });
 
 await swarm.dispatch('linear', 'triage', { team: 'ENG' });
@@ -146,5 +146,5 @@ print(f"Dispatched {len(config.tasks)} agents using model {config.model}")
 - [Anthropic Claude CLI Documentation](https://docs.anthropic.com/claude/docs/claude-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-29
+- Last reviewed: 2026-12-31
 - Confidence: high

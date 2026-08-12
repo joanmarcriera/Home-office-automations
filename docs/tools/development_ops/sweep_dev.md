@@ -145,5 +145,5 @@ print(f"Loaded {len(config.rules)} active rules")
 - [GitHub Repository](https://github.com/sweepai/sweep)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-29
+- Last reviewed: 2026-12-31
 - Confidence: high

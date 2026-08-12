@@ -78,8 +78,8 @@ continue doctor
 
 ## API examples
 
-### config.json with Native MCP Support (July 2026)
-As of July 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration (supporting MCP 3.1):
+### config.json with Native MCP Support (December 2026)
+As of late December 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration, incorporating SOTA FastMCP 3.1 features:
 
 ```json
 {
@@ -87,7 +87,7 @@ As of July 2026, Continue supports [Model Context Protocol](../automation_orches
     {
       "title": "Claude 5.1",
       "provider": "anthropic",
-      "model": "claude-5.1-opus-20260715"
+      "model": "claude-5.1-opus-20261215"
     }
   ],
   "contextProviders": [
@@ -177,5 +177,5 @@ print(f"First model title: {parsed_config.models[0].title}")
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-29
+- Last reviewed: 2026-12-31
 - Confidence: high
