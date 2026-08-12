@@ -434,6 +434,7 @@ nav:
           - CrewAI: tools/frameworks/crewai.md
           - Distilabel: tools/frameworks/distilabel.md
           - DSPy: tools/frameworks/dspy.md
+          - Embabel: tools/frameworks/embabel.md
           - FastAPI: tools/frameworks/fastapi.md
           - Firebase Genkit: tools/frameworks/firebase-genkit.md
           - Haystack: tools/frameworks/haystack.md
