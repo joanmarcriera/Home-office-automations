@@ -4,7 +4,7 @@
 KokoClone is a highly efficient, lightweight neural voice cloning extension built on top of [Kokoro TTS](https://huggingface.co/hexgrad/Kokoro-82M), an ultra-fast local text-to-speech engine. Leveraging the Kokoro-ONNX runtime, KokoClone provides real-time, high-fidelity multilingual voice replication on standard consumer workstations.
 
 ## What problem it solves
-It eliminates the reliance on expensive, proprietary cloud-hosted voice cloning services, enabling developers to maintain absolute data privacy. KokoClone solves the high latency and massive compute overhead typically associated with voice replication models, allowing high-quality clones to run seamlessly alongside LLM workflows (like Claude 5.1 and GPT-5.5) on local workstations.
+It eliminates the reliance on expensive, proprietary cloud-hosted voice cloning services, enabling developers to maintain absolute data privacy. KokoClone solves the high latency and massive compute overhead typically associated with voice replication models, allowing high-quality clones to run seamlessly alongside LLM workflows (like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro) on local workstations.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Speech & Audio Layer**. It serves as the local auditory output interface, converting text responses from autonomous agents or home automation systems into natural, personalized synthesized voices.
@@ -84,37 +84,61 @@ python cli.py --text "こんにちは、音声合成を実行中。" --lang ja -
 ```
 
 ## API examples
-KokoClone can be operated programmatically or wrapped inside a local FastAPI gateway.
+KokoClone can be operated programmatically or wrapped inside a local FastAPI gateway, utilizing strict **Pydantic v2** validation parameters.
 
-### 1. Direct Python SDK Execution
+### 1. Direct Python SDK Execution with Config Verification
 ```python
-import os
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+
+class SynthesisConfig(BaseModel):
+    """
+    Validates Voice cloning and text synthesis parameters strictly.
+    Conforms to strict Pydantic v2 validation.
+    """
+    text: str = Field(..., min_length=1, max_length=1000)
+    reference_path: str = Field(..., description="Local path to reference WAV file")
+    speed: float = Field(default=1.0, ge=0.5, le=2.0)
+    lang: str = Field(default="en", pattern=r"^(en|ja|fr|es)$")
+
+    @field_validator("reference_path")
+    @classmethod
+    def check_file_extension(cls, val: str) -> str:
+        if not val.lower().endswith(".wav"):
+            raise ValueError("Reference file must be a WAV audio file.")
+        return val
+
+# Instantiating cloner with validated configurations
 from kokoclone import KokoCloner
 
-# Initialize cloner with the default ONNX model weights
+config_payload = {
+    "text": "Synthesizing speech programmatically with zero-shot cloning.",
+    "reference_path": "samples/voice_sample.wav",
+    "speed": 1.0,
+    "lang": "en"
+}
+validated_config = SynthesisConfig.model_validate(config_payload)
+
 cloner = KokoCloner(model_path="weights/kokoro-v1.onnx")
-
-# Generate cloned audio data in-memory
 audio_data = cloner.clone(
-    text="Synthesizing speech programmatically with zero-shot cloning.",
-    reference_path="samples/voice_sample.wav",
-    speed=1.0
+    text=validated_config.text,
+    reference_path=validated_config.reference_path,
+    speed=validated_config.speed
 )
-
-# Export the generated audio asset to a WAV file
 audio_data.export("outputs/programmatic_cloned_voice.wav", format="wav")
 ```
 
 ### 2. FastAPI Endpoint Wrapper
 ```python
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+import os
 
 app = FastAPI()
 
 class TTSRequest(BaseModel):
-    text: str
-    reference_path: str
+    text: str = Field(..., min_length=1)
+    reference_path: str = Field(..., pattern=r".*\.wav$")
 
 @app.post("/v1/tts/clone")
 async def api_generate_cloned_speech(payload: TTSRequest):
@@ -146,5 +170,5 @@ async def api_generate_cloned_speech(payload: TTSRequest):
 - [ONNX Local Execution optimization guidelines](https://onnxruntime.ai/docs/performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

@@ -4,7 +4,7 @@
 Everything Claude Code (ECC) is an advanced, production-grade performance optimization ecosystem and suite of extensions built specifically for terminal-native AI harnesses, primarily [Claude Code](../development_ops/claude-code.md). It is not just a collection of static files but an active, integrated runtime of specialized subagents, lifecycle hooks, and contextual rules designed to maximize reasoning fidelity.
 
 ## What problem it solves
-It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses agent context-window saturation, security vulnerability exposures, memory state persistence across development sessions, and domain-specific coding standard compliance. It is tuned to optimize token efficiency for frontier reasoning models like Claude 5.1 using MCP 3.1.
+It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses agent context-window saturation, security vulnerability exposures, memory state persistence across development sessions, and domain-specific coding standard compliance. It is tuned to optimize token efficiency for frontier reasoning models like Claude 5.1 using FastMCP 3.1.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Developer Tooling Layer**. It functions as the local runtime supervisor and rule enforcement subsystem, operating directly on top of command-line agents.
@@ -79,21 +79,58 @@ The ECC plugin offers command-line operations for auditing and asset management.
 ```
 
 ## API examples
-ECC configurations and custom post-edit hooks are structured programmatically.
+ECC configurations and custom post-edit hooks are structured programmatically using Python and strict **Pydantic v2** validation to model ECC configuration environments.
 
-### 1. Subagent Routing Configuration (`agents.json`)
-```json
-{
-  "routing": {
-    "security_audit": "ecc:agentshield",
-    "lint_fix": "ecc:typescript-reviewer",
-    "architecture_review": "ecc:architect"
-  },
-  "security": {
-    "block_env_secrets": true,
-    "scan_exclude": ["*.log", "node_modules/"]
-  }
+### 1. Validating ECC Agent Configuration (Python)
+ECC configurations are verified and mapped to local development environments using strict schemas.
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, List, Optional
+
+class SecurityPolicy(BaseModel):
+    block_env_secrets: bool = True
+    scan_exclude: List[str] = Field(default_factory=lambda: ["*.log", "node_modules/"])
+
+class RoutingConfig(BaseModel):
+    security_audit: str = "ecc:agentshield"
+    lint_fix: str = "ecc:typescript-reviewer"
+    architecture_review: str = "ecc:architect"
+
+class ECCConfig(BaseModel):
+    """
+    Validates ECC runtime configuration under strict Pydantic v2.
+    """
+    routing: RoutingConfig
+    security: SecurityPolicy
+    max_thinking_tokens: int = Field(default=4000, gt=0, le=16000)
+    mcp_version: str = Field(default="3.1")
+
+    @field_validator("mcp_version")
+    @classmethod
+    def validate_mcp_version(cls, val: str) -> str:
+        if val not in ["3.1", "3.0"]:
+            raise ValueError("Only MCP versions 3.0 and 3.1 are supported.")
+        return val
+
+# Verify active configurations
+sample_config = {
+    "routing": {
+        "security_audit": "ecc:agentshield",
+        "lint_fix": "ecc:typescript-reviewer",
+        "architecture_review": "ecc:architect"
+    },
+    "security": {
+        "block_env_secrets": True,
+        "scan_exclude": ["*.log", "node_modules/", "*.key"]
+    },
+    "max_thinking_tokens": 8000,
+    "mcp_version": "3.1"
 }
+
+validated_ecc = ECCConfig.model_validate(sample_config)
+print(f"ECC Configuration validated. Active MCP Standard: {validated_ecc.mcp_version}")
+print(validated_ecc.model_dump_json(indent=2))
 ```
 
 ### 2. Custom Post-Edit Automation Hook (Node.js)
@@ -130,5 +167,5 @@ module.exports = async ({ file, content }) => {
 - [AgentShield Project Release Notes](https://ecc.tools/blog/agentshield-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

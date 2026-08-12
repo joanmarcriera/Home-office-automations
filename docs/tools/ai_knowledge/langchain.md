@@ -11,7 +11,7 @@ It addresses the high level of complexity and repetitive boilerplate code associ
 
 ## Typical use cases
 - **Modular RAG Architectures**: Ingesting private document repositories and utilizing hybrid vector retrieval to supply context-aware LLM answers.
-- **Autonomous Tool-Calling Agents**: Binding local or remote tools to LLM loops using the Model Context Protocol (MCP 3.1).
+- **Autonomous Tool-Calling Agents**: Binding local or remote tools to LLM loops using the Model Context Protocol (FastMCP 3.1).
 - **Persistent Conversational Agents**: Creating conversational interfaces that retain state and memory across multiple asynchronous sessions.
 - **Stateful Multi-Agent Networks**: Composing complex, multi-agent systems with loop cycles and precise state transitions using LangGraph integration.
 
@@ -51,7 +51,7 @@ from langchain_anthropic import ChatAnthropic
 
 # Ensure ANTHROPIC_API_KEY is configured in your environment
 model = ChatAnthropic(model="claude-5-1-sonnet")
-response = model.invoke("Summarize the significance of MCP 3.1 in agentic orchestration.")
+response = model.invoke("Summarize the significance of FastMCP 3.1 in agentic orchestration.")
 print(response.content)
 ```
 
@@ -71,38 +71,65 @@ langchain serve --port 8080
 
 ## API examples
 
-### Declarative LCEL Chain with GPT-5.5
-A minimal, stream-enabled chain demonstrating LangChain Expression Language composition.
+### Declarative LCEL Chain with GPT-5.5 and Pydantic v2 validation
+A minimal, stream-enabled chain demonstrating LangChain Expression Language composition paired with strict **Pydantic v2** structured output parsing.
 
 ```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import JsonOutputParser
 
-# Set up components
-prompt = ChatPromptTemplate.from_template("Analyze the security risks in the following code block:\n{code}")
-model = ChatOpenAI(model="gpt-5.5-preview")
-parser = StrOutputParser()
+class RiskAnalysis(BaseModel):
+    """
+    Structured model safety report schema under Pydantic v2 specifications.
+    """
+    severity: str = Field(..., pattern=r"^(low|medium|high|critical)$")
+    vulnerabilities: List[str] = Field(description="List of detected code vulnerabilities")
+    remediation: str = Field(..., min_length=10)
 
-# Compose chain using LCEL
-risk_analyzer = prompt | model | parser
+    @field_validator("vulnerabilities")
+    @classmethod
+    def must_not_be_empty(cls, value: List[str]) -> List[str]:
+        if not value:
+            raise ValueError("At least one vulnerability must be specified.")
+        return value
 
-# Invoke the chain synchronously
-analysis = risk_analyzer.invoke({"code": "def process_input(data):\n    exec(data)"})
-print(analysis)
+# Setup prompt, model, and json parser
+prompt = ChatPromptTemplate.from_template(
+    "Analyze the security risks in this code. Output JSON adhering to schema rules:\n{code}"
+)
+model = ChatOpenAI(model="gpt-5.5-preview").with_structured_output(RiskAnalysis)
+
+# Compile LCEL Chain
+risk_analyzer = prompt | model
+
+# Invoke synchronously with code context
+analysis = risk_analyzer.invoke({"code": "def run_unsafe(payload):\n    exec(payload)"})
+# Print verified, structured pydantic response object
+print(analysis.severity)
+print(analysis.vulnerabilities)
 ```
 
-### Stateful Tool Binding with MCP 3.1 Spec
+### Stateful Tool Binding with FastMCP 3.1 Spec and Pydantic validation
 ```python
+from pydantic import BaseModel, Field
 from langchain_anthropic import ChatAnthropic
 from langchain_core.tools import tool
 
-@tool
+class TemperatureQuery(BaseModel):
+    """
+    Validates geographical coordinate-based queries strictly.
+    """
+    zip_code: str = Field(..., pattern=r"^\d{5}$", description="US ZIP code")
+
+@tool(args_schema=TemperatureQuery)
 def fetch_local_temperature(zip_code: str) -> str:
     """Retrieves the current temperature for a given postal ZIP code."""
     return f"The current temperature in {zip_code} is 22°C."
 
-# Bind tools directly to the model
+# Bind tools directly to the model conforming to FastMCP 3.1 specs
 model = ChatAnthropic(model="claude-5-1-sonnet")
 model_with_tools = model.bind_tools([fetch_local_temperature])
 
@@ -131,5 +158,5 @@ print(response.tool_calls)
 - [Anthropic Provider Integration Guide](https://python.langchain.com/docs/integrations/chat/anthropic/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
