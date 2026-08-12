@@ -17,7 +17,7 @@ These tasks track deep integrations of local open-weights model families and pro
 | Qwen 3.6 | [Link](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/) | tool | **integrated** | `docs/tools/ai_knowledge/qwen.md` | Integrate high-context 27B model updates into the existing Qwen page. |
 | OpenPangu2.0-Flash | [Link](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/) | provider | **integrated** | `docs/tools/providers/openpangu.md` | Document OpenPangu model variants utilizing MLA latent mechanisms. |
 | CatMind-12B | [Link](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/) | provider | **integrated** | `docs/tools/providers/catmind.md` | Add specifications for the CatMind 12B model. |
-| Gemini Omni | [Link](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars/) | provider | **integrated** | `docs/tools/ai_knowledge/google-gemini.md` | Expand Google Gemini documentation with Gemini Omni workspace integration. |
+| Gemini Omni | [Link](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars/) | provider | **integrated** | `docs/tools/ai_knowledge/gemini.md` | Expand Google Gemini documentation with Gemini Omni workspace integration. |
 | PrismML | [Link](https://www.reddit.com/r/LocalLLaMA/comments/1ux4cn2/apple_in_talks_with_startup_prismml_that_shrinks/) | provider | **integrated** | `docs/tools/providers/prismml.md` | Create provider page for PrismML detailing local-model compression. |
 
 ---

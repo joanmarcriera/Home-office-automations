@@ -132,7 +132,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [J-Wash](./j-wash.md) — Open-source alignment and steering framework utilizing emergent reasoning and representations.
 - [Local LLMs](./local_llms.md) — Self-hosting and executing large models on local hardware configurations.
-- [Google Gemini](./google-gemini.md) — Google's primary cloud-based multimodal reasoning engine ecosystem.
+- [Gemini](./gemini.md) — Google's primary cloud-based multimodal reasoning engine ecosystem.
 - [Gemini](./gemini.md) — Standard multimodal family from Google DeepMind.
 - [Ollama](../../services/ollama.md) — The industry-standard tool for managing and running local models on consumer devices.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for giving local models tool-calling capabilities.

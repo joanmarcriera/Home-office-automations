@@ -7,7 +7,7 @@ Resolved **Batch 23** (Infrastructure & Knowledge) by deepening documentation fo
 - `docs/tools/infrastructure/lm-studio.md`
 - `docs/tools/infrastructure/jan-ai.md`
 - `docs/tools/infrastructure/msty.md`
-- `docs/tools/ai_knowledge/google-gemini.md`
+- `docs/tools/ai_knowledge/gemini.md`
 - `docs/tools/ai_knowledge/librechat.md`
 - `docs/knowledge_base/ai_tool_access_matrix.md`
 

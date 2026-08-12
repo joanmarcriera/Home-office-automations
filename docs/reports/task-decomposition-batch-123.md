@@ -21,7 +21,7 @@ This report decomposes the remaining technical freshness audits identified in th
   - Verify with `check_docs_contract.py`.
 
 ### AI Knowledge Tools
-- [x] **Freshness audit for `docs/tools/ai_knowledge/google-gemini.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/gemini.md`**
   - Research Gemini 1.5 Pro/Flash updates (June 2026) and context window expansions.
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.

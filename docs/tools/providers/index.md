@@ -15,7 +15,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Cohere](cohere.md) | Enterprise-focused LLMs (Command R) and retrieval specialized models |
 | [DeepSeek](deepseek.md) | High-performance open-weights models (V3, R1) from DeepSeek |
 | [Fireworks AI](fireworks.md) | Low-latency inference API for the most popular open-source models |
-| [Google Gemini](../ai_knowledge/google-gemini.md) | Google's state-of-the-art multimodal model family and Vertex AI |
+| [Gemini](../ai_knowledge/gemini.md) | Google's state-of-the-art multimodal model family and Vertex AI |
 | [Groq](groq.md) | Ultra-high-speed inference powered by LPU (Language Processing Unit) |
 | [Hugging Face](huggingface.md) | The primary hub for open models, datasets, and inference endpoints |
 | [Microsoft Graph API](microsoft-graph.md) | Unified API for accessing data across Microsoft 365 services |

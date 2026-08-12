@@ -1145,12 +1145,6 @@
       "doc_path": "docs/tools/calendar_tasks/google_calendar.md"
     },
     {
-      "id": "google-gemini",
-      "name": "Google Gemini",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/google-gemini.md"
-    },
-    {
       "id": "google-lyria",
       "name": "Google Lyria",
       "category": "AI Assistants & Knowledge",

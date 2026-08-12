@@ -120,7 +120,7 @@ def analyze_x_sentiment() -> GrokRealtimeSentiment:
 - [OpenAI](../ai_knowledge/openai.md) — Direct competitor and API standard.
 - [Perplexity](../providers/perplexity.md) — Alternative for real-time search and synthesis.
 - [Anthropic](anthropic.md) — Competitor focused on safety and "Constitutional AI."
-- [Google Gemini](../ai_knowledge/google-gemini.md) — Multimodal competitor with Google ecosystem integration.
+- [Gemini](../ai_knowledge/gemini.md) — Multimodal competitor with Google ecosystem integration.
 - [DeepSeek](deepseek.md) — High-performance open-weights alternative.
 - [Mistral](mistral.md) — European open-weights leader.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified API aggregator including Grok models.

@@ -111,7 +111,7 @@ completion = client.chat.completions.create(
 - [Groq](../providers/groq.md) — Low-latency open model execution engine.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Architectural patterns for smart selection.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Industry-standard tool registration.
-- [Google Gemini](google-gemini.md) — Multimodal and long-context model family.
+- [Gemini](gemini.md) — Multimodal and long-context model family.
 
 ## Sources / references
 - [OpenRouter Official Developer Documentation](https://openrouter.ai/docs)

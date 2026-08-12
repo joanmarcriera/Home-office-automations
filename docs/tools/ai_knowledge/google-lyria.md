@@ -210,7 +210,7 @@ def edit_track_infill(project_id: str, track_uri: str, start_sec: float, end_sec
 ## Related tools / concepts
 - [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)
-- [Google Gemini](google-gemini.md)
+- [Gemini](gemini.md)
 - [Gemini 3.1 Flash TTS](gemini-flash-tts.md)
 - [Sora](sora.md)
 - [Project Genie](project-genie.md)

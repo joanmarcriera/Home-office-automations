@@ -21,7 +21,7 @@ A curated index of AI tools, platforms, and knowledge bases for research, conten
 | [ElevenLabs](elevenlabs.md) | High-fidelity AI speech and sound generation |
 | [Flowise](flowise.md) | Visual builder for RAG and agentic workflows |
 | [Gemini Canvas](gemini-canvas.md) | Interactive collaborative workspace for Gemini |
-| [Google Gemini](google-gemini.md) | Google's primary AI model family and assistant |
+| [Gemini](gemini.md) | Google's primary AI model family and assistant |
 | [Google Lyria](google-lyria.md) | Specialized AI for music generation and audio research |
 | [Google Opal](google-opal.md) | AI-powered personal planning and scheduling agent |
 | [Jasper](jasper.md) | Enterprise-grade AI content creation platform |

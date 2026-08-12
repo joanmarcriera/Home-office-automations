@@ -155,7 +155,7 @@ Engines that run model weights and provide APIs for applications to consume.
 
 ### Layer 2: Models
 The core reasoning engines (LLMs, VLMs) that process information and generate text or actions.
-- **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
+- **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Gemini](../tools/ai_knowledge/gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
 - **Key Trends**: Rise of specialized reasoning models (like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) using test-time compute.
 
 ### Layer 1: Providers

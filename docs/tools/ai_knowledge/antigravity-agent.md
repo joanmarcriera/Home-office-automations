@@ -143,7 +143,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Google Gemini](./google-gemini.md) — Google's enterprise-grade cloud-native multimodal AI reasoning model.
+- [Gemini](./gemini.md) — Google's enterprise-grade cloud-native multimodal AI reasoning model.
 - [Gemini](./gemini.md) — Standard multimodal reasoning models from Google DeepMind.
 - [Gemini Canvas](./gemini-canvas.md) — Interactive persistent UI for visual, multi-modal Gemini planning workflows.
 - [Google Search](./google-search.md) — Direct web-search context injection tool for local assistant engines.

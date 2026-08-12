@@ -107,7 +107,7 @@ if __name__ == "__main__":
 - [Claude for Desktop](claude.md)
 - [Gemini CLI](gemini-cli.md)
 - [Nano Banana](nano-banana.md)
-- [Google Gemini](google-gemini.md)
+- [Gemini](gemini.md)
 - [Gemma 3](local_llms.md)
 - [NotebookLM](notebooklm.md)
 - [Gemini Flash TTS](gemini-flash-tts.md)

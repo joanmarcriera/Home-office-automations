@@ -10,7 +10,7 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 | 2 | `docs/reference-implementations/data-copilot/skeleton-guide.md` | Freshness Audit | Resolved |
 | 3 | `docs/tools/infrastructure/msty.md` | Freshness Audit | Resolved |
 | 4 | `docs/tools/infrastructure/jan-ai.md` | Freshness Audit | Resolved |
-| 5 | `docs/tools/ai_knowledge/google-gemini.md` | Freshness Audit | Resolved |
+| 5 | `docs/tools/ai_knowledge/gemini.md` | Freshness Audit | Resolved |
 
 ## Progress Log
 
@@ -20,5 +20,5 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 - Completed freshness audit for Issue 2: `docs/reference-implementations/data-copilot/skeleton-guide.md`.
 - Completed freshness audit for Issue 3: `docs/tools/infrastructure/msty.md`.
 - Completed freshness audit for Issue 4: `docs/tools/infrastructure/jan-ai.md`.
-- Completed freshness audit for Issue 5: `docs/tools/ai_knowledge/google-gemini.md`.
+- Completed freshness audit for Issue 5: `docs/tools/ai_knowledge/gemini.md`.
 - Batch 205 marked as Resolved.

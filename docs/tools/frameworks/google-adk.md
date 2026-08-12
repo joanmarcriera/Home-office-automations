@@ -131,7 +131,7 @@ const orchestratorAgent = new Agent({
 ```
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/google-gemini.md) — The core model backbone optimized for ADK's native context caching and planning.
+- [Gemini](../ai_knowledge/gemini.md) — The core model backbone optimized for ADK's native context caching and planning.
 - [LangGraph](../frameworks/langgraph.md) — Multi-agent state-graph orchestration framework.
 - [CrewAI](../frameworks/crewai.md) — High-level role-playing multi-agent execution framework.
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The unified protocol the ADK uses to communicate with external data servers.

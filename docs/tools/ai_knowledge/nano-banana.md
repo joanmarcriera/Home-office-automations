@@ -195,7 +195,7 @@ def generate_banner_variants(base_image_path: str, backgrounds: list):
 ```
 
 ## Related tools / concepts
-- [Google Gemini](google-gemini.md)
+- [Gemini](gemini.md)
 - [Gemini 3.1 Flash TTS](gemini-flash-tts.md)
 - [Sora](sora.md)
 - [Project Genie](project-genie.md)
