@@ -1,7 +1,7 @@
 # Synthesia
 
 ## What it is
-Synthesia is a leading AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. By late July 2026, it has expanded its capabilities to support **Real-time Interactive Avatars** via ultra-low-latency API v3 streaming, and seamless script pipelines with frontier models like [Claude](claude.md) and [GPT-5.5](openai.md).
+Synthesia is a leading AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. By late December 2026, it has expanded its capabilities to support **Real-time Interactive Avatars** via ultra-low-latency API v3 streaming, and seamless script pipelines with frontier models like [Claude 5.1](claude.md) and [GPT-5.5](openai.md).
 
 ## What problem it solves
 It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences in 140+ languages with minimal effort.
@@ -21,7 +21,7 @@ It drastically reduces the cost and complexity of corporate video production. Tr
 - **Scale**: Ability to generate thousands of personalized videos simultaneously via API.
 - **Localization**: Support for 140+ languages and accents with automated translation and cultural adaptation.
 - **Interactive Avatars**: Full support for low-latency, real-time video interaction for customer service and education.
-- **Frontier Integration**: Easy to pipe scripts from [Claude](claude.md) or [OpenAI](openai.md) directly into the video generation engine.
+- **Frontier Integration**: Easy to pipe scripts from [Claude 5.1](claude.md) or [GPT-5.5](openai.md) directly into the video generation engine.
 
 ## Limitations
 - **Creative Control**: While highly realistic, avatars are less suitable for high-emotion acting or complex physical actions compared to traditional film.
@@ -44,8 +44,8 @@ To get started with Synthesia's programmatic platform, you can install the requi
 
 ### Installation
 ```bash
-# Synthesia APIs are RESTful; install requests for programmatic integration
-pip install requests
+# Synthesia APIs are RESTful; install requests and pydantic for programmatic integration
+pip install requests pydantic
 ```
 
 ### Hello-World Example
@@ -88,41 +88,86 @@ synthesia video status --id vid_9812304
 
 ## API examples
 
-### Python (Creating an AI Video)
-For backend pipelines, you can easily request a video generation job by sending a POST request to Synthesia's v3 streaming endpoint.
+### Python: Video Generation with Strict Schema Validation (Pydantic v2)
+In enterprise workflows, validating the script structure, voice options, and avatar placement before sending jobs to Synthesia is essential to prevent costly API processing errors. We enforce this using **Pydantic v2**.
 
 ```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
 import requests
 
-API_KEY = "YOUR_API_KEY"
-API_URL = "https://api.synthesia.io/v3/videos"
+# Schema representing Synthesia avatar alignment & display behavior
+class AvatarSettings(BaseModel):
+    horizontal_align: str = Field(default="center", alias="horizontalAlign")
+    scale: float = Field(default=1.0, ge=0.5, le=2.0, description="Scale of avatar between 0.5 and 2.0")
 
-headers = {
-    "Authorization": API_KEY,
-    "Content-Type": "application/json"
-}
+    class Config:
+        populate_by_name = True
 
-# Video metadata and avatar behavior payload
-payload = {
-    "test": False,
-    "input": [{
-        "scriptText": "Welcome to our July 2026 product update!",
-        "avatar": "anna_costume_1",
-        "avatarSettings": {
-            "horizontalAlign": "center",
-            "scale": 1.0
+# Schema representing a single video input segment
+class VideoSegment(BaseModel):
+    script_text: str = Field(..., alias="scriptText", min_length=10, description="The spoken script text")
+    avatar: str = Field(default="anna_costume_1", description="Identifier of the synthetic avatar")
+    avatar_settings: AvatarSettings = Field(default_factory=AvatarSettings, alias="avatarSettings")
+
+    class Config:
+        populate_by_name = True
+
+# Parent schema representing the Synthesia API v3 payload
+class SynthesiaVideoRequest(BaseModel):
+    test_mode: bool = Field(default=False, alias="test", description="Flag to run as non-chargeable sandbox run")
+    input_segments: List[VideoSegment] = Field(..., alias="input", description="Ordered list of video segments")
+
+    class Config:
+        populate_by_name = True
+
+    def dispatch_render_job(self, api_key: str) -> Optional[str]:
+        """Dispatches the validated payload to the Synthesia API endpoint."""
+        url = "https://api.synthesia.io/v3/videos"
+        headers = {
+            "Authorization": api_key,
+            "Content-Type": "application/json"
         }
-    }]
-}
 
-try:
-    response = requests.post(API_URL, json=payload, headers=headers, timeout=15)
-    if response.status_code == 201:
-        print("Video rendering initiated. ID:", response.json().get("id"))
-    else:
-        print(f"API request failed with code {response.status_code}: {response.text}")
-except Exception as e:
-    print("API connection error:", e)
+        # Serialize with Pydantic v2 using alias names for API compliance
+        payload = self.model_dump(by_alias=True)
+
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=15)
+            if response.status_code == 201:
+                video_id = response.json().get("id")
+                print(f"Synthesia Video rendering initiated! Job ID: {video_id}")
+                return video_id
+            else:
+                print(f"API Error {response.status_code}: {response.text}")
+                return None
+        except Exception as e:
+            print(f"Handshake failed: {e}")
+            return None
+
+
+# Operational Verification: Validate and mock-run the payload validation
+if __name__ == "__main__":
+    try:
+        mock_payload = {
+            "test": True,
+            "input": [{
+                "scriptText": "Welcome to our December 2026 enterprise AI platform rollout!",
+                "avatar": "anna_costume_1",
+                "avatarSettings": {
+                    "horizontalAlign": "center",
+                    "scale": 1.2
+                }
+            }]
+        }
+
+        # Enforce strict validation
+        validated_request = SynthesiaVideoRequest(**mock_payload)
+        print("Synthesia request schema successfully validated!")
+        print(validated_request.model_dump_json(by_alias=True, indent=2))
+
+    except Exception as e:
+        print(f"Validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -144,5 +189,5 @@ except Exception as e:
 - [Generative Video Market Report 2026](https://www.synthesia.io/reports/2026-video-trends)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

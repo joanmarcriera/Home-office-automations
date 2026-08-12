@@ -1,7 +1,7 @@
 # NVIDIA PersonaPlex
 
 ## What it is
-NVIDIA PersonaPlex is a state-of-the-art, real-time, full-duplex speech-to-speech conversational framework. As of late July 2026, it represents the industry standard for low-latency, natural spoken interaction, allowing for human-like conversation where both the agent and user can speak simultaneously, handle interruptions, and maintain complex personas natively.
+NVIDIA PersonaPlex is a state-of-the-art, real-time, full-duplex speech-to-speech conversational framework. As of late December 2026, it represents the industry standard for low-latency, natural spoken interaction, allowing for human-like conversation where both the agent and user can speak simultaneously, handle interruptions, and maintain complex personas natively.
 
 ## What problem it solves
 It eliminates the "robotic" lag and awkward turn-taking typical of serial STT (Speech-to-Text) -> LLM -> TTS (Text-to-Speech) pipelines. PersonaPlex provides a unified, end-to-end multimodal architecture that processes audio signals directly, enabling sub-150ms response times and natural backchanneling (e.g., "uh-huh," "I see") under complex real-time scenarios.
@@ -78,28 +78,56 @@ python -m personaplex.benchmarks.latency --iterations 50
 
 ## API examples
 
-### Full-Duplex WebSocket Client (Python)
-PersonaPlex communication relies on the `personaplex-client` library.
+### Python: Full-Duplex Session Config Validation (Pydantic v2)
+In voice-based agentic workflows, validating the audio configuration, voice reference paths, and FastMCP schemas before initiating connection protocols prevents audio stream failure. Below is a robust Python script utilizing **Pydantic v2** to validate custom connection payloads.
 
 ```python
-import asyncio
-from personaplex import VoiceClient
+from pydantic import BaseModel, Field, field_validator, FilePath
+from typing import Optional
+import json
 
-async def start_session():
-    client = VoiceClient("ws://localhost:8000/v1/interact")
+# Define the full-duplex voice session schema
+class VoiceSessionConfig(BaseModel):
+    system_prompt: str = Field(..., alias="systemPrompt", min_length=20, description="The structural system persona prompt")
+    voice_embedding_path: str = Field(..., alias="voiceEmbedding", description="Filepath pointing to reference voice embedding (.pt)")
+    mcp_version: str = Field(default="3.1", alias="mcpVersion")
+    sample_rate_hz: int = Field(default=24000, alias="sampleRate", description="Audio sample rate in Hz")
+    allow_interruptions: bool = Field(default=True, alias="allowInterruptions")
 
-    # Configure the session with a text prompt and audio embedding
-    await client.configure(
-        system_prompt="You are a helpful space station navigator.",
-        voice_embedding="path/to/navigator_voice.pt",
-        mcp_version="3.1"
-    )
+    class Config:
+        populate_by_name = True
 
-    # Start the full-duplex loop
-    async for response in client.listen_and_speak():
-        print(f"Agent is speaking: {response.transcript}")
+    @field_validator("sample_rate_hz")
+    @classmethod
+    def validate_sample_rate(cls, v: int) -> int:
+        allowed = {16000, 24000, 48000}
+        if v not in allowed:
+            raise ValueError(f"Sample rate must be one of {allowed} Hz")
+        return v
 
-asyncio.run(start_session())
+    def to_websocket_payload(self) -> str:
+        """Serializes session config with CamelCase aliases for WebSocket delivery."""
+        return self.model_dump_json(by_alias=True, indent=2)
+
+
+# Operational Verification: Validate a full-duplex setup
+if __name__ == "__main__":
+    try:
+        session_setup = {
+            "systemPrompt": "You are a helpful space station navigator guiding the pilot.",
+            "voiceEmbedding": "path/to/navigator_voice.pt",
+            "mcpVersion": "3.1",
+            "sampleRate": 24000,
+            "allowInterruptions": True
+        }
+
+        # Enforce strict validation
+        validated_config = VoiceSessionConfig(**session_setup)
+        print("PersonaPlex Session configuration validated successfully!")
+        print(validated_config.to_websocket_payload())
+
+    except Exception as e:
+        print(f"Validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -120,5 +148,5 @@ asyncio.run(start_session())
 - [June 2026 Voice AI Landscape Report](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

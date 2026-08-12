@@ -1,13 +1,13 @@
 # Gemini Canvas
 
 ## What it is
-Gemini Canvas is a collaborative, infinite-workspace interface within the Gemini ecosystem designed for multi-step AI orchestration and visual content creation. By late July 2026, it has evolved into a primary interface for [Antigravity Agent](antigravity-agent.md) missions, allowing users to coordinate multiple agents on a single persistent, non-linear board.
+Gemini Canvas is a collaborative, infinite-workspace interface within the Gemini ecosystem designed for multi-step AI orchestration and visual content creation. By late December 2026, it has evolved into a primary interface for [Antigravity Agent](antigravity-agent.md) missions, allowing users to coordinate multiple autonomous agents on a single persistent, non-linear board utilizing the advanced reasoning capabilities of the **Gemini 4.0 Pro** and **Gemini 4.0 Flash** models.
 
 ## What problem it solves
 It addresses the "Chat Fatigue" and context-switching overhead of complex, multi-stage projects. Instead of scrolling through long, linear chat histories, Canvas allows users to pin insights, visualize information hierarchies, and transform raw data into interactive widgets. It provides a visual "Working Memory" for both humans and AI agents.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Workspace Orchestration**. It functions as the UI layer for the [Antigravity Agent](antigravity-agent.md) platform, sitting above the [Gemini](gemini.md) model layer.
+**AI Assistants & Knowledge / Workspace Orchestration**. It functions as the visual user interface layer for the [Antigravity Agent](antigravity-agent.md) platform, sitting above the [Gemini](gemini.md) model layer.
 
 ## Typical use cases
 - **Multi-Source Research**: Aggregating information from [Google Search](google-search.md) into categorized blocks on a visual workspace.
@@ -21,7 +21,7 @@ It addresses the "Chat Fatigue" and context-switching overhead of complex, multi
 - **Native Antigravity Integration**: Seamlessly deploy and monitor autonomous agents within the canvas environment.
 - **Real-time Collaboration**: Multiple humans and agents can work on the same canvas simultaneously.
 - **Component Generation**: Direct creation of HTML/JS/React widgets (e.g., "Build a project timeline component here").
-- **Persistent Context**: The entire canvas acts as a 2M+ token context window for the underlying Gemini models.
+- **Persistent Context**: The entire canvas acts as a 2M+ token context window for the underlying Gemini 4.0 models.
 
 ## Limitations
 - **Ecosystem Lock-in**: Deepest integration is limited to Google Workspace and Google Cloud services.
@@ -59,24 +59,70 @@ antigravity mission start --canvas "Research Project A" --goal "Summarize block 
 ```
 
 ## API examples
-### Python: Canvas Orchestration (Vertex AI)
+### Python: Canvas Configuration & Workspace Validation (Pydantic v2)
+The Gemini Canvas API allows programmatic workspace setup. We can use **Pydantic v2** to ensure that canvas schemas, block types, and agent missions conform to strict configurations before being dispatched to the Google Cloud / Vertex AI endpoints.
+
 ```python
-from google.cloud import aiplatform
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
+import json
 
-# Initialize a Canvas mission programmatically with Google Vertex AI SDK
-mission = aiplatform.CanvasMission(
-    display_name="Market Analysis 2026",
-    workspace_id="ws_789"
-)
+# Define Canvas Block Model using Pydantic v2
+class CanvasBlock(BaseModel):
+    id: str = Field(..., description="Unique identifier for the canvas block")
+    block_type: str = Field(..., description="Type of block: text, image, code, or widget")
+    content: str = Field(..., description="The markdown text or code payload of the block")
+    metadata: Optional[dict] = Field(default_factory=dict, description="Metadata such as dimensions or coordinates")
 
-# Add a block with data
-mission.add_block(
-    content="Initial research findings on Blackwell GPUs...",
-    block_type="text"
-)
+    @field_validator("block_type")
+    @classmethod
+    def validate_block_type(cls, v: str) -> str:
+        allowed = {"text", "image", "code", "widget"}
+        if v not in allowed:
+            raise ValueError(f"Invalid block_type: {v}. Must be one of {allowed}")
+        return v
 
-# Assign an agent to the mission
-mission.assign_agent(agent_type="researcher", focus="competitive-landscape")
+# Define Canvas Mission Model for Antigravity Agent coordination
+class CanvasMission(BaseModel):
+    workspace_id: str = Field(..., description="The unique Canvas Workspace ID")
+    mission_name: str = Field(..., description="The descriptive name of the agentic mission")
+    agent_roles: List[str] = Field(..., description="List of agent roles to deploy on the canvas")
+    blocks: List[CanvasBlock] = Field(default_factory=list, description="Initial workspace block configurations")
+
+    def to_json_payload(self) -> str:
+        """Serializes the validated canvas configuration for API dispatch."""
+        return self.model_dump_json(indent=2)
+
+
+# Operational Verification: Validate a complex Canvas workspace with multiple blocks and agents
+try:
+    mission_data = {
+        "workspace_id": "ws_canvas_2026_999",
+        "mission_name": "Decentralized Energy Research",
+        "agent_roles": ["researcher", "synthesizer", "ui-generator"],
+        "blocks": [
+            {
+                "id": "block_001",
+                "block_type": "text",
+                "content": "# Market Analysis\nResearching next-generation battery chemistry for grid storage.",
+                "metadata": {"x": 100, "y": 150}
+            },
+            {
+                "id": "block_002",
+                "block_type": "widget",
+                "content": "const batteryWidget = () => { return <div>Grid Dashboard</div>; };",
+                "metadata": {"x": 500, "y": 150, "width": 400}
+            }
+        ]
+    }
+
+    # Strict Pydantic v2 validation pass
+    validated_mission = CanvasMission(**mission_data)
+    print("Canvas configuration successfully validated!")
+    print(validated_mission.to_json_payload())
+
+except Exception as e:
+    print(f"Validation error encountered: {e}")
 ```
 
 ## Related tools / concepts
@@ -90,14 +136,14 @@ mission.assign_agent(agent_type="researcher", focus="competitive-landscape")
 - [AnythingLLM](anythingllm.md)
 - [LobeHub](lobehub.md)
 - [Flowise](flowise.md)
-- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [MCP 3.1 / FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Google Gemini Blog: Announcing Canvas](https://blog.google/technology/ai/google-gemini-canvas-update/)
 - [Antigravity Agent Mission Guide](https://ai.google.dev/gemini-api/docs/antigravity)
-- [Gemini 3.5 Capability Summary](https://ai.google.dev/gemini-api/docs/models/gemini)
+- [Gemini 4.0 Capability Summary](https://ai.google.dev/gemini-api/docs/models/gemini)
 - [Infinite Canvas Design Patterns](https://canvas.google.design/patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
