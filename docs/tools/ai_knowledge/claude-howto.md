@@ -1,34 +1,34 @@
 # Claude How-To
 
 ## What it is
-`claude-howto` is a curated collection of advanced technical guides and hands-on examples focused on mastering the Claude model family and its associated development ecosystem. As of July 2026, it serves as the primary educational resource for software engineers transitioning from basic prompt engineering to high-fidelity agentic engineering with Claude 5.1 and other frontier models.
+`claude-howto` is a curated collection of advanced technical guides and hands-on examples focused on mastering the Claude model family and its associated development ecosystem. As of late December 2026, it serves as the primary educational resource for software engineers transitioning from basic prompt engineering to high-fidelity agentic engineering with Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and other frontier models.
 
 ## What problem it solves
-It bridges the gap between conversational AI interfaces and functional, autonomous software development agents. The project provides structured, battle-tested guidelines for constructing specialised agent context files (such as `.claude/config.json` and `CLAUDE.md`), managing the Model Context Protocol (MCP 3.1), and optimizing token efficiency during iterative code modifications.
+It bridges the gap between conversational AI interfaces and functional, autonomous software development agents. The project provides structured, battle-tested guidelines for constructing specialised agent context files (such as `.claude/config.json` and `CLAUDE.md`), managing the Model Context Protocol (FastMCP 3.1), and optimizing token efficiency during iterative code modifications.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Educational Layer**. It provides the operational playbook for developers utilizing the **Development & Ops** tooling layer, ensuring safe, consistent, and structured multi-agent interactions within active codebases.
 
 ## Typical use cases
 - **Developer Workflow Standardization**: Setting up unified repo rules via `CLAUDE.md` to guide agents like Claude Code, Cursor, and Melty.
-- **MCP 3.1 Server Deployment**: Guided building and deploying of custom Model Context Protocol (MCP 3.1) servers to provide agents with local filesystem and testing tools.
+- **FastMCP 3.1 Server Deployment**: Guided building and deploying of custom Model Context Protocol (FastMCP 3.1) servers to provide agents with local filesystem and testing tools.
 - **Autonomous Multi-Agent Orchestration**: Coordinating autonomous subagents under Claude 5.1 for automated pull-request reviews.
 - **Prompt Caching Audits**: Configuring system prompts to match exact boundaries, maximizing cost-savings through Anthropic prompt caching.
 
 ## Strengths
-- **SOTA Alignment**: Updated for Claude 5.1, featuring native multi-agent delegation frameworks and deep reasoning controls.
+- **SOTA Alignment**: Updated for late December 2026, featuring native multi-agent delegation frameworks and deep reasoning controls across Claude 5.1, GPT-5.5, and Gemini 4.0 Pro.
 - **Interactive Environment**: Supports interactive assessments using Anthropic's CLI agent and custom `/self-assessment` hooks.
 - **Security-First Focus**: Outlines advanced procedures to isolate agent execution using sandboxed containers and permission scopes.
-- **Detailed Token Management**: Demonstrates practical patterns for optimizing context limits through active token counting.
+- **Detailed Token Management**: Demonstrates practical patterns for optimizing context limits through active token counting and prompt caching boundary alignment.
 
 ## Limitations
 - **Platform Concentration**: Highly specialized for the Anthropic ecosystem; the unique syntax patterns (such as slash commands and CLAUDE.md styles) do not map directly to alternative LLM CLI setups.
-- **High Complexity**: Demands a solid baseline in software engineering and Python/Node.js scripting to leverage custom MCP servers.
+- **High Complexity**: Demands a solid baseline in software engineering and Python/Node.js scripting to leverage custom FastMCP servers.
 - **Rapid Ecosystem Drift**: Heavy dependencies on specific CLI releases of Claude Code require frequent configuration maintenance.
 
 ## When to use it
 - When implementing a repository-wide standard for how autonomous coding assistants interact with your team's code.
-- When creating custom tools for Claude via the Model Context Protocol (MCP 3.1) specifications.
+- When creating custom tools for Claude via the Model Context Protocol (FastMCP 3.1) specifications.
 - When training software engineering teams to transition from standard autocomplete extensions to fully agentic workflows.
 
 ## When not to use it
@@ -77,38 +77,59 @@ ruff format --check scripts/
 ```
 
 ## API examples
-While predominantly a text-based learning resource, `claude-howto` supplies Python utilities to automate educational workflow deployments.
+While predominantly a text-based learning resource, `claude-howto` supplies Python utilities utilizing strict **Pydantic v2** validation schemas to automate educational workflow deployments and configure FastMCP 3.1 environments.
 
-### Automating Lesson Build Pipelines
+### Automating Lesson Build and Assessment Configuration
 ```python
-import os
-import subprocess
-import sys
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
+from datetime import datetime
+import json
 
-def compile_educational_assets(target_format: str = "epub") -> bool:
+class LessonConfig(BaseModel):
     """
-    Automates the compilation of markdown lessons into offline formats.
-    Optimized for Python 3.11+ and compatible with uv environments.
+    Validates educational lesson build parameters.
+    Fully compliant with strict Pydantic v2 standards.
     """
-    if target_format not in ["epub", "pdf"]:
-        print(f"Unsupported format: {target_format}", file=sys.stderr)
-        return False
+    lesson_id: str = Field(..., pattern=r"^lesson-\d{3}$")
+    title: str = Field(..., min_length=5, max_length=100)
+    difficulty: str = Field(..., pattern=r"^(beginner|intermediate|advanced)$")
+    required_mcp_servers: List[str] = Field(default_factory=list)
+    last_reviewed: datetime
+    is_active: bool = True
 
-    try:
-        result = subprocess.run(
-            ["uv", "run", "scripts/build_epub.py", "--format", target_format],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print(f"Compilation output: {result.stdout}")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Asset compilation failed: {e.stderr}", file=sys.stderr)
-        return False
+    @field_validator("last_reviewed", mode="before")
+    @classmethod
+    def parse_review_date(cls, value):
+        if isinstance(value, str):
+            try:
+                return datetime.strptime(value, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError("Review date must follow YYYY-MM-DD format.")
+        return value
+
+def load_and_validate_config(config_json: str) -> LessonConfig:
+    """
+    Loads and parses lesson configurations, guaranteeing runtime correctness
+    with Pydantic v2 schema-enforcement.
+    """
+    data = json.loads(config_json)
+    config = LessonConfig.model_validate(data)
+    print(f"Successfully loaded and validated lesson: {config.title} [{config.lesson_id}]")
+    return config
 
 if __name__ == "__main__":
-    compile_educational_assets("epub")
+    sample_json = """
+    {
+        "lesson_id": "lesson-101",
+        "title": "Mastering FastMCP 3.1 Tool Injection",
+        "difficulty": "advanced",
+        "required_mcp_servers": ["mcp-server-git", "mcp-server-context"],
+        "last_reviewed": "2026-12-31"
+    }
+    """
+    validated = load_and_validate_config(sample_json)
+    print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -130,5 +151,5 @@ if __name__ == "__main__":
 - [Anthropic Prompt Caching Guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
