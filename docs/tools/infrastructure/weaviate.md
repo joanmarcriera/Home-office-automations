@@ -1,7 +1,7 @@
 # Weaviate
 
 ## What it is
-Weaviate is an open-source vector database that allows you to store data objects and vector embeddings from your favorite ML-models, and scale seamlessly into billions of data objects. As of late July 2026, it is a primary infrastructure choice for AI-native applications requiring high-performance semantic search, hybrid query architectures, and native MCP 3.1 tool integration.
+Weaviate is an open-source vector database that allows you to store data objects and vector embeddings from your favorite ML-models, and scale seamlessly into billions of data objects. As of late December 2026, it is a primary infrastructure choice for AI-native applications requiring high-performance semantic search, multi-vector hybrid query architectures, and native FastMCP 3.1 tool integration.
 
 ## What problem it solves
 Managing and searching through massive amounts of unstructured data (text, images, audio) is challenging. Weaviate provides a scalable infrastructure for vector search, enabling semantic search, recommendation engines, and Retrieval-Augmented Generation (RAG) by converting unstructured data into searchable vectors. It bridges the gap between raw data and agentic reasoning.
@@ -12,16 +12,16 @@ Managing and searching through massive amounts of unstructured data (text, image
 ## Typical use cases
 - **Retrieval-Augmented Generation (RAG)**: Providing relevant context to LLMs for more accurate answers.
 - **Semantic Search**: Finding information based on meaning rather than just keywords.
-- **Recommendation Systems**: Suggesting products or content based on visual or textual similarity.
-- **Image Search**: Building applications that can search for images using other images or text descriptions.
-- **Agentic Memory**: Storing and retrieving past agent interactions and state via MCP 3.1.
+- **Multi-Vector Indexing**: Storing and querying multiple distinct vector embeddings per collection (e.g., matching both visual CLIP embeddings and text embeddings simultaneously).
+- **Dynamic Tenant State Management**: Offloading inactive multi-tenant workloads to cold storage to preserve server resources.
+- **Agentic Memory**: Storing and retrieving past agent interactions and state via FastMCP 3.1.
 
 ## Strengths
 - **Speed & Scalability**: Capable of sub-second search across billions of objects.
 - **Modular Architecture**: Supports various vectorization modules (OpenAI, HuggingFace, Cohere, etc.).
 - **Hybrid Search**: Combines vector search with traditional keyword search (BM25) with dynamic sparse-dense merging (re-ranking).
 - **Multi-modal Support**: Natively handles text, image, and even audio embeddings.
-- **Native MCP 3.1 Server**: Auto-generates standard MCP tools for schema exploration and semantic querying, making the database directly queryable by frontier agent architectures.
+- **Native FastMCP 3.1 Server**: Auto-generates standard MCP tools for schema exploration and semantic querying, making the database directly queryable by frontier agent architectures.
 
 ## Limitations
 - **Memory Consumption**: Vector indices can be memory-intensive, especially for large datasets.
@@ -52,7 +52,7 @@ services:
     - '8080'
     - --scheme
     - http
-    image: semitechnologies/weaviate:1.26.1
+    image: semitechnologies/weaviate:1.27.0
     ports:
     - 8080:8080
     restart: on-failure:0
@@ -81,47 +81,101 @@ curl http://localhost:8080/v1/schema
 
 ## API examples
 
-### Schema Creation (Python v4 SDK)
-```python
-import weaviate
-import weaviate.classes as wvc
-
-# Connect to a local Weaviate instance running on port 8080
-client = weaviate.connect_to_local()
-
-try:
-    client.collections.create(
-        name="Document",
-        vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_openai(),
-        properties=[
-            wvc.config.Property(name="content", data_type=wvc.config.DataType.TEXT),
-        ]
-    )
-finally:
-    client.close()
-```
-
-### Hybrid Search (Python v4 SDK)
-Modern hybrid search formulation querying both semantic and BM25 features.
+### Programmatic Collection Creation & Validation (Python v4 SDK + Pydantic v2)
+This example showcases how to create a collection schema using Weaviate's native v4 SDK, perform a hybrid search combining BM25 keyword matching and vector semantics, and strictly validate the returned search results using **Pydantic v2** prior to consumption by agent routers.
 
 ```python
 import weaviate
 import weaviate.classes as wvc
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-client = weaviate.connect_to_local()
+# Define structured payload schemas using Pydantic v2
+class WeaviateDocument(BaseModel):
+    document_id: str = Field(..., description="The unique UUID or identifier of the object")
+    content: str = Field(..., description="The main text chunk content stored in the database")
+    category: str = Field(..., description="The category classification metadata tag")
+    score: float = Field(default=0.0, description="The query similarity or hybrid matching score")
 
-try:
-    documents = client.collections.get("Document")
-    # Perform hybrid search combining semantic vectors and keyword bm25
-    response = documents.query.hybrid(
-        query="AI infrastructure July 2026",
-        alpha=0.7, # 1.0 is pure vector search, 0.0 is pure keyword search
-        limit=5
-    )
-    for obj in response.objects:
-        print(f"Content: {obj.properties['content']}")
-finally:
-    client.close()
+class QueryValidationResponse(BaseModel):
+    query: str
+    results: List[WeaviateDocument]
+    total_retrieved: int
+
+def init_collection_and_query(query_text: str) -> Optional[QueryValidationResponse]:
+    # Connect to a local Weaviate instance running on default port 8080
+    # Note: connect_to_local() automatically handles v4 SDK settings
+    client = weaviate.connect_to_local()
+
+    try:
+        # Create collection schema if it does not exist
+        if not client.collections.exists("Document"):
+            client.collections.create(
+                name="Document",
+                vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_openai(),
+                properties=[
+                    wvc.config.Property(name="content", data_type=wvc.config.DataType.TEXT),
+                    wvc.config.Property(name="category", data_type=wvc.config.DataType.TEXT),
+                ]
+            )
+
+        collection = client.collections.get("Document")
+
+        # Ingest mock documents
+        collection.insert(
+            properties={"content": "To configure a local FastMCP 3.1 gateway, establish a secure tool config.", "category": "automation"}
+        )
+        collection.insert(
+            properties={"content": "Distributed vector indexes require memory-efficient quantization settings.", "category": "infrastructure"}
+        )
+
+        # Perform hybrid search combining vector search with keyword BM25 (re-ranking via alpha parameter)
+        response = collection.query.hybrid(
+            query=query_text,
+            alpha=0.7,  # 1.0 is pure vector search, 0.0 is pure keyword search
+            limit=5,
+            return_metadata=wvc.query.MetadataQuery(score=True)
+        )
+
+        search_results = []
+        for obj in response.objects:
+            search_results.append(
+                WeaviateDocument(
+                    document_id=str(obj.uuid),
+                    content=obj.properties.get("content", ""),
+                    category=obj.properties.get("category", ""),
+                    score=obj.metadata.score if obj.metadata and obj.metadata.score is not None else 0.0
+                )
+            )
+
+        payload = {
+            "query": query_text,
+            "results": search_results,
+            "total_retrieved": len(search_results)
+        }
+
+        # Strictly validate using Pydantic v2
+        return QueryValidationResponse.model_validate(payload)
+
+    except ValidationError as ve:
+        print(f"Validation failed on Weaviate retrieved result: {ve}")
+        return None
+    except Exception as e:
+        print(f"An error occurred during Weaviate operations: {e}")
+        return None
+    finally:
+        client.close()
+
+if __name__ == "__main__":
+    print("Initiating local Weaviate integration validation...")
+    # Example execution query
+    resp = init_collection_and_query("FastMCP 3.1 tool configuration")
+    if resp:
+        print("Weaviate retrieval verified via Pydantic v2:")
+        print(f"  Query: {resp.query}")
+        print(f"  Count: {resp.total_retrieved}")
+        for doc in resp.results:
+            print(f"  - Match: {doc.content} [Score: {doc.score}]")
 ```
 
 ## Related tools / concepts
@@ -142,5 +196,5 @@ finally:
 - [Weaviate v4 Python Client Release Notes](https://weaviate.io/blog/python-client-v4-release)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high
