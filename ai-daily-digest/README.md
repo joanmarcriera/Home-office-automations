@@ -1,5 +1,54 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-12
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 📌 **OpenAI Monetization & Expansion**: OpenAI is testing ads in ChatGPT to support free access and has launched its desktop app for Linux.
+* 🔥 **Watermarking War**: A major industry shift is underway as Anthropic, OpenAI, Google, Meta, and Microsoft sign the EU Code of Practice on Transparency, implementing steganographic watermarking for AI content.
+* 🚀 **Nvidia's New Model**: Nvidia has released **Nemotron 3.5 Lightning (30B)**, a smaller, faster open model designed for efficiency.
+* 🛠️ **Local LLM Breakthroughs**: Unsloth has launched a desktop app for local training/running, and new high-performance quants for Muse-Glimmer-30B are hitting the community.
+
+---
+
+## 🚀 Models & Releases
+* **Nvidia Nemotron 3.5 Lightning (30B)**: A new, faster member of the Nemotron family. Includes a new router to optimize its deployment. [The New Stack](https://thenewstack.io/nvidia-nemotron-lightning-switchyard/) | [Hugging Face](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16)
+* **Muse-Glimmer-30B**: New SoTA quants released by the community, alongside an updated chat template from Meta for better orchestration. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vm2116/new_museglimmer30b_sota_quants_hopefully_a_new/)
+* **Daybreak Models**: OpenAI's cybersecurity-focused capabilities are now available on AWS via Amazon Bedrock. [OpenAI Blog](https://openai.com/index/daybreak-models-are-now-available-on-aws)
+* **DeepSeek V4 (0731)**: Community quantization and benchmarking efforts are underway on 8x RTX 5090 setups. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vlurlv/we_quantized_deepseek_v4_0731_and_benchmarked_it/)
+
+---
+
+## 🛠️ Tools & Agents
+* **Unsloth Desktop App**: A new open-source app for Mac, Windows, and Linux that allows users to run and train models locally (supports MLX, GGUF, and diffusion models). [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vlj87v/introducing_unsloth_desktop_app/)
+* **n8n MCP Integration**: Now offers one-click OAuth connections to 70+ Model Context Protocol (MCP) servers for agentic workflows. [n8n Blog](https://blog.n8n.io/one-click-connection-to-70-mcp-servers-and-when-to-use-them/)
+* **Databricks & Electric**: Databricks acquired Electric to provide AI agents with their own dedicated Postgres databases via WASM-based PGlite. [The New Stack](https://thenewstack.io/databricks-electric-wasm-agentic-postgres/)
+* **ChatGPT for Linux**: OpenAI has officially released its desktop app for Linux users in preview. [The New Stack](https://thenewstack.io/openais-chatgpt-desktop-linux/)
+
+---
+
+## 🔬 Research & Papers
+* **Medical AI (AMIE)**: Google's research system AMIE demonstrates real-time clinical video consultation capabilities. [Google AI Blog](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations/)
+* **Reasoning Trace Recovery**: A new paper suggests that "encrypted" reasoning traces from closed models may be 100% recoverable. [arXiv](https://arxiv.org/abs/2608.09867) | [Latent Space](https://www.latent.space/p/ainews-how-to-steal-a-reasoning-trace)
+* **Token Cost Optimization**: Meryem Arik presents a guide on producing the "world's cheapest tokens" through hardware trade-offs and speculative decoding. [InfoQ](https://www.infoq.com/presentations/ai-token-price/)
+* **Hallucination Detection**: Community research into whether Gemma and Qwen can detect their own hallucinations by analyzing logprobs. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vlvq2s/can_gemma_and_qwen_models_catch_hallucinations_by/)
+
+---
+
+## 🏢 Industry News
+* 📌 **AI Watermarking & Regulation**: Major AI labs (OpenAI, Anthropic, Google, Meta, Microsoft, Mistral) have signed the EU Code of Practice on Transparency. Anthropic's new steganographic watermarking is already seeing reports of false positives. [The New Stack](https://thenewstack.io/anthropic-claude-text-watermark/) | [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vlyzi6/anthropic_openai_google_meta_microsoft_and/)
+* **ChatGPT Ads**: OpenAI is testing ads within ChatGPT to maintain free access for users, promising that ads will not influence the independence of answers. [OpenAI Blog](https://openai.com/index/testing-ads-in-chatgpt)
+* **Hardware Shifts**: 
+    * Nvidia raised the price of the **RTX 6000 PRO** to $16,000. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vm5e14/rtx_6000_pro_price_raised_to_16000_usd_on_the/)
+    * Discussion on the "BioAI Phase Shift" as pharma companies begin paying for AI tools (e.g., Chai Discovery). [Latent Space](https://www.latent.space/p/chai-discovery)
+* **Corporate Moves**: 
+    * **Manus** is becoming independent again after Chinese regulators ordered Meta to unwind its $2B acquisition. [The New Stack](https://thenewstack.io/manus-meta-data-deletion/)
+    * **IBM & Red Hat** expanded "Lightwell" to improve software supply chain trust for AI-assisted dev. [InfoQ](https://www.infoq.com/news/2026/08/lightwell-ai-open-source/)
+
+---
+
+
 ## 📅 Digest for 2026-08-11
 
 # AI & Technology Daily Digest
