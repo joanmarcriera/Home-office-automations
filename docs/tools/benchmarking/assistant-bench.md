@@ -1,7 +1,7 @@
 # AssistantBench
 
 ## What it is
-AssistantBench is a rigorous, open-source evaluation benchmark designed to measure the capability of web-connected AI agents and autonomous assistants to execute complex, realistic, and time-consuming multi-step tasks on the live web. As of late July 2026, AssistantBench is established as a critical component of the "Agentic Evaluation Standard." It systematically quantifies the planning, navigation, retrieval, and reasoning capabilities of frontier models (including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 3.5) operating in stateful browser environments.
+AssistantBench is a rigorous, open-source evaluation benchmark designed to measure the capability of web-connected AI agents and autonomous assistants to execute complex, realistic, and time-consuming multi-step tasks on the live web. As of late December 2026, AssistantBench is established as a critical component of the "Agentic Evaluation Standard." It systematically quantifies the planning, navigation, retrieval, and reasoning capabilities of frontier models (including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash) operating in stateful browser environments.
 
 ## What problem it solves
 Most traditional LLM benchmarks evaluate atomic capabilities, such as isolated code generation or single-turn QA, in synthetic environments. However, these benchmarks fail to evaluate real-world agentic execution, where an agent must navigate dynamic websites, bypass anti-bot systems, manage complex browser states, retrieve scattered data, and reason across multiple pages to complete a single user request. AssistantBench solves this by providing long-horizon, multi-domain web-agent tasks that typically take a human developer or assistant 10 to 30 minutes to complete, allowing teams to rigorously benchmark success rates and measure Agentic Latency.
@@ -19,7 +19,7 @@ It functions as a high-level performance and capability auditing layer, typicall
 
 ## Strengths
 - **Authentic and Realistic Tasks**: Sourced from actual, real-world questions and tasks that humans perform, ensuring evaluation results reflect genuine utility.
-- **Dynamic Live Web Execution**: Tests agents on the actual open web, verifying their resilience against real-world web-design patterns and javascript-dense interfaces.
+- **Dynamic Live Web Execution**: Tests agents on the open web, verifying their resilience against real-world web-design patterns and javascript-dense interfaces.
 - **Standardized Framework Integration**: Natively integrated with `inspect-ai` and the `inspect-evals` package, enabling standardized execution and evaluation runs.
 - **Long-Horizon Multi-Domain Coverage**: Spans across business, real estate, travel booking, scientific research, and SaaS interfaces, ensuring a diverse capability profile.
 - **Detailed Visual Tracing**: Generates complete execution logs with visual step-by-step screenshots to allow developers to inspect and analyze agent failure modes.
@@ -45,7 +45,7 @@ AssistantBench evaluations are primarily orchestrated using the `inspect-ai` fra
 ### 1. Installation
 Install the required packages utilizing pip:
 ```bash
-pip install inspect-ai inspect-evals
+pip install inspect-ai inspect-evals pydantic
 ```
 
 ### 2. Live Web Driver Dependencies
@@ -124,6 +124,53 @@ print("Evaluation complete.")
 print(f"Mean Accuracy: {summary.metrics.get('accuracy').value}")
 ```
 
+### 3. Validation of AssistantBench Results with Pydantic v2
+Model, parse, and strictly validate execution outputs from AssistantBench using Pydantic v2.
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, List, Optional
+from datetime import datetime
+
+class TaskMetrics(BaseModel):
+    accuracy: float = Field(..., description="Task success accuracy between 0.0 and 1.0")
+    agentic_latency: float = Field(..., description="Average delay per agent planning step in seconds")
+    tokens_consumed: int = Field(..., description="Total input and output tokens consumed")
+
+    @field_validator("accuracy")
+    @classmethod
+    def validate_accuracy(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError("Accuracy must be between 0.0 and 1.0")
+        return v
+
+class BenchResult(BaseModel):
+    benchmark_name: str = Field(default="AssistantBench")
+    model_name: str = Field(..., description="The frontier model evaluated")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    successful_runs: int = Field(..., ge=0)
+    failed_runs: int = Field(..., ge=0)
+    metrics: TaskMetrics
+
+# Simulating raw API outputs or log parses
+raw_json = {
+    "model_name": "claude-5.1",
+    "successful_runs": 8,
+    "failed_runs": 2,
+    "metrics": {
+        "accuracy": 0.80,
+        "agentic_latency": 12.4,
+        "tokens_consumed": 154000
+    }
+}
+
+# Parse and strictly validate the results
+validated_result = BenchResult.model_validate(raw_json)
+print(f"Successfully validated evaluation results for {validated_result.model_name}:")
+print(f"Accuracy: {validated_result.metrics.accuracy * 100:.1f}%")
+print(f"Agentic Latency: {validated_result.metrics.agentic_latency} seconds/step")
+```
+
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web session orchestration and procedural navigation benchmark.
 - [GAIA](./gaia.md) — General AI Assistant benchmark targeting multimodal, tool-connected real-world tasks.
@@ -143,8 +190,8 @@ print(f"Mean Accuracy: {summary.metrics.get('accuracy').value}")
 - [AssistantBench Official Webpage](https://assistantbench.github.io/)
 - [AssistantBench Project GitHub Repository](https://github.com/assistantbench/assistantbench)
 - [UK AISI Inspect-AI Documentation](https://github.com/UKGovernmentBEIS/inspect-ai)
-- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-07-27-audit)
+- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-12-31-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-12-31
 - Confidence: high

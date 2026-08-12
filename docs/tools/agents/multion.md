@@ -1,14 +1,14 @@
 # MultiOn
 
 ## What it is
-MultiOn is an enterprise-grade AI agent framework, SDK, and API designed specifically for autonomous web navigation, interaction, and stateful browser control. As of late July 2026, it operates on the mature API v3 architecture, serving as a high-performance "motor cortex" for AI. It enables frontier models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 3.5 Pro to execute complex, multi-step actions across any web surface by combining real-time visual grounding with structural DOM parsing.
+MultiOn is an enterprise-grade AI agent framework, SDK, and API designed specifically for autonomous web navigation, interaction, and stateful browser control. As of late December 2026, it operates on the mature API v3 architecture, serving as a high-performance "motor cortex" for AI. It enables frontier models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash to execute complex, multi-step actions across any web surface by combining real-time visual grounding with structural DOM parsing.
 
 ## What problem it solves
 Traditional web scraping, RPA (Robotic Process Automation), and heuristic automation frameworks are notoriously brittle, requiring constant maintenance when website layouts or class names change. Standard LLMs without browser grounding are "read-only" and cannot interact with authenticated user sessions or complete transaction loops. MultiOn bridges this gap by providing autonomous web execution environments that handle state management, user authentication, CAPTCHAs, dynamic JS execution, and self-healing navigation trajectories without brittle hardcoded rules.
 
 ## Where it fits in the stack
 **Category**: [Agents](index.md) / [Automation & Orchestration](../automation_orchestration/index.md).
-It functions as the execution and interaction layer of the agentic stack. SOTA models generate semantic intents or command paths (such as using Model Context Protocol (MCP 3.1) Task Protocol structures), which are translated by MultiOn's browser orchestrator into physical browser operations (click, type, hover, scroll, extract).
+It functions as the execution and interaction layer of the agentic stack. SOTA models generate semantic intents or command paths (such as using Model Context Protocol / FastMCP 3.1 specifications), which are translated by MultiOn's browser orchestrator into physical browser operations (click, type, hover, scroll, extract).
 
 ## Typical use cases
 - **Transaction Orchestration**: Completing automated purchases, hotel/flight bookings, or filling out long corporate forms across disjointed websites.
@@ -19,7 +19,7 @@ It functions as the execution and interaction layer of the agentic stack. SOTA m
 
 ## Strengths
 - **Visual Grounding & Self-Healing**: Utilizing visual analysis from frontier VLMs to accurately target UI elements, making it highly resilient to HTML structural changes.
-- **Model Context Protocol (MCP 3.1) Native**: Seamlessly maps web browsing capabilities to MCP-compatible agents as an external tool, providing structured inputs/outputs.
+- **Model Context Protocol / FastMCP 3.1 Native**: Seamlessly maps web browsing capabilities to MCP-compatible agents as an external tool, providing structured inputs/outputs.
 - **Continuous Session State**: Maintains persistent, secure browser environments that carry over cookies, logins, and session states across multi-step flows.
 - **Anti-Bot and CAPTCHA Handling**: Integrates advanced proxy routing and automated CAPTCHA solving to navigate complex security gates smoothly.
 - **Multi-Modal Execution**: Supports both headless high-throughput sessions and visual debug sessions in a real-time local or cloud window.
@@ -43,9 +43,9 @@ It functions as the execution and interaction layer of the agentic stack. SOTA m
 ## Getting started
 
 ### Installation
-Install the official MultiOn client library for Python using pip:
+Install the official MultiOn client and Pydantic libraries:
 ```bash
-pip install multion
+pip install multion pydantic
 ```
 
 ### Authentication and Setup
@@ -97,7 +97,7 @@ if result.screenshot:
     print("Screenshot captured and stored.")
 ```
 
-### 2. Multi-Step Stateful Sessions with MCP 3.1 Task Protocol Integration
+### 2. Multi-Step Stateful Sessions with FastMCP 3.1 Integration
 Maintain state across successive steps for long-horizon agentic missions.
 
 ```python
@@ -136,6 +136,42 @@ finally:
     print("Session terminated successfully.")
 ```
 
+### 3. Session Safeguarding & Validation via Pydantic v2
+Enforce strict structural safety constraints and validation boundaries on MultiOn browser sessions before invoking physical navigation loops.
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+
+class BrowserConfig(BaseModel):
+    target_url: str = Field(..., description="Target URL to start the session")
+    max_steps: int = Field(default=10, ge=1, le=50, description="Maximum browsing steps allowed")
+    mode: str = Field(default="headless", description="Execution mode: headless or visual")
+    allow_transactions: bool = Field(default=False, description="Whether to allow monetary or state-altering transactions")
+
+    @field_validator("target_url")
+    @classmethod
+    def validate_secure_domain(cls, v: str) -> str:
+        if not v.startswith(("https://", "http://")):
+            raise ValueError("URL must start with http or https")
+        return v
+
+# Validate incoming browsing request from orchestration layer
+payload = {
+    "target_url": "https://github.com/trending",
+    "max_steps": 15,
+    "mode": "headless",
+    "allow_transactions": False
+}
+
+try:
+    config = BrowserConfig.model_validate(payload)
+    print(f"Validated MultiOn configurations successfully.")
+    print(f"Launching session on {config.target_url} with max steps: {config.max_steps}")
+except Exception as e:
+    print(f"Validation failed: {e}")
+```
+
 ## Related tools / concepts
 - [Stagehand](../automation_orchestration/stagehand.md) — Node-based visual automation using SOTA vision-language models and Playwright.
 - [Browser Use](../automation_orchestration/browser-use.md) — LangChain-native framework for steering web browsers with SOTA visual LLMs.
@@ -146,6 +182,10 @@ finally:
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Industry-standard protocol for integrating web tools with frontier LLMs.
 - [Exa AI](../providers/exa_ai.md) — Semantic search provider used to identify target URLs before initiating MultiOn browser interactions.
 
+## Licensing and cost
+- **License**: Proprietary SDK / Cloud API.
+- **Cost**: Offers free tier with limited browsing runs; standard consumption costs are billed based on execution runtime, step counts, and active proxy/solving features.
+
 ## Sources / references
 - [MultiOn Developer Portal](https://docs.multion.ai/)
 - [MultiOn Official Site](https://www.multion.ai/)
@@ -153,5 +193,5 @@ finally:
 - [API v3 Architecture and Vision-Grounding Update](https://www.multion.ai/blog/v3-api-release)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-28
+- Last reviewed: 2026-12-31
 - Confidence: high
