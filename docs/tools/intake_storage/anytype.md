@@ -136,7 +136,7 @@ if __name__ == "__main__":
 - [Obsidian](../ai_knowledge/obsidian.md) (Markdown-based alternative)
 - [Logseq](../ai_knowledge/logseq.md) (Privacy-focused outliner)
 - [SilverBullet](silverbullet.md) (Markdown-based programmable wiki)
-- [Google Gemini / Gemma 3](../ai_knowledge/google-gemini.md) (Models compatible with AnyType MCP)
+- [Google Gemini / Gemma 3](../ai_knowledge/gemini.md) (Models compatible with AnyType MCP)
 - [Claude 5.1](../ai_knowledge/claude-mythos.md) (Advanced reasoning for local knowledge)
 - [Component Map](../../architecture/component_map.md) (How local storage fits in the architecture)
 - [Nextcloud](../../services/nextcloud.md) (Self-hosted cloud suite)

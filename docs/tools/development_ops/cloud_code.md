@@ -195,7 +195,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Google Gemini](../ai_knowledge/google-gemini.md) — Multi-modal foundational models powering Google's AI developer tools.
+- [Gemini](../ai_knowledge/gemini.md) — Multi-modal foundational models powering Google's AI developer tools.
 - [Docker](../infrastructure/docker.md) — Containerization standard used for local and remote packaging.
 - [K3s](../infrastructure/k3s.md) — Lightweight Kubernetes engine ideal for homelabs and edge clusters.
 - [Anti-Gravity](./anti_gravity.md) — Google's enterprise agent orchestration and sandbox framework.

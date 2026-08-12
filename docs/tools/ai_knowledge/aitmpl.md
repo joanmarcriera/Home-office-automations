@@ -147,7 +147,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Claude Plugins](../development_ops/claude-plugins.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-- [Google Gemini](google-gemini.md)
+- [Gemini](gemini.md)
 - [Google Opal](google-opal.md)
 - [OpenRouter](openrouter.md)
 - [Jasper](jasper.md)

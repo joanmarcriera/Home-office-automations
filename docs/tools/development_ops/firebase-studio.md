@@ -137,9 +137,9 @@ def validate_firestore_document(raw_json: str) -> Optional[TaskDocument]:
 ```
 
 ## Related tools / concepts
-- [Google AI Studio](../ai_knowledge/google-gemini.md)
+- [Google AI Studio](../ai_knowledge/gemini.md)
 - [Cloud Code](cloud_code.md)
-- [Google Gemini](../ai_knowledge/google-gemini.md)
+- [Gemini](../ai_knowledge/gemini.md)
 - [Google Opal](../ai_knowledge/google-opal.md)
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
 - [MCP](../automation_orchestration/mcp.md)

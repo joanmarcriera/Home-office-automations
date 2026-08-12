@@ -18,7 +18,7 @@ As agentic workflows gain full control over shell terminals, databases, and APIs
 ## Strengths
 - **Automated Adversarial Generation**: Generates contextual, multi-turn adversarial prompt variants dynamically based on target system instructions.
 - **Pre-packaged Attack Database**: Includes a large library of historically proven jailbreak vectors, indirect injection payloads, and compliance-bypass structures.
-- **Target Agnostic Integration**: Natively supports testing against frontier and public cloud models ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), [Google Gemini](../ai_knowledge/google-gemini.md), GPT-5.5, Claude 5.1, Gemini 4.0 Pro, Llama 4, Qwen 3.6) and local inference servers ([Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
+- **Target Agnostic Integration**: Natively supports testing against frontier and public cloud models ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), [Gemini](../ai_knowledge/gemini.md), GPT-5.5, Claude 5.1, Gemini 4.0 Pro, Llama 4, Qwen 3.6) and local inference servers ([Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
 - **Extensible Scoring Metrics**: Evaluates model replies with automated safety classifiers to produce reproducible security scorecards.
 
 ## Limitations

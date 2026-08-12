@@ -32,7 +32,7 @@ These tasks track self-hosted and cloud enterprise software layers, identity pro
 | Azure OpenAI | [https://github.com/search?q=Azure+OpenAI&ref=2026-07-27-audit](https://github.com/search?q=Azure+OpenAI&ref=2026-07-27-audit) | tool | **integrated** | `docs/tools/providers/azure-openai.md` | Map Microsoft enterprise cloud API options. |
 | Okta | [https://github.com/search?q=Okta&ref=2026-07-27-audit](https://github.com/search?q=Okta&ref=2026-07-27-audit) | tool | **integrated** | `docs/tools/enterprise/microsoft-entra-id.md` | Document comparison of Okta SSO vs Entra ID. |
 | Microsoft Graph | [https://github.com/search?q=Microsoft+Graph&ref=2026-07-27-audit](https://github.com/search?q=Microsoft+Graph&ref=2026-07-27-audit) | tool | **integrated** | `docs/tools/providers/microsoft-graph.md` | Ensure robust reference for enterprise productivity graphs. |
-| Vertex AI | [https://github.com/search?q=Vertex+AI&ref=2026-07-27-audit](https://github.com/search?q=Vertex+AI&ref=2026-07-27-audit) | tool | **integrated** | `docs/tools/ai_knowledge/google-gemini.md` | Reference Google Cloud Enterprise integrations. |
+| Vertex AI | [https://github.com/search?q=Vertex+AI&ref=2026-07-27-audit](https://github.com/search?q=Vertex+AI&ref=2026-07-27-audit) | tool | **integrated** | `docs/tools/ai_knowledge/gemini.md` | Reference Google Cloud Enterprise integrations. |
 
 ---
 

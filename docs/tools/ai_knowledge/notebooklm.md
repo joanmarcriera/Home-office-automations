@@ -133,7 +133,7 @@ def validate_notebook_config(raw_json: str) -> Optional[NotebookConfig]:
 ## Related tools / concepts
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The fundamental information retrieval architecture.
 - [LlamaIndex](llamaindex.md) — The developer tool of choice for constructing custom data-connected LLMs.
-- [Google Gemini](google-gemini.md) — Google's core foundation model family.
+- [Gemini](gemini.md) — Google's core foundation model family.
 - [Perplexity](../providers/perplexity.md) — Real-time conversational web research engine.
 - [Genspark](genspark.md) — Agentic search and Sparkpage synthesis.
 - [Claude](claude.md) — Frontier reasoning models used for exhaustive document auditing.

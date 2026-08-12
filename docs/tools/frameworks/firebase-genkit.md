@@ -190,7 +190,7 @@ except Exception as e:
 ```
 
 ## Related tools / concepts
-- [Google Gemini](../ai_knowledge/google-gemini.md)
+- [Gemini](../ai_knowledge/gemini.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [Firebase Studio (Sunset March 2027)](../development_ops/firebase-studio.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)

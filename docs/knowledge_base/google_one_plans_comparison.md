@@ -7,7 +7,7 @@ Google One is a unified subscription service providing expanded cloud storage ac
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 4.0 Flash for agentic loops.
 
 ## Where it fits in the stack
-Google One sits at the **Subscription & Access Layer** of the personal AI stack. It provides the financial and resource backbone (storage and compute credits) for the [Google Gemini](../tools/ai_knowledge/google-gemini.md) ecosystem, [NotebookLM](../tools/ai_knowledge/notebooklm.md) research workflows, and the [Google Antigravity](../tools/agents/agno.md) agentic platform.
+Google One sits at the **Subscription & Access Layer** of the personal AI stack. It provides the financial and resource backbone (storage and compute credits) for the [Gemini](../tools/ai_knowledge/gemini.md) ecosystem, [NotebookLM](../tools/ai_knowledge/notebooklm.md) research workflows, and the [Google Antigravity](../tools/agents/agno.md) agentic platform.
 
 ## Typical use cases
 - **Agentic Productivity**: Utilizing **Gemini Spark** to autonomously manage calendars, draft complex responses, and clean up datasets across Google Workspace.
@@ -140,7 +140,7 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 ```
 
 ## Related tools / concepts
-- [Gemini 4.0 Pro](../tools/ai_knowledge/google-gemini.md): The flagship model for Pro/Ultra tiers.
+- [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md): The flagship model for Pro/Ultra tiers.
 - [Google Antigravity](../tools/agents/agno.md): The agent-first development platform.
 - [Jules](../tools/ai_knowledge/jules.md): Autonomous software engineering agent (Elite tier access).
 - [NotebookLM](../tools/ai_knowledge/notebooklm.md): Research and source-heavy analysis.

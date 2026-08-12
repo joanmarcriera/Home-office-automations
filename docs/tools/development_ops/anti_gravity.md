@@ -212,7 +212,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/google-gemini.md) — Multi-modal foundational models underpinning Google agent systems.
+- [Gemini](../ai_knowledge/gemini.md) — Multi-modal foundational models underpinning Google agent systems.
 - [Project Genie](../ai_knowledge/project-genie.md) — Google DeepMind's generative simulation and world-building engine.
 - [Terminus 2](./terminus-2.md) — Raw tmux-based shell-execution baseline and terminal-benchmarking engine.
 - [OpenHands](./openhands.md) — Flexible open-source software engineering agent workspace.

@@ -128,7 +128,7 @@ console.log(tailwindCode);
 ```
 
 ## Related tools / concepts
-- [Google Gemini](../ai_knowledge/google-gemini.md) — The underlying model ecosystem.
+- [Gemini](../ai_knowledge/gemini.md) — The underlying model ecosystem.
 - [Google AI Studio](../ai_knowledge/google-ai-studio.md) — For deeper model configuration.
 - [Cursor](cursor.md) — IDE that can consume Stitch-generated code.
 - [Claude Code](claude-code.md) — CLI agent for building apps with Stitch assets.

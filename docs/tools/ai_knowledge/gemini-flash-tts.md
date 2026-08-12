@@ -219,7 +219,7 @@ def generate_conversational_response():
 ```
 
 ## Related tools / concepts
-- [Google Gemini](./google-gemini.md)
+- [Gemini](./gemini.md)
 - [ElevenLabs](./elevenlabs.md)
 - [Google Lyria](./google-lyria.md)
 - [Fish Audio](fish-audio.md)

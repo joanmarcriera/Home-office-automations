@@ -160,7 +160,7 @@ print(f"Validated task: {validated_plan.task} (Score: {validated_plan.confidence
 ```
 
 ## Related tools / concepts
-- [Google Gemini](google-gemini.md) — Underlying model family.
+- [Gemini](gemini.md) — Underlying model family.
 - [Nano Banana](nano-banana.md) — Sibling edge/image processing tools.
 - [Gemini Flash TTS](gemini-flash-tts.md) — High-speed speech synthesis tools.
 - [Gemini Canvas](gemini-canvas.md) — Generative workspace integration tools.

@@ -135,7 +135,7 @@ def poll_video_status(video_id: str) -> Optional[str]:
 - [OpenAI](openai.md)
 - [Project Genie](project-genie.md)
 - [Synthesia](synthesia.md)
-- [Google Gemini](google-gemini.md)
+- [Gemini](gemini.md)
 - [Midjourney](../ai_knowledge/index.md)
 
 ## Sources / references

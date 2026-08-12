@@ -129,8 +129,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/gemini.md) — Base multimodal LLM architecture.
-- [Google Gemini](../ai_knowledge/google-gemini.md) — Main Google Vertex AI model portfolio.
+- [Gemini](../ai_knowledge/gemini.md) — Base multimodal LLM and Google Vertex AI model portfolio.
 - [Gemini CLI](../ai_knowledge/gemini-cli.md) — CLI integration for Google LLMs.
 - [Gemini for macOS](../ai_knowledge/gemini-macos.md) — Native Apple Silicon agent integration.
 - [Gemini API Managed Agents](gemini-managed-agents.md) — Autonomous agent framework.

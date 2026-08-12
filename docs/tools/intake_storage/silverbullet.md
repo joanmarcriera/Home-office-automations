@@ -155,7 +155,7 @@ if __name__ == "__main__":
 - [Local LLMs](../ai_knowledge/local_llms.md) (Integrating AI with SilverBullet data)
 - [Model Context Protocol](../automation_orchestration/mcp.md) (Connectivity standard)
 - [Claude 5.1](../ai_knowledge/claude-mythos.md) (Advanced reasoning for notes)
-- [Gemma 3](../ai_knowledge/google-gemini.md) (Efficient local processing)
+- [Gemma 3](../ai_knowledge/gemini.md) (Efficient local processing)
 - [Component Map](../../architecture/component_map.md) (Architectural positioning)
 - [KnowledgeOps Standards](../../standards.md) (Governing programmable knowledge)
 - [n8n](../../services/n8n.md) (External automation for SilverBullet)

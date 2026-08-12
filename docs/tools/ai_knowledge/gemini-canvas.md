@@ -7,7 +7,7 @@ Gemini Canvas is a collaborative, infinite-workspace interface within the Gemini
 It addresses the "Chat Fatigue" and context-switching overhead of complex, multi-stage projects. Instead of scrolling through long, linear chat histories, Canvas allows users to pin insights, visualize information hierarchies, and transform raw data into interactive widgets. It provides a visual "Working Memory" for both humans and AI agents.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Workspace Orchestration**. It functions as the UI layer for the [Antigravity Agent](antigravity-agent.md) platform, sitting above the [Gemini](gemini.md) and [Google Gemini](google-gemini.md) model layers.
+**AI Assistants & Knowledge / Workspace Orchestration**. It functions as the UI layer for the [Antigravity Agent](antigravity-agent.md) platform, sitting above the [Gemini](gemini.md) model layer.
 
 ## Typical use cases
 - **Multi-Source Research**: Aggregating information from [Google Search](google-search.md) into categorized blocks on a visual workspace.
@@ -81,7 +81,6 @@ mission.assign_agent(agent_type="researcher", focus="competitive-landscape")
 
 ## Related tools / concepts
 - [Gemini](gemini.md)
-- [Google Gemini](google-gemini.md)
 - [Antigravity Agent](antigravity-agent.md)
 - [Google Search](google-search.md)
 - [NotebookLM](notebooklm.md)

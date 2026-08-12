@@ -26,7 +26,7 @@ The Component Map is the architectural blueprint of the repository's technology 
 
 #### 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
-- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md) (Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.6)
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Gemini](../tools/ai_knowledge/gemini.md) (Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.6)
 - **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (Gemma 3, Llama 4)](../tools/ai_knowledge/local_llms.md), [vLLM](../tools/infrastructure/vllm.md), [TGI](../tools/infrastructure/tgi.md), [SGLang](../tools/infrastructure/sglang.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [MLX](../tools/infrastructure/mlx.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/providers/perplexity.md), [Valyu](../tools/ai_knowledge/valyu.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
