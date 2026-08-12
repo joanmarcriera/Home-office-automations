@@ -45,7 +45,7 @@ GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrain
 2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
 3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the inline chat.
 
-### Model Selection (July 2026)
+### Model Selection (December 2026)
 You can now select your preferred model in the Copilot Chat settings:
 - **Default**: GPT-5.5 (Optimized for speed and general coding).
 - **Advanced Reasoning**: Claude 5.1 (Optimized for complex architectural tasks).
@@ -138,5 +138,5 @@ if config.policy:
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-29
+- Last reviewed: 2026-12-31
 - Confidence: high
