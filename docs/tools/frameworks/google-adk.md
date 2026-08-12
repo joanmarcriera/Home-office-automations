@@ -1,7 +1,7 @@
 # Google Agent Development Kit (ADK)
 
 ## What it is
-The Google Agent Development Kit (ADK) is an open-source framework designed for building, debugging, and deploying enterprise-grade AI agents at scale. As of late July 2026, the ADK is in General Availability (GA), serving as the unified, stateful runtime orchestration layer for Google's agentic ecosystem. It is engineered to harness the advanced reasoning capabilities of the Gemini 3.5 series (Ultra, Pro, Flash), Gemini Spark (for planning and multi-agent coordination), and Gemini Omni (for multimodal stream processing), while maintaining full cross-compatibility with other frontier models like Claude 5.1 and GPT-5.5.
+The Google Agent Development Kit (ADK) is an open-source framework designed for building, debugging, and deploying enterprise-grade AI agents at scale. As of late December 2026, the ADK is in General Availability (GA), serving as the unified, stateful runtime orchestration layer for Google's agentic ecosystem. It is engineered to harness the advanced reasoning capabilities of the Gemini 4.0 series (Ultra, Pro, Flash), Gemini Spark (for planning and multi-agent coordination), and Gemini Omni (for multimodal stream processing), while maintaining full cross-compatibility with other frontier models like Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
 While lightweight scripting libraries are suitable for single-agent chat loops, they fail to bridge the "Prototype-to-Production" gap for complex corporate workflows. They often lack strict state management, explicit orchestration, multi-language interoperability, and robust evaluation paths. The ADK addresses these enterprise requirements by providing reliable, deterministic state-machine orchestration, standardized "Skills" (tool-calling interfaces), and integrated evaluation runtimes that ensure agent execution remains predictable, auditable, and SLA-compliant.
@@ -19,7 +19,7 @@ It sits directly between the foundation model layer (Gemini, Claude, GPT) and th
 ## Strengths
 - **Rigorous State-Machine Orchestration**: Prevents agents from entering infinite loops or executing unauthorized tools by enforcing explicit, deterministic state transitions.
 - **First-Class Multi-Language Support**: Complete, feature-parity SDKs available for Python, TypeScript, Go, and Java, enabling polyglot enterprise architectures.
-- **Native Model Context Protocol (MCP 3.1) Integration**: Built-in support for MCP 3.1 client/server patterns, letting agents seamlessly query external tools, databases, and filesystem contexts.
+- **Native Model Context Protocol / FastMCP 3.1 Integration**: Built-in support for FastMCP 3.1 client/server patterns, letting agents seamlessly query external tools, databases, and filesystem contexts.
 - **Vertex AI Evaluation Integration**: Direct, out-of-the-box telemetry pipelines pointing to Vertex AI monitoring, logging, and evaluation frameworks to measure success and detect drift.
 - **Standardized Skill Definitions**: A declarative paradigm that auto-generates schema parameters, enabling easy sharing of tool schemas across different internal teams.
 
@@ -42,7 +42,7 @@ The Google ADK is distributed as highly optimized packages through all major pac
 
 ### Python Installation
 ```bash
-pip install google-adk
+pip install google-adk pydantic
 ```
 
 ### TypeScript Installation
@@ -69,32 +69,51 @@ adk deploy --project enterprise-gcp-prod --region us-central1 --tag v2.4
 
 ## API examples
 
-### 1. Declaring and Registering a Standardized Skill (Python)
-The ADK leverages decorators to automatically extract function signatures, converting standard Python code into discoverable agent skills complete with Zod-compatible parameter validation.
+### 1. Declaring and Registering a Standardized Skill with Pydantic v2 Payload Validation (Python)
+The ADK leverages decorators to extract signatures and can be coupled with strict **Pydantic v2** validation parameters to enforce payload verification at runtime.
 
 ```python
 import os
+from pydantic import BaseModel, Field, field_validator
 from google_adk import Skill, Agent
+
+# Define a strict parameter validation schema using Pydantic v2
+class InventoryQuery(BaseModel):
+    sku: str = Field(..., description="Unique product stock-keeping unit (format: SKU-XXXXX)")
+    warehouse_id: str = Field(default="us-east-1", description="Target fulfillment center identifier")
+
+    @field_validator("sku")
+    @classmethod
+    def validate_sku_format(cls, v: str) -> str:
+        if not v.startswith("SKU-") or len(v) < 6:
+            raise ValueError("SKU must start with 'SKU-' followed by alphanumeric characters")
+        return v
 
 # Define a secure, standardized Skill
 @Skill.define(
     name="get_inventory_status",
-    description="Fetches real-time stock levels and warehouse availability for a given product SKU."
+    description="Fetches real-time stock levels and warehouse availability for a validated inventory query."
 )
-def fetch_inventory(sku: str) -> dict:
-    # Logic to fetch from an internal enterprise ERP database
-    return {"sku": sku, "status": "In Stock", "quantity": 142, "warehouse": "us-east-1"}
+def fetch_inventory(query_payload: dict) -> dict:
+    # Strictly validate payload inputs before processing ERP logic
+    validated_query = InventoryQuery.model_validate(query_payload)
+    return {
+        "sku": validated_query.sku,
+        "status": "In Stock",
+        "quantity": 142,
+        "warehouse": validated_query.warehouse_id
+    }
 
 # Initialize the Gemini-powered agent and register the Skill
 agent = Agent(
     name="LogisticsAgent",
-    model="gemini-3.5-pro",
+    model="gemini-4.0-pro",
     api_key=os.environ.get("GEMINI_API_KEY"),
     skills=[fetch_inventory]
 )
 
-# Run the agent with context
-response = agent.run("Check inventory status for SKU-90812")
+# Run the agent with structured payload query context
+response = agent.run("Check inventory status for SKU-90812 in warehouse us-east-1")
 print("Agent Response:", response.text)
 ```
 
@@ -120,7 +139,7 @@ sm.addState('BILLING_FLOW', async (context: Context) => {
 });
 
 sm.addState('GENERAL_ROUTE', async (context: Context) => {
-  // Logic to route general queries to Gemini 3.5 Flash
+  // Logic to route general queries to Gemini 4.0 Flash
   return 'COMPLETE';
 });
 
@@ -146,5 +165,5 @@ const orchestratorAgent = new Agent({
 - [Vertex AI Agent Runtime Guide](https://cloud.google.com/vertex-ai/docs/agents/runtime)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-28
+- Last reviewed: 2026-12-31
 - Confidence: high

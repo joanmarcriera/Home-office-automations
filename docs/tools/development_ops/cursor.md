@@ -1,7 +1,7 @@
 # Cursor
 
 ## What it is
-Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of late July 2026, **Cursor 3.2** introduces **Composer 3.2**, **Design Mode v2**, and native **MCP 3.1** support, making it the standard for high-velocity AI engineering.
+Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of late December 2026, **Cursor 3.5** introduces **Composer 3.5**, **Design Mode v3**, and native **FastMCP 3.1** support, making it the standard for high-velocity AI engineering.
 
 ## What problem it solves
 It eliminates the "context-switching" penalty of moving between an editor and an LLM chat interface. Cursor deeply indexes your entire codebase (locally and securely), allowing the AI to provide relevant code suggestions, perform complex refactors, and answer architectural questions with full awareness of your project's structure.
@@ -17,12 +17,12 @@ It eliminates the "context-switching" penalty of moving between an editor and an
 
 ## Strengths
 - **Native Indexing**: Extremely fast and accurate codebase awareness via local embeddings.
-- **Composer 3.2**: A powerful "multi-agent" workspace that can plan and execute complex features autonomously.
+- **Composer 3.5**: A powerful "multi-agent" workspace that can plan and execute complex features autonomously.
 - **VS Code Compatibility**: Supports all existing VS Code extensions and keybindings.
 - **Privacy First**: Offers "Local Mode" where code never leaves your machine (requires a local model like **Llama 4 Maverick**).
 
 ## Limitations
-- **Subscription Required**: Advanced features like Composer 3.2 require a paid subscription.
+- **Subscription Required**: Advanced features like Composer 3.5 require a paid subscription.
 - **Closed Source Core**: While based on VS Code, the AI integration layer is proprietary.
 - **Memory Usage**: Deep indexing of very large projects (multi-million lines) can be resource-intensive.
 
@@ -57,7 +57,7 @@ Launch Cursor in the current directory:
 cursor .
 ```
 
-### Using the Cursor CLI Agent (July 2026)
+### Using the Cursor CLI Agent (Late 2026)
 Execute AI-assisted tasks directly from your shell using the new `cursor-agent` binary:
 
 ```bash
@@ -65,7 +65,7 @@ cursor-agent "Update all API endpoints to use the v3 schema"
 ```
 
 ### Managing MCP Servers
-Cursor 3.2 allows you to manage **MCP 3.1** servers via the CLI:
+Cursor 3.5 allows you to manage **FastMCP 3.1** servers via the CLI:
 
 ```bash
 cursor-mcp add-server "npx @modelcontextprotocol/server-postgres"
@@ -137,7 +137,7 @@ print(f"MCP Servers: {session.mcp_servers}")
 - [Zed](../development_ops/zed.md) — High-performance Rust-based editor.
 - [Aider](aider.md) — Terminal-native pair programmer.
 - [Claude Code](claude-code.md) — Anthropic's official CLI agent.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Native protocol for tool extensions.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Native protocol for tool extensions (FastMCP 3.1).
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Often used as a local model provider for Cursor.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Underlying patterns.
 - [Claude Hooks](claude-hooks.md) — For adding guardrails to Cursor's autonomous features.
@@ -148,5 +148,5 @@ print(f"MCP Servers: {session.mcp_servers}")
 - [Documentation: Composer](https://docs.cursor.com/composer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-29
+- Last reviewed: 2026-12-31
 - Confidence: high
