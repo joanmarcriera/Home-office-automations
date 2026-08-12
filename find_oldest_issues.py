@@ -18,7 +18,7 @@ def find_open_tasks():
                     # Check for checklist tasks or table rows with Pending/Open status
                     is_open = line_strip.startswith('- [ ]')
                     if not is_open and '|' in line_strip:
-                        if re.search(r'\|\s*(Pending|Open)\s*\|', line_strip, re.IGNORECASE):
+                        if re.search(r'\|\s*\*?\*?\s*(Pending|Open)\s*\*?\*?\s*\|', line_strip, re.IGNORECASE):
                             is_open = True
 
                     if is_open:
