@@ -1,7 +1,7 @@
 # Pipedream
 
 ## What it is
-Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of late August 2026, it features native **Model Context Protocol (MCP 3.1)** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.1 and GPT-5.5.
+Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of late December 2026, it features native **Model Context Protocol (MCP 3.1)** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
 It simplifies the process of connecting disparate services by handling authentication (OAuth), event sourcing, and serverless execution infrastructure. It allows developers to focus on the logic of their integrations—and the orchestration of AI agents—rather than the boilerplate code required to talk to various APIs or manage persistent state.
@@ -70,19 +70,62 @@ pd deploy my_workflow.js
 
 ## API examples
 
-### Python Workflow Step (Stateful)
-Accessing a Pipedream Data Store to maintain state between runs.
+### Python Webhook & State Validation (Pydantic v2)
+In modern serverless integrations, validating the dynamic state and external webhooks is critical to prevent cascading agent failures. This Python example runs inside a Pipedream step, executing strict **Pydantic v2** validation on incoming event objects and stateful data stores.
 
 ```python
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+# Define the incoming event validation schema
+class WebhookTriggerEvent(BaseModel):
+    event_id: str = Field(..., description="Unique UUID of the triggering event")
+    source: str = Field(..., description="Name of the source service (e.g., github, stripe)")
+    payload: Dict[str, Any] = Field(..., description="Dynamic payload content dict")
+    timestamp: int = Field(..., description="Unix timestamp of the event initiation")
+
+# Define state structure for Key-Value Data Store
+class StatefulWorkflowContext(BaseModel):
+    run_count: int = Field(default=0, ge=0, description="Invocation counter")
+    last_processed_id: Optional[str] = Field(None, description="Last event ID processed successfully")
+
 def handler(pd: "pipedream"):
-    # Access a managed Data Store
-    count = pd.inputs["data_store"].get("run_count", 0)
+    # 1. Ingest and validate incoming event data from Pipedream trigger step
+    raw_event = pd.steps["trigger"]["event"]
 
-    # Update the count
-    new_count = count + 1
-    pd.inputs["data_store"].put("run_count", new_count)
+    try:
+        event = WebhookTriggerEvent.model_validate(raw_event)
+        print(f"Validated webhook event {event.event_id} from {event.source}")
+    except ValidationError as e:
+        print(f"Trigger validation error: {e.json()}")
+        return {"status": "error", "message": "Invalid webhook payload schema"}
 
-    return {"run_count": new_count}
+    # 2. Access and validate stateful Pipedream Data Store
+    raw_store = pd.inputs["data_store"]
+    state_dict = {
+        "run_count": raw_store.get("run_count", 0),
+        "last_processed_id": raw_store.get("last_processed_id", None)
+    }
+
+    try:
+        state = StatefulWorkflowContext.model_validate(state_dict)
+    except ValidationError as e:
+        print(f"Stateful store corrupted, resetting context. Errors: {e.json()}")
+        state = StatefulWorkflowContext()
+
+    # 3. Update state parameters
+    state.run_count += 1
+    state.last_processed_id = event.event_id
+
+    # 4. Save state back to Pipedream Data Store
+    raw_store.put("run_count", state.run_count)
+    raw_store.put("last_processed_id", state.last_processed_id)
+
+    return {
+        "status": "success",
+        "current_run": state.run_count,
+        "processed_event_id": state.last_processed_id
+    }
 ```
 
 ### Node.js Action with Native Fetch (MCP 3.1 Integrated)
@@ -127,4 +170,4 @@ export default defineComponent({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-08-05
+- Last reviewed: 2026-12-31

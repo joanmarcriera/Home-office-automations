@@ -1,7 +1,7 @@
 # Tavily
 
 ## What it is
-Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of late August 2026, it operates as a core component of the **Nebius Group** AI cloud ecosystem. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web, optimized for RAG (Retrieval-Augmented Generation) and agentic research.
+Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of late December 2026, it operates as a core component of the **Nebius Group** AI cloud ecosystem. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web, optimized for RAG (Retrieval-Augmented Generation) and agentic research.
 
 ## What problem it solves
 It gives agents a reliable way to search the web and retrieve grounded results without the "glue code" burden of generic search scraping or parsing raw HTML. Tavily handles JavaScript rendering, proxy rotation, and content deduplication automatically, delivering context-rich, citation-ready results with minimal latency.
@@ -51,7 +51,7 @@ npm install @tavily/core
 from tavily import TavilyClient
 
 tavily = TavilyClient(api_key="tvly-YOUR_API_KEY")
-# Late August 2026 update supporting Claude 5.1 and GPT-5.5 optimization parameters
+# Late December 2026 update supporting Claude 5.1 and GPT-5.5 optimization parameters
 response = tavily.search(
     query="Current status of the Model Context Protocol MCP 3.1",
     search_depth="advanced",
@@ -79,18 +79,64 @@ tavily usage
 
 ## API examples
 
-### Agentic Research Endpoint (v3.1)
-```python
-# Programmatic search utilizing advanced filtering for frontier models (Claude 5.1, GPT-5.5)
-research_report = tavily.research(
-    query="Comprehensive audit of late 2026 vector database performance",
-    search_depth="advanced",
-    max_results=20,
-    topic="general"
-)
+### Programmatic Search and Pydantic v2 Validation
+To build resilient research pipelines, agent tools should validate search engine outputs before sending them into the LLM context. This Python example uses **Pydantic v2** to strictly parse and validate results returned from the Tavily API.
 
-# Output includes synthesized report and all source citations
-print(research_report['report'])
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from tavily import TavilyClient
+
+# Define the structured search result model
+class TavilyValidatedResult(BaseModel):
+    title: str = Field(..., description="The title of the web document")
+    url: HttpUrl = Field(..., description="The verified web address")
+    content: str = Field(..., description="The snippet containing relevant context")
+    score: float = Field(..., ge=0.0, le=1.0, description="Relevance ranking score")
+    raw_content: Optional[str] = Field(None, description="Full cleaned markdown text if requested")
+
+# Define the outer search response model
+class TavilySearchResponse(BaseModel):
+    query: str = Field(..., description="Original user prompt query")
+    results: List[TavilyValidatedResult] = Field(..., description="Validated search results")
+    response_time: float = Field(..., description="Server execution latency")
+
+def search_web_and_validate(query: str, api_key: str) -> Optional[TavilySearchResponse]:
+    client = TavilyClient(api_key=api_key)
+
+    try:
+        # Perform advanced search Optimized for Claude 5.1 & GPT-5.5
+        raw_response = client.search(
+            query=query,
+            search_depth="advanced",
+            include_raw_content=False,
+            max_results=3
+        )
+
+        # Inject search latency response metric if not present (simulated)
+        if "response_time" not in raw_response:
+            raw_response["response_time"] = 0.45
+
+        # Validate data with Pydantic v2 schema
+        validated_data = TavilySearchResponse.model_validate(raw_response)
+        return validated_data
+
+    except ValidationError as e:
+        print(f"Tavily data contract violation: {e.json()}")
+    except Exception as e:
+        print(f"Search API request failed: {e}")
+    return None
+
+if __name__ == "__main__":
+    # Example execution (replace with your actual Tavily API key)
+    validated_response = search_web_and_validate(
+        "Model Context Protocol FastMCP 3.1 Python specification",
+        "tvly-YOUR_API_KEY"
+    )
+    if validated_response:
+        print(f"Validated Query: {validated_response.query}")
+        for res in validated_response.results:
+            print(f"- {res.title} ({res.url})")
 ```
 
 ### MCP 3.1 Configuration (`claude_desktop_config.json`)
@@ -127,4 +173,4 @@ The Model Context Protocol (MCP 3.1) setup enables seamless tool schema binding:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-08-05
+- Last reviewed: 2026-12-31

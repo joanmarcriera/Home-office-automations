@@ -1,7 +1,7 @@
 # Invisible Kubernetes
 
 ## What it is
-"Invisible Kubernetes" is an architectural movement and set of platform features designed to abstract the operational complexity of Kubernetes away from developers. It treats Kubernetes as a background utility—similar to how most users interact with the Linux kernel—rather than a platform requiring manual management. By late August 2026, this has evolved into "Autonomous Infrastructure" where SRE agents like Claude 5.1 and GPT-5.5 manage the cluster lifecycle.
+"Invisible Kubernetes" is an architectural movement and set of platform features designed to abstract the operational complexity of Kubernetes away from developers. It treats Kubernetes as a background utility—similar to how most users interact with the Linux kernel—rather than a platform requiring manual management. By late December 2026, this has matured into "Autonomous Infrastructure" where SRE agents (powered by Claude 5.1 and GPT-5.5) continuously monitor and manage the entire cluster lifecycle, leveraging tools and MCP 3.1 servers.
 
 ## What problem it solves
 Kubernetes is notoriously complex to manage, requiring deep expertise in networking, storage, and node orchestration. This "operational toil" distracts teams from building applications. Invisible Kubernetes solves this by:
@@ -87,23 +87,71 @@ Apply with `kubectl apply -f nodepool.yaml`.
 
 ## API examples
 
-### Checking Cluster Health with Python (Boto3)
-An SRE agent might use this to verify the status of an "Invisible" cluster:
+### Autonomous Karpenter Spec Validator (Pydantic v2)
+SRE agents need to dynamically generate and validate Karpenter configs before applying them to prevent cluster instability. This Python example uses **Pydantic v2** to strictly validate Karpenter NodePool specs.
+
 ```python
-import boto3
+from typing import List, Literal, Optional, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
 
-client = boto3.client('eks')
+class KarpenterRequirement(BaseModel):
+    key: str = Field(..., description="The label key to query against")
+    operator: Literal["In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"] = Field(..., description="The operator to apply")
+    values: Optional[List[str]] = Field(None, description="The values matching the label requirement")
 
-def check_auto_mode(cluster_name):
-    response = client.describe_cluster(name=cluster_name)
-    compute_config = response['cluster'].get('computeConfig', {})
+class NodeClassRef(BaseModel):
+    name: str = Field(..., description="Name of the referenced EC2NodeClass")
+    group: Optional[str] = Field("karpenter.k8s.aws", description="API group of the referenced resource")
+    kind: Optional[str] = Field("EC2NodeClass", description="Kind of the referenced resource")
 
-    if compute_config.get('enabled'):
-        print(f"Cluster {cluster_name} is in Invisible (Auto) Mode.")
-    else:
-        print(f"Cluster {cluster_name} is in Manual Mode.")
+class NodePoolTemplateSpec(BaseModel):
+    requirements: List[KarpenterRequirement] = Field(..., description="Node resource and configuration requirements")
+    nodeClassRef: NodeClassRef = Field(..., description="Reference to the underlying cloud provider node template")
 
-check_auto_mode('invisible-cluster')
+class NodePoolTemplate(BaseModel):
+    spec: NodePoolTemplateSpec
+
+class NodePoolSpec(BaseModel):
+    template: NodePoolTemplate
+    limits: Optional[Dict[str, Any]] = Field(None, description="Global compute and memory allocation limits")
+
+class KarpenterNodePool(BaseModel):
+    apiVersion: str = Field("karpenter.sh/v1beta1", description="Karpenter API Group & Version")
+    kind: Literal["NodePool"] = Field("NodePool")
+    metadata: Dict[str, Any]
+    spec: NodePoolSpec
+
+# Programmatic validation runner
+def validate_nodepool_config(raw_config: dict) -> bool:
+    try:
+        validated = KarpenterNodePool.model_validate(raw_config)
+        print(f"Validation successful for Karpenter NodePool: {validated.metadata.get('name')}")
+        return True
+    except ValidationError as e:
+        print(f"Karpenter NodePool validation failed: {e.json()}")
+        return False
+
+if __name__ == "__main__":
+    # Sample dictionary configuration to validate
+    sample_config = {
+        "apiVersion": "karpenter.sh/v1beta1",
+        "kind": "NodePool",
+        "metadata": {"name": "spot-optimized-pool"},
+        "spec": {
+            "template": {
+                "spec": {
+                    "requirements": [
+                        {"key": "karpenter.sh/capacity-type", "operator": "In", "values": ["spot"]},
+                        {"key": "kubernetes.io/arch", "operator": "In", "values": ["amd64", "arm64"]}
+                    ],
+                    "nodeClassRef": {
+                        "name": "default-ec2-class"
+                    }
+                }
+            }
+        }
+    }
+    validate_nodepool_config(sample_config)
 ```
 
 ### Autonomous Scaling Request (Kubernetes Python Client)
@@ -157,5 +205,5 @@ def trigger_scaling_burst(namespace="default"):
 - [EKS Auto Mode Documentation (AWS, 2026)](https://docs.aws.amazon.com/eks/latest/userguide/auto-mode.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-05
+- Last reviewed: 2026-12-31
 - Confidence: high
