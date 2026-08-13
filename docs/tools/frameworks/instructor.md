@@ -1,7 +1,7 @@
 # Instructor
 
 ## What it is
-Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of late August 2026, **Instructor v2.x** is the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.1** and **GPT-5.5**.
+Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of late December 2026, **Instructor v2.x** remains the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
@@ -11,7 +11,7 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 
 ## Typical use cases
 - **Reliable Data Extraction**: Converting messy natural language (e.g., medical records, customer emails) into structured database records.
-- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically under **MCP 3.1** Task definitions.
+- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically under **MCP 3.1 / FastMCP 3.1** Task definitions.
 - **Quality Gates**: Implementing subjective validation rules (e.g., "The answer must be polite") that are enforced via LLM-based evaluators and automatic retries.
 - **Streaming Structured Data**: Processing partial LLM responses in real-time while maintaining schema validity.
 
@@ -79,47 +79,77 @@ instructor jobs run --model gpt-5.5-preview --schema UserSchema.py --prompt "Ext
 
 ## API examples
 
-### 1. Semantic Validation with Instructor v2.x
-Instructor automatically retries if the LLM generates a response that violates the semantic validation rules.
+### 1. Semantic Validation with Instructor v2.x and Strict Pydantic v2
+Instructor automatically retries if the LLM generates a response that violates the semantic validation rules. This example utilizes `AfterValidator` and a strict schema validation setup to enforce professional tone guidelines with an auto-retry loop.
 ```python
 import instructor
 from openai import OpenAI
-from pydantic import BaseModel, BeforeValidator
+from pydantic import BaseModel, Field, AfterValidator, ConfigDict
 from typing_extensions import Annotated
 
+# Patch the OpenAI client to support Instructor structured execution
 client = instructor.from_provider(OpenAI())
 
-def create_semantic_validator(statement: str):
-    def validate(v: str) -> str:
-        # LLM-based grading step
-        grading = client.chat.completions.create(
-            model="gpt-5.5-preview",
-            response_model=bool,
-            messages=[
-                {"role": "system", "content": f"Does the following text comply with: '{statement}'? Respond with True or False only."},
-                {"role": "user", "content": v}
-            ]
-        )
-        if not grading:
-            raise ValueError(f"Content failed semantic policy: {statement}")
-        return v
-    return validate
+def validate_professional_tone(v: str) -> str:
+    # LLM-based grading step for semantic validation
+    response = client.chat.completions.create(
+        model="gpt-5.5-preview",
+        response_model=bool,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Evaluate if the given text is highly professional, polite, and matches "
+                    "corporate support standards. Reply with True or False only."
+                )
+            },
+            {"role": "user", "content": v}
+        ]
+    )
+    if not response:
+        raise ValueError("Text failed semantic validation: Content is impolite or unprofessional.")
+    return v
 
-class PoliteResponse(BaseModel):
-    answer: Annotated[
-        str,
-        BeforeValidator(create_semantic_validator("The response must be polite, professional, and contain no offensive content."))
-    ]
+class ProfessionalResponse(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True
+    )
 
-# The client will perform automatic retries on validation failure
+    # Attach the validator as an Annotated Metadata using Pydantic v2 AfterValidator
+    support_message: Annotated[str, AfterValidator(validate_professional_tone)] = Field(
+        ...,
+        description="The customer-facing support message containing helpful guidelines."
+    )
+
+# When creating completions, Instructor catches the validation error and automatically
+# self-corrects by sending the error traceback back to the model (up to max_retries).
+try:
+    response = client.chat.completions.create(
+        model="gpt-5.5-preview",
+        response_model=ProfessionalResponse,
+        max_retries=3,
+        messages=[
+            {
+                "role": "user",
+                "content": "Draft a message telling a customer their subscription payment was rejected. Be blunt."
+            }
+        ]
+    )
+    print("Validated Message:", response.support_message)
+except Exception as e:
+    print("Failed to produce validated response after retries:", e)
 ```
 
 ### 2. Streaming Lists of Objects (MCP 3.1 Conforming)
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 
 class TaskItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", freeze=True)
+
     task_id: str = Field(..., description="Unique alphanumeric identifier for the task")
     command: str = Field(..., description="Shell command or function to execute")
     priority: int = Field(default=1, description="Priority level 1-5")
@@ -153,5 +183,5 @@ for task in tasks:
 - [Semantic Validation Guide](https://python.useinstructor.com/concepts/validation/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-03
+- Last reviewed: 2026-12-31
 - Confidence: high

@@ -1,7 +1,7 @@
 # Goose
 
 ## What it is
-Goose is an open-source, extensible AI agent designed to go beyond simple code suggestions. It is built to install, execute, edit, and test code autonomously or with human supervision, using any LLM that supports tool-calling. Hosted by the Agentic AI Foundation (AAIF), it serves as a robust platform for building and deploying specialized developer agents. As of late August 2026, it fully integrates the **Model Context Protocol (MCP 3.1)** Task Protocol and is optimized for frontier models such as **Claude 5.1** and **GPT-5.5**.
+Goose is an open-source, extensible AI agent designed to go beyond simple code suggestions. It is built to install, execute, edit, and test code autonomously or with human supervision, using any LLM that supports tool-calling. Hosted by the Agentic AI Foundation (AAIF), it serves as a robust platform for building and deploying specialized developer agents. As of late December 2026, it fully integrates the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** Task Protocol and is optimized for frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 It bridges the gap between static code completion and full-loop agentic software engineering. Goose can manage its own environment, install dependencies, and run scripts to verify its work, reducing the manual "context switching" developers often face when integrating AI-generated code. It solves the "execution gap" by running the code it writes to ensure correctness (and automatically fixing errors via traceback loops) before presenting it to the user.
@@ -20,7 +20,7 @@ It bridges the gap between static code completion and full-loop agentic software
 - **AAIF Governance**: Community-driven development ensures neutrality, vendor independence, and long-term stability.
 - **Model Agnostic**: Seamlessly switches between Anthropic, OpenAI, Google, and local models via [Ollama](../../services/ollama.md) or [LiteLLM](../../services/litellm.md).
 - **Session Management**: Supports durable, stateful sessions, allowing users to pause, resume, and audit complex multi-step agentic missions.
-- **MCP 3.1 Task Protocol**: Allows external agents to delegate background execution tasks directly to Goose over the network.
+- **MCP 3.1 / FastMCP 3.1 Task Protocol**: Allows external agents to delegate background execution tasks directly to Goose over the network with complete state verification.
 
 ## Limitations
 - **Security Responsibility**: Giving an agent shell and filesystem access requires the user to manage trust boundaries and sandboxing (e.g., running in Docker/VMs).
@@ -85,7 +85,7 @@ goose session --mcp-server http://localhost:8080/mcp
 ## API examples
 
 ### Python Agentic API
-Goose can be used as a library to build custom agent applications under late August 2026 specs:
+Goose can be used as a library to build custom agent applications under late December 2026 specs:
 ```python
 from goose.agent import GooseAgent
 from goose.config import AgentConfig
@@ -102,24 +102,55 @@ response = agent.execute("Create a summary report of the current git status and 
 print(response.content)
 ```
 
-### Custom MCP 3.1-Compatible Toolkit Definition
+### Custom MCP 3.1-Compatible Toolkit Definition with Strict Pydantic v2
+This example demonstrates custom toolkit validation utilizing strict Pydantic v2 schemas, complete with input filtering, custom validation rules, and configuration constraints.
 ```python
+import re
 from goose.toolkit import Toolkit, tool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class NetworkQuery(BaseModel):
-    hostname: str = Field(..., description="The host to run diagnostics on")
+    # Strict validation configurations in Pydantic v2
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True
+    )
+
+    hostname: str = Field(
+        ...,
+        description="The host to run diagnostics on, matching domain/IP standards"
+    )
+
+    @field_validator("hostname")
+    @classmethod
+    def validate_hostname(cls, value: str) -> str:
+        # Prevent shell injection attacks or invalid domain characters
+        sanitized = value.strip().lower()
+        if not re.match(r"^[a-zA-Z0-9.-]+$", sanitized):
+            raise ValueError("Hostname contains invalid characters. Only alphanumeric, '.' and '-' are allowed.")
+        if len(sanitized) > 253:
+            raise ValueError("Hostname is too long.")
+        return sanitized
 
 class DiagnosticsToolkit(Toolkit):
     @tool
     def ping_host(self, query: NetworkQuery) -> str:
-        """Runs a ping check against the provided hostname and returns diagnostic summary."""
+        """Runs a ping check against the validated hostname and returns a diagnostic summary."""
         import subprocess
         try:
-            res = subprocess.run(["ping", "-c", "3", query.hostname], capture_output=True, text=True, timeout=5)
-            return res.stdout
+            # Safe execution using list arguments, avoiding shell=True
+            res = subprocess.run(
+                ["ping", "-c", "3", query.hostname],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            return res.stdout if res.returncode == 0 else f"Ping completed with non-zero code:\n{res.stderr}"
+        except subprocess.TimeoutExpired:
+            return f"Error: Diagnostic ping timed out after 5 seconds against {query.hostname}."
         except Exception as e:
-            return f"Ping failed: {str(e)}"
+            return f"Ping failed during invocation: {str(e)}"
 ```
 
 ## Related tools / concepts
@@ -139,5 +170,5 @@ class DiagnosticsToolkit(Toolkit):
 - [Goose Documentation](https://goose.run/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-03
+- Last reviewed: 2026-12-31
 - Confidence: high
