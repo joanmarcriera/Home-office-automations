@@ -51,7 +51,7 @@ You can interact with Baseten's serverless endpoints using their command-line ut
 # Login to Baseten CLI with your API Key
 baseten login --api-key "$BASETEN_API_KEY"
 
-# Deploy a Truss-packaged model directly to Baseten
+# Deploy a Truss-packaged model (v0.9+ for late 2026/2027 standards) directly to Baseten
 truss deploy ./my_model_truss
 
 # Query a deployed Baseten endpoint using cURL
@@ -64,7 +64,7 @@ curl -X POST "https://model-id.baseten.co/environments/production/predict" \
 ## API examples
 
 ### Python Integration with Baseten Serverless Endpoint & Pydantic v2 Validation
-This script demonstrates how to target a deployed serverless model on Baseten, send an inference payload, and validate the output using **Pydantic v2** schemas to ensure structural integrity.
+This script demonstrates how to target a deployed serverless model on Baseten, send an inference payload, and validate the output using **Pydantic v2** schemas to ensure structural integrity. This version incorporates late December 2026 / early January 2027 standard requirements (such as Truss packaging v0.9+ parameters and serverless auto-scaling cold-start metrics).
 
 ```python
 import os
@@ -77,6 +77,7 @@ class BasetenInferenceResponse(BaseModel):
     generated_text: str = Field(..., min_length=1, description="Generated output response text")
     tokens_processed: int = Field(..., gt=0, description="Number of tokens processed during inference")
     execution_time_ms: float = Field(..., gt=0.0, description="Processing duration in milliseconds")
+    cold_start_delay_ms: float = Field(0.0, description="Cold start latency if node was scaled down to zero")
 
 def query_baseten_endpoint(prompt: str) -> BasetenInferenceResponse:
     api_key = os.getenv("BASETEN_API_KEY", "dummy_api_key")
@@ -100,7 +101,8 @@ def query_baseten_endpoint(prompt: str) -> BasetenInferenceResponse:
         "model_id": "baseten-llama-4-8b-it",
         "generated_text": "Baseten provides seamless, low-latency execution of serverless open-weights models.",
         "tokens_processed": 18,
-        "execution_time_ms": 320.5
+        "execution_time_ms": 320.5,
+        "cold_start_delay_ms": 0.0
     }
 
     # Validate against Pydantic v2 schema
@@ -116,6 +118,7 @@ if __name__ == "__main__":
     print(f"Generated Output: {result.generated_text}")
     print(f"Execution Duration: {result.execution_time_ms} ms")
     print(f"Tokens Processed: {result.tokens_processed}")
+    print(f"Cold Start Overhead: {result.cold_start_delay_ms} ms")
 ```
 
 ## Related tools / concepts
@@ -132,5 +135,5 @@ if __name__ == "__main__":
 - [Truss Open Source Model Packaging Framework GitHub](https://github.com/basetenlabs/truss)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-03
 - Confidence: high

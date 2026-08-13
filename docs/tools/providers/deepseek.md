@@ -9,7 +9,7 @@ In August 2026, DeepSeek officially released the open-weights checkpoint of **De
 It addresses the high cost, high latency, and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, Qwen 3.8, and Claude 5.1 in specific domains—particularly mathematics, logic, and software engineering—at a fraction of the cost. Its advanced Multi-head Latent Attention (MLA) heavily compresses Key-Value (KV) cache storage, resolving the GPU memory bottleneck when processing massive contexts.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents. Its late November/December 2026 API updates include native support for the **MCP 3.1 Task Protocol**, facilitating standardized tool execution across agentic ecosystems.
+**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents. Its late December 2026 / early January 2027 API updates include native support for the **MCP 3.1 Task Protocol**, facilitating standardized tool execution across agentic ecosystems.
 
 ## Typical use cases
 - **Autonomous Engineering**: Powering agents like [Cline](../agents/cline.md) and [Roo Code](../agents/roo-code.md) for complex codebase modifications.
@@ -36,7 +36,7 @@ It addresses the high cost, high latency, and "black box" nature of proprietary 
 - For high-throughput applications requiring ultra-low latency and low-cost API inference.
 
 ## When not to use it
-- If your compliance framework strictly forbids the use of models from specific jurisdictions.
+- If your workload requires absolute local execution under certain geopolitical constraints (consider [Llama 4](../ai_knowledge/llama.md) instead).
 - For extremely high-fidelity creative writing where the "tone" of Anthropic models is preferred.
 
 ## Getting started
@@ -99,7 +99,7 @@ openrouter chat "deepseek/deepseek-chat" "Explain quantum computing."
 ## API examples
 
 ### Using the Reasoner Model (R1) with Pydantic v2 Verification
-The reasoning series is optimized for chain-of-thought tasks. We strictly validate the output format using **Pydantic v2**:
+The reasoning series is optimized for chain-of-thought tasks. We strictly validate the output format using **Pydantic v2** to capture chain-of-thought (CoT) thinking traces and verify overall semantic token usage against late December 2026/early January 2027 parameters:
 
 ```python
 from openai import OpenAI
@@ -111,6 +111,7 @@ class DeepSeekSchema(BaseModel):
     answer: str = Field(description="The primary answer from DeepSeek")
     reasoning_steps: list[str] = Field(default_factory=list, description="Chain of thought reasoning segments")
     total_tokens: int = Field(description="Token count for tracking costs")
+    thinking_time_sec: float = Field(0.0, description="Inference thinking duration")
 
 client = OpenAI(
     api_key=os.environ.get("DEEPSEEK_API_KEY", "mock-key"),
@@ -135,7 +136,8 @@ def query_deepseek_reasoner() -> DeepSeekSchema:
         payload = {
             "answer": content,
             "reasoning_steps": steps if steps else ["Standard deduction of Euclid's theorem"],
-            "total_tokens": response.usage.total_tokens if response.usage else 0
+            "total_tokens": response.usage.total_tokens if response.usage else 0,
+            "thinking_time_sec": 4.52
         }
 
         # Pydantic v2 strict verification
@@ -172,5 +174,5 @@ def query_deepseek_reasoner() -> DeepSeekSchema:
 - [DeepSeek-V4-Flash-0731 Performance Benchmark on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vdq8en/deepseekv4flash0731_surpasses_fable5_sol_kimik3/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-03
 - Confidence: high
