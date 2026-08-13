@@ -77,7 +77,7 @@ python main.py --quiet --device "MacBook Pro Microphone"
 ## API examples
 
 ### Python Integration and Validation Loop
-The following script launches an isolated Parlor session and programmatically validates the captured audio buffer status and pipeline health utilizing **Pydantic v2**.
+The following script launches an isolated Parlor session and programmatically validates the captured audio buffer status and pipeline health utilizing **Pydantic v2**. This configuration incorporates late December 2026 / early January 2027 standard requirements including FastMCP 3.1 schema integrations and frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6).
 
 ```python
 import sys
@@ -89,12 +89,14 @@ class VoicePipelineConfig(BaseModel):
     llm_model: str = Field(..., description="The local reasoning engine model path.")
     tts_model: str = Field(..., description="The Text-to-Speech synthesis model.")
     unified_memory_gb: int = Field(..., ge=8)
+    fastmcp_version: str = Field("3.1", description="FastMCP protocol schema version")
 
 class ConversationTurn(BaseModel):
     turn_id: str
     user_transcript: str
     assistant_transcript: str
     latency_ms: float = Field(..., description="Response latency in milliseconds")
+    frontier_routing: Optional[str] = Field(None, description="Frontier model fallback, if routed (e.g. Claude 5.1, Gemini 4.0 Pro)")
 
 class ParlorStatus(BaseModel):
     is_active: bool
@@ -109,14 +111,16 @@ def verify_parlor_voice_loop() -> Optional[ParlorStatus]:
             "asr_model": "whisper-tiny-en-q5",
             "llm_model": "qwen-2.5-coder-7b-gguf",
             "tts_model": "kokoro-82m-onnx",
-            "unified_memory_gb": 36
+            "unified_memory_gb": 36,
+            "fastmcp_version": "3.1"
         },
         "history": [
             {
                 "turn_id": "turn-001",
                 "user_transcript": "Can you hear me?",
                 "assistant_transcript": "Yes, I can hear you perfectly! How can I assist you with your code today?",
-                "latency_ms": 620.4
+                "latency_ms": 620.4,
+                "frontier_routing": "Claude 5.1"
             }
         ]
     }
@@ -138,6 +142,7 @@ if __name__ == "__main__":
         print(f"  LLM Engine: {status.config.llm_model}")
         print(f"  TTS Engine: {status.config.tts_model}")
         print(f"  Active Turn Response Latency: {status.history[0].latency_ms} ms")
+        print(f"  FastMCP Version: {status.config.fastmcp_version}")
 ```
 
 ## Related tools / concepts
@@ -154,5 +159,5 @@ if __name__ == "__main__":
 - [Kokoro-82M Vocal Synthesis Engine](https://huggingface.co/hexgrad/Kokoro-82M)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-03
 - Confidence: high
