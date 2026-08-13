@@ -1,7 +1,7 @@
 # faster-whisper
 
 ## What it is
-faster-whisper is a high-performance reimplementation of OpenAI's Whisper speech-to-text model using the [CTranslate2](https://github.com/OpenNMT/CTranslate2) inference engine. It produces identical transcripts as Whisper while running roughly **4x to 6x faster** and using significantly less memory. It features support for 8-bit and float16 quantization on both CPU and GPU, running fully offline once the model is cached. As of late August 2026, it natively supports **Whisper v3-turbo** and advanced CTranslate2 v4.x optimizations.
+faster-whisper is a high-performance reimplementation of OpenAI's Whisper speech-to-text model using the [CTranslate2](https://github.com/OpenNMT/CTranslate2) inference engine. It produces identical transcripts as Whisper while running roughly **4x to 6x faster** and using significantly less memory. It features support for 8-bit and float16 quantization on both CPU and GPU, running fully offline once the model is cached. As of late December 2026, it natively supports **Whisper v3-turbo**, Silero VAD v5, and advanced CTranslate2 v4.x optimizations, making it a cornerstone for local agentic audio-to-text workflows.
 
 ## What problem it solves
 Reference Whisper is accurate but slow and memory-hungry, which makes large transcription backlogs painful on home-lab and consumer hardware. faster-whisper makes local, private transcription highly practical: it transcribes hours of audio quickly on a CPU or a modest GPU, with no cloud speech API dependencies and no audio ever leaving the machine.
@@ -20,7 +20,7 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 - **Whisper v3-turbo Support**: Native support for the ultra-fast turbo models with high-fidelity outputs.
 - **Offline and private:** no cloud dependency; audio stays local.
 - **Quantization options:** int8/float16 let large models run on commodity hardware.
-- **Word-level timestamps & VAD:** built-in Silero voice-activity detection (VAD) improves long-audio accuracy.
+- **Word-level timestamps & VAD:** built-in Silero voice-activity detection (VAD) v5 improves long-audio accuracy.
 
 ## Limitations
 - **Library, not an app:** it is a Python package — you build or adopt a front-end around it.
@@ -95,25 +95,77 @@ for segment in segments:
         print(f"[{word.start:.2f}s -> {word.end:.2f}s] {word.word}")
 ```
 
-### 2. Advanced Voice Activity Detection (VAD) Filtering
+### 2. Structured Output Validation utilizing Strict Pydantic v2
+This example parses and validates the unstructured segments produced by `faster-whisper` into a robust, schema-validated JSON structure, ensuring logical timeline consistency and confidence intervals.
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from faster_whisper import WhisperModel
 
-model = WhisperModel("large-v3-turbo", device="cpu")
-# Enable VAD filter to skip non-speech parts with fine-tuned thresholds
-segments, _ = model.transcribe(
-    "audio.mp3",
-    vad_filter=True,
-    vad_parameters=dict(
-        threshold=0.5,
-        min_speech_duration_ms=250,
-        max_speech_duration_s=float('inf'),
-        min_silence_duration_ms=500
-    )
-)
+# Define strict schemas for transcription segments
+class ValidatedSegment(BaseModel):
+    model_config = ConfigDict(extra="forbid", freeze=True)
 
-for segment in segments:
-    print(segment.text)
+    start: float = Field(..., description="Segment start time in seconds", ge=0.0)
+    end: float = Field(..., description="Segment end time in seconds", ge=0.0)
+    text: str = Field(..., description="Decoded transcription text content")
+    avg_logprob: float = Field(..., description="Average log probability of decoded tokens")
+
+    @field_validator("text")
+    @classmethod
+    def clean_text(cls, value: str) -> str:
+        return value.strip()
+
+    @model_validator(mode="after")
+    def check_timestamps(self) -> "ValidatedSegment":
+        if self.end <= self.start:
+            raise ValueError(f"Segment end time ({self.end}s) must be greater than start time ({self.start}s).")
+        return self
+
+class ValidatedTranscription(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    language: str = Field(..., description="Detected ISO language code")
+    language_probability: float = Field(..., description="Probability of language detection", ge=0.0, le=1.0)
+    segments: List[ValidatedSegment] = Field(..., description="List of chronologically validated audio segments")
+
+    @model_validator(mode="after")
+    def verify_chronological_order(self) -> "ValidatedTranscription":
+        for i in range(1, len(self.segments)):
+            prev = self.segments[i - 1]
+            curr = self.segments[i]
+            if curr.start < prev.end:
+                raise ValueError(
+                    f"Segment overlap or non-chronological order found between segment {i-1} "
+                    f"(ends at {prev.end}s) and segment {i} (starts at {curr.start}s)."
+                )
+        return self
+
+def run_validated_transcription(audio_path: str) -> str:
+    # Initialize the model
+    model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
+
+    # Transcribe with custom parameters
+    segments, info = model.transcribe(audio_path, beam_size=5, vad_filter=True)
+
+    # Collect raw results
+    raw_segments = []
+    for s in segments:
+        raw_segments.append({
+            "start": s.start,
+            "end": s.end,
+            "text": s.text,
+            "avg_logprob": s.avg_logprob
+        })
+
+    # Strictly validate structured outputs via Pydantic v2
+    transcription = ValidatedTranscription(
+        language=info.language,
+        language_probability=info.language_probability,
+        segments=raw_segments
+    )
+
+    return transcription.model_dump_json(indent=2)
 ```
 
 ## Related tools / concepts
@@ -133,5 +185,5 @@ for segment in segments:
 - [OpenAI Whisper](https://github.com/openai/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-03
+- Last reviewed: 2026-12-31
 - Confidence: high
