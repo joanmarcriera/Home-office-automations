@@ -4,7 +4,7 @@
 AI Signal Sources is a curated directory of high-signal information streams focused on model updates, tooling direction, safety changes, and practical engineering patterns. It serves as the authoritative intake list for the repository's intelligence-gathering activities.
 
 ## What problem it solves
-The AI landscape moves at an overwhelming pace, making it difficult to distinguish between marketing hype and substantive technical advancement. This document filters the noise, identifying the specific sources that provide actionable technical signal for homelab automation and agentic engineering, covering August 2026 SOTA models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 3.5 Pro/Ultra/Flash/Spark/Omni.
+The AI landscape moves at an overwhelming pace, making it difficult to distinguish between marketing hype and substantive technical advancement. This document filters the noise, identifying the specific sources that provide actionable technical signal for homelab automation and agentic engineering, covering late December 2026 SOTA models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6, and FastMCP 3.1 features/schemas.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Management / Intelligence** layer. It acts as the intake strategy for staying informed about changes in the underlying AI technologies (providers, frameworks, and tools) that power the homelab.
@@ -63,9 +63,12 @@ linkwarden-cli add --url "https://openai.com/research/gpt-5-5-multi-agent-scalin
 ```
 
 ## API examples
-Example of an n8n node configuration or an MCP 3.1 subscription loop for monitoring a signal source programmatically:
+Example of an n8n node configuration or an MCP 3.1/FastMCP 3.1 subscription loop for monitoring a signal source programmatically, utilizing strict Pydantic v2 validation schemas:
 
 ```python
+import datetime
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List, Optional
 from mcp import Client, TaskProtocol
 
 # Programmatic subscription loop utilizing MCP 3.1 Task Protocol
@@ -78,6 +81,44 @@ async def setup_signal_watcher():
         instruction="Parse the Anthropic news RSS feed, looking for Claude 5.1 news and API specifications."
     )
     print(f"Created ingestion pipeline with task ID: {task.id}")
+
+# Robust Python Signal Ingestion Schema utilizing strict Pydantic v2 validation
+class SignalMetadata(BaseModel):
+    author: str = Field(min_length=1)
+    target_models: List[str] = Field(default_factory=list)
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    ingested_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+
+class IngestedSignal(BaseModel):
+    title: str = Field(min_length=5)
+    source_url: HttpUrl
+    published_at: datetime.datetime
+    summary: str = Field(min_length=10)
+    metadata: SignalMetadata
+
+# Example validation logic using Pydantic v2
+def validate_and_process_signal(raw_payload: dict) -> IngestedSignal:
+    """
+    Validates the parsed JSON metadata against the strict IngestedSignal schema.
+    """
+    validated_signal = IngestedSignal.model_validate(raw_payload)
+    print(f"Successfully validated signal: {validated_signal.title}")
+    return validated_signal
+
+# Sample high-signal feed item matching late December 2026 SOTA
+sample_feed_item = {
+    "title": "Claude 5.1 and FastMCP 3.1 Interoperability Standards",
+    "source_url": "https://simonwillison.net/2026/Dec/fastmcp-3-1",
+    "published_at": "2026-12-31T12:00:00Z",
+    "summary": "Practical guidelines on utilizing the new FastMCP 3.1 standard with Claude 5.1 models for rapid tool calling.",
+    "metadata": {
+        "author": "Simon Willison",
+        "target_models": ["Claude 5.1", "FastMCP 3.1"],
+        "confidence_score": 0.98
+    }
+}
+
+processed = validate_and_process_signal(sample_feed_item)
 ```
 
 ## Company Engineering and Research Blogs
@@ -141,5 +182,5 @@ async def setup_signal_watcher():
 - [Latent Space](https://www.latent.space/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high

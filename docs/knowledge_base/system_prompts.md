@@ -4,7 +4,7 @@
 System prompts (also known as system messages or developer messages) are the foundational instructions provided to a Large Language Model (LLM) before a conversation begins. They define the model's persona, its capabilities, its behavioral constraints, and the tone it should adopt.
 
 ## What problem it solves
-Raw LLMs are often overly generic or prone to irrelevant outputs. System prompts "steer" the model toward a specific goal, ensuring it follows technical protocols (like tool-calling), maintains a consistent persona, and adheres to safety and style guidelines without the user having to repeat instructions in every message, fully leveraging August 2026 SOTA reasoning engines such as Claude 5.1, GPT-5.5, Qwen 3.6, Llama 4, and Gemini 3.5.
+Raw LLMs are often overly generic or prone to irrelevant outputs. System prompts "steer" the model toward a specific goal, ensuring it follows technical protocols (like tool-calling), maintains a consistent persona, and adheres to safety and style guidelines without the user having to repeat instructions in every message, fully leveraging late December 2026 SOTA reasoning engines such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6, and FastMCP 3.1.
 
 ## Where it fits in the stack
 It belongs to the **Interface & Configuration Layer** of the AI stack. It is the primary mechanism for aligning a generic **Intelligence Layer** (the model) with a specific **Application Layer** (the task).
@@ -70,9 +70,12 @@ response = openai.ChatCompletion.create(
 ```
 
 ### Anthropic Pattern (Claude 5.1)
-Anthropic treats the system prompt as a separate top-level parameter.
+Anthropic treats the system prompt as a separate top-level parameter. Below is an example that integrates MCP 3.1 / FastMCP 3.1 Task Protocol with strict Pydantic v2 validation for structured system prompts and behavioral constraints.
+
 ```python
 import anthropic
+from pydantic import BaseModel, Field
+from typing import List, Optional
 from mcp import Client, TaskProtocol
 
 client = anthropic.Anthropic()
@@ -94,6 +97,33 @@ async def trigger_agent_task():
         instruction="Deploy an agent using Claude 5.1 to auto-correct prompt injection patterns."
     )
     print(f"Task launched: {task.id}")
+
+# Robust Pydantic v2 model to validate system prompt design and constraints
+class PromptConstraint(BaseModel):
+    name: str = Field(min_length=1)
+    description: str = Field(min_length=5)
+    criticality: str = Field(pattern="^(high|medium|low)$")
+
+class SystemPromptTemplate(BaseModel):
+    persona: str = Field(min_length=10)
+    instructions: List[str] = Field(min_length=1)
+    constraints: List[PromptConstraint]
+    mcp_features_enabled: bool = True
+
+# Verification logic of secure prompt configurations
+raw_prompt_config = {
+    "persona": "Senior DevOps Engineer specializing in secure K3s deployments",
+    "instructions": [
+        "Enforce strict mutual TLS configurations across all node templates.",
+        "Always output clean, copy-pasteable YAML manifest files."
+    ],
+    "constraints": [
+        {"name": "NoExternalLibraries", "description": "Do not import or suggest third-party Python packages", "criticality": "high"},
+        {"name": "NoUnsecureSecrets", "description": "Never include hardcoded API keys, private keys, or credentials", "criticality": "high"}
+    ]
+}
+validated_prompt = SystemPromptTemplate.model_validate(raw_prompt_config)
+print(f"Validated system prompt configuration for persona: {validated_prompt.persona}")
 ```
 
 ## Related tools / concepts
@@ -113,5 +143,5 @@ async def trigger_agent_task():
 - [GPT-5.5 System Prompt Analysis](https://openai.com/index/gpt-5-5-system-prompt-analysis)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high

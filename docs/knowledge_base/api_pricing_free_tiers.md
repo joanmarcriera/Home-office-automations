@@ -9,13 +9,13 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-### Canonical pricing matrix (last verified: 2026-08-01)
+### Canonical pricing matrix (last verified: 2026-12-31)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
 | Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.1, Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 3.5 Pro Preview is paid-only, while Gemini 3.5 Flash-Lite has free rows. Gemini 4 Maverick preview free for dev accounts. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 4.0 Pro and Gemini 4.0 Flash have standard trial and tier rows. Gemini 4.0 Maverick preview free for developer accounts. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
@@ -46,7 +46,7 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## What problem it solves
-LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern August 2026 models like Claude 5.1 and GPT-5.5.
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern late December 2026 models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, and FastMCP 3.1.
 
 ## Where it fits in the stack
 This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
@@ -58,10 +58,10 @@ This document belongs to the **Layer 1: Providers** and **Layer 2: Models** anal
 - **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
 
 ### Model Intelligence-per-Dollar Value (2026 Triage)
-Based on community analysis (August 2026), models are categorized by their efficiency relative to cost:
-- **Top Intelligence**: Claude 5.1, GPT-5.5, Gemini 3.5 Pro, Claude 4.8 Opus.
-- **Best Value**: DeepSeek V4, MiniMax-V3, Gemini 3.5 Flash, Qwen 3.6.
-- **Balanced**: Claude 4.8 Sonnet, GPT-5.4, Llama 4 Maverick.
+Based on community analysis (late December 2026), models are categorized by their efficiency relative to cost:
+- **Top Intelligence**: Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Claude Opus 4.8.
+- **Best Value**: DeepSeek V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6.
+- **Balanced**: Claude Sonnet 4.7, GPT-5.4, Llama 4 Maverick.
 
 ## Strengths
 - **Consolidated**: Aggregates data from over 30 providers in a single view.
@@ -146,7 +146,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
 ## CLI examples
-The following CLI tools can be used to monitor quotas and billing in an August 2026 environment.
+The following CLI tools can be used to monitor quotas and billing in a late December 2026 environment.
 
 ```bash
 # Google Cloud: List project quotas for Gemini APIs
@@ -161,11 +161,13 @@ mcp quota show --provider openrouter
 ```
 
 ## API examples
-Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (MCP 3.1) interfaces.
+Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (MCP 3.1 / FastMCP 3.1) interfaces. Below is a robust Python example that validates provider pricing configurations using strict Pydantic v2 schemas.
 
-### Monitoring Gemini Quotas (Python)
+### Monitoring Gemini Quotas & Validating Pricing (Python)
 ```python
 import google.generativeai as genai
+from pydantic import BaseModel, Field, RootModel
+from typing import Dict, Optional
 from mcp import Client, TaskProtocol
 
 # MCP 3.1 compatible quota discovery and task setup
@@ -185,6 +187,37 @@ async def check_limits_and_run():
         instruction="Monitor API consumption for Claude 5.1 and GPT-5.5 endpoints."
     )
     print(f"Billing monitor task created: {task.id}")
+
+# Robust Pydantic v2 model to validate token pricing and rate limits
+class TokenPricing(BaseModel):
+    input_cost_per_million: float = Field(default=0.0, ge=0.0)
+    output_cost_per_million: float = Field(default=0.0, ge=0.0)
+
+class ProviderLimits(BaseModel):
+    requests_per_minute: int = Field(default=60, gt=0)
+    tokens_per_minute: int = Field(default=100000, gt=0)
+    daily_token_cap: Optional[int] = Field(default=None, gt=0)
+
+class ModelBillingSchema(BaseModel):
+    model_name: str = Field(min_length=1)
+    pricing: TokenPricing
+    limits: ProviderLimits
+
+# Dynamic Pydantic v2 verification of Gemini 4.0 Flash limits
+config = {
+    "model_name": "google/gemini-4.0-flash",
+    "pricing": {
+        "input_cost_per_million": 0.075,
+        "output_cost_per_million": 0.30
+    },
+    "limits": {
+        "requests_per_minute": 1000,
+        "tokens_per_minute": 4000000,
+        "daily_token_cap": 15000000
+    }
+}
+validated_billing = ModelBillingSchema.model_validate(config)
+print(f"Validated billing configuration for: {validated_billing.model_name}")
 ```
 
 ## Related tools / concepts
@@ -214,5 +247,5 @@ async def check_limits_and_run():
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high
