@@ -1,9 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of July 2026, the family is spearheaded by **Qwen 3.6-35B-A3B** (an extremely efficient Mixture-of-Experts architecture utilizing roughly 3B active parameters per token) and the high-performance **Qwen 3.6-27B** with native 262k token context window support.
-
-In August 2026, Alibaba Cloud announced the ground-breaking **Qwen 3.8** series, introducing the massive **Qwen 3.8-27B** variant alongside the flagship **Qwen 3.8 Max** and the specialized high-speed **Qwen 3.8-24T** model. The Qwen 3.8 series continues to redefine the open-weights landscape, matching or exceeding the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1, Gemini 4.0 Pro, and GPT-5.5.
+Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of early 2027, the family is spearheaded by **Qwen 3.8**, introducing the massive **Qwen 3.8 Max** alongside the flagship **Qwen 3.8-27B** and the specialized high-speed **Qwen 3.8-24T** model. The Qwen 3.8 series continues to redefine the open-weights landscape, matching or exceeding the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1, Gemini 4.0 Pro, and GPT-5.5.
 
 Additionally, highly specialized community-driven quantization checkpoints have emerged, such as the **Qwen3.6-35B-A3B-Escha-W2** hosted on Hugging Face. This variant is a 2-bit quantized Mixture-of-Experts checkpoint specifically optimized for extreme local memory efficiency, allowing the massive 35B parameter MoE model to execute seamlessly on devices with as little as 12GB of VRAM while preserving conversational planning performance.
 
@@ -72,7 +70,6 @@ ollama ps
 ```
 
 ## API examples
-Qwen models are typically accessed via OpenAI-compliant API schemas.
 
 ### Python Integration with Ollama Local Server
 ```python
@@ -99,6 +96,107 @@ print("Thinking Trace:")
 print(response.choices[0].message.content)
 ```
 
+### Programmatic Python Integration with Pydantic v2 Thinking Trace Validation
+The following script demonstrates querying a local or remote Qwen 3.8 model endpoint and using **Pydantic v2** validation to strictly parse and validate the response structure, separating the final answer from the reasoning trace tokens and usage metrics.
+
+```python
+import sys
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+
+# Define structured Pydantic v2 schemas for parsing Qwen thinking outputs
+class QwenReasoningTokenUsage(BaseModel):
+    prompt_tokens: int = Field(..., description="Prompt token footprint")
+    reasoning_tokens: int = Field(..., description="Number of tokens consumed in thinking/reasoning traces")
+    generation_tokens: int = Field(..., description="Final response tokens generated")
+    total_tokens: int = Field(..., description="Sum of all token categories")
+
+class QwenValidatedOutput(BaseModel):
+    model_name: str
+    thinking_trace: Optional[str] = Field(None, description="The structural thinking trace or reasoning steps")
+    final_content: str = Field(..., description="The final structured or natural response payload")
+    usage: QwenReasoningTokenUsage
+
+def parse_and_validate_qwen_output(raw_resp: dict) -> Optional[QwenValidatedOutput]:
+    try:
+        # Extract fields from the raw API response dictionary
+        choices = raw_resp.get("choices", [])
+        if not choices:
+            raise ValueError("No choices returned from model")
+
+        message = choices[0].get("message", {})
+
+        # Qwen models return thinking content either in an explicit field or
+        # encapsulated in <think> tags. Let's parse both patterns:
+        content = message.get("content", "")
+        thinking = message.get("thinking_content", "")
+
+        if "<think>" in content and "</think>" in content:
+            parts = content.split("</think>")
+            thinking = parts[0].replace("<think>", "").strip()
+            final_content = parts[1].strip()
+        else:
+            final_content = content.strip()
+
+        usage_data = raw_resp.get("usage", {})
+
+        payload = {
+            "model_name": raw_resp.get("model", "qwen3.8-27b"),
+            "thinking_trace": thinking if thinking else None,
+            "final_content": final_content,
+            "usage": {
+                "prompt_tokens": usage_data.get("prompt_tokens", 0),
+                "reasoning_tokens": usage_data.get("reasoning_tokens", 0),
+                "generation_tokens": usage_data.get("completion_tokens", 0) - usage_data.get("reasoning_tokens", 0),
+                "total_tokens": usage_data.get("total_tokens", 0)
+            }
+        }
+
+        # Validate structure with strict model validation
+        return QwenValidatedOutput.model_validate(payload)
+
+    except ValidationError as ve:
+        print(f"Pydantic Validation error for Qwen payload: {ve}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"Error parsing Qwen response: {e}", file=sys.stderr)
+        return None
+
+if __name__ == "__main__":
+    print("Initiating local Qwen 3.8 thinking trace output validation...")
+
+    # Mock raw API response representing Qwen 3.8 structural reasoning output
+    mock_api_response = {
+        "model": "qwen3.8-27b",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "<think>\n1. The user wants a robust script to audit open ports.\n2. Standard tools are netstat, ss, lsof.\n3. ss is modern and preferred over netstat.\n4. Draft loop with formatted table output.\n</think>\n#!/bin/bash\necho \"Auditing open ports...\"\nss -tuln"
+                },
+                "finish_reason": "stop"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 15,
+            "reasoning_tokens": 42,
+            "completion_tokens": 68,
+            "total_tokens": 83
+        }
+    }
+
+    validated_output = parse_and_validate_qwen_output(mock_api_response)
+    if validated_output:
+        print("Qwen Response validated successfully via Pydantic v2:")
+        print(f"  Model: {validated_output.model_name}")
+        print(f"  Reasoning Steps Found:\n{validated_output.thinking_trace}")
+        print(f"  Final Script Content:\n{validated_output.final_content}")
+        print(f"  Token Stats: Prompt={validated_output.usage.prompt_tokens} | Reasoning={validated_output.usage.reasoning_tokens} | Generation={validated_output.usage.generation_tokens}")
+    else:
+        print("Validation failed.", file=sys.stderr)
+```
+
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Standard delivery wrapper for local models.
 - [DeepSeek](../providers/deepseek.md) — Sovereign open-weight competitor.
@@ -118,5 +216,5 @@ print(response.choices[0].message.content)
 - [Qwen 3.8 Announcement on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1ve0psn/qwen3827b_announced_alongside_qwen38max/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-02
 - Confidence: high

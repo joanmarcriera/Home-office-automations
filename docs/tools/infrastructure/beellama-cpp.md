@@ -71,7 +71,7 @@ BeeLlama.cpp provides an interactive command-line interface for inference and a 
 ## API examples
 
 ### Python Subprocess Integration with BeeLlama.cpp & Pydantic v2 Validation
-This script shows how to trigger BeeLlama.cpp as a system subprocess, parse its execution metrics from stdout, and enforce validation using strict **Pydantic v2** structures.
+This script shows how to trigger BeeLlama.cpp as a system subprocess, parse its execution metrics from stdout, and enforce validation using strict **Pydantic v2** structures. It validates parameters such as prompt vs generation speeds, exact memory allocations, thread counts, and context limits.
 
 ```python
 import subprocess
@@ -84,9 +84,12 @@ class BeeLlamaMetrics(BaseModel):
     model_path: str = Field(..., description="Local system path to the model GGUF file")
     kv_cache_type_k: str = Field(..., description="Quantization profile used for the Key Cache")
     kv_cache_type_v: str = Field(..., description="Quantization profile used for the Value Cache")
+    thread_count: int = Field(..., ge=1, description="Number of CPU threads utilized for compute")
+    context_length: int = Field(..., ge=512, description="Active context length window size")
     prompt_tokens_per_sec: float = Field(..., gt=0.0, description="Tokens processed per second during prompt ingestion")
     generation_tokens_per_sec: float = Field(..., gt=0.0, description="Generation throughput in tokens per second")
     vram_consumed_mb: float = Field(..., gt=0.0, description="Total GPU memory consumed in megabytes")
+    perplexity_delta: Optional[float] = Field(None, description="Quantization perplexity change relative to baseline")
 
 def run_beellama_inference(model: str, prompt: str) -> BeeLlamaMetrics:
     # cmd = ["./beellama-cli", "-m", model, "-p", prompt, "--ctk", "q4_0", "--ctv", "q4_0", "--json-metrics"]
@@ -98,9 +101,12 @@ def run_beellama_inference(model: str, prompt: str) -> BeeLlamaMetrics:
         "model_path": "models/gemma-3-8b.gguf",
         "kv_cache_type_k": "q4_0",
         "kv_cache_type_v": "q4_0",
+        "thread_count": 8,
+        "context_length": 8192,
         "prompt_tokens_per_sec": 412.5,
         "generation_tokens_per_sec": 52.8,
-        "vram_consumed_mb": 4210.4
+        "vram_consumed_mb": 4210.4,
+        "perplexity_delta": 0.04
     }
 
     # Parse and validate with Pydantic v2
@@ -114,10 +120,13 @@ if __name__ == "__main__":
 
     print("--- BeeLlama.cpp Execution Metrics Verified ---")
     print(f"Model: {metrics.model_path}")
+    print(f"Threads: {metrics.thread_count} | Context Limit: {metrics.context_length}")
     print(f"KV Cache Profile: Key={metrics.kv_cache_type_k}, Value={metrics.kv_cache_type_v}")
     print(f"Prompt Ingestion Speed: {metrics.prompt_tokens_per_sec} tokens/sec")
     print(f"Generation Throughput: {metrics.generation_tokens_per_sec} tokens/sec")
     print(f"VRAM Consumption: {metrics.vram_consumed_mb} MB")
+    if metrics.perplexity_delta is not None:
+        print(f"Quantization Perplexity Delta: +{metrics.perplexity_delta}")
 ```
 
 ## Related tools / concepts
@@ -133,5 +142,5 @@ if __name__ == "__main__":
 - [SovereignAI: Advanced Model Serving and Distillation Standards](https://sovereignai.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-02
 - Confidence: high

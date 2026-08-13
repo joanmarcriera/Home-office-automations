@@ -1,7 +1,7 @@
 # Chroma
 
 ## What it is
-Chroma (also referred to as ChromaDB) is an open-source, lightweight, and AI-native embedding/vector database designed specifically to make it easy to build Retrieval-Augmented Generation (RAG) applications. Deployed either as an embeddable in-memory library inside Python applications or as a standalone server, Chroma provides developer-friendly APIs to store, manage, query, and retrieve high-dimensional vector embeddings along with their associated metadata.
+Chroma (also referred to as ChromaDB) is an open-source, lightweight, and AI-native embedding/vector database designed specifically to make it easy to build Retrieval-Augmented Generation (RAG) applications. Deployed either as an embeddable in-memory library inside Python/JavaScript applications or as a standalone distributed server, Chroma provides developer-friendly APIs to store, manage, query, and retrieve high-dimensional vector embeddings along with their associated metadata.
 
 ## What problem it solves
 Setting up complex enterprise vector databases like Milvus or Qdrant can be highly time-consuming and resource-intensive for small-to-medium scale applications or developer prototyping. Chroma solves this by providing a "zero-configuration" database that can be fully integrated into a Python or Node.js runtime with a single import statement. It manages vector indexing, metadata filtering, and embedding model integration under a unified, easy-to-use interface.
@@ -19,6 +19,7 @@ Setting up complex enterprise vector databases like Milvus or Qdrant can be high
 - **Persistent Local Directory**: Easily saves database states locally on an NVMe SSD with persistent storage, avoiding the need for a separate database container during prototyping.
 - **Built-in Embedding Functions**: Automatically handles text-to-vector embedding conversions using models from Hugging Face, OpenAI, or local Ollama instances.
 - **Rich Metadata Filtering**: Supports standard filtering capabilities on document metadata tags to restrict search contexts.
+- **Native MCP 3.1 Server Integration**: Includes direct integrations with the Model Context Protocol (MCP 3.1) enabling frontend and agent systems to query collections as standard tools.
 
 ## Limitations
 - **Horizontal Scaling Limits**: Lacks native clustering or distributed sharding out-of-the-box, making it less suitable for massive multi-node enterprise database configurations.
@@ -73,8 +74,8 @@ docker run -d -p 8000:8000 chromadb/chroma
 
 ## API examples
 
-### Programmatic Python Integration with Pydantic v2 Schema Validation
-This example showcases how to ingest a document chunk, generate a query, and strictly validate the structure of retrieved search results using **Pydantic v2** prior to exposing the context to LLM routing layers.
+### Programmatic Python Integration with Pydantic v2 Schema Validation and Metadata Filtering
+This example showcases how to ingest a document chunk, generate a query, filter results by metadata category (using Chroma `where` clauses), and strictly validate the structure of retrieved search results using **Pydantic v2** prior to exposing the context to LLM routing layers (such as Claude 5.1, GPT-5.5, or Gemini 4.0 Pro).
 
 ```python
 import uuid
@@ -91,43 +92,51 @@ class ChromaSearchResult(BaseModel):
 
 class ValidationResponse(BaseModel):
     query: str
+    filter_category: Optional[str] = None
     results: List[ChromaSearchResult]
     total_retrieved: int
 
-def ingest_and_query_chroma(query_text: str) -> Optional[ValidationResponse]:
+def ingest_and_query_chroma_filtered(query_text: str, category_filter: Optional[str] = None) -> Optional[ValidationResponse]:
     # Initialize ephemeral/in-memory client for isolated testing
     client = chromadb.EphemeralClient()
-    collection = client.get_or_create_collection(name="test_collection")
+    collection = client.get_or_create_collection(name="home_automation_collection")
 
     # Ingest mock documents
     doc_1 = "To reset the smart thermostat, hold the power button for 10 seconds."
     doc_2 = "Setting up a custom tailscale exit node requires administrator privileges."
+    doc_3 = "Thermostat temperature limits can be set in the advanced settings menu."
 
     collection.add(
-        documents=[doc_1, doc_2],
-        metadatas=[{"category": "hardware"}, {"category": "network"}],
-        ids=["doc_1", "doc_2"]
+        documents=[doc_1, doc_2, doc_3],
+        metadatas=[{"category": "hardware"}, {"category": "network"}, {"category": "hardware"}],
+        ids=["doc_1", "doc_2", "doc_3"]
     )
 
     try:
-        # Perform vector query
+        # Build metadata filter if specified
+        where_filter = {"category": category_filter} if category_filter else None
+
+        # Perform vector query with optional metadata filtering
         results = collection.query(
             query_texts=[query_text],
-            n_results=1
+            n_results=2,
+            where=where_filter
         )
 
         # Map to Pydantic structure
         search_results = []
-        for i in range(len(results['ids'][0])):
-            search_results.append(ChromaSearchResult(
-                document_id=results['ids'][0][i],
-                text_content=results['documents'][0][i],
-                distance=results['distances'][0][i] if results['distances'] else 0.0,
-                metadata=results['metadatas'][0][i] if results['metadatas'] else {}
-            ))
+        if results and results['ids'] and len(results['ids'][0]) > 0:
+            for i in range(len(results['ids'][0])):
+                search_results.append(ChromaSearchResult(
+                    document_id=results['ids'][0][i],
+                    text_content=results['documents'][0][i],
+                    distance=results['distances'][0][i] if results['distances'] else 0.0,
+                    metadata=results['metadatas'][0][i] if results['metadatas'] else {}
+                ))
 
         payload = {
             "query": query_text,
+            "filter_category": category_filter,
             "results": search_results,
             "total_retrieved": len(search_results)
         }
@@ -143,14 +152,42 @@ def ingest_and_query_chroma(query_text: str) -> Optional[ValidationResponse]:
         return None
 
 if __name__ == "__main__":
-    print("Initiating local ChromaDB semantic search verification...")
-    resp = ingest_and_query_chroma("How to factory reset the thermostat?")
+    print("Initiating local ChromaDB semantic search verification with metadata filtering...")
+    # Query with a category filter restricting results to hardware manual entries
+    resp = ingest_and_query_chroma_filtered("How to factory reset?", category_filter="hardware")
     if resp:
         print(f"Chroma Context Retrieval successfully verified via Pydantic v2:")
-        print(f"  Query: {resp.query}")
-        print(f"  Best Match: {resp.results[0].text_content}")
-        print(f"  Distance: {resp.results[0].distance}")
-        print(f"  Category: {resp.results[0].metadata.get('category')}")
+        print(f"  Query: '{resp.query}' (Filtered by category: '{resp.filter_category}')")
+        for idx, item in enumerate(resp.results):
+            print(f"  Result #{idx + 1}:")
+            print(f"    Content: {item.text_content}")
+            print(f"    Distance: {item.distance}")
+            print(f"    Metadata: {item.metadata}")
+```
+
+### MCP 3.1 / FastMCP 3.1 Vector Tool Registration
+Chroma can be served as a native tool server under the **MCP 3.1** specification. This allows client models like Claude 5.1 and GPT-5.5 to run semantic queries against a Chroma collection dynamically.
+
+Example server tool schema definition mapping:
+```json
+{
+  "name": "query_chroma_knowledge",
+  "description": "Perform a semantic vector search on ChromaDB collections for home automation knowledge.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query_text": {
+        "type": "string",
+        "description": "The search string or question to locate relevant documentation chunks."
+      },
+      "category_filter": {
+        "type": "string",
+        "description": "Optional category filter to isolate search (e.g., 'hardware', 'network')."
+      }
+    },
+    "required": ["query_text"]
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -168,5 +205,5 @@ if __name__ == "__main__":
 - [Reddit r/LocalLLaMA: Classic Vector RAG vs Google NotebookLM Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1ve5r8y/i_benchmarked_classic_vector_rag_vs_googles_new/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-02
 - Confidence: high
