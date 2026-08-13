@@ -57,28 +57,57 @@ gw drive list --query "folder:'Company Strategy'"
 ```
 
 ## API examples
-The following snippet demonstrates how to define a "Skill" and leverage the Model Context Protocol (MCP 3.1) Task Protocol within the starter stack:
+The following snippet demonstrates how to define a "Skill" and leverage the Model Context Protocol (MCP 3.1) Task Protocol with strict **Pydantic v2** validation within the starter stack:
 
 ```python
-from pydantic import BaseModel, Field
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 from mcp import Client, TaskProtocol
 
+# Define Pydantic v2 models for configuring company skills and task pipelines
 class CompanyKnowledgeSearch(BaseModel):
     """Search for internal company knowledge across Docs and AnythingLLM."""
-    query: str = Field(..., description="The search query for company knowledge.")
-    depth: int = Field(default=3, description="The depth of the search results.")
+    query: str = Field(..., min_length=2, description="The search query for company knowledge.")
+    depth: int = Field(default=3, ge=1, le=5, description="The depth of the search results hierarchy.")
+    filters: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Custom document category filters")
+
+class StackTaskConfig(BaseModel):
+    name: str = Field(..., max_length=100, description="Name of the orchestration task")
+    instruction: str = Field(..., description="Objective instructions for the execution engine")
+    model_routing: str = Field(default="claude-5.1", description="Standard router model target")
 
 # Standard MCP 3.1 Task Protocol registration
 client = Client(endpoint="http://localhost:8080")
 task_proto = TaskProtocol(client)
 
 async def run_analysis():
-    # Spawning a stateful research task using MCP 3.1 Task Protocol
-    task = await task_proto.create_task(
-        name="Knowledge Synthesis",
-        instruction="Synthesize internal knowledge base utilizing Qwen 3.6 and Claude 5.1"
-    )
-    print(f"Initialized MCP 3.1 Task {task.id} with status: {task.status}")
+    # Define and validate search parameters
+    search_payload = {
+        "query": "FastMCP 3.1 integration parameters",
+        "depth": 4,
+        "filters": {"category": "infrastructure"}
+    }
+
+    try:
+        validated_search = CompanyKnowledgeSearch.model_validate(search_payload)
+
+        # Build task configuration model and validate
+        task_payload = {
+            "name": "Knowledge Synthesis",
+            "instruction": f"Synthesize internal knowledge base on {validated_search.query} utilizing Qwen 3.6 and Claude 5.1",
+            "model_routing": "claude-5.1"
+        }
+        validated_task_cfg = StackTaskConfig.model_validate(task_payload)
+
+        # Spawning a stateful research task using validated payload via MCP 3.1 Task Protocol
+        task = await task_proto.create_task(
+            name=validated_task_cfg.name,
+            instruction=validated_task_cfg.instruction
+        )
+        print(f"Successfully initialized validated MCP 3.1 Task {task.id} with status: {task.status}")
+
+    except ValidationError as e:
+        print(f"Starter Stack Task configuration validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -111,5 +140,5 @@ async def run_analysis():
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high
