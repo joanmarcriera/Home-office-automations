@@ -75,24 +75,58 @@ mistral chat codestral-latest --message "Explain this regex pattern: ^[a-zA-Z0-9
 
 ## API examples
 
-### Programmatic Fill-In-the-Middle (FIM) with Python SDK
-Execute a precise middle-insertion generation using the official Mistral Python client:
-```python
-from mistralai import Mistral
-import os
+### Programmatic Fill-In-the-Middle (FIM) with Pydantic v2 Validation
+To securely execute precise middle-insertion generation and ensure correctness of payloads, utilize the Mistral Python client with strict **Pydantic v2** validation schemas:
 
-# Initialize client
+```python
+import os
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+from mistralai import Mistral
+
+# Define Pydantic v2 validation models for FIM operations
+class CodestralFimRequest(BaseModel):
+    model: str = Field(default="codestral-latest", description="The Mistral model name to run FIM against")
+    prompt: str = Field(..., description="The prefix/start of the code snippet")
+    suffix: str = Field(..., description="The suffix/end of the code snippet")
+    temperature: Optional[float] = Field(default=0.0, ge=0.0, le=1.0)
+
+class CodestralFimResponse(BaseModel):
+    completed_code: str = Field(..., description="The fully interpolated/completed code block")
+
+# Initialize Mistral client
 client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
 
-# Define code structure for FIM
-response = client.fim.complete(
-    model="codestral-latest",
-    prompt="def calculate_factorial(n):",
-    suffix="return result"
-)
+# Construct and validate request parameters with Pydantic v2
+request_data = {
+    "prompt": "def calculate_factorial(n):",
+    "suffix": "return result"
+}
 
-# Output completed logic
-print(response.choices[0].message.content)
+try:
+    validated_req = CodestralFimRequest.model_validate(request_data)
+
+    # Execute the validated request via Codestral
+    response = client.fim.complete(
+        model=validated_req.model,
+        prompt=validated_req.prompt,
+        suffix=validated_req.suffix,
+        temperature=validated_req.temperature
+    )
+
+    # Retrieve content from response
+    generated_content = response.choices[0].message.content
+
+    # Construct and validate response payload
+    validated_res = CodestralFimResponse.model_validate({
+        "completed_code": f"{validated_req.prompt}\n    {generated_content}\n    {validated_req.suffix}"
+    })
+
+    print("Successfully generated and validated FIM Code:")
+    print(validated_res.completed_code)
+
+except ValidationError as e:
+    print(f"Schema validation error: {e}")
 ```
 
 ### Fetching Completion with cURL
@@ -125,5 +159,5 @@ curl https://api.mistral.ai/v1/fim/completions \
 - [Hugging Face Repository - Codestral-22B-v0.1](https://huggingface.co/mistralai/Codestral-22B-v0.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

@@ -81,32 +81,78 @@ curl -X POST https://api.exa.ai/contents \
 
 ## API examples
 
-### Simple Semantic Web Search (Python)
-Use the python client to perform autoprompted queries and retrieve structured results:
+### Simple Semantic Web Search with Pydantic v2 Validation
+To parse and validate web-intelligence queries securely within agent pipelines, leverage the Exa Python client integrated with strict **Pydantic v2** validation models:
+
 ```python
-from exa_py import Exa
 import os
+from typing import Optional, List
+from pydantic import BaseModel, HttpUrl, Field, ValidationError
+from exa_py import Exa
+
+# Define rigid Pydantic v2 models for web-grounding ingestion
+class ExaWebDocument(BaseModel):
+    title: str = Field(..., description="The curated title of the target web page")
+    url: HttpUrl = Field(..., description="A syntactically valid URL string")
+    published_date: Optional[str] = Field(None, description="The ISO publication date if resolved")
+    score: Optional[float] = Field(None, description="The semantic relevance similarity score")
+
+class ExaQueryResult(BaseModel):
+    query: str = Field(..., description="The query passed to the neural search engine")
+    results: List[ExaWebDocument] = Field(default_factory=list, description="Validated list of retrieved documents")
 
 # Initialize client
 exa = Exa(api_key=os.getenv("EXA_API_KEY"))
+query_str = "Best design practices for building secure multi-agent systems in 2026"
 
 # Perform semantic neural search
 response = exa.search(
-    "Best design practices for building secure multi-agent systems in 2026",
+    query_str,
     num_results=3,
     use_autoprompt=True
 )
 
-# Parse and display results
-for result in response.results:
-    print(f"Title: {result.title}")
-    print(f"URL: {result.url}")
-    print(f"Published: {result.published_date}\n")
+try:
+    # Build data dict for Pydantic v2 validation
+    payload = {
+        "query": query_str,
+        "results": [
+            {
+                "title": getattr(r, "title", "Untitled"),
+                "url": getattr(r, "url", ""),
+                "published_date": getattr(r, "published_date", None),
+                "score": getattr(r, "score", None)
+            }
+            for r in response.results
+        ]
+    }
+
+    # Validate with Pydantic v2
+    validated_payload = ExaQueryResult.model_validate(payload)
+    print(f"Validated query: {validated_payload.query}\n")
+
+    for doc in validated_payload.results:
+        print(f"Title: {doc.title}")
+        print(f"URL: {doc.url}")
+        print(f"Published: {doc.published_date}")
+        print(f"Score: {doc.score}\n")
+
+except ValidationError as e:
+    print(f"Data ingestion contract violation: {e}")
 ```
 
 ### Combined Search and Highlight Extraction
-Perform a semantic query and retrieve clean markdown text blocks containing the most relevant highlights in a single API call:
+Perform a semantic query and retrieve clean markdown text blocks containing the most relevant highlights in a single API call, validating content length and structure:
 ```python
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class ExaHighlightDocument(BaseModel):
+    title: str
+    url: str
+    text: str = Field(..., min_length=10, description="Web content raw text or clean markdown")
+    highlights: Optional[list] = Field(None, description="Semantic highlights parsed from the page")
+
 # Execute combined search and contents call
 search_results = exa.search_and_contents(
     "How to configure LangGraph with MCP 3.1 servers",
@@ -115,9 +161,20 @@ search_results = exa.search_and_contents(
     highlights={"num_sentences": 3}  # Extract semantic highlights
 )
 
-first_result = search_results.results[0]
-print(f"Extracted Content:\n{first_result.text[:500]}")
-print(f"\nSemantic Highlights:\n{first_result.highlights}")
+try:
+    first_res = search_results.results[0]
+    validated_doc = ExaHighlightDocument.model_validate({
+        "title": getattr(first_res, "title", "Untitled"),
+        "url": getattr(first_res, "url", ""),
+        "text": getattr(first_res, "text", ""),
+        "highlights": getattr(first_res, "highlights", [])
+    })
+
+    print(f"Extracted Content Length: {len(validated_doc.text)} characters")
+    print(f"Semantic Highlights:\n{validated_doc.highlights}")
+
+except ValidationError as e:
+    print(f"Highlight extraction validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -143,5 +200,5 @@ print(f"\nSemantic Highlights:\n{first_result.highlights}")
 - [Agentic Search Best Practices (2026 Blog)](https://exa.ai/blog/agentic-search)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

@@ -79,12 +79,26 @@ inspect eval inspect_evals/gaia_level2 --limit 5 --model meta-llama/llama-4-70b-
 ## API examples
 You can execute and custom-parse GAIA evaluations programmatically using the Inspect Python API.
 
-### Custom Evaluator Pipeline
+### Custom Evaluator Pipeline with Pydantic v2 Validation
+To parse, validate, and serialize the evaluation outputs securely, the following example uses strict **Pydantic v2** validation schemas:
+
 ```python
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 from inspect_ai import eval
 from inspect_evals.gaia import gaia
 
-# Execute validation on GAIA programmatically
+# Define strict Pydantic v2 models for GAIA evaluation schemas
+class GaiaScoreDetails(BaseModel):
+    value: Any = Field(..., description="The direct score/accuracy value metric")
+    explanation: Optional[str] = Field(None, description="Optional reasoning or grading breakdown")
+
+class GaiaTaskResult(BaseModel):
+    sample_id: str = Field(..., description="The unique benchmark sample ID")
+    status: str = Field(..., description="Completion state of the agent task (e.g., success, failure)")
+    scores: Dict[str, GaiaScoreDetails] = Field(default_factory=dict, description="Dictionary of specific metrics")
+
+# Execute validation on GAIA programmatically via Inspect
 results = eval(
     gaia(split="validation", subset="2023_all"),
     model="anthropic/claude-5.1",
@@ -92,13 +106,31 @@ results = eval(
     max_tasks=2
 )
 
-# Extract and output performance statistics
+# Parse and strictly validate results using Pydantic v2
+validated_results = []
 for task in results:
-    print(f"Task ID: {task.sample_id}")
-    print(f"Status: {task.status}")
-    if task.scores:
-        accuracy = task.scores.get("accuracy")
-        print(f"Score: {accuracy.value if accuracy else 'N/A'}")
+    try:
+        # Construct task data payload
+        task_data = {
+            "sample_id": str(task.sample_id),
+            "status": str(task.status),
+            "scores": {
+                name: {"value": score.value, "explanation": getattr(score, "explanation", None)}
+                for name, score in (task.scores or {}).items()
+            }
+        }
+
+        # Parse and validate with Pydantic v2
+        validated_task = GaiaTaskResult.model_validate(task_data)
+        validated_results.append(validated_task)
+
+        print(f"Successfully validated Task ID: {validated_task.sample_id}")
+        print(f"Status: {validated_task.status}")
+        for metric, score in validated_task.scores.items():
+            print(f"  - {metric}: {score.value}")
+
+    except ValidationError as e:
+        print(f"Validation error for Task {getattr(task, 'sample_id', 'unknown')}: {e}")
 ```
 
 ## Related tools / concepts
@@ -120,5 +152,5 @@ for task in results:
 - [GAIA Leaderboard (Hugging Face)](https://huggingface.co/spaces/gaia-benchmark/leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

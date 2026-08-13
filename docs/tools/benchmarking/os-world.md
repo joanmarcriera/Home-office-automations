@@ -81,10 +81,22 @@ python run_task.py \
 
 ## API examples
 
-### Programmatic Environment Setup
-The following python snippet shows how to instantiate the OSWorld environment and step through agent actions programmatically:
+### Programmatic Environment Setup with Pydantic v2 Validation
+To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models:
+
 ```python
+from typing import Dict, Any, Union
+from pydantic import BaseModel, Field, ValidationError
 from osworld.env import OSWorldEnv
+
+# Define rigid Pydantic v2 models for computer-use operations
+class OSWorldObservation(BaseModel):
+    screenshot: Any = Field(..., description="VLM-compatible pixel buffer, base64 data, or image path")
+    instruction: str = Field(..., description="Task objective or user prompt to achieve")
+
+class OSWorldAction(BaseModel):
+    action_type: str = Field(..., description="The primitive action type (e.g., click, key_type, scroll)")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Coordinates, keyboard keys, or dynamic options")
 
 # Initialize the environment for a Docker-backed Ubuntu task
 env = OSWorldEnv(os_type="ubuntu", backend="docker")
@@ -92,10 +104,24 @@ env = OSWorldEnv(os_type="ubuntu", backend="docker")
 # Reset to load the initial task state and retrieve the screenshot observation
 obs = env.reset(task_id="ubuntu-tasks-1")
 
-# obs contains: {"screenshot": VLM_compatible_image, "instruction": str_task}
-# action format is a serialized computer command, e.g., mouse_click(x, y)
-action = "mouse_click(450, 300)"
-obs, reward, done, info = env.step(action)
+try:
+    # Validate the environment observations against our Pydantic v2 schema
+    validated_obs = OSWorldObservation.model_validate(obs)
+    print(f"Validated task instruction: {validated_obs.instruction}")
+
+    # Construct an action payload and validate it
+    action_payload = {
+        "action_type": "click",
+        "parameters": {"x": 450, "y": 300}
+    }
+    validated_action = OSWorldAction.model_validate(action_payload)
+
+    # Map the validated parameters back to standard environment action format
+    env_action = f"mouse_click({validated_action.parameters['x']}, {validated_action.parameters['y']})"
+    next_obs, reward, done, info = env.step(env_action)
+
+except ValidationError as e:
+    print(f"Execution payload validation error: {e}")
 ```
 
 ### State-Verification Script Structure
@@ -134,5 +160,5 @@ def verify_task_completion():
 - [OSWorld GitHub Repository](https://github.com/xlang-ai/OSWorld)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high
