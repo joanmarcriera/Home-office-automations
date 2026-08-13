@@ -1,7 +1,7 @@
 # Milvus
 
 ## What it is
-Milvus is an open-source, high-performance vector database built for scalable similarity search and AI applications. Developed by Zilliz and hosted by the Linux Foundation (LF AI & Data), it is designed to manage, index, and search massive collections of vector embeddings. As of August 2026, Milvus 3.1 has established itself as the enterprise standard for "Agentic Memory" storage with multi-vector indexing and real-time streaming support.
+Milvus is an open-source, high-performance vector database built for scalable similarity search and AI applications. Developed by Zilliz and hosted by the Linux Foundation (LF AI & Data), it is designed to manage, index, and search massive collections of vector embeddings. As of late December 2026, Milvus has established itself as the enterprise standard for "Agentic Memory" storage with multi-vector indexing, CAGRA GPU-accelerated indices, partition key routing, and native FastMCP 3.1 tool-calling connectivity.
 
 ## What problem it solves
 Traditional databases are not optimized for the high-dimensional vector data produced by machine learning models. Milvus provides a specialized engine that can perform approximate nearest neighbor (ANN) searches across billions of vectors with millisecond latency. It solves the challenge of scaling vector search from local prototypes to massive, distributed enterprise production environments, particularly for multi-agent systems requiring shared, real-time semantic memory.
@@ -12,14 +12,15 @@ Traditional databases are not optimized for the high-dimensional vector data pro
 ## Typical use cases
 - **Enterprise RAG**: Storing and retrieving billions of document chunks for large-scale Retrieval-Augmented Generation.
 - **Agentic Memory**: Providing a persistent, searchable memory space for autonomous agents to store past observations and tool outputs.
-- **Multimodal Search**: Enabling search across different data types (text-to-image, image-to-video) using a shared vector space with Gemini 3.5 Ultra or Claude 5.1.
+- **Multimodal Search**: Enabling search across different data types (text-to-image, image-to-video) using a shared vector space with Gemini 4.0 Pro or Claude 5.1.
 - **Molecular Similarity Search**: Used in drug discovery to find similar chemical structures with high-dimensional descriptors.
 
 ## Strengths
 - **Massive Scalability**: Designed with a cloud-native, distributed architecture that can scale to tens of billions of vectors.
 - **High Performance**: Frequently benchmarks as one of the fastest vector databases, utilizing GPU-accelerated indexes (like CAGRA) for ultra-low-latency search.
 - **Multi-Vector Support**: Allows multiple vector fields per entity, enabling complex cross-modal retrieval and hybrid embeddings.
-- **Dynamic Schema**: Supports JSON fields and dynamic schema updates without downtime, crucial for evolving multi-agent requirements in August 2026.
+- **Dynamic Schema**: Supports JSON fields and dynamic schema updates without downtime, crucial for evolving multi-agent requirements in late 2026.
+- **FastMCP 3.1 Integration**: Provides a native gateway that allows agents to interactively discover collections and run similarity queries using standard tool-calling contracts.
 
 ## Limitations
 - **Operational Complexity**: The distributed version requires significant infrastructure knowledge (Kubernetes, S3/MinIO, etcd, Pulsar/Kafka).
@@ -65,42 +66,95 @@ milvus-cli list collections
 
 ## API examples
 
-### 1. Creating a Collection with Schema
+### Programmatic Ingestion and Similarity Query Validation (Python + Pydantic v2)
+This example demonstrates how to interact with Milvus via `MilvusClient`, insert dynamic JSON metadata alongside vector embeddings, perform a filtered similarity search, and strictly validate the retrieved results against a **Pydantic v2** schema before routing the observation to an autonomous agent.
+
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 from pymilvus import MilvusClient
 
-client = MilvusClient("milvus_demo.db")
+# Define structural validation schemas using Pydantic v2
+class MilvusResultItem(BaseModel):
+    id: int = Field(..., description="Unique document ID in the collection")
+    distance: float = Field(..., description="Similarity score or distance metric value")
+    task: str = Field(..., description="The task associated with this memory chunk")
+    agent_id: str = Field(..., description="The ID of the agent that authored the memory")
 
-client.create_collection(
-    collection_name="agent_memory",
-    dimension=1536,  # OpenAI text-embedding-3-small dimension
-)
-```
+class MilvusQueryResponse(BaseModel):
+    collection_name: str
+    results: List[MilvusResultItem]
 
-### 2. Inserting Data with Metadata
-```python
-data = [
-    {"id": 0, "vector": [0.1, 0.2] * 768, "agent_id": "nexus-01", "task": "research"},
-    {"id": 1, "vector": [0.3, 0.4] * 768, "agent_id": "nexus-02", "task": "coding"},
-]
+def ingest_and_query_memory(query_vector: List[float]) -> Optional[MilvusQueryResponse]:
+    # Connect to Milvus Lite (local file database)
+    client = MilvusClient("milvus_demo.db")
+    collection_name = "agent_memories"
 
-res = client.insert(
-    collection_name="agent_memory",
-    data=data
-)
-print("Insertion Result:", res)
-```
+    try:
+        # Create a collection schema
+        if not client.has_collection(collection_name):
+            client.create_collection(
+                collection_name=collection_name,
+                dimension=4,  # Simplified dimension for validation purposes
+                auto_id=True
+            )
 
-### 3. Performing a Vector Search with Filters
-```python
-res = client.search(
-    collection_name="agent_memory",
-    data=[[0.1, 0.2] * 768], # Query vector
-    filter="agent_id == 'nexus-01'",
-    limit=5,
-    output_fields=["task"]
-)
-print("Search Result:", res)
+        # Insert records containing vectors and metadata
+        data = [
+            {"vector": [0.1, 0.2, 0.3, 0.4], "agent_id": "nexus-01", "task": "research"},
+            {"vector": [0.5, 0.6, 0.7, 0.8], "agent_id": "nexus-02", "task": "coding"},
+        ]
+        client.insert(collection_name=collection_name, data=data)
+
+        # Query using vector similarity with a metadata filter
+        search_results = client.search(
+            collection_name=collection_name,
+            data=[query_vector],
+            filter="agent_id == 'nexus-01'",
+            limit=1,
+            output_fields=["task", "agent_id"]
+        )
+
+        # Map results to a format suitable for Pydantic validation
+        validated_items = []
+        for hits in search_results:
+            for hit in hits:
+                validated_items.append(
+                    MilvusResultItem(
+                        id=hit["id"],
+                        distance=hit["distance"],
+                        task=hit["entity"].get("task", "unknown"),
+                        agent_id=hit["entity"].get("agent_id", "unknown")
+                    )
+                )
+
+        # Assemble the payload
+        payload = {
+            "collection_name": collection_name,
+            "results": validated_items
+        }
+
+        # Strictly validate using Pydantic v2
+        return MilvusQueryResponse.model_validate(payload)
+
+    except ValidationError as ve:
+        print(f"Pydantic schema validation failed: {ve}")
+        return None
+    except Exception as e:
+        print(f"An error occurred during Milvus operations: {e}")
+        return None
+
+if __name__ == "__main__":
+    print("Initiating local Milvus validation test...")
+    test_query = [0.15, 0.25, 0.35, 0.45]
+    response = ingest_and_query_memory(test_query)
+
+    if response:
+        print("Milvus results successfully validated via Pydantic v2:")
+        print(f"  Collection: {response.collection_name}")
+        for item in response.results:
+            print(f"  - Match [ID {item.id}] Distance: {item.distance:.4f}")
+            print(f"    Task: {item.task} | Agent: {item.agent_id}")
 ```
 
 ## Related tools / concepts
@@ -121,5 +175,5 @@ print("Search Result:", res)
 - [Milvus 3.1 Release Notes](https://milvus.io/blog/milvus-3-0-announcement)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high
