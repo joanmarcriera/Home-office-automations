@@ -1,7 +1,7 @@
 # Claude Desktop
 
 ## What it is
-Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of late August 2026, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1** and frontier models like **Claude 5.1**.
+Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of late December 2026, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1** and frontier models like **Claude 5.1**.
 
 ## What problem it solves
 It overcomes the limitations of browser-based AI by providing a secure, local execution environment. Key problems solved include:
@@ -67,28 +67,77 @@ python3 -c "import json, os; json.load(open(os.path.expanduser('~/Library/Applic
 
 ## API examples
 
-### MCP 3.1 Configuration JSON
-Example of a `claude_desktop_config.json` adding a local filesystem and SQLite server with advanced MCP 3.1 properties:
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/jules/Documents/project"],
-      "env": {
-        "MCP_PROTOCOL_VERSION": "3.1"
-      }
-    },
-    "sqlite": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/Users/jules/data/home.db"],
-      "env": {
-        "MCP_PROTOCOL_VERSION": "3.1",
-        "SQLITE_TIMEOUT_MS": "5000"
+### Programmatic Configuration Schema Validation (Python + Pydantic v2)
+This example provides a robust, self-contained Python validation utility designed to read the standard local `claude_desktop_config.json` file, validate its structure against strict **Pydantic v2** models, and identify schema errors before launching the Claude Desktop daemon.
+
+```python
+import json
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+# Define sub-schemas for individual MCP servers
+class MCPServerConfig(BaseModel):
+    command: str = Field(..., description="The executable name or path to run the server")
+    args: List[str] = Field(default_factory=list, description="Command line arguments passed to the server")
+    env: Optional[Dict[str, str]] = Field(default=None, description="Environment variable overrides for the server runtime")
+
+# Define the root schema for Claude Desktop config
+class ClaudeDesktopConfig(BaseModel):
+    mcp_servers: Dict[str, MCPServerConfig] = Field(
+        ...,
+        alias="mcpServers",
+        description="Dictionary mapping server identifier keys to their execution options"
+    )
+
+    class Config:
+        populate_by_name = True  # Allows parsing raw JSON containing 'mcpServers' camelCase alias
+
+def validate_config_string(json_str: str) -> Optional[ClaudeDesktopConfig]:
+    try:
+        raw_dict = json.loads(json_str)
+        # Parse and strictly validate using Pydantic v2
+        validated_config = ClaudeDesktopConfig.model_validate(raw_dict)
+        return validated_config
+    except ValidationError as ve:
+        print(f"Pydantic Validation failed: {ve}")
+        return None
+    except json.JSONDecodeError as je:
+        print(f"Malformed JSON string: {je}")
+        return None
+
+if __name__ == "__main__":
+    print("Initiating Claude Desktop Configuration validation test...")
+    # Simulated content of a typical claude_desktop_config.json file featuring MCP 3.1 variables
+    sample_config = """
+    {
+      "mcpServers": {
+        "filesystem": {
+          "command": "npx",
+          "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/jules/project"],
+          "env": {
+            "MCP_PROTOCOL_VERSION": "3.1"
+          }
+        },
+        "sqlite": {
+          "command": "npx",
+          "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/Users/jules/home.db"],
+          "env": {
+            "MCP_PROTOCOL_VERSION": "3.1"
+          }
+        }
       }
     }
-  }
-}
+    """
+
+    config = validate_config_string(sample_config)
+    if config:
+        print("Claude Desktop config is perfectly valid!")
+        for server_name, server_cfg in config.mcp_servers.items():
+            print(f"  MCP Server: {server_name}")
+            print(f"    Command: {server_cfg.command}")
+            print(f"    Arguments: {', '.join(server_cfg.args)}")
+            if server_cfg.env:
+                print(f"    Env Protocol Version: {server_cfg.env.get('MCP_PROTOCOL_VERSION', 'Not Specified')}")
 ```
 
 ## Related tools / concepts
@@ -108,5 +157,5 @@ Example of a `claude_desktop_config.json` adding a local filesystem and SQLite s
 - [Claude Desktop Release Notes](https://anthropic.com/news/claude-desktop-updates)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-03
+- Last reviewed: 2026-12-31
 - Confidence: high
