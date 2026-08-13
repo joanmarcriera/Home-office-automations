@@ -7,7 +7,7 @@ OSWorld is a scalable, real computer environment designed for benchmarking multi
 Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise.
 
 ## Where it fits in the stack
-**Eval / Environment**. It provides the benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
+**Eval / Environment**. It provides the benchmarking tasks and virtualized runtime infrastructure (Docker, VMware, VirtualBox) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## Typical use cases
 - **Desktop Agent Evaluation**: Benchmarking autonomous agents interacting with native OS elements (e.g., system menus, file managers, desktop configurations).
@@ -112,13 +112,33 @@ def verify_task_completion():
     return False
 ```
 
+### Programmatic Agent Commands Validation
+Validate OSWorld-compatible computer use keyboard and mouse actions using **Pydantic v2**:
+```python
+from pydantic import BaseModel, Field
+from typing import Literal, Union
+
+class MouseClickAction(BaseModel):
+    action_type: Literal["click"] = "click"
+    x: int = Field(..., ge=0, le=1920, description="X coordinate (pixel)")
+    y: int = Field(..., ge=0, le=1080, description="Y coordinate (pixel)")
+
+class KeyboardAction(BaseModel):
+    action_type: Literal["type"] = "type"
+    text: str = Field(..., min_length=1, description="String payload to input")
+
+# Validate action payloads programmatically
+click_event = MouseClickAction.model_validate({"action_type": "click", "x": 450, "y": 300})
+print(f"Validated Click action: {click_event.action_type} at coordinates ({click_event.x}, {click_event.y})")
+```
+
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web navigation benchmark.
 - [GAIA](./gaia.md) — General AI assistant benchmark.
 - [AssistantBench](./assistant-bench.md) — Multi-step web mission benchmark.
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI for development.
 - [OpenHands](../development_ops/openhands.md) — Agentic software engineering platform.
-- [Terminal-Bench](./terminal-bench.md) — Benchmarking direct shell interactions.
+- [Terminal-Bench](./terminal-bench.md) — Evaluating direct shell interactions.
 - [Inspect AI](./inspect-ai.md) — Framework for running agentic evaluations.
 - [Open WebUI Computer](../automation_orchestration/open-webui-computer.md) — Open workstation interface.
 - [Browser Use](../automation_orchestration/browser-use.md) — Library for web interaction.
@@ -134,5 +154,5 @@ def verify_task_completion():
 - [OSWorld GitHub Repository](https://github.com/xlang-ai/OSWorld)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

@@ -7,12 +7,12 @@ GAIA (General AI Assistants) is a benchmark designed to evaluate General AI Assi
 Existing benchmarks often focus on synthetic reasoning, code syntax, or closed-book trivia. GAIA targets real-world, open-ended tasks that require fundamental human-like abilities: complex reasoning, multi-modality handling (text, spreadsheets, images, PDFs, audio), web browsing, and programmatic tool execution. It exposes the 'reasoning gap' in frontier models, serving as a reliable metric of actual operational utility.
 
 ## Where it fits in the stack
-**Eval / Benchmarking**. It provides a high-signal evaluation standard for testing autonomous agents, VLMs, and multi-agent workflows. It is used to validate the 'Agentic Core' of systems built on frontier LLMs such as Claude 5.1 and GPT-5.5.
+**Eval / Benchmarking**. It provides a high-signal evaluation standard for testing autonomous agents, VLMs, and multi-agent workflows. It is used to validate the 'Agentic Core' of systems built on frontier LLMs such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## Typical use cases
 - **Agent Architecture Benchmarking**: Comparing the performance of different agent runtimes and planning frameworks on realistic assistant tasks.
 - **Multimodal VLM Testing**: Benchmarking the vision and document-understanding capabilities of multimodal models when interacting with complex charts, PDFs, and media assets.
-- **Tool-Calling Verification**: Measuring an agent's ability to select, configure, and execute tools (e.g., Python interpreters, web browsers, and Model Context Protocol MCP 3.1 servers) correctly.
+- **Tool-Calling Verification**: Measuring an agent's ability to select, configure, and execute tools (e.g., Python interpreters, web browsers, and Model Context Protocol FastMCP 3.1 servers) correctly.
 - **Long-Horizon Planning**: Evaluating an agent's ability to maintain state and recover from execution failures over multi-step tasks.
 
 ## Strengths
@@ -101,6 +101,33 @@ for task in results:
         print(f"Score: {accuracy.value if accuracy else 'N/A'}")
 ```
 
+### Programmatic Ingestion and Run Hook
+Load and filter GAIA datasets programmatically within custom evaluation workflows, validating the payload using **Pydantic v2**:
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+
+class GAIAQuestion(BaseModel):
+    task_id: str = Field(..., alias="task_id")
+    question: str
+    level: int = Field(..., ge=1, le=3)
+    file_name: Optional[str] = None
+    file_type: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+# Validate standard GAIA evaluation schema using Pydantic v2
+raw_data = {
+    "task_id": "gaia-2026-level1-12",
+    "question": "What is the total revenue of the company mentioned in the PDF?",
+    "level": 1,
+    "file_name": "annual_report.pdf",
+    "file_type": "pdf"
+}
+
+question = GAIAQuestion.model_validate(raw_data)
+print(f"Validated GAIA Level {question.level} Task: {question.task_id}")
+```
+
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web navigation benchmark.
 - [AssistantBench](./assistant-bench.md) — Multi-step web mission benchmark.
@@ -120,5 +147,5 @@ for task in results:
 - [GAIA Leaderboard (Hugging Face)](https://huggingface.co/spaces/gaia-benchmark/leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

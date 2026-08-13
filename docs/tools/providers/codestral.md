@@ -7,7 +7,7 @@ Codestral is a high-performance generative artificial intelligence model explici
 General-purpose LLMs can suffer from "generalist fatigue," leading to syntax hallucinations, legacy library pattern mixing, or failures in long-range multi-file repository architecture. Codestral solves these issues by concentrating its parameters on strict algorithmic, architectural, and syntax patterns across diverse languages, maintaining high consistency inside local or cloud development pipelines.
 
 ## Where it fits in the stack
-**Inference Layer / Specialized Model**. It serves as the local or API-driven intelligence engine powering [autonomous coding agents](../agents/README.md), IDE extensions (such as Continue), and automated CI/CD code-remediation pipelines.
+**Inference Layer / Specialized Model**. It serves as the local or API-driven intelligence engine powering [autonomous coding agents](../agents/README.md), IDE extensions (such as Continue), and automated CI/CD code-remediation pipelines. It is a key tool in workflows powered by frontier setups including Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## Typical use cases
 - **Autonomous Multi-file Refactoring**: Powering advanced coding agents like [Cline](../agents/cline.md) or [Roo Code](../agents/roo-code.md) to parse, refactor, and write complex repository codebases.
@@ -108,6 +108,28 @@ curl https://api.mistral.ai/v1/fim/completions \
   }'
 ```
 
+### Programmatic Code Review Validation
+Validate the structured JSON output returned from Codestral after a diagnostic review session using **Pydantic v2**:
+```python
+from pydantic import BaseModel, Field
+from typing import List
+
+class CodeReviewResponse(BaseModel):
+    has_bugs: bool = Field(..., description="Whether the code has any bugs")
+    bugs_found: List[str] = Field(default_factory=list, description="List of bug descriptions")
+    refactored_code: str = Field(..., description="The refactored version of the code")
+
+# Schema structure to guide Codestral structured output validation using Pydantic v2
+mock_llm_response = {
+    "has_bugs": True,
+    "bugs_found": ["IndexOutOfBounds in loop on line 42"],
+    "refactored_code": "def find_max(arr):\n    return max(arr) if arr else None"
+}
+
+reviewed = CodeReviewResponse.model_validate(mock_llm_response)
+print(f"Validated Code Review (Bugs found: {reviewed.has_bugs})")
+```
+
 ## Related tools / concepts
 - [Mistral AI](mistral.md)
 - [Ollama](../../services/ollama.md)
@@ -125,5 +147,5 @@ curl https://api.mistral.ai/v1/fim/completions \
 - [Hugging Face Repository - Codestral-22B-v0.1](https://huggingface.co/mistralai/Codestral-22B-v0.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high

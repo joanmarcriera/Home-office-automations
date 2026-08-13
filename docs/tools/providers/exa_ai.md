@@ -7,7 +7,7 @@ Exa AI is a neural search engine engineered specifically for large language mode
 Standard search engines optimize results for human browsers, often cluttering responses with sponsored ads, heavy javascript elements, and SEO-bloated pages. These structures consume massive token volume and introduce irrelevant noise into agent pipelines. Exa solves this by retrieving clean, pre-parsed markdown directly from the web, drastically decreasing latency, parsing errors, and input token overhead for agent reasoning loops.
 
 ## Where it fits in the stack
-**Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms.
+**Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms. It natively supports workflows coordinated by Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## Typical use cases
 - **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) to execute complex, multi-query research missions over the live web.
@@ -19,7 +19,7 @@ Standard search engines optimize results for human browsers, often cluttering re
 - **Clean Markdown Delivery**: Returns sanitized, readable markdown or raw text directly, bypassing the need for custom headless scrapers or proxy layers.
 - **High-Signal Neural Search**: Uses semantic vector representations to locate relevant pages based on exact intent rather than literal keyword occurrences.
 - **Flexible Filter Controls**: Supports precise filtering by domain, category (e.g., personal blogs, academic papers, news, company sites), and exact publish dates.
-- **Robust SDKs & MCP Integration**: Native libraries for Python and TypeScript, alongside fully compliant Model Context Protocol (MCP 3.1) servers for drag-and-drop tool integration.
+- **Robust SDKs & MCP Integration**: Native libraries for Python and TypeScript, alongside fully compliant Model Context Protocol FastMCP 3.1 servers for drag-and-drop tool integration.
 
 ## Limitations
 - **Key-Based API Billing**: Requires a paid subscription and charges based on monthly search volumes and token retrieval size.
@@ -61,7 +61,7 @@ curl -X POST https://api.exa.ai/search \
   -H "Content-Type: application/json" \
   -H "x-api-key: $EXA_API_KEY" \
   -d '{
-    "query": "Model Context Protocol MCP 3.1 implementation patterns",
+    "query": "Model Context Protocol FastMCP 3.1 implementation patterns",
     "useAutoprompt": true,
     "numResults": 3
   }'
@@ -109,7 +109,7 @@ Perform a semantic query and retrieve clean markdown text blocks containing the 
 ```python
 # Execute combined search and contents call
 search_results = exa.search_and_contents(
-    "How to configure LangGraph with MCP 3.1 servers",
+    "How to configure LangGraph with FastMCP 3.1 servers",
     num_results=1,
     text=True,  # Return clean text
     highlights={"num_sentences": 3}  # Extract semantic highlights
@@ -118,6 +118,30 @@ search_results = exa.search_and_contents(
 first_result = search_results.results[0]
 print(f"Extracted Content:\n{first_result.text[:500]}")
 print(f"\nSemantic Highlights:\n{first_result.highlights}")
+```
+
+### Programmatic Search Result Schema Validation
+Ingest search results safely into your downstream LLM prompt pipeline, validating the schema using **Pydantic v2**:
+```python
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List, Optional
+
+class ExaSearchResult(BaseModel):
+    title: str
+    url: HttpUrl
+    score: float = Field(..., ge=0.0, le=1.0)
+    highlights: List[str] = Field(default_factory=list)
+
+# Validate Exa search payloads programmatically using Pydantic v2
+raw_result = {
+    "title": "Model Context Protocol SOTA Guide",
+    "url": "https://example.com/mcp-guide",
+    "score": 0.985,
+    "highlights": ["FastMCP 3.1 integrates native task protocol specifications..."]
+}
+
+validated_result = ExaSearchResult.model_validate(raw_result)
+print(f"Validated Exa Result: '{validated_result.title}' with Score: {validated_result.score}")
 ```
 
 ## Related tools / concepts
@@ -143,5 +167,5 @@ print(f"\nSemantic Highlights:\n{first_result.highlights}")
 - [Agentic Search Best Practices (2026 Blog)](https://exa.ai/blog/agentic-search)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-31
+- Last reviewed: 2026-12-31
 - Confidence: high
