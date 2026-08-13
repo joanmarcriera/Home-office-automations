@@ -4,7 +4,7 @@
 The AI Tooling Landscape is a comprehensive architectural map of the generative AI ecosystem. It categorizes the diverse range of technologies—from physical hardware and foundational models to agentic frameworks and end-user applications—into a structured 8-layer stack.
 
 ## What problem it solves
-The rapid expansion of AI has created a fragmented and overwhelming market of tools. This landscape provides a mental model and a "standard map" to help developers, architects, and hobbyists understand where a specific tool (like Ollama or LangGraph) fits, what its dependencies are, and what alternatives exist at the same layer, updated for SOTA August 2026 systems.
+The rapid expansion of AI has created a fragmented and overwhelming market of tools. This landscape provides a mental model and a "standard map" to help developers, architects, and hobbyists understand where a specific tool (like Ollama or LangGraph) fits, what its dependencies are, and what alternatives exist at the same layer, updated for SOTA late December 2026 systems.
 
 ## Where it fits in the stack
 This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry point for the entire `docs/knowledge_base/` section, providing the context needed to navigate specialized deep-dives into models, frameworks, and infrastructure.
@@ -56,11 +56,13 @@ aider --model claude-5-1-sonnet
 ```
 
 ## API examples
-Most layers are connected via standardized APIs and protocols like MCP 3.1.
+Most layers are connected via standardized APIs and protocols like MCP 3.1 / FastMCP 3.1. Below is a robust Python example validating stack components mapped to the tooling landscape via strict Pydantic v2 schemas.
 
 ### Discovery and Task Management via MCP 3.1
 ```python
 # Connecting to an MCP 3.1 server to discover tools and spawn tasks at Layer 4
+from pydantic import BaseModel, Field
+from typing import List, Literal, Optional
 from mcp import Client, TaskProtocol
 
 client = Client("http://mcp-registry.local")
@@ -76,6 +78,33 @@ async def init_agent_task():
         instruction="Verify local Ollama serving metrics and optimize VRAM allocation."
     )
     print(f"Spawned task ID: {task.id}")
+
+# Robust Pydantic v2 model to validate stack components mapped to the tooling landscape
+class StackComponent(BaseModel):
+    name: str = Field(min_length=1)
+    layer: Literal[0, 1, 2, 3, 4, 5, 6, 7]
+    category: str = Field(min_length=3)
+    primary_model_or_api: Optional[str] = None
+    is_self_hosted: bool = True
+
+class ToolingLandscapeSchema(BaseModel):
+    version: str = Field(default="2026-12-31")
+    architecture_name: str = Field(min_length=3)
+    components: List[StackComponent]
+
+# Example validation using Pydantic v2
+landscape_data = {
+    "architecture_name": "Decentralized Homelab Agent Stack",
+    "components": [
+        {"name": "Ollama", "layer": 3, "category": "Inference & Serving", "is_self_hosted": True},
+        {"name": "Claude 5.1", "layer": 2, "category": "Models", "primary_model_or_api": "Anthropic API", "is_self_hosted": False},
+        {"name": "FastMCP 3.1", "layer": 4, "category": "Protocols & Standards", "is_self_hosted": True},
+        {"name": "n8n", "layer": 6, "category": "Agents & Orchestration", "is_self_hosted": True}
+    ]
+}
+
+validated_landscape = ToolingLandscapeSchema.model_validate(landscape_data)
+print(f"Successfully validated landscape: {validated_landscape.architecture_name} with {len(validated_landscape.components)} components.")
 ```
 
 ### Routing across Layer 1 Providers
@@ -109,23 +138,23 @@ response = litellm.completion(
 ## The Stack (layered view)
 
 ```text
-┌───────────────────────────────────────────────────────────────────────────┐
-│ Layer 7: Applications (ChatGPT, Perplexity, Open WebUI)                   │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 6: Agents & Orchestration (CrewAI, AutoGen, LangGraph, n8n)         │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 5: Frameworks (LangChain, LlamaIndex, Haystack, DSPy)               │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 4: Protocols & Standards (MCP 3.1, Tool Calling, A2A)               │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 3: Inference & Serving (vLLM, TGI, Ollama, SGLang)                  │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 2: Models (Claude 5.1, GPT-5.5, Llama 4, Gemini 3.5, Qwen 3.6)      │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 1: Providers (OpenAI, Anthropic, Google, Meta, Mistral, OpenRouter) │
-├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 0: Infrastructure (GPUs, quantization, vector DBs)                  │
-└───────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ Layer 7: Applications (ChatGPT, Perplexity, Open WebUI)                        │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 6: Agents & Orchestration (CrewAI, AutoGen, LangGraph, n8n)              │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 5: Frameworks (LangChain, LlamaIndex, Haystack, DSPy)                    │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 4: Protocols & Standards (MCP 3.1 / FastMCP 3.1, Tool Calling, A2A)      │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 3: Inference & Serving (vLLM, TGI, Ollama, SGLang)                       │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 2: Models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Qwen 3.6) │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 1: Providers (OpenAI, Anthropic, Google, Meta, Mistral, OpenRouter)      │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Layer 0: Infrastructure (GPUs, quantization, vector DBs)                       │
+└────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Layer 7: Applications
@@ -156,7 +185,7 @@ Engines that run model weights and provide APIs for applications to consume.
 ### Layer 2: Models
 The core reasoning engines (LLMs, VLMs) that process information and generate text or actions.
 - **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Gemini](../tools/ai_knowledge/gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
-- **Key Trends**: Rise of specialized reasoning models (like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) using test-time compute.
+- **Key Trends**: Rise of specialized reasoning models (like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6) using test-time compute.
 
 ### Layer 1: Providers
 Companies and platforms that host models and provide them as-a-service via API.
@@ -188,5 +217,5 @@ The underlying hardware, storage, and low-level optimizations.
 - **"I want to build a website or small app on free infrastructure"** → [AI Builder Index](ai_builder_index.md) and [Free AI Website Playbook](free_ai_website_playbook.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high

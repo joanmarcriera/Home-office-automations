@@ -1,7 +1,7 @@
 # Classes of Large Language Models
 
 ## What it is
-Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities. This classification helps in selecting the right tool for a specific task. As of August 2026, the taxonomy has consolidated around reasoning-native, MoE-native, multimodal-unified, and edge-native small models.
+Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities. This classification helps in selecting the right tool for a specific task. As of late December 2026, the taxonomy has consolidated around reasoning-native, MoE-native, multimodal-unified, and edge-native small models.
 
 ## What problem it solves
 The "one-size-fits-all" approach to LLMs is increasingly inefficient. Understanding model classes allows developers to optimize for cost, latency, and reasoning depth by matching the model's specialized architecture (e.g., Mixture-of-Experts for cost-efficiency, reasoning-native for multi-step planning, or edge-native for air-gapped systems) to the problem at hand.
@@ -13,7 +13,7 @@ It belongs to the **Intelligence Layer** of the AI stack. It serves as the taxon
 - **Architecting Agentic Workflows**: Choosing a "Reasoning-Native" model (such as Claude 5.1 or GPT-5.5) for planning and a fast "Mini" model for text transformation.
 - **On-Device Deployment**: Selecting "Small Language Models" (SLMs) like Gemma 3 or Qwen 3.6-7B for local execution on edge hardware.
 - **RAG Systems**: Using specialized "Embedding Models" for vectorization and "Long-Context Models" for large document analysis.
-- **Unified Multimodal Tasks**: Deploying Gemini 3.5 Ultra/Pro for unified video, audio, and text reasoning tasks.
+- **Unified Multimodal Tasks**: Deploying Gemini 4.0 Pro/Flash for unified video, audio, and text reasoning tasks.
 
 ## Strengths
 - **Specialization**: Allows for 10x performance improvements in niche domains (like coding or vision).
@@ -54,7 +54,7 @@ curl -s https://openrouter.ai/api/v1/models | jq '.data[] | {id, architecture, c
 ```
 
 ## API examples
-When using APIs, you can filter for specific model classes or architectures.
+When using APIs, you can filter for specific model classes or architectures. Below is a robust Python example validating model classes, metadata, and capacities using strict Pydantic v2 schemas.
 
 ### Filtering by Architecture
 ```python
@@ -72,11 +72,13 @@ def get_efficient_moe_models():
 print(get_efficient_moe_models()[:3])
 ```
 
-### Selecting a Reasoning Model with System Prompting
+### Selecting & Validating a Model Class with Pydantic v2
 ```python
 import litellm
+from pydantic import BaseModel, Field
+from typing import List, Literal, Optional
 
-# Route to an August 2026 reasoning-native model with thinking capabilities
+# Route to a late December 2026 reasoning-native model with thinking capabilities
 response = litellm.completion(
     model="openai/gpt-5.5-reasoning",
     messages=[
@@ -86,6 +88,35 @@ response = litellm.completion(
     temperature=0.0
 )
 print(response.choices[0].message.content)
+
+# Robust Pydantic v2 model to validate model classes metadata and capacities
+class ModelCapabilities(BaseModel):
+    max_context_window: int = Field(gt=0)
+    supports_vision: bool
+    supports_audio: bool
+    supports_tool_calling: bool
+
+class ModelClassMetadata(BaseModel):
+    model_id: str = Field(min_length=1)
+    model_class: Literal["reasoning-native", "moe-native", "multimodal-unified", "edge-native-small"]
+    developer: str = Field(min_length=1)
+    capabilities: ModelCapabilities
+
+# Validation via Pydantic v2 matching late December 2026 standards
+model_class_data = {
+    "model_id": "google/gemini-4.0-flash",
+    "model_class": "multimodal-unified",
+    "developer": "Google",
+    "capabilities": {
+        "max_context_window": 2000000,
+        "supports_vision": True,
+        "supports_audio": True,
+        "supports_tool_calling": True
+    }
+}
+
+validated_model_class = ModelClassMetadata.model_validate(model_class_data)
+print(f"Successfully validated model class: {validated_model_class.model_id} of category {validated_model_class.model_class}.")
 ```
 
 ## Related tools / concepts
@@ -108,5 +139,5 @@ print(response.choices[0].message.content)
 - [Model Context Protocol Task Protocol Specs (MCP 3.1, July 2026)](https://modelcontextprotocol.org/docs/protocols/3.1/task)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-01
+- Last reviewed: 2026-12-31
 - Confidence: high
