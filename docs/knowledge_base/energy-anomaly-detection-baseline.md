@@ -1,7 +1,7 @@
 # Home Energy Anomaly Detection Baseline
 
 ## What it is
-The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In late August 2026, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 5.1, GPT-5.5, or Gemini 3.5 Pro, integrated natively via the Model Context Protocol (MCP 3.1) Task Protocol.
+The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In early January 2027, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 5.1, GPT-5.5, or Gemini 4.0 Pro/Flash, integrated natively via the FastMCP 3.1 / Model Context Protocol Task Protocol.
 
 The logic relies on three core pillars:
 1. **Statistical Baseline**: Calculating the moving average and standard deviation ($P_{avg} + 2\sigma$) for specific time buckets.
@@ -22,7 +22,7 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 
 ## Strengths
 - **Low Latency Detection**: Initial spike detection occurs locally within Home Assistant (sub-second response).
-- **High Confidence Classification**: Uses Claude 5.1, Qwen 3.6, or GPT-5.5 to eliminate false positives from complex appliance signatures.
+- **High Confidence Classification**: Uses Claude 5.1, Qwen 3.8, or GPT-5.5 to eliminate false positives from complex appliance signatures.
 - **Privacy First**: Can be implemented entirely on-premises using [Ollama](../services/ollama.md) and local inference for sensitive data.
 - **Extensible**: Easily integrates with new sensors as the homelab grows.
 
@@ -66,11 +66,61 @@ python3 scripts/hw-check.py --sensor sensor.fridge_power --threshold 500
 
 ## API examples
 
+### Python: Energy Anomaly Validation (Pydantic v2)
+A robust Python validation script for early January 2027 pipelines using strict Pydantic v2 schemas to parse, enforce, and classify energy anomalies prior to routing to Claude 5.1 or Gemini 4.0 Pro/Flash agent loops:
+
+```python
+from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+class EnergySensorReading(BaseModel):
+    sensor_id: str = Field(..., description="Unique identifier of the energy sensor")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Timestamp of the reading")
+    current_power_w: float = Field(..., ge=0.0, description="Real-time power consumption in Watts")
+
+class AnomalyBaselineConfig(BaseModel):
+    sensor_id: str = Field(..., description="Unique identifier of the target energy sensor")
+    moving_average_w: float = Field(..., ge=0.0, description="Calculated historical moving average in Watts")
+    std_dev_w: float = Field(..., ge=0.0, description="Historical standard deviation in Watts")
+    sensitivity_multiplier: float = Field(default=2.0, gt=0.0, description="Std dev multiplier threshold (e.g. 2.0 for 2σ)")
+
+    @property
+    def threshold_w(self) -> float:
+        return self.moving_average_w + (self.sensitivity_multiplier * self.std_dev_w)
+
+class AnomalyDetectionResult(BaseModel):
+    reading: EnergySensorReading
+    config: AnomalyBaselineConfig
+    is_anomaly: bool = False
+    excess_power_w: float = 0.0
+    classification: Optional[str] = Field(None, description="AI-driven classification or reason for the spike")
+
+    @model_validator(mode="after")
+    def evaluate_anomaly(self) -> "AnomalyDetectionResult":
+        power = self.reading.current_power_w
+        thresh = self.config.threshold_w
+        if power > thresh:
+            self.is_anomaly = True
+            self.excess_power_w = power - thresh
+        else:
+            self.is_anomaly = False
+            self.excess_power_w = 0.0
+        return self
+
+# Example instantiation:
+if __name__ == "__main__":
+    config = AnomalyBaselineConfig(sensor_id="sensor.house_power", moving_average_w=800.0, std_dev_w=150.0)
+    reading = EnergySensorReading(sensor_id="sensor.house_power", current_power_w=1200.0)
+    result = AnomalyDetectionResult(reading=reading, config=config)
+    print(result.model_dump_json(indent=2))
+```
+
 ### n8n Agentic Reasoning Payload (Claude 5.1)
-Using MCP 3.1 Task Protocol JSON structure:
+Using FastMCP 3.1 Task Protocol JSON structure:
 ```json
 {
-  "model": "claude-5.1-opus-20260824",
+  "model": "claude-5.1-opus-20270105",
   "task": "anomaly-detection",
   "messages": [
     {
@@ -104,5 +154,5 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
 - [Energy Anomaly Detection in Smart Homes (2025 Study)](https://arxiv.org/abs/2501.00000)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

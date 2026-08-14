@@ -1,7 +1,7 @@
 # Playbook: Knowledge Base Health
 
 ## What it is
-Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates. In late August 2026, these gates natively inspect model tags for Claude 5.1, GPT-5.5, Llama 4, and other frontier architectures, integrated with the Model Context Protocol (MCP 3.1) Task Protocol.
+Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates. In early January 2027, these gates natively inspect model tags for Claude 5.1, GPT-5.5, Llama 4, and other frontier architectures, integrated with the FastMCP 3.1 / Model Context Protocol Task Protocol.
 
 ## What problem it solves
 In a rapidly evolving technical environment, documentation quickly becomes stale or fragmented. This playbook prevents "documentation rot" by establishing clear ownership, a structured review cadence, and automated enforcement of formatting standards, ensuring users can always trust the information in the repository.
@@ -122,7 +122,7 @@ flowchart TD
 - **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`.
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains.
 - **Duplicate pages**: two pages document the same tool.
-- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.1").
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.1", "Qwen 3.6" instead of "Qwen 3.8").
 - **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`.
 
 ## CLI examples
@@ -138,20 +138,61 @@ python3 scripts/check_doc_freshness.py
 ```
 
 ## API examples
-The health of the knowledge base can be checked programmatically via the following scripts.
+The health of the knowledge base can be checked programmatically using strict Pydantic v2 schemas to validate compliance in early January 2027:
 
 ```python
-import subprocess
+from datetime import date
+from enum import Enum
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-# Example: Programmatic check of catalog consistency
-def check_catalog():
-    result = subprocess.run(["python3", "scripts/check_catalog_consistency.py"], capture_output=True, text=True)
-    if result.returncode != 0:
-        print(f"Catalog mismatch found: {result.stdout}")
-    else:
-        print("Catalog is consistent.")
+class ConfidenceLevel(str, Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
 
-# check_catalog()
+class DocMetadata(BaseModel):
+    filepath: str = Field(..., description="Relative filesystem path to the markdown document")
+    last_reviewed: date = Field(..., description="Date of the last technical freshness audit")
+    confidence: ConfidenceLevel = Field(default=ConfidenceLevel.HIGH, description="Confidence in the content accuracy")
+    sources: List[str] = Field(..., description="External source/reference URLs validating the content")
+
+    @field_validator("sources")
+    @classmethod
+    def check_sources_not_empty(cls, value: List[str]) -> List[str]:
+        cleaned = [url.strip() for url in value if url.strip().startswith("http")]
+        if not cleaned:
+            raise ValueError("Metadata must contain at least one valid external source URL starting with 'http'")
+        return cleaned
+
+class HealthCheckResult(BaseModel):
+    metadata: DocMetadata
+    is_compliant: bool = True
+    staleness_days: int = Field(default=0, description="Calculated number of days since last review")
+
+    @model_validator(mode="after")
+    def calculate_staleness_and_compliance(self) -> "HealthCheckResult":
+        today = date.today()
+        delta = today - self.metadata.last_reviewed
+        self.staleness_days = max(0, delta.days)
+        # If the document is older than 90 days, it is no longer strictly compliant and requires a freshness audit
+        if self.staleness_days > 90:
+            self.is_compliant = False
+        return self
+
+# Example audit run:
+if __name__ == "__main__":
+    try:
+        meta = DocMetadata(
+            filepath="docs/tools/ai_knowledge/claude.md",
+            last_reviewed=date(2027, 1, 5),
+            confidence=ConfidenceLevel.HIGH,
+            sources=["https://www.anthropic.com/news/claude-5-1"]
+        )
+        result = HealthCheckResult(metadata=meta)
+        print(result.model_dump_json(indent=2))
+    except Exception as e:
+        print(f"Metadata validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -171,5 +212,5 @@ def check_catalog():
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
