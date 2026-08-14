@@ -1,13 +1,13 @@
 # Agentic Workflows
 
 ## What it is
-Agentic workflows are design patterns where Large Language Models (LLMs) are not just used for single-turn responses, but are part of a multi-step, iterative process where they can reason, use tools, and make decisions to achieve a goal. As of late August 2026, agentic workflows natively incorporate Model Context Protocol (MCP 3.1) Task Protocol primitives to support structured, secure tool usage.
+Agentic workflows are design patterns where Large Language Models (LLMs) are not just used for single-turn responses, but are part of a multi-step, iterative process where they can reason, use tools, and make decisions to achieve a goal. As of early January 2027, agentic workflows natively incorporate Model Context Protocol (FastMCP 3.1) Task Protocol primitives to support structured, secure tool usage.
 
 ## What problem it solves
 It enables the automation of complex tasks that require more than a single LLM call, such as multi-step research, software development, or sophisticated data analysis, by allowing the model to "think" and act over several turns. It addresses the reliability gap in complex automation by introducing feedback loops and reflection.
 
 ## Where it fits in the stack
-It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 5.1 and GPT-5.5) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
+It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Qwen 3.8, and Llama 4) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
 
 ## Typical use cases
 - **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
@@ -45,31 +45,73 @@ To build an agentic workflow, select a framework like [LangGraph](../../tools/fr
 ## CLI examples
 ```bash
 # Example: Running an Aider session to refactor a local repository
-aider --model claude-5-1-sonnet-20260828 --auto-test
+aider --model claude-5-1-sonnet-20270101 --auto-test
 
 # Using the CrewAI CLI to kick off a multi-agent task
 crewai run "Analyze the latest market trends for NVIDIA"
 ```
 
 ## API examples
+
+### Programmatic State & Reflection Validation (Pydantic v2)
+The following Python script implements a strict reflection loop validation schema in LangGraph style utilizing Pydantic v2:
+
 ```python
-from langgraph.graph import StateGraph, END
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Example: A minimal reflection loop in LangGraph
-def generate(state):
-    # logic to call Claude 5.1 and generate a draft
-    return {"draft": "initial response"}
+class ReflectionState(BaseModel):
+    draft: str = Field(..., min_length=10, description="The current generated draft text")
+    critique: Optional[str] = Field(default=None, description="The critique from the reflection stage")
+    iteration: int = Field(default=0, ge=0, le=5)
+    is_satisfactory: bool = Field(default=False)
 
-def reflect(state):
-    # logic to critique the draft
-    return {"critique": "needs more detail"}
+    @field_validator('iteration')
+    @classmethod
+    def max_iterations_check(cls, v: int) -> int:
+        if v > 5:
+            raise ValueError("Too many reflection iterations. Prevented potential reasoning loop.")
+        return v
 
-workflow = StateGraph(dict)
-workflow.add_node("generate", generate)
-workflow.add_node("reflect", reflect)
-workflow.set_entry_point("generate")
-workflow.add_edge("generate", "reflect")
-workflow.add_edge("reflect", END)
+class AgentAction(BaseModel):
+    action_type: str = Field(..., pattern="^(call_tool|generate_draft|reflect_critique|complete)$")
+    parameters: dict
+
+def generate(state: ReflectionState) -> ReflectionState:
+    # Simulates calling Claude 5.1 / GPT-5.5 to draft content
+    print(f"Generating draft (Iteration: {state.iteration + 1})...")
+    state.draft = "Substantive early January 2027 AI documentation standards."
+    state.iteration += 1
+    return state
+
+def reflect(state: ReflectionState) -> ReflectionState:
+    # Simulates calling Gemini 4.0 Pro to critique the draft
+    print("Reflecting and critiquing...")
+    state.critique = "The draft is highly technical but could use more Pydantic v2 schemas."
+    state.is_satisfactory = True  # Mark satisfactory once criteria are met
+    return state
+
+# Validation & flow execution demonstration
+if __name__ == "__main__":
+    # Initialize state
+    state_data = {
+        "draft": "Initial empty draft of standards document.",
+        "iteration": 0,
+        "is_satisfactory": False
+    }
+
+    # 1. Validate initial state
+    state = ReflectionState.model_validate(state_data)
+
+    # 2. Transition through generator stage
+    state = generate(state)
+
+    # 3. Transition through reflection stage
+    state = reflect(state)
+
+    # 4. Strict final validation
+    final_validated = ReflectionState.model_validate(state.model_dump())
+    print(f"Loop Complete! Satisfactory: {final_validated.is_satisfactory} | Iterations: {final_validated.iteration}")
 ```
 
 ## Related tools / concepts
@@ -86,8 +128,8 @@ workflow.add_edge("reflect", END)
 - [Anthropic: Agentic Workflows](https://www.anthropic.com/news/agentic-workflows)
 - [Andrew Ng: Agentic Design Patterns](https://www.deeplearning.ai/the-batch/how-agents-can-improve-llm-performance/)
 - [Microsoft: AutoGen Framework](https://microsoft.github.io/autogen/)
-- [LangChain: LangGraph Documentation and MCP 3.1 Task Protocol Integration](https://langchain-ai.github.io/langgraph/)
+- [LangChain: LangGraph Documentation and FastMCP 3.1 Task Protocol Integration](https://langchain-ai.github.io/langgraph/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

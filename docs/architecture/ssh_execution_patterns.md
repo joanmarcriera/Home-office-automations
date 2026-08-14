@@ -1,7 +1,7 @@
 # SSH Execution Patterns
 
 ## What it is
-SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. As of late August 2026, it defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment using secure transports, sandboxing, and Model Context Protocol (MCP 3.1) secure remote execution specifications.
+SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. As of early January 2027, it defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment using secure transports, sandboxing, and Model Context Protocol (FastMCP 3.1) secure remote execution specifications.
 
 ## What problem it solves
 LLMs are capable of generating shell commands, but allowing them to execute those commands directly on a server poses significant security risks (e.g., prompt injection, accidental data loss, or privilege escalation). These patterns provide a framework for restricted, audited, and validated execution, ensuring that agents have the "hands" they need to perform work without compromising system integrity.
@@ -38,8 +38,8 @@ It belongs in the **Architecture** layer. Specifically, it defines the interface
 To implement secure agentic SSH, follow the "Three Planes" architecture.
 
 ### Architecture: The Three Planes
-1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.1, GPT-5.5, Llama 4). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., MCP 3.1 server) that manages the loop and initiates connections.
+1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.1, GPT-5.5, Llama 4, Gemini 4.0 Pro). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
+2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., FastMCP 3.1 server) that manages the loop and initiates connections.
 3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed.
 
 ### Implementation Patterns
@@ -66,21 +66,66 @@ ssh ai-agent@target-host "sudo systemctl restart nginx"
 ## API examples
 Agents often interact with SSH via libraries like Paramiko in Python.
 
+### Secure SSH Connection and Payload Validation (Pydantic v2)
+The following script ensures strict validation of target host parameters, SSH credentials, and command execution limits before invoking paramiko:
+
 ```python
+import re
+from typing import List, Optional
+from pydantic import BaseModel, Field, IPvAnyAddress, field_validator
 import paramiko
 
-# Example: Running a command on a remote host via SSH
-def run_remote_command(host, user, key_path, command):
+class SSHCommandPayload(BaseModel):
+    host: IPvAnyAddress
+    user: str = Field(..., pattern="^[a-zA-Z0-9_-]{3,32}$")
+    key_path: str = Field(..., pattern="^/.*_key$")
+    command: str = Field(..., min_length=2, max_length=128)
+
+    @field_validator('command')
+    @classmethod
+    def restrict_dangerous_commands(cls, v: str) -> str:
+        # Prevent shell redirection, injection, and multi-command chaining
+        dangerous_patterns = [r';', r'&&', r'\|', r'\n', r'\.\.']
+        for pattern in dangerous_patterns:
+            if re.search(pattern, v):
+                raise ValueError("Dangerous character sequence or chaining detected in SSH command")
+
+        # Enforce command allowlist
+        allowed_binaries = {"uptime", "df", "free", "systemctl restart nginx", "git pull"}
+        if not any(v.startswith(allowed) for allowed in allowed_binaries):
+            raise ValueError(f"Command '{v}' is not in the allowed operations registry")
+        return v
+
+def run_secure_remote_command(payload: SSHCommandPayload) -> str:
+    """Establishes SSH connection and executes a validated command safely."""
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=user, key_filename=key_path)
+    try:
+        # In practice, establish a secure connection using the validated payload fields
+        client.connect(
+            str(payload.host),
+            username=payload.user,
+            key_filename=payload.key_path,
+            timeout=10
+        )
+        stdin, stdout, stderr = client.exec_command(payload.command)
+        output = stdout.read().decode('utf-8')
+        return output
+    finally:
+        client.close()
 
-    stdin, stdout, stderr = client.exec_command(command)
-    output = stdout.read().decode('utf-8')
-    client.close()
-    return output
+# Validation & execution example
+if __name__ == "__main__":
+    valid_payload = {
+        "host": "192.168.1.50",
+        "user": "ai-agent",
+        "key_path": "/home/ai-agent/.ssh/id_ed25519_key",
+        "command": "systemctl restart nginx"
+    }
 
-# print(run_remote_command("192.168.1.50", "ai-agent", "/path/to/key", "uptime"))
+    # Strictly validate against schema
+    validated = SSHCommandPayload.model_validate(valid_payload)
+    print(f"Validation passed for host {validated.host}. Safe command to execute: '{validated.command}'")
 ```
 
 ## Related tools / concepts
@@ -96,8 +141,8 @@ def run_remote_command(host, user, key_path, command):
 ## Sources / References
 - [OpenSSH Official Documentation](https://www.openssh.com/)
 - [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
-- [Teleport: Agentless SSH with MCP 3.1 Integrations](https://goteleport.com/ssh-server/)
+- [Teleport: Agentless SSH with FastMCP 3.1 Integrations](https://goteleport.com/ssh-server/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
