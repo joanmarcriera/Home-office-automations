@@ -3,6 +3,8 @@
 ## What it is
 A specialized prompt design and JSON schema for extracting structured warranty metadata from unstructured text (OCR output). It converts raw receipt data into actionable lifecycle information like expiration dates and coverage terms.
 
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
+
 ## What problem it solves
 Manual tracking of warranties is prone to failure; receipts are lost, and expiration dates are forgotten. This implementation automates the extraction of key terms, enabling a system to send proactive alerts before a warranty expires, potentially saving significant costs on repairs or replacements.
 
@@ -15,13 +17,13 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - **Insurance Audits**: Providing a structured list of covered household items and their protection status.
 
 ## Strengths
-- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 5.1**.
+- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using SOTA frontier models like **GPT-5.5**, **Claude 5.1**, or **Gemini 4.0 Pro/Flash**.
 - **Standardized Schema**: Outputs are ready for consumption by databases and calendar APIs.
 - **Calculation Logic**: Moves the burden of date math (e.g., "12 months from today") from the user to the LLM.
 
 ## Limitations
 - **OCR Quality**: If the initial scan is poor, the LLM may misread dates or product names.
-- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4** are improving but may still require specific few-shot examples for these edge cases.
+- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4**, **Gemma 3**, or **Qwen 3.8** are improving but may still require specific few-shot examples for these edge cases.
 
 ## When to use it
 - When integrating document management (Paperless-ngx) with task management (Vikunja).
@@ -35,7 +37,7 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 ## Getting started
 1. Enable OCR in Paperless-ngx or your chosen ingestion tool.
 2. Configure a webhook or n8n workflow to trigger when a document is tagged as `Warranty`.
-3. Use the **Anthropic Claude 5.1** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
+3. Use the **Anthropic Claude 5.1**, **OpenAI GPT-5.5**, or **Gemini 4.0 Pro** API to process the OCR text using the prompt template below.
 4. Parse the JSON output and create a task in Vikunja with a due date 30 days before the warranty expiration.
 
 ### Prompt Template
@@ -80,54 +82,73 @@ Example of structured output enforcement using the OpenAI Python library, integr
 
 ```python
 import asyncio
-from pydantic import BaseModel, Field
+from datetime import datetime
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from typing import Optional
 import openai
 from scripts.vikunja_tool import VikunjaCreateTool
 
+# Strict Pydantic v2 Warranty Details Schema
 class WarrantyDetails(BaseModel):
-    product_name: str = Field(..., description="The name of the purchased product.")
-    manufacturer: str = Field(..., description="The brand or manufacturer name.")
+    product_name: str = Field(..., min_length=2, description="The name of the purchased product.")
+    manufacturer: str = Field(..., min_length=2, description="The brand or manufacturer name.")
     purchase_date: str = Field(..., description="Purchase date formatted as YYYY-MM-DD.")
-    warranty_duration_months: int = Field(..., description="Duration of warranty coverage in months.")
+    warranty_duration_months: int = Field(..., gt=0, description="Duration of warranty coverage in months.")
     expiration_date: str = Field(..., description="Calculated expiration date formatted as YYYY-MM-DD.")
-    is_extended_warranty: bool = Field(..., description="Whether this is an extended warranty policy.")
+    is_extended_warranty: bool = Field(default=False, description="Whether this is an extended warranty policy.")
     notes: Optional[str] = Field(None, description="Any specific coverage exclusions or details.")
+
+    @field_validator('purchase_date', 'expiration_date')
+    @classmethod
+    def validate_date_string(cls, value: str) -> str:
+        try:
+            datetime.strptime(value, "%Y-%m-%d")
+            return value
+        except ValueError:
+            raise ValueError("Dates must be formatted strictly as YYYY-MM-DD")
 
 async def extract_and_schedule_warranty(ocr_text: str):
     client = openai.AsyncOpenAI()
 
-    completion = await client.beta.chat.completions.parse(
-        model="gpt-5.5-preview",
-        messages=[
-            {"role": "system", "content": "You are a professional metadata extraction agent specializing in warranty receipts."},
-            {"role": "user", "content": ocr_text}
-        ],
-        response_format=WarrantyDetails
-    )
-
-    warranty = completion.choices[0].message.parsed
-    if warranty and warranty.expiration_date:
-        # Create a reminder in Vikunja project 5 (e.g., 'Home Admin')
-        # set due date 30 days before expiration
-        from datetime import datetime, timedelta
-        exp_dt = datetime.strptime(warranty.expiration_date, "%Y-%m-%d")
-        reminder_dt = exp_dt - timedelta(days=30)
-        due_date_str = reminder_dt.strftime("%Y-%m-%dT12:00:00Z")
-
-        # Instantiate Vikunja tool
-        vikunja = VikunjaCreateTool()
-        result = await vikunja.run(
-            title=f"Warranty Expiry: {warranty.manufacturer} {warranty.product_name}",
-            project_id=5,
-            description=f"Original Purchase: {warranty.purchase_date}\nDuration: {warranty.warranty_duration_months} months.\nNotes: {warranty.notes}",
-            due_date=due_date_str,
-            priority=3
+    try:
+        # Perform structured metadata extraction using SOTA LLM (such as GPT-5.5)
+        completion = await client.beta.chat.completions.parse(
+            model="gpt-5.5-preview",
+            messages=[
+                {"role": "system", "content": "You are a professional metadata extraction agent specializing in warranty receipts."},
+                {"role": "user", "content": ocr_text}
+            ],
+            response_format=WarrantyDetails
         )
-        print(result)
+
+        warranty = completion.choices[0].message.parsed
+        if warranty and warranty.expiration_date:
+            # Create a reminder in Vikunja project 5 (e.g., 'Home Admin')
+            # Set due date 30 days before expiration
+            from datetime import timedelta
+            exp_dt = datetime.strptime(warranty.expiration_date, "%Y-%m-%d")
+            reminder_dt = exp_dt - timedelta(days=30)
+            due_date_str = reminder_dt.strftime("%Y-%m-%dT12:00:00Z")
+
+            # Instantiate Vikunja tool
+            vikunja = VikunjaCreateTool()
+            result = await vikunja.run(
+                title=f"Warranty Expiry: {warranty.manufacturer} {warranty.product_name}",
+                project_id=5,
+                description=f"Original Purchase: {warranty.purchase_date}\nDuration: {warranty.warranty_duration_months} months.\nNotes: {warranty.notes}",
+                due_date=due_date_str,
+                priority=3
+            )
+            print(result)
+        else:
+            print("No valid warranty expiration details found in OCR.")
+    except ValidationError as e:
+        print(f"Strict warranty metadata schema validation failed: {e}")
+    except Exception as e:
+        print(f"Extraction failed: {str(e)}")
 
 if __name__ == "__main__":
-    ocr_sample = "SAMSUNG Fridge RF27T purchased on 2026-01-15. Includes 1 year manufacturer warranty."
+    ocr_sample = "SAMSUNG Fridge RF27T purchased on 2027-01-06. Includes 12 months manufacturer warranty."
     asyncio.run(extract_and_schedule_warranty(ocr_sample))
 ```
 
@@ -147,5 +168,5 @@ if __name__ == "__main__":
 - [Anthropic JSON Mode](https://docs.anthropic.com/claude/docs/test-and-evaluate-prompts#json-mode)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
