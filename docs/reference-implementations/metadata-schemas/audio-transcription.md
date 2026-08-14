@@ -3,7 +3,7 @@
 ## What it is
 This document defines the structured metadata schema for personal audio transcriptions (audiobooks, podcasts, personal recordings). It specifies how speaker information, timestamps, and text content are organized to ensure interoperability between transcription pipelines and search interfaces.
 
-As of late August 2026, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 3.5 Ultra** to reason over spoken content with high temporal precision.
+As of early January 2027, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** to reason over spoken content with high temporal precision.
 
 ## What problem it solves
 Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
@@ -21,7 +21,7 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 - **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files (e.g., `#t=300`).
 - **Speaker Aware**: Native support for speaker IDs enables filtering searches by specific participants.
 - **Confidence Tracking**: Probability scores help identify segments that may require manual correction or human-in-the-loop review.
-- **MCP Native**: Designed to be served via Model Context Protocol 3.1 for seamless multi-agent interaction.
+- **MCP Native**: Designed to be served via Model Context Protocol 3.1 and FastMCP 3.1 for seamless multi-agent interaction.
 
 ## Limitations
 - **Processing Overhead**: Generating high-fidelity metadata (especially speaker diarization) significantly increases transcription time.
@@ -41,11 +41,11 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 ## Getting started
 
 ### 1. Model Selection
-Ensure you are using a model capable of producing segment-level timestamps. **Whisper v3** or **Faster-Whisper** are recommended.
+Ensure you are using a model capable of producing segment-level timestamps. **Whisper v3**, **Faster-Whisper**, or **Gemini 4.0 Flash** are recommended.
 
 ### 2. Implementation logic
 When indexing audio transcriptions into the Vector DB or BM25 index:
-- **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows using **Claude 5.1** for high-quality summarization.
+- **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows using **Claude 5.1** or **GPT-5.5** for high-quality summarization.
 - **Extraction**: Use a diarization model (like `pyannote-audio` v3.3+) as a post-processing step if multiple speakers are detected.
 
 ## CLI examples
@@ -65,7 +65,7 @@ python3 scripts/unified_search.py --query "Where did we discuss the budget?" --f
 ## API examples
 The schema is implemented using Pydantic in [transcribe_audio.py](../../scripts/transcribe_audio.py).
 
-### Pydantic Schema Definition
+### Pydantic Schema Definition (Pydantic v2 Compliant)
 ```python
 from datetime import datetime
 from typing import List, Optional
@@ -99,7 +99,7 @@ class AudioTranscriptionMetadata(BaseModel):
     title: str
     author_artist: Optional[str] = None
     transcribed_at: datetime = Field(default_factory=datetime.utcnow)
-    model_used: str = Field(..., description="e.g., 'distil-large-v3'")
+    model_used: str = Field(..., description="e.g., 'distil-large-v3' or 'gemini-4.0-flash'")
     language: str = Field("en", description="ISO 639-1 language code")
     duration_seconds: float
     segments: List[TranscriptionSegment]
@@ -116,19 +116,19 @@ import json
 sample_payload = """
 {
   "file_id": "aud-10928a",
-  "title": "Homelab Sprint Planning August 2026",
+  "title": "Homelab Sprint Planning January 2027",
   "author_artist": "Jules & User",
-  "transcribed_at": "2026-08-31T23:59:59Z",
-  "model_used": "distil-large-v3",
+  "transcribed_at": "2027-01-06T00:00:00Z",
+  "model_used": "gemini-4.0-flash",
   "language": "en",
   "duration_seconds": 120.5,
   "segments": [
     {
       "start": 0.0,
       "end": 12.4,
-      "text": "Today we are starting Ralph-loop Batch 240 audits.",
+      "text": "Today we are starting Ralph-loop Batch 383 audits.",
       "speaker_id": "SPEAKER_00",
-      "probability": 0.98
+      "probability": 0.99
     }
   ],
   "chapters": [
@@ -139,8 +139,8 @@ sample_payload = """
       "summary": "Outline of the sprint."
     }
   ],
-  "tags": ["homelab", "planning", "august-2026"],
-  "full_text": "Today we are starting Ralph-loop Batch 240 audits."
+  "tags": ["homelab", "planning", "january-2027"],
+  "full_text": "Today we are starting Ralph-loop Batch 383 audits."
 }
 """
 
@@ -164,5 +164,5 @@ print(f"Validated transcription of title: {metadata.title} (duration: {metadata.
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

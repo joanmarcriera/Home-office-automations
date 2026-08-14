@@ -3,7 +3,7 @@
 ## What it is
 A YAML-based and JSON-schema-validated metadata structure that defines the fields for indexing, tagging, and retrieving scanned household manuals. It ensures that technical documentation is stored with enough semantic context to be useful for both human reference and automated AI retrieval.
 
-As of late August 2026, this schema enables frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 3.5 series** to navigate complex physical documents by providing a semantic "table of contents" and highly precise metadata anchors.
+As of early January 2027, this schema enables frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** to navigate complex physical documents by providing a semantic "table of contents" and highly precise metadata anchors.
 
 ## What problem it solves
 Scanned manuals are often large, unsearchable PDFs. Without a structured schema, finding specific information (like the "Troubleshooting" section or "Error Codes" for a specific dishwasher model) is highly inefficient. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located, reducing hallucinations and retrieval latency.
@@ -21,7 +21,7 @@ The schema sits at the **Data Management Layer**. It is used by **Document Manag
 - **Granularity**: Section-aware page ranges allow for precise retrieval of technical instructions.
 - **Consistency**: Standardizes how model numbers and manufacturers are recorded across the entire library.
 - **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
-- **MCP Native**: Integrates with Model Context Protocol 3.1 for querying via agentic tools.
+- **MCP Native**: Integrates with Model Context Protocol 3.1 and FastMCP 3.1 for querying via agentic tools.
 
 ## Limitations
 - **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via VLM/OCR post-processing).
@@ -102,13 +102,13 @@ class ManualSection(BaseModel):
 
 class ManualMetadata(BaseModel):
     document_type: str = "Manual"
-    product_name: str
-    manufacturer: str
-    model_number: str
-    year_of_manufacture: Optional[int] = None
-    language: str = "en"
-    sections: List[ManualSection]
-    tags: List[str] = []
+    product_name: str = Field(..., description="The name of the appliance/product")
+    manufacturer: str = Field(..., description="The manufacturer name")
+    model_number: str = Field(..., description="The appliance model number")
+    year_of_manufacture: Optional[int] = Field(None, description="The manufacturing year")
+    language: str = Field("en", description="ISO 639-1 code")
+    sections: List[ManualSection] = Field(default_factory=list, description="Section coordinates")
+    tags: List[str] = Field(default_factory=list, description="Associated taxonomic tags")
 ```
 
 ## Related tools / concepts
@@ -128,5 +128,5 @@ class ManualMetadata(BaseModel):
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

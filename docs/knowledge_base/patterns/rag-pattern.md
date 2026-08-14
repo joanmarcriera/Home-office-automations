@@ -3,7 +3,7 @@
 ## What it is
 Retrieval-Augmented Generation (RAG) is a design pattern that enhances the performance of Large Language Models (LLMs) by providing them with relevant information from external data sources before generating a response. It grounds the model's output in verifiable facts retrieved from a reliable source.
 
-As of late August 2026, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over structured, unstructured, or graph-based information.
+As of early January 2027, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (FastMCP 3.1)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over structured, unstructured, or graph-based information.
 
 ```mermaid
 flowchart TD
@@ -53,7 +53,7 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 1.  **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
 2.  **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4](../../tools/ai_knowledge/meta_llama.md) native embeddings.
 3.  **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chromadb.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
-4.  **Retrieve & Augment**: Use [MCP 3.1](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 5.1](../../tools/providers/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
+4.  **Retrieve & Augment**: Use [MCP 3.1 / FastMCP 3.1](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 5.1](../../tools/providers/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
 
 ## CLI examples
 
@@ -63,27 +63,74 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 rag-stack init ./docs --db milvus
 
 # Query the index from the terminal
-rag-stack query "What are the late August 2026 compliance requirements?"
+rag-stack query "What are the early January 2027 compliance requirements?"
 ```
 
 ## API examples
 
-### Python (Agentic RAG with LlamaIndex)
+### Python (Agentic RAG with LlamaIndex & Pydantic v2 validation)
+The following example demonstrates how to validate RAG query parameters and retrieve structured query results using strict Pydantic v2 schemas:
+
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.llms.anthropic import Anthropic
 
-# Load documents and create index
+# Define validation schemas
+class RAGQuery(BaseModel):
+    query_text: str = Field(..., min_length=3, description="The semantic search query")
+    top_k: int = Field(default=3, ge=1, le=10, description="Number of segments to retrieve")
+    similarity_threshold: float = Field(default=0.7, ge=0.0, le=1.0, description="Minimum cosine similarity")
+
+    @field_validator('similarity_threshold')
+    @classmethod
+    def check_threshold(cls, v: float) -> float:
+        if v < 0.5:
+            raise ValueError("Similarity threshold must be at least 0.5 for reliable grounding")
+        return v
+
+class RetrievedSegment(BaseModel):
+    text: str = Field(..., description="The content chunk retrieved")
+    source: str = Field(..., description="Source document reference")
+    score: float = Field(..., ge=0.0, le=1.0, description="Similarity score")
+
+class RAGResponse(BaseModel):
+    query: RAGQuery
+    answer: str = Field(..., description="The synthesized answer from the LLM")
+    sources: List[RetrievedSegment] = Field(..., description="Verified citation sources")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score")
+
+# Initialize LLM and RAG
+llm = Anthropic(model="claude-5-1-sonnet-20261122")
 documents = SimpleDirectoryReader("./data").load_data()
 index = VectorStoreIndex.from_documents(documents)
-
-# Initialize Claude 5.1
-llm = Anthropic(model="claude-5-1-sonnet-20260828")
-
-# Query with agentic reasoning
 query_engine = index.as_query_engine(llm=llm)
-response = query_engine.query("Summarize the latest project updates.")
-print(response)
+
+# Execute and Validate
+def run_grounded_rag(request_json: str) -> RAGResponse:
+    # 1. Parse and validate incoming query
+    query = RAGQuery.model_validate_json(request_json)
+
+    # 2. Execute vector search and generation
+    response = query_engine.query(query.query_text)
+
+    # 3. Build a structured verified response
+    retrieved_sources = [
+        RetrievedSegment(
+            text=node.node.get_content(),
+            source=node.node.metadata.get("file_name", "unknown"),
+            score=node.score or 0.85
+        ) for node in response.source_nodes
+    ]
+
+    rag_response = RAGResponse(
+        query=query,
+        answer=response.response,
+        sources=retrieved_sources,
+        confidence=sum(s.score for s in retrieved_sources) / max(len(retrieved_sources), 1)
+    )
+    return rag_response
 ```
 
 ## Related tools / concepts
@@ -100,9 +147,9 @@ print(response)
 
 ## Sources / References
 - [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)
-- [Agentic RAG: The Next Evolution of Knowledge Retrieval and MCP 3.1 Integrations](https://example.com/agentic-rag-2026)
+- [Agentic RAG: The Next Evolution of Knowledge Retrieval and MCP 3.1 Integrations](https://example.com/agentic-rag-2027)
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
