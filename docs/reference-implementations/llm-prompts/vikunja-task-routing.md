@@ -21,7 +21,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 
 ## Limitations
 - **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
-- **Model Dependency**: Requires a model capable of reliable structured JSON output (e.g., **GPT-5.5**, **Claude 5.1**, **Qwen 3.6**, or **Llama 4**).
+- **Model Dependency**: Requires a model capable of reliable structured JSON output (such as **GPT-5.5**, **Claude 5.1**, **Gemini 4.0 Pro/Flash**, **Qwen 3.8**, **Gemma 3**, or **Llama 4**).
 
 ## When to use it
 - When you have more than 3-5 distinct projects in Vikunja.
@@ -33,7 +33,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 - If the agent does not have real-time access to the current project IDs (risk of hallucinating IDs).
 
 ## Getting started
-To implement this pattern, you need a Vikunja instance, an LLM provider (e.g., Anthropic Claude 5.1), and an orchestration tool (n8n).
+To implement this pattern, you need a Vikunja instance, an LLM provider (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Gemini 4.0 Pro), and an orchestration tool (n8n).
 1. Define your core project names and IDs in Vikunja.
 2. Configure your system prompt using the template provided below.
 3. Set up an n8n workflow that triggers on user input and calls the LLM with the project list.
@@ -90,7 +90,7 @@ curl https://api.anthropic.com/v1/messages \
 ```
 
 ## API examples
-Integration via the **Model Context Protocol (MCP 3.1)** allows for direct tool calling into Vikunja.
+Integration via the **Model Context Protocol (MCP 3.1)** or **FastMCP 3.1** allows for direct tool calling into Vikunja.
 
 ### JSON Schema for Constrained Output
 ```json
@@ -110,35 +110,73 @@ Integration via the **Model Context Protocol (MCP 3.1)** allows for direct tool 
 ```
 
 ### Agent Integration Pattern (Python)
+The following example illustrates how to define a strict Pydantic v2 schema for the task routing payload, validate input JSON dynamically, and route the task via `VikunjaCreateTool`:
+
 ```python
-# Using VikunjaCreateTool for execution
 import asyncio
+from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from scripts.vikunja_tool import VikunjaCreateTool
 
-async def route_task(user_input: str, parsed_json: dict):
+# Strict Pydantic v2 routing schema
+class VikunjaRoutingPayload(BaseModel):
+    title: str = Field(..., min_length=3, description="Clear, concise task title")
+    project_id: int = Field(..., gt=0, description="The target project ID inside Vikunja")
+    description: Optional[str] = Field(None, description="Optional detailed task description")
+    due_date: Optional[str] = Field(None, description="ISO8601 task due date")
+    priority: int = Field(3, ge=1, le=5, description="Priority level (1 to 5)")
+    labels: List[str] = Field(default_factory=list, description="Labels or tags to apply")
+    reasoning: str = Field(..., min_length=5, description="Reasoning or justification for this route")
+
+    @field_validator('due_date')
+    @classmethod
+    def validate_iso_due_date(cls, value: Optional[str]) -> Optional[str]:
+        if not value:
+            return None
+        try:
+            # Enforce strict ISO validation
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return value
+        except ValueError:
+            raise ValueError("due_date must be a valid ISO 8601 datetime format (e.g. YYYY-MM-DDTHH:MM:SSZ)")
+
+async def route_task(user_input: str, json_data_str: str):
     # Initialize the create tool
     tool = VikunjaCreateTool()
 
-    # Execute creation payload with Pydantic v2 validation and MCP 3.1 Task Protocol compliance
-    result = await tool.run(
-        title=parsed_json["title"],
-        project_id=parsed_json["project_id"],
-        description=parsed_json.get("description"),
-        due_date=parsed_json.get("due_date"),
-        priority=parsed_json.get("priority")
-    )
-    print(result)
+    try:
+        # Validate task routing payload programmatically with Pydantic v2
+        payload = VikunjaRoutingPayload.model_validate_json(json_data_str)
+        print(f"Validated Route Selection: Project {payload.project_id} (Priority: {payload.priority})")
+        print(f"Reasoning: {payload.reasoning}")
+
+        # Execute creation with validated fields and MCP 3.1 Task Protocol compliance
+        result = await tool.run(
+            title=payload.title,
+            project_id=payload.project_id,
+            description=payload.description,
+            due_date=payload.due_date,
+            priority=payload.priority
+        )
+        print(result)
+    except ValidationError as e:
+        print(f"Schema validation failed for routing payload: {e}")
 
 # Example execution mock
 if __name__ == "__main__":
-    mock_payload = {
-        "title": "Fix the leaking kitchen sink faucet",
-        "project_id": 4,
-        "description": "Under-sink pipe shows light moisture. Inspect and seal.",
-        "due_date": "2026-09-01T12:00:00Z",
-        "priority": 5
+    mock_json_data = """
+    {
+      "title": "Fix the leaking kitchen sink faucet",
+      "project_id": 4,
+      "description": "Under-sink pipe shows light moisture. Inspect and seal.",
+      "due_date": "2027-01-06T12:00:00Z",
+      "priority": 5,
+      "labels": ["plumbing", "urgent"],
+      "reasoning": "User said 'fix leaking sink faucet tomorrow' which maps to project 4 (Maintenance) and priority 5 (Critical)."
     }
-    asyncio.run(route_task("Fix leaking sink faucet tomorrow", mock_payload))
+    """
+    asyncio.run(route_task("Fix leaking sink faucet tomorrow", mock_json_data))
 ```
 
 ## Related tools / concepts
@@ -157,5 +195,5 @@ if __name__ == "__main__":
 - [Anthropic Claude Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

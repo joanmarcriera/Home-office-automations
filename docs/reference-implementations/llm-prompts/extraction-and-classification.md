@@ -3,7 +3,7 @@
 ## What it is
 A collection of specialized prompt templates and schemas for Large Language Models (LLMs) to perform two core administrative tasks: **Task Extraction** (identifying actionable items from text) and **Document Classification** (categorizing documents into predefined buckets).
 
-As of late August 2026, these prompts are optimized for frontier agents like **Claude 5.1** and **GPT-5.5** using **Model Context Protocol (MCP) 3.1** Task Protocol payloads for schema validation.
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
 
 ## What problem it solves
 Managing a high volume of scanned documents requires significant cognitive effort to decide where each file belongs and what actions are required. Manual classification and task creation are major bottlenecks. These prompts turn raw OCR text into structured data, allowing for automated routing to [Vikunja](../../services/vikunja.md) and [Paperless-ngx](../../services/paperless-ngx.md).
@@ -21,7 +21,7 @@ This implementation sits in the **Intelligent Processing Layer** of the ingestio
 - **Multi-Purpose**: Handles both the "what to do" (tasks) and "where to put it" (classification) in a single intelligent pipeline.
 - **Priority Intelligence**: Uses heuristic definitions to assign consistent priorities (High/Medium/Low) better than simple keyword matching.
 - **JSON Standardized**: Outputs data in a format ready for immediate API consumption or **MCP tool** invocation.
-- **Local Model Friendly**: Includes optimized prompts for **Llama 4 Maverick** and `Qwen3-Coder-Next`.
+- **Local Model Friendly**: Includes optimized prompts for local **Llama 4**, **Gemma 3**, and **Qwen 3.8** variants.
 
 ## Limitations
 - **Classification Ambiguity**: Documents that span multiple categories (e.g., a "Medical Bill") may be classified inconsistently depending on model temperature.
@@ -44,7 +44,7 @@ This implementation sits in the **Intelligent Processing Layer** of the ingestio
 Configure your scanner or phone to upload PDFs to a "To-Process" folder. Use **n8n** to trigger the extraction pipeline when a new file arrives.
 
 ### 2. Model Selection
-Use **Claude 5.1** for high-precision extraction or a local **Llama 4 Maverick** instance for privacy-sensitive documents.
+Use **Claude 5.1** or **Gemini 4.0 Pro** for high-precision extraction, or a local **Llama 4** or **Qwen 3.8** instance for privacy-sensitive documents.
 
 ### 3. Integration
 Map the JSON output to the [Calendar Mapping Rules](../calendar/mapping-rules.md) for date-based events or directly to the Vikunja API for tasks.
@@ -57,7 +57,7 @@ Test your extraction prompts using the following CLI commands.
 claude --prompt "$(cat task_extraction_prompt.txt)" --file ocr_text.txt
 
 # Classify a document using a local Ollama instance
-ollama run llama-4-maverick "Classify this text into [SCHOOL, ADMIN, FINANCE]: $(cat ocr_text.txt)"
+ollama run llama-4 "Classify this text into [SCHOOL, ADMIN, FINANCE]: $(cat ocr_text.txt)"
 
 # Validate extraction output against a schema
 python3 scripts/validate_json.py --schema task_schema.json --data extraction_output.json
@@ -107,24 +107,32 @@ The following code snippet demonstrates how to parse and validate extraction res
 ```python
 from typing import List, Optional
 from datetime import date
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator, TypeAdapter
 
 class ActionableTask(BaseModel):
-    task: str = Field(..., description="Actionable description of the task")
-    due_date: Optional[date] = Field(None, description="Due date of the task")
+    task: str = Field(..., min_length=3, description="Actionable description of the task")
+    due_date: Optional[date] = Field(None, description="Due date of the task in YYYY-MM-DD")
     priority: str = Field("medium", description="Priority level (low/medium/high)")
     owner: Optional[str] = Field(None, description="Assigned owner of the task")
 
-class TaskExtractionResult(BaseModel):
-    tasks: List[ActionableTask]
+    @field_validator('priority')
+    @classmethod
+    def validate_priority(cls, value: str) -> str:
+        normalized = value.lower().strip()
+        if normalized not in {"low", "medium", "high"}:
+            raise ValueError("Priority must be one of: 'low', 'medium', 'high'")
+        return normalized
 
-# Example validation
+class TaskExtractionResult(BaseModel):
+    tasks: List[ActionableTask] = Field(..., description="List of extracted actionable tasks")
+
+# Example validation showing parsing using Pydantic v2 TypeAdapter and model_validate_json
 json_data = """
 {
   "tasks": [
     {
       "task": "Review and submit water bill",
-      "due_date": "2026-08-31",
+      "due_date": "2027-01-06",
       "priority": "high",
       "owner": "Jules"
     }
@@ -133,11 +141,13 @@ json_data = """
 """
 
 try:
-    result = TaskExtractionResult.model_validate_json(json_data)
+    # Use Pydantic v2 TypeAdapter for advanced list/dict/model validation & parsing
+    adapter = TypeAdapter(TaskExtractionResult)
+    result = adapter.validate_json(json_data)
     for task in result.tasks:
-        print(f"Task: {task.task} | Due: {task.due_date} | Priority: {task.priority}")
+        print(f"Parsed Task: {task.task} | Due: {task.due_date} | Priority: {task.priority} | Owner: {task.owner}")
 except ValidationError as e:
-    print(f"Schema validation failed: {e}")
+    print(f"Strict schema validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -157,5 +167,5 @@ except ValidationError as e:
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
