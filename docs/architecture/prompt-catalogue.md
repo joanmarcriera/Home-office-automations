@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of late August 2026, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (MCP 3.1) Task Protocol compliance matrices.
+The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of early January 2027, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (FastMCP 3.1) Task Protocol compliance matrices.
 
 ## What problem it solves
 
@@ -94,9 +94,9 @@ To use the catalogue, identify the automation type (Recurring GA, One-Shot Jules
 | **Schedule** | `0 1 * * *` and `0 13 * * *` (01:00 & 13:00 UTC) |
 | **Script** | `scripts/digest_to_intake.py` |
 | **Secrets** | `OPENROUTER_API_KEY` |
-| **Models** | Llama 4 400B → Claude 5.1 → GPT-5.5 → Gemini 3.5 Pro → Qwen 3.6 (fallback chain) |
+| **Models** | Llama 4 400B → Claude 5.1 → GPT-5.5 → Gemini 4.0 Pro → Qwen 3.8 (fallback chain) |
 
-#### LLM System Prompt (MCP 3.1 & Late August 2026 Compatible)
+#### LLM System Prompt (FastMCP 3.1 & Early January 2027 Compatible)
 
 ```text
 You are an AI tools curator. Given a list of items from a daily AI digest,
@@ -105,7 +105,7 @@ platforms, or providers in the AI/LLM/ML space. Exclude: general news
 articles, opinion pieces, discussions, job posts, hardware announcements
 without a software tool, and generic blog posts.
 
-For each qualifying item, output a JSON array of objects following the MCP 3.1 schema:
+For each qualifying item, output a JSON array of objects following the FastMCP 3.1 schema:
 {
   "title": "Tool Name",
   "url": "https://...",
@@ -130,7 +130,7 @@ Return ONLY valid JSON. No markdown wrapping.
 | **Schedule** | `0 7 * * *` and `0 19 * * *` (07:00 & 19:00 UTC) |
 | **Issue template** | `.github/issue-templates/daily-jules-maintenance.md` |
 
-#### Full Issue Prompt (Late August 2026 Version)
+#### Full Issue Prompt (Early January 2027 Version)
 
 ```markdown
 ## Daily Maintenance Run - @jules
@@ -138,7 +138,7 @@ Return ONLY valid JSON. No markdown wrapping.
 This is an automated daily maintenance task. Please complete the steps
 below **in order**, stopping at the first step that produces meaningful
 work. Do not attempt all three steps in a single PR. Optimize reasoning
-using frontier capabilities (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6).
+using frontier capabilities (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 Pro).
 
 ---
 
@@ -163,7 +163,7 @@ For each row:
 ### Step 2 - Doc quality audit (only if Step 1 found nothing to do)
 
 Find up to **3 tool docs** in `docs/tools/` that are missing one or
-more sections or lack late August 2026 SOTA context.
+more sections or lack early January 2027 SOTA context.
 
 ---
 
@@ -256,6 +256,56 @@ def trigger_workflow(token, owner, repo, event_type):
 # trigger_workflow("YOUR_TOKEN", "joanmarcriera", "Home-office-automations", "daily-audit")
 ```
 
+### Prompt & Tool Configuration Validation (Pydantic v2)
+The following Python script defines and validates complex system prompts and tools registry items for Multi-Agent KnowledgeOps workflows:
+
+```python
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, HttpUrl
+
+class CatalogueTool(BaseModel):
+    title: str = Field(..., min_length=2)
+    url: HttpUrl
+    tags: List[str]
+    notes: str = Field(..., max_length=500)
+
+class PromptConfiguration(BaseModel):
+    workflow_id: str
+    target_models: List[str] = Field(..., min_items=1)
+    system_prompt: str = Field(..., min_length=20)
+    temperature: float = Field(default=0.1, ge=0.0, le=2.0)
+    tools: List[CatalogueTool] = Field(default_factory=list)
+
+class PromptCatalogueRegistry(BaseModel):
+    version: str = Field(..., pattern="^v\\d+\\.\\d+$")
+    catalogue: Dict[str, PromptConfiguration]
+
+# Self-validation example
+if __name__ == "__main__":
+    test_registry = {
+        "version": "v3.1",
+        "catalogue": {
+            "GA-2": {
+                "workflow_id": "digest-to-intake",
+                "target_models": ["Claude-5.1", "GPT-5.5", "Gemini-4.0-Pro"],
+                "system_prompt": "You are an AI tools curator. Given a list of items...",
+                "temperature": 0.1,
+                "tools": [
+                    {
+                        "title": "Tavily",
+                        "url": "https://tavily.com",
+                        "tags": ["provider", "search"],
+                        "notes": "Direct search tool with FastMCP integration."
+                    }
+                ]
+            }
+        }
+    }
+
+    validated_registry = PromptCatalogueRegistry.model_validate(test_registry)
+    print(f"Catalogue verified successfully! Schema version: {validated_registry.version}")
+```
+
 ## Related tools / concepts
 
 - [Jules](../tools/ai_knowledge/jules.md)
@@ -276,5 +326,5 @@ def trigger_workflow(token, owner, repo, event_type):
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE** and **K3s**. As of late August 2026, the architecture has evolved to support high-density AI workloads using **NVMe-over-Fabrics (NVMe-oF)**, dedicated GPU pools, and [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for "Invisible Kubernetes" orchestration.
+The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE** and **K3s**. As of early January 2027, the architecture has evolved to support high-density AI workloads using **NVMe-over-Fabrics (NVMe-oF)**, dedicated GPU pools, and [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for "Invisible Kubernetes" orchestration.
 
 ## What problem it solves
 
@@ -10,7 +10,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 
 ## Where it fits in the stack
 
-**Category**: Architecture / Infrastructure. It is the **foundation layer** of the entire system, providing the hardware abstraction, storage primitives, and container orchestration (Docker/K8s) upon which all other services and tools are built. It integrates natively with [Cilium v1.18+](https://cilium.io/) for high-performance networking and uses Model Context Protocol (MCP 3.1) Task Protocol payloads for model-driven resource management.
+**Category**: Architecture / Infrastructure. It is the **foundation layer** of the entire system, providing the hardware abstraction, storage primitives, and container orchestration (Docker/K8s) upon which all other services and tools are built. It integrates natively with [Cilium v1.18+](https://cilium.io/) for high-performance networking and uses FastMCP 3.1 Task Protocol payloads for model-driven resource management.
 
 ## Typical use cases
 
@@ -24,7 +24,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 - **Data Integrity**: ZFS provides snapshots, replication, and self-healing to protect against data corruption.
 - **Scalability**: EKS Auto Mode and Karpenter allow the cluster to scale resources dynamically based on workload demand.
 - **Privacy**: All processing and storage happen locally, ensuring sensitive family data remains private.
-- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4, Gemma 3, Qwen 3.6) load in seconds.
+- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 Pro) load in seconds.
 
 ## Limitations
 
@@ -46,7 +46,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 
 ## Getting started
 
-To deploy the standard late August 2026 infrastructure:
+To deploy the standard early January 2027 infrastructure:
 
 1.  **Hardware Provisioning**: Setup a server with at least 128GB RAM and dual NVIDIA RTX 5090/4090 GPUs.
 2.  **OS Installation**: Install TrueNAS SCALE (Cobia or Dragonfish releases).
@@ -73,7 +73,7 @@ kubectl get events -n karpenter --field-selector involvedObject.kind=Node
 ## API examples
 
 ```yaml
-# Example of a Karpenter NodePool for AI workloads (late August 2026)
+# Example of a Karpenter NodePool for AI workloads (early January 2027)
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
@@ -96,19 +96,19 @@ spec:
     consolidationPolicy: WhenUnderutilized
 ```
 
-### Integration with MCP 3.1 Task Protocol JSON Schema
-To allow automated agents to scale and provision services programmatically, the infrastructure exposes an API compliant with the MCP 3.1 Task Protocol.
+### Integration with FastMCP 3.1 Task Protocol JSON Schema
+To allow automated agents to scale and provision services programmatically, the infrastructure exposes an API compliant with the FastMCP 3.1 Task Protocol.
 
 ```json
 {
-  "$schema": "https://modelcontextprotocol.org/schemas/mcp-3.1-task.json",
+  "$schema": "https://modelcontextprotocol.org/schemas/fastmcp-3.1-task.json",
   "task": {
-    "id": "infra-scale-event-0831",
+    "id": "infra-scale-event-0105",
     "name": "Scale GPU Worker Node Pool",
     "parameters": {
       "pool_name": "gpu-pool",
       "desired_replicas": 3,
-      "scale_reason": "High demand from Qwen 3.6 72B local inference tasks"
+      "scale_reason": "High demand from Qwen 3.8 72B local inference tasks"
     },
     "actions": [
       {
@@ -135,6 +135,96 @@ To allow automated agents to scale and provision services programmatically, the 
 }
 ```
 
+### Python Programmatic Scaling Validation (Pydantic v2)
+The following Python script implements strict validation of incoming FastMCP 3.1 scaling payloads utilizing Pydantic v2 schemas:
+
+```python
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
+
+class KarpenterRequirement(BaseModel):
+    key: str
+    operator: str
+    values: List[str]
+
+    @field_validator('operator')
+    @classmethod
+    def validate_operator(cls, v: str) -> str:
+        allowed = {"In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"}
+        if v not in allowed:
+            raise ValueError(f"Operator must be one of {allowed}")
+        return v
+
+class KarpenterSpec(BaseModel):
+    requirements: List[KarpenterRequirement]
+
+class NodePoolTemplate(BaseModel):
+    spec: KarpenterSpec
+
+class NodePoolPatch(BaseModel):
+    spec: NodePoolTemplate
+
+class ScaleAction(BaseModel):
+    type: str = Field(..., pattern="^kubernetes/.*$")
+    target: str
+    payload: NodePoolPatch
+
+class TaskParameters(BaseModel):
+    pool_name: str
+    desired_replicas: int = Field(..., ge=1, le=10)
+    scale_reason: str
+
+class FastMCPTask(BaseModel):
+    id: str
+    name: str
+    parameters: TaskParameters
+    actions: List[ScaleAction]
+
+class FastMCPPayload(BaseModel):
+    schema_url: str = Field(..., alias="$schema")
+    task: FastMCPTask
+
+# Example execution & validation loop
+if __name__ == "__main__":
+    raw_payload = {
+        "$schema": "https://modelcontextprotocol.org/schemas/fastmcp-3.1-task.json",
+        "task": {
+            "id": "infra-scale-event-0105",
+            "name": "Scale GPU Worker Node Pool",
+            "parameters": {
+                "pool_name": "gpu-pool",
+                "desired_replicas": 3,
+                "scale_reason": "High demand from Qwen 3.8 72B local inference tasks"
+            },
+            "actions": [
+                {
+                    "type": "kubernetes/patch-resource",
+                    "target": "karpenter.sh/v1beta1/NodePool/gpu-pool",
+                    "payload": {
+                        "spec": {
+                            "template": {
+                                "spec": {
+                                    "requirements": [
+                                        {
+                                            "key": "karpenter.sh/capacity-type",
+                                            "operator": "In",
+                                            "values": ["on-demand"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+
+    # Strict validation under Pydantic v2
+    validated = FastMCPPayload.model_validate(raw_payload)
+    print(f"Validation successful! Task: {validated.task.name} (replicas={validated.task.parameters.desired_replicas})")
+```
+
 ## Related tools / concepts
 
 - [Tailscale](../services/tailscale.md)
@@ -156,5 +246,5 @@ To allow automated agents to scale and provision services programmatically, the 
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

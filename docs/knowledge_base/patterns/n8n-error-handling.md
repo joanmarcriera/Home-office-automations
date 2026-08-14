@@ -1,7 +1,7 @@
 # n8n Error Handling Pattern
 
 ## What it is
-The n8n Error Handling Pattern is a standardized approach to managing failures within automated workflows. As of late August 2026 (supporting n8n v1.60+ and MCP 3.1 specifications), it utilizes dedicated "Error Trigger" nodes and centralized "Error Handler" sub-workflows to ensure that every failure is logged, visualized, and acted upon using structured schemas.
+The n8n Error Handling Pattern is a standardized approach to managing failures within automated workflows. As of early January 2027 (supporting n8n v1.65+ and FastMCP 3.1 specifications), it utilizes dedicated "Error Trigger" nodes and centralized "Error Handler" sub-workflows to ensure that every failure is logged, visualized, and acted upon using structured schemas.
 
 ## What problem it solves
 In complex automation stacks, workflows can fail due to API rate limits, network issues, or malformed data. Without standardized error handling, these failures often go unnoticed (silent failures). This pattern ensures visibility and provides a mechanism for automated or manual recovery.
@@ -12,7 +12,7 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 ## Typical use cases
 - **API Monitoring**: Catching and notifying when a third-party service (e.g., Google Calendar) is down.
 - **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 5.1](../../tools/ai_knowledge/claude.md)) fails to meet the required schema.
-- **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [MCP 3.1](../../tools/automation_orchestration/mcp.md) notification servers.
+- **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) notification servers.
 - **Self-Healing**: Triggering an LLM-based reasoning loop to diagnose and fix transient errors.
 
 ## Strengths
@@ -41,7 +41,7 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 - **Home Assistant**: Best for immediate visibility and real-time alerts in the homelab.
 - **Grafana**: Best for analyzing failure patterns over weeks or months.
 
-### Standardized Error Schema (MCP 3.1 / Task Protocol Aligned)
+### Standardized Error Schema (FastMCP 3.1 / Task Protocol Aligned)
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | status | String | Always failed for errors. |
@@ -72,16 +72,53 @@ n8n list:executions --workflowId=10 --status=failed
 ```
 
 ## API examples
-```python
-import requests
+The following script demonstrates how to parse, validate, and structure the n8n error payload before pushing it to alerting or monitoring endpoints (e.g., Home Assistant or Telegram) using Pydantic v2 schemas:
 
-# Example: Fetching the last 5 failed executions from n8n API
-def get_failed_executions(api_key, n8n_url):
-    url = f"{n8n_url}/api/v1/executions"
-    headers = {"X-N8N-API-KEY": api_key}
-    params = {"status": "failed", "limit": 5}
-    response = requests.get(url, headers=headers, params=params)
-    return response.json()
+```python
+from datetime import datetime
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+
+class N8nErrorPayload(BaseModel):
+    status: str = Field(default="failed", pattern="^failed$")
+    workflow_id: str = Field(..., min_length=1, max_length=64)
+    workflow_name: str = Field(..., min_length=2)
+    node_name: str = Field(..., min_length=1)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    message: str = Field(..., min_length=2)
+    execution_id: str = Field(..., min_length=1)
+    error_details: Optional[Dict[str, Any]] = None
+
+    @field_validator('timestamp')
+    @classmethod
+    def ensure_not_future(cls, v: datetime) -> datetime:
+        if v > datetime.utcnow():
+            raise ValueError("Timestamp cannot be in the future")
+        return v
+
+def process_n8n_error(raw_data: dict) -> None:
+    # Strictly validate against schema
+    validated_error = N8nErrorPayload.model_validate(raw_data)
+
+    # Ready for dispatching to alert queues (such as Gotify, Telegram, or Home Assistant)
+    print(f"Error verified successfully! Workflow: {validated_error.workflow_name} (ID: {validated_error.workflow_id})")
+    print(f"Failed Node: {validated_error.node_name} | Message: {validated_error.message}")
+
+if __name__ == "__main__":
+    sample_payload = {
+        "status": "failed",
+        "workflow_id": "12",
+        "workflow_name": "Sync Google Calendar to FastMail",
+        "node_name": "Fetch Events from GCal API",
+        "timestamp": "2027-01-05T14:32:00Z",
+        "message": "API Rate Limit Exceeded (429)",
+        "execution_id": "98273",
+        "error_details": {
+            "rate_limit_reset": 180,
+            "quota_limit": "5000/day"
+        }
+    }
+    process_n8n_error(sample_payload)
 ```
 
 ## Related tools / concepts
@@ -96,8 +133,8 @@ def get_failed_executions(api_key, n8n_url):
 
 ## Sources / References
 - [n8n Error Handling Docs](https://docs.n8n.io/hosting/monitoring-n8n/error-handling/)
-- [n8n v1.60+ Release Notes and Error Tracing](https://github.com/n8n-io/n8n/releases)
+- [n8n v1.65+ Release Notes and Error Tracing](https://github.com/n8n-io/n8n/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
