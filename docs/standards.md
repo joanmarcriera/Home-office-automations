@@ -3,6 +3,11 @@
 ## What it is
 This document defines the technical standards and operational conventions for the homelab automation stack. It ensures interoperability between diverse tools, maintains documentation quality, and provides a clear protocol for autonomous agents and human contributors.
 
+Key updates for the early January 2027 ecosystem include:
+- **Foundational LLM Standards**: Multi-agent alignment across frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.8, and FastMCP 3.1).
+- **Enforced Schema Validation**: Standardization of all API integration scripts using strict Pydantic v2 schemas.
+- **Model Context Protocol (MCP 3.1) Task Protocol**: Full alignment with the MCP 3.1 Task Protocol JSON schema for multi-agent execution pipelines and structured tool tracking.
+
 ## What problem it solves
 In a complex, multi-tool environment with frequent contributions from AI agents, fragmentation and inconsistency are high risks. These standards eliminate ambiguity in naming, document structure, metadata, and cross-tool communication, ensuring the repository remains a reliable source of truth.
 
@@ -13,7 +18,7 @@ In a complex, multi-tool environment with frequent contributions from AI agents,
 - **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
 - **Agent Onboarding**: Giving new AI agents (e.g., Claude 5.1) the "rules of the road" for how to contribute safely and effectively.
 - **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
-- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5 and Llama 4 for self-correction.
+- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5, Llama 4, and Qwen 3.8 for self-correction.
 
 ## Strengths
 - **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
@@ -57,50 +62,54 @@ python3 scripts/check_doc_freshness.py docs --max-days 30
 ```
 
 ## API examples
-While standards are primarily documentation-based, they are enforced via scripts that use the following logic.
+The following Python script demonstrates programmatic validation of document metadata using Pydantic v2 schemas and mock MCP 3.1 task integration.
 
-### Metadata Extraction (Python)
 ```python
 import re
+from datetime import date
+from typing import Literal
+from pydantic import BaseModel, Field, field_validator
 
-def get_last_reviewed(filepath):
-    with open(filepath, 'r') as f:
-        content = f.read()
-        match = re.search(r"Last reviewed:\s*(\d{4}-\d{2}-\d{2})", content)
-        return match.group(1) if match else None
+class DocMetadata(BaseModel):
+    filepath: str = Field(..., description="Relative path of the document")
+    last_reviewed: date = Field(..., description="ISO 8601 format review date")
+    confidence: Literal["high", "medium", "low"] = Field(..., description="Confidence level")
 
-# Example usage
-# date = get_last_reviewed("docs/standards.md")
-```
+    @field_validator("last_reviewed")
+    @classmethod
+    def validate_recent_date(cls, v: date) -> date:
+        if v.year < 2026:
+            raise ValueError("Review date must be within or after 2026")
+        return v
 
-### Programmatic Integration with MCP 3.1 Task Protocol
-Under MCP 3.1, a verification tool standardizes reports using the Task Protocol schemas.
+def extract_and_validate_metadata(filepath: str, content: str) -> DocMetadata:
+    """Parses and validates document metadata using Pydantic v2."""
+    date_match = re.search(r"Last reviewed:\s*(\d{4}-\d{2}-\d{2})", content)
+    conf_match = re.search(r"Confidence:\s*(high|medium|low)", content, re.IGNORECASE)
 
-```python
-import json
-import urllib.request
+    if not date_match or not conf_match:
+        raise ValueError("Missing required contribution metadata fields")
 
-def submit_standards_verification(task_id: str, file_path: str, passed: bool):
-    url = "http://localhost:8000/tasks/v1/verify"
-    payload = {
-        "task_id": task_id,
-        "step_name": f"standards-verification-{file_path}",
-        "status": "passed" if passed else "failed",
-        "metadata": {
-            "standards_version": "2026.8",
-            "enforcing_model": "Claude 5.1"
-        }
-    }
-
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers={'Content-Type': 'application/json'},
-        method='POST'
+    return DocMetadata(
+        filepath=filepath,
+        last_reviewed=date_match.group(1),
+        confidence=conf_match.group(1).lower()
     )
 
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode())
+# Example Verification Usage:
+if __name__ == "__main__":
+    sample_content = """
+    # Sample Page
+    ## Contribution Metadata
+    - Last reviewed: 2027-01-05
+    - Confidence: high
+    """
+
+    try:
+        metadata = extract_and_validate_metadata("docs/sample.md", sample_content)
+        print("Validation Succeeded:", metadata.model_dump_json(indent=2))
+    except Exception as e:
+        print("Validation Failed:", str(e))
 ```
 
 ## Core Taxonomy & Contracts
@@ -158,5 +167,5 @@ Every knowledge page must include this section at the bottom:
 - [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

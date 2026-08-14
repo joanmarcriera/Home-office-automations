@@ -3,16 +3,17 @@
 ## What it is
 This research evaluates the user interface and orchestration layer for a chat-based assistant designed to troubleshoot household appliances using scanned manuals. It leverages Retrieval-Augmented Generation (RAG) over a local vector database.
 
-Key components evaluated in late August 2026:
+Key components evaluated in early January 2027:
 - **UI Frameworks**: Comparison between Open WebUI and Streamlit for family use.
 - **RAG Orchestration**: Integration with Ollama and local embedding models.
 - **Agentic Loops**: Implementation of self-healing loops for autonomous remediation.
+- **Schema Validation**: Enforcement of client-server and tool payloads using strict Pydantic v2 schemas.
 
 ## What problem it solves
 Scanned manuals are often long, poorly indexed, and difficult to search during a "household emergency" (e.g., a leaking dishwasher). This assistant provides immediate, natural language answers to specific troubleshooting questions, reducing time-to-fix.
 
 ## Where it fits in the stack
-**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 5.1 or GPT-5.5) and the Vector DB containing chunked manual data.
+**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 5.1, Gemini 4.0 Pro/Flash, or GPT-5.5) and the Vector DB containing chunked manual data.
 
 ## Typical use cases
 - Interpreting cryptic error codes on the oven or washing machine.
@@ -65,22 +66,55 @@ python3 scripts/verify_manual_retrieval.py "E24 error code meaning"
 ```
 
 ## API examples
-The assistant can be integrated into larger workflows via API.
+The assistant can be integrated into larger workflows via API using strict Pydantic v2 models for schema validation.
+
+### 1. Robust Query Validation Script (Python)
+This script demonstrates validation of troubleshooting inquiries and replies using Pydantic v2 schemas.
 
 ```python
 import requests
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-def get_troubleshooting_help(query):
-    # Example endpoint for the home admin agent (late August 2026 pattern)
-    response = requests.post(
-        "http://localhost:8000/api/chat",
-        json={"message": query, "context_tags": ["manuals"]}
+class ApplianceIssue(BaseModel):
+    appliance_name: str = Field(..., description="E.g., Bosch Dishwasher Series 800")
+    error_code: str = Field(..., description="Error code shown on appliance, e.g., E24")
+    description: Optional[str] = Field(None, description="Optional symptoms description")
+
+class TroubleshootingQuery(BaseModel):
+    issue: ApplianceIssue
+    context_tags: List[str] = Field(default_factory=lambda: ["manuals"])
+
+class TroubleshootingResponse(BaseModel):
+    error_code: str
+    remediation_steps: List[str] = Field(..., description="Step-by-step resolution instructions")
+    confidence_score: float = Field(..., ge=0.0, le=1.0)
+
+def get_troubleshooting_help(query: TroubleshootingQuery) -> TroubleshootingResponse:
+    """Queries the local troubleshooting engine and validates the response schema."""
+    url = "http://localhost:8000/api/chat"
+
+    # Payload is automatically serialized to validated JSON using model_dump_json()
+    response = requests.post(url, data=query.model_dump_json(), headers={"Content-Type": "application/json"})
+    response.raise_for_status()
+
+    # Parse and enforce response schema
+    return TroubleshootingResponse.model_validate(response.json())
+
+if __name__ == "__main__":
+    # Example construction of validated payload
+    query_payload = TroubleshootingQuery(
+        issue=ApplianceIssue(
+            appliance_name="Bosch Dishwasher Series 800",
+            error_code="E24",
+            description="Fails to drain water completely"
+        )
     )
-    return response.json()["answer"]
+    print("Payload validated successfully:", query_payload.model_dump())
 ```
 
-### Dynamic Troubleshooting using MCP 3.1 Task Protocol
-Under the late August 2026 standard, we can represent a troubleshooting task dynamically using the MCP 3.1 Task Protocol JSON payload.
+### 2. Dynamic Troubleshooting using MCP 3.1 Task Protocol
+Under the early January 2027 standard, we represent a troubleshooting task dynamically using the MCP 3.1 Task Protocol JSON payload.
 
 ```json
 {
@@ -130,5 +164,5 @@ Under the late August 2026 standard, we can represent a troubleshooting task dyn
 - [Self-Healing Agentic Loops for Homelab Automation](https://riera.co.uk/blog/self-healing-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

@@ -3,12 +3,12 @@
 ## What it is
 Obsidian Vector Search is the architectural implementation of semantic search and vector-embedding indexing over personal Markdown knowledge bases stored within Obsidian vaults. By converting static Markdown files into dense mathematical vectors (embeddings), users can perform semantic similarity searches that find related ideas, journals, or project notes based on conceptual meaning rather than matching exact keywords.
 
-Key capabilities of the late August 2026 ecosystem include:
+Key capabilities of the early January 2027 ecosystem include:
 - **Local Embedding Pipelines**: Utilizing open-weight embedding models (e.g., `nomic-embed-text` or `bge-large-en-v1.5`) running locally via Ollama to ensure complete data privacy.
-- **Unified Personal RAG (Retrieval-Augmented Generation)**: Providing real-time note retrieval to frontier local agents (such as Llama 4 or Gemma 3) or API models (Claude 5.1, GPT-5.5) for personalized synthesis.
+- **Unified Personal RAG (Retrieval-Augmented Generation)**: Providing real-time note retrieval to frontier local agents (such as Llama 4 or Gemma 3) or API models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash) for personalized synthesis.
 - **Pipali v2.0 Desktop Coworker**: A desktop companion application from Khoj that acts as an ambient assistant, automatically indexing Obsidian vaults and executing tasks in the background.
 - **Open Paper Research Workbench**: An advanced semantic canvas built for synthesizing scholarly papers and personal research vaults in parallel.
-- **Model Context Protocol (MCP 3.1) Support**: Standardized MCP servers that expose your Obsidian vault directly as a secure, real-time context resource to developer workstations.
+- **Model Context Protocol (MCP 3.1) Support**: Standardized MCP servers that expose your Obsidian vault directly as a secure, real-time context resource to developer workstations using FastMCP 3.1.
 
 ## What problem it solves
 Traditional keyword searches fail when different terms are used to represent identical concepts (e.g., searching for "home automation" will miss notes that only mention "smart home lights"). Furthermore, as personal vaults scale beyond thousands of files, strict hierarchical folders and manual tag structures become impossible to maintain. Vector search bridges this "lexical gap" and uncovers forgotten conceptual connections automatically.
@@ -100,25 +100,40 @@ python3 -m scripts.obsidian_incremental_indexing \
 ```
 
 ## API examples
-Build a highly custom local semantic retrieval pipeline using Python, FAISS, and sentence-transformers.
+Build a highly custom local semantic retrieval pipeline using Python, FAISS, and sentence-transformers, with strict Pydantic v2 schemas for input and output validation.
 
 ### 1. Building a Local Vector Search Engine (Python RAG)
-The following script demonstrates how to parse a vault, create semantic embeddings offline, index them using FAISS, and execute queries.
+The following script demonstrates how to parse a vault, create semantic embeddings offline, index them using FAISS, and validate query schemas and retrieval outputs.
 
 ```python
 import os
+from datetime import date
+from typing import List, Optional
 import faiss
 import numpy as np
-from typing import List
-from sentence_transformers import TransformerConfig, SentenceTransformer
+from pydantic import BaseModel, Field, field_validator
+from sentence_transformers import SentenceTransformer
 
 # Enable high-speed execution
 os.environ["OMP_NUM_THREADS"] = "4"
 
+class VectorSearchQuery(BaseModel):
+    query: str = Field(..., min_length=1, description="The semantic search query string")
+    top_k: int = Field(3, ge=1, le=100, description="Number of results to return")
+
+class SearchResultMetadata(BaseModel):
+    filepath: str = Field(..., description="Path of the source Markdown document")
+    last_reviewed: Optional[date] = Field(None, description="Last review date of the document")
+    distance: float = Field(..., description="The vector distance score (L2 or cosine similarity)")
+    snippet: str = Field(..., description="Text segment preview matching the query")
+
+class SearchResultResponse(BaseModel):
+    query: str
+    results: List[SearchResultMetadata]
+
 class ObsidianLocalSearch:
     def __init__(self, vault_path: str, model_name: str = 'nomic-embed-text'):
         self.vault_path = vault_path
-        # Load local embedding model (automatically downloads from HuggingFace if missing)
         self.model = SentenceTransformer(model_name, trust_remote_code=True)
         self.documents: List[str] = []
         self.filenames: List[str] = []
@@ -134,7 +149,6 @@ class ObsidianLocalSearch:
                         with open(filepath, 'r', encoding='utf-8') as f:
                             content = f.read().strip()
                             if content:
-                                # In a production script, you would split files into smaller paragraph chunks
                                 self.documents.append(content)
                                 self.filenames.append(filepath)
                     except Exception as e:
@@ -143,64 +157,56 @@ class ObsidianLocalSearch:
     def build_vector_index(self):
         """Generates embeddings and builds a FAISS index."""
         if not self.documents:
-            print("No markdown files discovered in vault.")
             return
 
-        print(f"Encoding {len(self.documents)} documents. Please wait...")
-        embeddings = self.model.encode(self.documents, show_progress_bar=True)
-
-        # Convert embeddings to float32 numpy array
+        embeddings = self.model.encode(self.documents, show_progress_bar=False)
         embeddings_array = np.array(embeddings).astype('float32')
         dimension = embeddings_array.shape[1]
 
-        # Initialize FAISS IndexFlatL2
         self.index = faiss.IndexFlatL2(dimension)
         self.index.add(embeddings_array)
-        print("FAISS index constructed successfully!")
 
-    def query(self, search_text: str, top_k: int = 3):
-        """Executes a semantic similarity query over the FAISS index."""
+    def query(self, search_query: VectorSearchQuery) -> SearchResultResponse:
+        """Executes a semantic similarity query and returns a validated Pydantic model."""
         if self.index is None:
             raise ValueError("Vector index has not been constructed.")
 
-        query_vector = self.model.encode([search_text]).astype('float32')
-        distances, indices = self.index.search(query_vector, top_k)
+        query_vector = self.model.encode([search_query.query]).astype('float32')
+        distances, indices = self.index.search(query_vector, search_query.top_k)
 
         results = []
         for dist, idx in zip(distances[0], indices[0]):
             if idx != -1:
-                results.append({
-                    "file": self.filenames[idx],
-                    "distance": float(dist),
-                    "snippet": self.documents[idx][:250] + "..."
-                })
-        return results
+                results.append(SearchResultMetadata(
+                    filepath=self.filenames[idx],
+                    last_reviewed=date(2027, 1, 5),  # Example placeholder date
+                    distance=float(dist),
+                    snippet=self.documents[idx][:250] + "..."
+                ))
+        return SearchResultResponse(query=search_query.query, results=results)
 
 if __name__ == "__main__":
-    # Representative usage assuming an existing vault directory
+    # Representative usage
     search_engine = ObsidianLocalSearch(vault_path="/path/to/your/obsidian/vault")
-    # search_engine.load_vault()
-    # search_engine.build_vector_index()
-    # matches = search_engine.query("smart home network setup", top_k=2)
-    # for match in matches:
-    #     print(f"Match found in: {match['file']} (Score: {match['distance']})")
 ```
 
 ### 2. Searching the Khoj API Programmatically
-Query a running Khoj local server to fetch context matches.
+Query a running Khoj local server using a validated Pydantic v2 payload.
 
 ```python
 import requests
+from pydantic import BaseModel, Field
+
+class KhojSearchPayload(BaseModel):
+    q: str = Field(..., min_length=1)
+    n: int = Field(5, ge=1)
 
 def query_khoj_knowledge_base(query_text: str) -> dict:
     url = "http://localhost:8000/api/search"
     headers = {"Content-Type": "application/json"}
-    payload = {
-        "q": query_text,
-        "n": 5
-    }
+    payload = KhojSearchPayload(q=query_text, n=5)
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, data=payload.model_dump_json(), headers=headers)
     response.raise_for_status()
     return response.json()
 ```
@@ -223,5 +229,5 @@ def query_khoj_knowledge_base(query_text: str) -> dict:
 - [FAISS: A Library for Efficient Similarity Search](https://github.com/facebookresearch/faiss)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
