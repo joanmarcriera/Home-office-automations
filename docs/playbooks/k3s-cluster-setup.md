@@ -2,7 +2,7 @@
 
 ## What it is
 
-A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd. As of late August 2026, K3s v1.32+ and Cilium v1.18+ serve as the baseline for high-performance, agent-ready homelab clusters.
+A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd. As of early January 2027, K3s v1.33+ and Cilium v1.19+ serve as the baseline for high-performance, agent-ready homelab clusters.
 
 ## What problem it solves
 
@@ -16,7 +16,7 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 
 - **Critical Home Services**: Hosting Nextcloud, Home Assistant, and Authentik with 24/7 uptime.
 - **Agentic Workflows**: Providing a resilient platform for [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md).
-- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 5.1](../tools/ai_knowledge/claude.md).
+- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md).
 - **Edge Resilience**: Managing small clusters where manual SRE intervention is minimized via autonomous controllers.
 
 ## Strengths
@@ -94,19 +94,56 @@ cilium install --version 1.18.0
 ## API examples
 
 ### Checking Node Health (Python)
-An agent might use the Kubernetes API to verify the health of the 3-node cluster:
+An agent might use the Kubernetes API to verify the health of the 3-node cluster with strict Pydantic v2 validation:
 ```python
+from typing import List, Optional
 from kubernetes import client, config
+from pydantic import BaseModel, Field, ValidationError
 
-config.load_kube_config()
-v1 = client.CoreV1Api()
+class NodeCondition(BaseModel):
+    type: str
+    status: str
+
+class NodeStatus(BaseModel):
+    conditions: Optional[List[NodeCondition]] = None
+
+class NodeInfo(BaseModel):
+    name: str
+    status: NodeStatus
 
 def check_cluster_health():
-    nodes = v1.list_node()
-    ready_nodes = [node for node in nodes.items if any(c.type == 'Ready' and c.status == 'True' for c in node.status.conditions)]
-    print(f"Cluster Health: {len(ready_nodes)}/{len(nodes.items)} nodes are Ready.")
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
 
-check_cluster_health()
+    try:
+        nodes = v1.list_node()
+        parsed_nodes = []
+        for node in nodes.items:
+            # Safe parsing with strict Pydantic v2
+            node_info = NodeInfo(
+                name=node.metadata.name,
+                status=NodeStatus(
+                    conditions=[
+                        NodeCondition(type=c.type, status=c.status)
+                        for c in node.status.conditions
+                    ]
+                )
+            )
+            parsed_nodes.append(node_info)
+    except (ValidationError, Exception) as e:
+        print(f"Failed to check health or validate API response: {e}")
+        return
+
+    ready_count = 0
+    for node in parsed_nodes:
+        is_ready = any(c.type == 'Ready' and c.status == 'True' for c in (node.status.conditions or []))
+        if is_ready:
+            ready_count += 1
+
+    print(f"Cluster Health: {ready_count}/{len(parsed_nodes)} nodes are Ready.")
+
+# Example usage
+# check_cluster_health()
 ```
 
 ### Dynamic Ingress Definition (YAML)
@@ -147,5 +184,5 @@ spec:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-26
+- Last reviewed: 2027-01-05
 - Confidence: high

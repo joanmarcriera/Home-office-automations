@@ -2,7 +2,7 @@
 
 ## What it is
 
-Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By late August 2026, this has evolved into a "Self-Healing Agentic Loop" where [Claude 5.1](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md) proactively manage household operations via [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md).
+Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By early January 2027, this has evolved into a "Self-Healing Agentic Loop" where [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md) proactively manage household operations via [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 
@@ -18,7 +18,7 @@ Household administration is often fragmented across multiple family members, lea
 - **Insurance Document Archival**: Tagging and filing insurance policies and medical records for easy retrieval during emergencies.
 - **School Form Routing**: Pushing new school forms to a shared "Action Required" dashboard in Home Assistant.
 - **Home Maintenance Tracking**: Automating reminders for recurring maintenance tasks based on scanned service records.
-- **Sentiment-Based Escalation**: Using [Claude 5.1](../tools/ai_knowledge/claude.md) or [Qwen 3.6](../tools/ai_knowledge/qwen.md) to detect "Final Notice" language and trigger high-priority alerts.
+- **Sentiment-Based Escalation**: Using [Claude 5.1](../tools/ai_knowledge/claude.md) or [Qwen 3.8](../tools/ai_knowledge/qwen.md) to detect "Final Notice" language and trigger high-priority alerts.
 
 ## Strengths
 
@@ -99,22 +99,35 @@ Extracting due dates and amounts from a Paperless document using Claude 5.1:
 ```
 
 ### Home Assistant REST API
-Updating a dashboard sensor with the number of pending admin tasks:
+Updating a dashboard sensor with the number of pending admin tasks using strict Pydantic v2 validation:
 ```python
 import requests
+from pydantic import BaseModel, Field, ValidationError
 
-url = "http://homeassistant.local:8123/api/states/sensor.pending_admin_tasks"
-headers = {
-    "Authorization": "Bearer YOUR_LONG_LIVED_ACCESS_TOKEN",
-    "content-type": "application/json",
-}
-data = {
-    "state": "5",
-    "attributes": {"unit_of_measurement": "tasks", "friendly_name": "Pending Admin"}
-}
+class HomeAssistantStateUpdate(BaseModel):
+    state: str = Field(..., description="The state value to update the sensor with")
+    attributes: dict = Field(default_factory=dict, description="Additional metadata attributes")
 
-response = requests.post(url, headers=headers, json=data)
-print(response.status_code)
+def update_sensor_state(token: str, sensor_id: str, state_value: str, friendly_name: str) -> bool:
+    try:
+        update_data = HomeAssistantStateUpdate(
+            state=state_value,
+            attributes={"unit_of_measurement": "tasks", "friendly_name": friendly_name}
+        )
+    except ValidationError as e:
+        print(f"Validation error: {e}")
+        return False
+
+    url = f"http://homeassistant.local:8123/api/states/{sensor_id}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    response = requests.post(url, headers=headers, json=update_data.model_dump())
+    return response.status_code in (200, 201)
+
+# Example usage
+# update_sensor_state("YOUR_LONG_LIVED_ACCESS_TOKEN", "sensor.pending_admin_tasks", "5", "Pending Admin")
 ```
 
 ## Related tools / concepts
@@ -138,5 +151,5 @@ print(response.status_code)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-26
+- Last reviewed: 2027-01-05
 - Confidence: high
