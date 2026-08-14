@@ -2,7 +2,7 @@
 
 ## What it is
 
-Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs) and [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 5.1](../tools/ai_knowledge/claude.md) for precise temporal reasoning.
+Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs), [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md), and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md) for precise temporal reasoning.
 
 ## What problem it solves
 
@@ -21,7 +21,7 @@ Digital calendars are often incomplete because event data is trapped in unstruct
 
 ## Strengths
 
-- **High Precision**: Uses late August 2026-class models ([Claude 5.1](../tools/ai_knowledge/claude.md)) for complex date/time reasoning.
+- **High Precision**: Uses early January 2027-class models ([Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md)) for complex date/time reasoning.
 - **Self-Cleaning**: Automatically tags processed emails in [Paperless-ngx](../services/paperless-ngx.md) to avoid duplicate entries.
 - **Model Agnostic**: Supports routing between cloud models (GPT-5.5) and local models ([Llama 4](../tools/ai_knowledge/llama.md)) based on data sensitivity.
 - **Protocol Native**: Utilizes [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) for standardized calendar tool access.
@@ -97,24 +97,44 @@ Configuring the Claude 5.1 node to return structured event data:
 ```
 
 ### Google Calendar API Event Creation (Python)
-Example of how an autonomous agent might finalize the event via API:
+Example of how an autonomous agent might finalize the event via API using strict Pydantic v2 validation:
 ```python
-import datetime
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
 from googleapiclient.discovery import build
 
-def create_calendar_event(summary, location, start_time, end_time):
+class CalendarEventSchema(BaseModel):
+    summary: str = Field(..., min_length=1)
+    location: Optional[str] = None
+    start_time: datetime = Field(...)
+    end_time: datetime = Field(...)
+
+def create_calendar_event(summary: str, location: Optional[str], start_time_str: str, end_time_str: str):
+    try:
+        event_data = CalendarEventSchema(
+            summary=summary,
+            location=location,
+            start_time=datetime.fromisoformat(start_time_str),
+            end_time=datetime.fromisoformat(end_time_str)
+        )
+    except ValidationError as e:
+        print(f"Validation error: {e}")
+        return None
+
     service = build('calendar', 'v3')
     event = {
-        'summary': summary,
-        'location': location,
-        'start': {'dateTime': start_time, 'timeZone': 'America/Los_Angeles'},
-        'end': {'dateTime': end_time, 'timeZone': 'America/Los_Angeles'},
+        'summary': event_data.summary,
+        'location': event_data.location,
+        'start': {'dateTime': event_data.start_time.isoformat(), 'timeZone': 'America/Los_Angeles'},
+        'end': {'dateTime': event_data.end_time.isoformat(), 'timeZone': 'America/Los_Angeles'},
     }
     event = service.events().insert(calendarId='primary', body=event).execute()
     print(f'Event created: {event.get("htmlLink")}')
+    return event.get("htmlLink")
 
 # Example call
-create_calendar_event("School Field Trip", "City Museum", "2026-06-30T09:00:00", "2026-06-30T15:00:00")
+# create_calendar_event("School Field Trip", "City Museum", "2027-01-30T09:00:00", "2027-01-30T15:00:00")
 ```
 
 ## Related tools / concepts
@@ -138,5 +158,5 @@ create_calendar_event("School Field Trip", "City Museum", "2026-06-30T09:00:00",
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-26
+- Last reviewed: 2027-01-05
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By late August 2026, it utilizes [Llama 4](../tools/ai_knowledge/llama.md) (70B) or [Gemma 3](../tools/ai_knowledge/gemma.md) for privacy-first, local document processing.
+School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By early January 2027, it utilizes [Llama 4](../tools/ai_knowledge/llama.md) (70B), [Gemma 3](../tools/ai_knowledge/gemma.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md) for privacy-first, local document processing with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) tool integration.
 
 ## What problem it solves
 
@@ -96,6 +96,38 @@ Extracting consent requirements using the Paperless-AI API:
 }
 ```
 
+### Response Validation & Parsing (Python)
+Validating extracted consent details strictly using Pydantic v2 schemas:
+```python
+import requests
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class ConsentExtractionResult(BaseModel):
+    consent_required: bool = Field(..., description="Whether parental consent is required")
+    deadline: Optional[str] = Field(None, description="The deadline date for the consent form, if applicable")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="The model's confidence in the extraction")
+
+def query_school_consent(paperless_ai_url: str, document_id: str) -> Optional[ConsentExtractionResult]:
+    payload = {
+        "document_id": document_id,
+        "query": "Is parental consent required for this activity? If so, what is the deadline? Also provide a confidence score between 0 and 1.",
+        "model": "llama-4-70b-instruct",
+        "temperature": 0
+    }
+    response = requests.post(f"{paperless_ai_url.rstrip('/')}/api/v1/query", json=payload)
+    if response.status_code == 200:
+        try:
+            # Validate response via strict Pydantic v2 schema
+            return ConsentExtractionResult.model_validate(response.json())
+        except ValidationError as e:
+            print(f"Data schema mismatch: {e}")
+    return None
+
+# Example usage
+# res = query_school_consent("http://paperless-ai.local", "4567")
+```
+
 ### n8n Google Calendar Sync (JSON)
 Creating a school event from extracted data:
 ```json
@@ -131,5 +163,5 @@ Creating a school event from extracted data:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-26
+- Last reviewed: 2027-01-05
 - Confidence: high
