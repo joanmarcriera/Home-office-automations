@@ -1,10 +1,10 @@
 # Playbook: Scan to Task
 
 ## What it is
-Scan to Task is a paperless automation pattern that transforms physical documents (mail, receipts, invoices) into actionable digital tasks. It uses OCR, LLM-based extraction, and workflow orchestration to eliminate manual data entry.
+Scan to Task is a paperless automation pattern that transforms physical documents (mail, receipts, invoices) into actionable digital tasks. It uses OCR, LLM-based extraction, and workflow orchestration to eliminate manual data entry in late December 2026 / early January 2027.
 
 ## What problem it solves
-Managing physical paperwork often leads to forgotten deadlines or lost information. Scan to Task digitizes the intake process, automatically identifying due dates, amounts, and required actions from scanned images or PDFs, and injecting them directly into a task management system.
+Managing physical paperwork often leads to forgotten deadlines or lost information. Scan to Task digitizes the intake process, automatically identifying due dates, amounts, and required actions from scanned images or PDFs, and injecting them directly into a task management system, fully powered by FastMCP 3.1 tooling ecosystems.
 
 ## Where it fits in the stack
 This playbook sits in the **Operations / Playbooks** layer. It orchestrates the flow of data between **Services** (Paperless-ngx, Nextcloud, Vikunja) and uses **Automation & Orchestration** (n8n) and **AI Models** (via Ollama or APIs) for reasoning.
@@ -41,9 +41,9 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 - [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
 - [Vikunja](../services/vikunja.md) or another task manager with an API.
 - [n8n](../services/n8n.md) for workflow orchestration.
-- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4` or Claude 5.1 via API).
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4` or Claude 5.1/GPT-5.5 via API).
 
-### Workflow Architecture (August 2026 Update)
+### Workflow Architecture (Late 2026 / Early 2027 Update)
 
 ```mermaid
 flowchart TD
@@ -52,7 +52,7 @@ flowchart TD
     C -->|OCR & Classification| D{Action Required?}
     D -- Yes --> E[n8n Webhook Trigger]
     D -- No --> F[Archive]
-    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision]
+    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision / GPT-5.5]
     G -->|Create Task| H[Vikunja Task]
     H -->|Link Back| C
 ```
@@ -91,8 +91,8 @@ ocr_text = get_document_text(402, "your_api_token")
 print(f"Extracted OCR Text: {ocr_text[:100]}...")
 ```
 
-### Creating a Task in Vikunja via n8n and MCP 3.1 payload
-Defining the JSON payload sent from n8n to Vikunja to create a linked task, incorporating MCP 3.1 Task Protocol fields.
+### Creating a Task in Vikunja via n8n and FastMCP 3.1 payload
+Defining the JSON payload sent from n8n to Vikunja to create a linked task, incorporating FastMCP 3.1 Task Protocol fields.
 ```json
 {
   "title": "Pay Utility Bill - $145.20",
@@ -124,5 +124,5 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task, inco
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high
