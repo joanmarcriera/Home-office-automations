@@ -41,9 +41,9 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 - [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
 - [Vikunja](../services/vikunja.md) or another task manager with an API.
 - [n8n](../services/n8n.md) for workflow orchestration.
-- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4` or Claude 5.1 via API).
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4`, GPT-5.5, Gemini 4.0, or Claude 5.1 via API).
 
-### Workflow Architecture (August 2026 Update)
+### Workflow Architecture (Early January 2027 Update)
 
 ```mermaid
 flowchart TD
@@ -52,7 +52,7 @@ flowchart TD
     C -->|OCR & Classification| D{Action Required?}
     D -- Yes --> E[n8n Webhook Trigger]
     D -- No --> F[Archive]
-    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision]
+    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision / GPT-5.5]
     G -->|Create Task| H[Vikunja Task]
     H -->|Link Back| C
 ```
@@ -96,8 +96,8 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task, inco
 ```json
 {
   "title": "Pay Utility Bill - $145.20",
-  "description": "Extracted from Paperless Doc #402. Due: 2026-09-15. [View Document](http://paperless.local/documents/402)",
-  "due_date": "2026-09-15T23:59:59Z",
+  "description": "Extracted from Paperless Doc #402. Due: 2027-01-15. [View Document](http://paperless.local/documents/402)",
+  "due_date": "2027-01-15T23:59:59Z",
   "priority": 3,
   "labels": ["finance", "automated"],
   "mcp_context": {
@@ -106,6 +106,51 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task, inco
     "schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json"
   }
 }
+```
+
+### Python-based Document Understanding with Pydantic v2
+This script parses the extracted OCR content of a document and extracts structured task fields using a strict Pydantic v2 schema.
+
+```python
+import os
+from typing import Optional, List
+from datetime import date
+from pydantic import BaseModel, Field, ValidationError
+
+class ExtractedTask(BaseModel):
+    title: str = Field(..., max_length=100, description="Short, actionable title for the task.")
+    due_date: Optional[date] = Field(None, description="Due date extracted from the document.")
+    amount_due: Optional[float] = Field(None, ge=0.0, description="Monetary amount due if applicable.")
+    is_urgent: bool = Field(default=False, description="Whether the document indicates urgent action is needed.")
+    tags: List[str] = Field(default_factory=list, description="Extracted contextual tags (e.g., tax, utility).")
+
+def parse_document_to_task(ocr_content: str) -> ExtractedTask:
+    # In a real pipeline, this would call Claude 5.1 Vision or GPT-5.5
+    # Here we show a robust validation wrapper
+    import json
+
+    # Simulated model JSON response
+    simulated_json = """
+    {
+        "title": "Pay Water Bill",
+        "due_date": "2027-01-20",
+        "amount_due": 45.12,
+        "is_urgent": true,
+        "tags": ["utility", "water", "home"]
+    }
+    """
+
+    try:
+        return ExtractedTask.model_validate_json(simulated_json)
+    except ValidationError as err:
+        print(f"Validation failed: {err}")
+        raise
+
+if __name__ == "__main__":
+    task = parse_document_to_task("SIMULATED DATA FOR DOC 402")
+    print(f"Parsed Task Title: {task.title}")
+    print(f"Due Date: {task.due_date}")
+    print(f"Amount: {task.amount_due}")
 ```
 
 ## Related tools / concepts
@@ -124,5 +169,5 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task, inco
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high

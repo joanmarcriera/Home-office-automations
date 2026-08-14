@@ -112,7 +112,7 @@ Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 s
   "document_title": "Corporate Travel Policy 2026",
   "authors_or_owner": "HR Department",
   "created_at": "2026-01-10T09:00:00Z",
-  "exported_at": "2026-08-20T14:30:00Z",
+  "exported_at": "2027-01-04T14:30:00Z",
   "language": "en",
   "sensitivity": "internal",
   "ocr_used": false,
@@ -123,6 +123,69 @@ Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 s
     "task_binding": "doc-prep-task-1"
   }
 }
+```
+
+### Manifest Parsing and Validation via Pydantic v2
+This python example loads and validates an ingestion sidecar manifest to guarantee structural and data-type safety before entering the corpus training pipeline.
+
+```python
+import json
+from datetime import datetime
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+
+class McpMeta(BaseModel):
+    schema_version: str = Field(default="3.1")
+    task_binding: Optional[str] = Field(None)
+
+class DocumentManifest(BaseModel):
+    source_path: str = Field(..., description="Original path to raw document source.")
+    source_type: str = Field(..., description="File extension of source (e.g., docx, pdf).")
+    document_title: str = Field(..., description="Extracted canonical title.")
+    authors_or_owner: str = Field(..., description="Document owner or author department.")
+    created_at: datetime = Field(..., description="Timestamp of document creation.")
+    exported_at: datetime = Field(..., description="Timestamp of parsing/ingestion.")
+    language: str = Field(default="en")
+    sensitivity: str = Field(default="internal")
+    ocr_used: bool = Field(default=False)
+    checksum: str = Field(..., description="SHA-256 integrity hash of source file.")
+    mcp_meta: Optional[McpMeta] = None
+
+    @field_validator("checksum")
+    @classmethod
+    def validate_sha256(cls, v: str) -> str:
+        if not v.startswith("sha256:") or len(v) != 71:
+            raise ValueError("Checksum must be a valid sha256: hash (prefix + 64 hex chars)")
+        return v
+
+def validate_manifest_file(manifest_json_str: str) -> DocumentManifest:
+    try:
+        manifest = DocumentManifest.model_validate_json(manifest_json_str)
+        print("Manifest structurally validated!")
+        return manifest
+    except Exception as e:
+        print(f"Validation failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    sample_manifest = """
+    {
+      "source_path": "raw/2026-03-16-policy-manual-original.docx",
+      "source_type": "docx",
+      "document_title": "Corporate Travel Policy 2026",
+      "authors_or_owner": "HR Department",
+      "created_at": "2026-01-10T09:00:00Z",
+      "exported_at": "2027-01-04T14:30:00Z",
+      "ocr_used": false,
+      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mcp_meta": {
+        "schema_version": "3.1",
+        "task_binding": "doc-prep-task-1"
+      }
+    }
+    """
+    valid_doc = validate_manifest_file(sample_manifest)
+    print(f"Validated Document: {valid_doc.document_title} by {valid_doc.authors_or_owner}")
 ```
 
 ## Related tools / concepts
@@ -146,5 +209,5 @@ Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 s
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high

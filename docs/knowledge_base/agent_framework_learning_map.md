@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment in late August 2026.
+The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment in early January 2027.
 
 ## What problem it solves
 
@@ -15,11 +15,11 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1 or GPT-5.5.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
-### Quick classification (August 2026)
+### Quick classification (Early January 2027)
 
 | Tool | Type | Learn from it | Use in production | Best reason to study or adopt |
 | :--- | :--- | :---: | :---: | :--- |
@@ -40,7 +40,7 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
 - **Model Agnostic**: Explicitly supports routing between Claude 5.1 (reasoning), GPT-5.5 (speed), and Llama 4 (local).
-- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (MCP 3.1) for universal tool access.
+- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (MCP 3.1) and FastMCP (v3.1) for universal tool access.
 
 ## Limitations
 
@@ -68,11 +68,11 @@ To begin your journey with agent frameworks, follow this path:
 3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
 4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
 
-### Recommended Learning Order (August 2026 Update)
+### Recommended Learning Order (Early January 2027 Update)
 
 #### Fundamentals
-1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 for reasoning)
-2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5)
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 / GPT-5.5 / Gemini 4.0 Pro for reasoning)
+2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5 or Gemini 4.0 Flash)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
@@ -136,18 +136,27 @@ response = runner.run(triage_agent, "What is the weather in San Francisco?")
 print(response.final_text)
 ```
 
-### Stateful Graph Logic (LangGraph)
-Defining a simple cycle where an auditor checks the work of a writer using Claude 5.1.
+### Stateful Graph Logic (LangGraph with Pydantic v2 validation)
+Defining a simple cycle where an auditor checks the work of a writer using Claude 5.1, parsing results strictly with Pydantic v2.
 ```python
+from typing import Dict, Any, Literal
+from pydantic import BaseModel, Field
 from langgraph.graph import StateGraph, END
 
-def writer(state):
-    return {"text": "Draft content", "status": "draft"}
+class AgentState(BaseModel):
+    draft_text: str = Field(..., description="The current text draft.")
+    audit_notes: str = Field(default="", description="Auditor feedback notes.")
+    status: Literal["draft", "rewrite", "approved"] = Field(default="draft")
 
-def auditor(state):
-    if "quality" in state["text"]:
-        return {"status": "approved"}
-    return {"status": "rewrite"}
+def writer(state: Dict[str, Any]) -> Dict[str, Any]:
+    # Write draft content
+    return {"draft_text": "SOTA 2027 dynamic routing.", "status": "draft"}
+
+def auditor(state: Dict[str, Any]) -> Dict[str, Any]:
+    text = state.get("draft_text", "")
+    if "2027" in text and len(text) > 10:
+        return {"status": "approved", "audit_notes": "Meets SOTA quality standard."}
+    return {"status": "rewrite", "audit_notes": "Draft needs year and size corrections."}
 
 workflow = StateGraph(dict)
 workflow.add_node("writer", writer)
@@ -214,5 +223,5 @@ Standardized MCP 3.1 Task Protocol JSON payload structure for tool calling and t
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high

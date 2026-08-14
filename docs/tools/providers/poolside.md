@@ -1,7 +1,7 @@
 # Poolside AI
 
 ## What it is
-Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, Laguna S 2.1 supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek V4 and Claude 5.1 in automated code generation, complex planning, and long-context repository parsing.
+Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model) and the newly unveiled **Laguna Pro 4.0** (a state-of-the-art 240B parameter dense reasoning model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, the Laguna series supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek V4, GPT-5.5, and Claude 5.1 in automated code generation, complex planning, and long-context repository parsing.
 
 ## What problem it solves
 General-purpose LLMs often suffer from elevated latency, high cost, and degraded performance when handling very long code snippets or whole-repository ingestion. Poolside AI addresses this by providing developer-centric foundation models with a massive context window of 1 million tokens and optimized multi-expert routing. This enables fast, low-latency, and cost-efficient processing of massive context-rich projects directly on enterprise or consumer-grade hardware via advanced quantization configurations.
@@ -42,7 +42,7 @@ Poolside AI's Laguna models can be run either via their official developer API o
 Install the official Poolside developer helper library or use standard OpenAI-compatible SDKs:
 
 ```bash
-pip install poolside-ai openai
+pip install poolside-ai openai pydantic
 ```
 
 ### Local Setup (Hugging Face)
@@ -89,18 +89,26 @@ curl http://localhost:8000/v1/chat/completions \
 ## API examples
 
 ### Python Integration with Pydantic v2 Schema Validation
-This example queries Poolside AI's Laguna endpoint to refactor a block of code, validating the token count and output format strictly using **Pydantic v2**.
+This example queries Poolside AI's Laguna endpoint to refactor a block of code, validating the token count and output format strictly using **Pydantic v2** models with runtime constraints.
 
 ```python
 import os
 from typing import List, Optional
 from openai import OpenAI
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 class CodeRefactorResult(BaseModel):
     refactored_code: str = Field(..., description="The improved, refactored programming code.")
     optimizations_made: List[str] = Field(default_factory=list, description="A bulleted list of optimizations applied.")
     confidence_score: float = Field(..., ge=0.0, le=1.0)
+    complexity_delta: str = Field(..., description="The change in time complexity, e.g., O(N^2) -> O(N).")
+
+    @field_validator("confidence_score")
+    @classmethod
+    def validate_confidence(cls, v: float) -> float:
+        if v < 0.5:
+            raise ValueError("Confidence score must be at least 0.5 for code production.")
+        return v
 
 def refactor_code_via_poolside(raw_code: str) -> Optional[CodeRefactorResult]:
     api_key = os.getenv("POOLSIDE_API_KEY", "mock_key")
@@ -115,7 +123,7 @@ def refactor_code_via_poolside(raw_code: str) -> Optional[CodeRefactorResult]:
         response = client.chat.completions.create(
             model="laguna-s-2.1-nvfp4",
             messages=[
-                {"role": "system", "content": "You are a senior compiler optimization agent. Always return valid code refactoring results."},
+                {"role": "system", "content": "You are a senior compiler optimization agent. Always return valid code refactoring results strictly conforming to JSON format."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
@@ -133,9 +141,10 @@ def refactor_code_via_poolside(raw_code: str) -> Optional[CodeRefactorResult]:
         # Fallback simulation for offline testing
         fallback_json = """
         {
-            "refactored_code": "def find_duplicates(arr):\\n    return list(set([x for x in arr if arr.count(x) > 1]))",
-            "optimizations_made": ["Optimized list lookup using sets", "Reduced complexity to O(N)"],
-            "confidence_score": 0.95
+            "refactored_code": "def find_duplicates(arr):\\n    seen = set()\\n    duplicates = set()\\n    for x in arr:\\n        if x in seen:\\n            duplicates.add(x)\\n        seen.add(x)\\n    return list(duplicates)",
+            "optimizations_made": ["Optimized list lookup using sets", "Reduced complexity from O(N^2) to O(N)"],
+            "confidence_score": 0.98,
+            "complexity_delta": "O(N^2) -> O(N)"
         }
         """
         return CodeRefactorResult.model_validate_json(fallback_json)
@@ -147,12 +156,15 @@ if __name__ == "__main__":
         print("Refactored Code successfully validated via Pydantic v2:")
         print(result.refactored_code)
         print(f"Confidence: {result.confidence_score}")
+        print(f"Complexity Delta: {result.complexity_delta}")
+```
 
 ## Related tools / concepts
 - [DeepSeek](deepseek.md) — Primary competitor in open-weight code reasoning.
 - [Qwen](../ai_knowledge/qwen.md) — Standard open-weights model family.
 - [vLLM](../infrastructure/vllm.md) — High-throughput local model hosting engine.
 - [WASTE](../infrastructure/waste.md) — SQLite AI organisation inference engine for Expert streaming.
+- [FastMCP](../tools/agents/index.md) — Unified integration for tool and context protocols (v3.1).
 
 ## Sources / References
 - [Poolside AI Website](https://www.poolside.ai/)
@@ -160,5 +172,5 @@ if __name__ == "__main__":
 - [Poolside AI releases Laguna-S-2.1 Latent Space](https://www.latent.space/p/ainews-laguna-s-21-released-cheaper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-04
 - Confidence: high

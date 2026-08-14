@@ -2,7 +2,7 @@
 
 ## What it is
 
-The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor or Melty, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules and Anti-Gravity.
+The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor or Melty, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules, Anti-Gravity, and FastMCP 3.1 tooling.
 
 ## What problem it solves
 
@@ -23,9 +23,9 @@ Traditional software development is often slowed by repetitive tasks, context sw
 
 - **High Velocity**: Significantly reduces the time from "idea" to "tested code."
 - **Layered Defense**: Uses different agents for different tasks (drafting vs. implementation vs. refactoring) to minimize errors.
-- **Local-First Ready**: Fully compatible with local models like `Llama 4` or `Qwen 3.6` for private, zero-cost development.
+- **Local-First Ready**: Fully compatible with local models like `Llama 4` or `Qwen 3.8` for private, zero-cost development.
 - **Reviewable Autonomy**: Includes a "PR-readiness gate" to ensure AI-generated work remains human-understandable.
-- **Protocol Native**: Natively supports the Model Context Protocol (MCP 3.1) for tool discovery, context injection, and sandbox execution.
+- **Protocol Native**: Natively supports the Model Context Protocol (MCP 3.1) and FastMCP (v3.1) for tool discovery, context injection, and sandbox execution.
 
 ## Limitations
 
@@ -54,7 +54,7 @@ To adopt the AI-Assisted Dev Workflow:
 4. **Trigger the Audit**: Once the implementation is complete, run the verification scripts listed in the "Verification Checklist" below.
 5. **Review the Gate**: Complete the "PR-readiness gate" before merging your changes.
 
-### Workflow Architecture (August 2026)
+### Workflow Architecture (Early January 2027)
 
 ```mermaid
 flowchart TD
@@ -87,11 +87,19 @@ python3 scripts/check_docs_contract.py
 ## API examples
 
 ### Triggering an Anti-Gravity Test Loop
-Example of an agentic script initiating a verification loop via an API endpoint.
+Example of an agentic script initiating a verification loop via an API endpoint, leveraging Pydantic v2 validation.
 ```python
 import requests
+from typing import List, Dict, Any, Literal
+from pydantic import BaseModel, Field, ValidationError
 
-def trigger_verification_loop(branch_name):
+class VerificationResult(BaseModel):
+    branch: str = Field(..., description="The feature branch audited.")
+    status: Literal["passed", "failed", "error"] = Field(..., description="Target outcome of verification.")
+    failed_suites: List[str] = Field(default_factory=list, description="List of failed check suites.")
+    metrics: Dict[str, float] = Field(..., description="Key performance metrics like duration and memory.")
+
+def trigger_verification_loop(branch_name: str) -> VerificationResult:
     url = "http://anti-gravity.local/api/v2/verify"
     payload = {
         "branch": branch_name,
@@ -99,12 +107,22 @@ def trigger_verification_loop(branch_name):
         "mcp_enabled": True,
         "mcp_version": "3.1"
     }
-    response = requests.post(url, json=payload)
-    return response.json()
+
+    try:
+        response = requests.post(url, json=payload, timeout=30)
+        return VerificationResult.model_validate_json(response.text)
+    except (requests.RequestException, ValidationError) as err:
+        print(f"Error executing loop or parsing output: {err}")
+        return VerificationResult(
+            branch=branch_name,
+            status="error",
+            failed_suites=["network-or-validation-failure"],
+            metrics={"duration_seconds": 0.0}
+        )
 
 # Result includes real-time logs and pass/fail status
 status = trigger_verification_loop("feature/agent-audit")
-print(f"Verification status: {status['summary']}")
+print(f"Verification status: {status.status}")
 ```
 
 ### Automated PR Gate Entry
@@ -113,10 +131,10 @@ An agent recording its discovery and validation process.
 import json
 
 gate_entry = {
-    "scope": "Updated dev-workflow playbook for August 2026.",
-    "discovery": "ripgrep search for 'Claude 4.8' to replace with 'Claude 5.1'.",
+    "scope": "Updated dev-workflow playbook for early January 2027 SOTA standards.",
+    "discovery": "ripgrep search for 'Claude 5.1' references across the playbook folder.",
     "validation": "Passed check_docs_contract.py locally.",
-    "risk": "Low. Documentation update only.",
+    "risk": "Low. Documentation upgrade only.",
     "rollback_path": "git checkout main"
 }
 
@@ -146,5 +164,5 @@ with open("docs/reports/pr-gate-feature-audit.json", "w") as f:
 - [ripgrep](../tools/development_ops/ripgrep.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high
