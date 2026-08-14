@@ -2,11 +2,11 @@
 
 ## What it is
 
-The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment in late August 2026.
+The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment in late December 2026 / early January 2027.
 
 ## What problem it solves
 
-The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome and current industry capabilities.
+The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome and current industry capabilities, utilizing state-of-the-art standards like FastMCP 3.1.
 
 ## Where it fits in the stack
 
@@ -15,11 +15,11 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1 or GPT-5.5.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
-### Quick classification (August 2026)
+### Quick classification (Late 2026 / Early 2027)
 
 | Tool | Type | Learn from it | Use in production | Best reason to study or adopt |
 | :--- | :--- | :---: | :---: | :--- |
@@ -39,8 +39,8 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
-- **Model Agnostic**: Explicitly supports routing between Claude 5.1 (reasoning), GPT-5.5 (speed), and Llama 4 (local).
-- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (MCP 3.1) for universal tool access.
+- **Model Agnostic**: Explicitly supports routing between Claude 5.1 (reasoning), GPT-5.5 (speed), Gemini 4.0 Pro/Flash, and Llama 4 (local).
+- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (FastMCP 3.1) for universal tool access.
 
 ## Limitations
 
@@ -61,18 +61,18 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 
 ## Getting started
 
-To begin your journey with agent frameworks, follow this path:
+To adopt agent frameworks systematically:
 
 1. **The Hello World of Agents**: Start by reading the [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) documentation. It provides the simplest abstraction for tool calling and handoffs.
 2. **Master the State**: Move to [LangGraph](../tools/frameworks/langgraph.md). Build a simple circular workflow (e.g., a "Correction Loop" where one agent writes and another audits).
 3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
 4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
 
-### Recommended Learning Order (August 2026 Update)
+### Recommended Learning Order (Late 2026 / Early 2027 Update)
 
 #### Fundamentals
-1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 for reasoning)
-2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5)
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 or GPT-5.5 for advanced reasoning and routing)
+2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5 or Gemini 4.0 Pro)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
@@ -112,7 +112,7 @@ docker run -it \
 ## API examples
 
 ### Simple Agent Handoff (OpenAI Agents SDK)
-A minimal example showing how to hand off a task between two specialized agents using GPT-5.5.
+A minimal example showing how to hand off a task between two specialized agents using GPT-5.5 or Claude 5.1.
 ```python
 from openai_agents import Agent, Runner
 
@@ -164,8 +164,8 @@ workflow.add_conditional_edges(
 app = workflow.compile()
 ```
 
-### MCP 3.1 Task Protocol JSON Schema
-Standardized MCP 3.1 Task Protocol JSON payload structure for tool calling and task dispatching between agents.
+### FastMCP 3.1 Task Protocol JSON Schema
+Standardized FastMCP 3.1 Task Protocol JSON payload structure for tool calling and task dispatching between agents.
 ```json
 {
   "$schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json",
@@ -196,7 +196,6 @@ Standardized MCP 3.1 Task Protocol JSON payload structure for tool calling and t
 - [Flows](../architecture/flows.md)
 - [Infrastructure](../architecture/infrastructure.md)
 - [LiteLLM](../services/litellm.md)
-- [Model Context Protocol](agent_protocols.md)
 
 ## Sources / References
 
@@ -214,5 +213,5 @@ Standardized MCP 3.1 Task Protocol JSON payload structure for tool calling and t
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high

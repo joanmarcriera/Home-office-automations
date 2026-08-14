@@ -1,18 +1,19 @@
 # Poolside AI
 
 ## What it is
-Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, Laguna S 2.1 supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek V4 and Claude 5.1 in automated code generation, complex planning, and long-context repository parsing.
+Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, Laguna S 2.1 supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek V4 and Claude 5.1/GPT-5.5/Gemini 4.0 Pro in automated code generation, complex planning, and long-context repository parsing.
 
 ## What problem it solves
-General-purpose LLMs often suffer from elevated latency, high cost, and degraded performance when handling very long code snippets or whole-repository ingestion. Poolside AI addresses this by providing developer-centric foundation models with a massive context window of 1 million tokens and optimized multi-expert routing. This enables fast, low-latency, and cost-efficient processing of massive context-rich projects directly on enterprise or consumer-grade hardware via advanced quantization configurations.
+General-purpose LLMs often suffer from elevated latency, high cost, and degraded performance when handling very long code snippets or whole-repository ingestion. Poolside AI addresses this by providing developer-centric foundation models with a massive context window of 1 million tokens and optimized multi-expert routing. This enables fast, low-latency, and cost-efficient processing of massive context-rich projects directly on enterprise or consumer-grade hardware via advanced quantization configurations, integrating seamlessly with next-generation protocols like FastMCP 3.1.
 
 ## Where it fits in the stack
 **LLM / Code Generation Engine / Provider Layer**. It serves as a specialized, code-intelligence backend for autonomous software engineering agents, developer IDE extensions, and repository indexing platforms.
 
 ## Typical use cases
 - **Repository-Wide Parsing & Analysis**: Ingesting entire multi-million-line codebases within its 1M context window to identify architectural debt or perform system-wide refactoring.
-- **Agentic Multi-Step Software Engineering**: Powering autonomous agents (like Cline or Roo Code) for complex, multi-file feature development.
+- **Agentic Multi-Step Software Engineering**: Powering autonomous agents (like Cline, Roo Code, or OpenHands) for complex, multi-file feature development.
 - **Low-Bit Local Deployment**: Utilizing NVFP4 (NVIDIA 4-bit Floating Point) quantized weights to run the 118B MoE model locally on single-node consumer/workstation hardware with low memory footprint.
+- **FastMCP 3.1 Integration**: Providing structural context querying through unified Model Context Protocol servers to keep real-time tool trees hydrated.
 
 ## Strengths
 - **Dev-Centric Specialization**: Pre-trained and fine-tuned from the ground up on vast repositories of high-quality code.
@@ -35,14 +36,13 @@ General-purpose LLMs often suffer from elevated latency, high cost, and degraded
 - On legacy hardware lacking hardware-accelerated low-bit float math (unless relying on remote cloud API hosting).
 
 ## Getting started
-
 Poolside AI's Laguna models can be run either via their official developer API or locally using modern Hugging Face and vLLM integration wrappers.
 
 ### API Installation
 Install the official Poolside developer helper library or use standard OpenAI-compatible SDKs:
 
 ```bash
-pip install poolside-ai openai
+pip install poolside-ai openai pydantic
 ```
 
 ### Local Setup (Hugging Face)
@@ -147,12 +147,17 @@ if __name__ == "__main__":
         print("Refactored Code successfully validated via Pydantic v2:")
         print(result.refactored_code)
         print(f"Confidence: {result.confidence_score}")
+```
 
 ## Related tools / concepts
 - [DeepSeek](deepseek.md) — Primary competitor in open-weight code reasoning.
 - [Qwen](../ai_knowledge/qwen.md) — Standard open-weights model family.
 - [vLLM](../infrastructure/vllm.md) — High-throughput local model hosting engine.
 - [WASTE](../infrastructure/waste.md) — SQLite AI organisation inference engine for Expert streaming.
+- [Claude](../ai_knowledge/claude.md) — SOTA reasoning engine often used for advanced coding agent tasks.
+- [Gemini](../ai_knowledge/gemini.md) — Primary multi-modal SOTA model family with 2M token context.
+- [Aider](../development_ops/aider.md) — Highly efficient CLI-based AI coding assistant.
+- [Cursor](../development_ops/cursor.md) — Premier AI-first IDE with deep structural codebase context.
 
 ## Sources / References
 - [Poolside AI Website](https://www.poolside.ai/)
@@ -160,5 +165,5 @@ if __name__ == "__main__":
 - [Poolside AI releases Laguna-S-2.1 Latent Space](https://www.latent.space/p/ainews-laguna-s-21-released-cheaper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-10
+- Last reviewed: 2027-01-04
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-This playbook defines a repeatable architectural process for preparing heterogeneous business documents (`docx`, `pdf`, `pptx`, spreadsheets) for use in LLM fine-tuning or retrieval-augmented generation (RAG) pipelines. It focuses on normalization, metadata preservation, and selective consolidation to create a safe and consistent training corpus.
+This playbook defines a repeatable architectural process for preparing heterogeneous business documents (`docx`, `pdf`, `pptx`, spreadsheets) for use in LLM fine-tuning or retrieval-augmented generation (RAG) pipelines. It focuses on normalization, metadata preservation, and selective consolidation to create a safe and consistent training corpus in late December 2026 / early January 2027.
 
 ## What problem it solves
 
@@ -26,7 +26,7 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **Metadata-Rich**: Includes a mandatory JSON manifest for every document to preserve provenance.
 - **Mac-Friendly**: Optimized for local execution using standard macOS and Docker tools.
 - **Scalable**: Provides clear rules for when to merge or split documents based on topical coherence.
-- **MCP Enabled**: Integrated with Docling MCP 3.1 for seamless tool-based extraction within agentic workflows.
+- **FastMCP Native**: Integrated with Docling FastMCP 3.1 for seamless tool-based extraction within agentic workflows.
 
 ## Limitations
 
@@ -56,7 +56,7 @@ flowchart TD
     B -- Scanned PDF --> C[OCRmyPDF]
     B -- Born-digital/Office --> D[Extraction Pass]
     C --> D
-    D -- Apache Tika / Docling MCP --> E[Markdown Normalization]
+    D -- Apache Tika / Docling FastMCP --> E[Markdown Normalization]
     E --> F[Manifest Generation JSON]
     F --> G[Semantic Deduplication / GPT-5.5]
     G --> H[Semantic Merging / Claude 5.1]
@@ -104,7 +104,7 @@ markdown_data = await extract_structured_data("raw/q4-report.pdf")
 ```
 
 ### Generating a Document Manifest (JSON)
-Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 schemas.
+Standardized metadata sidecar for every ingested document, adhering to FastMCP 3.1 schemas.
 ```json
 {
   "source_path": "raw/2026-03-16-policy-manual-original.docx",
@@ -146,5 +146,5 @@ Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 s
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-20
+- Last reviewed: 2027-01-04
 - Confidence: high
