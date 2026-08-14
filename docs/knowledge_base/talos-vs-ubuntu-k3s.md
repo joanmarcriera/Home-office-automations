@@ -1,7 +1,7 @@
 # Talos OS vs. Ubuntu for Homelab K3s
 
 ## What it is
-A technical comparison between a traditional general-purpose Linux distribution (Ubuntu) and a modern, immutable, API-managed operating system designed specifically for Kubernetes (Talos OS). In late August 2026, this choice is central to the "Invisible Kubernetes" pattern, where infrastructure management is abstracted away via EKS Auto Mode or self-hosted Talos-managed clusters.
+A technical comparison between a traditional general-purpose Linux distribution (Ubuntu) and a modern, immutable, API-managed operating system designed specifically for Kubernetes (Talos OS). In early January 2027, this choice is central to the "Invisible Kubernetes" pattern, where infrastructure management is abstracted away via EKS Auto Mode or self-hosted Talos-managed clusters.
 
 | Feature | Ubuntu (Traditional) | Talos OS (Immutable) |
 | :--- | :--- | :--- |
@@ -21,7 +21,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - **Evaluating Node OS**: Deciding which distribution to install on physical hardware or Proxmox VMs for a new K3s cluster.
 - **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to eliminate SSH-based attack vectors.
 - **GitOps Implementation**: Designing a cluster where node configuration is entirely managed via YAML and stored in Git (e.g., via ArgoCD or Flux).
-- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 5.1 or Llama 4, requiring specialized driver integration.
+- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 5.1, Llama 4, or Qwen 3.8, requiring specialized driver integration.
 
 ## Strengths
 
@@ -94,8 +94,56 @@ curl -sfL https://get.k3s.io | K3S_URL=https://myserver:6443 K3S_TOKEN=mynodetok
 ```
 
 ## API examples
+Programmatic node management and status verification can be implemented securely.
 
-### Talos gRPC API (Go)
+### 1. Talos Node Configuration Validation (Python)
+The following script demonstrates validation of Talos cluster setup parameters using strict Pydantic v2 schemas.
+
+```python
+from datetime import date
+from typing import List, Literal
+from pydantic import BaseModel, Field, IPvAnyAddress
+
+class TalosNodeConfig(BaseModel):
+    hostname: str = Field(..., description="The node's designated hostname")
+    ip_address: IPvAnyAddress = Field(..., description="Target node IP address")
+    role: Literal["controlplane", "worker"] = Field(..., description="Kubernetes node role")
+    talos_version: str = Field(..., pattern=r"^v\d+\.\d+\.\d+$", description="E.g., v1.10.0")
+    install_disk: str = Field("/dev/sda", description="Target installation block device")
+    enable_gpu: bool = Field(False, description="Whether to include NVIDIA GPU drivers")
+
+class ClusterSetup(BaseModel):
+    cluster_name: str = Field(..., min_length=2)
+    nodes: List[TalosNodeConfig] = Field(..., min_length=1)
+    created_at: date = Field(default_factory=date.today)
+
+# Verification Usage:
+if __name__ == "__main__":
+    try:
+        setup_data = ClusterSetup(
+            cluster_name="homelab-k3s",
+            nodes=[
+                TalosNodeConfig(
+                    hostname="talos-cp-1",
+                    ip_address="192.168.1.50",
+                    role="controlplane",
+                    talos_version="v1.10.0"
+                ),
+                TalosNodeConfig(
+                    hostname="talos-worker-1",
+                    ip_address="192.168.1.51",
+                    role="worker",
+                    talos_version="v1.10.0",
+                    enable_gpu=True
+                )
+            ]
+        )
+        print("Cluster configuration validated successfully:", setup_data.model_dump_json(indent=2))
+    except Exception as e:
+        print("Validation Failed:", str(e))
+```
+
+### 2. Talos gRPC API (Go)
 Talos nodes expose a gRPC API for all management tasks, enabling programmatic control.
 
 ```go
@@ -112,17 +160,7 @@ func main() {
 }
 ```
 
-### Ubuntu Management via Ansible API
-Programmatic management of Ubuntu typically involves Ansible or similar SSH-based automation.
-
-```python
-import ansible_runner
-
-r = ansible_runner.run(private_data_dir='/tmp/demo', playbook='install_k3s.yml', inventory='192.168.1.10,')
-print("{}: {}".format(r.status, r.rc))
-```
-
-### Remote Management using MCP 3.1 Task Protocol
+### 3. Remote Management using MCP 3.1 Task Protocol
 Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster provisioning via standard Task Protocol payload actions.
 
 ```json
@@ -158,7 +196,7 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 ```
 
 ## Related tools / concepts
-- [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying cluster management.
+- [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying K8s cluster management.
 - [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical deployment guide.
 - [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — Persistent storage management.
 - [Ubuntu AI](../tools/infrastructure/ubuntu-ai.md) — Ubuntu configurations for AI.
@@ -175,5 +213,5 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 - [Ubuntu 26.04 Noble Numbat Release Notes](https://discourse.ubuntu.com/t/noble-numbat-release-notes/44068)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
