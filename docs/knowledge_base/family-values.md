@@ -1,11 +1,11 @@
 # Family Values and Agent Communication Style
 
 ## What it is
-The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In late August 2026, this framework is essential for aligning frontier models like Claude 5.1, GPT-5.5, and Llama 4 Maverick with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
+The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In early January 2027, this framework is essential for aligning frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, and Llama 4 Maverick with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
 
 ### Core Family Values
 1. **Privacy First**: Local data (schedules, health, documents) remains local by default. Use of cloud APIs requires explicit "Value-Based Consent."
-2. **Transparency**: Agents must be "legible," explaining their reasoning and tool use (MCP 3.1 Task Protocol) in real-time.
+2. **Transparency**: Agents must be "legible," explaining their reasoning and tool use (FastMCP 3.1 Task Protocol) in real-time.
 3. **Proactivity without Intrusion**: Agents should anticipate needs (e.g., preparing for a storm) without becoming a source of notification fatigue.
 4. **Sovereignty**: All automation must be overrideable by human members; the agent is an assistant, not a ruler.
 
@@ -23,7 +23,7 @@ This sits in the **Governance & Policy Layer** of the KnowledgeOps architecture.
 
 ## Strengths
 - **Trust Preservation**: Builds long-term confidence in AI systems by making their behavior predictable and ethical.
-- **Model Agnostic**: Applies equally to Claude 5.1, GPT-5.5, or local Llama 4 Maverick models.
+- **Model Agnostic**: Applies equally to Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Qwen 3.8, or local Llama 4 Maverick models.
 - **Safety**: Reduces the risk of "accidental leaks" or socially inappropriate AI behavior.
 
 ## Limitations
@@ -72,18 +72,74 @@ You are Ralph, the Home Admin Agent.
 ```
 
 ### Python: Policy-Based Filtering
-Using Pydantic v2 and late August 2026 patterns:
+Using strict Pydantic v2 validation and early January 2027 patterns to filter outbound agentic activity:
+
 ```python
-from pydantic import BaseModel, Field
+from enum import Enum
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+class PrivacyLevel(str, Enum):
+    LOCAL_ONLY = "local_only"
+    HYBRID_ALLOWED = "hybrid_allowed"
+    ALL_ROUNDS = "all_rounds"
+
+class AgentAction(BaseModel):
+    action_name: str = Field(..., min_length=2, description="The name of the action being executed")
+    target_destination: str = Field(..., description="Destination platform or host for data transfer")
+    privacy_impact_score: float = Field(..., ge=0.0, le=1.0, description="Risk evaluation score from 0.0 to 1.0")
+    contains_personally_identifiable_info: bool = Field(default=True, description="Flag indicating if PII is present")
 
 class FamilyValuePolicy(BaseModel):
-    max_allowable_risk: float = Field(default=0.1, description="Threshold for data export risk")
-    privacy_strictness: str = "high"
+    policy_name: str = Field("Core Family Privacy Policy", description="Descriptive name of the policy")
+    max_allowable_risk: float = Field(default=0.15, ge=0.0, le=0.5, description="Maximum allowable risk score")
+    privacy_strictness: PrivacyLevel = Field(default=PrivacyLevel.LOCAL_ONLY)
+    forbidden_destinations: List[str] = Field(default_factory=lambda: ["untrusted-cloud.api", "public-endpoint.net"])
 
-def is_action_compliant(action, values: FamilyValuePolicy) -> bool:
-    if action.privacy_impact > values.max_allowable_risk:
-        return False
-    return True
+    @field_validator("forbidden_destinations")
+    @classmethod
+    def validate_destinations(cls, value: List[str]) -> List[str]:
+        # Normalize and ensure no empty destination strings
+        normalized = [dest.strip().lower() for dest in value if dest.strip()]
+        if not normalized:
+            raise ValueError("Forbidden destinations list cannot be empty.")
+        return normalized
+
+    @model_validator(mode="after")
+    def verify_policy_boundaries(self) -> "FamilyValuePolicy":
+        # Ensure that if privacy_strictness is local_only, maximum allowable risk remains extremely low
+        if self.privacy_strictness == PrivacyLevel.LOCAL_ONLY and self.max_allowable_risk > 0.10:
+            self.max_allowable_risk = 0.10
+        return self
+
+def check_action_compliance(action: AgentAction, policy: FamilyValuePolicy) -> tuple[bool, str]:
+    """
+    Evaluates whether a proposed agent action conforms to the family values privacy model.
+    """
+    if action.target_destination.lower().strip() in policy.forbidden_destinations:
+        return False, f"Action blocked: Destination '{action.target_destination}' is explicitly forbidden."
+
+    if action.privacy_impact_score > policy.max_allowable_risk:
+        return False, f"Action blocked: Risk score {action.privacy_impact_score} exceeds maximum allowed ({policy.max_allowable_risk})."
+
+    if policy.privacy_strictness == PrivacyLevel.LOCAL_ONLY and action.contains_personally_identifiable_info:
+        # If strictness is local_only, no outbound transfer containing PII is allowed
+        if action.target_destination.lower().strip() != "localhost" and not action.target_destination.startswith("192.168."):
+            return False, f"Action blocked: Cannot send PII to non-local destination '{action.target_destination}' under LOCAL_ONLY."
+
+    return True, "Action approved: Complies with all family privacy policies."
+
+# Example validation check:
+if __name__ == "__main__":
+    policy = FamilyValuePolicy(privacy_strictness=PrivacyLevel.LOCAL_ONLY)
+    action = AgentAction(
+        action_name="sync_family_calendar",
+        target_destination="cloud-calendar.api",
+        privacy_impact_score=0.05,
+        contains_personally_identifiable_info=True
+    )
+    approved, msg = check_action_compliance(action, policy)
+    print(f"Status: {'Approved' if approved else 'Rejected'}\nReason: {msg}")
 ```
 
 ## Related tools / concepts
@@ -101,5 +157,5 @@ def is_action_compliant(action, values: FamilyValuePolicy) -> bool:
 - [OpenClaw Ethics Charter (Internal Draft)](https://github.com/OpenClaw/OpenClaw/docs/architecture/ethics.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

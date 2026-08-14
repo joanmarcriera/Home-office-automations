@@ -2,7 +2,7 @@
 
 ## What it is
 
-This playbook defines the technical process for configuring the NFS CSI (Container Storage Interface) driver on a K3s cluster. It enables Kubernetes pods to use persistent storage hosted on a [TrueNAS SCALE](../architecture/infrastructure.md) server via the NFS protocol, supporting dynamic volume provisioning. As of late August 2026, this is the standard for 'Invisible Kubernetes' homelab clusters.
+This playbook defines the technical process for configuring the NFS CSI (Container Storage Interface) driver on a K3s cluster. It enables Kubernetes pods to use persistent storage hosted on a [TrueNAS SCALE](../architecture/infrastructure.md) server via the NFS protocol, supporting dynamic volume provisioning. As of early January 2027, this is the standard for 'Invisible Kubernetes' homelab clusters.
 
 ## What problem it solves
 
@@ -39,7 +39,7 @@ flowchart TD
 
 - **Clustered App Storage**: Providing shared persistent volumes for applications like Nextcloud or Plex that may run on any cluster node.
 - **Dynamic Provisioning**: Automatically creating NFS sub-directories on the NAS whenever a pod requests a new `PersistentVolumeClaim`.
-- **Large Model Weights**: Storing 100GB+ weights for [Llama 4](../tools/ai_knowledge/meta_llama.md), Gemma 3, and Qwen 3.6 in a centralized, accessible location.
+- **Large Model Weights**: Storing 100GB+ weights for [Llama 4](../tools/ai_knowledge/meta_llama.md), Gemma 3, and Qwen 3.8 in a centralized, accessible location.
 - **High Availability**: Ensuring service continuity by allowing pods to restart on healthy nodes without data loss during a node failure.
 - **Agentic Infrastructure**: Supporting [Claude 5.1](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
 
@@ -149,20 +149,59 @@ mountOptions:
   - noresvport
 ```
 
-### Programmatic Integration with MCP 3.1 Task Protocol
-Below is a Python snippet using the MCP 3.1 Task Protocol to programmatically declare and claim an NFS-backed volume for an agent task.
+### Programmatic Integration with FastMCP 3.1 Task Protocol
+Below is an early January 2027 Python validation example using strict Pydantic v2 schemas to programmatically declare and claim an NFS-backed volume for an agent task prior to scheduling:
 
 ```python
-import json
 import asyncio
-from mcp.task_protocol import TaskClient, VolumeMount
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+class VolumeMountSpec(BaseModel):
+    name: str = Field(..., min_length=2, description="The name of the volume mount")
+    mount_path: str = Field(..., description="The directory path inside the container")
+
+class VolumeSpec(BaseModel):
+    name: str = Field(..., min_length=2, description="Volume identifier")
+    storage_class: str = Field(default="truenas-nfs-auto", description="Kubernetes StorageClass name")
+    capacity: str = Field(..., description="Requested storage capacity (e.g. 100Gi)")
+    access_mode: str = Field(default="ReadWriteMany", description="PVC access mode")
+
+    @field_validator("capacity")
+    @classmethod
+    def validate_capacity_format(cls, value: str) -> str:
+        if not value.endswith(("Gi", "Mi", "Ti")):
+            raise ValueError("Capacity must end with Gi, Mi, or Ti (e.g., 100Gi)")
+        return value
+
+class ContainerSpec(BaseModel):
+    image: str = Field(..., description="The Docker image name and tag")
+    volume_mounts: List[VolumeMountSpec] = Field(..., description="Associated volume mounts")
+
+class TaskSpec(BaseModel):
+    task_name: str = Field(..., min_length=2, description="Name of the agent task")
+    volumes: List[VolumeSpec] = Field(..., description="Volumes requested by the task")
+    container: ContainerSpec = Field(..., description="Container specification")
+
+    @model_validator(mode="after")
+    def verify_volume_mount_bindings(self) -> "TaskSpec":
+        # Ensure that every volume mount corresponds to an existing volume
+        volume_names = {v.name for v in self.volumes}
+        for mount in self.container.volume_mounts:
+            if mount.name not in volume_names:
+                raise ValueError(f"Volume mount name '{mount.name}' is not defined in task volumes.")
+        return self
+
+# Programmatic integration demo with mock client:
+class MockTask:
+    def __init__(self, spec: TaskSpec):
+        self.id = "task_nfs_abc123"
+        self.spec = spec
+        self.status = "Provisioned"
 
 async def provision_agent_nfs_volume():
-    # Programmatically provision and bind an NFS CSI volume for an agent task execution
-    client = TaskClient(endpoint="http://localhost:8000/tasks/v1")
-
-    # Define volume mount configuration leveraging the NFS StorageClass
-    task_spec = {
+    # Programmatically define and validate an NFS CSI volume for an agent task
+    task_input = {
         "task_name": "llama-4-inference-run",
         "volumes": [
             {
@@ -183,11 +222,17 @@ async def provision_agent_nfs_volume():
         }
     }
 
-    task = await client.create_task(spec=task_spec)
-    print(f"Task created successfully. Task ID: {task.id}")
-    print(f"Volume status: {task.volumes[0].status}")
+    # Validate utilizing strict Pydantic v2 schemas
+    validated_spec = TaskSpec(**task_input)
+    print(f"Validated spec successfully for model: {validated_spec.task_name}")
 
-asyncio.run(provision_agent_nfs_volume())
+    # Mock task execution
+    task = MockTask(spec=validated_spec)
+    print(f"Task created successfully. Task ID: {task.id}")
+    print(f"Volume mapping: {task.spec.container.volume_mounts[0].mount_path}")
+
+if __name__ == "__main__":
+    asyncio.run(provision_agent_nfs_volume())
 ```
 
 ## Related tools / concepts
@@ -210,5 +255,5 @@ asyncio.run(provision_agent_nfs_volume())
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high

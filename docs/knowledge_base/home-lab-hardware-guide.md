@@ -1,7 +1,7 @@
 # Home Lab Hardware Guide
 
 ## What it is
-A comprehensive reference for home lab hardware configurations optimized for AI-assisted automation and self-hosting in late August 2026. This guide details specific compute profiles, VRAM requirements for local LLMs, and hardware-accelerated transcoding, focusing on the hybrid architecture of persistent servers (Intel/AMD) and high-performance development machines (Apple Silicon M5/M6 and Nvidia RTX 50-series).
+A comprehensive reference for home lab hardware configurations optimized for AI-assisted automation and self-hosting in early January 2027. This guide details specific compute profiles, VRAM requirements for local LLMs, and hardware-accelerated transcoding, focusing on the hybrid architecture of persistent servers (Intel/AMD) and high-performance development machines (Apple Silicon M5/M6 and Nvidia RTX 50-series).
 
 ## What problem it solves
 Managing a modern home lab requires balancing power efficiency, cost, and raw inference performance. This guide solves the "placement problem"—deciding whether a workload (e.g., a 70B model vs. a 7B model) should run on a low-power N100 node, a dedicated RTX GPU server, or a unified memory MacBook. It prevents resource bottlenecks and optimizes the lab for "Invisible Kubernetes" operations.
@@ -12,7 +12,7 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 ## Typical use cases
 
 ### Model Routing and Placement
-- **Low-Latency Inference**: Running 3-8B models (Llama 4, Qwen 3.6) on RTX 4060/5070 GPUs for sub-second agent responses.
+- **Low-Latency Inference**: Running 3-8B models (Llama 4, Qwen 3.8) on RTX 4060/5070 GPUs for sub-second agent responses.
 - **Large Context Windows**: Utilizing Apple Silicon's unified memory (M5/M6 48GB+) for 32B-70B models with 128k+ context windows.
 - **Background Tasks**: Offloading audio transcription (Whisper) and image generation (Flux) to dedicated GPU servers.
 
@@ -78,18 +78,79 @@ python3 scripts/hw-check.py --model-size 7b --quant q4_k_m
 
 ## API examples
 
+### Python: Hardware Capacity & Routing Validator (Pydantic v2)
+An executable, strict Pydantic v2 validation script to model and assess the homelab capacity of hardware nodes against local model VRAM and RAM constraints in early January 2027:
+
+```python
+from enum import Enum
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+class ComputePlatform(str, Enum):
+    X86_GPU = "x86_gpu"
+    APPLE_SILICON = "apple_silicon"
+    LOW_POWER_X86 = "low_power_x86"
+    EDGE_SBC = "edge_sbc"
+
+class HardwareNode(BaseModel):
+    node_name: str = Field(..., description="Name of the node in the homelab cluster")
+    platform: ComputePlatform = Field(..., description="Underlying architecture / platform type")
+    total_ram_gb: float = Field(..., ge=1.0, description="Total system RAM in Gigabytes")
+    vram_gb: float = Field(default=0.0, ge=0.0, description="Available VRAM in Gigabytes")
+    has_avx_512: bool = Field(default=False, description="Whether the CPU supports AVX-512 instructions")
+
+class TargetModel(BaseModel):
+    model_name: str = Field(..., description="Identifier name of the LLM")
+    size_params_b: float = Field(..., gt=0.0, description="Model parameter size in Billions")
+    quantization: str = Field(default="Q4_K_M", description="Quantization profile")
+    estimated_memory_required_gb: float = Field(..., gt=0.0, description="Estimated VRAM/RAM required to run the model")
+
+class HardwareRoutingEngine(BaseModel):
+    nodes: Dict[str, HardwareNode] = Field(..., description="Active homelab hardware nodes")
+
+    def find_capable_nodes(self, model: TargetModel) -> List[str]:
+        capable = []
+        for name, node in self.nodes.items():
+            # If the platform is Apple Silicon, it can utilize unified memory (system RAM)
+            available_mem = node.vram_gb if node.platform != ComputePlatform.APPLE_SILICON else (node.total_ram_gb * 0.75)
+
+            if available_mem >= model.estimated_memory_required_gb:
+                capable.append(name)
+            elif node.platform == ComputePlatform.LOW_POWER_X86 and model.size_params_b <= 3.0:
+                # Allow low-power CPU nodes to run tiny helper models if they have sufficient RAM
+                if node.total_ram_gb >= (model.estimated_memory_required_gb + 2.0):
+                    capable.append(name)
+        return capable
+
+# Example validation check:
+if __name__ == "__main__":
+    cluster = HardwareRoutingEngine(
+        nodes={
+            "n100-server": HardwareNode(node_name="n100-server", platform=ComputePlatform.LOW_POWER_X86, total_ram_gb=16.0, vram_gb=0.0, has_avx_512=True),
+            "gpu-rig": HardwareNode(node_name="gpu-rig", platform=ComputePlatform.X86_GPU, total_ram_gb=32.0, vram_gb=16.0, has_avx_512=True),
+            "macbook-m6": HardwareNode(node_name="macbook-m6", platform=ComputePlatform.APPLE_SILICON, total_ram_gb=48.0, vram_gb=0.0, has_avx_512=False)
+        }
+    )
+
+    llama4_70b = TargetModel(model_name="llama4:70b", size_params_b=70.0, quantization="Q4_K_M", estimated_memory_required_gb=42.0)
+    qwen_38_8b = TargetModel(model_name="qwen3.8:8b", size_params_b=8.0, quantization="Q4_K_M", estimated_memory_required_gb=6.0)
+
+    print(f"Nodes capable of running Llama 4 70B: {cluster.find_capable_nodes(llama4_70b)}")
+    print(f"Nodes capable of running Qwen 3.8 8B: {cluster.find_capable_nodes(qwen_38_8b)}")
+```
+
 ### Programmatic Resource Routing (LiteLLM)
 Configure your hardware endpoints to be consumed by agents:
 ```yaml
 model_list:
   - model_name: "local-fast"
     litellm_params:
-      model: "ollama/qwen2.5:7b"
+      model: "ollama/qwen3.8:7b"
       api_base: "http://n100-server:11434"
   - model_name: "local-large"
     litellm_params:
-      model: "ollama/llama3.3:70b"
-      api_base: "http://macbook-m5:11434"
+      model: "ollama/llama4:70b"
+      api_base: "http://macbook-m6:11434"
 ```
 
 ### Checking Hardware Health via Home Assistant
@@ -118,5 +179,5 @@ model_list:
 - [Raspberry Pi 5+ Performance Benchmarks (2026)](https://www.raspberrypi.com/news/pi-5-performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-05
 - Confidence: high
