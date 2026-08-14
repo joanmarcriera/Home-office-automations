@@ -3,7 +3,7 @@
 ## What it is
 This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a structured data contract for automation workflows, ensuring that AI-generated events are clean, consistent, and searchable.
 
-As of late August 2026, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar and CalDAV management.
+As of early January 2027, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar and CalDAV management.
 
 ## What problem it solves
 LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule and maintaining the integrity of the family's temporal source of truth.
@@ -21,7 +21,7 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 - **Consistency**: Ensures every AI-generated event follows the same structural pattern (e.g., Summary, Start/End, Description).
 - **Enrichment**: Adds value by linking back to the source document in **Paperless-ngx** using the `doc_id`.
 - **Flexibility**: The logic can be easily extended to support additional fields like "reminders", "visibility", or custom labels.
-- **MCP Native**: Fully compatible with Model Context Protocol 3.1 for agent-driven scheduling.
+- **MCP Native**: Fully compatible with Model Context Protocol 3.1 and FastMCP 3.1 for agent-driven scheduling.
 
 ## Limitations
 - **Timezone Sensitivity**: Requires the extraction pipeline to be aware of the user's local timezone to avoid off-by-one errors during conversion to UTC.
@@ -41,7 +41,7 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 ## Getting started
 
 ### 1. Extraction
-Use **Claude 5.1** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
+Use **Claude 5.1** or **GPT-5.5** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
 
 ### 2. Implementation
 Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server. The server will apply these mapping rules automatically during the event creation process.
@@ -57,7 +57,7 @@ python3 scripts/gcal_sync_reference.py --dry-run --input extracted_data.json
 python3 scripts/gcal_sync_reference.py --input extracted_data.json --provider google
 
 # Use Chronos MCP to list events for a specific day
-mcp-client chronos list-events --date 2026-08-31
+mcp-client chronos list-events --date 2027-01-06
 ```
 
 ## API examples
@@ -77,7 +77,7 @@ The following table defines how extracted LLM fields map to [Google Calendar](..
 ```json
 {
   "event_name": "Water Bill Due",
-  "start_date": "2026-08-31T12:00:00Z",
+  "start_date": "2027-01-06T12:00:00Z",
   "location": "Online Portal",
   "doc_id": "12345",
   "reasoning": "Detected 'due date' in scanned utility bill."
@@ -141,5 +141,5 @@ class ExtractedEvent(BaseModel):
 - [JMAP for Calendars (RFC 8984)](https://datatracker.ietf.org/doc/html/rfc8984)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

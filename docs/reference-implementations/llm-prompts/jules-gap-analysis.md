@@ -3,7 +3,7 @@
 ## What it is
 The "Jules Weekly Gap Analysis" is a structured LLM prompt and automated workflow pattern used to analyze failure patterns in [n8n](../../services/n8n.md) automation logs and propose concrete improvements to the repository's documentation or workflows. It leverages deep reasoning models to identify the underlying "why" behind recurring issues.
 
-As of late August 2026, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md#orchestration-patterns-the-ralph-loop) to maintain system health and robustness across multi-agent environments.
+As of early January 2027, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md#orchestration-patterns-the-ralph-loop) to maintain system health and robustness across multi-agent environments.
 
 ## What problem it solves
 Automation stacks often suffer from "silent decay" where small API changes, network timeouts, or unhandled data edge cases lead to recurring but non-critical failures. This prompt automates the root cause analysis and suggests specific fixes, ensuring the system remains resilient and well-documented without requiring constant manual monitoring.
@@ -47,7 +47,7 @@ python3 scripts/n8n_log_aggregator.py --hours 168 > logs_summary.txt
 ```
 
 ### 2. Analysis
-Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.1**).
+Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.1** or **Gemini 4.0 Pro**).
 
 ### 3. Implementation
 Review the proposed fixes and execute them using the [Automation PR Template](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
@@ -62,8 +62,8 @@ python3 scripts/n8n_log_aggregator.py --hours 24 --filter "status=error"
 # Generate a report for a specific workflow ID
 python3 scripts/n8n_log_aggregator.py --workflow-id "AbC123XyZ" > workflow_logs.txt
 
-# Run a dry-run analysis using a local Llama 4 Maverick instance
-ollama run llama-4-maverick "$(cat jules_prompt.txt) $(cat workflow_logs.txt)"
+# Run a dry-run analysis using a local Llama 4 instance
+ollama run llama-4 "$(cat jules_prompt.txt) $(cat workflow_logs.txt)"
 ```
 
 ## API examples
@@ -75,9 +75,9 @@ Role: Senior Automation Engineer (Jules)
 Task: Analyze n8n failure patterns and propose improvements using deep reasoning.
 
 Context:
-- Current Date: Late August 2026
+- Current Date: Early January 2027
 - Standards: High Confidence Documentation (13-section contract)
-- Models: Claude 5.1 / GPT-5.5 / Llama 4 Maverick / Qwen 3.6
+- Models: Claude 5.1 / GPT-5.5 / Gemini 4.0 Pro / Llama 4 / Qwen 3.8
 
 Data provided:
 {{LOG_AGGREGATOR_OUTPUT}}
@@ -87,7 +87,7 @@ Analyze the top 3 failure patterns:
 2. Use Chain-of-Thought reasoning to verify if the pattern is a regression or a new gap.
 3. Propose a specific "Action A" (Do the work) or "Action C" (Decompose) for this repository.
 4. If the fix involves documentation, specify which file in `docs/` needs updating and what content to add.
-5. If the fix involves a workflow change, describe the node-level adjustment needed (e.g., switching to an MCP 3.1-based tool).
+5. If the fix involves a workflow change, describe the node-level adjustment needed (e.g., switching to an FastMCP 3.1-based tool).
 
 Response Format:
 - **Pattern 1**: [Description]
@@ -98,35 +98,43 @@ Response Format:
 - **General Recommendation**: [One meta-improvement for the automation stack]
 ```
 
-### Programmatic Integration with MCP 3.1
-The following script demonstrates how an automated agent fetches these logs and issues an analysis payload via MCP 3.1:
+### Programmatic Integration with FastMCP 3.1
+The following script demonstrates how an automated agent fetches these logs and issues an analysis payload via FastMCP 3.1:
 
 ```python
 import json
 import urllib.request
+from typing import Dict, Any
+from pydantic import BaseModel, Field
 
-def run_mcp_gap_analysis(logs_data: str):
+class AnalysisRequest(BaseModel):
+    model: str = Field("claude-5.1", description="LLM used for log audit")
+    temperature: float = Field(0.0, ge=0.0, le=1.0)
+    logs_summary: str = Field(..., description="Aggregated log text content")
+
+class AnalysisResponse(BaseModel):
+    success: bool = Field(True)
+    analysis: str = Field(..., description="Root cause and recommendations")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
     url = "http://localhost:8000/tools/v1/jules-gap-analysis"
     headers = {"Content-Type": "application/json"}
-    payload = {
-        "model": "claude-5.1",
-        "parameters": {
-            "temperature": 0.0,
-            "logs_summary": logs_data
-        }
-    }
+
+    # Validate request payload via Pydantic v2
+    req_payload = AnalysisRequest(logs_summary=logs_data)
 
     req = urllib.request.Request(
         url,
-        data=json.dumps(payload).encode('utf-8'),
+        data=req_payload.model_dump_json().encode('utf-8'),
         headers=headers,
         method='POST'
     )
 
     with urllib.request.urlopen(req) as res:
         response_data = json.loads(res.read().decode('utf-8'))
-        print("Analysis completed successfully.")
-        return response_data["analysis"]
+        # Parse and validate response
+        return AnalysisResponse.model_validate(response_data)
 ```
 
 ## Related tools / concepts
@@ -146,5 +154,5 @@ def run_mcp_gap_analysis(logs_data: str):
 - [Model Context Protocol (MCP) in n8n Workflows](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.mcp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
