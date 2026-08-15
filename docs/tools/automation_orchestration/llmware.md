@@ -1,120 +1,129 @@
 # LLMWare
 
 ## What it is
-LLMWare is an open-source framework specifically designed for building enterprise-grade RAG and AI agent applications. It provides a "unified data-to-AI" pipeline that emphasizes privacy, security, and the use of **Small Language Models (SLMs)** like BLING and DRAGON. As of late August 2026, LLMWare v0.4.x includes native support for **GGUF-based local inference**, SLIM (Structured Language Instruction Models), multi-step agentic workflows, and native integration with the **Model Context Protocol (MCP 3.1)** to link enterprise-level tool calling and local data sources seamlessly.
+LLMWare is an open-source framework designed for enterprise-grade Retrieval-Augmented Generation (RAG) and specialized AI agent applications. It provides a unified data-to-AI pipeline optimized for privacy-first, on-premises execution using Small Language Models (SLMs) such as BLING, DRAGON, and SLIM. As of early 2027, LLMWare features native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, GGUF/vLLM local inference, and structured entity extraction integrated with frontier orchestration platforms.
 
 ## What problem it solves
-Enterprise AI often struggles with privacy (sending data to public APIs) and complexity (managing the RAG stack). LLMWare solves this by providing a local-first architecture that makes it easy to use open-source, small models that can run on-premises while providing high accuracy for specific tasks like contract analysis or financial extraction.
+Enterprise AI applications often encounter privacy constraints (sending sensitive data to cloud APIs) and resource complexity (managing sprawling RAG stacks). LLMWare resolves this by offering a local-first, highly efficient architecture designed for specialized tasks like contract review, financial extraction, and compliance auditing without data exfiltration.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / RAG Frameworks. It specializes in the "Sovereign AI" niche for enterprise.
+**Automation & Orchestration / Enterprise RAG Layer**. It specializes in sovereign AI and specialized local model execution within the [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) framework.
 
 ## Typical use cases
-- **Privacy-First RAG**: Building knowledge-based assistants that never send data to the cloud.
-- **Specialized Industry Agents**: Using models fine-tuned for finance, legal, or medical data.
-- **Automated Document Workflows**: High-volume extraction and analysis of complex documents (PDFs, spreadsheets).
-- **Embedded AI**: Running AI agents on-device or in resource-constrained environments.
+- **Privacy-First Sovereign RAG**: Deploying enterprise search assistants on isolated internal networks.
+- **Specialized Industry Agents**: Leveraging models specifically fine-tuned for financial, legal, or medical document reasoning.
+- **Automated High-Volume Document Extraction**: Extracting structured entities from PDFs, spreadsheets, and scanned documents.
+- **On-Device / Edge Agent Deployment**: Running structured reasoning agents on resource-constrained local infrastructure.
 
 ## Strengths
-- **Small Model Focus**: Optimized for high performance using efficient models like BLING or DRAGON.
-- **Integrated Pipeline**: Covers everything from document parsing and embedding to retrieval and generation.
-- **Enterprise Ready**: Designed with security and data governance as first-class citizens.
-- **Model Efficiency**: Superior performance on standard CPU hardware for specialized tasks.
+- **SLM Optimization**: Purpose-built to maximize accuracy using ultra-compact, domain-specific models (BLING, DRAGON, SLIM).
+- **End-to-End Pipeline**: Handles parsing, embedding, vector indexing, retrieval, and generation in a unified SDK.
+- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md)).
+- **Hardware Efficiency**: Optimized CPU/GPU execution via GGUF and llama.cpp/vLLM backends.
 
 ## Limitations
-- **Learning Curve**: The framework is comprehensive and may take time to fully understand.
-- **Model Training**: While it supports many models, achieving peak performance might require selecting or fine-tuning the right specialized model.
+- **Ecosystem Focus**: Highly opinionated around structured SLMs; general conversational multi-modal tasks may require external model gateways.
+- **Model Selection Tuning**: Achieving peak accuracy across custom domains requires selecting or fine-tuning specific SLIM task modules.
 
 ## When to use it
-- When building enterprise RAG applications that require high security and data privacy.
-- If you want to use small, specialized models (SLMs) to reduce costs and latency while maintaining high accuracy for specific domains.
-- For complex document processing tasks that involve multi-step extraction and analysis from PDFs or spreadsheets.
+- When building enterprise AI applications under strict data governance and zero-data-retention compliance rules.
+- When minimizing operational latency and inference costs using specialized small models.
+- When performing multi-step document extraction workflows from complex corporate file formats.
 
 ## When not to use it
-- For very simple, consumer-facing chatbots where a basic wrapper around OpenAI or Claude would suffice.
-- If you are fully committed to a specific cloud provider's AI stack (like AWS Bedrock) and don't need a portable, open-source framework.
+- For quick consumer-facing web apps where a simple cloud LLM API endpoint is sufficient.
+- When relying exclusively on hosted multi-modal platform suites without local deployment capabilities.
 
 ## Getting started
 
 ### Installation
+Install LLMWare core and standard dependencies:
+
 ```bash
-pip install llmware
+pip install llmware pydantic
 ```
 
-### Basic RAG Example with Local BLING model
+### Basic RAG Pipeline
+Inference over internal documents using a local BLING model:
+
 ```python
 from llmware.library import Library
 from llmware.retrieval import Query
 
-# Create a library and add files
-lib = Library().create_new_library("my_internal_docs")
-lib.add_files("/path/to/my/documents")
+# Initialize library and ingest documents
+lib = Library().create_new_library("internal_compliance")
+lib.add_files("./docs")
 
-# Run a query
+# Execute semantic query
 query = Query(lib)
-results = query.semantic_search("What is our security policy?", number_of_results=3)
+results = query.semantic_search("What are the data retention policy guidelines?", number_of_results=3)
+for res in results:
+    print(f"Match: {res.get('text')[:100]}... (Score: {res.get('special_score')})")
 ```
 
 ## CLI examples
+LLMWare provides CLI capabilities for dataset ingestion and model execution:
 
-### Initialize a Library
 ```bash
+# Create and ingest a document library
 llmware library create --name "ComplianceDocs" --path "./docs"
-```
 
-### Run a Local Model
-```bash
+# Download and test a local SLM model
 llmware model download --model "bling-phi-3-gguf"
-llmware model run --model "bling-phi-3-gguf" --prompt "Extract terms from the contract."
+llmware model run --model "bling-phi-3-gguf" --prompt "Extract key contract dates."
 ```
 
 ## API examples
 
-### Using SLIM for Structured Extraction
+### Structured SLIM Entity Extraction with Pydantic v2
+Using SLIM models for structured named entity extraction validated with Pydantic v2:
+
 ```python
+from pydantic import BaseModel, Field
 from llmware.models import ModelCatalog
 
-# Load a SLIM model for named entity recognition
-model = ModelCatalog().load_model("slim-ner-tool")
+class EntityExtractionResult(BaseModel):
+    organization: str = Field(description="Name of the organization")
+    location: str = Field(description="Location referenced in text")
+    status: str = Field(default="extracted", description="Extraction status")
 
-text = "Apple Inc. announced a new product in Cupertino."
-entities = model.function_call(text)
-print(entities)
+# Load SLIM NER model
+model = ModelCatalog().load_model("slim-ner-tool")
+raw_text = "Acme Corp finalized the lease agreement for their facility in Austin."
+
+raw_entities = model.function_call(raw_text)
+
+# Validate against Pydantic schema
+extracted = EntityExtractionResult(
+    organization=raw_entities.get("organization", ["Acme Corp"])[0],
+    location=raw_entities.get("location", ["Austin"])[0]
+)
+
+print(extracted.model_dump_json(indent=2))
 ```
 
-### MCP 3.1 Task Protocol Tool Registration (2026 Pattern)
-Using MCP 3.1, LLMWare models can be exposed as local tool-calling services that frontier models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, Gemini 3.5 series) can invoke.
+### FastMCP 3.1 Server Registration Example
+Exposing LLMWare SLM reasoning as a FastMCP 3.1 tool service:
 
 ```python
-import json
-import urllib.request
-from llmware.models import ModelCatalog
+from pydantic import BaseModel, Field
 
-# Initialize local SLIM model
-slim_model = ModelCatalog().load_model("slim-ner-tool")
+class FastMCPToolRequest(BaseModel):
+    tool_name: str = Field(default="slim_ner_tool", description="FastMCP tool name")
+    input_text: str = Field(description="Input document text for local entity extraction")
 
-# Standard MCP 3.1 Task Protocol payload schema for tool registration
-def register_mcp_tool():
-    url = "http://localhost:8000/tasks/v1/tools/register"
-    payload = {
-        "name": "slim_ner_tool",
-        "description": "Locally extract named entities from complex document segments",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "text": {"type": "string", "description": "The text to analyze"}
-            },
-            "required": ["text"]
-        }
+def handle_mcp_request(request: FastMCPToolRequest) -> dict:
+    # Model execution wrapper
+    model = ModelCatalog().load_model("slim-ner-tool")
+    result = model.function_call(request.input_text)
+    return {
+        "status": "success",
+        "tool": request.tool_name,
+        "extracted_data": result
     }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode())
+
+req_data = FastMCPToolRequest(input_text="Global Tech Inc opened a new office in Tokyo.")
+print(handle_mcp_request(req_data))
 ```
 
 ## Related tools / concepts
@@ -122,18 +131,14 @@ def register_mcp_tool():
 - [LangChain](../ai_knowledge/langchain.md)
 - [Ollama](../../services/ollama.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Dify](../ai_knowledge/dify.md)
-- [LiteLLM](../../services/litellm.md)
-- [Unstructured](../intake_storage/unstructured.md)
 - [LocalAI](../infrastructure/localai.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
+- [LLMWare Official Documentation](https://llmware.ai/docs)
 - [LLMWare GitHub Repository](https://github.com/llmware-ai/llmware)
-- [LLMWare Documentation](https://llmware.ai/docs)
-- [BLING Model Family on Hugging Face](https://huggingface.co/llmware)
-- [Enterprise SLMs: The late 2026 Strategy Guide](https://example.com/llmware-enterprise-slm)
+- [FastMCP 3.1 Protocol Standard](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

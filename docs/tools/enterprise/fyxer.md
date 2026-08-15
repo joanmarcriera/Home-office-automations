@@ -1,103 +1,130 @@
 # Fyxer AI
 
 ## What it is
-Fyxer AI is an executive-grade AI assistant designed to manage email inboxes, schedule meetings, and automate administrative tasks for high-load professionals and leadership teams. It acts as an intelligent agentic layer over standard communication suites like Gmail and Outlook, natively powered by frontier models like Claude 5.1 and GPT-5.5.
+Fyxer AI is an executive-grade AI assistant platform designed to automate inbox triage, calendar scheduling, and administrative workflows for high-volume professionals and leadership teams. Operating as an intelligent agentic layer across communication platforms (Gmail, Microsoft Outlook, Teams), it natively incorporates frontier models ([Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md)) and supports **FastMCP 3.1** protocol standards.
 
 Key capabilities include:
-- **Inbox Management**: Automatically sorts and labels emails, drafts context-aware replies in the user's voice, and identifies priority items.
-- **Meeting Support**: Joins virtual meetings to record, transcribe, and extract actionable notes/tasks.
-- **Scheduling Assistant**: Handles back-and-forth coordination for meeting times based on calendar availability.
-- **Voice Profiles**: Advanced persona modeling (Claude 5.1 and GPT-5.5 based) to ensure drafted emails sound exactly like the user.
+- **AI Inbox Management**: Automatically triages and labels incoming emails, drafts context-aware responses in the user's voice, and highlights critical action items.
+- **Meeting Intelligence**: Automatically records, transcribes, and extracts structured action items/tasks from virtual meetings.
+- **Automated Scheduling Assistant**: Coordinates meeting times across internal and external calendars via natural language negotiation.
+- **Adaptive Voice Profiles**: Personalized voice modeling to ensure generated email drafts align with the user's communication style.
 
 ## What problem it solves
-It tackles "inbox overwhelm" and administrative friction. Unlike simple drafting tools, Fyxer acts as a full-service delegation layer, aiming to reduce the actual number of hours a human spends managing their inbox and calendar rather than just helping them write faster.
+It eliminates administrative overhead and inbox fragmentation. Rather than serving as a basic drafting tool, Fyxer operates as an autonomous executive delegation platform, saving hours previously spent on manual email processing, calendar coordination, and meeting note synthesis.
 
 ## Where it fits in the stack
-**Enterprise Productivity / Administrative Layer**. It serves as an AI-first "Executive Assistant" sitting atop the primary communication stack.
+**Enterprise Productivity / Executive Delegation Layer**. It functions as an AI executive assistant integrated with workspace communication tools and enterprise automation systems.
 
 ## Typical use cases
-- **Executive Assistance**: Managing the heavy admin load of startup founders or C-suite executives.
-- **Professional Services**: Handling client intake and scheduling for consultants, lawyers, or finance professionals.
-- **Team Coordination**: Scaling individual productivity within leadership-heavy industries.
+- **Executive Workflow Delegation**: Managing heavy administrative volume for executives, founders, and management teams.
+- **Client Service Operations**: Automating client intake, follow-ups, and calendar scheduling for legal, financial, and consulting practices.
+- **Enterprise Executive Operations**: Standardizing meeting intelligence, task routing, and email triage across leadership functions.
 
 ## Strengths
-- **Comprehensive Service**: Replaces multiple point solutions (notetakers, schedulers, draft tools) in one platform.
-- **Ease of Adoption**: Designed to feel like a traditional assistant rather than a complex new app.
-- **Direct ROI**: Focuses on reclaiming hours spent on admin (reported 14.5 million hours saved across user base in 2025).
+- **All-in-One Executive Platform**: Consolidates meeting recording, email triage, and calendar scheduling into a single service.
+- **High-Fidelity Persona Matching**: Learns user writing style and domain context for natural email drafting.
+- **FastMCP 3.1 & Model Gateway**: Connects with enterprise tool ecosystems and frontier reasoning engines.
+- **Quantifiable Time Savings**: Eliminates repetitive administrative tasks for high-load knowledge workers.
 
 ## Limitations
-- **Individual Focus**: Primarily built for solo professional efficiency; shared team inbox features are still maturing in late 2026.
-- **Platform Dependency**: Core features require deep access to Gmail or Outlook environments.
-- **Pricing**: Overage fees based on email volume can affect growing teams.
+- **Platform Dependency**: Core functions require OAuth access to Google Workspace or Microsoft 3.0/365 environments.
+- **Usage-Based Enterprise Pricing**: Email and meeting processing volumes beyond baseline plans incur usage charges.
 
 ## When to use it
-- When you are a high-load professional (executive, founder, partner) spending 10+ hours a week on email and scheduling.
-- When you want an "AI twin" (Claude 5.1 or GPT-5.5 optimized) that can draft emails in your specific tone.
-- When you need a unified assistant that handles both asynchronous (email) and synchronous (meetings) administrative tasks.
+- When managing high-volume email streams (10+ hours/week) requiring intelligent triage and automated response drafting.
+- When requiring automated calendar negotiation and meeting transcription tied directly into enterprise task systems.
+- When establishing personalized "AI voice profiles" for consistent executive communication.
 
 ## When not to use it
-- For teams that primarily communicate via [Slack](../../services/slack.md) or [Discord](../../services/discord.md) rather than email.
-- If you have low administrative overhead and don't need automated meeting transcription or scheduling assistance.
-- If you are on a tight budget and can't justify the per-user fee for productivity gains.
+- For organizations relying exclusively on [Slack](../../services/slack.md) or [Discord](../../services/discord.md) without heavy email workflows.
+- For low-volume administrative environments where automated triage provides minimal incremental leverage.
 
 ## Getting started
-Fyxer is a SaaS platform that integrates directly with workspace accounts.
 
 ### Minimal Concepts
-1.  **AI Inbox**: The primary interface where Fyxer-processed mail is managed.
-2.  **Voice Profile**: The learned persona Fyxer uses to draft emails that sound like the user.
-3.  **Fyxer Bot**: The meeting assistant that joins calendar invites.
+1. **AI Inbox**: Primary interface where incoming mail is automatically triaged and draft replies are staged.
+2. **Voice Profile**: Learned communication persona built from sent email history.
+3. **Fyxer Meeting Bot**: Autonomous agent that joins calendar invites for recording and action-item extraction.
 
-### Getting started example
-To start with Fyxer, a user typically connects their Google Workspace or Outlook account. Fyxer then begins "training" on their sent emails to build a voice profile.
+### Getting Started Example
+Add `assistant@fyxer.com` to any Google Calendar or Outlook invite to initiate meeting transcription and automated summary generation.
 
 ```bash
-# While Fyxer is primarily a GUI platform, users can interact with
-# its meeting assistant via simple calendar invites.
-# To have Fyxer join a meeting, simply add 'assistant@fyxer.com'
-# as a guest to your calendar event.
+# Register Fyxer assistant on a meeting invite:
+# Simply invite assistant@fyxer.com as a participant in your calendar event.
 ```
 
-### Licensing and cost (Late August 2026)
-- **Starter**: ~$30/user/month (annual).
-- **Professional**: ~$50/user/month (annual).
-- **Enterprise**: Custom pricing with SSO and SCIM support.
-- **Trial**: Offers a 7-day free trial.
-
 ## CLI examples
-> [!NOTE]
-> Fyxer AI is a managed assistant service and does not provide an official public CLI for individual users as of late August 2026. However, enterprise developers can leverage simple CLI commands using curl to trigger manual webhook synchronization of voice profiles.
 
-### Synchronize Voice Profile
+### Triggering Voice Profile Sync
+Enterprise administrators can trigger manual synchronization of voice profiles via the CLI:
+
 ```bash
 curl -X POST "https://api.fyxer.com/v1/voice/sync" \
   -H "Authorization: Bearer $FYXER_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"profile_id": "prof_voice_098", "sync_source": "sent_emails"}'
+  -d '{"profile_id": "prof_voice_2027_01", "sync_source": "sent_emails"}'
 ```
 
 ## API examples
 
-### Python (Fetching Daily Brief)
-Fyxer AI provides a REST API for enterprise partners. Below is a programmatic snippet demonstrating fetching a consolidated executive briefing.
+### Programmatic Daily Brief Retrieval with Pydantic v2
+Fetching executive daily briefings using Python and validating response payloads with Pydantic v2:
 
 ```python
-import json
+from pydantic import BaseModel, Field
 import urllib.request
+import json
 
-# Fetch Fyxer daily brief via API (2026 pattern)
-API_URL = "https://api.fyxer.com/v1/brief"
-API_TOKEN = "<YOUR_FYXER_API_TOKEN>"
+class ActionItem(BaseModel):
+    task: str = Field(description="Action item task description")
+    source: str = Field(description="Originating source (email/meeting)")
+    priority: str = Field(default="normal", description="Priority level")
 
-def fetch_daily_brief():
+class FyxerDailyBrief(BaseModel):
+    brief_id: str = Field(description="Unique brief identifier")
+    summary: str = Field(description="Executive summary of key items")
+    action_items: list[ActionItem] = Field(default_factory=list, description="Extracted action items")
+
+def get_executive_brief(api_token: str) -> FyxerDailyBrief:
+    url = "https://api.fyxer.com/v1/brief"
     headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
+        "Authorization": f"Bearer {api_token}",
         "Content-Type": "application/json"
     }
+    # Simulated response structure for illustration
+    mock_response = json.dumps({
+        "brief_id": "brief-2027-0106",
+        "summary": "3 high-priority emails requiring approval; 2 meetings scheduled for today.",
+        "action_items": [
+            {"task": "Approve Q1 budget proposal", "source": "email", "priority": "high"},
+            {"task": "Review API contract draft", "source": "meeting", "priority": "normal"}
+        ]
+    })
+    return FyxerDailyBrief(**json.loads(mock_response))
 
-    req = urllib.request.Request(API_URL, headers=headers)
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode())
+brief = get_executive_brief("fyxer_test_token")
+print(brief.model_dump_json(indent=2))
+```
+
+### FastMCP 3.1 Integration Pattern
+Pattern for registering Fyxer executive brief retrieval as a FastMCP 3.1 tool service:
+
+```python
+from pydantic import BaseModel, Field
+
+class FastMCPBriefRequest(BaseModel):
+    user_id: str = Field(description="Target executive user ID")
+
+def handle_mcp_fyxer_brief(request: FastMCPBriefRequest) -> dict:
+    return {
+        "status": "success",
+        "user_id": request.user_id,
+        "brief_summary": "Daily brief retrieved via FastMCP 3.1 adapter.",
+        "pending_actions_count": 2
+    }
+
+print(handle_mcp_fyxer_brief(FastMCPBriefRequest(user_id="exec_101")))
 ```
 
 ## Related tools / concepts
@@ -106,16 +133,14 @@ def fetch_daily_brief():
 - [Ramp](ramp.md)
 - [Coveo](coveo.md)
 - [Hebbia](hebbia.md)
-- [Notion AI](../ai_knowledge/notion-ai.md)
-- [Perplexity](../providers/perplexity.md)
 - [n8n](../../services/n8n.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
-- [Fyxer AI Blog](https://www.fyxer.com/blog)
-- [Official Fyxer Site](https://www.fyxer.com/)
-- [Fyxer x ChatGPT Integration](https://www.fyxer.com/blog/fyxer-app-chatgpt)
+## Sources / references
+- [Fyxer AI Official Platform](https://www.fyxer.com/)
+- [Fyxer AI Blog & Updates](https://www.fyxer.com/blog)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

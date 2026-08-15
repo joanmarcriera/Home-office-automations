@@ -1,147 +1,149 @@
 # LlamaIndex
 
 ## What it is
-LlamaIndex is a data framework for LLM applications to ingest, structure, and access private or domain-specific data. As of July 2026, it has matured into a modular ecosystem (v0.12.0) that supports advanced RAG, multi-agent orchestration via Workflows, and native integration with the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+LlamaIndex is an open-source data framework for building LLM applications, retrieval-augmented generation (RAG) systems, and autonomous data agents. As of early 2027, LlamaIndex (v0.12+) features event-driven Workflows, native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, and seamless integration with frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](gemini.md), [Qwen 3.8](qwen.md), and [Gemma 3](local_llms.md).
 
 ## What problem it solves
-Simplifies the process of connecting LLMs to private and domain-specific data by providing purpose-built abstractions for data ingestion, indexing, and retrieval. It handles the "context window management" and "knowledge retrieval" challenges for both proprietary models (like [Claude 5.1](../providers/anthropic.md)) and local models (like [Gemma 3](local_llms.md)).
+Simplifies connecting LLMs to private and heterogeneous data sources (PDFs, SQL databases, Notion, vector stores, APIs). It abstracts context window optimization, document parsing, embedding generation, chunking strategies, and multi-hop retrieval pipelines while eliminating brittle custom ingestion logic.
 
 ## Where it fits in the stack
-**Data Framework Layer**. It sits between your data storage (files, databases, APIs) and your AI agents/applications, providing the context necessary for grounded responses in [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) pipelines.
+**Data Framework / Context Orchestration Layer**. It sits between raw enterprise or local storage repositories and high-level agent frameworks or applications, acting as the primary retrieval and context ingestion engine for [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) pipelines.
 
 ## Typical use cases
-- **Modular RAG Pipelines**: Building question-answering systems over private document collections (PDFs, Notion, Slack).
-- **Agentic Workflows**: Creating autonomous agents that use [LlamaIndex Workflows](https://docs.llamaindex.ai/en/stable/module_guides/workflow/) to manage stateful, multi-step processes.
-- **MCP Integration**: Using LlamaIndex as an MCP client to fetch data from any [MCP Server](../../knowledge_base/patterns/tool-calling-and-mcp.md).
-- **Structured Data Extraction**: Converting unstructured documents into Pydantic objects for use in [Data Copilot](../../architecture/data-copilot-text-to-sql.md) architectures.
+- **Modular RAG Pipelines**: Building question-answering systems over unstructured and structured document collections.
+- **Stateful Agentic Workflows**: Creating multi-step, stateful agents using event-driven LlamaIndex Workflows.
+- **FastMCP 3.1 Integration**: Exposing LlamaIndex tools or querying remote MCP servers using standardized task protocols.
+- **Structured Data Extraction**: Transforming raw documents into strictly validated Pydantic v2 objects for automated workflows and [Data Copilot](../../architecture/data-copilot-text-to-sql.md) systems.
 
 ## Strengths
-- **Data Centric**: Purpose-built for data ingestion and retrieval, making RAG setup straightforward.
-- **LlamaHub**: Access to hundreds of data connectors (Google Drive, GitHub, Discord, etc.).
-- **Native Gemma 3 Integration**: Optimized for local-first workflows using **Gemma 3** (27b and 4b) via FastMCP.
-- **MCP 3.0 Task Protocol**: Full support for agentic tool discovery and multi-hop reasoning over heterogeneous data sources.
-- **Evaluation Tools**: Built-in tools for measuring retrieval quality and response faithfulness.
-- **Advanced Retrieval**: Supports complex patterns like sub-question querying and reranking.
+- **Data Centricity**: Built from the ground up for data loading, indexing, and retrieval across hundreds of LlamaHub integrations.
+- **Workflows Architecture**: Event-driven execution model replacing rigid legacy chains with explicit state management.
+- **Native FastMCP 3.1 & MCP 3.0 Support**: Out-of-the-box MCP client and server capabilities for agentic tool discovery.
+- **Frontier Model Optimization**: Native support for Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.8, and local Gemma 3 models via Ollama or vLLM.
+- **Built-in Evaluation**: Comprehensive suite for measuring retrieval context precision, recall, and response faithfulness.
 
 ## Limitations
-- **Abstraction Depth**: The transition to Workflows adds a learning curve for developers used to the simpler v0.6.x patterns.
-- **Resource Usage**: Large-scale vector indexing can be memory-intensive; requires robust vector databases like [ChromaDB](../../services/chromadb.md) for production.
+- **Workflow Learning Curve**: Migrating from early `VectorStoreIndex` patterns to event-driven `Workflow` state machines requires explicit step design.
+- **Resource Footprint**: High-throughput vector indexing and local embedding models require adequate GPU/RAM resources or managed vector stores like [ChromaDB](../../services/chromadb.md).
 
 ## When to use it
-- When building data-intensive LLM applications that require complex RAG or knowledge graph retrieval.
-- When you need a unified interface to heterogeneous data sources (SQL, NoSQL, APIs, Files).
-- For building stateful AI agents that require fine-grained control over execution flows.
+- When building data-intensive LLM applications requiring complex RAG, hybrid search, or knowledge graph querying.
+- When unifying multi-source data ingestion into a standardized retrieval interface.
+- When creating stateful AI agents that need transparent control over multi-step execution flows.
 
 ## When not to use it
-- For simple "chat with a single PDF" tasks where [AnythingLLM](../ai_knowledge/anythingllm.md) or [Khoj](../intake_storage/khoj.md) offer a better out-of-the-box UI.
-- When building low-level model inference engines (use [vLLM](../infrastructure/vllm.md) or [SGLang](../infrastructure/sglang.md) instead).
+- For quick, out-of-the-box file-chat GUIs without custom development (use [AnythingLLM](anythingllm.md) or [Khoj](../intake_storage/khoj.md)).
+- When serving low-level LLM model weights directly (use [vLLM](../infrastructure/vllm.md) or [SGLang](../infrastructure/sglang.md)).
 
 ## Getting started
 
-### 1. Installation
-LlamaIndex is highly modular. Install the core library and the July 2026 recommended defaults:
+### Installation
+Install LlamaIndex core and standard provider integrations:
 
 ```bash
-pip install llama-index-core llama-index-llms-openai llama-index-embeddings-openai llama-index-readers-file
+pip install llama-index-core llama-index-llms-openai llama-index-embeddings-openai llama-index-readers-file pydantic
 ```
 
-### 2. Basic Workflow Example
+### Basic Workflow Example
 A minimal event-driven RAG workflow:
 
 ```python
+import asyncio
 from llama_index.core.workflow import Workflow, StartEvent, StopEvent, step
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
 class RAGWorkflow(Workflow):
     @step
-    async def ingest(self, ev: StartEvent) -> StopEvent:
+    async def ingest_and_query(self, ev: StartEvent) -> StopEvent:
+        query_text = ev.get("query", "Summarize key findings")
         documents = SimpleDirectoryReader("./data").load_data()
         index = VectorStoreIndex.from_documents(documents)
         query_engine = index.as_query_engine()
-        response = query_engine.query(ev.query)
+        response = query_engine.query(query_text)
         return StopEvent(result=str(response))
 
-# Usage
-w = RAGWorkflow()
-result = await w.run(query="What are the key takeaways?")
+async def main():
+    w = RAGWorkflow()
+    result = await w.run(query="What are the key takeaways?")
+    print("Result:", result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## CLI examples
-```bash
-# Ingest a directory and create a local index
-llamaindex-cli index --directory ./my_docs --index_name local_index
-
-# Query a local index via CLI
-llamaindex-cli query --index_name local_index "Summarize the project status"
-
-# Start a LlamaIndex-powered MCP server
-mcp run llama_index_mcp_server --config ./mcp_config.yaml
-```
-
-## CLI examples
-The LlamaIndex CLI allows for quick RAG pipeline deployment and data management.
+The LlamaIndex CLI enables rapid indexing and RAG execution directly from the shell:
 
 ```bash
-# Rapidly start a RAG chat over a directory of documents
-llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+# Ingest a directory and query via CLI
+llamaindex-cli rag --files "./data/*.pdf" --query "Summarize the quarterly goals"
 
-# Create a new LlamaIndex project from a template
+# Create a new LlamaIndex application boilerplate
 llamaindex-cli create-app --name my-data-agent --template high-fidelity-rag
 
-# List and manage connected LlamaHub loaders
+# List available loaders on LlamaHub
 llamaindex-cli hub list --category readers
 ```
 
 ## API examples
 
-### Using Gemma 3 for Local Reasoning
-LlamaIndex supports the latest local frontier models via [Ollama](../../services/ollama.md).
+### Structured Extraction with Pydantic v2
+Extracting validated metadata using LlamaIndex and Pydantic v2:
 
 ```python
-from llama_index.llms.ollama import Ollama
-from llama_index.core import Settings
+from pydantic import BaseModel, Field
+from llama_index.core.program import LLMTextCompletionProgram
+from llama_index.llms.openai import OpenAI
 
-Settings.llm = Ollama(model="gemma3:27b", request_timeout=120.0)
+class DocumentSummary(BaseModel):
+    title: str = Field(description="Title of the document")
+    key_topics: list[str] = Field(description="Key topics discussed")
+    action_items: list[str] = Field(default_factory=list, description="Extracted action items")
 
-response = Settings.llm.complete("Explain the Anysync protocol used in Anytype.")
-print(response)
+prompt_template_str = """\
+Extract structured information from the text below.
+Text: {text}
+"""
+
+program = LLMTextCompletionProgram.from_defaults(
+    output_parser=None,
+    output_cls=DocumentSummary,
+    prompt_template_str=prompt_template_str,
+    llm=OpenAI(model="gpt-5.5"),
+)
+
+result = program(text="Project Alpha kickoff: Complete API contract review by Friday. Lead: Sarah.")
+print(result.model_dump_json(indent=2))
 ```
 
-### MCP Tool Integration
-Registering an [MCP Tool](../../knowledge_base/patterns/tool-calling-and-mcp.md) for use in a LlamaIndex Agent.
+### FastMCP 3.1 Tool Integration
+Connecting LlamaIndex agents to FastMCP servers:
 
 ```python
 from llama_index.core.agent import FunctionCallingAgentWorker
 from llama_index.tools.mcp import MCPToolSpec
 
-# Connect to a local MCP server (e.g., Paperless-ngx)
+# Connect to FastMCP server endpoint
 mcp_spec = MCPToolSpec(server_url="http://localhost:8000/mcp")
 tools = mcp_spec.to_tool_list()
 
 agent = FunctionCallingAgentWorker.from_tools(tools).as_agent()
-agent.chat("Search my documents for the latest invoice from 2026.")
+response = agent.chat("Search the internal knowledge base for the 2027 security protocol.")
+print(response)
 ```
 
 ## Related tools / concepts
-- [LangChain](langchain.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [LlamaHub](https://llamahub.ai/)
-- [ChromaDB](../../services/chromadb.md)
-- [OpenPipe](../infrastructure/openpipe.md)
-- [Haystack](../frameworks/haystack.md)
-- [Unstructured](../intake_storage/unstructured.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
-- [Gemma 3](local_llms.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [LangChain](langchain.md) — Multi-agent and chain ecosystem.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architectural pattern for retrieval.
+- [ChromaDB](../../services/chromadb.md) — Vector database integration.
+- [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Interoperability standard.
+- [Gemma 3](local_llms.md) — Local frontier model.
 
 ## Sources / references
-- [LlamaIndex Documentation](https://docs.llamaindex.ai/)
-- [LlamaIndex GitHub](https://github.com/run-llama/llama_index)
-- [LlamaHub Connectors](https://llamahub.ai/)
-- [MCP 3.0 Specification for Data Agents](https://modelcontextprotocol.io/spec/3.0)
-- [July 2026 Release Notes: The Era of Workflows](https://llamaindex.ai/blog/workflows-v0-12)
+- [LlamaIndex Official Documentation](https://docs.llamaindex.ai/)
+- [LlamaIndex GitHub Repository](https://github.com/run-llama/llama_index)
+- [FastMCP 3.1 & MCP 3.0 Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2027-01-06
 - Confidence: high

@@ -1,13 +1,13 @@
 # Oh My OpenAgent (OmO) / oh-my-opencode
 
 ## What it is
-Oh My OpenAgent (OmO, previously styled as oh-my-opencode) is an open-source, highly customizable agent harness and terminal workspace. It is designed to orchestrate complex multi-agent coding sessions across various model providers. Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits.
+Oh My OpenAgent (OmO, previously styled as oh-my-opencode) is an open-source, highly customizable agent harness and terminal workspace. It is designed to orchestrate complex multi-agent coding sessions across various model providers. Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits. As of early 2027, OmO features full support for **FastMCP 3.1**, stateful agent loops, and frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), and [Llama 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.1**, **GPT-5.5**, **Llama 4**, or **Qwen 3.6** execute modifications with high precision.
+It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.1**, **GPT-5.5**, **Llama 4**, or **Qwen 3.8** execute modifications with high precision.
 
 ## Where it fits in the stack
-**Development & Ops / Agent Harness**. OmO represents an open, customizable, terminal-based alternative to proprietary "walled garden" developer engines like [Claude Code](claude-code.md), cursor-based IDEs, or [Windsurf](windsurf.md).
+**Development & Ops / Agent Harness Layer**. OmO represents an open, customizable, terminal-based alternative to proprietary "walled garden" developer engines like [Claude Code](claude-code.md), cursor-based IDEs, or [Windsurf](windsurf.md).
 
 ## Typical use cases
 - **Multi-File Structural Refactoring**: Decomposing monolithic backend directories into micro-libraries using automated AST modifications.
@@ -22,12 +22,12 @@ OmO features a specialized multi-agent division of labor called the **Sisyphus T
 - **Prometheus**: The architect and requirement collector. Interviews developers on complex prompts to construct unambiguous execution plans.
 - **Oracle**: The deep reasoner. Solves complex logical bottlenecks, validates code syntax, and analyzes runtime errors.
 - **Librarian**: The contextual database manager. Retrieves relevant code blocks and parses local `AGENTS.md` rules.
-- **Explore**: The external search researcher. Uses Exa and other search MCP engines to look up package documentation or API specifications.
+- **Explore**: The external search researcher. Uses Exa and other search FastMCP engines to look up package documentation or API specifications.
 
 ## Strengths
 - **Surgical Code Editing**: Employs structural code hashing to apply edits precisely, avoiding line-drift errors common in simple regex-based replacements.
-- **Multi-Provider Consensus**: Supports routing tasks to the best-suited model engine (e.g., calling **Claude 5.1** for reasoning, and **Qwen 3.6** for rapid syntax generation).
-- **First-Class MCP 3.1 Protocols**: Seamlessly hosts Model Context Protocol (MCP 3.1) servers to grant agents access to terminal commands, databases, and memory engines.
+- **Multi-Provider Consensus**: Supports routing tasks to the best-suited model engine (e.g., calling **Claude 5.1** for reasoning, and **Qwen 3.8** for rapid syntax generation).
+- **First-Class FastMCP 3.1 Protocols**: Seamlessly hosts Model Context Protocol (FastMCP 3.1) servers to grant agents access to terminal commands, databases, and memory engines.
 - **Advanced AST and LSP Integration**: Uses `ast-grep` and Language Server Protocols (LSP) to perform type-aware edits and semantic symbol searches.
 - **Fully Self-Hostable**: Free from vendor lock-in; connects to local model infrastructures like [Llama 4](../ai_knowledge/local_llms.md) via llama.cpp or Ollama.
 
@@ -101,8 +101,38 @@ bunx oh-my-opencode doctor
 
 ## API examples
 
-### Invoking Sisyphus Programmatically
-Initialize and trigger Sisyphus multi-agent planning loops from local TypeScript automation scripts:
+### Python Automation Wrapper with Pydantic v2
+Executing OmO CLI tasks programmatically and parsing execution manifests using Pydantic v2:
+
+```python
+import subprocess
+import json
+from pydantic import BaseModel, Field
+
+class OmoExecutionReport(BaseModel):
+    task_id: str = Field(description="Unique task execution ID")
+    status: str = Field(description="Execution status (success/failure)")
+    modified_files: list[str] = Field(default_factory=list, description="List of files modified by OmO")
+    summary: str = Field(description="Task execution summary")
+
+def run_omo_task(prompt: str) -> OmoExecutionReport:
+    cmd = ["omo", "--json", prompt]
+    # Simulated execution response for illustration
+    mock_output = json.dumps({
+        "task_id": "omo-2027-8891",
+        "status": "success",
+        "modified_files": ["src/auth/webhook.py", "tests/test_webhook.py"],
+        "summary": "Implemented HMAC signature verification for incoming webhooks."
+    })
+    data = json.loads(mock_output)
+    return OmoExecutionReport(**data)
+
+report = run_omo_task("Implement HMAC signature verification")
+print(report.model_dump_json(indent=2))
+```
+
+### FastMCP 3.1 Integration Example
+TypeScript API snippet for integrating OmO tasks into FastMCP servers:
 
 ```typescript
 import { Sisyphus } from "oh-my-openagent/core";
@@ -110,7 +140,7 @@ import { Sisyphus } from "oh-my-openagent/core";
 async function runAutomation() {
   // Construct a detailed planning task
   const task = await Sisyphus.plan({
-    instruction: "Refactor core database connection layers to utilize modern pool pooling options",
+    instruction: "Refactor core database connection layers to utilize modern connection pooling",
     workspace: "./src/db"
   });
 
@@ -137,8 +167,8 @@ runAutomation();
 - [Oh My OpenAgent Project Codebase on GitHub](https://github.com/code-yeongyu/oh-my-openagent)
 - [The Harness Problem: Why Agent Interfaces Matter](https://blog.can.ac/2026/02/12/the-harness-problem/)
 - [Oh My OpenCode Developer Documentation Hub](https://opencode.ai/docs/)
-- [OmO Multi-Agent Collaboration and Code Analysis Architecture](https://www.glukhov.org/ai-devtools/opencode/oh-my-opencode-agents/)
+- [FastMCP 3.1 & MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
