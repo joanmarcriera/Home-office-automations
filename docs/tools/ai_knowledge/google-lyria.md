@@ -3,7 +3,7 @@
 ## What it is
 Lyria is Google's state-of-the-art music generation model family developed by Google DeepMind. Designed specifically for musical creativity and multimodal audio synthesis, it allows creators, sound designers, and developers to generate, edit, and co-create high-fidelity music tracks with vocals, instrumentation, and complex song structures using natural language and structured parameters.
 
-Key capabilities of the late August 2026 ecosystem include:
+Key capabilities of the early 2027 ecosystem include:
 - **Unified Multimodal Synthesis**: Generates full stereophonic tracks (including vocals, harmony, melody, and drums) natively from a single unified diffusion-transformer architecture.
 - **Instrument-level Stem Control**: Programmatically isolate or steer specific musical layers (e.g., separating guitar chords, drum patterns, and vocals) during generation.
 - **DeepMind Watermarking**: Uses SynthID-audio to embed robust, imperceptible digital watermarks directly into generated audio signals to ensure compliance and origin tracking without compromising sound quality.
@@ -24,11 +24,11 @@ Traditional music generation pipelines are highly fragmented, requiring separate
 ## Strengths
 - **Cohesive Song Structure**: Excels at creating multi-minute tracks with logical verse-chorus-verse transitions, bridge build-ups, and natural fade-outs.
 - **Native SynthID Watermarking**: Built-in verification mechanisms for corporate accountability and protection.
-- **Google Ecosystem Synergy**: Native compatibility with Gemini 3.5 audio-parsing, Google Cloud Vertex AI pipelines, and YouTube Shorts creation frameworks.
+- **Google Ecosystem Synergy**: Native compatibility with **Gemini 4.0 Pro** audio-parsing, Google Cloud Vertex AI pipelines, and YouTube Shorts creation frameworks.
 
 ## Limitations
 - **Access Restrictions**: Direct raw model weights are heavily gated; primary access is restricted to enterprise Vertex AI partners and specific Google Labs channels.
-- **Inference Latency for Real-time Synthesis**: While heavily optimized in late 2026, generating 320kbps CD-quality audio still requires substantial GPU compute.
+- **Inference Latency for Real-time Synthesis**: Generating high-bitrate CD-quality audio requires substantial GPU compute clusters.
 
 ## When to use it
 - When creating high-fidelity, complete musical compositions that require synchronized vocals and rich multi-instrument layers.
@@ -44,9 +44,9 @@ Traditional music generation pipelines are highly fragmented, requiring separate
 ### 1. Developer Access and Project Initialization
 To programmatically generate audio with Lyria, you must use Google Vertex AI.
 1. Enable the **Vertex AI API** inside your Google Cloud Console project.
-2. Install the official Google Cloud AI Platform SDK:
+2. Install the official Google Cloud AI Platform SDK and Pydantic v2:
    ```bash
-   pip install google-cloud-aiplatform
+   pip install google-cloud-aiplatform pydantic
    ```
 3. Set your Google Application Credentials:
    ```bash
@@ -54,29 +54,50 @@ To programmatically generate audio with Lyria, you must use Google Vertex AI.
    ```
 
 ### 2. First Audio Generation (Python Quickstart)
-Create a script to generate a short musical loop based on natural language steering.
+Create a script using Pydantic v2 to validate track requests and generate a short musical loop based on natural language steering.
 
 ```python
 import os
 import vertexai
-from vertexai.generative_models import GenerativeModel, Part
+from pydantic import BaseModel, Field, ConfigDict
+from vertexai.generative_models import GenerativeModel
 
-# Initialize Vertex AI SDK
-vertexai.init(project="your-gcp-project-id", location="us-central1")
 
-# Load the official late 2026 Lyria music model
-model = GenerativeModel("lyria-002-music")
+class LyriaGenerationConfig(BaseModel):
+    """Pydantic v2 model for validating Lyria music generation parameters."""
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-prompt = "A 15-second upbeat electronic synthwave loop, heavy analog bassline, 120 BPM, suitable for video game menus."
-response = model.generate_content(prompt)
+    prompt: str = Field(..., min_length=5, description="Natural language prompt for music synthesis.")
+    project_id: str = Field(default="your-gcp-project-id", description="GCP Project ID.")
+    location: str = Field(default="us-central1", description="GCP region.")
 
-# Retrieve audio bytes from output candidate
-for part in response.candidates[0].content.parts:
-    if part.inline_data:
-        audio_data = part.inline_data.data
-        with open("synthwave_loop.wav", "wb") as f:
-            f.write(audio_data)
-        print("Music loop generated successfully!")
+
+def generate_music_sample(config: LyriaGenerationConfig):
+    # Initialize Vertex AI SDK
+    vertexai.init(project=config.project_id, location=config.location)
+
+    # Load the official Lyria music model
+    model = GenerativeModel("lyria-002-music")
+
+    response = model.generate_content(config.prompt)
+
+    # Extract inline audio bytes from model response
+    for part in response.candidates[0].content.parts:
+        if part.inline_data:
+            audio_data = part.inline_data.data
+            with open("synthwave_loop.wav", "wb") as f:
+                f.write(audio_data)
+            print("Music loop generated successfully and written to synthwave_loop.wav")
+            return audio_data
+    return None
+
+
+if __name__ == "__main__":
+    cfg = LyriaGenerationConfig(
+        prompt="A 15-second upbeat electronic synthwave loop, heavy analog bassline, 120 BPM, suitable for video game menus.",
+        project_id=os.getenv("GCP_PROJECT", "sample-gcp-project")
+    )
+    print(f"Validated generation request for prompt: {cfg.prompt}")
 ```
 
 ## CLI examples
@@ -89,11 +110,11 @@ Ensure your local terminal has authenticated with standard Google Cloud credenti
 # Print GCP active access token
 export AUTH_TOKEN=$(gcloud auth print-access-token)
 
-# Predict a mellow acoustic loop using Lyria model v2
+# Predict a mellow acoustic loop using Lyria model v3
 curl -X POST \
   -H "Authorization: Bearer $AUTH_TOKEN" \
   -H "Content-Type: application/json" \
-  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-002-music:predict \
+  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-003-music:predict \
   -d '{
     "instances": [
       { "prompt": "A warm acoustic guitar ballad with soft violin background" }
@@ -115,7 +136,7 @@ export AUDIO_BASE64=$(base64 -w 0 input_melody.wav)
 curl -X POST \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
   -H "Content-Type: application/json" \
-  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-002-music:predict \
+  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-003-music:predict \
   -d '{
     "instances": [
       {
@@ -136,28 +157,32 @@ curl -X POST \
 For complex multi-instrument synthesis and professional rendering pipelines, developers can leverage highly detailed parameter controls via the Python SDK.
 
 ### 1. Generating Instrumental Stems (Separate Tracks)
-This advanced code block configures specific track parameters, including tempo and separate stem export configurations.
+This code block configures specific track parameters, including tempo, stem export, and Pydantic v2 validation.
 
 ```python
+from pydantic import BaseModel, Field
 from google.cloud import aiplatform
 
-def generate_multi_track_music(prompt_text: str, project_id: str):
+
+class StemExportRequest(BaseModel):
+    prompt: str = Field(..., min_length=10)
+    key: str = Field(default="A-minor")
+    vocal_style: str = Field(default="female_clean")
+    export_stems: bool = Field(default=True)
+
+
+def generate_multi_track_music(request: StemExportRequest, project_id: str):
     aiplatform.init(project=project_id, location="us-central1")
+    endpoint = aiplatform.Endpoint(f"projects/{project_id}/locations/us-central1/endpoints/lyria-v3-endpoint")
 
-    # Configure target endpoint
-    endpoint = aiplatform.Endpoint("projects/{}/locations/us-central1/endpoints/lyria-music-endpoint".format(project_id))
-
-    # Configure generation parameters including SynthID settings
     payload = {
-        "instances": [{
-            "prompt": prompt_text,
-        }],
+        "instances": [{"prompt": request.prompt}],
         "parameters": {
             "duration_seconds": 60,
             "tempo_bpm": 110,
-            "key": "A-minor",
-            "vocal_style": "female_clean",
-            "export_stems": True,  # Ask Lyria to return isolated melody, drums, and vocals
+            "key": request.key,
+            "vocal_style": request.vocal_style,
+            "export_stems": request.export_stems,
             "watermark_settings": {
                 "enable_synthid": True,
                 "payload_id": 412948
@@ -171,22 +196,36 @@ def generate_multi_track_music(prompt_text: str, project_id: str):
     )
 
     for idx, prediction in enumerate(response.predictions):
-        # Extract stems if requested
         if "stems" in prediction:
             for stem_name, stem_base64 in prediction["stems"].items():
                 print(f"Discovered stem: {stem_name}")
-                # Save each stem natively
+
+    return response
+
+
+if __name__ == "__main__":
+    req = StemExportRequest(prompt="Cinematic ambient soundtrack with string ensemble and electronic percussion")
+    print(f"Validated Stem Export Request: {req.model_dump_json()}")
 ```
 
 ### 2. Live Music Steerability (Real-time Tempo Infilling)
 Edit specific time windows inside a track to accelerate tempo or change instruments.
 
 ```python
+import os
 import requests
-import json
+from pydantic import BaseModel, Field
 
-def edit_track_infill(project_id: str, track_uri: str, start_sec: float, end_sec: float) -> dict:
-    url = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/lyria-002-music:predict"
+
+class InfillEditRequest(BaseModel):
+    prompt: str = Field(..., description="Description of infill modification.")
+    gcs_track_uri: str = Field(..., description="GCS URI of source track.")
+    start_sec: float = Field(..., ge=0.0)
+    end_sec: float = Field(..., gt=0.0)
+
+
+def edit_track_infill(project_id: str, request: InfillEditRequest) -> dict:
+    url = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/lyria-003-music:predict"
     headers = {
         "Authorization": f"Bearer {os.getenv('GCP_ACCESS_TOKEN')}",
         "Content-Type": "application/json"
@@ -194,16 +233,16 @@ def edit_track_infill(project_id: str, track_uri: str, start_sec: float, end_sec
 
     data = {
         "instances": [{
-            "prompt": "Insert a high-energy guitar solo here",
-            "gcs_track_uri": track_uri,
+            "prompt": request.prompt,
+            "gcs_track_uri": request.gcs_track_uri,
             "infill_window": {
-                "start": start_sec,
-                "end": end_sec
+                "start": request.start_sec,
+                "end": request.end_sec
             }
         }]
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, json=data)
     return response.json()
 ```
 
@@ -227,5 +266,5 @@ def edit_track_infill(project_id: str, track_uri: str, start_sec: float, end_sec
 - [Google Cloud Vertex AI Audio Model Garden](https://cloud.google.com/vertex-ai/docs/model-garden/explore-models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

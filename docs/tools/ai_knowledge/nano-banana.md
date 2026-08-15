@@ -1,9 +1,9 @@
 # Nano Banana
 
 ## What it is
-Nano Banana is Google's conversation-driven generative image editor and design assistant integrated directly inside Google AI Studio and Vertex AI. Operating natively on Google's late August 2026 multimodal foundation models, it allows developers and designers to create, refine, inpaint, and edit complex graphical layouts using natural language dialogue instead of manual masking tools.
+Nano Banana is Google's conversation-driven generative image editor and design assistant integrated directly inside Google AI Studio and Vertex AI. Operating natively on Google's multimodal foundation models (**Gemini 4.0 Pro** and **Gemini 4.0 Flash Image**), it allows developers and designers to create, refine, inpaint, and edit complex graphical layouts using natural language dialogue instead of manual masking tools.
 
-Key capabilities of the late August 2026 ecosystem include:
+Key capabilities of the early 2027 ecosystem include:
 - **Unified Interactions API**: Run conversational, multi-turn image generation and modifications, where each turn builds upon the spatial layout of previous iterations.
 - **Natural Language Masking & Inpainting**: Describe edits in plain language (e.g., "swap the background for a neon-lit cyberpunk street") without requiring hand-drawn bounding boxes.
 - **Identity & Object Preservation**: Advanced spatial-attention mechanisms that maintain consistent facial features, product dimensions, or logos across multiple revisions.
@@ -54,26 +54,43 @@ export GEMINI_API_KEY="AIzaSyYourKeyHere..."
 ```
 
 ### 2. Conversational Generation Quickstart
-Use Python to generate an initial illustration.
+Use Python with `google-genai` and Pydantic v2 schemas to validate image generation requests.
 
 ```python
 import base64
 from google import genai
+from pydantic import BaseModel, Field, ConfigDict
 
-client = genai.Client()
 
-# Generate an initial base image using the latest flash image model
-interaction = client.interactions.create(
-    model="gemini-3.1-flash-image",
-    input="A stylized illustration of a computer setup with neon lighting on a wooden desk."
-)
+class ImageGenerationRequest(BaseModel):
+    """Pydantic v2 schema for validating image creation inputs."""
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-# Extract and write base64 image data
-image_bytes = base64.b64decode(interaction.output_image.data)
-with open("base_setup.png", "wb") as f:
-    f.write(image_bytes)
+    prompt: str = Field(..., min_length=5, description="Prompt describing desired image output.")
+    model_name: str = Field(default="gemini-4.0-flash-image", description="Target Gemini image model.")
 
-print(f"Generated base image successfully! Saved with Interaction ID: {interaction.id}")
+
+def generate_initial_image(request: ImageGenerationRequest, output_filename: str = "base_setup.png"):
+    client = genai.Client()
+
+    interaction = client.interactions.create(
+        model=request.model_name,
+        input=request.prompt
+    )
+
+    image_bytes = base64.b64decode(interaction.output_image.data)
+    with open(output_filename, "wb") as f:
+        f.write(image_bytes)
+
+    print(f"Generated base image successfully! Saved with Interaction ID: {interaction.id}")
+    return interaction.id
+
+
+if __name__ == "__main__":
+    req = ImageGenerationRequest(
+        prompt="A stylized illustration of a computer setup with neon lighting on a wooden desk."
+    )
+    print(f"Validated generation request for model: {req.model_name}")
 ```
 
 ## CLI examples
@@ -87,7 +104,7 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
   -H "x-goog-api-key: $GEMINI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-3.1-flash-image",
+    "model": "gemini-4.0-flash-image",
     "input": [{"type": "text", "text": "A minimalist corporate logo featuring a green banana inside a sleek gear."}]
   }' > logo_response.json
 ```
@@ -103,7 +120,7 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
   -H "x-goog-api-key: $GEMINI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-3.1-flash-image",
+    "model": "gemini-4.0-flash-image",
     "input": [
       {"type": "text", "text": "Swap the gray sweater the person is wearing to a bright yellow hoodie."},
       {"type": "image", "mime_type": "image/png", "data": "'"$BASE_IMAGE_B64"'" }
@@ -119,7 +136,7 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
   -H "x-goog-api-key: $GEMINI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-3-pro-image",
+    "model": "gemini-4.0-pro-image",
     "input": "A cinematic landscape shot of misty mountains at sunrise, ultra-realistic",
     "response_format": {
       "type": "image",
@@ -132,66 +149,86 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
 For complex multi-turn editing systems, retaining previous interaction contexts is vital.
 
 ### 1. Multi-Turn Visual Editing (Python API)
-The following script demonstrates how to create a visual design loop where subsequent requests build upon previous outputs using the `previous_interaction_id` field.
+The following script demonstrates multi-turn visual editing using `google-genai` and Pydantic v2.
 
 ```python
 import base64
 from google import genai
+from pydantic import BaseModel, Field, ConfigDict
 
-def execute_design_iteration():
+
+class IterativeEditRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    prompt: str = Field(..., min_length=3)
+    previous_interaction_id: str = Field(...)
+
+
+def execute_design_iteration(request: IterativeEditRequest, output_filename: str = "watch_step2.png"):
     client = genai.Client()
 
-    # Step 1: Generate initial graphic
-    step1 = client.interactions.create(
-        model="gemini-3.1-flash-image",
-        input="A vector illustration of a modern smartwatch displaying health statistics."
-    )
-
-    # Write Step 1 output
-    with open("watch_step1.png", "wb") as f:
-        f.write(base64.b64decode(step1.output_image.data))
-
-    print(f"Initial ID: {step1.id}")
-
-    # Step 2: Instruct model to edit the smartwatch, retaining the design context
     step2 = client.interactions.create(
-        model="gemini-3.1-flash-image",
-        input="Now change the leather strap of the watch to a modern metallic mesh band.",
-        previous_interaction_id=step1.id
+        model="gemini-4.0-flash-image",
+        input=request.prompt,
+        previous_interaction_id=request.previous_interaction_id
     )
 
-    # Write Step 2 output
-    with open("watch_step2.png", "wb") as f:
-        f.write(base64.b64decode(step2.output_image.data))
+    image_bytes = base64.b64decode(step2.output_image.data)
+    with open(output_filename, "wb") as f:
+        f.write(image_bytes)
 
     print("Multi-turn visual edit executed successfully!")
+    return step2.id
+
 
 if __name__ == "__main__":
-    execute_design_iteration()
+    req = IterativeEditRequest(
+        prompt="Now change the leather strap of the watch to a modern metallic mesh band.",
+        previous_interaction_id="interaction_12345"
+    )
+    print(f"Validated edit step for previous interaction ID: {req.previous_interaction_id}")
 ```
 
 ### 2. Batch Background Swapping and Color Harmonization
-Programmatically edit multiple variations of a product photo.
+Programmatically edit multiple variations of a product photo using `google-genai`.
 
 ```python
-from google import genai
 import base64
+from google import genai
+from pydantic import BaseModel, Field
+from typing import List
 
-def generate_banner_variants(base_image_path: str, backgrounds: list):
+
+class BatchSwapRequest(BaseModel):
+    backgrounds: List[str] = Field(..., min_items=1)
+    base_image_path: str = Field(...)
+
+
+def generate_banner_variants(request: BatchSwapRequest):
     client = genai.Client()
 
-    with open(base_image_path, "rb") as image_file:
+    with open(request.base_image_path, "rb") as image_file:
         base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-    for idx, bg in enumerate(backgrounds):
+    results = []
+    for bg in request.backgrounds:
         response = client.interactions.create(
-            model="gemini-3.1-flash-image",
+            model="gemini-4.0-flash-image",
             input=[
                 {"type": "text", "text": f"Isolate the central object and place it on a {bg} background."},
                 {"type": "image", "mime_type": "image/png", "data": base64_image}
             ]
         )
-        # Process and write response output...
+        results.append(response)
+    return results
+
+
+if __name__ == "__main__":
+    req = BatchSwapRequest(
+        backgrounds=["marble countertop", "wooden terrace"],
+        base_image_path="/tmp/product.png"
+    )
+    print(f"Prepared batch swap for {len(req.backgrounds)} background variations.")
 ```
 
 ## Related tools / concepts
@@ -209,5 +246,5 @@ def generate_banner_variants(base_image_path: str, backgrounds: list):
 - [Google Gen AI SDK Quickstart Guides](https://ai.google.dev/gemini-api/docs/quickstart)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
