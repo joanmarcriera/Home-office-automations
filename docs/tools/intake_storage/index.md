@@ -1,28 +1,29 @@
-# Intake & Storage
+---
+title: "Data Intake & Storage Tools"
+description: "Directory of data intake, document parsing, object storage, and knowledge storage solutions."
+category: "intake_storage"
+date: 2027-01-06
+status: "Completed"
+---
 
-The intake and storage layer is responsible for the extraction, transformation, and persistence of unstructured and semi-structured data. This layer ensures that documents (PDFs, images, logs, web content) are converted into formats that LLMs and agentic workflows can effectively consume.
+# Data Intake & Storage Tools
 
-## Core Capabilities
+Tools, protocols, and platforms for document ingestion, unstructured data parsing, object storage, and local knowledge management.
 
-| Capability | Description | Core Tools |
-| :--- | :--- | :--- |
-| **Parsing & Extraction** | Converting complex PDFs, HTML, and office docs into clean Markdown/JSON. | [Unstructured.io](unstructured.md), [LlamaParse](llamaparse.md), [Docling](../process_understanding/docling.md) |
-| **Object Storage** | Durable persistence for raw files and processed artifacts. | [S3 / S3-Compatible](s3-storage.md), [MinIO](minio.md) |
-| **Hybrid Systems** | Integrated environments for personal knowledge management and search. | [AnyType](anytype.md), [Khoj](khoj.md), [SilverBullet](silverbullet.md) |
-| **Database Sync** | Synchronizing specialized data types like calendars or journals. | [Caldav](caldav.md) |
-| **Analytics Warehouses** | Columnar and cloud warehouses for logs, traces, and analytical workloads. | [ClickHouse](../process_understanding/clickhouse.md), [Snowflake](../process_understanding/snowflake.md) |
+## Contents
 
-## Tool Selection Guidance
+| Tool | What it does |
+| :--- | :--- |
+| [Anytype](anytype.md) | Local-first, peer-to-peer knowledge base and task management application |
+| [CalDAV Protocol](caldav.md) | Open standard calendar sync protocol for self-hosted and cloud integration |
+| [Dolt](dolt.md) | Git for data — version-controlled SQL database for schema and data tracking |
+| [Khoj](khoj.md) | Open-source personal AI search assistant across local documents and notes |
+| [LlamaParse](llamaparse.md) | Document parsing service optimized for complex PDFs, tables, and RAG pipelines |
+| [MinIO](minio.md) | High-performance Kubernetes-native S3-compatible object storage |
+| [S3 Storage](s3-storage.md) | Object storage integration guidelines for AWS S3 and S3-compatible backends |
+| [SilverBullet](silverbullet.md) | Extensible, markdown-based local-first personal knowledge management system |
+| [Unstructured](unstructured.md) | ETL platform for parsing and preparing unstructured documents for LLM pipelines |
+| [Verba](verba.md) | Open-source RAG application framework built on top of Weaviate |
 
-- **High-Volume ETL**: Use [Unstructured.io](unstructured.md) for its broad format support and local-first partitioning strategies.
-- **Complex Documents**: Use [LlamaParse](llamaparse.md) when dealing with nested tables and multi-column layouts that require vision-aware parsing.
-- **Privacy-First Search**: Use [Khoj](khoj.md) or [Verba](verba.md) for local-first RAG over personal document collections.
-- **Standardized Object Store**: Use MinIO or AWS [S3](s3-storage.md) as the backbone for cross-service document access.
-
-## Related Tools / Concepts
-
-- [RAG Patterns](../../knowledge_base/patterns/rag.md)
-- [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md)
-- [Process & Understanding](../process_understanding/index.md)
-- [Self-hosted Services](../../services/README.md)
-- [Paperless-ngx](../../services/paperless-ngx.md)
+---
+- Last reviewed: 2027-01-06
