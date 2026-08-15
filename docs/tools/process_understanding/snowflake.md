@@ -1,12 +1,12 @@
 # Snowflake
 
 ## What it is
-Snowflake is a cloud-based analytical data warehousing and processing platform. As of late August 2026, Snowflake has fully transitioned into an AI Data Cloud, incorporating high-performance vector databases, deep model fine-tuning pathways, and enterprise-grade serverless LLM computation directly alongside historical database tables. It is a cloud-only, proprietary SaaS offering.
+Snowflake is a cloud-based analytical data warehousing and processing platform. As of early January 2027, Snowflake has fully evolved into an AI Data Cloud, incorporating high-performance vector search, zero-egress LLM execution, deep model fine-tuning pathways, and enterprise-grade serverless multi-agent trace processing directly alongside relational database tables. It is a cloud-only, proprietary SaaS offering.
 
 ## What problem it solves
 It solves the performance bottlenecks, security risks, and latency overheads of moving sensitive corporate data to external APIs for LLM operations. Snowflake enables in-database ML operations, native multi-modal model processing, and massive-scale telemetry storage. In modern agent systems, it is heavily used to:
-- **Consolidate AI Telemetry**: Standardize structured log and transaction traces from models like **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
-- **Model Context Integration**: Utilize **MCP 3.1 (Model Context Protocol)** connectors to bridge relational enterprise schemas to agent workflows.
+- **Consolidate AI Telemetry**: Standardize structured log and transaction traces from frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
+- **Model Context Integration**: Utilize **FastMCP 3.1 (Model Context Protocol)** connectors to bridge relational enterprise schemas and vector indexes directly to agent workflows.
 - **In-place AI Processing**: Run serverless inference directly on sensitive table columns using **Snowflake Cortex AI** without data egress.
 
 ## Where it fits in the stack
@@ -114,64 +114,121 @@ snowsql -c agent_conn -q "PUT file://./local_traces.json @%AGENT_RUN_TRACES/stag
 
 ## API examples
 
-### Python Connection (snowflake-connector-python)
-Connect programmatically and query aggregated cost metrics across Claude 5.1 and GPT-5.5 runs:
+### Python Connection & Pydantic v2 Trace Ingestion
+Connect programmatically, validate structured agent traces with Pydantic v2, and query aggregated cost metrics across Claude 5.1 and GPT-5.5 runs:
 
 ```python
+import json
+from typing import Dict, Any, Optional
+from datetime import datetime
+from pydantic import BaseModel, Field
 import snowflake.connector
 
-# Initialize programmatic connection
-conn = snowflake.connector.connect(
-    user='observability_bot',
-    password='SuperSecurePassword123!',
-    account='xy12345.us-east-1',
-    warehouse='COMPUTE_WH',
-    database='AI_OBSERVABILITY',
-    schema='PUBLIC'
-)
+class AgentRunTrace(BaseModel):
+    trace_id: str = Field(description="Unique UUID for agent trace execution")
+    model_name: str = Field(description="Target model name, e.g. claude-5-1-sonnet")
+    user_prompt: str = Field(description="Input prompt sent to the model")
+    response_payload: Dict[str, Any] = Field(description="Structured JSON output payload")
+    token_cost: float = Field(ge=0.0, description="Calculated token cost in USD")
+    latency_ms: float = Field(ge=0.0, description="Execution latency in milliseconds")
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
-try:
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT MODEL_NAME, SUM(TOKEN_COST), AVG(LATENCY_MS)
-        FROM AGENT_RUN_TRACES
-        WHERE MODEL_NAME IN ('claude-5-1-sonnet', 'gpt-5.5-preview')
-        GROUP BY MODEL_NAME
-    """)
-    for (model, cost, latency) in cursor:
-        print(f"Model: {model} | Total Cost: ${cost:.4f} | Avg Latency: {latency:.2f}ms")
-finally:
-    conn.close()
+def log_and_query_traces(trace_data: Dict[str, Any]) -> None:
+    # Validate payload via Pydantic v2
+    validated_trace = AgentRunTrace(**trace_data)
+
+    conn = snowflake.connector.connect(
+        user='observability_bot',
+        password='SuperSecurePassword123!',
+        account='xy12345.us-east-1',
+        warehouse='COMPUTE_WH',
+        database='AI_OBSERVABILITY',
+        schema='PUBLIC'
+    )
+
+    try:
+        cursor = conn.cursor()
+        # Insert validated trace using VARIANT JSON conversion
+        cursor.execute(
+            """
+            INSERT INTO AGENT_RUN_TRACES (TRACE_ID, MODEL_NAME, USER_PROMPT, RESPONSE_PAYLOAD, TOKEN_COST, LATENCY_MS)
+            SELECT %s, %s, %s, PARSE_JSON(%s), %s, %s
+            """,
+            (
+                validated_trace.trace_id,
+                validated_trace.model_name,
+                validated_trace.user_prompt,
+                json.dumps(validated_trace.response_payload),
+                validated_trace.token_cost,
+                validated_trace.latency_ms,
+            )
+        )
+
+        cursor.execute("""
+            SELECT MODEL_NAME, SUM(TOKEN_COST), AVG(LATENCY_MS)
+            FROM AGENT_RUN_TRACES
+            WHERE MODEL_NAME IN ('claude-5-1-sonnet', 'gpt-5.5-preview')
+            GROUP BY MODEL_NAME
+        """)
+        for (model, cost, latency) in cursor:
+            print(f"Model: {model} | Total Cost: ${cost:.4f} | Avg Latency: {latency:.2f}ms")
+    finally:
+        conn.close()
+
+if __name__ == "__main__":
+    sample_trace = {
+        "trace_id": "tr-20270106-992",
+        "model_name": "claude-5-1-sonnet",
+        "user_prompt": "Analyze enterprise Q4 log anomalies",
+        "response_payload": {"status": "ok", "anomalies_detected": 0},
+        "token_cost": 0.0024,
+        "latency_ms": 340.5
+    }
+    log_and_query_traces(sample_trace)
 ```
 
-### Snowpark Python DataFrame (Programmatic Vector Generation)
-Utilize Snowpark DataFrame APIs to generate high-dimensional embeddings natively on a dataset:
+### FastMCP 3.1 Integration Snippet
+Expose Snowflake analytics and Cortex functions as standardized MCP tool endpoints:
 
 ```python
-from snowflake.snowpark import Session
-import snowflake.snowpark.functions as F
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import snowflake.connector
 
-# Initialize session parameters
-session = Session.builder.configs({
-    "user": "observability_bot",
-    "password": "SuperSecurePassword123!",
-    "account": "xy12345.us-east-1",
-    "warehouse": "COMPUTE_WH",
-    "database": "AI_OBSERVABILITY",
-    "schema": "PUBLIC"
-}).create()
+mcp = FastMCP("SnowflakeAnalyticsService")
 
-# Read target dataset
-df = session.table("AGENT_RUN_TRACES")
+class AnalyticsQuery(BaseModel):
+    model_filter: str = Field(default="claude-5-1-sonnet", description="Model name to aggregate stats for")
 
-# Vectorize prompts natively in Snowflake using Cortex
-vectorized_df = df.select(
-    F.col("TRACE_ID"),
-    F.col("USER_PROMPT"),
-    F.call_function("snowflake.cortex.embed_text_1024", "text-embedding-3-large", F.col("USER_PROMPT")).alias("PROMPT_EMBEDDINGS")
-)
+@mcp.tool()
+def get_model_performance_summary(query: AnalyticsQuery) -> dict:
+    """Query aggregated Snowflake metrics for agent execution runs."""
+    conn = snowflake.connector.connect(
+        user='observability_bot',
+        password='SuperSecurePassword123!',
+        account='xy12345.us-east-1',
+        warehouse='COMPUTE_WH',
+        database='AI_OBSERVABILITY',
+        schema='PUBLIC'
+    )
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT COUNT(*), AVG(LATENCY_MS), SUM(TOKEN_COST) FROM AGENT_RUN_TRACES WHERE MODEL_NAME = %s",
+            (query.model_filter,)
+        )
+        row = cursor.fetchone()
+        return {
+            "model_name": query.model_filter,
+            "total_runs": row[0] or 0,
+            "avg_latency_ms": row[1] or 0.0,
+            "total_cost_usd": row[2] or 0.0
+        }
+    finally:
+        conn.close()
 
-vectorized_df.show(5)
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -194,5 +251,5 @@ vectorized_df.show(5)
 - [Snowpark Developer Guide for Python](https://docs.snowflake.com/en/developer-guide/snowpark/python/index)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

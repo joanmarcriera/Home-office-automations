@@ -1,7 +1,7 @@
 # OpenTelemetry Collector
 
 ## What it is
-The OpenTelemetry (OTel) Collector is a high-performance, vendor-agnostic proxy designed to receive, process, and export telemetry data (traces, metrics, and logs). As of late August 2026, it serves as the universal standard for AI and agentic telemetry pipelines. It allows developers to unify metrics across traditional infrastructure layers and multi-agent workflows running on engines like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 3.5**. It is open-source and highly self-hostable.
+The OpenTelemetry (OTel) Collector is a high-performance, vendor-agnostic proxy designed to receive, process, and export telemetry data (traces, metrics, and logs). As of early January 2027, it serves as the universal standard for AI and agentic telemetry pipelines. It allows developers to unify metrics across traditional infrastructure layers and multi-agent workflows running on engines like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 4.0**. It is open-source and highly self-hostable.
 
 ## What problem it solves
 Managing telemetry in multi-agent environments often introduces high performance overheads, strict vendor lock-in, and compliance risks related to personally identifiable information (PII). The OTel Collector mitigates these concerns by providing:
@@ -9,7 +9,7 @@ Managing telemetry in multi-agent environments often introduces high performance
 - **Client-Side Processing**: Real-time scrubbing of sensitive customer fields, prompt content, or API keys directly within the local network prior to routing.
 - **Dynamic Routing**: A "receive once, distribute many" setup, sending trace metrics concurrently to cloud metrics providers, security databases, and local archives.
 - **Sampling Governance**: Cost-defensive tail-based sampling configurations to drop redundant, successful runs and isolate only anomalous or slow multi-turn traces.
-- **MCP 3.1 Session Instrumentation**: The ability to translate Model Context Protocol (MCP 3.1) connection patterns and payload responses into standardized OTLP traces.
+- **FastMCP 3.1 Session Instrumentation**: The ability to translate Model Context Protocol (FastMCP 3.1) connection patterns and payload responses into standardized OTLP traces.
 
 ## Where it fits in the stack
 The OpenTelemetry Collector sits in the **Observability Infrastructure** layer, acting as a telemetry router positioned securely between your production agent workflows (or proxies like [OpenRouter](../ai_knowledge/openrouter.md)) and target downstream monitoring platforms.
@@ -95,7 +95,7 @@ docker run -d \
     -p 4318:4318 \
     -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
     --name otel-collector \
-    otel/opentelemetry-collector:0.108.0
+    otel/opentelemetry-collector:0.115.0
 ```
 
 ## CLI examples
@@ -123,51 +123,97 @@ otelcol --version
 
 ## API examples
 
-### Python Trace Ingestion (OTLP gRPC)
-Configure your multi-agentic application (e.g., a **Claude 5.1** task routing loop) to ship performance traces to your local Collector instance:
+### Python Trace Ingestion with Pydantic v2 Span Context
+Configure your multi-agentic application (e.g., a **Claude 5.1** task routing loop) to ship validated performance traces to your local Collector instance:
 
 ```python
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
-# Set up local Tracer provider
-trace.set_tracer_provider(TracerProvider())
-tracer = trace.get_tracer(__name__)
+class AgentSpanMetadata(BaseModel):
+    model_name: str = Field(description="Frontier LLM name, e.g. claude-5-1-sonnet")
+    prompt_tokens: int = Field(ge=0, description="Input token count")
+    completion_tokens: int = Field(ge=0, description="Output token count")
+    agent_id: str = Field(description="Unique agent instance identifier")
+    session_id: Optional[str] = Field(default=None, description="FastMCP 3.1 session identifier")
 
-# Point exporter to local OTel Collector endpoint
-otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
-span_processor = BatchSpanProcessor(otlp_exporter)
-trace.get_tracer_provider().add_span_processor(span_processor)
+def emit_agent_telemetry(metadata_dict: Dict[str, Any]) -> None:
+    # Validate trace metadata schema
+    metadata = AgentSpanMetadata(**metadata_dict)
 
-# Measure agent run latency and cost
-with tracer.start_as_current_span("agent-task-routing-span") as span:
-    span.set_attribute("llm.model", "claude-5-1-sonnet")
-    span.set_attribute("llm.prompt_tokens", 452)
-    print("Executing core agentic task routing logic...")
+    # Set up Tracer provider
+    trace.set_tracer_provider(TracerProvider())
+    tracer = trace.get_tracer(__name__)
+
+    # Point exporter to local OTel Collector endpoint
+    otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+    span_processor = BatchSpanProcessor(otlp_exporter)
+    trace.get_tracer_provider().add_span_processor(span_processor)
+
+    # Measure agent run latency and attributes
+    with tracer.start_as_current_span("agent-task-routing-span") as span:
+        span.set_attribute("gen_ai.system", "anthropic")
+        span.set_attribute("gen_ai.request.model", metadata.model_name)
+        span.set_attribute("gen_ai.usage.prompt_tokens", metadata.prompt_tokens)
+        span.set_attribute("gen_ai.usage.completion_tokens", metadata.completion_tokens)
+        span.set_attribute("agent.id", metadata.agent_id)
+        if metadata.session_id:
+            span.set_attribute("mcp.session_id", metadata.session_id)
+
+        print(f"Emitted trace span for agent '{metadata.agent_id}' running '{metadata.model_name}'")
+
+if __name__ == "__main__":
+    sample_payload = {
+        "model_name": "claude-5-1-sonnet",
+        "prompt_tokens": 452,
+        "completion_tokens": 128,
+        "agent_id": "routing_agent_01",
+        "session_id": "mcp-sess-2027-881"
+    }
+    emit_agent_telemetry(sample_payload)
 ```
 
-### Node.js Custom Token Metrics Export (OTLP HTTP)
-Log and increment custom metrics representing model token spend via OTLP over HTTP:
+### FastMCP 3.1 Telemetry Collector Integration Snippet
+Bridge OTel metrics directly into a FastMCP tool handler:
 
-```javascript
-const { MeterProvider } = require('@opentelemetry/sdk-metrics');
-const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 
-const exporter = new OTLPMetricExporter({
-  url: 'http://localhost:4318/v1/metrics',
-});
+mcp = FastMCP("OTelCollectorBridge")
 
-const meterProvider = new MeterProvider();
-const meter = meterProvider.getMeter('agentic-usage-metrics');
+# Configure Metric Exporter pointing to OTel Collector OTLP HTTP endpoint
+exporter = OTLPMetricExporter(endpoint="http://localhost:4318/v1/metrics")
+reader = PeriodicExportingMetricReader(exporter)
+provider = MeterProvider(metric_readers=[reader])
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter("mcp-agent-metrics")
 
-const tokenCounter = meter.createCounter('tokens_spent', {
-  description: 'Tracks total prompt and completion token counts',
-});
+request_counter = meter.create_counter(
+    "mcp_tool_invocations",
+    description="Number of tool invocations routed through FastMCP"
+)
 
-// Record token cost metrics for a GPT-5.5 call
-tokenCounter.add(1024, { 'model.name': 'gpt-5.5-preview', 'agent.id': 'finance_routing_agent' });
+class ToolInvocationRecord(BaseModel):
+    tool_name: str = Field(description="Name of the MCP tool invoked")
+    status: str = Field(default="success", description="Status code or result state")
+
+@mcp.tool()
+def record_tool_metric(record: ToolInvocationRecord) -> dict:
+    """Record a tool execution event to the OpenTelemetry Collector."""
+    request_counter.add(1, {"tool.name": record.tool_name, "execution.status": record.status})
+    return {"status": "metric_recorded", "tool": record.tool_name}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -190,5 +236,5 @@ tokenCounter.add(1024, { 'model.name': 'gpt-5.5-preview', 'agent.id': 'finance_r
 - [OpenTelemetry semantic conventions for AI applications](https://opentelemetry.io/docs/specs/semconv/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high

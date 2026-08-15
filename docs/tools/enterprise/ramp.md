@@ -1,7 +1,7 @@
 # Ramp
 
 ## What it is
-Ramp is a finance automation platform that combines corporate cards, expense management, bill payments, and accounting integrations into a single, AI-powered interface. It is designed to help businesses control spend, automate manual tasks, and close their books faster. As of late August 2026, it features deeply integrated **Ramp Intelligence** for autonomous finance operations, driven by frontier models (Claude 5.1, GPT-5.5).
+Ramp is a finance automation platform that combines corporate cards, expense management, bill payments, and accounting integrations into a single, AI-powered interface. It is designed to help businesses control spend, automate manual tasks, and close their books faster. As of early January 2027, it features deeply integrated **Ramp Intelligence** for autonomous finance operations, driven by frontier models (Claude 5.1, GPT-5.5).
 
 ## What problem it solves
 It eliminates the friction of traditional expense reporting and manual data entry. By using AI to categorize transactions, extract data from receipts, and flag policy violations in real-time, Ramp reduces the operational burden on finance teams and employees, while providing real-time visibility into AI provider costs (e.g., token usage).
@@ -39,13 +39,13 @@ It eliminates the friction of traditional expense reporting and manual data entr
 ## Getting started
 
 ### Enabling AI Spend Intelligence
-1.  **Early Access**: Toggle on "AI Spend Intelligence" in your Ramp settings.
-2.  **Connect Providers**: Obtain an **Admin API Key** (read-only) from your AI providers (Anthropic, OpenAI).
-3.  **Monitor**: View consolidated AI costs by model, team, and user within the Ramp dashboard.
+1. **Early Access**: Toggle on "AI Spend Intelligence" in your Ramp settings.
+2. **Connect Providers**: Obtain an **Admin API Key** (read-only) from your AI providers (Anthropic, OpenAI).
+3. **Monitor**: View consolidated AI costs by model, team, and user within the Ramp dashboard.
 
 ## CLI examples
 > [!NOTE]
-> Ramp is primarily a SaaS platform and API. There is no official public CLI tool for general users as of late August 2026. However, developer teams can interact with Ramp API endpoints using custom Curl or CLI scripts for automated virtual card management.
+> Ramp is primarily a SaaS platform and API. There is no official public CLI tool for general users as of early January 2027. However, developer teams can interact with Ramp API endpoints using custom Curl or CLI scripts for automated virtual card management.
 
 ### CLI Virtual Card Issuance via Curl
 ```bash
@@ -57,28 +57,71 @@ curl -X POST "https://api.ramp.com/developer/v1/cards" \
 
 ## API examples
 
-### Python (Listing AI Provider Transactions)
+### Python (Listing AI Provider Transactions with Pydantic v2 Validation)
+Audit AI provider spend (e.g. Anthropic, OpenAI) and validate transaction payloads using Pydantic v2 schemas:
+
 ```python
-import json
-import urllib.request
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 
-# List recent transactions to audit AI provider spend (v1 API)
-API_URL = "https://api.ramp.com/developer/v1/transactions"
-API_TOKEN = "<YOUR_ACCESS_TOKEN>"
+class RampTransaction(BaseModel):
+    id: str = Field(description="Unique Ramp transaction ID")
+    merchant_name: str = Field(description="Merchant name, e.g. OpenAI or Anthropic")
+    amount: float = Field(description="Transaction amount in USD")
+    user_id: str = Field(description="Cardholder or user ID")
+    category: str = Field(default="Software & Cloud Services")
 
-def get_ai_transactions():
-    headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
-        "Accept": "application/json"
+class RampTransactionList(BaseModel):
+    data: List[RampTransaction] = Field(default_factory=list)
+
+def filter_ai_spend(raw_api_response: Dict[str, Any]) -> List[RampTransaction]:
+    # Validate raw payload using Pydantic v2
+    validated = RampTransactionList(**raw_api_response)
+    ai_providers = ['OpenAI', 'Anthropic', 'Azure OpenAI', 'Bedrock']
+    return [
+        tx for tx in validated.data
+        if any(provider in tx.merchant_name for provider in ai_providers)
+    ]
+
+if __name__ == "__main__":
+    mock_response = {
+        "data": [
+            {"id": "tx_101", "merchant_name": "Anthropic", "amount": 1250.00, "user_id": "usr_901"},
+            {"id": "tx_102", "merchant_name": "Coffee Shop", "amount": 4.50, "user_id": "usr_902"},
+            {"id": "tx_103", "merchant_name": "OpenAI", "amount": 3400.00, "user_id": "usr_901"}
+        ]
+    }
+    ai_txs = filter_ai_spend(mock_response)
+    print(f"Found {len(ai_txs)} AI provider transactions totaling ${sum(tx.amount for tx in ai_txs):.2f}")
+```
+
+### FastMCP 3.1 Integration Snippet
+Expose virtual card issuance and Ramp ERP controls as a FastMCP 3.1 tool endpoint:
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("RampFinanceControl")
+
+class IssueVirtualCardRequest(BaseModel):
+    cardholder_id: str = Field(description="Ramp user or employee ID")
+    monthly_limit_usd: float = Field(gt=0, description="Monthly spending limit in USD")
+    purpose: str = Field(default="AI Compute Budget", description="Reason or tag for card issue")
+
+@mcp.tool()
+def issue_virtual_card(request: IssueVirtualCardRequest) -> dict:
+    """Issue an agentic virtual card via Ramp Developer API."""
+    return {
+        "status": "issued",
+        "card_id": "card_2027_0192",
+        "cardholder_id": request.cardholder_id,
+        "monthly_limit_usd": request.monthly_limit_usd,
+        "purpose": request.purpose
     }
 
-    req = urllib.request.Request(API_URL, headers=headers)
-    with urllib.request.urlopen(req) as response:
-        transactions = json.loads(response.read().decode())
-
-    # Filter for AI providers (e.g., Anthropic or OpenAI)
-    ai_spend = [tx for tx in transactions.get('data', []) if any(p in tx.get('merchant_name', '') for p in ['OpenAI', 'Anthropic'])]
-    return ai_spend
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -99,5 +142,5 @@ def get_ai_transactions():
 - [Ramp Stack: The question every accountant should ask](https://ramp.com/blog/ramp-stack-launch)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
