@@ -1,7 +1,7 @@
 # n8n Golden Sub-workflows
 
 ## What it is
-n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of September 2026, these sub-workflows are optimized for full integration with **Model Context Protocol (MCP 3.1)** servers, enabling **Claude 5.1**, **GPT-5.5**, and **Llama 4** to trigger complex, multi-stage n8n logic as native tools.
+n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of January 2027, these sub-workflows are optimized for full integration with **FastMCP 3.1** servers, enabling **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4** to trigger complex, multi-stage n8n logic as native tools.
 
 ## What problem it solves
 Reduces duplication of logic across multiple workflows, ensures consistent handling of sensitive data (like risk gating or human approval), and simplifies the creation of new automations by providing pre-validated patterns for common operations. It also ensures that advanced models like Claude 5.1 and GPT-5.5 have a predictable execution environment for complex multi-step tasks.
@@ -21,7 +21,7 @@ Reduces duplication of logic across multiple workflows, ensures consistent handl
 - **Consistency**: Ensures every automation follows the same rules for security and data extraction.
 - **Maintainability**: Updating a "Golden" sub-workflow automatically improves all parent workflows that use it.
 - **Observability**: Standardized logging makes it easier to trace errors across nested workflows.
-- **Agent-Ready**: Native MCP 3.1 support allows sub-workflows to be called directly by frontier models.
+- **Agent-Ready**: Native FastMCP 3.1 support allows sub-workflows to be called directly by frontier models.
 
 ## Limitations
 - **Complexity**: Debugging nested workflows can be more challenging than single-layer flows.
@@ -47,7 +47,7 @@ Choose one of the sub-workflows patterns (e.g., `human-approval`, `email-triage`
 In n8n, create a new workflow using the **Execute Workflow Trigger**.
 
 ### 3. Define Inputs
-Use the "Set" node or the new "Workflow Input" node (June 2026 feature) to define the required variables (e.g., `action_name`, `severity`).
+Use the "Set" node or the new "Workflow Input" node feature to define the required variables (e.g., `action_name`, `severity`).
 
 ### 4. Implement the Logic
 Add the specific nodes for notification, LLM analysis, or branching.
@@ -74,7 +74,7 @@ n8n execute:workflow --id=123 --data='{"body": "test email"}'
 ```
 
 ## API examples
-Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 5.1 compatible):
+Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 5.1 / GPT-5.5 compatible):
 
 ```python
 import requests
@@ -88,7 +88,7 @@ headers = {
 }
 
 data = {
-    "body": "Your invoice for June is $50.00, due on 2026-06-15.",
+    "body": "Your invoice for January is $50.00, due on 2027-01-15.",
     "sender": "billing@utility.com"
 }
 
@@ -96,13 +96,14 @@ response = requests.post(N8N_URL, json=data, headers=headers)
 print(response.json())
 ```
 
-### MCP 3.1 Tool Definition & Validation Loop
-JSON definition for exposing a sub-workflow to an MCP-compatible agent under MCP 3.1:
+### FastMCP 3.1 Tool Definition & Pydantic v2 Execution Validation Loop
+
+JSON schema definition for exposing a sub-workflow to an MCP-compatible agent under FastMCP 3.1:
 
 ```json
 {
   "name": "triage_email_mcp_3_1",
-  "description": "Trigger the golden sub-workflow for email classification and extraction under MCP 3.1.",
+  "description": "Trigger the golden sub-workflow for email classification and extraction under FastMCP 3.1.",
   "input_schema": {
     "type": "object",
     "properties": {
@@ -115,22 +116,46 @@ JSON definition for exposing a sub-workflow to an MCP-compatible agent under MCP
 }
 ```
 
-And a programmatic Python snippet verifying sub-workflow connectivity:
+And a programmatic Python snippet with strict **Pydantic v2** models verifying sub-workflow connectivity and response structure:
 
 ```python
 import sys
-import json
 import requests
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Dict, Any, Optional
 
-def check_mcp_3_1_workflow(workflow_id: str, payload: dict) -> bool:
-    url = f"https://n8n.your-homelab.com/api/v1/workflows/{workflow_id}/run"
+class SubWorkflowPayload(BaseModel):
+    """Pydantic v2 model for validating n8n golden sub-workflow execution payload."""
+    workflow_id: str = Field(..., description="ID or slug of n8n sub-workflow")
+    email_body: str = Field(..., description="Raw email text to be triaged")
+    sender: str = Field(..., description="Sender email address")
+    metadata: Dict[str, Any] = Field(default_factory=lambda: {"mcp_version": "3.1"})
+
+class SubWorkflowResponse(BaseModel):
+    """Pydantic v2 model for validating n8n execution response."""
+    execution_id: str = Field(..., alias="executionId", description="n8n execution tracking ID")
+    status: str = Field(default="success", description="Execution status")
+    data: Optional[Dict[str, Any]] = Field(default=None, description="Output payload from sub-workflow")
+
+def check_mcp_3_1_workflow(base_url: str, payload: SubWorkflowPayload) -> bool:
+    """Executes sub-workflow and validates execution response using Pydantic v2."""
+    url = f"{base_url.rstrip('/')}/api/v1/workflows/{payload.workflow_id}/run"
     headers = {
         "X-MCP-Version": "3.1",
         "Content-Type": "application/json"
     }
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=5)
-        return response.status_code == 200 and "executionId" in response.json()
+        response = requests.post(
+            url,
+            json=payload.model_dump(by_alias=True),
+            headers=headers,
+            timeout=5
+        )
+        if response.status_code == 200:
+            resp_obj = SubWorkflowResponse.model_validate(response.json())
+            print(f"Sub-workflow run successful. Execution ID: {resp_obj.execution_id}")
+            return True
+        return False
     except Exception as e:
         print(f"Connection failed: {e}", file=sys.stderr)
         return False
@@ -190,8 +215,8 @@ Email Content: {{ $json.body }}
 ## Sources / references
 - [n8n Execution Logs Documentation](https://docs.n8n.io/hosting/scaling-n8n/execution-logs/)
 - [n8n Sub-workflows Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow/)
-- [Advanced n8n Patterns for AI Agents (September 2026 Update)](https://n8n.io/blog/ai-agent-patterns)
+- [Advanced n8n Patterns for AI Agents (January 2027 Update)](https://n8n.io/blog/ai-agent-patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high

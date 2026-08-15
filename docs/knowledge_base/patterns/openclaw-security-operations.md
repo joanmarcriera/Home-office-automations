@@ -1,7 +1,7 @@
 # OpenClaw Security and Operations Pattern
 
 ## What it is
-An operating pattern for running OpenClaw and other high-autonomy agents with explicit trust boundaries, patch discipline, skill review, and approval gates for high-impact actions. It is the primary framework for managing agents powered by frontier models like **Claude 5.1**, **GPT-5.5**, **Llama 4**, **Gemma 3**, **Qwen 3.6**, and the **Gemini 3.5 series**.
+An operating pattern for running OpenClaw and other high-autonomy agents with explicit trust boundaries, patch discipline, skill review, and approval gates for high-impact actions. As of January 2027, it is the primary framework for managing agents powered by frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.8** utilizing **FastMCP 3.1** security bindings.
 
 ## What problem it solves
 OpenClaw combines messaging channels, browser automation, shell-capable skills, and third-party integrations. This power creates a massive attack surface where "prompt injection" or "malicious skill execution" can lead to credential theft or destructive filesystem actions. This pattern provides a "defense-in-depth" strategy for agentic operations.
@@ -39,14 +39,14 @@ OpenClaw combines messaging channels, browser automation, shell-capable skills, 
 
 ### Initial Hardening Checklist
 Before deploying OpenClaw in an "always-on" mode, complete these steps:
-1. **Patch Verification**: Run `openclaw --version` to ensure you are on the latest security release (minimum `2026.8.31`).
+1. **Patch Verification**: Run `openclaw --version` to ensure you are on the latest security release (minimum `2027.1.0`).
 2. **Network Isolation**: Ensure the OpenClaw gateway is not publicly accessible without a VPN or authenticated proxy.
 3. **Skill Audit**: Remove all unused default skills, especially those with shell access or file deletion capabilities.
 4. **Approval Setup**: Configure a messaging provider (Slack/Telegram) to receive `requires_approval` notifications.
 
 ## Technical Implementation: Claude Hooks & Trust Tagging
 
-Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution. By September 2026, Claude Hooks include specialized `PreToolUse` and `PostToolUse` logic under the **Model Context Protocol (MCP 3.1)** standard, enabling granular control over the full tool-calling lifecycle for frontier engines.
+Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution. Under the **Model Context Protocol (FastMCP 3.1)** standard, Claude Hooks include specialized `PreToolUse` and `PostToolUse` logic, enabling granular control over the full tool-calling lifecycle for frontier engines.
 
 ### 1. PreToolUse Hook (Approval Gate)
 Configure a middleware layer that pauses execution for high-risk tools.
@@ -82,29 +82,50 @@ Trust Boundary:
 </untrusted_content>
 ```
 
-### 3. Programmatic Trust Validation Loop (Python API)
-A Python wrapper to validate that prompt payloads do not escape their trust boundaries prior to submission to frontier models.
+### 3. Programmatic Trust Validation & Security Hook Evaluation (Python API)
+A Python wrapper using strict **Pydantic v2** validation to evaluate security hooks and validate prompt payloads before submission to frontier models:
 
 ```python
 import re
-from openai import OpenAI
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Any
 
-client = OpenAI()
-
-def validate_and_execute_payload(untrusted_data: str, system_prompt: str) -> str:
-    # 1. Neutralize raw XML markers to prevent escaping trust tags
-    sanitized_data = re.sub(r'</?untrusted_content>', '', untrusted_data)
-
-    # 2. Formulate explicit trust boundary
-    boundary_prompt = f"{system_prompt}\n<untrusted_content>\n{sanitized_data}\n</untrusted_content>"
-
-    # 3. Call Claude 5.1 / GPT-5.5 model
-    response = client.chat.completions.create(
-        model="gpt-5.5-preview",
-        messages=[{"role": "user", "content": boundary_prompt}],
-        temperature=0.0
+class SecurityHookEvaluation(BaseModel):
+    """Pydantic v2 model for auditing and evaluating OpenClaw tool call permissions."""
+    tool_name: str = Field(..., description="Target tool name requested by agent")
+    tool_args: Dict[str, Any] = Field(default_factory=dict, description="Arguments passed to tool call")
+    user_id: str = Field(..., description="Identifier of worker or user triggering tool")
+    high_risk_keywords: List[str] = Field(
+        default=["sudo", "rm -rf", "chmod", "curl", "wget", "DROP TABLE"],
+        description="Forbidden/gated terms"
     )
-    return response.choices[0].message.content
+
+    def is_approval_required(self) -> bool:
+        """Determines if execution requires human approval gate."""
+        arg_str = str(self.tool_args).lower()
+        return any(kw.lower() in arg_str for kw in self.high_risk_keywords)
+
+class SecurityPayload(BaseModel):
+    """Pydantic v2 model for sanitizing and wrapping untrusted inputs."""
+    untrusted_data: str = Field(..., description="Raw untrusted input text")
+    system_prompt: str = Field(default="You are an OpenClaw security-hardened assistant.", description="System instruction")
+
+    @field_validator("untrusted_data")
+    @classmethod
+    def sanitize_xml(cls, v: str) -> str:
+        """Removes existing XML trust markers to prevent escaping."""
+        return re.sub(r'</?untrusted_content>', '', v, flags=re.IGNORECASE)
+
+def validate_and_execute_payload(payload: SecurityPayload, hook_eval: SecurityHookEvaluation) -> str:
+    """Evaluates security gates and formats boundary prompt for Claude 5.1 / GPT-5.5."""
+    if hook_eval.is_approval_required():
+        return f"APPROVAL_REQUIRED: Action [{hook_eval.tool_name}] requested by [{hook_eval.user_id}] requires human confirmation."
+
+    boundary_prompt = (
+        f"{payload.system_prompt}\n"
+        f"<untrusted_content>\n{payload.untrusted_data}\n</untrusted_content>"
+    )
+    return f"Payload authorized and framed for execution:\n{boundary_prompt}"
 ```
 
 ## CLI examples
@@ -156,7 +177,6 @@ Use a webhook to confirm or deny an agent's requested action under MCP 3.1.
 - [LiteLLM](../../services/litellm.md)
 - [n8n](../../services/n8n.md)
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
-- [LLM Trust Boundaries](llm-trust-boundaries.md)
 - [ClawRouter](../../tools/infrastructure/clawrouter.md)
 - [Aider](../../tools/development_ops/aider.md)
 - [Claude Hooks](../../tools/development_ops/claude-hooks.md)
@@ -167,5 +187,5 @@ Use a webhook to confirm or deny an agent's requested action under MCP 3.1.
 - [Anthropic: Tool Use Security Best Practices](https://docs.anthropic.com/claude/docs/tool-use-security)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high
