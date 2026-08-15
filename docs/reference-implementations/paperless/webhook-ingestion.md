@@ -1,107 +1,139 @@
 # Reference Implementation: Paperless-ngx Webhook Ingestion
 
 ## What it is
-A guide and set of examples for programmatically uploading documents to Paperless-ngx via its REST API. This method allows for real-time document ingestion from external sources like mobile scanners, email bots, or automated webhooks, bypassing the latency of standard folder polling.
+A reference implementation and architecture guide for real-time document ingestion into Paperless-ngx (v2.14+) via its REST API and automated webhooks. This pattern bypasses filesystem polling latency, enabling instant document intake from scanners, email automation bots, mobile shortcuts, and agentic workflows using **FastMCP 3.1**.
 
 ## What problem it solves
-Standard Paperless-ngx ingestion often relies on "consumption folders" which are polled at intervals. This can introduce delays (up to several minutes) between scanning a document and its appearance in the system. Webhook ingestion enables "push" architecture, allowing for instantaneous processing and immediate feedback to the user or triggering agent.
+Standard Paperless-ngx intake relies on asynchronous "consumption folder" polling, which can introduce multi-minute delays. Webhook and API-driven ingestion provides a low-latency "push" architecture. It ensures instant ingestion feedback, enables transactional metadata assignment (titles, correspondents, document types, tags), and immediately triggers downstream multi-agent analysis powered by **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**.
 
 ## Where it fits in the stack
-This implementation sits at the **Intake/Ingress layer**. It connects **External Sources** (n8n, mobile apps, email gateways) to the **Document Management System** (Paperless-ngx).
+**Intake / Ingress Layer**. It sits at the entry point of the document processing pipeline, connecting external intake drivers (n8n, mobile apps, email gateways, cloud storage hooks) to **Paperless-ngx** and downstream [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) databases.
 
 ## Typical use cases
-- **Mobile Scan-to-Cloud**: A shortcut on a phone that captures an image and POSTs it directly to the server.
-- **Email Gateway**: A script that monitors an "invoices@" inbox and pushes attachments to Paperless.
-- **Automated Web Downloads**: A script that downloads monthly utility bills and uploads them with pre-applied tags.
-- **Real-time Agent Analysis**: Triggering a **Claude 5.1** or **GPT-5.5** agent to analyze a document the moment it is scanned.
+- **Mobile Scan-to-Cloud**: Direct capture from mobile devices POSTing multi-page scans directly to the Paperless API endpoint.
+- **Email Ingestion Gateway**: Serverless script or n8n workflow monitoring incoming emails and uploading attachments with auto-parsed metadata.
+- **Real-time Agentic Processing**: Triggering **Claude 5.1** or **GPT-5.5** via FastMCP 3.1 to summarize, classify, and create tasks (e.g., in Vikunja or Home Assistant) immediately upon document arrival.
+- **Financial Document Pipelines**: Ingesting bank statements or receipts with pre-assigned tags (`tax-2027`, `needs-review`).
 
 ## Strengths
-- **Low Latency**: Near-instantaneous ingestion.
-- **Direct Metadata Injection**: Allows applying tags, titles, and dates at the moment of upload.
-- **Improved Reliability**: Provides immediate HTTP success/failure codes to the sending system.
-- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.1)** for automated processing.
+- **Instant Processing**: Eliminates folder consumption polling delays.
+- **Atomic Metadata Tagging**: Assigns correspondents, tags, custom fields, and creation dates in the single upload payload.
+- **Transactional Status Feedback**: Returns HTTP status codes and task IDs (`/api/tasks/`) for reliable exception handling in orchestrators like n8n or Temporal.
+- **FastMCP 3.1 Compliance**: Seamlessly exposes document upload tools to LLM agents for autonomous file management.
 
 ## Limitations
-- **Token Management**: Requires secure handling of API tokens.
-- **Complexity**: Slightly more complex to set up than a simple shared folder.
-- **Payload Limits**: Large files may require tuning of the web server (e.g., Nginx) `client_max_body_size`.
+- **Token Security**: Requires secure storage and lifecycle management for Paperless-ngx API tokens (e.g., in HashiCorp Vault).
+- **Payload Constraints**: High-resolution image uploads require configuring web proxy body size limits (e.g., Nginx/Traefik `client_max_body_size 50M`).
 
 ## When to use it
-- When building automated intake pipelines in n8n or Node-RED.
-- When real-time availability of the document is required (e.g., for an agent to process it immediately).
-- For distributed setups where the scanner and Paperless server are on different networks.
+- When real-time availability of ingested documents is required for automated downstream processing.
+- When orchestrating complex intake workflows via n8n, Node-RED, or custom Python scripts.
+- For multi-site setups where edge scanners upload to a central server across Tailscale or HTTPS boundaries.
 
 ## When not to use it
-- For simple home setups where a 5-minute polling delay is acceptable.
-- If the source system does not support multipart form-data POST requests.
+- For basic home setups where a 5-minute directory polling loop is acceptable.
+- When the document source cannot send HTTP POST multipart requests.
 
 ## Getting started
-1. Generate an API token in the Paperless-ngx Django admin panel.
-2. Ensure your Paperless instance is accessible via HTTPS or a secure tunnel (Tailscale).
-3. Test connectivity using the `curl` example provided in the CLI section.
-4. Integrate the upload logic into your mobile app, script, or n8n workflow.
+1. Generate an API Auth Token in Paperless-ngx (`Settings -> Auth Tokens`).
+2. Verify network connectivity to the Paperless REST API endpoint (`https://paperless.home.arpa/api/documents/post_document/`).
+3. Execute the `curl` test script below to verify token permissions and response handling.
+4. Integrate the Python Pydantic v2 ingestion schema into your intake agent or webhook listener.
 
 ## CLI examples
-Use `curl` to perform a manual upload for testing.
+
+Upload a PDF with metadata via `curl`:
 
 ```bash
-# Upload a PDF with metadata
-curl -H "Authorization: Token your_token_here" \
-     -F "document=@/path/to/your/document.pdf" \
-     -F "title=Utility Bill" \
-     -F "tags=1,2,3" \
-     -X POST https://your-paperless-url/api/documents/post_document/
+curl -X POST https://paperless.home.arpa/api/documents/post_document/ \
+     -H "Authorization: Token YOUR_PAPERLESS_API_TOKEN" \
+     -F "document=@/path/to/invoice.pdf" \
+     -F "title=Utility Invoice Jan 2027" \
+     -F "correspondent=4" \
+     -F "document_type=2" \
+     -F "tags=12,15"
 ```
 
 ## API examples
-The **Model Context Protocol (MCP 3.1)** provides a standardized way for agents to perform this upload.
 
-### Python Integration
+### Strict Pydantic v2 Webhook Payload Schema & FastAPI Ingestion Endpoint
+
 ```python
-# Using paperless_tool.py for automated ingestion
-import asyncio
-from scripts.paperless_tool import PaperlessUploadTool
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Header
+from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional
+import httpx
 
-async def upload_document(file_path: str):
-    # Initialize the high-level ingestion upload tool
-    tool = PaperlessUploadTool()
+app = FastAPI(title="Paperless Webhook Ingestion Portal", version="2027.1")
 
-    # Trigger the API upload with Pydantic v2 schemas and MCP 3.1 compliance
-    result = await tool.run(
-        file_path=file_path,
-        title="Automated Upload via Claude 5.1",
-        tags=[12] # e.g., 'needs-action'
-    )
-    return result
+class PaperlessIngestMetadata(BaseModel):
+    model_config = ConfigDict(frozen=True)
 
-# Example mock execution
+    title: str = Field(description="Document title")
+    correspondent_id: Optional[int] = Field(default=None, description="Paperless correspondent ID")
+    document_type_id: Optional[int] = Field(default=None, description="Paperless document type ID")
+    tag_ids: List[int] = Field(default_factory=list, description="List of tag IDs to apply")
+    archive_serial_number: Optional[int] = Field(default=None)
+
+class IngestResponse(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    status: str
+    task_id: str = Field(description="Paperless async task tracking UUID")
+    message: str
+
+PAPERLESS_URL = "https://paperless.home.arpa/api/documents/post_document/"
+PAPERLESS_TOKEN = "env_paperless_token_secret"
+
+@app.post("/api/v1/ingest", response_model=IngestResponse)
+async def ingest_document(
+    title: str,
+    tag_ids: str = "12",
+    file: UploadFile = File(...)
+):
+    """Webhook listener that validates and forwards incoming documents to Paperless-ngx."""
+    tags = [int(t.strip()) for t in tag_ids.split(",") if t.strip().isdigit()]
+    metadata = PaperlessIngestMetadata(title=title, tag_ids=tags)
+
+    file_content = await file.read()
+
+    files = {"document": (file.filename, file_content, file.content_type)}
+    data = {
+        "title": metadata.title,
+        "tags": [str(tid) for tid in metadata.tag_ids]
+    }
+    headers = {"Authorization": f"Token {PAPERLESS_TOKEN}"}
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(PAPERLESS_URL, data=data, files=files, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        task_id = response.json() if isinstance(response.json(), str) else response.json().get("task_id", "completed")
+        return IngestResponse(
+            status="success",
+            task_id=str(task_id),
+            message="Document successfully queued for consumption."
+        )
+
+# Example output schema format verification
 if __name__ == "__main__":
-    import tempfile
-    with tempfile.NamedTemporaryFile(suffix=".txt") as temp_file:
-        temp_file.write(b"Mock invoice scan text content.")
-        temp_file.flush()
-
-        # Run async ingestion task
-        response = asyncio.run(upload_document(temp_file.name))
-        print(response)
+    test_meta = PaperlessIngestMetadata(title="Sample Invoice", tag_ids=[1, 2])
+    print("Schema Test:", test_meta.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
-- [Paperless-ngx](../../services/paperless-ngx.md): The target document management system.
-- [n8n](../../services/n8n.md): The ideal platform for orchestrating these webhooks.
-- [Tag Taxonomy](../../reference-implementations/paperless/tag-taxonomy.md): Deciding which tags to apply during ingestion.
-- [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): A workflow that begins with webhook ingestion.
-- [Cloudflare Mesh](../../services/cloudflare-mesh.md): Securing the webhook endpoint if exposed to the internet.
-- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The system that monitors for new documents.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Triggering agent actions upon successful ingestion.
-- [Claude Code](../../tools/development_ops/claude-code.md): The CLI tool used to manage these integrations.
-- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
+- [Paperless-ngx](../../services/paperless-ngx.md) — The target document management system.
+- [n8n](../../services/n8n.md) — Orchestrator for incoming webhook events.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Agentic protocol for AI tools.
+- [Scan-to-Task Playbook](../../playbooks/scan-to-task.md) — Automated task creation from scanned documents.
+- [Tailscale](../../playbooks/tailscale-to-headscale-migration.md) — Secure networking mesh for private API endpoints.
 
 ## Sources / references
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
-- [n8n HTTP Request Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
-- [Tailscale API Security Guide](https://tailscale.com/blog/api-security/)
+- [FastAPI Upload File Documentation](https://fastapi.tiangolo.com/tutorial/request-files/)
+- [Pydantic v2 Model Configuration](https://docs.pydantic.dev/latest/concepts/config/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-31
+- Last reviewed: 2027-01-06
 - Confidence: high
