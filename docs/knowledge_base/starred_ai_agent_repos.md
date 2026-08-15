@@ -4,14 +4,14 @@
 
 This page summarizes the AI and agent-related repositories from your GitHub stars that currently have more than 10,000 GitHub stars. It is meant to answer a practical question: what does each repo actually add to a stack, when should it be used, and which ones are baseline additions versus situational choices.
 
-Star counts below are from a GitHub API snapshot pulled on 2026-09-02 from your starred repositories. "Reputation" is an editorial assessment based on maintainer track record, institutional backing, and ecosystem trust, not a GitHub API field.
+Star counts below are from a GitHub API snapshot pulled on 2027-01-06 from your starred repositories. "Reputation" is an editorial assessment based on maintainer track record, institutional backing, and ecosystem trust, not a GitHub API field.
 
 ## What problem it solves
 
 - **Library Overload**: Helps navigate the "sea of stars" by filtering for high-momentum, high-reputation projects.
 - **Integration Friction**: Identifies which tools are "baselines" (always use) vs "situational" (only use for specific tasks).
 - **Stack Optimization**: Suggests bundles (e.g., Claude-centric, Local-first) to simplify architectural decisions.
-- **SOTA Alignment**: Integrates with late August/September 2026 state-of-the-art architectures (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, Gemini 3.5 series) and the Model Context Protocol (MCP 3.1) to avoid stale recommendations.
+- **SOTA Alignment**: Integrates with early January 2027 state-of-the-art architectures (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 series) and the Model Context Protocol (FastMCP 3.1) to avoid stale recommendations.
 
 ## Where it fits in the stack
 
@@ -22,7 +22,7 @@ Star counts below are from a GitHub API snapshot pulled on 2026-09-02 from your 
 - **Architecting a New Agent**: Deciding whether to use a visual builder like Flowise or a code-first framework like OpenCode.
 - **Benchmarking Tools**: Comparing star counts and reputation to assess the long-term viability of a dependency.
 - **Skill Expansion**: Identifying high-quality first-party resources (like Anthropic Cookbooks) to improve agent performance.
-- **MCP Server Discovery**: Programmatically locating baseline repository frameworks supporting the new MCP 3.1 Task Protocol.
+- **MCP Server Discovery**: Programmatically locating baseline repository frameworks supporting the FastMCP 3.1 Task Protocol.
 
 ### Quick take
 - **Default baseline for Claude/coding-agent work**: [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks), [Context7](../tools/development_ops/context7.md), [Aider](../tools/development_ops/aider.md), [mendableai/firecrawl](https://github.com/mendableai/firecrawl)
@@ -35,7 +35,7 @@ Star counts below are from a GitHub API snapshot pulled on 2026-09-02 from your 
 - **Curated and Prioritized**: Focuses only on high-momentum projects (>10K stars).
 - **Practical "Default Stance"**: Provides an immediate "Yes/No/Situational" recommendation for every tool.
 - **Ecosystem Awareness**: Highlights combinations and bundles that work well together.
-- **SOTA Frontier Native**: Incorporates latest September 2026 multi-modal and structural frameworks natively.
+- **SOTA Frontier Native**: Incorporates early January 2027 multi-modal and structural frameworks natively.
 
 ### Decision table
 
@@ -75,7 +75,7 @@ Star counts below are from a GitHub API snapshot pulled on 2026-09-02 from your 
 - **Snapshot-based**: Star counts and "reputation" change over time; requires periodic refreshes.
 - **Subjective Assessment**: "Reputation" is an editorial assessment, not a purely objective metric.
 - **High-Bar Filter**: May miss smaller, high-quality projects that haven't hit the 10K mark yet.
-- **MCP 3.1 Migration Overhead**: Adapting legacy tools to support explicit tool binding schema constraints takes development time.
+- **FastMCP 3.1 Migration Overhead**: Adapting legacy tools to support explicit tool binding schema constraints takes development time.
 
 ### What not to overuse
 - Do not default to heavyweight autonomous-agent platforms such as AutoGPT, Devika, AgenticSeek, or DeerFlow unless the task truly needs end-to-end autonomy.
@@ -120,7 +120,7 @@ zapier-sdk list-actions slack
 # Example: Installing a coding agent skill
 npx @anthropics/skills install
 
-# Example: Starting an MCP 3.1 task daemon
+# Example: Starting a FastMCP 3.1 task daemon
 mcp-cli run --host 127.0.0.1 --port 8080 --task-protocol mcp-3.1
 ```
 
@@ -128,12 +128,21 @@ mcp-cli run --host 127.0.0.1 --port 8080 --task-protocol mcp-3.1
 > [!NOTE]
 > Most of these repositories expose APIs or are used within agentic applications. Refer to canonical pages for specific snippets.
 ```python
-# Example: Using a memory layer (mem0) in an agent application
+# Example: Using a memory layer (mem0) in an agent application with Pydantic v2 validation
+from pydantic import BaseModel, Field, ConfigDict
 from mem0 import Memory
-m = Memory()
-m.add("User prefers Claude 5.1 for coding tasks", user_id="jules")
 
-# Example: Querying the new MCP 3.1 server capability discovery endpoint
+class MemoryItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(..., description="Fact or instruction to persist")
+    user_id: str = Field(..., description="Target user identifier")
+
+item = MemoryItem(text="User prefers Claude 5.1 for coding tasks", user_id="jules")
+m = Memory()
+m.add(item.text, user_id=item.user_id)
+
+# Example: Querying the FastMCP 3.1 server capability discovery endpoint
 import httpx
 response = httpx.get("http://localhost:8080/mcp/3.1/capabilities")
 print(response.json())
@@ -185,5 +194,5 @@ print(response.json())
 - [plandex-ai/plandex](https://github.com/plandex-ai/plandex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high
