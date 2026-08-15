@@ -1,7 +1,7 @@
 # Claude Tool Search Pattern
 
 ## What it is
-A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution. This pattern has become the industry standard for Claude 5.1 and GPT-5.5 agents managing heterogeneous toolsets.
+A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution. This pattern has become the industry standard for Claude 5.1, GPT-5.5, and Gemini 4.0 Pro agents managing heterogeneous toolsets.
 
 ## What problem it solves
 Naive tool-calling often fails when an agent is presented with a large or overlapping tool catalog. The Claude Tool Search pattern improves reliability by making tool selection an explicit, model-guided process, reducing "wrong tool" hallucinations and improving first-shot accuracy in complex workflows. It specifically addresses the "context window saturation" problem encountered when passing 100+ tool definitions to Llama 4 Maverick models.
@@ -13,7 +13,7 @@ Orchestration Layer — sits in the agentic loop, specifically at the intersecti
 - **Massive Tool Catalogs**: Managing agents that have access to 50+ specialized tools where a single prompt cannot reliably include all schemas.
 - **Dynamic Capabilities**: Environments where tools are added or removed frequently, and the agent must "explore" what is currently available.
 - **Ambiguous Intents**: When a user request (e.g., "Check my status") could map to multiple systems (Jira, GitHub, Vikunja) and the agent needs to search tool descriptions to disambiguate.
-- **MCP 3.1 Task Protocol Discovery**: Querying remote MCP servers for dynamic task specifications and parameters in September 2026 workflows.
+- **FastMCP 3.1 Task Protocol Discovery**: Querying remote FastMCP servers for dynamic task specifications and parameters in January 2027 workflows.
 
 ## Strengths
 - **Improved Accuracy**: Higher success rates in complex tool selection scenarios.
@@ -38,7 +38,7 @@ Orchestration Layer — sits in the agentic loop, specifically at the intersecti
 - In scenarios where tool execution is strictly sequential and pre-defined.
 
 ## Getting started
-To implement this pattern, you first need a centralized tool registry. As of September 2026, the [Model Context Protocol (MCP 3.1)](tool-calling-and-mcp.md) is the recommended standard.
+To implement this pattern, you first need a centralized tool registry. As of early January 2027, the [Model Context Protocol (FastMCP 3.1)](tool-calling-and-mcp.md) is the recommended standard.
 
 1.  **Define Tool Metadata**: Ensure every tool has a descriptive `description` field for semantic search.
 2.  **Index Tools**: Use a vector database like [ChromaDB](../vector-db-comparison.md) to store tool schemas and descriptions.
@@ -52,7 +52,7 @@ To implement this pattern, you first need a centralized tool registry. As of Sep
 # Search for available tools via FastMCP
 mcp search "calendar"
 
-# Inspect a specific tool schema under MCP 3.1 task protocol
+# Inspect a specific tool schema under FastMCP 3.1 task protocol
 mcp inspect "gcal_create_event" --protocol mcp-3.1
 
 # Execute a tool with manual parameters for testing
@@ -60,12 +60,21 @@ mcp call "gcal_create_event" --params '{"summary": "Test"}'
 ```
 
 ## API examples
-Example of implementing the discovery logic in Python using the Anthropic Claude 5.1 SDK:
+Example of implementing the discovery logic in Python using the Anthropic Claude 5.1 SDK with Pydantic v2 validation:
 
 ```python
 import anthropic
+from pydantic import BaseModel, Field, ConfigDict
+
+class ToolSearchQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., min_length=2, description="Semantic search query to discover tool schemas")
 
 client = anthropic.Anthropic()
+
+# Validate the tool search input payload
+search_input = ToolSearchQuery(query="calendar event creation")
 
 # The system prompt instructs the model to use the search_tools first
 response = client.messages.create(
@@ -77,10 +86,11 @@ response = client.messages.create(
         "description": "Searches for tool schemas by semantic query",
         "input_schema": {
             "type": "object",
-            "properties": {"query": {"type": "string"}}
+            "properties": {"query": {"type": "string"}},
+            "required": ["query"]
         }
     }],
-    messages=[{"role": "user", "content": "Schedule a meeting for tomorrow."}]
+    messages=[{"role": "user", "content": f"Find tools for {search_input.query} and schedule a meeting for tomorrow."}]
 )
 ```
 
@@ -108,7 +118,7 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
   "name": "gcal_create_event",
   "parameters": {
     "summary": "Meeting with Team",
-    "start_time": "2026-09-03T10:00:00Z"
+    "start_time": "2027-01-07T10:00:00Z"
   }
 }
 ```
@@ -116,7 +126,7 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 ## Related tools / concepts
 - [Anthropic Claude](../../tools/providers/anthropic.md)
 - [Agentic Workflows](agentic-workflows.md)
-- [Model Context Protocol (MCP 3.0/3.1)](tool-calling-and-mcp.md)
+- [Model Context Protocol (FastMCP 3.1)](tool-calling-and-mcp.md)
 - [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
 - [Agent Protocols](../agent_protocols.md)
 - [Skills Best Practices](skills-best-practices.md)
@@ -130,5 +140,5 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 - [MCP Foundation Specification v3.1 (August 2026)](https://mcp-foundation.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high

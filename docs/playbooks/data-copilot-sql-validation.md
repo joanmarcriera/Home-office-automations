@@ -1,7 +1,7 @@
 # Playbook: Data Copilot SQL Validation & Repair
 
 ## What it is
-A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. It establishes a "guardrail" system that combines static analysis, dynamic dry-runs, and LLM-based semantic checks to ensure safety, performance, and correctness. This playbook leverages state-of-the-art September 2026 patterns designed for frontier architectures like Claude 5.1 and GPT-5.5.
+A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. It establishes a "guardrail" system that combines static analysis, dynamic dry-runs, and LLM-based semantic checks to ensure safety, performance, and correctness. This playbook leverages state-of-the-art early January 2027 patterns designed for frontier architectures like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro.
 
 ## What problem it solves
 Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
@@ -15,7 +15,7 @@ It operates within the **Inference Pipeline**, specifically between the **SQL Ge
 - **Dialect Conversion**: Automatically correcting minor syntax errors when an LLM trained on Postgres tries to query a SQLite database.
 - **Safety Enforcement**: Blocking `DROP TABLE` or `DELETE` commands that might be generated due to prompt injection or model hallucination.
 - **Home automation bots**: Triggering database-driven actions (e.g., "Show me my energy usage") with guaranteed safety.
-- **MCP 3.1 Task Interception**: Restricting direct DB schema modification tools via dynamic payload verification.
+- **FastMCP 3.1 Task Interception**: Restricting direct DB schema modification tools via dynamic payload verification.
 
 ## Strengths
 - **Defense in Depth**: Multiple layers of validation ensure that even if one check misses a risk, another will likely catch it.
@@ -54,9 +54,11 @@ pip install sqlglot pydantic>=2.0.0
 ```python
 import sqlglot
 from sqlglot import exp
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class SQLValidationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     is_safe: bool = Field(..., description="Whether the query passed all safety checks")
     error_message: str | None = Field(None, description="The error message if safety check failed")
     corrected_query: str | None = Field(None, description="Corrected query after validation adjustments")
@@ -67,6 +69,9 @@ def is_query_safe(sql_query: str, allowed_tables: list[str]) -> SQLValidationRes
         expressions = sqlglot.parse(sql_query)
 
         for expression in expressions:
+            if expression is None:
+                continue
+
             # 1. Check for forbidden mutation keywords
             if any(isinstance(node, (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter))
                    for node, *_ in expression.walk()):
@@ -163,6 +168,8 @@ from sqlglot import exp
 
 sql = "SELECT a, b FROM table"
 for expression in sqlglot.parse(sql):
+    if expression is None:
+        continue
     for column in expression.find_all(exp.Column):
         print(column.name)
 ```
@@ -212,7 +219,7 @@ flowchart TD
 ## Low-Cost Implementation Options
 - **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
-- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.6) specifically to check the generated SQL against the policy checklist.
+- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.8) specifically to check the generated SQL against the policy checklist.
 
 ## Related tools / concepts
 - [Data Copilot Architecture](../architecture/data-copilot-text-to-sql.md)
@@ -232,6 +239,6 @@ flowchart TD
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high
 - Related Issues: #189
