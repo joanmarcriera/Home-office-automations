@@ -1,55 +1,58 @@
 # ChatGPT
 
 ## What it is
-ChatGPT is a premier AI-powered conversational platform developed by OpenAI. As of late October / November 2026, it is powered by the **GPT-5.5** architecture, which offers significant advancements in multimodal reasoning, autonomous task execution, and factual reliability. It serves as both a consumer-facing chatbot and a powerful API for developers, now featuring native support for the **Model Context Protocol (MCP) 3.1** for standardized tool discovery and execution.
+ChatGPT is a premier AI-powered conversational platform developed by OpenAI. As of early January 2027, it is powered by the **GPT-5.5** and **GPT-5.6** model families, offering state-of-the-art multimodal reasoning, autonomous Deep Research workflows, and continuous real-time voice interactions via **GPT-Live**. It serves as both a consumer assistant and an enterprise developer platform, with native support for the **FastMCP 3.1** protocol for standardized tool discovery and secure resource execution.
 
 ## What problem it solves
-ChatGPT simplifies complex digital tasks by providing a natural language interface for everything from creative writing and coding to real-time data analysis and visual design. It bridges the gap between human intent and machine execution, allowing users to perform sophisticated computational tasks without specialized technical knowledge. With the integration of MCP 3.1, it also solves the "walled garden" problem by allowing users to connect their own data sources and tools via standardized protocols.
+ChatGPT simplifies complex digital tasks by providing a natural language interface for creative writing, software engineering, real-time web research, and visual analysis. It bridges the gap between human intent and system execution. With the integration of FastMCP 3.1 and autonomous Deep Research agents, it eliminates data silos by allowing users to connect proprietary knowledge bases and enterprise services through standardized, secure interfaces.
 
 ## Where it fits in the stack
-**AI Model & Interaction Platform**. It occupies the foundational layer of the AI ecosystem, providing the core intelligence that powers a vast array of third-party applications, custom GPTs, and autonomous agents.
+**AI Model & Interaction Platform**. It occupies the foundational intelligence layer of the AI stack, supplying core reasoning that powers custom GPTs, enterprise workspaces, and autonomous background agents across desktop and mobile ecosystems.
 
 ## Typical use cases
-- **Multimodal Content Creation**: Generating high-fidelity images, videos, and complex text from a single prompt.
-- **Autonomous Research**: Using "SearchGPT" capabilities to synthesize real-time web information with deep citations.
-- **Dynamic Coding**: Drafting, testing, and deploying small-scale applications or automation scripts.
-- **Enterprise Intelligence**: Connecting to corporate data via MCP 3.1 servers for secure, context-aware business analysis.
-- **Education & Tutoring**: Acting as an interactive tutor for subjects ranging from elementary math to advanced quantum physics.
+- **Multimodal Content Creation & Synthesis**: Generating high-fidelity text, images, visual charts, and code scripts from single or multi-modal prompts.
+- **Autonomous Deep Research**: Deploying multi-step research agents that browse, cross-reference, and summarize technical topics with full citations.
+- **Continuous Voice Interaction (GPT-Live)**: Conducting hands-free, real-time voice conversations with zero perceptual latency.
+- **Enterprise Operations via FastMCP 3.1**: Executing SQL queries, querying vector databases, and invoking external APIs securely within structured Enterprise environments.
+- **Interactive Technical Mentorship**: Serving as an adaptive tutor for software development, data science, and complex scientific domains.
 
 ## Strengths
-- **Multimodality**: Native, seamless integration of text, vision, audio, and video processing.
-- **Ecosystem**: Massive library of Custom GPTs and deep integration with Microsoft 365 and Apple Intelligence.
-- **Reasoning**: GPT-5.5 provides state-of-the-art logical deduction, outperforming many competitors in complex planning tasks.
-- **MCP 3.1 Support**: Native ability to call tools and access data from any MCP-compliant server.
-- **Accessibility**: Available across all major platforms with a highly intuitive user experience.
+- **Multimodality & GPT-Live**: Seamless real-time processing across text, vision, audio, and video streams.
+- **Ecosystem & Productivity Integration**: Deep integration across macOS, Windows, iOS, Android, Microsoft 365, and Apple Intelligence.
+- **Advanced Logical Reasoning**: GPT-5.5 and GPT-5.6 models set top benchmark scores in math, programming, and long-horizon planning.
+- **FastMCP 3.1 Native Integration**: Native ability to discover, inspect, and call tools from any compliant FastMCP server.
+- **Deep Research Engine**: Automated web synthesis that produces fully cited research reports on complex subjects.
 
 ## Limitations
-- **Data Privacy**: By default, data is used to train models unless opted out (Enterprise/Team tiers).
-- **Stochastic Nature**: Can still produce subtle hallucinations in highly technical or niche domains.
-- **Proprietary**: Closed-source weights compared to open-weight models like [Gemma 3](local_llms.md).
+- **Data Privacy Controls Required**: Free and standard tiers use data for model alignment unless opted out or operating under Team/Enterprise tiers.
+- **Stochastic Halts**: Deep planning models may occasionally require prompt guardrails to avoid over-reasoning simple requests.
+- **Closed-Source Architecture**: Model weights remain proprietary compared to open-weight alternatives like [Gemma 3](local_llms.md) or [Llama 4](local_llms.md).
 
 ## When to use it
-- When you need a highly versatile, multimodal AI assistant for a wide range of daily tasks.
-- When you require deep integration with existing productivity suites (Excel, Word, etc.).
-- For rapid prototyping of ideas where the broad capabilities of GPT-5.5 and MCP 3.1 are an advantage.
+- When you need a versatile, multimodal assistant capable of handling multi-turn conversational reasoning and real-time voice workflows.
+- When you require deep integration with enterprise productivity applications and custom FastMCP 3.1 servers.
+- For rapid prototyping where GPT-5.5 / GPT-5.6 reasoning and structured outputs accelerate development.
 
 ## When not to use it
-- For highly sensitive or private data that must remain on-premise (use [Local LLMs](local_llms.md)).
-- When deterministic, 100% reproducible results are required for critical systems.
-- If you prefer a more "agent-first" coding experience (consider [Claude Code](../development_ops/claude-code.md)).
+- For sensitive, air-gapped on-premise workloads requiring local weight hosting (use [vLLM](../infrastructure/vllm.md) or [Local LLMs](local_llms.md)).
+- When deterministic, sub-millisecond execution is strictly required without LLM variance.
+- If you prefer terminal-native, code-first agentic workflows (consider [Claude Code](../development_ops/claude-code.md)).
 
 ## Getting started
 
 ### Web & Mobile
-Visit [chatgpt.com](https://chatgpt.com/) or download the official apps for iOS, Android, macOS, and Windows.
+Access ChatGPT via [chatgpt.com](https://chatgpt.com/) or download the official desktop and mobile applications.
 
-### OpenAI API
-1.  Register at [platform.openai.com](https://platform.openai.com/).
-2.  Configure your API keys and billing settings.
-3.  `pip install openai`
+### OpenAI API Setup
+1. Register at [platform.openai.com](https://platform.openai.com/).
+2. Generate API keys and configure billing/usage limits.
+3. Install the official Python SDK:
+   ```bash
+   pip install openai pydantic
+   ```
 
 ### Licensing
-Proprietary. Billed via monthly subscriptions (Plus/Team/Enterprise) or usage-based API credits.
+Proprietary commercial service. Subscriptions available via Plus, Team, Enterprise, and Edu tiers, or via usage-based API billing.
 
 ## CLI examples
 
@@ -58,54 +61,38 @@ Proprietary. Billed via monthly subscriptions (Plus/Team/Enterprise) or usage-ba
 # Set your API key
 export OPENAI_API_KEY='sk-...'
 
-# Run a quick prompt
-openai api chat_completions.create -m gpt-5-5-preview -g user "Write a bash script to backup my SQL database"
+# Query GPT-5.5 with CLI prompt
+openai api chat_completions.create -m gpt-5.5-preview -g user "Generate a Dockerfile for a FastAPI and FastMCP 3.1 service"
 ```
 
 ### Unofficial Tool (sgpt)
 ```bash
-# Ask for a shell command
-sgpt --shell "Find and compress all logs older than 30 days"
+# Obtain shell commands directly
+sgpt --shell "Compress all log files older than 7 days into an archive"
 ```
 
 ## API examples
 
-### Python (Chat Completion with MCP Tool Use)
+### Python (Chat Completion with FastMCP 3.1 Tool Calling)
 ```python
 from openai import OpenAI
 
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="gpt-5-5-preview",
+    model="gpt-5.5-preview",
     messages=[
-        {"role": "system", "content": "You are a senior DevOps engineer."},
-        {"role": "user", "content": "Explain the benefits of ephemeral environments."}
+        {"role": "system", "content": "You are a senior DevOps SRE."},
+        {"role": "user", "content": "Explain the architectural advantages of FastMCP 3.1 tool integration."}
     ],
-    temperature=0.7
+    temperature=0.3
 )
 
 print(response.choices[0].message.content)
 ```
 
-### Multimodal (Vision)
-```python
-response = client.chat.completions.create(
-    model="gpt-5-5-preview",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "What is wrong with this circuit diagram?"},
-                {"type": "image_url", "image_url": {"url": "https://example.com/circuit.png"}}
-            ]
-        }
-    ]
-)
-```
-
-### OpenAI Response Validation and Caching with Pydantic v2
-This Python script parses and validates structured API payloads returned by OpenAI, checking token caching details and usage statistics using **Pydantic v2**:
+### OpenAI Response Validation with Pydantic v2
+This Python script validates structured API outputs and token usage metrics returned by OpenAI using **Pydantic v2**:
 
 ```python
 import json
@@ -150,23 +137,21 @@ def validate_openai_response(raw_json: str) -> Optional[OpenAICompletionResponse
 ```
 
 ## Related tools / concepts
-- [Claude](claude.md) — The primary reasoning competitor from Anthropic.
-- [Gemini](gemini.md) — Google's multimodal AI family.
-- [Perplexity](../providers/perplexity.md) — AI search focused on citations and sources.
-- [Everything Claude Code](everything-claude-code.md) — Comparison with agentic workflows.
-- [OpenAI](openai.md) — Provider overview and corporate history.
-- [Model Routing](../../knowledge_base/model_routing_guide.md) — Strategy for choosing between GPT, Claude, and Gemini.
-- [DeepSeek R1](deepseek-r1.md) — Emerging reasoning alternative.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for tool integration.
-- [Anthropic](../providers/anthropic.md) — Comparison with competitive model providers.
-- [Local LLMs](local_llms.md) — Alternatives for privacy-first execution.
+- [Claude](claude.md) — Anthropic's flagship reasoning model family.
+- [Gemini](gemini.md) — Google's multimodal AI platform.
+- [Perplexity](../providers/perplexity.md) — Conversational AI search engine.
+- [Everything Claude Code](everything-claude-code.md) — Developer workflows for agentic coding.
+- [OpenAI](openai.md) — Corporate provider overview and model catalog.
+- [FastMCP](../automation_orchestration/mcp.md) — Standardized tool and server integration protocol.
+- [DeepSeek R1](deepseek-r1.md) — Open reasoning alternative.
+- [Local LLMs](local_llms.md) — Privacy-focused open-weight alternatives.
 
 ## Sources / references
-- [Official Website](https://chatgpt.com/)
-- [OpenAI Platform (API Docs)](https://platform.openai.com/docs/)
-- [OpenAI Blog](https://openai.com/blog)
-- [OpenAI for Excel Integration](https://openai.com/index/chatgpt-for-excel)
+- [ChatGPT Official Web Interface](https://chatgpt.com/)
+- [OpenAI Developer Platform](https://platform.openai.com/docs/)
+- [OpenAI Research & Announcements](https://openai.com/blog)
+- [OpenAI FastMCP 3.1 Tool Specification](https://platform.openai.com/docs/guides/tools)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
