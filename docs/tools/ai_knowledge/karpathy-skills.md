@@ -1,24 +1,24 @@
 # Andrej Karpathy Skills
 
 ## What it is
-Andrej Karpathy Skills is a curated collection of development principles, system prompt instructions, and agentic workflows inspired by Andrej Karpathy's philosophy on software development and AI engineering. Optimized for late September 2026, these skills are designed to steer frontier models (including Claude 5.1, GPT-5.5, Llama 4, and Gemma 3) away from over-complication, speculative code generation, and "hallucination of complexity," promoting surgical and highly performant implementations.
+Andrej Karpathy Skills is a curated collection of software development principles, system prompt instructions, and agentic execution guidelines inspired by Andrej Karpathy's philosophy on AI engineering and software simplicity. Designed for frontier models (including Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, and Gemma 3), these skills steer agents away from over-complication, speculative code generation, and "hallucination of complexity," promoting surgical and minimalist implementations compatible with **FastMCP 3.1** server guards.
 
 ## What problem it solves
-It solves the pervasive issue of modern, highly powerful AI models over-engineering simple solutions. When tasked with a basic bug fix or a lightweight utility, frontier models frequently invent unnecessary abstractions, import bloated third-party dependencies, or rewrite entire files. Codifying "Karpathy instincts" enforces constraint-based, goal-driven, and minimalist software engineering habits directly into an agent's reasoning loop.
+It solves the pervasive issue of modern, highly capable AI models over-engineering simple solutions. When tasked with a basic bug fix or a lightweight utility, frontier models frequently invent unnecessary abstractions, import bloated third-party dependencies, or rewrite entire files. Codifying "Karpathy instincts" enforces constraint-based, goal-driven, and minimalist software engineering habits directly into an agent's reasoning loop.
 
 ## Where it fits in the stack
-**AI & Knowledge / Best Practices**. Operating at the reasoning and planning layer, these rules act as a "simplicity filter" and code reviewer standard before an agent executes file modifications, fully compatible with custom Model Context Protocol (MCP 3.1) server guards.
+**AI & Knowledge / Best Practices**. Operating at the reasoning and planning layer, these rules act as a "simplicity filter" and code reviewer standard before an agent executes file modifications, fully compatible with custom **FastMCP 3.1** server guards.
 
 ## Typical use cases
 - **Agent System Initialization**: Standardizing thinking and execution boundaries inside files like `CLAUDE.md` or system prompts.
-- **Agentic Workflows**: Restricting autonomous models like Jules or OpenClaw to perform minimal, targeted file edits.
+- **Agentic Workflows**: Restricting autonomous models (like Jules, OpenClaw, or Claude Code) to perform minimal, targeted file edits.
 - **Surgical Code Reviews**: Acting as a programmatic or cognitive checklist for verifying that changes are clean and preserve the existing codebase structure.
-- **MCP Constraint Configuration**: Configuring MCP 3.1 server tools to enforce structural simplicity and restrict unauthorized framework installations.
+- **FastMCP 3.1 Constraint Configuration**: Configuring FastMCP 3.1 server tools to enforce structural simplicity and restrict unauthorized framework installations.
 
 ## Strengths
 - **Surgical Execution**: Prioritizes tiny, highly specific edits over broad, destructive file rewrites.
 - **Simplicity First**: Eliminates "hallucinated library bloat" by enforcing native, standard-library-first solutions.
-- **Extremely Low Overhead**: Implemented as lightweight Markdown guidelines, Pydantic guard rails, or IDE configuration rules without heavy infrastructure.
+- **Extremely Low Overhead**: Implemented as lightweight Markdown guidelines, Pydantic v2 guard rails, or IDE configuration rules without heavy infrastructure.
 - **Enhanced Agent Predictability**: Makes autonomous code generation and problem resolution significantly more deterministic and auditable.
 
 ## Limitations
@@ -68,7 +68,7 @@ Embed the following "Karpathy Instincts" block into your local developer instruc
 
 ## API examples
 
-### Programmatic Constraint Checker (Python)
+### Programmatic Constraint Checker (Python + Strict Pydantic v2)
 Using Pydantic v2 to validate that generated code matches Karpathy simplicity criteria before committing to disk.
 
 ```python
@@ -102,8 +102,8 @@ except ValueError as e:
     print(f"Audit failed: {e}")
 ```
 
-### MCP 3.1 Constraint Prompt Schema (Agentic JSON)
-Under MCP 3.1, constraint and prompt policies are served to autonomous agents dynamically:
+### FastMCP 3.1 Constraint Prompt Schema (Agentic JSON)
+Under FastMCP 3.1, constraint and prompt policies are served to autonomous agents dynamically:
 
 ```json
 {
@@ -118,12 +118,9 @@ Under MCP 3.1, constraint and prompt policies are served to autonomous agents dy
 
 ## Related tools / concepts
 - [Matt Pocock Skills](matt-pocock-skills.md) — Complementary development practices focusing on strict test-driven workflows.
-- [Surgical Changes](https://peerlist.io/xiji2646/articles/the-978kstar-file-that-makes-claude-code-stop-overengineerin) — Philosophy behind minimized delta changes.
 - [Claude Code](../development_ops/claude-code.md) — Primary local agent environment for CLI development.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standardized tool connection protocol (MCP 3.1).
+- [Model Context Protocol (FastMCP 3.1)](../../tools/automation_orchestration/mcp.md) — Standardized tool connection protocol.
 - [Jules (Agent)](jules.md) — Specialized autonomous agent optimized for surgical edits.
-- [Superpowers](../agents/superpowers.md) — Persona-based custom instruction setups.
-- [TDD Pattern](../../knowledge_base/patterns/tdd.md) — Goal-driven, test-first development cycles.
 - [Cline](../agents/cline.md) — Multi-agent system that leverages custom simplicity rulebooks.
 
 ## Sources / references
@@ -132,5 +129,5 @@ Under MCP 3.1, constraint and prompt policies are served to autonomous agents dy
 - [The 'Simplicity First' Engineering Philosophy](https://karpathy.ai/blog/simplicity.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high

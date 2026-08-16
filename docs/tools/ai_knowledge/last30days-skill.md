@@ -1,13 +1,13 @@
 # last30days-skill
 
 ## What it is
-`last30days-skill` is a highly optimized AI agent skill and search engine extension for Claude Code, OpenClaw, and custom command-line workflows. It functions as a specialized research assistant designed to prioritize real-time social signals (including Reddit upvotes, X engagement rates, YouTube transcripts, Polymarket odds, and Hacker News sentiment) over traditional search results, with native support for the Model Context Protocol (MCP 3.1).
+`last30days-skill` is a highly optimized AI agent skill and search engine extension for Claude Code, OpenClaw, and custom command-line workflows. It functions as a specialized research assistant designed to prioritize real-time social signals (including Reddit upvotes, X engagement rates, YouTube transcripts, Polymarket odds, and Hacker News sentiment) over traditional search results, with native support for **FastMCP 3.1**.
 
 ## What problem it solves
-Standard search engines often surface stale, generic editorial content or SEO-manipulated web results. In the rapidly evolving AI and software ecosystem, critical updates, bug reports, and novel methodologies first appear within developer communities. `/last30days` bridges these disconnected communication platforms, allowing frontier models like Claude 5.1 and GPT-5.5 to search, rank, and synthesize authentic community discussions and technical trends from the last 30 days.
+Standard search engines often surface stale, generic editorial content or SEO-manipulated web results. In the rapidly evolving AI and software ecosystem, critical updates, bug reports, and novel methodologies first appear within developer communities. `/last30days` bridges these disconnected communication platforms, allowing frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4 to search, rank, and synthesize authentic community discussions and technical trends from the last 30 days.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Claude Code Skills. It functions as an MCP 3.1 server or native skill for terminal development environments, integrating with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) for dynamic resource retrieval.
+**Category**: AI Assistants & Knowledge / Claude Code Skills. It functions as a FastMCP 3.1 server or native skill for terminal development environments, integrating with [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) for dynamic resource retrieval.
 
 ## Typical use cases
 - **Deep Tool Comparison**: Querying `/last30days OpenClaw vs Hermes` to analyze real-world developer experience reports and commit velocities rather than marketing pages.
@@ -75,10 +75,10 @@ clawhub install last30days-official
 ## API examples
 
 ### Integration via OpenClaw Skill API (Python)
-Using the modern python SDK with Pydantic v2 schemas for robust input validation.
+Using the modern Python SDK with strict Pydantic v2 schemas for robust input validation.
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from openclaw import SkillRunner
 from typing import List, Optional
 
@@ -86,6 +86,13 @@ class SearchConfig(BaseModel):
     query: str = Field(..., min_length=3)
     platforms: List[str] = Field(default=["github", "reddit", "hacker-news"])
     max_results: Optional[int] = Field(default=15, ge=1)
+
+    @field_validator('query')
+    @classmethod
+    def validate_query(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Query string cannot be blank")
+        return v
 
 # Initialize the skill
 skill = SkillRunner("last30days-skill")
@@ -125,14 +132,14 @@ fetch('http://localhost:3000/skills/last30days/run', {
 .then(data => console.log('Research brief initialized:', data.task_id));
 ```
 
-### MCP 3.1 Tool Schema (Agentic)
-An agent using the Model Context Protocol (MCP 3.1) can call the skill using this standard JSON schema:
+### FastMCP 3.1 Tool Schema (Agentic)
+An agent using the Model Context Protocol (FastMCP 3.1) can call the skill using this standard JSON schema:
 
 ```json
 {
   "tool": "last30days_search",
   "arguments": {
-    "query": "Model Context Protocol MCP 3.1 updates",
+    "query": "Model Context Protocol FastMCP 3.1 updates",
     "sources": ["reddit", "hacker-news"],
     "limit": 10
   }
@@ -142,13 +149,12 @@ An agent using the Model Context Protocol (MCP 3.1) can call the skill using thi
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md) — Primary terminal harness for the skill.
 - [Everything Claude Code](everything-claude-code.md) — Comprehensive execution and optimization framework.
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Collection of community skills and plugins.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for skill and resource connection (MCP 3.1).
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standard protocol for skill and resource connection.
 - [OpenRouter](openrouter.md) — API router used for executing backend neural queries.
-- [Exa Search](../agents/goose.md) — High-signal neural search engine.
 - [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) — Inventory of social platforms searched.
 - [OpenClaw](../development_ops/openclaw.md) — Alternative orchestration engine for local skills.
 - [Perplexity](../providers/perplexity.md) — Competitive neural search platform.
+- [Valyu](valyu.md) — High-signal AI search endpoint.
 
 ## Sources / references
 - [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)
@@ -156,5 +162,5 @@ An agent using the Model Context Protocol (MCP 3.1) can call the skill using thi
 - [Anthropic Developer Portal: Building Claude Code Skills](https://docs.anthropic.com/claude/docs/code-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high
