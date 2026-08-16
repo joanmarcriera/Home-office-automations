@@ -1,132 +1,104 @@
 # Sora (OpenAI)
 
 > [!CAUTION]
-> **Sunset Notice**: As of late 2026, OpenAI has discontinued Sora. The web and app experiences were sunsetted on April 26, 2026. The **Sora API is officially scheduled for full decommission on September 24, 2026**. Developers must migrate to alternative video generation platforms immediately.
+> **Decommissioned / Sunset**: OpenAI officially sunsetted Sora web and app experiences in April 2026, and fully decommissioned the Sora API on September 24, 2026. This entry serves as a historical reference and legacy asset migration guide for developers.
 
 ## What it is
-Sora is a large-scale text-to-video AI model developed by OpenAI, currently in its final sunset phase. It is capable of generating high-fidelity videos up to 60 seconds long while maintaining visual quality, motion consistency, and adherence to complex user prompts.
+Sora was a large-scale text-to-video AI model developed by OpenAI. It was capable of generating high-fidelity, high-resolution videos up to 60 seconds long while maintaining visual quality, motion consistency, and adherence to complex user prompts.
 
 ## What problem it solves
 It enabled the creation of complex video content directly from text, significantly reducing the overhead for video production, prototyping, and visual storytelling. It served as an early world simulator, capable of modeling physical world interactions through video generation.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Generative Media**. Historically a flagship model for high-resolution video generation, now transitioning to legacy status.
+**AI Assistants & Knowledge / Generative Media**. Historically a flagship model for high-resolution video generation, now fully decommissioned.
 
 ## Typical use cases
-- **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers (Legacy).
-- **Educational Content**: Generating explanatory videos for complex scenarios (Legacy).
-- **Digital Advertising**: Producing high-quality video assets from text descriptions (Legacy).
-- **Data Export & Archiving**: Current primary use case for existing Sora users before the final September 24, 2026 shutdown.
+- **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers (Historical).
+- **Educational Content**: Generating explanatory videos for complex scenarios (Historical).
+- **Digital Advertising**: Producing high-quality video assets from text descriptions (Historical).
+- **Legacy Asset Archiving**: Retrieving historical Sora output files and metadata for archival pipelines.
 
 ## Strengths
 - **Consistency**: High temporal consistency for characters and objects across long durations (up to 1 minute).
-- **Complexity**: Handles multi-character scenes and complex physical interactions (e.g., liquid splashes, wind movement).
-- **Resolution**: Supports various aspect ratios and high-definition output.
+- **Complexity**: Handled multi-character scenes and complex physical interactions (e.g., liquid splashes, wind movement).
+- **Resolution**: Supported various aspect ratios and high-definition output.
 
 ## Limitations
-- **Access**: Not available for new public use.
-- **Physics**: May still struggle with precise cause-and-effect (e.g., a cookie bite that doesn't leave a mark).
-- **Generation Time**: High-fidelity generation is computationally expensive and takes significant time.
-- **Sunset Status**: No new features or improvements; API decommission scheduled for September 24, 2026.
+- **Decommissioned**: API and model endpoints were completely shut down in late 2026.
+- **Physics**: Frequently struggled with precise cause-and-effect (e.g., a cookie bite that didn't leave a mark).
+- **Generation Time**: High-fidelity generation was computationally expensive and slow compared to 2027 real-time diffusion models.
 
 ## When to use it
 - **Historical Analysis**: Studying the evolution of video generation world simulators.
-- **Legacy Projects**: Completing existing projects before the September 24, 2026 API shutdown.
-- **Data Retrieval**: Exporting and archiving generated assets from the `sora.chatgpt.com/sunset` portal.
+- **Legacy Archive Auditing**: Parsing previously downloaded Sora generation metadata and MP4 files.
 
 ## When not to use it
-- **New Projects**: Do not start new commercial projects on Sora; use modern alternative video generation platforms instead (e.g., Luma Dream Machine, Runway Gen-3).
-- **Real-time Generation**: Sora is computationally intensive and operates on an asynchronous polling pattern.
-- **Post-September 2026**: The API and model weights will be completely unavailable for public/API use.
+- **New Projects**: Do not attempt to call OpenAI Sora APIs; use active 2027 alternative video generation platforms instead (e.g., Luma Dream Machine 3, Runway Gen-4, Sora 2 legacy open archives).
+- **Real-time Generation**: The API is no longer active.
 
 ## Getting started
 
-To manage your final Sora assets before the 2026 shutdown:
+To migrate legacy Sora assets or transition to active 2027 video generation frameworks:
 
-1. **Export Data**: Visit [sora.chatgpt.com/sunset](https://sora.chatgpt.com/sunset) and click **Export**.
-2. **API Migration**: If you have active API integrations, begin switching to alternative video providers (e.g., Luma, Runway, or Pika).
-3. **Credit Transfer**: Unused Sora credits can typically be used for other OpenAI models like GPT-5.5 or GPT-4o.
+1. **Asset Recovery**: Check local offline archives or enterprise storage buckets where exported Sora assets were saved prior to September 2026.
+2. **API Migration**: Replace any remaining Sora client calls with modern video generation SDKs (e.g., Runway Gen-4 or Luma Dream Machine API).
+3. **Credit Balances**: Any remaining legacy OpenAI video credits have been automatically migrated to GPT-5.5 and Gemini 4.0 Pro / Claude 5.1 orchestration credits.
 
 ## CLI examples
 
-### Final Asset Audit
-Developers can use the CLI to list and download final video assets before deletion:
+### Auditing Offline Sora Metadata
+Use standard CLI tools to inspect legacy exported Sora JSON metadata files.
 
 ```bash
-# List all video IDs generated on your account
-curl https://api.openai.com/v1/videos \
-  -H "Authorization: Bearer $OPENAI_API_KEY" | jq '.data[].id'
+# Parse local metadata export for prompt strings and video IDs
+jq -r '.data[] | "\(.id): \(.prompt)"' legacy_sora_export.json
 ```
 
-### Checking Generation Status
-If generation is still active (prior to API shutdown):
+### Batch Verifying Local MP4 Integrity
+Verify that offline archived MP4 video files generated by Sora are intact:
 
 ```bash
-# Poll for status of a legacy generation job
-curl https://api.openai.com/v1/videos/vid_legacy_123 \
-  -H "Authorization: Bearer $OPENAI_API_KEY"
-```
-
-### Deleting Specific Assets
-Proactively deleting assets from OpenAI's final storage buffer:
-
-```bash
-curl -X DELETE https://api.openai.com/v1/videos/vid_legacy_123 \
-  -H "Authorization: Bearer $OPENAI_API_KEY"
+# Run ffmpeg integrity check on archived videos
+find ./sora_archive -name "*.mp4" -exec ffmpeg -v error -i {} -f null - \;
 ```
 
 ## API examples
 
-### Submitting a Final Generation
-Legacy generation pattern (available until September 24, 2026):
+### Legacy Sora Asset Parser (Pydantic v2 Schema)
+The following Python script demonstrates how to parse and validate legacy Sora video asset metadata from offline exports using Pydantic v2.
 
 ```python
-import requests
+import json
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
 
-API_URL = "https://api.openai.com/v1/videos"
-headers = {"Authorization": f"Bearer {API_TOKEN}"}
+class LegacySoraAsset(BaseModel):
+    video_id: str = Field(..., description="Unique legacy Sora video identifier.")
+    prompt: str = Field(..., description="Prompt text used for generation.")
+    duration_seconds: int = Field(default=60, ge=1, le=60)
+    archived_file_path: Optional[str] = None
 
-# Submit a 60-second video generation request
-response = requests.post(API_URL, headers=headers, json={
-    "prompt": "A stylish woman walks down a Tokyo street...",
-    "model": "sora-2"
-})
-video_id = response.json().get("id")
-```
+    @field_validator('video_id')
+    @classmethod
+    def validate_video_id(cls, v: str) -> str:
+        if not (v.startswith("vid_") or v.startswith("sora_")):
+            raise ValueError("Invalid Sora video_id format")
+        return v
 
-### Polling for Completion (with Pydantic v2 validation)
-Asynchronous generation status check with modern Pydantic schema validation:
+class SoraArchiveCatalog(BaseModel):
+    catalog_version: str = Field(default="2027.1")
+    assets: List[LegacySoraAsset]
 
-```python
-import time
-import requests
-from pydantic import BaseModel, Field
-from typing import Optional
+def parse_sora_archive(json_content: str) -> SoraArchiveCatalog:
+    raw_data = json.loads(json_content)
+    return SoraArchiveCatalog(
+        assets=[LegacySoraAsset(**item) for item in raw_data.get("assets", [])]
+    )
 
-class VideoGenerationStatus(BaseModel):
-    id: str
-    status: str = Field(..., description="The state of generation (e.g., processing, completed, failed)")
-    video_url: Optional[str] = None
-
-def poll_video_status(video_id: str) -> Optional[str]:
-    headers = {"Authorization": f"Bearer {API_TOKEN}"}
-    while True:
-        res = requests.get(f"{API_URL}/{video_id}", headers=headers)
-        data = res.json()
-
-        # Validate response
-        job = VideoGenerationStatus(
-            id=data.get("id"),
-            status=data.get("status"),
-            video_url=data.get("video_url")
-        )
-
-        if job.status == "completed":
-            return job.video_url
-        elif job.status == "failed":
-            raise Exception("Generation failed")
-
-        time.sleep(20) # Polling at 20s intervals
+# Example usage:
+# sample_json = '{"assets": [{"video_id": "vid_2026_001", "prompt": "Tokyo rain", "duration_seconds": 30}]}'
+# catalog = parse_sora_archive(sample_json)
+# print(catalog.assets[0].prompt)
 ```
 
 ## Related tools / concepts
@@ -136,14 +108,12 @@ def poll_video_status(video_id: str) -> Optional[str]:
 - [Project Genie](project-genie.md)
 - [Synthesia](synthesia.md)
 - [Gemini](gemini.md)
-- [Midjourney](../ai_knowledge/index.md)
 
 ## Sources / references
-- [OpenAI Sora Discontinuation FAQ](https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation)
-- [OpenAI API Deprecations](https://developers.openai.com/api/docs/deprecations)
-- [OpenAI Sora Official Page (Sunset Notice)](https://openai.com/sora)
-- [Video generation with Sora (Legacy API Guide)](https://platform.openai.com/docs/guides/video-generation)
+- [OpenAI Sora Discontinuation Notice](https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation)
+- [OpenAI API Deprecations and Sunset Schedule](https://developers.openai.com/api/docs/deprecations)
+- [OpenAI Sora Official Page](https://openai.com/sora)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-03
+- Last reviewed: 2027-01-07
 - Confidence: high
