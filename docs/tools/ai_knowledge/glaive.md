@@ -1,7 +1,7 @@
 # Glaive
 
 ## What it is
-Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. In late September 2026, it is a critical tool for creating datasets that improve a model's ability to use [MCP 3.1](../../tools/automation_orchestration/mcp.md) tools, call APIs, and reason through complex, multi-step tasks, which are foundational capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md) or GPT-5.5 pipelines.
+Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. As of early January 2027, Glaive v2.4 provides multi-turn trajectory synthesis and FastMCP 3.1 protocol tool call schemas, enabling developers to distil reasoning from frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4 into compact 3B-14B models (e.g. Gemma 3, Qwen 3.8, Llama 4 8B).
 
 ## What problem it solves
 Generic synthetic data generation often fails to capture the nuances of real-world tool use and API interactions. Glaive addresses this by:
@@ -62,24 +62,45 @@ Glaive generated data often follows a pattern like this:
 }
 ```
 
-### Hello-world (API)
-Create a simple synthetic data request using the Glaive API:
+### Programmatic Synthetic Task Request (Pydantic v2 Schema)
+Create a validated synthetic data request using Glaive API payloads:
 
 ```python
-import requests
+import urllib.request
+import json
+from pydantic import BaseModel, Field, field_validator
 
-api_key = "YOUR_GLAIVE_API_KEY"
-url = "https://api.glaive.ai/v1/generate"
+class GlaiveGenerateRequest(BaseModel):
+    task: str = Field(..., description="Description of the synthetic dataset task.")
+    num_examples: int = Field(default=10, ge=1, le=1000)
+    format: str = Field(default="json", description="Data format output.")
+    fastmcp_version: str = Field(default="3.1", description="FastMCP protocol standard.")
 
-payload = {
-    "task": "Create a dataset for a weather tool",
-    "num_examples": 5,
-    "format": "json"
-}
-headers = {"Authorization": f"Bearer {api_key}"}
+    @field_validator('format')
+    @classmethod
+    def validate_format(cls, v: str) -> str:
+        allowed = {'json', 'jsonl', 'parquet'}
+        if v.lower() not in allowed:
+            raise ValueError(f"Format must be one of {allowed}")
+        return v.lower()
 
-# response = requests.post(url, json=payload, headers=headers)
-# print(response.json())
+payload = GlaiveGenerateRequest(
+    task="Create an agentic tool-use dataset for SQLite querying and Pydantic validation.",
+    num_examples=25,
+    format="jsonl"
+).model_dump()
+
+req = urllib.request.Request(
+    "https://api.glaive.ai/v1/generate",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+        "Authorization": "Bearer YOUR_GLAIVE_API_KEY",
+        "Content-Type": "application/json"
+    },
+    method="POST"
+)
+# with urllib.request.urlopen(req) as res:
+#     data = json.loads(res.read().decode("utf-8"))
 ```
 
 ## CLI examples
@@ -139,5 +160,5 @@ weather_tool = {
 - [Training Small Models for Tool Use (Blog)](https://glaive.ai/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high

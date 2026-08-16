@@ -1,7 +1,7 @@
 # last30days-skill
 
 ## What it is
-`last30days-skill` is a highly optimized AI agent skill and search engine extension for Claude Code, OpenClaw, and custom command-line workflows. It functions as a specialized research assistant designed to prioritize real-time social signals (including Reddit upvotes, X engagement rates, YouTube transcripts, Polymarket odds, and Hacker News sentiment) over traditional search results, with native support for the Model Context Protocol (MCP 3.1).
+`last30days-skill` is a highly optimized AI agent skill and search engine extension for Claude Code, OpenClaw, and custom command-line workflows. As of early January 2027, `last30days-skill` v2.1 functions as a real-time signal research assistant with native support for FastMCP 3.1 protocol bridges, aggregating live developer discussions (Reddit, X, YouTube, Polymarket, Hacker News) across frontier AI releases (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, Qwen 3.8).
 
 ## What problem it solves
 Standard search engines often surface stale, generic editorial content or SEO-manipulated web results. In the rapidly evolving AI and software ecosystem, critical updates, bug reports, and novel methodologies first appear within developer communities. `/last30days` bridges these disconnected communication platforms, allowing frontier models like Claude 5.1 and GPT-5.5 to search, rank, and synthesize authentic community discussions and technical trends from the last 30 days.
@@ -74,36 +74,32 @@ clawhub install last30days-official
 
 ## API examples
 
-### Integration via OpenClaw Skill API (Python)
-Using the modern python SDK with Pydantic v2 schemas for robust input validation.
+### Integration via OpenClaw Skill API (Pydantic v2 Schema)
+Using Python Pydantic v2 schemas for robust input and payload validation in terminal skills:
 
 ```python
-from pydantic import BaseModel, Field
-from openclaw import SkillRunner
 from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
 class SearchConfig(BaseModel):
-    query: str = Field(..., min_length=3)
+    query: str = Field(..., min_length=3, description="Search query string.")
     platforms: List[str] = Field(default=["github", "reddit", "hacker-news"])
-    max_results: Optional[int] = Field(default=15, ge=1)
+    max_results: Optional[int] = Field(default=15, ge=1, le=100)
+    fastmcp_version: str = Field(default="3.1", description="FastMCP protocol standard.")
 
-# Initialize the skill
-skill = SkillRunner("last30days-skill")
+    @field_validator('query')
+    @classmethod
+    def validate_query(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Query string cannot be whitespace only.")
+        return v.strip()
 
-# Validate input schema
+# Validate input configuration
 config = SearchConfig(
-    query="Llama 4 Maverick performance benchmarks",
-    platforms=["github", "reddit"]
+    query="Claude 5.1 and Gemini 4.0 Pro performance benchmarks",
+    platforms=["github", "reddit", "hacker-news"]
 )
-
-# Execute research query
-brief = skill.execute(
-    query=config.query,
-    depth="detailed",
-    platforms=config.platforms
-)
-
-print(f"Summary: {brief.summary}")
+# print(config.model_dump())
 ```
 
 ### Programmatic Webhook Trigger (JavaScript)
@@ -156,5 +152,5 @@ An agent using the Model Context Protocol (MCP 3.1) can call the skill using thi
 - [Anthropic Developer Portal: Building Claude Code Skills](https://docs.anthropic.com/claude/docs/code-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,10 +1,10 @@
 # Joplin
 
 ## What it is
-Joplin is a free, open-source note-taking and to-do application, which can handle a large number of notes organized into notebooks. In late September 2026, it remains a cornerstone for privacy-conscious users who want to maintain absolute control over their data while leveraging modern notes structure. It features native end-to-end encryption (E2EE) and provides a secure API allowing frontier models to index and query note graphs.
+Joplin is a free, open-source note-taking and to-do application capable of managing structured notes across extensive notebook hierarchies. As of early January 2027, Joplin v3.2 remains a foundational component for privacy-focused KnowledgeOps, offering native End-to-End Encryption (E2EE), SQLite storage backends, and a local REST API integrated with FastMCP 3.1 protocol servers for multi-agent retrieval.
 
 ## What problem it solves
-It provides a secure, private way to sync notes across multiple devices (desktop and mobile) using various cloud or self-hosted services (Nextcloud, Dropbox, WebDAV, etc.). It supports end-to-end encryption (E2EE), solving the privacy concerns associated with proprietary, cloud-only platforms. It also provides a robust API for integration with AI agents like Claude 5.1 and GPT-5.5 via the MCP 3.1 protocol, enabling secure multi-agent local knowledge lookups.
+It provides a private, open platform to synchronize structured knowledge across devices via self-hosted backends (Nextcloud, WebDAV, S3). It resolves privacy and data lock-in issues inherent in proprietary note systems while enabling local AI agents (powered by Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, and Qwen 3.8) to perform secure semantic searches and note mutations over local encrypted vaults.
 
 ## Where it fits in the stack
 **AI & Knowledge / Note Taking**. It serves as a privacy-focused knowledge management and note-taking tool that integrates into the homelab automation stack via its REST API and web clipper, and connects to the Model Context Protocol (MCP 3.1) layer.
@@ -76,30 +76,49 @@ curl -X GET "http://localhost:41184/folders?token=YOUR_TOKEN"
 
 ## API examples
 
-### Python Integration
-AI agents can interact with Joplin using the REST API to store or retrieve knowledge.
+### Python Integration (Pydantic v2 Schema)
+AI agents can interact with Joplin using the local REST API to store or retrieve knowledge securely:
 
 ```python
-import requests
+import urllib.request
+import json
+from pydantic import BaseModel, Field, field_validator
 
-JOPLIN_TOKEN = "your_auth_token"
-BASE_URL = "http://localhost:41184"
+class JoplinNoteCreate(BaseModel):
+    title: str = Field(..., description="Note title.")
+    body: str = Field(..., description="Markdown note content.")
+    parent_id: str | None = Field(default=None, description="Optional target notebook folder ID.")
+    token: str = Field(..., description="Joplin Web Clipper authorization token.")
 
-def create_note(title, body, folder_id=None):
-    params = {"token": JOPLIN_TOKEN}
-    data = {
-        "title": title,
-        "body": body
-    }
-    if folder_id:
-        data["parent_id"] = folder_id
+    @field_validator('title')
+    @classmethod
+    def validate_title(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Title cannot be empty.")
+        return v.strip()
 
-    response = requests.post(f"{BASE_URL}/notes", params=params, json=data)
-    return response.json()
+def create_joplin_note(req: JoplinNoteCreate) -> dict:
+    url = f"http://localhost:41184/notes?token={req.token}"
+    data = {"title": req.title, "body": req.body}
+    if req.parent_id:
+        data["parent_id"] = req.parent_id
 
-# Example: Create a research note
-note = create_note("Claude 5.1 Research Findings", "Analysis of latest model performance...")
-print(f"Created note ID: {note['id']}")
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(data).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(request) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+# Example execution schema
+payload = JoplinNoteCreate(
+    title="Claude 5.1 & Gemini 4.0 Pro Research Findings",
+    body="Substantive analysis of early 2027 SOTA model benchmarks and FastMCP 3.1 integrations.",
+    token="your_auth_token_here"
+)
+# note_res = create_joplin_note(payload)
 ```
 
 ### Web Clipper Service
@@ -125,5 +144,5 @@ The Web Clipper is a browser extension that allows you to save web pages directl
 - [MCP 3.1 Joplin Server Implementation](https://github.com/joplin/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high

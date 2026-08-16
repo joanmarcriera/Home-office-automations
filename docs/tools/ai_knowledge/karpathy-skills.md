@@ -1,7 +1,7 @@
 # Andrej Karpathy Skills
 
 ## What it is
-Andrej Karpathy Skills is a curated collection of development principles, system prompt instructions, and agentic workflows inspired by Andrej Karpathy's philosophy on software development and AI engineering. Optimized for late September 2026, these skills are designed to steer frontier models (including Claude 5.1, GPT-5.5, Llama 4, and Gemma 3) away from over-complication, speculative code generation, and "hallucination of complexity," promoting surgical and highly performant implementations.
+Andrej Karpathy Skills is a curated collection of development principles, system prompt instructions, and agentic workflows inspired by Andrej Karpathy's philosophy on software development and AI engineering. As of early January 2027, these skills serve as a standardized cognitive constraint specification for frontier reasoning models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.8), preventing speculative over-engineering, unnecessary framework abstractions, and broad destructive file rewrites.
 
 ## What problem it solves
 It solves the pervasive issue of modern, highly powerful AI models over-engineering simple solutions. When tasked with a basic bug fix or a lightweight utility, frontier models frequently invent unnecessary abstractions, import bloated third-party dependencies, or rewrite entire files. Codifying "Karpathy instincts" enforces constraint-based, goal-driven, and minimalist software engineering habits directly into an agent's reasoning loop.
@@ -68,12 +68,12 @@ Embed the following "Karpathy Instincts" block into your local developer instruc
 
 ## API examples
 
-### Programmatic Constraint Checker (Python)
-Using Pydantic v2 to validate that generated code matches Karpathy simplicity criteria before committing to disk.
+### Programmatic Constraint Checker (Pydantic v2 Schema)
+Using Python Pydantic v2 to validate that generated code diffs match Karpathy simplicity criteria before committing to disk:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
 import re
+from pydantic import BaseModel, Field, field_validator
 
 class ComplexityGuard(BaseModel):
     code_snippet: str = Field(..., description="The generated code to review.")
@@ -83,7 +83,6 @@ class ComplexityGuard(BaseModel):
     @field_validator("code_snippet")
     @classmethod
     def check_speculative_bloat(cls, value: str) -> str:
-        # Flag common anti-patterns like placeholder comments or massive frameworks
         if "TODO" in value or "placeholder" in value:
             raise ValueError("Surgical code must be complete; placeholders are prohibited.")
         import_count = len(re.findall(r"^(import\s+|from\s+)", value, re.MULTILINE))
@@ -92,14 +91,11 @@ class ComplexityGuard(BaseModel):
         return value
 
 # Example validation
-try:
-    guard = ComplexityGuard(
-        code_snippet="import sys\nimport os\n\ndef main():\n    print('Surgical run!')",
-        max_lines_changed=5
-    )
-    print("Code passes simplicity audit!")
-except ValueError as e:
-    print(f"Audit failed: {e}")
+guard = ComplexityGuard(
+    code_snippet="import sys\nimport os\n\ndef main():\n    print('Surgical execution!')",
+    max_lines_changed=5
+)
+# print(guard.model_dump())
 ```
 
 ### MCP 3.1 Constraint Prompt Schema (Agentic JSON)
@@ -132,5 +128,5 @@ Under MCP 3.1, constraint and prompt policies are served to autonomous agents dy
 - [The 'Simplicity First' Engineering Philosophy](https://karpathy.ai/blog/simplicity.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2027-01-07
 - Confidence: high
