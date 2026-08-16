@@ -1,13 +1,13 @@
 # Kimi Code CLI
 
 ## What it is
-Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks. As of late August/September 2026, it is a leading alternative for developers seeking high-performance agentic workflows outside of browser-based IDEs.
+Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks. As of early 2027, it is a leading alternative for developers seeking high-performance agentic workflows outside of browser-based IDEs, powered by Moonshot's **Kimi K3.5** models and fully integrated with **FastMCP 3.1** protocols.
 
 ## What problem it solves
 It reduces context switching by bringing AI-powered software engineering capabilities into the developer's primary workspace: the terminal. Unlike standard chat interfaces, Kimi Code CLI has direct access to the local filesystem and shell, allowing it to perform actions like refactoring code, running tests, and fixing build errors autonomously. It leverages frontier reasoning models to handle complex multi-file edits that traditional autocomplete tools cannot manage.
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md), optimized for high-speed terminal interaction and agentic workflows. It integrates with the broader ecosystem via the **Model Context Protocol (MCP) 3.1** for tool discovery and resource management.
+**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md), optimized for high-speed terminal interaction and agentic workflows. It integrates with the broader ecosystem via the **FastMCP 3.1** protocol for tool discovery and resource management.
 
 ## Typical use cases
 - **Autonomous Feature Implementation**: Describing a new feature and letting the agent write the code and verify it.
@@ -19,9 +19,9 @@ It reduces context switching by bringing AI-powered software engineering capabil
 ## Strengths
 - **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
 - **Native Terminal Integration**: No need to leave the shell for AI assistance.
-- **MCP 3.1 Support**: Full support for the Model Context Protocol, enabling connection to thousands of external tools and data sources.
+- **FastMCP 3.1 Support**: Full support for the Model Context Protocol, enabling connection to thousands of external tools and data sources.
 - **Web Access**: Can search and fetch live documentation to ground its coding suggestions.
-- **Multi-Model Support**: Native support for Claude 5.1, GPT-5.5, and Moonshot's Kimi K3 models.
+- **Multi-Model Support**: Native support for Claude 5.1, GPT-5.5, and Moonshot's Kimi K3.5 models.
 - **NVIDIA NIM Integration**: Can be configured to use local NVIDIA Inference Microservices (NIM) for ultra-low latency on **NVIDIA Rubin** GPUs.
 
 ## Limitations
@@ -81,7 +81,7 @@ kimi "Run the test suite and fix any failing tests in the reports module"
 # Explain code
 kimi "Explain how the routing works in this project"
 
-# Use a specific MCP tool
+# Use a specific FastMCP 3.1 tool
 kimi "Use the github-mcp server to list open issues in this repo"
 ```
 
@@ -117,18 +117,25 @@ base_url = "http://localhost:8000/v1"
 api_key = "nim-local"
 ```
 
-### Programmatic Integration (MCP 3.1 compliant)
-Executing coding tasks programmatically using a JSON-RPC MCP 3.1 interface:
+### Programmatic Integration (FastMCP 3.1 compliant with Pydantic v2)
+Executing coding tasks programmatically using a JSON-RPC FastMCP 3.1 interface with strict Pydantic v2 validation:
 
 ```python
 import json
 import urllib.request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 class KimiTaskPayload(BaseModel):
     prompt: str = Field(..., description="Coding instruction/task description.")
     workspace_path: str = Field(..., description="Absolute path to the repository.")
-    mcp_version: str = Field(default="3.1", description="Model Context Protocol specification version.")
+    mcp_version: str = Field(default="3.1", description="FastMCP specification version.")
+
+    @field_validator('workspace_path')
+    @classmethod
+    def validate_path(cls, v: str) -> str:
+        if not v.startswith("/"):
+            raise ValueError("workspace_path must be an absolute path starting with /")
+        return v
 
 def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
     url = "http://localhost:8000/v1/mcp/tasks"
@@ -148,6 +155,10 @@ def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
 
     with urllib.request.urlopen(req) as res:
         return json.loads(res.read().decode('utf-8'))
+
+# Example usage:
+# task = KimiTaskPayload(prompt="Fix tests", workspace_path="/home/user/repo")
+# print(invoke_kimi_mcp_task(task))
 ```
 
 ## Related tools / concepts
@@ -168,5 +179,5 @@ def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
 - [NVIDIA NIM for LLMs](https://www.nvidia.com/en-us/ai-data-science/generative-ai/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-03
+- Last reviewed: 2027-01-07
 - Confidence: high
