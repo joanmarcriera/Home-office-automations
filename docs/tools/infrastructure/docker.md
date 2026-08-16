@@ -1,26 +1,26 @@
 # Docker
 
 ## What it is
-Docker is an open-source platform that enables developers to build, deploy, run, update, and manage containers—standardized, executable components that combine application source code with the operating system (OS) libraries and dependencies required to run that code in any environment. In September 2026, it remains the industry standard for containerization, powering everything from local development to massive AI inference clusters.
+Docker is an open-source platform that enables developers to build, deploy, run, update, and manage containers—standardized, executable components that combine application source code with the operating system (OS) libraries and dependencies required to run that code in any environment. As of January 2027, Docker Engine 27+ and Compose v2.30+ remain the industry standard for containerization, powering everything from local development sandboxes to multi-GPU AI inference clusters.
 
 ## What problem it solves
-It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly. This is critical for AI agents like Claude 5.1 and GPT-5.5, which require isolated, reproducible environments to safely execute code under strict memory and hardware caps.
+It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly. This is critical for AI agents like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4, which require isolated, reproducible environments to safely execute code under strict memory and hardware caps.
 
 ## Where it fits in the stack
-**Infrastructure / Containerization**. It is the foundational layer for running self-hosted services, AI workloads, and MCP servers in isolated environments. It sits below the orchestration layer (e.g., K3s) and above the host operating system.
+**Infrastructure / Containerization**. It is the foundational layer for running self-hosted services, AI workloads, and FastMCP 3.1 servers in isolated environments. It sits below the orchestration layer (e.g., K3s) and above the host operating system.
 
 ## Typical use cases
-- **AI Agent Sandboxing**: Providing isolated environments for agents to run and test code (e.g., Claude Code Container MCP).
-- **Self-Hosted AI Services**: Deploying inference engines like vLLM or TGI for Llama 4, Gemma 3, and Qwen 3.6.
-- **MCP Server Deployment**: Hosting Model Context Protocol (MCP 3.1) servers in a standardized, security-hardened network environment.
-- **Microservices Orchestration**: Running multi-container applications with Docker Compose.
-- **CI/CD Pipelines**: Standardizing build and test environments.
+- **AI Agent Sandboxing**: Providing isolated environments for agents to run and test code safely.
+- **Self-Hosted AI Services**: Deploying inference engines like vLLM, TGI, or Ollama for Llama 4, Gemma 3, and Qwen 3.8.
+- **FastMCP 3.1 Server Deployment**: Hosting Model Context Protocol servers in a standardized, security-hardened network environment.
+- **Microservices Orchestration**: Running multi-container applications with Docker Compose v2.30+.
+- **CI/CD Pipelines**: Standardizing build and test environments across devops pipelines.
 
 ## Strengths
 - **Reproducibility**: Identical environments from dev to prod.
 - **Efficiency**: Lower overhead than VMs; fast startup and scaling.
-- **Ecosystem**: Massive library of pre-built images on Docker Hub.
-- **Security**: Process isolation and resource constraints, enhanced by late 2026 security patches for sandboxed LLM execution.
+- **Ecosystem**: Massive library of pre-built images on Docker Hub and GitHub Container Registry.
+- **Security**: Process isolation and resource constraints, enhanced by modern security patches for sandboxed LLM execution.
 
 ## Limitations
 - **Overhead**: While lighter than VMs, it still adds some overhead compared to bare metal.
@@ -53,7 +53,7 @@ Follow the official guides for:
 
 ## CLI examples
 ```bash
-# Run an MCP 3.1 server in a container
+# Run a FastMCP 3.1 server in a container
 docker run -d --name mcp-server -e API_KEY=$API_KEY my-mcp-image
 
 # List running containers
@@ -66,56 +66,69 @@ docker logs -f ai-agent-sandbox
 docker build -t local-inference:vLLM-0.6 .
 
 # Stop and remove all containers for a project
-docker-compose down
+docker compose down
 ```
 
 ## API examples
 
-### Docker Engine API (Python SDK)
-AI agents often use the Docker Python SDK to manage their own sandboxes securely, incorporating limits on memory, CPU, and networking to avoid agent escapes.
+### Docker Engine API (Python SDK with Pydantic v2 Schema)
+AI agents often use the Docker Python SDK to manage their own sandboxes securely, incorporating limits on memory, CPU, and networking configured with strict Pydantic v2 schemas.
 
 ```python
 import docker
 from docker.errors import ContainerError, ImageNotFound
+from pydantic import BaseModel, Field
+from typing import Optional
 
-def run_sandboxed_code(script_content: str) -> str:
+class SandboxConfig(BaseModel):
+    image: str = Field(default="python:3.12-slim", description="Docker image for execution sandbox")
+    memory_limit: str = Field(default="256m", description="RAM allocation cap")
+    nano_cpus: int = Field(default=1000000000, description="CPU resource limit (10^9 = 1 CPU)")
+    network_disabled: bool = Field(default=True, description="Disable outbound network access for security")
+    read_only: bool = Field(default=True, description="Enforce read-only root filesystem")
+    timeout_seconds: int = Field(default=10, ge=1, le=60)
+
+class ExecutionResult(BaseModel):
+    success: bool
+    output: str
+    exit_code: Optional[int] = None
+
+def run_sandboxed_code(script_content: str, config: Optional[SandboxConfig] = None) -> ExecutionResult:
+    cfg = config or SandboxConfig()
     client = docker.from_env()
 
-    # Escape single quotes in user script
     escaped_script = script_content.replace("'", "'\\''")
     command = f"python -c '{escaped_script}'"
 
     try:
-        # Create a secure sandbox with restricted memory, CPU, and NO network access
         container = client.containers.run(
-            image="python:3.12-slim",
+            image=cfg.image,
             command=command,
             detach=True,
-            mem_limit="256m",
-            nano_cpus=1000000000, # Max 1 CPU core
-            network_disabled=True,
-            read_only=True, # Prevent writes to the system root
-            volumes={'/tmp': {'bind': '/tmp', 'mode': 'rw'}} # Allow writing to /tmp only
+            mem_limit=cfg.memory_limit,
+            nano_cpus=cfg.nano_cpus,
+            network_disabled=cfg.network_disabled,
+            read_only=cfg.read_only,
+            volumes={'/tmp': {'bind': '/tmp', 'mode': 'rw'}}
         )
 
-        # Wait with a timeout (e.g., 10 seconds max run time)
-        result = container.wait(timeout=10)
-        logs = container.logs()
-
+        res = container.wait(timeout=cfg.timeout_seconds)
+        logs = container.logs().decode("utf-8")
         container.remove()
-        return logs.decode("utf-8")
+
+        return ExecutionResult(success=True, output=logs, exit_code=res.get("StatusCode", 0))
 
     except ImageNotFound:
-        return "Error: python:3.12-slim image not found locally."
+        return ExecutionResult(success=False, output=f"Image {cfg.image} not found locally.")
     except ContainerError as ce:
-        return f"Runtime error in sandbox: {ce}"
+        return ExecutionResult(success=False, output=f"Runtime error in sandbox: {ce}")
     except Exception as e:
-        return f"Failed to execute sandboxed code: {e}"
+        return ExecutionResult(success=False, output=f"Failed to execute sandboxed code: {e}")
 
 if __name__ == "__main__":
     test_script = "import sys; print(f'Secure Sandbox verified on Python {sys.version_info.major}.{sys.version_info.minor}')"
-    output = run_sandboxed_code(test_script)
-    print(output)
+    result = run_sandboxed_code(test_script)
+    print(f"Success: {result.success}\nOutput: {result.output.strip()}")
 ```
 
 ### Docker Compose (YAML)
@@ -144,19 +157,17 @@ services:
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Home Assistant](../../services/home-assistant.md)
-- [Portracker](../../services/portracker.md)
 - [Podman](https://podman.io/)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Sandboxed Code Execution](../../knowledge_base/patterns/sandboxed-execution.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [Official Website](https://www.docker.com/)
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Hub](https://hub.docker.com/)
-- [Docker Engine API Reference](https://docs.docker.com/engine/api/v1.45/)
+- [Docker Engine API Reference](https://docs.docker.com/engine/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high

@@ -4,21 +4,21 @@
 Text Generation Inference (TGI) is a specialized toolkit for deploying and serving Large Language Models (LLMs). Developed by Hugging Face, it is designed for high-performance text generation in production environments. It is written in Rust and Python, offering a robust solution for serving the most popular open-weight models.
 
 ## What problem it solves
-TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. By September 2026, it serves as a high-performance alternative to **NVIDIA NIM** (General Availability), optimized for the **NVIDIA Rubin** architecture, and provides a critical backend for developers benchmarking self-hosted models against frontier services like **Claude 5.1** (specifically supporting advanced Model Context Protocol MCP 3.1 tooling and pipelines), **GPT-5.5**, and **Llama 4**.
+TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. As of January 2027, it serves as a high-performance alternative to **NVIDIA NIM**, fully optimized for **NVIDIA Blackwell** and **Rubin** GPU architectures, and provides a critical backend for developers benchmarking self-hosted models against frontier services like **Claude 5.1** (supporting advanced FastMCP 3.1 tooling and pipelines), **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
 
 ## Where it fits in the stack
 **Infra**. It provides the high-performance serving layer for Hugging Face models, bridging the gap between raw weights and a production-ready API.
 
 ## Typical use cases
 - **Enterprise-grade LLM APIs**: Powering internal or external model services with high reliability.
-- **Multi-GPU Deployment**: Serving very large models (e.g., Llama-4-70B, Qwen-3.6-72B, Gemma-3) that require tensor parallelism.
+- **Multi-GPU Deployment**: Serving very large models (e.g., Llama-4-70B, Qwen-3.8-72B, Gemma-3) that require tensor parallelism.
 - **Real-time Chat**: Production backends for applications like Hugging Chat that require streaming responses.
-- **Agentic Workflows**: Providing a high-speed completion endpoint for autonomous agents running in [Claude Code](../development_ops/claude-code.md) and those communicating via Model Context Protocol (MCP 3.1) servers.
+- **Agentic Workflows**: Providing a high-speed completion endpoint for autonomous agents running in [Claude Code](../development_ops/claude-code.md) and those communicating via FastMCP 3.1 protocols.
 
 ## Strengths
 - **Production-Hardened**: Battle-tested at Hugging Face for their own Inference API.
-- **Advanced Optimizations**: Includes Flash Attention-3, Paged Attention, and optimized custom Rust/Triton kernels.
-- **Flexible Serving**: Supports a wide range of Hugging Face models out of the box, including Llama 4, Qwen 3.6, and Gemma 3.
+- **Advanced Optimizations**: Includes FlashAttention-3, PagedAttention, speculative decoding, and optimized custom Rust/Triton kernels.
+- **Flexible Serving**: Supports a wide range of Hugging Face models out of the box, including Llama 4, Qwen 3.8, and Gemma 3.
 - **Enterprise Features**: Robust monitoring via Prometheus, streaming support, and production-ready logging.
 - **Multi-LoRA**: Efficiently serve multiple fine-tuned adapters on a single base model.
 
@@ -76,7 +76,7 @@ Serve a large model across 4 GPUs.
 ```bash
 docker run --gpus all --shm-size 1g -p 8080:80 \
     ghcr.io/huggingface/text-generation-inference:latest \
-    --model-id Qwen/Qwen3.6-72B-Instruct \
+    --model-id Qwen/Qwen3.8-72B-Instruct \
     --num-shard 4
 ```
 
@@ -105,7 +105,7 @@ curl 127.0.0.1:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
-### Streaming Response with MCP 3.1 Task Payload
+### Streaming Response with FastMCP 3.1 Task Payload
 ```bash
 curl 127.0.0.1:8080/generate_stream \
     -X POST \
@@ -120,33 +120,41 @@ curl 127.0.0.1:8080/generate_stream \
 ```
 
 ### Python Programmatic SDK Integration
+Python integration with Pydantic v2 strict schema validation:
+
 ```python
-import json
 import requests
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List, Optional
+
+class TGIParameters(BaseModel):
+    max_new_tokens: int = Field(default=256, ge=1, le=4096)
+    temperature: float = Field(default=0.1, ge=0.0, le=2.0)
+    top_p: float = Field(default=0.95, ge=0.0, le=1.0)
+    stop: List[str] = Field(default_factory=lambda: ["</s>", "[/INST]"])
+
+class TGIRequest(BaseModel):
+    inputs: str = Field(..., description="Prompt formatted for the served model")
+    parameters: TGIParameters = Field(default_factory=TGIParameters)
+
+class TGIResponse(BaseModel):
+    generated_text: str = Field(..., description="Generated text completion")
 
 def query_tgi_endpoint(prompt: str, server_url: str = "http://localhost:8080") -> str:
-    payload = {
-        "inputs": f"[INST] {prompt} [/INST]",
-        "parameters": {
-            "max_new_tokens": 256,
-            "temperature": 0.1,
-            "top_p": 0.95,
-            "stop": ["</s>", "[/INST]"]
-        }
-    }
-
+    req_data = TGIRequest(inputs=f"[INST] {prompt} [/INST]")
     headers = {"Content-Type": "application/json"}
-    response = requests.post(f"{server_url}/generate", json=payload, headers=headers)
+
+    response = requests.post(f"{server_url}/generate", json=req_data.model_dump(), headers=headers)
 
     if response.status_code == 200:
-        return response.json().get("generated_text", "")
+        res_data = TGIResponse.model_validate(response.json())
+        return res_data.generated_text
     else:
         raise RuntimeError(f"TGI Request failed: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
-    # Example validation of self-hosted Llama 4 / Qwen 3.6 endpoints
     try:
-        completion = query_tgi_endpoint("List three primary benefits of MCP 3.1 task protocol integration.")
+        completion = query_tgi_endpoint("List three primary benefits of FastMCP 3.1 task protocol integration.")
         print(f"Completion: {completion}")
     except Exception as e:
         print(f"Error connecting to TGI: {e}")
@@ -171,5 +179,5 @@ if __name__ == "__main__":
 - [Hugging Face Optimized Inference License](https://huggingface.co/docs/text-generation-inference/conceptual/license)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high

@@ -4,16 +4,16 @@
 ClawRouter is an open-source (MIT), agent-native smart LLM router designed for autonomous workflows. It provides a local proxy that analyzes requests across 15 dimensions (cost, latency, reasoning depth, etc.) and routes them to the optimal model in under 1ms.
 
 ## What problem it solves
-It solves the "autonomous agent payment gap" by using the **x402 protocol** for USDC micropayments and wallet signatures for authentication. This allows agents to operate independently without human-managed API keys, accounts, or credit cards. It also reduces LLM costs by up to 92% through aggressive model routing.
+It solves the "autonomous agent payment gap" by using the **x402 protocol** for USDC micropayments and wallet signatures for authentication. This allows agents to operate independently without human-managed API keys, accounts, or credit cards. It also reduces LLM costs by up to 92% through aggressive model routing across frontier models (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**) and local open-weights servers (vLLM, TGI, Ollama).
 
 ## Where it fits in the stack
 **Infrastructure / Routing Layer**. ClawRouter sits between the AI agent (Claude 5.1, GPT-5.5) and model providers (Anthropic, OpenAI, Google, NVIDIA, etc.), acting as a smart, payment-integrated proxy.
 
 ## Typical use cases
 - **Autonomous Agent Ops**: Powering agents that need to pay for their own inference via on-chain USDC.
-- **Cost-Optimized Coding**: Routing simple code edits to free models (e.g., DeepSeek V4 Flash) while using Claude 5.1 for complex architecture.
+- **Cost-Optimized Coding**: Routing simple code edits to free or low-cost models while using Claude 5.1 for complex architecture.
 - **Multi-Modal Orchestration**: Seamlessly switching between specialized models for text, vision, image generation, and voice calls.
-- **Agentic Infrastructure**: Providing a local, <1ms routing layer for high-volume agent fleets.
+- **Agentic Infrastructure**: Providing a local, <1ms routing layer for high-volume agent fleets and FastMCP 3.1 workflows.
 
 ## Strengths
 - **Agent-First Auth**: Uses wallet signatures instead of API keys, making it truly native to autonomous entities.
@@ -40,7 +40,7 @@ It solves the "autonomous agent payment gap" by using the **x402 protocol** for 
 
 ## Getting started
 
-To set up ClawRouter in September 2026:
+To set up ClawRouter in January 2027:
 
 1. **Installation**:
    ```bash
@@ -122,58 +122,78 @@ curl -X POST http://localhost:8402/v1/voice/call \
   }'
 ```
 
-### Programmatic Python Verification & Route Optimizer
+### Programmatic Python Routing & Verification (Pydantic v2)
 Verify and check metrics programmatically, enforcing budgets and latency SLAs on self-directed agent runs.
 
 ```python
 import sys
 import time
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class RoutingMetadata(BaseModel):
+    max_cost_limit_usd: float = Field(default=0.05, ge=0.0, description="Max USD budget per request")
+    latency_sla_ms: int = Field(default=1500, ge=100, description="Target max latency in milliseconds")
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ClawRouterRequest(BaseModel):
+    model: str = Field(default="blockrun/auto")
+    messages: list[ChatMessage]
+    metadata: RoutingMetadata = Field(default_factory=RoutingMetadata)
+
+class UsageInfo(BaseModel):
+    estimated_cost_usd: float = Field(default=0.0)
+
+class ChoiceMessage(BaseModel):
+    content: str
+
+class Choice(BaseModel):
+    message: ChoiceMessage
+
+class ClawRouterResponse(BaseModel):
+    model: str
+    choices: list[Choice]
+    usage: Optional[UsageInfo] = None
 
 def check_clawrouter_health(base_url: str = "http://localhost:8402/v1") -> bool:
-    # 1. Health and Wallet status check via ClawRouter internal state
-    status_url = f"{base_url}/status"
     try:
-        response = requests.get(status_url, timeout=3)
+        response = requests.get(f"{base_url}/status", timeout=3)
         if response.status_code == 200:
             status_data = response.json()
             balance = status_data.get("wallet", {}).get("usdc_balance", 0.0)
             network = status_data.get("wallet", {}).get("network", "unknown")
             print(f"ClawRouter is LIVE. Network: {network}. Wallet Balance: {balance} USDC.")
             return True
-        else:
-            print(f"Failed to fetch health status: {response.status_code}")
-            return False
+        return False
     except requests.exceptions.RequestException:
         print("ClawRouter offline or unreachable.")
         return False
 
-def route_with_clawrouter(prompt: str, max_cost_limit: float = 0.05, base_url: str = "http://localhost:8402/v1") -> str:
+def route_with_clawrouter(prompt: str, base_url: str = "http://localhost:8402/v1") -> str:
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer x402"
     }
 
-    payload = {
-        "model": "blockrun/auto",
-        "messages": [{"role": "user", "content": prompt}],
-        "metadata": {
-            "max_cost_limit_usd": max_cost_limit,
-            "latency_sla_ms": 1500
-        }
-    }
+    req = ClawRouterRequest(
+        messages=[ChatMessage(role="user", content=prompt)],
+        metadata=RoutingMetadata(max_cost_limit_usd=0.05, latency_sla_ms=1500)
+    )
 
     try:
         start_time = time.time()
-        res = requests.post(f"{base_url}/chat/completions", json=payload, headers=headers, timeout=10)
+        res = requests.post(f"{base_url}/chat/completions", json=req.model_dump(), headers=headers, timeout=10)
         elapsed = time.time() - start_time
 
         if res.status_code == 200:
-            data = res.json()
-            completion = data["choices"][0]["message"]["content"]
-            model_routed = data.get("model", "unknown")
-            actual_cost = data.get("usage", {}).get("estimated_cost_usd", 0.0)
-            print(f"Routed to '{model_routed}' in {elapsed:.3f}s. Cost: {actual_cost} USDC.")
+            data = ClawRouterResponse.model_validate(res.json())
+            completion = data.choices[0].message.content
+            cost = data.usage.estimated_cost_usd if data.usage else 0.0
+            print(f"Routed to '{data.model}' in {elapsed:.3f}s. Cost: {cost} USDC.")
             return completion
         else:
             print(f"Routing failed: {res.status_code} - {res.text}")
@@ -183,14 +203,12 @@ def route_with_clawrouter(prompt: str, max_cost_limit: float = 0.05, base_url: s
         return ""
 
 if __name__ == "__main__":
-    print("Initiating ClawRouter programmatic routing test...")
     if check_clawrouter_health():
         completion = route_with_clawrouter("Draft a python script to calculate Fibonacci series.")
         if completion:
             print(f"Response: {completion[:100]}...")
     else:
         print("Running fallback diagnostics. Ensure 'npx @blockrun/clawrouter' is running locally.")
-        sys.exit(0)
 ```
 
 ## Related tools / concepts
@@ -207,8 +225,7 @@ if __name__ == "__main__":
 ## Sources / References
 - [GitHub Repository](https://github.com/BlockRunAI/ClawRouter)
 - [x402 Protocol Specification](https://x402.org)
-- [Autonomous Agent Micropayments (September 2026 whitepaper)](https://example.com/agent-micropayments)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2027-01-06
 - Confidence: high
