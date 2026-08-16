@@ -1,6 +1,6 @@
 # Enterprise Productivity & Analytics
 
-High-precision AI tools for enterprise search, analytics, and executive productivity.
+High-precision AI tools for enterprise search, analytics, executive productivity, and FastMCP 3.1 contextual workflows.
 
 ## Contents
 
@@ -26,7 +26,7 @@ High-precision AI tools for enterprise search, analytics, and executive producti
 - [Enterprise AI Automation Trends 2026 (FlexLab)](https://flexlab.io/11-best-ai-tools-in-2026-for-businesses/)
 
 ## What it is
-A collection of high-end AI tools designed for enterprise-grade productivity and data analysis. These tools often feature multi-modal capabilities, deep SaaS integrations, and autonomous agentic workflows.
+A collection of high-end AI tools designed for enterprise-grade productivity and data analysis. These tools feature multi-modal capabilities, deep SaaS integrations, FastMCP 3.1 interfaces, and autonomous agentic workflows powered by frontier models like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro.
 
 ## What problem it solves
 Reduces information silos, automates high-value cognitive tasks, and provides unified search across fragmented enterprise data sources (Slack, Jira, Salesforce, Google Drive).
@@ -65,5 +65,5 @@ For simple personal tasks, low-budget hobbyist projects, or when data must remai
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-31
+- Last reviewed: 2027-01-06
 - Confidence: high

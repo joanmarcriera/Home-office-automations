@@ -1,6 +1,6 @@
 # Orchestration
 
-Orchestration tools manage the execution flow of AI workloads, from simple linear pipelines to complex, autonomous multi-agent systems. This layer is responsible for routing, state management, error handling, and long-running process durability.
+Orchestration tools manage the execution flow of AI workloads, from simple linear pipelines to complex, autonomous multi-agent systems and FastMCP 3.1 tool integrations. This layer is responsible for routing, state management, error handling, and long-running process durability in frontier AI environments (incorporating Claude 5.1, GPT-5.5, and Gemini 4.0 Pro agents).
 
 ## Orchestration Patterns
 
@@ -47,5 +47,5 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-31
+- Last reviewed: 2027-01-06
 - Confidence: high
