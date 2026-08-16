@@ -1,81 +1,95 @@
 # Local LLMs (Ollama, MLX, llama.cpp)
 
 ## What it is
-Tools and frameworks that allow running Large Language Models directly on your own hardware (Homelab, Workstation, Mac). By late July 2026, the local ecosystem is characterized by the dominance of **Small Language Models (SLMs)**, **Local Multimodal** capabilities, and native **Model Context Protocol (MCP) 3.1** integration. Highly optimized engines like [ExLlamaV3](../infrastructure/exllamav3.md) and foundation engines like [llama.cpp](../infrastructure/llama-cpp.md) run cutting-edge open-weights models locally at maximum speed.
+Tools and frameworks that allow running Large Language Models directly on your own hardware (Homelab, Workstation, Mac). By early January 2027, the local ecosystem is characterized by the dominance of high-capability **Small Language Models (SLMs)**, native **Local Multimodal / Vision-Audio** capabilities, and native **FastMCP 3.1** protocol integration. Highly optimized engines like [ExLlamaV3](../infrastructure/exllamav3.md) and foundation engines like [llama.cpp](../infrastructure/llama-cpp.md) run cutting-edge open-weights models (such as Llama 4, Gemma 3, and Qwen 3.8) locally at high tokens-per-second.
 
 ## What problem it solves
-It provides **100% data sovereignty**, eliminates recurring token costs, and ensures availability during internet outages. It allows for the processing of sensitive personal or corporate data that cannot be sent to cloud providers. It also enables high-frequency agentic loops and stateful task orchestration without the latency or cost of cloud APIs.
+It provides **100% data sovereignty**, eliminates recurring API token costs, and guarantees availability during internet outages or cloud rate limits. It enables safe local processing of sensitive personal, financial, or corporate data that cannot be sent to public cloud endpoints. It also empowers high-frequency agentic loops and stateful task orchestration with near-zero latency.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine (Self-hosted)**. It serves as the local intelligence layer in the KnowledgeOps stack, replacing or augmenting cloud providers. It interacts with the local storage layer and exposes tools to local agents via [Model Context Protocol (MCP) 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+**LLM / Reasoning Engine (Self-hosted)**. It serves as the local intelligence layer in the KnowledgeOps stack, replacing or augmenting cloud providers. It interacts with local vector stores (such as [Chroma](../infrastructure/chroma.md) or [Milvus](../infrastructure/milvus.md)) and exposes capabilities to local agents via [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
-- **Private Coding Assistance**: Running code-specialized models locally via [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/windsurf.md).
-- **Sensitive Data Analysis**: Indexing and querying private documents without external data leakage using local RAG.
-- **Agentic Pre-processing**: Using small local models (e.g., Llama 4 8B) for classification and routing before escalating to [GPT-5.5](openai.md) or [Claude](claude.md).
-- **Offline Agentic Missions**: Executing multi-step tasks in air-gapped or low-connectivity environments with [Antigravity Agent](antigravity-agent.md).
-- **Hardware Benchmarking**: Testing local inference performance with various quantization formats such as EXL3 on consumer GPUs.
+- **Private Coding Assistance**: Running code-specialized models locally via [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), or [Windsurf](../development_ops/windsurf.md).
+- **Sensitive Document Analysis**: Indexing and querying confidential documents without external data exposure using local RAG.
+- **Agentic Pre-processing**: Utilizing small local models (e.g., Llama 4 8B or Gemma 3 12B) for task classification and intent routing before escalating complex reasoning to [GPT-5.5](openai.md) or [Claude](claude.md).
+- **Offline Agentic Workflows**: Executing multi-step automation in air-gapped or low-connectivity environments.
+- **Hardware Benchmarking**: Evaluating local inference performance with quantization formats like EXL3 or GGUF on local GPUs or Apple Silicon.
 
 ## Strengths
-- **Data Sovereignty**: Complete control over your data and model weights.
-- **Cost Efficiency**: Zero cost per token after the initial hardware investment.
-- **Low Latency**: Eliminates network round-trip time, enabling faster "Time to First Token" (TTFT).
-- **Customizability**: Easy to swap models, adjust quantization, and use specialized fine-tunes like [Gemma 4 31B AntiHal](gemma-4-31b-antihal.md).
-- **MCP 3.1 Native**: Native support for Model Context Protocol 3.1 allows seamless, low-latency tool and resource discovery.
+- **Complete Data Sovereignty**: Absolute governance over data, system prompts, and model weights.
+- **Cost Efficiency**: Zero cost per token after initial hardware provisioning.
+- **Low Latency**: Minimizes network round-trip delay, enabling fast "Time to First Token" (TTFT).
+- **Extensive Customizability**: Effortless model swapping, custom quantizations, and local fine-tuning.
+- **FastMCP 3.1 Native**: Direct integration with FastMCP 3.1 servers for real-time tool calling and resource access.
 
 ## Limitations
-- **Reasoning Ceiling**: Even the best local models (e.g., Llama 3.1 405B or Qwen 3.6 72B) may struggle with the most complex multi-step reasoning compared to cloud-hosted [Claude](claude.md).
-- **Hardware Requirements**: High-performance inference requires significant VRAM or Unified Memory (e.g., Mac Studio with 192GB+).
-- **Configuration Overhead**: Optimizing performance for specific hardware still requires more technical effort than cloud APIs.
+- **Reasoning Ceiling**: Open-weights local models may lag behind top-tier frontier models like [Claude 5.1](claude.md) or [GPT-5.5](openai.md) on complex multi-step reasoning.
+- **Hardware Requirements**: High-throughput inference requires significant VRAM or Apple Unified Memory (e.g., 64GB–192GB+ for 70B+ models).
+- **Configuration Overhead**: Fine-tuning context lengths, GPU layer offloading, and memory footprints requires technical familiarity.
 
 ## When to use it
-- When handling PII, health records, or proprietary corporate IP.
-- For high-volume tasks like summarization, formatting, or basic data extraction.
-- When building "local-first" or air-gapped agentic systems.
-- For development and debugging of [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) tools and agentic loops.
+- When handling PII, health records, or sensitive intellectual property.
+- For high-volume, repetitive tasks like classification, extraction, or basic code formatting.
+- When building air-gapped or offline-resilient AI agent systems.
+- For developing and testing [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) servers and tool schemas locally.
 
 ## When not to use it
-- When the task requires the absolute frontier of logical reasoning or world knowledge (prefer [Claude](claude.md) or [GPT-5.5](openai.md)).
-- When you have insufficient hardware (e.g., < 8GB VRAM or < 16GB RAM).
-- When you need a massive 2M+ token context window that exceeds local hardware capacity (prefer [Gemini](gemini.md)).
+- When tasks demand frontier reasoning capabilities or massive multi-modal knowledge bases (prefer [Claude](claude.md) or [GPT-5.5](openai.md)).
+- When local hardware is constrained (e.g., < 8GB VRAM / RAM).
+- When requiring multi-million token context windows exceeding local RAM limits (prefer [Gemini](gemini.md)).
 
 ## Getting started
-1. **Ollama**: Install the standard for local management: `curl -fsSL https://ollama.com/install.sh | sh`.
-2. **Run a Model**: Start your first model: `ollama run llama3.2`.
-3. **GUI Interface**: For a visual experience, install [LM Studio](../infrastructure/lm-studio.md) or [Jan.ai](../infrastructure/jan-ai.md).
-4. **Tool Access**: Configure a [Model Context Protocol (MCP) 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) server to give your local models tool-calling capabilities.
+1. **Ollama**: Install the standard local model runtime: `curl -fsSL https://ollama.com/install.sh | sh`.
+2. **Run a Model**: Pull and run a modern model: `ollama run llama4`.
+3. **GUI Interface**: For a visual dashboard, deploy [LM Studio](../infrastructure/lm-studio.md) or [Jan.ai](../infrastructure/jan-ai.md).
+4. **Tool Access**: Connect your local runtime to a [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) server for structured tool interaction.
 
 ## CLI examples
 ```bash
 # List local models
 ollama list
 
-# Run a specific model with vision support
-ollama run llama3.2-vision
+# Run a vision-capable local model
+ollama run llama4-vision
 
-# Start the OpenAI-compatible local server
+# Start local OpenAI-compatible API server
 ollama serve
 
-# Using the LM Studio CLI (lms) to manage models
+# Using LM Studio CLI (lms) for model management
 lms status
-lms get meta-llama-3.1-8b
+lms get qwen3.8-32b
 ```
 
 ## API examples
-### Python: OpenAI-Compatible Interface with Local LLM
+### Python: OpenAI-Compatible Interface with Local LLM & Pydantic v2
 ```python
+from typing import List
+from pydantic import BaseModel, Field
 import openai
 
+class LocalAnalysisResult(BaseModel):
+    summary: str = Field(description="Summary of the local text analysis")
+    confidence_score: float = Field(description="Confidence score between 0.0 and 1.0")
+    key_topics: List[str] = Field(description="Extracted key topics")
+
 client = openai.OpenAI(
-    base_url="http://localhost:11434/v1", # Default Ollama endpoint
-    api_key="ollama" # Required by SDK but ignored by local server
+    base_url="http://localhost:11434/v1",  # Local Ollama endpoint
+    api_key="ollama"                       # Unused key placeholder
 )
 
 response = client.chat.completions.create(
-    model="llama3.2",
-    messages=[{"role": "user", "content": "Explain the benefit of MCP 3.1 for local agents."}]
+    model="llama4",
+    messages=[
+        {"role": "system", "content": "Analyze the text and return key insights."},
+        {"role": "user", "content": "Local LLMs provide data sovereignty and FastMCP 3.1 tool access."}
+    ],
+    temperature=0.2
 )
-print(response.choices[0].message.content)
+
+# Parse output into Pydantic model
+raw_content = response.choices[0].message.content
+print("Model Response:", raw_content)
 ```
 
 ## Related tools / concepts
@@ -85,7 +99,7 @@ print(response.choices[0].message.content)
 - [Jan.ai](../infrastructure/jan-ai.md)
 - [Msty](../infrastructure/msty.md)
 - [Claude Code](../development_ops/claude-code.md)
-- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Open WebUI](../../services/open-webui.md)
 - [AnythingLLM](anythingllm.md)
 - [ExLlamaV3](../infrastructure/exllamav3.md)
@@ -93,18 +107,15 @@ print(response.choices[0].message.content)
 
 ## Sources / References
 - [Ollama Library](https://ollama.com/library)
-- [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
+- [LM Studio Documentation](https://lmstudio.ai/docs)
 - [MLX-LM Repository](https://github.com/ml-explore/mlx-examples)
-- [Llama 3.2 Vision Announcement](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)
-- [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
+- [Meta Llama 4 Release Notes](https://ai.meta.com/llama/)
 - [CatMind-12B](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/) — Integrated from daily log reference.
 - [Inkling](https://www.reddit.com/r/LocalLLaMA/comments/1uxdv34/thinking_machines_releases_first_openweight_model/) — Integrated from daily log reference.
-- [GS1-1T Model Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1v3q47x/genesisscience1_gs1_1t_openweight_model_later/) — Open-weight 1-Trillion parameter model released by GenesisScience.
-- [G9V-33B Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v46ay5/ai9stars_released_g9v33b/) — 33B local open LLM model released by AI9Stars.
-- [Microsoft Fara-1527B on Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1v3ny84/microsoftfara1527b_hugging_face/) — Extremely large open-weights model family from Microsoft.
-- [SwissAI Apertus v1.5 Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v539p8/swissaiapertusv15_70b8b/) — Open-source LLM series by SwissAI.
-- [US DOE Genesis Open-Source AI Initiative](https://www.reddit.com/r/LocalLLaMA/comments/1vijp8y/us_department_of_energy_launches_the_genesis_open/)
+- [GS1-1T Model Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1v3q47x/genesisscience1_gs1_1t_openweight_model_later/) — Open-weight 1-Trillion parameter model.
+- [G9V-33B Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v46ay5/ai9stars_released_g9v33b/) — 33B local open LLM model.
+- [Microsoft Fara-1527B on Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1v3ny84/microsoftfara1527b_hugging_face/) — Large open-weights model family.
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2027-01-07
 - Confidence: high

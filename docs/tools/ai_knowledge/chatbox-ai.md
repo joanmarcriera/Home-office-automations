@@ -1,141 +1,133 @@
 # Chatbox AI
 
 ## What it is
-Chatbox AI is a comprehensive, multi-platform AI client that allows users to access a wide range of frontier models (including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and local models via **Ollama**) through a unified, privacy-focused interface. As of late October / November 2026, it is a leading "cockpit" for human-AI collaboration, available on Windows, macOS, Linux, iOS, Android, and the web.
+Chatbox AI is a cross-platform AI desktop and mobile application providing a unified, privacy-focused client interface to frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro) and local runtimes (Ollama, LM Studio). By early January 2027, Chatbox AI acts as a multi-model workspace featuring native **FastMCP 3.1** host capabilities, artifact previews, and end-to-end encrypted session synchronization across macOS, Windows, Linux, iOS, and Android.
 
 ## What problem it solves
-It centralizes AI interaction, eliminating the need to manage multiple browser tabs or individual subscriptions for different providers. By allowing users to "Bring Your Own Key" (BYOK), it provides a cost-effective and privacy-conscious way to use high-end AI models while keeping conversation history, custom agents, and settings synchronized across all devices with end-to-end encryption.
+It centralizes model interaction, eliminating the need to maintain multiple browser tabs, web subscriptions, or separate developer tool interfaces. By allowing users to Bring Your Own Key (BYOK), Chatbox AI provides cost-effective model switching, local history encryption, and zero data-retention training guarantees across personal devices.
 
 ## Where it fits in the stack
-**AI Consumption & Interaction Layer**. It acts as a sophisticated front-end for various API providers and local inference engines. It natively supports the **Model Context Protocol (MCP) 3.1**, allowing the client to act as a host for diverse tool-using agents utilizing standardized Task Protocols.
+**AI Assistants & Knowledge / Multi-Provider Client**. It acts as a desktop and mobile frontend for cloud LLM APIs and local inference servers. Through native FastMCP 3.1 integration, it host tools and data connectors for interactive chat agents.
 
 ## Typical use cases
-- **Multi-Device Research**: Starting a complex research prompt on a desktop and continuing the conversation seamlessly on a mobile device while commuting.
-- **Local LLM UI**: Using Chatbox as a polished, high-performance front-end for models running locally via Ollama or LM Studio.
-- **Agentic Workflows**: Deploying "Agentic Presets" within the chat for specialized tasks like code auditing or market analysis.
-- **Privacy-First Collaboration**: Storing all conversation data locally or in an encrypted cloud sync, ensuring sensitive data never trains provider models.
+- **Multi-Device Research**: Initiating technical prompts on a workstation and continuing research seamlessly on mobile devices via encrypted sync.
+- **Local Model GUI**: Providing a high-performance desktop interface for self-hosted SLMs running on local hardware via Ollama or LM Studio.
+- **FastMCP 3.1 Tool Workflows**: Connecting local file systems, databases, and APIs directly to model chats using FastMCP 3.1 servers.
+- **Artifact Preview & Rendering**: Interactive rendering of generated code snippets, SVG graphics, Markdown documents, and Mermaid diagrams.
 
 ## Strengths
-- **Native Multi-Platform Support**: Consistent, high-quality experience across desktop and mobile.
-- **MCP 3.1 Integration**: Can connect to any MCP-compliant server for local tool execution and data retrieval.
-- **Broad Model Support**: Direct integration with OpenAI, Anthropic, Google, DeepSeek, and local providers.
-- **Superior Artifact Handling**: Modern "Artifacts" view for code, documents, and web previews, similar to Claude's native interface.
+- **Native Multi-Platform Ecosystem**: Dedicated, responsive applications across macOS, Windows, Linux, iOS, and Android.
+- **FastMCP 3.1 Host Support**: Built-in support for discovering and executing tools from FastMCP 3.1 servers.
+- **Broad Model Support**: Direct integration with OpenAI, Anthropic, Google Gemini, OpenRouter, and local OpenAI-compatible endpoints.
+- **Interactive Artifacts Viewer**: Clean side-by-side rendering of code, documents, and visual diagrams.
+- **Privacy First (BYOK)**: User API keys and conversation histories remain stored locally or securely encrypted in cloud sync.
 
 ## Limitations
-- **Semi-Proprietary**: While the issue tracker and some components are public, the core application remains closed-source.
-- **Sync Requires Subscription**: Advanced features like cross-device synchronization and certain "Agentic Presets" require a Pro subscription.
-- **Limited to Chat-centric Agents**: Primarily a chat interface and lacks the deep filesystem automation of dedicated CLI agents like [Claude Code](../development_ops/claude-code.md).
+- **Semi-Proprietary Architecture**: While issue tracking and community plugins are open, core client binaries remain closed-source.
+- **Sync Features Require Account**: Multi-device synchronization and premium agent presets require a Chatbox Pro tier.
+- **Chat-Centric Scope**: Lacks the deep filesystem automation and terminal control of CLI agents like [Claude Code](../development_ops/claude-code.md).
 
 ## When to use it
-- If you use multiple different AI models daily and want a single, high-quality application to manage them.
-- If you value having your AI history and custom agents available on your mobile device as well as your workstation.
-- When you want to use frontier models like Claude 5.1 with local tools via MCP 3.1 without writing custom code.
+- When requiring a polished, multi-device chat client to switch seamlessly between Claude 5.1, GPT-5.5, and local models.
+- When wanting to utilize FastMCP 3.1 tools in a visual chat desktop interface without building custom UI wrappers.
+- When needing encrypted, cross-platform history sync for research and coding notes.
 
 ## When not to use it
-- For tasks requiring fully autonomous, filesystem-level agentic behavior (use [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md)).
-- If your workflow requires a 100% open-source software stack (use [LibreChat](librechat.md)).
+- For autonomous, terminal-driven code refactoring or repository modification (use [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md)).
+- If strict corporate compliance mandates 100% open-source software (prefer [LibreChat](librechat.md)).
 
 ## Getting started
 
 ### Installation
-1.  **Desktop**: Download the latest installer from [ChatboxAI.app](https://chatboxai.app/).
-2.  **Mobile**: Install from the [App Store](https://apps.apple.com/app/chatbox-ai/id6471368056) or [Google Play](https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox).
-3.  **Setup**: Open **Settings** > **Model**, select your provider (e.g., Anthropic), and enter your API key.
+1. **Desktop**: Download the installer for your OS from [ChatboxAI.app](https://chatboxai.app/).
+2. **Mobile**: Install from Apple App Store or Google Play Store.
+3. **Configuration**: Open **Settings** > **Model**, choose your provider (e.g., Anthropic or Ollama), and enter your credentials.
 
-### Configuring MCP
-1.  Go to **Settings** > **MCP Servers**.
-2.  Add a new server by providing its name and endpoint (e.g., `http://localhost:3000`).
-3.  Chatbox will automatically discover and enable tools for the current model.
+### Connecting FastMCP 3.1 Servers
+1. Open **Settings** > **MCP Servers**.
+2. Register a new server using its endpoint URL (e.g., `http://localhost:3000/mcp`).
+3. Chatbox will discover available tools and present them for user authorization during chat turns.
 
 ## CLI examples
 
-Chatbox is primarily a GUI application, but its data and configuration can be managed on desktop systems.
-
-### Inspecting Local Data (macOS/Linux)
 ```bash
-# Locate the Chatbox data directory to inspect local sqlite history
-ls ~/Library/Application\ Support/chatbox/ # macOS
-ls ~/.config/chatbox/ # Linux
-```
+# Locate Chatbox local sqlite database and settings on macOS
+ls ~/Library/Application\ Support/chatbox/
 
-### Scripting Configuration
-```bash
-# Example of programmatically updating the configuration (JSON)
-# Use with caution while the application is closed
-jq '.ai_provider = "Anthropic" | .api_key = "sk-ant-..." ' config.json > config.new.json
+# Inspect Chatbox configuration on Linux
+ls ~/.config/chatbox/
+
+# Backup local Chatbox configuration file
+cp ~/.config/chatbox/config.json ~/.config/chatbox/config.json.bak
 ```
 
 ## API examples
-
-### Connecting to Ollama (Local API)
-In the Chatbox Settings:
-1.  Select **Provider**: `Ollama`.
-2.  **API Host**: `http://localhost:11434`.
-3.  **Model**: Select your local model (e.g., `llama4-maverick`).
-
-### Custom OpenAI-Compatible Endpoint
-```json
-{
-  "name": "Local Gateway",
-  "api_key": "not-needed",
-  "base_url": "http://192.168.1.50:8000/v1",
-  "model": "mistral-large-2026"
-}
-```
-
-### Configuration Schema Validation with Pydantic v2
-This Python script parses and validates a Chatbox AI multi-provider configuration profile (which contains local Ollama configurations, custom OpenAI-compatible endpoints, and MCP 3.1 server connection structures) using **Pydantic v2**:
-
+### Python: Pydantic v2 Configuration Profile Schema
 ```python
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, HttpUrl, ValidationError
 
 class MCPServerConfig(BaseModel):
-    name: str = Field(..., description="The name of the MCP server")
-    url: HttpUrl = Field(..., description="The connection endpoint URL")
-    enabled: bool = Field(True, description="Whether the server is currently enabled")
+    name: str = Field(..., description="Server name")
+    url: HttpUrl = Field(..., description="FastMCP 3.1 endpoint")
+    enabled: bool = Field(True, description="Active status")
 
 class ProviderProfile(BaseModel):
-    name: str = Field(..., description="Provider custom identifier")
-    api_key: str = Field(..., description="API connection key or token")
-    base_url: Optional[HttpUrl] = Field(None, description="Optional custom base endpoint URL")
-    model: str = Field(..., description="Flagship target model, e.g., claude-5-1-sonnet")
-    mcp_servers: List[MCPServerConfig] = Field(default_factory=list, description="Associated MCP servers")
+    name: str = Field(..., description="Profile identifier")
+    api_key: str = Field(..., description="Provider secret key or placeholder")
+    base_url: Optional[HttpUrl] = Field(None, description="Custom base endpoint URL")
+    model: str = Field(..., description="Default model, e.g., claude-5.1-sonnet")
+    mcp_servers: List[MCPServerConfig] = Field(default_factory=list, description="Associated FastMCP 3.1 servers")
 
 class ChatboxConfig(BaseModel):
-    version: str = Field("2.0.0", description="Chatbox config schema version")
-    active_profile: str = Field(..., description="ID of the currently active profile")
-    profiles: List[ProviderProfile] = Field(..., description="List of registered connection profiles")
+    version: str = Field("2.1.0", description="Configuration schema version")
+    active_profile: str = Field(..., description="Active profile name")
+    profiles: List[ProviderProfile] = Field(..., description="Registered connection profiles")
 
-def validate_chatbox_config(raw_json: str) -> Optional[ChatboxConfig]:
+def validate_config(raw_json: str) -> Optional[ChatboxConfig]:
     try:
         data = json.loads(raw_json)
-        # Validate using Pydantic v2 model_validate
         return ChatboxConfig.model_validate(data)
     except ValidationError as e:
         print(f"Validation Error: {e.json()}")
         return None
-    except json.JSONDecodeError:
-        print("Error: Invalid JSON.")
-        return None
+
+# Test validation
+raw_data = '''
+{
+    "version": "2.1.0",
+    "active_profile": "anthropic-prod",
+    "profiles": [
+        {
+            "name": "anthropic-prod",
+            "api_key": "sk-ant-...",
+            "model": "claude-5.1-sonnet",
+            "mcp_servers": [
+                {"name": "local-tools", "url": "http://localhost:3000/mcp", "enabled": true}
+            ]
+        }
+    ]
+}
+'''
+config = validate_config(raw_data)
+if config:
+    print(f"Validated configuration for active profile: {config.active_profile}")
 ```
 
 ## Related tools / concepts
-- [TypingMind](typingmind.md) — The primary competitor for professional AI chat interfaces.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for client-tool communication.
-- [Ollama](../../services/ollama.md) — The standard local LLM runner supported by Chatbox.
-- [Claude](claude.md) — Anthropic's flagship models supported by Chatbox.
-- [ChatGPT](chatgpt.md) — OpenAI's models supported by Chatbox.
-- [LibreChat](librechat.md) — An open-source multi-model chat interface.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for client tool connection.
+- [Ollama](../../services/ollama.md) — Local model engine supported by Chatbox.
+- [Claude](claude.md) — Anthropic frontier models supported by Chatbox.
+- [ChatGPT](chatgpt.md) — OpenAI models supported by Chatbox.
+- [LibreChat](librechat.md) — Open-source multi-model web client.
 - [Jan.ai](../infrastructure/jan-ai.md) — Local-first AI desktop client.
-- [LM Studio](../infrastructure/lm-studio.md) — Local model runner and discovery tool.
 
 ## Sources / references
 - [Chatbox AI Official Site](https://chatboxai.app/)
-- [Chatbox AI GitHub (Issue Tracker)](https://github.com/Bin-Huang/chatbox)
-- [MCP Integration Guide for Chatbox](https://chatboxai.app/docs/mcp)
+- [Chatbox AI GitHub Repository](https://github.com/Bin-Huang/chatbox)
+- [Chatbox MCP Integration Guide](https://chatboxai.app/docs/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
