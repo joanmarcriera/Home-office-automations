@@ -1,5 +1,56 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-16
+
+# AI & Tech Daily Digest
+
+## Executive Summary
+* 🔥 **Qwen 3.8-27B Dominance**: The local LLM community is reporting massive leaps in coding and reasoning capabilities with Qwen 3.8-27B, including "one-shotting" complex clones like Super Mario.
+* 📌 **Hardware Pressure**: GPU prices in the EU have surged by nearly 20% in a single month, while users struggle with the high VRAM requirements of new frontier-class local models.
+* 🛠️ **Agentic Infrastructure**: A shift toward "harness-centric" development is emerging, with new frameworks like Flue 2 introducing React-inspired hooks for agent orchestration.
+* 🌍 **Geopolitical AI**: The US is reportedly pressuring partners to "pick sides" in the AI race between the US and China.
+
+---
+
+## 🚀 Models & Releases
+
+### Qwen Series
+* **Qwen 3.8-27B Performance**: Users are reporting exceptional results, with one developer successfully one-shotting a Super Mario clone [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vp438p/if_you_would_have_told_me_half_a_year_ago_that_a/) and another using an agentic harness to write ray-tracers in BASIC [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vpiyj9/qwen3827b_vs_qwen3627b_writing_raytracers_in_basic/).
+* **New Variant Spotted**: A `Qwen 3.8 35BA3B` variant has been spotted in recent commits, hinting at further updates [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1voxppd/qwen_38_35ba3b_spotted/).
+* **Deployment Issues**: Some users are reporting "endless thinking" loops when deploying Qwen 3.8-27B via vLLM, even on high-end hardware like the RTX 6000 Pro [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vpotfv/anyone_managed_to_get_qwen_38_27b_running/).
+
+### Other Models
+* **Gemma 4 Optimization**: A new `Gemma 4 E4B IQ2_XXS` quantization claims a 140% increase in reasoning performance through tensor-level allocation [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vp2x49/gemma_4_e4b_iq2_xxs_14054_reasoning_performance/).
+* **Kimi-K3**: Support for the Kimi-K3 text model has been added to `llama.cpp` via a recent pull request [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vp6haw/model_add_kimik3_text_model_by_pwilkin_pull/).
+
+---
+
+## 🛠️ Tools & Agents
+
+* **Flue 2**: The creator of Astro has released Flue 2, a meta-harness for agents that introduces React-inspired hooks to manage agent state and behavior [Latent Space](https://www.latent.space/p/flue-2).
+* **llama.cpp Windows Manager**: A new visual interface for managing `llama.cpp` runtimes on Windows, allowing users to switch between coding models and manage multiple endpoints [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vpfrxw/llamacpp_windows_manager/).
+* **Cloudflare Agent Tracing**: Cloudflare has added tracing for agent invocations, tool runs, and approvals to Workers traces, though it notes that payloads may be truncated [InfoQ](https://www.infoq.com/news/2026/08/cloudflare-agent-tracing/).
+* **PGSimCity**: An open-source tool that visualizes PostgreSQL internal mechanics as a 3D virtual city to help developers understand database architecture [InfoQ](https://www.infoq.com/news/2026/08/pgsimcity/).
+
+---
+
+## 🔬 Research & Papers
+
+* **Latent Reasoning Interpretability**: Research into Coconut and CODI models suggests that high performance on logical tasks may stem from training data rather than actual "thinking" during inference, as forcing models to stop thinking early often yields the same result [Lobsters/arXiv](https://arxiv.org/abs/2604.04902).
+* **AI Text Detection**: Sebastian Raschka provides a comprehensive guide on building an AI text detector from scratch, covering dataset construction through RLVR [Ahead of AI](https://magazine.sebastianraschka.com/p/ai-detector-from-scratch).
+
+---
+
+## 🏢 Industry & Hardware
+
+* **Geopolitical Tension**: The US is reportedly instructing partners to choose between US and Chinese AI ecosystems as the "AI race" intensifies [Reuters/r/LocalLLaMA](https://www.reuters.com/world/china/us-tell-partners-they-must-pick-sides-ai-race-with-china-2026-08-14/).
+* **GPU Market Surge**: Data from PriceSquirrel shows a 19.2% increase in average GPU prices across the EU over the last 30 days [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vowi2d/gpu_prices_havent_stopped_climbing_for_3_weeks/).
+* **Apple Silicon Bottlenecks**: A deep dive into Apple Silicon inference reveals a fragmented software stack, lacking many of the CUDA-equivalent optimizations (like paged KV cache and continuous batching) required for latest-gen models [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vphr8u/sota_apple_silicon_inference_august_15_2026/).
+* **Enterprise AI**: DoorDash has shared its transition from one-shot predictions to an agentic recommendation platform using semantic IDs and grounded search [InfoQ](https://www.infoq.com/presentations/ai-agentic-recommendations-semantic-ids/).
+
+---
+
+
 ## 📅 Digest for 2026-08-15
 
 # AI & Technology Daily Digest
