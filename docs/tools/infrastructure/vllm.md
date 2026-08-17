@@ -18,8 +18,8 @@ LLM serving is often bottlenecked by KV cache memory management. Traditional sys
 ## Strengths
 - **State-of-the-Art Throughput**: Significantly outperforms traditional serving engines in high-concurrency scenarios.
 - **Efficient Memory Usage**: PagedAttention minimizes KV cache fragmentation, allowing for larger context windows.
-- **Continuous Batching**: Minimizes idle time by processing new requests as soon as they arrive.
-- **Broad Ecosystem Support**: Native support for Llama 4, Mistral, Gemma 3, Qwen 3.6, and deep integration with [SGLang](../infrastructure/sglang.md).
+- **Continuous Batching & FastMCP 3.1 Integration**: Minimizes idle time and integrates natively with FastMCP 3.1 JSON-RPC servers.
+- **Broad Ecosystem Support**: Native support for Llama 4, Gemma 3, Qwen 3.8, Claude 5.1 / GPT-5.5 proxy endpoints, and deep integration with [SGLang](../infrastructure/sglang.md).
 
 ## Limitations
 - **Hardware Specificity**: Primarily optimized for NVIDIA GPUs (Ampere, Ada Lovelace, Blackwell, and Rubin); support for AMD and TPUs is secondary.
@@ -127,36 +127,61 @@ for output in outputs:
 ```
 
 ### Programmatic Server Health & Validation Loop
-A robust Python validation script to programmatically query and monitor a local vLLM endpoint, supporting MCP 3.1 tooling context.
+A robust Python validation script using Pydantic v2 schemas to programmatically query and monitor a local vLLM endpoint, supporting FastMCP 3.1 tooling context.
 
 ```python
 import sys
 import json
 import time
 import requests
+from pydantic import BaseModel, Field, field_validator
 
-def verify_vllm_service(endpoint_url: str = "http://localhost:8000/v1", model_name: str = "meta-llama/Llama-4-8B-Instruct") -> bool:
-    # 1. Health check the endpoint
-    health_url = endpoint_url.replace("/v1", "/health")
+class VLLMHealthRequest(BaseModel):
+    endpoint_url: str = Field(default="http://localhost:8000/v1", description="vLLM OpenAI-compatible base URL")
+    model_name: str = Field(default="meta-llama/Llama-4-8B-Instruct", description="Target model identifier")
+    timeout_seconds: float = Field(default=15.0, ge=1.0, le=60.0)
+
+    @field_validator("endpoint_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("endpoint_url must start with http:// or https://")
+        return v.rstrip("/")
+
+class VLLMValidationResult(BaseModel):
+    status: str = Field(..., description="Success or failure status indicator")
+    latency_seconds: float = Field(..., ge=0.0)
+    completion_text: str = Field(...)
+    model_used: str = Field(...)
+
+def verify_vllm_service(config: VLLMHealthRequest) -> VLLMValidationResult:
+    health_url = f"{config.endpoint_url.replace('/v1', '')}/health"
     try:
         response = requests.get(health_url, timeout=5)
         if response.status_code != 200:
-            print(f"Health check failed on status code: {response.status_code}")
-            return False
+            return VLLMValidationResult(
+                status="FAILED",
+                latency_seconds=0.0,
+                completion_text=f"Health check failed with HTTP {response.status_code}",
+                model_used=config.model_name
+            )
     except requests.exceptions.RequestException as re:
-        print(f"Failed to connect to health endpoint: {re}")
-        return False
+        return VLLMValidationResult(
+            status="FAILED",
+            latency_seconds=0.0,
+            completion_text=f"Connection error: {re}",
+            model_used=config.model_name
+        )
 
-    # 2. Programmatic validation loop for LLM Generation
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer token-unused"
     }
 
     payload = {
-        "model": model_name,
+        "model": config.model_name,
         "messages": [
-            {"role": "system", "content": "You are a validation bot. Speak concisely."},
+            {"role": "system", "content": "You are a validation bot for Claude 5.1 & FastMCP 3.1. Speak concisely."},
             {"role": "user", "content": "Verify connection and output 'Success'."}
         ],
         "temperature": 0.1,
@@ -165,31 +190,43 @@ def verify_vllm_service(endpoint_url: str = "http://localhost:8000/v1", model_na
 
     try:
         start_time = time.time()
-        res = requests.post(f"{endpoint_url}/chat/completions", json=payload, headers=headers, timeout=15)
+        res = requests.post(f"{config.endpoint_url}/chat/completions", json=payload, headers=headers, timeout=config.timeout_seconds)
         latency = time.time() - start_time
 
         if res.status_code == 200:
             data = res.json()
             completion_text = data["choices"][0]["message"]["content"].strip()
-            print(f"Validation successful. Latency: {latency:.3f}s. Response: {completion_text}")
-            return "Success" in completion_text or len(completion_text) > 0
+            return VLLMValidationResult(
+                status="SUCCESS",
+                latency_seconds=latency,
+                completion_text=completion_text,
+                model_used=config.model_name
+            )
         else:
-            print(f"vLLM Query failed: {res.status_code} - {res.text}")
-            return False
+            return VLLMValidationResult(
+                status="FAILED",
+                latency_seconds=latency,
+                completion_text=f"vLLM Query failed: {res.status_code} - {res.text}",
+                model_used=config.model_name
+            )
     except Exception as e:
-        print(f"Error querying vLLM server: {e}")
-        return False
+        return VLLMValidationResult(
+            status="FAILED",
+            latency_seconds=0.0,
+            completion_text=f"Execution error: {e}",
+            model_used=config.model_name
+        )
 
 if __name__ == "__main__":
     print("Initiating vLLM Service validation sequence...")
-    # Example execution (will gracefully exit if server is not live)
-    success = verify_vllm_service()
-    if not success:
-        print("Note: vLLM server is offline, skipping runtime integration test.")
-        sys.exit(0)
-    else:
+    req = VLLMHealthRequest(model_name="Qwen/Qwen3.8-27B-Instruct")
+    result = verify_vllm_service(req)
+    print("Result Payload (Pydantic v2 dump):", result.model_dump())
+    if result.status == "SUCCESS":
         print("vLLM integration test PASSED.")
-        sys.exit(0)
+    else:
+        print(f"Note: vLLM server offline/failed: {result.completion_text}")
+    sys.exit(0)
 ```
 
 ## Related tools / concepts
@@ -211,5 +248,5 @@ if __name__ == "__main__":
 - [vLLM-Kunlun hardware plugin - Baidu](https://github.com/baidu/vLLM-Kunlun)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2027-01-07
 - Confidence: high

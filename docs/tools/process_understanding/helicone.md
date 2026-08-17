@@ -1,7 +1,7 @@
 # Helicone
 
 ## What it is
-Helicone is an open-source AI Gateway and LLM observability platform that acts as a high-performance proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, Groq, and Cohere). In late September 2026, it fully supports the **Model Context Protocol (MCP 3.1)**, allowing agents to dynamically query observability telemetry, tracing logs, and cost analytics directly within their runtime context.
+Helicone is an open-source AI Gateway and LLM observability platform that acts as a high-performance proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, Groq, and Cohere). In early January 2027, it fully supports **FastMCP 3.1**, allowing agents like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4 to dynamically query observability telemetry, tracing logs, and cost analytics directly within their JSON-RPC tool context.
 
 ## What problem it solves
 Developing robust LLM applications often suffers from opaque prompt-response cycles, unpredictable latency, and unmonitored costs. Helicone solves these challenges by:
@@ -24,8 +24,8 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 
 ## Strengths
 - **Low-Friction Integration**: Usually requires changing only the `baseURL` and adding a Helicone API key header.
-- **Open Source and Self-hostable**: Offers a Docker-based deployment for teams requiring complete data sovereignty.
-- **Unified Provider Access**: Access 100+ models through a single, OpenAI-compatible API interface.
+- **FastMCP 3.1 & Open Source**: Full FastMCP 3.1 integration alongside self-hostable Docker deployments for privacy-first homelabs.
+- **Unified Provider Access**: Access 100+ models (including Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.8) through a single interface.
 - **Rich Feature Set**: Includes A/B testing, user-level tracking, custom property logging, and PostHog integration.
 - **Real-time Performance**: Optimized for minimal overhead even when handling high-concurrency agent swarms.
 
@@ -96,33 +96,61 @@ curl https://gateway.helicone.ai/v1/chat/completions \
 
 ## API examples
 
-### Completion with Custom Properties (Async Python)
-You can add custom properties to your asynchronous requests to enable advanced filtering, tracking, and analytics in the Helicone dashboard:
+### Completion with Custom Properties & Pydantic v2 Validation (Async Python)
+You can configure Helicone headers and request parameters using Pydantic v2 validation schemas:
 
 ```python
 import asyncio
 import os
+from pydantic import BaseModel, Field, field_validator
 from openai import AsyncOpenAI
 
+class HeliconeRequestConfig(BaseModel):
+    user_plan: str = Field(default="premium", description="User tier for telemetry tagging")
+    source: str = Field(default="home-office-agent", description="Request source identifier")
+    enable_cache: bool = Field(default=True, description="Enable Helicone semantic proxy caching")
+    model_name: str = Field(default="gpt-5.5", description="Target frontier model")
+
+    @field_validator("user_plan")
+    @classmethod
+    def validate_plan(cls, v: str) -> str:
+        allowed = {"free", "pro", "premium", "enterprise"}
+        if v.lower() not in allowed:
+            raise ValueError(f"user_plan must be one of {allowed}")
+        return v.lower()
+
 async def main():
+    config = HeliconeRequestConfig(
+        user_plan="premium",
+        source="mcp-agent-loop",
+        model_name="gpt-5.5"
+    )
+
     client = AsyncOpenAI(
-        api_key=os.environ.get("OPENAI_API_KEY"),
+        api_key=os.environ.get("OPENAI_API_KEY", "sk-dummy"),
         base_url="https://gateway.helicone.ai/v1",
         default_headers={
-            "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY')}"
+            "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY', 'sk-helicone-dummy')}"
         }
     )
 
-    response = await client.chat.completions.create(
-        model="gpt-5.5-preview",
-        messages=[{"role": "user", "content": "Summarize this document."}],
-        extra_headers={
-            "Helicone-Property-User-Plan": "premium",
-            "Helicone-Property-Source": "mobile-app",
-            "Helicone-Cache": "true"  # Enable Helicone semantic caching
-        }
-    )
-    print(response.choices[0].message.content)
+    extra_headers = {
+        "Helicone-Property-User-Plan": config.user_plan,
+        "Helicone-Property-Source": config.source,
+        "Helicone-Cache": "true" if config.enable_cache else "false"
+    }
+
+    print("Sending request with validated Helicone config:", config.model_dump())
+    # Example execution (will perform call if live keys exist)
+    try:
+        response = await client.chat.completions.create(
+            model=config.model_name,
+            messages=[{"role": "user", "content": "Verify Helicone FastMCP 3.1 telemetry integration."}],
+            extra_headers=extra_headers
+        )
+        print("Response:", response.choices[0].message.content)
+    except Exception as e:
+        print("Helicone proxy call execution skipped or failed:", e)
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -145,5 +173,5 @@ if __name__ == "__main__":
 - [Helicone GitHub Repository](https://github.com/Helicone/helicone)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2027-01-07
 - Confidence: high

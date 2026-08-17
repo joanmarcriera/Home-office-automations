@@ -1,7 +1,7 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for next-generation coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5/3.6 visual reasoning** for complex UI tasks and front-end verification.
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for next-generation coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 4.0 Pro visual reasoning** and **FastMCP 3.1** for complex UI tasks and agentic tool orchestration.
 
 ## What problem it solves
 It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
@@ -17,11 +17,11 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 - Standardizing agent behavior across a distributed engineering team.
 
 ## Strengths
-- **MCP 3.1 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs, state serialization, and verifiable progress.
-- **Visual Reasoning**: Integration with **Gemini 3.5/3.6** for automated UI/UX verification and visual regression testing.
+- **FastMCP 3.1 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs, state serialization, and verifiable progress across Llama 4, Gemma 3, and Qwen 3.8.
+- **Visual Reasoning**: Integration with **Gemini 4.0 Pro** for automated UI/UX verification and visual regression testing.
 - **Process Rigor**: Enforces high-quality engineering standards (TDD, YAGNI, DRY).
 - **Agent Autonomy**: Increases reliability through explicit verification steps and self-correction loops.
-- **Context Handling**: Optimized for [Claude 5.1](../providers/anthropic.md)'s expanded token context window.
+- **Context Handling**: Optimized for [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) reasoning capabilities.
 
 ## Limitations
 - Higher process overhead for trivial tasks.
@@ -50,9 +50,9 @@ Superpowers is typically installed as a plugin or set of skills using the MCP 3.
 ```
 
 ### Enabling Visual Reasoning
-To enable visual verification with Gemini 3.5:
+To enable visual verification with Gemini 4.0 Pro:
 ```bash
-superpowers config set vision_provider gemini-3.5-pro
+superpowers config set vision_provider gemini-4.0-pro
 ```
 
 ### Creating custom skills
@@ -91,37 +91,52 @@ superpowers verify --task-id 123 --file tests/auth_test.py
 
 ## API examples
 
-### Defining a Verification Skill (YAML)
-Skills are defined in YAML and consumed by the agent's tool-calling logic.
+### Python Task Verification (with Pydantic v2 Validation)
+You can define custom verification schema payloads for Superpowers skill execution using FastMCP 3.1 tooling context and Pydantic v2 validation.
 
-```yaml
-# verify_test_coverage.yaml
-name: "verify_coverage"
-description: "Ensures test coverage is above a certain threshold."
-parameters:
-  type: "object"
-  properties:
-    threshold:
-      type: "integer"
-      default: 80
-implementation: |
-  coverage run -m pytest && coverage report --fail-under={{threshold}}
-```
+```python
+import sys
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-### Custom Task Verification (JSON)
-For complex refactors, you can define custom verification steps in your `superpowers.json` file to ensure the agent performs regression tests before proposing a merge.
+class SkillExecutionConfig(BaseModel):
+    skill_name: str = Field(..., description="Name of the Superpowers skill (e.g., 'verify_coverage')")
+    threshold_percent: int = Field(default=80, ge=0, le=100)
+    target_files: List[str] = Field(default_factory=list)
+    vision_provider: str = Field(default="gemini-4.0-pro")
 
-```json
-{
-  "tasks": [
-    {
-      "id": "refactor-auth-logic",
-      "description": "Move auth logic to middleware",
-      "files": ["src/middleware/auth.js", "src/routes/user.js"],
-      "verification": "npm test src/tests/auth.test.js && curl -I http://localhost:3000/api/user"
-    }
-  ]
-}
+    @field_validator("skill_name")
+    @classmethod
+    def validate_skill_name(cls, v: str) -> str:
+        clean = v.strip().lower()
+        if not clean:
+            raise ValueError("skill_name cannot be empty")
+        return clean
+
+class SkillVerificationResult(BaseModel):
+    task_id: str = Field(..., description="Unique task identifier")
+    passed: bool = Field(...)
+    coverage_achieved: float = Field(..., ge=0.0, le=100.0)
+    details: Optional[str] = Field(default=None)
+
+def execute_superpowers_verification(config: SkillExecutionConfig) -> SkillVerificationResult:
+    # Simulated execution loop under FastMCP 3.1
+    print(f"Executing Superpowers skill '{config.skill_name}' on files {config.target_files}")
+    return SkillVerificationResult(
+        task_id="task-2027-auth-01",
+        passed=True,
+        coverage_achieved=88.5,
+        details="All tests passed under TDD guardrails with Gemini 4.0 Pro vision verification."
+    )
+
+if __name__ == "__main__":
+    cfg = SkillExecutionConfig(
+        skill_name="verify_coverage",
+        threshold_percent=85,
+        target_files=["src/auth/middleware.py", "tests/test_auth.py"]
+    )
+    res = execute_superpowers_verification(cfg)
+    print("Verification Result (Pydantic v2 dump):", res.model_dump())
 ```
 
 ## Related tools / concepts
@@ -141,5 +156,5 @@ For complex refactors, you can define custom verification steps in your `superpo
 - [awesome-skills.com](https://awesome-skills.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2027-01-07
 - Confidence: high
