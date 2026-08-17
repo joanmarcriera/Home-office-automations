@@ -234,6 +234,7 @@ nav:
           - Luma Dream Machine: tools/ai_knowledge/luma-dream-machine.md
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Mellum2: tools/ai_knowledge/mellum2.md
+          - Muse Glimmer: tools/ai_knowledge/muse-glimmer.md
           - Moondream: tools/ai_knowledge/moondream.md
           - Nano Banana: tools/ai_knowledge/nano-banana.md
           - NotebookLM: tools/ai_knowledge/notebooklm.md
@@ -391,6 +392,7 @@ nav:
           - Humanizer: tools/development_ops/humanizer.md
           - Junie Cli: tools/development_ops/junie-cli.md
           - Jupyter Kernel MCP: tools/development_ops/jupyter-kernel-mcp.md
+          - Lophius: tools/development_ops/lophius.md
           - Melty: tools/development_ops/melty.md
           - Mentat: tools/development_ops/mentat.md
           - NanoClaw: tools/development_ops/nanoclaw.md
@@ -538,6 +540,7 @@ nav:
           - Roo Code: tools/agents/roo-code.md
           - Superpowers: tools/agents/superpowers.md
           - Symphony: tools/agents/symphony.md
+          - WorldClaw: tools/agents/worldclaw.md
           - Home Admin Agent Tools: tools/agents/home-admin-tools.md
       - Orchestration:
           - Overview: tools/orchestration/index.md
@@ -567,6 +570,7 @@ nav:
           - Flash-MSA: tools/infrastructure/flash-msa.md
           - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
+          - KLQ (Measured Rotation Quantization): tools/infrastructure/klq.md
           - Koboldcpp: tools/infrastructure/koboldcpp.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
