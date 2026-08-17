@@ -76,9 +76,9 @@
       "score": 1.0
     },
     "arxiv.org": {
-      "discovered": 3,
+      "discovered": 4,
       "integrated": 3,
-      "score": 1.0
+      "score": 0.75
     },
     "assistantbench.github.io": {
       "discovered": 1,
@@ -206,9 +206,9 @@
       "score": 1.0
     },
     "deepmind.google": {
-      "discovered": 4,
-      "integrated": 3,
-      "score": 0.75
+      "discovered": 5,
+      "integrated": 4,
+      "score": 0.8
     },
     "deepseek.com": {
       "discovered": 3,
@@ -486,9 +486,9 @@
       "score": 1.0
     },
     "huggingface.co": {
-      "discovered": 21,
-      "integrated": 20,
-      "score": 0.95
+      "discovered": 28,
+      "integrated": 21,
+      "score": 0.75
     },
     "hydra.rightsify.com": {
       "discovered": 1,
@@ -506,9 +506,9 @@
       "score": 1.0
     },
     "infoq.com": {
-      "discovered": 10,
-      "integrated": 5,
-      "score": 0.5
+      "discovered": 13,
+      "integrated": 10,
+      "score": 0.77
     },
     "jan.ai": {
       "discovered": 1,
@@ -597,8 +597,8 @@
     },
     "latent.space": {
       "discovered": 9,
-      "integrated": 8,
-      "score": 0.89
+      "integrated": 9,
+      "score": 1.0
     },
     "learn.microsoft.com": {
       "discovered": 3,
@@ -827,8 +827,8 @@
     },
     "openai.com": {
       "discovered": 21,
-      "integrated": 20,
-      "score": 0.95
+      "integrated": 21,
+      "score": 1.0
     },
     "openbb.co": {
       "discovered": 1,
@@ -1001,9 +1001,9 @@
       "score": 1.0
     },
     "reddit.com": {
-      "discovered": 131,
-      "integrated": 109,
-      "score": 0.83
+      "discovered": 148,
+      "integrated": 131,
+      "score": 0.89
     },
     "render.com": {
       "discovered": 1,
@@ -1166,9 +1166,9 @@
       "score": 1.0
     },
     "thenewstack.io": {
-      "discovered": 36,
-      "integrated": 32,
-      "score": 0.89
+      "discovered": 38,
+      "integrated": 36,
+      "score": 0.95
     },
     "todoist.com": {
       "discovered": 1,
@@ -1286,5 +1286,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-08-10"
+  "updated": "2026-08-17"
 }
