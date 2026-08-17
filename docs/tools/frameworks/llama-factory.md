@@ -43,34 +43,48 @@ Fine-tuning different LLM architectures often requires custom code and deep expe
 ## Getting started
 
 ### Installation
+Clone the repository and install with required dependencies:
+
 ```bash
 git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
 cd LLaMA-Factory
-pip install -e ".[metrics,bitsandbytes,qwen]"
+pip install -e ".[metrics,bitsandbytes,qwen]" pydantic>=2.0.0
+```
+
+### Hello-world example
+Launch LLaMA Board or check CLI binary status:
+
+```bash
+llamafactory-cli version
 ```
 
 ### Hello-world (Web UI)
 Launch the LLaMA Board to start tuning via your browser:
+
 ```bash
 llamafactory-cli webui
 ```
 
-### Hello-world (CLI)
-Create a `train.yaml` config and start training:
-```bash
-llamafactory-cli train train.yaml
-```
-
 ## CLI examples
 
+### 1. Supervised Fine-Tuning (SFT)
+Start a supervised fine-tuning task using a YAML configuration:
+
 ```bash
-# Start a supervised fine-tuning (SFT) task for Llama 4
 llamafactory-cli train examples/train_lora/llama4_lora_sft.yaml
+```
 
-# Export a LoRA-tuned model to a merged checkpoint
+### 2. Exporting Merged LoRA Weights
+Export and merge LoRA adapter weights with the base model checkpoint:
+
+```bash
 llamafactory-cli export examples/merge_lora/llama4_lora_sft.yaml
+```
 
-# Evaluate a model on common benchmarks (GSM8K, HumanEval)
+### 3. Model Evaluation on Benchmarks
+Evaluate a fine-tuned model checkpoint on standard evaluation datasets:
+
+```bash
 llamafactory-cli eval examples/train_lora/llama4_lora_eval.yaml
 ```
 

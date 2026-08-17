@@ -35,19 +35,47 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar.
 - If you require native support for Microsoft Exchange (prefer [Outlook](outlook.md)).
 
 ## Getting started
-1. Download the app from the [Notion website](https://www.notion.so/product/calendar).
-2. Sign in with Google and connect your Notion workspace.
-3. **Hello-world example**: Press `Cmd+K` and type "New event" to create a task.
-4. **Agent Integration**: Enable "Notion Agent" in your workspace settings to allow AI-assisted scheduling.
+
+### Installation
+Notion Calendar is distributed as a desktop and mobile GUI client.
+1. Download installer packages from the official [Notion website](https://www.notion.so/product/calendar) (macOS/Windows).
+2. Sign in with Google or Notion authentication.
+
+### Hello-world example
+Press `Cmd+K` (macOS) or `Ctrl+K` (Windows) in Notion Calendar and select **New Event** or type:
+
+```text
+Deep Work session with Claude 5.1 tomorrow at 10am
+```
 
 ## CLI examples
-> [!NOTE]
-> Notion Calendar does not offer an official CLI.
 
-However, it supports a robust local **URI scheme** (`cron://`) for automation:
+> [!NOTE]
+> Notion Calendar does not offer an official dedicated CLI utility.
+
+Automated interaction is achieved via local URI handlers (`cron://`), macOS `open` commands, or curl calls to the underlying Notion REST API.
+
+### 1. Launch Event Creation via URI Scheme
+Open Notion Calendar and pre-populate an event title using the local custom protocol:
+
 ```bash
-# Open a specific Notion page as a calendar event
-open "cron://[email protected]&iCalUID=EVENT_ID&startDate=2026-11-12T10:00:00Z&title=Deep+Work"
+open "cron://[email protected]&title=Strategic+Planning"
+```
+
+### 2. Inspecting Local Notion Calendar Protocol Registration
+Check registered URI handlers on macOS for Notion Calendar:
+
+```bash
+ls -la /Applications/Notion\ Calendar.app/Contents/Info.plist
+```
+
+### 3. Fetching Linked Workspace Database Entries via Notion API
+Query calendar-linked task items directly from the terminal using curl:
+
+```bash
+curl -X POST "https://api.notion.com/v1/databases/YOUR_DATABASE_ID/query" \
+  -H "Authorization: Bearer $NOTION_API_KEY" \
+  -H "Notion-Version: 2022-06-28"
 ```
 
 ## API examples
