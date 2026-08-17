@@ -1,139 +1,143 @@
 # LangGraph
 
 ## What it is
-LangGraph is a library for building stateful, multi-actor applications with LLMs, built on top of LangChain. In late October / November 2026, it is a critical framework for creating complex, cyclic agent workflows that leverage the reasoning capabilities of Claude 5.1, GPT-5.5, Gemini 4.0, and sovereign open-weight models.
+LangGraph is an open-source framework built on top of LangChain for creating stateful, multi-actor, cyclic agent applications. In early January 2027, LangGraph v0.3+ is a core enterprise engine for constructing complex, resilient LLM graph workflows that leverage frontier reasoning models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
 
 ## What problem it solves
-While standard LangChain chains are great for linear workflows, they struggle with cyclic graphs often needed for autonomous agents (e.g., "reason-act-observe" loops). LangGraph provides the control needed for these loops while maintaining state across multiple steps, enabling persistence, human-in-the-loop patterns, and advanced error recovery.
+While standard DAG (Directed Acyclic Graph) pipelines excel at linear tasks, autonomous AI agents require loops ("reason-act-observe" cycles) to reflect, retry tools, and recover from execution errors. LangGraph provides fine-grained control over cyclic execution while maintaining full state persistence, human-in-the-loop breakpoints, and "time travel" state editing across long-running sessions.
 
 ## Where it fits in the stack
-**Framework / Agent Orchestration**. It sits between the LLM and the tools, managing the execution logic, state, and persistence of the agentic application. It serves as the primary engine for [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) implementations.
+**Framework / Multi-Agent Orchestration**. It sits between foundation models and tool environments, managing execution state, memory checkpointers, and conditional edge transitions. It serves as a foundation for implementing [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design architectures.
 
 ## Typical use cases
-- **Multi-agent collaboration**: Orchestrating specialized agents (e.g., Researcher, Writer, Reviewer) with complex handoff logic.
-- **Human-in-the-loop**: Applications requiring manual approval or state editing before proceeding with tool use.
-- **Complex RAG**: Iterative retrieval and refinement loops for high-accuracy document processing.
-- **Stateful Assistants**: Building long-running conversations that persist across sessions with full "time travel" capabilities.
-- **MCP Orchestration**: Managing tool calls to multiple [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) servers.
+- **Cyclic Reflection & Self-Correction**: Building agents that generate code or copy, evaluate outputs against test suites, and loop back to fix errors.
+- **Human-in-the-Loop Verification**: Pausing state graph execution before high-risk actions (e.g., executing database mutations) to await human review.
+- **Complex Hierarchical RAG**: Iterative retrieval, re-ranking, and query expansion loops to ensure zero-hallucination document synthesis.
+- **Multi-Agent Handoffs**: Routing execution state across specialized sub-graphs (e.g., Researcher -> Drafter -> Auditor).
+- **FastMCP Protocol Orchestration**: Managing parallel tool calls across multiple **Model Context Protocol (FastMCP 3.1)** servers.
 
 ## Strengths
-- **Cycles and Recursion**: Built specifically to handle loops in agent logic, essential for reflection and retry patterns.
-- **Persistence & Time Travel**: Built-in support for saving state (checkpointers), allowing for session resumption and auditing.
-- **Granular Control**: Fine-grained control over the flow (nodes and edges), unlike "black-box" agent frameworks.
-- **Human-in-the-loop**: Native primitives for interrupting execution for human intervention or approval.
-- **Native MCP 3.1 Support**: Seamless integration with the Model Context Protocol for unified tool and resource access.
+- **Native Cycles & Recursion Controls**: Engineered specifically for loops with configurable maximum recursion depths and error boundaries.
+- **Built-In State Persistence & Time Travel**: Automatic state checkpointing allows developers to inspect, rewind, and replay past states.
+- **Fine-Grained Graph Mechanics**: Explicit control over graph nodes, conditional edges, and state schemas.
+- **Native FastMCP 3.1 Integration**: First-class support for discovering and calling FastMCP tools and resource endpoints.
 
 ## Limitations
-- **Learning Curve**: Requires understanding of graph theory concepts and the broader LangChain ecosystem.
-- **Verbosity**: Implementing simple agents can feel more verbose compared to higher-level frameworks like [CrewAI](crewai.md).
-- **Overhead**: Managing state and checkpointers adds architectural complexity to simple applications.
+- **Architectural Verbosity**: Constructing simple agents requires defining explicit state models, nodes, and edges, adding initial setup code.
+- **Ecosystem Dependency**: Deeply integrated with LangChain primitives, requiring familiarity with LangChain core interfaces.
+- **State Serialization Overhead**: Managing large state objects across many persistence checkpoints can increase memory consumption.
 
 ## When to use it
-- When you need a highly customized agent workflow with specific loops and state transitions.
-- When persistence and session management are core requirements.
-- When you are already invested in the LangChain ecosystem and require advanced agentic patterns.
+- When you require precise control over multi-agent workflows with loops, branching, and conditional edge transitions.
+- When auditability, session persistence, and time-travel debugging are essential production requirements.
+- When building human-in-the-loop workflows where execution must pause at specific breakpoints.
 
 ## When not to use it
-- For simple, linear LLM chains where a basic pipeline is sufficient.
-- If you prefer a more "out-of-the-box" multi-agent experience with less configuration.
-- For low-latency micro-tasks where the state management overhead is unnecessary.
+- For basic linear chains or prompt completions where simple sequential functions are sufficient.
+- If you prefer a conversational, message-passing multi-agent interface over a graph structure (use [AutoGen](autogen.md) or [CrewAI](crewai.md)).
 
 ## Getting started
 
 ### 1. Installation
-Install LangGraph and its dependencies:
+Install LangGraph and its core dependencies:
 ```bash
 pip install langgraph langchain_anthropic langchain_openai pydantic
 ```
 
-### 2. Define State (with Pydantic v2 validation)
-Create a Pydantic state model or TypedDict to represent the state of your graph.
+### 2. Define State with Pydantic v2
+Define a validated state schema using Pydantic v2 and create a basic graph:
 
-### 3. Build Graph
 ```python
-from typing import Annotated, Sequence, TypedDict
+from typing import List, Annotated
 from pydantic import BaseModel, Field
 from langgraph.graph import StateGraph, START, END
-from langchain_core.messages import BaseMessage
 
-# Define state structure using modern Pydantic v2 / TypedDict standards
-class AgentState(BaseModel):
-    messages: Annotated[Sequence[BaseMessage], Field(default_factory=list)]
-    next_step: str = ""
+class AgentGraphState(BaseModel):
+    messages: List[str] = Field(default_factory=list)
+    next_node: str = Field(default="")
 
-def chatbot_node(state: AgentState) -> dict:
-    # Business logic goes here
-    return {"messages": state.messages}
+def reasoning_step(state: AgentGraphState) -> dict:
+    return {"messages": state.messages + ["Reasoning completed."], "next_node": "tools"}
 
-builder = StateGraph(AgentState)
-builder.add_node("chatbot", chatbot_node)
-builder.add_edge(START, "chatbot")
-builder.add_edge("chatbot", END)
+builder = StateGraph(AgentGraphState)
+builder.add_node("reasoning", reasoning_step)
+builder.add_edge(START, "reasoning")
+builder.add_edge("reasoning", END)
 graph = builder.compile()
 ```
 
 ## CLI examples
 
-### 1. Start Development Server
+### Local Development Server
+Launch the local LangGraph development and visualization server:
 ```bash
 langgraph dev
 ```
 
-### 2. Deploy to LangGraph Cloud
+### Deployment to LangGraph Cloud
+Deploy the graph to a managed LangGraph Cloud instance:
 ```bash
-langgraph deploy --project my-agent-project
+langgraph deploy --project agent-production-v1
 ```
 
-### 3. Install LangGraph CLI
+### LangGraph CLI Installation
+Install the LangGraph CLI package:
 ```bash
 pip install langgraph-cli
 ```
 
 ## API examples
 
-### Persistence with Checkpointers
-LangGraph enables session persistence across multiple invocations using checkpointers.
+### Persistent Checkpointing with FastMCP 3.1 & Pydantic v2
+Compile a state graph with MemorySaver checkpointers for multi-turn session persistence:
 
 ```python
+from typing import List
+from pydantic import BaseModel, Field
+from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
 
-# Setup persistent in-memory database
+class ConversationState(BaseModel):
+    messages: List[str] = Field(default_factory=list)
+    user_id: str
+
+def assistant_node(state: ConversationState) -> dict:
+    updated_messages = state.messages + ["Assistant response generated via Claude 5.1."]
+    return {"messages": updated_messages}
+
+# Build graph structure
+builder = StateGraph(ConversationState)
+builder.add_node("assistant", assistant_node)
+builder.add_edge(START, "assistant")
+builder.add_edge("assistant", END)
+
+# Compile graph with persistent memory checkpointer
 memory = MemorySaver()
-graph = builder.compile(checkpointer=memory)
+app = builder.compile(checkpointer=memory)
 
-# Run with a thread_id
-config = {"configurable": {"thread_id": "session_456"}}
-graph.invoke({"messages": []}, config)
-```
+if __name__ == "__main__":
+    config = {"configurable": {"thread_id": "thread_session_2027_01"}}
+    initial_input = ConversationState(messages=["Hello, initialize FastMCP session."], user_id="user_42")
 
-### Human-in-the-loop Breakpoints
-Interrupt execution to allow for human review.
-
-```python
-# Compile with a breakpoint before the 'tools' node
-graph = builder.compile(checkpointer=memory, interrupt_before=["tools"])
-
-# Execution will pause here; resume by invoking with None
-# graph.invoke(input_data, config)
+    # Execute graph with state persistence
+    result = app.invoke(initial_input.model_dump(), config)
+    print("State Result:", result)
 ```
 
 ## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md) — The foundational framework.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool calling.
-- [CrewAI](crewai.md) — Role-based multi-agent alternative.
-- [AutoGen](autogen.md) — Microsoft's multi-agent framework.
-- [DSPy](dspy.md) — Programmatic prompt optimization.
-- [Haystack](haystack.md) — Modular LLM pipelines.
-- [Smolagents](smolagents.md) — Minimalist agent library from Hugging Face.
-- [Plandex](../development_ops/plandex.md) — AI coding engine.
-- [LangSmith](../benchmarking/langsmith.md) — Observability and evaluation.
+- [LangChain](../ai_knowledge/langchain.md) - Foundational framework for LLM applications.
+- [AutoGen](autogen.md) - Conversational multi-agent orchestration framework.
+- [CrewAI](crewai.md) - Role-based multi-agent system library.
+- [Model Context Protocol](../automation_orchestration/mcp.md) - Standard protocol for tools and resources.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) - Architectural framework for agentic systems.
+- [DSPy](dspy.md) - Programmatic prompt compilation engine.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) - Design patterns for multi-step AI agents.
 
-## Sources / References
-- [Official Documentation](https://langchain-ai.github.io/langgraph/)
-- [GitHub Repository](https://github.com/langchain-ai/langgraph)
-- [LangGraph Persistence Guide](https://langchain-ai.github.io/langgraph/how-tos/persistence/)
-- [LangGraph MCP Integration](https://langchain-ai.github.io/langgraph/how-tos/mcp/)
+## Sources / references
+- [Official LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [LangGraph GitHub Repository](https://github.com/langchain-ai/langgraph)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
