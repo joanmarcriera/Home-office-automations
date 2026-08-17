@@ -181,7 +181,7 @@ if __name__ == "__main__":
 - [OpenAI](../ai_knowledge/openai.md) — The underlying model developer.
 - [Microsoft Agent Framework](../frameworks/microsoft-agent-framework.md) — Enterprise-grade orchestration.
 - [Agent Protocols](../../knowledge_base/agent_protocols.md) — Standardizing agent communication (FastMCP 3.1).
-- [Vercel AI Gateway](../orchestration/vercel-ai-gateway.md) — For caching and multi-provider routing.
+- [Vercel AI Gateway](vercel-ai-gateway.md) — For caching and multi-provider routing.
 - [Microsoft Entra ID](../enterprise/microsoft-entra-id.md) — Identity and access management.
 - [Azure AI Search](azure-ai-search.md) — Vector database for RAG.
 - [Claude](../ai_knowledge/claude-mythos.md) — Alternative frontier model provider.

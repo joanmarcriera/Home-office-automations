@@ -167,7 +167,7 @@ except ValidationError as e:
 - [K3s](../infrastructure/k3s.md) — Lightweight, single-binary Kubernetes distribution perfect for running Argo Workflows.
 - [Hera Python SDK](https://github.com/argoproj-labs/hera) — The premier Python SDK for declarative Argo Workflow construction.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized protocol for connecting agent execution environments to data contexts and tools.
-- [Claude 5.1](../ai_knowledge/claude-macos.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
+- [Claude 5.1](../ai_knowledge/claude.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
 - [Gemma 3](../ai_knowledge/gemini-macos.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.
 - [Apache Airflow](apache-airflow.md) — Enterprise workflow manager, often used to schedule high-level jobs that trigger Argo Workflows.
 - [Flyte](flyte.md) — Container-native workflow platform specifically engineered for machine learning and data engineering pipelines.

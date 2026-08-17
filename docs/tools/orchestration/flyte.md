@@ -153,7 +153,7 @@ except ValidationError as e:
 - [ZenML](zenml.md) — MLStack integration and experiment tracking.
 - [NVIDIA](../providers/nvidia.md) — Flyte has first-class support for H100/B200/X200 GPUs.
 - [MCP](../automation_orchestration/mcp.md) — The protocol used to extend Flyte with agentic tools.
-- [Claude 5.1](../../tools/ai_knowledge/claude-macos.md) — Frontier model for orchestrating Flyte tasks.
+- [Claude 5.1](../ai_knowledge/claude.md) — Frontier model for orchestrating Flyte tasks.
 - [GPT-5.5](../../tools/ai_knowledge/gpt-model.md) — SOTA model for advanced reasoning.
 - [Gemini 4.0 Pro](../../tools/ai_knowledge/gemini-macos.md) — High-performance model.
 - [Llama 4](../../tools/ai_knowledge/llama.md) — Next-generation open model.

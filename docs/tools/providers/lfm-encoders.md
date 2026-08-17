@@ -128,7 +128,7 @@ print(f"Vector dimension matches: {len(validated_record.embedding)} floats.")
 - [Hugging Face Hub](../../tools/providers/huggingface.md) — Source repository hosting Liquid AI's weights.
 - [Weaviate](../../tools/infrastructure/weaviate.md) — Vector database for storing long-context document embeddings.
 - [Milvus](../../tools/infrastructure/milvus.md) — Large-scale similarity database optimized for dense embeddings.
-- [RAG Pattern](../../docs/knowledge_base/patterns/rag-pattern.md) — The operational workflow powering local searches.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The operational workflow powering local searches.
 
 ## Sources / references
 

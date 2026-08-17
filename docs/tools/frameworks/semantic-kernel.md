@@ -173,8 +173,8 @@ except Exception as e:
 - [Haystack](haystack.md)
 - [Smolagents](smolagents.md)
 - [LangGraph](langgraph.md)
-- [Microsoft Graph](../../tools/providers/microsoft.md)
-- [Azure OpenAI](../../tools/providers/azure.md)
+- [Microsoft Graph](../providers/microsoft-graph.md)
+- [Azure OpenAI](../providers/azure-openai.md)
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 
 ## Sources / references

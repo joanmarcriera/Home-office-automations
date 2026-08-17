@@ -197,7 +197,7 @@ if __name__ == "__main__":
 - [Flyte](flyte.md) — Kubernetes-native machine learning pipeline manager.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for model integrations.
 - [n8n](../../services/n8n.md) — Visual workflow automation utility.
-- [Pydantic](../../tools/development_ops/pydantic.md) — Data validation framework used across modern data pipelines.
+- [Pydantic](../frameworks/pydantic-ai.md) — Data validation framework used across modern data pipelines.
 
 ## Sources / references
 - [Dagster Official Documentation](https://docs.dagster.io/)

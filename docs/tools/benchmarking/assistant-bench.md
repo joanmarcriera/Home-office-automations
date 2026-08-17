@@ -179,7 +179,7 @@ print(f"Agentic Latency: {validated_result.metrics.agentic_latency} seconds/step
 - [MultiOn](../agents/multion.md) — High-performance visual navigation and execution engine.
 - [Stagehand](../automation_orchestration/stagehand.md) — LLM-driven browser-automation SDK built on Playwright.
 - [Browser Use](../automation_orchestration/browser-use.md) — Multi-agent browser control framework.
-- [Agentic Latency](../../knowledge_base/index.md) — The measure of cognitive and network delay during autonomous long-horizon runs.
+- [Agentic Latency](../enterprise/index.md) — The measure of cognitive and network delay during autonomous long-horizon runs.
 
 ## Licensing and cost
 - **License**: Apache-2.0 (Open Source)
