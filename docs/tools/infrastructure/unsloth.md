@@ -3,13 +3,16 @@
 ## What it is
 Unsloth is an open-source framework designed to significantly accelerate the fine-tuning of Large Language Models (LLMs). As of January 2027, it is the industry standard for memory-efficient and high-speed training of open-weights models like Llama 4, Mistral, Gemma 3, and Qwen 3.8 on consumer-grade and enterprise hardware.
 
+In August 2026, Unsloth introduced the **Unsloth Desktop App**, bringing a full graphical interface for local dataset preparation, automated hyperparameter tuning, model quantization, and one-click export directly to local runtimes such as [Ollama](../../services/ollama.md), [LM Studio](../ai_knowledge/lm-studio.md), and [vLLM](vllm.md) without requiring complex command-line setups.
+
 ## What problem it solves
-Fine-tuning LLMs traditionally requires massive VRAM and long training times. Unsloth solves this by using hand-written Triton kernels, Dynamic Quantization, and optimized memory management, allowing users to fine-tune frontier-class models on a single GPU (e.g., 8GB - 24GB VRAM) while achieving up to 2x-5x faster training speeds compared to standard Hugging Face implementations.
+Fine-tuning LLMs traditionally requires massive VRAM, complex environment dependencies, and long training times. Unsloth solves this by using hand-written Triton kernels, Dynamic Quantization, and optimized memory management, allowing users to fine-tune frontier-class models on a single GPU (e.g., 8GB - 24GB VRAM) while achieving up to 2x-5x faster training speeds compared to standard Hugging Face implementations. The Unsloth Desktop App removes developer workflow friction by enabling non-CLI users and fast prototyping teams to manage fine-tuning jobs visually.
 
 ## Where it fits in the stack
-**Infrastructure / Fine-tuning**. Unsloth acts as the core engine in the fine-tuning layer, sitting between raw datasets and the inference stage. It produces specialized models that are then served by engines like [vLLM](vllm.md), [TGI](tgi.md), or [Ollama](../../services/ollama.md).
+**Infrastructure / Fine-tuning & Local App Ecosystem**. Unsloth acts as the core engine in the fine-tuning layer, sitting between raw datasets and the inference stage. It produces specialized models that are then served by engines like [vLLM](vllm.md), [TGI](tgi.md), or [Ollama](../../services/ollama.md). The Desktop App connects local GUI file management with GPU acceleration.
 
 ## Typical use cases
+- **Desktop Graphical Fine-tuning**: Using the Unsloth Desktop App to visually load local datasets, configure LoRA ranks, and launch training jobs without terminal scripting.
 - **Memory-Constrained Fine-tuning**: Training 8B or 14B models on consumer GPUs with limited VRAM.
 - **Rapid Experimentation**: Drastically reducing the time to iterate on fine-tuning hyperparameters.
 - **GGUF/EXL2 Export**: Native support for exporting trained models directly to quantization formats for local use.
@@ -17,6 +20,7 @@ Fine-tuning LLMs traditionally requires massive VRAM and long training times. Un
 
 ## Strengths
 - **Speed**: Optimized Triton kernels provide significant performance gains over standard PyTorch/Hugging Face trainers.
+- **Desktop Accessibility**: Unsloth Desktop App allows intuitive visual dataset management, real-time loss tracking, and instant local export.
 - **Memory Efficiency**: Lowers the barrier to entry for fine-tuning; can handle Llama 4 and Qwen 3.8 8B on as little as 7GB of VRAM.
 - **Accuracy**: Zero loss in accuracy compared to standard PEFT/LoRA implementations.
 - **Ease of Use**: Simplified API that integrates seamlessly with the Hugging Face `trl` and `peft` libraries.
@@ -28,6 +32,7 @@ Fine-tuning LLMs traditionally requires massive VRAM and long training times. Un
 - **Single-Node Focus**: While expanding, its primary strength is maximizing performance on a single node rather than massive multi-node clusters.
 
 ## When to use it
+- When you want a GUI-driven desktop experience for local LLM fine-tuning and export via the Unsloth Desktop App.
 - When you have limited VRAM and want to fine-tune 8B-70B models.
 - When training time is a bottleneck in your development cycle.
 - When you plan to deploy the final model to local environments like Ollama or LM Studio.
@@ -39,7 +44,7 @@ Fine-tuning LLMs traditionally requires massive VRAM and long training times. Un
 - If the specific model architecture you are using is not yet supported by the Unsloth kernel library.
 
 ## Getting started
-To install Unsloth, it is recommended to use a clean virtual environment and the official installation command:
+To install Unsloth CLI/Python library, it is recommended to use a clean virtual environment and the official installation command:
 
 ```bash
 pip install --upgrade "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
@@ -207,7 +212,8 @@ if __name__ == "__main__":
 - [Unsloth GitHub Repository](https://github.com/unslothai/unsloth)
 - [NVIDIA Technical Blog on Unsloth](https://developer.nvidia.com/blog/unsloth-llm-fine-tuning-optimization/)
 - [Unsloth Documentation](https://docs.unsloth.ai/)
+- [Reddit r/LocalLLaMA: Introducing Unsloth Desktop App](https://www.reddit.com/r/LocalLLaMA/comments/1vlj87v/introducing_unsloth_desktop_app/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

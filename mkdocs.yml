@@ -193,6 +193,7 @@ nav:
           - Copy.ai: tools/ai_knowledge/copy-ai.md
           - DeepSeek R1: tools/ai_knowledge/deepseek-r1.md
           - DeepTutor: tools/ai_knowledge/deeptutor.md
+          - DiffusionGemma: tools/ai_knowledge/diffusiongemma.md
           - Dex: tools/ai_knowledge/dex.md
           - Dify: tools/ai_knowledge/dify.md
           - ElevenLabs: tools/ai_knowledge/elevenlabs.md
@@ -231,6 +232,7 @@ nav:
           - LobeHub: tools/ai_knowledge/lobehub.md
           - Local LLMs: tools/ai_knowledge/local_llms.md
           - Logseq: tools/ai_knowledge/logseq.md
+          - Magpie TTS: tools/ai_knowledge/magpie-tts.md
           - Luma Dream Machine: tools/ai_knowledge/luma-dream-machine.md
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Mellum2: tools/ai_knowledge/mellum2.md
@@ -240,6 +242,7 @@ nav:
           - NotebookLM: tools/ai_knowledge/notebooklm.md
           - Notion AI: tools/ai_knowledge/notion-ai.md
           - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
+          - NVIDIA Nemotron-3.5-Lightning-30B: tools/ai_knowledge/nemotron-lightning.md
           - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
           - Obsidian: tools/ai_knowledge/obsidian.md
           - OMLab-VLX-Seek-15-10B: tools/ai_knowledge/omlab-vlx-seek.md
