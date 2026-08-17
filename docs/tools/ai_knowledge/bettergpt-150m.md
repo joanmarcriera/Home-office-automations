@@ -126,7 +126,7 @@ print(f"Throughput: {validated_completion.tokens_generated / (validated_completi
 - [Hugging Face Hub](../../tools/providers/huggingface.md) — Host of the BetterGPT-150M pre-trained models.
 - [Local LLMs](../../tools/ai_knowledge/local_llms.md) — Conceptual guide on deploying offline, lightweight architectures.
 - [Llamafile](../../tools/infrastructure/llamafile.md) — Single-file executable runner that can bundle small models for edge deployment.
-- [Ollama](../../docs/services/ollama.md) — Lightweight local server that manages quantized model execution.
+- [Ollama](../../services/ollama.md) — Lightweight local server that manages quantized model execution.
 
 ## Sources / references
 

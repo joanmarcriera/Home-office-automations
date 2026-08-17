@@ -160,7 +160,7 @@ except ValidationError as e:
 - [Flyte](flyte.md) — Large-scale ML orchestration.
 - [Apache Hamilton](apache-hamilton.md) — For micro-orchestration within tasks.
 - [n8n](../../services/n8n.md) — For low-code intake and simple automation.
-- [Claude 5.1](../ai_knowledge/claude-macos.md) — For agentic workflow control and synthesis.
+- [Claude 5.1](../ai_knowledge/claude.md) — For agentic workflow control and synthesis.
 - [GPT-5.5](../ai_knowledge/gpt-model.md) — Frontier model for complex enterprise logical workflows.
 - [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — SOTA model.
 - [Llama 4](../ai_knowledge/llama.md) — Advanced open model.

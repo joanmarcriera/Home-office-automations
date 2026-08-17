@@ -141,7 +141,7 @@ def evaluate_gpu_memory_headroom(model_size_b: float, seq_len: int) -> str:
 ```
 
 ## Related tools / concepts
-- **[Minimax M3](../ai_knowledge/minimax-m3.md)**: A unified model series utilizing Flash-MSA style sparse attention for native 1M+ token processing.
+- **[Minimax M3](../providers/minimax.md)**: A unified model series utilizing Flash-MSA style sparse attention for native 1M+ token processing.
 - **[vLLM](vllm.md)**: High-throughput memory-efficient inference serving engine.
 - **[Aphrodite Engine](aphrodite-engine.md)**: Local-first high-throughput inference server with advanced sampler controls.
 - **[ExLlamaV3](exllamav3.md)**: Quantized local GPU model runner.

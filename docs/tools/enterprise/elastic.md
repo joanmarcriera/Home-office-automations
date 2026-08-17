@@ -175,7 +175,7 @@ except ValidationError as e:
 - [Curiosity](curiosity.md) — Local search and workspace organizer.
 - [Supabase](../infrastructure/supabase.md) — Open-source Postgres database with pgvector vector search capabilities.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized communication protocol for connecting LLMs to data stores.
-- [Claude](../ai_knowledge/claude-macos.md) — Frontier LLM utilized for orchestrating advanced enterprise search workflows.
+- [Claude](../ai_knowledge/claude.md) — Frontier LLM utilized for orchestrating advanced enterprise search workflows.
 - [Gemma 3](../ai_knowledge/gemini-macos.md) — Lightweight model capable of running local vector and semantic searches.
 - [RAG Patterns](../../knowledge_base/patterns/rag.md) — Architectural pattern for Retrieval-Augmented Generation context retrieval.
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md) — Technical comparison of dedicated vector databases (Qdrant, Milvus, Pinecone).
