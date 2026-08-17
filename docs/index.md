@@ -6,7 +6,7 @@ hide:
 
 # Home-Office Automation & AI Hub
 
-> Operational documentation for AI-enabled home-office automation, maintained by humans and agents with explicit quality gates.
+> Operational documentation for AI-enabled home-office automation, maintained by humans and agents with explicit quality gates. Updated for early January 2027 SOTA standards (incorporating FastMCP 3.1, Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, Llama 4, and Pydantic v2 validation).
 
 ## Start by Goal
 
@@ -63,7 +63,7 @@ hide:
 | **Knowledge Base** | Concepts and patterns: protocols, RAG, model classes, security, and ecosystem landscape. | [knowledge_base/README.md](knowledge_base/README.md) |
 | **Architecture** | Component map, data flows, infrastructure decisions, and multi-agent governance. | [architecture/README.md](architecture/README.md) |
 | **Reference Implementations** | Concrete prompts, mapping rules, and workflow exports for direct reuse. | [reference-implementations/index.md](reference-implementations/index.md) |
-| **Reports** | Triage reports, execution logs, and backlog status. | [reports/ralph-loop-triage.md](reports/ralph-loop-triage.md) |
+| **Reports** | Triage reports, execution logs, and backlog status. | [reports/index.md](reports/index.md) |
 | **Roadmap** | Planned improvements and known gaps. | [roadmap.md](roadmap.md) |
 | **Standards** | Taxonomy, canonical-page rules, metadata requirements, and dedup policy. | [standards.md](standards.md) |
 
@@ -107,11 +107,15 @@ Supporting docs:
 
 <small>Use this page as the section index. Use section overview pages for detailed scope and conventions.</small>
 
+---
+
 ## Sources / References
 - [Automated Contributions](architecture/automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
 - [Contributing Guide](CONTRIBUTING.md)
 
+---
+
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2027-01-07
 - Confidence: high
