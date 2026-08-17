@@ -1,7 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of early 2027, the family is spearheaded by **Qwen 3.8**, introducing the massive **Qwen 3.8 Max** alongside the flagship **Qwen 3.8-27B** and the specialized high-speed **Qwen 3.8-24T** model. The Qwen 3.8 series continues to redefine the open-weights landscape, matching or exceeding the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1, Gemini 4.0 Pro, and GPT-5.5.
+Qwen is a state-of-the-art series of open-weight causal large language models developed by Alibaba Cloud, comprising general-purpose (Qwen), specialized coding (Qwen-Coder), and vision-multimodal (Qwen-VL) variants. As of early 2027, the family is spearheaded by **Qwen 3.8**, introducing the massive **Qwen 3.8 Max**, the flagship **Qwen 3.8-27B**, the specialized high-speed **Qwen 3.8-24T** model, and lightweight edge models such as **Qwen3-8B**. The Qwen series continues to redefine the open-weights landscape, matching or exceeding the reasoning, math, and code-generation capabilities of proprietary frontier models like Claude 5.1, Gemini 4.0 Pro, and GPT-5.5 across scale tiers.
 
 Additionally, highly specialized community-driven quantization checkpoints have emerged, such as the **Qwen3.6-35B-A3B-Escha-W2** hosted on Hugging Face. This variant is a 2-bit quantized Mixture-of-Experts checkpoint specifically optimized for extreme local memory efficiency, allowing the massive 35B parameter MoE model to execute seamlessly on devices with as little as 12GB of VRAM while preserving conversational planning performance.
 
@@ -12,6 +12,7 @@ It addresses the dependency on proprietary, cloud-hosted API providers by provid
 **LLM / Local Reasoning Engine Layer**. It serves as the local intelligence backend for self-hosted AI assistants and autonomous agent stacks, primarily deployed via local inference runners.
 
 ## Typical use cases
+- **Edge & On-Device Deployment**: Running **Qwen3-8B** on workstations, laptops, or edge gateways for private, low-latency instruction following and function calling.
 - **Local Developer Companions**: Using `Qwen3.8-Coder` and `Qwen 3.8-27B` checkpoints for offline codebase editing, linting, and system refactoring.
 - **High-Throughput Swarm Orchestration**: Leveraging the efficient parameter footprint of `Qwen 3.8-24T` to execute massive parallel agent tasks on single workstations with real-time throughput.
 - **Sovereign Multi-lingual Extraction**: Parsing documents across 29+ languages locally, ensuring zero-leakage compliance.
