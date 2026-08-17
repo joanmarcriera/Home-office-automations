@@ -1,59 +1,57 @@
 # AutoGen
 
 ## What it is
-AutoGen is an open-source framework from Microsoft Research that enables the development of LLM applications using multiple agents that can converse with each other to solve tasks. In late October / November 2026, it is a leading framework for orchestrating complex multi-agent workflows involving `claude-5-1-opus-20261031`, GPT-5.5, Gemini 4.0, and sovereign open-weight models.
+AutoGen (and AG2) is an open-source framework originally created by Microsoft Research for developing multi-agent LLM applications. It enables developers to construct autonomous systems where multiple AI agents converse with each other, execute code, and leverage tools to solve complex multi-step tasks. In early January 2027, AutoGen v0.4+ serves as an enterprise multi-agent framework orchestrating frontier models like **Claude 5.1 Opus**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro**, and sovereign open-weight models.
 
 ## What problem it solves
-It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal, providing built-in support for conversational patterns and tool use through **Model Context Protocol (MCP 3.1)**.
+Complex real-world tasks require specialized domain roles, multi-turn reasoning loops, code execution, and human-in-the-loop approvals that single-prompt pipelines cannot handle. AutoGen automates multi-agent conversation management, state routing, and tool integration through **Model Context Protocol (FastMCP 3.1)** standards.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It sits between the foundation models and the application layer, managing agent interactions and execution environments. It aligns closely with [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design principles.
+**Framework / Multi-Agent Orchestration**. It operates between foundation models and downstream business applications, coordinating agent interactions, sandbox execution environments, and state management. It directly implements [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design architectures.
 
 ## Typical use cases
-- **Software Engineering**: An assistant agent writing code and a proxy agent executing it to fix bugs.
-- **Group Chat**: Multiple specialized agents (e.g., Coder, Critic, Manager) discussing a problem.
-- **Interactive Apps**: Agents that can ask humans for clarification or approval.
-- **Dynamic Workflows**: Using finite state machines (FSM) to transition between agents based on task state.
+- **Automated Software Engineering**: A team of Coder, Reviewer, and Test Runner agents collaboratively writing, debugging, and executing code in sandboxes.
+- **Hierarchical Group Chat**: Specialized agents (e.g., Domain Expert, Analyst, Project Manager) engaging in multi-turn discussions to reach structured consensus.
+- **Human-in-the-Loop Operations**: Critical workflows where agents propose plans or executed code but pause for human review before execution.
+- **Dynamic FSM Workflows**: Utilizing Finite State Machine (FSM) transition rules to route execution between specialized agents based on task status.
 
 ## Strengths
-- **Customizability**: Agents are highly configurable in terms of their behavior, system prompts, and tools.
-- **Code Execution**: Built-in support for running generated code in Docker or local environments safely.
-- **Conversational Patterns**: Supports diverse patterns like group chat, nested chat, and sequential chat.
-- **Human Participation**: Native support for human-in-the-loop interactions via the `UserProxyAgent`.
+- **Customizable Agent Behaviors**: Agents can be granularly configured with distinct system prompts, model endpoints, and tool sets.
+- **Isolated Code Execution**: Built-in support for executing agent-generated Python and Bash code within secure Docker or WASM containers.
+- **Diverse Interaction Topologies**: Native primitives for two-agent chats, group chats, nested chats, and sequential agent pipelines.
+- **FastMCP 3.1 Tooling Support**: Native integration with the Model Context Protocol, enabling agents to tap into enterprise tools and data sources.
 
 ## Limitations
-- **Overhead**: Can be complex to set up and manage for simpler multi-agent tasks compared to lighter frameworks.
-- **Cost**: Multi-agent loops can lead to high token consumption if not properly constrained.
-- **State Management**: Managing complex state across many agents can become challenging in large-scale deployments.
+- **Token Overhead**: Unconstrained multi-agent conversation loops can lead to elevated token consumption and higher API costs if max round limits are not enforced.
+- **State Management Complexity**: Tracking complex conversational context across dozens of agents in long-running tasks requires explicit persistence configuration.
+- **Migration Surface**: Transitioning between legacy AutoGen versions and the updated AG2 / AutoGen v0.4+ event-driven architecture requires code updates.
 
 ## When to use it
-- When you need agents to interact via natural language "chat" to solve problems.
-- When code generation and execution are central parts of the agentic workflow.
-- For complex, multi-step tasks requiring different specialized agent roles.
+- When your application requires multiple conversational agents collaborating to solve non-linear problems.
+- When automated code generation, sandboxed execution, and interactive feedback loops are core requirements.
+- When building complex agent networks with human-in-the-loop validation checkpoints.
 
 ## When not to use it
-- For static pipelines that don't benefit from back-and-forth conversation.
-- If you prefer a more rigid, graph-based orchestration model (like [LangGraph](langgraph.md)).
+- For deterministic, linear workflows that do not require conversational back-and-forth between specialized agents.
+- If you require a strict, graph-based DAG orchestration paradigm without conversational agent autonomy (use [LangGraph](langgraph.md)).
 
 ## Getting started
 
 ### 1. Installation
-Install AutoGen via pip:
+Install AutoGen / AG2 via pip:
 ```bash
-pip install pyautogen
+pip install pyautogen pydantic
 ```
 
 ### 2. Configuration
-Set up your LLM configuration for models like `claude-5-1-opus-20261031` or `gpt-5.5-preview`.
+Configure API access for models like `claude-5-1-opus-20261031` or `gpt-5.5-preview`.
 
-### 3. Hello World Example
+### 3. Basic Example
 ```python
 import os
-from typing import Dict, Any
 from autogen import AssistantAgent, UserProxyAgent
 
-# Retrieve LLM config
-llm_config: Dict[str, Any] = {
+llm_config = {
     "config_list": [
         {
             "model": "gpt-5.5-preview",
@@ -69,76 +67,105 @@ user_proxy = UserProxyAgent(
     code_execution_config={"work_dir": "coding", "use_docker": False}
 )
 
-# Start conversation flow
 user_proxy.initiate_chat(
     assistant,
-    message="Write a python script to fetch the current weather in London."
+    message="Write a Python function to compute the Fibonacci sequence up to n terms."
 )
 ```
 
 ## CLI examples
 
-### 1. Run an AutoGen Studio instance
+### AutoGen Studio UI
+Launch the interactive web UI for visual agent configuration:
 ```bash
 autogenstudio ui --port 8081
 ```
 
-### 2. Install AutoGen with Docker support
+### Docker Execution Environment Setup
+Install AutoGen with optional Docker sandboxing support:
 ```bash
 pip install "pyautogen[docker]"
 ```
 
-### 3. Execute a script with UserProxy CLI
+### Interactive Execution Mode
+Run an agent script forcing interactive human approval for every tool step:
 ```bash
-python my_autogen_app.py --human_input_mode ALWAYS
+python main_agent.py --human_input_mode ALWAYS
 ```
 
 ## API examples
 
-### Multi-Agent Group Chat (With Type Annotations & Config)
-AutoGen allows for complex agent orchestration through its GroupChat and GroupChatManager classes.
+### Multi-Agent Group Chat with Pydantic v2 Configuration
+Orchestrate a multi-agent coding and critique group chat using Pydantic v2 schemas:
 
 ```python
-from typing import List, Dict, Any
+from typing import List
+from pydantic import BaseModel, Field
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
 
-config_list: List[Dict[str, Any]] = [
-    {
-        "model": "claude-5-1-opus-20261031",
-        "api_key": "your-anthropic-key"
+class ModelConfig(BaseModel):
+    model: str = Field(default="claude-5-1-opus-20261031")
+    api_key: str = Field(..., description="API Key for model provider")
+    temperature: float = Field(default=0.0, ge=0.0, le=1.0)
+
+class AgentTeamConfig(BaseModel):
+    max_rounds: int = Field(default=10, ge=1, le=50)
+    work_directory: str = Field(default="workspace")
+
+def run_multi_agent_team(model_cfg: ModelConfig, team_cfg: AgentTeamConfig) -> None:
+    llm_config = {
+        "config_list": [{
+            "model": model_cfg.model,
+            "api_key": model_cfg.api_key
+        }],
+        "temperature": model_cfg.temperature
     }
-]
-llm_config: Dict[str, Any] = {"config_list": config_list, "temperature": 0.0}
 
-# Define agents
-coder = AssistantAgent("Coder", llm_config=llm_config)
-critic = AssistantAgent("Critic", system_message="Provide critique on the proposed code structure.", llm_config=llm_config)
-user_proxy = UserProxyAgent("User", code_execution_config={"work_dir": "web", "use_docker": False})
+    coder = AssistantAgent("Coder", llm_config=llm_config)
+    critic = AssistantAgent(
+        "Critic",
+        system_message="Critique proposed code for safety and efficiency.",
+        llm_config=llm_config
+    )
+    user_proxy = UserProxyAgent(
+        "User",
+        code_execution_config={"work_dir": team_cfg.work_directory, "use_docker": False}
+    )
 
-groupchat = GroupChat(agents=[coder, critic, user_proxy], messages=[], max_round=12)
-manager = GroupChatManager(groupchat=groupchat, llm_config=llm_config)
+    groupchat = GroupChat(
+        agents=[coder, critic, user_proxy],
+        messages=[],
+        max_round=team_cfg.max_rounds
+    )
+    manager = GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
-# Start interaction
-user_proxy.initiate_chat(manager, message="Build a simple responsive dashboard with Tailwind.")
+    user_proxy.initiate_chat(
+        manager,
+        message="Build a FastMCP 3.1 tool server template in Python using Pydantic v2."
+    )
+
+if __name__ == "__main__":
+    m_cfg = ModelConfig(api_key="your-anthropic-key")
+    t_cfg = AgentTeamConfig(max_rounds=12, work_directory="mcp_workspace")
+    run_multi_agent_team(m_cfg, t_cfg)
 ```
 
 ## Related tools / concepts
-- [CrewAI](crewai.md)
-- [LangGraph](langgraph.md)
-- [Semantic Kernel](semantic-kernel.md)
-- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
-- [Plandex](../development_ops/plandex.md)
-- [OpenSwarm](../development_ops/openswarm.md)
-- [Smolagents](smolagents.md)
-- [DSPy](dspy.md)
-- [Model Context Protocol](../automation_orchestration/mcp.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [CrewAI](crewai.md) - Role-based multi-agent framework.
+- [LangGraph](langgraph.md) - Stateful cyclic graph orchestration library.
+- [Semantic Kernel](semantic-kernel.md) - Enterprise AI orchestration SDK.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) - Architectural patterns for multi-agent knowledge systems.
+- [Plandex](../development_ops/plandex.md) - Terminal-based AI software engineering engine.
+- [Smolagents](smolagents.md) - Lightweight agent framework from Hugging Face.
+- [Model Context Protocol](../automation_orchestration/mcp.md) - Standard protocol for tool and resource exposure.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) - Design patterns for multi-step agents.
 
-## Sources / References
-- [GitHub Repository](https://github.com/microsoft/autogen)
-- [Official Documentation](https://microsoft.github.io/autogen/)
-- [AutoGen Blog: FSM for Agentic Workflows](https://microsoft.github.io/autogen/blog/2024/02/11/FSM-GroupChat/)
+## Sources / references
+- [AutoGen GitHub Repository](https://github.com/microsoft/autogen)
+- [Official AutoGen Documentation](https://microsoft.github.io/autogen/)
+- [AG2 Project Portal](https://ag2.ai/)
+- [FastMCP 3.1 Tool Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

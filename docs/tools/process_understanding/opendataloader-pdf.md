@@ -1,13 +1,13 @@
 # OpenDataLoader PDF
 
 ## What it is
-OpenDataLoader PDF is a high-fidelity, open-source document ingestion and extraction engine designed to convert complex PDF files into structured, AI-ready formats (including clean Markdown and structured JSON layouts). It focuses on visual layout preservation, mathematical formula reconstruction, and precise tabular extraction. In late 2026, it serves as a robust gateway for parsing dense documentation sets for reasoning models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+OpenDataLoader PDF is a high-fidelity, open-source document ingestion and extraction engine designed to convert complex PDF files into structured, AI-ready formats (including clean Markdown and structured JSON layouts). It focuses on visual layout preservation, mathematical formula reconstruction, and precise tabular extraction. In early January 2027, it serves as a robust gateway for parsing dense documentation sets for reasoning models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.8**.
 
 ## What problem it solves
-It solves the "garbage-in, garbage-out" structural extraction problem of standard RAG pipelines. Traditional PDF text-extraction tools parse characters sequentially, which frequently merges multi-column texts, ignores header hierarchies, and distorts table cells into unreadable text blocks. OpenDataLoader PDF utilizes advanced computer-vision-based layout-aware parsing, ensuring reading order and table geometry are perfectly maintained before being fed into LLM contexts.
+It solves the structural extraction degradation problem ("garbage-in, garbage-out") that plagues basic RAG pipelines. Traditional PDF text-extraction tools parse characters strictly sequentially, which frequently merges multi-column texts, ignores header hierarchies, and distorts table cells into unreadable text blocks. OpenDataLoader PDF utilizes advanced computer-vision-based layout-aware parsing, ensuring reading order, multi-column flow, and complex table geometry are perfectly preserved before being ingested into LLM contexts.
 
 ## Where it fits in the stack
-**Ingest / Process & Understanding**. It acts as a specialized ingestion pipeline connecting massive unstructured PDF archives with modern vector indices and agentic memories, and is natively compatible with **Model Context Protocol (MCP 3.1)** standards.
+**Ingest / Process & Understanding**. It acts as a specialized ingestion pipeline connecting massive unstructured PDF archives with modern vector indices and agentic memories, and is natively compatible with **Model Context Protocol (FastMCP 3.1)** standards.
 
 ## Typical use cases
 - **Complex Financial Statement Parsing**: Transforming dense multi-page corporate quarterly financial tables into structured Markdown arrays.
@@ -17,7 +17,7 @@ It solves the "garbage-in, garbage-out" structural extraction problem of standar
 
 ## Strengths
 - **Vision-Aware Layout Parsing**: Uses deep-learning layout models to dynamically identify reading columns, headers, footers, and floating image blocks.
-- **Flawless Tabular Reconstruction**: Converts highly complex, borderless tables into perfect Markdown tables.
+- **Flawless Tabular Reconstruction**: Converts highly complex, borderless tables into clean, structured Markdown tables.
 - **Embedded OCR Framework**: Seamlessly falls back to local Tesseract OCR or cloud-native extraction APIs for scanned or image-only documents.
 - **Highly Concurrent Batch Ingestion**: Fully optimized with multi-threading to convert thousands of documents in parallel across local CPU cores.
 
@@ -78,35 +78,47 @@ opendataloader-pdf --input ./pdf_archive/ --output ./processed/ --parallel 4
 
 ## API examples
 
-### Integration with LlamaIndex
-Integrate OpenDataLoader PDF outputs with LlamaIndex to feed a local Vector Index for Claude 5.1:
+### Integration with LlamaIndex & Pydantic v2
+Integrate OpenDataLoader PDF outputs with LlamaIndex and Pydantic v2 to feed a local Vector Index for Claude 5.1:
 
 ```python
+from pydantic import BaseModel, Field
 from opendataloader_pdf import PDFConverter
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
-from pydantic import BaseModel
 
 class PipelineConfig(BaseModel):
-    input_dir: str
-    output_dir: str
-    threads: int
+    input_dir: str = Field(..., description="Path to raw PDF files")
+    output_dir: str = Field(..., description="Path for extracted Markdown files")
+    threads: int = Field(default=4, ge=1, le=16)
 
-# Configure local pipeline parameters
-config = PipelineConfig(input_dir="./raw_pdfs", output_dir="./processed_md", threads=4)
+class ProcessingSummary(BaseModel):
+    processed_count: int
+    status: str
 
-# 1. Convert layout-complex PDFs into clean, agent-ready Markdown
-converter = PDFConverter(layout_aware=True, parallel_workers=config.threads)
-converter.convert_dir(config.input_dir, config.output_dir)
+def run_pdf_ingestion_pipeline(config: PipelineConfig) -> ProcessingSummary:
+    # 1. Convert layout-complex PDFs into clean, agent-ready Markdown
+    converter = PDFConverter(layout_aware=True, parallel_workers=config.threads)
+    converter.convert_dir(config.input_dir, config.output_dir)
 
-# 2. Ingest the clean Markdown files into LlamaIndex
-reader = SimpleDirectoryReader(config.output_dir)
-documents = reader.load_data()
-index = VectorStoreIndex.from_documents(documents)
+    # 2. Ingest the clean Markdown files into LlamaIndex
+    reader = SimpleDirectoryReader(config.output_dir)
+    documents = reader.load_data()
+    index = VectorStoreIndex.from_documents(documents)
 
-# 3. Query the index using high-confidence semantic reasoning
-query_engine = index.as_query_engine()
-response = query_engine.query("What was the precise operating income reported in the Q2 table?")
-print(response)
+    # 3. Query the index using high-confidence semantic reasoning
+    query_engine = index.as_query_engine()
+    response = query_engine.query("What was the precise operating income reported in the Q2 table?")
+    print(f"Query Result: {response}")
+
+    return ProcessingSummary(
+        processed_count=len(documents),
+        status="success"
+    )
+
+if __name__ == "__main__":
+    pipeline_cfg = PipelineConfig(input_dir="./raw_pdfs", output_dir="./processed_md", threads=4)
+    summary = run_pdf_ingestion_pipeline(pipeline_cfg)
+    print(summary.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -123,7 +135,8 @@ print(response)
 ## Sources / references
 - [OpenDataLoader PDF GitHub Codebase](https://github.com/opendataloader-project/opendataloader-pdf)
 - [PDF Structural Extraction Best Practices](https://github.com/opendataloader-project/opendataloader-pdf/docs/best-practices.md)
+- [FastMCP 3.1 Document Ingestion Guidelines](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
