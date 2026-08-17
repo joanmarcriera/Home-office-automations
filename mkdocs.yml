@@ -450,6 +450,7 @@ nav:
           - LLaMA Factory: tools/frameworks/llama-factory.md
           - LangGraph: tools/frameworks/langgraph.md
           - Langflow: tools/frameworks/langflow.md
+          - Lightwell AI: tools/frameworks/lightwell-ai.md
           - MageVL: tools/frameworks/magevl.md
           - Mastra: tools/frameworks/mastra.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
@@ -482,6 +483,7 @@ nav:
           - InternLM: tools/providers/internlm.md
           - KatCoderAir: tools/providers/katcoderair.md
           - LFM-2.5 Encoders: tools/providers/lfm-encoders.md
+          - Liquid AI: tools/providers/liquid-ai.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
           - MiniMax: tools/providers/minimax.md
           - Mistral AI: tools/providers/mistral.md

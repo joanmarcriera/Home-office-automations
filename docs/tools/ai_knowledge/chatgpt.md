@@ -1,7 +1,7 @@
 # ChatGPT
 
 ## What it is
-ChatGPT is a premier AI-powered conversational platform developed by OpenAI. As of early January 2027, it is powered by the **GPT-5.5** and **GPT-5.6** model families, offering state-of-the-art multimodal reasoning, autonomous Deep Research workflows, and continuous real-time voice interactions via **GPT-Live**. It serves as both a consumer assistant and an enterprise developer platform, with native support for the **FastMCP 3.1** protocol for standardized tool discovery and secure resource execution.
+ChatGPT is a premier AI-powered conversational platform developed by OpenAI. As of early January 2027, it is powered by the **GPT-5.5** and **GPT-5.6** model families, offering state-of-the-art multimodal reasoning, autonomous Deep Research workflows, continuous real-time voice interactions via **GPT-Live**, and native cross-platform availability including **ChatGPT Desktop for Linux**. It serves as both a consumer assistant and an enterprise developer platform, with native support for the **FastMCP 3.1** protocol for standardized tool discovery and secure resource execution.
 
 ## What problem it solves
 ChatGPT simplifies complex digital tasks by providing a natural language interface for creative writing, software engineering, real-time web research, and visual analysis. It bridges the gap between human intent and system execution. With the integration of FastMCP 3.1 and autonomous Deep Research agents, it eliminates data silos by allowing users to connect proprietary knowledge bases and enterprise services through standardized, secure interfaces.
@@ -10,6 +10,7 @@ ChatGPT simplifies complex digital tasks by providing a natural language interfa
 **AI Model & Interaction Platform**. It occupies the foundational intelligence layer of the AI stack, supplying core reasoning that powers custom GPTs, enterprise workspaces, and autonomous background agents across desktop and mobile ecosystems.
 
 ## Typical use cases
+- **Linux & Cross-Platform Desktop Workflows**: Utilizing ChatGPT Desktop for Linux with system hotkeys, tray integration, and local FastMCP tool routing.
 - **Multimodal Content Creation & Synthesis**: Generating high-fidelity text, images, visual charts, and code scripts from single or multi-modal prompts.
 - **Autonomous Deep Research**: Deploying multi-step research agents that browse, cross-reference, and summarize technical topics with full citations.
 - **Continuous Voice Interaction (GPT-Live)**: Conducting hands-free, real-time voice conversations with zero perceptual latency.
@@ -18,7 +19,7 @@ ChatGPT simplifies complex digital tasks by providing a natural language interfa
 
 ## Strengths
 - **Multimodality & GPT-Live**: Seamless real-time processing across text, vision, audio, and video streams.
-- **Ecosystem & Productivity Integration**: Deep integration across macOS, Windows, iOS, Android, Microsoft 365, and Apple Intelligence.
+- **Ecosystem & Productivity Integration**: Deep integration across Linux (ChatGPT Desktop for Linux), macOS, Windows, iOS, Android, Microsoft 365, and Apple Intelligence.
 - **Advanced Logical Reasoning**: GPT-5.5 and GPT-5.6 models set top benchmark scores in math, programming, and long-horizon planning.
 - **FastMCP 3.1 Native Integration**: Native ability to discover, inspect, and call tools from any compliant FastMCP server.
 - **Deep Research Engine**: Automated web synthesis that produces fully cited research reports on complex subjects.
@@ -41,7 +42,7 @@ ChatGPT simplifies complex digital tasks by providing a natural language interfa
 ## Getting started
 
 ### Web & Mobile
-Access ChatGPT via [chatgpt.com](https://chatgpt.com/) or download the official desktop and mobile applications.
+Access ChatGPT via [chatgpt.com](https://chatgpt.com/) or download the official desktop applications for Linux, macOS, and Windows.
 
 ### OpenAI API Setup
 1. Register at [platform.openai.com](https://platform.openai.com/).

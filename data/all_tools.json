@@ -1628,10 +1628,22 @@
       "doc_path": "docs/tools/automation_orchestration/lightpanda.md"
     },
     {
+      "id": "lightwell-ai",
+      "name": "Lightwell AI",
+      "category": "Frameworks & Libraries",
+      "doc_path": "docs/tools/frameworks/lightwell-ai.md"
+    },
+    {
       "id": "linkwarden",
       "name": "Linkwarden",
       "category": "Intake & Storage",
       "doc_path": "docs/services/linkwarden.md"
+    },
+    {
+      "id": "liquid-ai",
+      "name": "Liquid AI",
+      "category": "Model Providers & API Services",
+      "doc_path": "docs/tools/providers/liquid-ai.md"
     },
     {
       "id": "litellm",
