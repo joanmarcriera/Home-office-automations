@@ -38,13 +38,18 @@ It provides a secure, private way to sync notes across multiple devices (desktop
 ## Getting started
 
 ### Installation
-To start using Joplin, download the application for your platform:
-1. **Desktop**: Download from the [Official Website](https://joplinapp.org/).
-2. **Mobile**: Available on the App Store and Google Play.
-3. **CLI**: Install the terminal application via NPM:
-   ```bash
-   npm install -g joplin
-   ```
+Install Joplin desktop/mobile from the [Official Website](https://joplinapp.org/), or install the CLI tool via NPM:
+
+```bash
+npm install -g joplin
+```
+
+### Hello-world example
+Verify the CLI installation and view current application status:
+
+```bash
+joplin version
+```
 
 ### Enabling the API
 1. Open Joplin Desktop.
@@ -54,24 +59,25 @@ To start using Joplin, download the application for your platform:
 
 ## CLI examples
 
-### Joplin Terminal Application
-Joplin offers a full-featured terminal application for console-based workflows.
+### 1. Synchronizing Note Repository
+Trigger sync across configured backend targets (Nextcloud / WebDAV):
 
 ```bash
-# Start the terminal application
-joplin
-
-# Use internal commands (inside the joplin console)
-:help
-:ls
-:edit "Project Notes"
-:sync
+joplin sync
 ```
 
-### REST API via curl
-List all notebooks using curl:
+### 2. Creating a Note via CLI
+Create a markdown note directly inside a notebook:
+
 ```bash
-curl -X GET "http://localhost:41184/folders?token=YOUR_TOKEN"
+joplin mknote "Daily AI Digest" --body "Summary of Claude 5.1 and FastMCP 3.1 updates."
+```
+
+### 3. Listing Notebook Hierarchy
+List all notebooks in tree format:
+
+```bash
+joplin ls /
 ```
 
 ## API examples

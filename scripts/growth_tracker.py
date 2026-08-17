@@ -48,7 +48,7 @@ def has_code_examples(path: str) -> bool:
     return "```" in text
 
 
-def is_shallow(path: str, threshold: int = 1500) -> bool:
+def is_shallow(path: str, threshold: int = 7000) -> bool:
     """Check if a doc is shorter than threshold characters."""
     text = Path(path).read_text(encoding="utf-8")
     return len(text) < threshold

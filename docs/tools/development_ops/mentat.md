@@ -43,6 +43,13 @@ Mentat can be installed via pip:
 pip install mentat-ai pydantic>=2.0.0
 ```
 
+### Hello-world example
+Run Mentat in non-interactive mode on a target file:
+
+```bash
+mentat main.py --run "Add type hints and docstrings to all functions"
+```
+
 ### Configuration
 Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules. As of late October and November 2026, Claude 5.1 is the recommended model for complex reasoning:
 
@@ -63,33 +70,24 @@ Create a `.mentat_config.json` in your project root to manage model preferences,
 
 ## CLI examples
 
-### Context Management
-Mentat allows granular control over what the AI can see. You can include files, directories, or use glob patterns:
+### 1. Granular Context Selection
+Include specific files and directories while excluding patterns:
 
 ```bash
-# Include specific files and a directory, while excluding a sub-path
 mentat src/main.py src/utils/ tests/ --exclude tests/legacy/
-
-# Use glob patterns to include all python files in a directory
-mentat "scripts/**/*.py"
 ```
 
-### Interactive Refactoring Loop
-Once inside the Mentat shell, the "edit-loop" begins. You can provide instructions and Mentat will propose changes:
-
-```text
-> Search the codebase for all occurrences of hardcoded API endpoints and move them to a new config.py file.
->
-> Mentat: [Proposes changes to 4 files]
->
-> [y/n/i/e] (y: apply, n: skip, i: individual, e: explain)
-```
-
-### Model Context Protocol (MCP) Integration
-Connect to MCP servers to provide Mentat with additional tools (e.g., database access, web search):
+### 2. Batch Non-Interactive Command
+Execute refactoring commands directly without entering the interactive shell:
 
 ```bash
-# Start Mentat with an MCP server for PostgreSQL introspection
+mentat --run "Refactor database query logic in repository layer" --model gpt-5.5-preview src/
+```
+
+### 3. Model Context Protocol (MCP) Integration
+Connect to MCP servers to provide Mentat with database introspection or search capabilities:
+
+```bash
 mentat --mcp-server "npx @modelcontextprotocol/server-postgres"
 ```
 
