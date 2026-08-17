@@ -196,6 +196,7 @@ nav:
           - Dex: tools/ai_knowledge/dex.md
           - Dify: tools/ai_knowledge/dify.md
           - ElevenLabs: tools/ai_knowledge/elevenlabs.md
+          - EndlessFrontier-BigBang-V1: tools/ai_knowledge/endlessfrontier.md
           - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
           - Fish Audio: tools/ai_knowledge/fish-audio.md
           - Flint: tools/ai_knowledge/flint.md
@@ -240,6 +241,7 @@ nav:
           - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
           - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
           - Obsidian: tools/ai_knowledge/obsidian.md
+          - OMLab-VLX-Seek-15-10B: tools/ai_knowledge/omlab-vlx-seek.md
           - OpenAI: tools/ai_knowledge/openai.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
@@ -251,6 +253,7 @@ nav:
           - Runway ML: tools/ai_knowledge/runwayml.md
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
           - Sora: tools/ai_knowledge/sora.md
+          - Supraelegans-500K: tools/ai_knowledge/supraelegans.md
           - Synthesia: tools/ai_knowledge/synthesia.md
           - TeamOut: tools/ai_knowledge/teamout.md
           - TypingMind: tools/ai_knowledge/typingmind.md

@@ -858,6 +858,12 @@
       "doc_path": "docs/tools/frameworks/embabel.md"
     },
     {
+      "id": "endlessfrontier",
+      "name": "EndlessFrontier-BigBang-V1",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/endlessfrontier.md"
+    },
+    {
       "id": "evalplus",
       "name": "EvalPlus",
       "category": "Benchmarking",
@@ -2101,6 +2107,12 @@
       "doc_path": "docs/tools/infrastructure/olmoearth.md"
     },
     {
+      "id": "omlab-vlx-seek",
+      "name": "OMLab-VLX-Seek-15-10B",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/omlab-vlx-seek.md"
+    },
+    {
       "id": "omni-tools",
       "name": "Omni Tools",
       "category": "Process & Understanding",
@@ -2686,6 +2698,12 @@
       "name": "Superpowers",
       "category": "Agents",
       "doc_path": "docs/tools/agents/superpowers.md"
+    },
+    {
+      "id": "supraelegans",
+      "name": "Supraelegans-500K",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/supraelegans.md"
     },
     {
       "id": "swe-bench",
