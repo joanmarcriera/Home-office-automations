@@ -1522,6 +1522,12 @@
       "doc_path": "docs/services/kiwix.md"
     },
     {
+      "id": "klq",
+      "name": "KLQ",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/klq.md"
+    },
+    {
       "id": "koboldcpp",
       "name": "Koboldcpp",
       "category": "Infrastructure",
@@ -1724,6 +1730,12 @@
       "name": "LongCLI-Bench",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/longcli-bench.md"
+    },
+    {
+      "id": "lophius",
+      "name": "Lophius",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/lophius.md"
     },
     {
       "id": "luma-dream-machine",
@@ -1949,6 +1961,12 @@
       "name": "Multi-On",
       "category": "Agents",
       "doc_path": "docs/tools/agents/multion.md"
+    },
+    {
+      "id": "muse-glimmer",
+      "name": "Muse Glimmer",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/muse-glimmer.md"
     },
     {
       "id": "mycelium",
@@ -3040,6 +3058,12 @@
       "name": "Windsurf",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/windsurf.md"
+    },
+    {
+      "id": "worldclaw",
+      "name": "WorldClaw",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/worldclaw.md"
     },
     {
       "id": "xai-grok",
