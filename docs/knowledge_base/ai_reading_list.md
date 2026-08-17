@@ -188,6 +188,7 @@ if __name__ == "__main__":
 - [Latent Space Technical Newsletter](https://www.latent.space/)
 - [r/LocalLLaMA Community](https://www.reddit.com/r/LocalLLaMA/)
 - [Model Context Protocol Specification Portal](https://modelcontextprotocol.io/)
+- [arXiv:2608.09867 Research Paper](https://arxiv.org/pdf/2608.09867)
 
 - Last reviewed: 2026-12-30
 - Confidence: high

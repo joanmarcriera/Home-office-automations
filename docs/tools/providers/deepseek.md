@@ -3,7 +3,7 @@
 ## What it is
 DeepSeek is a leading AI research organization specializing in high-performance, cost-effective large language models (LLMs). Their model series is anchored by **DeepSeek-V4**, which utilizes a sophisticated Mixture-of-Experts (MoE) architecture to provide frontier-level reasoning and coding capabilities. DeepSeek is known for its "open-weights" philosophy and for pushing the boundaries of what is possible with efficient model training and inference.
 
-In August 2026, DeepSeek officially released the open-weights checkpoint of **DeepSeek-V4-Flash** (specifically DeepSeek-V4-Flash-0731), establishing a new state-of-the-art for high-efficiency, low-latency reasoning models. DeepSeek-V4-Flash is a Mixture-of-Experts model with 284 billion total parameters and 13 billion activated parameters. Built on advanced Multi-head Latent Attention (MLA) and highly optimized DeepSeekMoE architectures, it provides rapid-fire responses across a massive 1-million-token context window. DeepSeek maintains a significant lead in coding efficiency, mathematical reasoning, and low-overhead inference, making its API and local models highly competitive.
+In August 2026, DeepSeek officially released the open-weights checkpoint of **DeepSeek-V4-Flash** (specifically DeepSeek-V4-Flash-0731) as well as the flagship **DeepSeek-V4-Pro** (DeepSeek-V4-Pro-0813), establishing a new state-of-the-art for high-efficiency, low-latency reasoning and enterprise engineering models. DeepSeek-V4-Flash and DeepSeek-V4-Pro leverage advanced Mixture-of-Experts (MoE) architectures with Multi-head Latent Attention (MLA), providing rapid-fire responses across massive context windows up to 1M tokens. DeepSeek maintains a significant lead in coding efficiency, mathematical reasoning, and low-overhead inference, making its API and local models highly competitive.
 
 ## What problem it solves
 It addresses the high cost, high latency, and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, Qwen 3.8, and Claude 5.1 in specific domains—particularly mathematics, logic, and software engineering—at a fraction of the cost. Its advanced Multi-head Latent Attention (MLA) heavily compresses Key-Value (KV) cache storage, resolving the GPU memory bottleneck when processing massive contexts.
@@ -162,6 +162,7 @@ def query_deepseek_reasoner() -> DeepSeekSchema:
 - [Aider](../development_ops/aider.md) — CLI coding tool optimized for DeepSeek's low latency.
 
 ## Sources / references
+- [DeepSeek-V4-Pro Model - Hugging Face](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813)
 - [Official Website](https://www.deepseek.com/)
 - [DeepSeek API Documentation](https://api-docs.deepseek.com/)
 - [GitHub](https://github.com/deepseek-ai)
