@@ -1,11 +1,11 @@
 # Gemini
 
 ## What it is
-Gemini is Google's most capable and general family of multimodal AI models, natively engineered from the ground up to reason seamlessly across text, code, images, audio, and video. As of late December 2026, the ecosystem is anchored by the **Gemini 4.0** family of models, representing the cutting edge of Google's research and engineering. This model family includes the frontier-class **Gemini 4.0 Ultra** for maximum logical depth, the enterprise workhorse **Gemini 4.0 Pro**, the fast and highly efficient **Gemini 4.0 Flash**, the ultra-low-latency high-throughput **Gemini 4.0 Flash-Lite**, and the secure specialized cyber-defense model **Gemini 4.0 Flash Cyber** (integrated within CodeMender for automated security auditing and patching).
+Gemini is Google's most capable and general family of multimodal AI models, natively engineered from the ground up to reason seamlessly across text, code, images, audio, and video. As of early 2027, the ecosystem is anchored by the **Gemini 4.0** family alongside specialized ultra-fast releases like **Gemini 3.7 Flash**. This lineup includes the frontier-class **Gemini 4.0 Ultra** for maximum logical depth, the enterprise workhorse **Gemini 4.0 Pro**, the fast and highly efficient **Gemini 4.0 Flash**, the low-latency **Gemini 3.7 Flash**, the ultra-high-throughput **Gemini 4.0 Flash-Lite**, and the specialized cyber-defense model **Gemini 4.0 Flash Cyber** (integrated within CodeMender for automated security auditing and patching).
 
 ## What problem it solves
 Traditional language model workflows suffer from fragmentation when coordinating multiple single-modality models, resulting in high latency, data-loss across conversions, and elevated operational costs. Gemini solves this "multimodal tax" by utilizing a unified, native multimodal reasoning engine. Specifically, it addresses:
-- **High Output Latency**: Gemini 4.0 Flash-Lite generates a blistering 450 output tokens per second, making real-time, interactive multi-agent configurations highly viable.
+- **High Output Latency**: Gemini 3.7 Flash and 4.0 Flash-Lite generate up to 450+ output tokens per second with ultra-low time-to-first-token (TTFT), making real-time, interactive multi-agent configurations highly viable.
 - **Context Capacity Bottlenecks**: Exposes a massive, industry-leading 4-million token context window, allowing developers to process hours of video, massive audio logs, or entire multi-million-line code repositories in a single interaction.
 - **Agentic Overhead**: Natively integrates with the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, allowing agents to dynamically query local data systems, filesystems, and databases without custom integration layer glue.
 - **Security Vulnerabilities**: Gemini 4.0 Flash Cyber automates the closed-loop identification, testing, and pull-request-level patching of complex software vulnerabilities.
@@ -22,7 +22,7 @@ Traditional language model workflows suffer from fragmentation when coordinating
 
 ## Strengths
 - **Massive Context Window**: Natively supports up to a 4,000,000-token window with near-perfect needle-in-a-haystack recall.
-- **Reduced Pricing and High Efficiency**: Gemini 4.0 Flash reduces overall token usage by up to 22% compared to the 3.5 class, costing just $1.20 per 1M input tokens and $6.00 per 1M output tokens.
+- **Reduced Pricing and High Efficiency**: Gemini 3.7 Flash and 4.0 Flash offer industry-leading performance-to-cost ratios with low token pricing ($0.075-$1.20 per 1M input tokens).
 - **Structured Context Caching**: Provides native API-level context caching, allowing developers to cache static codebase contexts or large document libraries at a fraction of the standard input token cost.
 - **Fine-grained Thinking Control**: Gemini 4.0 models support configurable reasoning levels (e.g., minimal, medium, or high thinking depths) to balance execution speed with planning quality.
 - **Low-Latency Vision and Audio**: Direct vision and audio processing channels enable fast voice agents and live desktop/computer-use automation tools.
@@ -147,6 +147,7 @@ print("Findings:", result.critical_findings)
 - [DeepSeek](../providers/deepseek.md) — Highly efficient open-weights multimodal competitor.
 
 ## Sources / references
+- [Introducing Gemini 3.7 Flash](https://deepmind.google/blog/introducing-gemini-3-7-flash/)
 - [Introducing Gemini 4.0: SOTA Multimodal Reasoning and Caching Protocols](https://deepmind.google/blog/introducing-gemini-4-0/)
 - [Gemini API Release Notes and Changelog (December 2026)](https://ai.google.dev/gemini-api/docs/changelog)
 - [Google AI Studio Console](https://aistudio.google.com/)

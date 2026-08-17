@@ -1,7 +1,7 @@
 # MiniMax
 
 ## What it is
-MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of late December 2026 / early January 2027, it remains a top-tier choice for agentic software engineering, maintaining competitive reasoning parity with frontier models like Gemma 3, Qwen 3.6/3.8, Llama 4, and Claude 5.1 while offering superior throughput for long-horizon tasks. Additionally, MiniMax features advanced video and multimodal generation capabilities, most notably through its **Hailuo AI** suite and the open-weights **Minimax-H3** video model, which delivers state-of-the-art visual consistency and dynamic camera motion control. In August 2026, MiniMax officially released the open-weights checkpoint for the **MiniMax-H3** model on Hugging Face, enabling local multi-modal inference and video synthesis integrations.
+MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation (such as **MiniMax Music3**). Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of early 2027, it remains a top-tier choice for agentic software engineering and audio/video generation, maintaining competitive parity with frontier models while offering superior throughput for long-horizon tasks. In August 2026, MiniMax officially released **MiniMax Music3** for high-fidelity multi-genre AI music generation alongside open-weights checkpoints for the **Minimax-H3** video synthesis model.
 
 ## What problem it solves
 MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
@@ -226,6 +226,7 @@ if __name__ == "__main__":
 - [Hailuo AI](https://hailuo.ai) — MiniMax's flagship video generation platform.
 
 ## Sources / references
+- [MiniMax Music3 Release Discussion on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vngww3/minimaxmusic3_released/)
 - [MiniMax Official Website](https://www.minimaxi.com/)
 - [MiniMax Open Platform Documentation](https://platform.minimaxi.com/docs/)
 - [Token Plan (Subscription) Details](https://platform.minimaxi.com/docs/token-plan/intro)
