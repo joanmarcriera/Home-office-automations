@@ -756,6 +756,16 @@
       "doc_path": "docs/tools/infrastructure/diagrid-catalyst.md"
     },
     {
+      "id": "diffusiongemma",
+      "name": "DiffusionGemma",
+      "categories": [
+        "AI Knowledge",
+        "Generative Diffusion & Vision Models"
+      ],
+      "description": "Diffusion-based generative foundation model combining Gemma architecture with visual synthesis.",
+      "doc_path": "docs/tools/ai_knowledge/diffusiongemma.md"
+    },
+    {
       "id": "dify",
       "name": "Dify",
       "category": "AI Assistants & Knowledge",
@@ -1750,6 +1760,16 @@
       "doc_path": "docs/tools/frameworks/magevl.md"
     },
     {
+      "id": "magpie-tts",
+      "name": "Magpie TTS",
+      "categories": [
+        "AI Knowledge",
+        "Speech & Audio Synthesis"
+      ],
+      "description": "NVIDIA open-source multilingual text-to-speech system for low-latency voice agents.",
+      "doc_path": "docs/tools/ai_knowledge/magpie-tts.md"
+    },
+    {
       "id": "make",
       "name": "Make",
       "category": "Automation & Orchestration",
@@ -2027,6 +2047,16 @@
       "name": "NVIDIA Nemotron-3 Super",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/nemotron.md"
+    },
+    {
+      "id": "nemotron-lightning",
+      "name": "NVIDIA Nemotron-3.5-Lightning-30B",
+      "categories": [
+        "AI Knowledge",
+        "Enterprise Open-Weights Models"
+      ],
+      "description": "Ultra-low-latency 30B MoE language model with active 3B routing for extreme throughput.",
+      "doc_path": "docs/tools/ai_knowledge/nemotron-lightning.md"
     },
     {
       "id": "netlify",
