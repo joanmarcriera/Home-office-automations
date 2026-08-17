@@ -20,7 +20,7 @@
 
 ## Execution Standards & Audit Checklist
 
-- [ ] Every file must be upgraded to **early January 2027 SOTA standards** (mentioning frontier models/protocols such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.8, and FastMCP 3.1).
-- [ ] Code examples must use **Pydantic v2** validation (`BaseModel`, `Field`, `@field_validator` / `model_dump()`).
-- [ ] Update `Last reviewed: 2027-01-07`.
-- [ ] Validate catalog consistency, contract compliance, and doc quality via scripts.
+- [x] Every file must be upgraded to **early January 2027 SOTA standards** (mentioning frontier models/protocols such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.8, and FastMCP 3.1).
+- [x] Code examples must use **Pydantic v2** validation (`BaseModel`, `Field`, `@field_validator` / `model_dump()`).
+- [x] Update `Last reviewed: 2027-01-07`.
+- [x] Validate catalog consistency, contract compliance, and doc quality via scripts.

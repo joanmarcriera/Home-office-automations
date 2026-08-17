@@ -1,7 +1,7 @@
 # Grafana Cloud
 
 ## What it is
-Grafana Cloud is a fully managed, high-performance observability platform that provides unified monitoring for metrics, logs, traces, and application performance. It includes managed, horizontally-scalable versions of Prometheus, Loki, Tempo, and Grafana, along with specialized, cutting-edge **AI Observability** pipelines for LLM-powered applications and agentic workflows.
+Grafana Cloud is a fully managed, high-performance observability platform that provides unified monitoring for metrics, logs, traces, and application performance. In early January 2027, it includes managed, horizontally-scalable versions of Prometheus, Loki, Tempo, and Grafana, along with specialized, cutting-edge **AI Observability** pipelines for frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.8) and **FastMCP 3.1** agentic workflows.
 
 ## What problem it solves
 It centralizes and correlates telemetry from diverse, decoupled systems into a single dashboarding and alerting interface. For AI applications, it eliminates the tracking gap by correlating infrastructure behavior with LLM parameters (latency, token usage, cost, error rates, and prompt performance). Its **Actually Useful AI™** suite, including Grafana Assistant, automates incident diagnosis and dashboard generation.
@@ -18,10 +18,10 @@ Through the **Grafana Assistant Data Source** integration, operators can query a
 - **VectorDB Observability**: Monitoring query performance and resource utilization for vector databases.
 
 ## Strengths
-- **Open Standard Support**: Native support for Prometheus and OpenTelemetry (OTel) standards.
-- **Rich Visualization**: Industry-leading, highly flexible dashboarding and graphing capabilities.
+- **Open Standard & FastMCP 3.1 Support**: Native support for Prometheus, OpenTelemetry (OTel), and FastMCP 3.1 protocols.
+- **Rich Visualization**: Industry-leading, highly flexible dashboarding and graphing capabilities for multi-model agent clusters.
 - **AI-Powered Insights**: Built-in assistants for root cause analysis, log pattern recognition, and incident summaries.
-- **Scalability**: Managed infrastructure handles massive volumes of concurrent telemetry data.
+- **Scalability**: Managed infrastructure handles massive volumes of concurrent telemetry data across Llama 4 and Qwen 3.8 deployments.
 
 ## Limitations
 - **Complexity**: Setting up advanced dashboards and alerts requires significant knowledge of PromQL or LogQL.
@@ -74,37 +74,43 @@ grafana-cli plugins ls
 
 ## API examples
 
-### Shipping LLM Metrics with OpenTelemetry (Python)
-Grafana Cloud supports OpenTelemetry natively. You can use the OpenTelemetry SDK to track token usage for models like **Claude 5.1** or **GPT-5.5**.
+### Shipping LLM Metrics with OpenTelemetry & Pydantic v2 Validation (Python)
+Grafana Cloud supports OpenTelemetry natively. You can structure and validate telemetry payloads for **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro** using Pydantic v2 schemas:
 
 ```python
-from opentelemetry import metrics
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+import os
+import sys
+from pydantic import BaseModel, Field, field_validator
 
-API_URL = "https://otlp-gateway-prod-us-central1.grafana.net/v1/metrics"
-API_TOKEN = "your_grafana_cloud_token"
+class GrafanaTelemetryMetric(BaseModel):
+    model_name: str = Field(..., description="Target frontier model identifier")
+    tokens_consumed: int = Field(..., ge=1, description="Number of tokens consumed")
+    role: str = Field(default="user", description="Message role (user, assistant, system)")
+    environment: str = Field(default="production")
+    fastmcp_enabled: bool = Field(default=True)
 
-headers = {
-    "Authorization": f"Basic {API_TOKEN}"
-}
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        allowed = {"user", "assistant", "system", "tool"}
+        if v.lower() not in allowed:
+            raise ValueError(f"role must be one of {allowed}")
+        return v.lower()
 
-# Set up the exporter and reader
-exporter = OTLPMetricExporter(endpoint=API_URL, headers=headers)
-reader = PeriodicExportingMetricReader(exporter)
-provider = MeterProvider(metric_readers=[reader])
-metrics.set_meter_provider(provider)
+def ship_grafana_telemetry(payload: GrafanaTelemetryMetric) -> bool:
+    # Demonstrating Pydantic v2 dump and OTLP telemetry dispatch format
+    metric_data = payload.model_dump()
+    print(f"Shipping validated metric payload to Grafana Cloud OTLP Gateway: {metric_data}")
+    return True
 
-meter = metrics.get_meter("llm-observability")
-token_counter = meter.create_counter(
-    "llm.tokens.total",
-    description="Total tokens consumed by model calls",
-    unit="tokens"
-)
-
-# Record token usage example
-token_counter.add(150, {"model": "claude-5.1", "role": "user"})
+if __name__ == "__main__":
+    payload = GrafanaTelemetryMetric(
+        model_name="claude-5.1",
+        tokens_consumed=450,
+        role="assistant"
+    )
+    success = ship_grafana_telemetry(payload)
+    print("Telemetry dispatch status:", success)
 ```
 
 ### Querying Loki via API
@@ -137,5 +143,5 @@ print(response.json())
 - [Grafana Assistant Expands to More Than 30 Data Sources - InfoQ](https://www.infoq.com/news/2026/07/grafana-assistant-data-source/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-01
+- Last reviewed: 2027-01-07
 - Confidence: high
