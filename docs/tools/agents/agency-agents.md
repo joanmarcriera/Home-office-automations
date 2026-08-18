@@ -127,7 +127,7 @@ if __name__ == "__main__":
 - [OpenClaw](../development_ops/openclaw.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [System Prompt Engineering](../../knowledge_base/patterns/system-prompts.md)
-- [Multi-Agent Systems](../../knowledge_base/concepts/multi-agent-systems.md)
+- [Multi-Agent Systems](multi-agent-systems.md)
 
 ## Sources / references
 - [Official GitHub Repository](https://github.com/msitarzewski/agency-agents)

@@ -203,7 +203,7 @@ if __name__ == "__main__":
 - [Axolotl](../frameworks/axolotl.md) — Config-driven fine-tuning framework.
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The parent pattern.
 - [Triton](../infrastructure/triton.md) — The underlying language used for kernel optimizations.
-- [PEFT](../frameworks/peft.md) — The library Unsloth extends for parameter-efficient fine-tuning.
+- [PEFT](peft.md) — The library Unsloth extends for parameter-efficient fine-tuning.
 - [Llama 4](../ai_knowledge/llama.md) — The frontier model family often tuned with Unsloth.
 - [Qwen 3.8](../ai_knowledge/qwen.md) — High-performance model architecture supported by Unsloth.
 

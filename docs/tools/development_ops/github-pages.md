@@ -1,7 +1,7 @@
 # GitHub Pages
 
 ## What it is
-GitHub Pages is an optimized static site hosting service designed to take HTML, CSS, JavaScript, and asset files directly from a Git repository on GitHub and publish them as fully-functioning web applications. As of late November/December 2026, GitHub Pages serves as the foundational hosting infrastructure for AI-generated documentation hubs, dynamic testing dashboards, and [MkDocs](../../mkdocs.yml) knowledge bases managed by autonomous developer agents. It features native support for automated build pipelines using GitHub Actions, custom domains with automated Let's Encrypt SSL/TLS renewals, and robust CDN caching.
+GitHub Pages is an optimized static site hosting service designed to take HTML, CSS, JavaScript, and asset files directly from a Git repository on GitHub and publish them as fully-functioning web applications. As of late November/December 2026, GitHub Pages serves as the foundational hosting infrastructure for AI-generated documentation hubs, dynamic testing dashboards, and [MkDocs](mkdocs.md) knowledge bases managed by autonomous developer agents. It features native support for automated build pipelines using GitHub Actions, custom domains with automated Let's Encrypt SSL/TLS renewals, and robust CDN caching.
 
 ## What problem it solves
 Managing and publishing up-to-date documentation and software reports frequently suffers from process friction:
@@ -190,7 +190,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [MkDocs](../../mkdocs.yml) — Standard Markdown-based static site generator used across development repositories.
+- [MkDocs](mkdocs.md) — Standard Markdown-based static site generator used across development repositories.
 - [Vercel](vercel.md) — Advanced serverless static and frontend application hosting workspace.
 - [Netlify](netlify.md) — Multi-framework developer workspace with built-in form integration and lambda backends.
 - [Cloudflare Pages](cloudflare-pages.md) — Edge CDN static hosting platform with fast replication speeds.

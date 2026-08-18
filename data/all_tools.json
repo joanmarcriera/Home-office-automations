@@ -2028,6 +2028,12 @@
       ]
     },
     {
+      "id": "mkdocs",
+      "name": "MkDocs",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/mkdocs.md"
+    },
+    {
       "id": "mlx",
       "name": "MLX",
       "category": "Infrastructure",
@@ -2085,10 +2091,22 @@
       "doc_path": "docs/tools/benchmarking/mt-bench.md"
     },
     {
+      "id": "multi-agent-systems",
+      "name": "Multi-Agent Systems",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/multi-agent-systems.md"
+    },
+    {
       "id": "multion",
       "name": "Multi-On",
       "category": "Agents",
       "doc_path": "docs/tools/agents/multion.md"
+    },
+    {
+      "id": "multipl-e",
+      "name": "MultiPL-E",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/multipl-e.md"
     },
     {
       "id": "muse-glimmer",
@@ -2243,6 +2261,12 @@
       "name": "oh-my-opencode",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/opencode.md"
+    },
+    {
+      "id": "okta",
+      "name": "Okta",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/okta.md"
     },
     {
       "id": "ollama",
@@ -2423,6 +2447,12 @@
       "name": "Parlor",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/parlor.md"
+    },
+    {
+      "id": "peft",
+      "name": "PEFT",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/peft.md"
     },
     {
       "id": "perplexity",
