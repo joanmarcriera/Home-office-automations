@@ -175,7 +175,7 @@ print(f"Agentic Latency: {validated_result.metrics.agentic_latency} seconds/step
 - [PA-bench](./pa-bench.md) — Web session orchestration and procedural navigation benchmark.
 - [GAIA](./gaia.md) — General AI Assistant benchmark targeting multimodal, tool-connected real-world tasks.
 - [OSWorld](./os-world.md) — Comprehensive sandbox benchmark for evaluating agents in real operating-system and desktop environments.
-- [Inspect AI](./inspect-ai.md) — Foundational framework developed by the UK AISI for orchestrating model benchmarks.
+- [Inspect AI](inspect-ai.md) — Foundational framework developed by the UK AISI for orchestrating model benchmarks.
 - [MultiOn](../agents/multion.md) — High-performance visual navigation and execution engine.
 - [Stagehand](../automation_orchestration/stagehand.md) — LLM-driven browser-automation SDK built on Playwright.
 - [Browser Use](../automation_orchestration/browser-use.md) — Multi-agent browser control framework.
