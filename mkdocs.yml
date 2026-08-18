@@ -472,6 +472,7 @@ nav:
           - AWS Bedrock: tools/providers/aws-bedrock.md
           - Baseten: tools/providers/baseten.md
           - Anthropic: tools/providers/anthropic.md
+          - Azure AI Search: tools/providers/azure-ai-search.md
           - Azure OpenAI: tools/providers/azure-openai.md
           - BigSwitch: tools/providers/bigswitch.md
           - Codestral: tools/providers/codestral.md
@@ -520,6 +521,7 @@ nav:
       - Agents:
           - Overview: tools/agents/index.md
           - Agency Swarm: tools/agents/agency-swarm.md
+          - Agentic Workbench: tools/agents/agentic-workbench.md
           - Agency-Agents: tools/agents/agency-agents.md
           - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
           - Cline: tools/agents/cline.md
