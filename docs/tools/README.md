@@ -7,20 +7,20 @@ Canonical documentation for every AI tool, framework, provider, agent, and infra
 | Directory | Category label | What lives here |
 | :--- | :--- | :--- |
 | [ai_knowledge/](ai_knowledge/index.md) | AI & Knowledge | LLM interfaces, knowledge bases, creative AI, local model frontends |
-| [agents/](agents/index.md) | Agents | Autonomous coding and task agents (Jules, Claude Code, etc.) |
-| [automation_orchestration/](automation_orchestration/index.md) | Automation & Orchestration | MCP servers, workflow connectors, browser automation |
-| [benchmarking/](benchmarking/index.md) | Benchmarking | LLM evaluation suites, leaderboards, performance harnesses |
-| [development_ops/](development_ops/index.md) | Development & Ops | AI coding assistants, DevOps tooling, CI/CD helpers |
-| [frameworks/](frameworks/index.md) | Frameworks | LLM application frameworks (LangChain, LlamaIndex, Dify, etc.) |
-| [infrastructure/](infrastructure/index.md) | Infrastructure | Inference engines, vector stores, proxies, serving stacks |
-| [providers/](providers/index.md) | Providers | API and cloud AI providers (OpenAI, Anthropic, Google, etc.) |
+| [agents/](agents/index.md) | Agents | Autonomous coding and task agents (Jules, Claude Code, Goose, Superpowers, etc.) |
+| [automation_orchestration/](automation_orchestration/index.md) | Automation & Orchestration | MCP servers (FastMCP 3.1), workflow connectors, browser automation |
+| [benchmarking/](benchmarking/index.md) | Benchmarking | LLM evaluation suites, leaderboards, multi-language coding harnesses (Inspect AI, MultiPL-E, etc.) |
+| [development_ops/](development_ops/index.md) | Development & Ops | AI coding assistants, DevOps tooling, documentation tools (OpenCode, MkDocs, etc.) |
+| [frameworks/](frameworks/index.md) | Frameworks | LLM application frameworks (LangChain, LlamaIndex, Dify, AutoGen, etc.) |
+| [infrastructure/](infrastructure/index.md) | Infrastructure | Inference engines, vector stores, proxies, fine-tuning suites (vLLM, SGLang, Qdrant, PEFT, TensorRT-LLM, Triton) |
+| [providers/](providers/index.md) | Providers | API and cloud AI providers (OpenAI, Anthropic, Google AI Studio, Azure AI Search, DeepSeek, etc.) |
 | [calendar_tasks/](calendar_tasks/index.md) | Calendar & Tasks | Time management, scheduling, CalDAV integrations |
-| [intake_storage/](intake_storage/index.md) | Intake & Storage | Standard protocols and storage tools (CalDAV, etc.) |
-| [process_understanding/](process_understanding/index.md) | Process & Understanding | Document analysis, OCR, web crawling, RAG ingestion |
-| [orchestration/](orchestration/index.md) | Orchestration | Workflow engines and data pipeline tools (Temporal, Airflow, etc.) |
-| [enterprise/](enterprise/index.md) | Enterprise AI | Workplace-specific productivity suites and enterprise search |
+| [intake_storage/](intake_storage/index.md) | Intake & Storage | Standard protocols and storage tools (CalDAV, MinIO, S3, etc.) |
+| [process_understanding/](process_understanding/index.md) | Process & Understanding | Document analysis, OCR, web crawling, observability (Crawl4AI, Docling, Prometheus, Tempo, Logfire, Grafana) |
+| [orchestration/](orchestration/index.md) | Orchestration | Workflow engines and data pipeline tools (Temporal, Airflow, Dagster, Kestra, etc.) |
+| [enterprise/](enterprise/index.md) | Enterprise AI | Workplace-specific productivity suites, identity, and search (Glean, Hebbia, Okta, Proton Mail, etc.) |
 
-> **Note on taxonomy drift**: `automation_orchestration/` and `orchestration/` currently coexist. Per [standards.md](../standards.md), `orchestration/` is the canonical location. New orchestration tool pages should go there; `automation_orchestration/` content will migrate over time.
+> **Note on taxonomy drift**: `automation_orchestration/` and `orchestration/` currently coexist. Per [standards.md](../standards.md), `orchestration/` is the canonical location for workflow DAG/pipeline engines. New orchestration tool pages go there; `automation_orchestration/` content focuses on MCP protocols and agent integration harnesses.
 
 > **Self-hosted services** (Paperless-ngx, n8n, Nextcloud, Ollama, etc.) live in [Services](../services/README.md) — they carry operational deployment context alongside tool documentation.
 
@@ -28,7 +28,7 @@ Canonical documentation for every AI tool, framework, provider, agent, and infra
 
 ## How to Find the Right Tool
 
-**I need to automate a multi-step task** → [Automation & Orchestration](automation_orchestration/index.md) or [Playbooks](../playbooks/index.md)
+**I need to automate a multi-step task** → [Automation & Orchestration](automation_orchestration/index.md), [Orchestration](orchestration/index.md), or [Playbooks](../playbooks/index.md)
 
 **I need to run a model locally** → [Infrastructure](infrastructure/index.md) or [Services → Ollama](../services/ollama.md)
 
@@ -69,5 +69,5 @@ See [Standards](../standards.md) for the full taxonomy and dedup policy, and [Co
 - [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2027-01-07
 - Confidence: high
