@@ -228,6 +228,9 @@ nav:
           - Langchain: tools/ai_knowledge/langchain.md
           - last30days-skill: tools/ai_knowledge/last30days-skill.md
           - LibreChat: tools/ai_knowledge/librechat.md
+          - Llama: tools/ai_knowledge/llama.md
+          - Llama 4: tools/ai_knowledge/llama-4.md
+          - Llama 4 Maverick: tools/ai_knowledge/llama-4-maverick.md
           - Llamaindex: tools/ai_knowledge/llamaindex.md
           - LlamaIndex.TS: tools/ai_knowledge/llamaindex-ts.md
           - LobeHub: tools/ai_knowledge/lobehub.md
@@ -624,9 +627,11 @@ nav:
           - Fiddler AI: tools/process_understanding/fiddler.md
           - Firecrawl: tools/process_understanding/firecrawl.md
           - Grafana Cloud: tools/process_understanding/grafana-cloud.md
+          - Grafana Loki: tools/process_understanding/grafana-loki.md
           - Helicone: tools/process_understanding/helicone.md
           - Langfuse: tools/process_understanding/langfuse.md
           - LastMile AI: tools/process_understanding/lastmile.md
+          - Logfire: tools/process_understanding/logfire.md
           - New Relic AI: tools/process_understanding/new-relic-ai.md
           - NeMo-Speech.cpp: tools/process_understanding/nemo-speech.md
           - NVIDIA-Nemotron-Parse-2.0: tools/process_understanding/nvidia-nemotron-parse.md
