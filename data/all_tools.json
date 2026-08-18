@@ -2563,6 +2563,12 @@
       "doc_path": "docs/tools/ai_knowledge/project-genie.md"
     },
     {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "category": "Process Understanding",
+      "doc_path": "docs/tools/process_understanding/prometheus.md"
+    },
+    {
       "id": "promptfoo",
       "name": "Promptfoo",
       "category": "Benchmarking",
@@ -2573,6 +2579,12 @@
       "name": "Proton Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/proton_calendar.md"
+    },
+    {
+      "id": "proton-mail",
+      "name": "Proton Mail",
+      "category": "Enterprise",
+      "doc_path": "docs/tools/enterprise/proton-mail.md"
     },
     {
       "id": "prowlarr",
@@ -2615,6 +2627,12 @@
       "name": "qBittorrent Automation",
       "category": "Services",
       "doc_path": "docs/services/qbittorrent-automation.md"
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/qdrant.md"
     },
     {
       "id": "qwen",
@@ -2722,6 +2740,12 @@
       "name": "S3 / S3-Compatible Storage",
       "category": "Intake & Storage",
       "doc_path": "docs/tools/intake_storage/s3-storage.md"
+    },
+    {
+      "id": "sandboxed-code-execution",
+      "name": "Sandboxed Code Execution",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/patterns/sandboxed-execution.md"
     },
     {
       "id": "savvycal",
@@ -2934,6 +2958,12 @@
       "doc_path": "docs/tools/ai_knowledge/synthesia.md"
     },
     {
+      "id": "system-prompt-engineering",
+      "name": "System Prompt Engineering",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/patterns/system-prompts.md"
+    },
+    {
       "id": "tabnine",
       "name": "Tabnine",
       "category": "Development & Ops",
@@ -2958,10 +2988,22 @@
       "doc_path": "docs/tools/ai_knowledge/teamout.md"
     },
     {
+      "id": "tempo",
+      "name": "Tempo",
+      "category": "Process Understanding",
+      "doc_path": "docs/tools/process_understanding/tempo.md"
+    },
+    {
       "id": "temporal",
       "name": "Temporal",
       "category": "Orchestration",
       "doc_path": "docs/tools/orchestration/temporal.md"
+    },
+    {
+      "id": "tensorrt-llm",
+      "name": "TensorRT-LLM",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/tensorrt-llm.md"
     },
     {
       "id": "terminal-bench",
@@ -3040,6 +3082,12 @@
       "name": "Tritium",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/tritium.md"
+    },
+    {
+      "id": "triton",
+      "name": "Triton",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/triton.md"
     },
     {
       "id": "tubearchivist",
