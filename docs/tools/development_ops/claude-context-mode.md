@@ -129,6 +129,7 @@ print(response.content)
 ```
 
 ## Related tools / concepts
+- [Architecture Index](../../architecture/README.md) — Central index of system architecture components and contracts.
 - [Claude Code](claude-code.md)
 - [Aider](aider.md) — Terminal-native AI pair programming.
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)

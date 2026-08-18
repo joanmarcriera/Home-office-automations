@@ -138,6 +138,7 @@ if __name__ == "__main__":
 - [Open WebUI](../../services/open-webui.md) — Popular alternative UI for LLMs.
 - [LibreChat](librechat.md) — Enterprise-grade chat platform.
 - [Ollama](../../services/ollama.md) — Local model serving backend.
+- [Agentic Workbench](../agents/agentic-workbench.md) — Enterprise control plane and orchestration platform for agent workflows.
 - [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for connecting agents to tools.
 - [OpenClaw](../development_ops/openclaw.md) — Primary MCP 3.1 gateway.
 - [Claude Code](../development_ops/claude-code.md) — CLI-native agentic development tool.

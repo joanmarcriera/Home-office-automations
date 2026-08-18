@@ -37,6 +37,12 @@
       "doc_path": "docs/tools/agents/agentic-automation-canvas.md"
     },
     {
+      "id": "agentic-workbench",
+      "name": "Agentic Workbench",
+      "description": "Enterprise control plane and visual orchestration platform for agentic workflows and FastMCP tool integration.",
+      "doc_path": "docs/tools/agents/agentic-workbench.md"
+    },
+    {
       "id": "agentic-workflows",
       "name": "Agentic Workflows",
       "category": "Patterns",
