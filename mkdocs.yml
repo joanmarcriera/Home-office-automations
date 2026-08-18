@@ -329,6 +329,7 @@ nav:
           - LongCLI-Bench: tools/benchmarking/longcli-bench.md
           - MATH Benchmark: tools/benchmarking/math-benchmark.md
           - Mbpp: tools/benchmarking/mbpp.md
+          - MultiPL-E: tools/benchmarking/multipl-e.md
           - MMLU: tools/benchmarking/mmlu.md
           - MT-Bench: tools/benchmarking/mt-bench.md
           - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
@@ -394,6 +395,7 @@ nav:
           - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
           - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
           - GitHub Pages: tools/development_ops/github-pages.md
+          - MkDocs: tools/development_ops/mkdocs.md
           - Github Copilot: tools/development_ops/github_copilot.md
           - Google Stitch: tools/development_ops/google-stitch.md
           - Gpt Engineer: tools/development_ops/gpt_engineer.md
@@ -521,6 +523,7 @@ nav:
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
           - Microsoft Entra ID: tools/enterprise/microsoft-entra-id.md
+          - Okta: tools/enterprise/okta.md
           - Ramp: tools/enterprise/ramp.md
           - tldv: tools/enterprise/tldv.md
       - Agents:
@@ -546,6 +549,7 @@ nav:
           - Letta: tools/agents/letta.md
           - mem0: tools/agents/mem0.md
           - Multi-On: tools/agents/multion.md
+          - Multi-Agent Systems: tools/agents/multi-agent-systems.md
           - Nvidia NemoClaw: tools/agents/nemoclaw.md
           - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
           - Open Agents: tools/agents/open-agents.md
@@ -597,6 +601,7 @@ nav:
           - MLX: tools/infrastructure/mlx.md
           - Msty: tools/infrastructure/msty.md
           - OLMoEarth: tools/infrastructure/olmoearth.md
+          - PEFT: tools/infrastructure/peft.md
           - OpenPipe: tools/infrastructure/openpipe.md
           - Pinecone: tools/infrastructure/pinecone.md
           - SGLang: tools/infrastructure/sglang.md
