@@ -67,3 +67,5 @@ For simple personal tasks, low-budget hobbyist projects, or when data must remai
 
 - Last reviewed: 2026-05-31
 - Confidence: high
+
+- [Proton Mail](proton-mail.md) — End-to-end encrypted email service and enterprise security platform.

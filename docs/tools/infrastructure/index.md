@@ -54,3 +54,9 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 
 ---
 - Last reviewed: 2027-01-06
+
+- [Qdrant](qdrant.md) — High-performance Rust-native vector search engine and vector database.
+
+- [TensorRT-LLM](tensorrt-llm.md) — NVIDIA GPU library for high-throughput LLM inference compilation.
+
+- [Triton](triton.md) — Open-source Pythonic GPU kernel compiler and language.

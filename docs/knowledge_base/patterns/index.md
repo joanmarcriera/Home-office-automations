@@ -43,3 +43,7 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
+
+- [Sandboxed Code Execution](sandboxed-execution.md) — Pattern for safely executing untrusted code in isolated container/microVM runtimes.
+
+- [System Prompt Engineering](system-prompts.md) — Methodology and design patterns for system prompts in LLM and agentic workflows.

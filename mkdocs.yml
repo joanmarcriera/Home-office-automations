@@ -524,6 +524,7 @@ nav:
           - Hebbia: tools/enterprise/hebbia.md
           - Microsoft Entra ID: tools/enterprise/microsoft-entra-id.md
           - Okta: tools/enterprise/okta.md
+          - Proton Mail: tools/enterprise/proton-mail.md
           - Ramp: tools/enterprise/ramp.md
           - tldv: tools/enterprise/tldv.md
       - Agents:
@@ -604,12 +605,15 @@ nav:
           - PEFT: tools/infrastructure/peft.md
           - OpenPipe: tools/infrastructure/openpipe.md
           - Pinecone: tools/infrastructure/pinecone.md
+          - Qdrant: tools/infrastructure/qdrant.md
           - SGLang: tools/infrastructure/sglang.md
           - Supabase: tools/infrastructure/supabase.md
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
+          - TensorRT-LLM: tools/infrastructure/tensorrt-llm.md
           - Turbo-fieldfare: tools/infrastructure/turbo-fieldfare.md
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
           - Unsloth: tools/infrastructure/unsloth.md
+          - Triton: tools/infrastructure/triton.md
           - vLLM: tools/infrastructure/vllm.md
           - Valkey: tools/infrastructure/valkey.md
           - WASTE: tools/infrastructure/waste.md
@@ -642,6 +646,7 @@ nav:
           - NVIDIA-Nemotron-Parse-2.0: tools/process_understanding/nvidia-nemotron-parse.md
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
+          - Prometheus: tools/process_understanding/prometheus.md
           - OpenTelemetry Collector: tools/process_understanding/opentelemetry-collector.md
           - OvisOCR2: tools/process_understanding/ovisocr2.md
           - PageIndex: tools/process_understanding/pageindex.md
@@ -652,6 +657,7 @@ nav:
           - Sentry: tools/process_understanding/sentry.md
           - Snowflake: tools/process_understanding/snowflake.md
           - Tesseract CLI: tools/process_understanding/tesseract.md
+          - Tempo: tools/process_understanding/tempo.md
           - W&B Weave: tools/process_understanding/wandb-weave.md
           - Webhook: tools/process_understanding/webhook.md
   - Reports:
@@ -762,7 +768,9 @@ nav:
           - Prompt Requests: knowledge_base/patterns/prompt_requests.md
           - RAG Pattern: knowledge_base/patterns/rag-pattern.md
           - Retrieval-Augmented Generation (RAG): knowledge_base/patterns/rag.md
+          - Sandboxed Code Execution: knowledge_base/patterns/sandboxed-execution.md
           - Search Patterns: knowledge_base/patterns/search-patterns.md
+          - System Prompt Engineering: knowledge_base/patterns/system-prompts.md
           - Software Factories: knowledge_base/patterns/software-factories.md
           - Tool Calling & Model Context Protocol (MCP):
               knowledge_base/patterns/tool-calling-and-mcp.md

@@ -44,3 +44,7 @@ Tools and frameworks for process understanding, document processing, observabili
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
+
+- [Prometheus](prometheus.md) — Open-source metrics monitoring and alerting toolkit.
+
+- [Tempo](tempo.md) — High-performance distributed tracing backend developed by Grafana Labs.
