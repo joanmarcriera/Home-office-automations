@@ -141,7 +141,7 @@ if __name__ == "__main__":
 - [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for connecting agents to tools.
 - [OpenClaw](../development_ops/openclaw.md) — Primary MCP 3.1 gateway.
 - [Claude Code](../development_ops/claude-code.md) — CLI-native agentic development tool.
-- [Agentic Workbench](../../knowledge_base/patterns/agentic-workbench.md) — Architectural pattern for AI interfaces.
+- [Agentic Workbench](../agents/agentic-workbench.md) — Architectural pattern and workspace for human-agent collaboration.
 
 ## Sources / references
 - [LobeHub Official Site](https://lobehub.com/)

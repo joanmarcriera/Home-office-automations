@@ -9,7 +9,7 @@ Apache Airflow is a workflow orchestration platform that allows users to program
 Airflow turns recurring operational work into versioned workflow code with built-in retries, logging, and monitoring. It solves the problem of managing complex task dependencies and scheduling across multi-cloud and hybrid environments, providing a centralized control plane for data operations.
 
 ## Where it fits in the stack
-**Orchestration / Enterprise Workflow Platform**. It serves as the "brain" for batch and event-driven data operations. It coordinates between data ingestion, transformation (dbt), and AI/ML model execution layers. In late November/December 2026, it is a primary orchestrator for agentic workflows, coordinating model execution with AI agents like [Claude 5.1](../ai_knowledge/claude-macos.md), [GPT-5.5](../ai_knowledge/gpt-model.md), [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md), [Llama 4](../ai_knowledge/llama.md), [Gemma 3](../ai_knowledge/gemini-macos.md), or [Qwen 3.6](../ai_knowledge/qwen.md) and extending capability via [FastMCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Enterprise Workflow Platform**. It serves as the "brain" for batch and event-driven data operations. It coordinates between data ingestion, transformation (dbt), and AI/ML model execution layers. In late November/December 2026, it is a primary orchestrator for agentic workflows, coordinating model execution with AI agents like [Claude 5.1](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Llama 4](../ai_knowledge/local_llms.md), [Gemma 3](../ai_knowledge/gemma.md), or [Qwen 3.6](../ai_knowledge/qwen.md) and extending capability via [FastMCP 3.1](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **AI Inference Execution**: Utilizing Airflow v3.1's synchronous DAG execution and ad-hoc scheduling for real-time model serving.
@@ -161,10 +161,10 @@ except ValidationError as e:
 - [Apache Hamilton](apache-hamilton.md) — For micro-orchestration within tasks.
 - [n8n](../../services/n8n.md) — For low-code intake and simple automation.
 - [Claude 5.1](../ai_knowledge/claude.md) — For agentic workflow control and synthesis.
-- [GPT-5.5](../ai_knowledge/gpt-model.md) — Frontier model for complex enterprise logical workflows.
-- [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — SOTA model.
-- [Llama 4](../ai_knowledge/llama.md) — Advanced open model.
-- [Gemma 3](../ai_knowledge/gemini-macos.md) — Lightweight, localized reasoner for DAG dynamic parameters.
+- [GPT-5.5](../ai_knowledge/openai.md) — Frontier model for complex enterprise logical workflows.
+- [Gemini 4.0 Pro](../ai_knowledge/gemini.md) — SOTA model.
+- [Llama 4](../ai_knowledge/local_llms.md) — Advanced open model.
+- [Gemma 3](../ai_knowledge/gemma.md) — Lightweight, localized reasoner for DAG dynamic parameters.
 - [Qwen 3.6](../ai_knowledge/qwen.md) — High-quality reasoning open model.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Protocol for model and tool integration.
 

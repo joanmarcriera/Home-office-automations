@@ -19,6 +19,12 @@
       "doc_path": "docs/tools/agents/agency-swarm.md"
     },
     {
+      "id": "agentic-workbench",
+      "name": "Agentic Workbench",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agentic-workbench.md"
+    },
+    {
       "id": "agency-agents",
       "name": "Agency-Agents",
       "category": "Agents",
@@ -316,6 +322,12 @@
       "name": "Azure AI Gateway",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/azure-ai-gateway.md"
+    },
+    {
+      "id": "azure-ai-search",
+      "name": "Azure AI Search",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/azure-ai-search.md"
     },
     {
       "id": "azure-openai",

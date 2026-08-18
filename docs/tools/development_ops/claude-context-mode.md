@@ -135,7 +135,7 @@ print(response.content)
 - [Claude Hooks](claude-hooks.md)
 - [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
 - [Standards and Conventions](../../standards.md)
-- [Architecture Index](../../ARCHITECTURE.md)
+- [Architecture Index](../../architecture/README.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Free Will MCP](free-will-mcp.md)
 

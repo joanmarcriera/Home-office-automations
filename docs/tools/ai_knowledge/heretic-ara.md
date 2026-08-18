@@ -7,7 +7,7 @@ Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line to
 It addresses the issue of "refusal alignment" in large language models, where models frequently refuse to answer harmless or contextually relevant queries due to over-zealous safety guardrails. Unlike manual abliteration, Heretic automates the process to achieve minimal refusal rates with significantly less "capability damage" (lower KL divergence) to the underlying model's reasoning.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](../providers/gemma.md), [Qwen 3.6](qwen.md), or [Llama 4](../providers/llama.md) before they are deployed in local inference engines. In late 2026, abliterated local models serve as low-latency, zero-refusal reasoning backends alongside frontier cloud models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** in multi-agent environments.
+**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](gemma.md), [Qwen 3.6](qwen.md), or [Llama 4](local_llms.md) before they are deployed in local inference engines. In late 2026, abliterated local models serve as low-latency, zero-refusal reasoning backends alongside frontier cloud models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** in multi-agent environments.
 
 ## Typical use cases
 - **Research and Analysis**: Exploring model behavior without safety-induced bias.
@@ -49,7 +49,7 @@ pip install heretic-llm
 ```
 
 ### Basic Workflow
-1. Load your target open-weight model (e.g., [Gemma 3](../providers/gemma.md)).
+1. Load your target open-weight model (e.g., [Gemma 3](gemma.md)).
 2. Run the `heretic` command to begin the ablation process.
 3. Export the resulting "abliterated" weights to GGUF or Safetensors for use in [llama.cpp](../infrastructure/llama-cpp.md).
 
@@ -141,8 +141,8 @@ if __name__ == "__main__":
 - [AnythingLLM](anythingllm.md) — RAG frontend.
 - [Dify](dify.md) — LLM application builder.
 - [MMLU](../benchmarking/mmlu.md) — Benchmarking.
-- [Gemma](../providers/gemma.md) — Targeted model.
-- [Llama](../providers/llama.md) — Targeted model.
+- [Gemma](gemma.md) — Targeted model.
+- [Llama](local_llms.md) — Targeted model.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Automation standard.
 - [Optuna](https://optuna.org/) — Optimization library.
 
