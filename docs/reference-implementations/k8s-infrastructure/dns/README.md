@@ -1,6 +1,6 @@
 # External-DNS Configuration for Cloudflare
 
-This reference implementation shows how to set up [External-DNS](https://github.com/kubernetes-sigs/external-dns) in a [K3s](https://docs.k3s.io/) cluster to automatically synchronize Kubernetes Ingresses and Services with [Cloudflare DNS](https://www.cloudflare.com/dns/).
+This reference implementation shows how to set up [External-DNS](https://github.com/kubernetes-sigs/external-dns) in a [K3s](https://docs.k3s.io/) or Kubernetes cluster to automatically synchronize Kubernetes Ingresses and Services with [Cloudflare DNS](https://www.cloudflare.com/dns/).
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This reference implementation shows how to set up [External-DNS](https://github.
 ## Installation Methods
 
 ### Static Manifest Deployment
-Apply the provided `external-dns.yaml` which uses the `v0.15.1` (May 2026 baseline) image:
+Apply the provided `external-dns.yaml` which uses the `v0.16.0` (early 2027 SOTA baseline) image:
 ```bash
 kubectl apply -f external-dns.yaml
 ```
@@ -24,7 +24,7 @@ For production environments, using the [Official Helm Chart](https://artifacthub
 helm repo add external-dns https://kubernetes-sigs.github.io/external-dns/
 helm upgrade --install external-dns external-dns/external-dns \
   --namespace kube-system \
-  --version 1.21.1 \
+  --version 1.22.0 \
   --set provider.name=cloudflare \
   --set env[0].name=CF_API_TOKEN \
   --set env[0].valueFrom.secretKeyRef.name=cloudflare-api-token \
@@ -70,5 +70,5 @@ kubectl logs -f deployment/external-dns -n kube-system
 - [External-DNS Artifact Hub](https://artifacthub.io/packages/helm/external-dns/external-dns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2027-01-07
 - Confidence: high
