@@ -138,7 +138,7 @@ assert:
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for extending agent capabilities.
 - [Ollama](../../services/ollama.md) — Local inference engine for evaluation.
 - [Claude](../ai_knowledge/claude.md) — Frontier model frequently used as a judge.
-- [Grok-3](../ai_knowledge/grok.md) — Real-time data search for evaluation context.
+- [xAI Grok (Grok-3)](../providers/xai-grok.md) — Real-time data search for evaluation context.
 - [Dev-Workflow AI Assisted](../../playbooks/dev-workflow-ai-assisted.md) — Playbook for using evals in development.
 
 ## Sources / References

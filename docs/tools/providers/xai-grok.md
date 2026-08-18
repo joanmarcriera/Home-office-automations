@@ -1,7 +1,7 @@
-# xAI Grok
+# xAI Grok (Grok-3)
 
 ## What it is
-**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of late November/December 2026, it represents a top-tier reasoning engine competing directly with Gemma 3, Qwen 3.6, Llama 4, Gemini 4.0 Pro, Claude 5.1, and GPT-5.5, with full support for the **MCP 3.1 Task Protocol**.
+**Grok** (including the flagship **Grok-3** model family) is a frontier series of large language models developed by **xAI**, founded by Elon Musk. Architected as a high-reasoning, real-time "truth-seeking AI," Grok-3 combines massive compute scale with native, real-time access to the **X (formerly Twitter)** data stream, advanced vision capabilities, and native support for the **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
 Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience for research and monitoring, while maintaining high technical reasoning performance.
@@ -117,6 +117,7 @@ def analyze_x_sentiment() -> GrokRealtimeSentiment:
 ```
 
 ## Related tools / concepts
+- [Promptfoo](../benchmarking/promptfoo.md) — Benchmark and evaluation platform supporting Grok-3 assertions.
 - [OpenAI](../ai_knowledge/openai.md) — Direct competitor and API standard.
 - [Perplexity](../providers/perplexity.md) — Alternative for real-time search and synthesis.
 - [Anthropic](anthropic.md) — Competitor focused on safety and "Constitutional AI."
@@ -125,7 +126,7 @@ def analyze_x_sentiment() -> GrokRealtimeSentiment:
 - [Mistral](mistral.md) — European open-weights leader.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified API aggregator including Grok models.
 - [LiteLLM](../../services/litellm.md) — Inference plane for managing Grok and other providers.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM competitor with high reasoning capabilities.
+- [Gemma 3](../ai_knowledge/gemma.md) — Local LLM competitor with high reasoning capabilities.
 - [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) — The protocol used for agentic tool integration.
 
 ## Sources / references

@@ -19,12 +19,6 @@
       "doc_path": "docs/tools/agents/agency-swarm.md"
     },
     {
-      "id": "agentic-workbench",
-      "name": "Agentic Workbench",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/agentic-workbench.md"
-    },
-    {
       "id": "agency-agents",
       "name": "Agency-Agents",
       "category": "Agents",
@@ -47,6 +41,12 @@
       "name": "Agentic Automation Canvas (AAC)",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agentic-automation-canvas.md"
+    },
+    {
+      "id": "agentic-workbench",
+      "name": "Agentic Workbench",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agentic-workbench.md"
     },
     {
       "id": "agentic-workflows",
@@ -556,6 +556,12 @@
       "name": "Cloud Code",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/cloud_code.md"
+    },
+    {
+      "id": "cloudflare-agent-tracing",
+      "name": "Cloudflare Agent Tracing",
+      "category": "Process Understanding",
+      "doc_path": "docs/tools/process_understanding/cloudflare-agent-tracing.md"
     },
     {
       "id": "cloudflare-mesh",
@@ -1197,6 +1203,12 @@
       "doc_path": "docs/tools/automation_orchestration/gnu-make.md"
     },
     {
+      "id": "google-ai-studio",
+      "name": "Google AI Studio",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/google-ai-studio.md"
+    },
+    {
       "id": "google-calendar",
       "name": "Google Calendar",
       "category": "Calendar & Tasks",
@@ -1446,6 +1458,12 @@
       "name": "Inkling-Small",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/inkling-small.md"
+    },
+    {
+      "id": "inspect-ai",
+      "name": "Inspect AI",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/inspect-ai.md"
     },
     {
       "id": "instructor",

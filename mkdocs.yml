@@ -315,6 +315,7 @@ nav:
           - HELM: tools/benchmarking/helm.md
           - Human Eval: tools/benchmarking/human-eval.md
           - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
+          - Inspect AI: tools/benchmarking/inspect-ai.md
           - InterCode: tools/benchmarking/intercode.md
           - JudgeGPT: tools/benchmarking/judgegpt.md
           - Lakera Guard: tools/benchmarking/lakera-guard.md
@@ -482,6 +483,7 @@ nav:
           - Exa AI: tools/providers/exa_ai.md
           - Fireworks AI: tools/providers/fireworks.md
           - GLM: tools/providers/glm.md
+          - Google AI Studio: tools/providers/google-ai-studio.md
           - Groq: tools/providers/groq.md
           - Hugging Face: tools/providers/huggingface.md
           - InternLM: tools/providers/internlm.md
@@ -629,6 +631,7 @@ nav:
           - NVIDIA-Nemotron-Parse-2.0: tools/process_understanding/nvidia-nemotron-parse.md
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
+          - Cloudflare Agent Tracing: tools/process_understanding/cloudflare-agent-tracing.md
           - OpenTelemetry Collector: tools/process_understanding/opentelemetry-collector.md
           - OvisOCR2: tools/process_understanding/ovisocr2.md
           - PageIndex: tools/process_understanding/pageindex.md

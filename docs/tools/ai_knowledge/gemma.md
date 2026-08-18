@@ -1,17 +1,17 @@
-# Gemma (Gemma 4)
+# Gemma (Gemma 3 & Gemma 4)
 
 ## What it is
-Gemma is Google DeepMind's family of lightweight, state-of-the-art open-weights foundation models, culminating in the Gemma 4 generation (including Gemma 4 12B, 27B, and multimodal variants). Built from the same research and technology used to create Gemini models, Gemma 4 is engineered for edge deployment, high-efficiency local inference, agentic reasoning, and high-performance coding tasks.
+Gemma is Google DeepMind's family of lightweight, state-of-the-art open-weights foundation models, spanning the highly widely deployed Gemma 3 generation (including Gemma 3 1B, 4B, 12B, and 27B) through to the flagship Gemma 4 generation (including Gemma 4 12B, 27B, and multimodal variants). Built from the same research and technology used to create Gemini models, Gemma 3 and 4 are engineered for edge deployment, high-efficiency local inference, agentic reasoning, and high-performance coding tasks.
 
 ## What problem it solves
-Proprietary LLM APIs introduce network latency, ongoing operational cost, and data privacy concerns for local deployments or embedded agentic workflows. Gemma 4 offers competitive reasoning, multilingual understanding, and software engineering capabilities in a compact, open-weights format that runs locally on consumer GPUs, Apple Silicon, and edge compute nodes.
+Proprietary LLM APIs introduce network latency, ongoing operational cost, and data privacy concerns for local deployments or embedded agentic workflows. Gemma 3 and Gemma 4 offer competitive reasoning, multilingual understanding, vision capabilities, and software engineering performance in compact, open-weights formats that run locally on consumer GPUs, Apple Silicon, and edge compute nodes.
 
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Open Foundation Models. It sits at the **Model & Foundation Layer**, acting as a high-performance local inference engine when paired with runtimes such as [ollama](../../services/ollama.md), [llama.cpp](../infrastructure/llama-cpp.md), or [vLLM](../infrastructure/vllm.md).
 
 ## Typical use cases
-- **Local Code Assistance & Refactoring**: Running Gemma 4 12B locally in IDE extensions for offline inline autocomplete and code generation.
-- **Embedded Agentic Reasoning**: Serving as a fast, low-latency reasoning engine for edge agent routines orchestrated via [FastMCP 3.1](../automation_orchestration/mcp.md).
+- **Local Code Assistance & Refactoring**: Running Gemma 3 12B or Gemma 4 12B locally in IDE extensions for offline inline autocomplete and code generation.
+- **Embedded Agentic Reasoning**: Serving as a fast, low-latency reasoning engine for edge agent routines orchestrated via [FastMCP 3.1](../automation_orchestration/mcp.md) or [Apache Hamilton](../orchestration/apache-hamilton.md).
 - **On-Device Multimodal Processing**: Executing document comprehension, visual instruction following, and structured extraction without external cloud API calls.
 - **Privacy-Preserving Document Analysis**: Summarizing and categorizing sensitive home-office files within local [Paperless-ngx](../../services/paperless-ngx.md) pipelines.
 
@@ -120,6 +120,7 @@ if __name__ == "__main__":
 - [Gemini](gemini.md)
 - [DiffusionGemma](diffusiongemma.md)
 - [Gemma 4 31B Antihal](gemma-4-31b-antihal.md)
+- [Apache Hamilton](../orchestration/apache-hamilton.md)
 - [ollama](../../services/ollama.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [vLLM](../infrastructure/vllm.md)
