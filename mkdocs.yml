@@ -203,6 +203,7 @@ nav:
           - Flint: tools/ai_knowledge/flint.md
           - Flowise: tools/ai_knowledge/flowise.md
           - Gemini: tools/ai_knowledge/gemini.md
+          - Gemma: tools/ai_knowledge/gemma.md
           - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
           - Gemini CLI: tools/ai_knowledge/gemini-cli.md
           - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
@@ -416,6 +417,7 @@ nav:
           - Terminus 2: tools/development_ops/terminus-2.md
           - Vercel: tools/development_ops/vercel.md
           - Vercel OSS: tools/development_ops/vercel-oss.md
+          - Vercel v0 API: tools/development_ops/vercel-v0-api.md
           - Vscode: tools/development_ops/vscode.md
           - Windsurf: tools/development_ops/windsurf.md
           - Zed: tools/development_ops/zed.md
@@ -449,6 +451,7 @@ nav:
           - Instructor: tools/frameworks/instructor.md
           - LLaMA Factory: tools/frameworks/llama-factory.md
           - LangGraph: tools/frameworks/langgraph.md
+          - LeRobot: tools/frameworks/lerobot.md
           - Langflow: tools/frameworks/langflow.md
           - Lightwell AI: tools/frameworks/lightwell-ai.md
           - MageVL: tools/frameworks/magevl.md
@@ -579,6 +582,7 @@ nav:
           - Koboldcpp: tools/infrastructure/koboldcpp.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
+          - llama.cpp Windows Manager: tools/infrastructure/llamacpp-windows-manager.md
           - Llamafile: tools/infrastructure/llamafile.md
           - LM Studio: tools/infrastructure/lm-studio.md
           - LocalAI: tools/infrastructure/localai.md
