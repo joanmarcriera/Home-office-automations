@@ -1287,6 +1287,12 @@
       "doc_path": "docs/tools/process_understanding/grafana-cloud.md"
     },
     {
+      "id": "grafana-loki",
+      "name": "Grafana Loki",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/grafana-loki.md"
+    },
+    {
       "id": "grocy",
       "name": "Grocy",
       "category": "Intake & Storage",
@@ -1712,6 +1718,24 @@
       "doc_path": "docs/tools/benchmarking/livecodebench.md"
     },
     {
+      "id": "llama",
+      "name": "Llama",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/llama.md"
+    },
+    {
+      "id": "llama-4",
+      "name": "Llama 4",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/llama-4.md"
+    },
+    {
+      "id": "llama-4-maverick",
+      "name": "Llama 4 Maverick",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/llama-4-maverick.md"
+    },
+    {
       "id": "llama-cpp",
       "name": "llama.cpp",
       "category": "Process & Understanding",
@@ -1806,6 +1830,12 @@
       "name": "LocalAI",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/localai.md"
+    },
+    {
+      "id": "logfire",
+      "name": "Logfire",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/logfire.md"
     },
     {
       "id": "logseq",
