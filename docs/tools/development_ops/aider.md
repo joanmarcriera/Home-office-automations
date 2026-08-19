@@ -1,7 +1,7 @@
 # Aider
 
 ## What it is
-Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of late 2026, Aider features advanced **Architect Mode** powered by **Claude 5.1** and native **MCP 3.1** integration for sophisticated tool-use capabilities.
+Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of early 2027, Aider features advanced **Architect Mode** powered by **Claude 5.1** and native **FastMCP 3.1** integration for sophisticated tool-use capabilities and support for **GPT-5.5**, **Gemini 4.0 Pro**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It bridges the gap between high-level reasoning and low-level file manipulation. Aider eliminates the need for manual copy-pasting by directly applying AI-generated diffs to the local filesystem, handling Git commits automatically, and maintaining a coherent "map" of the entire codebase for context.
@@ -18,7 +18,7 @@ It bridges the gap between high-level reasoning and low-level file manipulation.
 ## Strengths
 - **Multi-file Editing**: Excels at coordinating changes across large codebases using its "repository map."
 - **Git Integration**: Automatically creates descriptive commit messages and manages local branches.
-- **Tool Choice**: Supports a wide range of models including **Claude 5.1**, **GPT-5.5**, and local models via **Ollama**.
+- **Tool Choice**: Supports a wide range of models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and local models via **Ollama**.
 - **Architect Mode**: Separates high-level planning from low-level implementation for better reliability on complex tasks.
 
 ## Limitations
@@ -57,7 +57,7 @@ aider
 Aider supports advanced models and `architect` mode natively:
 
 ```bash
-aider --model claude-3-7-sonnet-20250219 --architect
+aider --model claude-5-1-sonnet-20261022 --architect
 ```
 
 ## CLI examples
@@ -66,7 +66,7 @@ aider --model claude-3-7-sonnet-20250219 --architect
 Use the high-level architect mode to plan and execute a complex feature:
 
 ```bash
-aider --architect --message "Implement a new authentication flow using OIDC and MCP 3.1"
+aider --architect --message "Implement a new authentication flow using OIDC and FastMCP 3.1"
 ```
 
 ### Automated Bug Fixing
@@ -76,8 +76,8 @@ Pipe a failing test output directly into Aider for immediate repair:
 pytest | aider --message "Fix the failing tests in the output"
 ```
 
-### Native MCP Integration
-Connect Aider to specialized MCP servers for enhanced context:
+### Native FastMCP Integration
+Connect Aider to specialized FastMCP servers for enhanced context:
 
 ```bash
 aider --mcp-server "npx @modelcontextprotocol/server-postgres postgres://localhost/db"
@@ -91,8 +91,8 @@ Aider can be used as a library or via shell scripts for automated maintenance:
 ```python
 import subprocess
 
-def auto_refactor(instruction):
-    subprocess.run(["aider", "--message", instruction, "--yes"])
+def auto_refactor(instruction: str) -> None:
+    subprocess.run(["aider", "--message", instruction, "--yes"], check=True)
 
 # auto_refactor("Update all docstrings to follow the Google Style Guide")
 ```
@@ -101,7 +101,7 @@ def auto_refactor(instruction):
 Standardize Aider behavior across a team using a project-level config:
 
 ```yaml
-model: claude-3-7-sonnet-20250219
+model: claude-5-1-sonnet-20261022
 architect: true
 auto-commits: true
 map-tokens: 2048
@@ -113,22 +113,21 @@ mcp-servers:
 Validating Aider workspace sessions and configurations:
 
 ```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List
 
 class AiderSessionConfig(BaseModel):
-    model: str = Field(default="claude-3-7-sonnet-20250219")
+    model_config = ConfigDict(populate_by_name=True)
+
+    model: str = Field(default="claude-5-1-sonnet-20261022")
     architect: bool = Field(default=True)
     auto_commits: bool = Field(default=True, alias="auto-commits")
     map_tokens: int = Field(default=2048, alias="map-tokens")
     mcp_servers: List[str] = Field(default_factory=list, alias="mcp-servers")
 
-    class Config:
-        populate_by_name = True
-
 # Parse and validate setup configuration
 config_data = {
-    "model": "claude-3-7-sonnet-20250219",
+    "model": "claude-5-1-sonnet-20261022",
     "architect": True,
     "auto-commits": True,
     "mcp-servers": ["uvx mcp-server-git"]
@@ -143,8 +142,8 @@ print(f"Configured MCP servers: {session.mcp_servers}")
 - [Claude Code](claude-code.md) — Anthropic's official terminal agent.
 - [Cursor](cursor.md) — AI-native IDE with deep indexing.
 - [Plandex](plandex.md) — Plan-first AI engineering engine.
-- [Mentat](mentat.md) — Alternative terminal-native editor.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending Aider's capabilities.
+- [Mentat](mentat.md) — Terminal-native multi-file editor.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol for extending Aider's capabilities.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Theoretical background.
 - [GPT Engineer](gpt_engineer.md) — For full-project generation.
 - [Windsurf](windsurf.md) — Next-gen flow-based IDE.
@@ -156,5 +155,5 @@ print(f"Configured MCP servers: {session.mcp_servers}")
 - [Aider Documentation: Architect Mode](https://aider.chat/docs/architect.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

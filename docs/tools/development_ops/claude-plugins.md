@@ -1,7 +1,7 @@
 # Claude Plugins
 
 ## What it is
-Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of late 2026, they represent a mature ecosystem for extending the capabilities of **Claude 5.1** and other agentic frontier models (such as **GPT-5.5** and **Gemini 4.0**) within terminal environments and development workflows.
+Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of early 2027, they represent a mature ecosystem for extending the capabilities of **Claude 5.1** and other agentic frontier models (such as **GPT-5.5**, **Gemini 4.0 Pro**, and **DeepSeek-V4**) within terminal environments, IDE integrations, and automated pipelines.
 
 ## What problem it solves
 They make common add-ons easier to install and reuse instead of copying prompts, scripts, or workflow glue by hand across repos. They solve:
@@ -16,7 +16,7 @@ Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. Thi
 - **Web Orchestration**: Installing shared tool integrations such as browser automation via [Browser Use](../automation_orchestration/browser-use.md).
 - **Environment Standardization**: Reusing workflow packs across multiple repos or teams.
 - **Skill Discovery**: Standardizing local coding-agent environments using [Superpowers](../agents/superpowers.md).
-- **Data Access**: Integrating with **Model Context Protocol (MCP 3.1)** servers to expose local data.
+- **Data Access**: Integrating with **FastMCP 3.1** servers to expose local data and APIs.
 - **Automated Quality**: Running [Agentlint](../agents/agentlint.md) to check whether a repo is friendly to AI agents.
 - **PR Review**: Using `code-review` plugins to run structured PR reviews before shipping.
 - **Bug Remediation**: Utilizing `debugger` and `bug-fix` plugins to investigate complex failures and apply targeted patches.
@@ -163,7 +163,7 @@ print(f"Validated plugin: {manifest.name} v{manifest.version}")
 - [Browser Use](../automation_orchestration/browser-use.md) - High-level web automation library.
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) - Time-based task orchestration.
 - [Superpowers](../agents/superpowers.md) - Identity and skill management framework.
-- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - The underlying protocol for tool and resource exchange.
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Protocol for tool and resource exchange.
 - [Aider](aider.md) - Terminal-native pair programmer.
 - [Plandex](plandex.md) - Plan-first engineering engine.
 
@@ -175,5 +175,5 @@ print(f"Validated plugin: {manifest.name} v{manifest.version}")
 - [Issue #404 source discussion](https://github.com/joanmarcriera/Home-office-automations/issues/404)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

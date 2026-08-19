@@ -1,13 +1,13 @@
 # Claude Hooks
 
 ## What it is
-Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of late 2026, they natively support **MCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
+Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of early 2027, they natively support **FastMCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
 
 ## What problem it solves
 Autonomous agents like **Claude 5.1** and **GPT-5.5** can occasionally overlook repository-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected or automatically formatting code).
 
 ## Where it fits in the stack
-**Development & Ops / Workflow Guardrails**. It acts as a configuration and orchestration layer sitting directly between the agent and the operating system, often integrated via specialized **MCP** servers or custom shell wrappers.
+**Development & Ops / Workflow Guardrails**. It acts as a configuration and orchestration layer sitting directly between the agent and the operating system, often integrated via specialized **FastMCP 3.1** servers or custom shell wrappers.
 
 ## Typical use cases
 - **Security Interception**: Scanning for credentials or PII before the `git_commit` or `write_file` tools are allowed to execute.
@@ -56,7 +56,7 @@ python3 scripts/pre_hook_audit.py && claude && bash scripts/post_hook_cleanup.sh
 ```
 
 ### v0.5 Hooks Schema
-The late 2026 schema supports conditional execution based on tool arguments and schema definitions conforming to **MCP 3.1**:
+The schema supports conditional execution based on tool arguments and schema definitions conforming to **FastMCP 3.1**:
 
 ```json
 {
@@ -98,7 +98,7 @@ tail -f .claude/hooks.log
 ## API examples
 
 ### Hook Definition (JSON)
-Define hooks using the standard middleware pattern for **Claude Code** and **MCP 3.1**.
+Define hooks using the standard middleware pattern for **Claude Code** and **FastMCP 3.1**.
 
 ```json
 {
@@ -126,7 +126,7 @@ Run robust validation of hook payload data programmatically:
 
 ```python
 from pydantic import BaseModel, Field
-from typing import Literal, Dict, Any, Union
+from typing import Literal, Dict, Any
 import sys
 
 class HookPayload(BaseModel):
@@ -160,11 +160,11 @@ print(f"Execution Allowed? {is_allowed}")
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — The primary agentic CLI.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending agent capabilities.
-- [Aider](aider.md) — Alternative CLI coding assistant with similar hook support.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol for extending agent capabilities.
+- [Aider](aider.md) — Alternative CLI coding assistant with hook support.
 - [Plandex](plandex.md) — Plan-first engineering engine.
 - [GitHub Actions](../../architecture/infrastructure.md) — For server-side CI hooks.
-- [Playwright](playwright.md) — Often used in post-execution verification hooks.
+- [Playwright](playwright.md) — Post-execution verification testing tool.
 - [Claude Plugins](claude-plugins.md) — Native extensions for Claude.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Design patterns for autonomous agents.
 - [Free Will MCP](free-will-mcp.md) — Autonomous loop management.
@@ -173,8 +173,8 @@ print(f"Execution Allowed? {is_allowed}")
 - [Claude Hooks Pattern Library](https://github.com/johnlindquist/claude-hooks)
 - [Anthropic: Tool Use Middleware Patterns](https://docs.anthropic.com/claude/docs/tool-use-middleware)
 - [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io/spec)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
