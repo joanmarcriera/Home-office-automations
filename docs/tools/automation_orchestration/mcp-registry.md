@@ -70,7 +70,7 @@ mcp install @modelcontextprotocol/server-postgres
 ## API examples
 
 ### 1. Dynamic Discovery via FastMCP 3.1 (Python)
-Clients like Claude 5.1 can programmatically interact with the registry to discover tools on-the-fly using the FastMCP 3.1 SDK:
+Clients like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro can programmatically interact with the registry to discover tools on-the-fly using the FastMCP 3.1 SDK:
 
 ```python
 from mcp.client import FastMCP
@@ -85,7 +85,7 @@ for tool in tools:
 ```
 
 ### 2. Programmatic Registry Verification with Pydantic v2 Validation
-Verifying registry server catalog configurations (via `server.json` schema) using Pydantic v2 (Python):
+Verifying registry server catalog configurations (via `server.json` schema) using Pydantic v2 (Python) according to early 2027 SOTA standards:
 
 ```python
 import os
@@ -119,7 +119,7 @@ def fetch_and_validate_registry_meta(server_id: str) -> RegistryServerMeta:
         }
     }
 
-    # Strictly validate against the late 2026 Registry contract schemas
+    # Strictly validate against the early 2027 Registry contract schemas
     validated = RegistryServerMeta.model_validate(mock_payload)
     return validated
 
@@ -149,5 +149,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

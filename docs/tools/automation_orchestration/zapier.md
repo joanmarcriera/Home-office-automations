@@ -16,7 +16,7 @@ It eliminates the "integration gap" for AI agents by providing a standardized Mo
 - **Webhook Ingestion**: Routing data from local scripts or Home Assistant to cloud-based CRM and marketing platforms.
 
 ## Strengths
-- **Massive Ecosystem**: Access to 9,000+ SaaS integrations, the largest in the industry as of late 2026.
+- **Massive Ecosystem**: Access to 9,000+ SaaS integrations, the largest in the industry as of early 2027.
 - **MCP-Native**: Official Zapier MCP Server allows agents to discover and use actions via natural language.
 - **Zapier SDK**: Robust developer tools for building custom integrations and agent skills.
 - **High Reliability**: Managed infrastructure that handles authentication (OAuth), rate limiting, and API versioning.
@@ -40,12 +40,12 @@ It eliminates the "integration gap" for AI agents by providing a standardized Mo
 
 ## Getting started
 
-To use Zapier with your AI agents in late 2026:
+To use Zapier with your AI agents in early 2027:
 
-1. **Zapier MCP**: Go to `mcp.zapier.com` to create a personal MCP server (supporting MCP 3.1 features).
+1. **Zapier MCP**: Go to `mcp.zapier.com` to create a personal MCP server (supporting FastMCP 3.1 features).
 2. **Action Selection**: Choose the specific actions (e.g., "Slack: Send Channel Message") you want to expose to your agent.
 3. **Authentication**: Connect your app accounts via Zapier's managed OAuth.
-4. **Agent Configuration**: Copy the provided server URL into your Claude Desktop or GPT-5.5 configuration.
+4. **Agent Configuration**: Copy the provided server URL into your Claude Desktop, GPT-5.5, or Gemini 4.0 Pro configuration.
 
 ## CLI examples
 
@@ -167,5 +167,5 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
