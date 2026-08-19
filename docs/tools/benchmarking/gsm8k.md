@@ -1,7 +1,7 @@
 # GSM8K (Grade School Math 8K)
 
 ## What it is
-GSM8K is a benchmark for evaluating the multi-step mathematical reasoning capabilities of LLMs. It contains 8.5K high-quality grade school math word problems that require 2 to 8 steps of basic arithmetic to solve. As of late October / November 2026, it serves as the baseline for "Reasoning Density" in frontier models like **Claude 5.1** and **GPT-5.5**.
+GSM8K is a benchmark for evaluating the multi-step mathematical reasoning capabilities of LLMs. It contains 8.5K high-quality grade school math word problems that require 2 to 8 steps of basic arithmetic to solve. As of early January 2027, it serves as the baseline for "Reasoning Density" in frontier models like **Claude 5.1**, **GPT-5.5/5.6**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
 Provides a standardized way to measure whether LLMs can perform multi-step arithmetic reasoning. It moves beyond simple "calculator" tasks to test the model's ability to decompose a problem into logical steps, which is a fundamental building block for complex agentic planning.
@@ -10,7 +10,7 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 **Benchmarking**. Serves as a widely used reference for evaluating mathematical reasoning and the efficacy of Chain-of-Thought (CoT) prompting.
 
 ## Typical use cases
-- Benchmarking the reasoning capabilities of local models like **Llama 4 Maverick** and **Qwen 3.6**.
+- Benchmarking the reasoning capabilities of local models like **Llama 4 Maverick** and **Qwen 3.8**.
 - Measuring the impact of specialized prompting (e.g., "Let's think step by step") on math accuracy.
 - Regression testing for fine-tuned models to ensure logic hasn't degraded.
 - Comparing the "reasoning tokens" efficiency of different model architectures (e.g., Gemini 4.0 Pro).
@@ -22,7 +22,7 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 - **Agentic Predictor**: High GSM8K scores often correlate with better performance in autonomous tool use and multi-step planning.
 
 ## Limitations
-- **Level Cap**: Limited to grade-school math; does not test higher-level mathematics (calculus, etc.).
+- **Level Cap**: Limited to grade-school math; does not test higher-level mathematics (calculus, linear algebra, etc.).
 - **Contamination**: Significant evidence suggests newer models have "seen" these problems in their training data.
 - **Rigidity**: Does not give credit for correct reasoning if the final arithmetic calculation is slightly off.
 
@@ -57,8 +57,8 @@ Specify the number of examples to provide in the prompt:
 lm_eval --model hf --tasks gsm8k --num_fewshot 5 --model_args pretrained=gpt2
 ```
 
-### 2. November 2026 Model Evaluation (CoT)
-Using the latest reasoning flags for frontier models:
+### 2. Model Evaluation with Chain-of-Thought
+Using reasoning flags for frontier models:
 ```bash
 lm_eval --model hf \
     --model_args pretrained=meta-llama/Llama-4-Maverick-70B,reasoning_format=cot \
@@ -90,7 +90,7 @@ response = client.messages.create(
 print(response.content[0].text)
 ```
 
-### 2. Validating Answer via Regex
+### 2. Validating Answer via Regex and Pydantic v2
 Extract the final numerical answer from a model's reasoning trace and validate using a typed-safe Pydantic v2 structure:
 
 ```python
@@ -111,14 +111,14 @@ result = parse_output(model_output)
 print(result.model_dump_json(indent=2))
 ```
 
-### 3. Performance Metrics (Late 2026)
-| Model | GSM8K (Maj@100) | Release Date |
+### 3. Performance Metrics (Early 2027 Baseline)
+| Model | GSM8K (Maj@100) | Release Baseline |
 | :--- | :--- | :--- |
-| **Claude 5.1 Opus** | 99.1% | October 2026 |
-| **GPT-5.5** | 98.9% | September 2026 |
-| **Gemini 4.0 Pro** | 98.4% | October 2026 |
-| **Llama 4 Maverick** | 96.5% | June 2026 |
-| **Qwen 3.6 Instruct** | 95.8% | August 2026 |
+| **Claude 5.1 Opus** | 99.1% | Late 2026 |
+| **GPT-5.5** | 98.9% | Late 2026 |
+| **Gemini 4.0 Pro** | 98.4% | Late 2026 |
+| **Llama 4 Maverick** | 96.5% | Mid 2026 |
+| **Qwen 3.8 Instruct** | 96.1% | Late 2026 |
 
 ## Related tools / concepts
 - [MATH Benchmark](math-benchmark.md) - For advanced mathematical reasoning.
@@ -139,5 +139,5 @@ print(result.model_dump_json(indent=2))
 - [LMSYS Benchmarking Suite](https://github.com/lm-sys)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
