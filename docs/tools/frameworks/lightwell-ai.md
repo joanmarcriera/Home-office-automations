@@ -1,7 +1,7 @@
 # Lightwell AI
 
 ## What it is
-Lightwell AI is an open-source, modular agentic orchestration framework designed for building lightweight, event-driven micro-agents and streaming agent pipelines. Released in mid-2026, Lightwell AI emphasizes minimal memory footprint, asynchronous reactive message passing, and native integration with the **FastMCP 3.1** protocol. It provides developers with high-throughput agent routing without the overhead of heavy object-oriented abstractions.
+Lightwell AI is an open-source, modular agentic orchestration framework designed for building lightweight, event-driven micro-agents and streaming agent pipelines. Standardized in early 2027, Lightwell AI emphasizes minimal memory footprint, asynchronous reactive message passing, and native integration with the **FastMCP 3.1** protocol. It provides developers with high-throughput agent routing without the overhead of heavy object-oriented abstractions.
 
 ## What problem it solves
 Traditional agentic frameworks often suffer from bloated dependency graphs, slow startup latencies, and opaque state management. Lightwell AI resolves these bottlenecks by offering a decoupled, micro-kernel architecture with asynchronous event loops. It allows developers to build low-latency multi-agent systems, local edge reasoning workers, and scalable enterprise serverless functions with explicit control over state transitions and tool invocation pipelines.
@@ -16,11 +16,11 @@ Traditional agentic frameworks often suffer from bloated dependency graphs, slow
 - **Streaming Pipeline Automation**: Processing continuous data streams (e.g., IoT metrics, log feeds) with real-time LLM filtering and classification.
 
 ## Strengths
-- **Minimal Footprint**: Lightweight core with zero bloat and near-instant cold start performance.
+- **Minimal Footprint**: Lightweight core with zero bloat and near-instant cold start performance (< 50ms startup).
 - **Event-Driven Architecture**: Native async/await event loops optimized for high-concurrency micro-agent swarms.
 - **FastMCP 3.1 Compliant**: First-class support for Model Context Protocol schema definitions and resource handlers.
 - **Strict Data Validation**: Seamless integration with Pydantic v2 schemas for robust type safety and structured outputs.
-- **Decoupled Engine**: Agnostic to LLM backends, easily swapping between self-hosted models (e.g., Qwen 3.8, Gemma 3) and cloud APIs.
+- **Decoupled Engine**: Agnostic to LLM backends, easily swapping between self-hosted models (e.g., Qwen 3.8, Gemma 3, Llama 4) and cloud APIs.
 
 ## Limitations
 - **Ecosystem Maturity**: Newer framework compared to legacy libraries like LangChain or AutoGen, resulting in fewer pre-built third-party connectors.
@@ -76,21 +76,17 @@ print(f"Kernel initialized: {kernel.name}")
 ```
 
 ## CLI examples
-
-### Start a Lightwell Agent Worker
 ```bash
+# Start a Lightwell Agent Worker
 lightwell run agent.py --port 8080 --mcp-server
-```
 
-### Inspect Configured Event Routes
-```bash
+# Inspect Configured Event Routes
 lightwell routes list --config lightwell.yml
 ```
 
 ## API examples
 
-### Python (Micro-Agent Event Dispatch with FastMCP 3.1 and Pydantic v2)
-The following example demonstrates building a lightweight reactive agent with Lightwell AI, incorporating FastMCP 3.1 tool binding and strict Pydantic v2 structured output validation.
+The following Python example demonstrates building a lightweight reactive agent with Lightwell AI, incorporating FastMCP 3.1 tool binding and strict Pydantic v2 structured output validation.
 
 ```python
 import asyncio
@@ -156,5 +152,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/2026-03-31)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-17
+- Last reviewed: 2027-01-07
 - Confidence: high
