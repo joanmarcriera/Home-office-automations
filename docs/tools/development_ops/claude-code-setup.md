@@ -1,74 +1,82 @@
 # Claude Code — Project Setup Guide
 
 ## What it is
-A reproducible configuration guide for the Claude Code CLI setup used in this repository. It defines the specific environment where Claude 5.1 (`claude-5-1-20261101`) and GPT-5.5 operate, including plugins, global skills, MCP servers, and project-level automation hooks. As of late October / November 2026, it supports the **MCP 3.1** standard for agentic tool discovery and resource connection.
+A reproducible configuration and setup guide for the Claude Code CLI environment in software engineering workspaces. It defines the specific configuration layer where **Claude 5.1** (`claude-5-1-20261101`) and **GPT-5.5** operate, including plugins, global skills, **FastMCP 3.1** Model Context Protocol servers, and project-level lifecycle automation hooks (`.claude/settings.json`).
 
 ## What problem it solves
-Claude Code's power in this repo comes from project-specific hooks, agents, and skills. This guide solves the "it works on my machine" problem for AI agents by providing a standardized blueprint for reproducing the full engineering environment from scratch. It ensures that the specialized **Claude Hooks** (Pre/PostToolUse) are correctly configured for real-time validation.
+Claude Code's agentic capabilities within a repository rely heavily on repository-specific settings, custom hooks, and external context tools. This guide eliminates "works on my machine" inconsistencies by providing a standardized blueprint for bootstrapping identical engineering environments across workstations. It ensures that automated **Claude Hooks** (`preToolUse` / `postToolUse`) validate edits and commands in real time.
 
 ## Where it fits in the stack
-**Category**: Development & Ops / Tooling Configuration. It acts as the "bootstrap" layer for the [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) used to maintain this repository, integrating the Reasoning Layer with local execution capabilities.
+**Development & Ops / Tooling Configuration Layer**. It acts as the local workspace execution environment for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md), connecting high-reasoning models (**Claude 5.1**) to shell commands, git operations, and local filesystems under strict permission boundaries.
 
 ## Typical use cases
-- Setting up a local environment for contributing to this repository.
-- Reproducing project-specific agent behaviors and automated verification loops.
-- Standardizing the developer experience for both human and AI contributors.
-- Debugging MCP 3.1 connectivity or plugin conflicts in the local workspace.
+- Bootstrapping a fresh development machine or containerized sandbox for contributing to this codebase.
+- Reproducing agentic tool behavior, permissions, and automated pre-commit hooks.
+- Configuring **FastMCP 3.1** servers to provide filesystem, GitHub, or database context to the agent.
+- Standardizing verification rules and pre-tool security inspection across team members.
 
 ## Strengths
-- **Reproducible Engineering**: Guaranteed consistency across different workstations.
-- **Deep Automation**: Leverages project-level hooks for real-time validation (e.g., `mkdocs.yml` syntax).
-- **Extensible Architecture**: Easily integrates new MCP 3.1 servers and global skills.
-- **Optimized for Claude 5.1**: Specifically tuned for the high-reasoning capabilities and hook lifecycles of the late 2026 model generation.
+- **Reproducible Agentic Environment**: Guarantees identical agent tool access and permission boundaries across developer environments.
+- **Real-Time Hook Execution**: Supports `preToolUse` and `postToolUse` hooks to run security audits or linting scripts automatically before and after file edits.
+- **FastMCP 3.1 Integration**: First-class support for expanding tool definitions via Model Context Protocol servers.
+- **Tuned for Frontier Reasoning**: Optimized for the extended thinking and hook lifecycles of Claude 5.1 and GPT-5.5.
 
 ## Limitations
-- **Manual Bootstrapping**: Requires initial manual steps for global skill installation.
-- **Environment Dependencies**: High reliance on Node.js, Python (uv), and specific API configurations.
-- **Platform Specificity**: Some hook behaviors may vary between macOS (M4/M5) and Linux (TrueNAS/Ubuntu) environments.
+- **Manual Initial Auth**: Requires interactive browser-based authentication (`claude auth login`) upon initial setup.
+- **Dependency Requirements**: Requires Node.js (v20+), Python (uv/pip), and git binaries to be pre-installed on the host system.
+- **Platform Specificity**: Some hook shell scripts may require minor syntax adjustments between Linux (Ubuntu/Debian) and macOS environments.
 
 ## When to use it
-- When initializing a new development environment for this repository.
-- When the repository's `.claude/` configuration changes and needs to be re-synchronized.
-- When onboarding new team members (human or AI).
+- When setting up a new workstation or developer environment for agent-assisted coding.
+- When updating or auditing the repository's `.claude/settings.json` configuration.
+- When troubleshooting MCP server connections or permission denied errors in Claude Code.
 
 ## When not to use it
-- For general Claude Code usage outside of this specific repository context.
-- In environments where persistent local storage or internet access is prohibited.
+- For general LLM API calls inside Python application code (use direct Anthropic SDKs or Pydantic AI instead).
+- In strictly isolated offline sandboxes without local CLI access.
 
 ## Getting started
 
-### 1. Installation
-Install the core CLI and prerequisites:
+### Installation
+Install the core CLI, package manager, and authenticate:
+
 ```bash
 npm install -g @anthropic/claude-code
 pip install uv
 claude auth login
 ```
 
-### 2. Hello World (Verify Setup)
-Verify the installation by checking the version and active project context:
+### Hello-world (Verify Environment)
+Verify CLI version and active context:
+
 ```bash
 claude --version
-claude --prompt "Status check: are project-level hooks and MCP 3.1 active?"
+claude --prompt "Run environment check: confirm active project context and MCP server connectivity."
 ```
 
 ## CLI examples
 
 ### 1. Plugin Management
-Install the mandatory plugin suite for this repository:
+Install official plugins for enhanced workspace operations:
+
 ```bash
 claude plugin install github@claude-plugins-official playwright@claude-plugins-official security-guidance@claude-plugins-official
 ```
 
-### 2. MCP Server Configuration
-Add the required context layers for documentation and automation (MCP 3.1):
+### 2. FastMCP 3.1 Server Management
+Register MCP context providers for local development:
+
 ```bash
-claude mcp add context7 -- npx -y @upstash/context7-mcp
+# Add GitHub context server via FastMCP
 claude mcp add github -- npx @anthropic-ai/mcp-server-github
+
+# Add Context7 documentation search server
+claude mcp add context7 -- npx -y @upstash/context7-mcp
 ```
 
-### 3. Usage & Diagnostics
-Monitor token consumption and troubleshoot environment issues:
+### 3. Usage & Diagnostic Commands
+Inspect session token usage and troubleshoot settings:
+
 ```bash
 claude /usage
 claude /doctor
@@ -76,23 +84,29 @@ claude /doctor
 
 ## API examples
 
-### 1. Project-Level Hook Config (`.claude/settings.json`)
-A snippet demonstrating how **Claude Hooks** (`preToolUse` and `postToolUse`) are enforced for real-time validation:
+### 1. Project Hook Configuration (`.claude/settings.json`)
+Demonstrating real-time validation hooks that trigger Python verification scripts before and after file modifications:
+
 ```json
 {
+  "preferredModel": "claude-5-1-20261101",
   "hooks": {
     "preToolUse": {
       "edit": "python3 scripts/security_audit.py {{file}}"
     },
     "postToolUse": {
-      "edit": "python3 scripts/sql_validator.py {{file}}"
+      "edit": "python3 scripts/audit_docs_quality.py {{file}}"
     }
-  }
+  },
+  "mcpServers": [
+    "github",
+    "context7"
+  ]
 }
 ```
 
-### 2. Python Config Validator using Pydantic v2
-This Python snippet validates the local Claude Code config structure against strict schema constraints using **Pydantic v2**.
+### 2. Python Configuration Schema Validator (Pydantic v2)
+Validate `.claude/settings.json` structure programmatically using strict Pydantic v2 schemas:
 
 ```python
 import os
@@ -101,72 +115,47 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class HookDefinition(BaseModel):
-    edit: Optional[str] = Field(None, description="Shell command for validation during file editing")
-    create: Optional[str] = Field(None, description="Shell command for validation on file creation")
-    read: Optional[str] = Field(None, description="Shell command for validation on file reading")
+    edit: Optional[str] = Field(None, description="Shell command executed during file editing")
+    create: Optional[str] = Field(None, description="Shell command executed on file creation")
 
-class ClaudeCodeSettings(BaseModel):
+class ClaudeSettingsSchema(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
+    preferred_model: str = Field(
+        default="claude-5-1-20261101",
+        alias="preferredModel",
+        description="Target reasoning model"
+    )
     hooks: Dict[str, HookDefinition] = Field(
         default_factory=dict,
-        description="Action-triggered lifecycle hooks for security/compliance validation"
-    )
-    preferred_model: str = Field(
-        default="claude-5.1-20261101",
-        validation_alias="preferredModel",
-        description="Default inference target model"
+        description="Lifecycle hook mappings"
     )
     mcp_servers: List[str] = Field(
         default_factory=list,
-        validation_alias="mcpServers",
-        description="List of active Model Context Protocol servers"
+        alias="mcpServers",
+        description="Active MCP server names"
     )
 
-def validate_claude_settings(config_path: str) -> Optional[ClaudeCodeSettings]:
-    if not os.path.exists(config_path):
-        print(f"No configuration file found at {config_path}")
+def validate_settings(filepath: str) -> Optional[ClaudeSettingsSchema]:
+    if not os.path.exists(filepath):
         return None
-
-    with open(config_path, "r") as f:
-        try:
-            raw_data = json.load(f)
-            # Validate using Pydantic v2
-            settings = ClaudeCodeSettings.model_validate(raw_data)
-            return settings
-        except json.JSONDecodeError:
-            print("Failed to decode JSON configuration file.")
-        except ValidationError as e:
-            print(f"Configuration schema validation failed: {e.errors()}")
-    return None
-
-# Example usage:
-# if __name__ == "__main__":
-#     config_file = ".claude/settings.json"
-#     validated_settings = validate_claude_settings(config_file)
-#     if validated_settings:
-#         print("Claude Settings Validated successfully!")
-#         print(validated_settings.model_dump_json(indent=2))
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        return ClaudeSettingsSchema.model_validate(data)
 ```
 
 ## Related tools / concepts
-- [Claude Code](./claude-code.md)
-- [Claude Code Router](./claude-code-router.md)
-- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
-- [Standards & Conventions](../../standards.md)
-- [Aider](./aider.md)
-- [Mentat](./mentat.md)
-- [Cursor](./cursor.md)
-- [Zed](./zed.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Claude Code Router](./claude-code-router.md) — Dynamic model routing layer.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool protocol standard.
+- [Agent Protocols](../../knowledge_base/agent_protocols.md) — MCP and ACP architectural specifications.
+- [Standards & Conventions](../../standards.md) — Repository development guidelines.
+- [Cursor](./cursor.md) — Alternative agentic IDE interface.
 
 ## Sources / references
 - [Claude Code Official Documentation](https://docs.anthropic.com/claude-code)
-- [MCP Specification and Servers](https://modelcontextprotocol.io)
-- [FastMCP 3.1 Release Notes](https://github.com/jlowin/fastmcp)
-- [Project-Specific Claude Config (GitHub Repo)](https://github.com/shanraisshan/claude-code-best-practice)
-- [Claude Apps Gateway](https://www.infoq.com/news/2026/07/claude-apps-gateway-aws/) — Integrated from daily log reference.
+- [Model Context Protocol Specification](https://modelcontextprotocol.io)
+- [FastMCP 3.1 Framework GitHub](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
