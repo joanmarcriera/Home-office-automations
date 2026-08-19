@@ -1,54 +1,56 @@
 # Plandex
 
 ## What it is
-Plandex is an AI-powered engine designed for complex, multi-file software engineering tasks. It utilizes a "plan-first" methodology where it decomposes a request into a series of explicit steps before executing them across the codebase. This approach ensures higher reliability and provides developers with a clear audit trail of intended changes. By late October and November 2026, it has become a standard for "Large Context Engineering," supporting massive repos via advanced indexing and frontier models like **Claude 5.1** and **GPT-5.5**.
+Plandex is an open-source, AI-powered development engine designed for complex, multi-file software engineering tasks. It utilizes a "plan-first" methodology, decomposing high-level development directives into explicit, reviewable action plans before making modifications to codebase files. As of early 2027, it serves as a primary tool for "Large Context Engineering," supporting massive repositories via AST indexing, persistent sandboxed session trees, and frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4**.
 
 ## What problem it solves
-Plandex manages the complexity of large, multi-file changes by breaking them into explicit plans, making it easier to reason about and review AI-generated modifications. It solves the "context drift" problem common in simple chat-based AI assistants by maintaining a persistent session state that tracks pending and applied changes in a structured way. This ensures that the AI doesn't "forget" the broader goal during a long refactoring session.
+Plandex addresses the reliability and predictability challenges of automated multi-file code modifications. Traditional chat-based assistants often suffer from context drift or hallucinate broken imports during complex refactoring operations. Plandex mitigates these failure modes through:
+- **Explicit Plan Decomposition**: Generating step-by-step human-reviewable plans before modifying codebase disk state.
+- **Context Drift Prevention**: Maintaining persistent session state and sandbox branches that track pending vs. committed changes.
+- **Large Repository Indexing**: Efficiently processing monorepo contexts using hierarchical AST indexing and RAG retrieval pipelines.
 
 ## Where it fits in the stack
-**Development & Ops**. Serves as a plan-and-execute AI coding engine for complex, multi-file tasks, sitting between high-level orchestration (like [OpenSwarm](openswarm.md)) and direct file editing (like [Aider](aider.md)).
+**Development & Ops**. Serves as a plan-and-execute AI coding engine for multi-file architectural changes, positioning itself between high-level multi-agent orchestration frameworks (like [OpenSwarm](openswarm.md)) and fast single-file terminal editors (like [Aider](aider.md)).
 
 ## Typical use cases
-- Large-scale, multi-file refactoring with explicit, human-reviewable plans.
-- Complex feature implementation spanning many files and layers (e.g., API, DB, Frontend).
-- Codebase-wide migrations (e.g., moving from one framework to another).
-- Generating comprehensive documentation or unit tests for large, legacy modules.
-- Automating the resolution of complex bugs that require changes across multiple service boundaries.
+- **Multi-File Refactoring**: Architecting and executing cross-cutting refactors across API endpoints, data models, and test suites.
+- **Framework & Schema Migrations**: Automating structural codebase migrations (e.g., upgrading to Pydantic v2 or FastMCP 3.1).
+- **Feature Implementation**: Implementing complex features spanning backend microservices, database migrations, and frontend UI components.
+- **Comprehensive Test Generation**: Generating end-to-end integration and unit test suites across entire legacy packages.
 
 ## Strengths
-- **Plan-based approach**: Provides transparency and reviewability before a single line of code is changed on disk.
-- **Persistent Sessions**: Changes are stored in a "sandbox" or "plan" branch until the developer chooses to apply them.
-- **Context Management**: Efficiently handles large file contexts and complex dependencies using RAG-based indexing.
-- **Open Source**: Fully self-hostable with support for both local (via local open models like **Llama 4**) and cloud models.
-- **Context Capacity**: Advanced memory management allows for processing entire large-scale projects without losing coherence.
+- **Plan-First Transparency**: Developers inspect, refine, or reject multi-step change blueprints before file modifications execute.
+- **Isolated Sandbox Execution**: Modifications are applied in isolated sandbox branches without dirtying the working Git directory.
+- **Persistent Context Management**: Handles large context windows cleanly across long-running engineering sessions.
+- **Self-Hostable Infrastructure**: Fully open-source and deployable on self-hosted infrastructure with support for local models via [Ollama](../../services/ollama.md).
+- **FastMCP 3.1 Integration**: Compatible with FastMCP 3.1 tool servers for automated database, logging, and deployment verification.
 
 ## Limitations
-- **Execution Speed**: The two-stage (plan then execute) process can be slower for trivial edits compared to inline assistants.
-- **Workflow Overhead**: Requires developers to adapt to a specific command-driven session model rather than just "chatting" in an editor.
-- **Infrastructure Management**: Following the Cloud wind-down, teams must manage their own server infrastructure for collaborative Plandex environments.
+- **Workflow Latency**: The two-phase plan-then-execute model introduces additional review overhead compared to instant inline completions.
+- **Session State Management**: Requires engineers to adopt a command-driven session lifecycle (`plandex new`, `load`, `tell`, `apply`, `save`).
+- **Infrastructure Overhead**: Self-hosted team deployments require managing Plandex server instances and Postgres/Vector storage nodes.
 
 ## When to use it
-- When a task is too complex for a single-file edit and benefits from an explicit, reviewable multi-step plan.
-- When you want visibility into the AI's intended changes across dozens of files before they are written.
-- For complex architectural shifts where understanding the "how" (the plan) is as important as the final code.
+- When implementing complex features or refactors that span dozens of files across multiple modules.
+- When team policy requires reviewing explicit step-by-step change plans before code modification.
+- When executing long-running engineering sessions that span multiple hours or sub-tasks without context decay.
 
 ## When not to use it
-- When making quick, single-file edits (use [Aider](aider.md) or [Cursor](cursor.md) instead).
-- When real-time inline completions or "ghost text" are the primary need (use [Codeium](codeium.md)).
-- For simple script generation where a basic chat interface suffices.
+- For quick, single-file edits or simple bug fixes (use [Aider](aider.md) or [Cursor](cursor.md)).
+- When real-time inline ghost-text code completions are desired (use [Codeium](codeium.md)).
+- For basic single-prompt script generation where multi-file context tracking is unnecessary.
 
 ## Getting started
 
 ### Installation
-Plandex is typically installed as a binary CLI:
+Plandex CLI can be installed directly via shell installer script:
 
 ```bash
 curl -sL https://plandex.ai/install.sh | bash
 ```
 
 ### Initializing a Project
-Navigate to your project root and initialize Plandex to create the local configuration:
+Navigate to the root directory of your project repository and initialize Plandex:
 
 ```bash
 plandex init
@@ -57,75 +59,81 @@ plandex init
 ## CLI examples
 
 ### Session and Branch Management
-Plandex uses a branching model similar to Git for managing different engineering attempts:
+Plandex provides session branching for managing concurrent engineering attempts:
 
 ```bash
-# Create a new plan/session for a specific feature
-plandex new feature-oauth-integration
+# Create a new plan session for an OAuth feature implementation
+plandex new feature-oauth2-integration
 
-# Load files into the current session context
-plandex load src/auth/ tests/auth/ README.md
+# Load relevant codebase paths into the session context
+plandex load src/auth/ tests/auth/ docs/architecture/
 
-# List all active sessions and branches
+# List active branches and session trees
 plandex branch --list
 ```
 
 ### The Plan-Execute-Verify Loop
-The core workflow involves describing a task, reviewing the plan, and executing it in a sandbox:
-
 ```bash
-# Tell Plandex what to do (the task)
-plandex tell "Implement OAuth2 with GitHub as a provider."
+# Provide the architectural directive to Plandex
+plandex tell "Implement OAuth2 authentication using FastMCP 3.1 protocol."
 
-# Review the proposed plan (multi-step decomposition)
+# Inspect the generated multi-step plan
 plandex plan
 
 # Execute the plan in the isolated sandbox environment
 plandex apply
 ```
 
-### Verification and Synchronization
-Once changes are applied in the sandbox, you must verify and save them to your workspace:
-
+### Verification and Persistence
 ```bash
-# View the changes made in the sandbox compared to current files
+# Inspect sandbox changes relative to current workspace files
 plandex diff
 
-# Run tests or quality checks inside the sandbox context
-plandex run npm test
+# Execute automated tests within the Plandex sandbox context
+plandex run pytest
 
-# If satisfied, save sandbox changes to your actual project files
+# Commit and save sandbox modifications to actual project files
 plandex save
 ```
 
 ## API examples
 
 ### Programmatic Plandex Session Wrapper with Pydantic v2
-You can trigger and track Plandex sessions programmatically using Python and validate session metadata with Pydantic v2.
+This Python script programmatically invokes and manages Plandex CLI sessions while validating metadata using **Pydantic v2**.
 
 ```python
 import subprocess
 import json
-from pydantic import BaseModel, Field
+from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
 
-class PlandexSession(BaseModel):
-    session_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
-    model: str = Field(default="claude-5-1-sonnet-20261022")
-    loaded_paths: list[str] = Field(default_factory=list)
+class PlandexSessionConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
 
-    def run_command(self, args: list[str]) -> str:
+    session_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$", description="Unique session identifier")
+    model: str = Field(default="anthropic/claude-5-1", description="Frontier model target for plan generation")
+    loaded_paths: List[str] = Field(default_factory=list, description="Target directory or file paths in context")
+
+    def run_cli(self, args: List[str]) -> str:
         cmd = ["plandex"] + args
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return result.stdout
 
-    def create_session(self) -> str:
-        # Create session via Plandex CLI
-        return self.run_command(["new", self.session_name, "--model", self.model])
+    def initialize_session(self) -> str:
+        return self.run_cli(["new", self.session_name, "--model", self.model])
 
-    def load_files(self) -> str:
+    def load_context(self) -> str:
         if not self.loaded_paths:
-            return "No paths to load."
-        return self.run_command(["load"] + self.loaded_paths)
+            return "No paths specified for loading."
+        return self.run_cli(["load"] + self.loaded_paths)
+
+if __name__ == "__main__":
+    session = PlandexSessionConfig(
+        session_name="refactor-pydantic-v2",
+        model="anthropic/claude-5-1",
+        loaded_paths=["src/models/", "tests/test_models.py"]
+    )
+    print(f"Configured Plandex session '{session.session_name}' using target model {session.model}.")
 ```
 
 ## Related tools / concepts
@@ -144,5 +152,5 @@ class PlandexSession(BaseModel):
 - [Plandex Documentation](https://docs.plandex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
