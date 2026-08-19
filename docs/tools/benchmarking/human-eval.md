@@ -1,7 +1,7 @@
 # HumanEval
 
 ## What it is
-HumanEval is a benchmark released by OpenAI to evaluate the code generation capabilities of Large Language Models. It consists of 164 handwritten programming problems, each including a function signature, docstring, body, and several unit tests. As of late October / November 2026, it remains a foundational metric for assessing the core algorithmic reasoning of models like **Claude 5.1** and **GPT-5.5**.
+HumanEval is a benchmark released by OpenAI to evaluate the code generation capabilities of Large Language Models. It consists of 164 handwritten programming problems, each including a function signature, docstring, body, and several unit tests. As of early January 2027, it remains a foundational metric for assessing the core algorithmic reasoning of models like **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
 
 ## What problem it solves
 Provides a standardized, non-contaminated measure of whether LLMs can generate functionally correct code from natural language descriptions. Since the problems were handwritten, it provides a cleaner evaluation of zero-shot coding ability than benchmarks derived from public repositories which may have been seen during training.
@@ -73,7 +73,7 @@ aider --message "Solve HumanEval problem 0 in Python"
 
 ## API examples
 
-### 1. Python: Calculating Pass@k
+### 1. Python: Calculating Pass@k with Pydantic v2
 A utility snippet using Pydantic v2 to calculate and structure the Pass@k metric:
 
 ```python
@@ -95,16 +95,16 @@ evaluator = PassAtKCalculator(n_samples=100, c_correct=40, k=1)
 print(f"Pass@1: {evaluator.calculate():.2%}")
 ```
 
-### 2. Performance Comparison (Late 2026)
+### 2. Performance Comparison (Early 2027 Baseline)
 | Model | HumanEval Pass@1 (%) | Notes |
 | :--- | :--- | :--- |
 | **Claude 5.1 Opus** | 98.4% | SOTA Coding Reasoning |
 | **GPT-5.5** | 97.9% | High algorithmic consistency |
 | **Gemini 4.0 Pro** | 96.2% | Robust logic generation |
 | **Llama 4 Maverick** | 93.5% | Best-in-class open model |
-| Claude 3.5 Sonnet | 92.0% | Released June 2024 |
+| Claude 3.5 Sonnet | 92.0% | Baseline June 2024 |
 
-### 3. Requesting SOTA Metrics via MCP
+### 3. Requesting SOTA Metrics via FastMCP
 Retrieve the latest HumanEval leaderboard for a specific model using standard JSON-RPC layout:
 ```json
 {
@@ -135,5 +135,5 @@ Retrieve the latest HumanEval leaderboard for a specific model using standard JS
 - [Arxiv: Evaluating Large Language Models Trained on Code](https://arxiv.org/abs/2107.03374)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

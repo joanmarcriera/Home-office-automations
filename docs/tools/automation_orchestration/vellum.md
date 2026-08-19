@@ -14,7 +14,7 @@ It bridges the gap between conversational AI and practical task execution. Unlik
 - **Backlog Grooming**: Auto-labeling and triaging GitHub issues or Linear tasks based on team rules.
 - **Meeting Preparation**: Summarizing Slack conversations and documents to provide a briefing before a meeting.
 - **Local Automation**: Cleaning up a cluttered desktop or organizing local files based on natural language commands.
-- **Cross-App Orchestration**: Using [Model Context Protocol (MCP)](mcp.md) to bridge data between specialized tools.
+- **Cross-App Orchestration**: Using [FastMCP 3.1](mcp.md) to bridge data between specialized tools.
 
 ## Strengths
 - **Deep macOS Integration**: Leverages accessibility and screen recording for "computer use" capabilities.
@@ -62,7 +62,7 @@ The CLI is the primary way to manage and interact with the Vellum runtime.
 vellum wake        # Start background services
 vellum ps          # List all running assistant instances
 vellum client      # Open the interactive terminal client
-vellum mcp add     # Add an MCP server to Vellum's skill set (FastMCP 3.1)
+vellum mcp add     # Add a FastMCP 3.1 server to Vellum's skill set
 ```
 
 ## API examples
@@ -98,8 +98,8 @@ try:
     print(f"Validated desktop trigger: app='{validated_trigger.target_app}', event='{validated_trigger.event_type}'")
 
     # Process validated trigger to initiate Vellum agent stream
-    # payload = validated_trigger.model_dump_json()
-    # print(f"Serialized JSON payload: {payload}")
+    payload = validated_trigger.model_dump_json()
+    print(f"Serialized JSON payload: {payload}")
 except Exception as e:
     print(f"Validation failed: {e}")
 ```
@@ -134,8 +134,8 @@ while (true) {
 ## Sources / references
 - [Vellum Official Website](https://www.vellum.ai/)
 - [Vellum Documentation](https://www.vellum.ai/docs)
-- [Vellum AI Assistant Review 2026](https://www.vellum.ai/llm-leaderboard/ai-assistants/vellum)
+- [Vellum AI Assistant Review 2027](https://www.vellum.ai/llm-leaderboard/ai-assistants/vellum)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

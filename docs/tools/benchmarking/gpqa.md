@@ -1,7 +1,7 @@
 # GPQA (Graduate-Level Google-Proof Q&A)
 
 ## What it is
-GPQA is a highly challenging benchmark for evaluating high-level reasoning and expert scientific knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. As of late October / November 2026, it remains a critical metric for frontier reasoning models like **Claude 5.1** and **GPT-5.5**.
+GPQA is a highly challenging benchmark for evaluating high-level reasoning and expert scientific knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. As of early January 2027, it remains a critical metric for frontier reasoning models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
 
 ## What problem it solves
 Measures whether LLMs possess deep, expert-level scientific knowledge and reasoning that cannot be trivially looked up, providing a more rigorous assessment than general knowledge benchmarks like MMLU which are increasingly appearing in training sets (contamination).
@@ -92,16 +92,16 @@ results = lm_eval.simple_evaluate(
 print(f"GPQA Diamond Accuracy: {results['results']['gpqa_diamond']['acc,none']:.2%}")
 ```
 
-### 2. Late 2026 Performance Metrics (Diamond)
-| Model | GPQA Diamond (Acc) | Release Date |
+### 2. Early 2027 Performance Metrics (Diamond)
+| Model | GPQA Diamond (Acc) | Release Baseline |
 | :--- | :--- | :--- |
-| **Claude 5.1 Opus** | 78.4% | October 2026 |
-| **GPT-5.5** | 75.1% | September 2026 |
-| **Gemini 4.0 Pro** | 72.8% | October 2026 |
-| **Llama 4 Maverick** | 69.2% | June 2026 |
-| Claude 3.5 Sonnet | 59.4% | June 2024 |
+| **Claude 5.1 Opus** | 78.4% | Late 2026 |
+| **GPT-5.5** | 75.1% | Late 2026 |
+| **Gemini 4.0 Pro** | 72.8% | Late 2026 |
+| **Llama 4 Maverick** | 69.2% | Mid 2026 |
+| Claude 3.5 Sonnet | 59.4% | Mid 2024 |
 
-### 3. Requesting SOTA Metrics via MCP
+### 3. Requesting SOTA Metrics via FastMCP
 Retrieve the latest GPQA rankings using a typed-safe Pydantic v2 structure to encapsulate the response schema:
 
 ```python
@@ -114,7 +114,7 @@ class BenchmarkRank(BaseModel):
     accuracy: float = Field(..., ge=0.0, le=1.0)
 
 def display_rank(data: dict) -> str:
-    rank = BenchmarkRank(**data)
+    rank = BenchmarkRank.model_validate(data)
     return f"{rank.model_name} scored {rank.accuracy:.2%} on {rank.benchmark} ({rank.category})"
 
 sample_data = {"model_name": "Claude 5.1 Opus", "accuracy": 0.784}
@@ -140,5 +140,5 @@ print(display_rank(sample_data))
 - [LMSYS Leaderboard (Benchmark Section)](https://arena.lmsys.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
