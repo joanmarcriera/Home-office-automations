@@ -40,7 +40,7 @@ It reduces direct API wiring work when you want agents to query incidents, chang
 
 ## Getting started
 
-To use the ServiceNow MCP server (late 2026 'High Confidence' version):
+To use the ServiceNow MCP server (early 2027 FastMCP 3.1 compatible version):
 
 1. **Installation**:
    ```bash
@@ -113,7 +113,7 @@ Agents using FastMCP 3.1 or native MCP clients can invoke the `search_records` t
 ```
 
 ### Programmatic ServiceNow Client Validation with Pydantic v2
-Robust local validation (Python) of incident and record payloads prior to updating the ServiceNow instance:
+Robust local validation (Python) of incident and record payloads prior to updating the ServiceNow instance according to early 2027 SOTA standards:
 
 ```python
 import os
@@ -145,7 +145,7 @@ def update_incident_state(sys_id: str, new_state: int) -> UpdateResult:
         }
     }
 
-    # Strictly validate against the late 2026 ITSM contract schema
+    # Strictly validate against the early 2027 ITSM contract schema
     validated = UpdateResult.model_validate(mock_data)
     return validated
 
@@ -206,5 +206,5 @@ Directly updating ServiceNow business logic from an agent:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

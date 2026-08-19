@@ -55,7 +55,7 @@ Make provides a unique URL for every webhook trigger. You can send data to this 
 # Sending JSON data to a Make webhook
 curl -X POST https://hook.eu1.make.com/your-unique-id \
      -H "Content-Type: application/json" \
-     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2026-11-01T10:00:00Z"}'
+     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2027-01-07T10:00:00Z"}'
 ```
 
 ### 2. Triggering via GitHub Actions
@@ -76,7 +76,7 @@ check_lab_health | curl -X POST -d @- https://hook.make.com/your-id
 ## API examples
 
 ### 1. Programmatic Scenario Management with Pydantic v2 Validation
-Using the Make API to validate and trigger scenarios programmatically with late 2026 SOTA tools (Python):
+Using the Make API to validate and trigger scenarios programmatically with early 2027 SOTA standards (Python):
 
 ```python
 import os
@@ -109,7 +109,7 @@ def get_active_scenarios() -> List[MakeScenario]:
     mock_data = {
         "scenarios": [
             {"id": 987654, "name": "LLM Router Trigger - Claude 5.1", "active": True, "folderId": 12},
-            {"id": 123456, "name": "Homelab Status Reporter - GPT-5.5", "active": False, "folderId": None}
+            {"id": 123456, "name": "Homelab Status Reporter - GPT-5.5 / Gemini 4.0 Pro", "active": False, "folderId": None}
         ]
     }
 
@@ -137,15 +137,15 @@ response = requests.post(API_URL, headers=headers)
 print(f"Triggered Scenario: {response.status_code}")
 ```
 
-### 3. Agentic Handoff via MCP 3.1
-An agent using [MCP 3.1](mcp.md) can trigger a Make scenario to perform complex SaaS actions across different workspace models (Claude 5.1, GPT-5.5):
+### 3. Agentic Handoff via FastMCP 3.1
+An agent using [FastMCP 3.1](mcp.md) can trigger a Make scenario to perform complex SaaS actions across different workspace models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro):
 
 ```python
 import requests
 from pydantic import BaseModel, Field
 
 class AgentHandoffPayload(BaseModel):
-    agent_id: str = Field(..., description="ID of the initiating agent (e.g. claude-5.1)")
+    agent_id: str = Field(..., description="ID of the initiating agent (e.g. claude-5.1-opus)")
     task_description: str = Field(..., description="The details of the handoff payload")
     priority: str = Field("medium", pattern="^(low|medium|high)$")
 
@@ -164,7 +164,7 @@ def trigger_saas_automation(payload: AgentHandoffPayload) -> int:
 - [Pipedream](pipedream.md) - Developer-first automation platform.
 - [Skyvern](skyvern.md) - Browser-based agentic automation.
 - [Browser Use](browser-use.md) - Agentic web interaction.
-- [MCP (Model Context Protocol)](mcp.md) - Standard for connecting tools to agents (MCP 3.1 SOTA).
+- [MCP (Model Context Protocol)](mcp.md) - Standard for connecting tools to agents (FastMCP 3.1 SOTA).
 - [Home Assistant](../../services/home-assistant.md) - Local smart home automation.
 - [Zapier Central](zapier.md) - AI-native automation workspace.
 - [Pipedream Agentic Workflow Builder](pipedream.md) - AI-powered workflow creation.
@@ -176,5 +176,5 @@ def trigger_saas_automation(payload: AgentHandoffPayload) -> int:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

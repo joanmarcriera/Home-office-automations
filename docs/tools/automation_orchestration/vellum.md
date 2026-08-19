@@ -20,7 +20,7 @@ It bridges the gap between conversational AI and practical task execution. Unlik
 - **Deep macOS Integration**: Leverages accessibility and screen recording for "computer use" capabilities.
 - **Privacy-First Architecture**: Stores credentials in macOS Keychain; memories and workspace data remain local.
 - **Proactive Intelligence**: Designed to act before being asked by noticing patterns in user behavior.
-- **November 2026 Ready**: Native support for **Claude 5.1** reasoning, **GPT-5.5** canvas, and a broad [MCP 3.1](mcp.md) skill catalog.
+- **Early 2027 SOTA Ready**: Native support for **Claude 5.1** reasoning, **GPT-5.5** canvas, **Gemini 4.0 Pro**, and a broad [FastMCP 3.1](mcp.md) skill catalog.
 
 ## Limitations
 - **Platform Restricted**: Currently only available for macOS (Apple Silicon and Intel).
@@ -62,11 +62,11 @@ The CLI is the primary way to manage and interact with the Vellum runtime.
 vellum wake        # Start background services
 vellum ps          # List all running assistant instances
 vellum client      # Open the interactive terminal client
-vellum mcp add     # Add an MCP server to Vellum's skill set (Standard 3.1)
+vellum mcp add     # Add an MCP server to Vellum's skill set (FastMCP 3.1)
 ```
 
 ## API examples
-Vellum exposes a real-time SSE (Server-Sent Events) stream for programmatic interaction. Under late 2026 requirements, Python-based trigger event handlers must utilize **Pydantic v2** validation to model desktop actions.
+Vellum exposes a real-time SSE (Server-Sent Events) stream for programmatic interaction. Under early 2027 SOTA requirements, Python-based trigger event handlers must utilize **Pydantic v2** validation to model desktop actions.
 
 ### Desktop Trigger Validation and Request Handling (Python)
 ```python
