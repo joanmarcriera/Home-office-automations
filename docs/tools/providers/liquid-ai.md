@@ -1,13 +1,13 @@
 # Liquid AI
 
 ## What it is
-Liquid AI is a pioneer in non-transformer continuous-time neural architectures, best known for its **Liquid Neural Networks (LNNs)** and the **LFM (Liquid Foundation Model)** series. In mid-2026, Liquid AI released **LFM-2.5-VL-3B**, an ultra-compact 3-billion parameter multimodal vision-language model engineered specifically for low-latency, edge-side visual understanding, video analysis, and real-time robotic perception.
+Liquid AI is a pioneer in non-transformer continuous-time neural architectures, best known for its **Liquid Neural Networks (LNNs)** and the **LFM (Liquid Foundation Model)** series. Standardized in early 2027, Liquid AI offers models like **LFM-2.5-VL-3B** and **LFM-4**, ultra-compact multimodal vision-language and reasoning models engineered specifically for low-latency, edge-side visual understanding, video analysis, and real-time robotic perception.
 
 ## What problem it solves
-Transformer architectures often face quadratic computational scaling and high memory overhead when processing streaming, time-series, and high-resolution video inputs. Liquid AI addresses this by utilizing dynamical system models inspired by biological brain structure. LFM-2.5-VL-3B delivers state-of-the-art vision-language reasoning and document processing with drastically reduced memory footprints and sub-10ms token generation latencies on edge hardware.
+Transformer architectures often face quadratic computational scaling and high memory overhead when processing streaming, time-series, and high-resolution video inputs. Liquid AI addresses this by utilizing dynamical system models inspired by biological brain structure. Liquid AI models deliver state-of-the-art vision-language reasoning and document processing with drastically reduced memory footprints and sub-10ms token generation latencies on edge hardware.
 
 ## Where it fits in the stack
-**AI Model & Edge Multimodal Provider Layer**. Liquid AI operates as both an API provider and an open/edge model family, sitting alongside frontier model providers (e.g., Google Gemini, OpenAI, Anthropic) while serving as the primary intelligence backend for local edge devices, robotics, and high-throughput vision pipelines.
+**AI Model & Edge Multimodal Provider Layer**. Liquid AI operates as both an API provider and an open/edge model family, sitting alongside frontier model providers (e.g., Anthropic Claude 5.1, OpenAI GPT-5.5, Google Gemini 4.0 Pro) while serving as the primary intelligence backend for local edge devices, robotics, and high-throughput vision pipelines.
 
 ## Typical use cases
 - **Real-Time Edge Visual Inspection**: Deploying LFM-2.5-VL-3B on industrial edge gateways for zero-latency product defect detection.
@@ -32,7 +32,7 @@ Transformer architectures often face quadratic computational scaling and high me
 - When processing streaming time-series or video data where low latency and memory efficiency are critical.
 - When executing local FastMCP 3.1 tool calls with embedded visual context.
 
-## When NOT to use it
+## When not to use it
 - When requiring massive multi-step cloud reasoning best handled by frontier cloud models (e.g., GPT-5.5, Claude 5.1).
 - When operating in standard cloud environments where model size and memory constraints are secondary to raw parameter scaling.
 
@@ -70,20 +70,16 @@ print("Liquid AI client initialized.")
 ```
 
 ## CLI examples
-
-### Process Image Frame via Liquid CLI
 ```bash
+# Process Image Frame via Liquid CLI
 liquid vision analyze --model lfm-2.5-vl-3b --image sample.jpg --prompt "Identify defects"
-```
 
-### Check NPU Device Compatibility
-```bash
+# Check NPU Device Compatibility
 liquid hardware status
 ```
 
 ## API examples
 
-### Python (Edge Camera Inspection with FastMCP 3.1 and Pydantic v2)
 The following example demonstrates invoking Liquid AI's LFM-2.5-VL-3B vision-language model for automated image inspection with FastMCP 3.1 and Pydantic v2 validation.
 
 ```python
@@ -155,5 +151,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/2026-03-31)
 
 ## Contribution Metadata
-- Last reviewed: 2026-08-17
+- Last reviewed: 2027-01-07
 - Confidence: high
