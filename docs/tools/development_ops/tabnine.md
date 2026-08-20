@@ -1,7 +1,7 @@
 # Tabnine
 
 ## What it is
-Tabnine is an AI code assistant that focuses on privacy, security, and enterprise-grade control. It provides AI-powered code completions and chat capabilities, with a strong emphasis on local-only execution and private model hosting to ensure code never leaves a secure environment.
+Tabnine is an AI code assistant that focuses on privacy, security, and enterprise-grade control. It provides AI-powered code completions and chat capabilities, with a strong emphasis on local-only execution, private model hosting, and FastMCP 3.1 contextual servers to ensure code never leaves a secure environment.
 
 ## What problem it solves
 It addresses the critical security concern of sending proprietary or sensitive source code to external cloud-based LLMs. By offering local-only inference and private cloud deployments, Tabnine enables teams in regulated industries (finance, healthcare, defense) to leverage AI productivity without compromising data sovereignty.
@@ -17,7 +17,7 @@ It addresses the critical security concern of sending proprietary or sensitive s
 
 ## Strengths
 - **Uncompromising Privacy**: Local-only options are a primary differentiator.
-- **Enterprise Ready**: Support for VPC, on-prem, and air-gapped deployments.
+- **Enterprise Ready**: Support for VPC, on-prem, FastMCP 3.1 local servers, and air-gapped deployments.
 - **Custom Model Training**: Can be trained on your own code for better context awareness.
 - **Multi-IDE Support**: Excellent coverage for VS Code, JetBrains, Sublime, Vim, and more.
 
@@ -99,22 +99,31 @@ Tabnine's API is primarily consumed via JSON-RPC over a local socket or stdin/st
 }
 ```
 
-### Enterprise Self-Hosting (Docker)
-Tabnine Enterprise can be deployed as a private server to serve completions to a whole organization.
+### Programmatic Tabnine Local Config Validator (Pydantic v2)
+Validate Tabnine local-only and enterprise settings using Pydantic v2:
 
-```yaml
-# Simple representation of a private Tabnine Enterprise server
-services:
-  tabnine-server:
-    image: tabnine/enterprise-server:latest
-    environment:
-      - LICENSE_KEY=${TABNINE_LICENSE}
-      - MODEL_VARIANT=enterprise-high-perf
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./models:/models
-    restart: always
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class TabnineLocalConfig(BaseModel):
+    model_type: str = Field(default="local", description="Inference mode: local, private_cloud, hybrid")
+    local_model_path: str = Field(..., description="Path to local weights")
+    cloud_inference_enabled: bool = Field(default=False, description="Disable cloud fallback")
+    telemetry_enabled: bool = Field(default=False)
+    remote_endpoint: Optional[str] = Field(None, description="Internal Enterprise URL")
+
+# Validate Tabnine local configuration
+config_data = {
+    "model_type": "local",
+    "local_model_path": "/opt/tabnine/models/tabnine-local-v2",
+    "cloud_inference_enabled": False,
+    "telemetry_enabled": False
+}
+
+config = TabnineLocalConfig.model_validate(config_data)
+print(f"Validated Tabnine local mode: {config.model_type}")
+print(f"Cloud inference allowed: {config.cloud_inference_enabled}")
 ```
 
 ## Related tools / concepts
@@ -137,5 +146,5 @@ services:
 - [Tabnine for Enterprise](https://www.tabnine.com/enterprise)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

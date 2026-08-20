@@ -1,17 +1,17 @@
 # Visual Studio Code (VS Code)
 
 ## What it is
-Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux. It comes with built-in support for JavaScript, TypeScript and Node.js and has a rich ecosystem of extensions for other languages and runtimes.
+Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS, and Linux. It comes with built-in support for JavaScript, TypeScript, Python, and Node.js and has a rich ecosystem of extensions for other languages and runtimes.
 
 ## What problem it solves
-It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools. As of late 2026, it serves as the reference implementation for the **Model Context Protocol (MCP 3.1) Task Protocol**, enabling seamless agentic orchestration between the editor and external tools.
+It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools. As of early 2027, it serves as the reference implementation for the **Model Context Protocol (FastMCP 3.1) Task Protocol**, enabling seamless agentic orchestration between the editor and external tools.
 
 ## Where it fits in the stack
-**Development & Ops / Editor**. It serves as the primary interface for coding and serves as the "host" for various AI extensions like GitHub Copilot, Continue, and Codeium.
+**Development & Ops / Editor**. It serves as the primary interface for coding and serves as the "host" for various AI extensions like GitHub Copilot Workspace, Continue, and Codeium.
 
 ## Typical use cases
 - **General-Purpose Coding**: Supporting almost any language via extensions.
-- **AI-Enhanced Development**: Running multiple AI assistants simultaneously.
+- **AI-Enhanced Development**: Running multiple AI assistants simultaneously powered by **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 - **Remote Development**: Connecting to remote servers, containers, or WSL via the Remote Development extension pack.
 - **Cloud-Native Dev**: Integrating with Kubernetes, Docker, and various cloud providers (AWS, Azure, GCP).
 
@@ -19,7 +19,7 @@ It provides a highly extensible "middle ground" between a simple text editor and
 - **Extensibility**: Unmatched library of plugins and themes.
 - **Performance**: Faster than traditional IDEs while being more capable than basic editors.
 - **Remote Capabilities**: Best-in-class support for remote development.
-- **Ecosystem**: Most AI tools target VS Code as their first integration platform.
+- **Ecosystem**: Most AI tools target VS Code as their first integration platform with native FastMCP 3.1 support.
 
 ## Limitations
 - **Resource Intensity**: Can consume significant memory with many active extensions.
@@ -58,11 +58,11 @@ echo 'print("Hello, World from VS Code!")' > hello_world.py
 code hello_world.py
 ```
 
-### Key Extensions for AI (Late 2026)
-- **GitHub Copilot**: The standard AI completion engine (now with **Claude 5.1** and **Gemini 4.0** support).
+### Key Extensions for AI (Early 2027)
+- **GitHub Copilot**: The standard AI completion and agent workspace engine (now with **Claude 5.1** and **Gemini 4.0 Pro** support).
 - **Continue**: Open-source autopilot that allows using any LLM (optimized for local Ollama and remote frontier APIs).
-- **Codeium**: Fast, free (for individuals) AI autocomplete and chat.
-- **MCP Extension**: Native support for Model Context Protocol (MCP 3.1) servers.
+- **Codeium / Windsurf**: Fast AI autocomplete and agentic chat extension.
+- **FastMCP Extension**: Native support for Model Context Protocol (FastMCP 3.1) servers.
 
 ## CLI examples
 
@@ -107,17 +107,44 @@ module.exports = {
 };
 ```
 
-### Optimizing `settings.json` for AI Performance
-For power users configuring local settings, here is a minimal configuration snippet:
+### Programmatic VS Code Configuration Manager (Pydantic v2)
+Ensure VS Code setting definitions and FastMCP server configurations strictly conform to early 2027 schemas:
 
-```json
-{
-  "editor.inlineSuggest.enabled": true,
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  }
+```python
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
+
+class MCPServerConfig(BaseModel):
+    command: str = Field(..., description="Executable command to run the FastMCP server")
+    args: List[str] = Field(default_factory=list, description="Arguments for the executable")
+    env: Dict[str, str] = Field(default_factory=dict, description="Environment variables")
+
+class VSCodeAISettings(BaseModel):
+    inline_suggest_enabled: bool = Field(default=True, alias="editor.inlineSuggest.enabled")
+    format_on_save: bool = Field(default=True, alias="editor.formatOnSave")
+    copilot_chat_model: str = Field(default="claude-5.1-opus", alias="github.copilot.advanced.model")
+    mcp_servers: Dict[str, MCPServerConfig] = Field(default_factory=dict, alias="mcp.servers")
+
+    class Config:
+        populate_by_name = True
+
+# Validate VS Code AI Configuration
+raw_config = {
+    "editor.inlineSuggest.enabled": True,
+    "editor.formatOnSave": True,
+    "github.copilot.advanced.model": "claude-5.1-opus",
+    "mcp.servers": {
+        "context7": {
+            "command": "npx",
+            "args": ["-y", "@upstash/mcp-server-context7"],
+            "env": {"UPSTASH_REDIS_REST_URL": "https://fake.upstash.io"}
+        }
+    }
 }
+
+settings = VSCodeAISettings.model_validate(raw_config)
+print(f"Validated Copilot model: {settings.copilot_chat_model}")
+print(f"Registered FastMCP servers: {list(settings.mcp_servers.keys())}")
 ```
 
 ## Related tools / concepts
@@ -137,5 +164,5 @@ For power users configuring local settings, here is a minimal configuration snip
 - [Remote Development in VS Code](https://code.visualstudio.com/docs/remote/remote-overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

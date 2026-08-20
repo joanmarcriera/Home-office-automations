@@ -1,31 +1,31 @@
 # Promptfoo
 
 ## What it is
-Promptfoo is an open-source (MIT) CLI tool and library for evaluating, testing, and securing LLM prompts and models. It allows you to run systematic test cases across multiple providers and models, with a heavy focus on **AI Security** and **Red Teaming**. While the core CLI is free and self-hostable, a paid enterprise tier exists for governance and team features.
+Promptfoo is an open-source (MIT) CLI tool and library for evaluating, testing, and securing LLM prompts, agents, and FastMCP 3.1 tool implementations. It allows you to run systematic test cases across multiple providers and models, with a heavy focus on **AI Security** and **Red Teaming**. While the core CLI is free and self-hostable, a paid enterprise tier exists for governance and team features.
 
 ## What problem it solves
-It solves the problem of "prompt regression" and security vulnerabilities by providing a framework for regression testing and automated red teaming. It allows you to quantify how changes to a prompt affect output quality and safety across many different test cases, preventing silent failures when updating to models like **Claude 5.1** or **GPT-5.5**.
+It solves the problem of "prompt regression" and security vulnerabilities by providing a framework for regression testing and automated red teaming. It allows you to quantify how changes to a prompt or agent workflow affect output quality and safety across many different test cases, preventing silent failures when updating to frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **DeepSeek-V4**, or **Llama 4 Maverick**.
 
 ## Where it fits in the stack
 **Benchmarking / Eval / Security**. It is a critical tool for the [Dev-Workflow AI Assisted](../../playbooks/dev-workflow-ai-assisted.md) cycle, acting as the bridge between development and production-ready prompts.
 
 ## Typical use cases
 - **Prompt Comparison**: Testing the same input against 10 different versions of a prompt.
-- **Model Comparison**: Testing the same prompt against **GPT-5.5**, **Claude 5.1 Opus**, and **Llama 4**.
+- **Model Comparison**: Testing the same prompt against **GPT-5.5**, **Claude 5.1 Opus**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
 - **Red Teaming**: Identifying prompt injection, data exfiltration, and permission misuse vulnerabilities.
-- **CI/CD Integration**: Automatically running a test suite before deploying a prompt change.
-- **MCP Tool Testing**: Verifying that agents correctly call [MCP](../automation_orchestration/mcp.md) tools from servers like [Grafana](../process_understanding/grafana-cloud.md) or [New Relic](../process_understanding/new-relic-ai.md).
+- **CI/CD Integration**: Automatically running a test suite before deploying a prompt or FastMCP agent change.
+- **FastMCP Tool Testing**: Verifying that agents correctly call [MCP](../automation_orchestration/mcp.md) tools from servers like [Grafana](../process_understanding/grafana-cloud.md) or [New Relic](../process_understanding/new-relic-ai.md).
 
 ## Strengths
 - **Fast and Local**: Runs entirely on your machine; no external platform required for the core CLI.
 - **Flexible Assertions**: Support for JS, Python, and LLM-graded assertions (e.g., using `llm-rubric`).
-- **Extensive Provider Support**: Works with OpenAI, Anthropic, [Ollama](../../services/ollama.md), Azure, and more.
-- **AI Security Focus**: Built-in scanners for 50+ vulnerability types, including specialized red teaming for agentic workflows.
+- **Extensive Provider Support**: Works with OpenAI, Anthropic, Google, [Ollama](../../services/ollama.md), Azure, and more.
+- **AI Security Focus**: Built-in scanners for 50+ vulnerability types, including specialized red teaming for agentic workflows and FastMCP tool privilege boundaries.
 
 ## Limitations
 - **CLI-First**: While it has a web viewer, the core experience is command-line based.
 - **Configuration Overhead**: Complex test suites require significant YAML/JSON definition effort.
-- **Acquisition Uncertainty**: OpenAI's acquisition of Promptfoo in March 2026 has raised questions about the long-term open-source roadmap, though the MIT core remains available.
+- **Acquisition Context**: OpenAI's acquisition of Promptfoo in March 2026 has raised questions about the long-term open-source roadmap, though the MIT core remains available.
 
 ## When to use it
 - To systematically improve the reliability and safety of your LLM prompts.
@@ -67,13 +67,13 @@ promptfoo redteam run --config redteam.yaml
 ### Comparing Models Side-by-Side
 ```bash
 # Compare GPT-5.5 and Claude 5.1
-promptfoo eval -p "Summarize: {{text}}" -r openai:gpt-5.5 -r anthropic:messages:claude-5-1-opus-20261024 -v text="MCP 3.1 protocol details"
+promptfoo eval -p "Summarize: {{text}}" -r openai:gpt-5.5 -r anthropic:messages:claude-5-1-opus-20261024 -v text="FastMCP 3.1 protocol details"
 ```
 
-### Testing MCP Tools
-Promptfoo supports **MCP Proxy** for evaluating tools:
+### Testing FastMCP Tools
+Promptfoo supports **MCP Proxy** for evaluating tools under FastMCP 3.1:
 ```bash
-# Evaluate an agent using a local MCP server
+# Evaluate an agent using a local FastMCP server
 promptfoo eval --mcp-server http://localhost:8000/mcp
 ```
 
@@ -88,8 +88,8 @@ const results = await promptfoo.evaluate({
   providers: ['openai:gpt-5.5'],
   tests: [
     {
-      vars: { text: 'The Model Context Protocol (MCP) is an open standard...' },
-      assert: [{ type: 'icontains', value: 'MCP' }],
+      vars: { text: 'The Model Context Protocol (FastMCP 3.1) is an open standard...' },
+      assert: [{ type: 'icontains', value: 'FastMCP' }],
     },
   ],
 });
@@ -115,7 +115,7 @@ def check_length(output: str, vars: Dict[str, Any]) -> bool:
     Integrates seamlessly into promptfoo's python assertion environment.
     """
     try:
-        # Validate structured JSON output using Pydantic v2
+        # Validate structured JSON output using Pydantic v2 model_validate_json
         parsed_output = EvalOutputSchema.model_validate_json(output)
         return len(parsed_output.summary) < 500
     except ValidationError:
@@ -148,5 +148,5 @@ assert:
 - [OpenAI Acquisition Announcement (March 2026)](https://www.openai.com/blog/openai-acquires-promptfoo/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
