@@ -1,44 +1,45 @@
 # Notion Calendar
 
 ## What it is
-A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of late 2026, it is the primary interface for **Notion Agents** and **Skills**, allowing for automated scheduling and database-driven time blocking.
+A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of early 2027, it is the primary time interface for **Notion AI Agents** and **Skills**, allowing for automated scheduling, database-driven time blocking, and deep cross-workspace synchronization.
 
 ## What problem it solves
-Bridges the gap between notes/tasks in Notion and time management in a calendar. It provides a fast, keyboard-centric interface that synchronizes Google Calendar events with Notion database items in real-time.
+Bridges the gap between notes/tasks in Notion and time management in a calendar. It provides a fast, keyboard-centric interface that synchronizes Google Calendar and Microsoft Outlook events with Notion database items in real-time. It eliminates manual dual-entry between project trackers and personal schedules.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Productivity Interface
+**Category**: Calendar & Tasks / Productivity Interface. It sits at the top of the personal productivity stack, interfacing directly with calendar providers (Google Calendar, Microsoft Graph) and database engines (Notion API).
 
 ## Typical use cases
-- **Unified workspace view**: See Notion database entries (tasks, project milestones) alongside Google Calendar events.
+- **Unified workspace view**: See Notion database entries (tasks, project milestones) alongside Google Calendar and Outlook events.
 - **High-speed scheduling**: Use keyboard shortcuts and scheduling links to manage a busy calendar.
-- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 5.1** or **GPT-5.5**) to automatically find slots for Notion tasks.
-- **Cross-timezone coordination**: Manage global teams with integrated timezone columns.
+- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**) to automatically find slots for Notion tasks.
+- **Cross-timezone coordination**: Manage global teams with integrated timezone columns and instant overlay views.
 
 ## Strengths
-- Deep Notion integration (linking pages to events, database sync).
+- Deep Notion integration (linking pages to events, real-time database property sync).
 - Fast, minimalist UI with excellent keyboard shortcuts (`Cmd+K` / `Ctrl+K`).
 - Built-in scheduling links and "Share availability" features.
-- **Worker-powered sync**: Leverages **Notion Workers** for reliable, server-side data synchronization.
+- **Worker-powered sync**: Leverages **Notion Workers** and **FastMCP 3.1** protocol bindings for reliable, server-side data synchronization.
 
 ## Limitations
-- Primary backend is Google Calendar (limited support for other providers like iCloud).
-- Deepest features require a Notion workspace.
+- Backend scheduling depends on Google Calendar or Microsoft Outlook; does not offer standalone offline calendar storage.
+- Deepest automation features require a Notion workspace subscription.
+- No direct native CalDAV/iCloud calendar backend support.
 
 ## When to use it
-- If you are a heavy Notion user who manages tasks within databases.
-- If you value speed, keyboard shortcuts, and a minimalist design.
-- If you want an integrated AI agent to help manage your time and Notion content.
+- If you are a heavy Notion user who manages tasks within database views.
+- If you value speed, keyboard shortcuts, and a minimalist, distraction-free design.
+- If you want integrated AI agents to manage your time and Notion content autonomously.
 
 ## When not to use it
-- If you don't use Notion (prefer [Reclaim.ai](reclaim.md) or [Fantastical](fantastical.md)).
-- If you require native support for Microsoft Exchange (prefer [Outlook](outlook.md)).
+- If you do not use Notion (prefer [Reclaim.ai](reclaim.md) or [Fantastical](fantastical.md)).
+- If you require strict air-gapped or self-hosted calendar storage (prefer [Vikunja](../../services/vikunja.md)).
 
 ## Getting started
 
 ### Installation
 Notion Calendar is distributed as a desktop and mobile GUI client.
-1. Download installer packages from the official [Notion website](https://www.notion.so/product/calendar) (macOS/Windows).
+1. Download installer packages from the official [Notion website](https://www.notion.so/product/calendar) (macOS/Windows/iOS/Android).
 2. Sign in with Google or Notion authentication.
 
 ### Hello-world example
@@ -66,7 +67,7 @@ open "cron://[email protected]&title=Strategic+Planning"
 Check registered URI handlers on macOS for Notion Calendar:
 
 ```bash
-ls -la /Applications/Notion\ Calendar.app/Contents/Info.plist
+ls -la "/Applications/Notion Calendar.app/Contents/Info.plist"
 ```
 
 ### 3. Fetching Linked Workspace Database Entries via Notion API
@@ -82,7 +83,7 @@ curl -X POST "https://api.notion.com/v1/databases/YOUR_DATABASE_ID/query" \
 Notion Calendar's data is primarily managed via the **Notion API** and **Notion Workers**.
 
 ### Query and Validate Notion Events (Python)
-Programmatic task integration and querying are validated using **Pydantic v2** under late-2026 guidelines.
+Programmatic task integration and querying are validated using **Pydantic v2** under early 2027 guidelines.
 
 ```python
 import requests
@@ -110,8 +111,8 @@ raw_notion_data = {
         "title": "Evaluate Claude 5.1 with Notion Calendar",
         "status": "In Progress",
         "Date": {
-            "start": "2026-11-15T09:00:00Z",
-            "end": "2026-11-15T10:00:00Z"
+            "start": "2027-01-15T09:00:00Z",
+            "end": "2027-01-15T10:00:00Z"
         }
     }
 }
@@ -127,13 +128,13 @@ except Exception as e:
     print(f"Validation failed: {e}")
 ```
 
-## Model Context Protocol (MCP 3.1) Integration
-Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar via MCP 3.1.
+## Model Context Protocol (FastMCP 3.1) Integration
+Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar via FastMCP 3.1.
 
 **Agent Capabilities (via MCP):**
-- `notion_find`: Search for pages and calendar entries.
+- `notion_find`: Search for pages and calendar entries across workspace databases.
 - `notion_read_page`: Extract context from a specific event's linked Notion page.
-- `notion_update_item`: Reschedule or modify Notion database entries.
+- `notion_update_item`: Reschedule or modify Notion database entries and calendar properties.
 
 ## Licensing and cost
 - **Open Source**: No
@@ -142,18 +143,18 @@ Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` o
 
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md) — The underlying backend.
+- [Outlook](outlook.md) — Enterprise calendar backend partner.
 - [Reclaim.ai](reclaim.md) — Intelligent time blocking for Notion users.
 - [Vimcal](vimcal.md) — Keyboard-focused speed-calendar competitor.
 - [n8n](../../services/n8n.md) — For complex database-to-calendar automation.
-- [Chronos MCP](../automation_orchestration/mcp.md)
-- [Akiflow](akiflow.md)
-- [Todoist](todoist.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol powering FastMCP 3.1 agent integrations.
+- [Todoist](todoist.md) — Task management integration partner.
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/calendar)
-- [Notion 3.5 Developer Platform Release](https://www.notion.com/releases/2026-05-13)
+- [Notion Developer Platform Documentation](https://developers.notion.com/)
 - [Notion MCP Server (GitHub)](https://github.com/suekou/mcp-notion-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
