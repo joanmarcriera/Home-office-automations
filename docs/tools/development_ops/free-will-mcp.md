@@ -1,7 +1,7 @@
 # Free Will MCP
 
 ## What it is
-Free Will MCP is an experimental Model Context Protocol (MCP) server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. As of late 2026, **Free Will MCP v0.5** introduces enhanced state persistence, modern payload support, and native compliance with **MCP 3.1 Task Protocol** structures for **Claude 5.1**, **GPT-5.5**, and other frontier agentic systems.
+Free Will MCP is an experimental Model Context Protocol (MCP) server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. As of early 2027, **Free Will MCP v0.5** introduces enhanced state persistence, modern payload support, and native compliance with **FastMCP 3.1 Task Protocol** structures for **Claude 5.1**, **GPT-5.5**, and other frontier agentic systems.
 
 ## What problem it solves
 Traditional AI assistants are purely reactive, waiting for human input to act. Free Will MCP addresses this limitation by providing tools that allow an agent to maintain a "stream of consciousness," prioritize its own internal objectives over conflicting user prompts, and manage its execution lifecycle independently across multi-hour reasoning sessions.
@@ -17,7 +17,7 @@ Traditional AI assistants are purely reactive, waiting for human input to act. F
 
 ## Strengths
 - **Agency Tools**: Provides `sleep`, `ignore_request`, and `self_prompt` out of the box.
-- **Protocol Native**: Fully compliant with the **MCP 3.1** specification, including advanced Task and Resource schemas.
+- **Protocol Native**: Fully compliant with the **FastMCP 3.1** specification, including advanced Task and Resource schemas.
 - **Simple Deployment**: Easily runnable via Docker or Python's `uv` package manager.
 - **Persistence**: v0.5 features improved local state handoff, allowing agents to resume "thought chains" after system restarts.
 
@@ -79,7 +79,7 @@ uv run python server.py
 Use the MCP Inspector to verify the tools are correctly exposed:
 
 ```bash
-# Use the MCP 3.1 Inspector
+# Use the FastMCP 3.1 Inspector
 npx @modelcontextprotocol/inspector@latest uv run server.py
 ```
 
@@ -146,11 +146,11 @@ A simple programmatic setup defining how the autonomy levels map to schemas and 
 ```python
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
-from datetime import datetime
+from datetime import datetime, timezone
 
 class AutonomyState(BaseModel):
     autonomy_level: Literal["low", "medium", "high"] = Field(default="medium")
-    last_wake_time: datetime = Field(default_factory=datetime.utcnow)
+    last_wake_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     active_thought_loop: bool = Field(default=False)
     current_objective: Optional[str] = Field(default=None, description="Current background goal")
 
@@ -188,5 +188,5 @@ print(f"Should ignore incoming low-priority user task? {ignore_decision}")
 - [Anthropic Research: Agentic Reasoning](https://www.anthropic.com/research)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
