@@ -1,12 +1,12 @@
 # SWE-bench
 
 ## What it is
-SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of November 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of January 2027, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**.
 
 With the launch of **SWE-bench Multilingual**, the benchmark has been expanded to support a wider array of programming languages (C, C++, Go, Java, JavaScript, TypeScript, PHP, Ruby, and Rust), making it a truly language-agnostic evaluator for autonomous engineering agents across diverse modern software stacks.
 
 ## What problem it solves
-Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging **Model Context Protocol (MCP 3.1)** for dynamic tool discovery.
+Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging **FastMCP 3.1 (Model Context Protocol)** for dynamic tool discovery and execution.
 
 ## Where it fits in the stack
 **Benchmarking / Eval**. It is used as a reference benchmark for evaluating real-world software engineering capabilities of AI agents and coding assistants.
@@ -21,7 +21,7 @@ Measures whether LLMs can perform practical software engineering work—understa
 - **Authenticity**: Based on real-world GitHub issues, providing high-fidelity evaluation.
 - **End-to-End Skill Assessment**: Requires reading code, understanding issues, and writing functional patches.
 - **Objective Validation**: Results are verified against existing test suites from the source repositories.
-- **Large Dataset**: Over 2,000 tasks across multiple popular Python repositories.
+- **Large Dataset**: Over 2,000 tasks across multiple popular repositories and programming languages.
 
 ## Limitations
 - **Computational Cost**: Requires a Docker environment and significant compute to run full test suites.
@@ -37,7 +37,7 @@ Measures whether LLMs can perform practical software engineering work—understa
 ## When not to use it
 - When evaluating basic code generation from simple specifications (use [HumanEval](human-eval.md) instead).
 - When you need quick, lightweight benchmarking without Docker infrastructure.
-- For testing non-Python languages (unless using specific extensions).
+- For testing non-code reasoning (use [MMLU](mmlu.md) or [GPQA](gpqa.md)).
 
 ## Getting started
 SWE-bench requires a Docker environment to safely execute untrusted code and run test suites.
@@ -140,19 +140,19 @@ def validate_prediction_file(raw_json_line: str) -> Optional[SWEBenchPrediction]
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_prediction = """
-#     {
-#         "instance_id": "django__django-12345",
-#         "model_name": "claude-5-1-sonnet-20261022",
-#         "patch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\\n--- a/django/db/models/fields/__init__.py\\n+++ b/django/db/models/fields/__init__.py\\n@@ -1,1 +1,2 @@\\n",
-#         "tokens_used": 14205
-#     }
-#     """
-#     validated = validate_prediction_file(sample_prediction)
-#     if validated:
-#         print("SWE-bench prediction schema is valid!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_prediction = """
+    {
+        "instance_id": "django__django-12345",
+        "model_name": "claude-5-1-sonnet-20261022",
+        "patch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\\n--- a/django/db/models/fields/__init__.py\\n+++ b/django/db/models/fields/__init__.py\\n@@ -1,1 +1,2 @@\\n",
+        "tokens_used": 14205
+    }
+    """
+    validated = validate_prediction_file(sample_prediction)
+    if validated:
+        print("SWE-bench prediction schema is valid!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -175,5 +175,5 @@ def validate_prediction_file(raw_json_line: str) -> Optional[SWEBenchPrediction]
 - [SWE-bench Multilingual Official Documentation](https://www.swebench.com/multilingual.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high

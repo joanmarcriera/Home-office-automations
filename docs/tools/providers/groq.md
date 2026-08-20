@@ -1,29 +1,29 @@
 # Groq
 
 ## What it is
-Groq is an AI infrastructure company that developed the Language Processing Unit (LPU), a new type of processor designed specifically for the extreme high-speed requirements of LLMs. As of late October / November 2026, Groq is the industry benchmark for low-latency inference, supporting Llama 4, Mixtral 10x22B, and the Gemma 3 and Qwen 3.6 models.
+Groq is an AI infrastructure company that developed the Language Processing Unit (LPU), a new type of processor designed specifically for the extreme high-speed requirements of LLMs. As of January 2027, Groq is the industry benchmark for low-latency inference, supporting **Llama 4**, **DeepSeek-V4**, **Mixtral 10x22B**, and the **Gemma 3** and **Qwen 3.6** models.
 
 ## What problem it solves
-Solves the "bottleneck" of slow LLM inference, providing near-instantaneous responses that enable real-time applications and highly interactive agents. It eliminates the latency hurdles that often hinder complex agentic workflows, particularly those utilizing the Model Context Protocol (MCP 3.1) Task Protocol for multi-step reasoning.
+Solves the "bottleneck" of slow LLM inference, providing near-instantaneous responses that enable real-time applications and highly interactive agents. It eliminates the latency hurdles that often hinder complex agentic workflows, particularly those utilizing the Model Context Protocol (**FastMCP 3.1**) Task Protocol for multi-step reasoning.
 
 ## Where it fits in the stack
-**Inference Provider / Infrastructure**. It provides a high-speed API for the most popular open-source models (Llama, Mixtral, Gemma, Qwen).
+**Inference Provider / Infrastructure**. It provides a high-speed API for the most popular open-source models (Llama 4, DeepSeek-V4, Mixtral, Gemma 3, Qwen 3.6).
 
 ## Typical use cases
 - **Real-time Agents**: Voice assistants or interactive chatbots that require sub-second response times.
 - **High-Volume Processing**: Summarizing or analyzing large quantities of text at hundreds of tokens per second.
 - **Interactive Coding**: Powering coding assistants where immediate, fluid feedback is essential.
-- **Autonomous Task Execution**: Serving as the fast inference backend for agents executing complex tasks via MCP 3.1.
+- **Autonomous Task Execution**: Serving as the fast inference backend for agents executing complex tasks via FastMCP 3.1.
 
 ## Strengths
 - **Extreme Speed**: Often 10x+ faster than traditional GPU-based providers (400-800+ tokens/sec).
-- **Open Model Support**: Focuses on the best open-weights models like Llama 4, Gemma 3, and Qwen 3.6.
+- **Open Model Support**: Focuses on the best open-weights models like Llama 4, DeepSeek-V4, Gemma 3, and Qwen 3.6.
 - **Low Latency**: Unmatched time-to-first-token (TTFT) and overall throughput.
 - **LPU Efficiency**: Unlike GPUs which excel at parallel pixel processing, LPUs are optimized for the serial nature of text generation, eliminating the "memory wall" that slows down standard hardware.
 
 ## Limitations
 - **Model Selection**: Limited to the open models they have specifically optimized for their LPU hardware.
-- **Context Window**: Historically had smaller context windows than cloud giants, though this is expanding rapidly in late 2026 to support 128k+ across most models.
+- **Context Window**: Historically had smaller context windows than cloud giants, though this supports 128k+ across most models in early 2027.
 
 ## When to use it
 - When response speed is the absolute top priority.
@@ -31,8 +31,8 @@ Solves the "bottleneck" of slow LLM inference, providing near-instantaneous resp
 - When using Llama or Mistral models and looking for the fastest possible user experience.
 
 ## When not to use it
-- If you need proprietary models like GPT-5.5 or Claude 5.1.
-- For extremely large context tasks (e.g., 1M+ tokens) where native large-context models like Gemini are superior.
+- If you need proprietary models like GPT-5.5 / GPT-5.6 or Claude 5.1.
+- For extremely large context tasks (e.g., 1M+ tokens) where native large-context models like Gemini 4.0 Pro / Ultra are superior.
 
 ## Getting started
 Install the SDK:
@@ -143,5 +143,5 @@ def validate_groq_response(raw_json: str) -> Optional[GroqResponseMetadata]:
 - [Groq Documentation](https://docs.groq.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-04
+- Last reviewed: 2027-01-07
 - Confidence: high

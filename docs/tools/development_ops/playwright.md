@@ -1,26 +1,26 @@
 # Playwright
 
 ## What it is
-Playwright is Microsoft's browser automation and end-to-end testing framework for Chromium, Firefox, and WebKit. As of November 2026, it is the industry standard for both automated testing and agentic web browsing using the **Model Context Protocol (MCP 3.1)**.
+Playwright is Microsoft's browser automation and end-to-end testing framework for Chromium, Firefox, and WebKit. As of January 2027, it serves as the industry standard for both automated testing and agentic web browsing using the **Model Context Protocol (FastMCP 3.1)**.
 
 ## What problem it solves
-It gives teams a reliable way to automate browsers for testing, scraping, and UI workflows that cannot be covered cleanly by API-only integrations. It addresses the complexity of cross-browser consistency and reduces flakiness in automated test suites. It also serves as the "eyes and ears" for autonomous AI assistants like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+It gives teams a reliable way to automate browsers for testing, scraping, and UI workflows that cannot be covered cleanly by API-only integrations. It addresses the complexity of cross-browser consistency and reduces flakiness in automated test suites. It also serves as the "eyes and ears" for autonomous AI assistants like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, and **Gemini 4.0 Pro / Ultra**.
 
 ## Where it fits in the stack
 **Development & Ops / Browser Automation**. It is used both for CI/CD test suites and as the core execution layer for autonomous coding agents like [Claude Code](claude-code-setup.md).
 
 ## Typical use cases
-- End-to-end web application tests in CI/CD pipelines.
-- Browser automation in agentic workflows (agent-assisted research and web interaction).
-- Reproducing or debugging UI regressions with high fidelity.
-- Automated visual regression testing using pixel-matching.
+- End-to-end web application tests in CI/CD pipelines with parallel worker execution.
+- Browser automation in agentic workflows (agent-assisted research and web interaction via FastMCP 3.1).
+- Reproducing or debugging UI regressions with high fidelity using Trace Viewer and DOM snapshotting.
+- Automated visual regression testing using pixel-matching and AI-assisted element selection.
 - Web scraping in complex, JavaScript-heavy environments where headers, cookies, and fingerprinting must be managed.
 
 ## Strengths
 - **Native Cross-Browser Support**: Provides a single API for Chromium, WebKit, and Firefox.
 - **Auto-wait Logic**: Built-in mechanisms to eliminate most `sleep` or `waitFor` calls, making tests more resilient.
 - **Powerful Tooling**: Includes a Trace Viewer, Test Runner, and Code Generator for rapid development.
-- **Agent Readiness**: First-class integration with the **Playwright MCP Server (MCP 3.1)** for LLM-driven browsing.
+- **Agent Readiness**: First-class integration with the **Playwright FastMCP Server (MCP 3.1)** for LLM-driven browsing and UI action execution.
 
 ## Limitations
 - **Execution Speed**: Browser automation is inherently slower than API-level interaction or unit testing.
@@ -29,7 +29,7 @@ It gives teams a reliable way to automate browsers for testing, scraping, and UI
 
 ## When to use it
 - When you need to verify real browser behavior or handle complex client-side JavaScript interactions.
-- When agents must navigate or verify web interfaces directly as part of a task.
+- When agents must navigate or verify web interfaces directly as part of a task via FastMCP 3.1.
 - When you require high-fidelity visual or accessibility testing that unit tests cannot provide.
 
 ## When not to use it
@@ -148,26 +148,26 @@ def validate_launch_config(raw_json: str) -> Optional[BrowserLaunchConfig]:
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_config = """
-#     {
-#         "headless": true,
-#         "userAgent": "Mozilla/5.0 (Playwright Agent 2026)",
-#         "viewport": {
-#             "width": 1920,
-#             "height": 1080
-#         },
-#         "timeout": 45000
-#     }
-#     """
-#     validated = validate_launch_config(sample_config)
-#     if validated:
-#         print("Playwright configuration validated successfully!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_config = """
+    {
+        "headless": true,
+        "userAgent": "Mozilla/5.0 (Playwright FastMCP Agent 2027)",
+        "viewport": {
+            "width": 1920,
+            "height": 1080
+        },
+        "timeout": 45000
+    }
+    """
+    validated = validate_launch_config(sample_config)
+    if validated:
+        print("Playwright configuration validated successfully!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
-- [Playwright MCP Server](../automation_orchestration/playwright-mcp.md) — Browser automation for MCP agents.
+- [Playwright MCP Server](../automation_orchestration/playwright-mcp.md) — Browser automation for MCP / FastMCP 3.1 agents.
 - [Browser Use](../automation_orchestration/browser-use.md) — High-level agent framework for browser interaction.
 - [Claude Code](claude-code-setup.md) — Terminal agent that utilizes Playwright for web research.
 - [GitHub Actions](../../playbooks/dev-workflow-ai-assisted.md) — For running Playwright tests in CI/CD.
@@ -179,8 +179,8 @@ def validate_launch_config(raw_json: str) -> Optional[BrowserLaunchConfig]:
 ## Sources / references
 - [Official Playwright Website](https://playwright.dev/)
 - [Playwright Documentation](https://playwright.dev/docs/intro)
-- [Playwright MCP GitHub Repository](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
+- [Playwright FastMCP Server GitHub Repository](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high
