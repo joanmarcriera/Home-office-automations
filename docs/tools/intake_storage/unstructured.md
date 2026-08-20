@@ -1,45 +1,45 @@
 # Unstructured.io
 
 ## What it is
-An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs) into AI-ready formats. It is a foundational tool for building high-quality RAG pipelines.
+An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs, PowerPoint) into AI-ready formats. As of early January 2027, it is a foundational ETL tool for building high-quality RAG pipelines and autonomous agent context ingestion.
 
 ## What problem it solves
-It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 5.1** and **GPT-5.5** receive structured, high-signal context.
+It automates the ingestion of diverse document types, handling complex layouts and extracting clean text, tables, and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that frontier LLMs like **Claude 5.1** and **GPT-5.5** receive structured, high-signal context.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases.
+**Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases or agent frameworks.
 
 ## Typical use cases
 - **RAG Pipelines**: Extracting text and metadata from varied document sets for ingestion into [Weaviate](../infrastructure/weaviate.md) or [Pinecone](../infrastructure/pinecone.md).
 - **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
 - **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
-- **Agentic Workflows**: Using the [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
+- **Agentic Workflows**: Using the [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) to give autonomous agents real-time document parsing capabilities.
 
 ## Strengths
-- **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, and PowerPoint.
-- **Open-Source & Local**: Can be run fully offline without data leaving your infrastructure.
-- **Layout Awareness**: Not just OCR; it understands headers, lists, and tables.
-- **November 2026 Optimized**: Fully supports **Llama 4** tokenization and native [MCP 3.1](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
+- **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, PowerPoint, and EPUB.
+- **Open-Source & Local**: Can be run fully offline without sensitive data leaving your infrastructure.
+- **Layout Awareness**: Understands complex structural headers, lists, and multi-column tables.
+- **Early 2027 Optimized**: Fully supports **Llama 4** tokenization and native [FastMCP 3.1](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
 
 ## Limitations
-- **Resource Intensive**: Complex partitioning (especially with vision models) requires significant CPU/GPU.
-- **Dependency Heavy**: The "all-docs" installation is large and can have version conflicts.
-- **Performance Variability**: Extraction quality can vary significantly based on the partitioning strategy chosen (fast vs. hi-res).
+- **Resource Intensive**: Complex partitioning (especially with vision models / VLM strategies) requires significant CPU/GPU.
+- **Dependency Heavy**: The full installation package is large and requires proper system libraries (Poppler, Tesseract).
+- **Performance Variability**: Extraction quality and execution time vary based on the partitioning strategy chosen (fast vs. hi-res).
 
 ## When to use it
-- When you have a high volume of diverse, messy document types.
-- When data privacy requires local processing of sensitive documents.
-- When you need more than just raw text (e.g., you need to preserve document structure).
+- When you have a high volume of diverse, messy document types requiring extraction.
+- When data privacy requires local, on-premises processing of sensitive enterprise documents.
+- When you need more than raw text (e.g., preserving document section hierarchy, headers, and table structures).
 
 ## When not to use it
-- For very simple text files or clean Markdown where standard readers suffice.
-- If you need real-time, low-latency parsing (it is optimized for batch ETL).
+- For very simple text files or clean Markdown where native readers suffice.
+- If you need sub-millisecond, low-latency parsing (it is optimized for thorough batch and agentic document processing).
 
 ## Getting started
 
 ### Installation
 ```bash
-pip install "unstructured[all-docs]"
+pip install "unstructured[all-docs]" pydantic
 ```
 
 ### Basic usage
@@ -130,12 +130,12 @@ unstructured-ingest s3 \
   --anonymous \
   --recursive
 
-# Start the UNS-MCP server (November 2026 Standard)
+# Start the UNS-MCP server (FastMCP 3.1 Standard)
 uvx uns_mcp --mcp-version 3.1
 ```
 
 ## API examples
-The Unstructured REST API provides scalable document processing. Python integrations in late 2026 must utilize robust **Pydantic v2** validation to model API parameters and parsed results.
+The Unstructured REST API provides scalable document processing. Python integrations in early 2027 utilize robust **Pydantic v2** validation to model API parameters and parsed results.
 
 ### Unstructured API Payload Validation (Python)
 ```python
@@ -169,7 +169,7 @@ try:
         "unstructured-api-key": "YOUR_API_KEY"
     }
 
-    # We send the validated payload alongside files
+    # Send the validated payload alongside files
     files = {"files": ("example.pdf", open("example.pdf", "rb"))}
     data = validated_payload.model_dump(mode="json")
 
@@ -179,16 +179,16 @@ except Exception as e:
 ```
 
 ## Related tools / concepts
-- [LlamaParse](llamaparse.md)
-- [Paperless-ngx](../../services/paperless-ngx.md)
-- [Docling](../process_understanding/docling.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 5.1](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
-- [Llama 4](../ai_knowledge/local_llms.md)
-- [Weaviate](../infrastructure/weaviate.md)
-- [Khoj](khoj.md)
+- [LlamaParse](llamaparse.md) — Document parsing platform from LlamaIndex.
+- [Paperless-ngx](../../services/paperless-ngx.md) — Self-hosted document management.
+- [Docling](../process_understanding/docling.md) — IBM document parsing framework.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture for document augmentation.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Open protocol for agentic tools.
+- [Claude 5.1](../providers/anthropic.md) — Frontier LLM for reasoning and synthesis.
+- [GPT-5.5](../ai_knowledge/openai.md) — OpenAI frontier reasoning model.
+- [Llama 4](../ai_knowledge/local_llms.md) — Open-weights local model family.
+- [Weaviate](../infrastructure/weaviate.md) — Vector database for structured ingestion.
+- [Khoj](khoj.md) — Personal AI knowledge search engine.
 
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
@@ -197,5 +197,5 @@ except Exception as e:
 - [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
