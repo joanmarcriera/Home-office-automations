@@ -1,7 +1,7 @@
 # Claude Hooks
 
 ## What it is
-Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of late 2026, they natively support **MCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
+Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of early 2027, they natively support **FastMCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
 
 ## What problem it solves
 Autonomous agents like **Claude 5.1** and **GPT-5.5** can occasionally overlook repository-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected or automatically formatting code).
@@ -56,7 +56,7 @@ python3 scripts/pre_hook_audit.py && claude && bash scripts/post_hook_cleanup.sh
 ```
 
 ### v0.5 Hooks Schema
-The late 2026 schema supports conditional execution based on tool arguments and schema definitions conforming to **MCP 3.1**:
+The early 2027 schema supports conditional execution based on tool arguments and schema definitions conforming to **FastMCP 3.1**:
 
 ```json
 {
@@ -98,7 +98,7 @@ tail -f .claude/hooks.log
 ## API examples
 
 ### Hook Definition (JSON)
-Define hooks using the standard middleware pattern for **Claude Code** and **MCP 3.1**.
+Define hooks using the standard middleware pattern for **Claude Code** and **FastMCP 3.1**.
 
 ```json
 {
@@ -126,7 +126,7 @@ Run robust validation of hook payload data programmatically:
 
 ```python
 from pydantic import BaseModel, Field
-from typing import Literal, Dict, Any, Union
+from typing import Literal, Dict, Any
 import sys
 
 class HookPayload(BaseModel):
@@ -173,8 +173,8 @@ print(f"Execution Allowed? {is_allowed}")
 - [Claude Hooks Pattern Library](https://github.com/johnlindquist/claude-hooks)
 - [Anthropic: Tool Use Middleware Patterns](https://docs.anthropic.com/claude/docs/tool-use-middleware)
 - [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io/spec)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

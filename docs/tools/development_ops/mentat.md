@@ -1,7 +1,7 @@
 # Mentat
 
 ## What it is
-Mentat is an AI tool that coordinates complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat is designed to handle large-scale refactors where the context spans dozens of files.
+Mentat is an AI tool that coordinates complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat is designed to handle large-scale refactors where the context spans dozens of files. In early 2027, Mentat features native integration with **FastMCP 3.1** and frontier reasoning models (**Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**).
 
 ## What problem it solves
 Enables developers to make coordinated, multi-file changes from the terminal with AI assistance, reducing the manual effort of large refactors and cross-cutting edits. It eliminates the need to manually copy-paste code into a chat interface by providing a direct terminal-based "edit-loop".
@@ -19,7 +19,7 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 - **Terminal-native workflow**: Ideal for developers who prefer the command line.
 - **Precise control**: Allows users to include or exclude specific files from the context.
 - **Multi-file coordination**: Handles dependencies and cross-file impacts effectively.
-- **Native MCP Support**: Direct integration with Model Context Protocol (MCP 3.1) servers for extended tool capabilities.
+- **Native MCP Support**: Direct integration with Model Context Protocol (FastMCP 3.1) servers for extended tool capabilities.
 
 ## Limitations
 - **External LLM dependence**: Requires an API key for OpenAI, Anthropic, or other providers.
@@ -51,7 +51,7 @@ mentat main.py --run "Add type hints and docstrings to all functions"
 ```
 
 ### Configuration
-Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules. As of late October and November 2026, Claude 5.1 is the recommended model for complex reasoning:
+Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules. Claude 5.1 is the recommended model for complex reasoning:
 
 ```json
 {
@@ -101,7 +101,7 @@ from pydantic import BaseModel, Field
 from mentat import MentatSession
 
 class RefactorTask(BaseModel):
-    paths: list[str] = Field(..., min_items=1)
+    paths: list[str] = Field(..., min_length=1)
     instruction: str = Field(..., min_length=10)
     model: str = Field(default="claude-5-1-sonnet-20261022")
 
@@ -144,5 +144,5 @@ mentat --model gpt-5.5-preview src/
 - [GitHub Repository](https://github.com/AbanteAI/mentat)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

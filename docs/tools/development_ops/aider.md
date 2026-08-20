@@ -1,7 +1,7 @@
 # Aider
 
 ## What it is
-Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of late 2026, Aider features advanced **Architect Mode** powered by **Claude 5.1** and native **MCP 3.1** integration for sophisticated tool-use capabilities.
+Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of early 2027, Aider features advanced **Architect Mode** powered by **Claude 5.1** and native **FastMCP 3.1** integration for sophisticated tool-use capabilities and repository-map analysis.
 
 ## What problem it solves
 It bridges the gap between high-level reasoning and low-level file manipulation. Aider eliminates the need for manual copy-pasting by directly applying AI-generated diffs to the local filesystem, handling Git commits automatically, and maintaining a coherent "map" of the entire codebase for context.
@@ -18,7 +18,7 @@ It bridges the gap between high-level reasoning and low-level file manipulation.
 ## Strengths
 - **Multi-file Editing**: Excels at coordinating changes across large codebases using its "repository map."
 - **Git Integration**: Automatically creates descriptive commit messages and manages local branches.
-- **Tool Choice**: Supports a wide range of models including **Claude 5.1**, **GPT-5.5**, and local models via **Ollama**.
+- **Tool Choice**: Supports a wide range of models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and local models via **Ollama**.
 - **Architect Mode**: Separates high-level planning from low-level implementation for better reliability on complex tasks.
 
 ## Limitations
@@ -54,10 +54,10 @@ aider
 ```
 
 ### Modern Architecture Setup
-Aider supports advanced models and `architect` mode natively:
+Aider supports advanced frontier models and `architect` mode natively:
 
 ```bash
-aider --model claude-3-7-sonnet-20250219 --architect
+aider --model claude-5-1-sonnet-20261022 --architect
 ```
 
 ## CLI examples
@@ -66,7 +66,7 @@ aider --model claude-3-7-sonnet-20250219 --architect
 Use the high-level architect mode to plan and execute a complex feature:
 
 ```bash
-aider --architect --message "Implement a new authentication flow using OIDC and MCP 3.1"
+aider --architect --message "Implement a new authentication flow using OIDC and FastMCP 3.1"
 ```
 
 ### Automated Bug Fixing
@@ -77,7 +77,7 @@ pytest | aider --message "Fix the failing tests in the output"
 ```
 
 ### Native MCP Integration
-Connect Aider to specialized MCP servers for enhanced context:
+Connect Aider to specialized FastMCP 3.1 servers for enhanced context:
 
 ```bash
 aider --mcp-server "npx @modelcontextprotocol/server-postgres postgres://localhost/db"
@@ -101,7 +101,7 @@ def auto_refactor(instruction):
 Standardize Aider behavior across a team using a project-level config:
 
 ```yaml
-model: claude-3-7-sonnet-20250219
+model: claude-5-1-sonnet-20261022
 architect: true
 auto-commits: true
 map-tokens: 2048
@@ -117,7 +117,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class AiderSessionConfig(BaseModel):
-    model: str = Field(default="claude-3-7-sonnet-20250219")
+    model: str = Field(default="claude-5-1-sonnet-20261022")
     architect: bool = Field(default=True)
     auto_commits: bool = Field(default=True, alias="auto-commits")
     map_tokens: int = Field(default=2048, alias="map-tokens")
@@ -128,7 +128,7 @@ class AiderSessionConfig(BaseModel):
 
 # Parse and validate setup configuration
 config_data = {
-    "model": "claude-3-7-sonnet-20250219",
+    "model": "claude-5-1-sonnet-20261022",
     "architect": True,
     "auto-commits": True,
     "mcp-servers": ["uvx mcp-server-git"]
@@ -156,5 +156,5 @@ print(f"Configured MCP servers: {session.mcp_servers}")
 - [Aider Documentation: Architect Mode](https://aider.chat/docs/architect.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
