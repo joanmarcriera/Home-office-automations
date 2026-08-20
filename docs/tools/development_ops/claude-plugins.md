@@ -1,179 +1,184 @@
 # Claude Plugins
 
 ## What it is
-Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of late 2026, they represent a mature ecosystem for extending the capabilities of **Claude 5.1** and other agentic frontier models (such as **GPT-5.5** and **Gemini 4.0**) within terminal environments and development workflows.
+Claude Plugins are modular, community-distributed extension packages designed to extend the capabilities of **Claude Code** and other agentic execution platforms. As of early 2027, the plugin architecture has matured into a standard extension ecosystem for frontier models including **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**. Claude Plugins package specialized CLI tools, workflow prompts, custom skills, and **FastMCP 3.1** server bindings into shareable, versioned bundles.
 
 ## What problem it solves
-They make common add-ons easier to install and reuse instead of copying prompts, scripts, or workflow glue by hand across repos. They solve:
-- **Capability Gaps**: Quickly adding specialized tools like browser automation or database access.
-- **Workflow Standardization**: Enforcing consistent review or testing patterns across a team.
-- **Integration Friction**: Simplifying the connection between Claude and external services like GitHub, Slack, or Jira.
+Configuring ad-hoc terminal scripts, copying prompt templates manually across repositories, or repeatedly wiring up external API integrations creates workflow fragmentation and maintenance overhead. Claude Plugins solve this by standardizing capability packaging. They enable developers to install pre-built integrations for web research, code reviews, automated testing, or database inspection with single CLI commands while maintaining governance and auditability.
 
 ## Where it fits in the stack
-Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. This is an ecosystem layer around [Claude Code](claude-code.md) rather than a standalone product.
+**Development & Ops / Extension Ecosystem**. Claude Plugins sit as an extension layer on top of [Claude Code](claude-code.md) and compatible terminal agents, connecting the base model with external developer tools, continuous integration systems, and local development environments.
 
 ## Typical use cases
-- **Web Orchestration**: Installing shared tool integrations such as browser automation via [Browser Use](../automation_orchestration/browser-use.md).
-- **Environment Standardization**: Reusing workflow packs across multiple repos or teams.
-- **Skill Discovery**: Standardizing local coding-agent environments using [Superpowers](../agents/superpowers.md).
-- **Data Access**: Integrating with **Model Context Protocol (MCP 3.1)** servers to expose local data.
-- **Automated Quality**: Running [Agentlint](../agents/agentlint.md) to check whether a repo is friendly to AI agents.
-- **PR Review**: Using `code-review` plugins to run structured PR reviews before shipping.
-- **Bug Remediation**: Utilizing `debugger` and `bug-fix` plugins to investigate complex failures and apply targeted patches.
+- **Web Orchestration & Scraping**: Adding web research and automated DOM interactions via integrations like [Browser Use](../automation_orchestration/browser-use.md).
+- **Automated PR Reviews**: Installing code review plugins that analyze diffs against repository standards before committing.
+- **Test Generation & Repair**: Employing plugins that execute `pytest` or `jest` suites, capture tracebacks, and apply targeted bug fixes automatically.
+- **FastMCP 3.1 Binding**: Connecting local or remote Model Context Protocol servers to expose enterprise APIs and data stores.
+- **Skill Governance**: Standardizing enterprise developer workflows across engineering teams using [Superpowers](../agents/superpowers.md).
 
 ### Notable Plugins & Starters
-| Plugin | Primary job | Best fit |
+| Plugin | Primary Job | Best Fit |
 | :--- | :--- | :--- |
-| `browser-use` | Live web research and multi-site orchestration | Automating data extraction from websites without an API |
-| `chronos-mcp` | Advanced time-based scheduling and task management | Managing multi-calendar synchronization |
-| `connect-apps` | Connect Claude Code to GitHub, Slack, Notion, Gmail | Cross-app project and operations workflows |
-| `test-writer-fixer` | Generate and repair unit tests (Jest, Pytest, etc.) | Codebases with weak regression coverage |
-| `mcp-builder` | Scaffold and iterate on [MCP](../automation_orchestration/mcp.md) servers | Teams exposing internal tools or services |
+| `browser-use` | Live web research and multi-site orchestration | Automating web data extraction without native REST APIs |
+| `chronos-mcp` | Advanced time-based scheduling and task management | Multi-calendar synchronization and cron task triggers |
+| `connect-apps` | Connect Claude Code to GitHub, Slack, Notion, Jira | Cross-application project management and telemetry |
+| `test-writer-fixer` | Generate and repair unit test suites (Pytest, Jest) | Legacy codebases with deficient test coverage |
+| `mcp-builder` | Scaffold and iterate on [FastMCP](../automation_orchestration/mcp.md) servers | Engineering teams building internal tooling endpoints |
 
 ## Strengths
-- Faster reuse of community integrations.
-- Encourages distribution of packaged workflows instead of ad hoc snippets.
-- Native integration with the Claude Code CLI.
-- Large and active community registry.
+- **Rapid Ecosystem Reuse**: Instantly endows Claude Code with complex capabilities without writing custom boilerplate.
+- **Package Standardization**: Versioned manifest specifications ensure predictable command interfaces and dependencies.
+- **Native FastMCP 3.1 Support**: Direct bridging with Model Context Protocol servers for secure resource and tool access.
+- **Developer Productivity**: Eliminates repetitive prompt setup and custom script wrapping across projects.
 
 ## Limitations
-- Quality and maintenance vary widely across community plugins.
-- Plugins should be reviewed like code because they can shape tool access and execution behavior.
-- Potential for overlapping tool definitions if multiple plugins are installed without care.
+- **Security Audit Requirement**: Untrusted community plugins must be carefully audited to prevent unauthorized file access or credential leaks.
+- **Overlapping Tool Definitions**: Installing multiple plugins with overlapping function signatures can cause model tool selection ambiguity.
+- **Environment Drift**: Dependencies within plugins (e.g., node modules or python packages) require periodic updates.
 
 ## When to use it
-- When you want fast installation of reviewed extensions to boost agent productivity.
-- When you need to bridge Claude Code with specific external tools or internal APIs.
-- To maintain consistency in how agents interact with your codebase.
+- When equipping terminal coding agents with reusable, enterprise-approved workflows and external tools.
+- When standardizing development practices, linter hooks, or code review protocols across software engineering teams.
+- When connecting [Claude Code](claude-code.md) to internal infrastructure via FastMCP 3.1 endpoints.
 
 ## When not to use it
-- When you cannot audit community tooling or must minimize third-party trust.
-- In highly restricted environments where external plugin execution is prohibited.
+- In strictly locked-down production environments where installing dynamic third-party extensions is prohibited.
+- For simple, one-off bash commands where standard system binaries suffice.
 
 ## Getting started
 
 ### Installing a Plugin
-Plugins are typically installed via the Claude Code CLI:
+Install plugins directly via the Claude Code CLI plugin manager:
+
 ```bash
-claude plugin add <plugin-name>
+claude plugin add browser-use
 ```
 
-### Listing Installed Plugins
-See what extensions are currently active in your environment:
+### Listing Active Plugins
+Inspect active plugins and their exposed capabilities:
+
 ```bash
 claude plugin list
 ```
 
-### Creating a Custom Skill
-While not a "plugin" in the distribution sense, creating a skill is the first step to building a plugin:
+### Creating a Local Custom Skill
+Expose a project-specific skill script that can be packaged into a plugin:
 
 ```python
-# skills/documentation_audit.py
-def audit_doc(filepath: str) -> str:
-    """Audits a markdown file for KnowledgeOps compliance."""
-    # Logic to check for Last reviewed date and headers
-    return "Audit complete: Pass"
+# skills/doc_validator.py
+import sys
+from pydantic import BaseModel, Field
 
-# Registering this skill in CLAUDE.md or via a plugin manifest
+class AuditResult(BaseModel):
+    filepath: str
+    status: str = Field(default="compliant")
+
+def validate_file(path: str) -> None:
+    print(f"Auditing file: {path}")
+    result = AuditResult(filepath=path)
+    print(f"Audit output: {result.model_dump_json()}")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        validate_file(sys.argv[1])
 ```
 
 ## CLI examples
 
-### Running a Plugin Command
-Many plugins expose new top-level commands to Claude:
+### Executing Plugin Commands
+Run a plugin-provided top-level command inside Claude Code:
+
 ```bash
-claude browser-use "Search for the latest Claude 5.1 features"
+claude browser-use "Search for the latest Claude 5.1 release notes and synthesize changes"
 ```
 
-### Checking Plugin Health
-Verify that all installed plugins are correctly configured:
+### Plugin Health Inspection
+Verify plugin configuration, dependencies, and MCP server bindings:
+
 ```bash
 claude plugin doctor
 ```
 
-### Updating Plugins
-Keep your extensions up to date with the latest security and feature patches:
+### Batch Plugin Update
+Upgrade all installed plugins to their latest secure releases:
+
 ```bash
 claude plugin update --all
 ```
 
 ## API examples
 
-### JSON: Plugin Manifest (Example)
-The structure of a community-distributed Claude plugin:
+### JSON: Plugin Manifest Specification
+An example manifest defining a custom KnowledgeOps helper plugin:
 
 ```json
 {
   "name": "knowledge-ops-helper",
-  "version": "1.2.0",
-  "description": "Tools for maintaining KnowledgeOps standards",
+  "version": "1.5.0",
+  "description": "Tools and MCP endpoints for maintaining KnowledgeOps standards",
   "commands": [
     {
       "name": "audit",
-      "description": "Run the KnowledgeOps audit script",
+      "description": "Execute KnowledgeOps quality audit script",
       "exec": "python3 scripts/audit_docs_quality.py"
     }
   ],
-  "mcp_servers": ["http://localhost:8000/mcp"]
+  "mcp_servers": [
+    "http://localhost:8000/mcp"
+  ]
 }
 ```
 
-### Programmatic Python Plugin Config Validator (Pydantic v2)
-Ensure community plugins conform to schema specifications:
+### Programmatic Python Plugin Manifest Validation (Pydantic v2)
+Validate plugin manifest schemas programmatically before deployment:
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 from typing import List, Optional
 
-class Command(BaseModel):
-    name: str = Field(..., description="The command name")
-    description: str = Field(..., description="Short explanation of command capability")
-    exec: str = Field(..., description="Local command to run")
+class PluginCommand(BaseModel):
+    name: str = Field(..., description="Unique command name")
+    description: str = Field(..., description="Summary of tool purpose")
+    exec: str = Field(..., description="Local system execution command")
 
 class PluginManifest(BaseModel):
-    name: str = Field(..., description="Package name of the Claude plugin")
-    version: str = Field(..., description="SemVer string")
-    description: str = Field(..., description="Usage info")
-    commands: List[Command] = Field(default_factory=list, description="Exposed CLI tools")
-    mcp_servers: Optional[List[str]] = Field(default=None, description="Associated MCP endpoint URLs")
+    name: str = Field(..., description="Package name")
+    version: str = Field(..., pattern=r"^\d+\.\d+\.\d+$", description="SemVer version")
+    description: str = Field(..., description="Plugin description")
+    commands: List[PluginCommand] = Field(default_factory=list)
+    mcp_servers: Optional[List[str]] = Field(default=None)
 
-# Example validation
-manifest_data = {
+# Sample manifest verification
+manifest_payload = {
     "name": "knowledge-ops-helper",
-    "version": "1.2.0",
-    "description": "Tools for maintaining KnowledgeOps standards",
+    "version": "1.5.0",
+    "description": "Tools and MCP endpoints for maintaining KnowledgeOps standards",
     "commands": [
         {
             "name": "audit",
-            "description": "Run the KnowledgeOps audit script",
+            "description": "Execute KnowledgeOps quality audit script",
             "exec": "python3 scripts/audit_docs_quality.py"
         }
     ],
     "mcp_servers": ["http://localhost:8000/mcp"]
 }
 
-manifest = PluginManifest.model_validate(manifest_data)
-print(f"Validated plugin: {manifest.name} v{manifest.version}")
+manifest = PluginManifest.model_validate(manifest_payload)
+print(f"Validated Plugin: {manifest.name} (v{manifest.version}) with {len(manifest.commands)} commands.")
 ```
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md) - The primary CLI for running these plugins.
-- [Claude Hooks](claude-hooks.md) - Event-based automation within Claude Code.
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) - The broader landscape of agent capabilities.
-- [Browser Use](../automation_orchestration/browser-use.md) - High-level web automation library.
-- [Chronos MCP](../automation_orchestration/chronos-mcp.md) - Time-based task orchestration.
-- [Superpowers](../agents/superpowers.md) - Identity and skill management framework.
-- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - The underlying protocol for tool and resource exchange.
-- [Aider](aider.md) - Terminal-native pair programmer.
-- [Plandex](plandex.md) - Plan-first engineering engine.
+- [Claude Code](claude-code.md) — The primary terminal interface for executing plugins.
+- [Claude Hooks](claude-hooks.md) — Event-driven middleware for agent session guardrails.
+- [Browser Use](../automation_orchestration/browser-use.md) — Web automation library frequently packaged as a plugin.
+- [Superpowers](../agents/superpowers.md) — Skill and identity management framework for agents.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Core protocol for tool and context interoperability.
 
 ## Sources / references
-- [awesomeclaude.ai](https://awesomeclaude.ai/)
-- [AI Templates](https://www.aitmpl.com/)
-- [Superpowers](https://github.com/obra/superpowers)
-- [Awesome Claude Plugins](https://github.com/ComposioHQ/awesome-claude-plugins)
-- [Issue #404 source discussion](https://github.com/joanmarcriera/Home-office-automations/issues/404)
+- [Official Claude Code Documentation](https://docs.anthropic.com/claude/docs/claude-code)
+- [Awesome Claude Plugins Repository](https://github.com/ComposioHQ/awesome-claude-plugins)
+- [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

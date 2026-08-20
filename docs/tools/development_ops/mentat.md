@@ -1,57 +1,58 @@
 # Mentat
 
 ## What it is
-Mentat is an AI tool that coordinates complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat is designed to handle large-scale refactors where the context spans dozens of files.
+Mentat is an open-source, terminal-native AI pair programmer engineered to coordinate complex, multi-file code modifications directly from the command line. Unlike traditional single-file autocompletion or GUI-based chat interfaces, Mentat parses entire repository structures, builds full AST context trees, and applies targeted edits across dozens of files simultaneously. As of early 2027, Mentat features native integration with **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** and supports frontier reasoning models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **DeepSeek-V4**.
 
 ## What problem it solves
-Enables developers to make coordinated, multi-file changes from the terminal with AI assistance, reducing the manual effort of large refactors and cross-cutting edits. It eliminates the need to manually copy-paste code into a chat interface by providing a direct terminal-based "edit-loop".
+Managing cross-cutting refactorings, architectural modifications, or multi-module dependency upgrades manually is error-prone and time-consuming. Copy-pasting code fragments between IDE editors and standalone LLM web interfaces strips context and introduces syntax or import mismatches. Mentat eliminates context degradation by executing a closed terminal edit-loop, dynamically selecting relevant code modules, generating precision diffs, and verifying execution directly within the workspace.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as a terminal-based AI coding assistant for multi-file editing, typically used alongside a standard IDE or text editor.
+**Development & Ops / AI-Assisted Coding**. Mentat functions as an autonomous terminal agent and multi-file code editing engine, operating alongside traditional IDEs like VS Code or terminal workflows alongside tools like [Aider](aider.md) and [Claude Code](claude-code.md).
 
 ## Typical use cases
-- Coordinating complex changes across multiple files.
-- Codebase-wide refactoring from the terminal.
-- Applying precise, controlled edits with AI assistance.
-- Generating unit tests for existing codebases.
+- **Multi-File Refactoring**: Coordinating structural code edits across database repositories, API models, and service interfaces in a single command.
+- **Codebase Standardization**: Enforcing new linting, type-annotation, or Pydantic v2 schema standards across multi-module Python applications.
+- **Automated Test Generation**: Generating end-to-end unit test suites in `pytest` for legacy code bases based on AST context analysis.
+- **MCP Server Interoperability**: Exposing internal database schemas or vector memory stores to the terminal agent via FastMCP 3.1 endpoints.
 
 ## Strengths
-- **Terminal-native workflow**: Ideal for developers who prefer the command line.
-- **Precise control**: Allows users to include or exclude specific files from the context.
-- **Multi-file coordination**: Handles dependencies and cross-file impacts effectively.
-- **Native MCP Support**: Direct integration with Model Context Protocol (MCP 3.1) servers for extended tool capabilities.
+- **Terminal-Native Efficiency**: Streamlined command-line interface tailored for rapid headless or interactive keyboard-driven workflows.
+- **Granular Context Control**: Precise inclusion/exclusion glob patterns allowing developers to strictly bound context window consumption.
+- **Multi-File Coordination**: Maintains cross-file dependency graph tracking to avoid broken imports or missing symbols.
+- **Native FastMCP 3.1 Support**: Seamlessly connects with external tool endpoints for database queries, web search, or live telemetry.
 
 ## Limitations
-- **External LLM dependence**: Requires an API key for OpenAI, Anthropic, or other providers.
-- **Learning curve**: Terminal commands and configuration may be less intuitive than GUI alternatives.
+- **Model API Dependency**: Requires active API access keys for Anthropic, OpenAI, Google, or local Ollama / vLLM endpoints.
+- **Terminal Learning Curve**: Command flags and CLI-driven prompt syntax require familiarity compared to drag-and-drop GUI editors like Cursor.
+- **Token Overhead**: Ingesting extensive file trees for large monolithic projects can rapidly consume LLM context budgets if globs are unconstrained.
 
 ## When to use it
-- When you need precise, multi-file edits from the terminal.
-- When codebase standardization tasks require coordinated changes across several modules.
-- When leveraging [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tools for enhanced codebase interaction.
+- When making synchronized, multi-file architectural changes or API contract updates.
+- When working in headless SSH servers, remote containers, or developer terminal environments.
+- When orchestrating terminal coding agents leveraging [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
 
 ## When not to use it
-- When a graphical editor experience (like [Cursor](cursor.md)) is preferred.
-- When single-file completions are the primary need.
+- When a rich graphical IDE interface with inline inline suggestion popups (e.g., [Cursor](cursor.md) or [Windsurf](windsurf.md)) is preferred.
+- For simple single-line inline code completions where lightweight IDE extensions are faster.
 
 ## Getting started
 
 ### Installation
-Mentat can be installed via pip:
+Mentat is distributed via PyPI and can be installed with Python 3.10+:
 
 ```bash
-pip install mentat-ai pydantic>=2.0.0
+pip install mentat-ai pydantic>=2.10.0
 ```
 
-### Hello-world example
-Run Mentat in non-interactive mode on a target file:
+### Initial Run
+Launch Mentat on target files with an explicit instruction:
 
 ```bash
-mentat main.py --run "Add type hints and docstrings to all functions"
+mentat src/main.py src/services/ --run "Add strict Pydantic v2 validation models and type annotations"
 ```
 
 ### Configuration
-Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules. As of late October and November 2026, Claude 5.1 is the recommended model for complex reasoning:
+Project preferences can be defined in `.mentat_config.json` at the repository root:
 
 ```json
 {
@@ -70,79 +71,80 @@ Create a `.mentat_config.json` in your project root to manage model preferences,
 
 ## CLI examples
 
-### 1. Granular Context Selection
-Include specific files and directories while excluding patterns:
+### 1. Multi-Directory Targeted Context
+Specify exact directories and exclude test fixtures or legacy code:
 
 ```bash
-mentat src/main.py src/utils/ tests/ --exclude tests/legacy/
+mentat src/api/ src/core/ --exclude src/core/legacy/ --run "Update database endpoints to async/await"
 ```
 
-### 2. Batch Non-Interactive Command
-Execute refactoring commands directly without entering the interactive shell:
+### 2. Batch Refactoring Command
+Execute non-interactive batch edits powered by GPT-5.5 or Gemini 4.0 Pro:
 
 ```bash
-mentat --run "Refactor database query logic in repository layer" --model gpt-5.5-preview src/
+mentat --run "Refactor all REST routes to FastMCP 3.1 tool endpoints" --model gpt-5.5-preview src/
 ```
 
-### 3. Model Context Protocol (MCP) Integration
-Connect to MCP servers to provide Mentat with database introspection or search capabilities:
+### 3. MCP Server Connectivity
+Inject live context from a Postgres database MCP server during a refactor:
 
 ```bash
-mentat --mcp-server "npx @modelcontextprotocol/server-postgres"
+mentat --mcp-server "npx @modelcontextprotocol/server-postgres postgres://localhost/production"
 ```
 
 ## API examples
 
-### Python Programmatic Access with Pydantic v2 validation
-Mentat can be integrated into custom automation scripts using its Python API and verified using Pydantic v2 schemas.
+### Python Programmatic Refactoring Session with Pydantic v2
+Integrate Mentat programmatically within CI/CD pipelines or internal task automation tools:
 
 ```python
+import asyncio
 from pydantic import BaseModel, Field
 from mentat import MentatSession
 
-class RefactorTask(BaseModel):
-    paths: list[str] = Field(..., min_items=1)
-    instruction: str = Field(..., min_length=10)
-    model: str = Field(default="claude-5-1-sonnet-20261022")
+class MentatTaskConfig(BaseModel):
+    paths: list[str] = Field(..., min_length=1, description="Target source paths")
+    instruction: str = Field(..., min_length=10, description="Refactoring prompt instruction")
+    model: str = Field(default="claude-5-1-sonnet-20261022", description="Frontier LLM model ID")
+    temperature: float = Field(default=0.1, ge=0.0, le=1.0)
 
-async def run_validated_refactor(task_data: dict) -> None:
-    # Validate the task configuration using Pydantic v2
-    task = RefactorTask(**task_data)
+async def run_automated_refactor(task_payload: dict) -> bool:
+    # Validate payload structure using Pydantic v2
+    task = MentatTaskConfig.model_validate(task_payload)
 
     session = await MentatSession.create(
         paths=task.paths,
-        model=task.model
+        model=task.model,
+        temperature=task.temperature
     )
+
     await session.process_instruction(task.instruction)
     await session.apply_changes()
     await session.close()
-```
+    return True
 
-### Automated Scripting
-Run Mentat in a non-interactive mode for CI integration or batch tasks:
-
-```bash
-# Run a specific command and exit
-mentat --run "Generate docstrings for all functions in lib/"
-
-# Use GPT-5.5 for a specific reasoning task
-mentat --model gpt-5.5-preview src/
+if __name__ == "__main__":
+    payload = {
+        "paths": ["src/services/user.py"],
+        "instruction": "Upgrade user service to use FastMCP 3.1 tool decorators and strict typing.",
+        "model": "claude-5-1-sonnet-20261022"
+    }
+    asyncio.run(run_automated_refactor(payload))
 ```
 
 ## Related tools / concepts
-- [Aider](aider.md) — Another popular terminal-based AI pair programmer.
-- [Plandex](plandex.md) — For terminal-native complex refactoring.
-- [Codeium](codeium.md) — For IDE-native AI assistance.
-- [Claude Code](./claude-code.md) — Anthropic's official CLI for agentic coding.
-- [Cursor](cursor.md) — An AI-native IDE for a GUI-first approach.
-- [Continue](./continue_dev.md) — An open-source IDE extension for AI assistance.
-- [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
-- [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
+- [Aider](aider.md) — Terminal-native AI pair programmer with Architect Mode.
+- [Claude Code](claude-code.md) — Anthropic's official terminal agent for agentic workflows.
+- [Plandex](plandex.md) — Plan-first engineering engine for complex codebase refactoring.
+- [Cursor](cursor.md) — AI-native graphical IDE with deep index navigation.
+- [Superconductor](superconductor.md) — Parallel execution environment for agentic coding.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standardized tool and resource sharing protocol.
 
 ## Sources / references
-- [Official Website](https://www.mentat.ai/)
-- [GitHub Repository](https://github.com/AbanteAI/mentat)
+- [Official Mentat Website](https://www.mentat.ai/)
+- [Mentat GitHub Repository](https://github.com/AbanteAI/mentat)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

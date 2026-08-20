@@ -1,72 +1,70 @@
 # Claude Hooks
 
 ## What it is
-Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of late 2026, they natively support **MCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
+Claude Hooks are event-driven middleware interceptors and configuration standards used to wrap **Claude Code** agentic sessions with deterministic lifecycle guardrails. As of early 2027, Claude Hooks natively integrate with **MCP 3.1 / FastMCP 3.1** specification primitives, allowing engineering teams to intercept tool executions before (`PreToolUse`) or after (`PostToolUse`) execution during autonomous coding loops with **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
-Autonomous agents like **Claude 5.1** and **GPT-5.5** can occasionally overlook repository-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected or automatically formatting code).
+Autonomous AI coding agents can occasionally make unintended filesystem modifications, introduce secret leaks in Git commits, or bypass corporate compliance rules. Claude Hooks solve this by providing a deterministic, non-LLM enforcement layer. By intercepting tool calls in real time, hooks can run static analysis, check secret scanners, enforce branch protection policies, or execute automatic formatting before changes are permanently applied to the codebase.
 
 ## Where it fits in the stack
-**Development & Ops / Workflow Guardrails**. It acts as a configuration and orchestration layer sitting directly between the agent and the operating system, often integrated via specialized **MCP** servers or custom shell wrappers.
+**Development & Ops / Workflow Guardrails**. Claude Hooks sit directly between the agent reasoning loop and system execution primitives, acting as safety middleware and event triggers inside [Claude Code](claude-code.md) environments.
 
 ## Typical use cases
-- **Security Interception**: Scanning for credentials or PII before the `git_commit` or `write_file` tools are allowed to execute.
-- **Automated Formatting**: Running `prettier`, `ruff`, or `eslint` automatically after a `write_file` operation to ensure style compliance.
-- **Workflow Notifications**: Sending a Slack, Teams, or **Chronos MCP** alert when a long-running refactor session completes.
-- **Environment Verification**: Ensuring a clean Git state, active VPN connection, or passing test suite before allowing the agent to proceed.
+- **Pre-Commit Secret Scanning**: Intercepting `git_commit` tool calls to verify no API credentials, private keys, or certificates are staged.
+- **Automated Formatting & Linting**: Triggering `ruff`, `prettier`, or `eslint` automatically in `PostToolUse` steps when `write_file` modifies source files.
+- **Protected File Guardrails**: Preventing the agent from modifying critical system manifests, lockfiles, or standard documentation headers without explicit permission.
+- **Observability & Telemetry**: Emitting webhook events or logging execution metrics to observability dashboards when tools execute.
 
 ## Strengths
-- **Deterministic**: Logic is executed by the shell or a local runtime, not the LLM, ensuring 100% compliance with defined rules.
-- **Complexity Management**: Simplifies cascading execution requirements in complex developer tools.
-- **Transparency**: Uses standard JSON schemas (`hooks.json`) that are easy to audit, version control, and share across teams.
-- **Extensible**: Supports any local binary or script as a hook action.
+- **Deterministic Enforcement**: Guardrail rules are executed by local shell binaries or Python scripts, guaranteeing 100% compliance regardless of model prompting.
+- **Native FastMCP 3.1 Compatibility**: Seamlessly intercepts standard MCP tool invocation payloads.
+- **Clear Lifecycle Transparency**: Standard JSON configuration (`.claude/hooks.json`) is version-controlled alongside application code.
+- **Extensible Integration**: Supports any executable script or CLI tool binary as an action handler.
 
 ## Limitations
-- **Configuration Overhead**: Requires maintaining `.claude/hooks.json` or equivalent setup files which can drift from project needs.
-- **Latency**: Multiple complex hooks (especially network-dependent ones) can add measurable delay to the agent's "thinking" loop.
-- **Local Tool Reliance**: Hooks depend on the presence of local binaries (e.g., `grep`, `npm`, `python`) which must be present in the execution environment.
+- **Latency Overhead**: Complex or network-dependent hook scripts add execution delay to each step in the agent's interaction loop.
+- **Environment Dependency**: Hooks depend on local system dependencies (e.g., `python3`, `node`, `ruff`) being present in the shell `$PATH`.
+- **Configuration Scope**: Complex nested hook configurations can require ongoing maintenance as repository tooling evolves.
 
 ## When to use it
-- In shared team environments where standardized coding practices and security gates must be enforced.
-- When delegating sensitive tasks (e.g., infrastructure-as-code or production database migrations) to an autonomous agent.
-- To automate the feedback loop between the agent and local CI/CD scripts.
+- In multi-developer team environments requiring strict adherence to security protocols, secret scanning, and formatting standards.
+- When delegating autonomous, high-impact tasks (such as refactoring database schemas or infrastructure configuration) to terminal agents.
+- When integrating [Claude Code](claude-code.md) with internal auditing or CI/CD pipelines.
 
 ## When not to use it
-- For rapid, exploratory prototyping where strict rules might hinder velocity.
-- In small, single-file scripts where natural language instructions in the system prompt are sufficient.
-- If the environment lacks the necessary tooling to execute the hook actions reliably.
+- During rapid, lightweight local prototyping where strict pre-commit checks hinder developer velocity.
+- For isolated sandbox environments where code execution is fully untrusted and ephemeral.
 
 ## Getting started
 
-### Configuration Directory
-Claude Hooks typically look for configuration in the `.claude/` directory of your repository root.
+### Configuration Directory Setup
+Initialize the configuration directory inside your repository root:
 
 ```bash
 mkdir -p .claude
 touch .claude/hooks.json
 ```
 
-### Implementing a Wrapper
-Since hooks are often implemented as middleware, you can wrap your agent execution in a script:
-
-```bash
-# Example: run-claude-with-hooks.sh
-# Runs a pre-hook script before starting the Claude Code session
-python3 scripts/pre_hook_audit.py && claude && bash scripts/post_hook_cleanup.sh
-```
-
-### v0.5 Hooks Schema
-The late 2026 schema supports conditional execution based on tool arguments and schema definitions conforming to **MCP 3.1**:
+### Basic `.claude/hooks.json` Configuration
+Define pre-tool and post-tool lifecycle hooks:
 
 ```json
 {
-  "version": "0.5",
+  "version": "1.0",
   "hooks": [
     {
-      "name": "Audit Commits",
-      "tool": "git_commit",
+      "name": "Secret Scanner",
       "type": "PreToolUse",
-      "action": "scripts/audit_msg.py"
+      "tool": "git_commit",
+      "action": "python3 scripts/scan_secrets.py",
+      "on_failure": "abort"
+    },
+    {
+      "name": "Code Formatter",
+      "type": "PostToolUse",
+      "tool": "write_file",
+      "action": "ruff format {{filepath}}",
+      "on_failure": "warn"
     }
   ]
 }
@@ -74,22 +72,22 @@ The late 2026 schema supports conditional execution based on tool arguments and 
 
 ## CLI examples
 
-### Manual Hook Execution
-Test your pre-commit hook manually before the agent runs to ensure it behaves correctly:
+### Testing Pre-Commit Secret Scanner Hook Manually
+Verify that the hook script functions correctly outside the agent loop:
 
 ```bash
 python3 scripts/scan_secrets.py --staged --verbose
 ```
 
-### Validating Hook Environment
-Ensure all tools required by your hooks are available in the current `$PATH`:
+### Environment Verification for Required Hook Dependencies
+Ensure all executables referenced in `.claude/hooks.json` are in system path:
 
 ```bash
-which eslint prettier python3 ruff
+which ruff eslint python3
 ```
 
-### Monitoring Hook Logs
-View the output of middleware execution during an active agent session for debugging:
+### Inspecting Active Hook Logs
+Tail execution logs emitted during Claude Code agent sessions:
 
 ```bash
 tail -f .claude/hooks.log
@@ -97,84 +95,59 @@ tail -f .claude/hooks.log
 
 ## API examples
 
-### Hook Definition (JSON)
-Define hooks using the standard middleware pattern for **Claude Code** and **MCP 3.1**.
-
-```json
-{
-  "hooks": [
-    {
-      "name": "Pre-Commit Secret Scan",
-      "type": "PreToolUse",
-      "tool": "git_commit",
-      "action": "scripts/scan_secrets.sh",
-      "on_failure": "abort"
-    },
-    {
-      "name": "Post-Write Lint",
-      "type": "PostToolUse",
-      "tool": "write_file",
-      "action": "npx eslint {{filepath}} --fix",
-      "on_failure": "warn"
-    }
-  ]
-}
-```
-
-### Custom Python Hook (Middleware Logic) with Pydantic v2
-Run robust validation of hook payload data programmatically:
+### Custom Python Middleware Hook with Pydantic v2 Payload Validation
+Implement a robust, type-safe hook handler in Python to enforce protected path policies:
 
 ```python
-from pydantic import BaseModel, Field
-from typing import Literal, Dict, Any, Union
 import sys
+from typing import Literal, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
 
 class HookPayload(BaseModel):
-    hook_name: str = Field(..., description="The label of the hook execution")
+    hook_name: str = Field(..., description="Label of executing hook")
     type: Literal["PreToolUse", "PostToolUse"]
-    tool_name: str = Field(..., description="Name of intercepted tool")
-    arguments: Dict[str, Any] = Field(default_factory=dict, description="Captured tool parameters")
+    tool_name: str = Field(..., description="Target tool identifier")
+    arguments: Dict[str, Any] = Field(default_factory=dict, description="Captured tool arguments")
 
-def evaluate_tool_execution(payload_data: Dict[str, Any]) -> bool:
+def evaluate_tool_invocation(raw_payload: Dict[str, Any]) -> bool:
     try:
-        payload = HookPayload.model_validate(payload_data)
-        if payload.tool_name == "delete_file" and "protected" in payload.arguments.get("path", ""):
-            print(f"Error [{payload.hook_name}]: Aborted tool run. Cannot delete protected path.", file=sys.stderr)
-            return False
+        payload = HookPayload.model_validate(raw_payload)
+
+        # Guardrail rule: Protect standards and core configuration files from unauthorized deletion
+        if payload.tool_name == "delete_file":
+            target_path = str(payload.arguments.get("filepath", ""))
+            if "standards" in target_path or "config" in target_path:
+                print(f"SECURITY BLOCK [{payload.hook_name}]: Deletion of protected path '{target_path}' is prohibited.", file=sys.stderr)
+                return False
         return True
-    except Exception as e:
-        print(f"Validation failure: {e}", file=sys.stderr)
+    except ValidationError as err:
+        print(f"Hook payload validation error: {err}", file=sys.stderr)
         return False
 
-# Example payload
-test_payload = {
-    "hook_name": "Audit Deletions",
-    "type": "PreToolUse",
-    "tool_name": "delete_file",
-    "arguments": {"path": "docs/protected/standards.md"}
-}
+if __name__ == "__main__":
+    sample_payload = {
+        "hook_name": "Protected Path Guard",
+        "type": "PreToolUse",
+        "tool_name": "delete_file",
+        "arguments": {"filepath": "docs/standards.md"}
+    }
 
-is_allowed = evaluate_tool_execution(test_payload)
-print(f"Execution Allowed? {is_allowed}")
+    allowed = evaluate_tool_invocation(sample_payload)
+    print(f"Tool invocation permitted: {allowed}")
 ```
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md) — The primary agentic CLI.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending agent capabilities.
-- [Aider](aider.md) — Alternative CLI coding assistant with similar hook support.
-- [Plandex](plandex.md) — Plan-first engineering engine.
-- [GitHub Actions](../../architecture/infrastructure.md) — For server-side CI hooks.
-- [Playwright](playwright.md) — Often used in post-execution verification hooks.
-- [Claude Plugins](claude-plugins.md) — Native extensions for Claude.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Design patterns for autonomous agents.
-- [Free Will MCP](free-will-mcp.md) — Autonomous loop management.
+- [Claude Code](claude-code.md) — Primary terminal CLI running Claude Hooks.
+- [Claude Plugins](claude-plugins.md) — Extension ecosystem providing modular tools and skills.
+- [Aider](aider.md) — Terminal pair programmer supporting linting and auto-test triggers.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standardized tool execution framework.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Operational patterns for autonomous coding agents.
 
 ## Sources / references
-- [Claude Hooks Pattern Library](https://github.com/johnlindquist/claude-hooks)
-- [Anthropic: Tool Use Middleware Patterns](https://docs.anthropic.com/claude/docs/tool-use-middleware)
-- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io/spec)
+- [Anthropic Claude Code Tool Use Documentation](https://docs.anthropic.com/claude/docs/claude-code)
+- [Claude Hooks Community Pattern Library](https://github.com/johnlindquist/claude-hooks)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
