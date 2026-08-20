@@ -1,7 +1,7 @@
 # LangSmith
 
 ## What it is
-LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of November 2026, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) observability.
+LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of January 2027, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) observability, serverless tracing, and real-time agent fleet orchestration.
 
 ## What problem it solves
 It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. It utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
@@ -20,7 +20,7 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 ## Strengths
 - **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.1.
 - **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
-- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.1** and **GPT-5.5**.
+- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0 Pro**.
 - **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
 - **Scalable Telemetry**: Powered by ClickHouse for real-time OLAP queries on massive agentic datasets.
 
@@ -69,7 +69,7 @@ def my_agent(question: str):
         messages=[{"role": "user", "content": question}]
     )
 
-my_agent("What is the state of MCP in November 2026?")
+my_agent("What is the state of MCP in January 2027?")
 ```
 
 ## CLI examples
@@ -184,5 +184,5 @@ def validate_eval_payload(raw_json: str) -> Optional[LangSmithEvalRun]:
 - [ClickHouse Integration for Observability](https://clickhouse.com/blog/observability-with-clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,11 +1,11 @@
 # Supermetal Benchmark
 
 ## What it is
-Supermetal is a high-performance data movement and processing tool designed for low-latency synchronization between production databases and modern data lake formats. As of November 2026, it is recognized for its industry-leading Postgres-to-Iceberg synchronization speeds, outperforming traditional distributed computing frameworks.
+Supermetal is a high-performance data movement and processing tool designed for low-latency synchronization between production databases and modern data lake formats. As of January 2027, it is recognized for its industry-leading Postgres-to-Iceberg synchronization speeds, outperforming traditional distributed computing frameworks.
 
 ## What problem it solves
 It addresses the latency and complexity bottlenecks in Change Data Capture (CDC) pipelines. Traditionally, moving data from production databases (like Postgres) to analytics platforms (like Apache Iceberg) required complex setups involving Flink, Kafka Connect, or Spark. Supermetal simplifies this by:
-- **Reducing Latency**: Benchmarks show Postgres-to-Iceberg synchronization in as little as 13 minutes for massive datasets, providing high-freshness data for **Claude 5.1** and **GPT-5.5** RAG systems.
+- **Reducing Latency**: Benchmarks show Postgres-to-Iceberg synchronization in as little as 13 minutes for massive datasets, providing high-freshness data for **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0** RAG systems.
 - **Simplifying Infrastructure**: Replacing multi-component distributed stacks with a single, high-performance process.
 - **Ensuring Consistency**: Maintaining transactional integrity and data accuracy via Apache Arrow's type system.
 
@@ -15,7 +15,7 @@ It addresses the latency and complexity bottlenecks in Change Data Capture (CDC)
 ## Typical use cases
 - **Real-time CDC**: Synchronizing Postgres data to Iceberg for near-instant analytics.
 - **Data Stack Consolidation**: Simplifying the infrastructure required for reliable data pipelines.
-- **AI Dataset Freshness**: Ensuring that models like Claude 5.1 and GPT-5.5 have access to the most recent production data via high-speed ingestion.
+- **AI Dataset Freshness**: Ensuring that models like Claude 5.1, GPT-5.5 / 5.6, and Gemini 4.0 have access to the most recent production data via high-speed ingestion.
 
 ## Strengths
 - **Speed**: Optimized for modern hardware and cloud-native storage, achieving throughput that dwarfs open-source alternatives.
@@ -177,5 +177,5 @@ def validate_connector_config(raw_json: str) -> Optional[SupermetalConnectorConf
 - [Apache Arrow and the Future of Data Movement](https://arrow.apache.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high
