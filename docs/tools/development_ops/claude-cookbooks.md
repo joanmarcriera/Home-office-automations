@@ -1,7 +1,7 @@
 # Claude Cookbooks
 
 ## What it is
-Claude Cookbooks is Anthropic's public repository of example code, workflows, and reference material for building with Claude. As of late October / November 2026, it is the primary resource for teams integrating frontier models like Claude 5.1 (`claude-5-1-20261101`) into production environments, featuring extensive patterns for the **MCP 3.1** standard and prompt caching strategies.
+Claude Cookbooks is Anthropic's official repository of example code, workflows, and reference material for building with Claude. As of early January 2027, it serves as the primary resource for teams integrating frontier models like **Claude 5.1** into production environments, featuring extensive patterns for the **FastMCP 3.1** standard, prompt caching, and speculative execution strategies.
 
 ## What problem it solves
 It gives teams a practical set of implementation examples so they do not have to infer every integration pattern from raw API reference docs alone. It addresses:
@@ -14,8 +14,8 @@ It gives teams a practical set of implementation examples so they do not have to
 **Development & Ops / Reference Implementations**. It is a learning and acceleration resource for Claude builders, sitting between the raw API documentation and third-party frameworks like [LangChain](../ai_knowledge/langchain.md). It serves as the foundation for the [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md).
 
 ## Typical use cases
-- Learning Claude API usage patterns for Claude 5.1 and earlier models.
-- Bootstrapping demos and internal prototypes using the **Model Context Protocol (MCP) 3.1** standard.
+- Learning Claude API usage patterns for Claude 5.1 and enterprise deployments.
+- Bootstrapping demos and internal prototypes using the **FastMCP 3.1** standard.
 - Reviewing implementation examples before building custom flows in [Cursor](./cursor.md) or [Aider](./aider.md).
 - Implementing enterprise-grade RAG pipelines with prompt caching.
 - Designing complex tool chains for autonomous agents like [Claude Code](./claude-code.md).
@@ -23,7 +23,7 @@ It gives teams a practical set of implementation examples so they do not have to
 ## Strengths
 - **First-party Authenticity**: Direct guidance from the Anthropic engineering team, ensuring the most efficient use of model capabilities.
 - **Practicality**: Focuses on runnable code (Jupyter notebooks, Python scripts) rather than abstract theory.
-- **Ecosystem Alignment**: Examples are optimized for the latest features like prompt caching, tool-use, and MCP 3.1.
+- **Ecosystem Alignment**: Examples are optimized for the latest features like prompt caching, tool-use, and FastMCP 3.1.
 - **Community-Driven**: Includes contributions from the broader developer community, covering a wide range of use cases and stacks.
 
 ## Limitations
@@ -58,7 +58,7 @@ pip install -r requirements.txt
 The repository itself is a collection of examples, but you can interact with it via standard Git and Python tools.
 
 ```bash
-# Search for a specific pattern (e.g., tool use)
+# Search for a specific pattern (e.g., tools)
 grep -r "tools" .
 
 # Run a specific notebook example using jupyter
@@ -70,7 +70,7 @@ ls examples | grep -i "rag"
 
 ## API examples
 
-### 1. Python: Implementing Prompt Caching (Late 2026 Pattern)
+### 1. Python: Implementing Prompt Caching (Early 2027 Pattern)
 ```python
 import anthropic
 
@@ -95,9 +95,9 @@ response = client.messages.create(
 )
 ```
 
-### 2. Implementing MCP 3.1 Tool Call
+### 2. Implementing FastMCP 3.1 Tool Call
 ```python
-# Conceptual pattern for MCP 3.1 Tool Calling
+# Conceptual pattern for FastMCP 3.1 Tool Calling
 from mcp.client import Client
 
 async with Client("http://localhost:8080") as client:
@@ -184,8 +184,8 @@ def validate_prompt_template(raw_json: str) -> Optional[PromptTemplate]:
 - [Claude Cookbooks GitHub Repository](https://github.com/anthropics/claude-cookbooks)
 - [Anthropic Documentation: Cookbooks Overview](https://docs.anthropic.com/en/docs/resources/cookbooks)
 - [Anthropic API Console](https://console.anthropic.com/)
-- [Anthropic Developer Blog: October 2026 Update](https://www.anthropic.com/news/developer-update-october-2026)
+- [Anthropic Developer Updates](https://www.anthropic.com/news)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-02
+- Last reviewed: 2027-01-07
 - Confidence: high

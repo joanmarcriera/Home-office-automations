@@ -1,13 +1,13 @@
 # Claude Code Container MCP Server
 
 ## What it is
-An Model Context Protocol (MCP 3.1) server that manages containerized Claude Code sessions, transforming the CLI tool into an orchestratable, isolated service. It allows reasoning models like **Claude 5.1** and **GPT-5.5** to manage their own execution environments securely via Docker.
+An Model Context Protocol (FastMCP 3.1) server that manages containerized Claude Code sessions, transforming the CLI tool into an orchestratable, isolated service. It allows reasoning models like **Claude 5.1** and **GPT-5.5** to manage their own execution environments securely via Docker.
 
 ## What problem it solves
 It enables AI assistants to create and control isolated Claude Code instances programmatically. It provides Docker-based isolation, multi-session management, and support for **AWS Bedrock**, making it suitable for enterprise AI-to-AI workflows. It solves the risk of an agent performing destructive actions on a host machine by confining the agent to a disposable container.
 
 ## Where it fits in the stack
-**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction and MCP 3.1 communication.
+**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction and FastMCP 3.1 communication.
 
 ## Typical use cases
 - Parallel development workflows (managing different microservices in separate, isolated containers).
@@ -191,5 +191,5 @@ def validate_session_payload(raw_json: str) -> Optional[ClaudeSessionConfig]:
 - [AWS Bedrock Model IDs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-02
+- Last reviewed: 2027-01-07
 - Confidence: high

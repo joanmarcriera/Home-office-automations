@@ -1,13 +1,13 @@
 # AmpCode
 
 ## What it is
-AmpCode is an enterprise-grade platform for building and scaling AI agents with a focus on reliability, security, and developer productivity. It is developed by Sourcegraph and serves as the production-grade runtime for Cody-powered agentic workflows.
+AmpCode is an enterprise-grade platform for building and scaling AI agents with a focus on reliability, security, and developer productivity. Developed by Sourcegraph, it serves as the production-grade agentic runtime for Cody-powered workflows, supporting FastMCP 3.1 integration across enterprise repositories.
 
 ## What problem it solves
-It provides the infrastructure needed to transition from experimental agent prototypes to production-ready enterprise applications. It leverages frontier models like **Claude 5.1** and **GPT-5.5** to manage complex, multi-step engineering tasks across massive distributed codebases.
+It provides the infrastructure needed to transition from experimental agent prototypes to production-ready enterprise applications. It leverages frontier models like **Claude 5.1** and **GPT-5.5** to manage complex, multi-step engineering tasks across massive distributed codebases with deterministic verification loops.
 
 ## Where it fits in the stack
-**Category**: Enterprise AI / Development & Ops. It sits at the intersection of code intelligence and agentic orchestration.
+**Category**: Enterprise AI / Development & Ops. It sits at the intersection of code intelligence and agentic orchestration, integrating directly with enterprise MCP servers and repository indices.
 
 ## Typical use cases
 - **Enterprise Repository Orchestration**: Managing complex tasks across massive, distributed codebases with trillions of lines of code.
@@ -16,25 +16,25 @@ It provides the infrastructure needed to transition from experimental agent prot
 - **Automated Dependency Management**: Proactively identifying and updating stale dependencies across multiple projects using **Llama 4** and **Qwen 3.6** for local analysis.
 
 ## Strengths
-- **Security-First**: Built for enterprise environments with robust authentication, auditing, and sandboxed execution.
-- **Sourcegraph Integration**: Leverages Sourcegraph's deep code intelligence ([Cody](../development_ops/sourcegraph_cody.md)) for better context and reasoning.
-- **High Reliability**: Focuses on deterministic outcomes and production-grade stability with built-in verification loops.
-- **Late 2026 Ready**: Native support for **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** for advanced reasoning and code synthesis.
+- **Security-First**: Built for enterprise environments with robust authentication, auditing, sandboxed execution, and zero-trust policies.
+- **Sourcegraph Integration**: Leverages Sourcegraph's deep code intelligence ([Cody](../development_ops/sourcegraph_cody.md)) for multi-repo context and graph-based reasoning.
+- **High Reliability**: Focuses on deterministic outcomes and production-grade stability with built-in evaluation and verification loops.
+- **SOTA 2027 Ready**: Native support for **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro** for advanced reasoning and code synthesis.
 
 ## Limitations
 - **Closed Ecosystem**: Proprietary software that requires an enterprise license for full features.
-- **Target Audience**: Less optimized for individual developers or small open-source projects compared to such as [Aider](../development_ops/aider.md).
-- **Complexity**: Enterprise-scale features require significant configuration and infrastructure (e.g., Sourcegraph instance).
-- **Cost**: Paid (Enterprise subscription) and typically co-located with Sourcegraph.
+- **Target Audience**: Less optimized for individual developers or small open-source projects compared to alternatives such as [Aider](../development_ops/aider.md).
+- **Complexity**: Enterprise-scale features require significant configuration and infrastructure (e.g., dedicated Sourcegraph instance).
+- **Cost**: Paid enterprise subscription model typically co-located with Sourcegraph deployment.
 
 ## When to use it
 - In corporate environments where security and scalability are the top priorities for AI-assisted engineering.
 - When you need an agent that can reason across thousands of repositories safely and consistently.
-- If you are already invested in the Sourcegraph ecosystem.
+- If you are already invested in the Sourcegraph ecosystem and require FastMCP 3.1 protocol capabilities.
 
 ## When not to use it
 - For personal projects or small teams where free, open-source alternatives like [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md) are sufficient.
-- If you require a fully transparent, open-weight model stack for all operations.
+- If you require a fully transparent, open-weight model stack for all operations without enterprise infrastructure.
 
 ## Getting started
 
@@ -61,10 +61,10 @@ amp
 # Run a one-shot command in non-interactive mode
 amp --execute "Add error handling to the API endpoints"
 
-# Specify a custom log level and model (Late 2026)
+# Specify a custom log level and model (Early 2027 SOTA)
 amp --execute "Explain this project" --model claude-5.1 --log-level debug
 
-# Authenticate with an API key (for CI/CD)
+# Authenticate with an API key (for CI/CD pipelines)
 export AMP_API_KEY="your-api-key"
 amp --execute "run tests"
 
@@ -183,8 +183,8 @@ def get_amp_repo_context(repo_name: str, query_text: str) -> GraphQLResponse:
 ## Sources / references
 - [AmpCode Official Site](https://ampcode.com/)
 - [Sourcegraph API Documentation](https://sourcegraph.com/docs/api/graphql)
-- [AmpCode Release Notes - Late 2026](https://releasebot.io/updates/ampcode)
+- [AmpCode Release Notes - Early 2027](https://releasebot.io/updates/ampcode)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

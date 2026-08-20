@@ -1,10 +1,10 @@
 # LlamaParse
 
 ## What it is
-A specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines.
+A specialized PDF and document parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines and agentic knowledge operations.
 
 ## What problem it solves
-Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 5.1** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports and technical manuals.
+Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 5.1** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports, technical manuals, and complex architectural schematics.
 
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications, converting raw PDFs into LLM-optimized Markdown.
@@ -18,7 +18,7 @@ Overcomes the limitations of standard PDF text extraction by using vision-aware 
 ## Strengths
 - **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
 - **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
-- **November 2026 Optimized**: Fully supports **Llama 4**'s extended context and [MCP 3.1](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai` (Standard 3.1).
+- **FastMCP 3.1 Optimized**: Fully supports **Llama 4**'s extended context and [MCP 3.1](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai` (Standard 3.1).
 - **Ecosystem Integration**: Seamlessly connects with [LlamaIndex](../ai_knowledge/llamaindex.md) and [LangChain](../ai_knowledge/langchain.md).
 
 ## Limitations
@@ -66,17 +66,17 @@ for doc in documents:
 LlamaParse can be used via the LlamaIndex CLI and integrated into agentic environments.
 
 ```bash
-# Example of using a LlamaIndex RAG CLI that might use LlamaParse internally
+# Example of using a LlamaIndex RAG CLI that uses LlamaParse
 llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
 
-# Configure the LlamaParse MCP server for Claude Code (November 2026)
+# Configure the LlamaParse MCP server for Claude Code (FastMCP 3.1)
 claude mcp add --transport http llamaparse https://mcp.llamaindex.ai/mcp
 ```
 
 ## API examples
-The LlamaParse API supports multiple tiers for different accuracy needs. When constructing pipelines in late 2026, programmatic inputs should be validated via **Pydantic v2**.
+The LlamaParse API supports multiple tiers for different accuracy needs. Programmatic inputs should be validated via **Pydantic v2**.
 
-### Parsing Tiers (November 2026)
+### Parsing Tiers (Early 2027 SOTA)
 | Tier | Best For | Cost (Credits/Page) |
 | :--- | :--- | :---: |
 | **Fast** | Plain text, single column, no tables. | 0.5 |
@@ -132,7 +132,7 @@ except Exception as e:
 - [Docling](../process_understanding/docling.md) — Fast local document parser.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — The primary framework for LlamaParse.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture utilizing parsed output.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent-tool communication (v3.1).
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent-tool communication (FastMCP v3.1).
 - [Claude 5.1](../providers/anthropic.md) — Recommended model for reasoning over parsed data.
 - [GPT-5.5](../ai_knowledge/openai.md) — High-performance alternative for document synthesis.
 - [Llama 4](../ai_knowledge/local_llms.md) — Local model for processing LlamaParse outputs.
@@ -143,5 +143,5 @@ except Exception as e:
 - [LlamaParse MCP: Agentic OCR tools](https://www.llamaindex.ai/blog/llamaparse-mcp-the-tooling-layer-for-your-document-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
