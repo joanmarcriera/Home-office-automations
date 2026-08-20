@@ -1,13 +1,13 @@
 # Verba
 
 ## What it is
-Verba is an open-source Retrieval-Augmented Generation (RAG) application built on top of Weaviate. It provides a "Golden RAG" experience, focusing on simplicity and high-quality retrieval out of the box.
+Verba is an open-source Retrieval-Augmented Generation (RAG) application built on top of Weaviate. As of early January 2027, it provides a "Golden RAG" experience, focusing on simplicity, modularity, and high-quality hybrid retrieval out of the box.
 
 ## What problem it solves
-It provides a user-friendly interface for building RAG applications, handling data ingestion, chunking, and querying with LLMs. It solves the complexity of setting up a complete RAG pipeline by providing a unified stack for experimentation and production use.
+It provides an intuitive interface and modular engine for building RAG applications, handling document ingestion, chunking, embedding, and querying with LLMs. It eliminates the complexity of setting up a complete RAG pipeline by providing a unified stack for experimentation and production use.
 
 ## Where it fits in the stack
-**Category**: Tool / Knowledge Management / RAG. It serves as the application layer on top of a vector database (Weaviate) to enable conversational search over private documents.
+**Category**: Tool / Knowledge Management / RAG. It serves as the application layer on top of a vector database (Weaviate) to enable conversational search over private enterprise and homelab documents.
 
 ## Typical use cases
 - Creating a personal knowledge base with AI search.
@@ -16,33 +16,33 @@ It provides a user-friendly interface for building RAG applications, handling da
 - Evaluating model performance (e.g., comparing **Claude 5.1** vs **GPT-5.5**) on specific knowledge sets.
 
 ## Strengths
-- **Easy Setup**: Reliable Docker-based deployment.
-- **Multimodal Support**: Built-in support for multiple data types (PDF, txt, etc.).
-- **Native Weaviate Integration**: Leverages Weaviate's advanced vector search, including hybrid search and reranking.
-- **Model Flexibility**: Supports latest frontier models like **Llama 4**, **Claude 5.1**, and **GPT-5.5**.
+- **Easy Setup**: Reliable Docker-based deployment and python package installation.
+- **Multimodal Support**: Built-in support for multiple document and data types (PDF, txt, markdown, docx).
+- **Native Weaviate Integration**: Leverages Weaviate's advanced vector search, including hybrid keyword-vector search and reranking.
+- **Model Flexibility**: Supports frontier models like **Llama 4**, **Claude 5.1**, and **GPT-5.5**.
 
 ## Limitations
-- **Ecosystem Lock-in**: Closely tied to the Weaviate ecosystem.
-- **Configuration Overhead**: May require significant tuning for optimal performance with niche or extremely large datasets.
-- **UI Constraints**: The built-in frontend is optimized for specific RAG workflows and may not be easily customizable for all enterprise needs.
+- **Ecosystem Focus**: Primary integrations and optimized features are closely tied to the Weaviate ecosystem.
+- **Configuration Overhead**: May require custom chunking tuning for optimal performance with specialized or dense technical datasets.
+- **UI Constraints**: The built-in frontend is optimized for specific RAG workflows and may require customization for complex enterprise portals.
 
 ## When to use it
-- When you want a production-ready RAG interface without building it from scratch.
-- For prototyping RAG workflows with Weaviate as the backend.
-- When you need a local-first RAG solution that can scale to cloud.
+- When you want a production-ready RAG interface without building a custom frontend and retrieval pipeline from scratch.
+- For prototyping RAG workflows with Weaviate as the vector database backend.
+- When you need a local-first RAG solution that can seamlessly scale to cloud deployments.
 
 ## When not to use it
-- If you need a highly customized retrieval pipeline that departs significantly from Verba's modular architecture.
-- If you are already committed to a different vector database (e.g., Pinecone, Milvus) and do not wish to use Weaviate.
+- If you need a highly custom retrieval pipeline that departs significantly from Verba's modular architecture.
+- If you are already committed to a different vector database (e.g., Pinecone, Qdrant, Milvus) and do not wish to use Weaviate.
 
 ## Getting started
 
-To get started with Verba, you can install it using `pip` and run a quick verification script.
+To get started with Verba, install it using `pip` and run a quick verification script.
 
 ### Installation
 ```bash
 # Install Verba from PyPI
-pip install goldenverba
+pip install goldenverba pydantic
 ```
 
 ### Hello-World Example
@@ -128,19 +128,19 @@ except Exception as e:
 
 ## Related tools / concepts
 - [Weaviate](../infrastructure/weaviate.md) — The vector database powering Verba.
-- [Khoj](khoj.md) — Alternative RAG assistant for personal notes and desktop search.
-- [AnyType](anytype.md) — Local-first P2P knowledge base.
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Underlying architectural concept for retrieval augmentation.
-- [Obsidian](../ai_knowledge/obsidian.md) — Can be used as a primary data source for Verba.
-- [LangChain](../ai_knowledge/langchain.md) — Framework often used to extend Verba's capabilities.
-- [Ollama](../../services/ollama.md) — Supported as a local inference backend for privacy-first RAG.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting Verba to external tools (Standard 3.1).
+- [Khoj](khoj.md) — Personal AI search assistant for notes and local files.
+- [AnyType](anytype.md) — Local-first P2P knowledge base tool.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture for retrieval augmentation.
+- [Obsidian](../ai_knowledge/obsidian.md) — Markdown note source for Verba.
+- [LangChain](../ai_knowledge/langchain.md) — Framework often used to extend Verba workflows.
+- [Ollama](../../services/ollama.md) — Supported local inference backend for private RAG.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standard protocol for connecting tools to agents.
 
 ## Sources / references
-- [Official Website](https://verba.weaviate.io/)
-- [GitHub Repository](https://github.com/weaviate/Verba)
+- [Official Verba Website](https://verba.weaviate.io/)
+- [Verba GitHub Repository](https://github.com/weaviate/Verba)
 - [Weaviate Documentation](https://weaviate.io/developers/verba)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high

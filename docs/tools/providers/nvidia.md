@@ -1,40 +1,40 @@
 # NVIDIA
 
 ## What it is
-NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of late October / November 2026, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are now in General Availability (GA) across all major cloud and on-premises platforms.
+NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of early January 2027, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are in General Availability (GA) across all major cloud, enterprise, and on-premises platforms.
 
 ## What problem it solves
-NVIDIA provides the high-performance compute infrastructure necessary for modern AI. Through the NVIDIA API Catalog and NVIDIA NIM, it offers optimized, scalable inference for a wide range of open and proprietary models, reducing the "time to first token" for real-time agentic applications.
+NVIDIA provides the high-performance compute infrastructure necessary for modern AI. Through the NVIDIA API Catalog and NVIDIA NIM, it offers optimized, scalable inference for a wide range of open and proprietary models, drastically reducing latency and "time to first token" for real-time agentic applications and FastMCP 3.1 tool execution.
 
 ## Where it fits in the stack
-**Compute Infrastructure / Model Provider / Inference Engine**. NVIDIA provides both the hardware (Blackwell/Rubin GPUs) and the software stack (CUDA, TensorRT, NIM) that powers the majority of the AI ecosystem.
+**Compute Infrastructure / Model Provider / Inference Engine**. NVIDIA provides both the hardware (Blackwell/Rubin GPUs) and the software stack (CUDA, TensorRT-LLM, NIM) that powers the majority of the AI ecosystem.
 
 ## Typical use cases
-- **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of models like Llama 4, Qwen 3.6, and Nemotron.
-- **Agentic RAG Pipelines**: Utilizing NVIDIA NeMo Retriever for high-fidelity retrieval and reasoning.
-- **Local AI Acceleration**: Running models locally with TensorRT-LLM for maximum performance on RTX workstations.
-- **Omniverse Simulation**: Integrating AI agents into 3D simulations for industrial automation.
+- **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of open-weights models like Llama 4, Qwen 3.8, and Nemotron.
+- **Agentic RAG Pipelines**: Utilizing NVIDIA NeMo Retriever for high-fidelity retrieval and multi-agent reasoning.
+- **Local AI Acceleration**: Running models locally with TensorRT-LLM for maximum performance on workstation GPUs.
+- **Omniverse Simulation**: Integrating AI agents into 3D physics simulations for robotics and industrial automation.
 
 ## Strengths
-- **Performance**: Industry-leading inference speeds through hardware-software co-optimization (Rubin/Blackwell).
-- **Ecosystem**: Optimized NIMs available for almost all popular open-weights models (Llama, Qwen, Mistral).
-- **Enterprise-Ready**: Focus on security, manageability, and 24/7 support through NVIDIA AI Enterprise.
+- **Performance**: Industry-leading inference speeds through hardware-software co-optimization (Rubin/Blackwell architectures).
+- **Ecosystem**: Optimized NIM containers available for almost all popular open-weights models (Llama, Qwen, Mistral, DeepSeek).
+- **Enterprise-Ready**: Focus on security, manageability, and 24/7 SLA support through NVIDIA AI Enterprise.
 - **Scale**: Seamless transition from local RTX workstations to multi-node H100/B200/R100 clusters.
 
 ## Limitations
 - **Hardware Lock-in**: Many software optimizations (TensorRT) are specific to NVIDIA GPU architectures.
 - **Complexity**: The full enterprise stack can be complex to manage compared to simpler API-only providers.
-- **Cost**: High-end enterprise GPUs and licenses represent a significant capital or operational expense.
+- **Cost**: High-end enterprise GPUs and licensing represent significant capital or operational expenditure.
 
 ## When to use it
 - When you need the absolute highest performance and lowest latency for model inference.
 - When deploying AI models in an enterprise environment requiring secure, containerized NIMs.
-- For local acceleration on NVIDIA RTX hardware in a homelab or workstation.
-- When building multi-modal agents that require tight integration with vision or simulation.
+- For local acceleration on NVIDIA RTX hardware in a homelab or engineering workstation.
+- When building multi-modal agents that require tight integration with vision, audio, or spatial simulation.
 
 ## When not to use it
-- If you are committed to non-NVIDIA hardware (AMD, Apple Silicon, or cloud-specific chips like AWS Trainium).
-- For simple, low-volume projects where a basic API provider (like Groq or Together) might be simpler.
+- If you are committed to non-NVIDIA hardware (AMD, Apple Silicon, or cloud-specific chips like AWS Trainium / Google TPU).
+- For simple, low-volume projects where a basic serverless API provider (like Groq or Together) is sufficient.
 - When strict open-source software requirements preclude the use of proprietary drivers or stacks.
 
 ## Getting started
@@ -141,22 +141,22 @@ response = client.chat.completions.create(
 ```
 
 ## Related tools / concepts
-- [NVIDIA Nemotron-3 Super](../ai_knowledge/nemotron.md)
-- [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
-- [Groq](groq.md)
-- [Together AI](together.md)
-- [TGI (Text Generation Inference)](../infrastructure/tgi.md)
-- [Local LLMs](../ai_knowledge/local_llms.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Google Axion](../../knowledge_base/google_axion.md)
+- [NVIDIA Nemotron-3 Super](../ai_knowledge/nemotron.md) — Enterprise LLM family.
+- [NVIDIA NeMo Retriever](../agents/nemo-retriever.md) — Specialized enterprise retrieval models.
+- [Groq](groq.md) — Specialized LPU hardware alternative.
+- [Together AI](together.md) — Distributed inference platform.
+- [TGI (Text Generation Inference)](../infrastructure/tgi.md) — Open-source LLM serving stack.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Guide to self-hosting models.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Open-weights frontier model.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Protocol for agentic tool access.
+- [Google Axion](../../knowledge_base/google_axion.md) — Cloud ARM silicon ecosystem.
 
 ## Sources / references
 - [NVIDIA Official Website](https://www.nvidia.com/)
 - [NVIDIA API Catalog](https://build.nvidia.com/)
 - [NVIDIA NIM Documentation](https://docs.nvidia.com/nim/)
-- [NVIDIA Rubin Architecture Whitepaper](https://www.nvidia.com/en-us/data-center/rubin-architecture/)
+- [NVIDIA Rubin Architecture Overview](https://www.nvidia.com/en-us/data-center/rubin-architecture/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
