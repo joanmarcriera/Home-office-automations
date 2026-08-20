@@ -1,16 +1,16 @@
 # ASDiv (Academia Sinica Diverse MWP Dataset)
 
 ## What it is
-ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of late October / November 2026, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, and Gemma 3. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
+ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of January 2027, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro / Ultra**, and **Gemma 3**. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
 
 ## What problem it solves
-Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. Under the latest Model Context Protocol (MCP 3.1) schemas, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
+Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. Under the latest Model Context Protocol (**FastMCP 3.1**) schemas, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
 
 ## Where it fits in the stack
 ASDiv belongs to the **Benchmarking** category, specifically focusing on mathematical reasoning and lexicon usage diversity. It acts as a specialized check within an evaluation suite, alongside broader benchmarks like [MMLU](../benchmarking/mmlu.md) and [GSM8K](../benchmarking/gsm8k.md).
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Benchmarking Claude 5.1, GPT-5.5, and Gemma 3 on elementary-level mathematical reasoning.
+- **Frontier Model Evaluation**: Benchmarking Claude 5.1, GPT-5.5, Gemini 4.0, and Gemma 3 on elementary-level mathematical reasoning.
 - **Robustness Testing**: Measuring how variations in linguistic phrasing affect a model's ability to solve math problems.
 - **Specialized Solver Development**: Training and testing specialized Math Word Problem (MWP) solvers.
 - **Prompt Engineering**: Validating the effectiveness of "Chain of Thought" (CoT) and "System 2" reasoning prompts across varied problem structures.
@@ -29,7 +29,7 @@ ASDiv belongs to the **Benchmarking** category, specifically focusing on mathema
 ## When to use it
 - Use ASDiv to verify that a model can handle varied phrasing in math problems without relying on superficial pattern matching.
 - When you want to specifically test "Word Problem" solving rather than pure arithmetic or high-level calculus.
-- When performing technical freshness audits of model reasoning capabilities in late 2026.
+- When performing technical freshness audits of model reasoning capabilities in early 2027.
 
 ## When not to use it
 - Do not use it for evaluating high-level mathematics (calculus, linear algebra).
@@ -124,5 +124,5 @@ except Exception as e:
 - [Hugging Face ASDiv Dataset Card](https://huggingface.co/datasets/asdiv)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-04
+- Last reviewed: 2027-01-07
 - Confidence: high

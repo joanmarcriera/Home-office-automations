@@ -1,19 +1,19 @@
 # Replicate
 
 ## What it is
-Replicate is a cloud platform that makes it easy to run open-source machine learning models via a simple API, covering everything from LLMs to image generation, video, and audio processing.
+Replicate is a cloud platform that makes it easy to run open-source machine learning models via a simple API, covering everything from LLMs to image generation, video, and audio processing. As of January 2027, it serves as a primary hub for deploying open weights models like **Llama 4**, **DeepSeek-V4**, and multi-modal generation engines.
 
 ## What problem it solves
 Eliminates the significant complexity of managing GPU infrastructure, Docker containers (Cog), and model weights for a vast library of open-source AI models. It provides a standardized interface for accessing cutting-edge research models without local hardware requirements.
 
 ## Where it fits in the stack
-**Inference Provider / Multi-modal Hub**. It is an "everything store" for running almost any open-source AI model in the cloud, serving as a critical infrastructure layer for frontier models like Claude 5.1 and GPT-5.5 to orchestrate multi-modal tasks.
+**Inference Provider / Multi-modal Hub**. It is an "everything store" for running almost any open-source AI model in the cloud, serving as a critical infrastructure layer for frontier models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, and **Gemini 4.0 Pro / Ultra** to orchestrate multi-modal tasks.
 
 ## Typical use cases
-- **Multi-modal Pipelines**: Combining an LLM (Llama 4) with an image generator (Flux.1) and a video generator (HunyuanVideo) in a single automated workflow. Under the latest Model Context Protocol (MCP 3.1) schemas, Replicate's native support allows these pipelines to be triggered directly from agentic tools.
+- **Multi-modal Pipelines**: Combining an LLM (Llama 4) with an image generator (Flux.1) and a video generator (HunyuanVideo) in a single automated workflow. Under the latest Model Context Protocol (**FastMCP 3.1**) schemas, Replicate's native support allows these pipelines to be triggered directly from agentic tools.
 - **Rapid Prototyping**: Testing new research models or niche adapters without any local setup.
 - **Scaling Custom Models**: Moving from a local experiment to a production-ready API instantly using their Cog tool.
-- **AI Agent Tool-Use**: Providing agents with the ability to generate or transform media via a unified API.
+- **AI Agent Tool-Use**: Providing agents with the ability to generate or transform media via a unified FastMCP API.
 
 ## Strengths
 - **Unrivaled Variety**: Hosts thousands of models for text, image, video, audio, and specialized ML tasks.
@@ -31,11 +31,11 @@ Eliminates the significant complexity of managing GPU infrastructure, Docker con
 - When you need a "swiss army knife" of diverse models (especially for non-text tasks like image, video, or audio generation).
 - When you want to deploy your own custom models without managing servers or Kubernetes.
 - For prototyping multi-modal workflows that will later be optimized.
-- When working with frontier agents that need to dynamically select from a wide range of specialized models.
+- When working with frontier agents that need to dynamically select from a wide range of specialized models via FastMCP 3.1.
 
 ## When not to use it
 - For high-volume, low-latency LLM-only applications where serverless providers like [Groq](groq.md) or [Together AI](together.md) excel.
-- If you need the extreme proprietary reasoning of models like GPT-5.5 or Claude 5.1 for the core logic (use those providers directly via [Model Context Protocol](../automation_orchestration/mcp.md) if necessary).
+- If you need the extreme proprietary reasoning of models like GPT-5.5/5.6 or Claude 5.1 for the core logic (use those providers directly via [Model Context Protocol](../automation_orchestration/mcp.md) if necessary).
 - If you have zero connectivity to cloud services and need purely local, file-system based storage or inference.
 
 ## Getting started
@@ -71,7 +71,7 @@ for item in output:
 # Run a model from the CLI
 replicate run \
   -e REPLICATE_API_TOKEN=$REPLICATE_API_TOKEN \
-  meta/llama-3-70b-instruct \
+  meta/llama-4-70b-instruct \
   -input "prompt=Who is the CEO of Replicate?"
 
 # Deploy your own model with Cog
@@ -147,5 +147,5 @@ def validate_prediction_payload(raw_json: str) -> Optional[ReplicatePredictionSc
 
 ## Contribution Metadata
 - Licensing and Cost: Paid (Per-second / Usage-based). Cog is open-source and models can be self-hosted via Cog.
-- Last reviewed: 2026-11-04
+- Last reviewed: 2027-01-07
 - Confidence: high
