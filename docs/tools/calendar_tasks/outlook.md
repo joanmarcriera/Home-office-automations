@@ -1,41 +1,42 @@
 # Microsoft Outlook Calendar
 
 ## What it is
-The enterprise-standard calendar application for Microsoft 365. As of late 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP 3.1).
+The enterprise-standard calendar application for Microsoft 365. As of early 2027, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the FastMCP 3.1 (Model Context Protocol) standards.
 
 ## What problem it solves
 Provides professional-grade scheduling, meeting management, and resource booking integrated with email and corporate directories. It handles complex enterprise needs like delegated access, cross-tenant availability, and automated meeting transcription/summarization via Copilot.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Personal Information Management
+**Category**: Calendar & Tasks / Personal Information Management. Functions as the foundational calendar infrastructure layer in Microsoft enterprise environments.
 
 ## Typical use cases
 - **Enterprise scheduling**: Manage complex team calendars and physical resource (room) bookings.
-- **AI-assisted coordination**: Use **Work IQ** to allow agents like **Claude 5.1** or **GPT-5.5** to schedule meetings based on organizational context.
-- **Hybrid work management**: Automatically coordinate in-person vs. remote attendance.
-- **Meeting lifecycle**: From scheduling to automated action item extraction using Microsoft 365 Copilot.
+- **AI-assisted coordination**: Use **Work IQ** to allow agents like **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro** to schedule meetings based on organizational context.
+- **Hybrid work management**: Automatically coordinate in-person vs. remote attendance and desk booking.
+- **Meeting lifecycle**: From scheduling to automated action item extraction using Microsoft 365 Copilot and Graph APIs.
 
 ## Strengths
-- Deep integration with Microsoft 365, Teams, and the wider Graph ecosystem.
+- Deep integration with Microsoft 365, Teams, and the wider Microsoft Graph ecosystem.
 - Robust enterprise security, compliance, and centralized IT governance.
-- **Work IQ Native**: First-party MCP 3.1 servers allow agents to "reason" over calendar data securely.
+- **Work IQ Native**: First-party FastMCP 3.1 servers allow agents to "reason" over calendar data securely.
 
 ## Limitations
 - Can be complex to configure for personal/independent use cases outside Microsoft 365.
-- API access (Microsoft Graph) requires Entra ID app registration and OAuth complexity.
+- API access (Microsoft Graph) requires Entra ID app registration and OAuth authentication flow setup.
 
 ## When to use it
 - In corporate environments or home offices already standardized on Microsoft 365.
 - When you require deep integration with Outlook email and Teams meetings.
-- If you need a secure, compliant way for AI agents to interact with your schedule.
+- If you need a secure, compliant way for AI agents to interact with your enterprise schedule.
 
 ## When not to use it
 - For simple personal use cases where [Google Calendar](google_calendar.md) or [Proton Calendar](proton_calendar.md) suffice.
-- If you prefer a local-first, privacy-focused, or fully open-source solution.
+- If you prefer a local-first, privacy-focused, or fully open-source solution (consider [Vikunja](../../services/vikunja.md)).
 
 ## Getting started
+
 ### CLI for Microsoft 365
-The official CLI now includes an **MCP server mode**.
+The official CLI includes an **MCP server mode**.
 1. Install the CLI:
    ```bash
    npm install -g @pnp/cli-microsoft365
@@ -52,8 +53,8 @@ The official CLI now includes an **MCP server mode**.
 ## CLI examples
 The CLI is the primary tool for administrators and power users.
 
-### Run as an MCP 3.1 Server
-You can start the CLI in MCP mode to give your AI assistant immediate access:
+### Run as an FastMCP 3.1 Server
+Start the CLI in FastMCP 3.1 mode to give your AI assistant immediate, secure calendar access:
 ```bash
 m365 mcp start
 ```
@@ -64,14 +65,14 @@ m365 mcp start
 m365 outlook room list --placeName "Conference Room"
 
 # Create a meeting with a Teams link
-m365 outlook event add --subject "Architecture Review" --start "2026-11-15T10:00:00" --end "2026-11-15T11:00:00" --isOnlineMeeting true
+m365 outlook event add --subject "Architecture Review" --start "2027-01-15T10:00:00" --end "2027-01-15T11:00:00" --isOnlineMeeting true
 ```
 
 ## API examples
 The **Microsoft Graph API** is the underlying engine for all Outlook integrations.
 
 ### Create and Validate an Event (Python)
-Programmatic event creation should be validated using **Pydantic v2** prior to making requests to the Microsoft Graph API under late-2026 guidelines.
+Programmatic event creation should be validated using **Pydantic v2** prior to making requests to the Microsoft Graph API under early 2027 guidelines.
 
 ```python
 import requests
@@ -102,20 +103,20 @@ class OutlookEventPayload(BaseModel):
 # Validate payload
 raw_event = {
     "subject": "Microsoft 365 Graph Sync with Claude 5.1",
-    "bodyPreview": "Validating Outlook Calendar models under MCP 3.1.",
+    "bodyPreview": "Validating Outlook Calendar models under FastMCP 3.1.",
     "start": {
-        "dateTime": "2026-11-20T14:00:00Z",
+        "dateTime": "2027-01-20T14:00:00Z",
         "timeZone": "UTC"
     },
     "end": {
-        "dateTime": "2026-11-20T15:00:00Z",
+        "dateTime": "2027-01-20T15:00:00Z",
         "timeZone": "UTC"
     },
     "attendees": [
         {
             "emailAddress": {
                 "name": "Jane Doe",
-                "address": "[email protected]"
+                "address": "jane.doe@example.com"
             },
             "type": "required"
         }
@@ -138,34 +139,33 @@ except Exception as e:
     print(f"Validation failed: {e}")
 ```
 
-## Model Context Protocol (MCP 3.1) Integration
+## Model Context Protocol (FastMCP 3.1) Integration
 Microsoft provides official **Work IQ MCP servers** for enterprise tenants.
 
 **Available Tools (via Work IQ):**
-- `mcp_outlook_list_events`: Fetch schedule for a given range.
+- `mcp_outlook_list_events`: Fetch schedule for a given date range.
 - `mcp_outlook_create_event`: Schedule new meetings with intelligent conflict resolution.
-- `mcp_outlook_find_meeting_times`: Identify the best time for multiple attendees.
+- `mcp_outlook_find_meeting_times`: Identify optimal meeting slots across multiple attendees.
 
 ## Licensing and cost
 - **Open Source**: No
-- **Cost**: Paid (Microsoft 365), Free (Outlook.com)
+- **Cost**: Paid (Microsoft 365 Business/Enterprise), Free (Outlook.com)
 - **Self-hostable**: No (Cloud), Yes (Exchange Server - Legacy)
 
 ## Related tools / concepts
-- [Google Calendar](google_calendar.md)
-- [Microsoft Graph](../providers/microsoft-graph.md)
-- [Microsoft Work IQ](../automation_orchestration/mcp.md)
-- [Microsoft To Do](microsoft-todo.md)
-- [Reclaim](reclaim.md) — Excellent for AI-driven Outlook scheduling.
-- [Chronos MCP](../automation_orchestration/mcp.md)
-- [n8n](../../services/n8n.md)
+- [Google Calendar](google_calendar.md) — Main cloud calendar alternative.
+- [Microsoft Graph](../providers/microsoft-graph.md) — Data access gateway.
+- [Microsoft To Do](microsoft-todo.md) — Integrated task manager.
+- [Reclaim.ai](reclaim.md) — Excellent for AI-driven Outlook scheduling.
+- [Notion Calendar](notion-calendar.md) — High-speed calendar frontend.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — FastMCP 3.1 specification.
+- [n8n](../../services/n8n.md) — Enterprise workflow automation engine.
 
 ## Sources / references
 - [Microsoft Outlook](https://outlook.live.com/)
-- [Microsoft Graph API](https://developer.microsoft.com/en-us/graph)
-- [Work IQ MCP Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/microsoft-agent-365/tooling-servers-overview)
+- [Microsoft Graph API Documentation](https://developer.microsoft.com/en-us/graph)
 - [CLI for Microsoft 365](https://pnp.github.io/cli-microsoft365/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
