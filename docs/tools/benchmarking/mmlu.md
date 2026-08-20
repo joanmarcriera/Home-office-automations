@@ -1,7 +1,7 @@
 # MMLU (Massive Multitask Language Understanding)
 
 ## What it is
-MMLU is a comprehensive benchmark designed to measure the general knowledge and problem-solving abilities of Large Language Models. It consists of approximately 16,000 multiple-choice questions across 57 subjects, including STEM, the humanities, social sciences, and more. As of November 2026, it remains a foundational metric for comparing frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**. Modern evaluation pipelines often utilize [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) Task Protocol for automated orchestration and [ClickHouse](../../tools/process_understanding/clickhouse.md) for high-volume OLAP telemetry of benchmark results.
+MMLU is a comprehensive benchmark designed to measure the general knowledge and problem-solving abilities of Large Language Models. It consists of approximately 16,000 multiple-choice questions across 57 subjects, including STEM, the humanities, social sciences, and more. As of January 2027, it remains a foundational metric for comparing frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**. Modern evaluation pipelines often utilize [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) Task Protocol for automated orchestration and [ClickHouse](../../tools/process_understanding/clickhouse.md) for high-volume OLAP telemetry of benchmark results.
 
 ## What problem it solves
 It provides a standardized way to evaluate a model's "world knowledge" and academic proficiency across a vast array of disciplines, moving beyond narrow tasks to assess broad intellectual capability.
@@ -10,7 +10,7 @@ It provides a standardized way to evaluate a model's "world knowledge" and acade
 **Benchmarking**. It is one of the most widely cited benchmarks for comparing the general intelligence of different LLMs. It often serves as the "anchor" for overall model performance rankings.
 
 ## Typical use cases
-- **Frontier Performance Tracking**: Comparing the general knowledge breadth of Claude 5.1, GPT-5.5, and Gemini 4.0.
+- **Frontier Performance Tracking**: Comparing the general knowledge breadth of Claude 5.1, GPT-5.5 / 5.6, Gemini 4.0 Pro / Ultra, and DeepSeek-V4.
 - **Academic Proficiency Analysis**: Breaking down performance across STEM (19 subjects), Humanities (13), Social Sciences (14), and professional categories like Medicine and Law.
 - **Model Regression Testing**: Measuring if general knowledge is lost during specialized fine-tuning.
 - **Foundation Model Comparison**: Assessing the "reasoning baseline" of a model before applying it to agentic tasks.
@@ -169,5 +169,5 @@ def validate_mmlu_result(raw_json: str) -> Optional[MMLUEvalResult]:
 - [Hugging Face Dataset Card](https://huggingface.co/datasets/cais/mmlu)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high

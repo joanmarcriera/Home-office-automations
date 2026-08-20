@@ -1,7 +1,7 @@
 # EvalPlus
 
 ## What it is
-EvalPlus is a rigorous evaluation framework for Large Language Models (LLMs) focused on code generation (LLM4Code). It significantly expands existing benchmarks like HumanEval and MBPP with more comprehensive test cases to improve evaluation accuracy. As of November 2026, it is the industry standard for verifying the coding robustness of frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+EvalPlus is a rigorous evaluation framework for Large Language Models (LLMs) focused on code generation (LLM4Code). It significantly expands existing benchmarks like HumanEval and MBPP with more comprehensive test cases to improve evaluation accuracy. As of January 2027, it is the industry standard for verifying the coding robustness of frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
 Original coding benchmarks like [HumanEval](human-eval.md) often have very few test cases, allowing fragile or incorrect code to pass. EvalPlus addresses this "under-testing" problem by adding 80x more tests to HumanEval and 35x more tests to MBPP, revealing model weaknesses that simpler benchmarks miss.
@@ -13,14 +13,14 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 - **Rigorous Coding Evaluation**: Testing a model's true coding ability beyond simple benchmarks.
 - **Fragility Detection**: Identifying if a model's generated code is robust across many different inputs.
 - **Code Efficiency Benchmarking**: Using the EvalPerf extension to measure the execution speed of LLM-generated code.
-- **Frontier Model Verification**: Confirming the coding reliability of Claude 5.1, GPT-5.5, and Gemini 4.0.
+- **Frontier Model Verification**: Confirming the coding reliability of Claude 5.1, GPT-5.5 / 5.6, Gemini 4.0, and DeepSeek-V4.
 
 ## Strengths
 - **High Rigor**: Expanded test suites (HumanEval+, MBPP+) significantly reduce false positives.
 - **Multi-backend Support**: Supports evaluation via vLLM, Hugging Face, OpenAI, Anthropic, Gemini, and Ollama.
 - **Security**: Supports safe code execution within Docker containers to protect the host system.
 - **Performance Evaluation**: Includes EvalPerf for measuring code efficiency.
-- **MCP 3.1 Integration**: Supports [MCP 3.1](../../tools/automation_orchestration/mcp.md) for automated benchmarking workflows and the Task Protocol.
+- **MCP 3.1 Integration**: Supports [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) for automated benchmarking workflows, dynamic tool discovery, and the Task Protocol.
 
 ## Limitations
 - **Focus**: Primarily limited to Python and coding-specific tasks.
@@ -30,7 +30,7 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 ## When to use it
 - When you are developing or fine-tuning an LLM for code generation and need high-confidence metrics.
 - When you want to rank models based on their coding robustness and efficiency.
-- When comparing against major industry models (many of which, like Llama 4 and Qwen 3.6, use EvalPlus).
+- When comparing against major industry models (many of which, like Llama 4 Maverick and Qwen 3.8, use EvalPlus).
 
 ## When not to use it
 - For general knowledge or reasoning tasks (use [MMLU](mmlu.md) or [GPQA](gpqa.md) instead).
@@ -156,5 +156,5 @@ def validate_solution_item(raw_json: str) -> Optional[EvalPlusCodeSolution]:
 - [NeurIPS 2023 Paper (arXiv 2305.01210)](https://arxiv.org/abs/2305.01210)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high
