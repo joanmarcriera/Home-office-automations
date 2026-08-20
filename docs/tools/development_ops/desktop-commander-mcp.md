@@ -1,10 +1,10 @@
 # Desktop Commander MCP
 
 ## What it is
-A privacy-first Model Context Protocol (MCP 3.1) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities. It is built to be the "local hands" for frontier models like **Claude 5.1** and **GPT-5.5**.
+A privacy-first Model Context Protocol (FastMCP 3.1) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities. It is built to be the "local hands" for frontier models like **Claude 5.1** and **GPT-5.5**.
 
 ## What problem it solves
-It enables AI assistants to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools. It solves the "trust gap" in agentic workflows by ensuring no data leaves the local environment except through explicitly defined MCP 3.1 tool calls.
+It enables AI assistants to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools. It solves the "trust gap" in agentic workflows by ensuring no data leaves the local environment except through explicitly defined FastMCP 3.1 tool calls.
 
 ## Where it fits in the stack
 **Development & Ops / Tool Layer**. It serves as a secure bridge between an LLM-based agent (running in an MCP-compliant host like Claude Desktop or Cursor) and the local OS.
@@ -17,7 +17,7 @@ It enables AI assistants to interact directly with the local machine's developme
 
 ## Strengths
 - **Privacy-First**: No telemetry, analytics, or external connections; operates entirely on-device.
-- **MCP 3.1 Native**: Full support for the latest Task Protocol, secure resource connection, and resource discovery.
+- **FastMCP 3.1 Native**: Full support for the latest Task Protocol, secure resource connection, and resource discovery.
 - **Surgical Editing**: Includes the `edit_block` tool for precise, idempotent text replacements.
 - **Configurable Security**: Allows blocking specific commands and restricting access to white-listed directories.
 
@@ -28,7 +28,7 @@ It enables AI assistants to interact directly with the local machine's developme
 
 ## When to use it
 - When you want to give an agent access to your local dev environment but are concerned about privacy or data leakage.
-- When you need a lightweight, reliable bridge for filesystem and terminal operations for `claude-5-1-20261101`.
+- When you need a lightweight, reliable bridge for filesystem and terminal operations for Claude 5.1 and other frontier models.
 - In highly regulated environments where telemetry is strictly prohibited.
 
 ## When not to use it
@@ -184,5 +184,5 @@ def validate_commander_args(raw_json: str) -> Optional[EditBlockArgs]:
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-02
+- Last reviewed: 2027-01-07
 - Confidence: high
