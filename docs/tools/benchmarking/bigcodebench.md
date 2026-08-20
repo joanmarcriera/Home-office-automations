@@ -1,7 +1,7 @@
 # BigCodeBench
 
 ## What it is
-BigCodeBench is a comprehensive benchmark for evaluating the code generation capabilities of LLMs in realistic software engineering scenarios. It features 1,140 programming tasks that require the use of diverse libraries (139 unique libraries) and complex function calls. As of November 2026, it serves as a critical performance differentiator for frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**, utilizing **Model Context Protocol (MCP 3.1)** for dynamic, sandboxed tool-discovery.
+BigCodeBench is a comprehensive benchmark for evaluating the code generation capabilities of LLMs in realistic software engineering scenarios. It features 1,140 programming tasks that require the use of diverse libraries (139 unique libraries) and complex function calls. As of early January 2027, it serves as a critical performance differentiator for frontier models like **Claude 5.1**, **GPT-5.5**, and **Llama 4**, utilizing **FastMCP 3.1** for dynamic, sandboxed tool-discovery.
 
 ## What problem it solves
 Simple benchmarks like HumanEval or MBPP focus on basic algorithmic tasks that don't reflect real-world programming. BigCodeBench evaluates "tool-use" and the ability to follow complex, multi-step instructions using common Python libraries, addressing the "instruction-following" gap in code generation.
@@ -10,7 +10,7 @@ Simple benchmarks like HumanEval or MBPP focus on basic algorithmic tasks that d
 BigCodeBench is a core tool in the **Benchmarking** layer for code-specialized models and agents. It is used to validate model performance before integration into IDE assistants or autonomous coding agents like [OpenHands](../development_ops/openhands.md).
 
 ## Typical use cases
-- **Frontier Model Comparison**: Assessing the gap between Claude 5.1, GPT-5.5, and Gemini 4.0 on complex library integration.
+- **Frontier Model Comparison**: Assessing the gap between Claude 5.1, GPT-5.5, and Gemini 4.0 Pro on complex library integration.
 - **Agent Validation**: Evaluating coding agents that need to use external libraries (e.g., `pandas`, `requests`).
 - **Instruction-Following Rank**: Ranking models on their ability to adhere to complex constraints within a single prompt.
 - **CI/CD Benchmarking**: Validating model updates for specialized coding LLMs.
@@ -94,7 +94,7 @@ print(f"Instruction: {sample['instruction']}")
 ```python
 # Conceptual integration with an LLM client
 # prompt = sample['complete_prompt']
-# response = client.generate(model="claude-5-1-sonnet-20261022", prompt=prompt)
+# response = client.generate(model="claude-5-1-20261101", prompt=prompt)
 # save_sample(response, "samples.jsonl")
 ```
 
@@ -134,25 +134,25 @@ def validate_bigcode_task(raw_json: str) -> Optional[BigCodeBenchTask]:
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_task_json = """
-#     {
-#         "task_id": "BigCodeBench/104",
-#         "complete_prompt": "def calculate_matrix(data):...",
-#         "instruction": "Calculate covariance matrix using numpy and return a list.",
-#         "dependencies": [
-#             {"library": "numpy", "version": ">=1.26.0"}
-#         ],
-#         "testAssertions": [
-#             "assert isinstance(calculate_matrix([[1, 2], [3, 4]]), list)",
-#             "assert len(calculate_matrix([[1, 2], [3, 4]])) == 2"
-#         ]
-#     }
-#     """
-#     validated = validate_bigcode_task(sample_task_json)
-#     if validated:
-#         print("BigCodeBench task specification is valid and clean!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_task_json = """
+    {
+        "task_id": "BigCodeBench/104",
+        "complete_prompt": "def calculate_matrix(data):...",
+        "instruction": "Calculate covariance matrix using numpy and return a list.",
+        "dependencies": [
+            {"library": "numpy", "version": ">=1.26.0"}
+        ],
+        "testAssertions": [
+            "assert isinstance(calculate_matrix([[1, 2], [3, 4]]), list)",
+            "assert len(calculate_matrix([[1, 2], [3, 4]])) == 2"
+        ]
+    }
+    """
+    validated = validate_bigcode_task(sample_task_json)
+    if validated:
+        print("BigCodeBench task specification is valid and clean!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -171,5 +171,5 @@ def validate_bigcode_task(raw_json: str) -> Optional[BigCodeBenchTask]:
 - [BigCodeBench Leaderboard](https://bigcode-bench.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high

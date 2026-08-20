@@ -1,14 +1,14 @@
 # GitHub Copilot CLI
 
 ## What it is
-GitHub Copilot CLI is the terminal interface for Copilot-assisted development workflows, primarily distributed as the `gh-copilot` extension for the GitHub CLI (`gh`). As of late October / November 2026, it integrates frontier reasoning from models like Claude 5.1 (`claude-5-1-20261101`), GPT-5.5, Gemini 4.0, and Llama 4 into shell environments, offering specialized "Shell Agent" capabilities via the **MCP 3.1** protocol.
+GitHub Copilot CLI is the terminal interface for Copilot-assisted development workflows, primarily distributed as the `gh-copilot` extension for the GitHub CLI (`gh`). As of early January 2027, it integrates frontier reasoning from models like Claude 5.1 (`claude-5-1-20261101`), GPT-5.5, Gemini 4.0 Pro, and Llama 4 into shell environments, offering specialized "Shell Agent" capabilities via the **FastMCP 3.1** protocol and native workspace context extensions.
 
 ## What problem it solves
 It bridges the gap between IDE-centric AI assistance and the terminal. It allows developers and autonomous agents to request command suggestions, explanations, and automation scripts without leaving the shell, maintaining flow in command-heavy workflows. It specifically addresses:
 - **Command Obfuscation**: Explaining cryptic, nested, or legacy shell commands and complex pipelines.
 - **Workflow Interruption**: Eliminating context-switching to browser windows for command syntax reference.
-- **Agentic Orchestration**: Providing a programmable interface for autonomous agents (such as Claude Code) to perform system-level tasks.
-- **Verification Trust**: Minimizing execution risks for generated scripts in production or staging servers.
+- **Agentic Orchestration**: Providing a programmable interface for autonomous agents (such as Claude Code) to perform system-level tasks via FastMCP 3.1.
+- **Verification Trust**: Minimizing execution risks for generated scripts in production or staging environments.
 
 ## Where it fits in the stack
 **Development & Ops Tool**. It extends the Copilot ecosystem from the editor into the terminal, acting as a "Shell Agent" for both interactive use and CI/CD automation. It is a direct terminal-native alternative to tools like [Aider](./aider.md) and [Claude Code](./claude-code.md).
@@ -24,8 +24,8 @@ It bridges the gap between IDE-centric AI assistance and the terminal. It allows
 - **Native Ecosystem Integration**: Seamlessly shares authentication, organization policies, and repository context with other GitHub tools (`gh`, GitHub Actions).
 - **Explainability**: High-quality explanations for complex, obfuscated, or potentially dangerous shell commands.
 - **Ergonomics**: Supports custom aliases (`??`, `git?`, `gh?`) for high-speed terminal interaction.
-- **Agent-Ready**: Fully compatible with MCP 3.1 server definitions for autonomous tool execution.
-- **Frontier Model Support**: Leverages late 2026's most capable reasoning models (Claude 5.1, GPT-5.5) for syntax generation.
+- **Agent-Ready**: Fully compatible with FastMCP 3.1 server definitions for autonomous tool execution.
+- **Frontier Model Support**: Leverages early 2027's most capable reasoning models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro) for syntax generation.
 
 ## Limitations
 - **Account Dependency**: Requires an active GitHub Copilot subscription.
@@ -157,23 +157,23 @@ def validate_copilot_suggestion(raw_json: str) -> Optional[SuggestionPayload]:
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_data = """
-#     {
-#         "query": "find markdown files",
-#         "suggestedCommands": ["find . -name '*.md'"],
-#         "targetShell": "zsh",
-#         "explanation": {
-#             "command": "find . -name '*.md'",
-#             "explanation": "Search the current directory recursively for files ending in .md",
-#             "is_safe": true
-#         }
-#     }
-#     """
-#     validated = validate_copilot_suggestion(sample_data)
-#     if validated:
-#         print("Copilot CLI suggestion successfully verified!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_data = """
+    {
+        "query": "find markdown files",
+        "suggestedCommands": ["find . -name '*.md'"],
+        "targetShell": "zsh",
+        "explanation": {
+            "command": "find . -name '*.md'",
+            "explanation": "Search the current directory recursively for files ending in .md",
+            "is_safe": true
+        }
+    }
+    """
+    validated = validate_copilot_suggestion(sample_data)
+    if validated:
+        print("Copilot CLI suggestion successfully verified!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -189,9 +189,9 @@ def validate_copilot_suggestion(raw_json: str) -> Optional[SuggestionPayload]:
 ## Sources / references
 - [GitHub Copilot CLI GA Announcement](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
 - [GitHub Docs: Automate with Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions)
-- [Claude 5.1 & Copilot Integration Patterns (October 2026)](https://github.blog/2026-10-24-frontier-models-in-gh-cli)
+- [Claude 5.1 & Copilot Integration Patterns (January 2027)](https://github.blog/2026-10-24-frontier-models-in-gh-cli)
 - [Official GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/github-copilot-in-the-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-02
+- Last reviewed: 2027-01-07
 - Confidence: high

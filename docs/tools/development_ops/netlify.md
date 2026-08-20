@@ -1,35 +1,37 @@
 # Netlify
 
 ## What it is
-Netlify is a cloud platform for deploying websites and frontend applications, with a strong focus on modern JAMstack/Composable architecture workflows, automated deploy previews, and seamless serverless frontend operations.
+Netlify is a cloud platform for deploying websites, frontend applications, and serverless AI endpoints, with a strong focus on modern Composable architecture workflows, automated deploy previews, edge computing, and Netlify AI Gateway integrations.
 
 ## What problem it solves
-It makes it easy to publish and iterate on modern frontend applications without building or managing complex cloud deployment pipelines from scratch. It provides atomic deploys, instant rollbacks, edge routing, and automated SSL, solving the complexity of manual web server and DNS management.
+It makes it easy to publish and iterate on modern frontend applications and AI-enabled edge routes without building or managing complex cloud deployment pipelines from scratch. It provides atomic deploys, instant rollbacks, edge routing, and automated SSL, solving the complexity of manual web server, CDN, and DNS management.
 
 ## Where it fits in the stack
-**Development & Ops / Composable Frontend Hosting Platform**. It is a premier cloud platform for marketing sites, Hugo/Astro projects, and advanced frontend frameworks like **Next.js 15** and **Remix**. It is a common target for projects created or maintained by autonomous agents like **Claude 5.1** and **GPT-5.5**.
+**Development & Ops / Composable Frontend Hosting Platform**. It is a premier cloud platform for marketing sites, Hugo/Astro projects, and advanced frontend frameworks like **Next.js 15** and **Remix**. It serves as a deployment target for serverless FastMCP 3.1 endpoints and apps created or maintained by autonomous agents like **Claude 5.1** and **GPT-5.5**.
 
 ## Typical use cases
-- High-performance marketing websites and landing pages.
-- Composable frontend apps utilizing headless CMS backends.
+- High-performance marketing websites and web applications.
+- Composable frontend apps utilizing headless CMS backends and Netlify AI Gateway for model proxying.
 - Deployment of documentation engines (such as MkDocs, Astro Starlight) where Deploy Previews streamline PR review processes.
+- Serverless FastMCP 3.1 tool backends and Edge Functions for low-latency AI responses.
 - Form-driven user capture leveraging native Netlify Forms.
-- Edge-personalized web applications using Edge Functions.
 
 ## Strengths
 - **Developer-Centric UX**: Standard-setting integration with GitHub/GitLab with instant deployment on push.
 - **Deploy Previews**: Automated generation of isolated, unique preview URLs for every pull request, simplifying visual validation.
-- **Deno-Powered Edge Functions**: Serverless logic running at the nearest edge location using modern Deno 2.1 runtimes.
+- **Deno-Powered Edge Functions**: Serverless logic running at the nearest edge location using modern Deno 2.x runtimes.
+- **Netlify AI Gateway**: Edge proxying, rate limiting, and prompt caching for OpenAI, Anthropic, and Google AI endpoints.
 - **Unified Platform**: Integrated forms, identity management, and serverless background functions out of the box.
 
 ## Limitations
 - **Backend Architecture**: Best suited for stateless or static applications; complex persistent database layers require third-party services (e.g., Supabase, Neon).
-- **Bandwidth Limits**: Scale pricing can escalate quickly if high volumes of media or bandwidth are consumed on lower-tier plans.
+- **Bandwidth Limits**: Scale pricing can escalate if high volumes of media or LLM streaming data are consumed on lower-tier plans.
 - **Lock-In Risk**: Specific feature integrations (Netlify Forms, Identity) can introduce lock-in compared to pure containerized deployments.
 
 ## When to use it
 - When building modern JAMstack sites (Next.js, Gatsby, Astro, Hugo) where rapid, atomic frontend iteration is vital.
 - For collaborative teams that heavily leverage visual review and PR deploy previews.
+- For serverless FastMCP 3.1 endpoints or AI applications needing edge rate-limiting and prompt caching.
 - When you want a low-maintenance, fully managed environment for static docs and prototypes.
 
 ## When not to use it
@@ -101,7 +103,7 @@ export default async (req: Request, context: Context) => {
 }
 ```
 
-### Edge Functions (Deno 2.1+)
+### Edge Functions (Deno 2.x)
 Example of an Edge Function that modifies the response based on the user's geographic location using modern Deno APIs:
 
 ```typescript
@@ -156,29 +158,29 @@ def validate_netlify_config(raw_json: str) -> Optional[NetlifyConfig]:
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_config = """
-#     {
-#         "build": {
-#             "command": "npm run build",
-#             "publish": "dist",
-#             "functions": "netlify/functions"
-#         },
-#         "headers": [
-#             {
-#                 "for": "/*",
-#                 "values": {
-#                     "X-Frame-Options": "DENY",
-#                     "X-Content-Type-Options": "nosniff"
-#                 }
-#             }
-#         ]
-#     }
-#     """
-#     validated = validate_netlify_config(sample_config)
-#     if validated:
-#         print("netlify.toml parsed and validated successfully!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_config = """
+    {
+        "build": {
+            "command": "npm run build",
+            "publish": "dist",
+            "functions": "netlify/functions"
+        },
+        "headers": [
+            {
+                "for": "/*",
+                "values": {
+                    "X-Frame-Options": "DENY",
+                    "X-Content-Type-Options": "nosniff"
+                }
+            }
+        ]
+    }
+    """
+    validated = validate_netlify_config(sample_config)
+    if validated:
+        print("netlify.toml parsed and validated successfully!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -198,5 +200,5 @@ def validate_netlify_config(raw_json: str) -> Optional[NetlifyConfig]:
 - [Netlify CLI Reference](https://cli.netlify.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-02
+- Last reviewed: 2027-01-07
 - Confidence: high
