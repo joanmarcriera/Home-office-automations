@@ -1,10 +1,10 @@
 # DREAM: Deep Research Evaluation with Agentic Metrics
 
 ## What it is
-DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation framework for deep research agents. It uses tool-calling agents to independently verify the factual correctness and temporal validity of research reports. As of November 2026, it is the primary method for evaluating the "research depth" of models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation framework for deep research agents. It uses tool-calling agents to independently verify the factual correctness and temporal validity of research reports. As of early January 2027, it is the primary method for evaluating the "research depth" and multi-turn reasoning of frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
-It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where fluent writing and plausible citations hide factual errors or reasoning flaws. Static judges cannot verify claims against real-world evidence; DREAM solves this by making the evaluator as capable (agentic) as the agent it is testing, utilizing **Model Context Protocol (MCP 3.1)** for dynamic tool discovery.
+It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where fluent writing and plausible citations hide factual errors or reasoning flaws. Static judges cannot verify claims against real-world evidence; DREAM solves this by making the evaluator as capable (agentic) as the agent it is testing, utilizing **FastMCP 3.1** for dynamic tool discovery and tool execution.
 
 ## Where it fits in the stack
 **Eval / Benchmarking**: It is a framework for benchmarking and evaluating advanced LLM agentic performance, particularly for models when used in complex research loops. It bridges the gap between static benchmarks like [GPQA](gpqa.md) and real-world utility.
@@ -19,7 +19,7 @@ It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where
 - **Parity-based Evaluation**: Uses agents to evaluate agents, ensuring the evaluator has the tools necessary to verify modern information.
 - **Sensitivity to Decay**: Significantly more sensitive to factual and temporal decay than static benchmarks like [MMLU](mmlu.md).
 - **Scalable and Reference-Free**: Does not require a pre-defined ground truth for every query, allowing for flexible evaluation of open-ended research.
-- **Tool-Agnostic**: Can be integrated with any tool-calling environment supporting the **Model Context Protocol (MCP 3.1)**.
+- **Tool-Agnostic**: Can be integrated with any tool-calling environment supporting **FastMCP 3.1**.
 
 ## Limitations
 - **Operational Complexity**: Requires a tool-calling environment for the evaluation agent, making it more complex to run than static Q&A.
@@ -84,9 +84,9 @@ dream-eval verify --report report.md --output results.json
 ```python
 from dream_eval import DreamEvaluator
 
-# Initialize the agentic evaluator with search tools via MCP 3.1
+# Initialize the agentic evaluator with search tools via FastMCP 3.1
 evaluator = DreamEvaluator(
-    model="claude-5-1-sonnet-20261022",
+    model="claude-5-1-20261101",
     mcp_servers=["https://search.api.tavily.com/mcp"]
 )
 
@@ -135,28 +135,28 @@ def validate_dream_report(raw_json: str) -> Optional[DreamEvaluationReport]:
     return None
 
 # Example usage:
-# if __name__ == "__main__":
-#     sample_report = """
-#     {
-#         "report_id": "rep_10294",
-#         "overall_accuracy_score": 0.95,
-#         "temporal_decay_metric": 0.08,
-#         "verified_claims": [
-#             {
-#                 "claim_id": "c_1",
-#                 "text": "The Llama 4 architecture was officially open-sourced in September 2026.",
-#                 "status": "Verified",
-#                 "confidence": 0.99,
-#                 "sources": ["https://ai.meta.com/blog/llama-4-release/"],
-#                 "justification": "Verified against official Meta AI press release and tech specs."
-#             }
-#         ]
-#     }
-#     """
-#     validated = validate_dream_report(sample_report)
-#     if validated:
-#         print("DREAM evaluation report successfully validated!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_report = """
+    {
+        "report_id": "rep_10294",
+        "overall_accuracy_score": 0.95,
+        "temporal_decay_metric": 0.08,
+        "verified_claims": [
+            {
+                "claim_id": "c_1",
+                "text": "The Llama 4 architecture was officially open-sourced in late 2026.",
+                "status": "Verified",
+                "confidence": 0.99,
+                "sources": ["https://ai.meta.com/blog/llama-4-release/"],
+                "justification": "Verified against official Meta AI press release and tech specs."
+            }
+        ]
+    }
+    """
+    validated = validate_dream_report(sample_report)
+    if validated:
+        print("DREAM evaluation report successfully validated!")
+        print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -174,5 +174,5 @@ def validate_dream_report(raw_json: str) -> Optional[DreamEvaluationReport]:
 - [Official DREAM Documentation](https://github.com/dream-eval/dream)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-03
+- Last reviewed: 2027-01-07
 - Confidence: high
