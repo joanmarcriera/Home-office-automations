@@ -1,10 +1,10 @@
 # Superconductor
 
 ## What it is
-Superconductor is a multiplayer, cloud-native AI workspace designed for parallel agent orchestration. It allows developers to deploy, monitor, and collaborate with multiple AI agents (e.g., **Claude 5.1**, **GPT-5.5**, and **Llama 4 Maverick**) in a synchronized, sandboxed environment.
+Superconductor is a multiplayer, cloud-native AI workspace designed for parallel agent orchestration. It allows developers to deploy, monitor, and collaborate with multiple AI agents (e.g., **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **DeepSeek-V4**, and **Llama 4 Maverick**) in a synchronized, sandboxed environment using FastMCP 3.1 protocols.
 
 ## What problem it solves
-Managing multiple autonomous agents in a single project often leads to "state drift" and conflicting changes. Superconductor solves this by providing a unified "ground truth" workspace where agents can work in parallel on different branches, with live previews and integrated network sandboxing to prevent unauthorized data exfiltration.
+Managing multiple autonomous agents in a single project often leads to "state drift" and conflicting changes. Superconductor solves this by providing a unified "ground truth" workspace where agents can work in parallel on different branches, with live previews, FastMCP 3.1 contextual servers, and integrated network sandboxing to prevent unauthorized data exfiltration.
 
 ## Where it fits in the stack
 **Development & Ops / Multi-Agent Orchestration**. It serves as the "Operating System" for agentic teams, providing the infrastructure for collaboration, resource management, and security.
@@ -17,8 +17,8 @@ Managing multiple autonomous agents in a single project often leads to "state dr
 
 ## Strengths
 - **Parallelism**: Native support for running dozens of agents in parallel without state collisions.
-- **Security**: Robust network sandboxing and per-agent resource quotas.
-- **Observability**: Real-time "execution graphs" that show how agents are interacting with each other and the code.
+- **Security**: Robust network sandboxing, FastMCP tool privilege isolation, and per-agent resource quotas.
+- **Observability**: Real-time "execution graphs" that show how agents are interacting with each other and the code via OpenTelemetry spans.
 - **Live Previews**: Automatically generates ephemeral URLs for web applications, allowing agents to "see" their changes.
 
 ## Limitations
@@ -56,6 +56,8 @@ auth:
 models:
   - id: claude-5.1-opus
     api_key: env:ANTHROPIC_API_KEY
+  - id: gpt-5.5
+    api_key: env:OPENAI_API_KEY
 ```
 
 ### Initializing a Project
@@ -117,7 +119,7 @@ async function checkStatus() {
 ```
 
 ### Programmatic Python Session Handler (Pydantic v2)
-Ensure agent session requests comply with security policy and configuration settings:
+Ensure agent session requests comply with security policy and configuration settings using Pydantic v2 validation:
 
 ```python
 from pydantic import BaseModel, Field
@@ -177,5 +179,5 @@ print(f"Spinning up {len(trigger.agents)} isolated agents with network sandboxin
 - [Documentation: Multi-Agent Parallelism](https://docs.superconductor.ai/concepts/parallelism)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-01
+- Last reviewed: 2027-01-07
 - Confidence: high
