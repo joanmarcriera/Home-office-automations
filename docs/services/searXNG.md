@@ -1,44 +1,43 @@
 # SearXNG
 
-SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services, providing a privacy-preserving and agent-friendly search infrastructure in late October / November 2026.
+SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services, providing a privacy-preserving and agent-friendly search infrastructure in early January 2027.
 
 ## What it is
-SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services (engines). It provides a private, decentralized search experience by acting as a proxy between you and major search engines like Google, Bing, and DuckDuckGo.
+SearXNG is a free, privacy-preserving internet metasearch engine that aggregates search results from over 70 search engines and services. Operating as an anonymizing proxy, SearXNG strips tracking cookies, user tokens, and IP addresses from outgoing queries, providing clean, structured results to end users, local LLM agents (**Gemma 3**, **Qwen 3.8**), and frontier multi-agent systems (**Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro**).
 
 ## What problem it solves
-It strips tracking cookies and personal data from your requests, preventing search engines from profiling you. It also solves the "fragmentation" problem by combining results from multiple niche and general engines into a single, structured interface, which is particularly valuable for local LLMs like **Gemma 3** / **Qwen 3.6** and autonomous agents like **Claude 5.1** / **GPT-5.5**.
+It eliminates search profiling, behavioral tracking, and search bubble bias enforced by commercial engines. For autonomous AI agent workflows, SearXNG solves rate-limiting, engine-specific IP blocking, and formatting fragmentation by unifying diverse upstream search provider responses into standardized JSON payloads accessible via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers and direct HTTP APIs.
 
 ## Where it fits in the stack
-**Category**: Services / Search & Discovery. It serves as a privacy-preserving front-end for web search and acts as a **primary data retrieval tool** for local AI agents. It often sits behind a reverse proxy like Nginx or Traefik and is secured via [Authentik](authentik.md).
+**Category**: Services / Search & Discovery. SearXNG acts as the primary web search and live-retrieval engine for private RAG pipelines and autonomous agent toolkits. It typically resides behind reverse proxies (Nginx, Traefik, or Caddy) with authentication secured by [Authentik](authentik.md) or [Authelia](authelia.md), interfacing directly with orchestration engines like [n8n](n8n.md) or custom MCP servers.
 
 ## Typical use cases
-- **Private Web Searching**: No tracking or profiling during daily browsing.
-- **Agentic Information Retrieval**: Providing a search API for local AI agents to browse the live web.
-- **Source Aggregation**: Combining results from Wikipedia, GitHub, and Google for a unified technical overview.
-- **RAG Context Filling**: Using SearXNG to fetch real-time data for Retrieval-Augmented Generation loops.
-- **Local Knowledge Base Integration**: Configuring SearXNG to search your local documentation via custom JSON engines.
+- **Privacy-First Search Infrastructure**: Secure search backend for enterprise networks and self-hosted environments without tracking or analytics leakage.
+- **Agentic Web Retrieval**: Providing structured search capabilities to FastMCP 3.1 tools for [Claude 5.1](../tools/providers/anthropic.md), [GPT-5.5](../tools/providers/openai.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
+- **Domain-Specific Aggregation**: Filtering and weighting results across specialized sources (e.g., GitHub, StackOverflow, ArXiv, Wikipedia) for developer research loops.
+- **RAG Context Expansion**: Fetching real-time web citations and context snippets to augment prompt context windows for local models like Gemma 3 and Llama 4.
+- **Unified Internal & External Search**: Integrating local documentation JSON endpoints alongside public search providers.
 
 ## Strengths
-- **Privacy-First**: No tracking, no profiling, no cookies.
-- **Aggregated Results**: Combines results from 70+ engines.
-- **Customizable**: Extensive settings for engines, categories, and UI.
-- **Self-Hostable**: Easy to deploy via Docker.
-- **Open API**: Provides search results in JSON format, ideal for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) 3.1 integration.
-- **Cost**: Free and Open Source (AGPL-3.0).
+- **Anonymization & Zero Tracking**: Strips all user identifiers and IP headers before querying upstream search providers.
+- **Aggregated Broad Coverage**: Fetches and rank-merges results across 70+ general, academic, code, and news search engines.
+- **Native JSON Output**: Built-in `format=json` response support designed for seamless programmatic ingestion.
+- **Customizable Weighting**: Granular settings to adjust engine priorities, response timeouts, and category definitions.
+- **Open Source Security**: AGPL-3.0 licensed codebase with active community security auditing.
 
 ## Limitations
-- **Upstream Reliability**: If an upstream engine (like Google) blocks SearXNG's IP, results from that engine may be missing.
-- **Maintenance**: Requires occasional updates to keep engine scrapers functioning.
-- **Performance**: Aggregating from 70+ sources can be slower than a single-source search.
+- **Upstream Scraping Blockades**: Search engines frequently update CAPTCHA systems or block cloud provider IP ranges, requiring active SearXNG maintenance.
+- **Aggregated Latency**: Querying multiple engines in parallel inherently introduces slight latency compared to single-source search APIs.
+- **No Native Personalization**: High-volume localized query results (e.g., "nearby cafes") require explicit spatial coordinates in the search query.
 
 ## When to use it
-- When you value privacy and want to avoid being tracked by major search engines.
-- When you want to combine results from multiple niche engines (e.g., academic, code, news).
-- When building local AI tools that need to search the web without reliance on proprietary search APIs.
+- When providing privacy-focused web search capabilities for self-hosted AI agent frameworks.
+- When building tool-use pipelines where agents require structured search without relying on paid proprietary search APIs.
+- When combining internal documentation search endpoints with external web retrieval in a single query interface.
 
 ## When not to use it
-- If you rely heavily on personalized search results (e.g., "restaurants near me" based on Google History).
-- If you don't want to manage your own search infrastructure or deal with potential IP blocks.
+- When requiring consumer-focused personalized search histories or real-time location tracking.
+- When operating in environments unable to manage proxy IPs or maintain scraper engine definitions.
 
 ## Getting started
 
@@ -47,105 +46,112 @@ It strips tracking cookies and personal data from your requests, preventing sear
 services:
   searxng:
     image: searxng/searxng:latest
+    container_name: searxng
     ports:
       - "8080:8080"
     volumes:
       - ./searxng:/etc/searxng
     environment:
       - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+      - SEARXNG_SECRET=a_very_secure_random_secret_key_2027
     restart: always
 ```
 
-### Custom Engine Configuration
-SearXNG allows granular control over engine priority and local integration via `settings.yml`.
+### Custom Engine Configuration (`settings.yml`)
+Configure domain-specific weights and integrate custom JSON endpoints:
 
 ```yaml
 # /etc/searxng/settings.yml
+search:
+  safe_search: 0
+  autocomplete: "duckduckgo"
+  formats:
+    - html
+    - json
+
 engines:
   - name: google
     weight: 1.0
   - name: wikipedia
-    weight: 2.0  # Give Wikipedia higher priority
+    weight: 2.0  # Prioritize encyclopedia references
   - name: github
-    weight: 3.0  # Bias heavily towards code for dev workflows
+    weight: 3.0  # Heavily bias developer code searches
 
-  - name: local-knowledge-base
+  - name: internal-docs
     engine: json_engine
-    search_url: http://your-docs-site:8000/search?q={query}
+    search_url: http://docs-server:8000/api/v1/search?q={query}
     results_query: results
     title_query: title
     url_query: url
     content_query: snippet
     categories: general
-    weight: 5.0  # Force local knowledge to the top
+    weight: 5.0  # Highest priority for internal docs
 ```
 
 ## CLI examples
 
-SearXNG is primarily a web service, but you can interact with it via `curl` to test the API or retrieve results.
-
 ```bash
-# curl (JSON Search)
-curl "http://localhost:8080/search?q=open+source+llm&format=json"
+# General web search in JSON format
+curl -s "http://localhost:8080/search?q=FastMCP+3.1+python&format=json" | jq '.results[0]'
 
-# curl (Specific Category)
-curl "http://localhost:8080/search?q=sunset&categories=images&format=json"
+# Category-filtered search (IT / Development)
+curl -s "http://localhost:8080/search?q=DeepSeek-V4+architecture&categories=it&format=json"
 
-# curl (Specific Engine)
-curl "http://localhost:8080/search?q=SearXNG&engines=wikipedia&format=json"
+# Direct query to specific search engine
+curl -s "http://localhost:8080/search?q=SearXNG&engines=wikipedia&format=json"
 ```
 
 ## API examples
 
-### Python (Simple Search)
-```python
-import requests
-
-url = "http://localhost:8080/search"
-params = {
-    "q": "Model Context Protocol",
-    "format": "json"
-}
-
-response = requests.get(url, params=params)
-results = response.json()
-
-for result in results.get('results', []):
-    print(f"Title: {result['title']}")
-    print(f"URL: {result['url']}\n")
-```
-
-### Advanced: RAG Pipeline Pattern (Python)
-This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines, utilizing [Gemma 3](../tools/ai_knowledge/local_llms.md) for local inference.
+### Python FastMCP 3.1 Integration
+Exposing SearXNG as a standard tool for autonomous AI agents using FastMCP 3.1:
 
 ```python
 import requests
+from fastmcp import FastMCP
 
-def rag_search(query, search_domain="tech"):
+mcp = FastMCP("SearXNG-Search-Server", version="3.1.0")
+
+@mcp.tool()
+def search_web(query: str, category: str = "general", max_results: int = 5) -> str:
+    """Performs a privacy-preserving metasearch query using SearXNG.
+
+    Args:
+        query: The search query string.
+        category: Search category ('general', 'it', 'science', 'news').
+        max_results: Maximum number of search results to return.
+    """
     url = "http://localhost:8080/search"
-    if search_domain == "tech":
-        params = {
-            "q": query,
-            "engines": "github,stackoverflow,wikipedia,reddit",
-            "categories": "it",
-            "format": "json",
-            "time_range": "month"
-        }
-    else:
-        params = {"q": query, "format": "json"}
+    params = {
+        "q": query,
+        "categories": category,
+        "format": "json"
+    }
 
-    response = requests.get(url, params=params)
-    results = response.json().get('results', [])
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
 
-    context_snippets = [
-        f"Source: {r['url']}\nSnippet: {r.get('content', '')}"
-        for r in results[:5]
-    ]
-    return "\n\n".join(context_snippets)
+        results = data.get("results", [])[:max_results]
+        formatted = []
+        for item in results:
+            title = item.get("title", "No Title")
+            link = item.get("url", "")
+            content = item.get("content", "")
+            engine = item.get("engine", "unknown")
+            formatted.append(f"[{title}]({link}) (via {engine})\n{content}")
+
+        return "\n\n".join(formatted) if formatted else "No results found."
+    except Exception as e:
+        return f"SearXNG query error: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Validation of Search Responses with Pydantic v2
-This python example parses and validates aggregated multi-engine search responses and scoring parameters using **Pydantic v2**:
+### Response Validation using Pydantic v2
+Validating aggregated SearXNG search responses using Pydantic v2 schemas:
 
 ```python
 import json
@@ -155,44 +161,37 @@ from pydantic import BaseModel, Field, HttpUrl, ValidationError
 class SearchResultItem(BaseModel):
     title: str = Field(..., description="The title of the search result")
     url: HttpUrl = Field(..., description="The source URL of the search result")
-    content: Optional[str] = Field(None, description="The text snippet or summary of the page")
-    engine: str = Field(..., description="The specific engine from which the result was aggregated")
-    score: Optional[float] = Field(None, description="Aggregated search relevance score")
+    content: Optional[str] = Field(None, description="Text snippet or summary")
+    engine: str = Field(..., description="Upstream engine providing the result")
+    score: Optional[float] = Field(None, description="Aggregated relevance score")
 
-class SearXNGResponse(BaseModel):
-    query: str = Field(..., description="The executed search query")
-    results: List[SearchResultItem] = Field(default_factory=list, description="Aggregated list of search results")
-    unresponsive_engines: List[str] = Field(default_factory=list, alias="unresponsive_engines", description="List of timed-out or blocked engines")
+class SearXNGQueryResponse(BaseModel):
+    query: str = Field(..., description="The original search query executed")
+    results: List[SearchResultItem] = Field(default_factory=list, description="Validated search results")
+    unresponsive_engines: List[str] = Field(default_factory=list, description="Timed out or failed engines")
 
-def validate_searxng_response(raw_json: str) -> Optional[SearXNGResponse]:
+def parse_searxng_response(raw_json: str) -> Optional[SearXNGQueryResponse]:
     try:
         data = json.loads(raw_json)
-        # Validate using Pydantic v2 model_validate
-        return SearXNGResponse.model_validate(data)
-    except ValidationError as e:
-        print(f"Validation Error: {e.json()}")
-        return None
-    except json.JSONDecodeError:
-        print("Error: Invalid JSON.")
+        return SearXNGQueryResponse.model_validate(data)
+    except (ValidationError, json.JSONDecodeError) as e:
+        print(f"Validation failure: {e}")
         return None
 ```
 
 ## Related tools / concepts
-- [Perplexity](../tools/providers/perplexity.md) — AI-powered search engine.
-- [n8n](n8n.md) — For automating search workflows.
-- [Ollama](ollama.md) — To use search results with local LLMs.
-- [Paperless-ngx](paperless-ngx.md) — For archiving and managing documents.
-- [IT-Tools](it-tools.md) — Comprehensive developer utility suite.
-- [Linkwarden](linkwarden.md) — To save and organize search results.
-- [Crawl4AI](../tools/process_understanding/crawl4ai.md) — For high-performance scraping of search results.
-- [Authentik](authentik.md) — For securing the SearXNG web interface.
+- [Authentik](authentik.md) — Identity provider securing SearXNG endpoints.
+- [n8n](n8n.md) — Workflow automation tool integrating SearXNG API nodes.
+- [Crawl4AI](../tools/process_understanding/crawl4ai.md) — High-performance scraping tool for deep-crawling SearXNG search result URLs.
+- [Perplexity](../tools/providers/perplexity.md) — Commercial AI search alternative.
+- [FastMCP](../tools/automation_orchestration/mcp.md) — Model Context Protocol framework for agent tool binding.
 
 ## Sources / references
-- [Official Website](https://searxng.org/)
-- [GitHub Repository](https://github.com/searxng/searxng)
-- [Documentation](https://docs.searxng.org/)
-- [LangChain SearXNG Integration](https://python.langchain.com/docs/integrations/tools/searxng_search)
+- [SearXNG Official Website](https://searxng.org/)
+- [SearXNG GitHub Repository](https://github.com/searxng/searxng)
+- [SearXNG Documentation](https://docs.searxng.org/)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

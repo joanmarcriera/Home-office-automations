@@ -1,172 +1,200 @@
 # Jellyfin
 
+Jellyfin is a free, open-source media server software that organizes, manages, and streams digital media collections (movies, TV series, music, photos, and live TV) across self-hosted homelabs and AI-augmented environments in early January 2027.
+
 ## What it is
-Jellyfin is a free and open-source media server software that allows you to organize, manage, and stream your digital media (movies, TV shows, music, and photos). Originating as a fork of Emby, it has evolved by November 2026 into a premier open-standard platform for private media distribution. It fully embraces **FastMCP 3.1** for high-performance tool hosting and uses **Gemini 4.0** and **Gemma 3** multimodal reasoning for automated library enrichment and content understanding.
+Jellyfin is an open-source media management and streaming server designed as a completely free, privacy-first alternative to commercial platforms like Plex and Emby. Operating with zero subscription paywalls and no centralized user tracking, Jellyfin natively supports hardware-accelerated transcoding (Intel QuickSync, NVENC, AMF), multi-user access control, and integration with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers for multimodal library enrichment using models like **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0 Pro**.
 
 ## What problem it solves
-Commercial media services often involve subscription fees, telemetry tracking, and limited control over personal metadata. Jellyfin provides a completely free, private alternative that ensures full ownership of media collections. It eliminates the "pay-to-transcode" model and solves the "AI-driven discovery and enrichment" challenge by allowing local models to index, tag, and describe media without cloud exposure.
+It eliminates subscription fees, central telemetry harvesting, and restrictive licensing associated with commercial media streaming solutions. Jellyfin gives users total sovereignty over personal media libraries and metadata, while providing standardized API endpoints that allow AI agents to automatically organize, generate captions, tag home videos, and categorize raw media without relying on proprietary cloud services.
 
 ## Where it fits in the stack
-**Category**: Service / Media Management. It sits in the **media distribution and consumption** layer. It acts as the primary interface for large libraries, integrating with the "Arr" suite ([Prowlarr](prowlarr.md)) and providing a standardized endpoint for **Gemini 4.0** and **Gemma 3** vision agents to analyze, index, and categorize raw content.
+**Category**: Services / Media Management & Streaming. Jellyfin acts as the central media distribution engine within a homelab, interfacing with the "Arr" automation suite ([Prowlarr](prowlarr.md)), reverse proxies (Traefik, Nginx, Caddy), identity providers ([Authentik](authentik.md)), and agentic AI toolkits.
 
 ## Typical use cases
-- **Personal Netflix**: Hosting a private collection of movies and TV shows for streaming to smart TVs and mobile clients.
-- **Agentic Library Curation**: Using **Gemini 4.0** and **Gemma 3** multimodal capabilities to automatically generate high-quality descriptions and genre tags for unorganized home videos.
-- **Home Music Server**: Streaming high-fidelity audio (FLAC) via native clients.
-- **Live TV & DVR**: Integrating with hardware tuners to watch and record live television.
-- **Automated Genre Classification**: Utilizing GPT-5.5 or **Gemma 3** via **FastMCP 3.1** to perform semantic classification of large libraries.
+- **Privacy-First Streaming Server**: Streaming high-bitrate 4K HDR video and lossless audio (FLAC) across smart TVs, mobile clients, and web browsers.
+- **AI-Enriched Home Video Libraries**: Utilizing FastMCP 3.1 tools to analyze unorganized family videos with multimodal vision models (**Gemma 3**, **Gemini 4.0 Pro**) to automatically generate descriptive chapters and metadata tags.
+- **Automated Media Indexing**: Integrating with [n8n](n8n.md) and Prowlarr to automatically process, transcode, and catalog new media downloads.
+- **Live TV & DVR Recording**: Interfacing with HDHomeRun tuners to record and stream live digital television.
+- **Multi-Tenant Homelab Access**: Providing secure, authenticated media playback to family members via [Tailscale](tailscale.md) or Authentik SSO.
 
 ## Strengths
-- **Truly Open Source**: No premium features hidden behind a paywall (unlike Plex or Emby).
-- **Privacy Focused**: No central tracking or telemetries; all user data remains on local infrastructure.
-- **Hardware Acceleration**: Highly efficient transcoding using Intel QuickSync, NVENC, and AMF.
-- **Modern Client Ecosystem**: The **Jellyfin Desktop** and mobile clients provide native HDR and 4K playback.
-- **FastMCP 3.1 Native**: Exposes library data as standardized tools for AI agents under the Model Context Protocol.
+- **100% Free & Open Source**: All core features—including hardware acceleration and client apps—are completely free (FOSS, GPL-3.0).
+- **Zero Telemetry & Tracking**: No centralized authentication servers or user data logging; total privacy control.
+- **High-Performance Transcoding**: Hardware-accelerated video conversion supporting QuickSync, NVENC, and Vaapi.
+- **Native FastMCP 3.1 Integration**: Broad API exposure enabling AI agents to search, manage, and curate libraries via standardized tool definitions.
+- **Extensive Client Ecosystem**: Native client apps across Android TV, iOS, Roku, web, and desktop environments.
 
 ## Limitations
-- **Client App Availability**: Some older smart TV platforms may have less polished apps than commercial competitors.
-- **Setup Complexity**: Requires manual configuration for remote access (e.g., [Tailscale](tailscale.md) or a reverse proxy).
-- **No Cloud-Link**: Does not offer a proprietary relay service for remote streaming, requiring own networking setup.
+- **No Remote Relay Cloud**: Remote access requires explicit network configuration (e.g., Tailscale or reverse proxy) rather than a turnkey cloud relay.
+- **Smart TV App Parity**: Older smart TV platforms may lag behind commercial alternatives in UI polish.
+- **Resource Demand During Transcoding**: High-concurrent 4K transcoding requires dedicated GPU hardware or QuickSync CPU support.
 
 ## When to use it
-- When you want a completely open-source, self-hosted media server with no telemetry tracking.
-- For users who value privacy and want full control over their metadata database.
-- To stream media collections to various devices with efficient hardware transcoding.
-- When integrating media libraries into an agentic workflow using **FastMCP 3.1**.
+- When requiring a completely self-hosted media server with zero telemetry, zero paywalls, and total metadata ownership.
+- When integrating media catalogs with autonomous agent pipelines via FastMCP 3.1 for automated metadata classification.
+- When streaming high-bitrate video across local homelab networks with custom GPU transcoding hardware.
 
 ## When not to use it
-- If you require a turn-key solution with zero configuration for remote access.
-- If you depend on a specific proprietary smart TV app that is not yet supported.
-- If you prefer a managed, cloud-hosted media solution.
+- If you desire a commercial, zero-configuration cloud relay for remote streaming without managing network ingress.
+- If your hardware cannot support local transcoding or lacks adequate storage for self-hosted media.
 
 ## Getting started
 
-### Docker installation
-The most common way to run Jellyfin is via Docker. Replace placeholders with your actual paths.
+### Docker Compose Baseline
+Deploy Jellyfin with hardware acceleration pass-through (Intel QuickSync example):
 
-```bash
-docker run -d \
- --name jellyfin \
- --user 1000:1000 \
- --net=host \
- --volume /path/to/config:/config \
- --volume /path/to/cache:/cache \
- --mount type=bind,source=/path/to/media,target=/media \
- --restart=unless-stopped \
- jellyfin/jellyfin
+```yaml
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: host
+    restart: unless-stopped
+    devices:
+      - /dev/dri:/dev/dri # Pass through Intel QuickSync GPU devices
+    volumes:
+      - ./config:/config
+      - ./cache:/cache
+      - /path/to/media:/media:ro
 ```
 
-### Hello World
-1. Start the Jellyfin container using the command above.
+### Initial Configuration
+1. Deploy the Docker Compose stack.
 2. Open your web browser and navigate to `http://localhost:8096`.
-3. Follow the Setup Wizard to create your first user.
-4. Add your first library by selecting the folder mounted to `/media`.
-5. Your media will begin to appear in the dashboard!
+3. Complete the Setup Wizard to configure the initial administrator account.
+4. Add your media libraries by linking the `/media` mount directories.
 
 ## CLI examples
-Jellyfin administrative tasks can be performed via `docker exec`.
 
 ```bash
-# Check the version of Jellyfin running in the container
+# Check installed Jellyfin version inside container
 docker exec -it jellyfin /jellyfin/jellyfin --version
 
-# View recent logs for troubleshooting
-docker logs --tail 100 jellyfin
+# Tail recent container logs for troubleshooting
+docker logs --tail 100 -f jellyfin
 
-# Force a scan of all libraries
+# Trigger a background library scan via command line
 docker exec -it jellyfin /jellyfin/jellyfin-scanner -scan
 ```
 
 ## API examples
-Jellyfin provides a REST API. You'll need an `X-Emby-Token` for most requests.
 
-### Python: Library Metadata Enrichment with Pydantic v2
-This script uses **Pydantic v2** to validate metadata updates before writing them back to the Jellyfin API, incorporating summaries from a **Gemini 4.0** or **Gemma 3** vision analysis pipeline.
+### Python: AI-Assisted Metadata Enrichment with Pydantic v2
+Updating Jellyfin movie metadata using validated AI-generated summaries:
 
 ```python
 import requests
-from pydantic import BaseModel, Field, conlist
-from typing import Optional
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-# Define the metadata schema using Pydantic v2
-class JellyfinMovieMetadata(BaseModel):
-    overview: str = Field(..., description="Generated summary from Gemini 4.0 vision analysis", min_length=10)
-    genres: conlist(str, min_length=1) = Field(..., description="List of categorized genres")
-    tagline: Optional[str] = Field(None, description="Catchy tagline for the movie")
-    locked_fields: list[str] = Field(default=["Overview", "Genres"], description="Lock fields to prevent scraper overwrites")
+class JellyfinMetadataUpdate(BaseModel):
+    overview: str = Field(..., description="AI-generated summary from multimodal model analysis", min_length=10)
+    genres: List[str] = Field(..., min_length=1, description="List of assigned genre tags")
+    tagline: Optional[str] = Field(None, description="Generated movie tagline")
+    locked_fields: List[str] = Field(default=["Overview", "Genres"], description="Lock fields from scraper overwrites")
 
-# Example: Updating a movie's description
-def update_jellyfin_metadata(item_id: str, token: str, metadata_payload: dict):
-    # Validate payload using Pydantic v2
-    validated = JellyfinMovieMetadata(**metadata_payload)
+def update_jellyfin_item(item_id: str, api_token: str, payload: dict, base_url: str = "http://localhost:8096"):
+    try:
+        # Validate update payload with Pydantic v2
+        validated = JellyfinMetadataUpdate.model_validate(payload)
 
-    url = f"http://localhost:8096/Items/{item_id}"
-    headers = {
-        "X-Emby-Token": token,
-        "Content-Type": "application/json"
-    }
+        url = f"{base_url}/Items/{item_id}"
+        headers = {
+            "X-Emby-Token": api_token,
+            "Content-Type": "application/json"
+        }
 
-    data = {
-        "Overview": validated.overview,
-        "Genres": validated.genres,
-        "Tagline": validated.tagline,
-        "LockedFields": validated.locked_fields
-    }
+        data = {
+            "Overview": validated.overview,
+            "Genres": validated.genres,
+            "Tagline": validated.tagline,
+            "LockedFields": validated.locked_fields
+        }
 
-    response = requests.post(url, headers=headers, json=data)
-    response.raise_for_status()
-    print("Metadata updated and validated successfully!")
+        res = requests.post(url, headers=headers, json=data, timeout=10)
+        res.raise_for_status()
+        print(f"Successfully updated metadata for Jellyfin item {item_id}")
+    except ValidationError as ve:
+        print(f"Metadata validation error: {ve}")
+    except requests.RequestException as re:
+        print(f"Jellyfin API request error: {re}")
 
-# Usage example (Dummy parameters)
-# update_jellyfin_metadata("item_123", "dummy_token", {
-#     "overview": "An interactive, visual demo of homelab services automated via agents.",
-#     "genres": ["Homelab", "Automation"],
-#     "tagline": "The future of automation is here."
+# Example invocation:
+# update_jellyfin_item("item_abc_123", "your_jellyfin_api_token", {
+#     "overview": "An in-depth documentary showcasing modern homelab automation and agent orchestration.",
+#     "genres": ["Technology", "Documentary"],
+#     "tagline": "Homelab automation at scale."
 # })
 ```
 
-### FastMCP 3.1 Tool Definition (TypeScript)
-Exposing Jellyfin search to agents.
+### FastMCP 3.1 Media Search Tool (Python)
+Exposing Jellyfin media discovery as an agentic tool using FastMCP 3.1:
 
-```typescript
-import { FastMCP } from 'fastmcp';
+```python
+import os
+import httpx
+from fastmcp import FastMCP
 
-const mcp = new FastMCP("jellyfin-manager");
+mcp = FastMCP("Jellyfin-Media-Server", version="3.1.0")
 
-mcp.addTool({
-  name: "search_media",
-  description: "Search for media items in Jellyfin",
-  parameters: { searchTerm: { type: "string" } },
-  execute: async ({ searchTerm }) => {
-    const res = await fetch(`http://jellyfin:8096/Items?searchTerm=${searchTerm}`, {
-      headers: { "X-Emby-Token": process.env.JELLYFIN_TOKEN }
-    });
-    return res.json();
-  }
-});
+JELLYFIN_URL = os.getenv("JELLYFIN_URL", "http://localhost:8096")
+JELLYFIN_TOKEN = os.getenv("JELLYFIN_TOKEN", "your_jellyfin_api_token")
 
-mcp.serve();
+@mcp.tool()
+async def search_jellyfin_library(search_term: str) -> str:
+    """Searches for movies, TV shows, and media items in Jellyfin.
+
+    Args:
+        search_term: Title or keyword to search for in the media library.
+    """
+    url = f"{JELLYFIN_URL}/Items"
+    headers = {"X-Emby-Token": JELLYFIN_TOKEN}
+    params = {
+        "searchTerm": search_term,
+        "Limit": 5,
+        "Recursive": "true"
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.get(url, headers=headers, params=params, timeout=8.0)
+            res.raise_for_status()
+            items = res.json().get("Items", [])
+
+            if not items:
+                return f"No media items found matching '{search_term}'."
+
+            formatted = []
+            for item in items:
+                name = item.get("Name", "Unknown")
+                item_type = item.get("Type", "Unknown")
+                year = item.get("ProductionYear", "N/A")
+                formatted.append(f"- {name} ({year}) [{item_type}] - ID: {item.get('Id')}")
+
+            return "\n".join(formatted)
+        except Exception as e:
+            return f"Jellyfin search error: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
 - [Plex](plex.md) — Proprietary media server alternative.
-- [Navidrome](navidrome.md) — Lightweight music-focused streaming server.
-- [Audiobookshelf](audiobookshelf.md) — Audiobook and podcast management.
-- [Tube Archivist](tubearchivist.md) — YouTube archival and serving.
-- [Tailscale](tailscale.md) — Secure remote access without port forwarding.
-- [Authentik](authentik.md) — For centralized identity and access management.
-- [n8n](n8n.md) — For advanced media automation workflows.
-- [Home Assistant](home-assistant.md) — For integrating media playback into home automation.
-- [Prowlarr](prowlarr.md) — For managing media indexers and trackers.
-- [Immich](immich.md) — Self-hosted photo and video backup solution.
+- [Authentik](authentik.md) — SSO authentication provider securing Jellyfin access.
+- [Tailscale](tailscale.md) — Encrypted mesh VPN for remote streaming access.
+- [Prowlarr](prowlarr.md) — Indexer management for automated media pipelines.
+- [n8n](n8n.md) — Workflow automation engine for Jellyfin webhooks.
+- [FastMCP](../tools/automation_orchestration/mcp.md) — Model Context Protocol framework for agentic media tools.
 
 ## Sources / references
-- [Official Website](https://jellyfin.org/)
-- [Jellyfin Docker Documentation](https://jellyfin.org/docs/general/installation/container)
-- [Jellyfin API Documentation](https://api.jellyfin.org/)
-- [Jellyfin Project Roadmap](https://jellyfin.org/posts/roadmap-2026/)
-- [GitHub — jellyfin/jellyfin](https://github.com/jellyfin/jellyfin)
+- [Jellyfin Official Website](https://jellyfin.org/)
+- [Jellyfin Container Installation Docs](https://jellyfin.org/docs/general/installation/container)
+- [Jellyfin API Reference](https://api.jellyfin.org/)
+- [Jellyfin GitHub Repository](https://github.com/jellyfin/jellyfin)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
