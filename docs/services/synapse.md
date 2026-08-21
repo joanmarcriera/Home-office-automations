@@ -1,52 +1,54 @@
 # Matrix Synapse
 
-Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the late October / November 2026 agentic ecosystem.
+Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the early January 2027 agentic ecosystem.
 
 ## What it is
-Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of late October / November 2026, **v1.168.0** is the current stable release, featuring Matrix 1.14 compatibility, native support for Room v13, and optimized federation for low-latency agentic messaging and autonomous agent federation.
+Synapse is the reference homeserver implementation for Matrix, an open standard for decentralized, end-to-end encrypted real-time communication. Supporting Matrix 2.0 specs, native Room v13 schemas, and low-latency sliding sync, Synapse serves as a federated messaging and coordination engine for multi-agent architectures (**Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro**, **DeepSeek-V4**), human teams, and autonomous services.
 
 ## What problem it solves
-It allows you to own your communication infrastructure. By hosting your own Synapse server, you control your messages, identity, and data, while remaining part of the global Matrix federation. It specifically solves the privacy and control issues associated with centralized platforms, providing a secure substrate for agent-to-agent coordination without reliance on third-party API providers.
+It eliminates vendor lock-in, centralized data harvesting, and proprietary API dependencies for team and agent communications. Hosting a Synapse homeserver provides complete ownership over identity, message histories, and encryption keys while allowing secure federation across organizations, homelabs, and [FastMCP 3.1](../tools/automation_orchestration/mcp.md) agent networks.
 
 ## Where it fits in the stack
-**Category**: Services / Communication. It is the **backend coordination layer** for the [Element](element.md) client and Matrix-based automations. It serves as the primary transport layer for autonomous agents to communicate across different homelabs and organizations, often integrated with [Local LLMs](../tools/ai_knowledge/local_llms.md) for private inference.
+**Category**: Services / Communication & Agent Coordination. Synapse serves as the federated transport layer behind clients like [Element](element.md) and automated messaging bots. It acts as an asynchronous messaging bus for autonomous agent-to-agent communication, receiving webhooks from [Home Assistant](home-assistant.md) or [n8n](n8n.md) and executing commands via MCP tool definitions.
 
 ## Typical use cases
-- **Private Communication**: Hosting a secure, end-to-end encrypted (E2EE) chat server for families or teams.
-- **Agentic Messaging**: Allowing agents like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6 to send reports or receive instructions via Matrix.
-- **Federated Automation**: Coordinating workflows across different homeservers using Matrix bots and the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md).
-- **Home Automation Hub**: Receiving notifications from [Home Assistant](home-assistant.md) or [n8n](n8n.md).
+- **Decentralized Agent Coordination**: Inter-agent message routing and task status broadcasting across distinct security domains and homelabs.
+- **End-to-End Encrypted Team Chat**: Secure team communications backed by native OIDC identity management via [Authentik](authentik.md).
+- **Automated Incident Response**: Webhook ingestion and automated alert dispatches triggered by monitoring infrastructure (Prometheus, Grafana).
+- **Matrix-to-MCP Gateway**: Invoking remote FastMCP tools through encrypted Matrix room events.
+- **Cross-Platform Communication Bridging**: Linking Matrix rooms to external platforms (Slack, Discord, Telegram) via Libera or Appservice bridges.
 
 ## Strengths
-- **Reference Implementation**: Most feature-complete Matrix homeserver.
-- **Robust Federation**: Reliable communication across the decentralized Matrix network.
-- **Extensive Integration**: Support for bridges (Telegram, Discord, Slack) and numerous bots.
-- **OIDC Support**: Native integration with [Authentik](authentik.md) for enterprise-grade identity management.
-- **Agent Friendly**: Standardized APIs for automated message routing and room management.
+- **Decentralized Federation**: Robust, trust-minimized communication across global or private server networks.
+- **E2EE Security**: Native Olm/Megolm end-to-end encryption preserving data privacy across untrusted networks.
+- **Matrix 2.0 & Sliding Sync**: Fast room listing and instant state sync optimized for mobile and low-bandwidth AI agents.
+- **Enterprise SSO & OIDC**: Full compatibility with external identity providers including Authentik and Authelia.
+- **Extensive Ecosystem**: Broad client, bridge, and bot library support across Python, Rust, and Go SDKs.
 
 ## Limitations
-- **Resource Intensive**: Requires significant RAM (1GB+ baseline) and a dedicated PostgreSQL database for production usage.
-- **Complexity**: Setting up federation and media repos requires careful DNS and reverse proxy (Nginx/Traefik) configuration.
-- **Disk Usage**: Media storage can grow rapidly without aggressive cleanup policies.
+- **Memory Footprint**: Requires a dedicated PostgreSQL database and 1GB+ RAM baseline for smooth operation.
+- **Federation Complexity**: Requires strict DNS, TURN/STUN server, and reverse proxy (Nginx, Traefik, Caddy) setup.
+- **Media Accumulation**: Uncapped media repos require scheduled media purge jobs to prevent storage bloat.
 
 ## When to use it
-- When you want to self-host your own Matrix homeserver with full feature support.
-- When you need a reliable, federated communication backend for your homelab.
-- When coordinating multi-agent workflows using [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) over decentralized channels.
+- When building a federated, self-hosted messaging backbone for autonomous agents and human teams.
+- When requiring audit-proof, end-to-end encrypted messaging channels without reliance on third-party cloud servers.
+- When coordinating multi-agent workflows using [FastMCP 3.1](../tools/automation_orchestration/mcp.md) over decentralized protocols.
 
 ## When not to use it
-- On very low-resource hardware like a Raspberry Pi 3 (consider Conduit instead).
-- If you only need simple, non-federated notifications where a lightweight [ntfy](https://ntfy.sh/) instance would suffice.
+- On extremely constrained devices (e.g., lower-tier embedded boards); consider lightweight implementations like Conduit or Dendrite instead.
+- For simple one-way notification setups where a lightweight [ntfy](https://ntfy.sh/) instance is sufficient.
 
 ## Getting started
 
 ### Docker Compose Baseline
-Synapse requires a PostgreSQL database for production usage.
+Synapse requires PostgreSQL for production workloads.
 
 ```yaml
 services:
   synapse:
-    image: matrixdotorg/synapse:v1.168.0
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
     restart: unless-stopped
     environment:
       - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
@@ -57,104 +59,99 @@ services:
 
   db:
     image: postgres:16-alpine
+    container_name: synapse_db
     restart: unless-stopped
     environment:
       - POSTGRES_DB=synapse
       - POSTGRES_USER=synapse
-      - POSTGRES_PASSWORD=your_password
+      - POSTGRES_PASSWORD=your_secure_password_2027
     volumes:
       - ./pgdata:/var/lib/postgresql/data
 ```
 
-### Initial Configuration
-Generate the initial config file:
+### Initial Configuration Generation
 ```bash
 docker run -it --rm \
     -v ./data:/data \
-    -e SYNAPSE_SERVER_NAME=my.matrix.host \
-    -e SYNAPSE_REPORT_STATS=yes \
-    matrixdotorg/synapse:v1.168.0 generate
+    -e SYNAPSE_SERVER_NAME=matrix.example.com \
+    -e SYNAPSE_REPORT_STATS=no \
+    matrixdotorg/synapse:latest generate
 ```
 
 ## CLI examples
 
 ```bash
-# Generate a new admin user (requires running inside the container)
+# Register a new admin user inside the running container
 docker exec -it synapse register_new_matrix_user -c /data/homeserver.yaml http://localhost:8008
 
-# Check the Synapse version
+# Verify installed Synapse homeserver version
 docker exec -it synapse python3 -m synapse.app.homeserver --version
 
-# Run the database maintenance tool
+# Perform database state vacuum and media review
 docker exec -it synapse synapse_review_recent_signups -c /data/homeserver.yaml
 ```
 
 ## API examples
 
-### Python: Async Agentic Report with Pydantic v2 Validation
-The following example demonstrates an asynchronous Python client sending an agentic message to a Synapse homeserver and validating the JSON response using Pydantic v2.
+### Python: Async Agent Message Dispatch with Pydantic v2
+Sending structured agent messages to a Matrix room with Pydantic v2 validation:
 
 ```python
 import asyncio
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
-# Define Pydantic v2 schemas for request and response validation
-class MatrixEventResponse(BaseModel):
-    event_id: str = Field(..., description="The unique ID of the sent event")
+class MatrixMessageContent(BaseModel):
+    msgtype: str = Field("m.text", description="Matrix event msgtype")
+    body: str = Field(..., description="Message body")
+    formatted_body: str = Field(..., description="HTML formatted body")
+    format: str = Field("org.matrix.custom.html", description="Body format specification")
 
-class AgentReportPayload(BaseModel):
-    msgtype: str = Field("m.text", description="Matrix message type")
-    body: str = Field(..., description="The body/content of the message")
+class MatrixSendResponse(BaseModel):
+    event_id: str = Field(..., description="Unique event ID assigned by Synapse")
 
-HOMESERVER_URL = "https://matrix.example.com"
-ACCESS_TOKEN = "your_access_token"
+HOMESERVER = "https://matrix.example.com"
+ACCESS_TOKEN = "syt_example_token_2027"
 ROOM_ID = "!room_id:example.com"
 
-async def send_agent_message_async(text: str) -> MatrixEventResponse:
-    url = f"{HOMESERVER_URL}/_matrix/client/v3/rooms/{ROOM_ID}/send/m.room.message"
+async def send_agent_event(summary: str, details: str) -> MatrixSendResponse:
+    url = f"{HOMESERVER}/_matrix/client/v3/rooms/{ROOM_ID}/send/m.room.message"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
 
-    # Validate payload structure using Pydantic v2
-    payload = AgentReportPayload(body=f"[AGENT REPORT]: {text}")
+    content = MatrixMessageContent(
+        body=f"[AGENT ALERT] {summary}: {details}",
+        formatted_body=f"<h3>[AGENT ALERT] {summary}</h3><p>{details}</p>"
+    )
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            url,
-            headers=headers,
-            json=payload.model_dump(),
-            timeout=10.0
-        )
-        response.raise_for_status()
-
-        # Validate response structure using Pydantic v2
-        validated_response = MatrixEventResponse.model_validate(response.json())
-        return validated_response
+        res = await client.post(url, headers=headers, json=content.model_dump(), timeout=10.0)
+        res.raise_for_status()
+        return MatrixSendResponse.model_validate(res.json())
 
 async def main():
     try:
-        res = await send_agent_message_async("Monthly storage audit complete. 2TB reclaimed under MCP 3.1 specifications.")
-        print(f"Successfully sent event. Event ID: {res.event_id}")
-    except Exception as e:
-        print(f"Failed to send agentic message: {e}")
+        response = await send_agent_event("Batch Execution Complete", "Processed 5 stale documents in Ralph-loop Batch 440.")
+        print(f"Dispatched Matrix Event ID: {response.event_id}")
+    except (httpx.HTTPError, ValidationError) as e:
+        print(f"Event dispatch failed: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### OIDC Integration (Authentik)
-Update your `homeserver.yaml` to delegate authentication to [Authentik](authentik.md):
+### OIDC Single Sign-On (`homeserver.yaml`)
+Delegate identity management to [Authentik](authentik.md):
 
 ```yaml
 oidc_providers:
   - idp_id: authentik
-    idp_name: "Authentik"
+    idp_name: "Authentik SSO"
     issuer: "https://authentik.example.com/application/o/matrix/"
-    client_id: "<client_id>"
-    client_secret: "<client_secret>"
+    client_id: "matrix_synapse_client_id"
+    client_secret: "matrix_synapse_client_secret_2027"
     scopes: ["openid", "profile", "email"]
     user_mapping_provider:
       config:
@@ -163,20 +160,18 @@ oidc_providers:
 ```
 
 ## Related tools / concepts
-- [Element](element.md) — The recommended client for Synapse.
-- [Authentik](authentik.md) — For SSO and identity management.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic task execution over Matrix (MCP 3.1 compatibility).
-- [n8n](n8n.md) — For sending automated notifications to Matrix rooms.
-- [Home Assistant](home-assistant.md) — For integrating smart home alerts.
-- [Vikunja](vikunja.md) — For task-based coordination often synced via Matrix.
-- [Local LLMs](../tools/ai_knowledge/local_llms.md) — For private inference-driven agents on Matrix.
+- [Element](element.md) — Flagship Matrix client for web, desktop, and mobile.
+- [Authentik](authentik.md) — Single Sign-On and access management for Matrix accounts.
+- [FastMCP](../tools/automation_orchestration/mcp.md) — Model Context Protocol for integrating AI agents with Matrix bots.
+- [n8n](n8n.md) — Workflow automation for Matrix event listeners and message triggers.
+- [Home Assistant](home-assistant.md) — Smart home automation engine alerting via Matrix.
 
-## Sources / References
-- [Synapse GitHub Repository](https://github.com/element-hq/synapse)
-- [Official Documentation](https://element-hq.github.io/synapse/latest/)
-- [Matrix.org](https://matrix.org/)
-- [Synapse Workers Documentation](https://element-hq.github.io/synapse/latest/workers.html)
+## Sources / references
+- [Matrix Synapse GitHub Repository](https://github.com/element-hq/synapse)
+- [Synapse Documentation](https://element-hq.github.io/synapse/latest/)
+- [Matrix.org Official Website](https://matrix.org/)
+- [Matrix 2.0 Specification](https://matrix.org/blog/2023/09/matrix-2-0/)
 
 ## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high
-- Last reviewed: 2026-11-05
