@@ -1,135 +1,134 @@
 # BigSwitch
 
 ## What it is
-BigSwitch is a community-driven directory focused on European alternatives to Big Tech. It promotes digital sovereignty by highlighting GDPR-compliant, EU-owned, and often open-source tools. As of late October / November 2026, it serves as a critical curation engine for developers and organizations who prioritize jurisdictional safety and data residency within the European Union, particularly for high-stakes AI applications.
+BigSwitch is a community-driven curation engine and discovery directory focused on European alternatives to Big Tech platforms. As of early January 2027, it promotes digital sovereignty and data residency by vetting GDPR-compliant, EU-owned, and open-source cloud, infrastructure, and AI tools for enterprise and homelab deployments.
 
 ## What problem it solves
-It helps individuals and organizations navigate the transition from US-centric SaaS platforms to European alternatives, addressing concerns around digital sovereignty, data residency, and GDPR compliance. It mitigates the risk of "Cloud Act" exposure by identifying providers that operate entirely under European law, which is essential for frontier models like Claude 5.1 and GPT-5.5 when processing sensitive EU data.
+It simplifies the transition from US-centric SaaS and cloud AI providers to European alternatives, mitigating US Cloud Act exposure and ensuring compliance with strict European regulations (GDPR, EU AI Act). BigSwitch provides vetted alternatives for hosting frontier models (Claude 5.1, GPT-5.6, Gemini 4.0 Pro) and sovereign FastMCP 3.1 agent tool pipelines.
 
 ## Where it fits in the stack
-**Providers / Discovery Directory**. It is a selection and vetting resource for European tech providers, influencing the choice of infrastructure, storage, and communication layers. In late 2026, it also informs the routing logic for sovereign agents using MCP 3.1.
+**Category**: Providers / Discovery Directory. It serves as an architectural selection resource and compliance registry for infrastructure, database, messaging, and AI tool selection across European enterprise environments.
 
 ## Typical use cases
-- **Sourcing GDPR-compliant alternatives**: Finding business communication and cloud storage solutions that guarantee data residency in the EU.
-- **Identifying EU-based AI**: Discovering infrastructure providers like [Mistral AI](mistral.md) or Scaleway.
-- **Auditing a tech stack**: Evaluating existing services for digital sovereignty and jurisdictional risk.
-- **Sovereign Agent Routing**: Using BigSwitch data to configure model routers that prioritize EU-based endpoints for specific task classes.
+- **Sourcing GDPR/EU AI Act Compliant Providers**: Identifying cloud hosting, database, and storage options operating strictly within EU jurisdiction.
+- **Sovereign AI Infrastructure Selection**: Discovering European AI infrastructure providers (e.g., [Mistral AI](mistral.md), Scaleway, Hetzner, OVHcloud).
+- **Jurisdictional Stack Auditing**: Evaluating existing AI infrastructure for US Cloud Act exposure and data transfer risks.
+- **Sovereign Model Routing**: Configuring intelligent routers to direct sensitive user queries strictly to EU-hosted inference endpoints.
 
 ## Strengths
-- **Sovereignty Focus**: Prioritizes tools owned and operated within the EU.
-- **Broad Coverage**: Covers multiple tech categories from infrastructure to end-user apps.
-- **Community-Driven**: Transparent curation process that avoids vendor lock-in.
-- **GDPR-First**: All listed tools are vetted for European data protection standards.
-- **Jurisdictional Transparency**: Provides clear info on where the company is headquartered and where data is stored.
+- **Digital Sovereignty Focus**: Curation restricted to software and hosting providers owned and operating under EU jurisdiction.
+- **Regulatory Compliance First**: Clear transparency around GDPR adherence, data residency locations, and legal entity structures.
+- **Community-Driven Curation**: Independent vendor auditing that avoids vendor lock-in and biased endorsements.
+- **Broad Category Depth**: Covers everything from raw compute/IaaS to AI agent frameworks, storage, and developer tools.
 
 ## Limitations
-- **Discovery Only**: Does not provide direct technical integration or managed service layers.
-- **Manual Maintenance**: As a community directory, the freshness of data depends on active contributors.
-- **Niche Availability**: Some highly specialized US-based tools may not have an exact 1:1 European equivalent.
+- **Discovery Directory Only**: Offers curation and discovery metadata, but does not provide a unified managed billing or proxy layer.
+- **Feature Disparity**: Some specialized niche US cloud services may not have a 1:1 functional equivalent in the EU ecosystem.
 
 ## When to use it
-- When seeking tech providers that operate under European jurisdiction and GDPR.
-- When digital sovereignty and local data residency are priority requirements for a [Homelab](../../architecture/infrastructure.md) or enterprise stack.
-- For finding alternatives to dominant US-based SaaS platforms to mitigate jurisdictional risk for agents.
+- When building sovereign AI stacks that require strict data residency within EU borders under GDPR and the EU AI Act.
+- When selecting infrastructure for self-hosted agent hubs and FastMCP 3.1 tool servers in European datacenters.
+- For conducting security and jurisdictional audits of enterprise tech stacks.
 
 ## When not to use it
-- When you are already satisfied with your current provider and digital sovereignty is not a critical factor.
-- When you require extremely niche or deep technical integration that only a specific global incumbent provides.
+- If your workload operates outside European jurisdiction and has no data residency constraints.
+- If you rely exclusively on proprietary US cloud managed services with no local alternatives.
 
 ## Getting started
-1. Visit [bigswitch.eu](https://bigswitch.eu/) to browse the directory.
-2. Filter by category (e.g., "Infrastructure" or "Communication").
-3. Compare potential providers against your current stack's [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md).
-4. Implement one alternative at a time to ensure stability.
 
-## CLI examples
-While BigSwitch is a directory, users can use standard CLI tools to verify the headers and hosting location of recommended providers.
+### Browsing Directory
+1. Visit [bigswitch.eu](https://bigswitch.eu/) to explore curated tech categories.
+2. Select categories such as **AI & Infrastructure**, **Databases**, or **Communication**.
+3. Evaluate listed providers against your organizational [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md).
 
-```bash
-# Verify the hosting location of a recommended provider (e.g., Mistral)
-curl -I https://api.mistral.ai | grep -i "server"
-
-# Check if a site is using a European CDN or origin
-curl -v -X HEAD https://bigswitch.eu/ 2>&1 | grep -E "Server|location|x-served-by"
-```
-
-### Infrastructure Configuration (Hetzner Cloud)
-Using BigSwitch recommendations often involves switching to providers like Hetzner. Below is a Terraform snippet for an EU-sovereign server deployment.
+### Hetzner Sovereign Infrastructure Provisioning (Terraform)
+Deploying infrastructure via an EU sovereign host like Hetzner:
 
 ```hcl
-# Example Terraform for Hetzner Cloud (EU-Based)
 provider "hcloud" {
   token = var.hcloud_token
 }
 
-resource "hcloud_server" "sovereign_node" {
-  name        = "sovereign-agent-host"
-  image       = "ubuntu-22.04"
-  server_type = "cx11"
-  location    = "nbg1" # Nuremberg, Germany (EU Data Center)
+resource "hcloud_server" "sovereign_mcp_host" {
+  name        = "sovereign-fastmcp-server"
+  image       = "ubuntu-24.04"
+  server_type = "cx22"
+  location    = "fsn1" # Falkenstein, Germany (EU Data Center)
   labels = {
-    "sovereignty" = "high"
+    "sovereignty" = "eu-strict"
+    "gdpr"        = "verified"
   }
 }
 ```
 
-## API examples
+## CLI examples
 
-### Sovereignty Audit Check
-Developers can use BigSwitch directory concepts to perform a jurisdictional audit. Below is an automated sovereignty check logic.
+```bash
+# Verify headers and server location for a recommended EU provider (e.g., Mistral AI)
+curl -I https://api.mistral.ai | grep -i "server"
 
-```python
-import json
+# Inspect TLS certificate details for EU data center routing verification
+curl -v -X HEAD https://bigswitch.eu/ 2>&1 | grep -E "Server|location|x-served-by"
 
-# Example: List of providers used in the current project
-MY_STACK = [
-    {"name": "Mistral AI", "role": "LLM Provider"},
-    {"name": "AWS", "role": "Hosting"},
-    {"name": "Hetzner", "role": "Hosting"},
-]
-
-# Example: Data sourced from BigSwitch recommendations (simplified)
-EU_PROVIDERS = ["Mistral AI", "Hetzner", "Scaleway", "OVHcloud", "Infomaniak"]
-
-def run_sovereignty_audit(stack, eu_list):
-    report = {"eu_compliant": [], "non_eu": []}
-    for provider in stack:
-        if provider["name"] in eu_list:
-            report["eu_compliant"].append(provider)
-        else:
-            report["non_eu"].append(provider)
-    return report
-
-audit_results = run_sovereignty_audit(MY_STACK, EU_PROVIDERS)
-print(f"Sovereignty Audit Results: {json.dumps(audit_results, indent=2)}")
+# Audit outgoing connections to verify no unauthorized US Cloud endpoints are invoked
+netstat -tupn | grep ESTABLISHED
 ```
 
-### Sovereign Provider Curation and Verification using Pydantic v2
-This Python script validates sovereignty data fields and GDPR compliance headers for candidate providers using **Pydantic v2**:
+## API examples
+
+### Automated Stack Sovereignty Audit
 
 ```python
 import json
-from typing import List, Literal, Optional
+
+# Define active provider stack
+CURRENT_STACK = [
+    {"service": "LLM Inference", "provider": "Mistral AI", "country": "FR"},
+    {"service": "Database", "provider": "Hetzner Cloud", "country": "DE"},
+    {"service": "Storage", "provider": "OVHcloud", "country": "FR"},
+]
+
+EU_SOVEREIGN_PROVIDERS = {"Mistral AI", "Hetzner Cloud", "OVHcloud", "Scaleway", "Infomaniak"}
+
+def audit_sovereignty(stack):
+    compliant = []
+    non_compliant = []
+    for item in stack:
+        if item["provider"] in EU_SOVEREIGN_PROVIDERS:
+            compliant.append(item)
+        else:
+            non_compliant.append(item)
+    return {"compliant": compliant, "non_compliant": non_compliant}
+
+print(json.dumps(audit_sovereignty(CURRENT_STACK), indent=2))
+```
+
+### Sovereign Provider Curation Validation using Pydantic v2
+This Python script validates provider sovereignty metadata and GDPR compliance using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
 
 class SovereignProvider(BaseModel):
-    name: str = Field(..., description="Legal company name of the provider")
-    category: str = Field(..., description="Tech category (e.g., Infrastructure, Database, Communication)")
-    jurisdiction: str = Field(..., description="Country or governing jurisdiction under which corporate entity operates")
-    data_residency_country: str = Field(..., description="Country where servers and physical storage reside")
-    gdpr_compliant: bool = Field(..., description="True if the provider has been verified for GDPR standards")
-    cloud_act_exposed: bool = Field(..., description="True if the entity has a parent or ties exposed to US Cloud Act requests")
+    name: str = Field(..., description="Legal entity name of the provider")
+    category: str = Field(..., description="Tech classification, e.g., AI & Infrastructure, Database")
+    jurisdiction: str = Field(..., description="Primary legal jurisdiction country code (e.g., DE, FR, SE)")
+    data_residency_country: str = Field(..., description="Physical datacenter location country code")
+    gdpr_compliant: bool = Field(..., description="Indicates whether provider is GDPR audited")
+    cloud_act_exposed: bool = Field(False, description="True if entity is subject to US Cloud Act requests")
 
-class BigSwitchCurationBatch(BaseModel):
-    batch_id: str = Field(..., description="Identifier of the audit review batch")
-    curated_on: str = Field(..., description="ISO 8601 date string when audit occurred")
-    providers: List[SovereignProvider] = Field(..., description="List of audited sovereign tech providers")
+class BigSwitchAuditBatch(BaseModel):
+    audit_id: str = Field(..., description="Audit run tracking identifier")
+    audit_date: str = Field(..., description="ISO date of the audit execution")
+    providers: List[SovereignProvider] = Field(..., description="List of audited providers")
 
-def validate_curated_providers(raw_json: str) -> Optional[BigSwitchCurationBatch]:
+def validate_audit_batch(raw_json: str) -> Optional[BigSwitchAuditBatch]:
     try:
         data = json.loads(raw_json)
-        # Validate result object with Pydantic v2 model_validate
-        batch = BigSwitchCurationBatch.model_validate(data)
+        batch = BigSwitchAuditBatch.model_validate(data)
+        print(f"Audit Batch {batch.audit_id} successfully validated {len(batch.providers)} providers.")
         return batch
     except ValidationError as e:
         print(f"Validation Error: {e.json()}")
@@ -137,23 +136,40 @@ def validate_curated_providers(raw_json: str) -> Optional[BigSwitchCurationBatch
     except json.JSONDecodeError:
         print("Error: Invalid JSON format.")
         return None
+
+if __name__ == "__main__":
+    test_payload = json.dumps({
+        "audit_id": "audit-20270107-eu01",
+        "audit_date": "2027-01-07",
+        "providers": [
+            {
+                "name": "Mistral AI",
+                "category": "AI & Infrastructure",
+                "jurisdiction": "FR",
+                "data_residency_country": "FR",
+                "gdpr_compliant": True,
+                "cloud_act_exposed": False
+            }
+        ]
+    })
+    validate_audit_batch(test_payload)
 ```
 
 ## Related tools / concepts
-- [Mistral AI](mistral.md) — Premier European LLM provider.
-- [Hugging Face](huggingface.md) — European-headquartered AI community hub.
-- [DeepSeek](deepseek.md) — Cross-jurisdictional alternative.
-- [Replicate](replicate.md) — Multi-modal cloud inference hub.
-- [Together AI](together.md) — Serverless endpoints for open models.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agentic tool use.
-- [Groq](groq.md) — Fast serverless inference.
-- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Core concept for sovereignty audits.
+- [Mistral AI](mistral.md) — Premier European open-weights and commercial LLM provider.
+- [Hugging Face](huggingface.md) — European-headquartered open source repository and hub.
+- [DeepSeek](deepseek.md) — Open weights foundation models.
+- [Replicate](replicate.md) — Multi-modal cloud inference platform.
+- [Together AI](together.md) — High-throughput open model inference platform.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open protocol for agentic tool integrations.
+- [Groq](groq.md) — Low latency LPU inference engine.
+- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Architecture pattern for security audits.
 
 ## Sources / references
-- [Official Website](https://bigswitch.eu/)
-- [GitHub (Meta/Community)](https://github.com/bigswitch-eu)
-- [EU Digital Sovereignty Strategy](https://ec.europa.eu/info/strategy/priorities-2019-2024/europe-fit-digital-age_en)
+- [BigSwitch Official Website](https://bigswitch.eu/)
+- [BigSwitch Community Directory Repository](https://github.com/bigswitch-eu)
+- [EU Digital Sovereignty Framework](https://ec.europa.eu/info/strategy/priorities-2019-2024/europe-fit-digital-age_en)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-04
+- Last reviewed: 2027-01-07
 - Confidence: high

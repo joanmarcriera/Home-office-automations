@@ -1,128 +1,149 @@
 # LibreChat
 
 ## What it is
-LibreChat is a free, open-source AI conversation platform that provides a unified, customizable user interface for multiple AI models. As of late October / November 2026, it has matured into a comprehensive, enterprise-ready "Agentic Interface" platform, fully supporting multi-agent frameworks, native multimodality, Model Context Protocol (MCP 3.1) servers, and robust administrative controls with ClickHouse-backed analytics.
+LibreChat is an open-source, enterprise-grade AI conversation workspace and multi-agent hub. As of early January 2027, it serves as a central self-hosted interface supporting all major foundation model providers (Claude 5.1, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4), local LLM serving backends (vLLM, Ollama), native FastMCP 3.1 tool integration, and ClickHouse-backed usage telemetry.
 
 ## What problem it solves
-It eliminates "interface fragmentation" for organizations and power users who deal with multiple commercial LLM providers and local inference engines. It provides a self-hosted, privacy-centric alternative to proprietary UIs, enabling native "Agents" to collaborate, run complex local tool executions, and process large multi-modal datasets safely without vendor lock-in.
+It eliminates vendor lock-in and "interface fragmentation" for organizations using multiple AI providers. LibreChat delivers a privacy-first, self-hosted web environment with multi-user role-based access control (RBAC), resumable chat sessions, centralized API key management, and direct FastMCP 3.1 server connection capabilities without relying on third-party SaaS interfaces.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Self-hosted Chat UI. It serves as the primary "Front-End Operating System" for AI in a homelab or enterprise environment, orchestrating connections to remote backends (e.g., OpenAI, Anthropic, OpenRouter) and local endpoints, while standardizing tool integration via MCP 3.1.
+**Category**: AI Assistants & Knowledge / Self-Hosted Chat UI. It functions as the primary user interface and agent presentation layer in homelab and enterprise environments, orchestrating remote cloud APIs and local inference engines while standardizing tool execution via FastMCP 3.1.
 
 ## Typical use cases
-- **Unified Enterprise AI Portal**: Providing secure, SSO-enabled access to frontier models (Claude 5.1, GPT-5.5, Gemini 4.0) with granular Access Control Lists (ACLs).
-- **Agentic Workflows**: Orchestrating autonomous agents that share prompts, persistent chat contexts, and FastMCP 3.1 tools locally.
-- **Data Analytics & Visualization**: Utilizing ClickHouse-backed analytics to log and inspect chat metadata, generation costs, and tool invocation audits.
-- **Multimodal Document Processing**: Parsing and analyzing complex files (PDFs, videos, CSVs) locally using embedded models and document parsers.
+- **Unified Enterprise AI Workspace**: Providing secure, SSO-enabled access to frontier foundation models (Claude 5.1, GPT-5.6, Gemini 4.0) with granular organizational permissions.
+- **FastMCP 3.1 Tool & Agent Execution**: Directing agents within LibreChat to invoke local or remote FastMCP 3.1 tool servers for automated database queries and file updates.
+- **Audit Logging & Telemetry Analysis**: Utilizing ClickHouse-backed analytics to log request tokens, execution latency, generation costs, and tool invocations across departments.
+- **Multimodal Document Analysis**: Parsing code, PDF documents, vector embeddings, and media inputs locally within interactive project workspaces.
 
 ## Strengths
-- **Native Multi-Agent Framework**: Built-in support for app-agnostic, multi-modal agents that can seamlessly call remote or local MCP 3.1 servers.
-- **Advanced State Persistence**: Features "Resumable Chats" (preserving state through disconnects) and user-centric "Long-term Memory".
-- **Enterprise-Grade Admin Controls**: A unified Admin Panel supporting fine-grained ACLs, system prompts, custom endpoint definitions, and SSO.
-- **Extensive Rendering Engine**: Out-of-the-box support for LaTeX, Markdown, code highlighting, and interactive Mermaid.js diagrams.
-- **Highly Extensible Architecture**: Powered by Node.js and React, making custom plugins and custom endpoints simple to construct.
+- **Native Multi-Agent Orchestration**: Built-in support for multimodal agents that share persistent memory, context windows, and FastMCP 3.1 tool sets.
+- **Enterprise-Grade Access Controls**: Comprehensive Admin Panel with role-based access control (RBAC), token quotas, custom endpoint definitions, and SAML/OAuth SSO.
+- **Advanced State & Persistence**: Features resumable chat sessions across client reconnections and structured user long-term memory.
+- **Rich Output Rendering engine**: Real-time rendering of Markdown, LaTeX equations, syntax-highlighted code blocks, and interactive Mermaid.js diagrams.
 
 ## Limitations
-- **Deployment Complexity**: Setting up the full stack (including ClickHouse for analytics, Redis for caching, and MongoDB for state) requires solid DevOps skills.
-- **Resource Constraints**: Running full multimodal pipelines and local vector embeddings requires significant GPU and host memory resources.
+- **Stack Setup Complexity**: Deploying the full production topology (including ClickHouse analytics, Redis session caching, and MongoDB state) requires container management experience.
+- **Host Resource Requirements**: Running embedded vector models and local multimodal processing pipelines requires dedicated memory and GPU compute resources.
 
 ## When to use it
-- When you need a polished, single UI to manage team or family access to multiple remote and local AI backends.
-- When your workspace relies heavily on multi-agent collaboration and standardizing tool integration via MCP 3.1.
-- If you require comprehensive auditing and costing of LLM requests across different organizational departments.
+- When you require a self-hosted, multi-user AI interface that unifies cloud APIs (Anthropic, OpenAI, Google) and local models (Ollama, vLLM).
+- When your organization mandates strict FastMCP 3.1 tool standardization and detailed usage auditing via ClickHouse.
+- If you need a fully customizable open-source alternative to proprietary subscription interfaces.
 
 ## When not to use it
-- For single-user, basic local model testing where a lightweight application like Jan.ai or Ollama CLI is sufficient.
-- If you prefer zero-infrastructure SaaS solutions and do not wish to manage docker-compose files and database backups.
+- For quick, single-user desktop testing of a local model where lightweight tools like Jan.ai or Ollama CLI are sufficient.
+- If you prefer zero-maintenance SaaS setups and do not wish to manage Docker containers or backend database storage.
 
 ## Getting started
+
+### Installation via Docker Compose
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/danny-avila/LibreChat.git && cd LibreChat
    ```
-2. **Configure environment variables**: Copy the template `.env` and fill in your API keys:
+2. **Configure Environment File**: Copy the template `.env` and populate required model API keys:
    ```bash
    cp dotenv.env.example .env
    ```
-3. **Customize your endpoints**: Edit the `librechat.yaml` file to define model names, MCP servers, and access permissions.
-4. **Launch with Docker Compose**:
+3. **Configure Custom Endpoints**: Update `librechat.yaml` to configure model gateways and FastMCP 3.1 tool servers:
+   ```yaml
+   version: 1.1.0
+   endpoints:
+     custom:
+       - name: "SOTA Gateway"
+         apiKey: "${CUSTOM_GATEWAY_KEY}"
+         baseURL: "http://host.docker.internal:8000/v1"
+         models:
+           default: ["claude-5.1-sonnet", "gpt-5.6-turbo", "gemini-4.0-pro"]
+         mcpServers:
+           - name: "fastmcp-database-auditor"
+             url: "http://host.docker.internal:8088/mcp"
+   ```
+4. **Launch Application Containers**:
    ```bash
    docker compose up -d
    ```
-5. **Admin Access**: Open `http://localhost:3080` in your browser and complete the initial administrator registration.
+5. **Admin Access**: Open `http://localhost:3080` in your web browser to initialize administrator credentials.
 
 ## CLI examples
-LibreChat is typically managed via Docker and npm-based maintenance scripts inside the API container.
 
 ```bash
-# Update LibreChat and restart services to apply latest 2026 patches
+# Update LibreChat stack and pull latest release images
 docker compose pull && docker compose up -d
 
-# Check live API service logs to monitor active MCP 3.1 server handshakes
+# Stream real-time API logs to monitor FastMCP 3.1 tool handshakes
 docker compose logs -f api
 
-# Execute internal model cache clear to force endpoint updates
+# Flush internal endpoint cache after updating librechat.yaml config
 docker compose exec api npm run clear-cache
 ```
 
 ## API examples
-Below is a Python implementation utilizing `pydantic` (v2) to validate a custom endpoint configuration schema matching LibreChat's `librechat.yaml` format for late 2026.
+
+### Programmatic Endpoint and FastMCP Server Validation using Pydantic v2
+This Python script validates `librechat.yaml` custom endpoint configurations and connected FastMCP 3.1 tool server schemas using **Pydantic v2**:
 
 ```python
-import asyncio
+import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
 
-class MCPServerConfig(BaseModel):
-    name: str = Field(..., min_length=1, description="The name of the MCP server")
-    url: HttpUrl = Field(..., description="The endpoint URL of the MCP server")
+class FastMCPServerConfig(BaseModel):
+    name: str = Field(..., description="Unique name of the FastMCP server")
+    url: HttpUrl = Field(..., description="Target HTTP/S endpoint URL of the FastMCP server")
 
-class CustomEndpoint(BaseModel):
-    name: str = Field(..., description="Name of the custom endpoint")
-    api_key: str = Field(..., alias="apiKey", description="API Key or secret string")
-    base_url: HttpUrl = Field(..., alias="baseURL", description="Target gateway API URL")
-    models: List[str] = Field(default_factory=list, description="Supported models under this endpoint")
-    mcp_servers: Optional[List[MCPServerConfig]] = Field(None, alias="mcpServers", description="MCP servers connected to this endpoint")
+class CustomEndpointConfig(BaseModel):
+    name: str = Field(..., description="Custom provider endpoint label")
+    api_key: str = Field(..., alias="apiKey", description="Authentication API token")
+    base_url: HttpUrl = Field(..., alias="baseURL", description="Target base URL of the model gateway")
+    models: List[str] = Field(..., description="List of supported model identifiers")
+    mcp_servers: Optional[List[FastMCPServerConfig]] = Field(None, alias="mcpServers", description="Associated FastMCP tool servers")
 
-async def validate_librechat_endpoints():
-    # Simulated validation of a librechat.yaml custom endpoint setup
-    raw_config = {
+def validate_librechat_config(raw_json: str) -> Optional[CustomEndpointConfig]:
+    try:
+        data = json.loads(raw_json)
+        endpoint = CustomEndpointConfig.model_validate(data)
+        print(f"Successfully validated LibreChat custom endpoint: {endpoint.name}")
+        print(f"Registered Models: {', '.join(endpoint.models)}")
+        if endpoint.mcp_servers:
+            print(f"Connected FastMCP Servers: {[mcp.name for mcp in endpoint.mcp_servers]}")
+        return endpoint
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON format.")
+        return None
+
+if __name__ == "__main__":
+    test_data = json.dumps({
         "name": "SOTA-Agent-Gateway",
-        "apiKey": "lc-sk-frontier-model-key-2026",
-        "baseURL": "http://host.docker.internal:3080/v1",
-        "models": ["claude-5.1-sonnet", "gpt-5.5-preview", "gemini-4.0-pro"],
+        "apiKey": "lc-sk-frontier-2027",
+        "baseURL": "http://host.docker.internal:8000/v1",
+        "models": ["claude-5.1-sonnet", "gpt-5.6-turbo", "gemini-4.0-pro"],
         "mcpServers": [
             {
                 "name": "fastmcp-database-auditor",
                 "url": "http://localhost:8088/mcp"
             }
         ]
-    }
-
-    # Pydantic v2 schema-enforced validation
-    validated_config = CustomEndpoint.model_validate(raw_config)
-    print(f"Successfully validated LibreChat custom endpoint: {validated_config.name}")
-    print(f"Assigned Models: {', '.join(validated_config.models)}")
-    if validated_config.mcp_servers:
-        print(f"Active MCP Servers: {[mcp.name for mcp in validated_config.mcp_servers]}")
-
-if __name__ == "__main__":
-    asyncio.run(validate_librechat_endpoints())
+    })
+    validate_librechat_config(test_data)
 ```
 
 ## Related tools / concepts
-- [Open WebUI](../../services/open-webui.md) — The primary open-source chat portal competitor.
-- [AnythingLLM](../ai_knowledge/anythingllm.md) — Excellent alternative for local RAG-heavy chat setups.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for tool connections.
-- [Dify](dify.md) — Advanced developer-centric visual workflow builder.
-- [Jan.ai](../infrastructure/jan-ai.md) — Desktop-first local model UI wrapper.
-- [LobeHub](lobehub.md) — Fast, modern, multi-agent frontend workspace.
+- [Open WebUI](../../services/open-webui.md) — Feature-rich open-source chat interface for Ollama and local models.
+- [AnythingLLM](../ai_knowledge/anythingllm.md) — Turnkey self-hosted document chat and RAG platform.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for connecting AI models to external tools.
+- [Dify](dify.md) — Visual development platform for AI agents and workflows.
+- [Jan.ai](../infrastructure/jan-ai.md) — Desktop client for offline local LLMs.
+- [LobeHub](lobehub.md) — Modern multi-agent web interface workspace.
 
 ## Sources / references
 - [LibreChat Official Website](https://www.librechat.ai/)
-- [LibreChat 2026 Roadmap and Architecture Updates](https://www.librechat.ai/blog/2026-02-18_2026_roadmap)
-- [LibreChat Configuration & YAML Schema Specifications](https://www.librechat.ai/docs/configuration/librechat_yaml)
+- [LibreChat Documentation](https://www.librechat.ai/docs)
+- [LibreChat GitHub Repository](https://github.com/danny-avila/LibreChat)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

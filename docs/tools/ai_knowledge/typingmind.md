@@ -1,152 +1,153 @@
 # TypingMind
 
 ## What it is
-TypingMind is an advanced AI chat interface that allows users to interact with multiple frontier models (Claude 5.1, GPT-5.5, Gemini 4.0, Gemma 3, etc.) through a single, feature-rich UI. As of late October / November 2026, it is available as a web application, a desktop client, and a self-hosted "TypingMind Custom" instance for enterprises.
+TypingMind is an advanced AI chat client and multi-agent workspace available as a web application, native desktop client (macOS/Windows), and self-hosted enterprise platform. As of early January 2027, it provides a feature-dense Bring Your Own Key (BYOK) interface for connecting to frontier foundation models (Claude 5.1, GPT-5.6, Gemini 4.0, DeepSeek-V4), local models (Ollama, vLLM), an interactive "Agentic Canvas", and native FastMCP 3.1 tool servers.
 
 ## What problem it solves
-It provides a superior, professional-grade user experience compared to default AI chat interfaces. It adds critical features for power users and teams, such as deep chat organization (nested folders, smart tags), prompt libraries, and an "Agentic Canvas" for building multi-agent workflows. It also enables "Bring Your Own Key" (BYOK) usage, allowing for direct API pricing and bypassing the constraints of official consumer clients.
+It solves the limitations and functional constraints of default model provider consumer interfaces. TypingMind enables power users and enterprise teams to bypass monthly subscription caps by paying raw API rates while adding advanced chat organization (nested folders, project workspaces, smart tags), custom prompt libraries, local data encryption, and visual agent builder workflows.
 
 ## Where it fits in the stack
-**AI Consumption & Interaction Layer**. It acts as a sophisticated orchestration layer for various AI APIs and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers. It is often used as the central "AI Operating System" for technical teams and individual power users.
+**Category**: AI Assistants & Knowledge / BYOK Client Workspace. It acts as an interaction and presentation layer connecting user desktops and browser environments directly to remote model gateways, local LLM instances, and FastMCP 3.1 tool servers.
 
 ## Typical use cases
-- **Professional Research Workspace**: Organizing thousands of research threads into structured projects with full-text search.
-- **Enterprise Agent Development**: Building and deploying custom AI agents with specialized knowledge bases and MCP-driven toolsets for teams.
-- **Multi-Model Orchestration**: Comparing responses from different models (e.g., GPT-5.5 vs. Claude 5.1) in parallel and using the "Agentic Canvas" to link their outputs.
-- **Secure Team AI**: Providing a standardized, secure interface for employees with centralized API key management and audit logs in the "TypingMind Teams" version.
+- **Multi-Model Research Workspace**: Organising complex research threads into structured project folders with full-text search across thousands of chat sessions.
+- **Visual Agentic Canvas Workflows**: Constructing visual agent graphs that link multiple models (e.g., GPT-5.6 and Claude 5.1) together with specialized system prompts and FastMCP tools.
+- **BYOK Cost Management**: Directing high-volume user queries through custom API gateways and OpenRouter to minimize per-token costs.
+- **Enterprise Team AI Hub**: Provisioning "TypingMind Teams" for centralized API key management, workspace access controls, and activity logging.
 
 ## Strengths
-- **Advanced Workflow Tools**: Includes an "Agentic Canvas" for visual agent building, high-fidelity Artifacts, and native support for prompt caching.
-- **Best-in-Class Organization**: Unmatched chat management with nested folders, tag-based filtering, and project-based workspaces.
-- **Privacy & Security**: Data is stored locally by default (IndexDB), with end-to-end encrypted sync and self-hosting options for enterprises.
-- **Extensible Architecture**: Native, robust support for **MCP 3.1**, allowing agents to use local and cloud-based tools seamlessly.
+- **Advanced Chat Organization**: Unmatched workspace productivity features including nested folder trees, tag-based search filters, and project spaces.
+- **Agentic Canvas**: Built-in visual interface for orchestrating multi-agent chains, visual logic nodes, and FastMCP 3.1 tool invocations.
+- **Privacy & Local Storage**: Chat histories are stored locally in IndexDB or encrypted local files, avoiding cloud lock-in.
+- **Extensible FastMCP 3.1 Integration**: Direct client-side connection to FastMCP tool servers enabling local tool execution.
 
 ## Limitations
-- **Cost**: Requires a one-time license purchase for individual pro features or a subscription for team-based enterprise versions.
-- **Technical Overhead**: Users must manage their own API keys and configure their own MCP servers for advanced functionality.
-- **Browser Dependencies**: The web version relies on browser-based storage, which can be less robust than a dedicated native database without proper sync configuration.
+- **Commercial Licensing**: Advanced features and multi-user team deployments require a commercial license purchase.
+- **User Key Management Overhead**: Users must obtain, manage, and secure their own API keys across multiple cloud providers.
 
 ## When to use it
-- If you are a power user or part of a technical team that works with multiple frontier models daily.
-- If you need advanced chat organization, prompt management, and custom agent-building capabilities.
-- If you want to leverage [MCP servers](../automation_orchestration/mcp.md) to give your AI models access to local files and tools.
+- When you daily drive multiple foundation model APIs (Anthropic, OpenAI, Google, DeepSeek) and require a single unified UI.
+- If you need deep chat organization, visual agent building, and FastMCP 3.1 tool integration in a local client.
+- When teams require BYOK API access with centralized key administration.
 
 ## When not to use it
-- For casual users who only need the basic chat functionality provided by free, first-party interfaces like ChatGPT or Claude.ai.
-- If you require a 100% open-source software stack (use [LibreChat](librechat.md) or [Open WebUI](../../services/open-webui.md)).
-- If you prefer a simple, streamlined mobile experience over a feature-dense professional workspace.
+- For casual users who prefer zero-configuration, first-party web clients (ChatGPT, Claude.ai).
+- If your policy mandates a 100% open-source codebase (use [LibreChat](librechat.md) or [Open WebUI](../../services/open-webui.md)).
 
 ## Getting started
 
-### Platform Selection
-1. Visit [TypingMind.com](https://www.typingmind.com/).
-2. Choose between the **Web App**, **macOS/Windows Desktop Client**, or the **Teams/Custom** self-hosted solution.
-3. Activate your Pro license to unlock advanced agent-building features.
+### Application Setup
+1. Visit [TypingMind.com](https://www.typingmind.com/) or download the native desktop app.
+2. Activate your Pro license key to unlock the Agentic Canvas and custom FastMCP servers.
 
-### Configuring Providers
-TypingMind uses a "Bring Your Own Key" (BYOK) model.
-1. Navigate to **Settings** > **AI Providers**.
-2. Add your keys for Anthropic (`claude-5-1-opus-20261015`), OpenAI (`gpt-5-5-preview`), or [OpenRouter](openrouter.md).
-3. (Optional) Connect to a local **Ollama** instance at `http://localhost:11434`.
+### Configuring Model Providers (BYOK)
+1. Open **Settings** > **AI Providers**.
+2. Input your API keys for Anthropic (`claude-5-1-sonnet`), OpenAI (`gpt-5-6-turbo`), or [OpenRouter](openrouter.md).
+3. Connect local model endpoints such as **Ollama** (`http://localhost:11434`).
 
-### Adding MCP 3.1 Servers
-1. Go to **Settings** > **MCP Servers**.
-2. Click **Add New Server** and enter the name and endpoint.
-3. Enable the tools for your desired agents.
+### Connecting FastMCP 3.1 Servers
+1. Open **Settings** > **FastMCP Servers**.
+2. Click **Add New Server** and enter your server URL (e.g., `http://localhost:8088/mcp`).
+3. Enable tools for your active canvas agents.
 
 ## CLI examples
 > [!NOTE]
-> TypingMind is a GUI-focused workspace and does not offer an official public CLI. For CLI-native alternatives with similar multi-model and tool-use support, see [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md).
+> TypingMind is a client GUI application. Users seeking terminal-native engineering workflows utilize [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md):
+
+```bash
+# Launch Claude Code terminal agent for repository engineering
+claude-code --model claude-5.1-sonnet
+
+# Launch Aider for interactive git-linked command line coding
+aider --model openrouter/deepseek/deepseek-r1
+```
 
 ## API examples
 
-### Custom Provider JSON Configuration
-TypingMind allows for deep customization of model endpoints.
+### Programmatic Custom Model Provider Configuration
+TypingMind supports importing custom model provider endpoint definitions:
 
 ```json
 {
-  "name": "Local Research Swarm",
-  "api_key": "not-needed",
-  "base_url": "http://localhost:11434/v1",
-  "model_list": [
+  "provider_name": "SOTA Inference Hub",
+  "base_url": "http://localhost:8000/v1",
+  "models": [
     {
-      "id": "gemma-3-27b",
-      "name": "Gemma 3 (Local)",
+      "id": "claude-5-1-sonnet",
+      "name": "Claude 5.1 Sonnet",
+      "context_window": 200000,
+      "supports_tools": true
+    },
+    {
+      "id": "deepseek-v4",
+      "name": "DeepSeek V4",
       "context_window": 128000,
-      "capabilities": ["vision", "tools", "artifacts"]
+      "supports_tools": true
     }
   ]
 }
 ```
 
-### Exporting Prompt Library
-Prompts can be exported and imported via a standardized JSON format.
-
-```json
-{
-  "prompts": [
-    {
-      "title": "Architectural Auditor",
-      "content": "Analyze the following system design for scalability and security bottlenecks: {{system_design}}",
-      "tags": ["architecture", "security"],
-      "model": "claude-5-1-opus"
-    }
-  ]
-}
-```
-
-### Custom Model Configuration Validation with Pydantic v2
-This Python script validates Custom Model Lists and JSON formats used in TypingMind custom endpoints using **Pydantic v2**:
+### Custom Provider Payload Validation using Pydantic v2
+This Python script validates custom provider endpoints and model capabilities prior to importing into TypingMind using **Pydantic v2**:
 
 ```python
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, HttpUrl, ValidationError
 
-class ModelCapability(BaseModel):
-    id: str = Field(..., description="Capability identifier, e.g., vision, tools")
-    enabled: bool = Field(True, description="Whether the capability is activated")
-
-class CustomModel(BaseModel):
-    id: str = Field(..., description="Unique model identifier used by the API")
-    name: str = Field(..., description="Display name of the model in the UI")
-    context_window: int = Field(..., description="Context window size in tokens")
-    capabilities: List[str] = Field(default_factory=list, description="Model capability list")
+class ProviderModelSpec(BaseModel):
+    id: str = Field(..., description="Unique model API identifier")
+    name: str = Field(..., description="Display label in the TypingMind interface")
+    context_window: int = Field(..., description="Context token capacity limit")
+    supports_tools: bool = Field(True, description="Indicates FastMCP tool execution support")
 
 class CustomProviderConfig(BaseModel):
-    name: str = Field(..., description="Custom provider identifier")
-    api_key: str = Field(..., description="Provider API connection key")
-    base_url: HttpUrl = Field(..., description="API base endpoint url")
-    model_list: List[CustomModel] = Field(..., description="Registered models for this custom endpoint")
+    provider_name: str = Field(..., description="Provider gateway label")
+    base_url: HttpUrl = Field(..., description="Target API gateway base URL")
+    models: List[ProviderModelSpec] = Field(..., description="Supported models list")
 
-def validate_custom_provider(raw_json: str) -> Optional[CustomProviderConfig]:
+def validate_provider_config(raw_json: str) -> Optional[CustomProviderConfig]:
     try:
         data = json.loads(raw_json)
-        # Validate using Pydantic v2 model_validate
-        return CustomProviderConfig.model_validate(data)
+        config = CustomProviderConfig.model_validate(data)
+        print(f"Validated TypingMind provider {config.provider_name} with {len(config.models)} models.")
+        return config
     except ValidationError as e:
         print(f"Validation Error: {e.json()}")
         return None
     except json.JSONDecodeError:
-        print("Error: Invalid JSON.")
+        print("Error: Invalid JSON format.")
         return None
+
+if __name__ == "__main__":
+    test_data = json.dumps({
+        "provider_name": "Local Gateway",
+        "base_url": "http://localhost:8000/v1",
+        "models": [
+            {
+                "id": "claude-5-1-sonnet",
+                "name": "Claude 5.1 Sonnet",
+                "context_window": 200000,
+                "supports_tools": True
+            }
+        ]
+    })
+    validate_provider_config(test_data)
 ```
 
 ## Related tools / concepts
-- [Chatbox AI](chatbox-ai.md) — A multi-platform competitor with strong mobile support.
-- [LibreChat](librechat.md) — An open-source alternative for multi-model chat.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for extending TypingMind agents.
-- [OpenRouter](openrouter.md) — A unified API for accessing hundreds of models in TypingMind.
-- [Ollama](../../services/ollama.md) — For running local models within TypingMind.
-- [Claude](claude.md) — Anthropic's flagship models, a primary target for TypingMind users.
-- [ChatGPT](chatgpt.md) — OpenAI's models, fully supported in TypingMind.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The core design pattern for TypingMind agents.
+- [LibreChat](librechat.md) — Open-source self-hosted multi-model workspace.
+- [Chatbox AI](chatbox-ai.md) — Multi-platform desktop and mobile BYOK client.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for extending TypingMind agents.
+- [OpenRouter](openrouter.md) — Unified API gateway for accessing hundreds of foundation models.
+- [Ollama](../../services/ollama.md) — Framework for serving local LLMs on client devices.
 
 ## Sources / references
-- [TypingMind Official Site](https://www.typingmind.com/)
+- [TypingMind Official Website](https://www.typingmind.com/)
 - [TypingMind Documentation](https://docs.typingmind.com/)
-- [TypingMind Teams: Enterprise AI Collaboration](https://www.typingmind.com/teams)
+- [TypingMind Teams Platform](https://www.typingmind.com/teams)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
