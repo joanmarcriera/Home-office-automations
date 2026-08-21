@@ -1,7 +1,7 @@
 # Vercel OSS
 
 ## What it is
-Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. It centers on high-profile libraries like the [Vercel AI SDK 6.x](https://sdk.vercel.ai/) and [v0.dev](https://v0.dev/), providing the foundational components for building agentic, streaming web applications. It serves as the primary reference hub for Next.js-native implementation patterns optimized for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Gemma 3**.
+Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. It centers on high-profile libraries like the [Vercel AI SDK 6.x](https://sdk.vercel.ai/) and [v0.dev](https://v0.dev/), providing the foundational components for building agentic, streaming web applications. It serves as the primary reference hub for Next.js-native implementation patterns optimized for frontier models like **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0**, DeepSeek-V4, and **Gemma 3** utilizing **FastMCP 3.1**.
 
 ## What problem it solves
 It provides production-ready, benchmarked implementations for common AI-web integration challenges. Instead of building from scratch, developers can leverage battle-tested patterns for streaming, generative UI, and tool-calling, reducing the gap between a local LLM experiment and a globally distributed production application.
@@ -170,5 +170,5 @@ validated_meta = validate_stream_metadata(metadata_payload)
 - [Vercel Labs Zero AI Agentic Language](https://www.infoq.com/news/2026/08/vercel-ships-zero-ai/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

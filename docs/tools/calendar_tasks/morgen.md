@@ -3,7 +3,7 @@
 ## What it is
 Morgen is a cross-platform calendar, task manager, and meeting scheduler that aggregates all your calendars into one place. It is built as a unified interface for managing multiple scheduling providers, including Google, Outlook, iCloud, Exchange, and CalDAV.
 
-In the late October / November 2026 AI orchestration landscape, Morgen is widely utilized as a unified calendar and task hub that can be controlled by autonomous AI agents (such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Qwen 3.6). By acting as a single gateway to fragmented calendars, Morgen simplifies the tool definitions needed for agentic schedule planning and time-blocking.
+In early 2027, Morgen is widely utilized as a unified calendar and task hub that can be controlled by autonomous AI agents (such as Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, DeepSeek-V4, Llama 4, and Qwen 3.8). By acting as a single gateway to fragmented calendars, Morgen simplifies the tool definitions needed for agentic schedule planning and time-blocking over FastMCP 3.1 connections.
 
 ## What problem it solves
 It eliminates the "multiple calendar" problem by consolidating disparate scheduling sources into a single, cohesive interface on desktop and mobile. It also addresses the friction of scheduling meetings by providing integrated scheduling links and allowing users to time-block tasks directly onto their calendar.
@@ -78,7 +78,7 @@ While Morgen is primarily a GUI-driven application, the desktop app can be contr
 pgrep Morgen
 
 # Open Morgen to a specific date (Deep link example)
-open "morgen://calendar/2026-11-05"
+open "morgen://calendar/2027-01-07"
 ```
 
 ## API examples
@@ -92,9 +92,9 @@ curl -X POST https://api.morgen.so/v3/tasks/create \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Review Daily Knowledge Expansion PR",
-    "description": "Ensure all code examples are runnable.",
+    "description": "Ensure all code examples are runnable and FastMCP 3.1 compliant.",
     "priority": 1,
-    "dueDate": "2026-11-05"
+    "dueDate": "2027-01-07"
   }'
 ```
 
@@ -127,9 +127,9 @@ class MorgenTaskPayload(BaseModel):
 try:
     payload = MorgenTaskPayload(
         title="Audit Morgen Documentation",
-        description="Verify 13 section standards and references.",
+        description="Verify 13 section standards and FastMCP 3.1 references.",
         priority=1,
-        dueDate="2026-11-05"
+        dueDate="2027-01-07"
     )
     print("Validated Payload:", payload.model_dump(by_alias=True))
 
@@ -167,5 +167,5 @@ except Exception as e:
 - [Morgen Help Center](https://morgen.notion.site/Morgen-Help-Center-885474c3e86c4a85a4f66453f6316278)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

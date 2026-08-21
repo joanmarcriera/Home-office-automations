@@ -1,7 +1,7 @@
 # Chronos MCP
 
 ## What it is
-Chronos MCP is a high-performance Model Context Protocol (MCP) server for CalDAV calendar and task management. As of late October / November 2026, it is built on **FastMCP 3.1** and supports the **MCP 3.1** Task Protocol, enabling frontier models like **Gemma 3**, Claude 5.1, and GPT-5.5 to perform deep orchestration across multiple CalDAV-compliant servers including Nextcloud, iCloud, and Fastmail.
+Chronos MCP is a high-performance Model Context Protocol (MCP) server for CalDAV calendar and task management. In early 2027, it is built on **FastMCP 3.1** and supports the **MCP 3.1** Task Protocol, enabling frontier models like Claude 5.1, GPT-5.5/5.6, Gemini 4.0, DeepSeek-V4, and **Gemma 3** to perform deep orchestration across multiple CalDAV-compliant servers including Nextcloud, iCloud, and Fastmail.
 
 ## What problem it solves
 It bridges the gap between autonomous AI agents and standard calendar protocols (RFC 4791, RFC 4918). Chronos allows agents to manage complex scheduling, task lists (VTODO), and journals (VJOURNAL) without needing bespoke integrations for every calendar provider, while maintaining high security through system-level keyring integration.
@@ -83,8 +83,8 @@ chronos-mcp-migrate-keyring
     "name": "create_task",
     "arguments": {
       "account": "Nextcloud",
-      "summary": "Implement MCP 3.1 Routing Logic",
-      "due": "2026-11-20T17:00:00Z",
+      "summary": "Implement FastMCP 3.1 Routing Logic",
+      "due": "2027-01-20T17:00:00Z",
       "priority": 1
     }
   }
@@ -99,8 +99,8 @@ chronos-mcp-migrate-keyring
     "name": "search_events",
     "arguments": {
       "query": "Project Gemma",
-      "start_date": "2026-11-01",
-      "end_date": "2026-11-30"
+      "start_date": "2027-01-01",
+      "end_date": "2027-01-31"
     }
   }
 }
@@ -151,15 +151,15 @@ def validate_caldav_event(raw_json: str) -> Optional[CalDAVEvent]:
 - [Vikunja MCP](vikunja-mcp.md) — Specialized task management MCP server.
 - [Google Workspace CLI](google-workspace-cli.md) — Comparison tool for Google ecosystems.
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI that utilizes Chronos.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Native support for MCP 3.1 tool calling.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Native support for FastMCP 3.1 tool calling.
 - [MCP Registry](mcp-registry.md) — Discover other servers.
 
 ## Sources / references
 - [Chronos MCP GitHub Repository](https://github.com/democratize-technology/chronos-mcp)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 - [RFC 4791 - CalDAV Specification](https://datatracker.ietf.org/doc/html/rfc4791)
-- [MCP 3.1 Release Notes](../../knowledge_base/agent_protocols.md)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

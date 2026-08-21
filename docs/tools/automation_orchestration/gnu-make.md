@@ -1,10 +1,10 @@
 # GNU Make
 
 ## What it is
-GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows, supporting frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5.
+GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. In early 2027, it remains the industry standard for managing build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows, supporting frontier models like Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, DeepSeek-V4, Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for complex agentic loops and the **MCP 3.1 Task Protocol**.
+In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for complex agentic loops and the **FastMCP 3.1 Task Protocol**.
 
 ## Where it fits in the stack
 **Orchestration / Tooling**. GNU Make serves as the "glue" layer between raw source code/data and final artifacts, providing a unified entry point for compilers, linters, and AI agents.
@@ -126,7 +126,7 @@ run_make_target('build')
 ```
 
 ### Makefile MCP Integration
-As of late October / November 2026, agents utilizing the [MCP 3.1 Task Protocol](mcp.md) can interact with the [Makefile MCP](makefile-mcp.md) server to parse and execute targets directly:
+Agents utilizing the [FastMCP 3.1 Task Protocol](mcp.md) can interact with the [Makefile MCP](makefile-mcp.md) server to parse and execute targets directly:
 
 ```json
 {
@@ -191,8 +191,8 @@ def validate_makefile_schema(raw_json: str) -> Optional[MakefileSchema]:
 - [GNU Make Official Site](https://www.gnu.org/software/make/)
 - [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
 - [Makefile Tutorial](https://makefiletutorial.com/)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io/)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
