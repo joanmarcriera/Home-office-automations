@@ -3,7 +3,7 @@
 ## What it is
 **Tool calling** (also known as function calling) is a standardized pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text. This allows the model to act as a "reasoning engine" that can decide when and how to use external capabilities.
 
-**Model Context Protocol (MCP 3.1)** is the late October / November 2026 universal standard that provides a unified, secure, and bidirectional way to connect LLMs (like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface). **FastMCP 3.1** introduces advanced async/sync decorators, built-in schema generation using Pydantic v2, streaming-based progress telemetry, and sandboxed execution runtimes, making it the bedrock of multi-agent knowledge engineering.
+**Model Context Protocol (MCP 3.1)** is the early January 2027 universal standard that provides a unified, secure, and bidirectional way to connect LLMs (like Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface). **FastMCP 3.1** introduces advanced async/sync decorators, built-in schema generation using Pydantic v2, streaming-based progress telemetry, and sandboxed execution runtimes, making it the bedrock of multi-agent knowledge engineering.
 
 ## What problem it solves
 LLMs are traditionally "isolated" from the real world, limited by their training data and the text-based interface of their context window. Tool calling and MCP solve several critical limitations:
@@ -31,7 +31,7 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 | **Security & Sandbox**| Low (host runs tool code in its own process/environment; high security exposure). | High (strict isolation via SSH tunnels, process boundaries, token auth, or containerized sandboxes). |
 
 ## Strengths
-- **Universal Interoperability**: MCP 3.1 allows one tool implementation to serve multiple LLMs (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6).
+- **Universal Interoperability**: MCP 3.1 allows one tool implementation to serve multiple LLMs (Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8).
 - **Grounding & Trust**: Reduces hallucinations by forcing the model to rely on external, verifiable data sources.
 - **Dynamic Discovery**: MCP servers describe their capabilities to the host at runtime, enabling plug-and-play agentic architectures.
 - **Security Isolation**: Supports secure SSH tunneling, token-based authentication (OAuth2), and containerized execution for sensitive tool operations.
@@ -58,7 +58,7 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 ## Getting started
 
 ### 1. Building an MCP 3.1 Server (Python)
-The `FastMCP` SDK is the recommended way to build servers in late October / November 2026, offering native typing, structured arguments, and robust execution contexts.
+The `FastMCP` SDK is the recommended way to build servers in early January 2027, offering native typing, structured arguments, and robust execution contexts.
 
 ```python
 # pip install mcp psutil pydantic
@@ -249,5 +249,5 @@ if __name__ == "__main__":
 - [MCP Registry: A Global Catalog of MCP Servers](https://mcp-registry.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Multi-Agent KnowledgeOps Governance
 
 ## What it is
-Multi-Agent KnowledgeOps Governance is a structured software engineering framework and operating contract that defines how multiple concurrent, autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, Gemini 4.0) can safely, consistently, and concurrently scale and manage a shared technical knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to coordinate specialized agents while preserving canonical ownership, source traceability, and freshness signals.
+Multi-Agent KnowledgeOps Governance is a structured software engineering framework and operating contract that defines how multiple concurrent, autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4) can safely, consistently, and concurrently scale and manage a shared technical knowledge repository in early January 2027. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to coordinate specialized agents while preserving canonical ownership, source traceability, and freshness signals.
 
 ### Multi-Agent KnowledgeOps Contract (Mandatory)
 All AI-authored documentation and repository updates must satisfy this contract:
@@ -38,7 +38,7 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 ## When to use it
 - When operating a knowledge base that receives contributions from more than one automated agent or worker lane.
 - When maintaining a "High Confidence" technical repository with 500+ pages of documentation.
-- To provide a clear "Role Model" and operating contract for frontier models ([Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, Gemini 4.0) during autonomous sprints.
+- To provide a clear "Role Model" and operating contract for frontier models ([Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4) during autonomous sprints.
 
 ## When not to use it
 - For small, personal repositories with a single human contributor and low update frequency.
@@ -130,5 +130,5 @@ else:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
