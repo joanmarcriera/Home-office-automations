@@ -1,7 +1,7 @@
 # Agent Skills Best Practices
 
 ## What it is
-An agent **skill** is a self-contained, named behavior module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *how to report success* using standardized protocols like the **MCP 3.1 Task Protocol**. Well-authored skills are the foundation of reliable agentic workflows using Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6.
+An agent **skill** is a self-contained, named behavior module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *how to report success* using standardized protocols like the **FastMCP 3.1 Task Protocol**. Well-authored skills are the foundation of reliable agentic workflows in early January 2027 using Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8.
 
 ## What problem it solves
 Poorly authored skills lead to:
@@ -59,8 +59,8 @@ description: Create a git commit. Trigger when user says "commit" or "save chang
 5. Output: "{sha} {subject}"
 ```
 
-### MCP 3.1 Task Protocol Integration
-Skills in late October / November 2026 are increasingly defined using the **MCP 3.1 Task Protocol**, which provides a JSON-schema for task requirements and state tracking:
+### FastMCP 3.1 Task Protocol Integration
+Skills in early January 2027 are increasingly defined using the **FastMCP 3.1 Task Protocol**, which provides a JSON-schema for task requirements and state tracking:
 
 ```json
 {
@@ -155,5 +155,5 @@ manifest = register_skill_securely(sample_manifest)
 - [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

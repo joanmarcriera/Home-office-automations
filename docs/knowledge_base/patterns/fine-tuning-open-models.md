@@ -1,7 +1,7 @@
 # Fine-tuning Open Models
 
 ## What it is
-Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time. In late October / November 2026, this is primarily performed on state-of-the-art open weights models like **Llama 4**, **Qwen 3.6**, and **Gemma 3** using parameter-efficient techniques.
+Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time. In early January 2027, this is primarily performed on state-of-the-art open weights models like **Llama 4**, **Qwen 3.8**, **DeepSeek-V4**, and **Gemma 3** using parameter-efficient techniques.
 
 ## What problem it solves
 Pre-trained open models are generalist and may:
@@ -22,7 +22,7 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 - **Code Completion**: Training on a private codebase to provide context-aware autocomplete that understands internal libraries.
 - **System Log Analysis**: Teaching a model to identify specific error patterns in proprietary server logs.
 - **Agentic Skill Adaptation**: Teaching a model to better utilize specific tools defined in the [Agent Skills Best Practices](skills-best-practices.md) framework.
-- **Distillation Training**: Generating training data using teacher models like Claude 5.1, GPT-5.5, or Gemini 4.0-Flash-Lite, and training a smaller student model (e.g., Qwen 3.6 7B) on it.
+- **Distillation Training**: Generating training data using teacher models like Claude 5.1, GPT-5.5/5.6, or Gemini 4.0 Pro/Flash, and training a smaller student model (e.g., Qwen 3.8 7B or DeepSeek-V4 8B) on it.
 
 ## Strengths
 - **Zero Inference Overhead**: Knowledge is baked into weights; no retrieval latency.
@@ -66,13 +66,13 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 **Rule of thumb**: Use RAG first for factual knowledge. Use fine-tuning when you need the model to **behave** differently.
 
 ### Environment Setup (NVIDIA)
-Most fine-tuning workflows in late October / November 2026 utilize [unsloth](../../tools/infrastructure/unsloth.md) for NVIDIA hardware, optimized for **NVIDIA Blackwell Ultra** architectures, **Llama 4**, and **Gemma 3**.
+Most fine-tuning workflows in early January 2027 utilize [unsloth](../../tools/infrastructure/unsloth.md) for NVIDIA hardware, optimized for **NVIDIA Blackwell Ultra** architectures, **Llama 4**, **DeepSeek-V4**, and **Gemma 3**.
 ```python
 from unsloth import FastLanguageModel
 import torch
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="unsloth/gemma-3-12b-it", # Late 2026 SOTA for open weights
+    model_name="unsloth/gemma-3-12b-it", # Early January 2027 SOTA for open weights
     max_seq_length=4096,
     dtype=torch.bfloat16,
     load_in_4bit=True,
@@ -92,12 +92,12 @@ model = FastLanguageModel.get_peft_model(
 ```bash
 # Fine-tune on MacBook M4/M5 or Mac Studio Ultra
 python -m mlx_lm.lora \
-  --model mlx-community/Qwen3.6-7B-Instruct-4bit \
+  --model mlx-community/Qwen3.8-7B-Instruct-4bit \
   --train --data data/ --iters 1000 --batch-size 4 --lora-layers 16 --adapter-path adapters/
 
 # Fuse adapter back into model
 python -m mlx_lm.fuse \
-  --model mlx-community/Qwen3.6-7B-Instruct-4bit \
+  --model mlx-community/Qwen3.8-7B-Instruct-4bit \
   --adapter-path adapters/ --save-path ./fused-model
 ```
 
@@ -171,9 +171,9 @@ print(f"Validated Fine-Tuning arguments successfully for output directory: {conf
 
 | Task type | Min examples | Recommended | Min VRAM (QLoRA) |
 |---|---|---|---|
-| Format adaptation | 100–500 | 1,000 | 8B Model (e.g., Llama 4 8B): 8 GB |
-| Domain vocabulary | 500–1,000 | 5,000 | 14B Model (e.g., Qwen 3.6 14B): 16 GB |
-| Narrow task | 200–500 | 2,000 | 32B Model (e.g., Qwen 3.6 32B): 24 GB |
+| Format adaptation | 100–500 | 1,000 | 8B Model (e.g., Llama 4 8B / DeepSeek-V4 8B): 8 GB |
+| Domain vocabulary | 500–1,000 | 5,000 | 14B Model (e.g., Qwen 3.8 14B): 16 GB |
+| Narrow task | 200–500 | 2,000 | 32B Model (e.g., Qwen 3.8 32B): 24 GB |
 
 ## Related tools / concepts
 - [RAG Pattern](rag-pattern.md) — Factual knowledge retrieval.
@@ -192,5 +192,5 @@ print(f"Validated Fine-Tuning arguments successfully for output directory: {conf
 - [MLX Examples — LoRA fine-tuning](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,10 +1,10 @@
 # Contributing to the AI Hub
 
 ## What it is
-The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.1](tools/providers/anthropic.md), GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework.
+The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.1](tools/providers/anthropic.md), GPT-5.5, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework in early January 2027.
 
 ## What problem it solves
-It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" late October / November 2026 standard.
+It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" early January 2027 State-of-the-Art standard.
 
 ## Where it fits in the stack
 **Governance Layer** — It sits alongside `AGENTS.md` and `standards.md` as the foundational contract for all repository activities, providing the "rules of engagement" for autonomous agents and human developers.
@@ -16,9 +16,9 @@ It prevents "documentation rot" and repository fragmentation by enforcing a unif
 - **Catalog Maintenance**: Standardizing the ingestion of new sources via `docs/new-sources/`.
 
 ## Strengths
-- **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Claude 5.1](tools/providers/anthropic.md) and GPT-5.5.
+- **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Claude 5.1](tools/providers/anthropic.md), GPT-5.5/5.6, and DeepSeek-V4.
 - **Systematic Decomposition**: The Ralph-loop (Action C) allows complex technical debt to be broken into manageable batches with extracted context.
-- **Multi-Agent Ready**: Supports a Federated KnowledgeOps model using MCP 3.1 for tool-use and cross-agent orchestration.
+- **Multi-Agent Ready**: Supports a Federated KnowledgeOps model using FastMCP 3.1 for high-performance tool execution and cross-agent orchestration.
 
 ## Limitations
 - **High Friction for Humans**: The strict metadata and 13-section "High Confidence" requirements can be demanding for manual contributors.
@@ -49,7 +49,7 @@ Before changing files, agents must read these in order:
 
 ### The Ralph-loop Protocol
 This repository implements the **Ralph-loop**, a systematic directive for AI agents (primarily **Google Jules**) to close issues by performing one of three actions:
-- **Action A (Do the work)**: Implement features or perform technical freshness audits (e.g., November 2026 updates).
+- **Action A (Do the work)**: Implement features or perform technical freshness audits (e.g., early January 2027 SOTA updates).
 - **Action B (Add links)**: Find the appropriate canonical location for provided external links.
 - **Action C (Decompose)**: Divide complex tasks into smaller, trackable issues with extracted context (see `docs/reports/`).
 
@@ -101,8 +101,8 @@ class ContributionMetadata(BaseModel):
     @field_validator("last_reviewed")
     @classmethod
     def validate_recent_date(cls, v: date) -> date:
-        if v < date(2026, 1, 1):
-            raise ValueError("Review date must be within calendar year 2026 or later")
+        if v < date(2027, 1, 1):
+            raise ValueError("Review date must be within calendar year 2027 or later")
         return v
 
 # Simulated ingestion pipeline
@@ -116,12 +116,12 @@ def check_compliance(metadata_dict: dict) -> bool:
         return False
 
 # Usage
-test_meta = {"Last reviewed": "2026-11-05", "Confidence": "high"}
+test_meta = {"Last reviewed": "2027-01-07", "Confidence": "high"}
 check_compliance(test_meta)
 ```
 
-### Programmatic Integration with MCP 3.1 Task Protocol
-Under MCP 3.1, a verification tool standardizes reports using the Task Protocol schemas.
+### Programmatic Integration with FastMCP 3.1 Task Protocol
+Under FastMCP 3.1, a verification tool standardizes reports using the Task Protocol schemas.
 
 ```python
 import json
@@ -134,7 +134,7 @@ def submit_standards_verification(task_id: str, file_path: str, passed: bool):
         "step_name": f"standards-verification-{file_path}",
         "status": "passed" if passed else "failed",
         "metadata": {
-            "standards_version": "2026.11",
+            "standards_version": "2027.01",
             "enforcing_model": "Claude 5.1"
         }
     }
@@ -156,7 +156,7 @@ def submit_standards_verification(task_id: str, file_path: str, passed: bool):
 - [Jules Agent](tools/ai_knowledge/local_llms.md) — The primary Ralph-loop executor and maintainer.
 - [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md) — The federated governance model.
 - [Automated Contributions](architecture/multi_agent_knowledgeops.md) — Deep dive into the Ralph-loop implementation.
-- [Model Context Protocol](tools/automation_orchestration/chronos-mcp.md) — Standard for tool integration in late 2026.
+- [Model Context Protocol](tools/automation_orchestration/chronos-mcp.md) — FastMCP 3.1 standard for tool integration in early January 2027.
 - [Gemma 3](tools/ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [Claude Code](tools/development_ops/claude-code-setup.md) — Recommended agentic development tool for the hub.
 
@@ -167,5 +167,5 @@ def submit_standards_verification(task_id: str, file_path: str, passed: bool):
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
