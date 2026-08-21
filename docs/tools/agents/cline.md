@@ -1,75 +1,76 @@
 # Cline
 
 ## What it is
-Cline (formerly Claude Dev) is an open-source, autonomous AI coding agent that operates natively within VS Code and JetBrains IDEs. It possesses comprehensive access to the local filesystem, terminal, and a built-in browser, enabling it to execute end-to-end software engineering tasks. As of late October / November 2026, Cline is recognized as a foundational platform for agentic development, known for its stability and broad model support, including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Gemma 3**.
+Cline (formerly Claude Dev) is an open-source, autonomous AI coding agent operating natively within VS Code, JetBrains, and terminal environments. It possesses broad access to the local filesystem, terminal execution, and an embedded browser instance for end-to-end web testing and visual verification. As of early 2027, Cline is recognized as a industry-standard platform for agentic development, known for its enterprise stability, human-in-the-loop safety governance, and seamless integration with **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro**, **DeepSeek-V4**, and local models via **FastMCP 3.1**.
 
 ## What problem it solves
-Cline addresses the "copy-paste fatigue" by eliminating the need to manually transfer code and terminal output between a chat interface and the IDE. It solves the context limitation problem of standard LLM interfaces by allowing the agent to proactively explore the codebase, run its own tests, and debug issues until a task is completed, significantly increasing developer throughput for complex features.
+Cline addresses developer context-switching fatigue and execution limits by eliminating manual copy-pasting of code, terminal error logs, and browser diagnostics between external chat interfaces and IDEs. It solves the context-loss problem of basic chat assistants by enabling the agent to proactively explore codebase file hierarchies, execute its own build and test steps, inspect browser rendering output, and iteratively debug issues until a task is fully verified.
 
 ## Where it fits in the stack
-**Agent / IDE Extension / CLI / Developer Experience (DX)**. It acts as a high-level orchestrator that sits between the developer and the toolchain (Git, Compilers, Browsers, LLMs).
+**Agent / IDE Extension / CLI / Developer Experience (DX)**. Cline acts as an autonomous high-level orchestrator sitting directly between the developer and the software engineering toolchain (Git, Compilers, FastMCP Servers, Browsers, LLM Providers).
 
 ## Typical use cases
-- **Legacy Migration**: Analyzing an entire codebase to migrate from deprecated libraries to modern equivalents (e.g., upgrading to React 19).
-- **Test-Driven Development (TDD)**: Writing a test, observing it fail, and autonomously iterating on the code until the test passes.
-- **System Discovery**: Exploring a new or large repository to map out dependencies and explain architectural patterns.
-- **End-to-End Bug Fixing**: Taking a bug report, reproducing it with a script, fixing the code, and verifying the fix via the internal browser.
-- **Local-First Development**: Running agentic tasks using high-performance local models like **Gemma 3** via Ollama or LM Studio.
+- **Complex Refactoring & Framework Upgrades**: Analyzing entire repositories to upgrade major framework versions (e.g., migrating to React 19 / Next.js 16) while updating call sites and fixing test breakages.
+- **Test-Driven Development (TDD)**: Writing unit and integration tests, running them in the local terminal, observing failures, and autonomously modifying application code until tests pass.
+- **Codebase Exploration & Architectural Discovery**: Mapping dependencies, tracing request lifetimes, and documenting architectural patterns across large multi-repo worktrees.
+- **End-to-End Bug Remediation**: Reproducing bug reports via browser scripts or terminal commands, applying fixes across multiple files, and visually verifying UI behavior.
+- **Local-First & Air-Gapped Development**: Executing agentic engineering pipelines using local frontier-class models (e.g., **DeepSeek-V4**, **Llama 4**) via Ollama or LM Studio.
 
 ## Strengths
-- **Fully Autonomous**: Can manage long-running multi-step tasks including file creation, terminal commands, and browser interaction.
-- **Provider Agnostic**: Robust support for all major LLMs (Claude 5.1, GPT-5.5, Gemini 4.0, **Gemma 3**) and local models.
-- **Human-in-the-Loop**: Transparently asks for permission before any destructive action (e.g., file overwrite or terminal execution).
-- **Extensible via MCP**: Native support for the Model Context Protocol (MCP) 3.1 to access external tools like Google Search or specialized APIs.
-- **Stability**: Known for a reliable core feature set compared to more experimental forks.
+- **Autonomous Multi-Step Execution**: Executes complex multi-file edits, terminal actions, and browser checks in long-running reasoning loops.
+- **Broad Model & Provider Support**: Compatible with Claude 5.1, GPT-5.5, Gemini 4.0 Pro, DeepSeek-V4, and custom local endpoints.
+- **Granular Human-in-the-Loop Controls**: Enforces explicit permission gates before executing terminal commands or writing file changes.
+- **FastMCP 3.1 Architecture**: Native integration with Model Context Protocol servers to access web search, databases, internal APIs, and cloud services.
+- **Enterprise Stability & Auditing**: Maintained with strict non-breaking stability standards and transparent command execution logging.
 
 ## Limitations
-- **Token Consumption**: Highly autonomous "Act" sessions can be expensive due to large context windows and iterative loops.
-- **Performance Overhead**: Complex tasks in large repositories can cause IDE latency during intensive indexing or reasoning phases.
-- **Safety Boundaries**: Requires careful oversight when granted full terminal access in sensitive environments.
+- **Token Usage in Long Sessions**: Deep reasoning loops on multi-file projects consume significant context window tokens and API quota.
+- **IDE Resource Consumption**: Intensive file indexing and background reasoning can cause temporary editor responsiveness drops in extremely large repositories.
+- **Safety Oversight Requirement**: Grants terminal and filesystem execution access, requiring developer review when operating in production or sensitive cloud environments.
 
 ## When to use it
-- When you need an agent to perform multi-file edits and terminal-based verification.
-- For complex refactoring tasks where the agent needs to "see" the result of its changes in real-time.
-- If you want to use frontier models like Claude 5.1 or **Gemma 3** with full IDE context without vendor lock-in.
+- When implementing complex features requiring multi-file edits, build tool execution, and local test verification.
+- For interactive refactoring where real-time browser inspection or terminal output feedback is essential.
+- When utilizing frontier models like Claude 5.1 or DeepSeek-V4 with complete IDE context without proprietary vendor lock-in.
 
 ## When not to use it
-- For trivial, single-line completions where a standard completion engine is faster.
-- In environments where IDE extensions are strictly prohibited from accessing the terminal or filesystem.
-- If you prefer the highly customizable "Custom Modes" feature found in its fork, [Roo Code](roo-code.md).
+- For instant single-line code inline completions where standard autocomplete tools are faster.
+- In security-restricted corporate environments where IDE extensions are barred from executing shell commands.
+- When requiring highly specialized custom prompts and mode configurations, where its fork [Roo Code](roo-code.md) may offer greater flexibility.
 
 ## Getting started
+
 ### Installation
-1. Search for **Cline** in the VS Code Marketplace and install.
-2. Click the robot icon in the sidebar to open the Cline interface.
-3. Configure your API key (e.g., Anthropic, OpenAI, or OpenRouter) in the settings.
-4. Select `claude-5-1-sonnet-20261022` or a **Gemma 3** model for best results.
+1. Search for **Cline** in the VS Code Marketplace or JetBrains Plugin Repository and install.
+2. Click the Cline icon in the activity bar to open the primary workspace panel.
+3. Configure your API provider key (e.g., Anthropic, OpenAI, OpenRouter, or local endpoint) in Settings.
+4. Select `claude-5-1-sonnet-20261022` or `deepseek-v4` for optimal agentic reasoning performance.
 
 ### Basic Usage
-1. Type a task in the chat box (e.g., "Add a dark mode toggle to the navbar using Tailwind").
-2. Review the proposed plan.
-3. Approve tool executions (file edits, terminal commands) as the agent progresses.
+1. Enter your engineering task in the prompt bar (e.g., "Implement JWT refresh token rotation with redis caching and add unit tests").
+2. Review the proposed execution plan generated by Cline.
+3. Approve tool executions (file creation, terminal commands, test suite runs) step-by-step or toggle auto-approval for trusted commands.
 
 ## CLI examples
 ```bash
-# Install Cline CLI globally
+# Install the Cline CLI globally
 npm install -g cline
 
-# Authenticate with your preferred provider
+# Authenticate with your preferred API provider
 cline auth
 
-# Run a task in "Headless" mode (auto-approve all actions)
-cline -y "Refactor the authentication logic to use JWT"
+# Execute a task in non-interactive / headless mode with auto-approval
+cline -y "Refactor authentication middleware to use AsyncLocalStorage"
 
-# Example: Using the Cline CLI for automated repository audits
-cline task "Audit the current project for security vulnerabilities"
+# Run a codebase security audit task
+cline task "Audit project dependencies and source files for hardcoded secrets and supply chain risks"
 
-# Checking the version of the installed agent environment
+# Inspect installed Cline CLI version and active configuration
 cline --version
 ```
 
 ## API examples
-Cline can be extended via MCP servers. A sample configuration in the Cline settings to add a search tool:
+Cline can be extended using FastMCP 3.1 server definitions. Below is an example VS Code settings snippet registering an MCP tool server:
 
 ```json
 {
@@ -78,28 +79,28 @@ Cline can be extended via MCP servers. A sample configuration in the Cline setti
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-google-search"],
       "env": {
-        "GOOGLE_API_KEY": "your_key_here"
+        "GOOGLE_API_KEY": "your_api_key_here"
       }
     }
   }
 }
 ```
 
-### Validation of MCP Server Configurations with Pydantic v2
-This python example parses and validates custom MCP server registration parameters and command line environment variables using **Pydantic v2**:
+### Parsing and Validating MCP Settings with Pydantic v2
+This Python snippet demonstrates how to parse and validate Cline MCP configuration files using **Pydantic v2**:
 
 ```python
 import json
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from pydantic import BaseModel, Field, ValidationError
 
 class MCPServerParams(BaseModel):
-    command: str = Field(..., description="The executable command to start the MCP server, e.g., node, python, npx")
-    args: List[str] = Field(default_factory=list, description="Arguments to pass to the server command")
-    env: Dict[str, str] = Field(default_factory=dict, description="Environment variables required by the server")
+    command: str = Field(..., description="Executable tool command (e.g., node, python, npx)")
+    args: List[str] = Field(default_factory=list, description="Command line arguments passed to the server")
+    env: Dict[str, str] = Field(default_factory=dict, description="Environment variables passed to the server process")
 
 class ClineMCPSettings(BaseModel):
-    mcp_servers: Dict[str, MCPServerParams] = Field(..., alias="mcpServers", description="Map of registered MCP server configurations")
+    mcp_servers: Dict[str, MCPServerParams] = Field(..., alias="mcpServers", description="Map of registered FastMCP server configurations")
 
 def validate_cline_mcp_config(raw_json: str) -> Optional[ClineMCPSettings]:
     try:
@@ -110,26 +111,25 @@ def validate_cline_mcp_config(raw_json: str) -> Optional[ClineMCPSettings]:
         print(f"Validation Error: {e.json()}")
         return None
     except json.JSONDecodeError:
-        print("Error: Invalid JSON.")
+        print("Error: Invalid JSON payload.")
         return None
 ```
 
 ## Related tools / concepts
-- [Roo Code](roo-code.md) — A popular fork with more customization.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The tool interaction standard.
-- [Aider](../development_ops/aider.md) — Terminal-centric agent alternative.
-- [Claude Code](../development_ops/claude-code.md) — Anthropic's native CLI.
-- [Windsurf](../development_ops/windsurf.md) — Next-gen agentic IDE.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Standard high-performance local model.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Privacy-first execution guide.
-- [Model Routing](../../knowledge_base/model_routing_guide.md) — Strategy for model selection.
+- [Roo Code](roo-code.md) — Configurable fork of Cline with custom system modes and prompt customization.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open protocol standard for model-tool interactions.
+- [Aider](../development_ops/aider.md) — Terminal-native pair programming agent.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's official terminal coding harness.
+- [Windsurf](../development_ops/windsurf.md) — Commercial agentic IDE experience.
+- [Local LLMs](../../ai_knowledge/local_llms.md) — Guide for running local coding models.
+- [Model Routing](../../knowledge_base/model_routing_guide.md) — Strategy for dynamic LLM routing.
 
 ## Sources / references
-- [Official Cline GitHub](https://github.com/cline/cline)
-- [Cline Documentation](https://docs.cline.bot/)
-- [Anthropic Computer Use API](https://www.anthropic.com/news/computer-use)
-- [MCP 3.1 Protocol Documentation](https://modelcontextprotocol.io)
+- [Official Cline GitHub Repository](https://github.com/cline/cline)
+- [Cline Official Documentation](https://docs.cline.bot/)
+- [Anthropic Computer Use & Agent API](https://www.anthropic.com/news/computer-use)
+- [FastMCP 3.1 Protocol Standard](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
