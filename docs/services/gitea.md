@@ -1,15 +1,15 @@
 # Gitea
 
 ## What it is
-Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the late October / November 2026 era, featuring native support for the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for agentic integration.
+Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the early January 2027 era, featuring native support for [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) for agentic integration.
 
 ## What problem it solves
 It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub.
 
-In late October / November 2026, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md). It provides a central hub for code collaboration and automation that can run on low-power hardware.
+In early January 2027, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md). It provides a central hub for code collaboration and automation that can run on low-power hardware.
 
 ## Where it fits in the stack
-Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
+Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
 
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
@@ -151,7 +151,7 @@ import json
 import urllib.request
 
 def run_local_pr_review():
-    code_diff = "diff --git a/main.py b/main.py\n+print('Hello, November 2026!')"
+    code_diff = "diff --git a/main.py b/main.py\n+print('Hello, January 2027!')"
     payload = {
         "model": "qwen36",
         "prompt": f"Review this Git diff and suggest improvements:\n\n{code_diff}",
@@ -193,5 +193,5 @@ if __name__ == "__main__":
 - [Gitea 1.27.0 Release Notes](https://blog.gitea.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

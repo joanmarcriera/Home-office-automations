@@ -1,13 +1,13 @@
 # Paperless-ngx
 
 ## What it is
-Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable digital archive. It provides a web-based interface for managing scanned PDFs and images, utilizing advanced OCR and machine learning for automated organization. In late October / November 2026, it serves as the cornerstone of private document intelligence, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP specifications for direct agentic access.
+Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable digital archive. It provides a web-based interface for managing scanned PDFs and images, utilizing advanced OCR and machine learning for automated organization. In early January 2027, it serves as the cornerstone of private document intelligence, supporting the [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) specifications for direct agentic access.
 
 ## What problem it solves
-It eliminates paper clutter and "digital fragmentation" by providing a central, private repository for all household and office documents. It solves the problem of unsearchable scanned files by performing automatic Optical Character Recognition (OCR) and uses machine learning to suggest tags, correspondents, and document types based on content. It enables frontier models like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md) to reason over physical mail, bills, and tax records securely.
+It eliminates paper clutter and "digital fragmentation" by providing a central, private repository for all household and office documents. It solves the problem of unsearchable scanned files by performing automatic Optical Character Recognition (OCR) and uses machine learning to suggest tags, correspondents, and document types based on content. It enables frontier models like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), [Gemini 4.0 Pro](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md) to reason over physical mail, bills, and tax records securely.
 
 ## Where it fits in the stack
-**Ingestion & Storage Layer**. It serves as the primary archival system for documents in the homelab, sitting between capture tools (scanners, emails) and consumption tools (AI agents, mobile apps). It integrates with [Authentik](authentik.md) for SSO, [n8n](n8n.md) for automated workflows, and the [MCP 3.1 / FastMCP Specification](../tools/automation_orchestration/mcp.md) for standardized agent discovery, tool definitions, and resource/prompt sharing.
+**Ingestion & Storage Layer**. It serves as the primary archival system for documents in the homelab, sitting between capture tools (scanners, emails) and consumption tools (AI agents, mobile apps). It integrates with [Authentik](authentik.md) for SSO, [n8n](n8n.md) for automated workflows, and the [FastMCP 3.1 Specification](../tools/automation_orchestration/mcp.md) for standardized agent discovery, tool definitions, and resource/prompt sharing.
 
 ## Typical use cases
 - **Household Digitization**: Storing and indexing medical records, utility bills, and tax documents.
@@ -99,7 +99,7 @@ curl -X POST http://localhost:8000/api/documents/post_document/ \
 ```
 
 ### Programmatic Ingestion and Document Retrieval with Pydantic v2 (Python)
-In late October / November 2026, parsing and querying files agentically requires strict validation layers. Below is an asynchronous Python snippet retrieving and validating document metadata from Paperless-ngx using **Pydantic v2**:
+In early January 2027, parsing and querying files agentically requires strict validation layers. Below is an asynchronous Python snippet retrieving and validating document metadata from Paperless-ngx using **Pydantic v2**:
 
 ```python
 import asyncio
@@ -165,5 +165,5 @@ if __name__ == "__main__":
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
