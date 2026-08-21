@@ -1,37 +1,37 @@
 # Roo Code
 
 ## What it is
-Roo Code is an open-source, AI-powered autonomous coding agent for VS Code and JetBrains IDEs. Originally forked from Cline, it has evolved into a highly customizable platform that supports specialized "Custom Modes," deep Model Context Protocol (MCP) integration, and multi-model orchestration. As of late October / November 2026, it is recognized for its high velocity of community-driven feature updates, native support for **MCP 3.1** and **FastMCP 3.1**, and its ability to handle complex, multi-file engineering tasks autonomously using models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Gemma 3**.
+Roo Code is an open-source, AI-powered autonomous coding agent for VS Code and JetBrains IDEs. Originally forked from Cline, it has evolved into a highly customizable platform that supports specialized "Custom Modes," deep Model Context Protocol (MCP) integration, and multi-model orchestration. As of early 2027, it is recognized for its high velocity of community-driven feature updates, native support for **MCP 3.1** and **FastMCP 3.1**, and its ability to handle complex, multi-file engineering tasks autonomously using models like **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
-Roo Code eliminates the friction of manual context-switching by bringing frontier reasoning models directly into the development environment. It addresses the "last mile" of AI coding by not only suggesting code but also executing terminal commands, managing files, and performing browser-based verification. Its Custom Modes feature specifically solves the "generalist fatigue" by allowing users to constrain the agent to specific roles like Security Auditor, Frontend Specialist, or Documentation Expert.
+Roo Code eliminates the friction of manual context-switching by bringing frontier reasoning models directly into the development environment. It addresses the "last mile" of AI coding by not only suggesting code but also executing terminal commands, managing files, and performing browser-based verification. Its Custom Modes feature specifically solves "generalist fatigue" by allowing users to constrain the agent to specific roles like Security Auditor, Frontend Specialist, or Documentation Expert.
 
 ## Where it fits in the stack
 **Agent / IDE Extension / Developer Experience (DX)**. It sits at the top of the stack as the primary interface between the developer and the underlying LLMs/tools.
 
 ## Typical use cases
 - **Specialized Engineering**: Using the "Architect" mode to design system schemas before implementation.
-- **Autonomous Refactoring**: Delegating large-scale migrations (e.g., from React 18 to 19) to the agent with human-in-the-loop oversight.
+- **Autonomous Refactoring**: Delegating large-scale migrations (e.g., from React 18 to 19 / Next.js 16) to the agent with human-in-the-loop oversight.
 - **Automated Bug Resolution**: Letting the agent trace error logs, identify root causes, and apply fixes across the backend and frontend.
 - **Documentation as Code**: Using a specialized "Writer" mode to keep technical docs in sync with code changes.
 - **Fast Tool Creation**: Leveraging FastMCP 3.1 to rapidly create and deploy new tools that Roo Code can use instantly.
 
 ## Strengths
 - **Custom Modes**: Native support for `.roomodes`, allowing per-project or global persona definitions with specific tool access.
-- **Frontier Model Support**: Optimized for high-fidelity reasoning with Claude 5.1, GPT-5.5, Gemini 4.0, and the latest **Gemma 3** models.
-- **First-Class MCP Support**: Seamlessly connects to any MCP server, with enhanced support for FastMCP 3.1 for low-latency tool interactions.
+- **Frontier Model Support**: Optimized for high-fidelity reasoning with Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and **DeepSeek-V4**.
+- **First-Class MCP & FastMCP Support**: Seamlessly connects to any MCP server, with enhanced support for FastMCP 3.1 for low-latency tool interactions.
 - **Context Pinning**: Advanced context management allowing users to pin critical files, URLs, or documentation segments.
 - **High Autonomy**: Capable of long-horizon tasks including running tests, fixing failures, and verifying UI changes via an internal browser.
 
 ## Limitations
-- **Token Intensity**: Autonomous "Act Mode" can consume significant tokens, especially when processing large context windows in late 2026 models.
+- **Token Intensity**: Autonomous "Act Mode" can consume significant tokens, especially when processing large context windows in late-generation models.
 - **Complexity**: The high degree of customizability requires a learning curve to master mode definitions and instruction hierarchies.
 - **Stability**: Fast-paced community updates can occasionally introduce regressions compared to more conservative IDE extensions.
 
 ## When to use it
 - When you require an agent that can act autonomously within your IDE (file edits + terminal execution).
 - If you need specialized personas for different parts of your workflow.
-- When working with high-reasoning models like Claude 5.1 or **Gemma 3** for complex architectural changes.
+- When working with high-reasoning models like Claude 5.1, GPT-5.5, or DeepSeek-V4 for complex architectural changes.
 - If you prefer an open-source, community-led project with rapid feature iteration.
 
 ## When not to use it
@@ -43,8 +43,8 @@ Roo Code eliminates the friction of manual context-switching by bringing frontie
 ### Installation
 1. Install the **Roo Code** extension from the VS Code Marketplace or Open VSX Registry.
 2. Open the Roo Code sidebar and click the "Settings" (gear) icon.
-3. Select your API provider (e.g., Anthropic, OpenAI, or OpenRouter) and enter your API key.
-4. Set your model to `claude-5-1-sonnet-20261022`, `gpt-5.5-preview`, or `gemma-3-27b` for optimal performance.
+3. Select your API provider (e.g., Anthropic, OpenAI, OpenRouter, or DeepSeek) and enter your API key.
+4. Set your model to `claude-5-1-sonnet-20261022`, `gpt-5.5-preview`, or `deepseek-v4` for optimal performance.
 
 ### Basic Usage
 1. Start a new task in the sidebar (e.g., "Implement a new API endpoint for user profiles").
@@ -60,7 +60,7 @@ mcp-tool-security-audit --path .
 # Example: Running tests to verify an autonomous fix
 npm test
 
-# Example: Managing local MCP servers used by Roo Code
+# Example: Managing local FastMCP / MCP servers used by Roo Code
 mcp-server-manager list
 
 # Verify the current environment for Roo Code
@@ -104,15 +104,14 @@ def validate_roomodes_config(raw_json: str) -> Optional[RooModesConfig]:
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI from Anthropic.
 - [Aider](../development_ops/aider.md) — Terminal-based coding agent.
 - [Windsurf](../development_ops/windsurf.md) — Agentic IDE from Codeium.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Standard high-performance local model.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Orchestration framework.
 - [Playwright](../development_ops/playwright.md) — Browser automation standard.
 
 ## Sources / references
 - [Official Roo Code GitHub](https://github.com/RooCodeInc/Roo-Code)
 - [Roo Code Documentation](https://docs.roocode.com/)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io)
+- [FastMCP & Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,10 +1,10 @@
 # Open Agents
 
 ## What it is
-Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of late October / November 2026, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment and features native support for the **MCP 3.1 Task Protocol**.
+Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of early 2027, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment and features native support for **FastMCP 3.1** and the **MCP 3.1 Task Protocol**.
 
 ## What problem it solves
-It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. By adopting MCP 3.1, it also standardizes how web-based agents discover and execute tasks, making them more interoperable with other agentic systems.
+It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. By adopting FastMCP 3.1 and MCP 3.1, it also standardizes how web-based agents discover and execute tasks, making them seamlessly interoperable with other agentic systems.
 
 ## Where it fits in the stack
 **Agent / Web Automation / Developer Platform**. It functions as an orchestration layer that combines the Vercel AI SDK with headless browser controllers (Playwright/Puppeteer) and sandboxed execution environments.
@@ -20,8 +20,8 @@ It bridges the gap between static LLM text generation and actionable web-based a
 - **Optimized for Vercel Ecosystem**: Seamless integration with Next.js, Vercel AI SDK, and Vercel Functions.
 - **Reliable Computer Use**: Built-in patterns for high-fidelity browser interaction and visual feedback processing.
 - **Serverless Ready**: Designed to operate within ephemeral environments, minimizing infrastructure management.
-- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 5.1 and GPT-5.5, while maintaining compatibility with **Gemma 3** and **Qwen 3.6** for local/hybrid workflows.
-- **Modular Skills**: Features a composable architecture where agents can be granted specific "skills" (e.g., search, email, browser).
+- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4.
+- **Modular Skills**: Features a composable architecture where agents can be granted specific "skills" (e.g., search, email, browser) via FastMCP 3.1.
 
 ## Limitations
 - **UI Fragility**: Like all browser-based agents, performance can degrade if target websites undergo significant DOM changes.
@@ -50,7 +50,7 @@ npm install
 ```
 
 ### Basic Configuration
-1. Create a `.env.local` file and add your `ANTHROPIC_API_KEY` (for Claude 5.1) or `OPENAI_API_KEY` (for GPT-5.5).
+1. Create a `.env.local` file and add your `ANTHROPIC_API_KEY` (for Claude 5.1), `OPENAI_API_KEY` (for GPT-5.5/5.6), or `DEEPSEEK_API_KEY` (for DeepSeek-V4).
 2. Configure a Vercel Sandbox if you require isolated code execution.
 3. Start the development server: `npm run dev`.
 
@@ -144,8 +144,8 @@ def validate_agent_session(raw_json: str) -> Optional[OpenAgentSession]:
 - [Vercel Labs Open Agents GitHub](https://github.com/vercel-labs/open-agents)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 - [Vercel Sandbox Guide](https://vercel.com/docs/functions/sandboxes)
-- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/task-protocol)
+- [FastMCP & MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

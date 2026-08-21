@@ -1,27 +1,27 @@
 # Claude Skills Ecosystem
 
 ## What it is
-The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime. As of late October / November 2026, the ecosystem has expanded to include cross-platform skills compatible with **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Gemma 3** via the **Model Context Protocol (MCP) 3.1**.
+The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime. As of early 2027, the ecosystem has expanded to include cross-platform skills compatible with **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4** via **FastMCP 3.1** and the **Model Context Protocol (MCP) 3.1**.
 
 ## What problem it solves
-It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains. The adoption of MCP 3.1 has further solved the interoperability problem, allowing "Claude Skills" to be used by a wider range of agentic orchestrators.
+It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains. The adoption of FastMCP 3.1 and MCP 3.1 has further solved the interoperability problem, allowing "Claude Skills" to be executed by a wider range of agentic orchestrators without platform lock-in.
 
 ## Where it fits in the stack
-**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 5.1, **Gemma 3**) and the specific application code.
+**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, DeepSeek-V4) and the specific application code.
 
 ## Typical use cases
 - **UI Prototyping**: Using the `frontend-design` skill for production-grade React/Next.js generation following modern design systems.
 - **Web Automation**: Using the `browser-use` skill for live web research and multi-site automation via [Playwright](../development_ops/playwright.md).
 - **Autonomous Security**: Using the `shannon` skill for automated pen-testing and vulnerability scanning.
 - **Code Refinement**: Using the `simplify` skill for automated quality reviews and architectural simplification.
-- **Cross-Model Skills**: Utilizing MCP-compliant skills that work identically across Claude 5.1, GPT-5.5, and **Gemma 3** runtimes.
+- **Cross-Model Skills**: Utilizing MCP-compliant skills that work identically across Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, and DeepSeek-V4 runtimes.
 
 ## Strengths
 - **Modular Design**: Reuse of proven workflows across different projects and teams.
 - **Onboarding Speed**: Faster transition for engineering teams adopting [Claude Code](../development_ops/claude-code.md) by leveraging community-vetted patterns.
 - **Consistency**: Enforces standardized execution patterns (e.g., how to write tests or handle migrations) across a fleet of agents.
 - **Extensibility**: Easily allows adding new capabilities to an agent without retraining or complex fine-tuning.
-- **MCP 3.1 Interoperability**: Skills are increasingly developed as MCP servers, making them portable across different agent platforms like [Roo Code](roo-code.md) and [Cline](cline.md).
+- **FastMCP 3.1 Interoperability**: Skills are increasingly developed as FastMCP servers, making them portable across different agent platforms like [Roo Code](roo-code.md) and [Cline](cline.md) with near-zero overhead.
 
 ## Limitations
 - **Varied Quality**: Skill quality and maintenance levels vary significantly across community-contributed repositories.
@@ -48,7 +48,7 @@ npx skills@latest add awesome-copilot/documentation-writer
 ```
 
 ### Usage
-Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Gemma 3](../ai_knowledge/local_llms.md) based agents) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
+Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Roo Code](roo-code.md)) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
 
 ## CLI examples
 ```bash
@@ -117,8 +117,8 @@ def validate_skill_pack(raw_json: str) -> Optional[SkillPackConfig]:
 - [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
 - [Superpowers - Composable Skills](https://github.com/obra/superpowers)
 - [Skill Seekers Community](https://github.com/yusufkaraaslan/Skill_Seekers)
-- [MCP 3.1 Ecosystem Update](https://modelcontextprotocol.io/ecosystem)
+- [FastMCP & MCP 3.1 Ecosystem Update](https://modelcontextprotocol.io/ecosystem)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

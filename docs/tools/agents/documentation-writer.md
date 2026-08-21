@@ -1,7 +1,7 @@
 # Documentation Writer Skill
 
 ## What it is
-The Documentation Writer Skill is a highly specialized developer-oriented automation tool designed for next-generation AI coding agents (such as Claude Code, Cursor, and Gemini CLI). Adhering to the universal, cross-agent `SKILL.md` specification, it automates the creation, continuous auditing, and maintenance of repository documentation. It is fully updated for late October / November 2026, natively supporting Model Context Protocol (MCP 3.1), FastMCP 3.1, and stateful developer sandboxes.
+The Documentation Writer Skill is a highly specialized developer-oriented automation tool designed for next-generation AI coding agents (such as Claude Code, Cursor, and Gemini CLI). Adhering to the universal, cross-agent `SKILL.md` specification, it automates the creation, continuous auditing, and maintenance of repository documentation. It is fully updated for early 2027, natively supporting Model Context Protocol (MCP 3.1), FastMCP 3.1, and stateful developer sandboxes.
 
 ## What problem it solves
 It eradicates "documentation drift" and documentation debt in high-velocity agile repositories. When codebase schemas, routes, or APIs change, documentation rarely stays synchronized, causing developer friction. This skill continuously monitors commit hooks, reads Language Server Protocol (LSP) symbols, and performs semantic edits to ensure markdown files, architectural diagrams, and site indices (e.g., `mkdocs.yml`) remain completely accurate.
@@ -15,8 +15,8 @@ It eradicates "documentation drift" and documentation debt in high-velocity agil
 - **KnowledgeOps Navigation Syncing**: Modifying site navigation config blocks (such as MkDocs or Docusaurus configs) in-situ when new documentation folders are created.
 - **Architectural Diagram Drafting**: Generating and refreshing complex Mermaid.js or Excalidraw block diagram specifications from source module changes.
 
-## Key Features (late 2026 Update)
-- **Universal SKILL.md Spec Conformity**: Fully compatible with advanced multi-turn task structures executed by Claude 5.1 and GPT-5.5.
+## Key Features
+- **Universal SKILL.md Spec Conformity**: Fully compatible with advanced multi-turn task structures executed by Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, and DeepSeek-V4.
 - **Symbolic Source Parsing**: Integrates with local LSP daemons to capture precise structural changes instead of relying on expensive, raw-text prompt tokens.
 - **FastMCP 3.1 Validation Integrations**: Queries local tools and tests code blocks inside a secure dockerized environment before editing docs.
 - **Deep Drift Detection**: Automatically tracks file git diff history and matches changed code signatures against last reviewed documentation dates.
@@ -24,12 +24,12 @@ It eradicates "documentation drift" and documentation debt in high-velocity agil
 ## Strengths
 - **Low Hallucination Rate**: Leverages strict schema maps and LSP data, ensuring that generated code signatures exactly match the actual implementation.
 - **High Schema Compliance**: Enforces exact organizational standards, including metadata structures, taxonomic order, and relative link formatting.
-- **CI/CD native execution**: Can be triggered as a pre-commit action or as a Docker container task inside GitHub Actions or GitLab runners.
-- **Multi-lingual parsing**: Out-of-the-box support for python docstrings, JSDoc, rustdoc, and swagger/openapi schema definitions.
+- **CI/CD Native Execution**: Can be triggered as a pre-commit action or as a Docker container task inside GitHub Actions or GitLab runners.
+- **Multi-lingual Parsing**: Out-of-the-box support for Python docstrings, JSDoc, rustdoc, and swagger/openapi schema definitions.
 
 ## Limitations
 - **Strategic Intent Gap**: While exceptionally skilled at describing *how* code functions structurally, it still requires human input to explain strategic *why* decisions and business logic.
-- **Token Budget Overhead**: Running repository-wide deep audits across hundreds of source files can quickly consume large model context spaces.
+- **Token Budget Overhead**: Running repository-wide deep audits across hundreds of source files can quickly consume large model context spaces if not scoped.
 
 ## When to use it
 - During the documentation phase of a major release cycle to audit and sync API files.
@@ -101,12 +101,12 @@ class AuditResult(BaseModel):
 async def parse_audit_results():
     # Simulated JSON payload representing the output of an automated CI doc audit
     raw_payload = {
-        "batchId": "batch-281-CI",
+        "batchId": "batch-434-CI",
         "status": "FAILED",
         "metrics": {
-            "totalDocs": 553,
-            "compliantDocs": 552,
-            "compliancePercentage": 99.82
+            "totalDocs": 620,
+            "compliantDocs": 619,
+            "compliancePercentage": 99.84
         },
         "failedFiles": [
             {
@@ -137,13 +137,12 @@ if __name__ == "__main__":
 - [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The operational concept of managing knowledge bases using developer workflows.
 - [Claude Code](../development_ops/claude-code.md) — SOTA command-line agent utilizing this skill.
 - [PydanticAI](../frameworks/pydantic-ai.md) — Multi-agent model validation framework.
-- [big-AGI](../ai_knowledge/big-agi.md) — GUI multi-model console workspace.
 
 ## Sources / references
 - [Universal SKILL.md Standard & API Specifications](https://github.com/awesome-copilot/awesome-skills/blob/main/SPEC.md)
 - [Antigravity Awesome Skills Ecosystem Directory](https://github.com/awesome-copilot/awesome-skills)
-- [AI Agent Developer Skills Guide (2026 edition)](https://medium.com/@unicodeveloper/10-must-have-skills-for-claude-and-any-coding-agent-in-2026-b5451b013051)
+- [FastMCP & MCP 3.1 Specifications](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
