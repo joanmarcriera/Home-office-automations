@@ -1,5 +1,67 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-21
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Major M&A**: Fintech giant **Stripe** has made a bid to acquire **OpenRouter**, the popular AI model gateway.
+* 🚀 **Qwen 3.8 Dominance**: The local LLM community is heavily focused on **Qwen 3.8 27B**, with reports of extreme optimization (381 tps) and high reasoning scores (29/30 on AIME 2026).
+* 🛠️ **Agentic Infrastructure**: Slack is pivoting hard toward agents with "Slack Code" channels and easier third-party agent installation.
+* 🏢 **Industry Shifts**: NVIDIA is expanding its ecosystem with a new CUDA MCP, while Debian is debating a potential ban on AI-generated code contributions.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Commercial Models
+* **Tencent Hunyuan Hy4**: Tencent has begun testing its new flagship "Expert-Level" model, Hy4, which emphasizes tool use for problem solving. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vth4lo/tencent_begins_testing_its_new_flagship_model/)
+* **Upstage Solar Pro 4**: A new closed commercial LLM from South Korea designed as a "workhorse" for agent reliability. [Source: The New Stack](https://thenewstack.io/upstage-solar-pro-4/)
+* **SenseNova U1.5-Lite**: Full release featuring expert training and OPD distillation. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vu5dzi/sensenova_u15lite_full_release_expert_training/)
+
+### Local & Open Source
+* 📌 **Qwen 3.8 27B Ecosystem**: 
+    * **Performance**: Users report hitting 381 tps on an RTX 3090 via hyper-optimization. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vtup5s/i_pushed_qwen3827b_to_381_tps_for_a_single/)
+    * **Reasoning**: Scored 29/30 on AIME 2026 using FP8 + xhigh reasoning. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vtsjsr/qwen3827b_scored_2930_on_aime_2026_with_fp8_xhigh/)
+    * **Mixes**: "QwenMix-3.7" has emerged as a community merge of 3.6 and 3.8. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vtozjq/qwenmix37_kept_seeing_posts_about_qwen38_and_36/)
+* **Ling-3.0**: AntLing released 6 base checkpoints across two sizes (tiny and flash) and three stages. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vtpsqf/ling30_released_all_6_base_checkpoints_2_sizes_3/)
+* **Aurora-80K**: A "modern tiny" model with only 80k parameters but a 4,096-token vocabulary. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vth6n3/aurora80k_releases_a_modern_tiny_language_model/)
+* **LFM2.5-DSpark**: Liquid AI claims up to 3.2x faster inference. [Source: Hugging Face](https://huggingface.co/blog/LiquidAI/lfm25-dspark)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Developer Tools
+* 📌 **NVIDIA CUDA MCP**: A new NVIDIA-hosted Model Context Protocol (MCP) for AI-assisted CUDA operations, including documentation search and GPU code optimization. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vttie3/nvidia_dropped_an_nvidiahosted_cuda_mcp_for/)
+* **Google Antigravity**: Google's AI coding agent is expanding beyond its own IDE. [Source: The New Stack](https://thenewstack.io/google-antigravity-ide-extensions/)
+* **Warp Factories**: Open infrastructure for building "software factories" to automate cloud workflows. [Source: The New Stack](https://thenewstack.io/warp-software-factory-infrastructure/)
+
+### Platform Integrations
+* **Slack for Agents**: Slack introduced "Slack Code" (channels only agents can create) and "Add to Slack" for easier third-party agent deployment. [Source: The New Stack](https://thenewstack.io/slack-code-agent-channels/)
+* **Amazon Bedrock AgentCore**: n8n highlights the ability to build multi-agent teams with shared memory per customer. [Source: n8n Blog](https://blog.n8n.io/node-spotlight-amazon-bedrock-agentcore/)
+
+---
+
+## 🔬 Research & Security
+
+* **Encrypted Prompt Injection**: Researchers successfully hid an attack inside AES encryption that an AI model decrypted and executed willingly. [Source: The New Stack](https://thenewstack.io/encrypted-prompt-injection-grok/)
+* **Voice Conversion**: **MeanVC2** released, supporting cross-gender and cross-language streaming voice conversion (3x realtime on CPU). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vu34b1/make_jensen_huang_sound_like_anyone_new_streaming/)
+* **The "Coding Paradox"**: Discussion on why improving a model's coding ability does not automatically improve its general reasoning or creative writing. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vtoqr9/getting_better_at_coding_doesnt_make_a_model/)
+
+---
+
+## 🏢 Industry News
+
+* 🔥 **Stripe $\rightarrow$ OpenRouter**: Stripe is moving to acquire OpenRouter, the "Stripe for LLMs." [Source: The New Stack](https://thenewstack.io/stripe-acquires-openrouter-tokens/)
+* **OpenAI "AI Futures"**: OpenAI launched a new blog dedicated to the long-term societal impacts of transformative AI on governance and economy. [Source: OpenAI](https://openai.com/index/introducing-ai-futures)
+* **Open Source Tension**: Debian is debating a proposal to ban AI-generated code contributions to maintain software integrity. [Source: The New Stack](https://thenewstack.io/debian-ai-contribution-ban-debate/)
+* **GitHub Scale**: GitHub is now processing 2.9 billion commits per month, creating significant infrastructure pressure. [Source: The New Stack](https://thenewstack.io/github-2-9b-monthly-commits/)
+* **Poolside/NVIDIA**: Reports of a complex $12B "reverse-execuhire" involving Poolside and NVIDIA. [Source: Latent Space](https://www.latent.space/p/ainews-poolside-gets-12b-reverse)
+
+---
+
+
 ## 📅 Digest for 2026-08-20
 
 # AI & Technology Daily Digest
