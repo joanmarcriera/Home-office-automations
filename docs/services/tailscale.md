@@ -1,154 +1,181 @@
 # Tailscale
 
 ## What it is
-Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices. In November 2026, it natively supports **Identity-Aware Tool Routing**, allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials. It provides the secure backbone for distributed homelabs, enabling cloud-hosted agents to interact with local services as if they were on the same network.
+Tailscale is a zero-config enterprise-grade VPN that builds a secure, WireGuard-based mesh network (a "tailnet") across physical, virtual, and cloud nodes. In January 2027, it serves as the foundational **Zero-Trust Network Architecture (ZTNA)** layer for autonomous agent ecosystems, featuring **Identity-Aware Agent Routing**, granular access control policies (ACLs), and short-lived verifiable credentials. It connects distributed edge nodes, hybrid clouds, and local GPU instances into a single private network overlay.
 
 ## What problem it solves
-Managing secure remote access traditionally involves complex firewall rules, manual port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay that works across complex firewalls and carrier-grade NATs. It solves the "secure connectivity" problem for distributed environments, allowing **Gemini 4.0** and **Gemma 3** agents as well as remote users to securely access services like [Home Assistant](home-assistant.md) without public port exposure.
+Managing remote node access and inter-service agent communication across disparate cloud providers and homelabs traditionally requires complex firewalls, public port forwarding, static SSH keys, and risky dynamic DNS. Tailscale eliminates public exposure by providing encrypted peer-to-peer mesh connectivity across NATs and carrier-grade CGNATs. It enables cloud-hosted LLM agents (running Claude 5.1, GPT-5.5/5.6, or Gemini 4.0 Pro) to securely query local databases and [Home Assistant](home-assistant.md) APIs without exposing open inbound ports to the public internet.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints. It integrates with **FastMCP 3.1** for secure, low-latency tool and resource discovery across distributed nodes.
+**Category**: Service / Infrastructure / Networking & Security. Tailscale acts as the **private mesh transport layer**, establishing encrypted WireGuard tunnels across distributed nodes. It integrates with **FastMCP 3.1** and [LiteLLM](litellm.md) gateways to provide encrypted, authenticated low-latency tool and resource discovery across edge devices and remote inference clusters.
 
 ## Typical use cases
-- **Secure Remote Management**: Accessing [Paperless-ngx](paperless-ngx.md) or [Nextcloud](nextcloud.md) from any device while traveling.
-- **Cross-Cloud Mesh**: Connecting local servers to remote VPS instances for [Storj](storj.md) nodes or [n8n](n8n.md) runners.
-- **Agentic Tool Access**: Allowing a cloud-hosted Claude 5.1 instance to securely call local APIs via a Tailscale tunnel.
-- **Zero-Trust SSH**: Securely accessing homelab servers without traditional SSH keys via **Tailscale SSH**.
-- **Exit Node Routing**: Routing traffic through a trusted home network when using untrusted public Wi-Fi.
+- **Multi-Cloud & Edge Agent Mesh**: Connecting cloud-hosted orchestrators with edge GPU nodes running [Ollama](ollama.md) or vLLM for local **Gemma 3** or **DeepSeek-V4** inference.
+- **Agentic Tool Execution**: Facilitating secure **FastMCP 3.1** tool calls between remote AI agents and private internal APIs.
+- **Zero-Trust SSH & Identity Management**: Streamlining server administration without static SSH keys via **Tailscale SSH**, backed by single sign-on (SSO) authentication.
+- **Secure Remote Access**: Connecting to internal services like [Paperless-ngx](paperless-ngx.md), [Nextcloud](nextcloud.md), and [Authentik](authentik.md) from anywhere.
+- **Tailscale Funnel**: Securely publishing select web applications or Webhook endpoints (such as [n8n](n8n.md) triggers) to the public internet with automated TLS certificates.
 
 ## Strengths
-- **Zero Configuration**: No manual port forwarding or key management required.
-- **Identity-Based Security**: Access is tied to single sign-on (SSO) identities via [Authentik](authentik.md).
-- **MagicDNS**: Provides stable, easy-to-remember hostnames for every device in the tailnet.
-- **P2P Connectivity**: Establishes direct, encrypted tunnels between devices whenever possible.
-- **Tailscale Funnel**: Selective, secure exposure of local services to the public internet without traditional port forwarding.
+- **Zero Inbound Port Forwarding**: Operates entirely over encrypted peer-to-peer WireGuard connections without public firewalls.
+- **Identity-Centric ACLs**: Integrates with [Authentik](authentik.md), Okta, and OIDC providers to enforce strict identity-based access controls.
+- **MagicDNS & Tailscale Serve**: Grants stable DNS hostnames (`*.ts.net`) and automated TLS encryption across internal nodes.
+- **Native FastMCP 3.1 Compatibility**: High-performance, low-latency transport layer for agent tool calling and resource streaming.
+- **Tailscale Funnel & SSH**: Built-in zero-trust SSH access logging and public tunnel exposure without external reverse proxies.
 
 ## Limitations
-- **Coordination Dependency**: Relies on Tailscale's central coordination server (unless using [Headscale](headscale.md)).
-- **Client Installation**: Requires the Tailscale client software on every participating device.
-- **Throughput overhead**: Minimal, but user-space WireGuard can have a slight performance impact on high-speed links.
+- **Coordination Server Dependency**: Relies on Tailscale's SaaS coordination plane unless self-hosting via [Headscale](headscale.md).
+- **Client Agent Overhead**: Requires running the lightweight `tailscaled` daemon on participating machines and containers.
+- **User-Space Kernel Performance**: High-throughput throughput setups (>10 Gbps) require Linux kernel-space WireGuard tuning.
 
 ## When to use it
-- When you need a secure, hassle-free VPN to connect devices across different locations and networks.
-- For providing private access to homelab services for family members or **Gemma 3** agents.
-- To eliminate public port forwarding and reduce the attack surface of your network.
-- When you require stable DNS names for private services across multiple sites.
+- When connecting distributed agents, cloud instances, and local homelab hardware into an encrypted private mesh.
+- To enforce zero-trust access control policies and eliminate public port forwarding across sensitive infrastructure.
+- When local AI models (**Gemma 3**) or home automation systems ([Home Assistant](home-assistant.md)) require secure remote access from cloud services.
+- When stable, internal private domain names (MagicDNS) and automated TLS certificates are required across distributed nodes.
 
 ## When not to use it
-- If your environment strictly prohibits third-party coordination servers (consider [Headscale](headscale.md)).
-- In air-gapped environments with no internet access for coordination.
+- In air-gapped enterprise environments completely isolated from public internet access for control plane coordination.
+- When strict organizational compliance forbids third-party SaaS management planes (use [Headscale](headscale.md) instead).
 
 ## Getting started
 
-### Installation
-Install Tailscale on Linux with a single command:
+### Installation (Linux)
+Install the official Tailscale daemon with a single command:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
 ```
 
-After installation, authenticate the device:
+Authenticate the node and connect to your tailnet:
 
 ```bash
-sudo tailscale up
+sudo tailscale up --accept-routes --ssh
 ```
 
-### Hello World
-1. Install Tailscale on your laptop and your smartphone.
-2. Log in using the same account on both.
-3. Run `tailscale status` on your laptop to see your phone's Tailscale IP.
-4. Ping your phone: `tailscale ping <phone-hostname>`.
-5. You now have a secure, private tunnel between your devices!
+### Docker Compose Sidecar Deployment
+Using Tailscale as a network sidecar container to secure an application (e.g., [Paperless-ngx](paperless-ngx.md)):
+
+```yaml
+version: '3.8'
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-paperless
+    hostname: paperless-mesh
+    environment:
+      - TS_AUTHKEY=tskey-auth-k123456789-secret
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ts-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+
+volumes:
+  ts-state:
+```
 
 ## CLI examples
-The `tailscale` command is the primary interface for managing the local node.
+The `tailscale` CLI provides management and diagnostic capabilities:
 
 ```bash
-# Check the status of the tailnet
+# Display tailnet connection topology and device status
 tailscale status
 
-# Get the Tailscale IP of the current machine
-tailscale ip -4
+# Check latency and peer path to a target device
+tailscale ping <peer-hostname-or-ip>
 
-# Advertise the current machine as an exit node
-sudo tailscale up --advertise-exit-node
+# Expose a local port securely over internal MagicDNS with TLS
+sudo tailscale serve https:443 / http://127.0.0.1:8080
 
-# GA 2026: Verify SSH access for a peer
-tailscale ssh --check <peer-hostname>
+# Audit current SSH identity permissions
+tailscale ssh --check <user>@<peer-hostname>
 ```
 
 ## API examples
-Tailscale provides a REST API (v2) for programmatic tailnet administration.
 
-### Python: Listing Devices via API and validating with Pydantic v2
-This example queries Tailscale API devices and parses them using **Pydantic v2** models to guarantee structured data format.
+### Python: Device Inventory & ACL Audit with Pydantic v2
+Queries the Tailscale REST API (v2) and parses device status using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`).
 
 ```python
 import requests
-from pydantic import BaseModel, Field
-from typing import List
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
 
-# Define Pydantic v2 schemas
 class TailscaleDevice(BaseModel):
-    hostname: str = Field(..., description="Hostname of the tailnet device")
-    addresses: List[str] = Field(..., description="Tailscale IP addresses assigned")
-    authorized: bool = Field(..., description="Authorization state on the tailnet")
-    os_name: str = Field(..., alias="os", description="Operating system running on the device")
+    node_id: str = Field(..., alias="id", description="Unique device identifier")
+    hostname: str = Field(..., description="Device hostname on the tailnet")
+    addresses: List[str] = Field(..., description="Assigned Tailscale IPv4 and IPv6 addresses")
+    authorized: bool = Field(..., description="Device authorization state")
+    os_name: str = Field(..., alias="os", description="Operating system platform")
+    client_version: Optional[str] = Field(None, alias="clientVersion", description="Tailscale client release version")
 
 class TailnetDevicesResponse(BaseModel):
     devices: List[TailscaleDevice]
 
-def list_and_validate_devices(api_key: str, tailnet: str) -> List[TailscaleDevice]:
-    url = f"https://api.tailscale.com/api/v2/tailnet/{tailnet}/devices"
+def fetch_and_validate_devices(api_key: str, tailnet_domain: str) -> List[TailscaleDevice]:
+    url = f"https://api.tailscale.com/api/v2/tailnet/{tailnet_domain}/devices"
     headers = {"Authorization": f"Bearer {api_key}"}
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     response.raise_for_status()
 
-    # Validate payload using Pydantic v2 model parsing
-    validated_response = TailnetDevicesResponse.model_validate(response.json())
-    return validated_response.devices
+    try:
+        validated_data = TailnetDevicesResponse.model_validate(response.json())
+        return validated_data.devices
+    except ValidationError as err:
+        raise ValueError(f"Tailscale API payload validation error: {err}")
 ```
 
-### FastMCP 3.1 Secure Tool Routing
-Exposing a local service to a tailnet-connected agent.
+### FastMCP 3.1 Agent Tool over Private Tailnet Transport
+Exposing node diagnostics and tailnet device status to autonomous agents via FastMCP 3.1:
 
-```typescript
-import { FastMCP } from 'fastmcp';
+```python
+from fastmcp import FastMCP
+import subprocess
+import json
 
-const mcp = new FastMCP("tailscale-tool-router");
+mcp = FastMCP("tailscale-mesh-tools")
 
-mcp.addTool({
-  name: "get_node_status",
-  description: "Get status of a specific tailnet node",
-  parameters: { hostname: { type: "string" } },
-  execute: async ({ hostname }) => {
-    // Logic to query Tailscale API or local CLI
-    return { status: "online", tailscaleIP: "100.x.y.z" };
-  }
-});
+@mcp.tool()
+def get_peer_status(hostname: str) -> str:
+    """Queries current latency and status of a peer node on the Tailscale mesh."""
+    try:
+        cmd = ["tailscale", "status", "--json"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        data = json.loads(result.stdout)
 
-mcp.serve();
+        peers = data.get("Peer", {})
+        for peer_id, peer_info in peers.items():
+            if peer_info.get("HostName") == hostname:
+                return f"Peer {hostname}: IP={peer_info.get('TailscaleIPs')}, Online={peer_info.get('Online')}"
+        return f"Host {hostname} not found on tailnet."
+    except Exception as err:
+        return f"Error querying tailnet: {str(err)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [Headscale](headscale.md) — The open-source coordination server alternative.
-- [Authentik](authentik.md) — For managing SSO and identity within Tailscale.
-- [Home Assistant](home-assistant.md) — Frequently accessed remotely via Tailscale.
-- [Paperless-ngx](paperless-ngx.md) — Secure document access over the tailnet.
-- [n8n](n8n.md) — For automating tailnet administration via the Tailscale API.
-- [Ollama](ollama.md) — For providing private AI services across the tailnet.
-- [Nextcloud](nextcloud.md) — For private file sharing within the mesh.
-- [Storj](storj.md) — For backing up tailnet-connected servers.
-- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool discovery over Tailscale.
-- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — High-performance tool hosting for distributed agents.
+- [Headscale](headscale.md) — Self-hosted, open-source Tailscale control plane.
+- [Authentik](authentik.md) — Open-source identity and access management provider.
+- [LiteLLM](litellm.md) — Enterprise AI Gateway connected over private mesh tunnels.
+- [Home Assistant](home-assistant.md) — Smart home automation platform accessed via Tailscale.
+- [Paperless-ngx](paperless-ngx.md) — Document management system secured behind zero-trust ACLs.
+- [n8n](n8n.md) — Workflow engine triggered securely via Tailscale Funnel webhooks.
+- [Ollama](ollama.md) — Local LLM runner served privately across the tailnet.
+- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — Framework for agentic tool servers running over private mesh nodes.
 
-## Sources / References
-- [Official Website](https://tailscale.com/)
-- [Tailscale Documentation](https://tailscale.com/docs/)
-- [Tailscale API Reference](https://tailscale.com/api/)
-- [Headscale GitHub](https://github.com/juanfont/headscale)
+## Sources / references
+- [Tailscale Official Documentation](https://tailscale.com/docs/)
+- [Tailscale API v2 Reference](https://tailscale.com/api/)
+- [Tailscale SSH & Access Control Policies](https://tailscale.com/docs/acls)
+- [Headscale GitHub Repository](https://github.com/juanfont/headscale)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
