@@ -1,12 +1,12 @@
 # Radicale Automation
 
-Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the late October / November 2026 agentic ecosystem.
+Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the early January 2027 agentic ecosystem.
 
 ## What it is
-Radicale Automation refers to the set of scripts, [n8n](n8n.md) workflows, and [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In late October / November 2026, this increasingly involves the use of autonomous agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md) to perform natural language scheduling and contact deduplication.
+Radicale Automation refers to the set of scripts, [n8n](n8n.md) workflows, and [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In early January 2027, this increasingly involves the use of autonomous agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), [Gemini 4.0 Pro](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md) to perform natural language scheduling and contact deduplication.
 
 ## What problem it solves
-It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents via the [MCP 3.1 / FastMCP Specification](../tools/automation_orchestration/mcp.md).
+It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents via the [FastMCP 3.1 Specification](../tools/automation_orchestration/mcp.md).
 
 ## Where it fits in the stack
 **Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) server. It sits alongside other automation tools like [n8n](n8n.md) and [Home Assistant](home-assistant.md).
@@ -96,7 +96,7 @@ mcp-client chronos list-events --calendar "personal" --start "2026-11-01"
 ## API examples
 
 ### Python (Syncing Contacts with Pydantic v2 Validation)
-In late October / November 2026, programmatic interactions between AI schedulers and CardDAV/CalDAV servers are strictly typed. Below is an example validating a contact schema using **Pydantic v2** prior to putting it to Radicale:
+In early January 2027, programmatic interactions between AI schedulers and CardDAV/CalDAV servers are strictly typed. Below is an example validating a contact schema using **Pydantic v2** prior to putting it to Radicale:
 
 ```python
 import httpx
@@ -184,5 +184,5 @@ curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 - https://agentskills.io/spec/chronos-caldav/
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

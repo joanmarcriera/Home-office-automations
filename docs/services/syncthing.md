@@ -3,7 +3,7 @@
 ## What it is
 Syncthing is a continuous, decentralized file synchronization program. It allows you to synchronize files between two or more computers in real time, safely and securely, without relying on a central server or cloud provider.
 
-In late October / November 2026, Syncthing is a foundational service for decentralized edge networks and [Local LLMs](../tools/ai_knowledge/local_llms.md) (such as Gemma 3, Qwen 3.6, Llama 4, and Claude 5.1 edge configurations). It is widely utilized to synchronize massive LLM model weights, fine-tuning datasets, and [Model Context Protocol (MCP 3.1)](../tools/automation_orchestration/mcp.md) settings seamlessly across multiple homelab and remote edge nodes.
+In early January 2027, Syncthing is a foundational service for decentralized edge networks and [Local LLMs](../tools/ai_knowledge/local_llms.md) (such as Gemma 3, Qwen 3.6, Llama 4, DeepSeek-V4, and Claude 5.1 edge configurations). It is widely utilized to synchronize massive LLM model weights, fine-tuning datasets, and [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) settings seamlessly across multiple homelab and remote edge nodes.
 
 ## What problem it solves
 Managing files across multiple devices usually requires a central cloud service, which can pose privacy risks and incur high monthly subscription fees. Syncthing solves this by providing a peer-to-peer synchronization mechanism that keeps data entirely on your own hardware, ensuring complete data sovereignty.
@@ -152,5 +152,5 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Self-Hosting Guide: Decentralized Sync](https://selfhosted.show/syncthing-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
