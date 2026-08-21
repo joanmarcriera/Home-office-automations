@@ -1,9 +1,9 @@
 # IT-Tools
 
-A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser as of November 2026.
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser as of early January 2027.
 
 ## What it is
-IT-Tools is an open-source, client-side utility suite for developers. As of **November 2026**, it features over 150 specialized tools, including JWT debuggers, CRON parsers, and advanced cryptographic utilities. It is designed to be lightweight, searchable, and privacy-first, now supporting [Gemma 3](../tools/ai_knowledge/local_llms.md) integration patterns for local, agent-orchestrated data transformation.
+IT-Tools is an open-source, client-side utility suite for developers. As of **early January 2027**, it features over 150 specialized tools, including JWT debuggers, CRON parsers, and advanced cryptographic utilities. It is designed to be lightweight, searchable, and privacy-first, now supporting [Gemma 3](../tools/ai_knowledge/local_llms.md) integration patterns for local, agent-orchestrated data transformation.
 
 ## What problem it solves
 It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads, secrets, or private keys) never leaves the user's local network.
@@ -129,4 +129,4 @@ echo '{"it-tools":"active"}' | jq .
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07

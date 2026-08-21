@@ -1,9 +1,9 @@
 # Excalidraw
 
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the late October / November 2026 agentic ecosystem.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the early January 2027 agentic ecosystem.
 
 ## What it is
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of late October / November 2026, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of early January 2027, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
 
 ## What problem it solves
 It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction. It provides a structured JSON format that is easily parseable by LLMs, facilitating seamless human-AI co-creation.
@@ -177,4 +177,4 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
