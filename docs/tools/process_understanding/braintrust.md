@@ -1,124 +1,119 @@
 # Braintrust
 
-Braintrust is an enterprise-grade platform for evaluating, logging, and continuous improvement of AI applications. In the late October / November 2026 landscape, it has established itself as the premier solution for "Agent Observability," providing the high-fidelity tracing infrastructure necessary to monitor complex reasoning chains, nested execution spans, and multi-step tool interactions in frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, and Gemini 4.0.
+Braintrust is an enterprise-grade platform for evaluating, logging, and continuous improvement of AI applications. In January 2027, it serves as an industry-standard solution for "Agent Observability," providing high-fidelity tracing infrastructure to monitor complex reasoning chains, nested execution spans, and multi-step tool interactions across frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**.
 
 ## What it is
-Braintrust is a comprehensive, developer-first AI evaluation and observability platform that combines automated playground evaluations, high-fidelity tracing, datasets management, and dynamic prompt versioning into a single, cohesive workflow. It provides highly ergonomic SDKs and a cloud/hybrid platform designed to move AI applications from heuristic-based testing to rigorous, data-driven engineering. By late 2026, it features native support for **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, allowing autonomous agents to automatically report their own reasoning steps, tool calls, and state transitions directly to nested Braintrust spans via Agentic Session Orchestration.
+Braintrust is a developer-first AI evaluation and observability platform that combines interactive playground evaluation, high-fidelity agentic tracing, dataset management, and dynamic prompt versioning into a unified workflow. Featuring ergonomic Python and TypeScript SDKs, it transitions AI engineering from heuristic prompt tweaking to data-driven, quantitative software development. It features native support for **FastMCP 3.1**, allowing autonomous agents to automatically stream reasoning steps, tool invocations, and state transitions directly to nested Braintrust trace spans.
 
 ## What problem it solves
-It solves the fundamental challenge of generative AI reliability: knowing whether a change to a prompt, base model, routing logic, or retrieval strategy actually improved or degraded system performance. Braintrust eliminates the "black box" of agentic behavior by providing structured, nested tracing that captures every decision point, tool execution, and state change, making it possible to debug autonomous agents that might otherwise fail silently in production environments.
+Non-deterministic AI agent failures present a primary engineering hurdle in production. Braintrust eliminates "black box" agent behavior by capturing every decision boundary, tool call, and state transition in structured, nested traces. This enables developers to pinpoint non-deterministic reasoning failures, catch regressions before deployment, and debug long-running autonomous workflows that would otherwise fail silently.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Evaluation & Observability
-Braintrust sits at the intersection of the development environment and production monitoring. It acts as the "source of truth" for prompt versioning and deployment, and serves as the "evaluation plane" that scores model output across the entire lifecycle (local development, CI/CD regression testing, and production telemetry). It integrates seamlessly with FastMCP 3.1 to monitor tool discovery and low-latency execution.
+**Category**: Process & Understanding / Evaluation & Observability. Braintrust sits between local development, automated CI/CD build pipelines, and production inference gateways (e.g., [LiteLLM](../../services/litellm.md)). It serves as the primary prompt management registry and the "evaluation plane" that scores model outputs across the entire application lifecycle.
 
 ## Typical use cases
-- **Agent Execution Tracing**: Capturing nested, asynchronous execution graphs of multi-agent workflows to pinpoint exactly where reasoning broke down.
-- **Automated Regression Testing**: Running "Golden Sets" of evaluation datasets in CI/CD pipelines whenever a system prompt or model version is updated.
-- **Prompt Management & Deployment**: Versioning prompts as code and deploying them dynamically, enabling instant rollbacks and zero-downtime A/B testing.
-- **Production Feedback Loops**: Automatically capturing low-confidence production traces and promoting them directly to the evaluation suite for regression tests or fine-tuning.
-- **Resource Optimization**: Comparing token utilization, response times, and costs across different model providers (e.g., comparing [Gemma 3](../ai_knowledge/local_llms.md) vs. Claude 5.1).
+- **Multi-Agent Execution Tracing**: Capturing nested asynchronous execution graphs to isolate reasoning breakdowns and tool invocation errors.
+- **Automated CI/CD Regression Testing**: Executing "Golden Set" evaluation suites in Git pipelines whenever system prompts or model versions are updated.
+- **Prompt Registry & Dynamic Deployment**: Managing prompt versions as code and deploying them dynamically with zero-downtime rollbacks and A/B testing.
+- **Production-to-Eval Datasets**: Automatically capturing low-confidence production traces and promoting them to evaluation sets for model fine-tuning.
+- **Cost & Latency Optimization**: Benchmark token expenditures, response latencies, and accuracy across provider models (e.g., comparing local **Gemma 3** / **DeepSeek-V4** vs. cloud Claude 5.1).
 
 ## Strengths
-- **Superior Developer Experience**: Ergonomic SDKs (Python and TypeScript) and a powerful CLI that integrate seamlessly with modern build systems and CI/CD.
-- **High-Fidelity Tracing**: Industry-leading visualization of complex, multi-turn agent spans utilizing the MCP 3.1 Task Protocol.
-- **Inference Proxy Compatibility**: Out-of-the-box support for logging traffic from proxy layers like [LiteLLM](../../services/litellm.md).
-- **LLM-as-a-Judge Automation**: Capability to run automated, real-time evaluation scorers on production data with minimal latency.
-- **Agentic Session Orchestration**: Specialized structures to log and analyze long-running agent sessions with dynamic context loading.
+- **Developer-First Ergonomics**: Native Python and TypeScript SDKs designed for seamless integration with build tools and CI/CD pipelines.
+- **High-Fidelity Agentic Tracing**: Visualization of multi-turn agent execution trees, tool parameters, and FastMCP 3.1 context payloads.
+- **AI Gateway Integration**: Out-of-the-box trace logging compatibility with proxy gateways like [LiteLLM](../../services/litellm.md).
+- **Automated LLM-as-a-Judge**: Custom and pre-built automated evaluation scorers running directly on real-time production streams.
+- **Long-Running Session Analytics**: Built-in constructs for logging long-running agent sessions and dynamic context updates.
 
 ## Limitations
-- **Pricing**: Primarily a commercial SaaS service; while it offers a generous free tier for developer sandboxes, enterprise scale logs require substantial investment.
-- **Configuration Overhead**: Constructing detailed, nested traces for highly complex or recursive agentic applications requires careful SDK instrumenting.
-- **Proprietary Core**: While SDKs are open-source, the main analytical dashboards, embedding projectors, and prompt playgrounds are closed-source SaaS.
+- **Commercial SaaS Core**: While client SDKs are open-source, the central analytics dashboard, prompt playground, and storage engine require commercial SaaS or private cloud hosting.
+- **Instrumentation Overhead**: Deeply nested, recursive agent workflows require upfront schema design and trace annotation.
+- **Storage Scaling**: High-volume real-time tracing across high-throughput agent clusters requires managed trace retention policies.
 
 ## When to use it
-- When building production-ready AI agents that require strict reliability, automated regressions testing, and continuous optimization.
-- When teams need a shared, collaborative platform to iterate on prompt structures and compare model outputs.
-- When you need to integrate LLM evaluations directly into automated Git-based CI/CD workflows.
+- When developing production autonomous agents requiring automated regression testing and continuous evaluation.
+- When engineering teams require a centralized prompt management registry with dynamic versioning and A/B rollout controls.
+- When integrating quantitative LLM evaluations directly into automated Git CI/CD test suites.
 
 ## When not to use it
-- For trivial, single-file scripts or simple hobby applications where terminal outputs or basic console logs are sufficient.
-- If strict compliance demands a 100% air-gapped environment with absolutely zero telemetry sent to third-party dashboards (unless utilizing Braintrust Private Cloud options).
+- For single-file scripts or basic prototypes where terminal outputs and standard console loggers are sufficient.
+- In air-gapped environments prohibiting third-party telemetry (unless deploying Braintrust Enterprise Private Cloud).
 
 ## Getting started
 
-Install the Braintrust SDK along with Pydantic for validation support:
+Install the Braintrust Python SDK alongside Pydantic v2:
 
 ```bash
 pip install braintrust pydantic
 ```
 
-Initialize a project and track a basic experiment:
+Initialize project logging and record a basic evaluation event:
 
 ```python
 import braintrust
 
-# Login and initialize project logging
+# Initialize project logger
 logger = braintrust.init_logger(project="Customer Intelligence Agent")
 
-# Log a simple run
+# Log evaluation record
 logger.log(
     input="Analyze customer churn risk for account-402",
-    output="Medium risk detected. Recommending outreach.",
+    output="Medium risk detected. Recommending proactive outreach.",
     expected="Medium risk detected.",
-    scores={"correctness": 1.0}
+    scores={"correctness": 1.0, "latency_score": 0.95}
 )
 ```
 
 ## CLI examples
 
 ### braintrust login
-Authenticate your local environment with the Braintrust cloud or private instance:
+Authenticate your local shell environment with Braintrust cloud or enterprise tenant:
 ```bash
 braintrust login --api-key YOUR_BRAINTRUST_API_KEY
 ```
 
 ### braintrust push
-Deploys local prompt configurations to the registry:
+Sync local prompt definitions to the central Braintrust prompt registry:
 ```bash
-braintrust push --project "support-agent-mcp-3.1" --file prompts.json
+braintrust push --project "agentic-support-v3" --file prompts.json
 ```
 
 ### bt eval
-Use the `bt` command-line utility to run local evaluation suites in your terminal:
+Run local evaluation test suites directly from terminal:
 ```bash
-bt eval --file evals/test_reasoning.py
+bt eval --file evals/test_agent_reasoning.py
 ```
 
 ## API examples
 
-### Python (Asynchronous Nested Tracing & Pydantic v2 Schema Validation)
-This example shows how to configure detailed, nested agent trace spans for a tool-use cycle leveraging FastMCP 3.1, validating telemetry payloads with Pydantic v2:
+### Python: Asynchronous Nested Tracing with Pydantic v2 & FastMCP 3.1
+This example demonstrates logging nested agent execution spans and validating trace payloads using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`).
 
 ```python
 import asyncio
 from typing import Dict, Any, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from braintrust import init_logger, traced, current_span
 
-# Initialize the project logger
-init_logger(project="Multi-Agent-MCP-3.1")
+init_logger(project="Agent-Tracing-2027")
 
-# Define our trace schema using Pydantic v2
 class ToolExecutionTelemetry(BaseModel):
-    tool_name: str = Field(..., description="The name of the tool executed.")
-    arguments: Dict[str, Any] = Field(..., description="The arguments passed to the tool.")
-    output: str = Field(..., description="The stringified response from the tool.")
-    execution_time_ms: float = Field(..., ge=0.0, description="Latency of tool execution.")
-    success: bool = Field(default=True, description="Status of the tool execution.")
+    tool_name: str = Field(..., description="Name of the executed FastMCP tool")
+    arguments: Dict[str, Any] = Field(..., description="Arguments passed to the tool function")
+    output: str = Field(..., description="Output string returned by the tool")
+    execution_time_ms: float = Field(..., ge=0.0, description="Tool execution latency in milliseconds")
+    success: bool = Field(default=True, description="Execution success status")
 
 class AgentStepTelemetry(BaseModel):
-    step_id: int = Field(..., description="Sequential index of reasoning step.")
-    reasoning: str = Field(..., description="The thought process or raw reasoning chain of the agent.")
-    executed_tools: List[ToolExecutionTelemetry] = Field(default_factory=list, description="All tools executed during this step.")
+    step_id: int = Field(..., description="Sequential index of reasoning step")
+    reasoning: str = Field(..., description="Agent internal thought chain")
+    executed_tools: List[ToolExecutionTelemetry] = Field(default_factory=list, description="List of tool executions")
 
-# Use the @traced decorator to automatically generate parent/child trace spans
 @traced
 def log_tool_span(tool_data: Dict[str, Any]) -> str:
-    # Validate the tool telemetry with Pydantic v2
-    validated_tool = ToolExecutionTelemetry(**tool_data)
+    # Validate payload strictly with Pydantic v2
+    validated_tool = ToolExecutionTelemetry.model_validate(tool_data)
 
-    # Access the active Braintrust trace span and record metadata
     span = current_span()
     span.log(
         metadata={
@@ -127,62 +122,59 @@ def log_tool_span(tool_data: Dict[str, Any]) -> str:
             "tool_name": validated_tool.tool_name
         },
         metrics={
-            "latency": validated_tool.execution_time_ms / 1000.0
+            "latency_seconds": validated_tool.execution_time_ms / 1000.0
         },
         output=validated_tool.output
     )
     return validated_tool.output
 
 @traced
-async def run_agent_reasoning_chain(task_description: str, step_data: Dict[str, Any]):
+async def execute_agent_workflow(task_prompt: str, step_payload: Dict[str, Any]):
     span = current_span()
-    span.log(input=task_description)
+    span.log(input=task_prompt)
 
-    # Process reasoning steps and execute tools
-    validated_step = AgentStepTelemetry(**step_data)
+    try:
+        validated_step = AgentStepTelemetry.model_validate(step_payload)
+        span.log(metadata={"reasoning": validated_step.reasoning})
 
-    span.log(metadata={"reasoning_chain": validated_step.reasoning})
+        for tool_data in validated_step.executed_tools:
+            log_tool_span(tool_data.model_dump())
 
-    for tool_payload in validated_step.executed_tools:
-        # Calling the traced tool function establishes a child span automatically
-        log_tool_span(tool_payload)
+        span.log(output="Task completed successfully.")
+    except ValidationError as err:
+        span.log(output=f"Validation error: {err}", metrics={"failed": 1.0})
 
-    span.log(output="Completed task successfully.")
-
-# Mock telemetry data
-mock_step = {
+# Sample execution
+sample_step = {
     "step_id": 1,
-    "reasoning": "Determined that database querying is required for user history.",
+    "reasoning": "Determined user account query requires database lookup.",
     "executed_tools": [
         {
             "tool_name": "fetch_user_history",
             "arguments": {"user_id": "usr-889"},
-            "output": "Returned 3 orders in last 30 days.",
-            "execution_time_ms": 145.2,
+            "output": "Found 3 recent orders.",
+            "execution_time_ms": 112.4,
             "success": True
         }
     ]
 }
 
-# Run the async tracing loop
-asyncio.run(run_agent_reasoning_chain("Summarize recent history for usr-889", mock_step))
+asyncio.run(execute_agent_workflow("Fetch history for user usr-889", sample_step))
 ```
 
 ## Related tools / concepts
-- [Arize AI](./arize-ai.md) — Real-time production MPM and Phoenix developer tools.
-- [Fiddler AI](./fiddler.md) — Focuses on enterprise explainability and model governance.
-- [Comet Opik](./comet-opik.md) — Open-source LLM tracing and dataset management.
-- [LangSmith](../benchmarking/langsmith.md) — Observability platform built specifically for the LangChain ecosystem.
-- [Promptfoo](../benchmarking/promptfoo.md) — CLI-first tool for prompt testing and evaluations.
-- [LiteLLM](../../services/litellm.md) — Standardized multi-model gateway often serving as Braintrust's logging source.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol defining standardized tool use.
+- [Arize AI](./arize-ai.md) — Enterprise ML observability and Phoenix LLM tracing platform.
+- [Fiddler AI](./fiddler.md) — Enterprise explainability, guardrail evaluation, and model governance platform.
+- [Comet Opik](./comet-opik.md) — Open-source LLM tracing and dataset evaluation tool.
+- [Promptfoo](../benchmarking/promptfoo.md) — CLI-driven tool for local prompt evaluations and red-teaming.
+- [LiteLLM](../../services/litellm.md) — AI Gateway integration layer for trace collection.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized protocol for agentic tool execution.
 
 ## Sources / references
-- [Braintrust Platform Homepage](https://www.braintrust.dev/)
-- [Braintrust Official SDK & API Reference Documentation](https://www.braintrust.dev/docs)
+- [Braintrust Official Platform](https://www.braintrust.dev/)
+- [Braintrust Documentation & SDK Reference](https://www.braintrust.dev/docs)
 - [Braintrust GitHub Repositories](https://github.com/braintrustdata)
-- [Braintrust Agentic Tracing Guide (2026)](https://www.braintrust.dev/articles/agent-observability-complete-guide-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

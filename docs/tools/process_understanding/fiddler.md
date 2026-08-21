@@ -1,180 +1,171 @@
 # Fiddler AI
 
-Fiddler is an Enterprise-grade Model Performance Management (MPM) platform that has expanded to include specialized tools for LLM observability, safety monitoring, and continuous evaluation (Fiddler Auditor and Fiddler AI Observability). In the late October / November 2026 landscape, it is a primary choice for monitoring frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, and Gemini 4.0 in production environments using FastMCP 3.1 for ultra-low latency execution and automated tool discovery.
+Fiddler is an Enterprise-grade Model Performance Management (MPM) and AI Observability platform designed for continuous LLM monitoring, guardrail evaluation, and multi-agent governance. In January 2027, it serves as a primary enterprise platform for monitoring production models like **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**, leveraging **FastMCP 3.1** protocol tracing and Pydantic v2 validation models.
 
 ## What it is
-Fiddler is a comprehensive AI observability and governance platform designed to provide trust and transparency for machine learning, unstructured data, and generative AI systems. It features **Fiddler Auditor**, an open-source evaluation library for red-teaming, pre-production robustness testing, and prompt stress-testing, and **Fiddler AI Observability**, which provides real-time monitoring, embedding-based drift detection, and advanced explainability (XAI) for LLMs in production. It specializes in high-fidelity monitoring of complex multi-step reasoning chains and multi-modal outputs via the MCP 3.1 Task Protocol.
+Fiddler is a comprehensive enterprise AI observability and governance platform providing transparency, trust, and risk mitigation across machine learning, tabular predictive models, and multi-agent generative systems. It combines **Fiddler Auditor**—an open-source evaluation suite for red-teaming, adversarial stress-testing, and automated pre-deployment testing—with **Fiddler AI Observability**, delivering real-time guardrail enforcement, embedding-based semantic drift detection, and advanced explainability (XAI) for LLM pipelines and autonomous agents.
 
 ## What problem it solves
-For enterprises, deploying generative AI isn't just about accuracy; it's about governance, alignment, safety, and operational risk mitigation. Fiddler provides a robust framework for:
-- **Toxity and Hallucination Mitigation**: Detecting factuality gaps, grounding issues, and harmful content in production streams.
-- **Model Drift & Data Shifts**: Identifying when model performance degrades over time due to upstream changes or user base shifts.
-- **Explainability (XAI)**: Demystifying the "black box" of frontier models by tracing feature attribution for tabular or unstructured pipelines, helping teams understand *why* an AI agent made a specific recommendation or executed a particular action.
-- **Agentic Session Diagnostics**: Pinpointing exactly which step in a multi-turn agentic workflow failed or executed an unauthorized tool call.
+Deploying generative AI and autonomous agents at enterprise scale introduces compliance, alignment, and operational risk. Fiddler provides a centralized control tower for:
+- **Toxicity & Hallucination Mitigation**: Real-time evaluation of factual grounding, ungrounded hallucination scores, and toxic outputs across production streams.
+- **Embedding & Semantic Drift Detection**: Tracking vector embedding clusters to identify data distribution shifts and domain drift before accuracy degrades.
+- **Explainability & Attribution (XAI)**: Demystifying frontier LLMs and agentic decision trees via feature attribution and retrieval-augmented generation (RAG) diagnostic tracing.
+- **Multi-Agent Session Audit**: Tracing complex multi-step reasoning loops, agent-to-agent delegatory calls, and **FastMCP 3.1** tool execution pipelines.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Enterprise AI Observability
-Fiddler serves as the governance, trust, and validation layer for agentic and LLM applications. It sits between the Inference Plane (e.g., [LiteLLM](../../services/litellm.md)) and application execution runtimes, leveraging FastMCP 3.1 to dynamically inject low-latency telemetry instrumentation without slowing down the core user experience.
+**Category**: Process & Understanding / Enterprise AI Observability. Fiddler acts as the governance and telemetry layer sitting between AI Gateways (e.g., [LiteLLM](../../services/litellm.md)) and application orchestration frameworks. It leverages **FastMCP 3.1** for low-overhead telemetry injection without introducing latency to real-time agent execution loops.
 
 ## Typical use cases
-- **Frontier LLM Safety Monitoring**: Real-time checking of inputs/outputs against PII, toxic phrases, and prompt injection attempts for models like Claude 5.1 and GPT-5.5.
-- **Embedding Drift Detection**: Monitoring vector embeddings to detect semantic drift in production queries, signaling a need for database updates or prompt modifications.
-- **Root Cause Analysis in RAG**: Using explainability features to trace retrieval errors versus reasoning failures.
-- **Compliance & Fair Auditing**: Reviewing model decisions in regulated sectors (such as insurance, lending, and healthcare) to ensure fairness metrics are maintained.
-- **Pre-deployment Red-Teaming**: Stress-testing LLM robustness using automated adversarial prompts via Fiddler Auditor.
+- **Frontier Model Guardrails**: Real-time guardrail evaluation for PII, prompt injection, and harmful content across Claude 5.1, GPT-5.5, and DeepSeek-V4.
+- **RAG & Vector Search Monitoring**: Disentangling vector retrieval failures from LLM reasoning errors using embedding drift analysis.
+- **Regulatory Governance & Compliance**: Maintaining verifiable audit trails and fairness metrics in regulated industries (financial services, healthcare, and insurance).
+- **Agentic Workflow Diagnostics**: Identifying root causes for failed multi-turn agent sessions or unexpected tool invocation chains.
+- **Pre-Production Red-Teaming**: Executing automated adversarial evaluation suites prior to deploying new model versions or system prompts.
 
 ## Strengths
-- **Enterprise-Ready Governance**: Built with granular role-based access control (RBAC), multi-tenant security, and robust audit logging.
-- **Multimodal & Hybrid Capabilities**: Able to monitor traditional ML models (regression, classification) and modern LLMs/VLM systems in a single dashboard.
-- **Advanced Explainability**: Industry-leading feature attribution engines for tabular, text, and embedding spaces.
-- **FastMCP 3.1 Native Integration**: High-efficiency server hosting and dynamic tool discovery, permitting real-time telemetry extraction.
-- **Custom Metric Support**: Allows teams to define and compute bespoke evaluation metrics on live production logs.
+- **Enterprise-Grade Governance**: Built with role-based access control (RBAC), SSO via [Authentik](../../services/authentik.md), tenant isolation, and audit logging.
+- **Unified Traditional ML & LLM Analytics**: Single dashboard to monitor predictive ML models (regression/XGBoost) and multimodal agentic workflows.
+- **Native FastMCP 3.1 & OpenTelemetry Support**: Seamless ingestion of standard agent execution traces and tool calling payloads.
+- **Extensible Custom Metrics**: Enables custom LLM-as-a-judge scorers, domain-specific toxicity classifiers, and custom compliance metrics.
+- **Advanced Feature Attribution**: Industry-leading explainability engines for structured data, text embeddings, and prompt features.
 
 ## Limitations
-- **High Complexity**: Highly feature-dense, which can introduce a steep learning curve for solo developers or early-stage startups.
-- **Resource Constraints**: High-frequency, high-throughput monitoring of multi-modal streams can incur substantial compute overhead, requiring careful sampling configuration.
-- **Proprietary Core**: While Fiddler Auditor is open-source, the central enterprise dashboard, monitoring engine, and explainability analytics suite require a commercial license.
+- **Enterprise Footprint**: Rich feature set and enterprise architecture create a steep setup learning curve for small teams.
+- **Compute Overhead at Scale**: High-frequency real-time embedding drift detection and guardrail checks require dedicated cluster resources.
+- **Commercial Platform Core**: While Fiddler Auditor is open-source, the central AI Observability server requires a commercial license.
 
 ## When to use it
-- When deploying generative or predictive AI in highly regulated domains where model audit trails are legally mandated.
-- When you require continuous, live evaluation of LLM-as-a-judge patterns or semantic embedding drift across thousands of requests per second.
-- When debugging complex multi-turn autonomous agents or RAG pipelines requiring precise step-by-step diagnostic tracing.
+- When deploying production LLM applications in regulated enterprise environments with strict audit mandates.
+- To continuously evaluate RAG quality, factual grounding, and embedding drift at scale.
+- When debugging complex autonomous agent workflows requiring granular step-by-step reasoning and tool call attribution.
 
 ## When not to use it
-- For early-stage sandbox prototypes or simple hobby apps where basic local logging tools (e.g., [LangSmith](../benchmarking/langsmith.md) or open-source trace libraries) are sufficient.
-- If you are running lightweight, localized deployments on personal devices with zero internet connectivity and minimal audit requirements.
+- For early-stage developer sandboxes where lightweight open-source loggers (e.g., [LangSmith](../benchmarking/langsmith.md) or [Comet Opik](comet-opik.md)) suffice.
+- For isolated local deployments operating without internet connection or enterprise telemetry requirements.
 
 ## Getting started
 
-To begin auditing and monitoring with Fiddler, install the client library:
+Install the official Fiddler Python client:
 
 ```bash
 pip install fiddler-client pydantic
 ```
 
-Establish a session with your enterprise Fiddler cluster:
+Initialize a connection to your enterprise Fiddler tenant:
 
 ```python
 import fiddler as fdl
 
-# Initialize connection
+# Connect to enterprise instance
 client = fdl.FiddlerApi(
     url="https://your-org.fiddler.ai",
     org_id="enterprise_core",
-    auth_token="fdl_secure_token_abc123"
+    auth_token="fdl_secure_token_2027"
 )
 ```
 
 ## CLI examples
 
-### fiddler-client
-Validate the local installation of the Fiddler SDK:
+### Installation Inspection
 ```bash
 pip show fiddler-client
 ```
 
-### curl (Publishing Live Agent Telemetry)
-In addition to the python client, telemetry payloads can be ingested directly via standard REST requests:
+### Direct Telemetry Ingestion via cURL
+In addition to SDK usage, telemetry events can be posted directly via HTTP endpoints:
+
 ```bash
 curl -X POST "https://your-org.fiddler.ai/api/v1/events" \
-     -H "Authorization: Bearer fdl_secure_token_abc123" \
+     -H "Authorization: Bearer fdl_secure_token_2027" \
      -H "Content-Type: application/json" \
      -d '{
-       "project_id": "customer-success",
+       "project_id": "enterprise-support",
        "model_id": "claude-5-1-agent",
        "event": {
-         "input_text": "Retrieve account details for user-99.",
-         "output_text": "Access denied. Insufficient permissions.",
-         "safety_score": 0.99,
-         "latency_ms": 142
+         "input_text": "Retrieve account details for tenant-42.",
+         "output_text": "Access granted under policy ZT-88.",
+         "hallucination_score": 0.01,
+         "latency_ms": 118
        }
      }'
 ```
 
-### python -m fiddler
-Checking client CLI integration metrics:
-```bash
-python -m fiddler --help
-```
-
 ## API examples
 
-### Python (Telemetry Logging with Pydantic v2 & FastMCP 3.1 Schemas)
-This example demonstrates registering a model schema and logging an evaluated interaction from Claude 5.1 using Pydantic v2 to guarantee type-safety and alignment with MCP 3.1 structure:
+### Python: Telemetry Ingestion with Pydantic v2 & FastMCP 3.1
+This example demonstrates registering and validating agent execution telemetry using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) for strict type safety.
 
 ```python
 import asyncio
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, ValidationError
 import fiddler as fdl
 
-# Define strict payload schemas using Pydantic v2
+# Define telemetry validation schema using Pydantic v2
 class LLMTelemetryPayload(BaseModel):
-    query: str = Field(..., description="The user query submitted to the LLM.")
-    response: str = Field(..., description="The model generated output.")
-    model_version: str = Field(default="claude-5.1-sonnet", description="Frontier model version used.")
-    latency_seconds: float = Field(..., ge=0.0, description="Latency of the response in seconds.")
-    hallucination_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Evaluated score for hallucination probability.")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Model Context Protocol v3.1 context metadata.")
+    query: str = Field(..., description="The user query or agent prompt input.")
+    response: str = Field(..., description="The generated model output or action response.")
+    model_version: str = Field(default="claude-5-1-sonnet", description="Model architecture identifier.")
+    latency_seconds: float = Field(..., ge=0.0, description="End-to-end execution latency in seconds.")
+    hallucination_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Evaluated factual grounding score.")
+    mcp_metadata: Dict[str, Any] = Field(default_factory=dict, description="FastMCP 3.1 trace and context metadata.")
 
-# Async function to process and log telemetry to Fiddler
-async def log_telemetry_event(payload_data: Dict[str, Any]) -> bool:
+async def log_fiddler_telemetry(payload_dict: Dict[str, Any]) -> bool:
     try:
-        # Validate input schema strictly using Pydantic v2
-        validated_payload = LLMTelemetryPayload(**payload_data)
+        # Validate input schema strictly with Pydantic v2
+        validated = LLMTelemetryPayload.model_validate(payload_dict)
 
-        # Setup connection to Fiddler service
         client = fdl.FiddlerApi(
             url="https://your-org.fiddler.ai",
-            org_id="operations",
-            auth_token="secure_token_xyz"
+            org_id="agentic-ops",
+            auth_token="secure_token_2027"
         )
 
-        # Publish validated event payload
         response = client.publish_event(
-            project_id="customer-care-agents",
-            model_id="support-agent-v2",
-            event=validated_payload.model_dump(),
-            event_id=f"evt_{validated_payload.model_version}_{int(validated_payload.latency_seconds * 1000)}"
+            project_id="customer-service-agents",
+            model_id="support-agent-v3",
+            event=validated.model_dump(),
+            event_id=f"evt_{validated.model_version}_{int(validated.latency_seconds * 1000)}"
         )
-        print(f"Successfully logged event. Fiddler Response: {response}")
+        print(f"Successfully published Fiddler telemetry: {response}")
         return True
-    except Exception as e:
-        print(f"Failed to log telemetry: {e}")
+    except ValidationError as err:
+        print(f"Pydantic validation error: {err}")
+        return False
+    except Exception as err:
+        print(f"Failed to publish event to Fiddler: {err}")
         return False
 
-# Simulation execution
-test_data = {
-    "query": "How do I upgrade to MCP 3.1 and FastMCP?",
-    "response": "Ensure you are using the latest package releases and apply custom validation schemas.",
-    "model_version": "claude-5.1-sonnet",
-    "latency_seconds": 0.852,
-    "hallucination_score": 0.02,
-    "metadata": {
+# Execute simulation
+sample_event = {
+    "query": "How do I upgrade my mesh network node using FastMCP 3.1?",
+    "response": "Deploy the updated FastMCP daemon and configure identity routing.",
+    "model_version": "claude-5-1-sonnet",
+    "latency_seconds": 0.412,
+    "hallucination_score": 0.01,
+    "mcp_metadata": {
         "mcp_version": "3.1",
-        "fastmcp_active": True,
-        "tool_routing": "identity-aware"
+        "transport": "stdio",
+        "tool_name": "network_upgrade"
     }
 }
 
-asyncio.run(log_telemetry_event(test_data))
+asyncio.run(log_fiddler_telemetry(sample_event))
 ```
 
 ## Related tools / concepts
-- [Arize AI](./arize-ai.md) — Enterprise-grade alternative for real-time model performance management.
-- [Braintrust](./braintrust.md) — Comprehensive developer evaluation platform for LLM applications.
+- [Arize AI](./arize-ai.md) — Enterprise ML observability and Phoenix LLM tracing platform.
+- [Braintrust](./braintrust.md) — LLM evaluation and continuous prompt engineering platform.
 - [Comet Opik](./comet-opik.md) — Open-source LLM tracing, monitoring, and dataset management tool.
-- [Sentry](./sentry.md) — Full stack exception tracking for generative AI applications.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — The universal open standard for multi-agent capabilities.
-- [LiteLLM](../../services/litellm.md) — Centralized multi-model gateway used to routing model requests and collecting telemetry.
-- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core governance patterns that Fiddler actively enforces.
+- [Sentry](./sentry.md) — Application error tracking and performance monitoring for agentic stacks.
+- [LiteLLM](../../services/litellm.md) — AI Gateway for routing requests and collecting metrics.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized protocol for multi-agent tool execution and context streaming.
 
 ## Sources / references
-- [Fiddler AI Corporate Portal](https://www.fiddler.ai/)
-- [Fiddler Enterprise API & SDK Reference](https://docs.fiddler.ai/api)
-- [Fiddler Auditor Project Repository](https://github.com/fiddler-labs/fiddler-auditor)
-- [Model Context Protocol v3.1 Specification](https://modelcontextprotocol.io/specification)
+- [Fiddler AI Official Website](https://www.fiddler.ai/)
+- [Fiddler Documentation & API Reference](https://docs.fiddler.ai/)
+- [Fiddler Auditor GitHub Repository](https://github.com/fiddler-labs/fiddler-auditor)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,147 +1,140 @@
 # Arize AI
 
-Arize AI is a foundational enterprise platform for AI Observability and Model Performance Management (MPM). In the late October / November 2026 landscape, it serves as a critical "Inference Watchtower" for enterprises deploying complex, autonomous agents powered by [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, and Gemini 4.0, ensuring that agentic reasoning and tool execution remain grounded, performant, and safe via Identity-Aware Tool Routing.
+Arize AI is an enterprise platform for AI Observability and Model Performance Management (MPM). In January 2027, it serves as a central "Inference Watchtower" for enterprises deploying complex, autonomous agent networks powered by **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, **DeepSeek-V4**, and local **Gemma 3** instances.
 
 ## What it is
-Arize AI is an end-to-end AI observability, monitoring, and evaluation platform designed to systematically troubleshoot predictive and generative AI. Its ecosystem includes **Arize Phoenix**, a local-first, open-source library for agentic tracing, visualization, and programmatic evaluation that has become the developer standard for runtime observability. In late 2026, it features native **Model Context Protocol (MCP 3.1)** integration and Identity-Aware Tool Routing, facilitating seamless, secure tracing telemetry injection across any agentic tool execution pipeline while strictly preserving corporate security boundaries.
+Arize AI is an end-to-end AI observability, trace monitoring, and model evaluation platform designed for predictive ML models, RAG pipelines, and agentic workflows. Its open-source core, **Arize Phoenix**, provides local-first, OpenTelemetry-native tracing, interactive UMAP embedding visualization, and automated LLM-as-a-judge evaluation suites. Featuring native support for **FastMCP 3.1** and Identity-Aware Agent Routing, it provides zero-trust telemetry collection across distributed agent tool execution pipelines without exposing internal corporate security boundaries.
 
 ## What problem it solves
-Arize AI resolves the "black box" challenge of production-grade AI systems. By exposing high-dimensional vector embeddings, semantic retrieval clusters, and multi-turn agent decision graphs via the MCP 3.1 Task Protocol, Arize AI enables development teams to diagnose *why* a model hallucinated, why retrieval-augmented generation (RAG) missed key context, or why an autonomous agent became trapped in an infinite execution loop. It converts vague qualitative "vibe checks" into rigorous, auditable quantitative metrics (such as faithfulness, relevance, toxicity, and cost).
+Managing autonomous AI agents in production introduces debugging challenges when models hallucinate, retrieval stages fail, or multi-agent loops enter recursive cycles. Arize AI converts qualitative "vibes-based" evaluations into quantitative engineering telemetry. By visualizing high-dimensional text embeddings, retrieval clusters, and multi-turn agent execution trees, developers can diagnose exact failure modes (such as ungrounded answers, retrieval context gaps, or unauthorized tool calls).
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / AI Observability
-Arize AI operates in the Monitoring, Governance, and Trust layer. It ingests tracing spans directly from the Inference Plane (e.g., [LiteLLM](../../services/litellm.md)) or framework routers, and feeds telemetry back into the evaluation, dataset curation, and continuous fine-tuning stages. It utilizes FastMCP 3.1 for ultra-low latency telemetry collection in latency-sensitive applications.
+**Category**: Process & Understanding / AI Observability. Arize AI operates in the Monitoring, Governance, and Trust layer. It ingests OpenTelemetry trace spans directly from AI Gateways (e.g., [LiteLLM](../../services/litellm.md)) or agent orchestration frameworks, feeding telemetry into evaluation pipelines, dataset curators, and continuous model fine-tuning loops.
 
 ## Typical use cases
-- **Multi-Agent Reasoning Diagnostics**: Visualizing nested execution steps and tool-call hierarchies of Claude 5.1 agents to isolate logic flaws.
-- **Dynamic RAG Troubleshooting**: Visualizing document embeddings via interactive UMAP projections to uncover "knowledge coverage gaps" for [Gemma 3](../ai_knowledge/local_llms.md) deployments.
-- **Hallucination Detection at Scale**: Running real-time evaluation judges (LLM-as-a-judge) to score factuality and factual grounding of production responses on live streams.
-- **Concept & Semantic Drift Monitoring**: Identifying when user query distributions or model output patterns drift significantly, signaling a need for prompt or database fine-tuning.
-- **Identity-Aware Tool Auditing**: Auditing tool executions by autonomous agents to guarantee every action is attributed to a specific authorized user identity.
+- **Agent Reasoning & Tool Tracing**: Visualizing nested execution spans, tool parameters, and decision branches for Claude 5.1 and GPT-5.5 agents.
+- **RAG Embedding Inspection**: Diagnosing vector retrieval failures using interactive UMAP cluster visualizers to identify document coverage gaps.
+- **Production Hallucination & Faithfulness Evaluation**: Running real-time LLM-as-a-judge evaluators to score factual grounding and relevance on live data streams.
+- **Semantic & Data Shift Detection**: Tracking embedding drift to detect shifts in user query distribution or domain vocabulary before model performance degrades.
+- **Identity-Aware Tool Auditing**: Auditing agentic tool execution logs to ensure actions are strictly mapped to verified user identities and ACL policies.
 
 ## Strengths
-- **Open-Source Phoenix Core**: Ability to run full trace visualizations, UI, and evaluations entirely locally or on-premise without transmitting data to external clouds.
-- **Embedding Projection**: Best-in-class UMAP/t-SNE clusters for semantic inspection of text and multimodal inputs.
-- **Identity-Aware Tool Routing**: Robust access-control telemetry designed for enterprise multi-agent applications.
-- **Unified Observation Plane**: Single platform capable of monitoring traditional machine learning (tabular, computer vision) alongside modern generative LLM pipelines.
-- **OpenInference Specification Native**: Built on top of open, standards-based OpenTelemetry instrumentation, eliminating vendor lock-in.
+- **Open-Source Phoenix Core**: Run complete trace visualization web interfaces and evaluation suites locally or on-premises without transmitting data to external SaaS clouds.
+- **High-Dimensional Embedding Projections**: Interactive UMAP/t-SNE visualization for semantic inspection of vector search space.
+- **OpenTelemetry Standardized**: Built on open OpenInference and OpenTelemetry standards, eliminating vendor lock-in.
+- **Identity-Aware Telemetry**: Comprehensive access control auditing for multi-agent enterprise applications.
+- **Unified Predictive & Generative Observability**: Single platform monitoring tabular ML models (XGBoost/LightGBM) alongside generative multi-agent systems.
 
 ## Limitations
-- **Operational Complexity**: The platform's extensive analytical features can introduce integration overhead for teams building simple LLM wrappers.
-- **High-Volume Telemetry Costs**: While the open-source Phoenix library is free, managing large-scale enterprise SaaS logs at scale requires significant data ingestion budgeting.
+- **Integration Footprint**: Complete trace instrumentation and custom evaluation setup require initial architectural configuration.
+- **Telemetry Storage at Scale**: High-volume, real-time embedding tracing across large agent clusters requires dedicated trace storage management.
 
 ## When to use it
-- When deploying high-stakes autonomous agents that execute database or file actions in production.
-- When troubleshooting complex RAG retrieval systems where document indexing and query-to-chunk matching must be inspected visually.
-- When you require a centralized, unified telemetry platform for both traditional predictive ML and generative LLM/Agent infrastructures.
+- When deploying production autonomous agents that execute sensitive database, API, or system actions.
+- When troubleshooting complex RAG retrieval pipelines requiring visual inspection of vector search spaces and document chunking.
+- When requiring a unified OpenTelemetry-based observability platform for both predictive ML and generative agent stacks.
 
 ## When not to use it
-- For initial, local sandbox prototypes where simple console printing or lightweight file logging is sufficient for immediate needs.
-- If you have a single-turn, static application that does not use RAG or multi-step, dynamic tool routing.
+- For single-turn scripts or basic prototypes where terminal printing or simple log files suffice.
+- For simple static applications operating without retrieval augmentation or multi-step tool execution.
 
 ## Getting started
 
-Install Arize Phoenix for local tracing:
+Install Arize Phoenix for local tracing and evaluation:
 
 ```bash
 pip install arize-phoenix pydantic
 ```
 
-Launch the Phoenix server interface locally:
+Launch the local Phoenix tracing server:
 
 ```python
 import phoenix as px
+
 session = px.launch_app()
+print(f"Phoenix UI running at: {session.url}")
 ```
 
 ## CLI examples
 
-### phoenix
-Launch the local Phoenix web UI to inspect trace events:
+### phoenix start
+Launch the local Phoenix tracing server web interface:
 ```bash
 phoenix start
 ```
 
-### px.launch_app()
-Equivalent to starting via terminal, but executed within Python setups or notebooks:
-```bash
-python -c "import phoenix as px; px.launch_app()"
-```
-
-### curl (Exporting Traces)
-Request raw telemetry trace spans from the local Phoenix instance:
+### Exporting Traces via cURL
+Retrieve raw trace spans from a running Phoenix server:
 ```bash
 curl http://localhost:6006/v1/traces
 ```
 
 ## API examples
 
-### Python (Tracing and Evaluation Logging with Pydantic v2 & MCP 3.1)
-This example demonstrates programmatically exporting evaluation results and logging them to an Arize server using Pydantic v2 schemas:
+### Python: Programmatic Telemetry & Evaluation with Pydantic v2
+This example demonstrates logging evaluation results to Arize Phoenix using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) for strict type safety.
 
 ```python
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 import phoenix as px
 
-# Define a strict evaluation schema with Pydantic v2
 class ArizeEvaluationMetric(BaseModel):
-    eval_id: str = Field(..., description="Unique identifier for this evaluation event.")
-    span_id: str = Field(..., description="The corresponding trace span ID being evaluated.")
-    metric_name: str = Field(..., description="Name of the evaluated metric (e.g., faithfulness).")
-    score: float = Field(..., ge=0.0, le=1.0, description="The evaluation score between 0.0 and 1.0.")
-    explanation: Optional[str] = Field(None, description="Detailed reasoning explaining the score.")
-    mcp_context: Dict[str, Any] = Field(default_factory=dict, description="Metadata matching MCP 3.1 specifications.")
+    eval_id: str = Field(..., description="Unique evaluation event identifier")
+    span_id: str = Field(..., description="Corresponding OpenTelemetry trace span ID")
+    metric_name: str = Field(..., description="Name of metric (e.g., faithfulness, hallucination)")
+    score: float = Field(..., ge=0.0, le=1.0, description="Evaluated score between 0.0 and 1.0")
+    explanation: Optional[str] = Field(None, description="Detailed reasoning for evaluation score")
+    mcp_context: Dict[str, Any] = Field(default_factory=dict, description="FastMCP 3.1 trace context metadata")
 
-# Async logging function
-async def export_arize_evaluation(eval_data: Dict[str, Any]) -> bool:
+async def export_arize_evaluation(eval_dict: Dict[str, Any]) -> bool:
     try:
-        # Strict validation with Pydantic v2
-        validated_metric = ArizeEvaluationMetric(**eval_data)
+        # Validate input schema strictly with Pydantic v2
+        validated_metric = ArizeEvaluationMetric.model_validate(eval_dict)
 
-        # In a real environment, you log evaluations to Phoenix client
-        # Here we simulate logging the structured validation payload
-        print(f"Logging telemetry to Arize Phoenix at {datetime.now().isoformat()}:")
+        print(f"Exporting Arize Phoenix Telemetry at {datetime.now(timezone.utc).isoformat()}:")
         print(f"  Metric: {validated_metric.metric_name}")
         print(f"  Score: {validated_metric.score}")
-        print(f"  Span Alignment: {validated_metric.span_id}")
-        print(f"  MCP Details: {validated_metric.mcp_context}")
+        print(f"  Span ID: {validated_metric.span_id}")
+        print(f"  MCP Version: {validated_metric.mcp_context.get('mcp_version')}")
 
-        # Use Phoenix API client to log (simulated)
+        # In production, send to Phoenix client:
         # px.Client().log_evaluations(...)
         return True
-    except Exception as e:
-        print(f"Failed to export telemetry to Arize: {e}")
+    except ValidationError as err:
+        print(f"Pydantic validation error: {err}")
+        return False
+    except Exception as err:
+        print(f"Failed to export telemetry to Arize: {err}")
         return False
 
-# Execution simulation
-mock_evaluation = {
-    "eval_id": "eval_7781a",
-    "span_id": "span_mcp_3_1_xyz",
+# Simulation execution
+sample_eval = {
+    "eval_id": "eval_9981b",
+    "span_id": "span_fastmcp_3_1_abc",
     "metric_name": "faithfulness",
-    "score": 0.95,
-    "explanation": "The model response is fully supported by the retrieved document chunks.",
+    "score": 0.98,
+    "explanation": "Agent output is fully grounded by retrieved vector contexts.",
     "mcp_context": {
         "mcp_version": "3.1",
-        "model": "claude-5.1-sonnet",
-        "identity_role": "analyst-agent"
+        "model": "claude-5-1-sonnet",
+        "identity_role": "data-analyst-agent"
     }
 }
 
-asyncio.run(export_arize_evaluation(mock_evaluation))
+asyncio.run(export_arize_evaluation(sample_eval))
 ```
 
 ## Related tools / concepts
 - [Braintrust](./braintrust.md) — Evaluation-focused LLM developer platform and trace logs.
-- [Fiddler AI](./fiddler.md) — Focuses on enterprise governance, bias auditing, and model explainability.
-- [Comet Opik](./comet-opik.md) — Open-source LLM tracing and prompt-testing alternative.
-- [LangSmith](../benchmarking/langsmith.md) — Observability platform designed specifically for the LangChain library ecosystem.
-- [LiteLLM](../../services/litellm.md) — Universal proxy gateway used to uniform routing and trace capture.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Standardized protocol defining agent capability discovery.
+- [Fiddler AI](./fiddler.md) — Enterprise explainability, guardrail evaluation, and model governance platform.
+- [Comet Opik](./comet-opik.md) — Open-source LLM tracing and prompt testing tool.
+- [LangSmith](../benchmarking/langsmith.md) — Observability platform designed for the LangChain ecosystem.
+- [LiteLLM](../../services/litellm.md) — Universal AI Gateway for request routing and metric collection.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized protocol for agentic tool execution and context streaming.
 - [Langfuse](./langfuse.md) — Open-source LLM engineering and analytics platform.
-- [Weights & Biases](./wandb-weave.md) — Machine learning experiment tracing and model evaluation.
 
 ## Sources / references
 - [Arize AI Official Portal](https://arize.com/)
@@ -150,5 +143,5 @@ asyncio.run(export_arize_evaluation(mock_evaluation))
 - [OpenInference Tracing Specification](https://openinference.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
