@@ -1,13 +1,13 @@
 # Apache Tika
 
 ## What it is
-Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). In late October / November 2026, version **3.1.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding.
+Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). As of **early January 2027**, version **3.1.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding across multi-agent networks powered by **FastMCP 3.1**.
 
 ## What problem it solves
-Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
+Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents (**Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, **DeepSeek-V4**) to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
 
 ## Where it fits in the stack
-**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into the clean text and metadata required by search engines, vector databases, and LLMs like **Gemma 3** or **Claude 5.1**.
+**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into clean text and metadata required by search engines, vector databases, and LLMs like **DeepSeek-V4** or **Claude 5.6**.
 
 ## Typical use cases
 - **Agentic RAG Pipelines**: Converting local PDF archives into structured text for indexing in vector databases.
@@ -72,12 +72,15 @@ java -jar tika-app-3.1.0.jar --language my-document.pdf
 ```
 
 ## API examples
-Interact with Tika Server via any HTTP-capable client. Below is a Python API validator utilizing Pydantic v2 to structure extracted document text and metadata.
+Interact with Tika Server via FastMCP 3.1 tools or any HTTP-capable client. Below is a Python FastMCP 3.1 tool utilizing Pydantic v2 to structure extracted document text and metadata for autonomous LLM agents (**Claude 5.6**, **GPT-5.6**).
 
 ```python
 import requests
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("TikaIngestionService")
 
 # Define document metadata schemas using Pydantic v2
 class DocumentPayload(BaseModel):
@@ -86,7 +89,6 @@ class DocumentPayload(BaseModel):
     content_type: str = Field(..., alias="Content-Type", description="The mime content type detected by Tika")
     language: Optional[str] = Field(None, alias="language", description="The primary language detected")
 
-    # Coerce fields and handle fallback fields gracefully in Pydantic v2
     @classmethod
     def from_tika_response(cls, raw_data: List[Dict[str, Any]]) -> "DocumentPayload":
         if not raw_data:
@@ -101,20 +103,26 @@ class DocumentPayload(BaseModel):
             }
         )
 
-def extract_document_features(file_path: str, tika_url: str = "http://localhost:9998/rmeta/text") -> DocumentPayload:
-    with open(file_path, "rb") as f:
-        headers = {"Accept": "application/json"}
-        response = requests.put(tika_url, data=f, headers=headers)
+@mcp.tool()
+def extract_document_features(file_path: str, tika_url: str = "http://localhost:9998/rmeta/text") -> str:
+    """
+    Extracts text and metadata from a local document using Apache Tika REST API
+    and returns a Pydantic v2 validated payload.
+    """
+    try:
+        with open(file_path, "rb") as f:
+            headers = {"Accept": "application/json"}
+            response = requests.put(tika_url, data=f, headers=headers, timeout=30)
 
-    response.raise_for_status()
-    payload = response.json()
-    return DocumentPayload.from_tika_response(payload)
+        response.raise_for_status()
+        payload = response.json()
+        doc_payload = DocumentPayload.from_tika_response(payload)
+        return doc_payload.model_dump_json(indent=2)
+    except Exception as e:
+        return f"Error parsing document with Tika: {str(e)}"
 
-# Example usage
 if __name__ == "__main__":
-    doc_file = "sample.pdf"
-    # validated_metadata = extract_document_features(doc_file)
-    # print(f"Type: {validated_metadata.content_type}, Language: {validated_metadata.language}")
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -134,5 +142,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-08
+- Last reviewed: 2027-01-07
 - Confidence: high

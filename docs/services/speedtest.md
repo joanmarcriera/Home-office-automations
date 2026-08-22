@@ -1,17 +1,17 @@
 # Speedtest
 
 ## What it is
-Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In **late October / November 2026**, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents via **MCP 3.1** / **FastMCP 3.1** for proactive network troubleshooting, dynamic bandwidth allocation, and service-level monitoring.
+Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). As of **early January 2027**, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents via **MCP 3.1** / **FastMCP 3.1** for proactive network troubleshooting, dynamic bandwidth allocation, and service-level monitoring.
 
 ## What problem it solves
-Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests using an immutable audit trail of performance logs.
+Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests using an immutable audit trail of performance logs evaluated by models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## Where it fits in the stack
 **Category**: Service / Infrastructure / Monitoring. It acts as an **external network probe**, providing the ground-truth performance data required to optimize other services like [Plex](plex.md), [n8n](n8n.md), and autonomous agents that rely on stable, high-bandwidth connectivity for large-scale data ingestion.
 
 ## Typical use cases
 - **Proactive ISP Monitoring**: Running hourly tests to track long-term bandwidth trends and latency spikes.
-- **Agentic Troubleshooting**: An AI agent (e.g., **Gemma 3** or **Claude 5.1**) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
+- **Agentic Troubleshooting**: An AI agent (e.g., **Claude 5.6** or **DeepSeek-V4**) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
 - **Dynamic QoS Optimization**: Automatically adjusting [qBittorrent](qbittorrent.md) download limits based on current available bandwidth.
 - **SLA Verification**: Logging and reporting speed drops to an ISP for potential service credits.
 - **Gaming/VoIP Readiness**: Verifying jitter and ping before starting high-priority low-latency tasks.
@@ -86,7 +86,7 @@ speedtest --format=json
 Integrate Speedtest results into Python scripts or FastMCP 3.1 servers for autonomous agents.
 
 ### Python: FastMCP 3.1 Server with Pydantic v2 Validation
-This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to validate speedtest results, allowing frontier models like **Claude 5.1** and **GPT-5.5** to dynamically query local network performance.
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to validate speedtest results, allowing frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to dynamically query local network performance.
 
 ```python
 import subprocess
@@ -145,7 +145,6 @@ if __name__ == "__main__":
 - [Home Assistant](home-assistant.md) — For displaying speedtest metrics on a home dashboard.
 - [Authentik](authentik.md) — Securing the Speedtest Tracker dashboard.
 - [Ollama](ollama.md) — For running agents that analyze network logs.
-- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for proactive network troubleshooting.
 
 ## Sources / References
 - [Speedtest.net Official CLI](https://www.speedtest.net/apps/cli)
@@ -153,5 +152,5 @@ if __name__ == "__main__":
 - [Ookla Knowledge Base](https://help.speedtest.net/hc/en-us)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-10
+- Last reviewed: 2027-01-07
 - Confidence: high
