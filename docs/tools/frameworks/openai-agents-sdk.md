@@ -1,43 +1,43 @@
 # OpenAI Agents SDK
 
 ## What it is
-The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By late October / November 2026, it has become a standard for deploying high-autonomy agents, often compared against **Gemma 3** based agentic workflows for cross-platform versatility and multi-model routing.
+The OpenAI Agents SDK is an enterprise-grade framework designed to build, orchestrate, and govern AI agents. It introduces a clear separation between the "harness" (the control logic and governance loop) and the "compute" (the LLM reasoning layer), allowing for high-scalability multi-agent architectures. In early 2027, it serves as a primary standard for deploying high-autonomy agents powered by **GPT-5.5 / GPT-5.6**, **O5 reasoning series**, and interoperable multi-model fallback routines for models like **Claude 5.1** and **Gemma 3**.
 
 ## What problem it solves
-It simplifies the process of creating agents that can use tools, maintain state, and perform complex multi-step tasks. By separating the harness from the compute, it enables better resource management, sandboxed execution, and multi-tenant scaling, solving the security and reliability challenges of early autonomous agent implementations.
+It simplifies the creation of multi-agent systems that execute multi-step tools, manage distributed state, and adhere to strict safety perimeters. By separating the harness control layer from the underlying model compute, it enables fine-grained sandbox isolation, multi-tenant token billing, and secure tool execution, eliminating the security and reliability bottlenecks of monolithic agent loops.
 
 ## Where it fits in the stack
-**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O5 reasoning series**, while fully supporting the **MCP 3.1 Task Protocol** for standardized tool execution.
+**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5 / 5.6** and the **O5 reasoning series**, while natively supporting the **FastMCP 3.1 Protocol** for standardized, ultra-low latency tool execution.
 
 ## Typical use cases
-- **Multi-step Reasoning**: Agents that need to perform a sequence of actions to reach a goal.
-- **Tool-augmented Generation**: Integrating external APIs and tools into the agentic loop.
-- **Sandboxed Execution**: Running agent code in isolated environments for security.
-- **Heterogeneous Workflows**: Orchestrating different model sizes or providers within a single task harness.
+- **Multi-step Reasoning & Task Decomposition**: High-autonomy agents utilizing O5 chain-of-thought to solve complex tasks.
+- **Tool-augmented Generation**: Integrating external REST APIs and FastMCP 3.1 tools into the agentic loop.
+- **Sandboxed Execution**: Running agent-generated Python or bash code in secure, isolated runtime containers.
+- **Heterogeneous Workflows**: Orchestrating task handoffs across O5 reasoning models, GPT-5.5, and external Claude 5.1 bridges within a unified harness.
 
 ## Strengths
-- **Decoupled Architecture**: Separates agent logic (harness) from LLM execution (compute).
-- **Native OpenAI Integration**: Designed to work seamlessly with the OpenAI platform and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) (MCP 3.1 specifications).
-- **Scalability**: Easier to manage multiple agents and concurrent tasks.
-- **Security-First**: Built-in support for sandboxing and permission management.
-- **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O5 series**.
+- **Decoupled Architecture**: Strictly decouples control harness logic from underlying LLM execution.
+- **Native OpenAI & FastMCP 3.1 Integration**: Seamless integration with OpenAI platform features and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) (FastMCP 3.1 specifications).
+- **Scalability & State Persistence**: Native session checkpointing for long-running workflows and multi-agent coordination.
+- **Security & Sandboxing**: Enterprise-grade permission management and containerized code execution.
+- **Reasoning Optimization**: Specialized bindings for the **O5 reasoning series** and high-context window GPT-5.5/5.6 models.
 
 ## Limitations
-- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 and Qwen 3.6 integrations are emerging via third-party bridges.
-- **Complexity**: The harness/compute separation adds a layer of abstraction that may be unnecessary for simple tasks.
-- **Ecosystem Maturity**: While standard, it requires deep integration with specific OpenAI API features.
+- **Platform Alignment**: Deeply optimized for OpenAI models, requiring adapter layers or third-party bridges for non-OpenAI LLM provider backends.
+- **Abstraction Overhead**: Harness/compute separation adds structural complexity for single-prompt script applications.
+- **Ecosystem Rate Limits**: Highly autonomous O5 loops can consume large reasoning token budgets quickly if unbounded.
 
 ## When to use it
-- Use when building complex agents on the OpenAI platform.
-- Use when you need a clear separation between the agent's control logic and its reasoning engine.
-- When multi-tenant isolation or sandboxed tool-use is a requirement.
+- When building production-grade agents on the OpenAI platform requiring O5 reasoning capabilities.
+- When your architecture requires strict separation between agent control flow and inference compute.
+- When multi-tenant isolation, sandboxed code execution, or FastMCP 3.1 protocol tool management is required.
 
 ## When not to use it
-- Not necessary for simple, single-prompt chat interactions.
-- If you are fully committed to a different framework like [LangGraph](./langgraph.md) or [CrewAI](./crewai.md).
+- For simple, single-prompt chat interactions or basic retrieval pipelines.
+- If you are fully committed to an alternative graph-based framework like [LangGraph](./langgraph.md) or Microsoft [Semantic Kernel](./semantic-kernel.md).
 
 ## Getting started
-Install the SDK and configure a basic agent with tools.
+Install the SDK and configure a basic agent with FastMCP 3.1 tools.
 
 ```bash
 pip install openai-agents pydantic>=2.0.0
@@ -59,7 +59,7 @@ weather_tool = Tool(
 agent = Agent(
     name="WeatherBot",
     model="gpt-5.5",
-    instructions="You are a weather assistant.",
+    instructions="You are a weather assistant utilizing FastMCP 3.1 tools.",
     tools=[weather_tool]
 )
 ```
@@ -99,7 +99,7 @@ class ToolDefinitionSchema(BaseModel):
     parameters_schema: Dict[str, Any] = Field(..., alias="parametersSchema", description="Zod or JSON schema of tool parameters")
 
 class ComputeConfigSchema(BaseModel):
-    model: str = Field("gpt-5.5", description="Target OpenAI model, e.g., gpt-5.5-preview or o5-mini")
+    model: str = Field("gpt-5.5", description="Target OpenAI model, e.g., gpt-5.5, gpt-5.6, or o5-mini")
     temperature: float = Field(0.1, ge=0.0, le=2.0)
     max_tokens: int = Field(2000, gt=0)
 
@@ -124,14 +124,14 @@ config_payload = """
 {
     "agentName": "ResearchHarnessAgent",
     "computeConfig": {
-        "model": "gpt-5.5-preview",
+        "model": "gpt-5.5",
         "temperature": 0.0,
         "max_tokens": 4096
     },
     "tools": [
         {
             "name": "fetch_mcp_docs",
-            "description": "Fetch MCP 3.1 specifications",
+            "description": "Fetch FastMCP 3.1 specifications",
             "parametersSchema": {
                 "type": "object",
                 "properties": {
@@ -168,7 +168,7 @@ researcher = Agent(name="Researcher", ...)
 writer = Agent(name="Writer", ...)
 
 orchestrator = Orchestrator(agents=[researcher, writer])
-final_report = orchestrator.run("Research and write a report on MCP 3.1 specifications.")
+final_report = orchestrator.run("Research and write a report on FastMCP 3.1 specifications.")
 ```
 
 ## Related tools / concepts
@@ -177,7 +177,7 @@ final_report = orchestrator.run("Research and write a report on MCP 3.1 specific
 - [CrewAI](./crewai.md) — Collaborative agent framework.
 - [Agency Swarm](../agents/agency-swarm.md) — Collaborative agents.
 - [Agentic Automation Canvas (AAC)](../agents/agentic-automation-canvas.md) — Design framework.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling (MCP 3.1 support).
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling (FastMCP 3.1 support).
 - [OpenHands](../development_ops/openhands.md) — Engineering agent.
 - [AutoGen](./autogen.md) — Conversational agent framework.
 
@@ -188,5 +188,5 @@ final_report = orchestrator.run("Research and write a report on MCP 3.1 specific
 - **Licensing**: Open-source SDK (MIT).
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
