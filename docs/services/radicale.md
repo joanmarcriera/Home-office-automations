@@ -3,13 +3,13 @@
 Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight, standards-compliant, and easy to set up.
 
 ## What it is
-Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. In late October / November 2026, the stable version is **v3.8.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward. It is a cornerstone of privacy-first personal information management.
+Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. In early January 2027, the stable version is **v3.8.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward. It is a cornerstone of privacy-first personal information management.
 
 ## What problem it solves
 It provides a private, self-hosted alternative to cloud-based synchronization services (like Google Calendar or iCloud). By using standard protocols, it allows for seamless syncing across a wide variety of devices and applications while keeping the user in full control of their scheduling and contact data, eliminating third-party tracking.
 
 ## Where it fits in the stack
-Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, or **Gemma 3** via the **MCP 3.1 Task Protocol** or FastMCP to allow AI agents to manage appointments and contacts using natural language and standardized execution patterns.
+Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Claude 5.1**, **Claude 5.6**, **GPT-5.5**, **GPT-5.6**, **Gemini 4.0 Pro/Ultra**, **DeepSeek-V4**, **Llama 4**, or **Gemma 3** via **FastMCP 3.1 Task Protocol** to allow AI agents to manage appointments and contacts using natural language and standardized execution patterns.
 
 ## Typical use cases
 - Syncing personal and family calendars across desktops (Thunderbird) and mobile devices (Android/iOS via DAVx⁵).
@@ -183,5 +183,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-08
+- Last reviewed: 2027-01-07
 - Confidence: high

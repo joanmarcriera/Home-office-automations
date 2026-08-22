@@ -1,7 +1,7 @@
 # Jackett
 
 ## What it is
-Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software. In late October / November 2026, it supports modern trackers while providing an MCP 3.1 and FastMCP bridge for autonomous media discovery by models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
+Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software. In early January 2027, it supports modern trackers while providing a FastMCP 3.1 bridge for autonomous media discovery by frontier models like **Claude 5.1**, **Claude 5.6**, **GPT-5.5**, **GPT-5.6**, **Gemini 4.0 Pro/Ultra**, and **Llama 4**.
 
 ## What problem it solves
 Tracker sites often have different search forms, authentication requirements (cookies, 2FA), and result formats. Jackett centralizes those differences behind a local API so media managers (Sonarr, Radarr, etc.) do not need custom logic for every tracker. It also provides a unified interface for manual searches across multiple providers.
@@ -21,7 +21,7 @@ Tracker sites often have different search forms, authentication requirements (co
 - **Standards compliance**: Exposes feeds in the widely adopted Torznab/Newznab format.
 - **Diagnostic UI**: Built-in testing tools to isolate credential or connectivity issues.
 - **Stability**: Mature project with a consistent release cycle and strong community backing.
-- **Agentic Bridge**: v2026.11+ features improved MCP 3.1 integration for seamless agent orchestration.
+- **Agentic Bridge**: Early 2027 features improved FastMCP 3.1 integration for seamless agent orchestration.
 
 ## Limitations
 - **Tracker fragility**: Changes to a tracker's HTML or bot protection can break individual indexers.
@@ -155,5 +155,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-08
+- Last reviewed: 2027-01-07
 - Confidence: high
