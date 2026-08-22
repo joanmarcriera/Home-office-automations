@@ -3,7 +3,7 @@
 Paperless-AI is a companion tool for Paperless-ngx that uses Artificial Intelligence to automate document tagging, correspondent detection, and metadata extraction.
 
 ## What it is
-Paperless-AI is a specialized automation layer designed to enhance [Paperless-ngx](paperless-ngx.md). It leverages Large Language Models (LLMs) to analyze document content semantically, providing a level of organization and insight that traditional rule-based systems cannot achieve. As of late October / November 2026, it features native integration with frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** for high-precision extraction and autonomous categorization via the **MCP 3.1 / FastMCP** Task Protocol.
+Paperless-AI is a specialized automation layer designed to enhance [Paperless-ngx](paperless-ngx.md). It leverages Large Language Models (LLMs) to analyze document content semantically, providing a level of organization and insight that traditional rule-based systems cannot achieve. As of early January 2027, it features native integration with frontier models including **Claude 5.1 / 5.6**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 3**, and **Qwen 3.8** for high-precision extraction and autonomous categorization via the **MCP 3.1 / FastMCP** Task Protocol.
 
 ## What problem it solves
 It eliminates the tedious manual work of organizing scanned documents. While Paperless-ngx has robust matching algorithms, they are often restricted to literal text matches or regex. Paperless-AI understands the context of a document, allowing it to accurately categorize "that weird invoice from the plumber" even if it doesn't follow a standard template, reducing administrative overhead.
@@ -72,14 +72,14 @@ services:
     restart: unless-stopped
 ```
 
-### AI Provider Configuration (November 2026)
+### AI Provider Configuration (Early January 2027)
 Paperless-AI supports multiple AI backends. For maximum privacy, a local setup is recommended, while cloud providers offer the highest extraction accuracy.
 
 | Provider | Note |
 | :--- | :--- |
-| **Ollama** | Best for home use. Supports Gemma 3, Qwen 3.6, and Llama 4 local extraction models. |
-| **Claude 5.1** | Recommended for complex, multi-page financial audits and legal reviews. |
-| **GPT-5.5** | High-speed, high-accuracy extraction with native autonomous capabilities. |
+| **Ollama** | Best for home use. Supports Gemma 3, Qwen 3.8, DeepSeek-V4, and Llama 4 local extraction models. |
+| **Claude 5.1 / 5.6** | Recommended for complex, multi-page financial audits and legal reviews. |
+| **GPT-5.5 / 5.6** | High-speed, high-accuracy extraction with native autonomous capabilities. |
 | **LM Studio** | Local desktop alternative. Useful for testing different quantization levels. |
 
 ## CLI examples
@@ -118,10 +118,10 @@ class PaperlessAIDocumentModel(BaseModel):
 # Example validation
 raw_extraction = {
     "document_id": 412,
-    "title": "Acrome Plumbing Service Invoice - Nov 2026",
+    "title": "Acrome Plumbing Service Invoice - Jan 2027",
     "correspondent": "Acrome Plumbing LLC",
     "tags": ["Invoice", "Utilities", "Maintenance"],
-    "document_date": "2026-11-06",
+    "document_date": "2027-01-07",
     "confidence": 0.98
 }
 
@@ -146,5 +146,5 @@ print(f"Validated Document: {doc.title} (Confidence: {doc.confidence * 100}%)")
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high
