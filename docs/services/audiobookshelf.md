@@ -3,7 +3,7 @@
 Audiobookshelf is a self-hosted audiobook and podcast server.
 
 ## What it is
-Audiobookshelf is a specialized media server designed specifically for the unique needs of spoken-word audio. Unlike general media servers like [Plex](plex.md) or [Jellyfin](jellyfin.md), it prioritizes chapter management, narrator metadata, and progress tracking for long-form audio. As of late October / November 2026, it supports automated narration analysis and semantic indexing via **MCP 3.1 / FastMCP**, allowing agents like **Gemma 3**, **Qwen 3.6**, and **Claude 5.1** to query library content and generate summaries.
+Audiobookshelf is a specialized media server designed specifically for the unique needs of spoken-word audio. Unlike general media servers like [Plex](plex.md) or [Jellyfin](jellyfin.md), it prioritizes chapter management, narrator metadata, and progress tracking for long-form audio. As of early January 2027, it supports automated narration analysis and semantic indexing via **MCP 3.1 / FastMCP**, allowing agents like **Gemma 3**, **Qwen 3.8**, **GPT-5.5**, and **Claude 5.1** to query library content and generate summaries.
 
 ## What problem it solves
 It solves the poor experience of managing audiobooks in music-centric applications. It handles multi-file books, detects chapters automatically from metadata or file structures, and provides a dedicated mobile interface for offline listening without losing your place.
@@ -44,7 +44,7 @@ In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits al
 ## Getting started
 
 ### Docker Compose
-The recommended way to run Audiobookshelf (v2.16.0+, late October / November 2026) for persistent configuration and easy updates:
+The recommended way to run Audiobookshelf (v2.16.0+, 2027 edition) for persistent configuration and easy updates:
 
 ```yaml
 services:
@@ -142,5 +142,5 @@ print(f"Progress: {audiobook.progress * 100:.1f}% complete ({audiobook.duration 
 - [Audiobookshelf MCP Server GitHub](https://github.com/advplyr/mcp-server-audiobookshelf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high

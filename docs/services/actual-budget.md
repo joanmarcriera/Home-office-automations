@@ -1,6 +1,6 @@
 # Actual Budget
 
-Actual is a local-first personal finance tool, a 100% free and open-source application. Since the **v26.11.0 (late October / November 2026)** release, it features enhanced multi-user orchestration and native support for the **Model Context Protocol (MCP) 3.1 / FastMCP** standard.
+Actual is a local-first personal finance tool, a 100% free and open-source application. As of early January 2027, it features enhanced multi-user orchestration and native support for the **Model Context Protocol (MCP) 3.1 / FastMCP** standard across distributed agent harnesses.
 
 ## What it is
 Actual is a privacy-focused personal finance manager that uses a local-first architecture. It provides a robust, fast interface for budgeting, transaction tracking, and account management, originally developed as a commercial product before being open-sourced. It relies on a local SQLite database for performance and privacy, with optional end-to-end encrypted synchronization.
@@ -15,7 +15,7 @@ In a home-automation stack, Actual serves as the **Financial Intelligence Layer*
 - **Zero-Based Budgeting**: Implementing the "Give Every Dollar a Job" philosophy.
 - **Privacy-First Finance**: Managing sensitive financial data without uploading it to a third-party cloud.
 - **Multi-Device Syncing**: Keeping budget data in sync between a desktop and mobile device via a self-hosted synchronization server.
-- **Agentic Auditing**: Using [Claude 5.1](../tools/providers/anthropic.md) or [Gemma 3](../tools/ai_knowledge/local_llms.md) to analyze transaction patterns via the Actual MCP 3.1 server.
+- **Agentic Auditing**: Using [Claude 5.1](../tools/providers/anthropic.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Gemma 3](../tools/ai_knowledge/local_llms.md) to analyze transaction patterns via the Actual FastMCP 3.1 server.
 
 ## Strengths
 - **Local-First Performance**: Extremely fast UI because all data is stored locally.
@@ -151,5 +151,5 @@ curl -X POST "http://localhost:5006/api/v1/accounts/YOUR_ACCOUNT_ID/sync" \
 - [GoCardless API Documentation](https://developer.gocardless.com/bank-account-data/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high
