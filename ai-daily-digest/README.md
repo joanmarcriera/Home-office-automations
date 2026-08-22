@@ -1,5 +1,68 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-22
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Qwen 3.8 27B Dominance**: The local LLM community is reporting massive performance gains with the new Qwen 3.8 27B, particularly in agentic coding and reasoning, even at low quantization levels.
+* 📌 **NVIDIA AVO Breakthrough**: NVIDIA's Agentic Variation Operators (AVO) achieved a perfect 100% score on the ARC-AGI-3 benchmark, significantly boosting Claude Opus 5's baseline performance.
+* 🛠️ **Infrastructure Shifts**: Major updates to local inference tools with `llama.cpp` v0.2.0 and the release of the DeepSeek Harness v0.1.1.
+* 🏢 **Enterprise AI Adoption**: Cloudflare is aggressively integrating AI agents into their engineering lifecycle, reducing GitHub issues by 85% and automating standard enforcement.
+
+---
+
+## 🚀 Models & Releases
+
+### Qwen 3.8 27B Ecosystem
+The community is currently obsessed with the **Qwen 3.8 27B** model, noting it as a significant leap over the 3.6 and 3.7 versions.
+* **Performance**: Users report it is a "beast" at agentic coding, with some achieving high speeds (60-63 tok/s) on dual RTX 3090/3060 setups. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vuotqr/qwen3827b_q6_is_a_beast_at_agentic_coding/)
+* **Quantization**: Reports indicate the model remains strong even at **Q3_xxs** and **3-bit quants**, outperforming larger previous models in one-shot coding tasks. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vugryn/qwen_38_27b_is_strong_even_at_q3_xxs/)
+* **Optimization**: A new **NVFP4 quant** for Blackwell hardware claims to run 50% faster than standard Q4 quants. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vub9od/fastest_nvfp4_quant_of_qwen38_27b_out_there/)
+* **Tuning**: The `preserve_thinking` parameter is highlighted as key to preventing the model from looping through the same reasoning steps. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vulsom/qwen_38_vs_36_27b_low_reasoning_loops_way_less_now/)
+
+### Other Notable Models
+* **dots3-note**: A new 280B MoE (16B active) model supporting 512K context and multimodal (text, image, video, audio) inputs has been added to `llama.cpp`. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vunrrp/model_add_dots3note_by_ngxson_pull_request_27060/)
+* **FireRedAudio & FireRedTTS3**: New general-purpose audio language models for understanding and generation. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vukj3m/fireredaudio_fireredtts3_by_fireredteam/)
+* **DeepSeek-V4-Flash-Vision-Exp**: A new multimodal visual understanding model now integrated into the DeepSeek Harness. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vubb20/deepseekv4flashvisionexp/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Local Inference & Frameworks
+* **llama.cpp v0.2.0**: A major new version has been released. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vv4mei/llamacpp_version_020_is_out/)
+* **DeepSeek Harness v0.1.1**: Now supports the V4-Flash-Vision model and native image requests via commands like `/goal` and `/plan`. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vugyfe/deepseek_harness_v011_released/)
+* **NInfer-Sharp**: A fork of the NInfer engine that implements "Sharp" chat templates in C++ to make Qwen models more terse without losing accuracy. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vv3b6o/sharp_template_to_ninfer_42_output_tokens_same/)
+
+### Agentic Workflows
+* **Spline V2**: The 3D editor has been rebuilt to allow external coding agents (like Claude Code) to work directly within the editor. [Source: The New Stack](https://thenewstack.io/spline-v2-mcp-agents/)
+* **Azure DevOps Remote MCP**: Now Generally Available (GA), though it currently lacks support for Claude, ChatGPT, and Cursor due to Entra registration limitations. [Source: InfoQ](https://www.infoq.com/news/2026/08/azure-devops-remote-mcp-ga/)
+* **Browser Use**: Anthropic launched a "Browser Use" tool, though reports note it provides a structured view of pages rather than running a full headless browser. [Source: The New Stack](https://thenewstack.io/anthropic-browser-use-tool/)
+
+---
+
+## 🔬 Research & Benchmarks
+
+* 🔥 **ARC-AGI-3**: NVIDIA's **AVO (Agentic Variation Operators)** system achieved 100% on this benchmark. Notably, Claude Opus 5 scored only 30% on its own, but hit 100% when wrapped in AVO. [Source: The New Stack](https://thenewstack.io/nvidia-avo-arcagi3-benchmark/)
+* **Refactoring Benchmarks**: New research suggests AI coding agents still struggle with large-scale refactoring, with the best models only achieving a 41.2% resolve rate. [Source: The New Stack](https://thenewstack.io/ai-agents-refactoring-benchmarks/)
+* **ASR Optimization**: Hugging Face published a new guide on measuring benchmark optimization in speech recognition. [Source: Hugging Face](https://huggingface.co/blog/asr-benchmark-optimization)
+* **Simulation Scaling**: Simile AI discusses "Simulation" as the new scaling law, moving toward creating billions of digital twins. [Source: Latent Space](https://www.latent.space/p/simile)
+
+---
+
+## 🏢 Industry News
+
+* **Cloudflare's AI Integration**: 
+    * Used AI agents to reduce Astro GitHub issues by 85%. [Source: InfoQ](https://www.infoq.com/news/2026/08/cloudflare-astro-ai-agents/)
+    * Transformed engineering standards into an AI-enforced control system. [Source: InfoQ](https://www.infoq.com/news/2026/08/cloudflare-ai-enforcement/)
+* **Anthropic Security**: Mythos 5 has been integrated into the Claude Security vulnerability scanner for enterprise codebases. [Source: The New Stack](https://thenewstack.io/anthropic-mythos-claude-security/)
+* **Google DeepMind**: Released a retrospective on 15 years of AI in games, from Atari to EVE Online. [Source: DeepMind](https://deepmind.google/blog/from-atari-to-eve-online-building-on-15-years-of-ai-research-in-games/)
+* **The "Router Wars"**: Analysis of how companies like Stripe and Ramp are competing in the AI model routing space. [Source: The New Stack](https://thenewstack.io/stripe-ramp-openrouter-router/)
+
+---
+
+
 ## 📅 Digest for 2026-08-21
 
 # AI & Technology Daily Digest
