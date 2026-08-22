@@ -3,7 +3,7 @@
 Plex is a global streaming media service and a media player platform that organizes your video, music, and photos from your personal libraries and streams them to all your devices.
 
 ## What it is
-Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **late October / November 2026**, it continues to be a widely-used option for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player. Plex supports **MCP 3.1** / **FastMCP 3.1** via agentic bridges, allowing frontier models to query library states, monitor real-time playback bandwidth, and initiate media triggers across local and remote nodes.
+Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **early January 2027**, it continues to be a widely-used option for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player. Plex supports **MCP 3.1** / **FastMCP 3.1** via agentic bridges, allowing frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) to query library states, monitor real-time playback bandwidth, and initiate media triggers across local and remote nodes.
 
 ## What problem it solves
 It centralizes fragmented media collections (movies, TV shows, music, photos) and ensures they are playable on any device, anywhere in the world. It automatically fetches posters, metadata, and subtitles, handles on-the-fly video transcoding for low-bandwidth connections, and provides secure sharing capabilities for friends and family, eliminating the complexity of manual file management and format conversion.
@@ -88,7 +88,7 @@ docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --s
 Integrate Plex metadata retrieval and playback status into Python scripts or FastMCP 3.1 servers.
 
 ### Python: FastMCP 3.1 Server for Active Sessions Monitoring
-This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to query active media streams and transcoding states. It allows models like **Claude 5.1** and **GPT-5.5** to dynamically monitor home streaming traffic.
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to query active media streams and transcoding states. It allows models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to dynamically monitor home streaming traffic.
 
 ```python
 from plexapi.server import PlexServer
@@ -159,7 +159,6 @@ if __name__ == "__main__":
 - [n8n](n8n.md) — For automating media ingestion notifications.
 - [Tailscale](tailscale.md) — For secure, private remote access without using Plex Relay.
 - [Immich](immich.md) — High-performance photo management alternative.
-- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for natural language media selection via **MCP 3.1**.
 - [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata and collection automation.
 
 ## Sources / References
@@ -168,5 +167,5 @@ if __name__ == "__main__":
 - [LinuxServer Plex Docker Image](https://docs.linuxserver.io/images/docker-plex/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-10
+- Last reviewed: 2027-01-07
 - Confidence: high
