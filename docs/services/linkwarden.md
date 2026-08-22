@@ -1,45 +1,45 @@
 # Linkwarden
 
 ## What it is
-Linkwarden is an open-source collaborative bookmark manager designed to archive, organize, and collaborate on webpages. It captures a permanent snapshot (screenshot and PDF) of each bookmarked page, ensuring the information remains accessible even if the original website goes offline or changes. In the late October / November 2026 ecosystem, it serves as a critical archival layer for multimodal AI agents.
+Linkwarden is an open-source collaborative bookmark manager and web archival engine designed to capture, organize, and archive web resources. For every saved URL, Linkwarden generates a permanent, offline snapshot (including full-page PNG screenshots, searchable PDFs, and extracted Markdown text). In the early January 2027 ecosystem, it serves as a critical cold-storage and RAG context ingestion layer for multimodal AI agents.
 
 ## What problem it solves
-Web content is highly ephemeral; "link rot" renders traditional bookmarking ineffective for long-term research. Linkwarden solves this by creating a self-hosted, searchable archive. By late 2026, it also addresses the "AI context rot" problem, providing stable, versioned snapshots that frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** agents can use for consistent retrieval without worrying about live site changes, paywalls, or anti-bot measures.
+Web content suffers from high ephemerality; "link rot" and content mutations render traditional bookmarking unreliable for research and compliance. Linkwarden solves this by establishing a self-hosted, searchable archive. In early 2027, it directly solves the "AI context drift" problem by providing stable, immutably versioned web snapshots that frontier models (**Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4**) can use for deterministic RAG retrieval without risking dynamic paywalls or anti-bot blocks.
 
 ## Where it fits in the stack
-**Category**: Service / Knowledge Management. It sits in the **information capture and archival** layer. It acts as the "Cold Storage" for web knowledge, feeding into RAG pipelines via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** servers.
+**Category**: Service / Knowledge Management. It sits in the **information capture and archival** layer. It functions as the "Cold Storage Archive" for web content, feeding cleaned context into vector databases and agent pipelines via **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** servers.
 
 ## Typical use cases
-- **Multimodal Research Archival**: Using **Gemma 3** or **Claude 5.1**'s vision capabilities to analyze and summarize archived screenshots directly within Linkwarden.
-- **Agentic Knowledge Intake**: Autonomous agents saving relevant documentation during a task to ensure a persistent trail of sources.
-- **Team Collaboration**: Sharing curated, archived collections of technical papers or market research in a private environment.
-- **Automated Archival Triggers**: Using **MCP 3.1 Task Protocol** to automatically trigger Linkwarden archival when a new high-signal URL is detected in a chat or RSS feed.
+- **Multimodal Research Ingestion**: Feeding archived full-page screenshots into vision models (**Gemini 4.0 Ultra**, **Llama 4 Vision**) for visual UI evaluation or document summarization.
+- **Autonomous Agent Context Archival**: Enabling autonomous agents to automatically capture source URLs during research sessions to maintain auditable provenance.
+- **Collaborative Research Repositories**: Sharing curated, archived collections of technical papers, RFCs, or API reference guides across teams with strict data sovereignty.
+- **Automated Trigger Archival**: Utilizing **FastMCP 3.1** task tools to trigger instant link preservation when high-signal links appear in RSS feeds or [n8n](n8n.md) workflows.
 
 ## Strengths
-- **Automatic Multi-Format Snapshots**: Generates PNG, PDF, and simplified Markdown (via **FastMCP 3.1** integration) for every link.
-- **Gemma 3 / Qwen 3.6 Integration**: Native support for running local vision models against archived snapshots for automated tagging.
-- **v2.18+ Performance**: Utilizes Next.js 16 and React 20 for near-instant rendering and optimistic state updates.
-- **Self-Hosted Privacy**: Ensures that sensitive research data never leaves your infrastructure.
+- **Automatic Multi-Format Snapshots**: Generates PNG, PDF, and clean Readability Markdown files for every saved link via background worker queues.
+- **Local Vision Model Tagging**: Built-in support for analyzing screenshots using local vision models hosted in [Ollama](ollama.md) (**Gemma 3**, **Qwen 3.8**) for automatic tag classification.
+- **v2.20+ Modern Stack**: Powered by Next.js 17+ and React 20, providing optimistic UI updates and fast rendering performance.
+- **100% Self-Hosted Sovereignty**: Ensures sensitive web research assets remain completely under local control.
 
 ## Limitations
-- **Storage Growth**: High-fidelity snapshots can consume significant disk space over time; requires active volume management.
-- **Processing Overhead**: Generating snapshots and running local vision models for tagging requires robust CPU/GPU resources.
-- **Dynamic Content**: Highly complex SPAs with heavy animation may still present challenges for static PDF/PNG snapshots.
+- **Storage Consumption**: High-resolution PNG and PDF captures can consume substantial volume storage over time, requiring active retention policies.
+- **Worker CPU Overhead**: Playwright/Puppeteer background screenshot rendering and local vision model inference require multi-core CPU/GPU resources.
+- **Complex SPA Hydration**: Highly complex single-page applications with aggressive lazy-loading may require custom headless browser waiting flags.
 
 ## When to use it
-- When you need a permanent, privacy-first archive of web content for research or legal compliance.
-- For managing shared knowledge bases where source integrity is paramount.
-- When building AI agents that require "frozen" snapshots of the web to prevent hallucinations caused by content drift.
+- When you require a permanent, privacy-first web archive for technical research, legal auditing, or AI context preservation.
+- For managing shared knowledge repositories where source site longevity cannot be guaranteed.
+- When building RAG pipelines that depend on static, non-shifting web snapshots to avoid hallucinations.
 
 ## When not to use it
-- For ephemeral links that do not require long-term archival.
-- If server resources (CPU/Disk) are extremely constrained.
-- For managing structured relational data (use [Actual Budget](actual-budget.md) or [Homebox](homebox.md) instead).
+- For temporary or ephemeral URLs that do not require long-term archival storage.
+- If host server storage or compute capacity is severely limited.
+- For managing pure relational data (use [Actual Budget](actual-budget.md) or [Homebox](homebox.md) instead).
 
 ## Getting started
 
 ### Installation (Docker Compose)
-Recommended deployment using the latest late 2026 stable images.
+Recommended deployment path for early 2027 environments using stable container releases:
 
 ```yaml
 services:
@@ -48,13 +48,13 @@ services:
     container_name: linkwarden
     restart: always
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://linkwarden:password@postgres:5432/linkwarden
-      - NEXTAUTH_SECRET=use-a-secure-random-string
+      - NEXTAUTH_SECRET=use-a-secure-random-secret-key-2027
       - NEXTAUTH_URL=http://localhost:3000
       - STORAGE_FOLDER=/data/data
-      - MCP_ENABLED=true # Enable MCP 3.1 endpoint
+      - LW_MCP_ENABLED=true # Enable FastMCP 3.1 integration
     volumes:
       - ./data:/data/data
     depends_on:
@@ -62,6 +62,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
+    container_name: linkwarden_postgres
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=linkwarden
@@ -72,55 +73,61 @@ services:
 
 ## CLI examples
 
-### Asset Maintenance
-Managing the archival storage volume.
+### Storage Maintenance
+Inspect and manage the Linkwarden archival storage directory:
 
 ```bash
-# Check storage consumption by collection
+# Check storage volume consumption breakdown
 docker exec linkwarden du -sh /data/data/*
 
-# Force a snapshot regeneration for a specific ID
+# Retry snapshot generation for a specific bookmark ID
 docker exec linkwarden npm run archive:retry --id=123
 ```
 
 ### Database Operations
 ```bash
-# Export the database for migration or backup
-docker exec -t postgres pg_dump -U linkwarden linkwarden > linkwarden_nov_2026.sql
+# Dump the PostgreSQL database for backup or migration
+docker exec -t linkwarden_postgres pg_dump -U linkwarden linkwarden > linkwarden_backup_2027.sql
 ```
 
 ## API examples
 
-### FastMCP 3.1 Tool Definition (TypeScript)
-Exposing Linkwarden archival as a tool for AI agents.
+### FastMCP 3.1 Archival Tool (TypeScript)
+Exposing Linkwarden link archival as a tool for FastMCP 3.1 agentic workflows.
 
 ```typescript
 import { FastMCP } from 'fastmcp';
 
-const mcp = new FastMCP("linkwarden-archiver");
+const mcp = new FastMCP({
+  name: "linkwarden-archiver",
+  version: "3.1.0"
+});
 
 mcp.addTool({
   name: "archive_url",
-  description: "Save a URL to Linkwarden and generate a snapshot",
+  description: "Save a URL to Linkwarden and generate PDF/PNG snapshots",
   parameters: {
-    url: { type: "string", description: "The URL to archive" },
+    url: { type: "string", description: "Target URL to archive" },
     collectionId: { type: "number", description: "Target collection ID" }
   },
   execute: async ({ url, collectionId }) => {
-    const res = await fetch("http://linkwarden:3000/api/v1/links", {
+    const res = await fetch("http://localhost:3000/api/v1/links", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${process.env.LW_API_KEY}`, "Content-Type": "application/json" },
+      headers: {
+        "Authorization": `Bearer ${process.env.LW_API_KEY}`,
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ url, collectionId })
     });
     return res.json();
   }
 });
 
-mcp.serve();
+mcp.start();
 ```
 
-### Fetching Snapshots (Python)
-Programmatic Python script for retrieving and validating Linkwarden archived snapshot metadata using **Pydantic v2** validation.
+### Fetching Snapshot Metadata (Python with Pydantic v2)
+Programmatic Python script for retrieving and validating Linkwarden snapshot metadata using **Pydantic v2**.
 
 ```python
 import os
@@ -128,7 +135,6 @@ from typing import Optional
 import requests
 from pydantic import BaseModel, Field, HttpUrl
 
-# Pydantic v2 schemas for validating Linkwarden API payloads
 class SnapshotDetails(BaseModel):
     pdf_path: Optional[str] = Field(None, alias="pdfPath")
     screenshot_path: Optional[str] = Field(None, alias="screenshotPath")
@@ -147,7 +153,7 @@ def get_snapshot_metadata(link_id: int) -> LinkwardenLinkResponse:
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-    response = requests.get(f"http://linkwarden:3000/api/v1/links/{link_id}", headers=headers)
+    response = requests.get(f"http://localhost:3000/api/v1/links/{link_id}", headers=headers, timeout=10)
     response.raise_for_status()
 
     # Parse and validate response directly using Pydantic v2 model_validate
@@ -157,28 +163,27 @@ def get_snapshot_metadata(link_id: int) -> LinkwardenLinkResponse:
 if __name__ == "__main__":
     try:
         link_info = get_snapshot_metadata(456)
-        print(f"Validated Document Title: {link_info.title}")
+        print(f"Validated Bookmark Title: {link_info.title}")
         print(f"Archived PDF Path: {link_info.preserve_details.pdf_path}")
     except Exception as e:
         print(f"Validation failed: {e}")
 ```
 
 ## Related tools / concepts
-- [SearXNG](searXNG.md) — Primary discovery engine for content to be archived in Linkwarden.
-- [Changedetection.io](changedetection.md) — For monitoring the live versions of archived pages.
-- [Paperless-ngx](paperless-ngx.md) — For advanced OCR and management of exported Linkwarden PDFs.
-- [Ollama](ollama.md) — Local model engine hosting Gemma 3 and Qwen 3.6 for analyzing Linkwarden snapshots.
-- [MCP](../tools/automation_orchestration/mcp-registry.md) — Registry of servers connecting Linkwarden to agentic workflows.
-- [Nextcloud](nextcloud.md) — For redundant backup of Linkwarden's storage volume.
-- [Authentik](authentik.md) — SSO provider for secure collaborative access.
-- [Home Assistant](home-assistant.md) — For dashboard notifications when new research is archived.
+- [SearXNG](searXNG.md) — Primary privacy-focused search engine feeding discovery URLs into Linkwarden.
+- [Changedetection.io](changedetection.md) — For tracking real-time web page updates before triggering Linkwarden re-indexing.
+- [Paperless-ngx](paperless-ngx.md) — For long-term OCR and metadata management of exported Linkwarden PDFs.
+- [Ollama](ollama.md) — Local model host for running vision and extraction models against web snapshots.
+- [MCP](../tools/automation_orchestration/mcp-registry.md) — Registry of servers connecting Linkwarden to agentic loops.
+- [Authentik](authentik.md) — Single sign-on provider for collaborative web archival access.
+- [Home Assistant](home-assistant.md) — For sending notifications when critical web research is archived.
 
 ## Sources / references
-- [Official Website](https://linkwarden.app/)
-- [GitHub Repository](https://github.com/linkwarden/linkwarden)
-- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
+- [Official Linkwarden Website](https://linkwarden.app/)
+- [Linkwarden GitHub Repository](https://github.com/linkwarden/linkwarden)
+- [FastMCP Framework](https://github.com/jlowin/fastmcp)
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-07
+- Last reviewed: 2027-01-07
 - Confidence: high
