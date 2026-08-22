@@ -4,14 +4,14 @@
 Vercel is a cloud platform for deploying frontend websites and web applications, optimized for modern React, Next.js 17+, and agentic streaming architectures with AI-native infrastructure. It provides a seamless transition from code to a globally distributed, high-performance production environment with native support for Edge Functions and AI-native workflows.
 
 ## What problem it solves
-It eliminates the operational complexity of publishing and scaling modern web apps. Vercel automates SSL, CI/CD, global routing, and cache invalidation, allowing developers to focus on product logic. In the era of **Claude 5.1**, **GPT-5.5**, and **Gemma 3**, it solves the challenge of low-latency token streaming through its optimized Edge Network.
+It eliminates the operational complexity of publishing and scaling modern web apps. Vercel automates SSL, CI/CD, global routing, and cache invalidation, allowing developers to focus on product logic. In early 2027, with **Claude 5.1 / 5.6**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, and **Gemma 3**, it solves the challenge of low-latency token streaming through its optimized Edge Network.
 
 ## Where it fits in the stack
 **Development & Ops / Frontend Hosting Platform**. It is the primary deployment layer for frontend-heavy applications and AI demos, sitting above infrastructure providers (AWS/GCP) to provide a specialized, developer-first experience.
 
 ## Typical use cases
-- **AI-Native Web Apps**: Hosting chat interfaces and agentic dashboards using the [Vercel AI SDK 6.x](vercel-oss.md) and **MCP 3.1 Task Protocol**.
-- **Edge-First Applications**: Running logic at the edge for sub-100ms response times globally.
+- **AI-Native Web Apps**: Hosting chat interfaces and agentic dashboards using the [Vercel AI SDK 6.x / 7.x](vercel-oss.md) and **MCP 3.1 Task Protocol**.
+- **Edge-First Applications**: Running logic at the edge for sub-100ms response times globally via FastMCP 3.1.
 - **Rapid Prototyping**: Going from a local `git push` to a production-ready preview URL in seconds.
 - **Enterprise Frontends**: Scaling Next.js applications with built-in observability and performance monitoring.
 
@@ -19,7 +19,7 @@ It eliminates the operational complexity of publishing and scaling modern web ap
 - **Global Edge Network**: Minimizes TTFB (Time to First Byte) by serving content from over 100 locations.
 - **Git-Integrated Workflow**: Automatic preview deployments for every Pull Request.
 - **First-Class Next.js Support**: The creators of Next.js, offering the most optimized hosting environment for the framework.
-- **Vercel AI SDK Integration**: Native support for streaming responses from frontier models like Claude 5.1 and GPT-5.5.
+- **Vercel AI SDK Integration**: Native support for streaming responses from frontier models like Claude 5.6 and GPT-5.6.
 
 ## Limitations
 - **Serverless Constraints**: Not suitable for long-running processes (over 30s) or heavy background compute.
@@ -88,7 +88,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   // Add custom headers for AI agent tracking
   const response = NextResponse.next();
-  response.headers.set('x-agent-id', 'claude-5-1-sonnet');
+  response.headers.set('x-agent-id', 'claude-5-6-sonnet');
   return response;
 }
 ```
@@ -165,5 +165,5 @@ validated_deployment = validate_vercel_deployment(api_response)
 - [Vercel API Reference](https://vercel.com/docs/rest-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

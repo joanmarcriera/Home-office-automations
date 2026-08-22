@@ -1,17 +1,17 @@
 # OpenAI Agents SDK
 
 ## What it is
-The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By late October / November 2026, it has become a standard for deploying high-autonomy agents, often compared against **Gemma 3** based agentic workflows for cross-platform versatility and multi-model routing.
+The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. In early 2027, it serves as a primary standard for deploying high-autonomy agents, often compared against **Gemma 3** and **DeepSeek-V4** based agentic workflows for cross-platform versatility and multi-model routing.
 
 ## What problem it solves
 It simplifies the process of creating agents that can use tools, maintain state, and perform complex multi-step tasks. By separating the harness from the compute, it enables better resource management, sandboxed execution, and multi-tenant scaling, solving the security and reliability challenges of early autonomous agent implementations.
 
 ## Where it fits in the stack
-**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O5 reasoning series**, while fully supporting the **MCP 3.1 Task Protocol** for standardized tool execution.
+**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5 / 5.6** and the **O5/O6 reasoning series**, while fully supporting the **MCP 3.1 Task Protocol** and **FastMCP 3.1** for standardized tool execution.
 
 ## Typical use cases
 - **Multi-step Reasoning**: Agents that need to perform a sequence of actions to reach a goal.
-- **Tool-augmented Generation**: Integrating external APIs and tools into the agentic loop.
+- **Tool-augmented Generation**: Integrating external APIs and FastMCP 3.1 tools into the agentic loop.
 - **Sandboxed Execution**: Running agent code in isolated environments for security.
 - **Heterogeneous Workflows**: Orchestrating different model sizes or providers within a single task harness.
 
@@ -20,10 +20,10 @@ It simplifies the process of creating agents that can use tools, maintain state,
 - **Native OpenAI Integration**: Designed to work seamlessly with the OpenAI platform and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) (MCP 3.1 specifications).
 - **Scalability**: Easier to manage multiple agents and concurrent tasks.
 - **Security-First**: Built-in support for sandboxing and permission management.
-- **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O5 series**.
+- **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O5 / O6 series**.
 
 ## Limitations
-- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 and Qwen 3.6 integrations are emerging via third-party bridges.
+- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 and DeepSeek-V4 integrations are emerging via third-party bridges.
 - **Complexity**: The harness/compute separation adds a layer of abstraction that may be unnecessary for simple tasks.
 - **Ecosystem Maturity**: While standard, it requires deep integration with specific OpenAI API features.
 
@@ -40,7 +40,7 @@ It simplifies the process of creating agents that can use tools, maintain state,
 Install the SDK and configure a basic agent with tools.
 
 ```bash
-pip install openai-agents pydantic>=2.0.0
+pip install openai-agents "pydantic>=2.0.0"
 ```
 
 ### Basic Agent Configuration
@@ -58,7 +58,7 @@ weather_tool = Tool(
 
 agent = Agent(
     name="WeatherBot",
-    model="gpt-5.5",
+    model="gpt-5.6",
     instructions="You are a weather assistant.",
     tools=[weather_tool]
 )
@@ -99,7 +99,7 @@ class ToolDefinitionSchema(BaseModel):
     parameters_schema: Dict[str, Any] = Field(..., alias="parametersSchema", description="Zod or JSON schema of tool parameters")
 
 class ComputeConfigSchema(BaseModel):
-    model: str = Field("gpt-5.5", description="Target OpenAI model, e.g., gpt-5.5-preview or o5-mini")
+    model: str = Field("gpt-5.6", description="Target OpenAI model, e.g., gpt-5.6 or o6-mini")
     temperature: float = Field(0.1, ge=0.0, le=2.0)
     max_tokens: int = Field(2000, gt=0)
 
@@ -119,19 +119,19 @@ def validate_and_launch_harness(raw_json: str) -> Optional[AgentHarnessSchema]:
         print(f"Harness configuration is invalid: {e.errors()}")
         return None
 
-# Validating a GPT-5.5 high autonomy agent configuration
+# Validating a GPT-5.6 high autonomy agent configuration
 config_payload = """
 {
     "agentName": "ResearchHarnessAgent",
     "computeConfig": {
-        "model": "gpt-5.5-preview",
+        "model": "gpt-5.6",
         "temperature": 0.0,
         "max_tokens": 4096
     },
     "tools": [
         {
             "name": "fetch_mcp_docs",
-            "description": "Fetch MCP 3.1 specifications",
+            "description": "Fetch FastMCP 3.1 specifications",
             "parametersSchema": {
                 "type": "object",
                 "properties": {
@@ -168,7 +168,7 @@ researcher = Agent(name="Researcher", ...)
 writer = Agent(name="Writer", ...)
 
 orchestrator = Orchestrator(agents=[researcher, writer])
-final_report = orchestrator.run("Research and write a report on MCP 3.1 specifications.")
+final_report = orchestrator.run("Research and write a report on FastMCP 3.1 specifications.")
 ```
 
 ## Related tools / concepts
@@ -177,7 +177,7 @@ final_report = orchestrator.run("Research and write a report on MCP 3.1 specific
 - [CrewAI](./crewai.md) — Collaborative agent framework.
 - [Agency Swarm](../agents/agency-swarm.md) — Collaborative agents.
 - [Agentic Automation Canvas (AAC)](../agents/agentic-automation-canvas.md) — Design framework.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling (MCP 3.1 support).
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling (FastMCP 3.1 support).
 - [OpenHands](../development_ops/openhands.md) — Engineering agent.
 - [AutoGen](./autogen.md) — Conversational agent framework.
 
@@ -188,5 +188,5 @@ final_report = orchestrator.run("Research and write a report on MCP 3.1 specific
 - **Licensing**: Open-source SDK (MIT).
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

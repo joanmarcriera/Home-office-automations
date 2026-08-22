@@ -1,18 +1,18 @@
 # Sentry
 
 ## What it is
-Sentry is an open-source error tracking and performance monitoring platform that helps developers see what matters and solve problems faster. As of late October / November 2026, it has evolved into an AI-native observability suite, offering deep integration with frontier models and autonomous agent workflows.
+Sentry is an open-source error tracking and performance monitoring platform that helps developers see what matters and solve problems faster. In early 2027, it operates as an AI-native observability suite, offering deep integration with frontier models and autonomous agent workflows powered by FastMCP 3.1.
 
 ## What problem it solves
-It provides real-time visibility into application errors and performance bottlenecks. It captures crashes, exceptions, and slow transactions, providing the context (stack traces, breadcrumbs, user data) needed to fix bugs quickly. In agentic systems, it specifically addresses the "black box" nature of LLM reasoning by capturing tool-call failures and trace telemetry.
+It provides real-time visibility into application errors and performance bottlenecks. It captures crashes, exceptions, and slow transactions, providing the context (stack traces, breadcrumbs, user data) needed to fix bugs quickly. In agentic systems, it specifically addresses the "black box" nature of LLM reasoning by capturing tool-call failures, latency spikes, and trace telemetry across multi-agent networks.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Error Tracking. It acts as the "safety net" for the application layer, monitoring both traditional code execution and modern AI-agent reasoning loops.
 
 ## Typical use cases
-- **Frontier Model Observability**: Monitoring reasoning traces and API errors for Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6 integrations.
+- **Frontier Model Observability**: Monitoring reasoning traces and API errors for Claude 5.1 / 5.6, GPT-5.5 / 5.6, Gemini 4.0 Pro / Ultra, Llama 4, Gemma 3, and DeepSeek-V4 integrations.
 - **AI-Powered Autofix**: Utilizing Sentry's native AI agents to automatically propose and apply code fixes for production exceptions via the **MCP 3.1 Task Protocol**.
-- **Performance Profiling**: Identifying bottlenecks in RAG pipelines and high-frequency tool-calling loops.
+- **Performance Profiling**: Identifying bottlenecks in RAG pipelines and high-frequency FastMCP 3.1 tool-calling loops.
 - **Crash Reporting**: Real-time error monitoring for multi-modal web and mobile applications with integrated session replay.
 
 ## Strengths
@@ -45,7 +45,7 @@ curl -sL https://sentry.io/get-cli/ | bash
 
 ### SDK Integration (Python)
 ```bash
-pip install --upgrade sentry-sdk
+pip install --upgrade "sentry-sdk>=2.0.0" "pydantic>=2.0.0"
 ```
 
 ## CLI examples
@@ -68,7 +68,7 @@ sentry-cli releases new -p <PROJECT_NAME> <VERSION_NUMBER>
 ## API examples
 
 ### Python SDK with AI Monitoring and Pydantic v2 Ingest Validation
-In late October / November 2026, observability platforms ingest telemetry structured by strict schemas. Below is an example of structured telemetry mapping to Sentry's API model using Pydantic v2.
+Structured telemetry mapping to Sentry's API model using Pydantic v2 and FastMCP 3.1 context:
 
 ```python
 import sentry_sdk
@@ -77,7 +77,7 @@ from pydantic import BaseModel, Field
 
 # Define Pydantic v2 models for custom telemetry payload validation
 class AgentMetadata(BaseModel):
-    model: str = Field(..., description="Frontier model name (e.g., claude-5.1-sonnet)")
+    model: str = Field(..., description="Frontier model name (e.g., claude-5.6-sonnet)")
     task_protocol: str = Field("mcp-3.1", description="Supported protocol version")
     step_count: int = Field(0, ge=0)
 
@@ -114,7 +114,7 @@ test_payload = {
     "event_message": "Agent tool-call timeout recorded in secondary RAG loop.",
     "severity": "warning",
     "agent_info": {
-        "model": "qwen-3.6-72b",
+        "model": "claude-5.6-sonnet",
         "task_protocol": "mcp-3.1",
         "step_count": 4
     },
@@ -143,8 +143,7 @@ report_agent_event(test_payload)
 - [Sentry Documentation](https://docs.sentry.io/)
 - [Sentry AI Autofix](https://sentry.io/features/autofix/)
 - [Sentry GitHub](https://github.com/getsentry/sentry)
-- [Observability in the Age of Agents (late October 2026)](https://sentry.engineering/blog/observability-agents-late-october-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

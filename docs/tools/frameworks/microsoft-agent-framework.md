@@ -1,7 +1,7 @@
 # Microsoft Agent Framework
 
 ## What it is
-Microsoft Agent Framework (integrated within **Azure AI Foundry** and the **Semantic Kernel** ecosystem) is an enterprise-grade suite of libraries and standards for building, orchestrating, and managing multi-agent AI systems. As of late October / November 2026, it serves as a primary backbone for deploying high-autonomy agents in corporate environments, supporting frontier models such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+Microsoft Agent Framework (integrated within **Azure AI Foundry** and the **Semantic Kernel** ecosystem) is an enterprise-grade suite of libraries and standards for building, orchestrating, and managing multi-agent AI systems. In early 2027, it serves as a primary backbone for deploying high-autonomy agents in corporate environments, supporting frontier models such as **Claude 5.1 / 5.6**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, **Llama 4**, **Gemma 3**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It simplifies the coordination of multiple LLM-powered agents, providing standardized protocols for communication (via Agent Chat), state management, and long-term memory. It addresses the challenges of "agentic drift," tool-use reliability, and cross-agent consistency that occur when scaling beyond single-prompt interactions in an enterprise context, now fully integrated with the **MCP 3.1 Task Protocol** for standardized, cross-platform task execution.
@@ -11,13 +11,13 @@ It simplifies the coordination of multiple LLM-powered agents, providing standar
 It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry, custom local inference) and the application layer, providing the "brain" and "memory" for autonomous workflows. It utilizes **FastMCP 3.1** for ultra-low latency tool hosting and agent discovery.
 
 ## Typical use cases
-- **Multi-agent Collaboration**: Building specialized teams (e.g., a "DevOps Agent" using Claude 5.1 and a "Quality Gate Agent" using Gemma 3) that cooperate on software delivery.
+- **Multi-agent Collaboration**: Building specialized teams (e.g., a "DevOps Agent" using Claude 5.6 and a "Quality Gate Agent" using Gemma 3) that cooperate on software delivery.
 - **Enterprise Research**: Orchestrating research agents that browse internal SharePoint data and external web signals simultaneously.
 - **Workflow Automation**: Automating complex, multi-step business processes with native human-in-the-loop (HITL) checkpoints.
-- **Legacy Integration**: Using Semantic Kernel "Plugins" to allow agents to safely execute actions against SAP, Salesforce, or custom SQL databases via MCP 3.1.
+- **Legacy Integration**: Using Semantic Kernel "Plugins" to allow agents to safely execute actions against SAP, Salesforce, or custom SQL databases via FastMCP 3.1.
 
 ## Strengths
-- **Azure AI Foundry Native**: Seamless integration with the latest model catalogs, including native support for Gemma 3 and Claude 5.1 on Azure.
+- **Azure AI Foundry Native**: Seamless integration with the latest model catalogs, including native support for Gemma 3, DeepSeek-V4, and Claude 5.6 on Azure.
 - **Enterprise Security**: Inherits Azure's robust identity (Entra ID), data residency, and compliance guardrails.
 - **Standardized State Management**: Features a sophisticated `AgentChat` protocol that handles conversation history and state persistence across different providers.
 - **MCP 3.1 Task Protocol**: Native support for standardized task representations, enabling flawless interoperability with a wide range of external tools.
@@ -29,7 +29,7 @@ It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry, cus
 
 ## When to use it
 - When building production-grade agents that require strict security, audit logs, and enterprise integration.
-- When you need a multi-agent system that leverages both OpenAI and Anthropic models through a unified interface (Azure AI Foundry).
+- When you need a multi-agent system that leverages both OpenAI, Anthropic, and open-weights models through a unified interface (Azure AI Foundry).
 - When you are developing in a .NET-heavy environment but want access to Python-native AI capabilities and MCP 3.1 toolsets.
 
 ## When not to use it
@@ -42,7 +42,7 @@ It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry, cus
 Install the core Azure AI agent, identity, and standard Pydantic v2 libraries:
 
 ```bash
-pip install azure-ai-projects azure-identity semantic-kernel pydantic>=2.0.0
+pip install azure-ai-projects azure-identity semantic-kernel "pydantic>=2.0.0"
 ```
 
 ### Usage (Hello World Agent - Python)
@@ -121,7 +121,7 @@ class AgentPluginConfig(BaseModel):
 
 class AgentDeploymentConfig(BaseModel):
     agent_name: str = Field(..., description="Display name of the agent")
-    model_name: str = Field(..., description="Frontier model targeting, e.g., Claude 5.1 or GPT-5.5")
+    model_name: str = Field(..., description="Frontier model targeting, e.g., Claude 5.6 or GPT-5.6")
     instructions: str = Field(..., description="System prompt instructions")
     plugins: List[AgentPluginConfig] = Field(default_factory=list, description="Associated plugins")
     mcp_version: str = Field("3.1", description="Model Context Protocol spec version")
@@ -140,8 +140,8 @@ def load_and_validate_agent(config_json: str) -> Optional[AgentDeploymentConfig]
 raw_config = """
 {
     "agent_name": "SeniorResearcher",
-    "model_name": "claude-5-1-sonnet",
-    "instructions": "Gather, synthesize, and audit latest research papers on MCP 3.1.",
+    "model_name": "claude-5-6-sonnet",
+    "instructions": "Gather, synthesize, and audit latest research papers on FastMCP 3.1.",
     "plugins": [
         {"plugin_name": "WebSearchPlugin", "allowed_methods": ["search_async"]}
     ],
@@ -169,5 +169,5 @@ validated_config = load_and_validate_agent(raw_config)
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.org/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

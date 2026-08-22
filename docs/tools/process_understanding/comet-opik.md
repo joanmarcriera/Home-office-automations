@@ -1,12 +1,12 @@
 # Comet Opik
 
-Comet Opik is an open-source platform designed for evaluating, testing, and monitoring LLM applications. In the late October / November 2026 landscape, Opik has become a cornerstone of the "Evaluation-Driven Development" (EDD) workflow, providing software engineers with a highly-performant, self-hostable alternative to proprietary observability suites for frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, and Gemini 4.0 using FastMCP 3.1.
+Comet Opik is an open-source platform designed for evaluating, testing, and monitoring LLM applications. In early 2027, Opik serves as a foundational component of the Evaluation-Driven Development (EDD) workflow, providing software engineers with a highly performant, self-hostable alternative to proprietary observability suites for frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1 / 5.6, GPT-5.5 / 5.6, Gemini 4.0 Pro / Ultra, and DeepSeek-V4 using FastMCP 3.1.
 
 ## What it is
-Opik is a purpose-built LLM observability tool focusing on distributed tracing, automated prompt evaluation, and evaluation dataset management. It allows developers to capture the detailed semantic behavior of their agents, score outputs using specialized LLM-as-a-judge patterns, and manage production logging datasets for continuous iteration. It is part of the broader Comet ML suite but operates as an independent, lightweight, self-contained library for LLM-centric systems, now featuring native **Model Context Protocol (MCP 3.1)** Task Protocol and FastMCP 3.1 support.
+Opik is a purpose-built LLM observability tool focusing on distributed tracing, automated prompt evaluation, and evaluation dataset management. It allows developers to capture detailed semantic behavior of their agents, score outputs using specialized LLM-as-a-judge patterns, and manage production logging datasets for continuous iteration. It is part of the broader Comet ML suite but operates as an independent, lightweight, self-contained library for LLM-centric systems, featuring native **Model Context Protocol (MCP 3.1)** Task Protocol and FastMCP 3.1 support.
 
 ## What problem it solves
-Opik bridges the gap between a prompt working once in a sandbox playground and it working reliably and safely at scale in production. It provides the core tracing infrastructure to catch regressions, quantify performance improvements across model upgrades (e.g., transitioning from Claude 4.8 to Claude 5.1), and debug nested agentic reasoning steps by visualizing the exact data flow between an agent and its tools via Agentic Session Orchestration.
+Opik bridges the gap between a prompt working once in a sandbox playground and it working reliably and safely at scale in production. It provides the core tracing infrastructure to catch regressions, quantify performance improvements across model upgrades (e.g., transitioning from Claude 5.1 to Claude 5.6 or GPT-5.5 to GPT-5.6), and debug nested agentic reasoning steps by visualizing the exact data flow between an agent and its tools via Agentic Session Orchestration.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Observability
@@ -14,7 +14,7 @@ Opik acts as the "Flight Recorder" for generative AI applications. It sits along
 
 ## Typical use cases
 - **Unit Testing for Prompts**: Running "Golden Sets" of evaluation datasets through system prompts and scoring them automatically in CI pipelines.
-- **Production Flight Recording**: Capturing every interaction with Claude 5.1, [Gemma 3](../ai_knowledge/local_llms.md), or Gemini 4.0 to identify failure modes and outlier inputs.
+- **Production Flight Recording**: Capturing every interaction with Claude 5.6, [Gemma 3](../ai_knowledge/local_llms.md), Gemini 4.0 Ultra, or DeepSeek-V4 to identify failure modes and outlier inputs.
 - **Experiment and Iteration Tracking**: Comparing multiple retrieval-augmented generation (RAG) strategies to determine which indexing method yields superior factual grounding.
 - **Robustness Red-Teaming**: Managing datasets of adversarial prompts and evaluating model safety/toxicity compliance.
 
@@ -40,10 +40,10 @@ Opik acts as the "Flight Recorder" for generative AI applications. It sits along
 
 ## Getting started
 
-Install the Opik SDK client and Pydantic:
+Install the Opik SDK client and Pydantic v2:
 
 ```bash
-pip install opik pydantic
+pip install opik "pydantic>=2.0.0"
 ```
 
 Configure your environment connection:
@@ -88,7 +88,7 @@ class EvaluationResult(BaseModel):
     test_case_id: str = Field(..., description="The ID of the tested evaluation case.")
     prompt_version: str = Field(..., description="Commit hash or version identifier of the prompt.")
     faithfulness_score: float = Field(..., ge=0.0, le=1.0, description="Evaluated factual grounding score.")
-    model_name: str = Field(default="claude-5.1-sonnet", description="Model evaluated.")
+    model_name: str = Field(default="claude-5.6-sonnet", description="Model evaluated.")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata matching MCP 3.1 context.")
 
 class AgentSpan(BaseModel):
@@ -121,9 +121,9 @@ async def run_evaluated_agent(task_query: str, eval_config: Dict[str, Any]) -> s
 # Execution Simulation
 mock_eval_config = {
     "test_case_id": "tc_0182_grounding",
-    "prompt_version": "v5.1.2-beta",
+    "prompt_version": "v5.6.1-beta",
     "faithfulness_score": 0.98,
-    "model_name": "claude-5.1-sonnet",
+    "model_name": "claude-5.6-sonnet",
     "metadata": {
         "fastmcp_active": True,
         "environment": "ci-pipeline"
@@ -150,5 +150,5 @@ asyncio.run(run_evaluated_agent("What are the core updates in FastMCP 3.1?", moc
 - [Model Context Protocol v3.1 Task Guidelines](https://modelcontextprotocol.io/specification)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high
