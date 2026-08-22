@@ -1,7 +1,7 @@
 # Homebox
 
 ## What it is
-Homebox is a lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it extremely easy to host, migrate, and backup. As of late October / November 2026, it is the primary choice for physical asset tracking in autonomous homelabs, featuring deep integration with [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) for automated inventory audits.
+Homebox is a lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it extremely easy to host, migrate, and backup. As of early January 2027, it is the primary choice for physical asset tracking in autonomous homelabs, featuring deep integration with [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) for automated inventory audits.
 
 ## What problem it solves
 It centralizes the tracking of household items, warranties, and insurance information, replacing disorganized spreadsheets or physical receipts with a searchable, location-aware digital catalog. It ensures you have a detailed record of your belongings for insurance claims or organizational purposes, and provides a machine-readable backend for AI agents to query.
@@ -13,13 +13,13 @@ It is a **Standalone Service** in the home automation stack, typically deployed 
 - **Insurance Documentation**: Tracking high-value electronics and collections with purchase dates and serial numbers.
 - **Organization**: Managing items stored in units, attics, or garages using a hierarchical location system.
 - **Warranty Management**: Storing expiration dates and digital receipts for household appliances.
-- **Agentic Asset Retrieval**: Using frontier models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) via [MCP](../tools/automation_orchestration/mcp.md) (MCP 3.1) to query the SQLite database and locate specific tools or parts for homelab maintenance tasks.
+- **Agentic Asset Retrieval**: Using frontier models (Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8) via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) to query the SQLite database and locate specific tools or parts for homelab maintenance tasks.
 
 ## Strengths
 - **Lightweight**: Minimal CPU and RAM footprint, suitable for low-powered hardware.
 - **Fast**: Highly responsive web interface and search even on older hardware.
 - **Portable**: SQLite backend makes backups and environment moves trivial.
-- **v0.30+ Features (Late 2026)**: Enhanced tag relationships, native OpenTelemetry support, and standardized MCP 3.1 tool definitions for agentic interaction.
+- **v0.30+ Features (2027 Edition)**: Enhanced tag relationships, native OpenTelemetry support, and standardized FastMCP 3.1 tool definitions for agentic interaction.
 
 ## Limitations
 - **Simplicity**: Lacks advanced supply chain or POS features found in enterprise ERP systems.
@@ -141,5 +141,5 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high

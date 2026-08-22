@@ -1,23 +1,23 @@
 # Mistral AI
 
 ## What it is
-Mistral AI is a leading European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, Codestral, and Pixtral families. As of late October / November 2026, it has evolved into a comprehensive agentic platform with native support for advanced tool calling, persistent multi-agent conversations, and standardized protocols like the Model Context Protocol (MCP 3.1).
+Mistral AI is a leading European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, Codestral, Devstral, and Pixtral families. As of early January 2027, it has evolved into an enterprise agentic platform with native support for advanced tool calling, persistent multi-agent orchestrations, and standardized protocol bridges including FastMCP 3.1 (Model Context Protocol).
 
 ## What problem it solves
 Mistral provides a high-performance, efficient alternative to American providers, offering some of the best-performing open-weight models for self-hosting and a robust API for agentic workflows. It addresses strict European GDPR and data sovereignty requirements, delivering models that "punch above their weight" in parameter-to-performance ratios and hardware efficiency.
 
 ## Where it fits in the stack
-**LLM Provider** and **Agent Platform**. Mistral sits at the foundational layer of the AI stack, providing the core reasoning engines that power enterprise workflows. It competes directly with GPT-5.5, Claude 5.1, and Gemini 4.0, particularly in high-throughput enterprise routing and local deployment scenarios.
+**LLM Provider** and **Agent Platform**. Mistral sits at the foundational layer of the AI stack, providing core reasoning engines and local weights that power enterprise workflows. It operates alongside GPT-5.5/5.6, Claude 5.1, Gemini 4.0 Pro/Ultra, and DeepSeek-V4, particularly in high-throughput enterprise routing and local sovereign deployment scenarios.
 
 ## Typical use cases
-- **Agentic Workflows**: Powering multi-agent networks that use web search, secure code execution, and MCP 3.1 tools.
+- **Agentic Workflows**: Powering multi-agent networks that execute web search, sandboxed code, and FastMCP 3.1 tools.
 - **Local Deployment**: Running Mixtral 8x22B or Mistral NeMo 12B on-premises for maximum data privacy and zero network latency.
 - **Sovereign Code Assistance**: Utilizing Codestral v2 or Devstral for specialized programming agents and secure in-IDE autocomplete.
 - **Multi-Modal Analytics**: Processing high-resolution documents, diagrams, and video feeds using Pixtral Large.
 
 ## Strengths
 - **Sovereignty & GDPR Compliance**: High-performance AI developed and hosted in the EU, satisfying strict regional data regulations.
-- **Native MCP 3.1 Integration**: Direct support for the Model Context Protocol standard allows agents to communicate with tools, prompts, and resources seamlessly.
+- **Native FastMCP 3.1 Integration**: Direct support for the Model Context Protocol (FastMCP 3.1) standard allows agents to communicate with tools, prompts, and resources seamlessly across heterogeneous infrastructure.
 - **Architectural Efficiency**: Pioneer of Mixture-of-Experts (MoE) architectures that minimize inference costs without degrading output quality.
 - **Extensive Open-Weights Portfolio**: Releases premium models under Apache 2.0, permitting custom fine-tuning and deployment via vLLM or Ollama.
 - **Optimized Tool Calling**: Superior capability in selecting and formatting parallel tool execution schemas under high-concurrency environments.
@@ -45,7 +45,7 @@ To start using Mistral, install the official Python SDK:
 pip install mistralai
 ```
 
-Then, run a basic completion using the updated late 2026 SDK:
+Then, run a basic completion using the updated 2027 SDK:
 
 ```python
 from mistralai import Mistral
@@ -55,7 +55,7 @@ client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
 
 response = client.chat.complete(
     model="mistral-large-latest",
-    messages=[{"role": "user", "content": "Hello Mistral in late 2026!"}]
+    messages=[{"role": "user", "content": "Hello Mistral in 2027!"}]
 )
 print(response.choices[0].message.content)
 ```
@@ -186,5 +186,5 @@ def validate_mistral_response(raw_json: str) -> Optional[MistralResponse]:
 - [Mistral Agents Framework](https://docs.mistral.ai/agents/introduction/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-05
+- Last reviewed: 2027-01-07
 - Confidence: high

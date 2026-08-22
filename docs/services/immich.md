@@ -1,7 +1,7 @@
 # Immich
 
 ## What it is
-Immich is a high-performance self-hosted photo and video management solution, designed as a direct replacement for Google Photos. It features a fast, responsive mobile app and a robust web interface for managing large personal media libraries. As of late October / November 2026, it is the benchmark for AI-integrated personal media hosting, utilizing the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) for automated organization.
+Immich is a high-performance self-hosted photo and video management solution, designed as a direct replacement for Google Photos. It features a fast, responsive mobile app and a robust web interface for managing large personal media libraries. As of early January 2027, it is the benchmark for AI-integrated personal media hosting, utilizing the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) for automated organization.
 
 ## What problem it solves
 It provides a private, high-speed way to backup and organize media from mobile devices and desktops. It eliminates reliance on cloud storage subscriptions while providing advanced features like face recognition, semantic search, and AI-driven automated culling, all running on your own infrastructure to ensure data sovereignty.
@@ -11,9 +11,9 @@ It provides a private, high-speed way to backup and organize media from mobile d
 
 ## Typical use cases
 - **Mobile Photo Backup**: Automatically backing up photos from iOS/Android devices.
-- **Semantic Search**: Searching for photos using natural language (e.g., "dog in the park") powered by local Gemma 3 or Qwen 3.6 CLIP models via [Ollama](ollama.md).
+- **Semantic Search**: Searching for photos using natural language (e.g., "dog in the park") powered by local Gemma 3, Qwen 3.8, or DeepSeek-V4 CLIP models via [Ollama](ollama.md).
 - **Face Recognition**: Automatically grouping photos by the people appearing in them with high precision using advanced Llama 4 multi-modal vision classifiers.
-- **Agentic Organization**: Using AI agents (powered by Claude 5.1 or GPT-5.5) via [MCP](../tools/automation_orchestration/mcp.md) (MCP 3.1 / FastMCP 3.1) to semantically tag, categorize, and deduplicate library assets.
+- **Agentic Organization**: Using AI agents (powered by Claude 5.1, GPT-5.5/5.6, or Gemini 4.0 Pro) via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) to semantically tag, categorize, and deduplicate library assets.
 
 ## Strengths
 - **Performance**: Extremely fast even with libraries exceeding 250,000 images.
@@ -23,7 +23,7 @@ It provides a private, high-speed way to backup and organize media from mobile d
 
 ## Limitations
 - **Setup Complexity**: Requires multiple containers (database, redis, machine learning node, microservices).
-- **Resource Intensive**: Machine learning tasks (especially initial library indexing) require significant CPU/GPU resources (NVIDIA Rubin support as of late 2026).
+- **Resource Intensive**: Machine learning tasks (especially initial library indexing) require significant CPU/GPU resources (NVIDIA Rubin and Blackwell support as of 2027).
 - **Not a Backup by Itself**: Mobile upload into Immich is only one copy. An independent backup strategy (e.g., using [rclone](rclone-automation.md)) for the library and database is mandatory.
 
 ## When to use it
@@ -165,5 +165,5 @@ curl -X POST "http://immich.local/api/jobs/machine-learning/trigger" \
 - [MCP 3.1/FastMCP Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high
