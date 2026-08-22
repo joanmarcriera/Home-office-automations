@@ -1,7 +1,7 @@
 # Navidrome
 
 ## What it is
-Navidrome is a modern self-hosted music server and streamer. It indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. As of late October / November 2026, it is the industry standard for lightweight, high-performance music streaming in personal homelabs, featuring deep integration with the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) v3.1 standard for automated library curation.
+Navidrome is a modern self-hosted music server and streamer. It indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. As of early January 2027, it is the industry standard for lightweight, high-performance music streaming in personal homelabs, featuring deep integration with the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) v3.1 / FastMCP standard for automated library curation.
 
 ## What problem it solves
 It turns a folder of owned audio files into a private streaming service. This avoids reliance on commercial music subscriptions, ensures your personal collection remains available offline or over a private VPN (like [Tailscale](tailscale.md)), and provides automation scripts with a stable API for library management, scrobbling, and AI-driven metadata enrichment.
@@ -13,14 +13,14 @@ Navidrome belongs in the **Media Services** layer alongside [Jellyfin](jellyfin.
 - **Personal Spotify**: Streaming a FLAC/MP3 library to browsers, phones, and desktop clients.
 - **Family Accounts**: Maintaining separate favorites, playlists, and playback states for multiple users.
 - **Low-Resource Streaming**: Running a music service on modest hardware (like a Raspberry Pi) where heavier servers fail.
-- **AI-Powered Discovery**: Using Gemma 3 via [Ollama](ollama.md) or Claude 5.1 to analyze sonic characteristics and generate hyper-personalized playlists via the MCP 3.1 Task Protocol.
+- **AI-Powered Discovery**: Using Gemma 3, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, or Qwen 3.8 to analyze sonic characteristics and generate hyper-personalized playlists via the MCP 3.1 Task Protocol.
 
 ## Strengths
 - **Small operational footprint**: Simple single-binary or single-container deployment with minimal RAM usage.
 - **Broad Compatibility**: Works with dozens of Subsonic-compatible apps (Ample, DSub, Play:Sub).
 - **Read-only media mounts**: Ensures your curated music library remains untouched by the application.
 - **Native Transcoding**: Uses `ffmpeg` to serve high-quality audio to bandwidth-constrained mobile devices.
-- **MCP 3.1 / FastMCP Integration (2026)**: Enables autonomous agents to curate playlists, retrieve album details, and manage metadata based on real-time triggers.
+- **MCP 3.1 / FastMCP Integration (2027)**: Enables autonomous agents to curate playlists, retrieve album details, and manage metadata based on real-time triggers.
 
 ## Limitations
 - **Music-focused**: It is not designed for video, photo, or live TV libraries (use [Jellyfin](jellyfin.md)).
@@ -142,5 +142,5 @@ print(f"Validated Track: '{track.title}' by {track.artist} from album '{track.al
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high

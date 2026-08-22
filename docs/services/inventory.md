@@ -1,7 +1,7 @@
 # Consolidated Services Inventory
 
 ## What it is
-The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. As of late October / November 2026, it serves as the ground truth for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) agents to discover and interact with the homelab infrastructure.
+The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. As of early January 2027, it serves as the ground truth for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) agents to discover and interact with the homelab infrastructure.
 
 ## What problem it solves
 In a complex home lab with dozens of interconnected services (Nextcloud, Home Assistant, Ollama, etc.), it becomes difficult to track where data is stored, which images are in use, and how each service is exposed. This inventory provides a machine-readable map (via the MCP 3.1 Task Protocol) for administrative oversight, automated maintenance, and disaster recovery planning.
@@ -25,10 +25,10 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 | **Synapse** | Matrix Server | `matrixdotorg/synapse:latest` | `/mnt/<pool>/applications/synapse/` | Reverse Proxy / LAN |
 
 ## Typical use cases
-- **Security Updates**: Auditing container image versions across the stack for late 2026 security patches.
+- **Security Updates**: Auditing container image versions across the stack for early 2027 security patches.
 - **Storage Planning**: Verifying ZFS dataset paths during storage migration to new NVMe pools.
 - **Exposure Auditing**: Ensuring private services (like [Ollama](ollama.md)) are not accidentally exposed to the WAN.
-- **MCP Discovery**: Providing a service map for Gemma 3 and Qwen 3.6 agents to perform autonomous troubleshooting and health checks.
+- **MCP Discovery**: Providing a service map for Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8 agents to perform autonomous troubleshooting and health checks.
 
 ## Strengths
 - **Centralized Visibility**: Consolidated view of disparate services across multiple Docker nodes.
@@ -174,5 +174,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high

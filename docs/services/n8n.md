@@ -1,7 +1,7 @@
 # n8n
 
 ## What it is
-n8n is an extendable, source-available workflow automation platform with a visual node editor, robust API integrations, and first-class support for AI-powered workflow steps. It allows users to build complex, multi-step automations that connect hundreds of different services. As of late October / November 2026, it features **FastMCP 3.1** integration for high-performance agentic tool hosting and execution tracking.
+n8n is an extendable, source-available workflow automation platform with a visual node editor, robust API integrations, and first-class support for AI-powered workflow steps. It allows users to build complex, multi-step automations that connect hundreds of different services. As of early January 2027, it features **FastMCP 3.1** integration for high-performance agentic tool hosting and execution tracking.
 
 ## What problem it solves
 It replaces repetitive manual operations across tools and teams. Unlike cloud-only automation products, it can be self-hosted, ensuring that workflow logic, execution history, and sensitive data stay within your private infrastructure. It addresses the need for secure, auditable, and highly customizable business and household process automation, enhanced by local AI inference.
@@ -11,14 +11,14 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 
 ## Typical use cases
 - **Autonomous Document Operations**: Classifying incoming content, extracting entities (using [Instructor](../tools/frameworks/instructor.md)), and routing to [Paperless-ngx](paperless-ngx.md).
-- **AI-Assisted Operations**: Triage, summarize, and draft responses via Claude 5.1, GPT-5.5, Gemini 4.0, or Qwen 3.6, with human-in-the-loop approval gates.
+- **AI-Assisted Operations**: Triage, summarize, and draft responses via Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, or Qwen 3.8, with human-in-the-loop approval gates.
 - **MCP Tool Hosting**: Exposing n8n workflows as high-performance tools to AI agents using the FastMCP 3.1 protocol.
 - **Home Automation Integration**: Coordinating complex smart home scenarios that exceed the logic capabilities of [Home Assistant](home-assistant.md).
 
 ## Strengths
 - **Visual + Programmable**: Offers an intuitive drag-and-drop editor while allowing for advanced JavaScript expressions and custom node development.
 - **Self-Hostable**: Ensures data privacy and infrastructure control.
-- **v3.5+ Features (Late 2026)**: Native FastMCP 3.1 support, multi-tenant workspace isolation, and advanced AI agent memory nodes.
+- **v3.5+ Features (Early 2027)**: Native FastMCP 3.1 support, multi-tenant workspace isolation, and advanced AI agent memory nodes.
 - **Observability**: Detailed execution logs and standardized error handling via "Error Trigger" nodes.
 
 ## Limitations
@@ -158,5 +158,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/protocol/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high

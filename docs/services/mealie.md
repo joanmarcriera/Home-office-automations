@@ -3,7 +3,7 @@
 Mealie is a self-hosted recipe manager and meal planner with a REST API backend and a modern, reactive frontend.
 
 ## What it is
-Mealie is a comprehensive culinary management system that allows users to import recipes from the web, organize their collection, create meal plans, and generate shopping lists in a centralized, private environment. As of late October / November 2026, it features native integration with frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** for AI-powered recipe scaling, nutrition analysis, and autonomous grocery orchestration via **MCP 3.1 / FastMCP**.
+Mealie is a comprehensive culinary management system that allows users to import recipes from the web, organize their collection, create meal plans, and generate shopping lists in a centralized, private environment. As of early January 2027, it features native integration with frontier models including **Claude 5.1 / 5.6**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 3**, and **Qwen 3.8** for AI-powered recipe scaling, nutrition analysis, and autonomous grocery orchestration via **MCP 3.1 / FastMCP**.
 
 ## What problem it solves
 Keeping track of digital recipes often involves scattered bookmarks, screenshots, or reliance on third-party SaaS platforms filled with ads and tracking. Mealie solves this by providing a unified, self-hosted vault where recipes are parsed into a clean, consistent format, making them easy to search, scale, and plan for the week.
@@ -16,7 +16,7 @@ Keeping track of digital recipes often involves scattered bookmarks, screenshots
 - **Weekly Meal Planning**: Planning breakfast, lunch, and dinner for the household using a visual calendar.
 - **Automated Shopping Lists**: Generating consolidated shopping lists based on a weekly meal plan.
 - **Recipe Scaling**: Automatically adjusting ingredient quantities for different serving sizes using [Gemma 3](../tools/ai_knowledge/local_llms.md).
-- **AI Ingredient Extraction**: Using [Claude 5.1](../tools/providers/anthropic.md) or GPT-5.5 to extract ingredients from unstructured text or voice notes.
+- **AI Ingredient Extraction**: Using [Claude 5.1](../tools/providers/anthropic.md) or GPT-5.5/5.6 to extract ingredients from unstructured text or voice notes.
 
 ## Strengths
 - **Superior Parsing**: Highly accurate recipe scraping from almost any URL using the `recipe-scrapers` library.
@@ -44,7 +44,7 @@ Keeping track of digital recipes often involves scattered bookmarks, screenshots
 ## Getting started
 
 ### Installation (Docker Compose)
-Mealie v3.22.0 (late October / November 2026) supports both SQLite and PostgreSQL backends and features an integrated **MCP 3.1** server.
+Mealie v3.22.0 (early January 2027) supports both SQLite and PostgreSQL backends and features an integrated **MCP 3.1** server.
 
 ```yaml
 services:
@@ -78,7 +78,7 @@ Mealie utilizes a two-tier user model for multi-tenant or multi-family deploymen
 ### AI Video Import (YouTube, TikTok)
 Mealie supports AI-powered recipe imports from social media videos using the [Whisper](whisper.md) model or cloud APIs.
 - **Workflow**: Paste a YouTube or TikTok URL into the import field.
-- **Backend**: Transcribes video and structures ingredients/steps using GPT-5.5 or [Claude 5.1](../tools/providers/anthropic.md).
+- **Backend**: Transcribes video and structures ingredients/steps using GPT-5.5/5.6 or [Claude 5.1](../tools/providers/anthropic.md).
 - **Setup**: Requires an API key configured in `Settings -> Integrations`.
 
 ## CLI examples
@@ -156,5 +156,5 @@ print(f"Validated recipe: {recipe.name} ({recipe.recipe_yield}) with {len(recipe
 - [Mealie MCP Server GitHub](https://github.com/mealie-recipes/mcp-server-mealie)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-06
+- Last reviewed: 2027-01-07
 - Confidence: high
