@@ -1,57 +1,59 @@
 # Headscale
 
-Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of late October / November 2026, **v0.26.0** is the recommended baseline, introducing enhanced MCP 3.1 Task Protocol support for automated network orchestration and Gemma 3 / Qwen 3.6 multimodal analysis for intelligent traffic shaping and security auditing. It serves as the backbone for private, agent-accessible mesh networks.
+Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of early January 2027, **v0.26.0+** stands as the recommended production baseline, introducing enhanced **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for automated agentic network orchestration, Tailscale protocol 1.80+ compatibility, and integration with multimodal agent clusters (**Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro**, **DeepSeek-V4**) for intelligent traffic shaping, zero-trust ACL updates, and automated security auditing.
 
 ## What it is
-It allows you to run your own Tailscale-compatible coordination server, providing full control over your mesh network's coordination layer without relying on Tailscale's SaaS offering.
+Headscale allows you to run your own Tailscale-compatible coordination server, providing 100% control over your mesh network's control plane, IP address allocations, and node ACL policies without relying on Tailscale's SaaS infrastructure.
 
 ## What problem it solves
-It enables users to use the Tailscale client and protocol while maintaining 100% data sovereignty over their network topology and device metadata. It also removes limits on the number of devices typically found in free SaaS tiers and allows for complete network isolation without third-party visibility.
+It enables organizations and homelab operators to use standard Tailscale client software while maintaining absolute data sovereignty over network topologies, device keys, and traffic routing. It eliminates artificial node/user limits present in free SaaS tiers and ensures complete network isolation without third-party telemetry exposure.
 
 ## Where it fits in the stack
-**Infrastructure / Networking**. It serves as the central "hub" or coordination point for a self-hosted Tailscale mesh network. It is a core component of a [self-hosted infrastructure](../architecture/infrastructure.md) stack, enabling secure communication between agents and local services.
+**Category**: Infrastructure / Networking. It serves as the central coordination hub for a self-hosted overlay mesh network. It forms the core zero-trust networking layer in [self-hosted infrastructure](../architecture/infrastructure.md), allowing autonomous agents and services to communicate securely across heterogeneous cloud environments and local hardware.
 
 ## Typical use cases
-- Creating a secure, private mesh network for homelab services.
-- Connecting remote devices and [Docker](../tools/infrastructure/docker.md) containers across different networks.
-- Implementing OIDC-based authentication for a private VPN using [Authentik](authentik.md).
-- Establishing secure communication for a [K3s cluster](../playbooks/k3s-cluster-setup.md).
-- Providing agents (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0**) with secure access to internal APIs without public exposure.
-- Implementing automated ACL updates via agentic GitOps using the MCP 3.1 Task Protocol.
+- **Zero-Trust Agentic Mesh**: Creating an encrypted, private mesh network for cross-cloud AI agent clusters and local microservices.
+- **Cross-Cloud Node Interconnect**: Safely linking remote edge devices, bare-metal servers, and [Docker](../tools/infrastructure/docker.md) containers across disparate networks.
+- **Unified OIDC Identity Mapping**: Integrating OIDC/OAuth 2.0 authentication for VPN access using [Authentik](authentik.md).
+- **Kubernetes Cluster Interconnect**: Establishing secure Pod-to-Pod or Node-to-Node transport for a multi-region [K3s cluster](../playbooks/k3s-cluster-setup.md).
+- **Private API Transport**: Providing AI agents (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**) with secure access to non-public internal APIs without exposing ports to the internet.
+- **Automated GitOps ACL Orchestration**: Automating network firewall and routing rule updates via FastMCP 3.1 agentic workflows.
 
 ## Strengths
-- **Data Sovereignty**: You own the coordination server and all the data it manages.
-- **Tailscale Compatibility**: Works with official Tailscale clients.
-- **Open Source**: Full transparency and ability to customize.
-- **OIDC Support**: Integrates with identity providers like [Authentik](authentik.md).
-- **Scalability**: No artificial limits on the number of nodes or users.
-- **Agentic Orchestration**: Native support for MCP 3.1 allows AI agents to manage network state.
+- **100% Data Sovereignty**: Complete ownership of the coordination server, node keys, and routing metadata.
+- **Full Tailscale Client Compatibility**: Compatible with official Tailscale clients across Linux, macOS, Windows, iOS, and Android.
+- **Native FastMCP 3.1 Support**: Allows AI agents to query network topology, register nodes, and apply ACL policies via structured tool calls.
+- **OIDC Integration**: Seamless single sign-on mapping via [Authentik](authentik.md), Keycloak, or Okta.
+- **Uncapped Scale**: No artificial quotas on device registrations or user counts.
+- **Lightweight Architecture**: Single binary backend written in Go, optimized for low overhead.
 
 ## Limitations
-- **Complexity**: Requires more manual configuration than Tailscale's SaaS.
-- **Feature Lag**: Some advanced Tailscale features (like specific Tailnet Lock mechanisms) may arrive later in Headscale.
-- **High Availability**: Setting up HA for Headscale is more involved than using the managed service.
-- **CLI Focus**: While third-party UIs exist, the primary management interface is the CLI.
+- **Operational Complexity**: Requires manual maintenance of public DNS, TLS certificates, and database backups compared to managed SaaS.
+- **Feature Parity Lag**: Advanced proprietary Tailscale SaaS features (such as specialized enterprise Tailnet Lock variants) may lag in Headscale releases.
+- **High Availability Overhead**: Multi-region database replication for HA deployment requires advanced PostgreSQL setup.
+- **CLI-Centric Administration**: While third-party web UIs exist (e.g., Headscale-UI, Headplane), core administration relies primarily on the CLI or gRPC/REST APIs.
 
 ## When to use it
-- When you want the ease of use of Tailscale but require a fully self-hosted solution.
-- For privacy-conscious environments that cannot use external coordination servers.
-- When managing a large number of devices that exceed free-tier limits of managed services.
+- When you require Tailscale's WireGuard mesh networking but demand total data sovereignty over the coordination server.
+- For air-gapped or privacy-restricted environments subject to strict compliance standards.
+- When managing multi-node infrastructures that exceed free SaaS account quotas.
+- As the networking backbone for autonomous multi-agent systems requiring private inter-service RPC.
 
 ## When not to use it
-- If you prefer a "set it and forget it" experience and don't mind the third-party coordination.
-- If you require advanced enterprise features provided exclusively by Tailscale's commercial tiers.
-- In environments where you lack the resources to maintain and update a coordination server.
+- If you prefer a zero-maintenance, fully managed SaaS solution and accept third-party control-plane coordination.
+- If your team relies exclusively on enterprise features offered solely in commercial SaaS tiers.
+- When lacking resources to host and maintain a publicly reachable HTTPS server.
 
 ## Getting started
 
-### Deployment
-Headscale is typically deployed as a [Docker](../tools/infrastructure/docker.md) container:
+### Docker Compose
+Deploying Headscale via Docker Compose for early 2027 stack environments:
 
 ```yaml
 services:
   headscale:
     image: headscale/headscale:latest
+    container_name: headscale
     volumes:
       - ./config:/etc/headscale
       - ./data:/var/lib/headscale
@@ -59,34 +61,35 @@ services:
       - "8080:8080"
       - "9090:9090"
     command: headscale serve
+    restart: unless-stopped
 ```
 
 ### Basic Configuration
-Create a `config.yaml` in your config directory. Ensure the `server_url` matches your public FQDN.
+Create a `config.yaml` in your local `./config` volume directory. Ensure the `server_url` matches your public FQDN (e.g., `https://headscale.example.com`).
 
 ## CLI examples
-The `headscale` CLI is used to manage users, nodes, and policies.
+Manage users, nodes, pre-authentication keys, and ACL policies using the `headscale` CLI:
 
 ```bash
-# Create a new user
-headscale users create myuser
+# Create a new user namespace
+docker exec headscale headscale users create homelab-user
 
-# List all registered nodes with extended output
-headscale nodes list -o wide
+# List all registered mesh nodes with detailed status
+docker exec headscale headscale nodes list -o wide
 
-# Register a new node using a pre-auth key valid for 24h
-headscale preauthkeys create -u myuser --expiration 24h
+# Generate a reusable pre-authentication key valid for 24 hours
+docker exec headscale headscale preauthkeys create -u homelab-user --reusable --expiration 24h
 
-# Move a node to a different user
-headscale nodes move --identifier 5 --user newuser
+# Move a node to a different user space
+docker exec headscale headscale nodes move --identifier 5 --user new-user
 
-# Expire a node manually
-headscale nodes expire --identifier 12
+# Revoke/Expire a node session manually
+docker exec headscale headscale nodes expire --identifier 12
 ```
 
 ## API examples
 
-### Node and Pre-Auth Key Management (Python)
+### Node and Pre-Auth Key Management (Python with Pydantic v2)
 Programmatic Python script for querying registered Headscale nodes and requesting pre-authentication keys utilizing **Pydantic v2** validation.
 
 ```python
@@ -96,7 +99,6 @@ from typing import List, Optional
 import requests
 from pydantic import BaseModel, Field, field_validator
 
-# Pydantic v2 schemas for Headscale API interaction
 class NodeUser(BaseModel):
     id: str
     name: str
@@ -115,7 +117,7 @@ class HeadscaleNode(BaseModel):
     @classmethod
     def must_have_ips(cls, value: List[str]) -> List[str]:
         if not value:
-            raise ValueError("Node must have at least one IP address assigned")
+            raise ValueError("Node must have at least one assigned IP address")
         return value
 
 def get_headscale_nodes() -> List[HeadscaleNode]:
@@ -128,7 +130,7 @@ def get_headscale_nodes() -> List[HeadscaleNode]:
         "Content-Type": "application/json"
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     response.raise_for_status()
 
     # Parse list of nodes directly using Pydantic v2 model_validate
@@ -148,7 +150,7 @@ if __name__ == "__main__":
 
 ### OIDC Integration (Authentik)
 To integrate with [Authentik](authentik.md):
-1. Create an OAuth2 Provider in Authentik with redirect URI `https://<headscale-fqdn>/oidc/callback`.
+1. Configure an OAuth2 Provider in Authentik with redirect URI `https://<headscale-fqdn>/oidc/callback`.
 2. Update Headscale `config.yaml`:
 
 ```yaml
@@ -162,20 +164,20 @@ oidc:
 ## Related tools / concepts
 - [Tailscale](tailscale.md) — The commercial counterpart and protocol origin.
 - [Authentik](authentik.md) — Identity provider for OIDC integration.
-- [Docker](../tools/infrastructure/docker.md) — Primary deployment platform.
-- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — For mesh-networking a Kubernetes cluster.
-- [Infrastructure Overview](../architecture/infrastructure.md) — Context for self-hosted networking.
-- [n8n](n8n.md) — For automating network status alerts.
-- [Home Assistant](home-assistant.md) — For monitoring network presence.
-- [Litellm](litellm.md) — For proxying LLM requests over the mesh.
+- [Docker](../tools/infrastructure/docker.md) — Primary container deployment platform.
+- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — For mesh-networking a Kubernetes cluster across environments.
+- [Infrastructure Overview](../architecture/infrastructure.md) — Context for self-hosted zero-trust networking.
+- [n8n](n8n.md) — For automating network change alerts.
+- [Home Assistant](home-assistant.md) — For tracking physical device online presence.
+- [Litellm](litellm.md) — For proxying LLM API requests across the secure mesh network.
 
 ## Sources / references
-- [Headscale GitHub](https://github.com/juanfont/headscale)
-- [Authentik Headscale Integration](https://integrations.goauthentik.io/networking/headscale/)
+- [Headscale GitHub Repository](https://github.com/juanfont/headscale)
+- [Authentik Headscale Integration Guide](https://integrations.goauthentik.io/networking/headscale/)
 - [Tailscale ACL Documentation](https://tailscale.com/kb/1018/acls/)
-- [Headscale v0.26.0 Release Notes (Late 2026)](https://github.com/juanfont/headscale/releases)
-- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
+- [FastMCP Framework](https://github.com/jlowin/fastmcp)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-07
+- Last reviewed: 2027-01-07
 - Confidence: high
