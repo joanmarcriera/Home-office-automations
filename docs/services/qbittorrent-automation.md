@@ -1,7 +1,7 @@
 # qBittorrent Automation
 
 ## What it is
-qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In late October / November 2026, it leverages the **v5.4** Web API, Model Context Protocol (MCP 3.1) via FastMCP, and frontier model reasoning (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) to allow AI agents to orchestrate content acquisition, categorization, and library maintenance with unprecedented precision.
+qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In early January 2027, it leverages the **v5.x** Web API, Model Context Protocol (FastMCP 3.1), and frontier model reasoning (Claude 5.1, Claude 5.6, GPT-5.5, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8) to allow AI agents to orchestrate content acquisition, categorization, and library maintenance with unprecedented precision.
 
 ## What problem it solves
 Manual torrent management is time-consuming and prone to organizational chaos. qBittorrent Automation solves the "acquisition overhead" by automatically ingesting content from RSS feeds, categorizing downloads based on content type, renaming files for media servers, and enforcing seeding rules to maintain private tracker ratios without human intervention.
@@ -10,15 +10,15 @@ Manual torrent management is time-consuming and prone to organizational chaos. q
 **Category**: Service / Media / Automation. It sits at the **intake orchestration layer**, bridging content discovery (via [SearXNG](searXNG.md) or RSS) with media consumption ([Plex](plex.md), [Jellyfin](jellyfin.md)).
 
 ## Typical use cases
-- **Agentic Content Retrieval**: Asking an AI agent (Claude 5.1) to "Find and download the latest Debian ISO," which it executes via the qBittorrent API and MCP 3.1 Task Protocol.
+- **Agentic Content Retrieval**: Asking an AI agent (Claude 5.1 / Claude 5.6 / GPT-5.5) to "Find and download the latest Debian ISO," which it executes via the qBittorrent API and FastMCP 3.1 Task Protocol.
 - **Automated Library Maintenance**: Using [n8n](n8n.md) to move completed downloads to specific folders and trigger a media library scan.
 - **Ratio Management**: Automatically pausing or deleting torrents once they reach a predefined seeding ratio or time limit.
 - **Real-Time Notifications**: Sending alerts to [Element](element.md) or [Synapse](synapse.md) when a high-priority download completes.
 - **Dynamic Bandwidth Scaling**: Automatically adjusting download speeds based on home network occupancy or [Speedtest](speedtest.md) results.
 
 ## Strengths
-- **Native MCP 3.1 Support**: Allows autonomous agents using Claude 5.1 or GPT-5.5 to securely query and manipulate the download queue using standardized task and tool definitions.
-- **Frontier Model Integration**: Enables intelligent categorization and "self-healing" of stalled downloads through advanced causal reasoning from Qwen 3.6 or Gemma 3.
+- **Native FastMCP 3.1 Support**: Allows autonomous agents using Claude 5.1, Claude 5.6, or GPT-5.5/5.6 to securely query and manipulate the download queue using standardized task and tool definitions.
+- **Frontier Model Integration**: Enables intelligent categorization and "self-healing" of stalled downloads through advanced causal reasoning from Qwen 3.8, Gemma 3, or DeepSeek-V4.
 - **Comprehensive Web API**: Version v5.4 provides highly granular control over every aspect of the client, from peer management to transfer settings.
 - **Event-Driven Triggers**: Native support for running external programs on torrent completion.
 - **Category-Level Logic**: v5.4+ allows for different automation rules (seeding, pathing) based on assigned categories.
@@ -134,5 +134,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-08
+- Last reviewed: 2027-01-07
 - Confidence: high

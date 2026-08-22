@@ -1,7 +1,7 @@
 # Prowlarr
 
 ## What it is
-Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of late October / November 2026, it remains the industry standard for centralized metadata acquisition, featuring native MCP 3.1 Task Protocol support for automated tracker synchronization and Gemma 3 / Qwen 3.6 multimodal analysis for indexer health monitoring.
+Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of early January 2027, it remains the industry standard for centralized metadata acquisition, featuring native FastMCP 3.1 Task Protocol support for automated tracker synchronization and Gemma 3 / Qwen 3.8 / DeepSeek-V4 multimodal analysis for indexer health monitoring.
 
 ## What problem it solves
 It centralizes the management of indexers and trackers. Instead of configuring the same 10 indexers in Sonarr, Radarr, Lidarr, and Readarr manually, you configure them once in Prowlarr, and they are automatically synchronized across all your applications. It solves "configuration drift" and provides a unified interface for agentic discovery of media across the entire self-hosted stack.
@@ -12,8 +12,8 @@ It centralizes the management of indexers and trackers. Instead of configuring t
 ## Typical use cases
 - **Centralized Indexer Management**: Adding a new private tracker once and having it available everywhere.
 - **Proxying Requests**: Hiding your PVR apps behind a single proxy for indexer requests.
-- **Indexer Health Monitoring**: Using Gemma 3 or Qwen 3.6 to analyze failure patterns and automatically rotate trackers.
-- **Agentic Search**: Providing a structured API for **Claude 5.1** or **GPT-5.5** to query availability of specific media across multiple trackers via the MCP 3.1 Task Protocol.
+- **Indexer Health Monitoring**: Using Gemma 3, Qwen 3.8, or DeepSeek-V4 to analyze failure patterns and automatically rotate trackers.
+- **Agentic Search**: Providing a structured API for **Claude 5.1**, **Claude 5.6**, or **GPT-5.5 / GPT-5.6** to query availability of specific media across multiple trackers via FastMCP 3.1 Task Protocol.
 - **Automated Tracker Rotation**: Implementing GitOps-driven tracker management via [n8n](n8n.md).
 
 ## Strengths
@@ -163,5 +163,5 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [Prowlarr Setup & Authentication Guide (2026)](https://www.rapidseedbox.com/blog/prowlarr-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-07
+- Last reviewed: 2027-01-07
 - Confidence: high

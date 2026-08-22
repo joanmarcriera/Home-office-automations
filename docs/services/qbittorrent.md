@@ -1,7 +1,7 @@
 # qBittorrent
 
 ## What it is
-qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In late October / November 2026, version **5.4** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation, frontier model (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) analysis for download health, and native Model Context Protocol (MCP 3.1) support via FastMCP.
+qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In early January 2027, version **5.x** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation, frontier model (Claude 5.1, Claude 5.6, GPT-5.5, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8) analysis for download health, and native Model Context Protocol (FastMCP 3.1) support.
 
 ## What problem it solves
 Managing file transfers via the BitTorrent protocol can be resource-intensive and organizationally complex. qBittorrent solves this by providing a lightweight, headless-capable engine with a powerful Web UI. It allows users to manage massive torrent libraries, automate downloads via RSS, and securely access their transfer queue remotely without compromising on features or privacy.
@@ -12,7 +12,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 ## Typical use cases
 - **Headless Server Operations**: Running as a Docker container on a NAS or VPS for 24/7 seeding and downloading.
 - **Automated ISO Acquisition**: Using RSS feeds to automatically mirror open-source software distributions.
-- **Agentic File Transfers**: Allowing AI agents (e.g., Claude 5.1, GPT-5.5) to manage the download queue via the Web API and MCP 3.1 / FastMCP Task Protocol.
+- **Agentic File Transfers**: Allowing AI agents (e.g., Claude 5.1, Claude 5.6, GPT-5.5, GPT-5.6) to manage the download queue via the Web API and FastMCP 3.1 Task Protocol.
 - **Remote Library Management**: Accessing and controlling torrents from any device via the integrated Web UI.
 - **High-Performance Seeding**: Leveraging the libtorrent-rasterbar backend for efficient multi-gigabit seeding.
 
@@ -21,7 +21,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 - **Powerful Web UI**: A near-perfect replica of the desktop interface accessible via any browser.
 - **Integrated Search Engine**: Allows finding torrents directly within the client across multiple indexers.
 - **Advanced Organizational Tools**: Support for categories, tags, and sub-categories for managing thousands of torrents.
-- **Native MCP 3.1 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents using modern JSON schemas.
+- **Native FastMCP 3.1 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents using modern JSON schemas.
 - **Open Source Licensing**: Licensed under GPL-2.0, ensuring it remains free and community-driven.
 
 ## Limitations
@@ -176,5 +176,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-08
+- Last reviewed: 2027-01-07
 - Confidence: high
