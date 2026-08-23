@@ -1,7 +1,7 @@
 # Landscape Overview
 
 ## What it is
-The Landscape Overview is a high-level mapping and statistical summary of the entire AI tool and service ecosystem documented in this repository. It provides a bird's-eye view of the catalogue, showing current metrics, connectivity, and recent additions. As of **November 2026**, it reflects the state of a highly mature, multi-agent KnowledgeOps repository.
+The Landscape Overview is a high-level mapping and statistical summary of the entire AI tool and service ecosystem documented in this repository. It provides a bird's-eye view of the catalogue, showing current metrics, connectivity, and recent additions. As of **early January 2027**, it reflects the state of a highly mature, multi-agent KnowledgeOps repository.
 
 ## What problem it solves
 Navigating hundreds of specialized tools and services can be overwhelming. This overview provides structure, category-based discovery, and growth metrics to help users understand the "big picture" of the repository's contents and the broader AI landscape. It helps identify mature segments and areas ripe for expansion.
@@ -19,7 +19,7 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 - **Data-Driven**: Grounded in repository metadata and growth metrics from `data/growth-metrics.json`.
 - **Structural Clarity**: Organizes complex information into distinct categories for easy navigation.
 - **Graph Insight**: Highlights the most connected and influential tools in the knowledge base, indicating their importance in the stack.
-- **November 2026 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards.
+- **January 2027 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4.
 
 ## Limitations
 - **Repository-Scoped**: Reflects current documentation coverage rather than the entire global AI market.
@@ -158,5 +158,5 @@ print(f"Validated snapshot for {validated_snapshot.snapshot_date} with {validate
 - [Gemma 3 Release Notes](https://blog.google/technology/ai/google-gemma-3/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high

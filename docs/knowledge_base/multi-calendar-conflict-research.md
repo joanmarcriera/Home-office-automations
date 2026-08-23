@@ -1,7 +1,7 @@
 # Multi-Calendar Conflict Detection Research
 
 ## What it is
-Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **November 2026**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
+Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **early January 2027**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
 
 ## What problem it solves
 It prevents double-booking and "calendar sprawl" by providing a unified, unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
@@ -180,5 +180,5 @@ result = service.freebusy().query(body=body).execute()
 - [Awesome Time Tracking: AI Scheduling Agents 2026](https://github.com/ever-works/awesome-time-tracking/blob/develop/details/ai-scheduling-agents-2026.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high
