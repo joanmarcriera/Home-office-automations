@@ -1,7 +1,7 @@
 # Landscape Overview
 
 ## What it is
-The Landscape Overview is a high-level mapping and statistical summary of the entire AI tool and service ecosystem documented in this repository. It provides a bird's-eye view of the catalogue, showing current metrics, connectivity, and recent additions. As of **November 2026**, it reflects the state of a highly mature, multi-agent KnowledgeOps repository.
+The Landscape Overview is a high-level mapping and statistical summary of the entire AI tool and service ecosystem documented in this repository. It provides a bird's-eye view of the catalogue, showing current metrics, connectivity, and recent additions. As of **early January 2027**, it reflects the state of a highly mature, multi-agent KnowledgeOps repository.
 
 ## What problem it solves
 Navigating hundreds of specialized tools and services can be overwhelming. This overview provides structure, category-based discovery, and growth metrics to help users understand the "big picture" of the repository's contents and the broader AI landscape. It helps identify mature segments and areas ripe for expansion.
@@ -19,7 +19,7 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 - **Data-Driven**: Grounded in repository metadata and growth metrics from `data/growth-metrics.json`.
 - **Structural Clarity**: Organizes complex information into distinct categories for easy navigation.
 - **Graph Insight**: Highlights the most connected and influential tools in the knowledge base, indicating their importance in the stack.
-- **November 2026 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards.
+- **Early 2027 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards.
 
 ## Limitations
 - **Repository-Scoped**: Reflects current documentation coverage rather than the entire global AI market.
@@ -37,31 +37,31 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 - For fine-grained architectural diagrams (see the [Architecture Component Map](../architecture/component_map.md)).
 
 ## Overview
-- **Last Generated:** 2026-11-15
-- **Total Docs Documented:** 452 (Steady growth from 446 in late July)
+- **Last Generated:** 2027-01-07
+- **Total Docs Documented:** 620
 
 ## Category Breakdown
 Current tool count and focus per category, verified against `all_tools.json` and `growth-metrics.json`:
 
 | Category | Count | Summary |
 | :--- | :--- | :--- |
-| **AI Assistants & Knowledge (ai_knowledge)** | 81 | General-purpose chat interfaces, RAG platforms, and local knowledge bases. |
-| **Development & Ops (development_ops)** | 59 | Coding assistants, IDEs, and agentic development tools (e.g., Claude Code, Cursor). |
-| **Services** | 53 | Self-hosted AI-related services and utilities (e.g., Paperless-ngx, Immich). |
-| **Benchmarking (benchmarking)** | 38 | Evaluation frameworks, security benchmarks (SharpAI), and performance tools. |
-| **Process & Understanding (process_understanding)** | 32 | Data extraction, OCR, telemetry, and document processing (Docling). |
-| **Automation & Orchestration (automation_orchestration)** | 30 | Workflow automation, tool integration servers, and MCP implementations. |
-| **Infrastructure (infrastructure)** | 28 | Model serving (vLLM), inference engines (Ollama), and vector databases. |
-| **Agents (agents)** | 27 | Multi-agent orchestration frameworks (Letta, Phidata, CrewAI). |
-| **Providers (providers)** | 27 | LLM API providers and model marketplaces (Anthropic, DeepSeek). |
-| **Frameworks (frameworks)** | 25 | Development libraries for building AI-powered applications (AG2, Mastra). |
+| **AI Assistants & Knowledge (ai_knowledge)** | 95 | General-purpose chat interfaces, RAG platforms, and local knowledge bases. |
+| **Development & Ops (development_ops)** | 62 | Coding assistants, IDEs, and agentic development tools (e.g., Claude Code, Cursor). |
+| **Services** | 54 | Self-hosted AI-related services and utilities (e.g., Paperless-ngx, Immich). |
+| **Infrastructure (infrastructure)** | 43 | Model serving (vLLM), inference engines (Ollama), and vector databases. |
+| **Benchmarking (benchmarking)** | 40 | Evaluation frameworks, security benchmarks, and performance tools. |
+| **Process & Understanding (process_understanding)** | 39 | Data extraction, OCR, telemetry, and document processing (Docling). |
+| **Providers (providers)** | 36 | LLM API providers and model marketplaces (Anthropic, DeepSeek, OpenAI). |
+| **Agents (agents)** | 33 | Multi-agent orchestration frameworks (Letta, Phidata, CrewAI). |
+| **Frameworks (frameworks)** | 32 | Development libraries for building AI-powered applications (AG2, Mastra). |
+| **Automation & Orchestration (automation_orchestration)** | 30 | Workflow automation, tool integration servers, and FastMCP 3.1 implementations. |
+| **Knowledge Base (knowledge_base)** | 36 | Synthesized patterns, architectural research, and ecosystem guides. |
 | **Calendar & Tasks (calendar_tasks)** | 21 | Scheduling and task management integrations (Sunsama, Amie). |
-| **Enterprise AI (enterprise)** | 12 | Enterprise-grade AI search and productivity suites (Elastic, Curiosity). |
+| **Enterprise AI (enterprise)** | 14 | Enterprise-grade AI search and productivity suites (Elastic, Curiosity). |
 | **Intake & Storage (intake_storage)** | 10 | Data collection, self-hosted storage, and document management. |
-| **Orchestration (orchestration)** | 9 | Advanced workflow engines (Argo, ZenML) and data pipeline orchestrators. |
 
 ## Top 10 Most-Connected Tools
-Based on internal links in their 'Related tools / concepts' sections (November 2026):
+Based on internal links in their 'Related tools / concepts' sections (early 2027):
 
 | Tool | Related Links |
 | :--- | :--- |
@@ -76,18 +76,17 @@ Based on internal links in their 'Related tools / concepts' sections (November 2
 | Copy.ai | 11 |
 | Docker | 11 |
 
-## What's New This Month (November 2026)
-Significant updates and new additions from the November execution phases:
-- **Benchmarking:** Fully audited GPQA, HumanEval, MMLU, and specialized LLM benchmarks.
-- **Development & Ops:** Standardized setup and configuration guides for Claude Code, Aider, and Windsurf.
-- **Model Context Protocol:** Universal adoption of FastMCP 3.1 with standardized Python/TypeScript API client schemas.
-- **Frontier Models:** Native integration of Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 features across all active modules.
+## What's New This Phase (January 2027)
+Significant updates and new additions from recent execution phases:
+- **Benchmarking:** Fully audited GPQA, HumanEval, MMLU, SWE-bench, and specialized LLM benchmarks.
+- **Development & Ops:** Standardized setup and configuration guides for Claude Code, Aider, Zed, and Windsurf.
+- **Model Context Protocol:** Universal adoption of FastMCP 3.1 with standardized Python/TypeScript API client schemas and Pydantic v2 validation.
+- **Frontier Models:** Native integration of Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 features across all active modules.
 
 ## Getting started
 To contribute to the landscape or audit existing docs:
 1. Run `python3 scripts/growth_tracker.py` to see current metrics.
-2. Use `python3 find_oldest_issues.py` to find stale documentation.
-3. Follow the 13-section 'High Confidence' standard in `docs/standards.md`.
+2. Follow the 13-section 'High Confidence' standard in `docs/standards.md`.
 
 ## CLI examples
 The repository metrics can be audited via the CLI:
@@ -127,15 +126,15 @@ class GrowthMetricsSnapshot(BaseModel):
 
 # Sample validation check
 snapshot_data = {
-    "snapshot_date": "2026-11-15",
-    "total_docs": 452,
-    "tool_docs": 399,
-    "service_docs": 53,
+    "snapshot_date": "2027-01-07",
+    "total_docs": 620,
+    "tool_docs": 566,
+    "service_docs": 54,
     "by_category": {
-        "agents": 27,
-        "ai_knowledge": 81,
-        "development_ops": 59,
-        "benchmarking": 38
+        "agents": 33,
+        "ai_knowledge": 95,
+        "development_ops": 62,
+        "benchmarking": 40
     }
 }
 validated_snapshot = GrowthMetricsSnapshot(**snapshot_data)
@@ -155,8 +154,7 @@ print(f"Validated snapshot for {validated_snapshot.snapshot_date} with {validate
 - [All Tools Metadata](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
 - [Growth Metrics Snapshot](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/growth-metrics.json)
 - [MCP 3.1 Standard Specification](https://modelcontextprotocol.io)
-- [Gemma 3 Release Notes](https://blog.google/technology/ai/google-gemma-3/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high

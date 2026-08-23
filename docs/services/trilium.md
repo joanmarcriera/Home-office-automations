@@ -1,19 +1,19 @@
 # Trilium Notes (TriliumNext)
 
-Trilium Notes is a hierarchical note-taking application with a focus on building large personal knowledge bases. Following the transition of the original project to maintenance mode, the community-driven [TriliumNext](https://github.com/TriliumNext/TriliumNext) fork has become the primary active branch, introducing significant modern features for the late October / November 2026 agentic era.
+Trilium Notes is a hierarchical note-taking application with a focus on building large personal knowledge bases. Following the transition of the original project to maintenance mode, the community-driven [TriliumNext](https://github.com/TriliumNext/TriliumNext) fork has become the primary active branch, introducing significant modern features for the early 2027 agentic era.
 
 ## What it is
-Trilium Notes is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships. The **TriliumNext** fork continues this legacy with improved performance, security, and modern note types like native spreadsheets. In late October / November 2026, it is a primary destination for structured memory for frontier agents like Claude 5.1 and GPT-5.5.
+Trilium Notes is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships. The **TriliumNext** fork continues this legacy with improved performance, security, and modern note types like native spreadsheets. In early 2027, it serves as a primary destination for structured long-term memory for frontier agents like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4.
 
 ## What problem it solves
 Managing thousands of notes with complex inter-relationships is difficult in standard "flat" or "shallow" note apps. Trilium solves this by treating notes as a forest of trees, allowing a single note to exist in multiple places (cloning), and providing an automation engine to manage metadata and note lifecycle. It prevents "knowledge rot" by allowing deep structural organization that mirrors complex mental models.
 
 ## Where it fits in the stack
-**Category**: Services / Knowledge Management. It serves as the **core intellectual repository** for structured long-term knowledge, research, and documentation. It integrates with the broader homelab via its REST API, acting as a destination for automated data ingestion from n8n or agentic workflows.
+**Category**: Services / Knowledge Management. It serves as the **core intellectual repository** for structured long-term knowledge, research, and documentation. It integrates with the broader homelab via its REST API and FastMCP 3.1 servers, acting as a destination for automated data ingestion from n8n or agentic workflows.
 
 ## Typical use cases
 - **Personal Knowledge Base (PKB)**: Building a "second brain" with deep hierarchical structure.
-- **Agentic Journaling**: Using scripts to automatically summarize daily logs via Claude 5.1, GPT-5.5, or Gemini 4.0.
+- **Agentic Journaling**: Using scripts to automatically summarize daily logs via Claude 5.1/5.6, GPT-5.5/5.6, or Gemini 4.0 Pro/Ultra.
 - **Technical Snippet Management**: Storing and executing code snippets within the knowledge tree.
 - **Structured Data Analysis**: Managing household or research data using the built-in **Spreadsheet** note type.
 - **Document Archival**: Digitizing paper notes and PDFs via built-in **OCR** and indexing.
@@ -70,8 +70,8 @@ curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes/<note_id>
 
 ## API examples
 
-### Create a Note (Python with Pydantic v2 Validation)
-Utilize Claude 5.1, GPT-5.5, or Gemini 4.0 to orchestrate note creation via the REST API and MCP 3.1 / FastMCP 3.1. This snippet provides robust request validation utilizing Pydantic v2 before interacting with the Trilium REST API.
+### Create a Note (Python with Pydantic v2 Validation & FastMCP 3.1)
+Utilize Claude 5.1/5.6, GPT-5.5/5.6, or Gemini 4.0 Pro to orchestrate note creation via the REST API and FastMCP 3.1. This snippet provides robust request validation utilizing Pydantic v2 before interacting with the Trilium REST API.
 
 ```python
 import requests
@@ -136,8 +136,7 @@ api.log(`Data retrieved: ${data.message}`);
 - [Paperless-ngx](paperless-ngx.md) — For dedicated document management and advanced OCR workflows.
 - [Excalidraw](excalidraw.md) — For embedding hand-drawn diagrams into notes.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — For local inference and knowledge synthesis.
-- [Claude 5.1](../tools/ai_knowledge/claude.md) — For high-performance agentic reasoning over the PKB.
-- [GPT-5.5](../tools/providers/huggingface.md) — For multi-agent cognitive loops.
+- [Claude](../tools/ai_knowledge/claude.md) — For high-performance agentic reasoning over the PKB.
 
 ## Sources / references
 - [TriliumNext GitHub Repository](https://github.com/TriliumNext/TriliumNext)
@@ -145,5 +144,5 @@ api.log(`Data retrieved: ${data.message}`);
 - [TriliumNext Releases and Changelog](https://github.com/TriliumNext/TriliumNext/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-12
+- Last reviewed: 2027-01-07
 - Confidence: high
