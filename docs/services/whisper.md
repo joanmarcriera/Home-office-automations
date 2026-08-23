@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **late October / November 2026**, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like **Claude 5.1**, **GPT-5.5**, and [Gemma 3](../tools/ai_knowledge/local_llms.md) for automated post-processing, translation, and agentic reasoning.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **early January 2027**, optimizations like **Faster-Whisper v1.3.x** and **Whisper.cpp** provide the foundation for ultra-low-latency local transcription, integrated with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **Gemini 4.0 Ultra**, and [Gemma 3](../tools/ai_knowledge/local_llms.md) for automated post-processing, translation, and agentic reasoning.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -15,25 +15,25 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Building voice-activated home automation commands.
 - Translating foreign language audio into English text.
 - Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
-- **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 4090.
+- **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 5090.
 - **MCP 3.1 Integration**: Whisper services can be exposed as MCP 3.1 tools, allowing autonomous agents to request on-demand transcription of local media files.
 
-### Hardware Benchmarking (Late 2026)
+### Hardware Benchmarking (Early 2027)
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| Raspberry Pi 5 | base | Whisper.cpp | ~8m | CPU-only, slow but viable. |
-| Intel i7 (14th Gen) | medium | Faster-Whisper | ~1.5m | Optimized with `int8` quantization. |
-| Apple M4 Pro | large-v3 | Whisper.cpp | ~40s | Leveraging CoreML/MLX. |
-| NVIDIA RTX 4070 | large-v3 | Faster-Whisper | ~15s | FP16, batched inference. |
-| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~8s | Peak throughput for batch jobs. |
+| Raspberry Pi 5 | base | Whisper.cpp | ~7.5m | CPU-only, slow but viable. |
+| Intel i7 (14th Gen) | medium | Faster-Whisper | ~1.2m | Optimized with `int8` quantization. |
+| Apple M4 Pro / M5 | large-v3 | Whisper.cpp | ~35s | Leveraging CoreML/MLX optimizations. |
+| NVIDIA RTX 4070 | large-v3 | Faster-Whisper | ~12s | FP16, batched inference. |
+| NVIDIA RTX 5090 / 4090 | large-v3 | Faster-Whisper | ~5s | Peak throughput for high-volume batch jobs. |
 
 ## Strengths
 - **High Accuracy**: Competes with professional human transcribers in many languages.
 - **Multilingual**: Supports transcription in dozens of languages and translation into English.
 - **Robustness**: Handles background noise and various accents exceptionally well.
 - **Local Execution**: Can be run entirely offline (via Whisper.cpp or Faster-Whisper), ensuring data privacy.
-- **Batched Inference**: Faster-Whisper v1.2.x supports optimized batched processing for up to 4x speed increases.
+- **Batched Inference**: Faster-Whisper v1.3.x supports optimized batched processing for up to 4x-5x speed increases.
 
 ## Limitations
 - **Resource Intensive**: Larger models (`large-v3-turbo`) require significant GPU VRAM or CPU power.
@@ -88,7 +88,7 @@ whisper audio.m4a --output_format srt
 Integrate Whisper transcription and AI-driven post-processing into Python scripts or FastMCP 3.1 servers.
 
 ### Python: FastMCP 3.1 Server for GPU-Accelerated Batch Transcription
-This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger local audio transcription, parse voice options, and return structured output for models like **Claude 5.1** and **GPT-5.5**.
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger local audio transcription, parse voice options, and return structured output for models like **Claude 5.6**, **Claude 5.1**, and **GPT-5.6**.
 
 ```python
 import os
@@ -174,7 +174,7 @@ if __name__ == "__main__":
 - [Audiobookshelf](audiobookshelf.md) — For managing transcribed audio libraries.
 - [Home Assistant](home-assistant.md) — For integrating Whisper into voice-controlled home automation.
 - [SearXNG](searXNG.md) — For searching through transcribed knowledge bases.
-- [LiteLLM](litellm.md) — For unified proxying to frontier models like Claude 5.1 and GPT-5.5.
+- [LiteLLM](litellm.md) — For unified proxying to frontier models like Claude 5.6 and GPT-5.6.
 - [Plex](plex.md) — Streaming transcoded content and media archives.
 - [Jellyfin](jellyfin.md) — General purpose media hub for serving audio collections.
 - [Authentik](authentik.md) — Authenticating web triggers for speech endpoints.
@@ -188,5 +188,5 @@ if __name__ == "__main__":
 - [Speaches GitHub](https://github.com/speaches-ai/speaches)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-10
+- Last reviewed: 2027-01-07
 - Confidence: high

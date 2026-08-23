@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of late October / November 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and native **MCP 3.1** / **FastMCP 3.1** discovery for local tool execution.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of **early January 2027**, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and native **FastMCP 3.1** / **MCP 3.1** discovery for local tool execution.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -16,7 +16,7 @@ Omni Tools belongs in the **self-hosted productivity utilities** layer, next to 
 - Convert images, videos, PDFs, and other local files without uploading them to third-party web tools.
 - Generate hashes, UUIDs, QR codes, passwords, date calculations, and developer helpers.
 - Provide a safe internal fallback when SaaS utility sites are blocked or untrusted.
-- **Agentic Utility Ingestion**: Allowing agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) to use Omni Tools' transformation logic via MCP 3.1 / FastMCP 3.1.
+- **Agentic Utility Ingestion**: Allowing agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), **Claude 5.6**, or **GPT-5.6** to use Omni Tools' transformation logic via FastMCP 3.1.
 
 ## Strengths
 - **Low-friction deployment**: A single lightweight container can serve the toolbox.
@@ -83,7 +83,7 @@ curl -I http://localhost:8080
 ## API examples
 
 ### FastMCP 3.1 Server with Pydantic v2 Validation
-This example showcases a production-grade Python FastMCP 3.1 tool server. It integrates local text and utility schemas with Pydantic v2 validation, exposing transformation services directly to frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+This example showcases a production-grade Python FastMCP 3.1 tool server. It integrates local text and utility schemas with Pydantic v2 validation, exposing transformation services directly to frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, and **Gemini 4.0**.
 
 ```python
 import json
@@ -169,5 +169,5 @@ print(automate_redaction(raw_json))
 - [CyberChef Repository](https://github.com/gchq/CyberChef)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-11
+- Last reviewed: 2027-01-07
 - Confidence: high

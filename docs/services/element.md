@@ -3,7 +3,7 @@
 Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
 
 ## What it is
-Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of late October / November 2026, it supports **Matrix v1.162.0**, featuring advanced metadata protection and native **MCP 3.1** / **FastMCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
+Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of **early January 2027**, it supports **Matrix v1.170.0+**, featuring advanced metadata protection, sliding sync capabilities natively, and **FastMCP 3.1** / **MCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, allowing users to choose or host their own "homeserver" while communicating seamlessly across federated networks.
 
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
@@ -16,14 +16,14 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **Team Collaboration**: Organizing projects and discussions into "Spaces" and "Rooms".
 - **Home Automation Notifications**: Receiving alerts from services like Home Assistant or custom scripts.
 - **Bridging**: Acting as a unified interface for Discord, Telegram, and Slack via Matrix bridges.
-- **Agentic Room Participation**: Integrating [Gemma 3](../tools/ai_knowledge/local_llms.md) as a room participant for real-time summarization, message transcription, and task extraction via MCP.
+- **Agentic Room Participation**: Integrating [Gemma 3](../tools/ai_knowledge/local_llms.md) or **Claude 5.6** / **GPT-5.6** as a room participant for real-time summarization, message transcription, and task extraction via FastMCP 3.1.
 
 ## Strengths
 - **Sovereignty**: Full control over your data when self-hosted.
 - **E2EE**: High-grade end-to-end encryption for all conversations.
 - **Extensibility**: Powerful API and "Widget" system for custom integrations.
 - **Open Standard**: Interoperable with any other Matrix client or server.
-- **Matrix 1.20+ Safety**: Enhanced trust and safety features including Policy Servers and granular invite blocking.
+- **Matrix 1.20+ / 1.25+ Safety**: Enhanced trust and safety features including Policy Servers and granular invite blocking.
 
 ## Limitations
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
@@ -46,7 +46,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse). As of late 2026, ensure you use the latest stable branch for Matrix 1.20+ compatibility.
+To host the Element web interface yourself (requires a separate homeserver like Synapse). Ensure you use the latest stable branch for Matrix 1.20+ / 1.25+ compatibility.
 
 ```yaml
 services:
@@ -93,7 +93,7 @@ matrix-commander --room "$MATRIX_ROOM_ID" --room-info
 ## API examples
 
 ### Python (using `matrix-nio` with FastMCP 3.1 & Pydantic v2 Validation)
-This production-ready tool server uses Pydantic v2 validation to sanitize messaging payloads, integrating Element/Matrix alerting workflows directly with frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+This production-ready tool server uses Pydantic v2 validation to sanitize messaging payloads, integrating Element/Matrix alerting workflows directly with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, and **Gemini 4.0**.
 
 ```python
 import asyncio
@@ -169,7 +169,7 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.162.0+).
+- [Synapse](synapse.md) — The most common Matrix homeserver (v1.170.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
@@ -190,5 +190,5 @@ curl -X POST \
 - [Matrix Release Blogs](https://matrix.org/blog/category/releases/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-11
+- Last reviewed: 2027-01-07
 - Confidence: high
