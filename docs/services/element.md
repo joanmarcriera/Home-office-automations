@@ -3,7 +3,7 @@
 Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
 
 ## What it is
-Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of late October / November 2026, it supports **Matrix v1.162.0**, featuring advanced metadata protection and native **MCP 3.1** / **FastMCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
+Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of **early January 2027**, it supports **Matrix v1.165.0**, featuring advanced metadata protection and native **FastMCP 3.1** tool routing for agentic participation in rooms integrated with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **GPT-5.5**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
 
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
@@ -46,7 +46,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse). As of late 2026, ensure you use the latest stable branch for Matrix 1.20+ compatibility.
+To host the Element web interface yourself (requires a separate homeserver like Synapse). As of early 2027, ensure you use the latest stable branch for Matrix 1.20+ compatibility.
 
 ```yaml
 services:
@@ -93,7 +93,7 @@ matrix-commander --room "$MATRIX_ROOM_ID" --room-info
 ## API examples
 
 ### Python (using `matrix-nio` with FastMCP 3.1 & Pydantic v2 Validation)
-This production-ready tool server uses Pydantic v2 validation to sanitize messaging payloads, integrating Element/Matrix alerting workflows directly with frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+This production-ready tool server uses Pydantic v2 validation to sanitize messaging payloads, integrating Element/Matrix alerting workflows directly with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **GPT-5.5**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ```python
 import asyncio
@@ -190,5 +190,5 @@ curl -X POST \
 - [Matrix Release Blogs](https://matrix.org/blog/category/releases/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-11
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. As of late October / November 2026, it serves as a critical retrieval layer for local agents using Gemma 3, Qwen 3.6, and Llama 4 via the **MCP 3.1** / **FastMCP 3.1** Task Protocol.
+Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. As of **early January 2027**, it serves as a critical retrieval layer for local and frontier agents using **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, **Qwen 3.8**, and **Gemma 3** via the **FastMCP 3.1** Task Protocol.
 
 ## What problem it solves
 
@@ -27,7 +27,7 @@ Accessing reliable information usually requires an active internet connection. K
 - **Multi-Platform**: Available for Windows, macOS, Linux, Android, iOS, and as a server (kiwix-serve).
 - **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
 - **ZIM Ecosystem**: Vast library of content through the openZIM project, including Wikipedia, StackExchange, TED, and specialized medical/technical libraries.
-- **libzim 10.x+ Performance**: Significant improvements in decompression speed and search indexing (late 2026 updates).
+- **libzim 10.x+ Performance**: Significant improvements in decompression speed and search indexing (early 2027 updates).
 - **MCP 3.1 Support**: Native Model Context Protocol support allows agents to query the Kiwix library directly for grounded offline research.
 
 ## Limitations
@@ -126,7 +126,7 @@ curl -G "http://localhost:8080/search" --data-urlencode "content=wikipedia" --da
 ```
 
 ### Python Example with Pydantic v2 & FastMCP 3.1
-This showcases a production-ready FastMCP 3.1 tool server configuration utilizing Pydantic v2 schemas to validate and manage offline search queries over Kiwix. This enables frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** to perform high-confidence offline research.
+This showcases a production-ready FastMCP 3.1 tool server configuration utilizing Pydantic v2 schemas to validate and manage offline search queries over Kiwix. This enables frontier models such as **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **GPT-5.5**, **Gemini 4.0 Ultra**, and **DeepSeek-V4** to perform high-confidence offline research.
 
 ```python
 import requests
@@ -212,5 +212,5 @@ mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-11
+- Last reviewed: 2027-01-07
 - Confidence: high

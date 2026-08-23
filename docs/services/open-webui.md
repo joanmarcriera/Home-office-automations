@@ -1,7 +1,7 @@
 # Open WebUI
 
 ## What it is
-Open WebUI is a user-friendly WebUI for Large Language Models (LLMs), designed to provide a feature-rich, self-hosted chat interface. As of late October / November 2026, it serves as a central hub for multi-model orchestration, featuring native Model Context Protocol (**MCP 3.1** / **FastMCP 3.1**) support, dynamic tool discovery, and seamless integration with frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, and [Gemma 3](../tools/ai_knowledge/local_llms.md). Open WebUI is open source (MIT License) and free to self-host.
+Open WebUI is a user-friendly WebUI for Large Language Models (LLMs), designed to provide a feature-rich, self-hosted chat interface. As of **early January 2027**, it serves as a central hub for multi-model orchestration, featuring native Model Context Protocol (**FastMCP 3.1**) support, dynamic tool discovery, and seamless integration with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **GPT-5.5**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and [Gemma 3](../tools/ai_knowledge/local_llms.md). Open WebUI is open source (MIT License) and free to self-host.
 
 ## What problem it solves
 It provides a polished, ChatGPT-like interface for local LLMs (via Ollama) and external APIs, making them accessible to non-technical users. It adds features like RAG, multi-user support, tool execution, and image generation that basic CLIs lack.
@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:main # v0.11.x (November 2026)
+    image: ghcr.io/open-webui/open-webui:main # v0.12.x (January 2027)
     container_name: open-webui
     volumes:
       - ./open-webui:/app/backend/data
@@ -161,5 +161,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-11
+- Last reviewed: 2027-01-07
 - Confidence: high

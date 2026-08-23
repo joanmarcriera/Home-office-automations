@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **late October / November 2026**, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like **Claude 5.1**, **GPT-5.5**, and [Gemma 3](../tools/ai_knowledge/local_llms.md) for automated post-processing, translation, and agentic reasoning.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **early January 2027**, optimizations like **Faster-Whisper v1.3.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, **GPT-5.5**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, and [Gemma 3](../tools/ai_knowledge/local_llms.md) for automated post-processing, translation, and agentic reasoning.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -16,9 +16,9 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Translating foreign language audio into English text.
 - Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
 - **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 4090.
-- **MCP 3.1 Integration**: Whisper services can be exposed as MCP 3.1 tools, allowing autonomous agents to request on-demand transcription of local media files.
+- **FastMCP 3.1 Integration**: Whisper services can be exposed as FastMCP 3.1 tools, allowing autonomous agents to request on-demand transcription of local media files.
 
-### Hardware Benchmarking (Late 2026)
+### Hardware Benchmarking (Early 2027)
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -33,7 +33,7 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - **Multilingual**: Supports transcription in dozens of languages and translation into English.
 - **Robustness**: Handles background noise and various accents exceptionally well.
 - **Local Execution**: Can be run entirely offline (via Whisper.cpp or Faster-Whisper), ensuring data privacy.
-- **Batched Inference**: Faster-Whisper v1.2.x supports optimized batched processing for up to 4x speed increases.
+- **Batched Inference**: Faster-Whisper v1.3.x supports optimized batched processing for up to 4x speed increases.
 
 ## Limitations
 - **Resource Intensive**: Larger models (`large-v3-turbo`) require significant GPU VRAM or CPU power.
@@ -88,7 +88,7 @@ whisper audio.m4a --output_format srt
 Integrate Whisper transcription and AI-driven post-processing into Python scripts or FastMCP 3.1 servers.
 
 ### Python: FastMCP 3.1 Server for GPU-Accelerated Batch Transcription
-This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger local audio transcription, parse voice options, and return structured output for models like **Claude 5.1** and **GPT-5.5**.
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger local audio transcription, parse voice options, and return structured output for models like **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, and **GPT-5.5**.
 
 ```python
 import os
@@ -188,5 +188,5 @@ if __name__ == "__main__":
 - [Speaches GitHub](https://github.com/speaches-ai/speaches)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-10
+- Last reviewed: 2027-01-07
 - Confidence: high
