@@ -1,7 +1,7 @@
 # Google One AI Subscriptions
 
 ## What it is
-Google One is a unified subscription service providing expanded cloud storage across Google Drive, Gmail, and Google Photos. As of **November 2026**, it has transitioned from a storage-centric model to a tiered AI-enablement platform. It serves as the primary gateway to the **Gemini 4.0** and **Gemini 3.5** ecosystems, offering tiered access to frontier reasoning models (Gemini 4.0 Pro), autonomous agents (**Gemini Spark/FastMCP**), and generative media tools (**Gemini Omni**).
+Google One is a unified subscription service providing expanded cloud storage across Google Drive, Gmail, and Google Photos. As of **early January 2027**, it has transitioned from a storage-centric model to a tiered AI-enablement platform. It serves as the primary gateway to the **Gemini 4.0** ecosystem, offering tiered access to frontier reasoning models (Gemini 4.0 Pro/Ultra), autonomous agents (**Gemini Spark/FastMCP 3.1**), and generative media tools (**Gemini Omni**).
 
 ## What problem it solves
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 4.0 Flash for agentic loops.
@@ -162,5 +162,5 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 - [Model Context Protocol Specification 3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high

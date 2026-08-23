@@ -1,7 +1,7 @@
 # Real-time Sync Engines
 
 ## What it is
-Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of **November 2026**, they are the foundation for the "Agentic Workbench" pattern, facilitating sub-10ms state synchronization across humans and autonomous multi-agent systems.
+Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of **early January 2027**, they are the foundation for the "Agentic Workbench" pattern, facilitating sub-10ms state synchronization across humans and autonomous multi-agent systems.
 
 ## What problem it solves
 Developing collaborative applications (like Google Docs, Figma, or interactive agentic dashboards) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging. They eliminate the "loading spinner" and "network error" friction in high-interactivity apps.
@@ -12,7 +12,7 @@ Sync engines sit between the **Application** layer and the **Data/Database** lay
 ## Typical use cases
 - **Multiplayer Workspaces**: Highly interactive tools like Notion, Linear, or Figma.
 - **Edge-Heavy Apps**: Mobile tools used in transit (trains, planes) with intermittent connectivity.
-- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents powered by Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 working on the same shared application state.
+- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents powered by Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 working on the same shared application state.
 - **Local-First AI**: Running local LLMs against a synced local vector store (e.g., using `pgvector` in PGlite).
 - **Collaborative IDEs**: Shared coding environments where agents and humans refactor code simultaneously.
 
@@ -159,5 +159,5 @@ print(f"Validated operation '{validated_edit.operation}' for client {validated_e
 - [Model Context Protocol Specification 3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high
