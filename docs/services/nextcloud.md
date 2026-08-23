@@ -2,7 +2,7 @@
 
 ## What it is
 
-Nextcloud is a suite of client-server software for creating and using file hosting services. It is the most deployed self-hosted content collaboration platform, providing a safe home for all your data - files, contacts, calendars, and more. In late October / November 2026, Nextcloud Hub 10 has evolved into an **Agentic Collaboration Platform**, integrating deep AI reasoning and the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) for automated productivity.
+Nextcloud is a suite of client-server software for creating and using file hosting services. It is the most deployed self-hosted content collaboration platform, providing a safe home for all your data - files, contacts, calendars, and more. In early January 2027, Nextcloud Hub 10 has evolved into an **Agentic Collaboration Platform**, integrating deep AI reasoning and the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) for automated productivity.
 
 ## What problem it solves
 
@@ -174,5 +174,5 @@ curl -u admin:password \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-12
+- Last reviewed: 2027-01-07
 - Confidence: high
