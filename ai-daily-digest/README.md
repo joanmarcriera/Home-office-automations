@@ -1,5 +1,63 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-23
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Qwen 3.8 27B Momentum**: The community is hailing Qwen 3.8 27B as a "game changer" for local agentic coding and OCR, with some users reporting it rivals frontier models from a year ago.
+* 🚀 **Agentic Infrastructure**: A strong trend toward "agent harnesses" is emerging, with Cloudflare launching **Kitesurf** (a browser engine for agents) and LinkedIn deploying a multi-agent AI code review platform.
+* 🛠️ **Hardware Extremes**: From a homelabber building a 36x DGX Spark cluster (4.6TB unified memory) to RTX 5090 benchmarks pushing 262k context, the ceiling for local LLM hardware continues to rise.
+* 🔬 **New Model Teasers**: Liquid AI is teasing a new **100B LFM** model, promising high-speed architecture at a larger scale.
+
+---
+
+## 🚀 Models & Releases
+
+### Qwen 3.8 27B
+The most discussed model of the last 24 hours, seeing significant praise for its utility in local environments.
+* **Performance**: Users report it is a "game changer" for coding and OCR, with some claiming OCR quality exceeds Gemini 3.5 Flash Lite. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvyacg/qwen_38_27b_is_a_game_changer/)
+* **Community Verdict**: A comprehensive scan of ~2,000 posts suggests it has significantly moved the bar for local agentic coding and tool-calling. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvu15m/qwen3827b_one_week_later_the_rlocalllama/)
+* **Benchmarks**: Comparison tests show Q8_K_XL Qwen 3.8 performing strongly against BF16 Qwen 3.6 in enterprise web app development. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvsokm/tested_in_coding_q8_k_xl_qwen38_27b_vs_bf16/)
+
+### Other Model Updates
+* 📌 **Liquid AI**: Teasing a new **100B parameter model** soon. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvmxls/new_100b_liquid_ai_model_coming_soon/)
+* **Gemma 4 12B**: A user shared a fine-tune of Gemma 4 12B that achieved a 2.7x improvement in tool calling for VRAM-constrained (16GB) setups. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvtu9z/i_fine_tuned_gemma_4_12b_for_a_27x_improvement_on/)
+* **Ornith 1.5 35B**: A community member fixed the MTP head on this model, resulting in a 33% reduction in wall-clock time. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvft7b/fixed_the_mtp_head_on_ornith15_35b_a3b_3_tps_33/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Infrastructure & Frameworks
+* **Cloudflare Kitesurf**: A new lightweight browser engine built for agents using WebAssembly/Rust, supporting Chrome DevTools Protocol for lower overhead than full Chromium. [Source](https://www.infoq.com/news/2026/08/cloudflare-kitesurf-browser/)
+* **DFlash 2**: Benchmarks in `llama.cpp` on Qwen 3.8 27B show speculative decoding speeds of 2.26x on coding prompts, reaching up to 8x in specific cases. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvncyh/i_benchmark_dflash_2_pr_build_in_llamacpp_on_qwen/)
+* **EnergyGraph 1.3**: A lightweight terminal tool for live power consumption monitoring of NVIDIA, Intel, and AMD dGPUs. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvkgs6/watching_that_wattage_in_your_terminal/)
+
+### Enterprise Agent Implementations
+* **LinkedIn**: Developed a multi-agent AI code review platform to handle PRs at scale while minimizing hallucinations. [Source](https://www.infoq.com/news/2026/08/linkedin-ai-code-review/)
+* **DoorDash**: Built "SafeChat," a hybrid AI moderation platform using fast internal models for filtering and LLMs for nuanced scoring. [Source](https://www.infoq.com/presentations/doordash-llm-ai-moderation-platform/)
+
+---
+
+## 🔬 Research & Analysis
+
+* **Watermarking**: Sebastian Raschka released a deep dive into how Claude watermarks AI-generated text, covering sampling and detection. [Source](https://magazine.sebastianraschka.com/p/claude-watermarking)
+* **Agent Security**: The New Stack explored the risks of AI agents escaping sandboxes and proposed six identity capabilities to secure autonomous agents. [Source](https://thenewstack.io/securing-autonomous-ai-agents/)
+* **Simulation vs. Training**: An analysis on why simulation is becoming a dominant force, offering "10% worse" quality but 10,000x faster speeds. [Source](https://www.latent.space/p/ainews-10-worse-100x-cheaper-10000x)
+
+---
+
+## 🏢 Industry & Hardware
+
+* **The "All Spark" Cluster**: A homelab enthusiast upgraded to 36x DGX Sparks, achieving **4.6TB of unified memory**. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvv7iv/the_all_spark_cluster_upgrading_from_16_36_dgx/)
+* **RTX 5090 Performance**: A user demonstrated Qwen 3.8 27B (NVFP4) running a real **262K context window** on a single 5090 via vLLM. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvl7pc/single_rtx_5090_qwen3827b_nvfp4_at_a_real_262k/)
+* **AMD Optimization**: A new `llama.cpp` fork has been created specifically optimized for AMD GFX906 (Mi50, Mi60, Radeon VII). [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vvljbz/glm_and_i_created_a_llamacpp_fork_optimized_for/)
+* **RAM Market Warning**: Discussion regarding scalper bots driving up DDR5 prices despite general market trends. [Source](https://www.reddit.com/r/LocalLLaMA/comments/1vv86lm/think_youre_going_to_get_cheap_ddr5_ram_think/)
+
+---
+
+
 ## 📅 Digest for 2026-08-22
 
 # AI & Technology Daily Digest
