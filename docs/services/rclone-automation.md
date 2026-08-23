@@ -1,7 +1,7 @@
 # Rclone Automation
 
 ## What it is
-Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between ZFS pools and remote cloud providers (S3, B2, Drive). In late October / November 2026, it serves as the primary **Agentic Data Orchestrator**, leveraging the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) for automated data migration and disaster recovery.
+Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between ZFS pools and remote cloud providers (S3, B2, Drive). In early January 2027, it serves as the primary **Agentic Data Orchestrator**, leveraging the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) for automated data migration and disaster recovery.
 
 ## What problem it solves
 It provides a robust, scriptable way to handle complex cloud storage operations, including automated off-site backups, synchronization between different cloud providers, and mounting remote storage as a local filesystem. It ensures data integrity through checksum verification and preserves critical metadata like timestamps. It eliminates manual file management by allowing agents to move data between 70+ providers using standardized tool calls.
@@ -163,5 +163,5 @@ curl -m 10 --retry 5 https://hc-ping.com/<uuid>/fail
 - [MCP Rclone Server](https://github.com/rclone/rclone-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-12
+- Last reviewed: 2027-01-07
 - Confidence: high

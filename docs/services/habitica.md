@@ -3,7 +3,7 @@
 Habitica is an open-source habit-building and productivity app that treats your real life like a game. It transforms your daily tasks and habits into RPG quests, rewarding completion with experience points and gold, and penalizing neglect with health loss.
 
 ## What it is
-Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In late October / November 2026, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.1 / FastMCP 3.1).
+Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In early January 2027, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.1 / FastMCP 3.1).
 
 ## What problem it solves
 Traditional productivity tools often suffer from "motivation decay." Habitica solves this by applying game theory to real-world tasks, providing immediate feedback loops through virtual rewards and social accountability (Parties and Guilds), which are essential for long-term behavior change.
@@ -144,7 +144,7 @@ Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
 - [n8n](n8n.md) — For orchestrating complex habit workflows.
 - [Actual Budget](actual-budget.md) — Gamifying financial discipline.
 - [Element](element.md) — For receiving habit notifications and party chats.
-- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For agentic coaching and strategy in late 2026.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For agentic coaching and strategy in early 2027.
 - [Claude 5.1](../tools/ai_knowledge/claude.md) — For advanced behavior analysis.
 - [GPT-5.5](../tools/providers/huggingface.md) — For generating habit recommendation plans.
 
@@ -155,5 +155,5 @@ Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-12
+- Last reviewed: 2027-01-07
 - Confidence: high
