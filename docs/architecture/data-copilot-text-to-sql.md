@@ -1,7 +1,7 @@
 # Data Copilot: Layered Text-to-SQL Architecture
 
 ## What it is
-Data Copilot is a high-performance, cost-optimized pipeline architecture for converting natural language questions into executable SQL queries. It employs a **Layered Multi-Agent** approach to decompose complex Text-to-SQL tasks into specialized stages. In late October / November 2026, it utilizes the **Model Context Protocol (MCP 3.1) Task Protocol** for standardized database discovery, and **Claude 5.1** or **GPT-5.5** for high-fidelity reasoning, while maintaining local-first execution for simpler queries via **Gemma 3**, **Qwen 3.6**, or **Llama 4**.
+Data Copilot is a high-performance, cost-optimized pipeline architecture for converting natural language questions into executable SQL queries. It employs a **Layered Multi-Agent** approach to decompose complex Text-to-SQL tasks into specialized stages. As of **January 2027**, it utilizes **FastMCP 3.1** and the **Model Context Protocol (MCP 3.1) Task Protocol** for standardized database discovery, and **Claude 5.1/5.6**, **GPT-5.5/5.6**, or **DeepSeek-V4** for high-fidelity reasoning, while maintaining local-first execution for simpler queries via **Gemma 3**, **Qwen 3.8**, or **Llama 4**.
 
 ## What problem it solves
 Traditional "one-shot" Text-to-SQL approaches often fail on complex schemas (100+ tables), ambiguous intents, or large-scale data environments, leading to "context window exhaustion" and high token costs. Data Copilot solves this by breaking the problem into modular steps—routing, intent extraction, table selection, column pruning, and SQL generation—drastically reducing token usage and increasing query accuracy through aggressive schema pruning. It enables **Agentic SQL Synthesis** where models iteratively refine queries based on structural feedback.
@@ -147,5 +147,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

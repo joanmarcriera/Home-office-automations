@@ -1,7 +1,7 @@
 # Component Map
 
 ## What it is
-The Component Map is the architectural blueprint of the repository's technology stack. It categorizes every tool, service, and protocol into a functional lifecycle: Ingest, Store, Understand, Decide, Act, and Sync. In late October / November 2026, this map fully integrates the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** ecosystems.
+The Component Map is the architectural blueprint of the repository's technology stack. It categorizes every tool, service, and protocol into a functional lifecycle: Ingest, Store, Understand, Decide, Act, and Sync. In **January 2027**, this map fully integrates the **Model Context Protocol (FastMCP 3.1)** and **MCP 3.1 Task Protocol** ecosystems.
 
 ### Functional Categories
 
@@ -26,7 +26,7 @@ The Component Map is the architectural blueprint of the repository's technology 
 
 #### 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
-- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Gemini](../tools/ai_knowledge/gemini.md) (Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.6)
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Gemini](../tools/ai_knowledge/gemini.md) (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Qwen 3.8)
 - **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (Gemma 3, Llama 4)](../tools/ai_knowledge/local_llms.md), [vLLM](../tools/infrastructure/vllm.md), [TGI](../tools/infrastructure/tgi.md), [SGLang](../tools/infrastructure/sglang.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [MLX](../tools/infrastructure/mlx.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/providers/perplexity.md), [Valyu](../tools/ai_knowledge/valyu.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
@@ -63,7 +63,7 @@ The Component Map is the architectural blueprint of the repository's technology 
 In a rapidly expanding ecosystem of AI agents and self-hosted services, it is easy to lose track of how individual components interact. This map provides a high-level view of the pipeline, helping users and automated agents identify gaps, avoid duplicates, and understand the flow of information from raw data to autonomous action.
 
 ## Where it fits in the stack
-It is a **Core Architectural Document** that serves as the foundation for documentation taxonomy. It guides where new tools should be placed in `mkdocs.yml` and how they should be linked in the KnowledgeOps graph. It is fully updated for the **late October / November 2026** context, incorporating **MCP 3.1** and **Gemma 3 / Llama 4** reasoning patterns.
+It is a **Core Architectural Document** that serves as the foundation for documentation taxonomy. It guides where new tools should be placed in `mkdocs.yml` and how they should be linked in the KnowledgeOps graph. It is fully updated for the **January 2027** context, incorporating **FastMCP 3.1** and **Gemma 3 / Llama 4** reasoning patterns.
 
 ## Typical use cases
 - **Onboarding**: Helping new contributors understand the relationship between different parts of the stack.
@@ -167,5 +167,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

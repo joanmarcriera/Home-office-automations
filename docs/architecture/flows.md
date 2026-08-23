@@ -1,7 +1,7 @@
 # Automation Flows & Agentic Orchestration
 
 ## What it is
-Automation Flows represent the orchestration logic, state management strategies, and sequential pipelines that connect disparate services in the Home-Office AI Hub. In late October / November 2026, these have matured into **AI-Native Agentic Flows**, where autonomous agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.6, and Llama 4) use the **Model Context Protocol (MCP 3.1) Task Protocol** to dynamically select tools, manage long-running state, and execute complex sequences with standardized benchmarking. These flows utilize **FastMCP 3.1** for ultra-low latency tool discovery, definition, and execution.
+Automation Flows represent the orchestration logic, state management strategies, and sequential pipelines that connect disparate services in the Home-Office AI Hub. As of **January 2027**, these have matured into **AI-Native Agentic Flows**, where autonomous agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Qwen 3.8, and Llama 4) use the **Model Context Protocol (MCP 3.1) Task Protocol** to dynamically select tools, manage long-running state, and execute complex sequences with standardized benchmarking. These flows utilize **FastMCP 3.1** for ultra-low latency tool discovery, definition, and execution.
 
 ## What problem it solves
 In a complex ecosystem with 500+ documented tools, hardcoded "if-this-then-that" rules become unmaintainable. Agentic flows solve this by replacing brittle logic with "intent-based" orchestration. They bridge the gap between ingestion (scanners, webhooks) and action (calendar updates, task creation), ensuring that data is not just moved, but understood and acted upon with human-like reasoning. **AI-native visual reasoning** allows agents to interpret and interact with workflow diagrams, system status dashboards, and visual state representations directly.
@@ -13,7 +13,7 @@ In a complex ecosystem with 500+ documented tools, hardcoded "if-this-then-that"
 
 ### 1. Agentic School Activity Extraction
 - **Trigger**: New email received via IMAP.
-- **Reasoning**: [Claude 5.1](../tools/ai_knowledge/claude.md) analyzes the email body and PDF attachments for events using visual reasoning for layout understanding.
+- **Reasoning**: [Claude 5.6](../tools/ai_knowledge/claude.md) analyzes the email body and PDF attachments for events using visual reasoning for layout understanding.
 - **Tool Use**: Agent uses `mcp-google-calendar` via **FastMCP 3.1** to check for conflicts and `mcp-paperless` to store the notice.
 - **Action**: Event is created only if no "Family" conflict exists; otherwise, it flags for human review in [Vikunja](../services/vikunja.md).
 
@@ -39,7 +39,7 @@ In a complex ecosystem with 500+ documented tools, hardcoded "if-this-then-that"
 ## Limitations
 - **Latency**: Agentic reasoning steps add seconds or minutes compared to sub-second hardcoded triggers, though **FastMCP 3.1** mitigates this for tool calls.
 - **Non-Deterministic**: The same input may occasionally result in different flow paths due to LLM variance.
-- **Cost**: Frequent calls to frontier models (Claude 5.1, GPT-5.5, Gemini 4.0) can incur significant API costs if not optimized.
+- **Cost**: Frequent calls to frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra) can incur significant API costs if not optimized.
 
 ## When to use it
 - When tasks require "judgment" (e.g., determining if a document is "urgent").
@@ -139,7 +139,7 @@ def trigger_agentic_flow(config: FlowConfig) -> FlowResult:
 # Example usage:
 if __name__ == "__main__":
     config_obj = FlowConfig(
-        task_id="task-2026-11-20",
+        task_id="task-2027-01-07",
         webhook_url="http://n8n:5678/webhook/school-extraction",
         payload={"source": "imap", "subject": "School Calendar Update"}
     )
@@ -167,5 +167,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -3,7 +3,7 @@
 Workflows and scripts for managing Plex media libraries, metadata, and user activity.
 
 ## What it is
-Plex Automation involves using the Plex Media Server API, the Plex Media Scanner CLI, and third-party tools to automate library updates, metadata refinement, transcode optimization, and real-time user notification flows. As of **November 2026**, this ecosystem has fully integrated with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, enabling autonomous AI agents powered by Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 to perform natural-language-driven library curation, playlist generation, and system administration with standardized tool schemas.
+Plex Automation involves using the Plex Media Server API, the Plex Media Scanner CLI, and third-party tools to automate library updates, metadata refinement, transcode optimization, and real-time user notification flows. As of **January 2027**, this ecosystem has fully integrated with **Model Context Protocol (FastMCP 3.1)** and the **MCP 3.1 Task Protocol**, enabling autonomous AI agents powered by Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 to perform natural-language-driven library curation, playlist generation, and system administration with standardized tool schemas and robust Pydantic v2 execution models.
 
 ## What problem it solves
 It completely eliminates the administrative overhead of manual library management. It ensures that new media is scanned and matched immediately upon arrival, metadata (such as custom covers, background art, and collection structures) remains pristine, and users receive automated notifications when their requested content is ready. Furthermore, it prevents performance degradation by automatically terminating stale or paused transcoded streams to conserve CPU/GPU compute blocks, and enables natural language conversational control over home media servers.
@@ -15,14 +15,14 @@ It completely eliminates the administrative overhead of manual library managemen
 - **Intelligent Library Syncing**: Proactively triggering library scans for specific paths the instant the storage watcher daemon detects a complete file transfer.
 - **Dynamic Collection Management**: Utilizing tools like **Plex Meta Manager (PMM)** to sync collections dynamically from Trakt, IMDb, or Letterboxd lists.
 - **Real-Time Notification Workflows**: Leveraging Tautulli webhooks to dispatch custom Discord, Telegram, or Matrix messages when content is added or when playback is initiated.
-- **Agentic Curation**: Using Gemini 4.0 Pro or Claude 5.1 to detect misidentified items, fetch high-resolution fan-art, or group anime seasons utilizing complex regex mapping.
+- **Agentic Curation**: Using Gemini 4.0 Pro or Claude 5.6 to detect misidentified items, fetch high-resolution fan-art, or group anime seasons utilizing complex regex mapping.
 - **Session Optimizer**: Monitoring active transcodes and killing paused sessions after 15 minutes of inactivity to optimize hardware usage.
 
 ## Strengths
 - **Exhaustive REST API**: Virtually every action possible in the Plex Web interface is exposed and controllable via standard API endpoints.
 - **Robust Python SDK**: The `plexapi` wrapper is highly mature and simplifies complex server-management workflows.
 - **Extensive Ecosystem**: Backed by massive community-driven tools such as Tautulli, Plex Meta Manager, and the Arr suite.
-- **MCP 3.1 Compatibility**: FastMCP-enabled gateways allow frontier models to query and update media states natively.
+- **FastMCP 3.1 Compatibility**: FastMCP-enabled gateways allow frontier models to query and update media states natively.
 
 ## Limitations
 - **Token Security**: Relies on a persistent `X-Plex-Token`, which requires secure handling and lacks fine-grained scoping.
@@ -145,5 +145,5 @@ for episode in trash_library.search(viewed=True):
 - [Model Context Protocol Specification 3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-15
+- Last reviewed: 2027-01-07
 - Confidence: high
