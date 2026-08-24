@@ -12,6 +12,7 @@ It eradicates the "integration bottleneck" of AI engineering. Historically, deve
 ## Typical use cases
 - **Secure File Orchestration**: Granting an IDE agent fine-grained access to local project filesystems under strict permission boundaries.
 - **Enterprise Data Federation**: Bridging complex relational databases (PostgreSQL, BigQuery) with models via dynamically queried schemas.
+- **MCP Security & Write Access Control**: Enforcing write safety and guardrails on AI-generated content and tool execution via tools like **Cloudflare WriteGuard**.
 - **Unified Agent Tools**: Building an MCP tool once and sharing it seamlessly across multiple client platforms (e.g., [Goose](../agents/goose.md), [Cline](../agents/cline.md), and custom workspace daemons).
 - **Heterogeneous Agent Chains**: Running complex pipelines where **Claude 5.1** coordinates high-level planning, while **Gemma 3** or **Qwen 3.6** executes local scripts via a fast, secure MCP transport.
 
@@ -166,6 +167,7 @@ if __name__ == "__main__":
 - [Claude Code](../development_ops/claude-code.md) — Standard CLI companion using MCP natively.
 - [Roo Code](../agents/roo-code.md) — Highly extensible IDE agent utilizing MCP 3.1.
 - [MCP Registry](mcp-registry.md) — Central directory for community and enterprise servers.
+- **Cloudflare WriteGuard** — MCP safety tool for filtering and securing AI-generated write calls and content.
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — Enterprise orchestration pattern.
 - [Cline](../agents/cline.md) — Multi-model IDE agent with deep protocol support.
 - [n8n](../../services/n8n.md) — Multi-system visual workflow and trigger integrator.
@@ -174,10 +176,11 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Model Context Protocol Official Site](https://modelcontextprotocol.io/)
+- [Cloudflare WriteGuard MCP Safety](https://www.infoq.com/news/2026/08/cloudflare-writeguard-mcp-safety/)
 - [Anthropic Developer Documents: MCP Concepts](https://modelcontextprotocol.io/docs/concepts/architecture)
 - [Official Model Context Protocol GitHub SDKs](https://github.com/modelcontextprotocol)
 - [LocalLLaMA Community Critiques of MCP Architecture](https://www.reddit.com/r/LocalLLaMA/comments/1uvaqxp/mcp_is_bad/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-25
+- Last reviewed: 2027-01-07
 - Confidence: high

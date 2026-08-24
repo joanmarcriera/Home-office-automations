@@ -1,7 +1,7 @@
 # AWS Bedrock
 
 ## What it is
-AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In December 2026, it is a primary enterprise gateway for deploying models like Claude 5.1 Sonnet, [Gemma 3](../ai_knowledge/local_llms.md), and Llama 4 Maverick, now featuring native support for the NVIDIA Rubin architecture and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool integration using **FastMCP 3.1**.
+AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In early 2027, it serves as a primary enterprise gateway for deploying models like Claude 5.1 Sonnet, [Gemma 3](../ai_knowledge/local_llms.md), and Llama 4 Maverick, featuring native integration with **AWS DynamoDB Vector Search** for real-time transactional vector storage and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool integration using **FastMCP 3.1**.
 
 ## What problem it solves
 It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and high-performance execution on next-generation hardware.
@@ -11,7 +11,7 @@ It simplifies the process of building and scaling generative AI applications by 
 
 ## Typical use cases
 - **Enterprise AI Applications**: Building secure, scalable AI solutions within the AWS ecosystem.
-- **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" to connect models to proprietary S3-hosted data.
+- **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" and AWS DynamoDB Vector Search to connect models to low-latency transactional vector data and S3 assets.
 - **Agentic Workflows**: Deploying autonomous agents that leverage the **FastMCP 3.1** Task Protocol to execute multi-step tasks across AWS resources.
 - **Hardware-Accelerated Inference**: Utilizing NVIDIA Rubin GPUs for ultra-low latency inference of frontier models.
 
@@ -19,7 +19,7 @@ It simplifies the process of building and scaling generative AI applications by 
 - **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
 - **Model Variety**: Access to [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and Llama 4 through a single API.
 - **NVIDIA Rubin Support**: Optimized for the latest GPU architectures to provide superior price-performance.
-- **AWS Integration**: Seamless integration with S3, Lambda, IAM, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
+- **AWS Integration**: Seamless integration with S3, DynamoDB Vector Search, Lambda, IAM, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
 - **Managed RAG**: Built-in support for automated vectorization and retrieval via Knowledge Bases.
 
 ## Limitations
@@ -199,9 +199,10 @@ def retrieve_from_kb(kb_id, query):
 ## Sources / references
 - [Official AWS Bedrock Page](https://aws.amazon.com/bedrock/)
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
+- [AWS DynamoDB Vector Search Announcement](https://www.infoq.com/news/2026/08/aws-dynamodb-vector-search/)
 - [Boto3 Bedrock Runtime Reference](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime.html)
 - [AWS News: NVIDIA Rubin Support on Bedrock](https://aws.amazon.com/blogs/aws/nvidia-rubin-support-announcement/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

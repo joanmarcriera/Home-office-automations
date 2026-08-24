@@ -1,7 +1,7 @@
 # Cursor
 
 ## What it is
-Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of late December 2026, **Cursor 3.5** introduces **Composer 3.5**, **Design Mode v3**, and native **FastMCP 3.1** support, making it the standard for high-velocity AI engineering.
+Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of early 2027, **Cursor 3.5** introduces **Composer 3.5**, **Design Mode v3**, native **FastMCP 3.1** support, and **Cursor Origin** (an AI-powered, cloud-native GitHub alternative for collaborative code repositories and agentic workflows).
 
 ## What problem it solves
 It eliminates the "context-switching" penalty of moving between an editor and an LLM chat interface. Cursor deeply indexes your entire codebase (locally and securely), allowing the AI to provide relevant code suggestions, perform complex refactors, and answer architectural questions with full awareness of your project's structure.
@@ -14,6 +14,7 @@ It eliminates the "context-switching" penalty of moving between an editor and an
 - **Codebase Indexing**: Asking high-level questions like "Where is the authentication logic handled?" and getting precise answers.
 - **Automated Bug Fixing**: Providing an error message and letting Cursor suggest and apply the fix.
 - **UI Prototyping**: Using **Design Mode** to generate and refine React/Vue components from natural language descriptions or wireframes.
+- **Collaborative Code Hosting**: Utilizing **Cursor Origin** for AI-native code hosting, automated pull requests, and multi-agent CI pipelines.
 
 ## Strengths
 - **Native Indexing**: Extremely fast and accurate codebase awareness via local embeddings.
@@ -144,9 +145,10 @@ print(f"MCP Servers: {session.mcp_servers}")
 
 ## Sources / references
 - [Cursor Official Website](https://cursor.com/)
+- [Cursor Origin Announcement](https://thenewstack.io/cursor-origin-github-alternative/)
 - [Cursor Forum / Community](https://forum.cursor.com/)
 - [Documentation: Composer](https://docs.cursor.com/composer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
