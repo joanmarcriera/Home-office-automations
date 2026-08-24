@@ -52,6 +52,10 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [Weaviate](weaviate.md) | Open-source vector database with multi-modal search and hybrid filtering |
 | [Zero-Shot Engine (ZSE)](zse.md) | High-efficiency zero-shot classification and extraction pipeline engine |
 
+## Additional Key Infrastructure Platforms
+
+- **[Warp Software Factory](https://thenewstack.io/warp-software-factory-infrastructure/)**: AI-driven software development infrastructure for automated agent execution and scalable cloud development environments.
+
 ---
 - Last reviewed: 2027-01-06
 
