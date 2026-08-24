@@ -104,7 +104,7 @@ def validate_roomodes_config(raw_json: str) -> Optional[RooModesConfig]:
 - [Claude Code](../development_ops/claude-code.md) — Anthropic's terminal-based coding agent.
 - [Aider](../development_ops/aider.md) — Command-line pair programming agent.
 - [Windsurf](../development_ops/windsurf.md) — Commercial agentic IDE platform.
-- [Local LLMs](../../ai_knowledge/local_llms.md) — Guide for running local open-weights models.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Guide for running local open-weights models.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Agentic orchestration framework.
 - [Playwright](../development_ops/playwright.md) — Browser automation engine.
 

@@ -158,7 +158,7 @@ except ValidationError as e:
 - [ZenML](zenml.md) — Portable MLOps framework often compared with Hamilton.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Framework for connecting tools to agents.
 - [Claude 5.1](../ai_knowledge/claude-mythos.md) — Frontier reasoning model.
-- [GPT-5.5](../ai_knowledge/gpt-model.md) — Frontier reasoner.
+- [GPT-5.5](../ai_knowledge/chatgpt.md) — Frontier reasoner.
 - [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — SOTA model.
 - [Llama 4](../ai_knowledge/llama.md) — Next-generation open-source model.
 - [Gemma 3](../ai_knowledge/gemma.md) — SOTA lightweight reasoning model.
