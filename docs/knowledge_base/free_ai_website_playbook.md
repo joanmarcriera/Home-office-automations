@@ -1,7 +1,7 @@
 # Free AI Website Playbook
 
 ## What it is
-The Free AI Website Playbook is a comprehensive guide for builders, founders, and hobbyists looking to launch web properties using zero-cost infrastructure. It covers hosting selection, stack architecture, and prompt engineering strategies to maximize the value of "free tier" services from providers like Vercel, Cloudflare, and GitHub. It incorporates the latest late October / November 2026 standards for agentic deployment and serverless orchestration.
+The Free AI Website Playbook is a comprehensive guide for builders, founders, and hobbyists looking to launch web properties using zero-cost infrastructure. It covers hosting selection, stack architecture, and prompt engineering strategies to maximize the value of "free tier" services from providers like Vercel, Cloudflare, and GitHub. It incorporates the latest early January 2027 standards for agentic deployment and serverless orchestration.
 
 ### Website archetypes
 - **Landing page**: Use this when you need one clear conversion goal: book a call, join a waitlist, or try a product.
@@ -36,7 +36,7 @@ flowchart TD
 ```
 
 ## What problem it solves
-It eliminates the "choice paralysis" and technical hurdles of starting a new project on a budget. By mapping specific website archetypes (landing pages, blogs, AI demos) to the best free-tier providers, it helps users avoid costly mistakes, performance bottlenecks, and the limitations of mismatched technology. It provides a clear path for using **Claude 5.1** and **GPT-5.5** to generate production-ready code for these platforms.
+It eliminates the "choice paralysis" and technical hurdles of starting a new project on a budget. By mapping specific website archetypes (landing pages, blogs, AI demos) to the best free-tier providers, it helps users avoid costly mistakes, performance bottlenecks, and the limitations of mismatched technology. It provides a clear path for using **Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4** to generate production-ready code for these platforms.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Playbook
@@ -83,11 +83,11 @@ Free tiers are best for distribution, validation, and early workflow testing. Th
 ## Getting started
 1. **Choose your Archetype**: Determine if you are building a landing page, a doc site, or a full app MVP.
 2. **Select your Host**: Use the Selection Matrix and Map above to pick the best provider.
-3. **Draft your Prompt**: Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code using **Claude 5.1** or **GPT-5.5**.
+3. **Draft your Prompt**: Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code using **Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, or **DeepSeek-V4**.
 4. **Deploy via CLI**: Use the provider's CLI to deploy your site.
 
 ### Model Context Protocol (MCP) Integration
-As of late 2026, using **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0** with **MCP 3.1** servers is the recommended way to scaffold and manage these sites.
+As of early 2027, using **Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, or **DeepSeek-V4** with **FastMCP 3.1** / **MCP 3.1** servers is the recommended way to scaffold and manage these sites.
 - **Environment Management**: Use an MCP server to securely inject environment variables (like `SUPABASE_KEY`) into your deployment pipeline.
 - **Scaffolding**: Leverage agentic tools to generate the boilerplate for [Vercel](../tools/development_ops/vercel.md) or [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) directly from a natural language prompt.
 - **Automated Deployment**: Instruct the agent to run the necessary CLI commands to push changes to production.
@@ -243,5 +243,5 @@ if __name__ == "__main__":
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

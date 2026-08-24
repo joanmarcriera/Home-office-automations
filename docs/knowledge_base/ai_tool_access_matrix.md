@@ -4,7 +4,7 @@
 The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP/FastMCP).
 
 ## What problem it solves
-The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 5.1** and **GPT-5.5** as the standard reasoning engines of late October / November 2026.
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4** as the standard reasoning engines of early January 2027.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
@@ -19,7 +19,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 - **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
 - **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
 - **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
-- **Late 2026 Freshness**: Incorporates the latest [MCP 3.1](../tools/automation_orchestration/mcp.md) and FastMCP 3.1 server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
+- **Early 2027 Freshness**: Incorporates the latest [MCP 3.1](../tools/automation_orchestration/mcp.md) and FastMCP 3.1 server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
 
 ## Limitations
 - **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
@@ -311,5 +311,5 @@ aider --mcp <mcp-server-command>
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
