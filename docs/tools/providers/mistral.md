@@ -1,7 +1,7 @@
 # Mistral AI
 
 ## What it is
-Mistral AI is a leading European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, Codestral, Devstral, and Pixtral families. As of early January 2027, it has evolved into an enterprise agentic platform with native support for advanced tool calling, persistent multi-agent orchestrations, and standardized protocol bridges including FastMCP 3.1 (Model Context Protocol).
+Mistral AI is a leading European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, Codestral, Devstral, and Pixtral families. As of early January 2027, it has evolved into an enterprise agentic platform with native support for advanced tool calling, persistent multi-agent orchestrations, the **Mistral MCP Connector** for seamless protocol migrations, and standardized bridges including FastMCP 3.1 (Model Context Protocol).
 
 ## What problem it solves
 Mistral provides a high-performance, efficient alternative to American providers, offering some of the best-performing open-weight models for self-hosting and a robust API for agentic workflows. It addresses strict European GDPR and data sovereignty requirements, delivering models that "punch above their weight" in parameter-to-performance ratios and hardware efficiency.
@@ -17,7 +17,7 @@ Mistral provides a high-performance, efficient alternative to American providers
 
 ## Strengths
 - **Sovereignty & GDPR Compliance**: High-performance AI developed and hosted in the EU, satisfying strict regional data regulations.
-- **Native FastMCP 3.1 Integration**: Direct support for the Model Context Protocol (FastMCP 3.1) standard allows agents to communicate with tools, prompts, and resources seamlessly across heterogeneous infrastructure.
+- **Native FastMCP 3.1 & Mistral MCP Connector**: Direct support for Model Context Protocol (FastMCP 3.1) standard and the dedicated Mistral MCP Connector allows agents to communicate with tools, prompts, resources, and legacy integrations seamlessly across heterogeneous infrastructure.
 - **Architectural Efficiency**: Pioneer of Mixture-of-Experts (MoE) architectures that minimize inference costs without degrading output quality.
 - **Extensive Open-Weights Portfolio**: Releases premium models under Apache 2.0, permitting custom fine-tuning and deployment via vLLM or Ollama.
 - **Optimized Tool Calling**: Superior capability in selecting and formatting parallel tool execution schemas under high-concurrency environments.
@@ -181,6 +181,7 @@ def validate_mistral_response(raw_json: str) -> Optional[MistralResponse]:
 
 ## Sources / references
 - [Official Website](https://mistral.ai/)
+- [Mistral MCP Connector Announcement](https://thenewstack.io/mistral-mcp-connector-migration/)
 - [Mistral AI Documentation Portal](https://docs.mistral.ai/)
 - [Mistral Models Reference](https://mistral.ai/models)
 - [Mistral Agents Framework](https://docs.mistral.ai/agents/introduction/)
