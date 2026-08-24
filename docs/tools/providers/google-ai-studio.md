@@ -39,25 +39,57 @@ Developing agentic applications and optimizing multimodal LLM prompts often requ
 
 ### Installation
 Install the official Google GenAI Python SDK:
+
 ```bash
 pip install google-genai pydantic
 ```
 
-### Environment Variable Setup
-Set your Google AI Studio API key:
+### Hello-world example
+Export your API key obtained from [Google AI Studio](https://aistudio.google.com/):
+
 ```bash
 export GEMINI_API_KEY="your-google-ai-studio-api-key"
 ```
 
+Run a minimal text generation call in Python:
+
+```python
+import os
+from google import genai
+
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="Hello world! Explain Google AI Studio in one sentence.",
+)
+print(response.text)
+```
+
 ## CLI examples
 
-### Direct cURL Request to Gemini 4.0 Pro
+### 1. Direct cURL Prompt Call
+Generate text via cURL directly to the Google AI Studio REST API:
+
 ```bash
-curl https://generativelanguage.googleapis.com/v1beta/models/gemini-4.0-pro:generateContent?key=$GEMINI_API_KEY \
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY \
   -H "Content-Type: application/json" \
-  -d '{
-    "contents": [{"parts": [{"text": "Summarize Google AI Studio capabilities."}]}]
-  }'
+  -d '{"contents": [{"parts": [{"text": "Summarize Google AI Studio capabilities."}]}]}'
+```
+
+### 2. List Available Gemini Models
+Query available models and capabilities via cURL:
+
+```bash
+curl "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY"
+```
+
+### 3. Count Prompt Tokens
+Check token counts before sending large prompts to manage context budget:
+
+```bash
+curl https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:countTokens?key=$GEMINI_API_KEY \
+  -H "Content-Type: application/json" \
+  -d '{"contents": [{"parts": [{"text": "Analyze long context window performance across 1M tokens."}]}]}'
 ```
 
 ## API examples
@@ -80,9 +112,8 @@ class GeminiStudioAnalysis(BaseModel):
 def analyze_studio_capabilities() -> GeminiStudioAnalysis:
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", "mock-key"))
 
-    # Prompt call to Gemini 4.0 Pro
     response = client.models.generate_content(
-        model="gemini-4.0-pro",
+        model="gemini-2.5-pro",
         contents="Provide detailed analysis of Google AI Studio platform.",
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
@@ -90,14 +121,12 @@ def analyze_studio_capabilities() -> GeminiStudioAnalysis:
         ),
     )
 
-    # Validate output schema via Pydantic v2
     validated = GeminiStudioAnalysis.model_validate_json(response.text)
     return validated
 
 if __name__ == "__main__":
-    result = analyze_studio_capabilities()
-    print(f"Platform: {result.tool_name}")
-    print(f"Supported Models: {', '.join(result.supported_models)}")
+    # Example execution wrapper
+    print("Google AI Studio structured output generation initialized.")
 ```
 
 ## Related tools / concepts
@@ -112,7 +141,6 @@ if __name__ == "__main__":
 - [Google AI Studio Documentation](https://ai.google.dev/docs)
 - [Google GenAI SDK Repository](https://github.com/google-gemini/generative-ai-python)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

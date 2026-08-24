@@ -37,28 +37,41 @@ Legacy dense foundation models often require excessive memory and compute per to
 
 ## Getting started
 
-### Installation via Ollama
-Pull and run Llama 4 locally using Ollama:
+### Installation
+Install Ollama to easily serve Llama 4 locally on macOS, Linux, or Windows:
+
 ```bash
-ollama run llama4
+curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-### High-Performance Serving via vLLM
-Launch an OpenAI-compatible vLLM server:
+### Hello-world example
+Pull and run Llama 4 in non-interactive mode:
+
 ```bash
-vllm serve meta-llama/Llama-4-70B-Instruct --port 8000 --max-model-len 32768
+ollama run llama4 "Hello world! Explain Llama 4 sparse MoE architecture in two sentences."
 ```
 
 ## CLI examples
 
-### Running Llama 4 via llama.cpp
+### 1. Interactive Model Session with System Prompt
+Launch an interactive CLI prompt session using Ollama:
+
 ```bash
-llama-cli -m ./models/llama-4-70b-Q4_K_M.gguf -p "Analyze the advantages of sparse Mixture-of-Experts models." -n 512
+ollama run llama4 --system "You are a senior system architect assisting with homelab setup."
 ```
 
-### Evaluating Ollama Local Model
+### 2. Serving via vLLM OpenAI-Compatible Server
+Start a high-throughput vLLM serving engine on port 8000:
+
 ```bash
-ollama run llama4 "Explain FastMCP 3.1 tool calling execution flow."
+vllm serve meta-llama/Llama-4-70B-Instruct --port 8000 --max-model-len 32768
+```
+
+### 3. Native Quantized Execution via llama.cpp
+Run quantized GGUF weights directly via `llama-cli`:
+
+```bash
+llama-cli -m ./models/llama-4-70b-Q4_K_M.gguf -p "Analyze sparse Mixture-of-Experts routing." -n 256
 ```
 
 ## API examples
@@ -106,9 +119,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Meta AI Llama 4 Release Hub](https://ai.meta.com/llama/)
 - [Hugging Face Meta-Llama 4 Organization](https://huggingface.co/meta-llama)
-- [Reddit LocalLLaMA Llama 4 Benchmarks](https://www.reddit.com/r/LocalLLaMA/)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
