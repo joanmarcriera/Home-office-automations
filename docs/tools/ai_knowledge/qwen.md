@@ -216,6 +216,7 @@ if __name__ == "__main__":
 - [Latent Space: Qwen 3.8 Max, 24T, and 27B Announcement](https://www.latent.space/p/ainews-qwen-38-max24t-and-27b-new)
 - [Reddit discussion on Qwen 3.6 27B context performance](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/)
 - [Qwen 3.8 Announcement on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1ve0psn/qwen3827b_announced_alongside_qwen38max/)
+- [Reddit Discussion on Qwen 3.8 27B Game Changer](https://www.reddit.com/r/LocalLLaMA/comments/1vvyacg/qwen_38_27b_is_a_game_changer/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
