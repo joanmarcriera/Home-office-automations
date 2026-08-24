@@ -163,7 +163,8 @@ if __name__ == "__main__":
 - [Gemma 3 for Coding Comparison](https://blog.google/technology/ai/gemma-3-report/)
 - [Meta Muse Code](https://thenewstack.io/meta-muse-code/)
 - [Prime Agent Harness](https://www.reddit.com/r/LocalLLaMA/comments/1vgnmny/prime_agent_a_new_coding_harness_surpassing/)
+- [Codex Async Developer Messaging - The New Stack](https://thenewstack.io/codex-async-developer-messaging/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-14
+- Last reviewed: 2027-01-07
 - Confidence: high

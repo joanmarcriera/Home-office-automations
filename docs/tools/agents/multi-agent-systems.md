@@ -147,6 +147,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Multi-Agent System Architecture Standards](https://github.com/internal-ref/multi-agent-systems)
 - [FastMCP 3.1 Protocol Specifications](https://modelcontextprotocol.io/)
+- [TrueForge Claude Managed Agents Platform - The New Stack](https://thenewstack.io/truefoundry-trueforge-claude-managed-agents/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

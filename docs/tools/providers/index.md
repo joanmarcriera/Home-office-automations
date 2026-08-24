@@ -39,6 +39,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Poolside](poolside.md) | AI research company building frontier foundation models for software engineering |
 | [Portkey AI Gateway](portkey.md) | Control plane for production AI apps providing routing, tracing, and caching |
 | [Replicate](replicate.md) | Cloud platform for running open-source machine learning models via API |
+| [Solar Pro](https://thenewstack.io/upstage-solar-pro-4/) | Upstage's high-efficiency frontier LLM model family for specialized enterprise inference |
 | [SOOFI](soofi.md) | Domain-specific AI inference provider targeting sovereign data operations |
 | [Tavily](tavily.md) | Search and information extraction API optimized specifically for autonomous AI agents |
 | [Together AI](together.md) | High-performance cloud inference platform for large-scale open foundation models |
@@ -55,5 +56,5 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
