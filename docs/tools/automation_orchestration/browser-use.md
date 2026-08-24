@@ -136,6 +136,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Browser Use GitHub Repository](https://github.com/browser-use/browser-use)
 - [Official Browser Use Documentation](https://docs.browser-use.ai/)
+- [Anthropic Browser-Use Tool - The New Stack](https://thenewstack.io/anthropic-browser-use-tool/)
 - [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata

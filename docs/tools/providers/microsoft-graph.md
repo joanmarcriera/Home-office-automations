@@ -185,6 +185,7 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Microsoft Graph Documentation](https://learn.microsoft.com/en-us/graph/overview)
+- [Azure DevOps Remote MCP GA - InfoQ](https://www.infoq.com/news/2026/08/azure-devops-remote-mcp-ga/)
 - [MCP Microsoft Graph Server](https://github.com/modelcontextprotocol/servers/tree/main/src/microsoft-graph)
 - [Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 

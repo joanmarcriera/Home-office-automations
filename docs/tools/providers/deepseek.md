@@ -174,6 +174,7 @@ def query_deepseek_reasoner() -> DeepSeekSchema:
 - [DeepSeek-V4-Flash Model - HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731)
 - [DeepSeek-V4-Flash-0731 Performance Benchmark on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vdq8en/deepseekv4flash0731_surpasses_fable5_sol_kimik3/)
 - [DeepSeek Harness - InfoQ](https://www.infoq.com/news/2026/08/deep-seek-harness/)
+- [DeepSeek Harness v0.1.1 - Reddit r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vugyfe/deepseek_harness_v011_released/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

@@ -188,6 +188,7 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+- [Azure DevOps Remote MCP GA - InfoQ](https://www.infoq.com/news/2026/08/azure-devops-remote-mcp-ga/)
 - [Microsoft Learn: What's new in Azure OpenAI? (December 2026)](https://learn.microsoft.com/en-us/azure/ai-services/openai/whats-new)
 - [Model Context Protocol / FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.1)
 - [Azure AI Search Search & Verification](https://github.com/search?q=Azure+AI+Search&ref=2026-12-31-audit)
