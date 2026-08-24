@@ -131,9 +131,9 @@ print(response.json())
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Standard for connecting agents to data.
 - [Claude](../ai_knowledge/claude.md) - Frontier LLM for orchestration.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) - Data framework for LLM applications.
-- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) - Standard for k8s monitoring.
-- [Loki](../../services/loki.md) - Horizontally scalable log aggregation.
-- [Tempo](../../services/tempo.md) - High-volume distributed tracing.
+- [Prometheus](prometheus.md) - Standard for k8s monitoring.
+- [Loki](grafana-loki.md) - Horizontally scalable log aggregation.
+- [Tempo](tempo.md) - High-volume distributed tracing.
 
 ## Sources / references
 - [Grafana AI Observability Documentation](https://grafana.com/docs/grafana-cloud/monitor-applications/ai-observability/)

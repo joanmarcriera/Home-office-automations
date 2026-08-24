@@ -32,7 +32,7 @@ It addresses the distinct challenges of production AI systems, including trackin
 - When you want to leverage official [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers for live-debugging systems via terminal interfaces.
 
 ## When not to use it
-- If your stack mandates fully open-source, local-first, or self-hosted telemetry tools (e.g., [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) and [Grafana Cloud](grafana-cloud.md)).
+- If your stack mandates fully open-source, local-first, or self-hosted telemetry tools (e.g., [Prometheus](prometheus.md) and [Grafana Cloud](grafana-cloud.md)).
 - For localized prototype environments or tiny test scripts where lighter tools like [Arize Phoenix](arize-ai.md) or [Parea](parea.md) are sufficient.
 
 ## Getting started
@@ -182,7 +182,7 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for model-tool interaction.
 - [LangChain](../ai_knowledge/langchain.md) — Mainstream orchestration library.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Data-connective LLM framework.
-- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) — Self-hosted time-series metrics.
+- [Prometheus](prometheus.md) — Self-hosted time-series metrics.
 
 ## Sources / references
 - [New Relic AI Monitoring Official Site](https://newrelic.com/products/ai-monitoring)

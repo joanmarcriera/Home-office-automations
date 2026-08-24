@@ -155,7 +155,7 @@ if __name__ == "__main__":
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) — MCP server for managing calendars.
 - [Home Assistant](../../services/home-assistant.md) — Often consumes Proton iCal feeds for dashboard display.
 - [n8n](../../services/n8n.md) — Workflow automation that can trigger from iCal feeds.
-- [Proton Mail](../../services/proton-mail.md) — Tightly integrated secure email service.
+- [Proton Mail](../enterprise/proton-mail.md) — Tightly integrated secure email service.
 
 ## Sources / references
 - [Proton Calendar Official Website](https://proton.me/calendar)

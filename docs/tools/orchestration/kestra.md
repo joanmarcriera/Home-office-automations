@@ -9,7 +9,7 @@ Kestra is a declarative orchestration platform that allows engineering teams to 
 Kestra bridges the gap between infrastructure automation and data orchestration. It eliminates the "hidden" logic often found in cron jobs or custom scripts by making every execution observable, retryable, and version-controllable. It simplifies the creation of event-driven agentic loops by providing native triggers for external events.
 
 ## Where it fits in the stack
-**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In late November/December 2026, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.1](../ai_knowledge/claude-mythos.md), [GPT-5.5](../ai_knowledge/gpt-model.md), [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md), [Llama 4](../ai_knowledge/llama.md), [Gemma 3](../ai_knowledge/gemma.md), or [Qwen 3.6](../ai_knowledge/qwen.md) to be integrated into structured, declarative processes via [FastMCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In late November/December 2026, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.1](../ai_knowledge/claude-mythos.md), [GPT-5.5](../ai_knowledge/chatgpt.md), [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md), [Llama 4](../ai_knowledge/llama.md), [Gemma 3](../ai_knowledge/gemma.md), or [Qwen 3.6](../ai_knowledge/qwen.md) to be integrated into structured, declarative processes via [FastMCP 3.1](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **AI Model Retraining**: Triggering a training pipeline when new data arrives, followed by evaluation and notification.
@@ -168,7 +168,7 @@ except ValidationError as e:
 - [LiteLLM](../../services/litellm.md) — For AI task integration within flows.
 - [MCP](../automation_orchestration/mcp.md) — For extending Kestra with agentic tools.
 - [Claude 5.1](../ai_knowledge/claude-mythos.md) — Frontier model for workflow reasoning.
-- [GPT-5.5](../ai_knowledge/gpt-model.md) — Frontier reasoning model.
+- [GPT-5.5](../ai_knowledge/chatgpt.md) — Frontier reasoning model.
 - [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — High-performance model.
 - [Llama 4](../ai_knowledge/llama.md) — Next-generation open model.
 - [Gemma 3](../ai_knowledge/gemma.md) — Lightweight model for task logic.

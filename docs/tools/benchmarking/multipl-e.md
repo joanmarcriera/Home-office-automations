@@ -12,7 +12,7 @@ Evaluating code generation capabilities using Python-only benchmarks introduces 
 MultiPL-E solves these problems by providing automated, semantically-validated compilers and prompt translation pipelines that convert benchmark unit tests and function signatures into 18+ programming languages with isolated containerized test execution.
 
 ## Where it fits in the stack
-**Category**: [Benchmarking](index.md) / Multi-Language Code Evaluation. MultiPL-E serves as an evaluation framework sitting alongside single-language datasets like [MBPP](mbpp.md) and interactive harness benchmarks like [Inspect AI](inspect-ai.md) or [SWE-bench](../process_understanding/swe-bench.md).
+**Category**: [Benchmarking](index.md) / Multi-Language Code Evaluation. MultiPL-E serves as an evaluation framework sitting alongside single-language datasets like [MBPP](mbpp.md) and interactive harness benchmarks like [Inspect AI](inspect-ai.md) or [SWE-bench](swe-bench.md).
 
 ## Typical use cases
 - **Frontier Model Evaluation**: Benchmarking models (e.g., Claude 5.1, GPT-5.5, Llama 4 Code) across 18+ languages to assess polyglot coding competence.
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [MBPP](mbpp.md) — Mostly Basic Python Problems dataset, one of the primary sources for MultiPL-E translation.
 - [Inspect AI](inspect-ai.md) — AI safety and evaluation framework for LLMs.
-- [SWE-bench](../process_understanding/swe-bench.md) — Benchmark for evaluating agents on real GitHub issues.
+- [SWE-bench](swe-bench.md) — Benchmark for evaluating agents on real GitHub issues.
 
 ## Sources / references
 - [MultiPL-E GitHub Repository](https://github.com/nuprl/MultiPL-E)

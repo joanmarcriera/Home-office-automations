@@ -121,7 +121,7 @@ def validate_cline_mcp_config(raw_json: str) -> Optional[ClineMCPSettings]:
 - [Aider](../development_ops/aider.md) — Terminal-native pair programming agent.
 - [Claude Code](../development_ops/claude-code.md) — Anthropic's official terminal coding harness.
 - [Windsurf](../development_ops/windsurf.md) — Commercial agentic IDE experience.
-- [Local LLMs](../../ai_knowledge/local_llms.md) — Guide for running local coding models.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Guide for running local coding models.
 - [Model Routing](../../knowledge_base/model_routing_guide.md) — Strategy for dynamic LLM routing.
 
 ## Sources / references

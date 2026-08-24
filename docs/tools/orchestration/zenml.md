@@ -198,7 +198,7 @@ except ValidationError as e:
 - [Apache Hamilton](apache-hamilton.md) — Elegant micro-framework for defining data and model pipelines.
 - [Model Control Plane (MCP)](../automation_orchestration/mcp.md) — The core protocol standard for extending ZenML with agentic tooling.
 - [Claude 5.1](../ai_knowledge/claude-mythos.md) — Primary frontier model for orchestrating ZenML tasks and auditing experiment parameters.
-- [GPT-5.5](../ai_knowledge/gpt-model.md) — SOTA model for advanced pipeline synthesis.
+- [GPT-5.5](../ai_knowledge/chatgpt.md) — SOTA model for advanced pipeline synthesis.
 - [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — High-performance reasoner.
 - [Llama 4](../ai_knowledge/llama.md) — Next-generation open model.
 - [Gemma 3](../ai_knowledge/gemma.md) — Lightweight, high-performance model for local task execution.

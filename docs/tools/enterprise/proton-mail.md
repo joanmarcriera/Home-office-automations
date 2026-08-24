@@ -192,7 +192,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 
 - **[Proton Calendar](../calendar_tasks/proton_calendar.md)**: Native calendar synchronization for privacy-focused scheduling and event parsing.
-- **[Paperless-ngx](../intake_storage/paperless-ngx.md)**: Automated ingestion pipeline for PDF attachments retrieved via Proton Mail Bridge.
+- **[Paperless-ngx](../../services/paperless-ngx.md)**: Automated ingestion pipeline for PDF attachments retrieved via Proton Mail Bridge.
 - **[FastMCP 3.1 Multi-Agent Framework](../agents/multi-agent-systems.md)**: Encapsulate encrypted email sending and reading behind MCP tool schemas.
 
 
