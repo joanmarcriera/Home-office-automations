@@ -164,6 +164,7 @@ if __name__ == "__main__":
 - [Silero VAD V6 Documentation](https://github.com/snakers4/silero-vad)
 - [MLX Whisper (Apple Silicon Optimization)](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
 - [OpenAI Whisper Turbo Announcement](https://openai.com/blog/whisper-turbo)
+- [FireRedTTS3 Reddit Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1vukj3m/fireredaudio_fireredtts3_by_fireredteam/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

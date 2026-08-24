@@ -153,6 +153,7 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Google AI Developer Platform: Introducing Antigravity Agent Stateful Framework](https://antigravity.google)
+- [The New Stack: Google Antigravity IDE Extensions](https://thenewstack.io/google-antigravity-ide-extensions/)
 - [GitHub Search: Antigravity Agent Stateful Orchestration Engine](https://github.com/search?q=Antigravity+Agent)
 - [Vertex AI Agentic Workflows and Mission Planning](https://cloud.google.com/vertex-ai)
 - [MiniBot V2](https://www.reddit.com/r/LocalLLaMA/comments/1v0a9jn/sharing_minibot_v2_this_is_what_im_currently/) — Integrated from daily log reference.

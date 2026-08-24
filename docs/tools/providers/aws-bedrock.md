@@ -197,6 +197,7 @@ def retrieve_from_kb(kb_id, query):
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) - Tooling for Bedrock agents.
 
 ## Sources / references
+- [n8n Node Spotlight: Amazon Bedrock AgentCore](https://blog.n8n.io/node-spotlight-amazon-bedrock-agentcore/)
 - [Official AWS Bedrock Page](https://aws.amazon.com/bedrock/)
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
 - [AWS DynamoDB Vector Search Announcement](https://www.infoq.com/news/2026/08/aws-dynamodb-vector-search/)

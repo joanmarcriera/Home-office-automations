@@ -157,6 +157,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Official Website](https://openclaw.io/)
 - [GitHub Repository](https://github.com/openclaw/openclaw)
+- [The New Stack: Slack Code Agent Channels](https://thenewstack.io/slack-code-agent-channels/)
 - [ClawdHub Skill Registry](https://clawdhub.ai/)
 - [TechRadar: "ClawJacked" Vulnerability Report (Fixed in 2026.2.25)](https://www.techradar.com/pro/security/openclaw-vulnerability-report-2026)
 
