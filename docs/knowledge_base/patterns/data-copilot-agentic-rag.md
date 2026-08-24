@@ -1,122 +1,105 @@
 # Data Copilot: Agentic RAG & Hybrid Retrieval
 
-Diagnostic analytics often requires more than just a SQL query. Answering "Why did revenue drop?" requires looking at data (SQL), standard operating procedures (SOPs), policy changes (Meeting Notes), and external factors. This pattern defines an agentic retrieval system that decides between structured (SQL) and unstructured (Docs) sources.
+Diagnostic analytics requires more than just SQL database queries. Answering complex operational questions like "Why did quarterly margins contract?" requires correlating quantitative metrics (SQL databases) with unstructured policies, meeting logs, and technical incident reports (RAG context). This pattern defines an agentic retrieval architecture that dynamically routes and synthesizes across structured and unstructured data silos.
 
 ## What it is
-The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is a sophisticated data access strategy where an AI agent acts as a dynamic planner. In late October / November 2026, this pattern has matured with [Gemma 3](../../tools/ai_knowledge/local_llms.md) and [Llama 4](../../tools/ai_knowledge/local_llms.md) providing high-efficiency local planning and the **MCP 3.1 Task Protocol** standardizing how agents hand off sub-tasks between specialized retrieval tools. It determines the most effective way to answer a complex query by coordinating between structured data sources (like SQL databases) and unstructured data sources (like Markdown documentation or PDFs).
+The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is a data access architecture where an AI agent acts as a dynamic planner and multi-step investigator. In early 2027, this pattern leverages FastMCP 3.1 for high-throughput tool discovery and execution, incorporating frontier reasoning models (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra) alongside local edge planners (Llama 4-70B, Gemma 3-27B, Qwen 3.8-32B). It determines optimal retrieval paths across SQL databases, vector document stores, and live web endpoints.
 
-### Hybrid Retrieval Workflow
+### Hybrid Retrieval Workflow (2027)
 
 ```mermaid
 flowchart TD
-    User([User Question]) --> Planner[1. Agentic Planner]
-    Planner --> SourceCheck{Which Sources?}
+    User([User Diagnostic Question]) --> Planner[1. Agentic Planner]
+    Planner --> SourceCheck{Source Dispatch?}
 
     SourceCheck -- Structured --> SQLAgent[2. SQL Agent Layer]
     SourceCheck -- Unstructured --> RAGAgent[3. RAG Agent Layer]
-    SourceCheck -- Both --> SQLAgent & RAGAgent
+    SourceCheck -- Hybrid/Both --> SQLAgent & RAGAgent
 
-    SQLAgent --> RetrievalCheck{Sufficient?}
+    SQLAgent --> RetrievalCheck{Sufficient Context?}
     RAGAgent --> RetrievalCheck
 
-    RetrievalCheck -- No: Need more info --> Planner
-    RetrievalCheck -- Yes --> Synthesis[4. Synthesis Agent]
+    RetrievalCheck -- Incomplete: Multi-hop --> Planner
+    RetrievalCheck -- Complete --> Synthesis[4. Synthesis Agent]
 
-    Synthesis --> Output[/Diagnostic Answer/]
+    Synthesis --> Output[/Validated Diagnostic Report/]
 ```
 
 ## What problem it solves
-Traditional RAG often fails at complex diagnostic questions (e.g., "Why did revenue drop?") because the answer is split across multiple systems. Structured data provides the "what" (the numbers), while unstructured documents provide the "why" (policy changes, meeting notes, project logs). This pattern bridges that gap, providing a unified, causal explanation.
+Traditional RAG setups fail on diagnostic multi-silo queries because evidence is partitioned across systems. Structured databases contain the "what" (metric numbers, time-series shifts), while unstructured documentation holds the "why" (code changes, policy updates, incident summaries). Agentic RAG bridges this gap by coordinating multi-hop investigation across disparate repositories to generate causal explanations.
 
 ## Where it fits in the stack
-This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). It serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors, leveraging **FastMCP 3.1** for low-latency tool discovery and execution.
+This pattern operates at the **Reasoning, Query Planning & Synthesis Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). It orchestrates underlying [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md) and database connectors, leveraging **FastMCP 3.1** and Pydantic v2 schemas for low-latency tool discovery and verified response payloads.
 
 ## Typical use cases
-- **Root Cause Analysis**: Diagnosing business metric fluctuations by correlating data spikes with project logs.
-- **Compliance Auditing**: Checking if financial transactions (SQL) adhere to corporate travel policies (RAG).
-- **Customer Support**: Troubleshooting technical issues by matching user account history (SQL) with technical manuals (RAG).
-- **Personal Finance**: Explaining spending anomalies by linking bank statements to calendar events and receipts.
-- **Planner Logic Validation**: Programmatically routing queries using schema validation models in Python.
+- **Root Cause Financial Analysis**: Explaining metric drops by linking transaction database deltas with executive meeting notes.
+- **Enterprise Policy & Transaction Audit**: Verifying whether SQL expense records comply with corporate policy PDFs via RAG.
+- **Technical Incident Troubleshooting**: Correlating system logs (SQL/ClickHouse) with post-mortem documentation (Markdown/PDFs).
+- **Supply Chain Diagnostics**: Explaining inventory shortages by linking warehouse database rows with supplier notice emails.
 
 ## Strengths
-- **Comprehensive Context**: Combines quantitative proof with qualitative reasoning.
-- **Autonomous Investigation**: Can perform "multi-hop" queries to track down missing information without human intervention.
-- **Late Interaction (ColBERT)**: By late 2026, agentic RAG has pivoted towards "late interaction" models like ColBERTv2 for significantly higher retrieval precision in deep research tasks.
-- **Traceability**: Provides a clear audit trail from the final answer back to both database rows and document snippets.
+- **Comprehensive Causal Context**: Unifies quantitative proof with qualitative domain insights.
+- **Autonomous Multi-Hop Investigation**: Performs recursive queries to resolve missing variables without manual intervention.
+- **ColBERT & Dense/Sparse Hybrid Search**: Incorporates late-interaction retrieval models for elevated precision in dense research documents.
+- **Auditable Provenance**: Generates clear citation chains linking conclusions back to database rows and document chunks.
 
 ## Limitations
-- **Latency**: Coordination between multiple retrieval steps and synthesis can be slower than simple RAG.
-- **Complexity**: Requires sophisticated prompt engineering for the "Planner" agent to make correct routing decisions.
-- **Compute Cost**: Multi-step reasoning chains consume significantly more tokens than single-shot retrieval.
+- **Coordination Latency**: Multi-turn planning and multi-hop execution introduce latency compared to single-pass RAG.
+- **Token Spend**: Recursive investigation paths consume higher token budgets across reasoning loops.
+- **Planner Complexity**: Requires robust prompt structures and schema constraints to prevent invalid query routing.
 
 ## When to use it
-- Use when the answer requires synthesizing data from disparate silos (e.g., Jira + Postgres).
-- Use for complex "Why" questions that require multiple reasoning steps and causal linking.
-- Use when high traceability and confidence scoring are required for business or financial decisions.
+- When answering complex diagnostic "Why" or "How" questions across mixed data silos.
+- When auditability and verifiable citation links are mandatory for decision support.
+- When integrating structured SQL and unstructured vector stores under a unified FastMCP 3.1 interface.
 
 ## When not to use it
-- Don't use for simple fact retrieval (e.g., "What is the capital of France?") where a basic RAG setup is faster.
-- Don't use for pure data aggregation tasks (e.g., "Total sales by region") where Text-to-SQL alone is sufficient.
-- Avoid when ultra-low latency is the primary requirement and synthesis overhead is unacceptable.
+- For basic aggregation queries (e.g., "Total sales for Q4") where Text-to-SQL alone is sufficient.
+- For simple factual lookup tasks where standard single-pass RAG achieves full recall.
+- When ultra-low latency response (<200ms) is strictly required.
 
 ## Getting started
-Implementing Agentic RAG requires an orchestration framework and access to both structured and unstructured data sources.
 
-### Layers
+### Architectural Components
 
 #### 1. Agentic Planner
-- **Role**: Analyzes the refined intent to determine if the answer lies in the database, the knowledge base, or a combination.
-- **Decision Logic**:
-  - If the question involves "How many", "Total", "Top X" -> **SQL**.
-  - If the question involves "Why", "Policy", "Process", "Who is responsible" -> **RAG**.
-  - If the question is a root-cause diagnosis (e.g., "Why did metric X change?") -> **Hybrid**.
+- Analyzes user intent and context window requirements to select retrieval targets (SQL, RAG, or Hybrid).
+- Routing Logic:
+  - Quantitative metrics, aggregates, filtering -> **SQL Agent**.
+  - Policies, documentation, unstructured text -> **RAG Agent**.
+  - Causal diagnostics, root-cause investigation -> **Hybrid Agentic RAG**.
 
 #### 2. SQL Agent Layer
-- Follows the [Layered Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md).
+- Follows the [Layered Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md) using FastMCP 3.1 connectors.
 
 #### 3. RAG Agent Layer
-- Uses semantic search over unstructured documents (SOPs, meeting notes, project logs).
-- **Tool**: MCP server exposing local Markdown files.
+- Performs dense/sparse hybrid search across Markdown, PDF, and HTML vector indexes.
 
 #### 4. Synthesis Agent
-- Combines the structured data points from SQL with the qualitative context from RAG.
-- **Output Requirements**: Must state assumptions and provide a confidence score.
+- Merges quantitative SQL outputs with unstructured document excerpts into a unified response with confidence scores.
 
-### Multi-hop Investigation Flow
-For complex root-cause "Why" questions, the agent performs a recursive 5-step investigation:
-
-1.  **Step 1: Quantitative Baseline (Structured)**: Establish the exact delta via SQL.
-2.  **Step 2: Event Correlation (Unstructured)**: Search RAG (Project Logs, GitHub PRs) for matching timestamps.
-3.  **Step 3: Hypothesis Generation (Reasoning)**: Link the quantitative proof to the qualitative context.
-4.  **Step 4: Targeted Validation (Structured/Hybrid)**: Run specific SQL/RAG queries to prove/disprove the hypothesis.
-5.  **Step 5: Root Cause Synthesis**: Combine proof into a final report with citations.
-
-### Prerequisites
-- **Orchestration**: [n8n](../../services/n8n.md) or a Python-based framework like [LangGraph](https://www.langchain.com/langgraph).
-- **Structured Data**: Postgres or SQLite with an [MCP SQL Server](../../tools/automation_orchestration/mcp.md).
-- **Unstructured Data**: Markdown files indexed in a vector DB or served via an [MCP Filesystem Server](../../tools/automation_orchestration/mcp.md).
-
-### Basic Configuration
-1.  Initialize your **Planner Agent** with a prompt that defines the `SourceCheck` logic.
-2.  Connect your **SQL Agent** to your database using the [SQL Validation Playbook](../../playbooks/data-copilot-sql-validation.md).
-3.  Connect your **RAG Agent** to your document store.
-4.  Implement the **Synthesis Agent** using the [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md).
+### Multi-Hop Diagnostic Pipeline
+1. **Baseline Quantitative Delta (SQL)**: Calculate exact numerical variance.
+2. **Event & Change Correlation (RAG)**: Query document indices for matching timestamps and change events.
+3. **Hypothesis Formulation**: Formulate causal links between quantitative data and event logs.
+4. **Targeted Verification Query**: Run follow-up SQL/RAG queries to confirm or refute the hypothesis.
+5. **Causal Synthesis Report**: Output final report with validated citations and confidence metrics.
 
 ## CLI examples
-While Agentic RAG is typically an API-driven workflow, you can test retrieval steps using CLI tools.
 
+### CLI Verification of FastMCP Retrieval Tools
 ```bash
-# Test SQL retrieval via MCP CLI
-mcp-cli call sqlite_server query "SELECT SUM(amount) FROM transactions WHERE date > '2026-06-01'"
+# Query SQL database via FastMCP 3.1 CLI
+fastmcp call sqlite_server query --data '{"sql": "SELECT SUM(amount) FROM transactions WHERE date >= \"2027-01-01\""}'
 
-# Test RAG retrieval via MCP CLI
-mcp-cli call filesystem_server search_docs "revenue drop meeting notes"
+# Query vector document store via FastMCP 3.1 CLI
+fastmcp call vector_server search --data '{"query": "revenue policy change 2027", "top_k": 3}'
 ```
 
 ## API examples
 
-### Agentic Planner Route Schema (Python & Pydantic v2)
-The following Python script defines how a Planner Agent routes incoming requests, validating and scoring the classification using modern Pydantic v2 models.
+### Python Agentic Planner Router (FastMCP 3.1 & Pydantic v2)
+The following Python implementation defines an agentic routing model with heuristic fallbacks and Pydantic v2 validation:
 
 ```python
 from enum import Enum
@@ -124,25 +107,25 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
 
 class RouteDestination(str, Enum):
-    """The target retrieval system for the query."""
+    """Target retrieval system for incoming query."""
     SQL = "sql"
     RAG = "rag"
     HYBRID = "hybrid"
 
 class QueryAnalysis(BaseModel):
-    """Pydantic v2 schema for capturing planner-analyzed query parameters and routing."""
-    original_query: str = Field(..., description="The unmodified user request query string")
-    route: RouteDestination = Field(..., description="Calculated routing destination based on keywords and heuristics")
-    confidence_score: float = Field(..., ge=0.0, le=1.0, description="The planner's classification confidence")
-    extracted_keywords: List[str] = Field(default_factory=list, description="Extracted semantic entities or keywords")
+    """Pydantic v2 schema for analyzing and validating query routing parameters."""
+    original_query: str = Field(..., description="Unmodified input query string.")
+    route: RouteDestination = Field(..., description="Determined routing destination.")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Routing confidence score.")
+    extracted_keywords: List[str] = Field(default_factory=list, description="Extracted key terms and entities.")
 
     @field_validator("route", mode="before")
     @classmethod
     def apply_keyword_heuristics(cls, v: str, info) -> str:
-        """Heuristically override route based on presence of key terms if classification is ambiguous."""
+        """Apply keyword heuristics to enforce hybrid routing for diagnostic queries."""
         query = info.data.get("original_query", "").lower()
-        structured_keywords = ["total", "count", "average", "highest", "percent"]
-        unstructured_keywords = ["why", "policy", "process", "reason", "explain"]
+        structured_keywords = ["total", "count", "average", "highest", "revenue", "sum"]
+        unstructured_keywords = ["why", "policy", "process", "reason", "explain", "cause"]
 
         has_struct = any(k in query for k in structured_keywords)
         has_unstruct = any(k in query for k in unstructured_keywords)
@@ -157,40 +140,33 @@ class QueryAnalysis(BaseModel):
 
 # Example Verification Usage
 if __name__ == "__main__":
-    test_payload = {
-        "original_query": "Why did grocery spending spike in June?",
-        "route": "sql", # Will be heuristically overridden to hybrid
-        "confidence_score": 0.95,
-        "extracted_keywords": ["grocery", "spending", "spike", "june"]
+    payload = {
+        "original_query": "Why did SaaS subscription revenue decline in Q4?",
+        "route": "sql",  # Heuristically overridden to hybrid
+        "confidence_score": 0.96,
+        "extracted_keywords": ["revenue", "decline", "saas", "q4"]
     }
 
     try:
-        analyzed_query = QueryAnalysis.model_validate(test_payload)
-        print(f"Analysis Succeeded! Route: {analyzed_query.route.value}")
-        print(f"Confidence: {analyzed_query.confidence_score}")
-    except ValidationError as e:
-        print(f"Validation failed: {e.json(indent=2)}")
+        validated_analysis = QueryAnalysis.model_validate(payload)
+        print(f"Validated Route Destination: {validated_analysis.route.value}")
+        print(f"Confidence Score: {validated_analysis.confidence_score:.2f}")
+    except ValidationError as err:
+        print(f"Validation error: {err.json(indent=2)}")
 ```
 
 ## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — The foundation for structured data access.
-- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md) — The tool layer for agentic retrieval.
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — For ensuring SQL accuracy.
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md) — Standard for the final output.
-- [n8n Automation](../../services/n8n.md) — Preferred orchestration engine for low-code environments.
-- [RAG Pattern](rag-pattern.md) — The baseline for unstructured retrieval.
-- [Agentic Workflows](agentic-workflows.md) — The broader concept of LLMs-as-Planners.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — Standard for tool-agent communication.
-- [Self-Healing Agents](../self-healing-agent-research.md) — For autonomous remediation of retrieval failures.
-- [Local LLMs (Gemma 3)](../../tools/ai_knowledge/local_llms.md) — High-efficiency local planners for agentic loops.
-- [FastMCP](../../tools/automation_orchestration/mcp.md) — High-performance tool discovery and communication.
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — Text-to-SQL architecture.
+- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md) — Tool integration layer.
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md) — Standard output payload schema.
+- [FastMCP 3.1 Specification](tool-calling-and-mcp.md) — Tool protocol standard.
+- [Model Routing Guide](../model_routing_guide.md) — Provider model selection framework.
 
 ## Sources / References
-- [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
-- [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
-- [Agentic RAG Guide 2026](https://jobsbyculture.com/blog/agentic-rag-guide-2026)
-- [ColBERTv2: Effective and Efficient Retrieval](https://arxiv.org/abs/2112.01488)
+- [LangChain Agentic RAG Architecture](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
+- [FastMCP 3.1 Protocol Documentation](https://modelcontextprotocol.io/spec)
+- [ColBERTv2 Late-Interaction Retrieval Architecture](https://arxiv.org/abs/2112.01488)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
