@@ -1,25 +1,25 @@
 # AI Tool Access Matrix
 
 ## What it is
-The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP/FastMCP).
+The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP/FastMCP 3.1).
 
 ## What problem it solves
-The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 5.1** and **GPT-5.5** as the standard reasoning engines of late October / November 2026.
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 5.1/5.6**, **GPT-5.5/5.6**, and **DeepSeek-V4** as the standard reasoning engines of early January 2027.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
 
 ## Typical use cases
 - **Assistant Selection**: Deciding between ChatGPT and Claude based on native Google Workspace integration.
-- **Agent Comparison**: Comparing coding agents like [Cursor](../tools/development_ops/cursor.md) and [Claude Code](../tools/development_ops/claude-code.md) for their MCP support.
+- **Agent Comparison**: Comparing coding agents like [Cursor](../tools/development_ops/cursor.md) and [Claude Code](../tools/development_ops/claude-code.md) for their MCP 3.1 support.
 - **Infrastructure Planning**: Filtering for tools that allow "BYO remote AI" or local-first execution for privacy-sensitive work.
 - **Automation Triage**: Identifying which tools can be controlled via CLI or TUI for integration into custom scripts.
 
 ## Strengths
 - **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
-- **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
+- **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, DeepSeek, or local models.
 - **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
-- **Late 2026 Freshness**: Incorporates the latest [MCP 3.1](../tools/automation_orchestration/mcp.md) and FastMCP 3.1 server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
+- **Early 2027 Freshness**: Incorporates the latest [MCP 3.1](../tools/automation_orchestration/mcp.md) and FastMCP 3.1 server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
 
 ## Limitations
 - **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
@@ -66,7 +66,7 @@ The access matrix itself is a documentation artifact, but the tools it tracks ca
 
 ### Checking Claude Code MCP tools
 ```bash
-# List available tools to verify access surface under Claude 5.1/MCP 3.1
+# List available tools to verify access surface under Claude 5.6/MCP 3.1
 claude list-tools
 ```
 
@@ -159,8 +159,8 @@ print(f"Integration Compliant: {report.is_compliant}. Recommended Steps: {report
 | [big-AGI](../tools/ai_knowledge/big-agi.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace for multi-model reasoning and zero-latency UI. |
 | [LM Studio](../tools/infrastructure/lm-studio.md) | Local model runner | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | Best as a local model host rather than a full productivity agent. |
 | [Jan](../tools/infrastructure/jan-ai.md) | Local AI app | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🔴 | Local, open-source chat client with MCP support. |
-| [Qwen 3.6](../tools/ai_knowledge/qwen.md) | Causal LLM/VLM | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Frontier performance-to-compute (3.6-35B-A3B); exceptional for coding/multimodal. |
-| [DeepSeek R1](../tools/ai_knowledge/deepseek-r1.md) | Reasoning model | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | SOTA open-weights reasoning model; strong for math/coding logic. |
+| [Qwen 3.8](../tools/ai_knowledge/qwen.md) | Causal LLM/VLM | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Frontier performance-to-compute (3.8-35B-A3B); exceptional for coding/multimodal. |
+| [DeepSeek-V4 / R1](../tools/ai_knowledge/deepseek-r1.md) | Reasoning model | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | SOTA open-weights reasoning model; strong for math/coding logic. |
 | [TypingMind](../tools/ai_knowledge/typingmind.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
 | [Open Interpreter](../tools/automation_orchestration/open-interpreter.md) | Local computer-use agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟠 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Strong for local computer, files, and terminal; not a native Gmail or Calendar tool. |
 | [Goose](../tools/agents/goose.md) | Local general-purpose agent | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | Broad local agent with deep MCP emphasis. |
@@ -311,5 +311,5 @@ aider --mcp <mcp-server-command>
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

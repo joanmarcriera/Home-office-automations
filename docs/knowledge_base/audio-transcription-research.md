@@ -3,7 +3,7 @@
 ## What it is
 This research document compares optimized versions of OpenAI's Whisper model and architectures like **SenseVoice**, focusing on engines designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab.
 
-### Key Findings (Late October / November 2026)
+### Key Findings (Early January 2027)
 - **SenseVoice Integration**: Native speaker diarization and emotion detection at inference time.
 - **Silero-VAD V6**: 40% lower latency and superior "homelab hum" rejection compared to V5.
 - **Hardware Trends**: `mlx-whisper` is the standard for Apple Silicon (M4/M5 optimized); FP8 support in `faster-whisper` v1.3.x halves VRAM usage on NVIDIA 40-series and 50-series GPUs.
@@ -23,7 +23,7 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 ## Strengths
 The primary strength of this research is the categorization of models by their specific performance profiles and hardware affinity.
 
-### Comparison Table (Late October / November 2026)
+### Comparison Table (Early January 2027)
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -49,14 +49,14 @@ The primary strength of this research is the categorization of models by their s
 - For music-to-sheet-music conversion (requires specialized spectral analysis).
 
 ## Getting started
-Implementing modern transcription involves choosing the right model-engine pair. As of late 2026, **Faster-Whisper v1.3.x** and **SenseVoice Small** are the dominant choices.
+Implementing modern transcription involves choosing the right model-engine pair. In early 2027, **Faster-Whisper v1.3.x** and **SenseVoice Small** are the dominant choices.
 
 1. **Hardware Assessment**:
    - **NVIDIA GPU**: Use `faster-whisper` with FP16/FP8 quantization.
    - **Apple Silicon**: Use `mlx-whisper` for Unified Memory efficiency.
    - **CPU-only (NAS)**: Use `whisper.cpp` with `q5_k` quantization.
 2. **Model Selection**: Use `distil-large-v3` for English speed or `sense-voice-small` for multilingual diarization.
-3. **Integration**: Use **Gemma 3**, **Claude 5.1**, or **GPT-5.5** for post-transcription reasoning via the [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md).
+3. **Integration**: Use **Gemma 3**, **Claude 5.1/5.6**, or **GPT-5.5/5.6** for post-transcription reasoning via the [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md).
 
 ## CLI examples
 The following examples demonstrate how to invoke optimized transcription engines from the command line.
@@ -166,5 +166,5 @@ if __name__ == "__main__":
 - [OpenAI Whisper Turbo Announcement](https://openai.com/blog/whisper-turbo)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
