@@ -161,6 +161,7 @@ def validate_reasoning_log(raw_json: str) -> Optional[ARCReasoningLog]:
 ## Sources / references
 - [ARC GitHub Repository](https://github.com/allenai/ARC-benchmark)
 - [AI2 ARC Homepage](https://allenai.org/data/arc)
+- [NVIDIA AVO ARC-AGI-3 Benchmark Evaluation - The New Stack](https://thenewstack.io/nvidia-avo-arcagi3-benchmark/)
 - [Think You Have Solved Question Answering? (Original Paper arXiv 1803.05457)](https://arxiv.org/abs/1803.05457)
 
 ## Contribution Metadata

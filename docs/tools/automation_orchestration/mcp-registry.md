@@ -144,6 +144,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Official MCP Registry](https://registry.modelcontextprotocol.io/)
 - [Model Context Protocol Website](https://modelcontextprotocol.io/)
+- [Spline V2 MCP Agents - The New Stack](https://thenewstack.io/spline-v2-mcp-agents/)
 - [Agentic AI Foundation Announcements](https://agentic-ai.foundation/)
 - [FastMCP 3.1 Documentation](https://github.com/modelcontextprotocol/fastmcp)
 
