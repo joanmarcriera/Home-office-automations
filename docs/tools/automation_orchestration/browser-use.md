@@ -138,7 +138,8 @@ if __name__ == "__main__":
 - [Official Browser Use Documentation](https://docs.browser-use.ai/)
 - [Anthropic Browser-Use Tool - The New Stack](https://thenewstack.io/anthropic-browser-use-tool/)
 - [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
+- [InfoQ Cloudflare Kitesurf Browser Announcement](https://www.infoq.com/news/2026/08/cloudflare-kitesurf-browser/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high

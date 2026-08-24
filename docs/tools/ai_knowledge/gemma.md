@@ -127,6 +127,7 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Reddit LocalLLaMA Gemma 4 Release Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1vnltec/gemma_4_12b_q3_855_coding_performance_from/)
+- [Reddit Fine-Tuned Gemma 4 12B Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1vvtu9z/i_fine_tuned_gemma_4_12b_for_a_27x_improvement_on/)
 - [Google DeepMind Gemma Overview](https://deepmind.google/technologies/gemma/)
 - [Hugging Face Gemma Model Collection](https://huggingface.co/collections/google/gemma-release-65d5ef31b8d2d6474136622d)
 
