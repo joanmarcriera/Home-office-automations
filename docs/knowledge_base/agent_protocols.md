@@ -1,9 +1,9 @@
 # AI Agent Protocols
 
 ## What it is
-AI Agent Protocols are open standards that enable interoperability between AI agents, tools, development environments, and data sources. In late October / November 2026, the ecosystem is anchored by the **Model Context Protocol (MCP) 3.1** and the **Agent Client Protocol (ACP)**. These protocols decouple the "brain" (the LLM, such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, or Qwen 3.6) from the "tools" (APIs, databases) and the "interface" (IDEs like Cursor, Zed, and VS Code).
+AI Agent Protocols are open standards that enable interoperability between AI agents, tools, development environments, and data sources. In early January 2027, the ecosystem is anchored by the **Model Context Protocol (MCP) 3.1** with FastMCP 3.1 integration, alongside the **Agent Client Protocol (ACP)** and emerging **Autonomous Agent Interoperability Standards (AAIS)**. These protocols decouple the "brain" (the LLM, such as Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, or Qwen 3.8) from the "tools" (APIs, databases, microservices) and the "interface" (IDEs like Cursor, Zed, and VS Code).
 
-MCP 3.1 introduces advanced **Agentic Session Orchestration** and **Identity-Aware Tool Routing**, allowing servers to maintain state across complex, multi-turn reasoning tasks while ensuring granular security and permission boundaries at the tool level.
+MCP 3.1 introduces advanced **Agentic Session Orchestration**, **Autonomous Tool Discovery**, and **Identity-Aware Tool Routing**, allowing servers to maintain state across complex, multi-turn reasoning tasks while ensuring granular security, token budget policies, and permission boundaries at the tool level.
 
 ## What problem it solves
 The AI landscape is highly fragmented; without standardized protocols, agents are locked into proprietary tool integrations. Protocols solve this by providing a universal interface. A tool built for an MCP 3.1 server can be immediately used by any compatible host—from CLI-based agents like [Claude Code](../tools/development_ops/claude-code.md) to full IDEs—eliminating the need for custom "glue code" for every integration. It resolves versioning issues through backward-compatible protocol negotiations and standardized serialization.
@@ -12,11 +12,11 @@ The AI landscape is highly fragmented; without standardized protocols, agents ar
 Protocols act as the **Communication Layer** in the AI stack. They sit between agent frameworks (like [LangGraph](../tools/frameworks/langgraph.md) or [Bee](../tools/agents/bee-agent-framework.md)) and external resources. They enable the "Plug-and-Play" architecture required for modern [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md).
 
 ## Typical use cases
-- **Universal Tool Access**: Using a single MCP 3.1 server for Google Calendar in both a terminal-based agent and a visual IDE.
-- **Local-First Development**: Running local MCP 3.1 servers to give [Gemma 3](../tools/ai_knowledge/local_llms.md) access to private project files without cloud data leakage.
+- **Universal Tool Access**: Using a single MCP 3.1 server for Google Calendar or home automation in both terminal-based agents and visual IDEs.
+- **Local-First Development**: Running local MCP 3.1 servers to give [Gemma 3](../tools/ai_knowledge/local_llms.md) or DeepSeek-V4 access to private project files without cloud data leakage.
 - **Cross-IDE Agents**: Implementing an agent via ACP so it can seamlessly edit code and show diffs in Cursor, Zed, and VS Code.
-- **Identity-Aware Routing**: Restricting sensitive tools (e.g., `delete_database`) to specific authenticated agent sessions.
-- **Dynamic Context Injection**: Feeding real-time database schemas or system metrics to Claude 5.1 during a debugging session.
+- **Identity-Aware Routing**: Restricting sensitive tools (e.g., `delete_database` or infrastructure modification) to specific authenticated agent sessions.
+- **Dynamic Context Injection**: Feeding real-time database schemas or system metrics to Claude 5.1 or GPT-5.6 during a debugging session.
 
 ## Strengths
 - **Modular Architecture**: Swap LLMs (e.g., upgrade to Claude 5.1 or GPT-5.5) without rewriting tool logic.
@@ -66,7 +66,7 @@ def greet_user(name: str) -> str:
     Args:
         name: The name of the user to greet.
     """
-    return f"Hello, {name}! Welcome to the late November 2026 SOTA AI Ecosystem running MCP 3.1."
+    return f"Hello, {name}! Welcome to the early January 2027 SOTA AI Ecosystem running FastMCP 3.1."
 
 if __name__ == "__main__":
     mcp.run()
@@ -107,9 +107,9 @@ class AgentSessionPayload(BaseModel):
     @field_validator("agent_model")
     @classmethod
     def validate_brain_model(cls, val: str) -> str:
-        allowed_models = {"claude-5.1", "gpt-5.5", "gemini-4.0", "llama-4", "gemma-3", "qwen-3.6"}
+        allowed_models = {"claude-5.1", "claude-5.6", "gpt-5.5", "gpt-5.6", "gemini-4.0", "deepseek-v4", "llama-4", "gemma-3", "qwen-3.8"}
         if not any(model in val.lower() for model in allowed_models):
-            raise ValueError(f"Model {val} is not registered in the late 2026 SOTA cohort.")
+            raise ValueError(f"Model {val} is not registered in the early 2027 SOTA cohort.")
         return val
 
 async def run_agent():
@@ -157,5 +157,5 @@ if __name__ == "__main__":
 - [Anthropic: Introducing MCP 3.1 features](https://www.anthropic.com/news/model-context-protocol-3-1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

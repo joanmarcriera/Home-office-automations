@@ -1,9 +1,9 @@
 # LLM Security and Privacy
 
-Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of late October / November 2026.
+Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of early January 2027.
 
 ## What it is
-A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by local models like Gemma 3, Qwen 3.6, or frontier models like Claude 5.1 and GPT-5.5) have access to sensitive toolsets and private knowledge bases via the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
+A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by local models like Gemma 3, Qwen 3.8, or frontier models like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4) have access to sensitive toolsets and private knowledge bases via the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 It mitigates the risk of "Agentic Compromise," where an autonomous system is coerced into leaking PII (Personally Identifiable Information), bypassing security sandboxes, or executing unauthorized actions via its tool-calling capabilities. It provides a blueprint for secure "Home-Office" AI orchestration.
@@ -21,7 +21,7 @@ This document resides in the **Governance and Security Layer** of the [Home-Offi
 - **Stylometric Protection**: LLMs can be used to "de-style" writing to prevent deanonymization.
 - **Automated Red-Teaming**: Using one agent to stress-test the security boundaries of another.
 - **Fine-Grained Auditing**: Agentic logs provide a high-fidelity "black box recorder" for every reasoning step.
-- **Privacy Sovereignty**: Local-first models like Gemma 3 or Qwen 3.6 allow for enterprise-grade reasoning without sharing data with frontier providers.
+- **Privacy Sovereignty**: Local-first models like Gemma 3 or Qwen 3.8 allow for enterprise-grade reasoning without sharing data with frontier providers.
 - **FastMCP 3.1 Integration**: High-performance tool hosting with identity-aware routing ensures that tools are only accessible to authorized agentic sessions.
 
 ## Limitations
@@ -178,5 +178,5 @@ Example of a secure tool-call using [MCP 3.1](./patterns/tool-calling-and-mcp.md
 - [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
