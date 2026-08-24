@@ -135,7 +135,8 @@ print(f"Repl Status: {validated_op.compilation_status} on Ports: {[p.port for p 
 - [Replit Official Documentation](https://docs.replit.com/replit-ai/agent)
 - [Replit Developer Blog](https://blog.replit.com/)
 - [Gemma 3 Container Environments](https://blog.replit.com/gemma-3)
+- [OpenAI Replit Partnership](https://openai.com/index/replit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high
