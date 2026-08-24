@@ -38,69 +38,62 @@ It provides a secure, private way to sync notes across multiple devices (desktop
 ## Getting started
 
 ### Installation
-Install Joplin desktop/mobile from the [Official Website](https://joplinapp.org/), or install the CLI tool via NPM:
+Install the Joplin CLI tool globally via NPM (or download the desktop app from [joplinapp.org](https://joplinapp.org/)):
 
 ```bash
 npm install -g joplin
 ```
 
 ### Hello-world example
-Verify the CLI installation and view current application status:
+Verify the installation and check version status:
 
 ```bash
 joplin version
 ```
 
-### Enabling the API
+To enable the REST Data API for programmatic access:
 1. Open Joplin Desktop.
-2. Go to **Settings > Web Clipper**.
+2. Go to **Tools > Options > Web Clipper** (or **Preferences** on macOS).
 3. Enable the Web Clipper service.
-4. Copy the **Authorization token** for use in scripts and FastMCP 3.1 connections.
+4. Copy the generated **Authorization Token**.
 
 ## CLI examples
 
-### 1. Synchronizing Note Repository
-Trigger sync across configured backend targets (Nextcloud / WebDAV):
-
-```bash
-joplin sync
-```
-
-### 2. Creating a Note via CLI
-Create a markdown note directly inside a notebook:
+### 1. Create a Note inside a Notebook
+Create a Markdown note inside a designated notebook:
 
 ```bash
 joplin mknote "Daily AI Digest" --body "Summary of Claude 5.1 and FastMCP 3.1 updates."
 ```
 
-### 3. Listing Notebook Hierarchy
-List all notebooks in tree format:
+### 2. List Notebooks
+Display all notebooks in the hierarchy:
 
 ```bash
 joplin ls /
 ```
 
+### 3. Synchronize Notes with Remote Backend
+Trigger synchronization across configured targets (Nextcloud / WebDAV):
+
+```bash
+joplin sync
+```
+
 ## API examples
 
-### Python Integration with Pydantic v2 Validation
-AI agents can interact with Joplin using the REST API to store or retrieve knowledge securely.
+### Python Integration with Joplin Data REST API
+AI agents can interact with Joplin using the local Data REST API and validate payloads with Pydantic v2:
 
 ```python
 import requests
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class NoteCreateSchema(BaseModel):
-    title: str = Field(..., description="Note title")
-    body: str = Field(..., description="Markdown note body")
-    parent_id: Optional[str] = Field(None, description="Folder / Notebook ID")
-
-    @field_validator('title')
-    @classmethod
-    def validate_title(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Note title cannot be blank")
-        return v
+    title: str = Field(..., min_length=1, description="Note title")
+    body: str = Field(..., description="Markdown body content")
+    parent_id: Optional[str] = Field(None, description="Notebook folder ID")
 
 class JoplinClient:
     def __init__(self, token: str, base_url: str = "http://localhost:41184"):
@@ -114,14 +107,14 @@ class JoplinClient:
         response.raise_for_status()
         return response.json()
 
-# Example usage
-client = JoplinClient(token="your_auth_token")
-note_data = NoteCreateSchema(
-    title="Claude 5.1 Research Findings",
-    body="Analysis of latest model performance and FastMCP 3.1 integration..."
-)
-res = client.create_note(note_data)
-print(f"Created note ID: {res.get('id')}")
+if __name__ == "__main__":
+    client = JoplinClient(token="your_auth_token_here")
+    new_note = NoteCreateSchema(
+        title="FastMCP 3.1 Architecture Overview",
+        body="Key concepts include zero-overhead transport and typed schema validation."
+    )
+    # res = client.create_note(new_note)
+    print(f"Validated note payload for title: {new_note.title}")
 ```
 
 ## Related tools / concepts

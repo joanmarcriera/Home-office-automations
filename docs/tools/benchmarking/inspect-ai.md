@@ -1,10 +1,10 @@
 # Inspect AI
 
 ## What it is
-**Inspect AI** (`inspect-ai`) is an open-source framework for large language model evaluation and agent capability auditing developed by the **UK AI Safety Institute (UK AISI)**. Designed for rigorous technical safety research, benchmark execution, and red-teaming, Inspect AI provides standardized abstractions for dataset loading, prompt evaluation, model grading, and visual trace analysis.
+**Inspect AI** (`inspect-ai`) is an open-source framework for large language model evaluation and agent capability auditing developed by the **UK AI Safety Institute (UK AISI)** and Meridian Labs. Designed for rigorous technical safety research, benchmark execution, and red-teaming, Inspect AI provides standardized abstractions for dataset loading, prompt evaluation, model grading, and visual trace analysis.
 
 ## What problem it solves
-Evaluating agentic LLMs across complex multi-step reasoning, tool execution, and code execution benchmarks often requires custom, non-reproducible evaluation code. Inspect AI solves this by standardizing evaluation primitives (Datasets, Solvers, Scorer, and Logs) into a Python-native framework with built-in parallelism, trace logging, and interactive visual debugging utilities.
+Evaluating agentic LLMs across complex multi-step reasoning, tool execution, and code execution benchmarks often requires custom, non-reproducible evaluation code. Inspect AI solves this by standardizing evaluation primitives (Datasets, Solvers, Scorers, and Logs) into a Python-native framework with built-in parallelism, trace logging, and interactive visual debugging utilities.
 
 ## Where it fits in the stack
 **Category**: Benchmarking / Agent Evaluation & AI Safety. It sits at the **Testing, Auditing & Benchmarking Layer**, running alongside evaluation suites like [AssistantBench](assistant-bench.md), [SWE-bench](swe-bench.md), and [Promptfoo](promptfoo.md).
@@ -38,73 +38,100 @@ Evaluating agentic LLMs across complex multi-step reasoning, tool execution, and
 ## Getting started
 
 ### Installation
-Install Inspect AI and the benchmark suite via pip:
+Install Inspect AI and optional eval suites via pip:
+
 ```bash
 pip install inspect-ai inspect-evals pydantic
 ```
 
-### Basic Evaluation CLI Execution
-Run an evaluation suite against a target model:
-```bash
-inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5
+### Hello-world example
+Create a simple evaluation file `simple_eval.py`:
+
+```python
+from inspect_ai import Task, task
+from inspect_ai.dataset import Sample
+from inspect_ai.scorer import match
+from inspect_ai.solver import generate
+
+@task
+def hello_world_eval() -> Task:
+    dataset = [
+        Sample(input="What is the capital of France?", target="Paris"),
+        Sample(input="What is 2 + 2?", target="4"),
+    ]
+    return Task(
+        dataset=dataset,
+        plan=[generate()],
+        scorer=match()
+    )
 ```
 
-### Interactive Web UI Inspection
-Launch the visual log viewer:
+Run the evaluation using the CLI:
+
 ```bash
-inspect view
+inspect eval simple_eval.py --model openai/gpt-4o
 ```
 
 ## CLI examples
 
-### Parallel Benchmark Execution across Models
+### 1. Evaluate with Limit and Concurrency
+Run an evaluation suite limiting to 10 samples and specifying max parallel connections:
+
 ```bash
-inspect eval inspect_evals/assistant_bench_web_browser \
-  --model openai/gpt-5.5,anthropic/claude-5.1 \
-  --limit 10 \
-  --max-connections 5
+inspect eval simple_eval.py --model anthropic/claude-3-5-sonnet-20241022 --limit 10 --max-connections 5
+```
+
+### 2. Multi-Model Parallel Evaluation
+Evaluate across multiple model providers simultaneously:
+
+```bash
+inspect eval simple_eval.py --model openai/gpt-4o,anthropic/claude-3-5-sonnet-20241022
+```
+
+### 3. Launch Log Viewer UI
+Start the web-based interactive evaluation log viewer:
+
+```bash
+inspect view
 ```
 
 ## API examples
 
-### Python Evaluation Script with Custom Pydantic v2 Scorer
-The following script demonstrates defining a custom Inspect AI evaluation task and verifying score outputs with Pydantic v2:
+### Python Evaluation Execution and Result Processing
+Run evaluations programmatically within Python scripts and process log outputs with Pydantic v2:
 
 ```python
-from inspect_ai import Task, eval, task
+from inspect_ai import eval, Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.scorer import model_graded_fact
 from inspect_ai.solver import generate
 from pydantic import BaseModel, Field
 
-class InspectResultSummary(BaseModel):
-    task_name: str = Field(..., description="Name of the evaluation task")
-    total_samples: int = Field(..., gt=0, description="Number of evaluated samples")
-    accuracy_score: float = Field(..., ge=0.0, le=1.0, description="Calculated accuracy score")
+class EvalSummary(BaseModel):
+    task_name: str = Field(..., description="Name of evaluation task")
+    total_samples: int = Field(..., ge=0)
+    status: str = Field(...)
 
 @task
-def simple_math_eval() -> Task:
-    dataset = [
-        Sample(input="What is 15 + 27?", target="42"),
-        Sample(input="What is 100 / 4?", target="25")
-    ]
+def math_qa() -> Task:
     return Task(
-        dataset=dataset,
+        dataset=[Sample(input="What is 15 + 27?", target="42")],
         plan=[generate()],
         scorer=model_graded_fact()
     )
 
 if __name__ == "__main__":
-    logs = eval(simple_math_eval(), model="openai/gpt-5.5")
+    # Execute evaluation programmatically
+    results = eval(math_qa(), model="openai/gpt-4o")
 
-    # Process summary with Pydantic v2
-    if logs:
-        summary = InspectResultSummary(
-            task_name=logs[0].eval.task,
-            total_samples=len(logs[0].samples or []),
-            accuracy_score=0.95
+    if results:
+        log = results[0]
+        summary = EvalSummary(
+            task_name=log.eval.task,
+            total_samples=len(log.samples or []),
+            status=log.status
         )
-        print(f"Task: {summary.task_name} | Accuracy: {summary.accuracy_score * 100}%")
+        print(f"Task '{summary.task_name}' completed with status: {summary.status}")
 ```
 
 ## Related tools / concepts
@@ -115,11 +142,9 @@ if __name__ == "__main__":
 - [Anthropic](../providers/anthropic.md)
 
 ## Sources / references
-- [Inspect AI GitHub Repository](https://github.com/UKGovernmentBEIS/inspect-ai)
 - [Inspect AI Official Documentation](https://inspect.ai-safety-institute.org.uk/)
-- [Inspect Evals Benchmark Suite](https://github.com/UKGovernmentBEIS/inspect-evals)
+- [Inspect AI GitHub Repository](https://github.com/UKGovernmentBEIS/inspect_ai)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
