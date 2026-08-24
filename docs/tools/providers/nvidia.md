@@ -12,6 +12,7 @@ NVIDIA provides the high-performance compute infrastructure necessary for modern
 ## Typical use cases
 - **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of open-weights models like Llama 4, Qwen 3.8, and Nemotron.
 - **Agentic RAG Pipelines**: Utilizing NVIDIA NeMo Retriever for high-fidelity retrieval and multi-agent reasoning.
+- **CUDA MCP Agent Acceleration**: Leveraging NVIDIA-hosted CUDA MCP servers to grant autonomous agents direct access to GPU memory management, kernel profiling, and compute dispatch.
 - **Local AI Acceleration**: Running models locally with TensorRT-LLM for maximum performance on workstation GPUs.
 - **Omniverse Simulation**: Integrating AI agents into 3D physics simulations for robotics and industrial automation.
 
@@ -113,7 +114,37 @@ print(meta.model_dump_json(indent=2))
 print(completion.choices[0].message.content)
 ```
 
-### 2. Using LangChain with NVIDIA NIM
+### 2. CUDA MCP FastMCP 3.1 Server Integration
+Granting an AI agent direct CUDA kernel profiling and GPU memory allocation capabilities via Model Context Protocol (FastMCP 3.1) and Pydantic v2 schemas:
+
+```python
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("NVIDIA-CUDA-MCP", version="3.1.0")
+
+class CudaKernelProfile(BaseModel):
+    kernel_name: str = Field(..., description="Target CUDA kernel identifier")
+    gpu_device: str = Field(default="NVIDIA Rubin R100")
+    sm_occupancy: float = Field(..., ge=0.0, le=100.0, description="Streaming Multiprocessor occupancy percentage")
+    allocated_vram_mb: float = Field(..., description="VRAM footprint in Megabytes")
+
+@mcp.tool()
+async def profile_cuda_kernel(kernel_name: str, device_id: int = 0) -> str:
+    """Profiles a CUDA kernel execution and returns device memory and SM utilization metrics."""
+    result = CudaKernelProfile(
+        kernel_name=kernel_name,
+        gpu_device=f"NVIDIA Rubin R100 (Device {device_id})",
+        sm_occupancy=94.2,
+        allocated_vram_mb=1024.0
+    )
+    return result.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### 3. Using LangChain with NVIDIA NIM
 Connect to a self-hosted NIM instance:
 
 ```python

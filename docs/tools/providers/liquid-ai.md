@@ -1,7 +1,7 @@
 # Liquid AI
 
 ## What it is
-Liquid AI is a pioneer in non-transformer continuous-time neural architectures, best known for its **Liquid Neural Networks (LNNs)** and the **LFM (Liquid Foundation Model)** series. Standardized in early 2027, Liquid AI offers models like **LFM-2.5-VL-3B** and **LFM-4**, ultra-compact multimodal vision-language and reasoning models engineered specifically for low-latency, edge-side visual understanding, video analysis, and real-time robotic perception.
+Liquid AI is a pioneer in non-transformer continuous-time neural architectures, best known for its **Liquid Neural Networks (LNNs)** and the **LFM (Liquid Foundation Model)** series. Standardized in early 2027, Liquid AI offers flagship models including **LFM-2.5**, **LFM-2.5-VL-3B**, **LFM2.5-dSpark**, and **LFM-4**, ultra-compact multimodal vision-language, dSpark-accelerated reasoning, and encoder models engineered specifically for low-latency, edge-side visual understanding, video analysis, and real-time robotic perception.
 
 ## What problem it solves
 Transformer architectures often face quadratic computational scaling and high memory overhead when processing streaming, time-series, and high-resolution video inputs. Liquid AI addresses this by utilizing dynamical system models inspired by biological brain structure. Liquid AI models deliver state-of-the-art vision-language reasoning and document processing with drastically reduced memory footprints and sub-10ms token generation latencies on edge hardware.
@@ -11,6 +11,7 @@ Transformer architectures often face quadratic computational scaling and high me
 
 ## Typical use cases
 - **Real-Time Edge Visual Inspection**: Deploying LFM-2.5-VL-3B on industrial edge gateways for zero-latency product defect detection.
+- **Distributed Edge Compute via LFM-2.5 dSpark**: Accelerating long-context sequence modeling across decentralized heterogeneous clusters.
 - **Drone and Robotic Spatial Navigation**: Processing continuous video feeds for spatial understanding and autonomous obstacle avoidance.
 - **Embedded Document & Receipt Parsing**: Extracting structured tables and text from camera captures on mobile or offline embedded devices.
 - **FastMCP 3.1 Edge Tool Services**: Exposing local vision models as standardized FastMCP servers for local AI agent orchestration.
