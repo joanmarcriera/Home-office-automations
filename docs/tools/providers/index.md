@@ -9,6 +9,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | Provider | What it offers |
 | :--- | :--- |
 | [Anthropic](anthropic.md) | Claude model family, API, and safety-focused AI research |
+| Aurora80K | [Aurora80K Release](https://www.reddit.com/r/LocalLLaMA/comments/1vth6n3/aurora80k_releases_a_modern_tiny_language_model/) | Modern tiny language model architecture optimized for low-latency edge inference |
 | [AWS Bedrock](aws-bedrock.md) | Managed foundation model platform from multiple AI providers on AWS |
 | [Azure OpenAI](azure-openai.md) | Enterprise-grade OpenAI models with Azure enterprise security and compliance |
 | [Baseten](baseten.md) | Serverless inference platform for deploying and scaling custom open LLMs and diffusion models |
@@ -26,6 +27,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [InternLM](internlm.md) | Open-source multilingual foundation model family developed by Shanghai AI Laboratory |
 | [Kat Coder Air](katcoderair.md) | Specialized low-latency coding model optimized for real-time completion |
 | [LFM Encoders](lfm-encoders.md) | Liquid AI's non-transformer dynamical architecture encoders for sequence modeling |
+| Ling3.0 | [Ling3.0 Release](https://www.reddit.com/r/LocalLLaMA/comments/1vtpsqf/ling30_released_all_6_base_checkpoints_2_sizes_3/) | Open-weights base checkpoints family across 2 sizes and 3 architectural variants |
 | [Microsoft Graph API](microsoft-graph.md) | Unified enterprise API gateway for Microsoft 365 data and services |
 | [MiniMax](minimax.md) | Coding-optimized foundation models (M2.5) and managed multimodal AI platform |
 | [Mistral AI](mistral.md) | Pioneer of high-efficiency open and commercial foundation models |
@@ -39,6 +41,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Poolside](poolside.md) | AI research company building frontier foundation models for software engineering |
 | [Portkey AI Gateway](portkey.md) | Control plane for production AI apps providing routing, tracing, and caching |
 | [Replicate](replicate.md) | Cloud platform for running open-source machine learning models via API |
+| SenseNova U15Lite | [SenseNova U15Lite Release](https://www.reddit.com/r/LocalLLaMA/comments/1vu5dzi/sensenova_u15lite_full_release_expert_training/) | SenseTime's high-efficiency expert-trained foundation model for low-resource environments |
 | [Solar Pro](https://thenewstack.io/upstage-solar-pro-4/) | Upstage's high-efficiency frontier LLM model family for specialized enterprise inference |
 | [SOOFI](soofi.md) | Domain-specific AI inference provider targeting sovereign data operations |
 | [Tavily](tavily.md) | Search and information extraction API optimized specifically for autonomous AI agents |
