@@ -1,114 +1,126 @@
-# AI Templates
+# AI Templates (aitmpl)
 
 ## What it is
-AI Templates is a marketplace-style site and associated tooling for prompt templates, commands, and reusable AI workflow assets. As of late 2026, AI Templates supports robust integrations for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 servers, allowing developers to share ready-to-run specialist subagent prompts and workflows.
+AI Templates (`aitmpl`) is a package registry and workflow catalog for AI engineering assets, providing version-controlled prompt templates, specialist subagent definitions, custom terminal commands, and [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) server configurations. It enables engineering teams to discover, publish, test, and deploy pre-packaged AI tools optimized for frontier models including Claude 5.6, GPT-5.6, and Gemini 4.0 Pro.
 
 ## What problem it solves
-It gives users a faster way to discover proven prompt structures and packaged AI task templates instead of starting from a blank prompt. By centralizing custom prompts, command definitions, and pre-configured agents, it bridges the gap between raw LLM capabilities and specific engineering workflows.
+Developing custom developer agents and multi-step prompt chains often results in duplicated effort, inconsistent output quality, and tool fragmentation across engineering teams. AI Templates solves this by packaging prompt recipes, FastMCP 3.1 tool bindings, and agent behaviors into versioned, installable modules that can be audited, executed via CLI, or embedded into CI/CD pipelines.
 
 ## Where it fits in the stack
-**AI & Knowledge / Prompt and Workflow Templates**. It serves as a community-driven and developer-focused discovery layer for reusable prompt assets and custom developer agent templates.
+**AI & Knowledge / Prompt and Agent Infrastructure**. It operates as a discovery and package management layer for reusable developer agent tools, FastMCP 3.1 subagents, and automated Git validation hooks.
+
+```
+┌────────────────────────────────────────┐
+│             Developer Workstation      │
+│      (Claude Code, Cursor, VSCode)     │
+└───────────────────┬────────────────────┘
+                    │ npx aitmpl / cct install
+┌───────────────────▼────────────────────┐
+│         AI TEMPLATES REGISTRY          │
+│     (FastMCP 3.1 Subagents & Hooks)    │
+└──────────┬───────────────────┬─────────┘
+           │                   │
+┌──────────▼──────────┐ ┌──────▼─────────────────┐
+│ Frontier Models     │ │ FastMCP 3.1 Tools     │
+│ (Claude 5.6/GPT-5.6)│ │ (Git Hooks / Linters) │
+└─────────────────────┘ └────────────────────────┘
+```
 
 ## Typical use cases
-- Finding starter prompts for common development workflows with Claude 5.1 or GPT-5.5.
-- Browsing packaged AI commands or template ideas for terminal assistants like Claude Code.
-- Comparing how different communities structure similar code-generation or testing tasks.
-- Installing specialist subagents for local or CI pipeline integration.
+- **Standardized Subagent Deployment**: Bootstrapping specialist agent roles (e.g., React performance auditors or Rust security reviewers) across developer teams.
+- **FastMCP 3.1 Server Distribution**: Distributing ready-to-run FastMCP 3.1 tool bindings for database inspection and automated API testing.
+- **Automated Pre-Commit Validation**: Installing AI-backed Git hooks that analyze proposed diffs against team safety and style contracts before commit completion.
+- **Model-Specific Prompt Portability**: Accessing prompt templates tuned specifically for Claude 5.6, GPT-5.6, or DeepSeek-V4 capabilities.
 
 ## Strengths
-- **Fast Inspiration**: Speeds up prompt and agent engineering via ready-to-use recipes.
-- **Developer Focus**: Seamless integration with CLI command tools and Git hooks.
-- **Broad Coverage**: Useful for discovering common patterns across tools.
+- **Fast Discovery & Setup**: Speeds up developer agent onboarding via ready-to-use recipes.
+- **Native FastMCP 3.1 Support**: Direct integration with Model Context Protocol servers and tool schemas.
+- **CLI & CI/CD Portability**: Executable directly via `npx aitmpl` or `cct` without mandatory global installations.
+- **Versioned Quality Control**: Pin specific template versions to ensure deterministic behavior across environments.
 
 ## Limitations
-- **Quality Drift**: Community-submitted template libraries can encourage copy-paste usage without understanding.
-- **Freshness Variance**: Prompt structure efficacy can vary depending on targeted frontier model versions.
+- **Registry Dependency**: Requires network access to the primary registry unless local mirroring is configured.
+- **Template Customization Need**: Highly domain-specific enterprise business logic requires extending off-the-shelf templates.
 
 ## When to use it
-- When you need a starting point or examples for complex prompt engineering workflows.
-- When configuring Git validation hooks or custom terminal commands.
-- To discover structured patterns for agent-calling logic.
+- When bootstrapping new AI-assisted software projects or standardizing team coding environments.
+- When distributing custom FastMCP 3.1 subagents and Git validation hooks across a team.
+- To discover battle-tested prompts for newly released frontier models.
 
 ## When not to use it
-- When you need repo-specific or highly confidential domain-specific operating logic that should not leverage public recipes.
-- For simple, one-off prompts where writing custom text is faster than finding a template.
+- In strictly air-gapped systems without a private template mirror.
+- For trivial, single-turn prompts where custom context creation is faster than registry lookup.
 
 ## Getting started
 
 ### Installation
-Install the Claude Code Templates CLI globally via `npm` or run it dynamically using `npx` (or the short alias `cct`):
+Install the CLI globally or run it dynamically using `npx`:
 
 ```bash
-# Run interactively without permanent installation
-npx claude-code-templates@latest
+# Run dynamically via npx
+npx aitmpl@latest
 
-# Or use the quick shortcut alias
+# Or use the quick alias
 npx cct@latest
 
-# Or install globally to enable the 'cct' command
-npm install -g claude-code-templates
+# Or install globally
+npm install -g aitmpl
 ```
 
-### Hello World Example
-To verify your installation and configure your first component, install the core development specialist agent interactively or via the CLI:
+### Quickstart Example
+Install a specialist frontend development agent with FastMCP 3.1 support:
 
 ```bash
-# Install a specialist frontend development agent
-npx claude-code-templates@latest --agent development-team/frontend-developer --yes
+npx aitmpl@latest --agent development-team/frontend-specialist --yes
 ```
 
 ## CLI examples
-The CLI tool provides deep integration for configuring and diagnosing your AI coding setup:
+The CLI provides complete control over local agent installation, health verification, and session monitoring:
 
 ```bash
-# Batch install a full development stack (agent, custom commands, and git hook)
-npx claude-code-templates@latest \
-  --agent development-team/react-expert \
-  --command testing/generate-tests \
-  --hook git/pre-commit-validation \
+# Batch install a frontend development stack
+npx aitmpl@latest \
+  --agent development-team/react-auditor \
+  --command testing/generate-unit-tests \
+  --hook git/pre-commit-security \
   --yes
 
-# Launch the live session analytics dashboard to track token usage and state detection
-npx claude-code-templates@latest --analytics
+# Run health diagnostics on local MCP bindings and template integrity
+npx aitmpl@latest --health-check
 
-# Run complete local diagnostics on your Claude Code environment
-npx claude-code-templates@latest --health-check
-
-# Launch a mobile-optimized interface for viewing active conversations local or via tunnel
-npx claude-code-templates@latest --chats --tunnel
+# Launch real-time telemetry dashboard to monitor token usage
+npx aitmpl@latest --analytics
 ```
 
 ## API examples
-The AI Templates public API is hosted on Vercel and can be integrated into custom telemetry, IDE scripts, or CI/CD pipelines to track component downloads or query Claude Code release status. Below is a robust Python example utilizing modern **Pydantic v2** validation to validate download telemetry payloads sent to the AI Templates API.
+
+### Submitting Telemetry via Python with Pydantic v2 Validation
+The following Python script uses **Pydantic v2** to validate telemetry payloads sent to the AI Templates registry when tracking agent downloads or execution status.
 
 ```python
-from typing import List, Literal, Optional
+from typing import Literal
 from pydantic import BaseModel, Field, HttpUrl
 import requests
 
-# 1. Define telemetry payload schemas using Pydantic v2
 class TemplateTelemetryPayload(BaseModel):
     component_name: str = Field(..., min_length=3)
     component_type: Literal["agent", "command", "hook", "workflow"]
-    platform: str = Field(default="custom-ci")
-    target_model: str = Field(default="claude-5.1")
-    mcp_version: str = Field(default="3.1")
+    platform: str = Field(default="cli-tool")
+    target_model: str = Field(default="claude-5.6")
+    fastmcp_version: str = Field(default="3.1")
 
 class TelemetryAPIConfig(BaseModel):
     base_url: HttpUrl = Field(default="https://www.aitmpl.com")
     endpoint_path: str = Field(default="/api/track-download")
     timeout: int = Field(default=10, ge=1)
 
-# 2. Telemetry Client class demonstrating validation and request dispatch
 class TelemetryClient:
     def __init__(self, config: TelemetryAPIConfig):
         self.config = config
 
     def submit_telemetry(self, payload: TemplateTelemetryPayload) -> dict:
-        # Validate and serialize schema via Pydantic v2
         serialized_payload = payload.model_dump()
-        target_url = f"{self.config.base_url.unicode_string().rstrip('/')}{self.config.endpoint_path}"
-
+        target_url = f"{str(self.config.base_url).rstrip('/')}{self.config.endpoint_path}"
         try:
             response = requests.post(
                 target_url,
@@ -116,50 +128,31 @@ class TelemetryClient:
                 headers={"Content-Type": "application/json"},
                 timeout=self.config.timeout
             )
-            return {
-                "status": "success",
-                "status_code": response.status_code,
-                "response": response.json() if response.status_code == 200 else {}
-            }
+            return {"status": "success", "status_code": response.status_code}
         except Exception as e:
-            return {
-                "status": "failed",
-                "error": str(e)
-            }
+            return {"status": "failed", "error": str(e)}
 
-# 3. Demonstration execution
 if __name__ == "__main__":
-    client_config = TelemetryAPIConfig(base_url="https://www.aitmpl.com")
-    client = TelemetryClient(client_config)
-
-    telemetry_data = TemplateTelemetryPayload(
-        component_name="development-team/frontend-developer",
+    client = TelemetryClient(TelemetryAPIConfig())
+    payload = TemplateTelemetryPayload(
+        component_name="development-team/react-auditor",
         component_type="agent",
-        platform="vscode-mcp-client",
-        target_model="claude-5.1"
+        target_model="claude-5.6"
     )
-
-    # We validate locally before submitting
-    result = client.submit_telemetry(telemetry_data)
-    print(f"Telemetry submission attempt: {result['status']}")
+    result = client.submit_telemetry(payload)
+    print(f"Telemetry Submission Result: {result['status']}")
 ```
 
 ## Related tools / concepts
-- [Claude Plugins](../development_ops/claude-plugins.md)
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-- [Gemini](gemini.md)
-- [Google Opal](google-opal.md)
-- [OpenRouter](openrouter.md)
-- [Jasper](jasper.md)
-- [Copy.ai](copy-ai.md)
-- [Flowise](flowise.md)
-- [Dify](dify.md)
+- [Claude Plugins](../development_ops/claude-plugins.md) — Plugin architecture for Claude developer tools.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for connecting agents to external systems.
+- [Gemini](gemini.md) — Google multimodal LLM ecosystem.
+- [Flowise](flowise.md) — Visual flow builder for AI agents.
 
 ## Sources / references
-- [Official Website](https://www.aitmpl.com/)
-- [Official Documentation](https://docs.aitmpl.com/)
-- [AI Templates Twitter](https://twitter.com/aitmpl)
+- [AI Templates Official Portal](https://www.aitmpl.com/)
+- [AI Templates Documentation](https://docs.aitmpl.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

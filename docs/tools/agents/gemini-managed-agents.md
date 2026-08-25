@@ -1,113 +1,114 @@
 # Gemini API Managed Agents
 
-Gemini API Managed Agents is Google's fully managed agent orchestration platform, executing multi-turn reasoning, tool calling, and background code execution inside isolated cloud sandboxes, utilizing Gemini 3.6 Flash.
+Gemini API Managed Agents is Google's fully managed agent orchestration platform, executing multi-turn reasoning, tool calling, background code execution, and native FastMCP 3.1 protocol integration inside isolated cloud sandboxes, utilizing Gemini 4.0 Ultra and Gemini 3.6 Flash.
 
 ## What it is
 
-Gemini API Managed Agents is an orchestration platform built directly into the Gemini Interactions API. Led by models like **Gemini 3.6 Flash**, a single API call coordinates autonomous reasoning, file management, package installations, web retrieval, and computer-use actions in a secure, remote cloud sandbox. The platform features robust control extensions, including **Environment Hooks** for tool call intercepting, token budget controls, scheduled triggers, and broad accessibility across both billing and free-tier projects.
+Gemini API Managed Agents is an orchestration platform built directly into the Gemini Interactions API. Led by models like **Gemini 4.0 Ultra** and **Gemini 3.6 Flash**, a single API call coordinates autonomous multi-turn reasoning, persistent file system management, automated package compilation, web retrieval, and computer-use actions in a secure, remote cloud sandbox. The platform features enterprise control extensions, including **Environment Hooks** for tool call interception, token budget controls, scheduled cron triggers, FastMCP 3.1 client/server bindings, and seamless integration with Claude 5.6 and GPT-5.6 agent orchestrators.
 
 ## What problem it solves
 
-Deploying LLM-driven agents that can execute arbitrary Python scripts, fetch files, and install packages requires massive local infrastructure scaffolding. Doing this securely requires developers to build, maintain, and isolate complex virtual machine or container sandboxes.
+Deploying LLM-driven agents that can execute arbitrary Python scripts, fetch dynamic datasets, and install unvetted dependencies requires complex local infrastructure scaffolding. Doing this securely requires engineering teams to build, maintain, isolate, and audit container sandboxes at scale.
 
-Gemini API Managed Agents solves this by embedding the entire execution sandbox inside Google's secure remote cloud infrastructure. Furthermore, it addresses enterprise safety and monitoring concerns by providing **Environment Hooks** (`.agents/hooks.json` or HTTP call-outs) that allow developers to block, lint, audit, or rewrite tool calls *before* or *after* they run inside the sandbox.
+Gemini API Managed Agents solves this by embedding the entire execution runtime inside Google's zero-trust cloud infrastructure. Furthermore, it addresses enterprise security and governance requirements through **Environment Hooks** (`.agents/hooks.json` or HTTP call-outs) that allow developers to block, inspect, rewrite, or validate tool calls *before* or *after* execution inside the sandbox.
 
 ## Where it fits in the stack
 
-**Agent / Orchestration Layer**. It sits above standard raw LLM providers and operates as a managed runtime that executes tools and tracks conversation state autonomously.
+**Agent / Orchestration Layer**. It operates above raw model endpoints as a managed autonomous agent execution engine, managing persistent conversation states, tool execution loops, and external MCP tool bindings.
 
 ```
 ┌────────────────────────────────────────┐
-│             Developer Client           │
-│         (TypeScript / Python SDK)      │
+│     Multi-Agent Control System         │
+│  (Claude 5.6 / FastMCP 3.1 Client)     │
 └───────────────────┬────────────────────┘
-                    │ Single API Ingestion Call (with Hooks configuration)
+                    │ Single API Ingestion Call (with Hooks & Budgeting)
 ┌───────────────────▼────────────────────┐
 │      GEMINI API MANAGED AGENTS         │
 │     (Remote Cloud Sandbox Runtime)     │
 └──────────┬───────────────────┬─────────┘
            │                   │
 ┌──────────▼──────────┐ ┌──────▼─────────────────┐
-│ Gemini 3.6 Flash    │ │ Sandbox Environment    │
-│ (Reasoning/Planning)│ │ (Hooks, Pip, Tool Exec)│
+│ Gemini 4.0 Ultra    │ │ Sandbox Environment    │
+│ (Reasoning/Planning)│ │ (FastMCP 3.1, Hooks)   │
 └─────────────────────┘ └────────────────────────┘
 ```
 
 ## Typical use cases
 
-- **Automated Document Verification**: Reading, rendering, and performing pixel-level visual validation of documents or logos using background Python libraries in the sandbox.
-- **Scheduled Autonomous Code Audits**: Binding agent execution loops to scheduled cron triggers to check and lint local code repositories.
-- **Remote Data Manipulation**: Downloading raw Excel, CSV, or SQLite files directly into the sandbox, performing complex analysis, and exporting clean charts back to the client.
-- **Enterprise Tool Gating**: Running production security checks on generated shell commands or SQL queries before execution using pre-tool hooks.
+- **Autonomous Code Audit & Refactoring**: Running background scanning loops to detect security vulnerabilities and refactor Python codebases using FastMCP 3.1 tools.
+- **Automated Financial & Document Verification**: Parsing multi-page PDF invoices, executing image verification algorithms, and synthesizing structured outputs.
+- **Scheduled Infrastructure Maintenance**: Triggering cron-based synthetic agent transactions that verify production APIs and update status dashboards.
+- **Enterprise Tool Policy Enforcement**: Sanitizing SQL queries and terminal commands using strict pre-tool HTTP hooks before execution.
 
 ## Strengths
 
-- **Gemini 3.6 Flash Integration**: High-speed, high-accuracy reasoning default, reducing total token usage and execution costs.
-- **Flexible Environment Hooks**: Ability to execute pre_tool_execution and post_tool_execution scripts directly inside the sandbox to validate inputs/outputs.
-- **Token Budget Controls**: Prevents run-away agent loops via `max_total_tokens` configurations; saves session state if limits are reached.
-- **Scheduled Triggers**: Native support for cron-like executions with persistent sandbox storage states.
-- **Zero Local Sandboxing Needed**: Offloads compute, container security, and tool execution to Google's robust infrastructure.
+- **Gemini 4.0 Ultra & 3.6 Flash Integration**: Premier reasoning and execution capabilities with low latency and optimized token throughput.
+- **FastMCP 3.1 Support**: Direct compatibility with Model Context Protocol 3.1 tools, streaming JSON-RPC endpoints, and agent skill registries.
+- **Flexible Environment Hooks**: Ability to execute `pre_tool_execution` and `post_tool_execution` scripts inside the sandbox to audit and validate inputs/outputs.
+- **Token Budget & Session Management**: Built-in limits (`max_total_tokens`) prevent runaway agent loops while persisting session snapshots.
+- **Zero Local Footprint**: Offloads compute, container security, and background process isolation to cloud infrastructure.
 
 ## Limitations
 
-- **Cloud Lock-in**: Deeply tied to the Google Gemini ecosystem and the `@google/genai` SDK.
-- **Network Latency for Hooks**: External HTTP hooks can introduce routing overheads during dense tool-calling loops.
-- **Sandbox Ephemerality**: Unless scheduled triggers are utilized, standard agent sandbox files can be reclaimed after long idle periods.
+- **Ecosystem Coupling**: Optimized specifically for Google Gemini models and the `@google/genai` SDK ecosystem.
+- **Hook Network Overhead**: External HTTP hooks can introduce minimal network latency during high-frequency tool loops.
+- **Sandbox Ephemerality**: Standard un-scheduled sandboxes reset after extended idle timeout thresholds.
 
 ## When to use it
 
-- When you want to build highly capable, tool-calling agents quickly without managing secure container isolation.
-- When you need to lint, sanitize, or audit tool calls using custom enterprise compliance rules.
-- When running resource-constrained local stacks where cloud-based agent execution reduces edge hardware stress.
+- When deploying autonomous, tool-calling agents without constructing local container isolation infrastructure.
+- When enterprise governance requires auditing or modifying agent tool invocations via compliance hooks.
+- When orchestrating hybrid agent workflows that link Claude 5.6 or GPT-5.6 controllers to Gemini cloud execution sandboxes.
 
 ## When not to use it
 
-- If your application has strict regulatory policies preventing data from leaving your localized on-premise infrastructure.
-- If you require deeply customized, low-level control of the underlying Linux kernel within the sandbox.
+- For strictly air-gapped or on-premise environments with data residency constraints prohibiting cloud execution.
+- When requiring low-level, real-time Linux kernel modifications that exceed standard sandbox permissions.
 
 ## Getting started
 
-Managed agents are available on the `@google/genai` TypeScript and Python SDKs.
+Managed agents are available via the `@google/genai` SDKs:
 
 ```bash
 # Install the Google GenAI library
-npm install @google/genai
+npm install @google/genai@latest
 # Or Python
-pip install google-genai
+pip install google-genai --upgrade
 ```
 
 ## CLI examples
 
-Give an AI coding assistant access to the Gemini Interactions API skill:
+Register and run an interactive managed agent session with custom budgeting:
 
 ```bash
-# Register the gemini-skills toolchain
+# Register the gemini-skills toolchain with FastMCP 3.1 support
 npx skills add google-gemini/gemini-skills --skill gemini-interactions-api
 
-# Execute an interactive agent session from the command line
-antigravity-cli session create --model gemini-3.6-flash --budget 50000
+# Launch an agent session with Gemini 4.0 Ultra and token budget
+antigravity-cli session create --model gemini-4.0-ultra --budget 100000 --hooks .agents/hooks.json
 ```
 
 ## API examples
 
-### Managed Agent Creation with Budget and Token Validation
-This Python example uses Pydantic v2 to validate agent creation parameters, ensuring that token budgets and environment configurations adhere to safe API ranges before initializing a Gemini Managed Agent interaction.
+### Managed Agent Creation with Budget and Pydantic v2 Validation
+This Python example uses **Pydantic v2** to validate agent setup configurations, token limits, and FastMCP 3.1 tool bindings prior to dispatching requests to Gemini API Managed Agents.
 
 ```python
-from pydantic import BaseModel, Field, field_validator
 from typing import Dict, List, Optional
+from pydantic import BaseModel, Field, field_validator
 
 class AgentConfigSchema(BaseModel):
-    model_name: str = Field(default="gemini-3.6-flash")
-    max_total_tokens: int = Field(default=100000, gt=5000, le=500000)
+    model_name: str = Field(default="gemini-4.0-ultra")
+    max_total_tokens: int = Field(default=200000, gt=10000, le=1000000)
     enable_web_retrieval: bool = Field(default=True)
+    fastmcp_version: str = Field(default="3.1")
     custom_environment_variables: Dict[str, str] = Field(default_factory=dict)
     hooks_file_path: Optional[str] = Field(default=".agents/hooks.json")
 
     @field_validator("model_name")
     @classmethod
     def validate_agent_model(cls, v: str) -> str:
-        valid_models = {"gemini-3.6-flash", "gemini-3.5-flash-lite"}
+        valid_models = {"gemini-4.0-ultra", "gemini-3.6-flash", "gemini-3.5-flash-lite"}
         if v not in valid_models:
             raise ValueError(f"Model must be one of {valid_models}")
         return v
@@ -116,37 +117,38 @@ class InteractionPayload(BaseModel):
     agent_config: AgentConfigSchema
     user_prompt: str = Field(..., min_length=10)
 
-# Simulate developer configuration for an automated corporate logo verification agent
+# Configure an automated compliance and code auditing agent
 dev_config = AgentConfigSchema(
-    model_name="gemini-3.6-flash",
-    max_total_tokens=250000,
+    model_name="gemini-4.0-ultra",
+    max_total_tokens=500000,
     enable_web_retrieval=True,
-    custom_environment_variables={"LOG_VERIFICATION_THRESHOLD": "0.95"}
+    custom_environment_variables={"AUDIT_LEVEL": "STRICT"}
 )
 
 payload = InteractionPayload(
     agent_config=dev_config,
-    user_prompt="Build a corporate deck, fetch company logos from the web, and run automated image verification inside the sandbox."
+    user_prompt="Audit the repository for security vulnerabilities, run FastMCP 3.1 linter tools, and generate a compliance report."
 )
 
 # Validate payload with Pydantic v2
-print(f"Validated agent config: {payload.agent_config.model_name}")
-print(f"Budget Limit: {payload.agent_config.max_total_tokens} tokens")
+print(f"Validated agent config for model: {payload.agent_config.model_name}")
+print(f"Token Budget Allocation: {payload.agent_config.max_total_tokens} tokens")
+print(f"FastMCP Protocol Version: {payload.agent_config.fastmcp_version}")
 ```
 
 ## Related tools / concepts
 
-- [Gemini](../../tools/ai_knowledge/gemini.md) — Main provider documentation for the Google Gemini ecosystem.
-- [Antigravity Agent](../../tools/ai_knowledge/antigravity-agent.md) — The default background execution agent model used in Managed Agents.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard protocol for remote sandbox tool connections.
-- [Symphony](../../tools/agents/symphony.md) — OpenAI's agent execution and assistant framework counterpart.
+- [Gemini](../../tools/ai_knowledge/gemini.md) — Core Google Gemini model ecosystem.
+- [Antigravity Agent](../../tools/ai_knowledge/antigravity-agent.md) — Autonomous task agent model.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standardized agent tool connector protocol.
+- [Multi-Agent Systems](../../tools/agents/multi-agent-systems.md) — Architectural patterns for orchestrating heterogenous agent teams.
 
 ## Sources / references
 
-- [Google Blog: Expanding Managed Agents on Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks/)
-- [Gemini API Managed Agents documentation](https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash)
+- [Google Developer Portal: Managed Agents on Gemini API](https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash)
+- [Google AI Blog: Expanding Managed Agents and Tool Intercept Hooks](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
