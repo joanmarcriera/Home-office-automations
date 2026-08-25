@@ -1,9 +1,9 @@
 # Vision Models Research
 
-Technical research into local and frontier vision-language models (VLMs) for agentic scene understanding, document parsing, and multi-modal reasoning as of late October / November 2026.
+Technical research into local and frontier vision-language models (VLMs) for agentic scene understanding, document parsing, and multi-modal reasoning as of early January 2027.
 
 ## What it is
-A research document evaluating the landscape of vision-capable AI models (VLMs) optimized for both local deployment (InternVL2, Florence-2, [Gemma 3](../tools/ai_knowledge/local_llms.md), Qwen 2.5-VL) and frontier API access (Claude 5.1 Opus, Gemini 4.0). It covers models capable of image captioning, object detection, OCR, and complex visual reasoning within agentic pipelines using the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
+A research document evaluating the landscape of vision-capable AI models (VLMs) optimized for both local deployment (InternVL2, Florence-2, [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), Qwen 2.5-VL) and frontier API access (Claude 5.1/5.6 Opus, Gemini 4.0 Pro/Ultra, DeepSeek-V4). It covers models capable of image captioning, object detection, OCR, and complex visual reasoning within agentic pipelines using the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 It enables AI agents to "see" and interpret the physical and digital world, automating the extraction of structured data from images, videos, and complex PDFs. This reduces the need for manual data entry and allows for semantic search over vast personal media archives while preserving privacy through local-first processing.
@@ -168,5 +168,5 @@ print(response.text)
 - [Anthropic Vision Capabilities](https://docs.anthropic.com/claude/docs/vision)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,9 +1,9 @@
 # Voice-to-Task Research
 
-Technical research into local speech-to-text (STT) and agentic synthesis for hands-free task orchestration in the home-office stack.
+Technical research into local speech-to-text (STT) and agentic synthesis for hands-free task orchestration in the home-office stack as of early January 2027.
 
 ## What it is
-A "voice-to-action" pipeline that captures spoken commands, transcribes them using high-performance local models (Faster-Whisper v1.3.x), and utilizes frontier models (Claude 5.1, GPT-5.5, Gemini 4.0) or high-performance local models like [Gemma 3](../tools/ai_knowledge/local_llms.md) for intent decomposition. It bridges the gap between raw audio and structured task management, enabling autonomous agents to execute complex requests from a single voice prompt using the MCP 3.1 Task Protocol.
+A "voice-to-action" pipeline that captures spoken commands, transcribes them using high-performance local models (Faster-Whisper v1.3.x), and utilizes frontier models (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4) or high-performance local models like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Llama 4](../tools/ai_knowledge/local_llms.md) for intent decomposition. It bridges the gap between raw audio and structured task management, enabling autonomous agents to execute complex requests from a single voice prompt using the MCP 3.1 Task Protocol.
 
 ## What problem it solves
 It eliminates the friction of manual data entry in "dirty-hands" environments (kitchen, workshop, lab) and reduces the cognitive load of capturing fleeting thoughts. By moving from simple command-matching to agentic synthesis, it allows users to express intent naturally without needing to remember specific wake-word syntax or command structures.
@@ -200,5 +200,5 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP) 3.1 Docs](https://modelcontextprotocol.info)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,9 +1,9 @@
 # Vector Database Comparison
 
-A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of late October / November 2026.
+A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of early January 2027.
 
 ## What it is
-A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.1) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) for intent resolution.
+A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.1) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Llama 4](../tools/ai_knowledge/local_llms.md) for intent resolution.
 
 ## What problem it solves
 Selecting the appropriate vector store is critical for preventing "hallucination sprawl" in autonomous agents. This comparison balances the trade-offs between local resource constraints (RAM/CPU), query latency, and the need for enterprise-grade features like horizontal scaling and high-availability indexing for massive personal knowledge bases.
@@ -24,7 +24,7 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **Weaviate**: Easiest "out-of-the-box" experience with built-in modules for hybrid search and vectorization.
 - **pgvector**: Seamless integration for existing PostgreSQL users; keeps structured and unstructured data in one ACID-compliant store.
 
-### Performance Metrics (Late October / November 2026)
+### Performance Metrics (Early January 2027)
 Optimized for the MCP 3.1 Task Protocol and [Gemma 3](../tools/ai_knowledge/local_llms.md) embedding vectors.
 
 | Database | Latency (P95) | Throughput (RPS) | Memory (1M vectors) |
@@ -214,5 +214,5 @@ if __name__ == "__main__":
 - [Weaviate Hybrid Search Guide](https://weaviate.io/developers/weaviate/search/hybrid)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

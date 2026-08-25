@@ -1,7 +1,7 @@
 # Self-Healing Homelab Agent Research
 
 ## What it is
-A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of late October / November 2026, these agents leverage **MCP 3.1 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
+A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of early January 2027, these agents leverage **MCP 3.1 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Llama 4](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
 
 ## What problem it solves
 - **Manual Monitoring Overhead**: Reduces the need for humans to constantly check dashboards.
@@ -154,5 +154,5 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.info)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
