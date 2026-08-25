@@ -1,171 +1,165 @@
 # Playbook: Offline Transcription Pipeline
 
 ## What it is
-The Offline Transcription Pipeline is a privacy-first workflow for converting audio files into structured text and tasks without sending data to cloud services. It integrates [faster-whisper](../tools/process_understanding/faster-whisper.md) for local speech-to-text, [Paperless-ngx](../services/paperless-ngx.md) for archiving, [Obsidian](../tools/ai_knowledge/obsidian.md) for notes, and [Vikunja](../services/vikunja.md) for task management.
+The Offline Transcription Pipeline is an enterprise-grade, privacy-first architecture for ingesting, transcribing, and extracting semantic tasks from audio and voice streams without sending data to external cloud services. It integrates [faster-whisper](../tools/process_understanding/faster-whisper.md), [Whisper](../services/whisper.md), or Voxtlm for local high-throughput speech-to-text, [Paperless-ngx](../services/paperless-ngx.md) for document archiving, [Obsidian](../tools/ai_knowledge/obsidian.md) for Markdown notes, and [Vikunja](../services/vikunja.md) for automated task creation, orchestrated via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) and [n8n](../services/n8n.md).
 
 ## What problem it solves
-It solves the "Leaky Audio" problem where sensitive recordings (meetings, medical notes, personal thoughts) are often sent to cloud providers (like OpenAI or Google) for transcription. Specifically, it addresses:
-- **Privacy at the Source**: Audio never leaves the local machine.
-- **Agentic Integration**: Automatically extracts tasks from voice notes using local LLMs (e.g., Llama 4, Gemma 3, and Qwen 3.6).
-- **Searchable Archives**: Makes hours of audio searchable via indexed transcripts.
-- **Latency Independence**: No need for a high-speed connection to upload large audio files.
+It solves the "Leaky Audio & Voice Privacy" problem where sensitive voice recordings (meeting audio, personal memos, medical dictation, or financial notes) are exposed to cloud providers during speech recognition. Specifically, it provides:
+- **Zero-Trust Audio Ingestion**: Voice and audio streams are processed entirely within the local homelab subnet or air-gapped host.
+- **Semantic Extraction at the Edge**: Automatically extracts structured action items and summaries from voice notes using local LLMs (Llama 4, Gemma 3, Qwen 3.6).
+- **Searchable Audio Knowledge Base**: Indexes hours of recorded audio into full-text searchable document repositories (Paperless-ngx, Milvus).
+- **Network Independence**: Processes multi-gigabyte audio files locally without reliance on external network upload bandwidth.
 
 ## Where it fits in the stack
-**Category**: Playbook / Information Processing. It acts as the **ingestion and normalization** layer for voice-based data, feeding the `docs/tools/ai_knowledge/` (Knowledge) and `docs/services/` (Storage/Task) layers.
+**Category**: Playbook / Information Processing. It serves as the **voice ingestion, normalization, and semantic extraction layer**, bridging local audio capture devices to downstream knowledge (`docs/tools/ai_knowledge/`) and task (`docs/services/`) management engines.
 
 ## Typical use cases
-- **Voice-to-Task Workflow**: Recording a quick memo on a phone and having it appear as a task in Vikunja minutes later.
-- **Meeting Archival**: Transcribing local video conferences and storing the text in Paperless-ngx for full-text search.
-- **Private Journaling**: Converting daily voice journals into Obsidian Markdown files.
-- **Podcast/Media Ingestion**: Transcribing downloaded media to create local knowledge bases.
+- **Voice Memos to Automated Tasks**: Converting phone audio notes into prioritized Vikunja tasks with due dates automatically parsed by local LLMs.
+- **Confidential Meeting Archival**: Transcribing local video conferences and pushing formatted Markdown transcripts to Paperless-ngx and Obsidian.
+- **Private Journaling & Dictation**: Structuring personal daily audio journal entries into categorized Obsidian vault pages.
+- **Local Podcast & Media Ingestion**: Transcribing technical lectures and audiobooks to enrich local vector database collections.
 
 ## Strengths
-- **Superior Accuracy**: `faster-whisper` provides near-SOTA accuracy on local hardware.
-- **End-to-End Privacy**: 100% offline from recording to task creation.
-- **Durable Metadata**: Includes timestamps, speaker diarization (optional), and confidence scores.
-- **Highly Automatable**: Can be triggered by folder watches or n8n webhooks.
+- **SOTA Local Accuracy**: `faster-whisper` and Voxtlm deliver state-of-the-art transcription accuracy on local GPU acceleration.
+- **Absolute Data Sovereignty**: 100% offline workflow execution from initial recording to final task database write.
+- **Rich Metadata Extraction**: Generates word-level timestamps, confidence scores, and optional offline speaker diarization.
+- **FastMCP 3.1 Orchestration**: Standardized FastMCP tool interfaces for seamless integration into agent pipelines.
 
 ## Limitations
-- **GPU Intensive**: Requires a decent GPU (e.g., NVIDIA or Apple Silicon) for faster-than-real-time performance.
-- **Large Models**: The `large-v3` model requires ~5GB of VRAM/RAM.
-- **Diarization Complexity**: Accurately identifying multiple speakers is more complex to set up offline.
-- **Initial Configuration**: Requires wiring together several distinct tools (Whisper, n8n, databases).
+- **VRAM / Compute Intensive**: Fast-than-real-time transcription of `large-v3` models requires ~5GB VRAM on Apple Silicon or NVIDIA hardware.
+- **Multi-Speaker Diarization Overhead**: Accurate offline speaker separation requires additional compute-heavy diarization models.
+- **System Wiring Complexity**: Requires coordinating audio watchers, Whisper models, n8n webhooks, and local vector stores.
 
 ## When to use it
-- For transcribing sensitive or private conversations.
-- When you want to automate the extraction of actions from your own voice notes.
-- In offline environments where cloud transcription is unavailable.
+- Ingesting confidential audio, medical notes, or proprietary business meetings.
+- Operating in air-gapped or low-bandwidth environments where cloud speech-to-text APIs are unavailable.
+- Automating personal productivity workflows directly from voice inputs.
 
 ## When not to use it
-- For low-sensitivity, public audio where the speed and convenience of cloud APIs are prioritized.
-- If you lack the hardware to run Whisper models efficiently.
+- Low-sensitivity, public audio streams where fast cloud API endpoints are preferred and local GPU hardware is absent.
 
 ## Getting started
 
-### 1. Install Transcription Engine
-Deploy [faster-whisper](../tools/process_understanding/faster-whisper.md) via Docker or Python:
+### 1. Deploy Speech Recognition Engine
+Install [faster-whisper](../tools/process_understanding/faster-whisper.md) via Docker or python container:
 ```bash
 pip install faster-whisper
 ```
 
-### 2. Configure n8n Ingestion
-Create an [n8n](../services/n8n.md) workflow that:
-1. Watches a directory (or accepts a webhook) for new `.mp3` or `.wav` files.
-2. Calls the local `faster-whisper` API or CLI.
-3. Passes the transcript to a local LLM ([Ollama](../services/ollama.md)) for summarization and task extraction.
+### 2. Configure Local n8n / FastMCP Ingestion Workflow
+Set up an [n8n](../services/n8n.md) or FastMCP 3.1 workflow to:
+1. Watch an ingestion folder for new `.mp3`, `.m4a`, or `.wav` audio files.
+2. Trigger the local `faster-whisper` engine for JSON transcript generation.
+3. Pass transcript text to a local LLM ([Ollama](../services/ollama.md) with Gemma 3) for task extraction.
 
-### 3. Route to Storage
-Configure the workflow to:
-- POST the transcript and original audio to [Paperless-ngx](../services/paperless-ngx.md).
-- Create tasks in [Vikunja](../services/vikunja.md) for any items identified by the LLM.
+### 3. Direct Outputs to Storage & Task Systems
+- POST structured transcript text to [Paperless-ngx](../services/paperless-ngx.md).
+- Create parsed action items directly in [Vikunja](../services/vikunja.md).
 
 ## CLI examples
 
-### 1. Basic Transcription (faster-whisper)
+### 1. Local CLI Transcription Execution
 ```bash
-whisper-ctranslate2 meeting_audio.mp3 --model large-v3 --output_format txt
+whisper-ctranslate2 meeting_recording.mp3 --model large-v3 --output_format json
 ```
 
-### 2. Monitoring Transcription Jobs
+### 2. Monitoring Transcription Ingestion Queue
 ```bash
-# Example if using a task queue like Celery or BullMQ
-tasks list --queue transcription
+docker logs -f faster-whisper-server
 ```
 
-### 3. Importing Transcript to Paperless-ngx
+### 3. Pushing Generated Transcript to Paperless-ngx
 ```bash
-curl -H "Authorization: Token your_token" -F "document=@transcript.txt" -F "title=Meeting Notes" http://paperless.local/api/documents/post_document/
+curl -X POST -H "Authorization: Token $PAPERLESS_TOKEN" \
+     -F "document=@transcript.txt" \
+     -F "title=Meeting Recording 2027-01-07" \
+     http://localhost:8000/api/documents/post_document/
 ```
 
 ## API examples
 
-### Python: Automated Pipeline Script with Pydantic v2 Schema Validation
-The following production script utilizes **Pydantic v2** validation to process, structure, and check transcripts and extracted tasks before inserting them into task management and document stores.
+### Python: Offline Audio Pipeline Validator & Task Parser (Pydantic v2)
+This production script uses **Pydantic v2** validation to process, verify, and validate transcript outputs and extracted task payloads before writing to downstream storage engines.
 
 ```python
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
-class TaskItem(BaseModel):
-    title: str = Field(..., min_length=3, description="Parsed task summary.")
-    priority: int = Field(default=3, ge=1, le=5, description="Priority from 1 (high) to 5 (low).")
-    due_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="Optional YYYY-MM-DD due date.")
+class ExtractedTask(BaseModel):
+    task_title: str = Field(..., min_length=3, description="Task summary extracted from speech.")
+    priority: int = Field(default=3, ge=1, le=5)
+    due_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 
-class AudioSegment(BaseModel):
-    start: float = Field(..., ge=0.0)
-    end: float = Field(..., ge=0.0)
+class TranscriptSegment(BaseModel):
+    start_sec: float = Field(..., ge=0.0)
+    end_sec: float = Field(..., ge=0.0)
+    speaker_id: Optional[str] = Field(default="Speaker_1")
     text: str = Field(..., min_length=1)
     confidence: float = Field(..., ge=0.0, le=1.0)
 
-    @field_validator("end")
+    @field_validator("end_sec")
     @classmethod
-    def check_timestamps(cls, v: float, info) -> float:
-        # Pydantic v2 validation logic
-        start = info.data.get("start")
+    def validate_timestamps(cls, v: float, info) -> float:
+        start = info.data.get("start_sec")
         if start is not None and v < start:
-            raise ValueError("End timestamp must be greater than or equal to start timestamp.")
+            raise ValueError("end_sec must be greater than or equal to start_sec.")
         return v
 
-class StructuredTranscript(BaseModel):
-    audio_file: str
-    transcription_model: str
-    text_content: str
-    segments: List[AudioSegment]
-    extracted_tasks: List[TaskItem]
+class AudioPipelinePayload(BaseModel):
+    source_file: str
+    engine: str = Field(default="faster-whisper-large-v3")
+    full_transcript: str
+    segments: List[TranscriptSegment]
+    tasks: List[ExtractedTask]
 
-def process_and_validate_pipeline(raw_json_input: str) -> dict:
+def validate_audio_pipeline(raw_json: str) -> dict:
     try:
-        data = json.loads(raw_json_input)
-        # Validate using Pydantic v2
-        validated_pipeline = StructuredTranscript.model_validate(data)
+        data = json.loads(raw_json)
+        payload = AudioPipelinePayload.model_validate(data)
         return {
             "status": "VALID",
-            "payload": validated_pipeline.model_dump()
+            "processed_payload": payload.model_dump()
         }
     except Exception as e:
-        return {
-            "status": "INVALID",
-            "error": str(e)
-        }
+        return {"status": "INVALID", "error": str(e)}
 
 if __name__ == "__main__":
-    # Sample input from a local faster-whisper + Ollama (Gemma 3) extraction
-    sample_pipeline_output = """
+    sample_json = """
     {
-      "audio_file": "/data/memos/recording_2026-11-20.mp3",
-      "transcription_model": "faster-whisper-large-v3",
-      "text_content": "We need to fix the leaking pipe in the server room and check database locks by next Friday.",
+      "source_file": "/storage/audio/memo_2027-01-07.m4a",
+      "engine": "faster-whisper-large-v3",
+      "full_transcript": "Need to update the backup verification playbook and schedule a server reboot.",
       "segments": [
-        {"start": 0.0, "end": 4.5, "text": "We need to fix the leaking pipe in the server room", "confidence": 0.98},
-        {"start": 4.5, "end": 9.2, "text": "and check database locks by next Friday.", "confidence": 0.95}
+        {"start_sec": 0.0, "end_sec": 3.2, "speaker_id": "User", "text": "Need to update the backup verification playbook", "confidence": 0.97},
+        {"start_sec": 3.2, "end_sec": 6.1, "speaker_id": "User", "text": "and schedule a server reboot.", "confidence": 0.96}
       ],
-      "extracted_tasks": [
-        {"title": "Fix leaking pipe in server room", "priority": 1},
-        {"title": "Check database locks", "priority": 2, "due_date": "2026-11-27"}
+      "tasks": [
+        {"task_title": "Update backup verification playbook", "priority": 1},
+        {"task_title": "Schedule server reboot", "priority": 2, "due_date": "2027-01-10"}
       ]
     }
     """
-    result = process_and_validate_pipeline(sample_pipeline_output)
-    print("Pipeline Validation Result:\n", json.dumps(result, indent=2))
+    res = validate_audio_pipeline(sample_json)
+    print("Pipeline Validation Output:\n", json.dumps(res, indent=2))
 ```
 
 ## Related tools / concepts
-- [faster-whisper](../tools/process_understanding/faster-whisper.md) — The transcription engine.
-- [Whisper](../services/whisper.md) — Original OpenAI model.
-- [Ollama](../services/ollama.md) — For extracting tasks from text.
+- [faster-whisper](../tools/process_understanding/faster-whisper.md) — Fast CTranslate2 Whisper implementation.
+- [Whisper](../services/whisper.md) — Speech recognition engine.
+- [Ollama](../services/ollama.md) — Local LLMs for semantic extraction.
 - [Vikunja](../services/vikunja.md) — Local task management.
-- [Paperless-ngx](../services/paperless-ngx.md) — Document archival.
-- [n8n](../services/n8n.md) — Workflow automation.
-- [Audio Transcription Research](../knowledge_base/audio-transcription-research.md) — Background research.
-- [Voice-to-Task Research](../knowledge_base/voice-to-task-research.md) — Specialized patterns.
+- [Paperless-ngx](../services/paperless-ngx.md) — Document archival service.
+- [n8n](../services/n8n.md) — Workflow automation hub.
+- [Audio Transcription Research](../knowledge_base/audio-transcription-research.md) — Speech modeling research.
+- [Voice-to-Task Research](../knowledge_base/voice-to-task-research.md) — Voice extraction patterns.
 
 ## Sources / References
-- [faster-whisper GitHub Repository](https://github.com/SYSTRAN/faster-whisper)
+- [faster-whisper Repository](https://github.com/SYSTRAN/faster-whisper)
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [Paperless-ngx API Reference](https://docs.paperless-ngx.com/api/)
 - [OpenAI Whisper Model Card](https://github.com/openai/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
