@@ -14,12 +14,12 @@ Mage-VL solves this by aligning token allocation directly with the underlying vi
 
 ## Where it fits in the stack
 
-**Multimodal Framework / Vision-Language Model**. Sits inside the local model execution or cloud provider layers, enabling agent systems (such as those running on Claude 5.1 or GPT-5.5) to utilize high-fidelity, real-time video understanding tools.
+**Multimodal Framework / Vision-Language Model**. Sits inside the local model execution or cloud provider layers, enabling agent systems (such as those running on Claude 5.6, GPT-5.6, or Gemini 4.0 Pro) to utilize high-fidelity, real-time video understanding tools via FastMCP 3.1 protocols.
 
 ```
 ┌────────────────────────────────────────┐
 │      Agent / Orchestration Layer       │
-│           (Claude 5.1, n8n)            │
+│       (Claude 5.6, FastMCP 3.1)        │
 └───────────────────┬────────────────────┘
                     │ Video/Stream Analysis
 ┌───────────────────▼────────────────────┐
@@ -150,5 +150,5 @@ print(f"Spatio-temporal token reduction: {frame_meta.compression_ratio() * 100:.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
