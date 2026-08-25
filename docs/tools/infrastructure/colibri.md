@@ -3,12 +3,12 @@
 Colibri is a high-performance streaming inference engine designed to enable the execution of ultra-large language models, such as Tencent's Hy3 (299B MoE) and Qwen 3.6 (MoE), on consumer-grade hardware with limited VRAM. By utilizing advanced layer-streaming, speculative decoding, and direct memory access techniques, Colibri makes it possible to run frontier-class models on as little as 10GB of VRAM.
 
 ## What it is
-Colibri is a specialized inference runtime that focuses on "dynamic weight loading" or streaming. Unlike traditional engines that attempt to fit as many layers as possible into VRAM, Colibri optimizes the transfer between system RAM (DDR5/DDR6) and GPU VRAM (GDDR6X/HBM3) in real-time. As of November 2026, it is the primary solution for running massive open-weights architectures locally without requiring enterprise-grade H100/B200 clusters.
+Colibri is a specialized inference runtime that focuses on "dynamic weight loading" or streaming. Unlike traditional engines that attempt to fit as many layers as possible into VRAM, Colibri optimizes the transfer between system RAM (DDR5/DDR6) and GPU VRAM (GDDR6X/HBM3) in real-time. As of early January 2027, it is the primary solution for running massive open-weights architectures locally without requiring enterprise-grade H100/B200 clusters.
 
 ## What problem it solves
 It breaks the "VRAM wall" for ultra-large Mixture-of-Experts (MoE) models. Previously, a 299B parameter model like Tencent Hy3 would require hundreds of gigabytes of VRAM even at 4-bit quantization. Colibri allows these models to run on mid-range GPUs (like the RTX 5060 or 4080) by streaming only the active experts and layers needed for the current token generation, significantly reducing the hardware entry barrier for top-tier open weights.
 
-It enables local-first workstations to run massive reasoning backends as high-fidelity fallbacks or primary local engines alongside cloud frontier APIs (such as Claude 5.1, GPT-5.5, and Gemini 4.0), ensuring data sovereignty and offline resilience.
+It enables local-first workstations to run massive reasoning backends as high-fidelity fallbacks or primary local engines alongside cloud frontier APIs (such as Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra), ensuring data sovereignty and offline resilience.
 
 ## Where it fits in the stack
 **Infrastructure / Inference Layer**. Colibri sits at the same level as [llama.cpp](llama-cpp.md) and [vLLM](vllm.md), providing the execution environment for models. It serves as a local inference backend for agent stacks and local orchestrators using [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, and Qwen 3.6 for complex reasoning.
@@ -16,7 +16,7 @@ It enables local-first workstations to run massive reasoning backends as high-fi
 ```
 ┌────────────────────────────────────────┐
 │     Agentic Orchestration Layer        │
-│   (Claude 5.1, GPT-5.5, FastMCP 3.1)   │
+│   (Claude 5.6, GPT-5.6, FastMCP 3.1)   │
 └───────────────────┬────────────────────┘
                     │ Tool / Model Calls
 ┌───────────────────▼────────────────────┐
@@ -187,5 +187,5 @@ if __name__ == "__main__":
 - [Layer-Streaming Architecture for Ultra-Large MoE Models](https://arxiv.org/abs/2601.12345)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

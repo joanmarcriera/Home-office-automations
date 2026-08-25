@@ -1,7 +1,7 @@
 # Aphrodite Engine
 
 ## What it is
-Aphrodite Engine is an open-source, ultra-high-performance inference engine for Large Language Models (LLMs), engineered as a highly specialized fork of [vLLM](vllm.md). It bridges the gap between massive, enterprise-grade datacenter model serving and the custom, localized needs of homelab environments and local AI development. As of late 2026, Aphrodite Engine serves as a core infrastructure service in modern agentic stacks, providing state-of-the-art continuous batching and PagedAttention memory management alongside highly customized local features like multi-format quantization execution, dual-protocol APIs, and an advanced, creative sampler stack.
+Aphrodite Engine is an open-source, ultra-high-performance inference engine for Large Language Models (LLMs), engineered as a highly specialized fork of [vLLM](vllm.md). It bridges the gap between massive, enterprise-grade datacenter model serving and the custom, localized needs of homelab environments and local AI development. As of early 2027, Aphrodite Engine serves as a core infrastructure service in modern agentic stacks, providing state-of-the-art continuous batching and PagedAttention memory management alongside highly customized local features like multi-format quantization execution, dual-protocol APIs, and an advanced, creative sampler stack.
 
 ## What problem it solves
 While upstream [vLLM](vllm.md) focuses primarily on enterprise cloud deployments running unquantized FP16/BF16 weights via standard APIs, local-first environments face distinct challenges:
@@ -17,7 +17,7 @@ Aphrodite Engine solves these hurdles. It retains the raw batching speed of vLLM
 ```
 ┌────────────────────────────────────────┐
 │      Agent / Orchestration Layer       │
-│     (Claude 5.1, FastMCP, n8n)         │
+│    (Claude 5.6, FastMCP 3.1, n8n)      │
 └───────────────────┬────────────────────┘
                     │ REST / OpenAI API
 ┌───────────────────▼────────────────────┐
@@ -174,7 +174,7 @@ print(response.choices[0].message.content)
 ```
 
 ### 2. FastMCP (MCP 3.1) Tool Wrapper
-You can register Aphrodite Engine inside a FastMCP tool server so local agents like Claude 5.1 can query it dynamically:
+You can register Aphrodite Engine inside a FastMCP 3.1 tool server so local agents like Claude 5.6 can query it dynamically:
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -227,5 +227,5 @@ curl http://localhost:8000/v1/chat/completions \
 - [GGUF Format Specification](https://github.com/philpax/ggml/blob/gguf-spec/docs/gguf.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -4,7 +4,7 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 
 ## What it is
 
-This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (late October / November 2026) includes multi-agent coordination patterns, [MCP 3.1](../../tools/automation_orchestration/mcp.md) tool routing, FastMCP 3.1 schemas, and advanced preference injection logic optimized for local [Gemma 3](../../tools/ai_knowledge/local_llms.md) and frontier models such as Claude 5.1 and GPT-5.5.
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (early January 2027) includes multi-agent coordination patterns, [MCP 3.1](../../tools/automation_orchestration/mcp.md) tool routing, FastMCP 3.1 schemas, and advanced preference injection logic optimized for local [Gemma 3](../../tools/ai_knowledge/local_llms.md) and frontier models such as Claude 5.6 and GPT-5.6.
 
 ## What problem it solves
 
@@ -104,7 +104,7 @@ def get_ralph_response(user_input, prefs_json):
 ```
 
 ### 2. Validating User Preferences with Pydantic v2
-To guarantee preference injection structures conform to expectations before LLM context generation in late October / November 2026.
+To guarantee preference injection structures conform to expectations before LLM context generation in early January 2027.
 
 ```python
 from pydantic import BaseModel, Field, field_validator, ValidationError
@@ -224,5 +224,5 @@ Recent System Events: {{ system_log_summary }}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

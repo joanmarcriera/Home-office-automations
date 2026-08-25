@@ -17,7 +17,7 @@ Tritium addresses these challenges by embracing ternary quantization:
 ```
 ┌────────────────────────────────────────┐
 │      Agent / Orchestration Layer       │
-│         (Claude 5.1, n8n, etc.)        │
+│    (Claude 5.6, FastMCP 3.1, etc.)     │
 └───────────────────┬────────────────────┘
                     │ REST / OpenAI API
 ┌───────────────────▼────────────────────┐
@@ -233,5 +233,5 @@ curl http://127.0.0.1:8000/v1/completions \
 - [Hugging Face: Quantizing Models with BitNet](https://huggingface.co/blog/bitnet_integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
