@@ -14,6 +14,7 @@ For a conceptual overview of model comparison platforms and evaluation metrics, 
 | [AssistantBench](assistant-bench.md) | Web navigation and complex task execution benchmark for AI assistants |
 | [BigCodeBench](bigcodebench.md) | Practical coding capabilities benchmark across realistic developer tasks |
 | [Chatbot Arena](chatbot-arena.md) | Crowdsourced ELO-based human preference leaderboard for LLMs |
+| [DeepEval](deepeval.md) | Open-source LLM evaluation, unit-testing, and RAG benchmarking framework |
 | [DREAM Benchmark](dream.md) | Dialogue-based reading comprehension and multi-turn reasoning test |
 | [EvalPlus](evalplus.md) | Rigorous code generation evaluation via test-case augmentation |
 | [GAIA](gaia.md) | General AI Assistants benchmark for complex multi-modal task execution |
