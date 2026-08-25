@@ -6,7 +6,7 @@ The Offline Transcription Pipeline is a privacy-first workflow for converting au
 ## What problem it solves
 It solves the "Leaky Audio" problem where sensitive recordings (meetings, medical notes, personal thoughts) are often sent to cloud providers (like OpenAI or Google) for transcription. Specifically, it addresses:
 - **Privacy at the Source**: Audio never leaves the local machine.
-- **Agentic Integration**: Automatically extracts tasks from voice notes using local LLMs (e.g., Llama 4, Gemma 3, and Qwen 3.6).
+- **Agentic Integration**: Automatically extracts tasks from voice notes using local LLMs (e.g., Llama 4, Gemma 3, DeepSeek-V4, and Qwen 3.8).
 - **Searchable Archives**: Makes hours of audio searchable via indexed transcripts.
 - **Latency Independence**: No need for a high-speed connection to upload large audio files.
 
@@ -167,5 +167,5 @@ if __name__ == "__main__":
 - [OpenAI Whisper Model Card](https://github.com/openai/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Playbook: Graceful Degradation (Cloud-to-Local)
 
 ## What it is
-The Graceful Degradation playbook defines the operational configuration for automatically switching from cloud-based LLM APIs (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Google Gemini 4.0) to a local inference engine ([Ollama](../services/ollama.md)) during outages, rate-limiting, or connectivity issues. It operationalizes the [Fallback Patterns](../knowledge_base/patterns/fallback-patterns.md) by providing concrete implementation steps for [LiteLLM](../services/litellm.md) and [Open WebUI](../services/open-webui.md).
+The Graceful Degradation playbook defines the operational configuration for automatically switching from cloud-based LLM APIs (such as Anthropic Claude 5.1/5.6, OpenAI GPT-5.5/5.6, or Google Gemini 4.0 Pro/Ultra) to a local inference engine ([Ollama](../services/ollama.md) or vLLM) during outages, rate-limiting, or connectivity issues. It operationalizes the [Fallback Patterns](../knowledge_base/patterns/fallback-patterns.md) by providing concrete implementation steps for [LiteLLM](../services/litellm.md) and [Open WebUI](../services/open-webui.md).
 
 ## What problem it solves
 It ensures the continuity of mission-critical AI services when primary cloud providers fail. It solves for:
@@ -26,7 +26,7 @@ It ensures the continuity of mission-critical AI services when primary cloud pro
 - **Seamless Transition**: Users often don't notice the failover occurring in the background.
 
 ## Limitations
-- **Quality Disparity**: Local models (e.g., Llama 4 8B, Gemma 3 27B) may not match the reasoning depth of frontier models (Claude 5.1).
+- **Quality Disparity**: Local models (e.g., Llama 4 70B, Gemma 3 27B) may not match the reasoning depth of frontier models (Claude 5.1/5.6 or GPT-5.5).
 - **State Management**: Ensuring the conversation history is correctly transferred between different model architectures.
 - **Latency Overhead**: The initial failed request adds to the total response time.
 - **Hardware Demand**: Local hardware must be kept in a "ready" state to accept failover traffic.
@@ -195,5 +195,5 @@ if __name__ == "__main__":
 - [Ollama API Reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

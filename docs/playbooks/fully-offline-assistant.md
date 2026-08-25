@@ -8,7 +8,7 @@ flowchart TD
     Milvus -->|4. Return Relevant Context| WebUI
     WebUI -->|5. Local Web Cache Lookup| Kiwix[Kiwix Serve\nWikipedia / Local ZIMs]
     Kiwix -->|6. Return Web Context| WebUI
-    WebUI -->|7. Synthesized Prompt with Context| Ollama[Ollama Inference Engine\ngemma3-27b-it]
+    WebUI -->|7. Synthesized Prompt with Context| Ollama[Ollama / vLLM Inference Engine\ngemma3-27b-it / llama4-70b]
     Ollama -->|8. Local LLM Generation| WebUI
     WebUI -->|9. Stream Response| User
 ```
@@ -17,11 +17,11 @@ flowchart TD
 The Fully Offline Assistant is an end-to-end architecture for deploying a private, air-gapped AI stack on local hardware. It integrates [Ollama](../services/ollama.md) for LLM inference, [Open WebUI](../services/open-webui.md) for the interface, local embeddings for RAG, a local vector database ([Milvus](../tools/infrastructure/milvus.md) or Chroma), and [Kiwix](../services/kiwix.md) for offline web knowledge. It integrates local tools and context-routing using the [Model Context Protocol (MCP 3.1)](../tools/automation_orchestration/mcp.md) and **FastMCP 3.1** standards.
 
 ## What problem it solves
-It eliminates reliance on cloud-based AI providers (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Google Gemini 4.0), solving for:
+It eliminates reliance on cloud-based AI providers (such as Anthropic Claude 5.1/5.6, OpenAI GPT-5.5/5.6, or Google Gemini 4.0 Pro/Ultra), solving for:
 - **Data Privacy**: Sensitive personal and diagnostic data never leaves the local network.
 - **Internet Independence**: The system remains functional during ISP outages or in remote/air-gapped environments.
 - **Cost Predictability**: Eliminates monthly subscription fees and token-based cloud pricing.
-- **Data Sovereignty**: Complete control over which local models (such as LLaMA 4, Gemma 3, and Qwen 3.6) and knowledge bases are used.
+- **Data Sovereignty**: Complete control over which local models (such as LLaMA 4, Gemma 3, DeepSeek-V4, and Qwen 3.8) and knowledge bases are used.
 
 ## Where it fits in the stack
 **Category**: Playbook / Infrastructure. It serves as the **operational blueprint** for the Privacy-First AI layer, orchestrating multiple services from the `docs/services/` and `docs/tools/` directories into a unified, functional assistant.
@@ -203,5 +203,5 @@ if __name__ == "__main__":
 - [Milvus Documentation](https://milvus.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

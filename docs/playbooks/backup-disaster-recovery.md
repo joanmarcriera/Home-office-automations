@@ -1,7 +1,7 @@
 # Playbook: Backup & Disaster Recovery
 
 ## What it is
-The Backup & Disaster Recovery playbook provides a comprehensive strategy for protecting the data and configurations of the homelab automation stack. It utilizes [restic](https://restic.net/), [BorgBackup](https://www.borgbackup.org/), or [Kopia](https://kopia.io/) to implement a robust 3-2-1 backup strategy (3 copies, 2 different media, 1 offsite) for services like [Paperless-ngx](../services/paperless-ngx.md), [Immich](../services/immich.md), [Nextcloud](../services/nextcloud.md), as well as local vector databases ([Milvus](../tools/infrastructure/milvus.md), Qdrant) and configurations of your local Model Context Protocol (MCP 3.1) servers.
+The Backup & Disaster Recovery playbook provides a comprehensive strategy for protecting the data and configurations of the homelab automation stack. It utilizes [restic](https://restic.net/), [BorgBackup](https://www.borgbackup.org/), or [Kopia](https://kopia.io/) to implement a robust 3-2-1 backup strategy (3 copies, 2 different media, 1 offsite) for services like [Paperless-ngx](../services/paperless-ngx.md), [Immich](../services/immich.md), [Nextcloud](../services/nextcloud.md), as well as local vector databases ([Milvus](../tools/infrastructure/milvus.md), Qdrant, ChromaDB) and configurations of your local Model Context Protocol / FastMCP 3.1 servers.
 
 ## What problem it solves
 It mitigates the risk of catastrophic data loss due to:
@@ -17,7 +17,7 @@ It mitigates the risk of catastrophic data loss due to:
 - **Paperless-ngx Vault Backup**: Daily encrypted snapshots of all scanned documents and their metadata.
 - **Immich Library Protection**: Efficiently backing up terabytes of family photos and videos using deduplication.
 - **Nextcloud Sync Recovery**: Restoring user data after a failed upgrade or corrupted database state.
-- **Configuration Versioning**: Backing up the `.env` files, Docker Compose manifests, MCP server configurations, and n8n workflows that define the stack.
+- **Configuration Versioning**: Backing up the `.env` files, Docker Compose manifests, FastMCP 3.1 server configurations, and n8n workflows that define the stack.
 - **Vector database snapshots**: Backing up vector collections and schema setups for reproducible local RAG.
 
 ## Strengths
@@ -193,5 +193,5 @@ Example logic for an n8n node to trigger a restore drill on a staging environmen
 - [Kopia Documentation](https://kopia.io/docs/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high

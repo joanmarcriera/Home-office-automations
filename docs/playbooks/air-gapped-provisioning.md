@@ -1,7 +1,7 @@
 # Playbook: Air-gapped Provisioning
 
 ## What it is
-The Air-gapped Provisioning playbook defines the workflow for securely transferring and verifying software artifacts (LLM models such as Llama 4, Gemma 3, and Qwen 3.6, GGUFs, [Kiwix](../services/kiwix.md) ZIMs, Docker images, and Model Context Protocol packages) onto a physically disconnected ("air-gapped") server. It relies on a "Download Once, Sneakernet, Verify" strategy to ensure system integrity without internet access.
+The Air-gapped Provisioning playbook defines the workflow for securely transferring and verifying software artifacts (LLM models such as Llama 4, Gemma 3, DeepSeek-V4, and Qwen 3.8, GGUFs, [Kiwix](../services/kiwix.md) ZIMs, OCI container images, and Model Context Protocol / FastMCP 3.1 packages) onto a physically disconnected ("air-gapped") server. It relies on a "Download Once, Sneakernet, Cryptographic Verification" strategy to ensure system integrity without internet access.
 
 ## What problem it solves
 It solves the "Bootstrapping at the Edge" problem where a server requires high-bandwidth data but lacks a persistent or secure internet connection. Specifically, it addresses:
@@ -14,10 +14,10 @@ It solves the "Bootstrapping at the Edge" problem where a server requires high-b
 **Category**: Playbook / Infrastructure. It acts as the **bridge** between the internet-connected "Inlet" machine and the air-gapped "Private" machine.
 
 ## Typical use cases
-- **Ollama Model Sneakernet**: Downloading a 70B parameter model once and transferring it via external drive to an air-gapped Mac Studio.
-- **Kiwix Knowledge Update**: Pre-staging the latest English Wikipedia ZIM (100GB+) for offline search.
-- **Docker Image Sideloading**: Saving Docker images as `.tar` files to be loaded onto a disconnected cluster.
-- **Firmware & OS Updates**: Transferring critical security patches and Model Context Protocol (MCP 3.1) servers to air-gapped infrastructure.
+- **Ollama / vLLM Model Sneakernet**: Downloading a Llama 4 or Gemma 3 27B model once and transferring it via encrypted NVMe drive to an air-gapped Mac Studio or enterprise GPU node.
+- **Kiwix Knowledge Update**: Pre-staging the latest English Wikipedia ZIM (100GB+) and enterprise knowledge base dumps for offline RAG search.
+- **OCI Container Image Sideloading**: Saving multi-arch container images as `.tar` archives to be loaded onto a disconnected K3s or Docker cluster.
+- **Firmware & MCP Tool Updates**: Transferring critical security patches and Model Context Protocol (FastMCP 3.1) servers to air-gapped infrastructure.
 
 ## Strengths
 - **Maximum Security**: The air-gapped machine remains untethered from the internet.
@@ -187,5 +187,5 @@ if __name__ == "__main__":
 - [NIST Guide to Air-Gapped Network Security](https://csrc.nist.gov/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
