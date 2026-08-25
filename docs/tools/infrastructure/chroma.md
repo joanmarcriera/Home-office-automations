@@ -205,5 +205,5 @@ Example server tool schema definition mapping:
 - [Reddit r/LocalLLaMA: Classic Vector RAG vs Google NotebookLM Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1ve5r8y/i_benchmarked_classic_vector_rag_vs_googles_new/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-02
+- Last reviewed: 2027-01-07
 - Confidence: high
