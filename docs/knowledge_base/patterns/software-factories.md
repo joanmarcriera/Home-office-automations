@@ -1,9 +1,9 @@
 # Software Factories Pattern
 
-An architectural pattern for high-autonomy, non-interactive software engineering where agents spec, code, and verify work through rigorous validation harnesses as of late October / November 2026.
+An architectural pattern for high-autonomy, non-interactive software engineering where agents spec, code, and verify work through rigorous validation harnesses as of early January 2027.
 
 ## What it is
-The Software Factory is a "dark factory" approach to development where autonomous agents (Claude 5.1, GPT-5.5, Gemini 4.0, [Gemma 3](../../tools/ai_knowledge/local_llms.md)) operate within closed-loop environments. It shifts the human role from writing code to defining the "seeds" (specifications) and "validation harnesses" (test scenarios), treating code generation as a high-volume, low-marginal-cost industrial process using **AI-native software assembly** with the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**.
+The Software Factory is a "dark factory" approach to development where autonomous agents (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, [Gemma 3](../../tools/ai_knowledge/local_llms.md), [Llama 4](../../tools/ai_knowledge/local_llms.md)) operate within closed-loop environments. It shifts the human role from writing code to defining the "seeds" (specifications) and "validation harnesses" (test scenarios), treating code generation as a high-volume, low-marginal-cost industrial process using **AI-native software assembly** with the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**.
 
 ## What problem it solves
 It eliminates the human review bottleneck in traditional PR workflows and mitigates "inhuman mistakes" through exhaustive automated validation. It addresses the economic challenge of building and maintaining complex digital twins, legacy system migrations, and specialized tooling that was previously too expensive for manual development.
@@ -174,5 +174,5 @@ if __name__ == "__main__":
 - [Deloitte Tech Trends 2026: The Agentic Reality Check](https://www.deloitte.com/us/en/insights/topics/technology-management/tech-trends.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
