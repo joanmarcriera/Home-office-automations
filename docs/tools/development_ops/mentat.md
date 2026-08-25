@@ -36,6 +36,31 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 - For new production projects requiring active upstream support and maintained documentation (use active alternatives like [Claude Code](./claude-code.md) or [Aider](aider.md)).
 - When a graphical editor experience (like [Cursor](cursor.md)) is preferred.
 
+## Getting started
+> *Historical Reference Note*: Upstream repository is offline. Historical CLI installation utilized pip:
+```bash
+pip install mentat
+export OPENAI_API_KEY="your-api-key"
+```
+
+## CLI examples
+```bash
+# Launch Mentat targeting specific source files
+mentat src/main.py src/utils.py
+
+# Execute automated multi-file refactoring command
+mentat --prompt "Refactor error handling across main.py and utils.py to use custom Pydantic v2 exceptions"
+```
+
+## API examples
+```python
+# Historical Python client concept for Mentat terminal runner
+from mentat.session import Session
+
+session = Session(paths=["src/main.py", "src/utils.py"])
+session.start()
+```
+
 ## Related tools / concepts
 - [Aider](aider.md) — Active terminal-based AI pair programmer.
 - [Plandex](plandex.md) — For terminal-native complex refactoring.
