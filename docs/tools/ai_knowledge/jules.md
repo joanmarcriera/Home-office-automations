@@ -1,7 +1,7 @@
 # Jules (The Software Engineer Agent)
 
 ## What it is
-Jules is a specialized software engineer agent designed for autonomous repository maintenance, feature implementation, and knowledge base curation. In this repository, Jules serves as the primary engine for the **Ralph-loop**, a continuous improvement cycle that processes incoming sources, resolves issues, and keeps the documentation stack synchronized with the evolving AI landscape. As of late October / November 2026, Jules has been upgraded to support the **MCP 3.1 / FastMCP 3.1 Task Protocol**, enabling standardized, multi-step orchestration across diverse toolsets.
+Jules is a specialized software engineer agent designed for autonomous repository maintenance, feature implementation, and knowledge base curation. In this repository, Jules serves as the primary engine for the **Ralph-loop**, a continuous improvement cycle that processes incoming sources, resolves issues, and keeps the documentation stack synchronized with the evolving AI landscape. As of early 2027, Jules is powered by the **MCP 3.1 / FastMCP 3.1 Task Protocol**, enabling standardized, multi-step orchestration across diverse toolsets and verification pipelines.
 
 ## What problem it solves
 Jules eliminates "documentation rot" and reduces the manual toil of maintaining a complex technical knowledge base. It bridges the gap between raw intake (new tools, newsletters, technical digests) and a structured, verified, and cross-linked documentation site, ensuring that human engineers can focus on high-level strategy while Jules handles the technical deepening.
@@ -9,9 +9,25 @@ Jules eliminates "documentation rot" and reduces the manual toil of maintaining 
 ## Where it fits in the stack
 **AI & Knowledge / [Autonomous Agents](../agents/index.md)**. Jules is the primary agentic worker within the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) framework.
 
+```
+┌────────────────────────────────────────┐
+│      GitHub Issue / Intention          │
+│         (Ralph-loop / Jules)           │
+└───────────────────┬────────────────────┘
+                    │ MCP 3.1 Task Protocol / Tool Calls
+┌───────────────────▼────────────────────┐
+│          JULES ENGINE CORE             │
+│   (Gemma 4, Claude 5.6, GPT-5.6)       │
+└───────────────────┬────────────────────┘
+                    │ Validation & Pre-Commit Audit Scripts
+┌───────────────────▼────────────────────┐
+│       Target Repository & PRs          │
+└────────────────────────────────────────┘
+```
+
 ## Typical use cases
 - "Research and add a canonical page for Tool X."
-- "Deepen the documentation for the following 5 pages with code examples using late October / November 2026 technical context."
+- "Deepen the documentation for the following 5 pages with code examples using early 2027 technical context."
 - "Standardize the Access Matrix UI and fix all broken relative links."
 - "Divide the OpenRouter log backlog into actionable batches (Action C)."
 - Running quarterly freshness audits for the oldest documentation pages in the repository.
@@ -21,7 +37,7 @@ Jules eliminates "documentation rot" and reduces the manual toil of maintaining 
 - **Autonomous Lifecycle**: Can plan, execute, verify, and submit PRs with minimal human intervention.
 - **Resourceful Integration**: Uses a suite of tools (bash, search, file I/O, web viewing) to research and implement changes.
 - **Self-Correcting**: Uses quality gates and pre-commit scripts to verify its own work before submission.
-- **Model Agnostic**: Optimized for frontier models like **Gemma 3**, **Claude 5.1**, **Gemini 4.0 Pro/Ultra**, and **GPT-5.5**.
+- **Model Agnostic**: Optimized for frontier models like **Gemma 4**, **Claude 5.6**, **Gemini 4.0 Pro/Ultra**, and **GPT-5.6**.
 
 ## Limitations
 - **Strategic Guardrails**: Requires human review for high-level architectural shifts or sensitive infrastructure changes.
@@ -132,5 +148,5 @@ When Jules detects a failure during a pre-commit step, it enters a self-correcti
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high

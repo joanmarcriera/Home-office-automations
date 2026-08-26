@@ -1,13 +1,29 @@
 # OpenBB
 
 ## What it is
-OpenBB is a comprehensive, open-source financial data platform designed for financial analysts, quantitative researchers, and AI agents. It standardizes access to hundreds of financial data endpoints across diverse asset classes (equities, options, crypto, forex, macroeconomics, fixed income) using a single unified Python SDK, a Terminal (CLI), or a web-based dashboard. As of late October / November 2026, **OpenBB Platform v5.0** fully standardizes native Model Context Protocol (MCP 3.1 / FastMCP 3.1) integration, enabling AI agents and LLMs (such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6) to autonomously execute high-fidelity financial queries and synthesize market intelligence in real-time.
+OpenBB is a comprehensive, open-source financial data platform designed for financial analysts, quantitative researchers, and AI agents. It standardizes access to hundreds of financial data endpoints across diverse asset classes (equities, options, crypto, forex, macroeconomics, fixed income) using a single unified Python SDK, a Terminal (CLI), or a web-based dashboard. As of early 2027, **OpenBB Platform v5.2** fully standardizes native Model Context Protocol (MCP 3.1 / FastMCP 3.1) integration via streamable-http and stdio transports, enabling AI agents and LLMs (such as Claude 5.6, GPT-5.6, Gemini 4.0, Llama 4, Gemma 4, and Qwen 3.6) to autonomously execute high-fidelity financial queries and synthesize market intelligence in real-time.
 
 ## What problem it solves
 It eliminates the critical challenge of fragmentation in financial data acquisition. Traditional research requires maintaining separate API integrations, pipelines, and schema-normalizations for dozens of disparate financial data providers (e.g., FMP, Polygon, AlphaVantage, FRED, SEC EDGAR, Benzinga). OpenBB normalizes data schemas, provides a consistent command-and-query interface, and delivers structured, high-fidelity JSON data directly to LLMs, bypassing the latency, hallucinations, and unreliability associated with general web-scraping or unstructured searches.
 
 ## Where it fits in the stack
 **AI & Knowledge / Financial Intelligence Layer**. OpenBB acts as the dedicated financial data retrieval engine. It operates directly between raw data/provider APIs and downstream AI agentic frameworks, multi-agent systems, and specialized RAG networks that require deterministic, quantitative grounding.
+
+```
+┌────────────────────────────────────────┐
+│      Agentic Framework / Gateway       │
+│     (Claude 5.6, FastMCP 3.1, n8n)     │
+└───────────────────┬────────────────────┘
+                    │ FastMCP 3.1 Streamable-HTTP
+┌───────────────────▼────────────────────┐
+│         OPENBB PLATFORM CORE           │
+│         (SDK v5.2 / MCP Server)        │
+└───────────────────┬────────────────────┘
+                    │ Normalized API Queries
+┌───────────────────▼────────────────────┐
+│ Financial Data Providers (FMP, FRED)   │
+└────────────────────────────────────────┘
+```
 
 ## Typical use cases
 - **Agentic Financial Research**: Equipping LLMs with real-time tools to fetch balance sheets, cash flow statements, insider trading data, and company valuations.
@@ -16,7 +32,7 @@ It eliminates the critical challenge of fragmentation in financial data acquisit
 - **Model Context Protocol (MCP) Integration**: Spinning up local or remote MCP servers to serve financial intelligence directly to chat environments like Claude Desktop, Cursor, or VS Code.
 
 ## Strengths
-- **Native MCP Support**: The `openbb-mcp-server` Python library provides zero-code conversions of OpenBB installations into MCP 3.0-compliant servers.
+- **Native FastMCP Support**: The `openbb-mcp-server` library provides zero-code conversions of OpenBB installations into MCP 3.1-compliant servers.
 - **Provider Independence**: Seamlessly switch downstream data providers (e.g., swapping historical data from Yahoo Finance to Polygon) via simple parameter modifications with zero schema changes.
 - **Dynamic Tool Discovery**: Minimizes model context bloat by starting with core discovery tools and dynamically enabling/disabling specific endpoints on the fly.
 - **Enterprise-Grade Security**: Supports robust Bearer Authentication (Base64-encoded username/password) and granular API key management at the user profile level.
@@ -39,10 +55,10 @@ It eliminates the critical challenge of fragmentation in financial data acquisit
 ## Getting started
 
 ### Installation
-OpenBB can be installed via pip. To enable full AI agentic and MCP integration, install the core platform alongside the dedicated MCP server extension:
+OpenBB can be installed via pip. To enable full AI agentic and FastMCP integration, install the core platform alongside the dedicated MCP server extension:
 
 ```bash
-pip install openbb openbb-mcp-server
+pip install openbb openbb-mcp-server pydantic
 ```
 
 ### Initial Configuration
@@ -117,7 +133,7 @@ Ensure data integrity when fetching financial intelligence from OpenBB by valida
 
 ```python
 from datetime import date
-from typing import Optional, List
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class CorporateFundamentals(BaseModel):
@@ -155,86 +171,21 @@ profile = ValuationProfile.model_validate(raw_response)
 print(f"Validated financial profile for {profile.company_name} (Ticker: {profile.metrics.symbol})")
 ```
 
-### Custom MCP Server Instance (FastAPI)
-Developers can wrap an existing FastAPI instance with OpenBB's MCP generator and configure custom tool behavior:
-
-```python
-from fastapi import FastAPI
-from openbb_mcp_server.app import create_mcp_server
-from openbb_mcp_server.models.mcp_config import MCPConfigModel
-
-app = FastAPI(title="Custom Financial Tooling")
-
-@app.get(
-    "/custom/valuation",
-    openapi_extra={
-        "mcp_config": {
-            "expose": True,
-            "mcp_type": "tool",
-            "exclude_args": ["debug_token"],
-            "prompts": [
-                {
-                    "name": "valuation_summary_prompt",
-                    "description": "Perform a baseline company valuation analysis.",
-                    "content": "Evaluate the current financial valuation for {symbol} utilizing FMP endpoints.",
-                }
-            ]
-        }
-    }
-)
-def get_valuation(symbol: str, debug_token: str = "default"):
-    return {"symbol": symbol, "status": "active", "valuation_score": 88}
-
-# Instantiate the MCP-wrapped server
-# mcp_server = create_mcp_server(settings=None, fastapi_app=app)
-```
-
-### Claude Desktop Integration
-Connect your local OpenBB MCP server to Claude Desktop by updating your `claude_desktop_config.json` configuration file:
-
-```json
-{
-  "mcpServers": {
-    "openbb-mcp": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "openbb-mcp-server",
-        "--with",
-        "openbb",
-        "openbb-mcp",
-        "--transport",
-        "stdio"
-      ]
-    }
-  }
-}
-```
-
 ## Related tools / concepts
 - [Tavily](../providers/tavily.md) — Sibling search provider optimized for broad real-time unstructured queries.
 - [n8n](../../services/n8n.md) — Workflow automation engine used to orchestrate OpenBB-triggered financial signals.
 - [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — Standardized architecture for natural-language interface with structured data.
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md) — Pattern of retrieval-augmented generation for financial environments.
-- [OpenRouter](./openrouter.md) — Dynamic LLM routing engine utilized to delegate financial queries to specialized reasoning models.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Universal protocol connecting OpenBB's dataset with LLMs.
 - [MCP Registry](../automation_orchestration/mcp-registry.md) — Directory for locating and coordinating diverse MCP servers.
-- [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md) — CLI integration for feeding market intelligence directly into spreadsheets.
-- [Agno](../agents/agno.md) — Lightweight agentic library natively orchestrating OpenBB financial tools.
-- [Mastra](../frameworks/mastra.md) — Agent development framework utilizing MCP-based tool definitions.
-- [Smolagents](../frameworks/smolagents.md) — Minimalist Python-native agentic framework.
-- [Pydantic AI](../frameworks/pydantic-ai.md) — Schema-validated Python agent builder.
-- [Mycelium](../frameworks/mycelium.md) — Clojure-based, state-machine agent harness enforcing strict data contracts.
-- [Perplexity](../../knowledge_base/self-healing-agent-research.md) — Alternative source for low-fidelity real-time search and semantic grounding.
 
 ## Sources / references
 - [OpenBB Official Website](https://openbb.co/)
 - [OpenBB Documentation - Python SDK](https://docs.openbb.co/odp/python)
 - [OpenBB Platform MCP Extension Guide](https://docs.openbb.co/odp/python/extensions/interface/openbb-mcp)
-- [OpenBB Official Blog - APIs and MCP Integration](https://didierlopes.com/blog/)
 - [OpenBB GitHub Repository](https://github.com/OpenBB-finance/OpenBB)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high

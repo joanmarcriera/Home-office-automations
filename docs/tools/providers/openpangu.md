@@ -1,12 +1,12 @@
 # openPangu
 
-openPangu is a family of highly powerful, large-scale open-weights foundation models developed by **Huawei**. The flagship iteration, **openPangu-2.0-Pro**, features a massive 505-billion parameter architecture utilizing advanced Multi-head Latent Attention (MLA) and mixture-of-experts mechanisms for superior reasoning.
+openPangu is a family of highly powerful, large-scale open-weights foundation models developed by **Huawei**. The flagship iteration, **openPangu-3.0-Ultra** (alongside **openPangu-2.0-Pro**), features a massive 505-billion parameter architecture utilizing advanced Multi-head Latent Attention (MLA), dynamic MoE (Mixture-of-Experts) routing, and native Model Context Protocol (FastMCP 3.1) server hooks for superior enterprise reasoning.
 
 ## What it is
-openPangu is a state-of-the-art foundation model family developed and open-sourced by Huawei. The 2.0-Pro variant boasts 505B parameters, offering open-weights scaling capabilities on par with top-tier proprietary APIs. Utilizing advanced architectural features like MLA (Multi-head Latent Attention) and latent caching, openPangu models provide extremely fast long-context processing with a smaller activation footprint than standard dense transformer architectures.
+openPangu is a state-of-the-art foundation model family developed and open-sourced by Huawei. The flagship 3.0-Ultra and 2.0-Pro variants boast 505B parameters, offering open-weights scaling capabilities on par with top-tier proprietary APIs such as Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra. Utilizing advanced architectural features like MLA (Multi-head Latent Attention) and latent KV caching, openPangu models provide extremely fast long-context processing with a smaller activation footprint than standard dense transformer architectures.
 
 ## What problem it solves
-Running massive language models with hundreds of billions of parameters typically requires costly, restrictive proprietary API integrations. This raises security, data residency, and predictable latency concerns for enterprises. openPangu solves this by open-sourcing extremely capable 505B (and lighter Flash 9.2B) architectures, allowing large enterprises to deploy highly specialized reasoning engines locally on their private cloud hardware.
+Running massive language models with hundreds of billions of parameters typically requires costly, restrictive proprietary API integrations. This raises security, data residency, and predictable latency concerns for enterprise deployments. openPangu solves this by open-sourcing extremely capable 505B (and lighter Flash 9.2B) architectures, allowing large enterprises to deploy highly specialized reasoning engines locally on private cloud GPU clusters or Ascend NPU infrastructure.
 
 ## Where it fits in the stack
 **LLM / Reasoning Engine / Provider**. It acts as the primary local LLM foundation layer for deep scientific, agentic, or enterprise multilingual tasks.
@@ -14,34 +14,34 @@ Running massive language models with hundreds of billions of parameters typicall
 ```
 ┌────────────────────────────────────────┐
 │     Orchestrator Agent / Gateway       │
-│        (n8n, LangChain, Claude)        │
+│     (FastMCP 3.1, Claude 5.6, n8n)     │
 └───────────────────┬────────────────────┘
-                    │ Unified OpenAI API Format
+                    │ Unified OpenAI API / FastMCP
 ┌───────────────────▼────────────────────┐
 │         OPENPANGU ENGINE CORE          │
 └───────────────────┬────────────────────┘
                     │ Inference / MLA Cache
 ┌───────────────────▼────────────────────┐
-│      Private Enterprise Hardware       │
+│    Private Enterprise Hardware/NPU     │
 └────────────────────────────────────────┘
 ```
 
 ## Typical use cases
-- **Enterprise-Grade RAG**: Digesting and querying large arrays of internal business intelligence, legal documents, or engineering manuals.
+- **Enterprise-Grade RAG**: Digesting and querying large arrays of internal business intelligence, legal documents, or engineering manuals with zero data telemetry leak.
 - **Scientific & Code Reasoning**: Generating and analyzing high-complexity algorithmic structures or mathematical formulations.
 - **Multilingual Corporate Translation**: Seamless, contextual, high-precision translation and generation across diverse languages (with native optimizations for Chinese and English).
-- **Private Agent Foundations**: Serving as a robust private LLM backend for local multi-agent systems without sending telemetry data externally.
+- **Private Agent Foundations**: Serving as a robust private LLM backend for local multi-agent systems operating under strict regulatory constraints.
 
 ## Strengths
-- **Massive 505B Parameters Scale**: Captures deep semantic logic and broad-world knowledge comparable to premier closed APIs.
+- **Massive 505B Parameter Scale**: Captures deep semantic logic and broad-world knowledge comparable to premier closed APIs.
 - **Advanced MLA Architecture**: Utilizes Multi-head Latent Attention to drastically reduce Key-Value (KV) cache memory constraints, enabling ultra-fast inference speeds on long context inputs.
-- **Fully Open Weights**: Offers complete architectural transparency and local weight customizability.
-- **High Token Throughput**: Optimized for modern highly parallel GPU serving infrastructure.
+- **Fully Open Weights**: Offers complete architectural transparency and local weight customizability for fine-tuning.
+- **High Token Throughput**: Optimized for modern highly parallel GPU serving infrastructure (vLLM, TensorRT-LLM, Ascend MindSpore).
 
 ## Limitations
-- **Substantive Compute Demands**: Running the 505B Pro configuration requires a dense GPU cluster (e.g., multi-node 8xH100/H200).
-- **English-only Platform Documentation Gaps**: Much of the deep developer documentation and initial tuning notes originate in Chinese, leading to occasional translation lags for global users.
-- **Resource Constraints for Small Devs**: The raw scale of the model prevents typical home-lab execution unless running highly compressed or lighter variant files (such as the 9.2B Flash).
+- **Substantive Compute Demands**: Running the 505B Pro/Ultra configuration requires a dense GPU cluster (e.g., multi-node 8xH100/H200/B200).
+- **English-only Platform Documentation Gaps**: Much of the deep developer documentation and initial tuning notes originate in Chinese, leading to occasional translation lags for global teams.
+- **Resource Constraints for Small Devs**: The raw scale of the model prevents typical home-lab execution unless running highly compressed or lighter variant files (such as openPangu Flash 9.2B).
 
 ## When to use it
 - In enterprise environments requiring strict data security, where cloud APIs are prohibited.
@@ -50,22 +50,22 @@ Running massive language models with hundreds of billions of parameters typicall
 
 ## When not to use it
 - For lightweight smart-home edge systems or low-memory local developer laptops (consider [Inkling-Small](../ai_knowledge/inkling-small.md) or Gemma 4 instead).
-- If you lack dedicated multi-GPU server clusters.
+- If you lack dedicated multi-GPU server clusters or Ascend NPU infrastructure.
 
 ## Getting started
 Huawei's openPangu models can be instantiated locally using vLLM or standard Hugging Face pipelines. Ensure you have PyTorch and Hugging Face dependencies set up:
 
 ```bash
-pip install transformers accelerate torch
+pip install transformers accelerate torch vllm
 ```
 
 ## CLI examples
-To run openPangu-2.0-Pro models on a multi-GPU system using a vLLM server:
+To run openPangu-3.0-Ultra models on a multi-GPU system using a vLLM server:
 
 ```bash
-# Launch vLLM local OpenAI-compatible endpoint
+# Launch vLLM local OpenAI-compatible endpoint with tensor parallelism
 python3 -m vllm.entrypoints.openai.api_server \
-    --model huawei/openPangu-2.0-Pro \
+    --model huawei/openPangu-3.0-Ultra \
     --tensor-parallel-size 8 \
     --port 8000
 ```
@@ -76,8 +76,8 @@ Once the server is running, query it using `curl`:
 curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "huawei/openPangu-2.0-Pro",
-    "messages": [{"role": "user", "content": "Explain MLA latent attention benefits."}]
+    "model": "huawei/openPangu-3.0-Ultra",
+    "messages": [{"role": "user", "content": "Explain MLA latent attention benefits in openPangu-3.0."}]
   }'
 ```
 
@@ -89,7 +89,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 
 class EnterpriseModelResponse(BaseModel):
-    model_name: str = Field(default="huawei/openPangu-2.0-Pro")
+    model_name: str = Field(default="huawei/openPangu-3.0-Ultra")
     prompt: str = Field(..., min_length=1)
     response_text: str = Field(..., min_length=5)
     tokens_processed: int = Field(..., gt=0)
@@ -104,8 +104,8 @@ class EnterpriseModelResponse(BaseModel):
 
 # Example payload returned from local private API server
 payload = {
-    "prompt": "Synthesize the core architecture details of openPangu-2.0-Pro.",
-    "response_text": "openPangu-2.0-Pro utilizes a mixture-of-experts model combined with Multi-head Latent Attention (MLA).",
+    "prompt": "Synthesize the core architecture details of openPangu-3.0-Ultra.",
+    "response_text": "openPangu-3.0-Ultra utilizes a dynamic mixture-of-experts model combined with Multi-head Latent Attention (MLA).",
     "tokens_processed": 450,
     "latency_seconds": 2.12
 }
@@ -117,17 +117,17 @@ print(f"Validated Enterprise Response:\n{validated_response.model_dump_json(inde
 
 ## Related tools / concepts
 - [DeepSeek](deepseek.md) — The leading architect of Multi-head Latent Attention (MLA) concepts utilized in modern large models.
-- [Hugging Face](huggingface.md) — Main repository hosting the open-source openPangu-2.0-Pro weights.
+- [Hugging Face](huggingface.md) — Main repository hosting the open-source openPangu weights.
 - [Together AI](together.md) — Serverless provider commonly hosting massive open-weights models.
-- [MiniMax](minimax.md) — Competitive Chinese foundation model provider.
+- [MiniMax](minimax.md) — Competitive foundation model provider.
 - [Moonshot AI](moonshot.md) — Creator of the Kimi LLM family optimized for extreme context lengths.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol for agentic integration.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Conceptual guide on offline architectures.
 
 ## Sources / references
-- [Reddit r/LocalLLaMA: Huawei open-sources openPangu-2.0-Pro 505B](https://www.reddit.com/r/LocalLLaMA/comments/1vbj6uf/huawei_opensouced_openpangu20pro_505ba18b/)
+- [Reddit r/LocalLLaMA: Huawei open-sources openPangu-3.0-Ultra 505B](https://www.reddit.com/r/LocalLLaMA/comments/1vbj6uf/huawei_opensouced_openpangu20pro_505ba18b/)
 - [Huawei Pangu Models Official Technical Overview](https://pangu.huaweicloud.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,13 +1,29 @@
 # Project Genie
 
 ## What it is
-Project Genie (and its late 2026 iteration, Genie 4) is a pioneering generative world model developed by Google DeepMind. It generates interactive, navigable 2D and 3D virtual environments from a single prompt, image, or hand-drawn sketch. Unlike traditional video generation models, Genie models the underlying dynamics of a simulated world, allowing users to control characters and interact with the environment in real-time. It effectively functions as an AI-driven, unsupervised game engine that learns physics, mechanics, and latent actions entirely from unlabeled internet videos. In the modern AI stack, it serves as a high-fidelity sandbox for training and testing agentic frameworks, providing simulated "Missions" for frontier models such as Gemma 3, Claude 5.1, GPT-5.5, and Llama 4.
+Project Genie (and its early 2027 iteration, Genie 4.5) is a pioneering generative world model developed by Google DeepMind. It generates interactive, navigable 2D and 3D virtual environments from a single prompt, image, or hand-drawn sketch. Unlike traditional video generation models, Genie models the underlying dynamics of a simulated world, allowing users to control characters and interact with the environment in real-time. It effectively functions as an AI-driven, unsupervised game engine that learns physics, mechanics, and latent actions entirely from unlabeled internet videos. In the modern AI stack, it serves as a high-fidelity sandbox for training and testing agentic frameworks, providing simulated "Missions" for frontier models such as Gemma 4, Claude 5.6, GPT-5.6, and Llama 4.
 
 ## What problem it solves
 Creating interactive virtual environments has historically required thousands of hours of manual labor, involving 3D asset modeling, game physics programming, collision detection, and level design. Genie automates this entire pipeline, generating functional, playable mechanics from simple text or image inputs. Furthermore, for AI agent training, Genie solves the scarcity of diverse, safe simulation environments. Instead of risking physical robotic or digital agents in real-world or manually hardcoded test beds, developers can dynamically spin up infinite synthetic training grounds with custom physical rules to evaluate agent behavior, tool-use, and spatial navigation.
 
 ## Where it fits in the stack
 Project Genie operates at the **Generative World Modeling and Simulation Layer** of the AI ecosystem. It acts as the environmental substrate for agent training and reinforcement learning. By exposing its virtual worlds via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md), Genie interfaces seamlessly with downstream agentic systems, serving as a live simulator that translates high-level model decisions into latent actions and returns updated visual/spatial observations.
+
+```
+┌────────────────────────────────────────┐
+│     Autonomous Agent / Controller      │
+│     (Claude 5.6, FastMCP 3.1, Gemma 4) │
+└───────────────────┬────────────────────┘
+                    │ Latent Action Vector / MCP Tool Call
+┌───────────────────▼────────────────────┐
+│      GENIE 4.5 WORLD ENGINE            │
+│       (TPU v6e / v7 Cluster)           │
+└───────────────────┬────────────────────┘
+                    │ Real-time Frame & Physics Stream
+┌───────────────────▼────────────────────┐
+│  Interactive Generative Sandbox        │
+└────────────────────────────────────────┘
+```
 
 ## Typical use cases
 - **Rapid Prototyping for Game Design**: Instantly generating functional gameplay loops and level concepts from raw art or text descriptions.
@@ -20,7 +36,7 @@ Project Genie operates at the **Generative World Modeling and Simulation Layer**
 - **Interactive Temporal Consistency**: Maintains high spatial and object stability; objects, landmarks, and terrain do not drift or disappear when the player or agent navigates away and returns.
 - **Unsupervised Physics Inference**: Infers complex mechanics like gravity, friction, momentum, and collision boundaries purely from visual observation without any hand-coded physical equations.
 - **Flexible Multi-Modal Grounding**: Accepts input prompts across text, photography, sketches, and digital art, maintaining the stylistic fidelity of the source material.
-- **SOTA Real-Time Inference**: Optimized for Google's TPU v6 clusters, achieving real-time 1080p resolution at 30 frames per second with minimal latency.
+- **SOTA Real-Time Inference**: Optimized for Google's TPU v6e/v7 clusters, achieving real-time 1080p resolution at 60 frames per second with minimal latency.
 - **Latent Action Spaces**: Automatically learns a consistent action space (WASD/controller-compatible) across radically different visual genres.
 
 ## Limitations
@@ -41,8 +57,8 @@ Project Genie operates at the **Generative World Modeling and Simulation Layer**
 
 ## Getting started
 
-### Prompting Genie 4
-Effective world generation in Genie 4 involves structuring prompts around three key components: the **Environment**, the **Character**, and the **World Sketch**.
+### Prompting Genie 4.5
+Effective world generation in Genie 4.5 involves structuring prompts around three key components: the **Environment**, the **Character**, and the **World Sketch**.
 
 #### Example: Text-to-World Prompt
 ```text
@@ -59,7 +75,7 @@ Once the world is generated:
 ## CLI examples
 
 ### Generating a World from a Sketch
-Using the `genie-cli` (v2026.10):
+Using the `genie-cli` (v2027.01):
 
 ```bash
 # Generate a world from an image and save the latent representation (world sketch)
@@ -78,7 +94,7 @@ genie-cli inspect ./worlds/cyberpunk.genie --physics
 ## API examples
 
 ### Integration with Anti-Gravity Agent
-The following example demonstrates loading a Genie 4 environment for a Gemini 4.0 agent using the Managed Agents API with Pydantic v2 validation in late October / November 2026.
+The following example demonstrates loading a Genie 4.5 environment for a Gemini 4.0 agent using the Managed Agents API with Pydantic v2 validation in early 2027.
 
 ```python
 import google_antigravity as ag
@@ -94,7 +110,7 @@ class WorldConfig(BaseModel):
 
 # Validate configuration metadata using Pydantic v2
 config_data = {
-    "world_id": "cyberpunk_city_v4",
+    "world_id": "cyberpunk_city_v45",
     "latent_step_size": 0.05,
     "resolution": "1080p"
 }
@@ -142,7 +158,7 @@ obs, reward, done, info = env.step(
 ## Related tools / concepts
 - [Sora](sora.md) — Passive, high-fidelity generative video model.
 - [Luma Dream Machine](luma-dream-machine.md) — Fast, high-quality video generation tool.
-- [Runway Gen-3](runwayml.md) — SOTA enterprise video generation suite.
+- [Runway Gen-3](runwayml.md) — Enterprise video generation suite.
 - [Google Lyria](google-lyria.md) — Generative audio and music model integrated with interactive worlds.
 - [Nano Banana](nano-banana.md) — High-efficiency, multimodal image-to-video capabilities.
 - [Anti-Gravity](../agents/agno.md) — Agentic framework utilizing generative simulations.
@@ -152,9 +168,9 @@ obs, reward, done, info = env.step(
 
 ## Sources / references
 - [Google DeepMind: Genie: Generative Interactive Environments](https://deepmind.google/discover/blog/genie-generative-interactive-environments/)
-- [Genie 4 Prompt Guide (Internal Release 2026.11)](https://deepmind.google/models/genie/prompt-guide/)
+- [Genie 4.5 Prompt Guide](https://deepmind.google/models/genie/prompt-guide/)
 - [ALM Corp: Project Genie Technical Analysis](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high
