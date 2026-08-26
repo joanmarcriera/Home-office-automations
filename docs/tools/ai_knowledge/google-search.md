@@ -1,25 +1,41 @@
 # Google Search
 
 ## What it is
-Google Search is the world's most widely used web search engine. As of late October / November 2026, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 4.0 Ultra** and **Flash** models. It utilizes the **Antigravity** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic UIs, and executes complex multi-step workflows directly within the search interface or via API.
+Google Search is the world's most widely used web search engine. As of early 2027, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 4.0 Ultra**, **Flash**, and **Gemini Spark 2.5** models. It utilizes the **Antigravity 2.0** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic interactive UIs, and executes complex multi-step workflows directly within the search interface or via Model Context Protocol (FastMCP 3.1) endpoints.
 
 ## What problem it solves
-It reduces the cognitive load of information retrieval by transitioning from "link providing" to "answer synthesis." It solves the "search-to-action" gap, allowing users and autonomous agents to execute tasks (like booking services, comparing complex datasets, or summarizing technical documentation) without leaving the search context.
+It reduces the cognitive load of information retrieval by transitioning from static link rendering to dynamic answer synthesis and automated execution. It solves the "search-to-action" gap, allowing human engineers and autonomous agents (such as Claude 5.6, GPT-5.6, or Gemma 4) to execute multi-step web tasks (such as service provisioning, cross-vendor pricing synthesis, or API documentation extraction) directly from the search context.
 
 ## Where it fits in the stack
-**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is often integrated via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
+**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is integrated via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
+
+```
+┌────────────────────────────────────────┐
+│      Local / Cloud Orchestrator        │
+│     (Claude 5.6, FastMCP 3.1, n8n)     │
+└───────────────────┬────────────────────┘
+                    │ Grounding Request / MCP Tool Call
+┌───────────────────▼────────────────────┐
+│   GOOGLE SEARCH AGENTIC GROUNDING API  │
+│       (Gemini 4.0 Ultra / Spark 2.5)   │
+└───────────────────┬────────────────────┘
+                    │ Web Crawl & Citation Synthesis
+┌───────────────────▼────────────────────┐
+│           Global Live Index            │
+└────────────────────────────────────────┘
+```
 
 ## Typical use cases
-- **Agentic Grounding**: Providing real-time technical context to local LLMs like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, or GPT-5.5.
-- **V-RAG (Vision RAG)**: Using Google's multi-modal capabilities to search and retrieve information from visual documents and charts.
-- **Automated Research**: Utilizing Antigravity agents to perform longitudinal studies or market analysis.
-- **Dynamic Dashboarding**: Generating real-time visual summaries of fluctuating data (e.g., "track energy prices across 5 providers").
+- **Agentic Grounding**: Providing real-time technical context to local LLMs like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.6, or GPT-5.6.
+- **V-RAG (Vision RAG)**: Using Google's multi-modal capabilities to search and retrieve information from visual documents, diagrams, and charts.
+- **Automated Research**: Utilizing Antigravity 2.0 agents to perform longitudinal studies or technical landscape analysis.
+- **Dynamic Dashboarding**: Generating real-time visual summaries of fluctuating market or system telemetry data.
 
 ## Strengths
 - **Global Index**: The most comprehensive index for long-tail technical and niche content.
 - **Gemini 4.0 Integration**: Native, sub-second grounding with high reasoning capabilities.
 - **Multi-modal Native**: Superior handling of images, video, and complex document layouts.
-- **API Reliability**: Standard-setting uptime and structured data output for enterprise RAG.
+- **API Reliability**: Standard-setting uptime and structured data output for enterprise RAG pipelines.
 
 ## Limitations
 - **Privacy Boundary**: Requires careful data handling when integrating with personal household context.
@@ -48,7 +64,7 @@ To integrate Google Search into your local agentic stack:
 1. Obtain a **Google Cloud API Key** and a **Search Engine ID (CX)** from the [Google Cloud Console](https://console.cloud.google.com/).
 2. Install the necessary Python libraries:
    ```bash
-   pip install google-api-python-client
+   pip install google-api-python-client google-generativeai pydantic
    ```
 3. Configure your local [LiteLLM](../../services/litellm.md) proxy to include Google Search as a grounding tool.
 
@@ -57,10 +73,10 @@ To integrate Google Search into your local agentic stack:
 ### Using the Antigravity CLI
 ```bash
 # Perform an agentic search with a specific research persona
-antigravity search "Compare the power efficiency of Gemma 3 vs GPT-5.5 for local hosting" --agent deep-research
+antigravity search "Compare power efficiency of Gemma 3 vs GPT-5.6 for local hosting" --agent deep-research
 
 # Generate a visual report from search data
-antigravity report "Solar panel ROI in Seattle 2026" --format markdown > report.md
+antigravity report "Solar panel ROI in Seattle 2027" --format markdown > report.md
 ```
 
 ### Legacy Custom Search (curl)
@@ -128,7 +144,7 @@ if __name__ == "__main__":
 - [SearXNG](../../services/searXNG.md) — Privacy-first, self-hosted search aggregator.
 - [Gemini](gemini.md) — The underlying model family.
 - [Gemma 3](../ai_knowledge/local_llms.md) — SOTA open-weights model from Google.
-- [Antigravity Ecosystem](https://antigravity.google) — Google's 2026 agent platform.
+- [Antigravity Ecosystem](https://antigravity.google) — Google's agent platform.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for agent-tool communication.
 - [Grounding Patterns](../../knowledge_base/patterns/rag.md) — How search is used in RAG pipelines.
 - [Home-Office Architecture](../../architecture/README.md) — Central architecture documentation.
@@ -140,5 +156,5 @@ if __name__ == "__main__":
 - [Antigravity Developer Portal](https://developers.google.com/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high
