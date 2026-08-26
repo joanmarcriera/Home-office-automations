@@ -1,28 +1,44 @@
 # Koboldcpp
 
 ## What it is
-Koboldcpp is an extremely versatile local LLM inference engine and graphical user interface (GUI) packaged as a single, self-contained executable. Built on a fork of [llama.cpp](llama-cpp.md), Koboldcpp excels at local-first execution, offering native acceleration for NVIDIA (CUDA), Apple Silicon (Metal), AMD (ROCm), and OpenCL hardware, combined with a feature-rich, interactive web frontend for roleplay, writing, and custom API routing.
+Koboldcpp is an extremely versatile local LLM inference engine and graphical user interface (GUI) packaged as a single, self-contained executable. Built on an advanced fork of [llama.cpp](llama-cpp.md), Koboldcpp excels at local-first execution, offering native acceleration for NVIDIA (CUDA / Blackwell), Apple Silicon (Metal / M5/M6), AMD (ROCm), and OpenCL hardware, combined with a feature-rich, interactive web frontend for roleplay, writing, and custom API routing. As of early 2027, Koboldcpp includes SmartContext 2.0 and native FastMCP 3.1 tooling integration.
 
 ## What problem it solves
-Setting up local model inference often requires navigating complex command-line arguments, virtual environments, compilation steps, or heavy memory/dependency footprints. Koboldcpp simplifies local AI by offering an "all-in-one" solution that runs immediately out-of-the-box, providing memory-saving context shift mechanisms (SmartContext), dynamic sampling controls (such as DRY and XTC), and an OpenAI-compatible API alongside its classic KoboldAI API client.
+Setting up local model inference often requires navigating complex command-line arguments, virtual environments, compilation steps, or heavy memory/dependency footprints. Koboldcpp simplifies local AI by offering an "all-in-one" solution that runs immediately out-of-the-box, providing memory-saving context shift mechanisms (SmartContext 2.0), dynamic sampling controls (such as DRY and XTC), and an OpenAI-compatible API alongside its classic KoboldAI API client.
 
 ## Where it fits in the stack
 **Category**: Infrastructure / Inference Engine. Koboldcpp serves as an alternative local serving layer. It sits at the same level as [llama.cpp](llama-cpp.md), [Ollama](../../services/ollama.md), and [LM Studio](lm-studio.md), providing direct model execution of GGUF formatted checkpoints.
 
+```
+┌──────────────────────────────────────────────┐
+│       Interactive Web Frontend / Web UI      │
+│     (Roleplay, Prompt Steering, Memory)      │
+├──────────────────────────────────────────────┤
+│          API Server & Tool Interfaces        │
+│    (OpenAI-Compatible, KoboldAI, FastMCP 3.1)│
+├──────────────────────────────────────────────┤
+│       SmartContext 2.0 & Sampler Engine      │
+│        (DRY, XTC, Context Shift Cache)       │
+├──────────────────────────────────────────────┤
+│             Hardware Backend                 │
+│   (CUDA/Blackwell, Apple Metal, ROCm, Vulkan)│
+└──────────────────────────────────────────────┘
+```
+
 ## Typical use cases
 - **Zero-Dependency Local Hosting**: Spinning up high-performance GGUF models on low-compute configurations with single-click executables.
-- **Interactive Writing and Roleplay**: Using Koboldcpp's legacy web UI for deep model steering, custom prompt formats, and memory injection.
+- **Interactive Writing and Roleplay**: Using Koboldcpp's web UI for deep model steering, custom prompt formats, and memory injection.
 - **OpenAI-Compatible Local Endpoints**: Serving local model endpoints to agentic frameworks like AutoGen or Cline.
 
 ## Strengths
 - **Single Executable Deployment**: No Python, CUDA SDK, or heavy dependencies required for standard execution.
-- **Context Shift (SmartContext)**: Avoids costly context reprocessing on consecutive turns by shifting cache segments dynamically.
+- **Context Shift (SmartContext 2.0)**: Avoids costly context reprocessing on consecutive turns by shifting cache segments dynamically across 128k+ contexts.
 - **Rich Sampling Suite**: Native support for advanced sampling techniques (such as Mirostat, DRY, XTC, and temperature scaling).
 - **Multi-backend Support**: Handles heterogeneous system acceleration (e.g., splitting layers across CUDA and CPU seamlessly).
 
 ## Limitations
 - **Format Restrictiveness**: Primarily focused on GGUF; does not natively support serving EXL2 or Safetensors without separate conversion.
-- **Concurrancy Overhead**: While it supports multi-user request queuing, it is not built for highly parallel enterprise serving (use [vLLM](vllm.md) or [SGLang](sglang.md) for heavy enterprise concurrency).
+- **Concurrency Overhead**: While it supports multi-user request queuing, it is not built for high enterprise concurrency (use [vLLM](vllm.md) or [SGLang](sglang.md) for heavy parallel enterprise workloads).
 - **Desktop Focus**: UI and architecture are tailored for single-user desktop configurations rather than headless multi-node container swarms.
 
 ## When to use it
@@ -56,7 +72,7 @@ make LLAMA_CUDA=1
 Launch Koboldcpp with a GGUF model checkpoint and CUDA acceleration:
 
 ```bash
-./koboldcpp.py --model ~/models/gemma-4-8b.gguf --usecuda --port 5001
+./koboldcpp.py --model ~/models/gemma-3-27b.gguf --usecuda --port 5001
 ```
 
 ### Prompting via KoboldAI API
@@ -141,8 +157,8 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [LostRuins Koboldcpp GitHub Repository](https://github.com/LostRuins/koboldcpp)
-- [Reddit r/LocalLLaMA: Koboldcpp Release Announcements](https://www.reddit.com/r/LocalLLaMA/comments/1vd13uv/koboldcpp_v1118_released/)
+- [Reddit r/LocalLLaMA: Koboldcpp Updates](https://www.reddit.com/r/LocalLLaMA/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

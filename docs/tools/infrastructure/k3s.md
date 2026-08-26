@@ -1,14 +1,14 @@
 # Kubernetes (K3s)
 
 ## What it is
-K3s is a highly available, certified Kubernetes distribution designed for production workloads in resource-constrained environments like edge devices, IoT, and homelabs. Developed by Rancher (now SUSE) and currently maintained under the CNCF as a Sandbox project, K3s packages the entire Kubernetes suite into a single, lightweight binary (~50MB). Fully integrated with the late October / November 2026 SOTA AI stack (supporting Kubernetes v1.32+), K3s is the standard lightweight container orchestrator, offering full self-hostability, open-source compliance under the Apache 2.0 license, and completely free usage.
+K3s is a highly available, certified Kubernetes distribution designed for production workloads in resource-constrained environments like edge devices, IoT, and homelabs. Developed by Rancher (now SUSE) and currently maintained under the CNCF as a Sandbox project, K3s packages the entire Kubernetes suite into a single, lightweight binary (~50MB). Fully integrated with the early 2027 SOTA AI stack (supporting Kubernetes v1.33+), K3s is the standard lightweight container orchestrator, offering full self-hostability, open-source compliance under the Apache 2.0 license, and completely free usage.
 
 ## What problem it solves
 Operating a standard Kubernetes cluster requires significant operational overhead, complex certificate management, and high baseline memory utilization (often several gigabytes). This "Kubernetes tax" makes vanilla Kubernetes impractical for home offices, single-board computers (such as Raspberry Pi 5), or edge locations.
 
 K3s solves these problems by:
 - **Reducing Overhead**: Replacing etcd with SQLite as the default datastore, reducing server memory requirements to under 512MB RAM.
-- **Simplifying Setup**: Packaging essential components (containerd, Flannel, CoreDNS, Traefik v3, Local Storage Provisioner, and Klipper Load Balancer) into a single executable that installs in seconds.
+- **Simplifying Setup**: Packaging essential components (containerd, Flannel, CoreDNS, Traefik v3.3+, Local Storage Provisioner, and Klipper Load Balancer) into a single executable that installs in seconds.
 - **Automating Maintenance**: Providing automatic certificate rotation, built-in TLS provisioning, and clean upgrades with zero manual YAML tinkering.
 
 ## Where it fits in the stack
@@ -22,7 +22,7 @@ K3s solves these problems by:
 │               Inference Layer                │
 │ (vLLM, Ollama, Aphrodite Engine, FastMCP 3.1)│
 ├──────────────────────────────────────────────┤
-│          K3S KUBERNETES CONTAINER RUNTIME    │ (Traefik v3, CoreDNS, Flannel)
+│          K3S KUBERNETES CONTAINER RUNTIME    │ (Traefik v3.3, CoreDNS, Flannel)
 ├──────────────────────────────────────────────┤
 │               Operating System               │
 │             (Talos OS, Debian)               │
@@ -31,14 +31,14 @@ K3s solves these problems by:
 
 ## Typical use cases
 - **Multi-Node Homelab Orchestration**: Running a self-healing, load-balanced home-office stack including document management (Paperless-ngx), home assistant devices, and local file storage.
-- **High-Throughput Local AI Clusters**: Managing fleets of containerized GPU-enabled workers hosting high-performance inference engines (such as vLLM or Aphrodite Engine) to support heavy parallel multi-agent reasoning workloads powered by frontier models like Claude 5.1, GPT-5.5, and Gemini 4.0.
+- **High-Throughput Local AI Clusters**: Managing fleets of containerized GPU-enabled workers hosting high-performance inference engines (such as vLLM or Aphrodite Engine) to support heavy parallel multi-agent reasoning workloads powered by frontier models like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 - **Declarative GitOps Pipelines**: Orchestrating workflows via Kubernetes-native pipelines (e.g., Argo Workflows) that spawn agentic tasks, perform evaluations, and automatically tear down ephemeral resources.
 - **Local Application Development**: Simulating high-fidelity, production-grade Kubernetes environments on local workstations without the overhead of heavy VM-based emulators.
 
 ## Strengths
 - **CNCF Certified**: Fully compliant Kubernetes distribution. What runs on K3s works identically on AWS EKS, Google GKE, or Azure AKS.
 - **Minimal Footprint**: Runs comfortably on 1 vCPU and 512MB RAM, making it suitable for hardware as small as a Raspberry Pi.
-- **Integrated Stack**: Out-of-the-box CNI (Flannel), Ingress Controller (Traefik v3), Service Load Balancer (Klipper), and storage class (Local-Path Provisioner).
+- **Integrated Stack**: Out-of-the-box CNI (Flannel), Ingress Controller (Traefik v3.3+), Service Load Balancer (Klipper), and storage class (Local-Path Provisioner).
 - **Embedded Database Options**: Supports multi-node High Availability (HA) without an external DB by utilizing embedded `etcd` or external Postgres/MySQL.
 - **Multi-Architecture Support**: Built-in, first-class binaries for both standard x86_64 and ARM64/ARMv7 processors.
 
@@ -306,5 +306,5 @@ if __name__ == "__main__":
 - [CNCF Sandbox - K3s](https://sandbox.cncf.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

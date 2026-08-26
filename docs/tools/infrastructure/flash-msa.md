@@ -1,18 +1,18 @@
 # Flash-MSA
 
 ## What it is
-Flash-MSA (Million-token Sparse Attention) is an advanced acceleration framework designed to optimize the training and inference of large language models with extremely long contexts. By leveraging high-performance sparse attention Triton/CUDA kernels, it enables efficient execution of sequence lengths reaching up to millions of tokens, significantly reducing the quadratic computational and memory complexity ($O(n^2)$) typically associated with standard Transformer architectures.
+Flash-MSA (Million-token Sparse Attention) is an advanced acceleration framework designed to optimize the training and inference of large language models with extremely long contexts. By leveraging high-performance sparse attention Triton/CUDA kernels, it enables efficient execution of sequence lengths reaching up to 2M+ tokens, significantly reducing the quadratic computational and memory complexity ($O(n^2)$) typically associated with standard Transformer architectures. As of early 2027, Flash-MSA has been fully optimized for NVIDIA Blackwell (B200/B300) and Hopper architecture tensor cores with native FP4/FP8 quantization acceleration.
 
 ## What problem it solves
-Processing million-token contexts in standard Transformers is prohibitively expensive due to the quadratic complexity of full self-attention. Flash-MSA solves this by implementing sparse block-attention mechanisms that focus compute only on the most relevant token-to-token interactions. This dramatically reduces memory pressure (KV cache size) and increases hardware execution throughput, making "infinite context" training, alignment, and deployment technically and economically viable on modern GPU clusters (such as NVIDIA H100 and B200 architectures).
+Processing multi-million token contexts in standard Transformers is prohibitively expensive due to the quadratic complexity of full self-attention. Flash-MSA solves this by implementing sparse block-attention mechanisms that focus compute only on the most relevant token-to-token interactions. This dramatically reduces memory pressure (KV cache size) and increases hardware execution throughput, making ultra-long context training, alignment, and multi-agent deployment technically and economically viable on modern GPU clusters.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / AI Acceleration Frameworks. It sits directly above the raw hardware level (CUDA/Triton) and below the high-level deep learning and serving frameworks (PyTorch, JAX, [vLLM](vllm.md), or [Aphrodite Engine](aphrodite-engine.md)). It provides the highly optimized mathematical kernels that attention layers in frontier models use during run-time execution.
+**Category**: Infrastructure / AI Acceleration Frameworks. It sits directly above the raw hardware level (CUDA/Triton) and below high-level deep learning and serving frameworks ([vLLM](vllm.md), [Aphrodite Engine](aphrodite-engine.md), or [SGLang](sglang.md)). It provides the highly optimized mathematical kernels that attention layers in frontier models (such as Minimax M3, Claude 5.6, and Gemini 4.0 Ultra) use during run-time execution.
 
 ```
 ┌────────────────────────────────────────┐
 │      Agent / Orchestration Layer       │
-│     (Claude 5.1, FastMCP, n8n)         │
+│     (Claude 5.6, FastMCP 3.1, n8n)     │
 └───────────────────┬────────────────────┘
                     │ Execute Query
 ┌───────────────────▼────────────────────┐
@@ -21,23 +21,23 @@ Processing million-token contexts in standard Transformers is prohibitively expe
 └───────────────────┬────────────────────┘
                     │ Invokes Sparse Attention
 ┌───────────────────▼────────────────────┐
-│           FLASH-MSA KERNELS            │ (Triton / CUDA)
+│           FLASH-MSA KERNELS            │ (Triton / CUDA / Blackwell FP4)
 └────────────────────────────────────────┘
 ```
 
 ## Typical use cases
-- **Long-context pre-training and fine-tuning**: Training models with context windows extending up to 1M+ tokens on massive source repositories or clinical records.
+- **Long-context pre-training and fine-tuning**: Training models with context windows extending up to 2M+ tokens on massive source repositories, clinical trials, or legal discovery sets.
 - **Agentic Session Memory**: Powering local agents that need to ingest and reason over massive transaction logs, multi-hour meeting transcripts, or large codebases without information loss.
-- **Unified Multimodal Contexts**: Handling high-resolution video frames or complex multi-document setups where token density grows rapidly.
+- **Unified Multimodal Contexts**: Handling high-resolution video streams and complex multi-document setups where token density grows exponentially.
 
 ## Strengths
 - **Linear Complexity Scaling**: Near-linear scaling of attention compute and memory overhead relative to sequence length.
-- **KV Cache Memory Reduction**: Block-sparse mechanisms prune unneeded key-value pairs, reducing GPU VRAM allocation for active contexts.
-- **Hardware-Level Optimization**: Custom Triton/CUDA kernels utilize FP8/BF16 tensor cores fully to maximize TFLOPS output.
+- **KV Cache Memory Reduction**: Block-sparse mechanisms prune unneeded key-value pairs, reducing GPU VRAM allocation by up to 90% for active contexts.
+- **Hardware-Level Optimization**: Custom Triton/CUDA kernels utilize FP4/FP8 tensor cores on NVIDIA Blackwell/Hopper to maximize TFLOPS output.
 - **Extensible Sparsity Patterns**: Supports customizable dynamic masks, block-sparsity, and sliding-window attention configurations.
 
 ## Limitations
-- **Hardware Specificity**: Highly optimized for modern enterprise GPUs (NVIDIA Ampere, Hopper, and Blackwell); performance on legacy or alternative architectures (AMD, Apple Silicon) is heavily limited.
+- **Hardware Specificity**: Highly optimized for modern enterprise GPUs (NVIDIA Hopper and Blackwell); performance on legacy or alternative architectures (AMD, Apple Silicon) is limited.
 - **Implementation Complexity**: Requires integration deep within the attention layers of the model definition, making it less of a plug-and-play solution than dense attention.
 - **Dependency on Context Saliency**: If a task relies on extreme, uniform distribution of information across the entire sequence, aggressive block pruning can occasionally miss critical subtle dependencies.
 
@@ -61,7 +61,7 @@ pip install flash-msa-kernels
 ```
 
 ### Server Execution via MCP
-To register an instance of an LLM server utilizing Flash-MSA kernels under the Model Context Protocol (MCP 3.1):
+To register an instance of an LLM server utilizing Flash-MSA kernels under FastMCP 3.1:
 
 ```bash
 mcp register "flash-msa-engine" --command "python" --args "-m flash_msa.server --model minimax-m3-sparse --port 8080"
@@ -72,7 +72,7 @@ mcp register "flash-msa-engine" --command "python" --args "-m flash_msa.server -
 ### Running Performance Benchmarks
 Benchmark flash-msa sparse attention performance across varying sequence lengths:
 ```bash
-flash-msa-bench --seq-len 1048576 --batch-size 1 --dtype bfloat16 --sparsity 0.90
+flash-msa-bench --seq-len 2097152 --batch-size 1 --dtype bfloat16 --sparsity 0.90
 ```
 
 ### Custom Block Mask Generation
@@ -114,15 +114,15 @@ class FlashMsaConfig(BaseModel):
 config = FlashMsaConfig(
     block_size=128,
     sparsity_ratio=0.90,
-    sequence_length=1048576, # 1 Million token context
+    sequence_length=2097152, # 2 Million token context
     attention_heads=32
 )
 
 print(f"Validated Flash-MSA Config: {config.model_dump_json(indent=2)}")
 ```
 
-### 2. FastMCP (MCP 3.1) Tool Wrapper
-Providing an agent (like Claude 5.1 or GPT-5.5) with direct capability to check hardware-bound attention capacity through an MCP tool call:
+### 2. FastMCP (FastMCP 3.1) Tool Wrapper
+Providing an agent (like Claude 5.6 or GPT-5.6) with direct capability to check hardware-bound attention capacity through an MCP tool call:
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -141,7 +141,7 @@ def evaluate_gpu_memory_headroom(model_size_b: float, seq_len: int) -> str:
 ```
 
 ## Related tools / concepts
-- **[Minimax M3](../providers/minimax.md)**: A unified model series utilizing Flash-MSA style sparse attention for native 1M+ token processing.
+- **[Minimax M3](../providers/minimax.md)**: A unified model series utilizing Flash-MSA style sparse attention for native 2M+ token processing.
 - **[vLLM](vllm.md)**: High-throughput memory-efficient inference serving engine.
 - **[Aphrodite Engine](aphrodite-engine.md)**: Local-first high-throughput inference server with advanced sampler controls.
 - **[ExLlamaV3](exllamav3.md)**: Quantized local GPU model runner.
@@ -150,9 +150,9 @@ def evaluate_gpu_memory_headroom(model_size_b: float, seq_len: int) -> str:
 
 ## Sources / references
 - [Flash-MSA: Accelerating Million-Token Training with Sparse Attention Kernels](https://www.reddit.com/r/LocalLLaMA/comments/1uv1f1q/flashmsa_accelerating_milliontoken_training_with/)
-- [Minimax M3 Technical Report (June 2026)](https://arxiv.org/abs/2606.09876)
+- [Minimax M3 Technical Report](https://arxiv.org/abs/2606.09876)
 - [NVIDIA Developer: Scaling to Millions of Tokens](https://developer.nvidia.com/blog/scaling-to-millions-of-tokens-with-efficient-long-context-llm-training/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
