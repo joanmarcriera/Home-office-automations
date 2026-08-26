@@ -1,10 +1,10 @@
 # Google Gemini for macOS
 
 ## What it is
-Google Gemini for macOS is a native desktop application designed to integrate Google's multimodal AI capabilities directly into the macOS ecosystem. It provides a system-wide interface for interacting with Gemini models, leveraging the **FastMCP 3.1** specification for agentic workflows, high-speed tool routing, and local system integration.
+Google Gemini for macOS is a native desktop application designed to integrate Google's multimodal AI capabilities directly into the macOS ecosystem. It provides a system-wide interface for interacting with Gemini models, leveraging the **FastMCP 3.1** specification for agentic workflows, high-speed tool routing, and local system integration. In early January 2027, Gemini for macOS natively orchestrates multi-agent tasks alongside **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4** via local MCP bridges.
 
 ## What problem it solves
-It eliminates context switching between applications and browsers by offering a dedicated desktop surface accessible via global keyboard shortcuts. It leverages native macOS features like screen awareness, security sandboxes, and local file access to provide contextual assistance, integrating advanced models like **Gemini 4.0 Pro**, **Gemini 4.0 Ultra**, and **Gemini 4.0 Flash**.
+It eliminates context switching between applications and browsers by offering a dedicated desktop surface accessible via global keyboard shortcuts. It leverages native macOS features like screen awareness, security sandboxes, and local file access to provide contextual assistance, integrating advanced models like **Gemini 4.0 Pro**, **Gemini 4.0 Ultra**, **Gemini 4.0 Flash**, and **Gemini Spark 2.5**.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Desktop Agents. It serves as a direct system-level entry point to the Gemini ecosystem, supporting integration with local models like [Gemma 3](local_llms.md) via MCP-bridged services.
@@ -120,5 +120,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification for Desktop Agents](https://modelcontextprotocol.io/spec/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

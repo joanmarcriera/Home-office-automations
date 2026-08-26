@@ -1,10 +1,10 @@
 # Cherry-Pick Major Gains Design Spec
 
 ## What it is
-The Cherry-Pick Major Gains Design Spec defines the technical architecture and selection criteria for a "harvest" operation that recovers high-value documentation and script content from 16 closed or conflicting Pull Requests. In late October / November 2026, this has matured into a fully autonomous workflow where agents coordinate via **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to ingest, validate, and merge enriched files while safeguarding repository integrity. It establishes a protocol for using file snapshots to ensure significant content enrichment (≥20 lines) is merged into the main branch.
+The Cherry-Pick Major Gains Design Spec defines the technical architecture and selection criteria for a "harvest" operation that recovers high-value documentation and script content from 16 closed or conflicting Pull Requests. In early January 2027, this has matured into a fully autonomous workflow where multi-agent orchestrators coordinate via **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to ingest, validate, and merge enriched files while safeguarding repository integrity. It establishes a protocol for using file snapshots to ensure significant content enrichment (≥20 lines) is merged into the main branch.
 
 ## What problem it solves
-It solves the problem of effort loss in a high-concurrency agentic environment. When multiple agents (e.g., Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) work on similar files, traditional git merges often result in closed PRs and "knowledge rot." This spec provides a robust, non-destructive, and programmatically validated alternative to recover the "richest" version of a file regardless of git history conflicts.
+It solves the problem of effort loss in a high-concurrency multi-agent environment. When multiple frontier agents (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8) work on similar files, traditional git merges often result in closed PRs and "knowledge rot." This spec provides a robust, non-destructive, and programmatically validated alternative to recover the "richest" version of a file regardless of git history conflicts.
 
 ## Where it fits in the stack
 **Architecture Layer** — provides the design blueprint for the recovery operations defined in the [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md). It is a key component of the repository's self-healing and content consolidation strategy, leveraging the **MCP 3.1 Task Protocol** for orchestration.
@@ -17,9 +17,9 @@ It solves the problem of effort loss in a high-concurrency agentic environment. 
 
 ## Strengths
 - **Resilience**: Operates outside the constraints of traditional git rebase/merge logic.
-- **Data Integrity**: Uses a strict, Pydantic-validated "File Inventory" to ensure only verified, enriched content is harvested.
+- **Data Integrity**: Uses a strict, Pydantic v2 validated "File Inventory" to ensure only verified, enriched content is harvested.
 - **Clarity**: Establishes unambiguous criteria for "major gains" and "new content."
-- **Autonomy**: Integrates with late-2026 agentic workflows to perform zero-human recovery actions.
+- **Autonomy**: Integrates with early-2027 agentic workflows to perform zero-human recovery actions.
 
 ## Limitations
 - **Selective Recovery**: Only recovers specified files, not the entire state of the source branch.
@@ -30,7 +30,7 @@ It solves the problem of effort loss in a high-concurrency agentic environment. 
 - When implementing the recovery of enriched content from the 16 specified closed PRs.
 - To document the logic behind why certain files were chosen for recovery over others.
 - When establishing the "inventory-first" approach for multi-agent synchronization.
-- When automating PR recovery using [Claude 5.1](../../tools/ai_knowledge/claude.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md) orchestrators.
+- When automating PR recovery using [Claude 5.6](../../tools/ai_knowledge/claude.md) or [GPT-5.6](../../tools/ai_knowledge/openai.md) orchestrators.
 
 ## When not to use it
 - For simple design changes that can be handled through standard feature branching.
@@ -60,7 +60,7 @@ grep "heygen.md" mkdocs.yml
 ## API examples
 
 ### Selection Criteria Logic & Harvest Map Validation (Python, Pydantic v2)
-The following code demonstrates a robust Pydantic v2 model to parse, validate, and verify the integrity of the selection and harvest mappings under **MCP 3.1** specifications.
+The following code demonstrates a robust Pydantic v2 model to parse, validate, and verify the integrity of the selection and harvest mappings under **MCP 3.1** and **FastMCP 3.1** specifications.
 
 ```python
 from typing import List, Optional
@@ -77,7 +77,6 @@ class HarvestItem(BaseModel):
     @classmethod
     def validate_enrichment_depth(cls, v: int, info) -> int:
         """Validates that existing file updates meet the minimum major gains threshold of 20 lines."""
-        # Retrieve values using the validation context or default to is_new_file check
         is_new = info.data.get("is_new_file", False)
         if not is_new and v < 20:
             raise ValueError(
@@ -154,13 +153,16 @@ if __name__ == "__main__":
 - [Ralph-loop Protocol](../../architecture/automated_contributions.md)
 - [KnowledgeOps Standards](../../standards.md)
 - [scripts/check_docs_contract.py](../../scripts/check_docs_contract.py)
-- [Claude 5.1](../../tools/ai_knowledge/claude.md)
-- [GPT-5.5](../../tools/ai_knowledge/openai.md)
+- [Claude 5.6](../../tools/ai_knowledge/claude.md)
+- [GPT-5.6](../../tools/ai_knowledge/openai.md)
+- [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md)
+- [DeepSeek-V4](../../tools/providers/deepseek.md)
 
 ## Sources / references
 - [KnowledgeOps Audit Report](../../reports/audit_log_2026-05-16.txt)
 - [Git Diff Documentation](https://git-scm.com/docs/git-diff)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-20
+- Last reviewed: 2027-01-07
 - Confidence: high
