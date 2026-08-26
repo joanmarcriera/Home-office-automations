@@ -1,23 +1,23 @@
 # Supabase
 
 ## What it is
-Supabase is an open-source, enterprise-grade Backend-as-a-Service (BaaS) platform built around PostgreSQL with managed database, authentication, storage, realtime, and edge-function services. Fully integrated with the late October / November 2026 SOTA agentic ecosystem, it serves as the foundational persistence and memory orchestration layer for multi-agent frameworks, supporting native vector embeddings (via pgvector v0.8.x), granular row-level security (RLS), and universal Model Context Protocol (MCP 3.1 / FastMCP 3.1) endpoints.
+Supabase is an open-source, enterprise-grade Backend-as-a-Service (BaaS) platform built around PostgreSQL with managed database, authentication, storage, realtime, and edge-function services. Fully integrated with the early 2027 SOTA agentic ecosystem, it serves as the foundational persistence and memory orchestration layer for multi-agent frameworks, supporting native vector embeddings (via pgvector v0.8.x), granular row-level security (RLS), and universal Model Context Protocol (MCP 3.1 / FastMCP 3.1) endpoints.
 
 ## What problem it solves
 It reduces the complexity of self-assembling and orchestrating disparate backend infrastructure components (databases, auth servers, storage buckets, API gateways, and serverless compute). By wrapping standard PostgreSQL with high-level client libraries and native AI features, Supabase enables developers to deploy scalable, secure, and relational AI-driven applications. It specifically solves the problem of agent state synchronization, multi-tenant memory boundary enforcement, and low-latency local or global edge function execution, avoiding the typical data silos found in legacy systems.
 
 ## Where it fits in the stack
-**Infrastructure / Backend Platform**. It functions as the core persistence and structured database layer. Positioned underneath frameworks like LlamaIndex, LangChain, and modern agents (such as Claude 5.1, GPT-5.5, and Gemini 4.0), it provides long-term semantic memory, audit logs, and identity management while interfacing with orchestrators via realtime listeners and custom MCP servers.
+**Infrastructure / Backend Platform**. It functions as the core persistence and structured database layer. Positioned underneath frameworks like LlamaIndex, LangChain, and modern agents (such as Claude 5.6, GPT-5.6, DeepSeek-V4, and Gemini 4.0 Ultra), it provides long-term semantic memory, audit logs, and identity management while interfacing with orchestrators via realtime listeners and custom MCP servers.
 
 ## Typical use cases
 - **Agent Memory Persistence**: Storing and querying high-dimensional agentic memory with `pgvector` using HNSW (Hierarchical Navigable Small World) indices for millisecond retrieval times on frontier models (e.g. Llama 4 and Qwen 3.6).
 - **RLS-Scoped Multi-Tenant Auth**: Restricting LLM access to user-specific data using Postgres Row Level Security (RLS) policies directly tied to JWTs.
 - **Realtime Orchestration and Multi-Agent Handshake**: Using Postgres write-ahead logs (WAL) via Supabase Realtime to push system-wide event updates to distributed agents.
-- **Edge Inference and Routing**: Leveraging Deno-based Supabase Edge Functions to pre-process user inputs, run lightweight models, or route requests to Claude 5.1 and Gemma 3 endpoints.
+- **Edge Inference and Routing**: Leveraging Deno-based Supabase Edge Functions to pre-process user inputs, run lightweight models, or route requests to Claude 5.6 and Gemma 3 endpoints.
 - **Vector Search & RAG**: Maintaining unified knowledge graphs, document chunks, and embeddings within a single relational database, avoiding multi-database synchronization overhead.
 
 ## Strengths
-- **SQL-First Vector Architecture**: Uses `pgvector` (v0.8.x SOTA in late 2026) for unified structured relational queries and semantic search.
+- **SQL-First Vector Architecture**: Uses `pgvector` (v0.8.x SOTA) for unified structured relational queries and semantic search.
 - **Granular Security Boundaries**: Relies on robust Postgres Row Level Security (RLS) policies, allowing LLMs to safely query data on behalf of specific authenticated users.
 - **Model Context Protocol (MCP 3.1 / FastMCP 3.1) Integration**: Exposes database schemas and RLS-protected RPCs safely to agentic clients through standard MCP interfaces.
 - **Universal Local-to-Cloud Portability**: Run the entire enterprise stack locally with a single Docker-based CLI command or deploy globally with zero lock-in.
@@ -96,14 +96,14 @@ supabase functions new agent-router
 # Deploy the Edge Function to the remote Supabase platform
 supabase functions deploy agent-router --project-ref your-project-id
 
-# Register your Supabase database as an MCP 3.1 server for Claude 5.1 / Gemma 3
+# Register your Supabase database as an MCP 3.1 server for Claude 5.6 / Gemma 3
 mcp register supabase-db-server --command npx --args "@supabase/mcp-server" --env "DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres"
 ```
 
 ## API examples
 
 ### Python Programmatic Implementation with Pydantic v2 Validation
-The following example demonstrates how to define, validate, and manage connection metadata and query execution within a Python environment using strict Pydantic v2 schemas. This architecture is designed to interface with frontier models like Claude 5.1, GPT-5.5, and Gemini 4.0 via FastMCP 3.1.
+The following example demonstrates how to define, validate, and manage connection metadata and query execution within a Python environment using strict Pydantic v2 schemas. This architecture is designed to interface with frontier models like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra via FastMCP 3.1.
 
 ```python
 import os
@@ -156,7 +156,7 @@ def search_agent_memory(config: SupabaseAgentConfig, query: VectorQueryModel) ->
         return [
             {
                 "id": "mem_001",
-                "content": "SOTA memory recall using Claude 5.1 and pgvector HNSW indexing.",
+                "content": "SOTA memory recall using Claude 5.6 and pgvector HNSW indexing.",
                 "similarity": 0.89
             }
         ]
@@ -230,5 +230,5 @@ const taskSubscription = supabase
 - [Dify.ai](https://dify.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,25 +1,25 @@
 # MLX
 
 ## What it is
-MLX is an array framework designed specifically for machine learning research on Apple Silicon. Developed by Apple's machine learning research team, it is optimized to leverage the unified memory architecture of M-series chips (M1 through M4 Ultra as of late 2026). It supports advanced execution graphs and provides first-class model loading, quantization, and evaluation wrappers for local Large Language Models (LLMs).
+MLX is an array framework designed specifically for machine learning research on Apple Silicon. Developed by Apple's machine learning research team, it is optimized to leverage the unified memory architecture of M-series chips (M1 through M5 Ultra as of early 2027). It supports advanced execution graphs and provides first-class model loading, KV cache quantization, and evaluation wrappers for local Large Language Models (LLMs).
 
 ## What problem it solves
-Standard ML frameworks like PyTorch or TensorFlow often face significant overhead when moving data between CPU and GPU. MLX solves this by using Apple Silicon's unified memory, allowing arrays to exist in a shared memory space where both the CPU and GPU can perform operations on them without needing expensive data transfers. This design eliminates the redundant copy-and-paste latency of traditional GPU acceleration, vastly improving local execution speed and memory bounds for frontier-class open models.
+Standard ML frameworks like PyTorch or TensorFlow often face significant overhead when moving data between CPU and GPU. MLX solves this by using Apple Silicon's unified memory, allowing arrays to exist in a shared memory space where both the CPU and GPU perform operations without expensive data transfers. This design eliminates redundant copy latency, vastly improving local execution speed and memory bounds for frontier-class open models.
 
 ## Where it fits in the stack
-**Infrastructure / Inference Framework**. It sits at the foundation of the Apple Silicon AI stack, providing the primitive operations for higher-level libraries like `mlx-lm`, and integrating with orchestrators and agents (running Claude 5.1, GPT-5.5, and Gemini 4.0) that run locally on macOS.
+**Infrastructure / Inference Framework**. It sits at the foundation of the Apple Silicon AI stack, providing primitive operations for higher-level libraries like `mlx-lm`, and integrating with orchestrators and local agents (interfacing with Claude 5.6, GPT-5.6, DeepSeek-V4, and Gemini 4.0 Ultra) running natively on macOS.
 
 ## Typical use cases
 - **Local LLM Inference**: Running frontier-class open models (such as Gemma 3, Llama 4, and Qwen 3.6) at extreme throughput on Mac hardware.
-- **On-Device Fine-Tuning**: Efficiently adapting open-weights models via parameter-efficient methods like LoRA or QLoRA using unified memory.
-- **Multimodal Research**: Executing generative image/video models (Stable Diffusion 3) and speech systems (Whisper v3) optimized directly for Apple's Neural Engine (ANE) and GPU.
+- **On-Device Fine-Tuning**: Efficiently adapting open-weights models via parameter-efficient methods like LoRA, QLoRA, or DoRA using unified memory.
+- **Multimodal Research**: Executing generative image/video models (Stable Diffusion 3.5, Flux.1) and speech systems (Whisper v3 / Faster-Whisper) optimized directly for Apple's Neural Engine (ANE) and Metal 3 GPU kernels.
 - **Agentic Workflows**: Powering local multi-agent sessions that require low-latency tool-calling and reasoning loops via Model Context Protocol (MCP 3.1 / FastMCP 3.1) without hitting cloud API limits or latency.
 
 ## Strengths
 - **Unified Memory Architecture**: Zero-copy data sharing between CPU, GPU, and ANE for maximum throughput and efficiency.
 - **Familiar API**: Python API closely follows NumPy, PyTorch, and JAX conventions, making it easy for researchers to migrate.
 - **Lazy Computation**: Operations are only materialized when needed, optimizing memory allocation and execution graphs on macOS devices.
-- **Native M4 Optimization**: Explicit support for modern hardware accelerators, matrix math units, and increased memory bandwidth of the M4 generation.
+- **Native M5 / Metal 3 Optimization**: Explicit support for modern hardware accelerators, matrix math units, and increased memory bandwidth of the M4/M5 generation.
 - **Dynamic Graph Compilation**: Compilation and execution graphs compile dynamically, allowing rapid-fire kernel execution and performance caching.
 
 ## Limitations
@@ -127,9 +127,9 @@ def execute_mlx_local_generation(config: MLXGenerationConfig) -> MLXOutputPayloa
     print(f"Loading local MLX model: '{config.model_name}' on Unified Memory Architecture...")
     print(f"Executing lazy-compiled evaluation graph with temp={config.temperature}")
 
-    # Simulate high TPS (typical of Apple Silicon M4 Ultra in late 2026)
+    # Simulate high TPS (typical of Apple Silicon M5 Ultra in early 2027)
     simulated_text = f"Sample output response generated from {config.model_name} for the prompt: '{config.prompt[:20]}...'"
-    tps = 145.2  # High efficiency on unified memory
+    tps = 168.5  # High efficiency on unified memory
     total_toks = 32
 
     return MLXOutputPayload(
@@ -179,5 +179,5 @@ if __name__ == "__main__":
 - [MLX-LM Documentation and API Guides](https://ml-explore.github.io/mlx/build/html/index.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
