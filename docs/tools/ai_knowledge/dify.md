@@ -4,7 +4,7 @@ Dify is an open-source LLM application development platform that allows you to v
 
 ## What it is
 
-Dify is an open-source LLM application development platform. It allows you to visually create and operate AI applications based on various LLMs, and includes tools for prompt engineering, RAG, and agent orchestration. It provides a full-stack experience from model management to application deployment.
+Dify is an open-source LLM application development platform. As of early **January 2027 (v1.4)**, it enables teams to visually build, evaluate, and operate complex agentic applications, multi-agent networks, and advanced visual RAG 2.0 pipelines. It provides a full-stack experience from model management and Model Context Protocol (MCP 3.1 / FastMCP 3.1) integration to production monitoring and deployment.
 
 ## What problem it solves
 
@@ -12,21 +12,21 @@ Lowers the barrier to building LLM-powered applications by providing a visual in
 
 ## Where it fits in the stack
 
-**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like [Ollama](../../services/ollama.md) or frontier models like [Claude 4.8](../ai_knowledge/claude.md).
+**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like [Ollama](../../services/ollama.md) or frontier models like [Claude 5.6](../ai_knowledge/claude.md) and GPT-5.6.
 
 ## Typical use cases
 
-- **Visual RAG Construction**: Building RAG applications with a visual drag-and-drop interface.
-- **Agent Orchestration**: Rapid prototyping of complex agent workflows with tool-calling and multi-step reasoning.
+- **Visual RAG 2.0 Construction**: Building multi-stage hybrid RAG applications with a visual drag-and-drop interface.
+- **Agent Orchestration**: Rapid prototyping of complex agent workflows with FastMCP 3.1 tool-calling and multi-step reasoning.
 - **Prompt IDE**: Collaborative prompt engineering and versioning within a team.
-- **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking.
-- **MCP Tool Integration**: Connecting [Model Context Protocol (MCP)](../../architecture/multi_agent_knowledgeops.md) servers to provide agents with real-world tools.
+- **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking and fine-grained permissions.
+- **MCP Tool Integration**: Connecting [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) servers to provide agents with real-world tools.
 
 ## Strengths
 
 - **Privacy-First**: Open-source and self-hostable, allowing for complete data sovereignty.
 - **User Friendly**: Visual interface makes LLM app development accessible to non-developers.
-- **Batteries Included**: Comes with built-in support for multiple vector databases ([Pinecone](../infrastructure/pinecone.md), [Weaviate](../infrastructure/weaviate.md), [Milvus](../infrastructure/milvus.md)) and model providers.
+- **Batteries Included**: Comes with built-in support for multiple vector databases ([Pinecone](../infrastructure/pinecone.md), [Weaviate](../infrastructure/weaviate.md), [Milvus](../infrastructure/milvus.md), Chroma) and model providers.
 - **Scalable**: Supports multi-user organizations and production-grade monitoring.
 
 ## Limitations
@@ -165,5 +165,5 @@ print(f"Validated payload prepared for user: {request_body['user']}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high
