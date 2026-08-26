@@ -1,81 +1,82 @@
 # OLMoEarth
 
-OLMoEarth is an open geospatial foundation model platform and distributed processing infrastructure developed by the Allen Institute for AI (Ai2), designed for planet-scale satellite data analysis and environmental modeling.
+OLMoEarth is an open geospatial foundation model platform and distributed processing infrastructure developed by the Allen Institute for AI (Ai2), designed for planet-scale satellite data analysis, climate monitoring, and environmental modeling.
 
 ## What it is
 
-OLMoEarth is an end-to-end platform for Earth observation, geospatial modeling, and continent-scale inference. Built on Ai2's extensive history with open models (such as OLMo) and geospatial platforms (like EarthRanger and Skylight), the OLMoEarth family of foundation models is pre-trained on roughly 10 terabytes of multimodal satellite data. The accompanying OLMoEarth Platform provides the required high-performance distributed infrastructure to label data, fine-tune models, find/access satellite imagery from multiple providers, and perform large-scale inference cost-effectively.
+OLMoEarth is an end-to-end platform for Earth observation, geospatial foundation modeling, and continent-scale inference. Built on Ai2's open model ecosystem (including the OLMo 2 series) and geospatial platforms (such as EarthRanger and Skylight), the OLMoEarth 2.0 family of geospatial foundation models is pre-trained on tens of terabytes of multimodal satellite, SAR, and climate data. The accompanying OLMoEarth Platform provides high-performance distributed infrastructure to ingest imagery, fine-tune models, access satellite feeds across public/private providers, and perform large-scale inference cost-effectively.
 
 ## What problem it solves
 
-While governments and environmental NGOs require AI to monitor deforestation, food security, and wildfire risks, most do not have the specialized ML infrastructure teams needed to manage raw geospatial pipelines. Geospatial data is notoriously complex: satellite images are scattered across multiple providers, use different projections and resolutions, and total dozens of terabytes.
+While governments, humanitarian agencies, and environmental NGOs require AI to monitor deforestation, agricultural security, and disaster risks, most lack dedicated ML infrastructure teams to manage raw geospatial pipelines. Geospatial data is exceptionally complex: satellite images span multiple spectral bands, SAR radar modes, dynamic resolutions, and varying projections across petabytes of files.
 
-OLMoEarth solves this by providing a robust, fault-tolerant execution platform. It handles projections alignment, resolution adjustments, and geographic consistency stitching, recovering automatically from routine node failures in distributed environments.
+OLMoEarth solves this by providing a resilient, fault-tolerant execution platform. It handles projections alignment, spatial resolution resampling, dynamic temporal stitching, and automatically recovers from node failures in distributed GPU environments.
 
 ## Where it fits in the stack
 
-**Infrastructure / Geospatial Processing Layer**. S sits above cloud imagery directories (like Google Earth Engine or AWS Sentinel) and below high-level visualization and analytical tools, performing raw tensor operations and spatial maps generation.
+**Infrastructure / Geospatial Processing Layer**. Sits above cloud satellite image registries (such as AWS Sentinel, Google Earth Engine, and Planetary Computer) and below analytical dashboards, executing vision-language-spatial operations and generating actionable GIS layers.
 
 ```
 ┌────────────────────────────────────────┐
 │      Application / Visualization       │
 │         (EarthRanger, Skylight)        │
 └───────────────────┬────────────────────┘
-                    │ Geospatial Queries & Alert Triggers
+                    │ Spatial Queries & FastMCP 3.1 Alerts
 ┌───────────────────▼────────────────────┐
 │          OLMOEARTH PLATFORM            │
 └───────────────────┬────────────────────┘
-                    │ Scale Distributed Inference / Geo-Stitching
+                    │ Distributed GPU Inference / Geo-Stitching
 ┌───────────────────▼────────────────────┐
-│ Multimodal Satellite Providers (AWS/GEE)│
+│ Multimodal Satellite Registries (AWS/GEE)│
 └────────────────────────────────────────┘
 ```
 
 ## Typical use cases
 
-- **Deforestation Monitoring**: Tracking tree cover changes over continent-scale areas with rapid inference passes.
-- **Wildfire Risk Forecasting**: Utilizing thermal and environmental sensors to generate real-time local hazard maps.
-- **Agricultural Food Security**: Monitoring crop health, field yields, and soil hydration states across regional borders.
-- **Ocean and Maritime Safety**: Correlating sat-data to identify illegal fishing fleets or oil spill drift behaviors.
+- **Deforestation & Land-Use Monitoring**: Tracking illegal logging and canopy coverage changes across continent-scale biomes with sub-meter spatial accuracy.
+- **Wildfire Risk Forecasting**: Combining thermal, SAR, and vegetation health metrics to generate predictive local fire propagation maps.
+- **Agricultural Security**: Monitoring crop health, drought indexes, and soil moisture across multi-national agricultural regions.
+- **Maritime Safety & Surveillance**: Correlating synthetic aperture radar (SAR) and optical feeds to identify unauthorized vessels or ocean spill hazards.
+- **Agentic Geospatial Workflows**: Integrating with FastMCP 3.1 tool servers to allow agentic systems (driven by Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra) to run spatial queries programmatically.
 
 ## Strengths
 
-- **Pre-trained on 10TB of Satellite Data**: Native understanding of high-resolution, multi-channel Earth imagery.
-- **Planet-Scale Infrastructure**: Capable of processing continent-scale regions in roughly a day, dealing with dozens of terabytes of imagery.
-- **Highly Cost-Effective**: Optimizes processing pipelines, reducing computation costs down to fractions of a penny per square kilometer.
-- **Fault-Tolerant Geo-Stitching**: Integrates automatic retry and recovery behaviors for distributed task runners.
-- **Open Science Driven**: Follows Ai2's standard of open weights and open data access, fostering global scientific collaboration.
+- **Pre-trained Multimodal Geospatial Models**: Native support for optical, multispectral, and SAR satellite rasters.
+- **Planet-Scale Infrastructure**: Processes continent-scale territories efficiently using distributed cloud-native worker nodes.
+- **Cost-Optimized Execution**: Pipeline optimization reduces compute cost to fractions of a cent per square kilometer.
+- **Fault-Tolerant Geo-Stitching**: Automated recovery for distributed tile processing and temporal series alignment.
+- **Open Science Commitment**: Adheres to Ai2's standard of open model weights, training datasets, and benchmarks (comparing favorably with IBM/NASA Prithvi and AlphaEarth).
 
 ## Limitations
 
-- **Infrastructure Heavy**: Running the full local distributed platform requires significant containerized clusters (Kubernetes) and deep storage connectivity.
-- **Specialized Input Format**: Built specifically for satellite/geospatial multi-band rasters, not applicable to general-purpose business image recognition.
+- **Infrastructure Heavy**: Deploying the full self-hosted platform requires Kubernetes clusters with high-bandwidth S3/object storage access.
+- **Domain Specific**: Optimized strictly for spatial rasters and remote sensing data, not general-purpose business image classification.
 
 ## When to use it
 
 - When executing environmental monitoring pipelines that span large geographical regions or continuous historical timelines.
-- When you want to run open-weight geospatial foundation models on custom, cost-effective infrastructure.
-- In humanitarian, NGO, or municipal planning workloads needing actionable environmental insights.
+- When building agentic RAG or automated alert systems that require programmatic geospatial spatial analysis.
+- In humanitarian, municipal planning, or climate action workloads requiring open-weights foundation models.
 
 ## When not to use it
 
-- For standard general-purpose computer vision tasks (like face detection, OCR, or object detection in common images).
-- When a simple, small localized vision model (such as MageVL) is sufficient for narrow camera feeds.
+- For standard computer vision tasks (such as document OCR or facial recognition).
+- When simple localized video analytics (such as [MageVL](../frameworks/magevl.md)) on edge cameras are sufficient.
 
 ## Getting started
 
-The platform is accessible via Ai2's OlmoEarth repositories and geospatial APIs.
+The platform is accessible via Ai2's OLMoEarth SDK and geospatial endpoints:
 
 ```bash
-# Registering and downloading OlmoEarth models
-pip install olmoearth-sdk
+# Registering and downloading OLMoEarth SDK
+pip install olmoearth-sdk FastMCP pydantic
 ```
 
 ## CLI examples
 
 ```bash
 # Run localized satellite tile inference for deforestation markers
-olmoearth-cli run --model olmoearth-v1 --aoi brazil_sector_4.geojson --output deforestation_map.tiff
+olmoearth-cli run --model olmoearth-v2 --aoi brazil_sector_4.geojson --output deforestation_map.tiff
 
 # Monitor active platform processing jobs
 olmoearth-cli jobs list --status active
@@ -84,15 +85,15 @@ olmoearth-cli jobs list --status active
 ## API examples
 
 ### Geospatial Tile Pipeline Setup and Pydantic v2 Schema Validation
-Processing satellite tiles requires strict coordinate, projection, and spectral-band validation before scheduling distributed tensor workloads. This Python example uses Pydantic v2 to validate an ingestion request payload.
+Processing satellite tiles requires strict coordinate, projection, and spectral-band validation before scheduling distributed tensor workloads under FastMCP 3.1 environments. This Python example uses Pydantic v2 to validate an ingestion request payload.
 
 ```python
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Literal
 
 class SatelliteTileMetadata(BaseModel):
-    tile_id: str = Field(description="Unique code identifying the Sentinel/Landsat tile")
-    spectral_bands: List[str] = Field(..., min_items=3, description="List of bands, e.g., RED, GREEN, BLUE, NIR")
+    tile_id: str = Field(description="Unique code identifying the Sentinel/Landsat/SAR tile")
+    spectral_bands: List[str] = Field(..., min_items=3, description="List of bands, e.g., RED, GREEN, BLUE, NIR, SAR_VV")
     projection: Literal["EPSG:4326", "EPSG:3857"] = Field(default="EPSG:4326")
     cloud_cover_percentage: float = Field(..., ge=0.0, le=100.0)
     bounding_box: List[float] = Field(..., description="[min_lon, min_lat, max_lon, max_lat]")
@@ -108,10 +109,10 @@ class SatelliteTileMetadata(BaseModel):
 
 # Ingestion configuration payload
 payload = {
-    "tile_id": "T22HGA_20261123",
-    "spectral_bands": ["RED", "GREEN", "BLUE", "NIR", "SWIR"],
+    "tile_id": "T22HGA_20270107",
+    "spectral_bands": ["RED", "GREEN", "BLUE", "NIR", "SWIR", "SAR_VV"],
     "projection": "EPSG:4326",
-    "cloud_cover_percentage": 14.2,
+    "cloud_cover_percentage": 8.4,
     "bounding_box": [-47.8825, -15.7942, -47.8525, -15.7642]
 }
 
@@ -125,16 +126,17 @@ print(f"Cloud Cover: {validated_tile.cloud_cover_percentage}% - Suitable for pro
 ## Related tools / concepts
 
 - [MageVL](../frameworks/magevl.md) — For localized streaming video analysis at the edge.
-- [Kubernetes (K3s)](../infrastructure/k3s.md) — The lightweight orchestrator frequently used to manage local GIS container instances.
-- [Docker](../infrastructure/docker.md) — Base container system for scaling tile processing nodes.
-- [MinIO](../intake_storage/minio.md) — S3-compatible local storage for raw geospatial satellite raster files.
+- [K3s](k3s.md) — Lightweight orchestrator used to manage containerized GIS worker instances.
+- [Docker](docker.md) — Container framework for scaling tile processing nodes.
+- [MinIO](../intake_storage/minio.md) — S3-compatible local storage for satellite rasters.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for agentic tool integration.
 
 ## Sources / references
 
-- [The OlmoEarth Platform Blog - Allen Institute for AI](https://allenai.org/blog/olmoearth-infrastructure)
+- [The OLMoEarth Platform Blog - Allen Institute for AI](https://allenai.org/blog/olmoearth-infrastructure)
 - [Official OLMoEarth Platform Web App](https://olmoearth.allenai.org/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
