@@ -1,7 +1,7 @@
 # ansigpt
 
 ## What it is
-ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of late October / November 2026, **v2.5** introduces optimizations for compiling via GCC 15 on edge hardware, enhanced multi-modal context injection pipelines, and lightweight sandbox constraints suitable for running on microcontrollers alongside Model Context Protocol (MCP 3.1 / FastMCP 3.1) clients to serve models distilled from frontier systems like Claude 5.1, GPT-5.5, or Gemini 4.0.
+ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of early **January 2027 (v2.6)**, it introduces optimizations for compiling via GCC 15/16 and Clang 19 on embedded edge targets, enhanced multi-modal context injection pipelines, and lightweight sandbox constraints suitable for running on microcontrollers alongside Model Context Protocol (MCP 3.1 / FastMCP 3.1) clients to serve models distilled from frontier systems like Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra.
 
 ## What problem it solves
 It addresses the extreme complexity, bloated dependencies, and "black box" nature of modern LLM frameworks. By stripping the implementation down to its core mathematical and structural components in standard ANSI C, it makes the transformer architecture fully transparent for educational study and enables deployment on hardware that lacks modern Python runtimes or GPU execution environments.
@@ -19,7 +19,7 @@ It addresses the extreme complexity, bloated dependencies, and "black box" natur
 - **Zero Dependencies**: Requires only a standard C compiler (GCC, Clang, MSVC, etc.) and no external libraries.
 - **Extreme Portability**: Runs on virtually any system with a functional C compiler from the last 30 years.
 - **Human-Readable**: The entire core engine is small enough to be fully audited, modified, and understood by a single developer in one sitting.
-- **v2.1 Context Injection**: Built-in support to inject structured symbolic and numerical context directly into the transformer loop.
+- **v2.6 Context Injection**: Built-in support to inject structured symbolic and numerical context directly into the transformer loop.
 
 ## Limitations
 - **Model Scale**: Primarily designed for "micro" models (e.g., 1M to 100M parameters); not suitable for billion-parameter frontier models.
@@ -49,7 +49,7 @@ cd ansigpt
 # Build using the provided Makefile
 make
 
-# Or build manually using GCC
+# Or build manually using GCC 15/16
 gcc -O3 -ansi -pedantic ansigpt.c -o ansigpt -lm
 ```
 
@@ -69,7 +69,7 @@ gcc -O3 -ansi -pedantic ansigpt.c -o ansigpt -lm
 ./ansigpt model.bin "In a hidden valley," --temp 0.8 --top-p 0.9
 ```
 
-### Multi-modal Context Injection (v2.1)
+### Multi-modal Context Injection (v2.6)
 Inject symbolic data as additional context for the generation:
 ```bash
 ./ansigpt model.bin "Analyze the following sensor data:" --context sensors.txt
@@ -100,8 +100,8 @@ int main() {
 }
 ```
 
-### Agentic Loop Fragment with MCP 3.0 Context
-A minimal implementation of a tool-calling loop in C, designed to hook into an MCP 3.0 server:
+### Agentic Loop Fragment with FastMCP 3.1 Context
+A minimal implementation of a tool-calling loop in C, designed to hook into a FastMCP 3.1 server:
 ```c
 if (strstr(output, "ACTION: SEARCH")) {
     char *query = extract_query(output);
@@ -148,7 +148,6 @@ print(f"Target compiled configuration: {validated_config.model_name} with {valid
 ## Related tools / concepts
 - [llama.cpp](../infrastructure/llama-cpp.md) — High-performance C++ inference framework.
 - [ExLlamaV2](../infrastructure/exllamav2.md) — High-performance inference engine optimized for extreme quantizations.
-- [Nano Banana](nano-banana.md) — Reference for tiny model patterns.
 - [AITMPL](aitmpl.md) — Minimalist AI templates.
 - [Ollama](../../services/ollama.md) — User-friendly local AI manager.
 - [Smolagents](../frameworks/smolagents.md) — Minimalist agentic framework from Hugging Face.
@@ -162,10 +161,9 @@ print(f"Target compiled configuration: {validated_config.model_name} with {valid
 - [Karpathy's microGPT Research](https://github.com/karpathy/microGPT)
 - [TinyGrad and Minimalist AI Research](https://github.com/geohot/tinygrad)
 - [C89 Standard Specification (ISO/IEC 9899:1990)](https://www.iso.org/standard/17782.html)
-- [ansigpt v2.1 Release Notes](https://github.com/yobibyte/ansigpt/releases/tag/v2.1)
 - [Edge AI Patterns](../../knowledge_base/patterns/software-factories.md)
 - [Embedded Systems C Reference](../../knowledge_base/learning-map.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high

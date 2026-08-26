@@ -1,7 +1,7 @@
 # Antigravity Agent
 
 ## What it is
-Antigravity Agent is Google's premier, stateful runtime orchestration and execution framework engineered to design, build, deploy, and monitor highly autonomous AI agents capable of executing stateful, long-horizon tasks ("Missions"). Operating as a core component of Google's state-of-the-art agentic ecosystem, Antigravity Agent is powered natively by the Gemini 4.0 series (Pro, Ultra, Flash), Gemini Spark 2.0 (for multi-agent planning), and Gemini Omni 2.0 (for multimodal context mapping), and features native compliance with the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../automation_orchestration/mcp.md).
+Antigravity Agent is Google's premier, stateful runtime orchestration and execution framework engineered to design, build, deploy, and monitor highly autonomous AI agents capable of executing stateful, long-horizon tasks ("Missions"). Operating as a core component of Google's state-of-the-art agentic ecosystem in early 2027, Antigravity Agent is powered natively by the Gemini 4.0 series (Pro, Ultra, Flash), Gemini Spark 2.5 (for multi-agent planning), and Gemini Omni 2.0 (for multimodal context mapping), and features native compliance with the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../automation_orchestration/mcp.md).
 
 ## What problem it solves
 Traditional conversational agents are fundamentally stateless and ephemeral, rendering them incapable of managing complex, nested, long-running processes without losing state, losing planning alignment, or failing on security boundaries. Antigravity Agent solves these operational limitations by introducing secure, sandboxed session persistence, dynamic model-swapping, and structured multi-step planning loops, enabling robust, sovereign automation that can safely interact with local file systems and remote servers.
@@ -13,12 +13,12 @@ Traditional conversational agents are fundamentally stateless and ephemeral, ren
 - **Long-Horizon Software Engineering**: Executing multi-step code refactoring and test-driven development Missions within secure development workspaces.
 - **Sovereign System Administration**: Safely executing server maintenance, database backups, and security patch audits via sandboxed loops.
 - **Multimodal Data Analysis**: Parsing complicated video, image, and text reports to generate multi-format summaries using Gemini Omni 2.0 models.
-- **Dynamic Tool Discovery**: Auto-detecting and securely connecting with local or remote MCP servers to perform complex data transformations.
+- **Dynamic Tool Discovery**: Auto-detecting and securely connecting with local or remote FastMCP 3.1 servers to perform complex data transformations.
 
 ## Strengths
 - **Native Stateful Session Persistence**: Automatically checkpoints the agent's memory, terminal logs, and planning files to allow graceful pause and resume capabilities.
-- **Gemini 4.0 & Spark 2.0 Native Integration**: Fully leverages advanced reasoning tokens, multimodal parsing, and sub-agent task-decomposition logic.
-- **Standardized MCP 3.1 Client**: Dynamically connects to stdio, SSE-based, or WebSocket FastMCP 3.1 servers out-of-the-box.
+- **Gemini 4.0 & Spark 2.5 Native Integration**: Fully leverages advanced reasoning tokens, multimodal parsing, and sub-agent task-decomposition logic.
+- **Standardized FastMCP 3.1 Client**: Dynamically connects to stdio, SSE-based, or WebSocket FastMCP 3.1 servers out-of-the-box.
 - **Isolated Sandbox Security**: Executes all CLI tools, shell scripts, and system edits inside tightly controlled, isolated environment buffers.
 
 ## Limitations
@@ -76,7 +76,7 @@ antigravity-agent attach --hash sha256_9b3e1f0a
 ```
 
 ## API examples
-The following Python script illustrates how to programmatically execute an Antigravity Agent Mission with custom tool integrations and strict configuration validation using Pydantic v2.
+The following Python script illustrates how to programmatically execute an Antigravity Agent Mission with custom FastMCP 3.1 tool integrations and strict configuration validation using Pydantic v2.
 
 ```python
 import sys
@@ -144,7 +144,6 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Gemini](./gemini.md) — Google's enterprise-grade cloud-native multimodal AI reasoning model.
-- [Gemini](./gemini.md) — Standard multimodal reasoning models from Google DeepMind.
 - [Gemini Canvas](./gemini-canvas.md) — Interactive persistent UI for visual, multi-modal Gemini planning workflows.
 - [Google Search](./google-search.md) — Direct web-search context injection tool for local assistant engines.
 - [Jules](./jules.md) — Privacy-first local home lab automation and daily log ingestion agent.
@@ -156,9 +155,7 @@ if __name__ == "__main__":
 - [The New Stack: Google Antigravity IDE Extensions](https://thenewstack.io/google-antigravity-ide-extensions/)
 - [GitHub Search: Antigravity Agent Stateful Orchestration Engine](https://github.com/search?q=Antigravity+Agent)
 - [Vertex AI Agentic Workflows and Mission Planning](https://cloud.google.com/vertex-ai)
-- [MiniBot V2](https://www.reddit.com/r/LocalLLaMA/comments/1v0a9jn/sharing_minibot_v2_this_is_what_im_currently/) — Integrated from daily log reference.
-- [Agent Substrate](https://thenewstack.io/kubernetes-ai-agent-runtime/) — Integrated from daily log reference.
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high
