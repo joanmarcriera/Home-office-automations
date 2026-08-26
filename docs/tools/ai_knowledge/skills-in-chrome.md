@@ -1,13 +1,13 @@
 # Skills in Chrome
 
 ## What it is
-Skills in Chrome is a native browser feature (v145+) that transforms AI prompts into one-click, reusable tools directly integrated into the Google Chrome interface. Powered by **Gemini 4.0 Ultra** and **Gemini 4.0 Nano** (local on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu.
+Skills in Chrome is a native browser feature (v145+) that transforms AI prompts into one-click, reusable tools directly integrated into the Google Chrome interface. Powered by **Gemini 4.0 Ultra** and **Gemini 4.0 Nano** (local on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu. In early January 2027, Skills in Chrome deeply integrates with **FastMCP 3.1** protocol and multi-agent systems involving **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It eliminates "prompt fatigue" and the friction of repetitive typing for recurring AI tasks. By bridging the gap between static LLM chats and actionable browser workflows, it enables users to treat AI as a set of specialized, context-aware browser extensions without needing to write code.
 
 ## Where it fits in the stack
-**AI Knowledge / Browser Agentic Layer**. It sits at the edge of the user's interaction with the web, providing a "Sidecar Agent" capability that can observe page DOM, summarize content, and interact with web elements as part of an integrated agentic ecosystem using [Gemma 3](../ai_knowledge/local_llms.md) for local processing.
+**AI Knowledge / Browser Agentic Layer**. It sits at the edge of the user's interaction with the web, providing a "Sidecar Agent" capability that can observe page DOM, summarize content, and interact with web elements as part of an integrated agentic ecosystem using [Gemma 3](../ai_knowledge/local_llms.md) and [Gemini 4.0 Ultra](gemini.md) for local and hybrid processing.
 
 ## Typical use cases
 - **Automated Research**: One-click "TL;DR" and key takeaway extraction for long technical documents or research papers.
@@ -20,6 +20,7 @@ It eliminates "prompt fatigue" and the friction of repetitive typing for recurri
 - **Agentic Hooks**: Supports automated triggering based on specific URL patterns (e.g., automatically offer to "Compare Prices" when on an e-commerce site).
 - **Security & Privacy**: Operates within the browser's sandbox, utilizing Google's "Identity-Aware Tool Routing" for secure data handling.
 - **Cross-Device Sync**: Saved skills are synchronized across desktop (Windows, Mac, Linux) and mobile (Android) via the user's Google account.
+- **FastMCP 3.1 Support**: Direct tool-calling integration with Model Context Protocol servers.
 
 ## Limitations
 - **Ecosystem Lock-in**: Exclusively available for Google Chrome and Chromium-based browsers that adopt the Gemini API.
@@ -124,5 +125,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-24
+- Last reviewed: 2027-01-07
 - Confidence: high

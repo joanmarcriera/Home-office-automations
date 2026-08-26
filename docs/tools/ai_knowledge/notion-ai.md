@@ -1,10 +1,10 @@
 # Notion AI
 
 ## What it is
-Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By late October / November 2026, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning, multi-step automation, and native integration with the **FastMCP 3.1** protocol.
+Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By early January 2027, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning, multi-step automation, and native integration with the **FastMCP 3.1** protocol and frontier reasoning models like **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
-Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment. It eliminates the friction of switching between a chat interface and a system of record, leveraging frontier models like **GPT-5.5**, **Claude 5.1**, and **Gemini 4.0** to perform multi-hop reasoning.
+Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment. It eliminates the friction of switching between a chat interface and a system of record, leveraging frontier models like **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra** to perform multi-hop reasoning.
 
 ## Where it fits in the stack
 [AI & Knowledge](./index.md) — integrated productivity and workspace assistant.
@@ -22,7 +22,7 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 - **Agent-Native System of Record**: Pages and databases serve as "memory" for agents, accessible by both humans and LLMs.
 - **Usage-Based Credits**: A pricing model (Notion Credits) that allows customers to pay for what they use across different model tiers and tool capabilities.
 - **Context-Awareness**: Agents can reference other pages and data within Notion for high-fidelity multi-hop reasoning.
-- **Frontier Model Support**: Leverages **Gemma 3**, **GPT-5.5**, and **Claude 5.1** for advanced reasoning tasks.
+- **Frontier Model Support**: Leverages **Gemma 3**, **GPT-5.6**, **Claude 5.6**, and **DeepSeek-V4** for advanced reasoning tasks.
 
 ## Limitations
 - Requires a paid add-on to the standard Notion subscription.
@@ -50,7 +50,7 @@ Users can trigger AI features directly in the Notion UI:
 
 ## CLI examples
 > [!NOTE]
-> As of late 2026, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API. However, developers often use the [Claude Code](../development_ops/claude-code.md) CLI with a FastMCP 3.1 connector to interact with Notion data.
+> As of 2027, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API. However, developers often use the [Claude Code](../development_ops/claude-code.md) CLI with a FastMCP 3.1 connector to interact with Notion data.
 
 ## API examples
 You can programmatically trigger Notion AI or enrich content using the Notion API (supported via the `notion-client` Python SDK). This example uses **Pydantic v2** to model the page properties and validate the AI enrichment payload before updating the workspace.
@@ -87,7 +87,7 @@ async def enrich_notion_page_with_ai(payload: dict):
 if __name__ == "__main__":
     sample_data = {
         "page_id": "83c79a29d5b449b2943e8c9735d4fa12",
-        "summary": "This document outlines the Q4 system rollout timeline and security gates.",
+        "summary": "This document outlines the Q1 system rollout timeline and security gates.",
         "action_items": [
             "Enable FastMCP 3.1 connectors for all staging environments",
             "Perform local LLM fallback verification on Gemma 3",
@@ -121,5 +121,5 @@ Notion AI is frequently used in multi-step automation pipelines using [n8n](../.
 - **Licensing**: Paid add-on (typically $10/member/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high
