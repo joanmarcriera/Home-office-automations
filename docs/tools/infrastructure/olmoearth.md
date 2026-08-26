@@ -4,7 +4,7 @@ OLMoEarth is an open geospatial foundation model platform and distributed proces
 
 ## What it is
 
-OLMoEarth is an end-to-end platform for Earth observation, geospatial modeling, and continent-scale inference. Built on Ai2's extensive history with open models (such as OLMo) and geospatial platforms (like EarthRanger and Skylight), the OLMoEarth family of foundation models is pre-trained on roughly 10 terabytes of multimodal satellite data. The accompanying OLMoEarth Platform provides the required high-performance distributed infrastructure to label data, fine-tune models, find/access satellite imagery from multiple providers, and perform large-scale inference cost-effectively.
+OLMoEarth is an end-to-end platform for Earth observation, geospatial modeling, and continent-scale inference. Built on Ai2's extensive history with open models (such as OLMo and OLMo 2) and geospatial platforms (like EarthRanger and Skylight), the OLMoEarth family of foundation models is pre-trained on roughly 10 terabytes of multimodal satellite data. The accompanying OLMoEarth Platform provides the required high-performance distributed infrastructure to label data, fine-tune models, find/access satellite imagery from multiple providers, and perform large-scale inference cost-effectively using FastMCP 3.1 endpoints and cloud compute clusters.
 
 ## What problem it solves
 
@@ -14,7 +14,7 @@ OLMoEarth solves this by providing a robust, fault-tolerant execution platform. 
 
 ## Where it fits in the stack
 
-**Infrastructure / Geospatial Processing Layer**. S sits above cloud imagery directories (like Google Earth Engine or AWS Sentinel) and below high-level visualization and analytical tools, performing raw tensor operations and spatial maps generation.
+**Infrastructure / Geospatial Processing Layer**. It sits above cloud imagery directories (like Google Earth Engine or AWS Sentinel) and below high-level visualization and analytical tools, performing raw tensor operations and spatial map generation.
 
 ```
 ┌────────────────────────────────────────┐
@@ -108,7 +108,7 @@ class SatelliteTileMetadata(BaseModel):
 
 # Ingestion configuration payload
 payload = {
-    "tile_id": "T22HGA_20261123",
+    "tile_id": "T22HGA_20270107",
     "spectral_bands": ["RED", "GREEN", "BLUE", "NIR", "SWIR"],
     "projection": "EPSG:4326",
     "cloud_cover_percentage": 14.2,
@@ -136,5 +136,5 @@ print(f"Cloud Cover: {validated_tile.cloud_cover_percentage}% - Suitable for pro
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

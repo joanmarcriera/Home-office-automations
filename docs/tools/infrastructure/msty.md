@@ -1,13 +1,13 @@
 # Msty
 
 ## What it is
-Msty is a highly professional, local-first AI desktop application designed to provide a secure and integrated workspace for executing both local models (via Ollama/Llama.cpp/Aphrodite Engine) and major cloud-based API providers. Following major upgrades throughout 2026 (including the stable Msty Claw series), it has evolved from a simple graphical chat wrapper into a modular "AI Desktop Operating System." It features a robust, isolated extension marketplace, dynamic local RAG indexers, and native client integration with the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 specifications.
+Msty is a highly professional, local-first AI desktop application designed to provide a secure and integrated workspace for executing both local models (via Ollama/Llama.cpp/Aphrodite Engine) and major cloud-based API providers. Following major upgrades (including the stable Msty Claw series and early 2027 v2.5 releases), it has evolved from a simple graphical chat wrapper into a modular "AI Desktop Operating System." It features a robust, isolated extension marketplace, dynamic local RAG indexers, multi-agent Crews, and native client integration with the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 specifications.
 
 ## What problem it solves
 Managing local model dependencies, model files, VRAM calculations, and multi-model routing can be highly complex and intimidating. Msty solves this by providing a unified, user-friendly desktop dashboard. It handles VRAM estimation dynamically to prevent allocation crashes, organizes disjointed PDFs/documents into searchable "Knowledge Stacks" for context-injection (RAG), and allows running collaborative, multi-agent "Crews" locally. Furthermore, it addresses "context pollution" and model amnesia during long agent cycles by implementing structured, reusable "Memory Packs."
 
 ## Where it fits in the stack
-**Category**: Infrastructure / AI Desktop Clients. It sits at the top of the local infrastructure layer, acting as the user interface and orchestration client. It connects down to local model execution backends (like Ollama, llama.cpp, or [Aphrodite Engine](aphrodite-engine.md)) or cloud provider endpoints, and leverages FastMCP 3.1 tools to interact with local system resources safely.
+**Category**: Infrastructure / AI Desktop Clients. It sits at the top of the local infrastructure layer, acting as the user interface and orchestration client. It connects down to local model execution backends (like Ollama, llama.cpp, or [Aphrodite Engine](aphrodite-engine.md)) or cloud provider endpoints (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra), and leverages FastMCP 3.1 tools to interact with local system resources safely.
 
 ```
 ┌────────────────────────────────────────┐
@@ -22,21 +22,21 @@ Managing local model dependencies, model files, VRAM calculations, and multi-mod
                     │ REST / API Calls
 ┌───────────────────▼────────────────────┐
 │      Inference Server / Provider       │
-│     (Ollama, Aphrodite, Claude 5.1)    │
+│  (Ollama, Aphrodite, Claude 5.6/GPT-5.6)│
 └────────────────────────────────────────┘
 ```
 
 ## Typical use cases
-- **Secure, Offline Chat**: Running highly capable local models (such as Gemma 3 27B or Qwen 3.6 14B) fully offline for secure document analysis.
+- **Secure, Offline Chat**: Running highly capable local models (such as Gemma 3 27B, Llama 4 70B, or Qwen 3.6 14B) fully offline for secure document analysis.
 - **Local Multi-Agent Simulations**: Designing and orchestrating local teams of specialized AI workers ("Crews") using local LLMs.
 - **Dynamic Context Injection (RAG)**: Indexing gigabytes of research papers, code repositories, or financial records into custom "Knowledge Stacks" for zero-configuration Q&A.
-- **Tool-Enabled Desktop Automation**: Installing third-party "Skills" and custom tools via MCP 3.1 to enable local models to read webpages, parse system files, or execute Python code safely.
+- **Tool-Enabled Desktop Automation**: Installing third-party "Skills" and custom tools via MCP 3.1 / FastMCP 3.1 to enable local models to read webpages, parse system files, or execute Python code safely.
 
 ## Strengths
 - **Isolated Extension Architecture**: Extension-based system allows installing Skills, Custom Personas, and Workflows safely.
 - **Dynamic Memory Control**: Supports modular "Memory Packs" to keep context relevant, highly focused, and memory-efficient.
 - **VRAM Matchmaker**: Built-in visual hardware profiler and VRAM calculator that recommends the perfect quantization sizes of GGUF/EXL2 files for the user's specific GPU setup.
-- **Universal Connection Hub**: Connects natively to local Ollama endpoints, local OpenAI-compatible APIs, and enterprise providers (Anthropic, OpenAI, Azure, Bedrock).
+- **Universal Connection Hub**: Connects natively to local Ollama endpoints, local OpenAI-compatible APIs, and enterprise providers (Anthropic, OpenAI, Azure, Bedrock, DeepSeek).
 - **Advanced UI Workspace**: Multi-tab interface supporting side-by-side chats, branchable chat histories, and multi-model comparative evaluation.
 
 ## Limitations
@@ -55,7 +55,7 @@ Managing local model dependencies, model files, VRAM calculations, and multi-mod
 
 ## Getting started
 1. **Download**: Install the latest desktop release matching your operating system from the [Official Msty Portal](https://msty.ai/).
-2. **Model Download**: Open the model manager ("One Local Model Hub") to fetch an optimized model; the "Matchmaker" will recommend appropriate weights (such as `gemma-3-27b-it`) based on your hardware profile.
+2. **Model Download**: Open the model manager ("One Local Model Hub") to fetch an optimized model; the "Matchmaker" will recommend appropriate weights (such as `gemma-3-27b-it` or `llama-4-scion`) based on your hardware profile.
 3. **Configure RAG**: Create a "Knowledge Stack", drag and drop local directories or files, and allow the background vectorizer to complete indexing.
 4. **Extend**: Visit the extension gallery to enable advanced Skills and register local or remote MCP 3.1 servers.
 
@@ -108,7 +108,7 @@ raw_manifest = {
     "extension_id": "msty.skills.websearch",
     "version": "1.4.2",
     "required_mcp_version": "3.1",
-    "supported_models": ["gemma-3-*", "llama-4-*"],
+    "supported_models": ["gemma-3-*", "llama-4-*", "deepseek-v4-*"],
     "sandbox_permissions": ["network", "local-filesystem-read"]
 }
 
@@ -148,5 +148,5 @@ def check_disk_space() -> str:
 - [Msty Blog: Memory Packs & Crews](https://msty.ai/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
