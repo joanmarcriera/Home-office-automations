@@ -1,13 +1,29 @@
 # Llamafile
 
 ## What it is
-Llamafile is an open-source project (originally from Mozilla) that packages an entire LLM — model weights **and** the inference runtime — into a **single executable file** that runs on macOS, Linux, Windows, and BSD without installation. It combines [llama.cpp](llama-cpp.md) with the Cosmopolitan Libc "Actually Portable Executable" format, so one downloaded file launches a local chat server with no dependencies. As of late 2026, Llamafile has integrated native support for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 endpoints, facilitating portable, offline tool execution.
+Llamafile is an open-source project (originally from Mozilla) that packages an entire LLM — model weights **and** the inference runtime — into a **single executable file** that runs on macOS, Linux, Windows, and BSD without installation. It combines [llama.cpp](llama-cpp.md) with the Cosmopolitan Libc "Actually Portable Executable" format, so one downloaded file launches a local chat server with no dependencies. As of early 2027, Llamafile has integrated native support for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 and FastMCP 3.1 endpoints, facilitating portable, offline tool execution and local agent coordination.
 
 ## What problem it solves
 It collapses the usual local-LLM setup (install runtime, fetch weights, configure flags) into "download one file and run it." This makes local inference trivially reproducible and ideal for **air-gapped distribution**: you can hand someone a USB stick with a single file and they have a working offline assistant, with zero external package installations.
 
 ## Where it fits in the stack
 **Infrastructure / Self-contained local inference.** It is the lowest-friction way to ship or archive a runnable model. It exposes an OpenAI-compatible endpoint, so it can act as a drop-in local backend for agents, automation in [n8n](../../services/n8n.md), or offline desktop applications.
+
+```
+┌──────────────────────────────────────────────┐
+│           Single Portable Binary             │
+│   (Cosmopolitan Libc / APE Executable Format)│
+├──────────────────────────────────────────────┤
+│               Inference Runtime              │
+│      (Embedded Llama.cpp Engine + MCP 3.1)   │
+├──────────────────────────────────────────────┤
+│               Model Checkpoint               │
+│          (Embedded GGUF Weights)             │
+├──────────────────────────────────────────────┤
+│           Target OS / Architecture           │
+│    (macOS, Linux, Windows, BSD / x86, ARM)   │
+└──────────────────────────────────────────────┘
+```
 
 ## Typical use cases
 - Distributing a ready-to-run offline model to machines with no internet or package managers.
@@ -68,7 +84,7 @@ Windows users should rename the file to end in `.exe` before running.
 ```
 
 ## API examples
-Llamafile provides an OpenAI-compatible API. Once the llamafile is running, you can interact with it using standard tools. Below is a robust Python example utilizing strict **Pydantic v2** validation to verify and parse Llamafile health and configuration attributes.
+Llamafile provides an OpenAI-compatible API. Once the llamafile is running, you can interact with it using standard tools. Below is a Python example utilizing strict **Pydantic v2** validation to verify and parse Llamafile health and configuration attributes.
 
 ```python
 import requests
@@ -138,5 +154,5 @@ if __name__ == "__main__":
 - [Introducing Llamafile (Mozilla blog)](https://hacks.mozilla.org/2023/11/introducing-llamafile/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high

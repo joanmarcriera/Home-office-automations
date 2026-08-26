@@ -1,19 +1,35 @@
 # Jan.ai
 
 ## What it is
-Jan is an open-source alternative to ChatGPT that runs 100% offline on your computer. It is built on top of the **Nitro Engine**, a high-performance C++ inference engine, and provides a clean, privacy-focused desktop interface. As of late 2026, Jan has expanded its hardware support and modular architecture to include native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 and FastMCP 3.1 integration, acting as a robust tool-orchestrator and local client for frontier models.
+Jan is an open-source alternative to ChatGPT that runs 100% offline on your computer. It is built on top of the **Nitro Engine**, a high-performance C++ inference engine, and provides a clean, privacy-focused desktop interface. As of early 2027, Jan has expanded its hardware support and modular architecture to include native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 and FastMCP 3.1 integration, acting as a robust tool-orchestrator and local client for frontier models.
 
 ## What problem it solves
-Jan provides a fully open-source, private, and local-first AI workspace. It allows users to own their data and models, ensuring that conversations never leave their machine. It specifically addresses the "resource-heavy agent" problem by prioritizing a simpler, safer, and more practical agent experience, while supporting modern local models like [Gemma 3](../ai_knowledge/local_llms.md) and Qwen 3.6 on consumer hardware.
+Jan provides a fully open-source, private, and local-first AI workspace. It allows users to own their data and models, ensuring that conversations never leave their machine. It specifically addresses the "resource-heavy agent" problem by prioritizing a simpler, safer, and more practical agent experience, while supporting modern local models like [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, and Qwen 3.6 on consumer hardware.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / Local Inference Engine. It focuses on the "Local-First" desktop experience and provides a native, high-performance engine (Nitro) for various hardware backends, now leveraging [FastMCP 3.1](../automation_orchestration/mcp.md) for tool orchestration and agentic reasoning loops.
+**Category**: Infrastructure / Local Inference Engine. It focuses on the "Local-First" desktop experience and provides a native, high-performance engine (Nitro) for various hardware backends, leveraging [FastMCP 3.1](../automation_orchestration/mcp.md) for tool orchestration and agentic reasoning loops.
+
+```
+┌──────────────────────────────────────────────┐
+│        Jan Desktop UI / Agent Client         │
+│     (Privacy-First Desktop Workspace)        │
+├──────────────────────────────────────────────┤
+│         Tool Orchestration & Agents          │
+│        (FastMCP 3.1 / Local Server)          │
+├──────────────────────────────────────────────┤
+│             Inference Layer                  │
+│     (Nitro C++ Engine / Llama.cpp backend)   │
+├──────────────────────────────────────────────┤
+│            Hardware Acceleration             │
+│   (Apple Silicon Metal, CUDA, AMD ROCm)      │
+└──────────────────────────────────────────────┘
+```
 
 ## Typical use cases
-- **Private, Offline Chat**: Serving as a privacy-first alternative to web-based AI assistants using [Gemma 3](../ai_knowledge/local_llms.md) or Llama 4.
-- **Hardware-Optimized Inference**: Leveraging AMD ROCm/HIP on Linux, NVIDIA CUDA, or Apple Silicon (M5 optimized) for high-speed local processing.
+- **Private, Offline Chat**: Serving as a privacy-first alternative to web-based AI assistants using [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, or Qwen 3.6.
+- **Hardware-Optimized Inference**: Leveraging AMD ROCm/HIP on Linux, NVIDIA CUDA (Hopper/Blackwell), or Apple Silicon (M5/M6 optimized) for high-speed local processing.
 - **Headless Model Serving**: Using Jan as a local API backend for other applications via its built-in server.
-- **Context-Aware Assistance**: Utilizing its smarter context management to handle large documents without exceeding RAM limits, supporting up to 128k context windows.
+- **Context-Aware Assistance**: Utilizing its context management to handle large documents without exceeding RAM limits, supporting up to 256k context windows.
 
 ## Strengths
 - **Fully Open Source**: AGPL-3.0 licensed, transparent, and community-driven.
@@ -22,8 +38,8 @@ Jan provides a fully open-source, private, and local-first AI workspace. It allo
 - **MCP 3.1 Native**: Built-in support for the latest [Model Context Protocol](../automation_orchestration/mcp.md) standards for tool and server integration.
 
 ## Limitations
-- **Selective Ecosystem**: Does not integrate with "resource-heavy" legacy agents to preserve system stability and security.
-- **GUI Overhead**: While it has a CLI, the primary experience is a relatively heavy desktop application compared to raw engines like Llama.cpp.
+- **Selective Ecosystem**: Does not integrate with legacy agents to preserve system stability and security.
+- **GUI Overhead**: While it has a CLI, the primary experience is a desktop application compared to raw engines like Llama.cpp.
 - **Local Resources**: Performance is dependent on local hardware capabilities (VRAM/RAM).
 
 ## When to use it
@@ -38,7 +54,7 @@ Jan provides a fully open-source, private, and local-first AI workspace. It allo
 ## Getting started
 1. **Download**: Obtain the latest stable version from [jan.ai](https://jan.ai/).
 2. **Onboarding**: Launch the app and allow it to remotely fetch the latest model metadata.
-3. **Download Model**: Use the "Hub" to download a hardware-optimized model (e.g., [Gemma 3](../ai_knowledge/local_llms.md) or Qwen 3.6); downloads are now resumable.
+3. **Download Model**: Use the "Hub" to download a hardware-optimized model (e.g., [Gemma 3](../ai_knowledge/local_llms.md) or Llama 4); downloads are resumable.
 4. **Chat**: Select your model and begin a thread; Jan will automatically manage context capping for optimal performance.
 
 ## CLI examples
@@ -56,7 +72,7 @@ jan chat --model mistral-nemo --prompt "Explain quantum entanglement."
 ```
 
 ## API examples
-Jan provides an OpenAI-compatible API on `localhost:1337` by default. Below is a robust Python example utilizing modern, asynchronous calls and strict **Pydantic v2** validation to model and parse the local response payloads from Jan's server.
+Jan provides an OpenAI-compatible API on `localhost:1337` by default. Below is a Python example utilizing modern, asynchronous calls and strict **Pydantic v2** validation to model and parse the local response payloads from Jan's server.
 
 ```python
 import asyncio
@@ -135,9 +151,9 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Jan Official Website](https://jan.ai/)
-- [Jan Changelog: v0.9.0 and Beyond](https://jan.ai/changelog/)
+- [Jan Changelog](https://jan.ai/changelog/)
 - [Jan GitHub Repository](https://github.com/janhq/jan)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-23
+- Last reviewed: 2027-01-07
 - Confidence: high
