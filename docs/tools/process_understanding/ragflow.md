@@ -1,7 +1,7 @@
 # RAGFlow
 
 ## What it is
-RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) engine that prioritizes deep document understanding (DeepDoc) for complex, unstructured data. By late November / December 2026 (v0.36.x), it has matured into an enterprise-grade Knowledge Engine for agentic workflows, featuring native multi-modal reasoning, native integration with frontier models (such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6), and a modular architecture for constructing production-grade RAG pipelines.
+RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) engine that prioritizes deep document understanding (DeepDoc) for complex, unstructured data. By early January 2027 (v0.16.x+), it has matured into an enterprise-grade Knowledge Engine for agentic workflows, featuring native multi-modal reasoning, native integration with frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6), and a modular architecture for constructing production-grade RAG pipelines.
 
 ## What problem it solves
 It eliminates the "garbage in, garbage out" failure mode of traditional RAG systems by using layout-aware parsing (DeepDoc) instead of naive text chunking. It accurately extracts structured information from multi-column PDFs, nested tables, and embedded charts, ensuring that downstream LLM and agentic retrieval is grounded in high-fidelity evidence with precise, pixel-level visual citations.
@@ -11,14 +11,14 @@ It eliminates the "garbage in, garbage out" failure mode of traditional RAG syst
 
 ## Typical use cases
 - **Complex Document Analysis**: Parsing financial statements (10-Ks, 10-Qs) and technical manuals where table structure and image context are critical.
-- **Agentic RAG Pipelines**: Providing a high-fidelity knowledge source for agents built on Claude 5.1, Gemma 3, GPT-5.5, Gemini 4.0, and Llama 4.
-- **Multi-modal Knowledge Extraction**: Reasoning over diagrams, flowcharts, and handwritten notes in scanned documents using multi-modal LLMs (e.g., Qwen 3.6-VL, Llama 4 Vision, Gemma 3 Vision).
+- **Agentic RAG Pipelines**: Providing a high-fidelity knowledge source for agents built on Claude 5.6, Gemma 4, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
+- **Multi-modal Knowledge Extraction**: Reasoning over diagrams, flowcharts, and handwritten notes in scanned documents using multi-modal LLMs (e.g., Qwen 3.6-VL, Gemma 4 Vision).
 - **Enterprise-Grade Grounding**: Building self-hosted search systems with strict citation requirements, hybrid search (dense/sparse), and data sovereignty constraints.
 
 ## Strengths
 - **Vision-Based Parsing (DeepDoc)**: Superior handling of complex layouts and tables compared to OCR-only or text-only extractors.
 - **Template-Driven Chunking**: Intelligent segmentation based on document intent (e.g., Q&A, Paper, Manual, Book, Resume, Law).
-- **Multi-modal Native**: Integrated support for VLM-based reasoning (e.g., Qwen 3.6-VL, Llama 4 Vision, Gemma 3 Vision) directly within the RAG pipeline.
+- **Multi-modal Native**: Integrated support for VLM-based reasoning (e.g., Qwen 3.6-VL, Gemma 4 Vision) directly within the RAG pipeline.
 - **Agentic Hooks**: Features native Model Context Protocol (MCP 3.1 / FastMCP 3.1) support for seamless integration with agentic tool-use protocols.
 - **Hybrid Retrieval**: Standardized retrieval using BM25 and vector-based dense search combined with reciprocal rank fusion (RRF).
 
@@ -56,7 +56,7 @@ docker compose -f docker-compose.yml up -d
 
 ### Basic Workflow
 1. Access the UI at `http://localhost:80`.
-2. Configure your model providers (Claude 5.1 / GPT-5.5 / local Ollama running Gemma 3).
+2. Configure your model providers (Claude 5.6 / GPT-5.6 / local Ollama running Gemma 4).
 3. Create a 'Knowledge Base' and select the 'DeepDoc' parser template.
 4. Upload documents and monitor the parsing queue in the 'Files' tab.
 
@@ -76,8 +76,8 @@ docker exec -it ragflow-server curl -X GET "http://ragflow-es:9200/_cluster/heal
 
 ### Image Management
 ```bash
-# Pull the latest late 2026 production image
-docker pull infiniflow/ragflow:v0.36.0-cuda
+# Pull the latest early 2027 production image
+docker pull infiniflow/ragflow:v0.16.0-cuda
 ```
 
 ## API examples
@@ -127,7 +127,7 @@ def process_ragflow_document(raw_doc_response: dict) -> Optional[IngestedDocumen
 if __name__ == "__main__":
     sample_response = {
         "doc_id": "doc_a1b2c3d4e5f607182930313233343536",
-        "filename": "quarterly_financial_report_q3_2026.pdf",
+        "filename": "quarterly_financial_report_q1_2027.pdf",
         "status": "completed",
         "citations": [
             {
@@ -181,6 +181,5 @@ RAGFlow exposes knowledge bases via Model Context Protocol (MCP 3.1 / FastMCP 3.
 - [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-12-06
+- Last reviewed: 2027-01-07
 - Confidence: high

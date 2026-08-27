@@ -1,7 +1,7 @@
 # Mem0
 
 ## What it is
-Mem0 (v2.1+, late November/December 2026) is a specialized memory and personalization layer for AI agents and applications that stores, prioritizes, and retrieves durable user, task, and workflow context over time. Often described as the "long-term memory" of the agentic stack, it enables agents powered by [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/chatgpt.md), [Gemini 4.0](../providers/google.md), and [Gemma 3](../ai_knowledge/local_llms.md) to maintain personalized, consistent continuity across multi-session interactions. It features native, first-class support for the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 specifications.
+Mem0 (v2.5+, early January 2027) is a specialized memory and personalization layer for AI agents and applications that stores, prioritizes, and retrieves durable user, task, and workflow context over time. Often described as the "long-term memory" of the agentic stack, it enables agents powered by [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../providers/google.md), and [Gemma 4](../ai_knowledge/local_llms.md) to maintain personalized, consistent continuity across multi-session interactions. It features native, first-class support for the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 specifications.
 
 ## What problem it solves
 Traditional RAG can feel like "Groundhog Day" for agents; every new session starts from scratch unless extensive chat histories are loaded, which wastes context window capacity and increases latency/cost. Mem0 externalizes this dynamic memory layer, enabling real-time learning, automatic extraction of user preferences, and cross-session persistence. Additionally, it solves the "siloed memory" bottleneck in multi-agent environments by acting as a shared, synchronized context plane.
@@ -12,8 +12,8 @@ Traditional RAG can feel like "Groundhog Day" for agents; every new session star
 ## Typical use cases
 - **Continuous Personalization**: Remembering user-specific coding style guidelines, API constraints, and environmental layouts across days or months.
 - **Enterprise Workflow Persistence**: Tracking project schedules, task checklists, and cross-team dependencies in long-running software factory implementation runs.
-- **Cross-Agent Knowledge Synchronization**: Exchanging state and learned facts between a planner agent and a code generator agent via an MCP 3.1 gateway.
-- **Local Privacy-First Memory**: Running local vector databases (e.g., [Supabase](../infrastructure/supabase.md)) alongside [Gemma 3](../ai_knowledge/local_llms.md) to preserve sensitive on-premise user profiles.
+- **Cross-Agent Knowledge Synchronization**: Exchanging state and learned facts between a planner agent and a code generator agent via a FastMCP 3.1 gateway.
+- **Local Privacy-First Memory**: Running local vector databases (e.g., [Supabase](../infrastructure/supabase.md)) alongside [Gemma 4](../ai_knowledge/local_llms.md) to preserve sensitive on-premise user profiles.
 
 ## Strengths
 - **Hierarchical Scopes**: Native separation of User, Session, and Agent-level memory boundaries.
@@ -59,7 +59,7 @@ m = Memory.from_config(config)
 
 # Add a conversational interaction
 messages = [
-    {"role": "user", "content": "I prefer dark mode in my IDE and typically write asynchronous Python with Gemma 3."},
+    {"role": "user", "content": "I prefer dark mode in my IDE and typically write asynchronous Python with Gemma 4."},
     {"role": "assistant", "content": "Understood. I will store those environment preferences."}
 ]
 m.add(messages, user_id="dev_user_77")
@@ -112,18 +112,18 @@ class MemoryPayload(BaseModel):
 # Sample payload from Mem0 vector store search
 search_data = {
     "user_id": "dev_user_77",
-    "session_id": "sess-nov-2026",
+    "session_id": "sess-jan-2027",
     "memories": [
         {
             "id": "mem-01J3K",
             "text": "User prefers dark mode and async FastAPI patterns.",
             "score": 0.94,
             "categories": ["editor", "backend"],
-            "created_at": "2026-12-05T10:15:30Z"
+            "created_at": "2027-01-07T10:15:30Z"
         }
     ],
     "metadata": {
-        "model_context": "gemma3-27b",
+        "model_context": "gemma4-31b",
         "mcp_protocol_version": "3.1"
     }
 }
@@ -152,9 +152,9 @@ curl -X POST "https://api.mem0.ai/v1/memories/search" \
 - [Bee Agent Framework](./bee-agent-framework.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Supabase](../infrastructure/supabase.md) (Vector store database)
-- [Gemma 3](../ai_knowledge/local_llms.md)
-- [Claude 5.1](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
+- [Claude 5.6](../providers/anthropic.md)
+- [GPT-5.6](../ai_knowledge/openai.md)
 
 ## Sources / references
 - [Official Website](https://mem0.ai/)
@@ -163,5 +163,5 @@ curl -X POST "https://api.mem0.ai/v1/memories/search" \
 - [FastMCP 3.1 Memory Specifications](https://docs.mem0.ai/protocols/fastmcp3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high

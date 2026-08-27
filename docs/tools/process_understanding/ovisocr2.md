@@ -1,6 +1,6 @@
 # OvisOCR2
 
-OvisOCR2 is a highly compact, end-to-end 0.8B parameter vision-language model (VLM) specifically optimized for high-fidelity document parsing and structured extraction. As of late December 2026, it represents the state-of-the-art for local, page-level document understanding, converting complex scanned pages, diagrams, and hand-written formulas directly into structured Markdown and validated JSON.
+OvisOCR2 is a highly compact, end-to-end 0.8B parameter vision-language model (VLM) specifically optimized for high-fidelity document parsing and structured extraction. As of early January 2027, it represents the state-of-the-art for local, page-level document understanding, converting complex scanned pages, diagrams, and hand-written formulas directly into structured Markdown and validated JSON.
 
 ## What it is
 Developed by the ATH-MaaS team, OvisOCR2 is a specialized VLM built by post-training the highly efficient Qwen3.5-0.8B architecture. It is designed to interpret page layouts, read dense multi-lingual texts, parse mathematical expressions, and map multi-column tables directly into structurally clean representations (Markdown/HTML) while preserving reading order.
@@ -9,7 +9,7 @@ Developed by the ATH-MaaS team, OvisOCR2 is a specialized VLM built by post-trai
 Traditional OCR pipelines rely on multiple disconnected models (layout detection, line extraction, table segmenters, LaTeX OCR). These multi-stage systems suffer from error propagation, high latency, and massive compute overhead. OvisOCR2 solves this with an end-to-end VLM architecture that decodes text, layout, and complex tables simultaneously in a single forward pass, severely reducing latency and footprint on edge hardware.
 
 ## Where it fits in the stack
-[Layer 5: Process & Understanding](index.md) — Serves as a high-performance local ingestion and parsing engine for [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md). Within an [MCP](../../automation_orchestration/mcp.md) tool ecosystem, OvisOCR2 is typically deployed as a secure local service converting unstructured physical scans into clean, parsed text for large orchestrators using [Gemma 3](../ai_knowledge/local_llms.md).
+[Layer 5: Process & Understanding](index.md) — Serves as a high-performance local ingestion and parsing engine for [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md). Within a [FastMCP 3.1](../automation_orchestration/mcp.md) tool ecosystem, OvisOCR2 is typically deployed as a secure local service converting unstructured physical scans into clean, parsed text for large orchestrators using [Gemma 4](../ai_knowledge/local_llms.md) or [Claude 5.6](../providers/anthropic.md).
 
 ## Typical use cases
 - **Dense Formula Parsing**: Converting math-heavy research papers with multiple LaTeX formulas into clean, readable Markdown blocks.
@@ -26,7 +26,7 @@ Traditional OCR pipelines rely on multiple disconnected models (layout detection
 ## Limitations
 - **Single-Page Target**: Optimized for individual page images; multi-page consistency and indexing must be controlled by an external orchestration layer.
 - **Resolution Sensitivity**: Very small font sizes or highly blurred page scans can lead to diminished OCR accuracy.
-- **Limited Multi-modal Reasoning**: It is a specialized parsing engine; do not use it for general visual reasoning or chat (pair it with [Gemma 3](../ai_knowledge/local_llms.md)).
+- **Limited Multi-modal Reasoning**: It is a specialized parsing engine; do not use it for general visual reasoning or chat (pair it with [Gemma 4](../ai_knowledge/local_llms.md)).
 
 ## When to use it
 - When you require ultra-fast, local, or privacy-compliant document parsing with limited GPU resources.
@@ -130,5 +130,5 @@ if __name__ == "__main__":
 - [OmniDocBench Evaluation Benchmark](https://github.com/u-nico/OmniDocBench)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high

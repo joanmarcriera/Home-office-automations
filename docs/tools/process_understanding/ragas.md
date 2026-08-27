@@ -1,10 +1,10 @@
 # Ragas
 
 ## What it is
-Ragas (Retrieval Augmented Generation Assessment) is an open-source evaluation framework specifically designed for testing, auditing, and optimizing Retrieval-Augmented Generation (RAG) pipelines and LLM applications. By late December 2026, it serves as the industry standard for **Reference-Free Evaluation** and automated quality gatekeeping of complex multi-modal agent workflows, multi-step reasoning, and tool-calling execution.
+Ragas (Retrieval Augmented Generation Assessment) is an open-source evaluation framework specifically designed for testing, auditing, and optimizing Retrieval-Augmented Generation (RAG) pipelines and LLM applications. As of early January 2027 (v0.3.x+), it serves as the industry standard for **Reference-Free Evaluation** and automated quality gatekeeping of complex multi-modal agent workflows, multi-step reasoning, and FastMCP 3.1 tool-calling execution.
 
 ## What problem it solves
-Evaluating LLM-based systems is notoriously difficult because both retrieval (finding relevant documentation) and generation (synthesizing a factually accurate answer) are prone to distinct failure modes. Ragas provides automated, quantitative, and granular metrics to pinpoint whether a failure stems from poor retrieval precision, document hallucination, or low-fidelity synthesis. It bypasses the need for manual, slow, and expensive human annotators by employing highly capable LLMs as objective judges.
+Evaluating LLM-based systems is notoriously difficult because both retrieval (finding relevant documentation) and generation (synthesizing a factually accurate answer) are prone to distinct failure modes. Ragas provides automated, quantitative, and granular metrics to pinpoint whether a failure stems from poor retrieval precision, document hallucination, or low-fidelity synthesis. It bypasses the need for manual, slow, and expensive human annotators by employing highly capable frontier LLMs (such as [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/chatgpt.md), or [Gemini 4.0 Ultra](../providers/google.md)) as objective judges.
 
 ## Where it fits in the stack
 [Layer 5: Process & Understanding](index.md) — Sits as an essential **Automated Quality & Evaluation Engine** integrated within development sandboxes and CI/CD pipelines, verifying RAG alignment and preventing prompt-engineering or model routing regressions.
@@ -13,13 +13,13 @@ Evaluating LLM-based systems is notoriously difficult because both retrieval (fi
 - **Continuous Integration Evaluation Gates**: Running automated test sets after updating vector embedding models, chunking strategies, or base prompts.
 - **Reference-Free Production Diagnostics**: Scrutinizing live user interactions in real-time to flag hallucinated or low-faithfulness generations.
 - **Synthetic Test Set Generation**: Bootstrapping testing setups by converting a cold corpus of PDFs/Markdown documents into structured, high-quality question-context pairs.
-- **Agentic Workflow Auditing**: Measuring the precision of agent decision chains executing multi-node tool handshakes via [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
+- **Agentic Workflow Auditing**: Measuring the precision of agent decision chains executing multi-node tool handshakes via [FastMCP 3.1](../automation_orchestration/mcp.md).
 
 ## Strengths
 - **Reference-Free Diagnostics**: Evaluates performance relying purely on the retrieved source chunks and the synthesized output.
 - **Component-Level Granular Metrics**: Offers mathematically rigorous scores for Faithfulness, Answer Relevance, Context Precision, and Context Recall.
 - **Multi-Modal Evaluation Support**: Native scoring pipelines to assess visual inputs, chart parsing, and diagrams alongside textual contexts.
-- **LLM-as-a-Judge Scalability**: Highly optimized for running evaluations using frontier models like [Claude 5.1](../providers/anthropic.md) or local weights via [Gemma 3](../ai_knowledge/local_llms.md).
+- **LLM-as-a-Judge Scalability**: Highly optimized for running evaluations using frontier models like [Claude 5.6](../providers/anthropic.md) or local weights via [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## Limitations
 - **API and Latency Costs**: Evaluating hundreds of records triggers massive batches of underlying LLM judge prompts, making runs costly and slow if unthrottled.
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         "answer_relevance": 0.88,
         "context_precision": 0.92,
         "metadata": {
-            "judge_model_id": "claude-5.1-sonnet",
+            "judge_model_id": "claude-5.6-sonnet",
             "temperature": 0.0
         }
     }
@@ -151,8 +151,8 @@ print(f"Vision Relevance: {vision_score}")
 - [Arize AI](arize-ai.md) — Enterprise-grade observability and tracing platform.
 - [Langfuse](langfuse.md) — Open-source LLM engineering and tracing platform.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Data-loading and indexing orchestration framework.
-- [Claude 5.1](../providers/anthropic.md) — Premier LLM judge for evaluation runs.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Lightweight model for local air-gapped diagnostics.
+- [Claude 5.6](../providers/anthropic.md) — Premier LLM judge for evaluation runs.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Lightweight model for local air-gapped diagnostics.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Core tool connection specification.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architectures of retrieval-augmented systems.
 
@@ -163,5 +163,5 @@ print(f"Vision Relevance: {vision_score}")
 - [Model Context Protocol (MCP) Site](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high
