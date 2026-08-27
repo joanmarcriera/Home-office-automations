@@ -1,7 +1,7 @@
 # DeerFlow
 
 ## What it is
-DeerFlow is an enterprise-grade open-source agentic deep-research workflow orchestrator developed by ByteDance. By late December 2026, it is recognized as a premier reference architecture for building high-autonomy research and information-synthesis agents that leverage frontier models including **Claude 5.1**, **GPT-5.5**, and **Gemma 3**.
+DeerFlow (v2.2+, early January 2027) is an enterprise-grade open-source agentic deep-research workflow orchestrator developed by ByteDance. It is recognized as a premier reference architecture for building high-autonomy research and information-synthesis agents that leverage frontier models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **Gemma 4**.
 
 ## What problem it solves
 It streamlines the creation of highly complex, multi-step deep-search and document-synthesis pipelines. Instead of stitching together fragile web scraper and search API scripts, DeerFlow provides a structured, containerized, and fault-tolerant framework for recursive browsing, semantic query expansion, information extraction, and citation-accurate report synthesis. When aligned with the **MCP 3.1 Task Protocol**, it ensures that long-running evaluation and research tasks execute with predictable schemas and high fidelity.
@@ -16,9 +16,9 @@ It streamlines the creation of highly complex, multi-step deep-search and docume
 - **Compliance & Regulatory Auditing**: Scanning global multi-jurisdictional regulatory updates to highlight relevant legal impacts for specific products.
 
 ## Strengths
-- **Native Task Protocol Support**: Aligned with the **MCP 3.1 Task Protocol** for standardized research session management and multi-node coordination.
+- **Native Task Protocol Support**: Aligned with the **MCP 3.1 Task Protocol** and FastMCP 3.1 for standardized research session management and multi-node coordination.
 - **Rich Citation Validation**: Advanced heuristics to map extracted facts back to verified source URLs and page anchors, reducing hallucinations.
-- **Multi-Model Orchestration**: Intelligently distributes tasks—using lightweight local [Gemma 3](../ai_knowledge/local_llms.md) for simple retrieval/filtering, and [Claude 5.1](anthropic-agent-skills.md) for complex structural synthesis.
+- **Multi-Model Orchestration**: Intelligently distributes tasks—using lightweight local [Gemma 4](../ai_knowledge/local_llms.md) for simple retrieval/filtering, and [Claude 5.6](anthropic-agent-skills.md) for complex structural synthesis.
 - **Self-Correction Logic**: Automated recovery from rate-limits, Captchas, or scrapers getting blocked.
 
 ## Limitations
@@ -51,8 +51,8 @@ make docker-start
 Update the generated `config.yaml` to specify your frontier API endpoints and preferred model configurations:
 ```yaml
 research_engine:
-  primary_model: "claude-5.1-sonnet"
-  fallback_model: "gemma-3-27b"
+  primary_model: "claude-5.6-sonnet"
+  fallback_model: "gemma-4-31b"
   search_provider: "tavily"
   max_depth: 3
   mcp_endpoint: "http://localhost:8000/v1/task-protocol"
@@ -67,7 +67,7 @@ make config
 make dev
 
 # Run a dedicated deep-research task from the terminal
-python3 -m deerflow.harness run --task "Decentralized database landscapes in 2026" --model "claude-5.1-sonnet"
+python3 -m deerflow.harness run --task "Decentralized database landscapes in 2027" --model "claude-5.6-sonnet"
 ```
 
 ## API examples
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 - [LangGraph](../frameworks/langgraph.md) - State-machine orchestrator.
 - [Aider](../development_ops/aider.md) - Git-native programming assistant.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - Standard tool coordination protocol.
-- [Gemma 3](../ai_knowledge/local_llms.md) - Local-first reasoning model.
+- [Gemma 4](../ai_knowledge/local_llms.md) - Local-first reasoning model.
 - [Anthropic Agent Skills](anthropic-agent-skills.md) - Skill definitions.
 - [Perplexity Agent API](perplexity-agent-api.md) - Search API alternative.
 
@@ -134,5 +134,5 @@ if __name__ == "__main__":
 - [Anthropic: Equipping agents for the real world](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high
