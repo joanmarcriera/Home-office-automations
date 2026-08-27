@@ -1,7 +1,7 @@
 # Agency Swarm
 
 ## What it is
-Agency Swarm (v1.2+, late November/December 2026) is an open-source, multi-agent orchestration framework that simplifies the creation of collaborative agent teams organized like a professional company or department. While originally built on top of the OpenAI Assistants API, it has evolved into a robust, provider-agnostic system optimized for local first-class execution on local models like [Gemma 3](../ai_knowledge/local_llms.md), [Llama 4](../ai_knowledge/local_llms.md), and [Qwen 3.6](../ai_knowledge/local_llms.md), alongside frontier cloud models such as [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), and [Gemini 4.0](../providers/google.md). It features full compatibility with the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1.
+Agency Swarm (v1.4+, early January 2027) is an open-source, multi-agent orchestration framework that simplifies the creation of collaborative agent teams organized like a professional company or department. While originally built on top of the OpenAI Assistants API, it has evolved into a robust, provider-agnostic system optimized for local first-class execution on local models like [Gemma 4](../ai_knowledge/local_llms.md), [Llama 4](../ai_knowledge/local_llms.md), and [Qwen 3.6](../ai_knowledge/local_llms.md), alongside frontier cloud models such as [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemini 4.0 Ultra](../providers/google.md). It features full compatibility with the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 Task Protocol.
 
 ## What problem it solves
 Managing coordination loops, conversation histories, prompt sequencing, and tool execution in large multi-agent systems is highly complex. Without structure, agents frequently experience "agentic loops," redundant executions, or state fragmentation. Agency Swarm solves this by implementing an organizational hierarchy where agents communicate dynamically through standardized "send_message" mechanisms. This design establishes clean communication boundaries and maintains execution state, allowing complex multi-turn tasks to execute autonomously.
@@ -12,7 +12,7 @@ Managing coordination loops, conversation histories, prompt sequencing, and tool
 ## Typical use cases
 - **Software Development Agency**: Structuring specialized roles (CEO, Developer, Product Owner, QA Engineer) working in sequence to implement and test features.
 - **Enterprise Marketing Pipelines**: Deploying creative and research swarms that collaborate on target audience profiling, copy drafts, and channel distribution schedules.
-- **Privacy-First Local Analysis**: Running specialized local [Gemma 3](../ai_knowledge/local_llms.md) agents on-premise to securely analyze financial statements.
+- **Privacy-First Local Analysis**: Running specialized local [Gemma 4](../ai_knowledge/local_llms.md) agents on-premise to securely analyze financial statements.
 - **Support Ticket Escalation**: Directing user requests through triaging agents that automatically route complex technical issues to dedicated API integration agents.
 
 ## Strengths
@@ -28,7 +28,7 @@ Managing coordination loops, conversation histories, prompt sequencing, and tool
 
 ## When to use it
 - When you need to build collaborative agent teams with clearly defined boundaries, tasks, and interaction rules.
-- For mixed execution topologies where cloud intelligence ([GPT-5.5](../ai_knowledge/chatgpt.md)) co-orchestrates with local security ([Gemma 3](../ai_knowledge/local_llms.md)).
+- For mixed execution topologies where cloud intelligence ([GPT-5.6](../ai_knowledge/chatgpt.md)) co-orchestrates with local security ([Gemma 4](../ai_knowledge/local_llms.md)).
 - If you require out-of-the-box support for hierarchical tool sharing and session management.
 
 ## When not to use it
@@ -47,8 +47,8 @@ Initialize an agency swarm using specialized local and cloud agents with FastMCP
 ```python
 from agency_swarm import Agent, Agency, set_model
 
-# Configure the system to run local Gemma 3
-set_model("gemma3:27b", provider="ollama")
+# Configure the system to run local Gemma 4
+set_model("gemma4:31b", provider="ollama")
 
 # Define our collaborative agents
 ceo = Agent(
@@ -117,21 +117,21 @@ class AgencyState(BaseModel):
 
 # Sample telemetry data from a completed run
 swarm_telemetry = {
-    "agency_id": "agency-session-2026-993",
-    "active_model": "gemma3-27b",
+    "agency_id": "agency-session-2027-0484",
+    "active_model": "gemma4-31b",
     "agents": ["CEO", "Developer"],
     "communication_history": [
         {
             "sender": "CEO",
             "recipient": "Developer",
-            "message_body": "Developer, please expose an MCP 3.1 tool for document searching.",
-            "timestamp": "2026-12-05T14:22:11Z"
+            "message_body": "Developer, please expose a FastMCP 3.1 tool for document searching.",
+            "timestamp": "2027-01-07T09:15:00Z"
         },
         {
             "sender": "Developer",
             "recipient": "CEO",
-            "message_body": "CEO, the FastMCP tool is running on port 18790.",
-            "timestamp": "2026-12-05T14:23:45Z"
+            "message_body": "CEO, the FastMCP 3.1 Task Protocol tool is running on port 18790.",
+            "timestamp": "2027-01-07T09:16:30Z"
         }
     ],
     "status": "completed"
@@ -159,5 +159,5 @@ print(f"Communicated agents count: {len(validated_state.agents)}")
 - [FastMCP 3.1 Integration Guide](https://vrsen.github.io/agency-swarm/fastmcp3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high

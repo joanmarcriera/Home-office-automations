@@ -1,7 +1,7 @@
 # Composio
 
 ## What it is
-Composio (v1.3+, late November/December 2026) is an enterprise-grade tool integration and authentication middleware platform that connects AI agents to over 250+ external SaaS applications, local utilities, and infrastructure services. Serving as a robust bridge between agentic frameworks and actual API execution endpoints, it manages complex OAuth handshakes, API tokens, and secret storage. It features first-class native compatibility with the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1, enabling low-latency tool execution and standardized routing for models like [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0](../providers/google.md), and local options like [Gemma 3](../ai_knowledge/local_llms.md).
+Composio (v1.5+, early January 2027) is an enterprise-grade tool integration and authentication middleware platform that connects AI agents to over 250+ external SaaS applications, local utilities, and infrastructure services. Serving as a robust bridge between agentic frameworks and actual API execution endpoints, it manages complex OAuth handshakes, API tokens, and secret storage. It features first-class native compatibility with the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 Task Protocol, enabling low-latency tool execution and standardized routing for early 2027 models like [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../providers/google.md), and local options like [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
 Giving agents raw access to APIs normally requires writing and maintaining thousands of lines of boilerplate code to handle authentication (OAuth flow redirection, token refresh cycles, encryption), rate-limiting, and payload mapping. Composio completely abstracts this middleware layer. It provides instant, safe connections to popular tools (e.g., GitHub, Slack, Jira, Gmail) while offering developers comprehensive telemetry, permission boundaries, and audit logs of all actions initiated by autonomous agent sessions.
@@ -57,7 +57,7 @@ tools = toolset.get_tools(apps=[App.GITHUB], protocol="fastmcp3.1")
 
 # 3. Create agent message requesting repository interaction
 response = client.messages.create(
-    model="claude-5-1-sonnet",
+    model="claude-5-6-sonnet",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Create a new issue titled 'Database connection leak' in the repository 'my-org/backend'."}],
     tools=tools
@@ -158,5 +158,5 @@ print(f"Tool executed: {validated_log.execution.action_id} (Status: {validated_l
 - [FastMCP 3.1 Integration Reference](https://docs.composio.dev/protocols/fastmcp3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high

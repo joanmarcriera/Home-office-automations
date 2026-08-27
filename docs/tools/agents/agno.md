@@ -1,7 +1,7 @@
 # Agno
 
 ## What it is
-Agno is an ultra-fast, lightweight Python framework designed for building production-grade multi-modal agents with persistent memory, semantic knowledge, and customizable tools. As the official successor to **Phidata v2**, Agno is engineered specifically for microsecond-overhead performance and horizontal scaling. By late December 2026, Agno features full native compatibility with the **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** specifications, optimized for the latest frontier models including **Gemma 3**, **Claude 5.1**, and **GPT-5.5**.
+Agno (v3.x+, early January 2027) is an ultra-fast, lightweight Python framework designed for building production-grade multi-modal agents with persistent memory, semantic knowledge, and customizable tools. As the official successor to **Phidata v2**, Agno is engineered specifically for microsecond-overhead performance and horizontal scaling. It features full native compatibility with the **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1 Task Protocol** specifications, optimized for early 2027 frontier models including **Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
 Transitioning complex agentic workflows from local prototyping to scalable, highly-concurrent production setups usually introduces massive state-synchronization and latency overhead. Agno solves this by decoupling agent intelligence from agent state, providing a stateless, highly concurrent, session-scoped execution runtime. It allows developers to deploy agents as horizontally-scalable FastAPI backends while delegating conversational and transactional states to robust, multi-tenant databases (PostgreSQL, MongoDB, DynamoDB).
@@ -12,7 +12,7 @@ Transitioning complex agentic workflows from local prototyping to scalable, high
 ## Typical use cases
 - **Stateless Agent Services**: Hosting agents inside high-throughput FastAPI web services with horizontal autoscaling.
 - **FastMCP 3.1 Tool Servers**: Launching tool-discovery servers exposing local utilities to remote orchestrators.
-- **Privacy-First Local Reasoning**: Deploying agents using local weights (e.g., [Gemma 3](../ai_knowledge/local_llms.md)) via Ollama for zero-egress workflows.
+- **Privacy-First Local Reasoning**: Deploying agents using local weights (e.g., [Gemma 4](../ai_knowledge/local_llms.md)) via Ollama for zero-egress workflows.
 - **Multi-Modal Document Intake**: Building real-time audio and vision processing engines utilizing multimodal APIs.
 
 ## Strengths
@@ -40,15 +40,15 @@ Transitioning complex agentic workflows from local prototyping to scalable, high
 pip install agno openai duckduckgo-search pydantic>=2.0
 ```
 
-### Basic Usage (with Gemma 3)
+### Basic Usage (with Gemma 4)
 ```python
 from agno.agent import Agent
 from agno.models.ollama import Ollama
 from agno.tools.duckduckgo import DuckDuckGo
 
-# Create the agent with a search tool and local Gemma 3
+# Create the agent with a search tool and local Gemma 4
 agent = Agent(
-    model=Ollama(id="gemma3:27b"),
+    model=Ollama(id="gemma4:31b"),
     tools=[DuckDuckGo()],
     description="You are a helpful, high-performance assistant running locally.",
     markdown=True
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Phidata](phidata.md) (Predecessor)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Local LLMs](../ai_knowledge/local_llms.md) (Gemma 3)
+- [Local LLMs](../ai_knowledge/local_llms.md) (Gemma 4)
 - [LangGraph](../frameworks/langgraph.md)
 - [FastAPI](../frameworks/fastapi.md)
 - [PydanticAI](../frameworks/pydantic-ai.md)
@@ -130,5 +130,5 @@ if __name__ == "__main__":
 - [FastMCP Specification Specification](https://modelcontextprotocol.io/spec/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high

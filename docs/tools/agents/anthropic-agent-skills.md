@@ -1,7 +1,7 @@
 # Anthropic Agent Skills
 
 ## What it is
-Anthropic Agent Skills (v1.1+, late November/December 2026) are standardized, highly optimized, and encapsulated task recipes—consisting of specialized system prompts, executable scripts, and API tool declarations—that autonomous agents load dynamically to solve complex, domain-specific engineering problems. Originally popularized within the [Claude Skills Ecosystem](claude-skills-ecosystem.md) to supercharge [Claude Code](../development_ops/claude-code.md), they have evolved into open-source specifications under the `agentskills.io` standard. These skills can be seamlessly executed across multi-model setups—pairing [Claude 5.1](../providers/anthropic.md) as the high-level coordinator with local models like [Gemma 3](../ai_knowledge/local_llms.md) or [Qwen 3.6](../ai_knowledge/local_llms.md) for sandbox script validation and local file parsing. They support the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 specifications.
+Anthropic Agent Skills (v1.3+, early January 2027) are standardized, highly optimized, and encapsulated task recipes—consisting of specialized system prompts, executable scripts, and API tool declarations—that autonomous agents load dynamically to solve complex, domain-specific engineering problems. Originally popularized within the [Claude Skills Ecosystem](claude-skills-ecosystem.md) to supercharge [Claude Code](../development_ops/claude-code.md), they have evolved into open-source specifications under the `agentskills.io` standard. These skills can be seamlessly executed across multi-model setups—pairing frontier models like [Claude 5.6](../providers/anthropic.md) and Claude Mythos as high-level coordinators with local models like [Gemma 4](../ai_knowledge/local_llms.md) or [Qwen 3.6](../ai_knowledge/local_llms.md) for sandbox script validation and local file parsing. They support the [Model Context Protocol (MCP) 3.1](../../knowledge_base/agent_protocols.md) and FastMCP 3.1 Task Protocol specifications.
 
 ## What problem it solves
 General-purpose LLMs struggle with reliable, multi-step operations (e.g., refactoring large codebases, extracting data tables from nested PDFs, or writing compliant API connectors) when guided only by basic, loose system prompting. Under traditional prompting, they run into hallucinations or deviate from strict formatting criteria. Agent Skills solve this by bundling explicit executable check-lists, specialized tooling hooks, and sandboxed test suites. This teaches the model a deterministic, repeatable "System 2" workflow for specialized engineering, debugging, and document extraction tasks.
@@ -22,14 +22,14 @@ General-purpose LLMs struggle with reliable, multi-step operations (e.g., refact
 - **MCP 3.1 & FastMCP 3.1 Coherence**: Exposes skill scripts and check-lists as native tool endpoints for any standard client.
 
 ## Limitations
-- **Claude Optimization**: Highly aligned with the tool-calling structures and reasoning pathways of the Anthropic Claude model family; performance on other providers ([GPT-5.5](../ai_knowledge/chatgpt.md)) might require adapter scripts.
+- **Claude Optimization**: Highly aligned with the tool-calling structures and reasoning pathways of the Anthropic Claude model family; performance on other providers ([GPT-5.6](../ai_knowledge/chatgpt.md)) might require adapter scripts.
 - **Sandbox Dependency**: Skills typically require a safe local sandboxed container (e.g., Docker) to execute their accompanying code generators or script runner files securely.
 - **Token Usage**: Dynamic loading of dense skill system instructions, schemas, and verification checklists can inflate session prompt tokens.
 
 ## When to use it
 - When you require an agent to complete multi-step technical workflows with high precision and adherence to a strict formatting standard.
 - When building modular agent architectures that load specialized feature skill sets dynamically to minimize system prompt bloat.
-- If you are building a team of autonomous engineers utilizing [Claude 5.1](../providers/anthropic.md) and [Claude Code](../development_ops/claude-code.md).
+- If you are building a team of autonomous engineers utilizing [Claude 5.6](../providers/anthropic.md) and [Claude Code](../development_ops/claude-code.md).
 
 ## When not to use it
 - For general-purpose, single-step chat conversations that do not require tool use or multi-file scripts.
@@ -105,7 +105,7 @@ trace_log = {
     "manifest": {
         "skill_name": "repo-security-audit",
         "version": "1.1.2",
-        "required_models": ["claude-5-1-sonnet", "gemma3-27b"],
+        "required_models": ["claude-5-6-sonnet", "gemma4-31b"],
         "required_tools": ["fetch_directory_tree", "execute_sandbox_test"]
     },
     "timestamp": "2026-12-05T16:45:00Z",
@@ -138,5 +138,5 @@ print(f"Execution Status: {validated_trace.status} with {validated_trace.telemet
 - [Anthropic News: Equipping agents with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high
