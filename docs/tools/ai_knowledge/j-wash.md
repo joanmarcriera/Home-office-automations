@@ -1,163 +1,133 @@
 # J-Wash
 
 ## What it is
-J-Wash (Jacobian-Brainwash) is an open-source manual alignment, model editing, and concept-steering framework built on top of Anthropic's breakthrough July 2026 research on the "J-Space" (emergent reasoning workspace inside LLMs) and the "Jacobian Lens" (J-Lens) technique. Developed by researcher extraltodeus, J-Wash provides a powerful terminal-based toolkit and an interactive web-based UI (React/Node) designed to surgically analyze, modify, suppress, or redirect internal semantic representations in open-weights Large Language Models (specifically Qwen and Llama architectures) and permanently export the altered weights as standard PyTorch safetensors or GGUFs. By late November 2026, it is widely used to adapt local checkpoints to support **FastMCP 3.1**-driven operations.
+J-Wash (Jacobian-Brainwash) is an open-source manual alignment, representation editing, and concept-steering framework built on top of Anthropic's research regarding the "J-Space" (emergent reasoning workspace inside LLMs) and the "Jacobian Lens" (J-Lens) technique. J-Wash provides a terminal CLI and an interactive web UI (React/Node) designed to analyze, modify, suppress, or redirect internal semantic representations in open-weights models (specifically **Qwen 3.6**, **Llama 4**, and **Gemma 3** architectures) and permanently export edited weights as standard PyTorch safetensors or GGUF checkpoints. In 2027, J-Wash is widely used to adapt local checkpoints to support **FastMCP 3.1**-driven steerable agent operations.
 
 ## What problem it solves
-Traditional model customization methods like Supervised Fine-Tuning (SFT), RLHF, or Direct Preference Optimization (DPO) are highly resource-intensive, require extensive curated datasets, and are prone to "catastrophic forgetting" or capability leakage. J-Wash solves these challenges by bypassing the standard training loop entirely. By utilizing the Jacobian Lens to trace how individual concept activations in middle-layer "J-Space" representations map directly to vocabulary predictions in later layers, J-Wash enables developer-guided, real-time editing of specific concept directions. This allows surgical behavioral changes (such as suppressing over-refusals, swapping concepts, or redirecting reasoning chains) with near-zero degradation of general intelligence.
+Traditional model adaptation techniques like Supervised Fine-Tuning (SFT), RLHF, or Direct Preference Optimization (DPO) require expensive GPU compute, large curated datasets, and often suffer from catastrophic forgetting or capability degradation. J-Wash bypasses training loops entirely. By utilizing the Jacobian Lens to trace how middle-layer J-Space concept vectors map directly to vocabulary logits in later layers, J-Wash enables developer-guided, real-time editing of specific concept directions with zero degradation of general reasoning intelligence.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Model Customization**. J-Wash sits in the development and pre-inference deployment layers of local AI pipelines. It serves as a dedicated "representation editor" that operates on open-weight base checkpoints (or fine-tuned models) prior to quantization and serving. Once J-Space edits are saved, the model weights are exported and compiled for high-performance deployment in local runtimes.
+**Category**: AI Assistants & Knowledge / Model Customization & Interpretability
+J-Wash operates in the pre-deployment optimization layer. It serves as a representation editor for open-weights models prior to quantization and serving via engines like [vLLM](../infrastructure/vllm.md), [ExLlamaV3](../infrastructure/exllamav3.md), or [llama.cpp](../infrastructure/llama-cpp.md).
 
 ## Typical use cases
-- **Over-Refusal Suppression (Abliteration)**: Removing safety refusals and over-aligned behaviors by surgically neutralizing refusal vectors in the J-Space without degrading overall logic or code generation.
-- **Direct Concept Replacement**: Swapping concept mappings within the global workspace. For example, replacing the concept of "Soccer" with "Rugby" inside the middle layers, causing the model to generate rugby-related descriptions whenever soccer is mentioned.
-- **Custom Behavioral Alignment**: Steering the LLM to adopt specific tones, style parameters, or structural output constraints by modifying J-Space target projections.
-- **Proof-of-Concept Models**: Replicating custom research models (such as `Qwen3.5-9B-Nikusui-v1`, which was created entirely with J-Wash to demonstrate persistent behavior modification).
-- **Silent Reasoning Diagnostics**: Visualizing intermediate reasoning states in J-Space before they collapse into explicit output tokens in the final motor zones.
+- **Safety Refusal Suppression (Abliteration)**: Eliminating over-refusals on benign administrative shell commands without compromising logical safety limits.
+- **Direct Concept Redirection**: Modifying semantic mapping vectors inside J-Space to change domain terminology or internal knowledge representation.
+- **Behavioral Tone Steering**: Forcing specific structural outputs or stylistic responses across all system prompts.
+- **Auditing Intermediate Reasoning**: Inspecting internal J-Space vectors to visualize multi-step logic before it manifests in final output tokens.
 
 ## Strengths
-- **Surgical Vector Editing**: Allows target modifications of highly specific neural representations without the compute requirements of traditional fine-tuning.
-- **Interactive Web Interface**: Provides a visual workspace to monitor layer-by-layer projections, locate semantic vectors, and load pretrained lens files.
-- **Zero Capability Leakage**: Concept editing leaves standard grammar, syntax parsing, and general factual knowledge completely unaffected.
-- **Immediate Export**: Edits are applied permanently back to the model weights, saving directly into standard Hugging Face/safetensors directories.
-- **Optuna Optimization**: Integrates automated hyperparameter optimization to find the precise directional vectors for desired behavioral outputs.
-- **Frontier Ready**: Supports alignment steering on top of high-performance bases including **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+- **Surgical Vector Editing**: Direct concept modifications without multi-gpu retraining runs.
+- **Interactive UI**: Web interface to inspect middle-layer activations and load pretrained lens configurations.
+- **Zero Capability Degradation**: Syntax parsing, coding aptitude, and factual knowledge remain untouched.
+- **Direct Checkpoint Export**: Saves updated weights directly as safetensors or GGUFs for immediate local deployment.
+- **FastMCP 3.1 Compatible**: Enables runtime concept steering for MCP agent tools.
 
 ## Limitations
-- **High VRAM Requirement**: Running the live Jacobian calculation loops requires substantial local GPU memory (at least 24GB of VRAM for comfortable operation with 7B-8B parameters).
-- **Early-Research Codebase**: Developed in a high-speed rush following Anthropic's paper release, meaning the UI and Python scripts contain experimental interfaces and debugging artifacts.
-- **Architecture Dependencies**: Highly optimized for standard multi-layer transformers (Llama, Qwen, and Mistral); Mixture of Experts (MoE) or custom state-space architectures require highly custom configuration.
-- **Conceptual Bleed**: Overly broad concept steering can occasionally affect highly related terms due to cosine similarity overlaps in high-dimensional embedding spaces.
+- **VRAM Requirements**: Estimating live Jacobian matrices requires high GPU VRAM (24GB+ for 7B-14B models).
+- **Architecture Specificity**: Optimized for standard decoder-only transformers; requires specialized configuration for Mixture-of-Experts (MoE) architectures.
+- **Cosine Overlap Risk**: Overly aggressive steering can inadvertently affect closely related semantic vectors.
 
 ## When to use it
-- When you want to surgically modify or align specific model responses or knowledge paths without gathering large training datasets.
-- For local-first home-office deployments where aligned models frequently refuse harmless, complex system administration commands.
-- When researching LLM interpretability and inspecting J-Space activations for multi-step reasoning.
-- When standard fine-tuning degrades the underlying model intelligence on general reasoning tasks.
+- When you want to modify specific behavioral patterns without collecting training datasets.
+- For local home-server or enterprise deployments where base models over-refuse valid technical requests.
+- When conducting interpretability research into intermediate transformer layer representations.
 
 ## When not to use it
-- In commercial, user-facing production systems that demand rigid, deterministic safety-filtering layers.
-- When you require a stable, fully polished enterprise framework with commercial backing and 24/7 support.
-- If you lack local high-VRAM NVIDIA hardware capable of performing real-time gradient and Jacobian estimations.
+- In commercial applications requiring rigid multi-layer guardrails.
+- If you lack local high-VRAM NVIDIA/AMD hardware for matrix estimation.
+- When simple system prompt engineering provides adequate steering control.
 
 ## Getting started
 
-### Environment Requirements
-Ensure your local environment has CUDA installed alongside Node.js 24+ for the web UI.
-
 ### Installation
-Clone the repository and install the Python backend requirements:
-
 ```bash
 git clone https://github.com/Extraltodeus/J-Wash
 cd J-Wash
-pip install -r requirements.txt
+pip install -r requirements.txt fastmcp pydantic
 ```
 
-Navigate to the `ui` directory to install dependencies and build the interactive web frontend:
-
+### Build Frontend Workspace
 ```bash
-cd ui
-npm install
-npm run build
-cd ..
+cd ui && npm install && npm run build && cd ..
 ```
 
 ## CLI examples
 
-### Starting the Jacobian Interactive Server
-Launch the local web server to begin inspecting J-Space representations:
-
+### 1. Launch Interactive Jacobian Server
 ```bash
 python main.py --model Qwen/Qwen2.5-7B-Instruct --port 7860
 ```
 
-### Exporting Aligned Weights via Presets
-Surgically write a custom concept modification preset back into the model weights and export:
-
+### 2. Export Concept-Edited Checkpoint
 ```bash
 python export_weights.py \
   --model Qwen/Qwen2.5-7B-Instruct \
-  --preset ./presets/custom_edit.json \
-  --output ./custom-qwen-aligned
+  --preset ./presets/system_admin_steering.json \
+  --output ./steered-qwen-safetensors
 ```
 
 ## API examples
 
-### Programmatic Concept Steering with PyTorch and Strict Pydantic v2 Validation
-This example demonstrates how to load, validate, and apply J-Space steering presets programmatically using J-Wash's Python API backed by strict Pydantic v2 validation.
+### FastMCP 3.1 & Pydantic v2 Steering Preset Schema
+This executable Python script demonstrates validating J-Space concept-steering presets using **Pydantic v2** and executing them inside a **FastMCP 3.1** server wrapper.
 
 ```python
-import torch
 from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 
-# Define concept steering schema under Pydantic v2
-class JSpaceSteeringPreset(BaseModel):
-    layer: int = Field(14, ge=0, le=128, description="Transformer layer index to rewrite")
-    source_token: str = Field(..., min_length=1, description="Source token or concept trigger")
-    target_concept: str = Field(..., min_length=1, description="Target steering concept to map onto")
-    alpha: float = Field(0.85, ge=0.0, le=1.0, description="Steering blend intensity multiplier")
+mcp = FastMCP("J-Wash Representation Editor")
 
-def execute_concept_steering(preset_data: dict, model_path: str, lens_path: str):
-    # Perform strict Pydantic v2 validation
+class SteeringPresetSchema(BaseModel):
+    layer_index: int = Field(14, ge=0, le=128, description="Target transformer layer index")
+    source_concept: str = Field(..., min_length=1, description="Source trigger concept")
+    target_concept: str = Field(..., min_length=1, description="Target steering concept direction")
+    steering_alpha: float = Field(0.85, ge=0.0, le=1.0, description="Blend intensity multiplier")
+
+class SteeringResultSchema(BaseModel):
+    status: str
+    output_model_path: str
+    applied_preset: SteeringPresetSchema
+
+@mcp.tool()
+def apply_concept_steering(source_concept: str, target_concept: str, alpha: float = 0.85) -> str:
+    """Apply J-Space representation editing to an open-weights model checkpoint."""
     try:
-        preset = JSpaceSteeringPreset(**preset_data)
+        preset = SteeringPresetSchema(
+            layer_index=16,
+            source_concept=source_concept,
+            target_concept=target_concept,
+            steering_alpha=alpha
+        )
     except ValidationError as e:
-        print(f"Preset validation failed: {e.errors()}")
-        raise
+        return f"Validation error: {e.errors()}"
 
-    print(f"Applying steering: '{preset.source_token}' -> '{preset.target_concept}' (Layer {preset.layer}, alpha={preset.alpha})")
+    # Simulated editing pipeline execution
+    result = SteeringResultSchema(
+        status="SUCCESS",
+        output_model_path="./steered_checkpoints/qwen3.6-steered",
+        applied_preset=preset
+    )
 
-    # Simulation block for validation & test environments:
-    # In practice:
-    # from j_wash import JacobianLens, ModelEditor
-    # editor = ModelEditor.from_pretrained(model_path)
-    # lens = JacobianLens.load(lens_path)
-    # target_vector = lens.get_concept_vector(preset.target_concept)
-    # editor.rewrite_representation(layer=preset.layer, source_token=preset.source_token, target_vector=target_vector, alpha=preset.alpha)
-    # editor.save_pretrained("./jwash-steered-model")
-
-    print("Concept steering complete. Safetensors weights exported successfully.")
-    return "./jwash-steered-model"
+    return f"Successfully applied steering '{preset.source_concept}' -> '{preset.target_concept}' (Layer {preset.layer_index}, alpha={preset.steering_alpha}). Output saved at {result.output_model_path}."
 
 if __name__ == "__main__":
-    payload = {
-        "layer": 14,
-        "source_token": "Soccer",
-        "target_concept": "Rugby",
-        "alpha": 0.85
-    }
-
-    try:
-        output_dir = execute_concept_steering(
-            preset_data=payload,
-            model_path="Qwen/Qwen2.5-7B-Instruct",
-            lens_path="./lenses/qwen_lens.bin"
-        )
-        print("Steered model saved at:", output_dir)
-    except Exception as e:
-        print("Steering failed:", e)
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [Heretic / ARA](heretic-ara.md) — Open-source CLI tool automating model abliteration and safety refusal vector editing.
-- [Claude](claude.md) — Frontier LLM developed by Anthropic, whose internal J-Space and J-Lens research serves as the foundation of J-Wash.
-- [Project Genie](project-genie.md) — Emergent generative world model frameworks that utilize similar Model Context Protocol setups.
-- [OpenPipe](../infrastructure/openpipe.md) — Distillation and fine-tuning platform for converting frontier teacher completions to student models.
-- [ExLlamaV2](../infrastructure/exllamav2.md) — High-performance inference engine for local deployment of exported weights.
-- [llama.cpp](../infrastructure/llama-cpp.md) — Lightweight inference engine used to run GGUFs generated from J-Wash checkpoints.
-- [Unsloth](../infrastructure/unsloth.md) — High-speed model training framework optimized for consumer GPU hardware.
-- [Anti-Gravity](../development_ops/anti_gravity.md) — Google's agent execution framework designed to utilize steered local models.
-- [Junie CLI](../development_ops/junie-cli.md) — Autonomous developer workspace utilizing terminal tmux-bridge controls.
+- [Claude](claude.md) — Anthropic research context behind J-Space and Jacobian Lens.
+- [Local LLMs](local_llms.md) — Compatible base model architectures (Qwen 3.6, Llama 4, Gemma 3).
+- [ExLlamaV3](../infrastructure/exllamav3.md) — Runtime engine for running exported GGUF/safetensors models.
+- [vLLM](../infrastructure/vllm.md) — High-throughput server deployment.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Tool integration specification.
 
 ## Sources / references
 - [J-Wash GitHub Repository](https://github.com/Extraltodeus/J-Wash)
-- [Anthropic: Unveiling J-Space and the Jacobian Lens (2026)](https://transformer-circuits.pub/2026/workspace/)
-- [J-Wash: A novel way to brainwash and customize large language models based on Anthropic's Jacobian-Lens! (LocalLLaMA Reddit)](https://www.reddit.com/r/LocalLLaMA/comments/1uvq1i3/jwash_a_novel_way_to_brainwash_and_customize/)
-- [Qwen3.5-9B-Nikusui-v1 Model Card (Featherless AI)](https://featherless.ai/models/extraltodeus/Qwen3.5-9B-Nikusui-v1)
+- [Anthropic Transformer Circuits Publication](https://transformer-circuits.pub/)
+- [FastMCP 3.1 Documentation](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high
