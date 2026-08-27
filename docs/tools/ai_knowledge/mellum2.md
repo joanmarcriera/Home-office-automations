@@ -1,6 +1,6 @@
 # Mellum2
 
-Mellum2 is a high-efficiency open-weights large language model (LLM) that leverages Multi-Token Prediction (MTP) architecture to significantly accelerate inference and improve reasoning coherence. As of late November 2026, Mellum2 is recognized for its ability to generate high-quality code and text with a substantially lower latency compared to traditional next-token prediction models.
+Mellum2 is a high-efficiency open-weights large language model (LLM) that leverages Multi-Token Prediction (MTP v2) architecture to significantly accelerate inference and improve reasoning coherence. As of early January 2027, Mellum2 is recognized for its ability to generate high-quality code and text with a substantially lower latency compared to traditional next-token prediction models, with full support for **FastMCP 3.1** protocol servers and frontier model integration (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
 
 ## What it is
 Mellum2 is the second-generation model from the Mellum series, specifically optimized for speed without sacrificing intelligence. Its core innovation, Multi-Token Prediction, allows the model to predict multiple future tokens in parallel during a single inference pass. This architecture, coupled with native support for the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, makes it a powerful engine for real-time agentic workflows.
@@ -26,13 +26,13 @@ It addresses the "inference bottleneck" in local LLM deployments. Standard autor
 ## Limitations
 - **Hardware Requirements**: While efficient, the MTP architecture benefits significantly from high memory bandwidth (VRAM).
 - **Niche Architecture**: Some legacy inference engines may require specific patches to fully exploit the multi-token prediction heads.
-- **Context Window**: While generous (128k), it is currently surpassed by frontier models like **Claude 5.1** in ultra-long document analysis.
+- **Context Window**: While generous (128k), it is currently surpassed by frontier models like **Claude 5.6** in ultra-long document analysis.
 
 ## When to use it
 - When you require the fastest possible response times for a local LLM.
 - For coding tasks where structural correctness and speed are paramount.
 - When building agents that rely on frequent, small reasoning steps.
-- As a local alternative to **Gemma 3** or **Qwen 3.6** for specialized low-latency tasks.
+- As a local alternative to **Gemma 3**, **Qwen 3.6**, or **Llama 4** for specialized low-latency tasks.
 
 ## When not to use it
 - If you have extremely limited VRAM (e.g., < 8GB), smaller 1B-3B models may be more appropriate.
@@ -42,7 +42,7 @@ It addresses the "inference bottleneck" in local LLM deployments. Standard autor
 ## Getting started
 
 ### Installation via Ollama
-As of late November 2026, Mellum2 is available in the official Ollama library.
+As of early January 2027, Mellum2 is available in the official Ollama library.
 
 ```bash
 ollama run mellum2
@@ -160,5 +160,5 @@ def summarize_fast(text: str) -> str:
 - [Understanding Multi-Token Prediction (Research Paper)](https://arxiv.org/abs/2404.19737)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

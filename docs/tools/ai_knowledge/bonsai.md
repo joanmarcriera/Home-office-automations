@@ -1,7 +1,7 @@
 # Bonsai (PrismML)
 
 ## What it is
-Bonsai 27B is a multimodal flagship 27B-parameter Large Language Model (LLM) developed by PrismML, built on top of the Qwen 3.6 27B architecture. It is designed specifically to run locally on low-resource hardware like consumer laptops and mobile phones. Released on July 14, 2026, Bonsai 27B achieves extreme quantization levels, shipping in two distinct variants:
+Bonsai 27B is a multimodal flagship 27B-parameter Large Language Model (LLM) developed by PrismML, built on top of the Qwen 3.6 27B architecture. It is designed specifically to run locally on low-resource hardware like consumer laptops and mobile phones. As of early January 2027, Bonsai 27B achieves extreme quantization levels, shipping in two distinct variants:
 - **Ternary Bonsai 27B**: Uses ternary {-1, 0, +1} weights with FP16 group-wise scaling, resulting in 1.71 effective bits per weight. It occupies 5.9 GB of memory, making it highly suitable for everyday laptops.
 - **1-bit Bonsai 27B**: Uses binary {-1, +1} weights with the same group-wise scaling, resulting in 1.125 effective bits per weight. It occupies 3.9 GB of memory, fitting comfortably within the memory limits of modern smartphones like the iPhone 17 Pro.
 
@@ -9,7 +9,7 @@ Bonsai 27B is a multimodal flagship 27B-parameter Large Language Model (LLM) dev
 Historically, deploying a 27B-parameter model required heavy server infrastructure or high-end multi-GPU workstations, as a 27B model in FP16 takes approximately 54GB of space, and even a standard 4-bit quantized build requires 18GB (which is too large for consumer phones and base laptops). Bonsai 27B solves this compute and memory bottleneck by compressing the model end-to-end (across the language network, embeddings, attention, MLPs, and the LM head) to fit on edge devices with as little as 4GB-6GB of RAM, without relying on higher-precision "escape hatches" that increase memory usage.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine (Open-weights / Edge-native)**. It is a core component of the [Local LLMs](local_llms.md) ecosystem. It acts as a local reasoning layer that can run directly on consumer-grade hardware. It integrates seamlessly with frameworks like [llama.cpp](../infrastructure/llama-cpp.md) and [MLX](../infrastructure/mlx.md) (via Apple Silicon), making it accessible to local orchestrators and agents. In late 2026, it is commonly paired with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** standards to allow edge-based agent execution. It provides a local, low-resource alternative to cloud-only frontier systems such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
+**LLM / Reasoning Engine (Open-weights / Edge-native)**. It is a core component of the [Local LLMs](local_llms.md) ecosystem. It acts as a local reasoning layer that can run directly on consumer-grade hardware. It integrates seamlessly with frameworks like [llama.cpp](../infrastructure/llama-cpp.md) and [MLX](../infrastructure/mlx.md) (via Apple Silicon), making it accessible to local orchestrators and agents. In early 2027, it is commonly paired with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** standards to allow edge-based agent execution. It provides a local, low-resource alternative to cloud-only frontier systems such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0**, and **Llama 4**.
 
 ## Typical use cases
 - **On-Device Assistants**: Powering offline mobile assistants with advanced multi-step reasoning.
@@ -158,5 +158,5 @@ if __name__ == "__main__":
 - [Hy-Embodied-RxBrain-1.0](https://www.reddit.com/r/LocalLLaMA/comments/1ux0x0v/tencenthyembodiedrxbrain10_hugging_face/) — Integrated from daily log reference.
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-26
+- Last reviewed: 2027-01-07
 - Confidence: high

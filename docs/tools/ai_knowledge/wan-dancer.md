@@ -1,7 +1,7 @@
 # Wan-Dancer
 
 ## What it is
-Wan-Dancer is a state-of-the-art hierarchical framework for minute-scale coherent music-to-dance video generation. Developed by the Wan-AI team, it utilizes a 14B parameter model to generate high-definition (720p/30fps), rhythmically synchronized dance videos from audio and textual prompts, overcoming the temporal limitations of traditional video diffusion models. By late November 2026, it is widely integrated with frontier orchestration frameworks via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, allowing autonomous workflows to trigger generative multi-modal choreography in real time.
+Wan-Dancer is a state-of-the-art hierarchical framework for minute-scale coherent music-to-dance video generation. Developed by the Wan-AI team, it utilizes a 14B parameter model to generate high-definition (720p/30fps), rhythmically synchronized dance videos from audio and textual prompts, overcoming the temporal limitations of traditional video diffusion models. By early January 2027, it is widely integrated with frontier orchestration frameworks via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, allowing autonomous workflows to trigger generative multi-modal choreography in real time.
 
 ## What problem it solves
 Most video diffusion models struggle to maintain coherence beyond 15-20 seconds, often suffering from temporal drift, identity inconsistency, and repetitive motion patterns. Wan-Dancer solves this by using a hierarchical approach that decouples global keyframe planning from local temporal refinement, allowing for stable, high-quality video generation exceeding one minute in duration.
@@ -19,7 +19,7 @@ Most video diffusion models struggle to maintain coherence beyond 15-20 seconds,
 - **High Fidelity**: Supports 720p resolution at 30fps with significant detail preservation.
 - **Rhythmic Accuracy**: Employs time-mapped RoPE embeddings to ensure motion is perfectly synced with musical context.
 - **Temporal Stability**: Optical-flow-based loss functions minimize flickering and motion artifacts.
-- **Frontier Compatibility**: Fully integrated with systems using **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Qwen 3.6** to generate highly descriptive orchestration prompts.
+- **Frontier Compatibility**: Fully integrated with systems using **Claude 5.6**, **GPT-5.6**, **Gemini 4.0**, and **Qwen 3.6** to generate highly descriptive orchestration prompts.
 
 ## Limitations
 - **Computational Requirements**: The 14B model requires significant VRAM for inference (typically 24GB+ for fp16, though 4-bit/8-bit quantization is supported).
@@ -29,7 +29,7 @@ Most video diffusion models struggle to maintain coherence beyond 15-20 seconds,
 ## When to use it
 - When you need rhythmic video generation longer than 20 seconds.
 - When brand or character identity must remain consistent throughout a long performance.
-- When you have access to high-end NVIDIA hardware (A100/H100/RTX 4090).
+- When you have access to high-end NVIDIA hardware (A100/H100/RTX 4090/5090).
 
 ## When not to use it
 - For real-time applications; the generation process is currently asynchronous and slow.
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 - [HuggingFace: Wan-Dancer-14B](https://huggingface.co/Wan-AI/Wan-Dancer-14B)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: High
 - Category: AI Assistants & Knowledge
 - Tags: Video-Generation, Music-to-Dance, Long-Form-Video, Wan-AI
