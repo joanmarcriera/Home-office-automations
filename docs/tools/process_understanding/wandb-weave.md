@@ -4,13 +4,13 @@
 W&B Weave is a lightweight toolkit for building and evaluating LLM applications, developed by Weights & Biases. It provides tools for tracing, versioning, and rigorous evaluation of AI workflows and agents.
 
 ## What problem it solves
-It addresses the difficulty of debugging and optimizing complex, multi-step LLM chains and agents. Weave allows developers to capture every step of an AI interaction, compare model outputs side-by-side, and run automated evaluations to improve quality, cost, and latency. In late November / December 2026, it is a primary tool for **Agent Tracing** and performance optimization for frontier models.
+It addresses the difficulty of debugging and optimizing complex, multi-step LLM chains and agents. Weave allows developers to capture every step of an AI interaction, compare model outputs side-by-side, and run automated evaluations to improve quality, cost, and latency. In early January 2027, it is a primary tool for **Agent Tracing** and performance optimization for frontier models like **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra**.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / AI Observability & Evaluation. It acts as the "black box recorder" for agentic reasoning and tool execution.
 
 ## Typical use cases
-- **Agent Tracing**: Visualizing the inner "thinking" steps and tool calls of autonomous agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, Gemini 4.0, Llama 4, or GPT-5.5.
+- **Agent Tracing**: Visualizing the inner "thinking" steps and tool calls of autonomous agents like [Gemma 4](../ai_knowledge/local_llms.md), Claude 5.6, Gemini 4.0 Ultra, Llama 4, or GPT-5.6.
 - **LLM Application Debugging**: Identifying where a prompt chain failed or where latency is accumulating.
 - **Automated Evaluations**: Running scorers (e.g., toxicity, relevance, factual accuracy) against a dataset of model outputs.
 - **Prompt Engineering**: Testing and versioning different prompt templates with visual comparisons.
@@ -22,7 +22,7 @@ It addresses the difficulty of debugging and optimizing complex, multi-step LLM 
 - **Agnostic**: Works with any LLM, framework (LangChain, LlamaIndex), or protocol (MCP).
 - **Built-in Evaluations**: Includes out-of-the-box scorers and support for custom scoring functions.
 - **Human-in-the-Loop**: Supports collecting human feedback on model outputs directly in the dashboard.
-- **Native Support for GPT-5.5 and Claude 5.1**: Optimized for the latest reasoning traces from frontier models.
+- **Native Support for GPT-5.6 and Claude 5.6**: Optimized for the latest reasoning traces from frontier models.
 
 ## Limitations
 - **Cloud Dependency**: While highly integrated, it primarily relies on the Weights & Biases cloud platform for visualization.
@@ -71,7 +71,7 @@ weave.init("my-llm-app")
 def call_llm(prompt: str):
     client = openai.OpenAI()
     response = client.chat.completions.create(
-        model="gpt-5.5", # Optimized for late 2026 models
+        model="gpt-5.6", # Optimized for early 2027 models
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
@@ -96,7 +96,7 @@ class WeaveScorerResult(BaseModel):
 class WeaveTraceSpan(BaseModel):
     span_id: str = Field(..., pattern=r"^span_[a-f0-9]{16}$")
     trace_id: str = Field(..., pattern=r"^trace_[a-f0-9]{16}$")
-    model_id: str = Field("gpt-5.5")
+    model_id: str = Field("gpt-5.6")
     inputs: Dict[str, Any]
     outputs: Dict[str, Any]
     latency_sec: float = Field(..., ge=0.0)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     sample_trace_payload = {
         "span_id": "span_f8d7e6c5b4a39201",
         "trace_id": "trace_01928374abcdefab",
-        "model_id": "claude-5.1-sonnet",
+        "model_id": "claude-5.6-sonnet",
         "inputs": {"prompt": "Analyze the log stream for FastMCP handshakes."},
         "outputs": {"response": "Handshake succeeded under protocol version 3.1."},
         "latency_sec": 1.42,
@@ -166,10 +166,10 @@ def execute_mcp_tool(tool_name: str, args: dict):
 - [OpenRouter](../ai_knowledge/openrouter.md) (Streams traces to Weave)
 - [Arize AI](arize-ai.md)
 - [Ragas](ragas.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [Weights & Biases (Core)](https://wandb.ai/)
-- [Claude 5.1](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
+- [Claude 5.6](../providers/anthropic.md)
+- [GPT-5.6](../ai_knowledge/openai.md)
 
 ## Sources / references
 - [W&B Weave Website](https://wandb.ai/site/weave/)
@@ -177,5 +177,5 @@ def execute_mcp_tool(tool_name: str, args: dict):
 - [OpenRouter Weave Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/wandb-weave)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-06
+- Last reviewed: 2027-01-07
 - Confidence: high

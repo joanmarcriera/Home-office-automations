@@ -1,10 +1,10 @@
 # Datadog
 
 ## What it is
-Datadog is an enterprise-grade observability and security platform that provides cloud-scale monitoring for applications, infrastructure, and logs. By late November / December 2026, it features dedicated **AI Agent Observability** modules designed to trace and monitor the reasoning and tool-calling behavior of autonomous agents. It integrates deeply with the **MCP 3.1 / FastMCP 3.1** ecosystem to provide granular telemetry for agentic workflows.
+Datadog is an enterprise-grade observability and security platform that provides cloud-scale monitoring for applications, infrastructure, and logs. By early January 2027, it features dedicated **AI Agent Observability** modules designed to trace and monitor the reasoning and tool-calling behavior of autonomous agents. It integrates deeply with the **MCP 3.1 / FastMCP 3.1** ecosystem to provide granular telemetry for agentic workflows.
 
 ## What problem it solves
-It provides deep visibility into complex, distributed systems. It unifies metrics, traces, and logs in a single pane of glass, allowing teams to diagnose performance issues, monitor service health, and secure their cloud environments. Its AI-specific features solve the "black box" problem of agentic workflows by capturing full multi-step trace sessions, which is essential for debugging non-deterministic models like **Gemma 3**, **GPT-5.5**, or **Claude 5.1**.
+It provides deep visibility into complex, distributed systems. It unifies metrics, traces, and logs in a single pane of glass, allowing teams to diagnose performance issues, monitor service health, and secure their cloud environments. Its AI-specific features solve the "black box" problem of agentic workflows by capturing full multi-step trace sessions, which is essential for debugging non-deterministic models like **Gemma 4**, **GPT-5.6**, **Claude 5.6**, or **Gemini 4.0 Ultra**.
 
 ## Where it fits in the stack
 **Process & Understanding / Observability**. It acts as the centralized telemetry hub for both infrastructure (servers, databases) and high-level AI services. It supports the **MCP 3.1 Task Protocol** for standardized automated benchmarking and execution monitoring.
@@ -87,7 +87,7 @@ statsd.increment('agent.run.count', tags=["env:prod", "version:2.1"])
 ```
 
 ### Python: LLM Span and Metadata Validation with Strict Pydantic v2
-This production script validates Datadog LLM Observability spans, token usage metrics, and MCP v3.1 context payloads prior to log-forwarding or trace-injection.
+This production script validates Datadog LLM Observability spans, token usage metrics, and FastMCP 3.1 context payloads prior to log-forwarding or trace-injection.
 
 ```python
 from typing import Dict, Any, List, Optional
@@ -98,7 +98,7 @@ class LLMTraceSpan(BaseModel):
     span_id: str = Field(..., pattern=r"^[0-9a-fA-F]{16,32}$")
     trace_id: str = Field(..., pattern=r"^[0-9a-fA-F]{16,32}$")
     span_kind: str = Field("llm", pattern=r"^(llm|agent|tool|workflow)$")
-    model_name: str = Field(..., description="Frontier model used (e.g., gemma-3-27b, claude-5.1-sonnet)")
+    model_name: str = Field(..., description="Frontier model used (e.g., gemma-4-31b, claude-5.6-sonnet)")
     prompt_tokens: int = Field(..., ge=0)
     completion_tokens: int = Field(..., ge=0)
     latency_ms: float = Field(..., ge=0.0)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         "span_id": "a1b2c3d4e5f67890",
         "trace_id": "f0e9d8c7b6a54321",
         "span_kind": "agent",
-        "model_name": "claude-5.1-sonnet",
+        "model_name": "claude-5.6-sonnet",
         "prompt_tokens": 1250,
         "completion_tokens": 420,
         "latency_ms": 1420.5,
@@ -162,5 +162,5 @@ if __name__ == "__main__":
 - [Datadog API Reference: LLM Observability](https://docs.datadoghq.com/api/latest/llm-observability/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-06
+- Last reviewed: 2027-01-07
 - Confidence: high

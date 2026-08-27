@@ -1,25 +1,25 @@
 # Docling
 
 ## What it is
-Docling is an open-source Python library and CLI tool developed by IBM Research that simplifies document processing by parsing diverse formats into structured, machine-readable data. In late November / December 2026 (v2.12.x+), it excels at layout analysis, table recognition, and multi-modal document understanding for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models.
+Docling is an open-source Python library and CLI tool developed by IBM Research that simplifies document processing by parsing diverse formats into structured, machine-readable data. In early January 2027 (v2.20.x+), it excels at layout analysis, table recognition, and multi-modal document understanding for [Gemma 4](../ai_knowledge/local_llms.md) and other frontier models.
 
 ## What problem it solves
-Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) workflows using [Gemma 3](../ai_knowledge/local_llms.md), GPT-5.5, Claude 5.1, and Gemini 4.0.
+Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) workflows using **Gemma 4**, **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra**.
 
 ## Where it fits in the stack
 **Category**: [Process & Understanding](index.md). It acts as the core parsing engine for ingestion pipelines, [Docling MCP](docling-mcp.md), and Knowledge Graph construction via native graph export features.
 
 ## Typical use cases
 - **Multi-format Conversion**: Converting PDFs, DOCX, PPTX, HTML, and more into structured Markdown or JSON.
-- **VLM-powered Extraction**: Using vision-language models (VLMs) like GraniteDocling to understand charts, diagrams, and complex visual layouts.
+- **VLM-powered Extraction**: Using vision-language models (VLMs) like GraniteDocling v2 to understand charts, diagrams, and complex visual layouts.
 - **RAG Ingestion**: Powering the document preparation phase of RAG systems with high-fidelity structure preservation.
 - **Knowledge Graph Generation**: Transforming unstructured documents into validated knowledge graphs with precise semantic relationships.
 
 ## Strengths
 - **Superior Table Recognition**: Handles nested, borderless, and complex tables with high accuracy.
-- **Native VLM Support**: Integrated support for GraniteDocling and other VLMs for visual document understanding (v2.80+ and v2.12+).
+- **Native VLM Support**: Integrated support for GraniteDocling v2 and other VLMs for visual document understanding (v2.80+ and v2.20+).
 - **Local & Hybrid Execution**: Runs entirely on local hardware (CPU/GPU) or integrates with local LLMs ([vLLM](../infrastructure/vllm.md), [Ollama](../../services/ollama.md)) and APIs.
-- **Extensive Integration**: Seamlessly works with LangChain, LlamaIndex, and [CrewAI](../frameworks/crewai.md).
+- **Extensive Integration**: Seamlessly works with LangChain, LlamaIndex, FastMCP 3.1, and [CrewAI](../frameworks/crewai.md).
 
 ## Limitations
 - **Python 3.10+ Requirement**: Support for Python 3.9 was dropped in early 2026.
@@ -29,7 +29,7 @@ Traditional document extraction often loses structural information (headers, tab
 ## When to use it
 - When you need to preserve the logical and visual layout of complex documents for AI ingestion.
 - For high-fidelity RAG where header-paragraph relationships and table data are critical.
-- When transforming technical document collections into structured knowledge formats for [Gemma 3](../ai_knowledge/local_llms.md).
+- When transforming technical document collections into structured knowledge formats for [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## When not to use it
 - For simple plain-text extraction where speed and resource efficiency are prioritized over structure.
@@ -196,7 +196,7 @@ Docling can be exposed as an MCP tool for agentic document parsing using FastMCP
 - [Ollama](../../services/ollama.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Official Website (GitHub)](https://github.com/docling-project/docling)
@@ -205,5 +205,5 @@ Docling can be exposed as an MCP tool for agentic document parsing using FastMCP
 - [IBM Research AI Blogs: Docling IBM Granite Document Parsing](https://research.ibm.com/blog/docling-ibm-granite-document-parsing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-06
+- Last reviewed: 2027-01-07
 - Confidence: high

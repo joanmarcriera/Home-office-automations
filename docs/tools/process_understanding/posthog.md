@@ -1,7 +1,7 @@
 # PostHog
 
 ## What it is
-An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. In late November / December 2026, it serves as a critical observability hub for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models, providing a comprehensive suite for monitoring user behavior and system performance in real-time.
+An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. In early January 2027, it serves as a critical observability hub for [Gemma 4](../ai_knowledge/local_llms.md) and other frontier models, providing a comprehensive suite for monitoring user behavior and system performance in real-time.
 
 ## What problem it solves
 It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention, with deep integration for [MCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) / FastMCP 3.1 based tool-calling traces.
@@ -11,7 +11,7 @@ It helps teams understand how users interact with their applications and allows 
 
 ## Typical use cases
 - **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
-- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 5.1 / GPT-5.5) using feature flags.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 4](../ai_knowledge/local_llms.md) vs Claude 5.6 / GPT-5.6) using feature flags.
 - **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points and hallucination impacts.
 - **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
 
@@ -49,7 +49,7 @@ posthog.project_api_key = '<ph_project_api_key>'
 posthog.host = 'https://us.i.posthog.com'
 
 posthog.capture('user_id', 'llm_interaction', {
-    'model': 'gemma-3-27b',
+    'model': 'gemma-4-31b',
     'prompt_tokens': 150,
     'completion_tokens': 200,
     'total_cost': 0.005,
@@ -108,7 +108,7 @@ class PostHogAITrace(BaseModel):
     @classmethod
     def validate_mcp_version(cls, v: str) -> str:
         if v not in {"3.0", "3.1"}:
-            raise ValueError("Supported MCP protocol versions for late 2026 telemetry are '3.0' or '3.1'")
+            raise ValueError("Supported MCP protocol versions for early 2027 telemetry are '3.0' or '3.1'")
         return v
 
 # 2. Strict capture validation method
@@ -126,7 +126,7 @@ def validate_and_capture_trace(raw_event: dict) -> Optional[PostHogAITrace]:
 if __name__ == "__main__":
     sample_payload = {
         "distinct_id": "user_9482",
-        "$ai_model": "gemma-3-27b",
+        "$ai_model": "gemma-4-31b",
         "$ai_provider": "ollama",
         "$ai_input_tokens": 240,
         "$ai_output_tokens": 180,
@@ -151,8 +151,8 @@ import posthog from 'posthog-js'
 posthog.init('<ph_project_api_key>', { api_host: 'https://us.i.posthog.com' })
 
 // Check if a new AI model feature flag is enabled
-if (posthog.isFeatureEnabled('use-gemma-3-model')) {
-    // Use Gemma 3
+if (posthog.isFeatureEnabled('use-gemma-4-model')) {
+    // Use Gemma 4
 } else {
     // Use fallback model
 }
@@ -167,7 +167,7 @@ if (posthog.isFeatureEnabled('use-gemma-3-model')) {
 - [Helicone](helicone.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md)
 - [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
@@ -176,5 +176,5 @@ if (posthog.isFeatureEnabled('use-gemma-3-model')) {
 - [PostHog CLI Repository](https://github.com/PostHog/posthog-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-06
+- Last reviewed: 2027-01-07
 - Confidence: high
