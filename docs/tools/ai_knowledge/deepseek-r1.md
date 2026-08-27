@@ -1,7 +1,7 @@
 # DeepSeek R1
 
 ## What it is
-DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of late October / November 2026, it remains a primary benchmark for open-weights "thinking" models, with enhanced iterations like **DeepSeek-V4-Flash** and R1-671B rivaling proprietary architectures like OpenAI's o1/GPT-5.5 and Gemini 4.0 Pro/Ultra.
+DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of early 2027, it remains a primary benchmark for open-weights "thinking" models, with enhanced iterations like **DeepSeek-V4-Flash** and R1-671B rivaling proprietary architectures like OpenAI's o1/GPT-5.6 and Gemini 4.0 Pro/Ultra.
 
 ## What problem it solves
 It provides an accessible, high-reasoning alternative to proprietary "black box" models. DeepSeek R1 addresses the need for transparent "Chain of Thought" (CoT) processing, allowing developers and researchers to audit the model's reasoning steps. It enables complex multi-step planning and validation without the high operational costs or data privacy concerns associated with closed-source reasoning APIs.
@@ -34,7 +34,7 @@ DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orches
 - When you need to self-host a top-tier reasoning model for privacy or compliance reasons.
 
 ## When not to use it
-- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like [Gemma 3](../ai_knowledge/local_llms.md) or DeepSeek-V4-Flash is more efficient.
+- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like [Gemma 4](../ai_knowledge/local_llms.md) or DeepSeek-V4-Flash is more efficient.
 - **Resource-Constrained Environments**: If you cannot access the full model via API or lack the 40GB+ VRAM required for distilled local versions.
 - **Basic Summarization**: Where heavy reasoning is not required to extract key points.
 
@@ -49,7 +49,7 @@ ollama run deepseek-r1:14b
 ```
 
 ### API Access (OpenRouter)
-As of late 2026, [OpenRouter](openrouter.md) remains the preferred gateway for accessing the full R1-671B model with unified billing.
+As of early 2027, [OpenRouter](openrouter.md) remains the preferred gateway for accessing the full R1-671B model with unified billing.
 
 ```bash
 # Ensure your environment variable is set
@@ -91,7 +91,7 @@ litellm --model deepseek/deepseek-reasoner --messages '{"role": "user", "content
 ```
 
 ## API examples
-Using the standard OpenAI client to capture the reasoning content specifically, integrated with [Gemma 3](../ai_knowledge/local_llms.md) local verification. This example uses **Pydantic v2** to strictly validate the reasoning response payload.
+Using the standard OpenAI client to capture the reasoning content specifically, integrated with [Gemma 4](../ai_knowledge/local_llms.md) local verification. This example uses **Pydantic v2** to strictly validate the reasoning response payload.
 
 ```python
 import os
@@ -149,7 +149,7 @@ print(response.choices[0].message.content)
 - [OpenRouter](openrouter.md) — Unified API access for R1 and competitors.
 - [Ollama](../../services/ollama.md) — Local runner for distilled R1 versions.
 - [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
-- [Claude](claude.md) — Comparison model (Claude 5.1).
+- [Claude](claude.md) — Comparison model (Claude 5.6).
 - [Gemini](gemini.md) — Comparison model (Gemini 4.0 Pro/Ultra).
 - [Local LLMs](local_llms.md) — Overview of open-weights alternatives.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for routing reasoning tasks to R1.
@@ -164,5 +164,5 @@ print(response.choices[0].message.content)
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

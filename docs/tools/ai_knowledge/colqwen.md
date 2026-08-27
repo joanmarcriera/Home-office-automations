@@ -8,7 +8,7 @@ Traditional RAG pipelines often fail on documents with complex visual layouts, s
 
 ## Where it fits in the stack
 **Category**: Multi-modal Retrieval / RAG Engine
-ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) architectures. It sits between document storage and generative LLMs (such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, or **Gemma 3**), providing high-fidelity context for multi-modal reasoning.
+ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) architectures. It sits between document storage and generative LLMs (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0**, or **Gemma 4**), providing high-fidelity context for multi-modal reasoning.
 
 ## Typical use cases
 - **Complex Document RAG**: Searching through scanned manuals, legal filings, and academic papers with heavy formatting.
@@ -31,7 +31,7 @@ ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) archite
 ## When to use it
 - When your document corpus is primarily visual or contains complex layouts that OCR misinterprets.
 - When high precision in retrieving specific visual data (charts/tables) is critical.
-- When building a "Vision-RAG" pipeline for frontier models like **Gemini 4.0** or **Claude 5.1**.
+- When building a "Vision-RAG" pipeline for frontier models like **Gemini 4.0** or **Claude 5.6**.
 
 ## When not to use it
 - For **text-only archives** where standard text embedding models (e.g., voyage-3 or bge-m3) are more storage-efficient.
@@ -84,7 +84,7 @@ Byaldi is a popular simplified wrapper for ColPali/ColQwen models.
 
 ```bash
 # Example command if using a custom CLI wrapper
-colpali-search --index ./my_docs --query "Annual report 2026" --top_k 5
+colpali-search --index ./my_docs --query "Annual report 2027" --top_k 5
 ```
 
 ### 3. Check Retrieval Stats
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     mock_raw_results = [
         {
-            "document_id": "doc_fin_2026",
+            "document_id": "doc_fin_2027",
             "page_number": 12,
             "overall_score": 2.85,
             "key_patches": [
@@ -160,7 +160,7 @@ if __name__ == "__main__":
             ]
         },
         {
-            "document_id": "doc_marketing_2026",
+            "document_id": "doc_marketing_2027",
             "page_number": 4,
             "overall_score": 1.10, # Will be filtered out by threshold
             "key_patches": []
@@ -208,5 +208,5 @@ maps = get_similarity_maps_from_embeddings(
 - [FastMCP 3.1 / MCP 3.1 Documentation](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,12 +1,12 @@
 # Flint
 
-Flint is a series of highly compressed reasoning models developed by StudyModels. As of late October / November 2026, Flint models (such as Flint-Qwen3.6-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency, fully compatible with **FastMCP 3.1** protocol schemas.
+Flint is a series of highly compressed reasoning models developed by StudyModels. As of early 2027, Flint models (such as Flint-Qwen3.6-4B and Flint-Gemma-4-12B) leverage section-aware compression on self-distilled reasoning traces to maintain frontier-level performance while significantly reducing token overhead and latency, fully compatible with **FastMCP 3.1** protocol schemas.
 
 ## What it is
 Flint is a specialized LLM architecture designed for highly efficient "Chain of Thought" (CoT) reasoning. Unlike standard models that output every intermediate step, Flint uses an advanced compression technique that identifies and retains critical "compute" and "verification" spans within a reasoning trace. It discards linguistic fillers, redundant transitions, and conversational fluff, resulting in a dense, logic-heavy output that is much faster to process.
 
 ## What problem it solves
-It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or [Claude 5.1](../ai_knowledge/claude.md) often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
+It addresses the "token tax" of long-form reasoning. High-reasoning models like [DeepSeek R1](deepseek-r1.md) or [Claude 5.6](../ai_knowledge/claude.md) often generate thousands of internal tokens before arriving at an answer, which increases cost and latency. Flint provides the same logical accuracy with up to 60% fewer reasoning tokens, making it ideal for real-time agentic applications and low-VRAM environments.
 
 ## Where it fits in the stack
 **Reasoning Layer**. Flint acts as the "brain" for autonomous agents. It fits perfectly into [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) where multi-step logic is required but execution speed is critical. It is often orchestrated via the **FastMCP 3.1** spec to interact with external tools and data sources.
@@ -21,7 +21,7 @@ It addresses the "token tax" of long-form reasoning. High-reasoning models like 
 - **Efficiency**: Matches the reasoning benchmarks of models 3-4x its size while using significantly fewer tokens.
 - **Speed**: Reduced token generation leads to much lower time-to-first-token (TTFT) and higher total throughput.
 - **Section-Aware Compression**: Retains "verification blocks" (where the model checks its own work) while stripping useless text.
-- **Open Weights**: StudyModels releases weights for popular base architectures like [Qwen](qwen.md) and [Gemma 3](local_llms.md).
+- **Open Weights**: StudyModels releases weights for popular base architectures like [Qwen](qwen.md) and [Gemma 4](local_llms.md).
 
 ## Limitations
 - **Readability**: Because reasoning traces are compressed, the internal "thought process" is often hard for humans to read (resembling shorthand or code).
@@ -36,7 +36,7 @@ It addresses the "token tax" of long-form reasoning. High-reasoning models like 
 ## When not to use it
 - For tasks requiring high emotional intelligence or nuanced creative prose.
 - When human-readable transparency of the *entire* reasoning process is legally or operationally required.
-- If the task is simple and doesn't benefit from chain-of-thought (use a standard small model like [Gemma 3](local_llms.md) instead).
+- If the task is simple and doesn't benefit from chain-of-thought (use a standard small model like [Gemma 4](local_llms.md) instead).
 
 ## Getting started
 
@@ -60,7 +60,7 @@ The `flint-cli` allows for quick reasoning tasks with controllable compression l
 
 ```bash
 # Basic reasoning task
-flint query "Optimize this SQL query for performance: SELECT * FROM users WHERE last_login > '2025-01-01'"
+flint query "Optimize this SQL query for performance: SELECT * FROM users WHERE last_login > '2027-01-01'"
 
 # Controlled compression (0.0 to 1.0, where 1.0 is maximum compression)
 flint query --task plan_itinerary --compression 0.8 "Plan a 3-day trip to Tokyo"
@@ -144,5 +144,5 @@ if __name__ == "__main__":
 - [Compressed Chain-of-Thought Research](https://github.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # J-Wash
 
 ## What it is
-J-Wash (Jacobian-Brainwash) is an open-source manual alignment, model editing, and concept-steering framework built on top of Anthropic's breakthrough July 2026 research on the "J-Space" (emergent reasoning workspace inside LLMs) and the "Jacobian Lens" (J-Lens) technique. Developed by researcher extraltodeus, J-Wash provides a powerful terminal-based toolkit and an interactive web-based UI (React/Node) designed to surgically analyze, modify, suppress, or redirect internal semantic representations in open-weights Large Language Models (specifically Qwen and Llama architectures) and permanently export the altered weights as standard PyTorch safetensors or GGUFs. By late November 2026, it is widely used to adapt local checkpoints to support **FastMCP 3.1**-driven operations.
+J-Wash (Jacobian-Brainwash) is an open-source manual alignment, model editing, and concept-steering framework built on top of Anthropic's breakthrough research on the "J-Space" (emergent reasoning workspace inside LLMs) and the "Jacobian Lens" (J-Lens) technique. Developed by researcher extraltodeus, J-Wash provides a powerful terminal-based toolkit and an interactive web-based UI (React/Node) designed to surgically analyze, modify, suppress, or redirect internal semantic representations in open-weights Large Language Models (specifically Qwen, Gemma, and Llama architectures) and permanently export the altered weights as standard PyTorch safetensors or GGUFs. By early 2027, it is widely used to adapt local checkpoints to support **FastMCP 3.1**-driven operations.
 
 ## What problem it solves
 Traditional model customization methods like Supervised Fine-Tuning (SFT), RLHF, or Direct Preference Optimization (DPO) are highly resource-intensive, require extensive curated datasets, and are prone to "catastrophic forgetting" or capability leakage. J-Wash solves these challenges by bypassing the standard training loop entirely. By utilizing the Jacobian Lens to trace how individual concept activations in middle-layer "J-Space" representations map directly to vocabulary predictions in later layers, J-Wash enables developer-guided, real-time editing of specific concept directions. This allows surgical behavioral changes (such as suppressing over-refusals, swapping concepts, or redirecting reasoning chains) with near-zero degradation of general intelligence.
@@ -22,7 +22,7 @@ Traditional model customization methods like Supervised Fine-Tuning (SFT), RLHF,
 - **Zero Capability Leakage**: Concept editing leaves standard grammar, syntax parsing, and general factual knowledge completely unaffected.
 - **Immediate Export**: Edits are applied permanently back to the model weights, saving directly into standard Hugging Face/safetensors directories.
 - **Optuna Optimization**: Integrates automated hyperparameter optimization to find the precise directional vectors for desired behavioral outputs.
-- **Frontier Ready**: Supports alignment steering on top of high-performance bases including **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+- **Frontier Ready**: Supports alignment steering on top of high-performance bases including **Llama 4**, **Gemma 4**, and **Qwen 3.6**.
 
 ## Limitations
 - **High VRAM Requirement**: Running the live Jacobian calculation loops requires substantial local GPU memory (at least 24GB of VRAM for comfortable operation with 7B-8B parameters).
@@ -154,10 +154,10 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [J-Wash GitHub Repository](https://github.com/Extraltodeus/J-Wash)
-- [Anthropic: Unveiling J-Space and the Jacobian Lens (2026)](https://transformer-circuits.pub/2026/workspace/)
+- [Anthropic: Unveiling J-Space and the Jacobian Lens](https://transformer-circuits.pub/2026/workspace/)
 - [J-Wash: A novel way to brainwash and customize large language models based on Anthropic's Jacobian-Lens! (LocalLLaMA Reddit)](https://www.reddit.com/r/LocalLLaMA/comments/1uvq1i3/jwash_a_novel_way_to_brainwash_and_customize/)
 - [Qwen3.5-9B-Nikusui-v1 Model Card (Featherless AI)](https://featherless.ai/models/extraltodeus/Qwen3.5-9B-Nikusui-v1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

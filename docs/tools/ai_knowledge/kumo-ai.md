@@ -1,7 +1,7 @@
 # Kumo AI (KumoRFM-2)
 
 ## What it is
-Kumo AI is a predictive AI platform that specializes in Relational Foundation Models (RFMs). Its flagship model, **KumoRFM-2**, is designed to reason over structured, relational data living in enterprise data warehouses. It treats the entire database as a graph, enabling advanced predictive analytics without complex feature engineering. By late November 2026, Kumo has integrated full support for the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, allowing autonomous agents to trigger and consume predictions as part of larger automated workflows.
+Kumo AI is a predictive AI platform that specializes in Relational Foundation Models (RFMs). Its flagship model, **KumoRFM-2**, is designed to reason over structured, relational data living in enterprise data warehouses. It treats the entire database as a graph, enabling advanced predictive analytics without complex feature engineering. By early 2027, Kumo has integrated full support for the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, allowing autonomous agents to trigger and consume predictions as part of larger automated workflows.
 
 ## What problem it solves
 Traditional machine learning requires data scientists to "flatten" multi-table relational data into a single table (feature engineering), which often destroys valuable predictive signals stored in the relationships between tables. KumoRFM-2 works directly on the graph of connected tables, preserving foreign-key relationships and patterns.
@@ -20,7 +20,7 @@ Traditional machine learning requires data scientists to "flatten" multi-table r
 - **Hierarchical In-Context Learning**: Extracts task-aware features at both individual table and cross-table levels.
 - **High Performance**: Outperforms fully supervised machine learning models on relational benchmarks like [RelBench](https://relbench.stanford.edu/).
 - **Predictive Querying**: Allows data teams to ask "What will happen?" instead of just "What happened?".
-- **Frontier Integration**: Optimized for use with SOTA models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** for interpreting predictive results.
+- **Frontier Integration**: Optimized for use with SOTA models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0** for interpreting predictive results.
 
 ## Limitations
 - **Relational Focus**: Primarily designed for structured tabular data, not unstructured text or media.
@@ -56,7 +56,7 @@ OVER NEXT 30 DAYS
 
 ## CLI examples
 > [!NOTE]
-> As of late November 2026, Kumo AI focuses on its Managed SaaS interface and REST API. There is no official standalone CLI for model management. However, developers can use the [Claude Code](../development_ops/claude-code.md) CLI with the Kumo MCP server to run predictive queries.
+> As of early 2027, Kumo AI focuses on its Managed SaaS interface and REST API. There is no official standalone CLI for model management. However, developers can use the [Claude Code](../development_ops/claude-code.md) CLI with the Kumo MCP server to run predictive queries.
 
 ## API examples
 Once a model is trained on Kumo, results can be retrieved via the Kumo REST API or pushed back into your data warehouse.
@@ -141,5 +141,5 @@ if __name__ == "__main__":
 - **Licensing**: Proprietary enterprise SaaS.
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high
