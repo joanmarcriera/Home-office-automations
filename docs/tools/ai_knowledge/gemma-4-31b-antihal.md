@@ -9,7 +9,7 @@ In August 2026, Specific Labs introduced the **Scotoma-2** series of models base
 LLMs are notoriously prone to sycophancy (agreeing with incorrect premises to please the user) and hallucinations (asserting incorrect facts with high confidence). Gemma 4 31B AntiHal solves these issues by baking representation steering directly into the model's generation process. Instead of hallucinating details or complying with false assumptions, the model pushes back on false premises (e.g., correcting a historical prompt containing wrong dates or fake events) and declines to generate responses when it lacks high-confidence facts.
 
 ## Where it fits in the stack
-**AI Model / Local LLM (Self-hosted)**. Sitting at the intelligence layer of the self-hosted developer stack, Gemma 4 31B AntiHal serves as a highly reliable, low-hallucination local reasoning engine. It operates securely on consumer workstations or local servers via [Ollama](../../services/ollama.md) or standard Transformers backends, and integrates smoothly with agentic and retrieval-augmented workflows using the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** standards. In late 2026, it is widely used alongside frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, and **Qwen 3.6** to ensure verifiable agent outcomes.
+**AI Model / Local LLM (Self-hosted)**. Sitting at the intelligence layer of the self-hosted developer stack, Gemma 4 31B AntiHal serves as a highly reliable, low-hallucination local reasoning engine. It operates securely on consumer workstations or local servers via [Ollama](../../services/ollama.md) or standard Transformers backends, and integrates smoothly with agentic and retrieval-augmented workflows using the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** standards. In early 2027, it is widely used alongside frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, and **Qwen 3.6** to ensure verifiable agent outcomes.
 
 ## Typical use cases
 - **Strict-Compliance Retrieval-Augmented Generation (RAG)**: Extracting information from sensitive local files where hallucinations can lead to financial or legal risks.
@@ -146,5 +146,5 @@ if __name__ == "__main__":
 - [Reddit r/LocalLLaMA: Google Updates Gemma 4 Chat Templates and Tool Calling](https://www.reddit.com/r/LocalLLaMA/comments/1uxfu4k/google_is_updating_gemma_4s_chat_templates/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-26
+- Last reviewed: 2027-01-07
 - Confidence: high

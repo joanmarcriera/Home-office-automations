@@ -1,13 +1,13 @@
 # Heretic / ARA
 
 ## What it is
-Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line tool released in early 2026 by developer "p-e-w" that automates **abliteration**—the removal of safety alignment from open-weight language models. It implements the **ARA (Ablative Refusal Alignment)** method, using Optuna-driven optimization to find the ideal directional ablation parameters (based on research by Arditi et al., 2024). By late 2026, it is widely used for preparing models like **Gemma 3**, **Qwen 3.6**, and **Llama 4** for uncensored research and creative applications.
+Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line tool released in early 2026 by developer "p-e-w" that automates **abliteration**—the removal of safety alignment from open-weight language models. It implements the **ARA (Ablative Refusal Alignment)** method, using Optuna-driven optimization to find the ideal directional ablation parameters (based on research by Arditi et al., 2024). By early 2027, it is widely used for preparing models like **Gemma 4**, **Qwen 3.6**, and **Llama 4** for uncensored research and creative applications.
 
 ## What problem it solves
 It addresses the issue of "refusal alignment" in large language models, where models frequently refuse to answer harmless or contextually relevant queries due to over-zealous safety guardrails. Unlike manual abliteration, Heretic automates the process to achieve minimal refusal rates with significantly less "capability damage" (lower KL divergence) to the underlying model's reasoning.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](gemma.md), [Qwen 3.6](qwen.md), or [Llama 4](local_llms.md) before they are deployed in local inference engines. In late 2026, abliterated local models serve as low-latency, zero-refusal reasoning backends alongside frontier cloud models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** in multi-agent environments.
+**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 4](gemma.md), [Qwen 3.6](qwen.md), or [Llama 4](local_llms.md) before they are deployed in local inference engines. In early 2027, abliterated local models serve as low-latency, zero-refusal reasoning backends alongside frontier cloud models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** in multi-agent environments.
 
 ## Typical use cases
 - **Research and Analysis**: Exploring model behavior without safety-induced bias.
@@ -152,5 +152,5 @@ if __name__ == "__main__":
 - [Heretic: Automated Abliteration Tool (GitHub)](https://github.com/p-e-w/heretic)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-26
+- Last reviewed: 2027-01-07
 - Confidence: high

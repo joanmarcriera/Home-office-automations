@@ -7,7 +7,7 @@ Dex is a personal CRM (Customer Relationship Management) and networking tool des
 Maintaining meaningful connections becomes increasingly difficult as professional networks grow. Traditional CRMs are often built for sales teams and are too complex for individual use, while spreadsheets are static and manual. Dex automates contact sync and provides reminders to "keep in touch," reducing the cognitive overhead of networking.
 
 ## Where it fits in the stack
-Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. In late 2026, it expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing frontier AI models (such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**) to interact directly with a user's contact database via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** specifications.
+Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. In early 2027, it expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing frontier AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, and **Qwen 3.6**) to interact directly with a user's contact database via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** specifications.
 
 ## Typical use cases
 - **Professional Networking:** Tracking follow-ups after meetings or conferences.
@@ -53,7 +53,7 @@ To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)
 }
 ```
 
-#### Remote HTTP Configuration (November 2026)
+#### Remote HTTP Configuration (January 2027)
 For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex supports Streamable HTTP transport via the **MCP 3.1 / FastMCP 3.1** protocols:
 
 ```json
@@ -95,7 +95,7 @@ dex-mcp call search_contacts --query "Jules"
 ## API examples
 
 ### Python (MCP Client with Strict Pydantic v2 Validation)
-The following example shows how to query the Dex contact search tool using the Model Context Protocol, parsing and validating the results using strict **Pydantic v2** schemas to integrate contacts directly into downstream reasoning loops of models like Claude 5.1 and GPT-5.5.
+The following example shows how to query the Dex contact search tool using the Model Context Protocol, parsing and validating the results using strict **Pydantic v2** schemas to integrate contacts directly into downstream reasoning loops of models like Claude 5.6 and GPT-5.6.
 
 ```python
 import asyncio
@@ -197,5 +197,5 @@ console.log(data);
 - [ClawHub Dex Skill](https://www.clawhub.ai/skills/dex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-26
+- Last reviewed: 2027-01-07
 - Confidence: high
