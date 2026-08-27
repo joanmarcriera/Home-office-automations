@@ -138,6 +138,7 @@ print(f"Loaded {len(config.rules)} active rules")
 - [Codeium](codeium.md) — For general-purpose IDE AI assistance.
 - [Claude Hooks](claude-hooks.md) — For middleware and session management.
 - [Free Will MCP](free-will-mcp.md) — For AI autonomy and self-prompting.
+- [Cursor](cursor.md) — AI-native IDE with codebase indexing capabilities.
 
 ## Sources / references
 - [Official Website](https://sweep.dev/)

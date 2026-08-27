@@ -13,6 +13,20 @@ It ensures continuous availability of mission-critical AI applications when prim
 ## Where it fits in the stack
 **Category**: Playbook / Reliability. It operates at the **Gateway and Load Balancing layer**, orchestrating failover logic between the External Cloud Provider tier and the Local On-Premise Inference tier.
 
+## Architecture & Workflow
+
+```mermaid
+flowchart TD
+    Client[Agent / Client Application] --> Proxy[LiteLLM Proxy Gateway]
+    Proxy --> PrimaryCheck{Primary Cloud API Available?}
+    PrimaryCheck -- Yes (200 OK) --> PrimaryCloud[Primary Model: Claude 5.6 / GPT-5.5]
+    PrimaryCloud --> Response[Return Response to Client]
+    PrimaryCheck -- No (Timeout / HTTP 5xx / Rate Limit 429) --> FallbackRoute[Trigger Circuit Breaker & Fallback Policy]
+    FallbackRoute --> LocalEngine[Local Inference Engine: Ollama / vLLM]
+    LocalEngine --> FallbackModel[Fallback Model: Llama 4 70B / Gemma 3 27B]
+    FallbackModel --> Response
+```
+
 ## Typical use cases
 - **Continuous Homelab Assistant Operations**: Ensuring core dashboard and voice services remain active during WAN outages.
 - **Automated Agentic Workflow Failover**: Allowing background n8n and FastMCP agent tasks to complete using local models if primary APIs throw errors.
