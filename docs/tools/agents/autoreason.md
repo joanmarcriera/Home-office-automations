@@ -1,7 +1,7 @@
 # AutoReason
 
 ## What it is
-AutoReason (v2026.11.x+, late November 2026) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) and [Gemma 3](../ai_knowledge/local_llms.md) to compete with proprietary reasoning models like the O4 and Gemini 4.0 series.
+AutoReason (v2027.1.x+, early January 2027) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 4 (Llama 4 based), [Gemma 4](../ai_knowledge/local_llms.md), and [DeepSeek-V4](../providers/deepseek.md) to compete with proprietary reasoning models like the Claude 5.6 and Gemini 4.0 Ultra series.
 
 ## What problem it solves
 It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate large "search spaces" in complex logic, mathematics, or code problems where the first answer is rarely the correct one, effectively reducing hallucinations through automated self-critique.
@@ -14,13 +14,13 @@ It addresses the limitations of standard chain-of-thought prompting by providing
 - **Mathematical Theorem Proving**: Structured steps with rigorous automated verification requirements.
 - **Code Debugging**: Identifying root causes by iteratively testing assumptions against a live execution environment.
 - **Deep Research**: Multi-hop reasoning tasks where the results of one step fundamentally redefine the search parameters for the next.
-- **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models like [Gemma 3](../ai_knowledge/local_llms.md).
+- **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models like [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## Strengths
-- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it via the **MCP 3.1 Task Protocol**.
-- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek, [Gemma 3](../ai_knowledge/local_llms.md)).
+- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it via the **FastMCP 3.1 Task Protocol**.
+- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 4, DeepSeek-V4, [Gemma 4](../ai_knowledge/local_llms.md)).
 - **Structured Trace**: Provides a complete, auditable log of every reasoning step and correction.
-- **Flexibility**: Can be integrated with any Python-based verification tool or MCP-enabled service.
+- **Flexibility**: Can be integrated with any Python-based verification tool or FastMCP 3.1-enabled service.
 
 ## Limitations
 - **High Token Consumption**: Iteration and verification loops can consume 5-10x more tokens than single-shot inference.
@@ -58,7 +58,7 @@ python run_reasoning.py --task "Prove the square root of 2 is irrational"
 # Run the code-specific debugger on a local directory
 python run_code_debug.py --path ./src/buggy_project
 
-# Launch the reasoning-as-a-service MCP server
+# Launch the reasoning-as-a-service FastMCP 3.1 server
 python -m autoreason.mcp_server --port 18795
 ```
 
@@ -70,7 +70,7 @@ from autoreason import Reasoner
 
 # Initialize with a high-reasoning model and a Python verifier
 reasoner = Reasoner(
-    model="nous-hermes-3-llama-3.1-70b",
+    model="nous-hermes-4-llama-4-70b",
     verifier="python_interpreter"
 )
 ```
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [Agno](agno.md)
 - [Letta](letta.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
@@ -157,5 +157,5 @@ if __name__ == "__main__":
 - [Nous Research Blog: Iterative Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-27
+- Last reviewed: 2027-01-07
 - Confidence: high

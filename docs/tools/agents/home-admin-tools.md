@@ -1,7 +1,7 @@
 # Home Admin Agent Tools
 
 ## What it is
-Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent for interacting with household infrastructure. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 specification. These tools enable frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 5.1](../providers/anthropic.md), GPT-5.5, and [Llama 4](../ai_knowledge/local_llms.md) to safely operate a household through standardized, strongly-typed tool-calling interfaces.
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent for interacting with household infrastructure. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) / FastMCP 3.1 specification. These tools enable frontier models like [Gemma 4](../ai_knowledge/local_llms.md), [Claude 5.6](../providers/anthropic.md), GPT-5.6, and [Llama 4](../ai_knowledge/local_llms.md) to safely operate a household through standardized, strongly-typed tool-calling interfaces.
 
 ## What problem it solves
 They give the agent controlled, high-level interfaces for querying and changing household task and smart-home systems without requiring direct database access or unrestricted shell execution. This provides a critical layer of security, predictability, and auditability to autonomous home operations, ensuring that the agent's actions are restricted to a predefined safety schema.
@@ -13,10 +13,10 @@ They give the agent controlled, high-level interfaces for querying and changing 
 - **Automated Morning Briefing**: Querying [Vikunja](../../services/vikunja.md) for today's tasks and [Home Assistant](../../services/home-assistant.md) for the current weather and house state.
 - **Scene Management**: Triggering "Good Night" or "Away" scenes based on family schedules or detected occupancy intent.
 - **Task Delegation**: Automatically creating maintenance tasks in [Vikunja](../../services/vikunja.md) when [Home Assistant](../../services/home-assistant.md) detects a sensor alert (e.g., "Fridge door left open for 10 minutes").
-- **Visual Diagnostics**: Using [Gemma 3](../ai_knowledge/local_llms.md) to analyze camera feeds and trigger automation tools based on visual reasoning.
+- **Visual Diagnostics**: Using [Gemma 4](../ai_knowledge/local_llms.md) to analyze camera feeds and trigger automation tools based on visual reasoning.
 
 ## Strengths
-- **Standardized Protocol**: Leverages [MCP](../automation_orchestration/mcp.md) 3.1 for universal compatibility with modern agent harnesses.
+- **Standardized Protocol**: Leverages FastMCP 3.1 for universal compatibility with modern agent harnesses.
 - **Security**: Actions are strictly limited by the tool's defined JSON schema and API scopes.
 - **FastMCP 3.1 Support**: Enables ultra-low latency tool execution for real-time home response.
 - **High Discoverability**: Semantic argument definitions allow LLMs to reliably use tools without fine-tuning or extensive prompting.
@@ -29,7 +29,7 @@ They give the agent controlled, high-level interfaces for querying and changing 
 ## When to use it
 - When an autonomous agent needs to read from or write to the household's task and automation systems.
 - When you want to provide a "Natural Language" interface for complex home operations.
-- For integrating local household services into the [Anthropic Agent Skills](claude-skills-ecosystem.md) ecosystem using [FastMCP 3.1](../automation_orchestration/mcp.md).
+- For integrating local household services into the [Anthropic Agent Skills](claude-skills-ecosystem.md) ecosystem using FastMCP 3.1.
 
 ## When not to use it
 - For services that lack configured credentials or clear ownership.
@@ -73,8 +73,8 @@ python3 scripts/home_assistant_tool.py --action toggle_light --entity_id light.k
 
 ## API examples
 
-### Example: Tool Definition (MCP 3.1 Format)
-This is an example of how the `vikunja_create_tool` would be defined in an [MCP](../automation_orchestration/mcp.md) server config following the Task Protocol.
+### Example: Tool Definition (FastMCP 3.1 Format)
+This is an example of how the `vikunja_create_tool` would be defined in a FastMCP 3.1 server config following the Task Protocol.
 
 ```json
 {
@@ -154,8 +154,8 @@ if __name__ == "__main__":
 - [Vikunja](../../services/vikunja.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [LangGraph](../frameworks/langgraph.md)
-- [Claude 5.1](../providers/anthropic.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 5.6](../providers/anthropic.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [Cline](cline.md)
 - [Agency Swarm](agency-swarm.md)
 - [Anthropic Agent Skills](claude-skills-ecosystem.md)
@@ -166,5 +166,5 @@ if __name__ == "__main__":
 - [Model Context Protocol 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-27
+- Last reviewed: 2027-01-07
 - Confidence: high
