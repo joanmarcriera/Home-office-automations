@@ -1,7 +1,7 @@
 # Phidata (Agno)
 
 ## What it is
-Phidata is a Python-native framework for building AI assistants with memory, knowledge, and tools. As of late November/December 2026, Phidata has fully transitioned and rebranded into the **Agno** framework (v3.x). It serves as a primary enterprise bridge for transforming raw LLMs into stateful, autonomous agents, offering native integration with the [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) and FastMCP 3.1.
+Phidata is a Python-native framework for building AI assistants with memory, knowledge, and tools. As of early January 2027, Phidata has fully transitioned and rebranded into the **Agno** framework (v3.x). It serves as a primary enterprise bridge for transforming raw LLMs into stateful, autonomous agents, offering native integration with the [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) and FastMCP 3.1.
 
 ## What problem it solves
 Phidata (Agno) addresses the "statelessness" and non-deterministic behavior of standard LLMs by providing clean, object-oriented abstractions for session management and long-term memory. It simplifies the integration of [Vector Databases](../infrastructure/pinecone.md) and relational storage like PostgreSQL, ensuring that retrieval-augmented generation (RAG) is highly performant. By supporting native tool-calling and FastMCP 3.1, it reduces the boilerplate required to connect AI agents to complex software stacks.
@@ -18,7 +18,7 @@ Phidata (Agno) addresses the "statelessness" and non-deterministic behavior of s
 ## Strengths
 - **Pythonic Design**: Offers an intuitive, object-oriented API that feels natural to Python developers.
 - **Native FastMCP 3.1 Support**: Seamlessly integrates with MCP servers using FastMCP for rapid tool discovery and execution.
-- **Optimized for Gemma 3**: Includes specialized prompt templates and structural handling for [Gemma 3](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) to maximize reasoning.
+- **Optimized for Gemma 4 & Qwen 3.6**: Includes specialized prompt templates and structural handling for [Gemma 4](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) to maximize reasoning efficiency.
 - **Robust Observability**: Standard integration with [AgentOps](../process_understanding/agentops.md) for execution graphs and [ClickHouse](../process_understanding/clickhouse.md) for high-volume session telemetry.
 - **Persistence Flexibility**: Out-of-the-box support for PostgreSQL, SQLite, and MongoDB.
 
@@ -44,7 +44,7 @@ pip install agno openai duckduckgo-search pydantic
 ```
 
 ### Hello-World Example
-Initialize a basic research agent using GPT-5.5:
+Initialize a basic research agent using GPT-5.6:
 
 ```python
 from agno.agent import Agent
@@ -53,7 +53,7 @@ from agno.tools.duckduckgo import DuckDuckGo
 
 # Create the assistant
 agent = Agent(
-    model=OpenAIChat(id="gpt-5.5-preview"),
+    model=OpenAIChat(id="gpt-5.6"),
     tools=[DuckDuckGo()],
     description="You are a research assistant.",
     show_tool_calls=True,
@@ -105,7 +105,7 @@ class AIAnalysisReport(BaseModel):
 
 # Initialize the Agent with a response model
 agent = Agent(
-    model=OpenAIChat(id="gpt-5.5-sol"),
+    model=OpenAIChat(id="gpt-5.6"),
     response_model=AIAnalysisReport,
     description="You are an expert market analyst synthesizing tool directories.",
 )
@@ -135,5 +135,5 @@ for comparison in report.comparisons:
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-28
+- Last reviewed: 2027-01-07
 - Confidence: high

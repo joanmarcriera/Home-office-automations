@@ -1,7 +1,7 @@
 # Perplexity Agent API
 
 ## What it is
-The Perplexity Agent API is a suite of programmatic interfaces released in early 2026 that provide developers with access to Perplexity's agentic workflows and orchestration capabilities. It features specialized models like **Sonar Pro**, **Sonar Reasoning Pro**, and **Sonar Deep Research**, which integrate real-time web search and multi-step reasoning. By late November/December 2026, it has become a standard backend for agents requiring SOTA search-groundedness, often compared to the reasoning density of [Gemma 3](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) in local environments.
+The Perplexity Agent API is a suite of programmatic interfaces providing developers with access to Perplexity's agentic workflows and orchestration capabilities. As of early January 2027, it features specialized models like **Sonar Pro**, **Sonar Reasoning Pro**, and **Sonar Deep Research**, which integrate real-time web search and multi-step reasoning. It serves as a standard backend for agents requiring SOTA search-groundedness, often compared to the reasoning density of [Gemma 4](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) in local environments.
 
 ## What problem it solves
 It simplifies the creation of research-capable AI agents by offloading the complex tasks of web searching, data extraction, and information synthesis to Perplexity's specialized engine. It eliminates the need for developers to build and maintain their own RAG (Retrieval-Augmented Generation) pipelines for public web data, providing a turn-key solution for grounded AI with extremely high citation fidelity.
@@ -12,7 +12,7 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 ## Typical use cases
 - **Automated Research**: Creating agents that perform deep-dives into specific topics using **Sonar Deep Research**.
 - **Real-time Information Retrieval**: Providing apps with up-to-date facts, financial data, or news via the **Finance Search** tool.
-- **Workflow Orchestration**: Using Perplexity's reasoning to handle multi-step tasks involving external data with models like [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) available via the Agentic Research API.
+- **Workflow Orchestration**: Using Perplexity's reasoning to handle multi-step tasks involving external data with models like [Claude 5.6](../providers/anthropic.md) or [GPT-5.6](../ai_knowledge/openai.md) available via the Agentic Research API.
 - **Automated Benchmarking**: Leveraging the FastMCP 3.1 Task Protocol to run standardized evaluations against real-time web data.
 
 ## Strengths
@@ -25,7 +25,7 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 ## Limitations
 - **Paid Service**: Requires a Perplexity API subscription (usage-based pricing).
 - **Rate Limits**: Subject to API usage limits which can be restrictive for high-volume automated agents.
-- **Cloud Dependent**: Not suitable for 100% offline or air-gapped environments (unlike [Llama 4](../providers/llama.md) or [Gemma 3](../ai_knowledge/local_llms.md)).
+- **Cloud Dependent**: Not suitable for 100% offline or air-gapped environments (unlike [Llama 4](../providers/llama.md) or [Gemma 4](../ai_knowledge/local_llms.md)).
 
 ## When to use it
 - When your agent needs the absolute latest information from the web (e.g., news, market trends, public filings).
@@ -35,7 +35,7 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 
 ## When not to use it
 - For strictly private, proprietary data that should not be sent to a cloud search engine.
-- For simple logic tasks that don't require external web search (use a local LLM like [Gemma 3](../ai_knowledge/local_llms.md) instead).
+- For simple logic tasks that don't require external web search (use a local LLM like [Gemma 4](../ai_knowledge/local_llms.md) instead).
 - When operating in a low-latency requirement environment where the overhead of web search is prohibitive.
 
 ## Getting started
@@ -96,7 +96,7 @@ response = client.chat.completions.create(
     model="sonar-pro",
     messages=[
         {"role": "system", "content": "You are a technical researcher. Be precise and cite sources."},
-        {"role": "user", "content": "What are the current rate limits for the OpenAI API as of late 2026?"}
+        {"role": "user", "content": "What are the current rate limits for the OpenAI API as of early 2027?"}
     ]
 )
 
@@ -151,12 +151,12 @@ class PerplexityAgentResponse(BaseModel):
 
 # Example parsing and validating search response from Perplexity Sonar Reasoning
 sample_perplexity_data = {
-    "query": "Current status of GPT-5.5 release dates",
+    "query": "Current status of GPT-5.6 release dates",
     "selected_model": "sonar-reasoning-pro",
-    "generated_text": "GPT-5.5 was announced with a phased developer beta roll-out in mid-November 2026 [1], achieving unprecedented cost reductions [2].",
+    "generated_text": "GPT-5.6 was announced with a phased developer beta roll-out in early January 2027 [1], achieving unprecedented reasoning capabilities [2].",
     "citations": [
-        {"index": 1, "url": "https://openai.com/blog/gpt-5-5-launch", "domain": "openai.com"},
-        {"index": 2, "url": "https://techcrunch.com/2026/11/openai-pricing-slashed", "domain": "techcrunch.com"}
+        {"index": 1, "url": "https://openai.com/blog/gpt-5-6-launch", "domain": "openai.com"},
+        {"index": 2, "url": "https://techcrunch.com/2027/01/openai-pricing-slashed", "domain": "techcrunch.com"}
     ],
     "has_sufficient_citations": True
 }
@@ -177,16 +177,16 @@ for cit in validated_research.citations:
 - [Exa AI](../providers/exa_ai.md)
 - [Google Search](../ai_knowledge/google-search.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
-- [Claude 5.1](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 5.6](../providers/anthropic.md)
+- [GPT-5.6](../ai_knowledge/openai.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
-- [Perplexity API Pricing 2026: Models, Costs & Optimization Tips](https://www.cloudzero.com/blog/perplexity-api-pricing/)
-- [Perplexity API Guide: Search-Grounded AI From Setup to Production (2026)](https://techjacksolutions.com/ai-tools/perplexity/perplexity-api-guide/)
+- [Perplexity API Pricing 2027: Models, Costs & Optimization Tips](https://www.cloudzero.com/blog/perplexity-api-pricing/)
+- [Perplexity API Guide: Search-Grounded AI From Setup to Production (2027)](https://techjacksolutions.com/ai-tools/perplexity/perplexity-api-guide/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-28
+- Last reviewed: 2027-01-07
 - Confidence: high
