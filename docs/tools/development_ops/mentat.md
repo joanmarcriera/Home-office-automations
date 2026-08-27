@@ -1,6 +1,6 @@
 # Mentat
 
-> **Notice**: Official documentation and repository for Mentat (`https://www.mentat.ai` / `https://github.com/AbanteAI/mentat`) are currently offline or no longer publicly maintained. Code examples and installation instructions have been omitted accordingly.
+> **Notice**: Official documentation and repository for Mentat (`https://www.mentat.ai` / `https://github.com/AbanteAI/mentat`) are currently offline or no longer publicly maintained. Historical code examples and installation reference instructions are provided for legacy reference.
 
 ## What it is
 Mentat is an AI tool designed to coordinate complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat was designed to handle large-scale refactorings where the context spans dozens of files. In early 2027, Mentat features theoretical native integration concepts with **FastMCP 3.1** and frontier reasoning models (**Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**).
@@ -38,9 +38,16 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 
 ## Getting started
 > *Historical Reference Note*: Upstream repository is offline. Historical CLI installation utilized pip:
+
 ```bash
 pip install mentat
 export OPENAI_API_KEY="your-api-key"
+```
+
+A minimal working example launching Mentat in non-interactive mode against a local module:
+
+```bash
+mentat --non-interactive --prompt "Add docstrings to all functions in main.py" src/main.py
 ```
 
 ## CLI examples

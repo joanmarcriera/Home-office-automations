@@ -39,11 +39,19 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 - When you require a headless environment with zero GUI overhead (use [Ollama](../../services/ollama.md)).
 
 ## Getting started
-1. **Download**: Install LM Studio from [lmstudio.ai](https://lmstudio.ai/).
-2. **Search**: Use the "Search" tab to find a model (e.g., `Llama-4-8B-Instruct-GGUF` or `Gemma-3-9B-IT-GGUF`).
-3. **Download**: Choose a quantization level (e.g., `Q4_K_M`) and click download.
-4. **Load**: Go to the "AI Chat" tab, select the model from the top dropdown, and wait for it to load into VRAM/Unified Memory.
-5. **Configure GPU**: In **Settings → GPU**, ensure **Apple Metal** or **NVIDIA CUDA** is selected for acceleration.
+1. **Download**: Install LM Studio desktop client or the CLI tooling:
+
+```bash
+# Install lms CLI on macOS / Linux
+brew install lmstudio
+```
+
+2. **Quickstart Example**: Search, load, and run local inference via CLI:
+
+```bash
+# Load model and launch local server
+lms load llama-4-8b-instruct --gpu max
+```
 
 ## CLI examples
 The `lms` CLI (v0.6.x+) allows for headless management of the LM Studio backend and registering local FastMCP 3.1 servers.

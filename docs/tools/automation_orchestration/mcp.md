@@ -167,7 +167,7 @@ if __name__ == "__main__":
 - [Claude Code](../development_ops/claude-code.md) — Standard CLI companion using MCP natively.
 - [Roo Code](../agents/roo-code.md) — Highly extensible IDE agent utilizing MCP 3.1.
 - [MCP Registry](mcp-registry.md) — Central directory for community and enterprise servers.
-- **Cloudflare WriteGuard** — MCP safety tool for filtering and securing AI-generated write calls and content.
+- [Cloudflare Agent Tracing](../process_understanding/cloudflare-agent-tracing.md) — Observability and safety tracing for agent workflows.
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — Enterprise orchestration pattern.
 - [Cline](../agents/cline.md) — Multi-model IDE agent with deep protocol support.
 - [n8n](../../services/n8n.md) — Multi-system visual workflow and trigger integrator.

@@ -44,6 +44,30 @@ Install Inspect AI and optional eval suites via pip:
 pip install inspect-ai inspect-evals pydantic
 ```
 
+### Quickstart minimal working example
+Create a simple evaluation file `simple_eval.py` and execute it:
+
+```python
+from inspect_ai import eval, Task, task
+from inspect_ai.dataset import Sample
+from inspect_ai.scorer import match
+from inspect_ai.solver import generate
+
+@task
+def hello_world_eval() -> Task:
+    dataset = [
+        Sample(input="What is the capital of France?", target="Paris"),
+    ]
+    return Task(
+        dataset=dataset,
+        plan=[generate()],
+        scorer=match()
+    )
+
+if __name__ == "__main__":
+    eval(hello_world_eval(), model="openai/gpt-4o")
+```
+
 ### Hello-world example
 Create a simple evaluation file `simple_eval.py`:
 
