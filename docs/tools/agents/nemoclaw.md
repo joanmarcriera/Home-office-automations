@@ -1,7 +1,7 @@
 # NVIDIA NeMo Claw
 
 ## What it is
-NVIDIA NeMo Claw is an enterprise-grade agent orchestration framework designed for building, deploying, and managing high-performance AI agents. As of late November/December 2026, it serves as the primary agentic layer within the [NVIDIA NIM](../providers/nvidia.md) ecosystem, optimized for the NVIDIA Rubin and Blackwell architectures. NeMo Claw provides a standardized runtime for agentic reasoning, native Model Context Protocol (MCP 3.1) support, and deep integration with TensorRT-LLM for low-latency tool execution.
+NVIDIA NeMo Claw is an enterprise-grade agent orchestration framework designed for building, deploying, and managing high-performance AI agents. As of early January 2027, it serves as the primary agentic layer within the [NVIDIA NIM](../providers/nvidia.md) ecosystem, optimized for the NVIDIA Rubin, Ultra-Blackwell, and Grace Hopper architectures. NeMo Claw provides a standardized runtime for agentic reasoning, native Model Context Protocol (MCP 3.1) support, and deep integration with TensorRT-LLM for low-latency tool execution.
 
 ## What problem it solves
 NeMo Claw addresses the "inference-to-action" latency gap in production agent deployments. It simplifies the orchestration of complex, multi-agent systems by providing standardized patterns for model serving via NVIDIA NIM, secure tool-calling validation, and sandboxed execution. It solves the scalability challenges of deploying agents across [K3s clusters](../infrastructure/k3s.md) and provides built-in mechanisms for MCP 3.1 / FastMCP 3.1 Task Protocol coordination, ensuring reliable tool use in industrial environments.
@@ -16,14 +16,14 @@ NeMo Claw sits in the **Agent Framework / Orchestration Layer**. It functions as
 - **GPU-Accelerated Scientific Research**: Automating high-fidelity simulations and data analysis on NVIDIA DGX systems.
 
 ## Strengths
-- **Rubin & Blackwell Architecture Optimization**: Native support for the NVIDIA Rubin and Blackwell architectures, providing unprecedented efficiency for agentic reasoning loops.
-- **NVIDIA NIM Integration**: Seamlessly pulls and manages models via NVIDIA Inference Microservices (NIM), now in General Availability (GA).
+- **Rubin & Ultra-Blackwell Architecture Optimization**: Native support for the NVIDIA Rubin and Ultra-Blackwell architectures, providing unprecedented efficiency for agentic reasoning loops.
+- **NVIDIA NIM Integration**: Seamlessly pulls and manages models via NVIDIA Inference Microservices (NIM), in full production General Availability (GA).
 - **Native FastMCP 3.1 Support**: Full implementation of the MCP 3.1 Task Protocol for standardized tool-calling and agent coordination.
 - **Production-Ready Scalability**: Optimized for deployment in [Docker](../infrastructure/docker.md) and Kubernetes environments using the NVIDIA GPU Operator.
 - **Security & Guardrails**: Integrated with NeMo Guardrails to ensure agent outputs and tool calls remain safe and compliant.
 
 ## Limitations
-- **Hardware Affinity**: Maximum performance gains are strictly tied to NVIDIA GPU infrastructure, particularly Rubin and Blackwell.
+- **Hardware Affinity**: Maximum performance gains are strictly tied to NVIDIA GPU infrastructure, particularly Rubin and Ultra-Blackwell.
 - **Infrastructure Complexity**: Requires familiarity with the NVIDIA software stack and container orchestration.
 - **Proprietary Lock-in**: While supporting open models, the most advanced features are optimized for the NVIDIA ecosystem.
 
@@ -44,7 +44,7 @@ NeMo Claw requires a running NVIDIA NIM instance. Ensure your environment is con
 
 ```bash
 # Pull and start a Nemotron NIM
-docker run --gpus all -p 8000:8000 nvcr.io/nim/nvidia/nemotron-4-340b-instruct:latest
+docker run --gpus all -p 8000:8000 nvcr.io/nim/nvidia/nemotron-5-340b-instruct:latest
 ```
 
 ### Installation
@@ -64,7 +64,7 @@ mcp_client = MCPClient(server_url="http://localhost:8080")
 
 # Initialize the NeMo Claw agent
 agent = Agent(
-    model="nemotron-4-340b-instruct",
+    model="nemotron-5-340b-instruct",
     endpoint="http://localhost:8000/v1",
     mcp_context=mcp_client.get_context()
 )
@@ -103,7 +103,7 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 class NIMInferenceMetrics(BaseModel):
-    gpu_utilization: float = Field(..., ge=0.0, le=100.0, description="NVIDIA Rubin/Blackwell GPU utilization percentage.")
+    gpu_utilization: float = Field(..., ge=0.0, le=100.0, description="NVIDIA Rubin/Ultra-Blackwell GPU utilization percentage.")
     time_to_first_token_ms: float = Field(..., ge=0.0)
     tokens_per_second: float = Field(..., ge=0.0)
 
@@ -127,7 +127,7 @@ class NeMoClawPayload(BaseModel):
 # Verify incoming execution response from a NeMo Claw REST interface
 sample_payload = {
     "agent_id": "production-monitor-rubin01",
-    "run_id": "claw-run-44810-2026",
+    "run_id": "claw-run-44810-2027",
     "n_tokens": 1056,
     "mcp_server_invoked": "http://localhost:8080/mcp/fastmcp-3.1",
     "telemetry_metrics": {
@@ -159,5 +159,5 @@ print(f"Inference Speed: {validated_run.telemetry_metrics.tokens_per_second} tok
 - [NVIDIA NIM User Guide](https://docs.nvidia.com/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-28
+- Last reviewed: 2027-01-07
 - Confidence: high
