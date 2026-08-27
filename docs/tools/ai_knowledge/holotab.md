@@ -7,7 +7,7 @@ HoloTab is an AI browser companion developed by HCompany. It is designed to assi
 It addresses the need for a more integrated and proactive AI assistant within the browser, helping users find information, summarize content, and automate simple browser tasks without switching contexts.
 
 ## Where it fits in the stack
-**AI & Knowledge / Browser Companion**. It sits at the interface between the user, the browser (Chrome v145+), and the web. In late 2026, it is commonly integrated with frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** for complex reasoning tasks, providing live web session context to active agents via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** specifications.
+**AI & Knowledge / Browser Companion**. It sits at the interface between the user, the browser (Chrome v145+), and the web. In early 2027, it is commonly integrated with frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, and **Qwen 3.6** for complex reasoning tasks, providing live web session context to active agents via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** specifications.
 
 ## Typical use cases
 - **Assisted Browsing**: Getting context or summaries of websites as you visit them.
@@ -114,5 +114,5 @@ if __name__ == "__main__":
 - [HCompany Documentation](https://h.company/docs/holotab)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-26
+- Last reviewed: 2027-01-07
 - Confidence: high
