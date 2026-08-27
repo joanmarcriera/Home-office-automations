@@ -1,10 +1,10 @@
 # AI Auditing Tools
 
 ## What it is
-AI Auditing Tools are a specialized category of observability, security, and governance platforms designed to monitor, record, and verify the actions of autonomous AI agents. In late November / December 2026, this category has evolved beyond standard server logging to provide deep-trace records of an agent's reasoning steps, model invocations, specific tool execution inputs/outputs, and external API requests, fully adhering to standard auditing protocols like the **MCP 3.1 Task Protocol**.
+AI Auditing Tools are a specialized category of observability, security, and governance platforms designed to monitor, record, and verify the actions of autonomous AI agents. In early January 2027, this category has evolved beyond standard server logging to provide deep-trace records of an agent's reasoning steps, model invocations, specific tool execution inputs/outputs, and external API requests, fully adhering to standard auditing protocols like the **MCP 3.1 Task Protocol**.
 
 ## What problem it solves
-As autonomous AI agents shift from purely textual chat interactions to executing active file operations, terminal commands, database queries, and system updates, traditional logs become insufficient. AI Auditing Tools solve the "black box" agent problem. They provide complete, tamper-proof, and indexable audit trails to detect hallucinated loops, prevent privilege escalation, flag prompt injection attacks, and enforce accountability across autonomous system interactions.
+As autonomous AI agents shift from purely textual chat interactions to executing active file operations, terminal commands, database queries, and system updates, traditional logs become insufficient. AI Auditing Tools solve the "black box" agent problem. They provide complete, tamper-proof, and indexable audit trails to detect hallucinated loops, prevent privilege escalation, flag prompt injection attacks, and enforce accountability across autonomous system interactions involving models such as **DeepSeek-V4**, **Qwen 3.6 VL**, **Claude 5.6**, **GPT-5.6**, and **Gemma 4**.
 
 ## Where it fits in the stack
 **Observability / Security**. Sitting parallel to the model serving engine and agent orchestration frameworks (such as [CrewAI](../frameworks/crewai.md) or [LangGraph](../frameworks/langgraph.md)), these tools act as the "flight recorder" for agent runtimes. They capture metadata and execute automated safety guardrails on all outgoing system-level instructions.
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # Simulated normal log entry payload
     normal_payload = {
         "session_id": "sess-admin-123456789",
-        "timestamp": "2026-12-08T10:15:30Z",
+        "timestamp": "2027-01-07T10:15:30Z",
         "agent_name": "home-lab-provisioner",
         "reasoning_step": "User requested visual system check. I will run a camera snapshot tool.",
         "tool_execution": {
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     # Simulated unsafe payload (HIGH risk without override authorization)
     unsafe_payload = {
         "session_id": "sess-admin-987654321",
-        "timestamp": "2026-12-08T10:17:00Z",
+        "timestamp": "2027-01-07T10:17:00Z",
         "agent_name": "home-lab-provisioner",
         "reasoning_step": "I will clean up disk space by deleting the system root directory.",
         "tool_execution": {
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 - [SharpAI Security Benchmark](../benchmarking/sharp-ai.md) — Standardized agent security and trust boundaries testing.
 - [Datadog](datadog.md) — Traditional APM platform that features AI and LLM observability integrations.
 - [Comet Opik](comet-opik.md) — Advanced LLM evaluation and span-tracing framework.
-- [Gemma 3](../ai_knowledge/local_llms.md) — SOTA local-first LLM compatible with audited agent loops.
+- [Gemma 4](../ai_knowledge/local_llms.md) — SOTA local-first LLM compatible with audited agent loops.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Formal specification for tool calling and context registration.
 
 ## Sources / references
@@ -187,5 +187,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Task Protocol Audit Specifications](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-08
+- Last reviewed: 2027-01-07
 - Confidence: high
