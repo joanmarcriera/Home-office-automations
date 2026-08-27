@@ -1,34 +1,34 @@
 # Symphony
 
 ## What it is
-Symphony is an enterprise-grade autonomous implementation framework open-sourced by OpenAI (updated late December 2026) designed to transform structured project requirements into fully isolated, self-verifying autonomous implementation runs. It automates high-level work items (such as Jira or Linear issues) by orchestrating a dynamic fleet of specialized coding agents executing under the standardized **MCP 3.1 Task Protocol**.
+Symphony is an enterprise-grade autonomous implementation framework open-sourced by OpenAI (updated early January 2027) designed to transform structured project requirements into fully isolated, self-verifying autonomous implementation runs. It automates high-level work items (such as Jira or Linear issues) by orchestrating a dynamic fleet of specialized coding agents executing under the standardized **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
-It solves the "supervision bottleneck" in agentic software engineering. Instead of humans micro-prompting coding models line-by-line, Symphony shifts the developer's role to high-level system specification and code-review approval. By combining the **MCP 3.1 Task Protocol** for standardized multi-agent coordination with rigorous validation loops, Symphony guarantees that agent-generated PRs are structurally sound, well-tested, and safe to land.
+It solves the "supervision bottleneck" in agentic software engineering. Instead of humans micro-prompting coding models line-by-line, Symphony shifts the developer's role to high-level system specification and code-review approval. By combining the **FastMCP 3.1 Task Protocol** for standardized multi-agent coordination with rigorous validation loops, Symphony guarantees that agent-generated PRs are structurally sound, well-tested, and safe to land.
 
 ## Where it fits in the stack
 [Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — An autonomous, multi-agent lifecycle coordinator sitting between issue-tracking platforms (Linear, Jira) and version control hosts (GitHub, GitLab), standardizing execution via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem.
 
 ## Typical use cases
-- **Multi-Agent Task Distribution**: Utilizing the **MCP 3.1 Task Protocol** to parcel out code-base refactoring, unit test generation, and documentation tasks across targeted agents.
+- **Multi-Agent Task Distribution**: Utilizing the **FastMCP 3.1 Task Protocol** to parcel out code-base refactoring, unit test generation, and documentation tasks across targeted agents.
 - **Auto-Healing Bug Resolution**: Ingesting failing telemetry logs, auto-reproducing bugs in isolated sandboxes, and producing verified, CI-passing fixes.
 - **Continuous Implementation Pipelines**: Injecting autonomous agents directly into CI/CD pipelines to handle routine technical debt, dependency updates, and boilerplate generation.
 - **Compliance & PR Auditing**: Running automated validation audits on candidate pull requests against strict enterprise standards.
 
 ## Strengths
-- **MCP 3.1 Task Protocol Alignment**: Native compatibility with the latest Task Protocol standards for seamless handshake, lifecycle state, and token routing across agent fleets.
+- **FastMCP 3.1 Task Protocol Alignment**: Native compatibility with early 2027 Task Protocol standards for seamless handshake, lifecycle state, and token routing across agent fleets.
 - **Isolated Run Architectures**: Spawns isolated, self-contained runtimes (Docker, WASM, or micro-VMs) for agents to safely build and execute code.
 - **Proof-of-Work Constraints**: Enforces mandatory verification steps (compilation gates, test coverage thresholds, lint checks) before submitting pull requests.
-- **Multi-Model Support**: Dynamically routes specific tasks to specialized model variants (e.g., GPT-5.5-preview for architecture, Claude 5.1 for surgical code refinement).
+- **Multi-Model Support**: Dynamically routes specific tasks to specialized model variants (e.g., GPT-5.6 for architecture, Claude 5.6 for surgical code refinement, Gemini 4.0 Ultra for multimodal auditing).
 
 ## Limitations
 - **Harness & CI Dependency**: Extremely dependent on pre-existing unit test suites and comprehensive coverage to prevent regressions.
 - **Token Consuming**: Deep-research and multi-agent synthesis loops can become highly token-intensive.
-- **Evolving Standard**: The MCP 3.1 Task Protocol and associated server-side libraries are iterating rapidly, requiring frequent runtime updates.
+- **Evolving Standard**: The FastMCP 3.1 Task Protocol and associated server-side libraries are iterating rapidly, requiring frequent runtime updates.
 
 ## When to use it
 - When implementing a fully automated [Software Factories](../../knowledge_base/patterns/software-factories.md) model within mature codebases.
-- For managing and orchestrating parallel task executions using high-capability models like [GPT-5.5](../ai_knowledge/chatgpt.md) or [Claude 5.1](../providers/anthropic.md).
+- For managing and orchestrating parallel task executions using high-capability models like [GPT-5.6](../ai_knowledge/chatgpt.md) or [Claude 5.6](../providers/anthropic.md).
 - When a codebase already has rigorous automated test suites and robust containerized staging environments.
 
 ## When not to use it
@@ -40,8 +40,8 @@ It solves the "supervision bottleneck" in agentic software engineering. Instead 
 ### Requirements
 - Containerized or isolated execution environment (Docker or WASM sandbox).
 - High-coverage CI test runner.
-- Valid API keys for GPT-5.5 or Claude 5.1.
-- An MCP 3.1-compliant environment for agent-to-tool handshakes.
+- Valid API keys for GPT-5.6, Claude 5.6, or Gemini 4.0 Ultra.
+- A FastMCP 3.1-compliant environment for agent-to-tool handshakes.
 
 ### Installation
 ```bash
@@ -56,9 +56,9 @@ mix compile
 ```
 
 ### Basic Implementation Run
-Configure your environment to point to an MCP 3.1 Task Protocol endpoint and trigger an autonomous implementation run:
+Configure your environment to point to a FastMCP 3.1 Task Protocol endpoint and trigger an autonomous implementation run:
 ```bash
-export SYMPHONY_MODEL=gpt-5.5-preview
+export SYMPHONY_MODEL=gpt-5.6
 export SYMPHONY_MCP_ENDPOINT=http://localhost:8000/v1/task-protocol
 
 # Start an implementation run for a designated issue
@@ -73,7 +73,7 @@ symphony start --workflow ./WORKFLOW.md
 # List and audit running implementation sessions across the fleet
 symphony status --detailed
 
-# Trigger a manual handshake to inspect MCP 3.1 Task Protocol capability matrices
+# Trigger a manual handshake to inspect FastMCP 3.1 Task Protocol capability matrices
 symphony mcp handshake --endpoint http://localhost:8080
 ```
 
@@ -143,8 +143,8 @@ if __name__ == "__main__":
 ## Sources / references
 - [Symphony Specifications](https://github.com/openai/symphony/blob/main/SPEC.md)
 - [OpenAI GitHub Repository](https://github.com/openai/symphony)
-- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/task-protocol)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-05
+- Last reviewed: 2027-01-07
 - Confidence: high
