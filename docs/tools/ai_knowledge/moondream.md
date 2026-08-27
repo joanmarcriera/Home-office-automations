@@ -1,15 +1,15 @@
 # Moondream
 
-Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of late October / November 2026, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint, fully integrated with **FastMCP 3.1** specs for autonomous vision tool use.
+Moondream is a tiny, high-performance vision-language model (VLM) designed to run efficiently on edge devices and local hardware. As of early January 2027, Moondream 3.1 features a sparse mixture-of-experts (MoE) architecture that delivers frontier-level visual reasoning, object detection, and segmentation within a remarkably small parameter footprint, fully integrated with **FastMCP 3.1** specs for autonomous vision tool use and compatible with multi-modal workflows driven by frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
 
 ## What it is
 Moondream is a multi-function VLM that excels at interpreting visual data. Unlike traditional large-scale VLMs, Moondream is optimized for speed and resource efficiency, making it the preferred choice for real-time applications like "computer use" agents and mobile vision tasks. It supports complex queries, captioning, object detection, pointing (coordinate extraction), and segmentation.
 
 ## What problem it solves
-It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude 5.1](../ai_knowledge/claude.md) or **GPT-5.5**. Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
+It bridges the gap between massive, resource-heavy vision models and the need for low-latency, privacy-preserving visual intelligence. Many home-office automation tasks—such as describing a security camera still or identifying a button in a UI—do not require the multi-billion parameter overhead of a model like [Claude 5.6](../ai_knowledge/claude.md) or **GPT-5.6**. Moondream provides high-accuracy visual understanding with minimal VRAM and power consumption.
 
 ## Where it fits in the stack
-**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a **FastMCP 3.1** ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md) or **Gemini 4.0 Pro/Ultra/Flash** can act upon.
+**Perception Layer**. It serves as the visual "eyes" for autonomous agents. Within a **FastMCP 3.1** ecosystem, Moondream acts as a specialized tool for transforming raw pixels into structured data that reasoning models like [Gemma 3](local_llms.md), **Qwen 3.6**, or **Gemini 4.0 Pro/Ultra/Flash** can act upon.
 
 ## Typical use cases
 - **Computer Use Agents**: Identifying UI elements (buttons, fields) for robotic process automation (RPA).
@@ -152,5 +152,5 @@ if __name__ == "__main__":
 - [Moondream Examples](https://github.com/m87-labs/moondream-examples)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high

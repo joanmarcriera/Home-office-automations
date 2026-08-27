@@ -1,7 +1,7 @@
 # Roam Research
 
 ## What it is
-Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By late November 2026, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, enabling agentic reasoning across complex webs of information.
+Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By early January 2027, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, enabling agentic reasoning across complex webs of information.
 
 ## What problem it solves
 Traditional folder-based note-taking systems often force users to categorize information prematurely. Roam allows for organic growth of knowledge by connecting ideas via `[[links]]` and `#tags`, creating a web of interrelated concepts where "the graph is the file system." This enables discovery of non-obvious connections between disparate research points.
@@ -21,7 +21,7 @@ Traditional folder-based note-taking systems often force users to categorize inf
 - **Block-level Granularity**: Every paragraph (block) is a first-class citizen with a unique ID, allowing for block embedding and referencing.
 - **Fluid Interface**: Encourages frictionless entry of information without worrying about "where it goes."
 - **Programmability**: Powerful "Roam/js" and "Roam/css" extensions allow users to build custom functionality.
-- **AI Integration**: Native support for SOTA models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** for graph-wide reasoning.
+- **AI Integration**: Native support for SOTA models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0** for graph-wide reasoning.
 
 ## Limitations
 - **Proprietary/Closed Source**: Data is stored on Roam's servers (though encrypted graphs are supported).
@@ -170,5 +170,5 @@ Roam allows for full graph exports in JSON format, which can be analyzed by loca
 - **Licensing**: Proprietary SaaS ($15/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-25
+- Last reviewed: 2027-01-07
 - Confidence: high
