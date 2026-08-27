@@ -1,10 +1,10 @@
 # Letta
 
 ## What it is
-Letta (v1.12.x+, late November 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **MCP 3.1 Task Protocol** for tool and context orchestration.
+Letta (v1.15.x+, early January 2027) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **FastMCP 3.1 Task Protocol** for tool and context orchestration.
 
 ## What problem it solves
-Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude 5.1](../providers/anthropic.md) to GPT-5.5 or [Gemma 3](../ai_knowledge/local_llms.md)).
+Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude 5.6](../providers/anthropic.md) to GPT-5.6 or [Gemma 4](../ai_knowledge/local_llms.md)).
 
 ## Where it fits in the stack
 **Category**: Agent / Memory Layer. It sits as a stateful middleware between the Model (Inference) layer and the Application layer, providing persistent "Virtual Context" via a database backend (PostgreSQL/VectorDB).
@@ -19,7 +19,7 @@ Standard LLMs suffer from "forgetfulness" once their context window is exceeded.
 - **State Persistence**: State is stored in a database, allowing agents to survive process restarts and migrate between models.
 - **Infinite Context**: Automatically manages what stays in the active LLM context and what goes to long-term storage using "Virtual Context".
 - **Self-Editing Memory**: Agents can be given tools to "write" to and "edit" their own core memory.
-- **MCP 3.1 Support**: Native integration for the **MCP 3.1 Task Protocol**, enabling agents to use standardized tools and context sources.
+- **FastMCP 3.1 Support**: Native integration for the **FastMCP 3.1 Task Protocol**, enabling agents to use standardized tools and context sources.
 
 ## Limitations
 - **Latency**: Tiered memory management and database lookups add overhead to each inference step.
@@ -66,7 +66,7 @@ letta list-agents
 # Export agent state for migration
 letta export --agent DurableCoder --output coder_state.json
 
-# Run a query with a specific MCP tool source
+# Run a query with a specific FastMCP 3.1 tool source
 letta run --agent DurableCoder --mcp-server http://localhost:18789
 ```
 
@@ -135,10 +135,10 @@ if __name__ == "__main__":
     valid_state_json = """
     {
         "agent_id": "letta-agent-99x",
-        "model_name": "claude-5.1-sonnet",
+        "model_name": "claude-5.6-sonnet",
         "memory": [
-            {"block_type": "CORE", "content": "User prefers python over javascript, and uses Pydantic v2.", "updated_at": "2026-11-27T10:00:00Z"},
-            {"block_type": "RECENT", "content": "Discussed FastMCP 3.1 configuration.", "updated_at": "2026-11-27T10:05:00Z"}
+            {"block_type": "CORE", "content": "User prefers python over javascript, and uses Pydantic v2.", "updated_at": "2027-01-07T10:00:00Z"},
+            {"block_type": "RECENT", "content": "Discussed FastMCP 3.1 configuration.", "updated_at": "2027-01-07T10:05:00Z"}
         ],
         "system_tags": ["developer", "strict-types"]
     }
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Mem0](mem0.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [Agno](agno.md)
 - [Phidata](phidata.md)
 - [LangGraph](../frameworks/langgraph.md)
@@ -164,5 +164,5 @@ if __name__ == "__main__":
 - [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-27
+- Last reviewed: 2027-01-07
 - Confidence: high

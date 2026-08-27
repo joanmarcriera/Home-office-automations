@@ -1,7 +1,7 @@
 # GPT Researcher
 
 ## What it is
-GPT Researcher (v4.2+, late November 2026) is an autonomous agent designed for comprehensive online research on any given topic. It plans the research, browses the web, and synthesizes a final report with deep citations. It uses a "master-agent" and "research-agent" pattern to break down complex queries into manageable sub-tasks, now supporting multi-modal search and the **MCP 3.1 Task Protocol**.
+GPT Researcher (v4.5+, early January 2027) is an autonomous agent designed for comprehensive online research on any given topic. It plans the research, browses the web, and synthesizes a final report with deep citations. It uses a "master-agent" and "research-agent" pattern to break down complex queries into manageable sub-tasks, supporting multi-modal search and the **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
 It automates the time-consuming process of manual research, gathering information from multiple sources and producing high-quality, grounded summaries. It specifically addresses LLM hallucinations by grounding every claim in a retrieved web source (via Tavily/SearXNG) and providing a verifiable bibliography.
@@ -20,7 +20,7 @@ It automates the time-consuming process of manual research, gathering informatio
 - **High Recall**: Scrapes dozens of sources per task, far exceeding standard "search" tools or single-shot RAG.
 - **Citation-First**: Every report includes a comprehensive bibliography with direct links to sources.
 - **Customizable**: Allows defining specific "research tasks", tones, and report formats (PDF, Markdown, JSON).
-- **Agentic Tooling**: Native support for **MCP 3.1**, allowing it to be used as a tool by other agents like [Claude 5.1](../providers/anthropic.md) or [Gemma 3](../ai_knowledge/local_llms.md).
+- **Agentic Tooling**: Native support for **FastMCP 3.1**, allowing it to be used as a tool by other agents like [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), or [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## Limitations
 - **Cost**: Scraping and synthesizing many sources can consume significant LLM tokens and API credits (Tavily).
@@ -59,7 +59,7 @@ Run a research task via the Python API to generate a markdown report.
 python -m gpt_researcher.cli "Future of solid-state batteries in 2027" --report_type research_report
 
 # Generate a detailed, in-depth report with a specific tone
-python -m gpt_researcher.cli "Impact of MCP 3.1 on agentic ecosystems" --report_type detailed_report --tone analytical
+python -m gpt_researcher.cli "Impact of FastMCP 3.1 on agentic ecosystems" --report_type detailed_report --tone analytical
 
 # Conduct research filtered by specific domains
 python -m gpt_researcher.cli "Latest SpaceX launches" --report_type research_report --query_domains spacex.com,nasa.gov
@@ -74,7 +74,7 @@ import asyncio
 
 async def run_research():
     researcher = GPTResearcher(
-        query="Evolution of agentic frameworks in November 2026",
+        query="Evolution of agentic frameworks in early 2027",
         report_type="research_report",
         tone="technical"
     )
@@ -137,8 +137,8 @@ if __name__ == "__main__":
                 "summary": "Introduces high-throughput session protocols and multi-threading parameters."
             },
             {
-                "title": "FastMCP benchmarking on local Gemma 3 models",
-                "url": "https://huggingface.co/blog/gemma-3-mcp",
+                "title": "FastMCP benchmarking on local Gemma 4 models",
+                "url": "https://huggingface.co/blog/gemma-4-mcp",
                 "relevance_score": 0.89,
                 "summary": "Demonstrates sub-10ms tool call latency when run locally."
             }
@@ -156,8 +156,8 @@ if __name__ == "__main__":
 - [SearXNG Automation](../../services/searXNG-automation.md)
 - [Letta](letta.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
-- [Claude 5.1](../ai_knowledge/claude.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
+- [Claude 5.6](../ai_knowledge/claude.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Search Patterns](../../knowledge_base/patterns/search-patterns.md)
 
@@ -166,5 +166,5 @@ if __name__ == "__main__":
 - [GPT Researcher Official Documentation](https://docs.gptr.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-27
+- Last reviewed: 2027-01-07
 - Confidence: high

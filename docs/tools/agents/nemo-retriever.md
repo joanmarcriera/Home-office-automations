@@ -1,13 +1,13 @@
 # NVIDIA NeMo Retriever
 
 ## What it is
-NVIDIA NeMo Retriever is a family of generative AI microservices (v2026.11.x+) designed to provide high-performance, agent-ready retrieval-augmented generation (RAG) capabilities. It enables organizations to connect their custom models to live enterprise data and deliver highly accurate, context-aware responses through optimized inference microservices (NIM).
+NVIDIA NeMo Retriever is a family of generative AI microservices (v2027.1.x+, early January 2027) designed to provide high-performance, agent-ready retrieval-augmented generation (RAG) capabilities. It enables organizations to connect their custom models to live enterprise data and deliver highly accurate, context-aware responses through optimized inference microservices (NIM).
 
 ## What problem it solves
-Traditional RAG pipelines often struggle with retrieval accuracy and latency as data scales. NeMo Retriever provides a generalized agentic retrieval pipeline that moves beyond simple semantic similarity to include more complex reasoning and multi-step retrieval strategies. It specifically addresses the "lost in the middle" and "needle in a haystack" problems for large context models like [Claude 5.1](../providers/anthropic.md), GPT-5.5, and [Gemma 3](../ai_knowledge/local_llms.md).
+Traditional RAG pipelines often struggle with retrieval accuracy and latency as data scales. NeMo Retriever provides a generalized agentic retrieval pipeline that moves beyond simple semantic similarity to include more complex reasoning and multi-step retrieval strategies. It specifically addresses the "lost in the middle" and "needle in a haystack" problems for large context models like [Claude 5.6](../providers/anthropic.md), GPT-5.6, and [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## Where it fits in the stack
-**Agentic RAG / Retrieval Layer**. It sits between the agent orchestration layer (e.g., LangGraph, Bee) and the enterprise data sources, providing optimized embedding, reranking, and retrieval services via the **MCP 3.1 Task Protocol**.
+**Agentic RAG / Retrieval Layer**. It sits between the agent orchestration layer (e.g., LangGraph, Bee) and the enterprise data sources, providing optimized embedding, reranking, and retrieval services via the **FastMCP 3.1 Task Protocol**.
 
 ## Typical use cases
 - **Agentic Search**: Implementing complex multi-step search strategies for autonomous agents.
@@ -16,7 +16,7 @@ Traditional RAG pipelines often struggle with retrieval accuracy and latency as 
 - **Agentic Memory**: Serving as a persistent, high-performance memory store for long-running agent sessions.
 
 ## Strengths
-- **Agentic Retrieval**: Specifically designed for agent-based workflows with complex retrieval needs and **MCP 3.1 Task Protocol** support.
+- **Agentic Retrieval**: Specifically designed for agent-based workflows with complex retrieval needs and **FastMCP 3.1 Task Protocol** support.
 - **High Performance**: Optimized for NVIDIA H100/B200 and Blackwell-class GPUs to minimize RAG latency.
 - **Enterprise Grade**: Designed for scale, security, and reliability in production environments with native RBAC.
 - **Integration**: Native support for the `nemo-mcp-server` allowing seamless context delivery to frontier models.
@@ -30,7 +30,7 @@ Traditional RAG pipelines often struggle with retrieval accuracy and latency as 
 - **Enterprise-Scale RAG**: When you need to scale retrieval to millions of documents with sub-second latency.
 - **Agentic Workflows**: If your agents require complex, multi-step retrieval strategies that go beyond simple vector search.
 - **NVIDIA Ecosystem**: When you are already using NVIDIA GPUs and NIM for model serving.
-- **MCP 3.1 Integration**: When you need a standardized protocol for connecting retrieval tools to agents via the **MCP 3.1 Task Protocol**.
+- **FastMCP 3.1 Integration**: When you need a standardized protocol for connecting retrieval tools to agents via the **FastMCP 3.1 Task Protocol**.
 
 ## When not to use it
 - **Small-Scale Projects**: For simple RAG with a few documents, a basic ChromaDB or SQLite setup is easier.
@@ -38,12 +38,12 @@ Traditional RAG pipelines often struggle with retrieval accuracy and latency as 
 - **Budget Constrained**: If commercial licensing fees are a barrier, consider open-source alternatives like RAGFlow or Milvus.
 
 ## Getting started
-NeMo Retriever is deployed via NVIDIA NIM. In late November 2026, the standard deployment involves the `nemo-mcp-server` for agentic integration.
+NeMo Retriever is deployed via NVIDIA NIM. In early January 2027, the standard deployment involves the `nemo-mcp-server` for agentic integration.
 
 ### Minimal Concepts
 1. **Embeddings**: Microservices for generating high-fidelity vector representations.
 2. **Reranking**: Models that refine retrieval results based on relevance to the specific agentic intent.
-3. **MCP Server**: The interface through which agents ([Claude 5.1](../providers/anthropic.md)/GPT-5.5/[Gemma 3](../ai_knowledge/local_llms.md)) request and receive context.
+3. **MCP Server**: The interface through which agents ([Claude 5.6](../providers/anthropic.md)/GPT-5.6/[Gemma 4](../ai_knowledge/local_llms.md)) request and receive context.
 
 ## CLI examples
 ```bash
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [RAG Pattern](../../knowledge_base/patterns/rag.md)
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Gemma 4](../ai_knowledge/local_llms.md)
 - [MCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [RAGFlow](../process_understanding/ragflow.md)
 - [Milvus](../process_understanding/snowflake.md) (Integrated via NeMo)
@@ -152,5 +152,5 @@ if __name__ == "__main__":
 - [Introducing NVIDIA NeMo Retriever’s Generalizable Agentic Retrieval Pipeline](https://huggingface.co/blog/nvidia/nemo-retriever-agentic-retrieval)
 
 ## Contribution Metadata
-- Last reviewed: 2026-11-27
+- Last reviewed: 2027-01-07
 - Confidence: high
