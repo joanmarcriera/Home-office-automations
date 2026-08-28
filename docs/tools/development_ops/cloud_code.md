@@ -1,7 +1,7 @@
 # Cloud Code
 
 ## What it is
-Cloud Code (Late November/December 2026 SOTA Edition) is a powerful suite of IDE extensions (VS Code, JetBrains) from Google Cloud designed to accelerate the development, deployment, and management of cloud-native applications. It features native, deep integration with **Gemini 4.0 Code Assist** (Ultra, Flash, Pro) for AI-driven Kubernetes YAML generation, Terraform authoring, and real-time debugging of services running on GKE (Google Kubernetes Engine) and Cloud Run. Under the hood, it utilizes Gemini Spark for workspace-level orchestration and Gemini Omni for multimodal system architecture analysis, alongside native Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) support to connect development contexts with external cloud infrastructure tools.
+Cloud Code (Early January 2027 SOTA Edition) is a powerful suite of IDE extensions (VS Code, JetBrains) from Google Cloud designed to accelerate the development, deployment, and management of cloud-native applications. It features native, deep integration with **Gemini 4.0 Code Assist** (Ultra, Flash, Pro) for AI-driven Kubernetes YAML generation, Terraform authoring, and real-time debugging of services running on GKE (Google Kubernetes Engine) and Cloud Run. Under the hood, it utilizes Gemini Spark for workspace-level orchestration and Gemini Omni for multimodal system architecture analysis, alongside native Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) support to connect development contexts with external cloud infrastructure tools.
 
 ## What problem it solves
 Cloud Code eliminates the "Context Switching Tax" by bringing complex cloud operations directly into the developer's primary workspace. It simplifies the management of Kubernetes clusters, automates the "inner loop" development cycle via Skaffold, and provides secure, integrated access to Google Cloud services like Secret Manager and Cloud Logging. It bridges the gap between local code environments and remote deployment states by exposing standardized telemetry and diagnostics directly to IDE-hosted AI assistants.
@@ -216,5 +216,5 @@ if __name__ == "__main__":
 - [Gemini Code Assist in Cloud Code](https://cloud.google.com/gemini/docs/codeassist/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-14
+- Last reviewed: 2027-01-07
 - Confidence: high

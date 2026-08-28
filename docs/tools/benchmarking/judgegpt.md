@@ -1,7 +1,7 @@
 # JudgeGPT
 
 ## What it is
-JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judge** paradigm. It provides a framework for using large language models to evaluate and score the outputs of other models across various dimensions like accuracy, tone, and adherence to instructions. In late November/December 2026, it is natively integrated with the **MCP 3.1 Task Protocol** (and **FastMCP 3.1**), allowing for automated, standardized qualitative assessment of agentic task completion.
+JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judge** paradigm. It provides a framework for using large language models to evaluate and score the outputs of other models across various dimensions like accuracy, tone, and adherence to instructions. In early January 2027, it is natively integrated with the **MCP 3.1 Task Protocol** (and **FastMCP 3.1**), allowing for automated, standardized qualitative assessment of agentic task completion.
 
 ## What problem it solves
 It addresses the limitations of traditional, static evaluation metrics (like BLEU or ROUGE) which fail to capture the nuance, creativity, and semantic correctness of modern LLM outputs. JudgeGPT automates the labor-intensive process of human evaluation while providing more consistent and scalable results. It specifically solves the "subjectivity gap" in evaluating agentic tool-use and multi-step reasoning traces.
@@ -154,5 +154,5 @@ if __name__ == "__main__":
 - [LLM-as-a-judge Paper (arXiv:2306.05685)](https://arxiv.org/abs/2306.05685)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-15
+- Last reviewed: 2027-01-07
 - Confidence: high

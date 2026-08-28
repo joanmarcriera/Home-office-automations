@@ -1,7 +1,7 @@
 # Devin
 
 ## What it is
-Devin is an autonomous AI software engineer capable of handling complex engineering tasks end-to-end. As of late November/December 2026, **Devin v4 (Cognition Labs)** remains the industry benchmark for high-autonomy agents, featuring advanced long-term planning, real-time debugging, and the ability to operate within its own secure, stateful container. Natively utilizing a ensemble of **Claude 5.1**, **GPT-5.5**, and **Llama 4** reasoning backends, Devin v4 is standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to extend its execution capabilities and interface with external toolboxes. It is a fully realized "AI employee" rather than just an IDE coding assistant.
+Devin is an autonomous AI software engineer capable of handling complex engineering tasks end-to-end. As of early January 2027, **Devin 3.0 (Cognition Labs)** remains the industry benchmark for high-autonomy agents, featuring advanced long-term planning, real-time debugging, and the ability to operate within its own secure, stateful container. Natively utilizing an ensemble of **Claude 5.6**, **GPT-5.6**, and **Llama 4 Maverick** reasoning backends, Devin 3.0 is standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to extend its execution capabilities and interface with external toolboxes. It is a fully realized "AI employee" rather than just an IDE coding assistant.
 
 ## What problem it solves
 Standard LLMs can write code snippets but often struggle with long-horizon, multi-step engineering workflows. Devin solves this by acting as a full-fledged agent that can navigate large codebases, run and test code, browse documentation, and self-correct during the implementation process. It significantly reduces the burden of routine maintenance, bug fixing, and boilerplate feature development.
@@ -193,5 +193,5 @@ if __name__ == "__main__":
 - [SWE-bench: Autonomous Agent Leaderboard](https://www.swebench.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-14
+- Last reviewed: 2027-01-07
 - Confidence: high
