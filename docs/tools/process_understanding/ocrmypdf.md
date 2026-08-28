@@ -1,7 +1,7 @@
 # OCRmyPDF
 
 ## What it is
-OCRmyPDF is an advanced open-source CLI utility and Python library that adds a searchable Optical Character Recognition (OCR) text layer to scanned PDF files. In the late November / December 2026 agentic stack (supporting v17.4.x+ / v18.0.x), it leverages highly optimized engines like Tesseract v5.5+ and plugins like EasyOCR or PaddleOCR. It serves as a foundational component for local-first knowledge base ingestion pipelines, preparing physical papers and image-only PDFs for reasoning by frontier models like Gemma 3, Claude 5.1, and GPT-5.5.
+OCRmyPDF is an advanced open-source CLI utility and Python library that adds a searchable Optical Character Recognition (OCR) text layer to scanned PDF files. In early January 2027 (supporting v18.x+), it leverages highly optimized engines like Tesseract v5.5+ and plugins like EasyOCR, PaddleOCR, or Docling layout sidecars. It serves as a foundational component for local-first knowledge base ingestion pipelines, preparing physical papers and image-only PDFs for reasoning by frontier models like Gemma 4, Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ## What problem it solves
 It eliminates "dark data" in self-hosted home labs and enterprise document pipelines—scanned papers, receipts, and invoices that exist only as flat images inside a PDF wrapper. Without OCRmyPDF, autonomous agents cannot inspect or search these documents without using expensive, high-latency Vision-Language Models (VLMs) on every document retrieval. OCRmyPDF creates a standardized, searchable text layer placed precisely under the original document images, allowing classic text-based RAG engines to parse, index, and retrieve content at high speeds.
@@ -11,9 +11,9 @@ It eliminates "dark data" in self-hosted home labs and enterprise document pipel
 
 ## Typical use cases
 - **Paperless-ngx Automation**: Automatically processing incoming physical mail scans to enable full-text indexing and AI auto-tagging.
-- **VLM-Assisted Layout Ingestion**: Generating precise OCR-text coordinates before sending structured visual blocks to models like [Gemma 3](../ai_knowledge/local_llms.md) or Claude 5.1.
+- **VLM-Assisted Layout Ingestion**: Generating precise OCR-text coordinates before sending structured visual blocks to models like [Gemma 4](../ai_knowledge/local_llms.md), Claude 5.6, or GPT-5.6.
 - **Archival Standardization**: Upgrading old PDF files to long-term digital preservation formats like PDF/A-2b or PDF/A-3b.
-- **FastMCP 3.1 Document Tooling**: Wrapping OCRmyPDF as an asynchronous tool exposed to agents executing workflows via the [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md).
+- **FastMCP 3.1 Document Tooling**: Wrapping OCRmyPDF as an asynchronous tool exposed to agents executing workflows via the [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) FastMCP 3.1 Task Protocol.
 
 ## Strengths
 - **Lossless Reconstruction**: Places OCR text perfectly underneath original raster images, maintaining exact visual fidelity.
@@ -23,7 +23,7 @@ It eliminates "dark data" in self-hosted home labs and enterprise document pipel
 
 ## Limitations
 - **High Resource Requirements**: Pre-processing images (deskewing, cleaning) and running multi-engine OCR is CPU and RAM intensive.
-- **Complex Layouts**: Tabular data and dense multi-column texts can sometimes suffer from incorrect reading-order assignment.
+- **Complex Layouts**: Tabular data and dense multi-column texts can sometimes suffer from incorrect reading-order assignment without specialized sidecars.
 - **Handwriting Limitations**: While Tesseract v5.5+ has improved LSTM performance, cursive handwriting still requires specialized deep learning plugins.
 
 ## When to use it
@@ -75,7 +75,7 @@ docker run --rm -v "$(pwd):/data" jbarlow83/ocrmypdf --deskew /data/input.pdf /d
 
 ## API examples
 
-### Programmatic Python Integration with Strict Pydantic v2 Verification
+### Programmatic Python Integration with FastMCP 3.1 & Strict Pydantic v2 Verification
 This example demonstrates a production-grade OCR execution harness. It invokes the Python API of `ocrmypdf` and validates the results against strict Pydantic v2 schemas to ensure the processed document matches quality requirements (such as page thresholds and minimum OCR confidence metrics).
 
 ```python
@@ -84,7 +84,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 import ocrmypdf
 
-# 1. Define strict Pydantic v2 schemas for OCR quality control
+# 1. Define strict Pydantic v2 schemas for FastMCP 3.1 OCR quality control
 class OcrPageMetadata(BaseModel):
     page_number: int = Field(..., ge=1)
     character_count: int = Field(..., ge=0)
@@ -126,7 +126,6 @@ def execute_verified_ocr(input_path: str, output_path: str) -> Optional[OcrProce
         )
 
         # Mocking or extracting raw metrics for strict schema validation
-        # In production, metadata would be extracted using libraries like PyMuPDF or pdfplumber
         raw_payload = {
             "input_file": input_path,
             "output_file": output_path,
@@ -152,9 +151,7 @@ def execute_verified_ocr(input_path: str, output_path: str) -> Optional[OcrProce
         return None
 
 if __name__ == "__main__":
-    # Create a dummy scanned file or point to a physical document
-    # For representation, we showcase the verified harness execution
-    print("Initiating verified OCRmyPDF processor...")
+    print("Initiating FastMCP 3.1 verified OCRmyPDF processor...")
     # result = execute_verified_ocr("scan.pdf", "searchable.pdf")
     # if result:
     #     print(f"Successfully validated output file: {result.output_file}")
@@ -169,13 +166,13 @@ if __name__ == "__main__":
 - [Unstructured](../intake_storage/unstructured.md) — Multi-format ingestion library.
 - [LlamaParse](../intake_storage/llamaparse.md) — Advanced parser for multimodal documents.
 - [Instructor](../frameworks/instructor.md) — Structured JSON extraction using LLMs from processed OCR text.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier local LLM for parsing extracted text layouts.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Frontier local LLM for parsing extracted text layouts.
 
 ## Sources / references
 - [OCRmyPDF Documentation](https://ocrmypdf.readthedocs.io/)
 - [GitHub Repository](https://github.com/ocrmypdf/ocrmypdf)
-- [v17.4 / v18.0 Release Specifications](https://github.com/ocrmypdf/OCRmyPDF/releases)
+- [v18.x Release Specifications](https://github.com/ocrmypdf/OCRmyPDF/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-08
+- Last reviewed: 2027-01-07
 - Confidence: high

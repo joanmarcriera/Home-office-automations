@@ -1,17 +1,17 @@
 # AG2 (formerly AutoGen)
 
 ## What it is
-AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. As of late 2026, it serves as a universal runtime (**AG2 AgentOS**) for orchestrating specialized agents from various frameworks, fully integrated with frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) for local reasoning and the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** task execution standards.
+AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. In early January 2027, it serves as a universal runtime (**AG2 AgentOS**) for orchestrating specialized agents from various frameworks, fully integrated with SOTA models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and [Gemma 4](../ai_knowledge/local_llms.md) for local reasoning and the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** task execution standards.
 
 ## What problem it solves
-It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act. AG2 addresses "islands of intelligence" by providing a universal runtime for framework interoperability, unified state management ("shared brain"), and standardized protocols (A2A and MCP) for secure agent-to-agent and agent-to-tool communication. It specifically solves the orchestration and latency bottleneck in large-scale multi-agent deployments.
+It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act. AG2 addresses "islands of intelligence" by providing a universal runtime for framework interoperability, unified state management ("shared brain"), and standardized protocols (A2A and FastMCP 3.1) for secure agent-to-agent and agent-to-tool communication. It specifically solves the orchestration and latency bottleneck in large-scale multi-agent deployments.
 
 ## Where it fits in the stack
 **Framework / Multi-Agent Orchestrator / Agent Runtime**. AG2 AgentOS sits at the orchestrator layer, organizing and coordinating individual agents and routing messages.
 
 ## Typical use cases
 - **Multi-Framework Orchestration**: Connecting agents built in different frameworks (e.g., a LangChain researcher and a PydanticAI analyst) into a single cohesive team.
-- **Cross-Platform Coordination**: Assembling dynamic teams of specialized personas that can operate across local (Gemma 3) and cloud (Claude 5.1/GPT-5.5) environments.
+- **Cross-Platform Coordination**: Assembling dynamic teams of specialized personas that can operate across local (Gemma 4) and cloud (Claude 5.6/GPT-5.6/Gemini 4.0 Ultra) environments.
 - **Unified State Management**: Maintaining consistent context and task state across long-running, multi-step agentic workflows.
 - **Visual Team Composition**: Using **Waldiez** (the community-led visual companion) to design, validate, and debug multi-agent group chats.
 
@@ -38,7 +38,7 @@ It simplifies the development of complex AI systems where multiple agents need t
 
 ### Installation
 ```bash
-pip install ag2 pydantic
+pip install ag2 pydantic>=2.0
 ```
 
 ### Basic Multi-Agent Setup
@@ -51,7 +51,7 @@ from ag2 import AgentOS
 runtime = AgentOS.init()
 
 # Define agents
-assistant = autogen.AssistantAgent("helper", llm_config={"model": "gpt-5.5"})
+assistant = autogen.AssistantAgent("helper", llm_config={"model": "gpt-5.6"})
 user_proxy = autogen.UserProxyAgent("user", code_execution_config={"use_docker": False})
 
 # Orchestrate
@@ -77,7 +77,7 @@ ag2 cards list
 
 ## API examples
 
-### Python (Universal AgentOS Config & Card Validation)
+### Python (Universal AgentOS Config & FastMCP 3.1 Card Validation)
 AG2 relies on Agent Cards and Runtime Configurations to coordinate multi-agent teams. The following example validates an AG2 runtime and agent cards setup using **Pydantic v2**:
 
 ```python
@@ -96,9 +96,9 @@ class AG2AgentCard(BaseModel):
     @field_validator("model_name")
     @classmethod
     def validate_model(cls, v: str) -> str:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "DeepSeek-V4", "Gemma 4"]
         if not any(m in v for m in allowed):
-            raise ValueError(f"Model {v} must be a late 2026/2027 SOTA model: {allowed}")
+            raise ValueError(f"Model {v} must be an early 2027 SOTA model: {allowed}")
         return v
 
 class AG2RuntimeConfig(BaseModel):
@@ -117,14 +117,14 @@ runtime_payload = {
             "agentId": "agent-researcher-1",
             "name": "Local Researcher",
             "role": "Retrieves local documentation data",
-            "modelName": "Gemma 3",
+            "modelName": "Gemma 4",
             "mcpTools": ["fetch_file", "search_directory"]
         },
         {
             "agentId": "agent-analyst-1",
             "name": "Lead Analyst",
             "role": "Synthesizes final reports",
-            "modelName": "Claude 5.1",
+            "modelName": "Claude 5.6",
             "mcpTools": ["generate_chart"]
         }
     ]
@@ -144,7 +144,7 @@ except Exception as e:
 ```
 
 ## Related tools / concepts
-- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM for agentic reasoning.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Canonical local LLM for agentic reasoning.
 - [AutoGen](autogen.md) — The original legacy framework.
 - [CrewAI](crewai.md) — Role-based multi-agent framework.
 - [LangGraph](langgraph.md) — Graph-based agent orchestration.
@@ -160,5 +160,5 @@ except Exception as e:
 - [AG2 vs AutoGen Comparison](https://www.ag2.ai/compare/autogen)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-09
+- Last reviewed: 2027-01-07
 - Confidence: high

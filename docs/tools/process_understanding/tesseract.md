@@ -1,7 +1,7 @@
 # Tesseract CLI
 
 ## What it is
-Tesseract is a highly versatile, open-source Optical Character Recognition (OCR) engine. In late November / December 2026, Tesseract (v5.5.0+) features enhanced LSTM (Long Short-Term Memory) OCR models, optimized SIMD execution, and robust support for hundreds of languages. It operates entirely locally, making it a critical tool for home-lab ingestion, privacy-first automation pipelines, and localized document processing under [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) using models like [Gemma 3](../ai_knowledge/local_llms.md).
+Tesseract is a highly versatile, open-source Optical Character Recognition (OCR) engine. In early January 2027, Tesseract (v5.5.0+) features enhanced LSTM (Long Short-Term Memory) OCR models, optimized SIMD execution, and robust support for hundreds of languages. It operates entirely locally, making it a critical tool for home-lab ingestion, privacy-first automation pipelines, and localized document processing under [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) using models like [Gemma 4](../ai_knowledge/local_llms.md), Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ## What problem it solves
 It solves the problem of extracting machine-readable text from raw images (e.g., PNGs, JPGs, TIFFs) or non-searchable PDF pages. For autonomous agents, image files are flat binary data; Tesseract transforms this data into semantic text strings, layout tables, and structured coordinates. This enables local LLMs to reason over physical mail, receipts, screenshots, and visual interfaces without resorting to high-latency or high-cost cloud vision APIs.
@@ -11,7 +11,7 @@ It solves the problem of extracting machine-readable text from raw images (e.g.,
 
 ## Typical use cases
 - **Privacy-First Invoice Parsing**: Local extraction of billing data from receipt images, verifying dates and totals using [Instructor](../frameworks/instructor.md).
-- **FastMCP 3.1 OCR Tooling**: Exposing raw image OCR tools to local assistants via modern [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) servers.
+- **FastMCP 3.1 OCR Tooling**: Exposing raw image OCR tools to local assistants via modern [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) FastMCP 3.1 Task Protocol servers.
 - **Visual Terminal Automation**: Converting console screenshots to raw text to help self-healing scripts diagnose OS-level errors.
 - **Multilingual Transcription**: Utilizing customized language training files to extract historical documents in complex non-Latin scripts.
 
@@ -24,7 +24,7 @@ It solves the problem of extracting machine-readable text from raw images (e.g.,
 ## Limitations
 - **Format Requirements**: Requires external pre-processing (such as deskewing, binarization, or DPI adjustment) to yield high OCR accuracy.
 - **Complex Layouts**: Can struggle with non-linear multi-column articles or complex tables without prior segmentation.
-- **Messy Handwriting**: Remains less accurate on dense script or cursive compared to large deep learning models like PaddleOCR.
+- **Messy Handwriting**: Remains less accurate on dense script or cursive compared to large deep learning models like PaddleOCR or EasyOCR plugins.
 
 ## When to use it
 - When you need a reliable, fully local, open-source OCR engine with low latency.
@@ -76,8 +76,8 @@ tesseract --list-langs
 
 ## API examples
 
-### Programmatic Python Extraction with Strict Pydantic v2 Validation
-This example showcases how to execute Tesseract OCR programmatically (using `pytesseract`) and validate the raw text output, bounding boxes, and word-level confidences against strict Pydantic v2 schemas. This ensures that any OCR pipeline anomalies are caught and corrected before the text is sent to [Gemma 3](../ai_knowledge/local_llms.md) or [Claude](../ai_knowledge/claude.md) for further reasoning.
+### Programmatic Python Extraction with FastMCP 3.1 & Strict Pydantic v2 Validation
+This example showcases how to execute Tesseract OCR programmatically (using `pytesseract`) and validate the raw text output, bounding boxes, and word-level confidences against strict Pydantic v2 schemas. This ensures that any OCR pipeline anomalies are caught and corrected before the text is sent to [Gemma 4](../ai_knowledge/local_llms.md) or [Claude](../ai_knowledge/claude.md) for further reasoning.
 
 ```python
 from typing import List, Optional
@@ -109,7 +109,7 @@ class VerifiedOcrOutput(BaseModel):
             raise ValueError(f"Overall OCR confidence ({v}%) falls below quality standard (70.0%)")
         return v
 
-# 2. Executable validation harness
+# 2. Executable FastMCP 3.1 validation harness
 def parse_and_verify_tesseract_output(raw_ocr_payload: dict) -> Optional[VerifiedOcrOutput]:
     try:
         # Validate raw dictionary against the Pydantic v2 schema
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 - [Instructor](../frameworks/instructor.md) — Structured JSON data extraction from OCR-extracted text.
 - [Paperless-AI](../../services/paperless-ai.md) — AI enrichment sidecar for Paperless-ngx.
 - [Claude](../ai_knowledge/claude.md) — Frontier LLM utilized for advanced OCR text corrections.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Privacy-preserving models optimized for agentic text reasoning.
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md) — Privacy-preserving models optimized for agentic text reasoning.
 - [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) — Context-aware workflow and session coordination protocols.
 
 ## Sources / references
@@ -167,5 +167,5 @@ if __name__ == "__main__":
 - [Tesseract v5.5 Release Specifications](https://github.com/tesseract-ocr/tesseract/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-08
+- Last reviewed: 2027-01-07
 - Confidence: high
