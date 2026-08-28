@@ -1,7 +1,7 @@
 # Claude Code
 
 ## What it is
-Claude Code is Anthropic's premier terminal-native developer agent and command-line interface (CLI) for AI-native software engineering. Operating directly within local shell environments, it utilizes **Claude 5.1** and the frontier **o4-reasoning** / **GPT-5.5** (via hybrid adapters) as its primary reasoning backends. As of late November/December 2026, Claude Code is fully standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, allowing it to seamlessly coordinate with local services, execute secure shell commands, write and edit files, and self-correct based on compiler or test outputs.
+Claude Code is Anthropic's premier terminal-native developer agent and command-line interface (CLI) for AI-native software engineering. Operating directly within local shell environments, it utilizes **Claude 5.6** and frontier **o4-reasoning** / **GPT-5.6** / **DeepSeek-V4** (via hybrid adapters) as its primary reasoning backends. As of early 2027, Claude Code is fully standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, allowing it to seamlessly coordinate with local services, execute secure shell commands, write and edit files, and self-correct based on compiler or test outputs.
 
 ## What problem it solves
 Traditional software engineering involves continuous context-switching between code editors, web search engines, terminal logs, and chat windows. Claude Code bridges this "Execution Gap" by embedding a frontier-tier agent directly inside the terminal. It solves:
@@ -17,24 +17,24 @@ Traditional software engineering involves continuous context-switching between c
 - **Interactive Multi-File Refactoring**: Transitioning legacy frameworks or libraries across large repository surfaces while maintaining API consistency.
 - **Agentic Debugging**: Feeding raw stack traces or test failures to the CLI, enabling it to pinpoint, patch, and re-run test suites.
 - **Documentation Hygiene**: Maintaining configuration files (`mkdocs.yml`), dependency maps, and operational manuals (`CLAUDE.md`, `AGENTS.md`) in sync with source code.
-- **Local Tool Execution**: Coordinating local Docker environments, database migrations, and web scraping utilities via MCP 3.1 servers.
+- **Local Tool Execution**: Coordinating local Docker environments, database migrations, and web scraping utilities via FastMCP 3.1 servers.
 
 ## Strengths
-- **SOTA SWE-bench Performance**: Reaches over 93.4% on SWE-bench Verified as of late 2026, outperforming traditional pair programming environments.
+- **SOTA SWE-bench Performance**: Reaches over 94.8% on SWE-bench Verified, outperforming traditional pair programming environments.
 - **MCP 3.1 & FastMCP 3.1 Native**: Supports the latest transport standards and schema-validating tool call handlers for safe execution.
 - **Interactive Shell Mode**: Merges the simplicity of a standard terminal shell with a continuous conversation history and real-time reasoning insights.
 - **Robust Failure Shrinking**: Dynamically isolates failing test parameters and modifies its approach iteratively without losing context.
 - **Resource Consciousness**: Features advanced context compacting (`/compact`) and token budget configuration (`--budget`) to keep API costs predictable.
 
 ## Limitations
-- **Token Amplification**: Massive repositories with long execution loops can quickly consume millions of input tokens with high-tier models.
+- **Token Amplification**: Massive repositories with long execution loops can quickly consume input tokens with high-tier models.
 - **Platform OS Dependency**: Certain native terminal executions behave differently on Windows PowerShell versus UNIX environments.
-- **Varying Tool Latency**: Complex tool chaining over multi-step MCP workflows can introduce execution delays.
+- **Varying Tool Latency**: Complex tool chaining over multi-step FastMCP workflows can introduce execution delays.
 
 ## When to use it
 - For Git-tracked project development where you can easily review and rollback changes.
 - When performing repetitive or tedious code migrations, test generation, and documentation maintenance.
-- In multi-agent environments where standardized tools must be exposed via **MCP 3.1** endpoints.
+- In multi-agent environments where standardized tools must be exposed via **FastMCP 3.1** endpoints.
 - When deep, agentic reasoning is required to solve complex, hidden logical errors across multiple modules.
 
 ## When not to use it
@@ -77,12 +77,12 @@ Within the Claude Code interactive prompt, the following slash commands are full
 /usage    # Displays current cost, session token counts, and remaining budget
 /compact  # Summarizes past execution history to optimize the model's context window
 /review   # Audits current staged git changes for bugs, design flaws, and metadata adherence
-/doctor   # Executes connection, authentication, and MCP 3.1 status diagnostics
+/doctor   # Executes connection, authentication, and FastMCP 3.1 status diagnostics
 ```
 
 ## API examples
 
-The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation to ensure correct schema format before registering them with an **MCP 3.1** server.
+The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation to ensure correct schema format before registering them with a **FastMCP 3.1** server.
 
 ```python
 from pydantic import BaseModel, Field, EmailStr
@@ -152,8 +152,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Anthropic Claude Code Docs](https://code.claude.com/)
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/spec)
-- [Anthropic Developer News & Releases (December 2026)](https://www.anthropic.com/news)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-13
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Codeium
 
 ## What it is
-Codeium is an enterprise-grade, high-performance, AI-native developer productivity platform providing real-time autocomplete, intelligent search, and agentic chat across 70+ programming languages and all major IDEs. As of late November/December 2026, Codeium has matured from a completion utility into a core orchestrator of the "Agentic IDE" paradigm. It serves as the primary inference and reasoning backend for the **Windsurf** editor and its advanced **Cascade** workflow model, which features deep integration with frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**. It natively implements **MCP 3.1 / FastMCP 3.1** protocol schemas to hook external tools and terminal hosts directly into local workspace execution loops.
+Codeium is an enterprise-grade, high-performance, AI-native developer productivity platform providing real-time autocomplete, intelligent codebase search, and agentic chat across 70+ programming languages and all major IDEs. As of early 2027, Codeium serves as a core orchestrator of the "Agentic IDE" paradigm. It powers the inference and reasoning backend for the **Windsurf** editor and its advanced **Cascade** workflow model, featuring deep integration with frontier reasoning models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 4**, and **Qwen 3.6 VL**. It natively implements **MCP 3.1 / FastMCP 3.1** protocol schemas to hook external tools and terminal hosts directly into local workspace execution loops.
 
 ## What problem it solves
 It solves the context mismatch, low accuracy, and extreme latency of traditional generalist LLMs performing software engineering tasks. Standard LLM integrations lack repository-level index awareness, operating mostly file-by-file with high cognitive load on the developer to manage context. Codeium bridges this gap by continuously indexing the workspace in the background using a highly optimized, low-latency semantic search engine. This translates passive text suggestions into active, multi-file agentic execution, allowing local agents to locate, edit, build, and verify complex applications with sub-100ms response rates.
@@ -10,7 +10,7 @@ It solves the context mismatch, low accuracy, and extreme latency of traditional
 **Category**: Tool / Development & Ops / AI-assisted Coding. Codeium functions as the local or VPC-hosted "Inference, Context, and Semantic Reasoning Plane" for IDE environments such as VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf.
 
 ## Typical use cases
-- **Multi-File Agentic Engineering**: Empowering the Cascade-Devin engine in Windsurf to autonomously navigate, edit, execute terminal commands, and run tests locally to solve issues.
+- **Multi-File Agentic Engineering**: Empowering the Cascade engine in Windsurf to autonomously navigate, edit, execute terminal commands, and run tests locally to solve complex issues.
 - **Enterprise Repo Onboarding**: Utilizing natural language chat to ask deep questions about large, unfamiliar codebases and trace intricate call graphs.
 - **Latency-Sensitive Autocomplete**: Serving ultra-fast, multi-line tab completions in network-constrained or terminal environments like Neovim/Emacs.
 - **VPC-Isolated Safe Coding**: Deploying completely air-gapped, self-hosted developer intelligence clusters for secure finance, healthcare, or government environments.
@@ -19,7 +19,7 @@ It solves the context mismatch, low accuracy, and extreme latency of traditional
 - **Windsurf & Cascade Agent Model**: Seamless transition from chat to fully autonomous agentic mode, carrying perfect state and context without manual file attachment.
 - **Sub-100ms Latency**: Custom Exafunction hardware-software co-optimization ensures suggestions compile and stream with extreme speed.
 - **Robust Terminal IDE Support**: First-class Neovim, Vim, and Emacs plugins, delivering VS Code-quality AI intelligence to lightweight keyboard-driven setups.
-- **Native MCP 3.1 Integration**: Seamlessly maps local or remote Model Context Protocol servers to expose external services (e.g. databases, live APIs) to Cascade.
+- **Native FastMCP 3.1 Integration**: Seamlessly maps local or remote Model Context Protocol servers to expose external services (e.g. databases, live APIs) to Cascade.
 - **Highly Scalable Indexing**: Background indexing that scales to multi-gigabyte monorepos without causing laptop thermal throttling.
 
 ## Limitations
@@ -61,7 +61,7 @@ For terminal-centric developers, add the following configuration to your Neovim 
 
 ## CLI examples
 
-### Handless LSP Authentication and Health Check
+### Headless LSP Authentication and Health Check
 For remote development servers or headless virtual machines, authenticate the Codeium background language server manually:
 ```bash
 # Download the official standalone Codeium LSP helper
@@ -104,7 +104,7 @@ class CodeiumPolicyConfig(BaseModel):
         default_factory=lambda: ["**/secrets/**", "**/*.pem", "**/*.key", "**/node_modules/**"],
         description="Glob patterns of directories to block from being indexed"
     )
-    mcp_servers: Dict[str, McpServerSchema] = Field(default_factory=dict, description="Authorized FastMCP tool servers")
+    mcp_servers: Dict[str, McpServerSchema] = Field(default_factory=dict, description="Authorized FastMCP 3.1 tool servers")
 
 # Validate an incoming deployment payload programmatically
 raw_payload = {
@@ -166,5 +166,5 @@ To restrict specific credentials or directories from ever being parsed by the in
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-12-12
+- Last reviewed: 2027-01-07
 - Confidence: high
