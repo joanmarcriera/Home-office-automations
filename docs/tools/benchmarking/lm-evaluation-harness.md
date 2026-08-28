@@ -1,7 +1,7 @@
 # LM Evaluation Harness
 
 ## What it is
-LM Evaluation Harness (by EleutherAI) is a unified framework for few-shot evaluation of autoregressive language models. It provides a standardized interface to evaluate models on hundreds of different tasks, including MMLU, ARC, HellaSwag, GSM8K, and many more. It is the primary backend for the Hugging Face [Open LLM Leaderboard](index.md) and supports frontier late 2026 models including Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Gemma 3, Llama 4, and Qwen 3.6.
+LM Evaluation Harness (by EleutherAI) is a unified framework for few-shot evaluation of autoregressive language models. It provides a standardized interface to evaluate models on hundreds of different tasks, including MMLU, ARC, HellaSwag, GSM8K, and many more. It is the primary backend for the Hugging Face [Open LLM Leaderboard](index.md) and supports frontier early 2027 models including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Llama 4 Maverick, and Qwen 3.6 VL.
 
 ## What problem it solves
 Eliminates the need for researchers to implement individual, often inconsistent, evaluation pipelines for every new benchmark. By providing a single, standardized framework, it ensures that results are comparable across different papers and models, reducing the "eval-hacking" potential and implementation overhead in the rapidly evolving agentic ecosystem.
@@ -220,5 +220,6 @@ results = lm_eval.simple_evaluate(
 - [Open LLM Leaderboard (Hugging Face)](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
 - [AIR-Bench late 2026 Specifications](https://github.com/air-bench/air-bench)
 
-- Last reviewed: 2026-12-15
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high

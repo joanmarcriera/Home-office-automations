@@ -1,7 +1,7 @@
 # Factory AI Droid CLI
 
 ## What it is
-Factory AI Droid (v2026.12.x+) is an enterprise-grade AI coding agent designed to automate complex, multi-step development workflows. It operates as a "knowledge-aware" orchestrator that utilizes specialized sub-agents ("Droids") to perform domain-specific tasks such as code reviews, security hardening, and feature implementation. Droid leverages the SOTA late 2026 frontier models (**Claude 5.1**, **GPT-5.5**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**) and is configured via a `droid.yml` manifest to maintain deep project-specific context, while natively integrating with the Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) standard to extend its execution capabilities.
+Factory AI Droid (Early January 2027 SOTA Edition) is an enterprise-grade AI coding agent designed to automate complex, multi-step development workflows. It operates as a "knowledge-aware" orchestrator that utilizes specialized sub-agents ("Droids") to perform domain-specific tasks such as code reviews, security hardening, and feature implementation. Droid leverages early 2027 SOTA frontier models (**Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**) and is configured via a `droid.yml` manifest to maintain deep project-specific context, while natively integrating with the Model Context Protocol (**MCP 3.1 / FastMCP 3.1**) standard to extend its execution capabilities.
 
 ## What problem it solves
 Droid solves the "Execution Gap" in AI-assisted development by moving beyond simple completions to autonomous task completion. It automates repetitive engineering toil—like updating API schemas across multiple layers, performing semantic security scans, and maintaining architectural consistency—allowing human engineers to focus on high-level system design. It eliminates brittle tool-calling setups by standardizing agentic actions via stream-aware MCP protocols and secure sandbox execution environments.
@@ -238,5 +238,5 @@ if __name__ == "__main__":
 - [Autonomous Development Patterns (2026 Whitepaper)](https://factory.ai/resources/autonomous-patterns-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-14
+- Last reviewed: 2027-01-07
 - Confidence: high
