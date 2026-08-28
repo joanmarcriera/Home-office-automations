@@ -1,7 +1,7 @@
 # Smolagents
 
 ## What it is
-Smolagents is a lightweight, high-performance agent framework developed by Hugging Face. Focused on simplicity, speed, and clean code paths, it is optimized for creating small, highly specialized agents that leverage tool-calling or direct code execution. As of late 2026, smolagents has progressed to **v1.8.0+**, featuring native integration with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and native secure execution of agent-written code.
+Smolagents is a lightweight, high-performance agent framework developed by Hugging Face. Focused on simplicity, speed, and clean code paths, it is optimized for creating small, highly specialized agents that leverage tool-calling or direct code execution. As of early 2027, smolagents has progressed to **v2.1.0+**, featuring native integration with **FastMCP 3.1** and native secure execution of agent-written code.
 
 ## What problem it solves
 Many traditional agent frameworks are bloated, introducing heavy abstractions, complex dependency chains, and significant latency overhead. Smolagents provides a "minimalist" approach to tool-calling and code-writing agents. It solves the developer experience (DX) and speed challenges of edge and serverless environments, making it incredibly straightforward to build, run, and audit specialized agents using local models or frontier model endpoints.
@@ -107,9 +107,9 @@ class SmolagentRunTrace(BaseModel):
     @field_validator("frontier_model")
     @classmethod
     def validate_frontier_model(cls, v: str) -> str:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "DeepSeek-V4", "Llama 4 Maverick", "Gemma 4"]
         if not any(model in v for model in allowed):
-            raise ValueError(f"Model {v} must be a modern SOTA model: {allowed}")
+            raise ValueError(f"Model {v} must be an early 2027 SOTA model: {allowed}")
         return v
 
 # 2. Define a decorator-based tool conforming to smolagents specifications
@@ -166,5 +166,5 @@ except Exception as e:
 - [Hugging Face Agents Documentation](https://huggingface.co/docs/smolagents/index)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-10
+- Last reviewed: 2027-01-07
 - Confidence: high

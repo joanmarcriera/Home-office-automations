@@ -1,7 +1,7 @@
 # Axolotl
 
 ## What it is
-Axolotl is a powerful, configuration-driven open-source framework designed to simplify and streamline the fine-tuning of Large Language Models (LLMs). As of late 2026, Axolotl has reached **v0.5.x+**, serving as a standard tool for machine learning practitioners and researchers. It allows developers to define entire training runs—including model loading, dataset tokenization, and hyperparameters—inside a single, reproducible YAML configuration file.
+Axolotl is a powerful, configuration-driven open-source framework designed to simplify and streamline the fine-tuning of Large Language Models (LLMs). As of early 2027, Axolotl has reached **v0.6.x+**, serving as a standard tool for machine learning practitioners and researchers fine-tuning frontier open models like Llama 4 Maverick, Gemma 4, DeepSeek-V4, and Qwen 3.6. It allows developers to define entire training runs—including model loading, dataset tokenization, and hyperparameters—inside a single, reproducible YAML configuration file.
 
 ## What problem it solves
 Managing the complex software environments, custom tokenization steps, hardware distribution configurations, and dataset blends required to train modern LLMs is highly error-prone. Axolotl addresses this by:
@@ -20,8 +20,8 @@ Axolotl sits in the **Frameworks / Fine-Tuning** layer. It sits downstream from 
 
 ## Strengths
 - **Experimental Reproducibility**: High repeatability; changing model behaviors is as simple as tweaking parameters in a versioned YAML config.
-- **Optimized Performance**: Supports cutting-edge architectural optimizations, including FlashAttention-3, multi-pack sample packing, and FP8 precision formats.
-- **Active Support**: Rapidly updated with native support for newly released open architectures (e.g., Llama 4, Gemma 3, Qwen 3.6).
+- **Optimized Performance**: Supports cutting-edge architectural optimizations, including FlashAttention-4, multi-pack sample packing, FP8/FP4 precision formats, and FastMCP 3.1 evaluation hooks.
+- **Active Support**: Rapidly updated with native support for newly released open architectures (e.g., Llama 4 Maverick, Gemma 4, Qwen 3.6 VL, DeepSeek-V4).
 - **Enterprise Ready**: Seamlessly integrates with **NVIDIA Rubin** architecture clusters, NIM microservices, and Accelerate launchers.
 
 ## Limitations
@@ -165,5 +165,5 @@ except Exception as e:
 - [Open-Source LLM Fine-Tuning Guide](https://github.com/mlabonne/llm-course)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-10
+- Last reviewed: 2027-01-07
 - Confidence: high
