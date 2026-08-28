@@ -1,7 +1,7 @@
 # Mastra
 
 ## What it is
-Mastra is an open-source, TypeScript-native framework designed for building, deploying, and managing AI agents. It provides a unified platform for agent orchestration, tool integration, and observability. As of late 2026, it has reached **v2.4.0+**, featuring deep integration with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and optimized support for **Gemma 3**, Claude 5.1, GPT-5.5, and Gemini 4.0 models in local TypeScript and serverless environments.
+Mastra is an open-source, TypeScript-native framework designed for building, deploying, and managing AI agents. It provides a unified platform for agent orchestration, tool integration, and observability. As of early 2027, it has reached **v2.5.0+**, featuring deep integration with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and optimized support for **Gemma 4**, Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4 models in local TypeScript and serverless environments.
 
 ## What problem it solves
 It addresses the fragmentation of AI development in the TypeScript ecosystem. Mastra provides a cohesive set of tools for building reliable agents, connecting them to various data sources via **FastMCP 3.1**, and monitoring their performance. It simplifies multi-agent coordination through first-class primitives like the **Supervisor Pattern** and provides high-performance infrastructure via the **Blaxel sandbox provider**. It also resolves cross-language telemetry challenges by emitting standardized, validated payloads for Python monitoring stacks.
@@ -11,7 +11,7 @@ It addresses the fragmentation of AI development in the TypeScript ecosystem. Ma
 
 ## Typical use cases
 - **Multi-Agent Coordination**: Orchestrating specialized agents (e.g., researcher + writer) using a central supervisor to delegate and evaluate completion.
-- **Local-First AI Agents**: Running [Gemma 3](../ai_knowledge/local_llms.md) agents entirely in the TypeScript runtime with native V8/Wasm acceleration.
+- **Local-First AI Agents**: Running [Gemma 4](../ai_knowledge/local_llms.md) agents entirely in the TypeScript runtime with native V8/Wasm acceleration.
 - **Enterprise Observability**: Monitoring agent iterations, tool calls, and completion scores in real-time with native LSP diagnostics.
 - **High-Performance Sandboxing**: Executing agent tools in secure, isolated environments via the **Blaxel provider**.
 
@@ -48,7 +48,7 @@ import { Agent, Mastra } from '@mastra/core';
 const supervisor = new Agent({
   name: 'Manager',
   instructions: 'Coordinate the researcher and writer.',
-  model: { provider: 'GOOGLE', name: 'gemma-3-27b' },
+  model: { provider: 'GOOGLE', name: 'gemma-4-27b' },
 });
 
 const mastra = new Mastra({
@@ -80,7 +80,7 @@ mastra tools inspect --mcp-url http://localhost:3000
 ```typescript
 const results = await mastra.vector.query({
   collection: 'knowledge-base',
-  query: 'Late 2026 AI trends',
+  query: 'Early 2027 AI trends',
   metadataOnly: true // Hybrid retrieval without embeddings
 });
 ```
@@ -112,9 +112,9 @@ class MastraSupervisorTelemetry(BaseModel):
     @field_validator("selected_frontier_model")
     @classmethod
     def validate_frontier_model(cls, v: str) -> str:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "Llama 4", "Gemma 4", "DeepSeek-V4"]
         if not any(m in v for m in allowed):
-            raise ValueError(f"Model {v} must be a late 2026/2027 SOTA model: {allowed}")
+            raise ValueError(f"Model {v} must be an early 2027 SOTA model: {allowed}")
         return v
 
 # 2. Simulated Telemetry JSON payload emitted by a Mastra Supervisor
@@ -123,7 +123,7 @@ mastra_telemetry_payload = {
     "supervisorName": "ProjectManager",
     "completionTokens": 1024,
     "promptTokens": 512,
-    "selectedFrontierModel": "Claude 5.1",
+    "selectedFrontierModel": "Claude 5.6",
     "subAgentRuns": [
         {
             "agentName": "DocFinder",
@@ -164,5 +164,5 @@ except Exception as e:
 - [GitHub Repository](https://github.com/mastra-ai/mastra)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-09
+- Last reviewed: 2027-01-07
 - Confidence: high

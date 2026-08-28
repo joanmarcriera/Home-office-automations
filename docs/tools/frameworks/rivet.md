@@ -1,7 +1,7 @@
 # Rivet
 
 ## What it is
-Rivet is an open-source visual AI programming environment and TypeScript library developed by Ironclad. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of late 2026, it has fully integrated with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) for high-performance visual reasoning and autonomous multi-agent coordination.
+Rivet is an open-source visual AI programming environment and TypeScript library developed by Ironclad. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of early 2027, it has fully integrated with the **Model Context Protocol (MCP 3.1)**, **FastMCP 3.1**, and frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Llama 4, and [Gemma 4](../ai_knowledge/local_llms.md) for high-performance visual reasoning and autonomous multi-agent coordination.
 
 ## What problem it solves
 It provides a powerful visual interface for designing AI logic, making it easier to manage complex flows and collaborate on agentic behaviors. It solves the performance and cost bottlenecks of traditional sandboxed environments through **agentOS**, which uses WebAssembly (Wasm) and V8 isolates for near-instant cold starts (~6ms). Additionally, **Rivet Actors** address the need for stateful, distributed agent execution with million-scale isolated databases via **SQLite for Rivet Actors**, preventing concurrency conflicts.
@@ -13,8 +13,8 @@ It provides a powerful visual interface for designing AI logic, making it easier
 - **Visual Agent Design**: Designing intricate logic and prompt graphs for autonomous or semi-autonomous AI agents.
 - **Stateful Edge Computing**: Deploying millions of isolated, stateful actors that run at the edge with built-in SQLite persistence.
 - **High-Performance Sandboxing**: Running untrusted AI-generated code in **agentOS** with near-instant cold starts.
-- **Agentic Visual Reasoning**: Leveraging frontier multi-modal models like Gemini 4.0 and Gemma 3 for processing complex visual inputs within agentic graphs.
-- **MCP 3.1 Tool-Calling**: Orchesrating visual chains that connect to external data providers dynamically via FastMCP 3.1.
+- **Agentic Visual Reasoning**: Leveraging frontier multi-modal models like Gemini 4.0 Ultra and Gemma 4 for processing complex visual inputs within agentic graphs.
+- **MCP 3.1 Tool-Calling**: Orchestrating visual chains that connect to external data providers dynamically via FastMCP 3.1 and the **MCP 3.1 Task Protocol**.
 
 ## Strengths
 - **Developer-Centric Debugging**: Real-time visual inspection of prompt chains and agent execution.
@@ -131,10 +131,10 @@ class RivetProjectSpec(BaseModel):
     @field_validator("target_models")
     @classmethod
     def validate_target_models(cls, v: List[str]) -> List[str]:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "Llama 4", "Gemma 4"]
         for model in v:
             if not any(m in model for m in allowed):
-                raise ValueError(f"Model {model} must be a late 2026/2027 SOTA model: {allowed}")
+                raise ValueError(f"Model {model} must be an early 2027 SOTA model: {allowed}")
         return v
 
 # 2. Simulated Rivet project specification output
@@ -163,7 +163,7 @@ project_payload = {
             ]
         }
     ],
-    "target_models": ["Claude 5.1", "Gemma 3"]
+    "target_models": ["Claude 5.6", "Gemma 4"]
 }
 
 # 3. Strictly validate the project configuration
@@ -194,5 +194,5 @@ except Exception as e:
 - [agentOS Documentation](https://sandboxagent.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-09
+- Last reviewed: 2027-01-07
 - Confidence: high

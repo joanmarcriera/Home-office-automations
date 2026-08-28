@@ -1,7 +1,7 @@
 # Firebase Genkit
 
 ## What it is
-Firebase Genkit is an open-source framework from Google designed to help app developers build full-stack, AI-powered applications. As of late 2026, Genkit has matured into **v1.2.0+**, featuring the native **Genkit Agents API** (released in preview in July 2026, stabilized in late 2026) for building stateful, autonomous agentic workflows. It supports deep integration with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, and provides first-class support for frontier models such as Claude 5.1, GPT-5.5, Gemini 4.0, and [Gemma 3](../ai_knowledge/local_llms.md).
+Firebase Genkit is an open-source framework from Google designed to help app developers build full-stack, AI-powered applications. As of early 2027, Genkit has matured into **v1.4.0+**, featuring the native **Genkit Agents API** for building stateful, autonomous agentic workflows. It supports deep integration with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, and provides first-class support for frontier models such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
 It reduces the friction of building production-ready AI apps by providing a unified interface for LLMs, a streamlined tool-calling system, and built-in observability for debugging and performance tracking. It solves the orchestration gap for application engineers by integrating generative AI patterns natively with serverless architectures like Firebase Cloud Functions and Cloud Run, avoiding the need for complex, heavy-weight Python agent servers.
@@ -17,11 +17,11 @@ It reduces the friction of building production-ready AI apps by providing a unif
 
 ## Strengths
 - **App Developer Centric**: Uses paradigms, TypeScript/Go languages, and tooling familiar to mobile and web developers.
-- **Unified API**: Support for Gemini 4.0, Claude 5.1, GPT-5.5, DeepSeek, and local [Gemma 3](../ai_knowledge/local_llms.md) / Ollama.
+- **Unified API**: Support for Gemini 4.0 Ultra, Claude 5.6, GPT-5.6, DeepSeek-V4, and local [Gemma 4](../ai_knowledge/local_llms.md) / Ollama.
 - **Developer Experience (DX)**: Includes a local Developer UI for testing prompts, flows, and tool calls in real-time.
 - **Observability**: Native, built-in support for traces, logs, and token usage metrics.
 - **Seamless Firebase Integration**: Works out-of-the-box with Firebase Auth, Cloud Firestore, and Cloud Functions.
-- **MCP 3.1 Support**: Native integration with the Model Context Protocol for dynamic tool and resource discovery.
+- **MCP 3.1 Support**: Native integration with the Model Context Protocol for dynamic tool and resource discovery via the **MCP 3.1 Task Protocol**.
 
 ## Limitations
 - **Ecosystem Focus**: Highly optimized for Google Cloud and Firebase, making deployment on other clouds less streamlined.
@@ -87,14 +87,14 @@ const webSearchTool = ai.defineTool(
     outputSchema: z.string(),
   },
   async (input) => {
-    return `Results for ${input.query}: Gemini 4.0 and Genkit Agents API in action.`;
+    return `Results for ${input.query}: Gemini 4.0 Ultra and Genkit Agents API in action.`;
   }
 );
 
 // Define the agent using Genkit Agents API
 export const researchAgent = ai.defineAgent({
   name: 'researchAgent',
-  model: googleAI.model('gemini-4.0-flash'),
+  model: googleAI.model('gemini-4.0-ultra'),
   prompt: 'You are a high-fidelity research agent. Use tools to find information.',
   tools: [webSearchTool],
 });
@@ -116,7 +116,7 @@ export const myFlow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-      model: googleAI.model('gemini-4.0-flash'),
+      model: googleAI.model('gemini-4.0-ultra'),
       prompt: `Tell me a joke about ${input}`,
     });
     return text;
@@ -149,15 +149,15 @@ class GenkitFlowExecution(BaseModel):
     @field_validator("frontier_model")
     @classmethod
     def validate_frontier_model(cls, v: str) -> str:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "Gemma 4"]
         if not any(model in v for model in allowed):
-            raise ValueError(f"Model {v} must contain a late 2026 SOTA model: {allowed}")
+            raise ValueError(f"Model {v} must contain an early 2027 SOTA model: {allowed}")
         return v
 
 # 2. Simulated JSON payload emitted from a Genkit TypeScript serverless flow execution
 genkit_execution_payload = {
     "flowId": "flow-user-onboarding-893",
-    "frontierModel": "Gemini 4.0 Pro",
+    "frontierModel": "Gemini 4.0 Ultra",
     "completionTokens": 450,
     "promptTokens": 180,
     "steps": [
@@ -207,5 +207,5 @@ except Exception as e:
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-10
+- Last reviewed: 2027-01-07
 - Confidence: high

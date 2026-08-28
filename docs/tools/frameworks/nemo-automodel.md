@@ -1,10 +1,10 @@
 # NeMo AutoModel
 
 ## What it is
-NVIDIA NeMo AutoModel is a high-performance open-source training and optimization framework developed by NVIDIA. It is specifically engineered to automate, accelerate, and scale the fine-tuning and distributed training of multi-modal generative model architectures—primarily next-generation diffusers, text-to-image models, and video generative networks (e.g., Llama 4, Gemma 3, and Qwen 3.6 architectures)—across enterprise multi-GPU clusters.
+NVIDIA NeMo AutoModel is a high-performance open-source training and optimization framework developed by NVIDIA. In early 2027, it is specifically engineered to automate, accelerate, and scale the fine-tuning and distributed training of multi-modal generative model architectures—primarily next-generation diffusers, text-to-image models, and video generative networks (e.g., Llama 4, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL architectures)—across enterprise multi-GPU clusters.
 
 ## What problem it solves
-Fine-tuning and scaling multi-modal diffusion networks is extremely memory-intensive, slow, and computationally inefficient. NeMo AutoModel solves these bottlenecks by introducing native 3D parallelism (tensor, pipeline, and data parallel training), automated precision adjustments (FP8/BF16/INT4), and memory-efficient attention layers, allowing developers to scale training across hundreds of GPUs with minimal code overhead. It integrates with FastMCP 3.1 environments to allow autonomous agents to monitor, schedule, and configure long-running distributed training runs safely.
+Fine-tuning and scaling multi-modal diffusion networks is extremely memory-intensive, slow, and computationally inefficient. NeMo AutoModel solves these bottlenecks by introducing native 3D parallelism (tensor, pipeline, and data parallel training), automated precision adjustments (FP8/BF16/INT4), and memory-efficient attention layers, allowing developers to scale training across hundreds of GPUs with minimal code overhead. It integrates with FastMCP 3.1 environments to allow autonomous agents to monitor, schedule, and configure long-running distributed training runs safely via the **MCP 3.1 Task Protocol**.
 
 ## Where it fits in the stack
 **AI Framework / Model Training & Optimization Engine**. NeMo AutoModel sits at the development and framework layer. It serves as the bridging layer that compiles high-level generative model definitions into distributed training pipelines, enabling seamless integration with local data layers, [vLLM](../infrastructure/vllm.md), and TensorRT-LLM inference backends.
@@ -13,7 +13,7 @@ Fine-tuning and scaling multi-modal diffusion networks is extremely memory-inten
 - **Multi-Node Distributed Fine-Tuning**: Orchestrating massive text-to-image and text-to-video model training across local DGX nodes.
 - **Memory-Optimized LoRA/QLoRA Integration**: Applying parameter-efficient fine-tuning (PEFT) techniques to large multi-modal models without running out of GPU memory.
 - **Automated Precision Compilation**: Instantly compiling and quantizing trained diffusion models into high-performance FP8 and INT4 formats.
-- **Custom Generative Content Pipelines**: Building local secure pipelines for generating synthetic training data for agent environments, monitored by Claude 5.1 and GPT-5.5 oversight engines.
+- **Custom Generative Content Pipelines**: Building local secure pipelines for generating synthetic training data for agent environments, monitored by Claude 5.6 and GPT-5.6 oversight engines.
 
 ## Strengths
 - **Native NVIDIA Hardware Optimization**: Achieves maximum hardware utilization on modern architectures (such as NVIDIA H100, H200, and Blackwell chips).
@@ -110,11 +110,11 @@ class NeMoTrainingConfig(BaseModel):
     @field_validator("model_name")
     @classmethod
     def check_valid_model(cls, v: str) -> str:
-        if not any(keyword in v.lower() for keyword in ["diffusion", "stable-diffusion", "flux", "video", "nvidia"]):
+        if not any(keyword in v.lower() for keyword in ["diffusion", "stable-diffusion", "flux", "video", "nvidia", "gemma"]):
             raise ValueError("Model name must point to a supported diffusion or multimodal model path.")
         return v
 
-# 2. Setup training parameters for a late 2026 SOTA Gemma 3 fine-tuning run
+# 2. Setup training parameters for an early 2027 SOTA Gemma 4 fine-tuning run
 training_payload = {
     "model_name": "nvidia/stable-diffusion-xl-base-1.0",
     "parallel_config": {
@@ -159,5 +159,5 @@ except Exception as e:
 - [Hugging Face Hub: NVIDIA NeMo Models](https://huggingface.co/nvidia)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-09
+- Last reviewed: 2027-01-07
 - Confidence: high
