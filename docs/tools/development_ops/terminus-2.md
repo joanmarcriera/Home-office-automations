@@ -1,7 +1,7 @@
 # Terminus 2 (Terminal-Bench)
 
 ## What it is
-Terminus 2 is an open-source, terminal-native AI agent and research baseline developed by the Terminal-Bench consortium. As of late November/December 2026, it serves as the industry-standard "raw" shell execution model, bypassing heavy orchestration layers to provide a direct LLM-to-tmux bridging protocol. Specifically optimized for the CLI capabilities of SOTA frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**, Terminus 2 allows models to interact with standard Unix-like shell environments natively without intermediate abstraction taxes, utilizing modern **MCP 3.1 / FastMCP 3.1** protocol standards.
+Terminus 2 is an open-source, terminal-native AI agent and research baseline developed by the Terminal-Bench consortium. As of early 2027, it serves as the industry-standard "raw" shell execution model, bypassing heavy orchestration layers to provide a direct LLM-to-tmux bridging protocol. Specifically optimized for the CLI capabilities of SOTA frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 4**, and **Qwen 3.6 VL**, Terminus 2 allows models to interact with standard Unix-like shell environments natively without intermediate abstraction taxes, utilizing modern **MCP 3.1 / FastMCP 3.1** protocol standards.
 
 ## What problem it solves
 Traditional agent frameworks rely on heavy runtime abstractions, isolated container sandboxes, or virtualized/mocked filesystem drivers. This introduces "abstraction tax" and context mismatch—models often struggle to translate raw terminal signals, interactive prompts, and stderr outputs when they are parsed through middleware. Terminus 2 gives the LLM direct, raw control over standard **tmux** terminal sessions. This enables authentic handling of long-running daemonized processes, real-time streaming feedback, multi-pane multiplexing, and authentic terminal error recovery, establishing a reliable baseline for "pure" terminal reasoning and evaluation.
@@ -60,7 +60,7 @@ Spawn a raw Terminus 2 interactive shell session with a natural language goal:
 ```bash
 python -m terminal_bench.agents.terminus2 \
     --task "Analyze active ports, check for listening services, and ensure nginx is running on port 80." \
-    --model "claude-5-1-sonnet"
+    --model "claude-5-6-sonnet"
 ```
 
 ## CLI examples
@@ -88,7 +88,7 @@ python -m terminal_bench.evaluator \
     --output "./results/llama4_results.json"
 ```
 
-### MCP 3.1 Server Integration
+### FastMCP 3.1 Server Integration
 Expose the local Terminus 2 terminal context to external LLM clients over Model Context Protocol:
 
 ```bash
@@ -114,7 +114,7 @@ class TerminusSessionConfig(BaseModel):
     env_vars: dict[str, str] = Field(default_factory=dict, description="Environment variables to inject")
 
 raw_config = {
-    "session_name": "maintenance_task_2026",
+    "session_name": "maintenance_task_2027",
     "max_scrollback": 20000,
     "command_timeout": 600,
     "default_shell": "/usr/bin/zsh",
@@ -137,12 +137,12 @@ from terminal_bench.agents.terminus import TerminusAgent
 from terminal_bench.session import TmuxSession
 
 # Initialize tmux session with validated parameters
-session = TmuxSession(session_name="maintenance_task_2026")
+session = TmuxSession(session_name="maintenance_task_2027")
 
-# Configure Terminus 2 Agent with late November/December 2026 system parameters
+# Configure Terminus 2 Agent with 2027 system parameters
 agent = TerminusAgent(
     session=session,
-    model="claude-5-1-sonnet",
+    model="claude-5-6-sonnet",
     temperature=0.0,
     system_prompt="""
     You are an expert systems engineer operating in a direct tmux terminal.
@@ -201,8 +201,7 @@ sysadmin_agent = Agent(
 ## Sources / references
 - [Terminal-Bench GitHub Repository](https://github.com/pro-puffin/terminal-bench)
 - [Research Paper: Terminal-Bench - Evaluative Frontiers for CLI Agents](https://arxiv.org/abs/2501.00000)
-- [The Rise of Terminal-Native Agents (June 2026 Update)](https://mariozechner.at/posts/2026-06-15-terminus2-update/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-12
+- Last reviewed: 2027-01-07
 - Confidence: high

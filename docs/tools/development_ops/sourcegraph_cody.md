@@ -1,7 +1,7 @@
 # Sourcegraph Cody
 
 ## What it is
-Cody is an enterprise-grade AI coding assistant developed by Sourcegraph that leverages a comprehensive "Code Graph" to provide deep, context-aware assistance across entire multi-repo codebases. As of late November/December 2026, Cody (v7.2.x+) has matured into an agentic "Code Intelligence Platform", capable of autonomous multi-repository reasoning, semantic context retrieval via **MCP 3.1 / FastMCP 3.1**, and native execution with frontier models such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+Cody is an enterprise-grade AI coding assistant developed by Sourcegraph that leverages a comprehensive "Code Graph" to provide deep, context-aware assistance across entire multi-repo codebases. As of early 2027, Cody has matured into an agentic "Code Intelligence Platform", capable of autonomous multi-repository reasoning, semantic context retrieval via **FastMCP 3.1**, and native execution with frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Llama 4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 It solves the "context fragmentation" and "knowledge silo" problem in massive enterprise repositories. Traditional coding assistants operate file-by-file or are constrained to a single active workspace folder. Cody integrates directly with Sourcegraph's global index, allowing it to understand complex cross-repository dependencies, architectural patterns, and undocumented internal APIs. It acts as a bridge between the generalist knowledge of frontier models and the complex, multi-tenant codebase realities of enterprise organizations.
@@ -11,15 +11,15 @@ It solves the "context fragmentation" and "knowledge silo" problem in massive en
 
 ## Typical use cases
 - **Multi-Repository Architecture Search**: Asking natural language questions that span across separate microservice codebases (e.g. tracking API request paths).
-- **Agentic Context Enrichment**: Serving as an MCP server backend to feed high-fidelity code fragments to standalone agent frameworks like OpenHands, Cline, or Claude Code.
+- **Agentic Context Enrichment**: Serving as a FastMCP 3.1 server backend to feed high-fidelity code fragments to standalone agent frameworks like OpenHands, Cline, or Claude Code.
 - **Enterprise Developer Onboarding**: Allowing newly onboarded engineers to quickly understand complex system flows and database schemas through conversational search.
 - **Conforming to Internal Coding Standards**: Customizing Cody prompts to enforce specific company-wide coding rules, design patterns, and deprecation notices during code generation.
 
 ## Strengths
 - **Unrivaled Semantic Search**: Powered by Sourcegraph's hybrid search engine, combining keyword, vector embeddings, and precise LSIF/SCIP code graphs.
-- **Model Agnostic Flexibility**: Easily switch between frontier models (Claude 5.1, GPT-5.5, Gemini 4.0) to match the cognitive requirements of the task.
+- **Model Agnostic Flexibility**: Easily switch between frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4) to match the cognitive requirements of the task.
 - **VPC and On-Premises Compliance**: Robust on-prem deployment options with strict enterprise-grade permissions, security rules, and absolute zero-data-retention guarantees.
-- **Native MCP 3.1 Protocol**: Fully implements MCP client/server specifications to dynamically stream external schemas and execute verified tools.
+- **Native FastMCP 3.1 Protocol**: Fully implements MCP client/server specifications to dynamically stream external schemas and execute verified tools.
 
 ## Limitations
 - **High Infrastructure Footprint**: Full codebase indexing and context graph features require a connected, fully synced Sourcegraph server instance.
@@ -123,7 +123,7 @@ except ValidationError as e:
     print(f"Payload validation error: {e.json(indent=2)}")
 ```
 
-### Configured MCP 3.1 Context Server Connection
+### Configured FastMCP 3.1 Context Server Connection
 Hook Cody's indexing engine up to other agentic platforms like OpenHands or Claude Desktop via Model Context Protocol:
 ```json
 {
@@ -157,5 +157,5 @@ Hook Cody's indexing engine up to other agentic platforms like OpenHands or Clau
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-12
+- Last reviewed: 2027-01-07
 - Confidence: high
