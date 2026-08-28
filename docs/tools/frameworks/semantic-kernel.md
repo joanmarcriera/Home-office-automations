@@ -1,7 +1,7 @@
 # Semantic Kernel
 
 ## What it is
-Semantic Kernel is an open-source SDK from Microsoft that allows developers to integrate Large Language Models (LLMs) into conventional programming languages like C#, Python, and Java. Using a "kernel-and-plugin" architecture, it combines AI capabilities with existing business code. As of late 2026, the SDK has reached **v1.18.0+** (Python SDK) and **v1.30.x** (.NET SDK), featuring native integration with the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, advanced agentic orchestration primitives, and native support for frontier models (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4).
+Semantic Kernel is an open-source SDK from Microsoft that allows developers to integrate Large Language Models (LLMs) into conventional programming languages like C#, Python, and Java. Using a "kernel-and-plugin" architecture, it combines AI capabilities with existing business code. As of early 2027, the SDK has reached **v1.22.0+** (Python SDK) and **v1.35.x** (.NET SDK), featuring native integration with **FastMCP 3.1**, advanced agentic orchestration primitives, and native support for frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Llama 4 Maverick).
 
 ## What problem it solves
 It bridges the gap between generative AI models and traditional, enterprise-grade software engineering. It provides a structured way to manage prompt templates, conversation context, and tool-calling (native functions) while maintaining type safety, standard development practices, and cross-language compatibility. This allows teams to avoid rewriting business logic and instead wrap it seamlessly as AI plugins.
@@ -128,9 +128,9 @@ class KernelExecutionTrace(BaseModel):
     @field_validator("selected_frontier_model")
     @classmethod
     def validate_frontier_model(cls, v: str) -> str:
-        allowed = ["Claude 5.1", "GPT-5.5", "Gemini 4.0", "Llama 4", "Gemma 3"]
+        allowed = ["Claude 5.6", "GPT-5.6", "Gemini 4.0 Ultra", "DeepSeek-V4", "Llama 4 Maverick", "Gemma 4"]
         if not any(model in v for model in allowed):
-            raise ValueError(f"Model {v} must be a late 2026 enterprise frontier model: {allowed}")
+            raise ValueError(f"Model {v} must be an early 2027 enterprise frontier model: {allowed}")
         return v
 
 # 2. Simulated Invocation JSON telemetry emitted by Semantic Kernel Python execution hook
@@ -183,5 +183,5 @@ except Exception as e:
 - [Semantic Kernel Blog](https://devblogs.microsoft.com/semantic-kernel/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-10
+- Last reviewed: 2027-01-07
 - Confidence: high

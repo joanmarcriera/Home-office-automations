@@ -1,13 +1,13 @@
 # CrewAI
 
 ## What it is
-CrewAI is an open-source framework for orchestrating role-playing, collaborative AI agents. It allows you to define agents with specific roles, goals, and backstories, then group them into a "crew" to perform complex tasks using structured processes. As of late November/December 2026, **CrewAI Enterprise & Core v1.35+** has introduced deep native integration with **MCP 3.1 / FastMCP 3.1** servers, multi-modal **Gemma 3** execution loops, and robust self-healing workflows driven by frontier models.
+CrewAI is an open-source framework for orchestrating role-playing, collaborative AI agents. It allows you to define agents with specific roles, goals, and backstories, then group them into a "crew" to perform complex tasks using structured processes. As of early 2027, **CrewAI Enterprise & Core v1.42+** has introduced deep native integration with **FastMCP 3.1** servers, multi-modal **Gemma 4** execution loops, and robust self-healing workflows driven by frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## What problem it solves
 It simplifies the creation of multi-agent systems where agents need to collaborate and follow a specific workflow (sequential, hierarchical, consensual). It manages the communication, task hand-offs, and shared context between agents automatically. CrewAI eliminates the complex boilerplate of managing thread concurrency, task hand-offs, and short/long-term memory sync across multi-agent boundaries.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It sits at the top of the agentic stack, coordinating multiple specialized models (like Claude 5.1, GPT-5.5, Gemini 4.0, and Llama 4) to achieve high-level objectives.
+**Framework / Multi-Agent Orchestrator**. It sits at the top of the agentic stack, coordinating multiple specialized models (like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Llama 4 Maverick) to achieve high-level objectives.
 
 ## Typical use cases
 - **Content Creation Pipelines**: A writer agent, a researcher agent, and an editor agent working together.
@@ -186,5 +186,5 @@ agent = Agent(
 - [CrewAI late 2026 Enterprise Features](https://www.crewai.com/enterprise)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-11
+- Last reviewed: 2027-01-07
 - Confidence: high

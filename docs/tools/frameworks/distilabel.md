@@ -1,21 +1,21 @@
 # Distilabel
 
 ## What it is
-Distilabel is an open-source framework designed for scalable, high-fidelity synthetic data generation and structured AI feedback (RLHF / RLAIF). As of late 2026, Distilabel has progressed to **v2.3.0+**, establishing itself as an industry standard for preparing training and fine-tuning datasets for frontier models like Claude 5.1 and GPT-5.5. It enables developers to construct complex multi-step pipelines that orchestrate LLMs to generate, mutate, score, and filter datasets using advanced "LLM-as-a-judge" patterns.
+Distilabel is an open-source framework designed for scalable, high-fidelity synthetic data generation and structured AI feedback (RLHF / RLAIF). As of early 2027, Distilabel has progressed to **v2.5.0+**, establishing itself as an industry standard for preparing training and fine-tuning datasets for frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4. It enables developers to construct complex multi-step pipelines that orchestrate LLMs to generate, mutate, score, and filter datasets using advanced "LLM-as-a-judge" patterns.
 
 ## What problem it solves
 Creating high-quality instruction and preference datasets for model training is a major bottleneck in AI development. Manual labeling is expensive and slow, while raw synthetic generation without filtering is prone to redundancy and noise. Distilabel solves these problems by:
 - **Declarative Pipelines**: Providing a clear, standard way to define data generation and feedback steps as Python pipelines.
 - **Robust Scale**: Native support for parallel execution across model APIs (Anthropic, OpenAI) and high-throughput local backends like [vLLM](../../tools/infrastructure/vllm.md) or [Ollama](../../services/ollama.md).
 - **High Data Quality**: Built-in scoring, ranking, and deduplication modules that filter out low-quality data.
-- **Dynamic Tool Calling**: Native Model Context Protocol (MCP 3.1) support to supply synthetic agents with live tools during generation.
+- **Dynamic Tool Calling**: Native Model Context Protocol (FastMCP 3.1) support to supply synthetic agents with live tools during generation.
 
 ## Where it fits in the stack
 Distilabel sits in the **Frameworks / Data-Generation** layer. It serves as the primary data engineering and preparation pipeline that feeds model-training frameworks like [Unsloth](../../tools/infrastructure/unsloth.md), [Axolotl](axolotl.md), and [LLaMA Factory](llama-factory.md).
 
 ## Typical use cases
 - **Evol-Instruct Pipelines**: Taking simple prompt seeds and evolving them into highly complex multi-turn instructions using frontier models.
-- **Preference Dataset Creation (RLHF/DPO)**: Generating multiple responses to a prompt and using Claude 5.1 as a judge to score and output structured pairwise preferences.
+- **Preference Dataset Creation (RLHF/DPO)**: Generating multiple responses to a prompt and using Claude 5.6 as a judge to score and output structured pairwise preferences.
 - **VLM/RAG Data Enrichment**: Synthesizing high-quality question-answering pairs from document repositories or image databases.
 - **Agent Trajectory Synthesis**: Simulating multi-step tool-use conversations using MCP 3.1 servers to train specialized action models.
 
@@ -165,5 +165,5 @@ except Exception as e:
 - [Synthetic Data Generation for LLMs Guide](https://distilabel.argilla.io/latest/sections/getting_started/quickstart/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-10
+- Last reviewed: 2027-01-07
 - Confidence: high
