@@ -1,7 +1,7 @@
 # Property-Based Fuzzing MCP Server
 
 ## What it is
-The Property-Based Fuzzing MCP Server is an advanced developer tool that implements the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to bring professional-grade property-based testing and symbolic execution capabilities directly to AI agents. Built on top of the Hypothesis testing library, it enables models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** to perform autonomous, deep adversarial exploration of Python functions, automatically hunting for edge cases, performance bottlenecks, and input-handling vulnerabilities without requiring human guidance.
+The Property-Based Fuzzing MCP Server is an advanced developer tool that implements the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to bring professional-grade property-based testing and symbolic execution capabilities directly to AI agents. Built on top of the Hypothesis testing library, it enables state-of-the-art models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4** to perform autonomous, deep adversarial exploration of Python functions, automatically hunting for edge cases, performance bottlenecks, and input-handling vulnerabilities without requiring human guidance.
 
 ## What problem it solves
 Generative AI code synthesis frequently suffers from the "Confidence-Verification Gap":
@@ -12,17 +12,17 @@ Generative AI code synthesis frequently suffers from the "Confidence-Verificatio
 The Fuzzing MCP Server solves these issues by establishing an automated verification loop. By generating hundreds of randomized, strategy-guided inputs and iteratively "shrinking" any failures down to the simplest possible reproducer, it formally verifies model implementations in real-time within a restricted, secure execution sandbox.
 
 ## Where it fits in the stack
-**Category**: [Development & Ops](index.md) / [Benchmarking](../benchmarking/index.md) / Code Verification. The server acts as a critical quality gate inside multi-agent development loops. It integrates with stateful orchestration agents (such as Claude Code or Droid) to ensure that code generated during automated tasks meets absolute correctness guarantees before it is integrated into a repository.
+**Category**: [Development & Ops](index.md) / [Benchmarking](../benchmarking/index.md) / Code Verification. The server acts as a critical quality gate inside multi-agent development loops. It integrates with stateful orchestration agents (such as Claude Code, Droid, or Windsurf Cascade) to ensure that code generated during automated tasks meets absolute correctness guarantees before it is integrated into a repository.
 
 ## Typical use cases
 - **Autonomous Function Validation**: Testing model-generated utility functions against strict algebraic properties (e.g., verifying that a custom serialization utility always maintains exact parity when decoded).
 - **API Boundary Hardening**: Fuzzing REST API inputs or data-parsing layers to identify unhandled exceptions (such as `ZeroDivisionError`, `ValueError`, or `IndexError`).
-- **Pydantic v2 Schema Stress Testing**: Stress-testing complex Pydantic data schemas with extreme inputs to guarantee robust parsing behavior.
+- **Pydantic v2 Schema Stress Testing**: Stress-testing complex Pydantic data schemas with extreme inputs to guarantee robust parsing behavior across early 2027 schema specs.
 - **Automated Regression Auditing**: Run during local development cycles to isolate newly introduced logic regressions before they reach standard CI runners.
 
 ## Strengths
 - **Hypothesis Engine Core**: Leverages the state-of-the-art Python hypothesis engine to find deep logical edge cases and provide minimal reproducible failing inputs.
-- **FastMCP 3.1 Standard Compliance**: Employs standardized JSON-RPC schemas and tool definitions with native Pydantic validation to guarantee clean agent communications.
+- **FastMCP 3.1 Standard Compliance**: Employs standardized JSON-RPC schemas and tool definitions with native Pydantic v2 validation to guarantee clean agent communications.
 - **Secure Sandboxed Execution**: Runs fuzzed functions within a secure, restricted Python execution runtime with restricted system, socket, and file-access bindings.
 - **Intelligent Type Inference**: Automatically analyzes function signatures (including complex type hints) to dynamically assemble the matching Hypothesis strategy matrices.
 
@@ -174,5 +174,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-13
+- Last reviewed: 2027-01-07
 - Confidence: high
