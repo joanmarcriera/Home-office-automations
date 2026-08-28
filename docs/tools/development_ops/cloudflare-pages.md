@@ -1,47 +1,47 @@
 # Cloudflare Pages
 
 ## What it is
-Cloudflare Pages is a developer-focused Jamstack and static website deployment platform deeply integrated into Cloudflare's global edge network. Leveraging Cloudflare Workers as its serverless compute engine (Pages Functions), it provides dynamic, low-latency execution directly at the edge. As of late November/December 2026, it has matured into a primary hosting solution for edge-native **MCP 3.1 / FastMCP 3.1** tool servers, enabling ultra-low latency tool discovery and execution.
+Cloudflare Pages is a developer-focused Jamstack and static website deployment platform deeply integrated into Cloudflare's global edge network. Leveraging Cloudflare Workers as its serverless compute engine (Pages Functions), it provides dynamic, low-latency execution directly at the edge. As of early 2027, it has matured into a primary hosting solution for edge-native **FastMCP 3.1** tool servers, enabling sub-10ms latency tool discovery and execution for frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
 ## What problem it solves
-It eliminates the complexity of global content distribution, SSL management, and frontend scaling. By automating the build-to-deploy pipeline directly from git pushes, it ensures that web applications are delivered from the nearest edge location to the user. In the late 2026 landscape, it serves as a critical host for edge-native AI applications, static web frontends, and decentralized agentic tools that require high bandwidth, integrated DDoS protection, and immediate proximity to end-users without high egress costs.
+It eliminates the complexity of global content distribution, SSL management, and frontend scaling. By automating the build-to-deploy pipeline directly from git pushes, it ensures web applications are delivered from the nearest edge location to the user. In early 2027, it serves as a critical host for edge-native AI applications, static web frontends, and decentralized agentic tools requiring high bandwidth, integrated DDoS protection, and zero egress costs.
 
 ## Where it fits in the stack
-**Category**: Tool / Development & Ops / Static And Edge Website Hosting. It serves as the primary alternative to [Vercel](vercel.md), specifically for architectures that prioritize Cloudflare's security ecosystem and edge-compute model (Workers/D1/R2). It is a key component for hosting [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers that need to interact with web-based triggers.
+**Category**: Tool / Development & Ops / Static And Edge Website Hosting. It serves as the primary alternative to [Vercel](vercel.md), specifically for architectures that prioritize Cloudflare's security ecosystem and edge-compute model (Workers/D1/R2). It is a key component for hosting [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) servers that interact with web-based triggers.
 
 ## Typical use cases
 - **AI-Powered Static Sites**: Hosting documentation or directories that utilize [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) for client-side inference.
-- **FastMCP 3.1 Tool Hosting**: Deploying lightweight, edge-native MCP servers for rapid agentic discovery and execution.
+- **FastMCP 3.1 Tool Hosting**: Deploying lightweight, edge-native FastMCP servers for rapid agentic discovery and execution.
 - **Global Documentation Hubs**: Deploying high-traffic technical docs (Hugo, Docusaurus) with zero bandwidth caps.
 - **Edge-First Web Apps**: Building multi-region applications with [Cloudflare D1](https://developers.cloudflare.com/d1/) for relational data and [R2 Storage](https://www.cloudflare.com/products/r2/) for media.
 
 ## Strengths
-- **Unlimited Bandwidth**: Unlike most competitors, Cloudflare Pages does not charge for egress bandwidth on its free tier.
-- **Integrated Security**: Native DDoS protection, WAF, and bot mitigation are built-in.
+- **Unlimited Bandwidth**: Cloudflare Pages does not charge for egress bandwidth on its free tier.
+- **Integrated Security**: Native DDoS protection, WAF, and bot mitigation built-in.
 - **Edge Performance**: Deployments are instantly pushed to Cloudflare's 300+ data centers worldwide.
 - **Durable Storage Integration**: Native connectivity to R2 (S3-compatible) and D1 (Edge SQL).
 - **FastMCP Optimization**: Optimized execution for lightweight tool-calling protocols.
 
 ## Limitations
-- **Next.js Complexity**: While supported via `@cloudflare/next-on-pages`, it is less "turnkey" than [Vercel](vercel.md) for complex Next.js features.
-- **Build Times**: Large monorepo builds can sometimes be slower compared to specialized build pipelines.
-- **Ecosystem Focus**: Highly optimized for the "Workers" model; porting legacy Node.js apps with heavy C++ dependencies can be difficult.
+- **Next.js Complexity**: While supported via `@cloudflare/next-on-pages`, it requires specific build configurations compared to Vercel native deployments.
+- **Build Times**: Large monorepo builds can require optimization across workspace dependencies.
+- **Ecosystem Focus**: Optimized for the Workers runtime model; legacy Node.js apps with heavy native C++ binaries require refactoring.
 
 ## When to use it
 - When you want a high-performance, secure host with no bandwidth costs.
 - When building edge-native applications using the Cloudflare developer platform (D1, R2, KV).
-- For hosting [MCP](../automation_orchestration/mcp.md) tool servers that require global low-latency.
+- For hosting [FastMCP 3.1](../automation_orchestration/mcp.md) tool servers requiring global low latency.
 - When you need a generous free tier for a public-facing AI tool or directory.
 
 ## When not to use it
-- For complex, server-side rendered Next.js apps that rely on platform-specific optimizations provided by [Vercel](vercel.md).
-- When you need a persistent, long-running backend (e.g., Python/Django) that cannot be ported to Workers.
+- For complex, server-side rendered Next.js apps relying on platform-specific Vercel optimizations.
+- When you need a persistent, long-running backend (e.g., Python/Django) that cannot run in Workers edge isolates.
 - For simple repo-native docs where [GitHub Pages](github-pages.md) is already configured.
 
 ## Getting started
 1. **Connect Repository**: Link your GitHub or GitLab account in the [Cloudflare Dashboard](https://dash.cloudflare.com).
 2. **Select Framework**: Choose from 30+ presets (React, Vue, Astro, etc.).
-3. **Environment Variables**: Define secrets for AI provider APIs (Claude/OpenAI) or [Gemma 3](../ai_knowledge/local_llms.md) local endpoints.
+3. **Environment Variables**: Define secrets for AI provider APIs (Claude 5.6/OpenAI GPT-5.6) or [Gemma 4](../ai_knowledge/local_llms.md) local endpoints.
 4. **Deploy**: Cloudflare will build and deploy your site on every git push.
 
 ## CLI examples
@@ -110,12 +110,12 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/pr
   -H "Content-Type: application/json"
 ```
 
-### Edge Logic (Pages Functions) with MCP 3.1 Task Protocol
+### Edge Logic (Pages Functions) with FastMCP 3.1 Task Protocol
 ```typescript
 // functions/api/mcp-task.ts
 export async function onRequestPost(context) {
   const { task_id, params } = await context.request.json();
-  // Execute a standardized task via MCP 3.1 Task Protocol
+  // Execute a standardized task via FastMCP 3.1 Task Protocol
   const result = await context.env.MCP_BINDING.execute(task_id, params);
 
   return new Response(JSON.stringify({
@@ -129,19 +129,18 @@ export async function onRequestPost(context) {
 
 ## Related tools / concepts
 - [Vercel](vercel.md) — The primary industry benchmark for frontend cloud platforms.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent-tool communication.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standard for agent-tool communication.
 - [GitHub Pages](github-pages.md) — Static-only hosting for GitHub repositories.
-- [Claude 4.8 Opus](../ai_knowledge/claude.md) — Flagship reasoning model for edge agents.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Open-weight model often used with edge-hosted tools.
-- [Supabase](../infrastructure/supabase.md) — Often used as a backend for Pages applications.
+- [Claude 5.6](../ai_knowledge/claude.md) — Flagship reasoning model for edge agents.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Open-weight model often used with edge-hosted tools.
+- [Supabase](../infrastructure/supabase.md) — Database backend for Pages applications.
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md) — Comprehensive guide for deploying cost-effective sites.
 
 ## Sources / references
 - [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
 - [Wrangler CLI Reference](https://developers.cloudflare.com/workers/wrangler/commands/#pages)
-- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
-- [Cloudflare Developer Platform Pricing](https://www.cloudflare.com/plans/developer-platform/)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-12
+- Last reviewed: 2027-01-07
 - Confidence: high

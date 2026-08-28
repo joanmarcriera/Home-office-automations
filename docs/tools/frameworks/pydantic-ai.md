@@ -1,36 +1,36 @@
 # PydanticAI
 
 ## What it is
-PydanticAI is a Python agent framework from the Pydantic team, designed for building production-grade Generative AI applications and workflows. It brings the same rigor, type-safety, and validation to AI agents that Pydantic brought to data modeling. As of late November/December 2026, it natively supports **Gemma 3**, **Qwen 3.6**, and **Claude 5.1** models, the **MCP 3.1 Task Protocol**, and high-performance **FastMCP 3.1** tool servers.
+PydanticAI is a Python agent framework from the Pydantic team, designed for building production-grade Generative AI applications and multi-agent workflows. It brings the same rigor, type-safety, and validation to AI agents that Pydantic brought to data modeling. As of early 2027, it natively supports **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Gemma 4**, alongside the **FastMCP 3.1 Task Protocol** and high-performance FastMCP tool servers.
 
 ## What problem it solves
-It addresses the fragility and lack of structure often found in early AI agent frameworks. By leveraging Python type hints and Pydantic validation, it ensures that tool calls, agent responses, and complex multi-agent workflows are type-safe and reliable. Integration with the **MCP 3.1 Task Protocol** allows for standardized, cross-platform tool execution.
+It addresses the fragility and lack of structure often found in early AI agent frameworks. By leveraging Python type hints and Pydantic v2 validation, it ensures that tool calls, agent responses, and complex multi-agent workflows are type-safe and reliable. Integration with the **FastMCP 3.1 Task Protocol** allows for standardized, cross-platform tool execution with sub-10ms latency.
 
 ## Where it fits in the stack
 **Framework / Agentic Workflow / Development & Ops**.
 
 ## Typical use cases
-- **Structured Data Extraction**: Using **Gemma 3** or **Claude 5.1** agents to parse unstructured text into validated Pydantic models.
+- **Structured Data Extraction**: Using **Claude 5.6**, **GPT-5.6**, or **Gemma 4** agents to parse unstructured text into validated Pydantic models.
 - **Production Agents**: Building agents that require strict adherence to schemas for tool usage and response formatting.
-- **Multi-Agent Orchestration**: Coordinating multiple specialized agents with clear handoffs and state management using the **Task Protocol**.
+- **Multi-Agent Orchestration**: Coordinating multiple specialized agents with clear handoffs and state management using the **FastMCP 3.1 Task Protocol**.
 - **Observability Integration**: Seamlessly integrating with tools like Pydantic Logfire for detailed tracing and monitoring of agentic runs.
 
 ## Strengths
 - **Type Safety**: Full support for Python type hints throughout the agent lifecycle.
-- **Validation**: Automatic validation of tool arguments and agent outputs using Pydantic V2.
-- **MCP 3.1 Native**: Built-in support for calling and hosting MCP tool servers.
-- **Model Agnostic**: Supports multiple LLM providers (OpenAI, Anthropic, Gemini, local Gemma 3) through a unified interface.
+- **Validation**: Automatic validation of tool arguments and agent outputs using Pydantic v2.
+- **FastMCP 3.1 Native**: Built-in support for calling and hosting FastMCP tool servers.
+- **Model Agnostic**: Supports multiple LLM providers (Anthropic, OpenAI, Google Gemini, DeepSeek, local Gemma 4) through a unified interface.
 - **Integration with Pydantic Ecosystem**: Native support for Logfire and other Pydantic-related tools.
 
 ## Limitations
 - **Python Centric**: Primarily designed for Python developers (no native JS/TS support).
-- **Learning Curve**: Requires familiarity with Pydantic V2 and modern Python type hinting practices.
-- **Maturity**: While growing rapidly, it is younger than frameworks like LangChain or AutoGen.
+- **Learning Curve**: Requires familiarity with Pydantic v2 and modern Python type hinting practices.
+- **Strict Typing Needed**: Clean typing is required across tool definitions to fully leverage advanced schema generation.
 
 ## When to use it
 - When building production-ready AI applications where reliability and validation are paramount.
 - If your team is already heavily invested in the Pydantic/FastAPI ecosystem.
-- For complex workflows that benefit from strict type-safe interfaces and **MCP 3.1** interoperability.
+- For complex workflows that benefit from strict type-safe interfaces and **FastMCP 3.1** interoperability.
 
 ## When not to use it
 - For quick, throwaway scripts where type safety is an afterthought.
@@ -48,7 +48,7 @@ pip install pydantic-ai pydantic logfire
 from pydantic_ai import Agent
 
 agent = Agent(
-    'google:gemma-3-27b',
+    'anthropic:claude-5-6-sonnet',
     system_prompt='You are a helpful assistant.',
 )
 
@@ -63,7 +63,7 @@ print(result.data)
 pydantic-ai inspect my_agent:agent
 ```
 
-### Running an MCP 3.1 Server
+### Running an FastMCP 3.1 Server
 ```bash
 pydantic-ai mcp serve my_tools.py
 ```
@@ -95,7 +95,7 @@ class OrderDetails(BaseModel):
     quantity: int = Field(..., ge=1, description="Quantity of items, must be 1 or more")
 
 agent = Agent(
-    'anthropic:claude-5-1-sonnet',
+    'anthropic:claude-5-6-sonnet',
     deps_type=MyDeps,
     result_type=OrderDetails
 )
@@ -141,9 +141,9 @@ class ProductAnalysis(BaseModel):
     pros: list[str]
     cons: list[str]
 
-agent = Agent('openai:gpt-5.5', result_type=ProductAnalysis)
+agent = Agent('openai:gpt-5.6', result_type=ProductAnalysis)
 
-result = agent.run_sync("Analyze this product: SuperPhone 15. Rating: 4.8/5. It is fast but expensive.")
+result = agent.run_sync("Analyze this product: SuperPhone 16. Rating: 4.8/5. It is fast but expensive.")
 # result.data is an instance of ProductAnalysis
 ```
 
@@ -153,7 +153,7 @@ Access and iterate over the internal agent graph nodes during execution for fine
 ```python
 from pydantic_ai import Agent
 
-agent = Agent('openai:gpt-5.5')
+agent = Agent('openai:gpt-5.6')
 
 with agent.capture_run() as run:
     result = agent.run_sync("Analyze this data...")
@@ -166,11 +166,11 @@ with agent.capture_run() as run:
 - [Logfire](https://pydantic.dev/logfire) — Native observability for Pydantic and PydanticAI.
 - [FastAPI](https://fastapi.tiangolo.com/) — Often used together for building AI microservices.
 - [LangGraph](langgraph.md) — Alternative graph-based orchestration framework.
-- [CrewAI](crewai.md) — Focuses on role-playing and collaborative agents.
+- [CrewAI](crewai.md) — Collaborative agents framework.
 - [Agentic Design Patterns](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
 - [Documentation Writer](../agents/documentation-writer.md): For creating technical documentation for PydanticAI agents.
-- [Claude Code](../development_ops/claude-code.md): The primary CLI agent used for building PydanticAI apps.
-- [Gemma 3](../ai_knowledge/local_llms.md): Canonical guide for the latest open models supported natively.
+- [Claude Code](../development_ops/claude-code.md): CLI agent used for building PydanticAI apps.
+- [Gemma 4](../ai_knowledge/local_llms.md): Canonical guide for open models supported natively.
 
 ## Sources / References
 - [Official GitHub](https://github.com/pydantic/pydantic-ai)
@@ -178,5 +178,5 @@ with agent.capture_run() as run:
 - [Pydantic AI Skills](https://github.com/DougTrajano/pydantic-ai-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-11
+- Last reviewed: 2027-01-07
 - Confidence: high

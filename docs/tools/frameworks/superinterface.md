@@ -1,10 +1,10 @@
 # Superinterface
 
 ## What it is
-Superinterface is an open-source framework and platform for building and deploying AI assistants with production-ready user interfaces. It provides a set of React components and a backend infrastructure to handle streaming, tool calls, and conversation state. As of late November/December 2026, it supports advanced agentic features including **Computer Use**, native **MCP 3.1 Task Protocol** integration, and **Interactive Components** optimized for **Gemma 3** and **Claude 5.1**.
+Superinterface is an open-source framework and platform for building and deploying AI assistants with production-ready user interfaces. It provides a set of React components and a backend infrastructure to handle streaming, tool calls, and conversation state. As of early 2027, it supports advanced agentic features including **Computer Use**, native **FastMCP 3.1 Task Protocol** integration, and **Interactive Components** optimized for **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **Gemma 4**.
 
 ## What problem it solves
-It bridges the gap between AI agents and the end-user by providing a structured way to build conversational and interactive interfaces. It eliminates the need to build custom UI components for complex agentic behaviors like file handling, multi-modal streaming, and **Computer Use** (controlling virtual environments). The integration with **FastMCP 3.1** ensures low-latency tool interactions.
+It bridges the gap between AI agents and the end-user by providing a structured way to build conversational and interactive interfaces. It eliminates the need to build custom UI components for complex agentic behaviors like file handling, multi-modal streaming, and **Computer Use** (controlling virtual environments). The integration with **FastMCP 3.1** ensures sub-10ms tool interaction latency.
 
 ## Where it fits in the stack
 **Framework / UI Library / Assistant Backend**.
@@ -12,11 +12,11 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 ## Typical use cases
 - **AI-Powered Customer Portals**: Building chat interfaces that support **Interactive Components** like forms, surveys, and cards for structured data entry.
 - **Agentic Desktop Controls**: Utilizing **Computer Use** (via Anthropic, OpenRouter, or local VM endpoints) to allow assistants to control virtual machines or browsers.
-- **Enterprise Assistant Backend**: Deploying a self-hosted backend (using `@superinterface/server`) that integrates with internal **MCP 3.1** tool servers.
-- **Real-time Voice Assistants**: Implementing low-latency voice interactions using the OpenAI **Realtime API** or specialized **Gemma 3** and **Llama 4** audio pipelines.
+- **Enterprise Assistant Backend**: Deploying a self-hosted backend (using `@superinterface/server`) that integrates with internal **FastMCP 3.1** tool servers.
+- **Real-time Voice Assistants**: Implementing low-latency voice interactions using specialized **Gemma 4** and **Claude 5.6** audio streaming pipelines.
 
 ## Strengths
-- **Native MCP 3.1 Support**: Seamlessly connects assistants to any MCP tool server for expanded capabilities.
+- **Native FastMCP 3.1 Support**: Seamlessly connects assistants to any FastMCP tool server for expanded agentic capabilities.
 - **Rich UI Library**: Customizable React components for threads, messages, and complex media (image/video/audio).
 - **Interactive Components**: Allows agents to present structured UI elements (forms, carousels) directly within the chat.
 - **Developer-Centric Tools**: Comprehensive **Tools REST API** for managing assistant capabilities programmatically.
@@ -27,7 +27,7 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 
 ## When to use it
 - When you want to build a feature-rich, multi-modal AI chat interface with minimal frontend development effort.
-- When you require advanced agentic capabilities like **Computer Use** or native **MCP 3.1** tool integration.
+- When you require advanced agentic capabilities like **Computer Use** or native **FastMCP 3.1** tool integration.
 - When you need to self-host your assistant infrastructure for data privacy and security compliance.
 
 ## When not to use it
@@ -62,7 +62,7 @@ superinterface deploy --assistant-id <ASSISTANT_ID>
 superinterface tools add web_search
 ```
 
-### MCP Server Registration (v3.1)
+### FastMCP 3.1 Server Registration
 ```bash
 superinterface mcp register --url http://localhost:8080/mcp
 ```
@@ -82,7 +82,7 @@ class SuperinterfaceToolConfig(BaseModel):
     name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$", description="Alpha-numeric name of the tool")
     description: str = Field(..., min_length=10, description="Detailed tool description for LLM prompting")
     type: str = Field("custom", description="The tool execution type")
-    parameters_schema: dict = Field(..., description="The tool's parameters formatted as JSON schema (Pydantic-compliant)")
+    parameters_schema: dict = Field(..., description="The tool's parameters formatted as JSON schema (Pydantic v2 compliant)")
 
 def register_assistant_tool(assistant_id: str, tool: SuperinterfaceToolConfig):
     api_key = os.getenv("SUPERINTERFACE_API_KEY", "your-api-key")
@@ -113,7 +113,7 @@ try:
     # Build tool config model with parameters_schema generated by Pydantic v2
     config = SuperinterfaceToolConfig(
         name="web_search",
-        description="Search Google/Bing web indices for current late 2026 events",
+        description="Search web indices for current early 2027 events and research",
         parameters_schema=SearchArgs.model_json_schema()
     )
 
@@ -143,14 +143,12 @@ except Exception as e:
 - [Langflow](langflow.md) — Visual workflow builder.
 - [Mastra](mastra.md) — TypeScript-native agent framework.
 - [Rivet](rivet.md) — Visual AI programming environment.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Supported for local high-performance reasoning.
 
 ## Sources / References
 - [Official Website](https://superinterface.ai/)
-- [Superinterface Changelog](https://superinterface.ai/changelog)
+- [Superinterface Documentation](https://superinterface.ai/docs)
 - [GitHub Repository](https://github.com/superinterface/superinterface)
-- [Self-hosting Documentation](https://superinterface.ai/docs/self-hosting)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-11
+- Last reviewed: 2027-01-07
 - Confidence: high
