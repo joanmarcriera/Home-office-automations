@@ -1,7 +1,7 @@
 # Melty
 
 ## What it is
-Melty is an open-source, AI-native Integrated Development Environment (IDE) designed to act as a stateful, "human-in-the-loop" collaborator that understands the intent behind every change. Built on a fully transparent VS Code-fork foundation, Melty implements a continuous "Intent-State" synchronization loop. As of December 2026, Melty fully supports frontier SOTA late 2026 models (such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6). Rather than acting as a simple passive autocomplete helper, Melty operates as an active pair programmer, tracking real-time development context, terminal outputs, and git diffs to co-author software iteratively alongside the developer.
+Melty is an open-source, AI-native Integrated Development Environment (IDE) designed to act as a stateful, "human-in-the-loop" collaborator that understands the intent behind every code change. Built on a fully transparent VS Code-fork foundation, Melty implements a continuous "Intent-State" synchronization loop. As of early January 2027, Melty fully supports frontier SOTA late 2026/2027 models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL). Rather than acting as a simple passive autocomplete helper, Melty operates as an active pair programmer, tracking real-time development context, terminal outputs, build failures, and git diffs to co-author software iteratively alongside the developer.
 
 ## What problem it solves
 Solves the cognitive friction and "black box" generation issues associated with traditional AI coding assistants. Standard tools often generate massive code dumps that are disconnected from the developer’s high-level architecture or current design patterns. Melty addresses this by tracking the developer's "Intent" incrementally across terminal sessions, compiler messages, and version control states. It reduces code-review overhead, mitigates model hallucinations by grounding context in current git diffs, and eliminates the risk of silent, untracked modifications by managing changes through explicit state verification loops.
@@ -19,7 +19,7 @@ Solves the cognitive friction and "black box" generation issues associated with 
 - **Open-Source Transparency**: Fully open-source codebase, allowing deep, enterprise-level modifications, custom branding, and absolute privacy compliance.
 - **Stateful Git & Terminal Tracking**: Natively listens to local git diff changes and terminal output streams, allowing models to immediately self-correct errors if a build or test command fails.
 - **Native MCP 3.1 / FastMCP 3.1 Integration**: Operates as a robust Model Context Protocol client, enabling developers to connect third-party MCP servers for dynamic database query execution, file system management, and real-time cloud resource access.
-- **Multi-Model Orchestration**: Supports swappable local and remote models, allowing developers to execute heavy-weight tasks with Claude 5.1, GPT-5.5, or Gemini 4.0 Pro, and light-weight local autocompletion tasks using local Gemma 3 or Qwen 3.6 instances via Ollama.
+- **Multi-Model Orchestration**: Supports swappable local and remote models, allowing developers to execute heavy-weight tasks with Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or DeepSeek-V4, and light-weight local autocompletion tasks using local Gemma 4 or Qwen 3.6 instances via Ollama.
 
 ## Limitations
 - **Ecosystem Footprint**: Although built as a VS Code fork, some specialized extensions or proprietary visual features (such as side-by-side interactive timelines) are still maturing.
@@ -54,11 +54,11 @@ npm run dev
 Upon launching, Melty prompts for a preferred model provider. Configure your credentials or local endpoint:
 
 ```bash
-# Configure Melty to use a local Ollama instance for Qwen 3.6 / Gemma 3
-melty config set provider ollama --url http://localhost:11434 --model gemma-3
+# Configure Melty to use a local Ollama instance for Qwen 3.6 / Gemma 4
+melty config set provider ollama --url http://localhost:11434 --model gemma-4
 
 # Or configure remote API credentials
-melty config set provider anthropic --api-key $ANTHROPIC_API_KEY --model claude-5.1
+melty config set provider anthropic --api-key $ANTHROPIC_API_KEY --model claude-5.6
 ```
 
 ## CLI examples
@@ -86,7 +86,7 @@ melty index --rebuild --exclude "**/node_modules/**"
 Melty exposes an internal API for writing extensions, managing intents, and connecting custom context bridges.
 
 ### Custom Intent Provider (TypeScript)
-Developers can register custom intent providers to intercepts and modify Melty's AI recommendations.
+Developers can register custom intent providers to intercept and modify Melty's AI recommendations.
 
 ```typescript
 import { MeltyExtension, IntentContext, ProposedDiff } from '@melty/sdk';
@@ -121,9 +121,9 @@ from pydantic import BaseModel, Field, ValidationError
 class MeltySessionState(BaseModel):
     current_intent: str = Field(..., description="The high-level objective/intent currently tracked by Melty")
     staged_diff_files: List[str] = Field(default_factory=list, description="List of files with uncommitted changes")
-    active_mcp_servers: List[str] = Field(default_factory=list, description="Currently connected MCP 3.1 server URIs")
+    active_mcp_servers: List[str] = Field(default_factory=list, description="Currently connected FastMCP 3.1 server URIs")
     model_provider: str = Field(..., description="LLM provider name, e.g., 'anthropic' or 'ollama'")
-    model_name: str = Field(..., description="The model currently in use, e.g., 'claude-5.1'")
+    model_name: str = Field(..., description="The model currently in use, e.g., 'claude-5.6'")
 
 def get_melty_session_state() -> Optional[MeltySessionState]:
     """Queries Melty's headless daemon and parses state with strict Pydantic v2 validation."""
@@ -157,13 +157,13 @@ if __name__ == "__main__":
 - [Cursor](cursor.md) — A popular proprietary AI-native IDE built on VS Code.
 - [Zed](zed.md) — A high-performance, collaborative visual code editor written in Rust.
 - [Codeium](codeium.md) — Multi-IDE AI developer productivity and autocomplete platform.
-- [Windsurf](windsurf.md) — SOTA visual IDE implementing the Cascade-Devin interaction model.
+- [Windsurf](windsurf.md) — SOTA visual IDE implementing the Cascade interaction model.
 - [Aider](aider.md) — High-performance terminal-native pair programmer and git integration assistant.
-- [Junie CLI](junie-cli.md) — JetBrains AI Lab's keyboard-first terminal companion and indexer.
+- [Junie CLI](junie-cli.md) — Terminal companion and indexer.
 - [Terminus 2](terminus-2.md) — Open-source terminal-native AI agent baseline with a tmux bridge.
 - [GPT Engineer](gpt_engineer.md) — Rapid prototyping and scaffolding orchestrator for greenfield codebases.
 - [Sourcegraph Cody](sourcegraph_cody.md) — Multi-repository code intelligence and semantic context indexing client.
-- [Anti-Gravity](anti_gravity.md) — Google's enterprise-grade agentic development and execution framework.
+- [Anti-Gravity](anti_gravity.md) — Enterprise-grade agentic development and execution framework.
 - [Droid](droid.md) — Enterprise-grade AI coding orchestrator configuring dedicated sub-agents.
 - [Software Factories](../../knowledge_base/patterns/software-factories.md) — Automated development architectures and code production systems.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for multi-step AI planning.
@@ -176,5 +176,5 @@ if __name__ == "__main__":
 - [Model Context Protocol v3.1 Specification](https://modelcontextprotocol.org)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-15
+- Last reviewed: 2027-01-07
 - Confidence: high
