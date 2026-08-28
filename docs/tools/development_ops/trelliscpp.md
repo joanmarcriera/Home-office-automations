@@ -1,7 +1,7 @@
 # TrellisCPP
 
 ## What it is
-TrellisCPP is a ultra-high-performance C++23 implementation of the Trellis 3D asset generation model architecture. Built for latency-critical and edge-computing applications, TrellisCPP enables developers to generate highly detailed, high-fidelity 3D assets (including polygonal meshes, surface textures, and displacement/normal maps) from single 2D input images or natural language prompts. Operating on heavily optimized CUDA 12.6 and ROCm 6.3 runtimes, it leverages custom kernel fusion and sparse convolution libraries to eliminate the cold-start latencies and massive Python library dependencies traditionally associated with generative 3D pipelines.
+TrellisCPP is an ultra-high-performance C++23 implementation of the Trellis 3D asset generation model architecture. Built for latency-critical and edge-computing applications, TrellisCPP enables developers to generate highly detailed, high-fidelity 3D assets (including polygonal meshes, surface textures, and displacement/normal maps) from single 2D input images or natural language prompts. Operating on heavily optimized CUDA 12.6 and ROCm 6.3 runtimes, it leverages custom kernel fusion and sparse convolution libraries to eliminate the cold-start latencies and massive Python library dependencies traditionally associated with generative 3D pipelines.
 
 ## What problem it solves
 Generative 3D creation historically suffered from significant execution barriers:
@@ -12,11 +12,11 @@ Generative 3D creation historically suffered from significant execution barriers
 TrellisCPP solves these problems by rewriting the model's forward path, attention mechanisms, and sparse grid convolutions in optimized native C++. This achieves a 6x to 12x speedup, allows running highly quantized models under 6GB of VRAM, and fits seamlessly into standard C++ compilation workflows.
 
 ## Where it fits in the stack
-**Category**: Development Ops / [Development & Ops](index.md). TrellisCPP operates as a high-speed local 3D compilation engine. It fits into game editor utilities, procedural design applications, and automated creative pipelines, exposing standardized **FastMCP 3.1** or gRPC interfaces that AI agents (such as Claude 5.1 or Gemini 4.0) can trigger programmatically during sandboxed asset assembly trials.
+**Category**: Development Ops / [Development & Ops](index.md). TrellisCPP operates as a high-speed local 3D compilation engine. It fits into game editor utilities, procedural design applications, and automated creative pipelines, exposing standardized **FastMCP 3.1** or gRPC interfaces that AI agents (such as Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra) can trigger programmatically during sandboxed asset assembly trials.
 
 ## Typical use cases
 - **Runtime Procedural Generation**: Instantly generating textured game assets inside unreal/unity editor scripts from rough 2D concept doodles.
-- **Multimodal AI CAD Tooling**: Using Gemini 4.0 or Qwen 3.6 to generate conceptual product meshes from design specification files.
+- **Multimodal AI CAD Tooling**: Using Gemini 4.0 Ultra, Gemma 4, or Qwen 3.6 VL to generate conceptual product meshes from design specification files.
 - **Offline VR/AR Scene Synthesizers**: Letting users build immersive 3D rooms via voice commands entirely on-device with zero cloud latency.
 - **Autonomous Agent Prototyping**: Enabling software droids to write, verify, and package 3D interface assets dynamically for virtual environments.
 
@@ -24,7 +24,7 @@ TrellisCPP solves these problems by rewriting the model's forward path, attentio
 - **Bare-Metal C++23 Execution**: Bypasses the Python interpreter entirely, reducing cold starts to milliseconds.
 - **Unrivaled Memory Efficiency**: Advanced 4-bit and 8-bit model weight quantization allows high-fidelity generation on low-end consumer hardware.
 - **Extensive Output Architecture**: Outputs highly clean, optimized, and ready-to-render meshes (.gltf, .obj, .usd) with procedural PBR material textures.
-- **MCP 3.1 Native Integrations**: Exposes dedicated tools for pipeline agents to inspect, manipulate, and generate 3D assets automatically.
+- **FastMCP 3.1 Native Integrations**: Exposes dedicated tools for pipeline agents to inspect, manipulate, and generate 3D assets automatically.
 
 ## Limitations
 - **Heavy Compilation Requirements**: Compiling highly optimized CUDA/ROCm sparse kernels requires modern, platform-specific compilers (MSVC 2022 / GCC 13) and precise toolkit bindings.
@@ -123,10 +123,10 @@ int main() {
 ```
 
 ### Python FastMCP 3.1 wrapper with Pydantic v2 validation
-The following code defines a structured, type-safe Python API used by autonomous agents (such as Claude 5.1) to configure TrellisCPP generation jobs via Pydantic v2 schemas.
+The following code defines a structured, type-safe Python API used by autonomous agents (such as Claude 5.6) to configure TrellisCPP generation jobs via Pydantic v2 schemas.
 
 ```python
-from pydantic import BaseModel, Field, filepath_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal
 import json
 import os
@@ -138,7 +138,7 @@ class TrellisJobConfig(BaseModel):
     mesh_simplification: float = Field(0.5, ge=0.1, le=1.0, description="Mesh polygon decimation ratio.")
     texture_resolution: int = Field(2048, description="Output texture size (e.g., 1024, 2048, 4096).")
 
-    @filepath_validator("image_path")
+    @field_validator("image_path")
     @classmethod
     def verify_input_exists(cls, value: str) -> str:
         if not os.path.exists(value):
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [ComfyUI](../ai_knowledge/comfyui.md) — Visual stable-diffusion and generative workflow interface.
 - [Aider](aider.md) — Highly performant repository-editing assistant.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Offline models (like Gemma 3) providing the layout and design instructions.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Offline models (like Gemma 4) providing the layout and design instructions.
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Architectural pattern for model-tool interactions.
 
 ## Sources / references
@@ -196,5 +196,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-13
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # GitHub Pages
 
 ## What it is
-GitHub Pages is an optimized static site hosting service designed to take HTML, CSS, JavaScript, and asset files directly from a Git repository on GitHub and publish them as fully-functioning web applications. As of late November/December 2026, GitHub Pages serves as the foundational hosting infrastructure for AI-generated documentation hubs, dynamic testing dashboards, and [MkDocs](mkdocs.md) knowledge bases managed by autonomous developer agents. It features native support for automated build pipelines using GitHub Actions, custom domains with automated Let's Encrypt SSL/TLS renewals, and robust CDN caching.
+GitHub Pages is an optimized static site hosting service designed to take HTML, CSS, JavaScript, and asset files directly from a Git repository on GitHub and publish them as fully-functioning web applications. As of early 2027, GitHub Pages serves as the foundational hosting infrastructure for AI-generated documentation hubs, dynamic testing dashboards, and [MkDocs](mkdocs.md) knowledge bases managed by autonomous developer agents powered by FastMCP 3.1, Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra. It features native support for automated build pipelines using GitHub Actions, custom domains with automated Let's Encrypt SSL/TLS renewals, and robust CDN caching.
 
 ## What problem it solves
 Managing and publishing up-to-date documentation and software reports frequently suffers from process friction:
@@ -9,7 +9,7 @@ Managing and publishing up-to-date documentation and software reports frequently
 - **Out-of-Sync Documentation**: When documentation is hosted separately from the source repository, code improvements easily outpace explanation updates.
 - **Cost Inefficiency**: Running dedicated virtual machines or cloud storage buckets for simple static team websites or test logs incurs unnecessary fees.
 
-GitHub Pages solves these challenges by establishing a direct, zero-cost, git-integrated publishing pipeline. By pairing pages with modern AI agents (like Claude 5.1 and GPT-5.5), code edits and their matching documentation updates are committed, built, and deployed under unified version control instantly.
+GitHub Pages solves these challenges by establishing a direct, zero-cost, git-integrated publishing pipeline. By pairing pages with modern AI agents (like Claude 5.6 and GPT-5.6), code edits and their matching documentation updates are committed, built, and deployed under unified version control instantly.
 
 ## Where it fits in the stack
 **Category**: [Development & Ops](index.md) / Static Hosting and Repo-Native Presentation. GitHub Pages provides the outward-facing web presentation layer for project manuals, architectural schemas, API reference lists, and automated evaluation reports (such as Playwright, Coverage, and Link-health dashboards).
@@ -17,7 +17,7 @@ GitHub Pages solves these challenges by establishing a direct, zero-cost, git-in
 ## Typical use cases
 - **AI-Managed Project Handbooks**: Hosting material design manuals and repositories (such as MkDocs) edited autonomously by agents.
 - **Dynamic Test & Lint Reporting**: Publishing static HTML test summaries, lint results, and property-based fuzzing logs generated during CI/CD steps.
-- **MCP Server Discovery Directories**: Hosting static catalog files and client specifications detailing local Model Context Protocol integrations.
+- **MCP Server Discovery Directories**: Hosting static catalog files and FastMCP 3.1 client specifications detailing local Model Context Protocol integrations.
 - **Static API Specification Hosting**: Publishing OpenAPI / Swagger specifications and interactive client reference pages directly from the codebase.
 - **Team Portfolios and Tech Blogs**: Creating and maintaining highly responsive, CDN-cached developer blogs from Markdown source text.
 
@@ -202,5 +202,5 @@ if __name__ == "__main__":
 - [Let's Encrypt SSL/TLS Integration on GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/securing-your-github-pages-site-with-https)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-13
+- Last reviewed: 2027-01-07
 - Confidence: high
