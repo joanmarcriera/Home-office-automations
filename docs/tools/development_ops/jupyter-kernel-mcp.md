@@ -1,36 +1,36 @@
 # Jupyter Kernel MCP Server
 
 ## What it is
-An MCP server providing AI assistants with stateful, persistent Jupyter kernel execution and notebook management. It enables frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4** to maintain complex computational state across an entire conversation. As of late November/December 2026, the **Jupyter Kernel MCP Server v1.5** introduces native support for **MCP 3.1 / FastMCP 3.1** protocol schemas, allowing agents to treat long-running data science experiments as discrete, resumable, and telemetry-monitored tasks.
+An MCP server providing AI assistants with stateful, persistent Jupyter kernel execution and notebook management. It enables frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4** to maintain complex computational state across an entire conversation. As of early January 2027, the **Jupyter Kernel MCP Server v2.0** introduces native support for the **FastMCP 3.1 Task Protocol**, allowing agents to treat long-running data science experiments as discrete, resumable, streaming, and telemetry-monitored tasks.
 
 ## What problem it solves
-Unlike traditional code execution environments that start fresh for each query, this server maintains variables, imports, and data in memory. This enables incremental data analysis, multi-step software development, and the ability to build documented Jupyter notebooks as part of an agent's reasoning process. It eliminates the "amnesia" problem in AI-driven data exploration by providing a persistent, stateful workspace.
+Unlike traditional stateless code execution environments that start fresh for each query, this server maintains variables, imports, and loaded data structures in memory. This enables incremental data analysis, multi-step software development, and the ability to build documented Jupyter notebooks as part of an agent's reasoning process. It eliminates context-loss in AI-driven data exploration by providing a persistent, stateful workspace.
 
 ## Where it fits in the stack
-**Tool / Eval**. It provides a persistent compute workspace for agents, often used for [Knowledge Base](../../knowledge_base/README.md) expansion and complex [Data Copilot](../../architecture/data-copilot-text-to-sql.md) workflows. It acts as the bridge between conversational agents and professional data science environments.
+**Tool / Eval Layer**. It provides a persistent compute workspace for agents, often used for [Knowledge Base](../../knowledge_base/README.md) expansion and complex [Data Copilot](../../architecture/data-copilot-text-to-sql.md) workflows. It acts as the bridge between conversational agents and professional data science environments.
 
 ## Typical use cases
-- **Incremental Data Analysis**: Loading a dataset once and performing multiple exploratory turns with live variable checking.
+- **Incremental Data Analysis**: Loading large datasets once into GPU/RAM and performing multiple exploratory turns with live variable checking.
 - **Multi-step Development**: Building a complex algorithm turn-by-turn with live verification, visualization, and validation.
 - **Notebook Orchestration**: Creating, editing, and searching `.ipynb` files for shared human-AI collaboration.
 - **Contextual Reasoning**: Using the `suggest_next()` tool to let the kernel guide the agent based on live memory state.
-- **Interactive Visualization**: Generating and persisting charts (matplotlib, plotly) for retrieval in later turns.
+- **Interactive Visualization**: Generating and persisting interactive charts (matplotlib, plotly, altair) for retrieval in later turns.
 
 ## Strengths
-- **Persistent State**: Variables, classes, and libraries remain active throughout the session.
+- **Persistent State**: Variables, classes, models, and libraries remain active throughout the session.
 - **Polyglot Support**: Works with Python, R, Julia, Go, Rust, and TypeScript kernels.
-- **Smart Suggestions**: Late 2026 updates include improved GPT-5.5 and Claude 5.1 optimized prompt injections for cell-level debugging.
-- **Full Notebook Lifecycle**: Support for creation, cell-level editing, and full-text search of notebooks.
-- **MCP 3.1 / FastMCP 3.1 Native**: Standardized task schemas and real-time computation streaming for seamless execution.
+- **Smart Suggestions**: Early 2027 updates include improved GPT-5.6 and Claude 5.6 optimized prompt injections for cell-level debugging and error recovery.
+- **Full Notebook Lifecycle**: Support for creation, cell-level editing, execution, and full-text search of notebooks.
+- **FastMCP 3.1 Protocol Native**: Standardized task schemas, event streaming, and real-time computation telemetry for seamless agentic integration.
 
 ## Limitations
 - **External Dependency**: Requires a running Jupyter server or local Jupyter installation.
-- **Resource Consumption**: Persistent kernels consume host memory until explicitly shut down or garbage collected.
-- **Security Scope**: Execution is as powerful as the host kernel; requires careful sandboxing in multi-tenant environments.
+- **Resource Consumption**: Persistent kernels consume host RAM/VRAM until explicitly shut down or garbage collected.
+- **Security Scope**: Execution is as powerful as the host kernel; requires careful sandboxing (gVisor/Docker) in multi-tenant environments.
 - **State Complexity**: Deeply nested state can occasionally lead to agent confusion if variables are not clearly named or documented.
 
 ## When to use it
-- For complex data science tasks where dataset loading is expensive.
+- For complex data science tasks where dataset loading or model initialization is expensive.
 - When you want an agent to produce a reproducible notebook as a final artifact.
 - For long-running experiments spanning multiple turns or chat sessions.
 - In interactive data science workflows where agent-human handoffs are frequent.
@@ -64,15 +64,15 @@ claude mcp call jupyter compute --code "x = 10; x * 2"
 ## CLI examples
 
 ### 1. Kernel Management
-Start a specific kernel (e.g., R or Julia):
+Start a specific kernel (e.g., Python, R, or Julia):
 ```bash
-mcp-jupyter start --kernel ir
+mcp-jupyter start --kernel python3
 ```
 
 ### 2. Notebook Conversion
 Convert a chat session history into a standalone notebook:
 ```bash
-mcp-jupyter export --session_id "analysis_01" --output results.ipynb
+mcp-jupyter export --session_id "analysis_2027" --output results.ipynb
 ```
 
 ### 3. Workspace Audit
@@ -115,7 +115,7 @@ mcp-jupyter status --verbose
 ```
 
 ### 4. Robust Configuration Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate a Jupyter Kernel MCP Server connection configuration and active kernel profile under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+The following Python script illustrates how to model and programmatically validate a Jupyter Kernel MCP Server connection configuration and active kernel profile under early January 2027 standards, ensuring strict schema safety and type correctness using Pydantic v2:
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -127,7 +127,7 @@ class KernelSessionConfig(BaseModel):
     cwd: str = Field(default="/workspace")
     env: Dict[str, str] = Field(default_factory=dict)
     timeout_seconds: int = Field(default=600, ge=10, le=86400)
-    memory_limit_mb: int = Field(default=4096, ge=512, le=65536)
+    memory_limit_mb: int = Field(default=8192, ge=512, le=131072)
 
     @field_validator("kernel_name")
     @classmethod
@@ -148,13 +148,13 @@ class JupyterMCPConfig(BaseModel):
             "example": {
                 "server_url": "http://localhost:8888",
                 "token": "sha256:7f9c8d5e4b3a2f10d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6",
-                "session_id": "data-science-analysis-2026",
+                "session_id": "data-science-analysis-2027",
                 "kernel": {
                     "kernel_name": "python3",
                     "cwd": "/workspace/experiments",
                     "env": {"OMP_NUM_THREADS": "4"},
                     "timeout_seconds": 1800,
-                    "memory_limit_mb": 8192
+                    "memory_limit_mb": 16384
                 },
                 "mcp_version": "3.1"
             }
@@ -185,7 +185,7 @@ if __name__ == "__main__":
             "cwd": "/workspace",
             "env": {"CUDA_VISIBLE_DEVICES": "0"},
             "timeout_seconds": 3600,
-            "memory_limit_mb": 16384
+            "memory_limit_mb": 32768
         },
         "mcp_version": "3.1"
     }
@@ -199,14 +199,13 @@ if __name__ == "__main__":
 - [MCP Registry](../automation_orchestration/mcp-registry.md) — Discovery for data science MCPs.
 - [Python](../ai_knowledge/python.md) — Primary language for Jupyter workflows.
 - [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — Reference implementation for data-driven agents.
-- [Symbolic MCP](symbolic-mcp.md) — Often used in parallel for formal verification of data logic.
-- [Claude Code](claude-code.md) — Primary terminal client for managing Jupyter sessions.
+- [Claude Code](claude-code.md) — Terminal client for managing Jupyter sessions.
 
 ## Sources / references
 - [Jupyter Kernel MCP GitHub](https://github.com/democratize-technology/jupyter-kernel-mcp)
 - [Jupyter Server Documentation](https://jupyter-server.readthedocs.io/)
-- [Persistent Computing for AI Agents (June 2026)](https://agentic-ops.example.com/jupyter-mcp)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.org)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-15
+- Last reviewed: 2027-01-07
 - Confidence: high

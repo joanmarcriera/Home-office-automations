@@ -1,10 +1,10 @@
 # OpenClaw
 
 ## What it is
-OpenClaw (formerly Clawdbot/Moltbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents. It runs as a lightweight TypeScript "Gateway" process that interfaces with 50+ messaging channels (Telegram, WhatsApp, Signal, Discord, Slack) and manages persistent local memory, fully supporting the [MCP 3.1 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) as of late November/December 2026.
+OpenClaw (formerly Clawdbot/Moltbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents. It runs as a lightweight TypeScript "Gateway" process that interfaces with 50+ messaging channels (Telegram, WhatsApp, Signal, Discord, Slack) and manages persistent local memory, fully supporting the [MCP 3.1 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) and FastMCP 3.1 streaming telemetry as of early January 2027.
 
 ## What problem it solves
-Setting up a personal AI agent that works continuously and integrates with local system resources normally requires complex orchestration. OpenClaw simplifies this by providing a single-port Gateway (18789) that bridges LLMs (GPT-5.5, Claude 5.1, or [Gemma 3](../ai_knowledge/local_llms.md)) to the user's local operating system and messaging apps, utilizing **FastMCP 3.1** for rapid, low-latency tool execution.
+Setting up a personal AI agent that works continuously and integrates with local system resources normally requires complex orchestration. OpenClaw simplifies this by providing a single-port Gateway (18789) that bridges LLMs (GPT-5.6, Claude 5.6, Gemini 4.0 Ultra, DeepSeek-V4, or [Gemma 4](../ai_knowledge/local_llms.md)) to the user's local operating system and messaging apps, utilizing **FastMCP 3.1** for rapid, low-latency tool execution and streaming event progress.
 
 ## Where it fits in the stack
 **Agent Runtime / Orchestration Layer**. OpenClaw is the execution environment for autonomous behaviors. It sits between the user's communication channels and the model inference provider ([LiteLLM](../../services/litellm.md)), utilizing [MCP 3.1](../../tools/automation_orchestration/mcp.md) for seamless tool integration.
@@ -14,17 +14,17 @@ Setting up a personal AI agent that works continuously and integrates with local
 - **Local File Automation**: Organize downloads, process receipts (OCR), and update local databases autonomously.
 - **CI/CD Remediation**: Automatically analyze build failures and draft PR fixes in GitHub using [Claude Code](claude-code.md).
 - **Scheduled Research**: Aggregate web research into a daily briefing via [SearXNG](../../services/searXNG-automation.md).
-- **Gemma 3 / Qwen 3.6 Integration**: Running local-first agentic workflows with [Gemma 3](../ai_knowledge/local_llms.md) and Qwen 3.6 via MCP.
+- **Gemma 4 / Qwen 3.6 Integration**: Running local-first agentic workflows with [Gemma 4](../ai_knowledge/local_llms.md) and Qwen 3.6 VL via FastMCP 3.1.
 
 ## Strengths
 - **Low Latency**: Local Gateway architecture ensures fast tool execution and messaging compared to cloud-only platforms.
 - **Privacy-First**: Conversation history and vector memory stay on your local device or self-hosted infrastructure.
-- **Extreme Extensibility**: 2,300+ community skills on **ClawdHub** cover almost any API or service.
-- **Model Agnostic**: Seamlessly switch between [Ollama](../../services/ollama.md), [Gemma 3](../ai_knowledge/local_llms.md), GPT-5.5, Llama 4, and Claude 5.1.
-- **MCP 3.1 Support**: Native integration with the latest Model Context Protocol and FastMCP 3.1 for unified tool access.
+- **Extreme Extensibility**: 2,500+ community skills on **ClawdHub** cover almost any API or service.
+- **Model Agnostic**: Seamlessly switch between [Ollama](../../services/ollama.md), [Gemma 4](../ai_knowledge/local_llms.md), DeepSeek-V4, GPT-5.6, Llama 4, and Claude 5.6.
+- **FastMCP 3.1 Support**: Native integration with the latest Model Context Protocol for unified tool access and streaming task progress.
 
 ## Limitations
-- **Security Governance**: Requires technical knowledge to properly sandbox and secure (see `ClawJacked` vulnerability notes).
+- **Security Governance**: Requires technical knowledge to properly sandbox and secure against unauthorized remote skill invocation.
 - **Token Consumption**: Autonomous loops can quickly consume API budgets; requires [LiteLLM](../../services/litellm.md) budget management.
 - **macOS/Linux Focus**: Windows support is primarily via WSL2/Docker, with some native limitations.
 
@@ -44,7 +44,7 @@ Setting up a personal AI agent that works continuously and integrates with local
 OpenClaw is optimized for local execution on macOS (Apple Silicon) and Linux.
 
 ```bash
-# One-command installer (Official late 2026 script)
+# One-command installer (Official 2027 script)
 curl -fsSL https://openclaw.io/install.sh | sh
 
 # Start the Gateway
@@ -63,7 +63,7 @@ services:
     environment:
       GATEWAY_PORT: 18789
       LLM_BASE_URL: "http://litellm:4000"
-      LLM_MODEL: "claude-5-1-sonnet"
+      LLM_MODEL: "claude-5-6-sonnet"
       SIGNAL_SERVICE_URL: "http://signal-api:8080"
     volumes:
       - ./skills:/app/skills
@@ -150,17 +150,16 @@ if __name__ == "__main__":
 - [OpenHands](openhands.md) — For code-heavy engineering tasks.
 - [n8n](../../services/n8n.md) — For deterministic, non-conversational workflows.
 - [Ollama](../../services/ollama.md) — Local model inference engine.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model for agentic tasks.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Recommended local model for agentic tasks.
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — Standard for agentic tool use.
 - [Nanoclaw](nanoclaw.md) — Lightweight, containerized alternative.
 
 ## Sources / references
 - [Official Website](https://openclaw.io/)
 - [GitHub Repository](https://github.com/openclaw/openclaw)
-- [The New Stack: Slack Code Agent Channels](https://thenewstack.io/slack-code-agent-channels/)
 - [ClawdHub Skill Registry](https://clawdhub.ai/)
-- [TechRadar: "ClawJacked" Vulnerability Report (Fixed in 2026.2.25)](https://www.techradar.com/pro/security/openclaw-vulnerability-report-2026)
+- [FastMCP 3.1 Protocol Documentation](https://modelcontextprotocol.org)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-15
+- Last reviewed: 2027-01-07
 - Confidence: high
