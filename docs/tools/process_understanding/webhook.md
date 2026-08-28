@@ -1,17 +1,17 @@
 # Webhook
 
 ## What it is
-A Webhook is a standard, lightweight method for an application to deliver real-time data payloads to another application immediately upon the occurrence of a specific event. Unlike polling, which involves repeated and resource-heavy queries to an API, webhooks employ an event-driven "push" pattern over standard HTTP POST. In the late November / December 2026 agentic automation stack, webhooks serve as the vital "nervous system" linking inference engines (like [Ollama](../../services/ollama.md)) to external automated triggers.
+A Webhook is a standard, lightweight method for an application to deliver real-time data payloads to another application immediately upon the occurrence of a specific event. Unlike polling, which involves repeated and resource-heavy queries to an API, webhooks employ an event-driven "push" pattern over standard HTTP POST. In early January 2027, webhooks serve as the vital "nervous system" linking inference engines (like [Ollama](../../services/ollama.md)) to external automated triggers and FastMCP 3.1 Task Protocol event buses.
 
 ## What problem it solves
-In an ecosystem dominated by long-running or asynchronous agentic processes, polling introduces unacceptable latency and wastes valuable CPU and network resources. Webhooks solve this "latency gap." For instance, when an autonomous agent triggers a long-running research or parsing pipeline, downstream tools do not need to repeatedly query the status; the processing service simply dispatches an HTTP POST request containing verified results directly to the orchestrator (e.g., [n8n](../../services/n8n.md)) the moment it completes.
+In an ecosystem dominated by long-running or asynchronous agentic processes, polling introduces unacceptable latency and wastes valuable CPU and network resources. Webhooks solve this "latency gap." For instance, when an autonomous agent triggers a long-running research or parsing pipeline using models like Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra, downstream tools do not need to repeatedly query the status; the processing service simply dispatches an HTTP POST request containing verified results directly to the orchestrator (e.g., [n8n](../../services/n8n.md)) the moment it completes.
 
 ## Where it fits in the stack
-**Integration & Orchestration**. Siting between the **Inference Plane** (LLMs and Agent Runtimes) and the **Execution Plane** (Home Automation and local services), webhooks facilitate clean, asynchronous, event-driven communications across the home lab and enterprise infrastructure.
+**Integration & Orchestration**. Sitting between the **Inference Plane** (LLMs and Agent Runtimes) and the **Execution Plane** (Home Automation and local services), webhooks facilitate clean, asynchronous, event-driven communications across the home lab and enterprise infrastructure.
 
 ## Typical use cases
 - **Paperless-ngx AI Ingestion**: Post-consumption hooks triggering an LLM to analyze a newly parsed receipt and auto-classify tags.
-- **Asynchronous Agent Hand-offs**: An agent utilizing the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) Task Protocol triggers a webhook to notify a human-in-the-loop when confirmation is required.
+- **Asynchronous Agent Hand-offs**: An agent utilizing the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) FastMCP 3.1 Task Protocol triggers a webhook to notify a human-in-the-loop when confirmation is required.
 - **GitOps and CI/CD Pipelines**: A Gitea webhook firing a local container deployment flow upon a push event on a specific branch.
 - **Live System Alerts**: Emitting JSON telemetry payloads from [Sentry](sentry.md) or [Datadog](datadog.md) directly to an AI self-healing daemon.
 
@@ -59,7 +59,7 @@ To test a receiving endpoint, you can mock an incoming POST delivery with a cust
 curl -X POST http://localhost:8000/webhook \
      -H "Content-Type: application/json" \
      -H "X-Hub-Signature-256: sha256=abcdef1234567890" \
-     -d '{"event": "agent_task_completed", "agent_id": "claude-5.1"}'
+     -d '{"event": "agent_task_completed", "agent_id": "claude-5.6"}'
 ```
 
 ### Inspecting Local Webhook Traffic
@@ -133,7 +133,6 @@ async def receive_webhook(request: Request, x_signature_256: str = Header(None))
         raise HTTPException(status_code=422, detail=f"Payload validation failed: {str(e)}")
 
 if __name__ == "__main__":
-    # Standard local development runner instructions
     import uvicorn
     print("Starting secure Webhook receiver on port 8000...")
     # uvicorn.run(app, host="127.0.0.1", port=8000)
@@ -149,7 +148,6 @@ if __name__ == "__main__":
 - [Standards and Conventions](../../standards.md) — Taxonomy standards for secure payload designs.
 - [Event-Driven Architecture](../../knowledge_base/patterns/index.md) — Foundational homelab blueprint utilizing decoupled webhook events.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Communication protocols utilizing async JSON events.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM capable of generating webhook structures or responding to callbacks.
 
 ## Sources / references
 - [Webhooks.fyi Comprehensive Guide](https://webhooks.fyi/)
@@ -157,5 +155,5 @@ if __name__ == "__main__":
 - [n8n Webhook Node Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-08
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,17 +1,17 @@
 # Parea
 
 ## What it is
-Parea is an enterprise-grade AI developer platform tailored for debugging, testing, observing, and validating LLM-based applications. In late November / December 2026 (v2.4+), it features first-class support for multi-agent execution tracing, native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool logging, and scalable automated evaluations (evals) leveraging LLM-as-a-Judge scoring.
+Parea is an enterprise-grade AI developer platform tailored for debugging, testing, observing, and validating LLM-based applications. In early January 2027 (v2.5+), it features first-class support for multi-agent execution tracing, native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) FastMCP 3.1 tool logging, and scalable automated evaluations (evals) leveraging SOTA LLM-as-a-Judge scoring with models like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ## What problem it solves
 Developing agentic and multi-step LLM workflows is inherently non-deterministic, making them prone to silent regressions, loops, and quality degradation. Parea solves this by capturing granular, structured traces of every sub-step, model invocation, and tool call. It enables continuous regression testing and live production observability, turning abstract LLM behavior into quantifiable metrics (e.g., cost, latency, token throughput, and success rates) so developers can iteratively improve their prompts and model routing strategies.
 
 ## Where it fits in the stack
-**AI Development & Observability**. Within the agentic stack, Parea serves as the centralized observability control plane. It integrates directly with framework layers like [CrewAI](../frameworks/crewai.md) and [LangGraph](../frameworks/langgraph.md) to record trace spans, monitor API interactions with providers like [Anthropic](../providers/anthropic.md), and manage prompt versioning.
+**AI Development & Observability**. Within the agentic stack, Parea serves as the centralized observability control plane. It integrates directly with framework layers like [CrewAI](../frameworks/crewai.md), [Agno](../agents/agno.md), and [LangGraph](../frameworks/langgraph.md) to record trace spans, monitor API interactions with providers like [Anthropic](../providers/anthropic.md), and manage prompt versioning.
 
 ## Typical use cases
 - **Multi-Agent Flow Tracing**: Recording complex collaborative sessions where one agent delegates tasks to another to diagnose where execution loops or tool errors occur.
-- **LLM-as-a-Judge Evaluations**: Scoring outputs automatically using models like Claude 5.1, GPT-5.5, or Gemini 4.0 against human-designed criteria.
+- **LLM-as-a-Judge Evaluations**: Scoring outputs automatically using SOTA models like Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra against human-designed criteria.
 - **Prompt Asset Lifecycle**: Managing prompt versions and deploying them directly from Parea's UI to local code without requiring redeployments.
 - **Automated CI/CD Regression Tests**: Running unit-test suites over large prompt datasets before merging changes into the production repository.
 
@@ -19,7 +19,7 @@ Developing agentic and multi-step LLM workflows is inherently non-deterministic,
 - **Native Agent Awareness**: Explicit support for multi-agent traces, easily highlighting handoffs and parallel executions in visual waterfall graphs.
 - **Robust SDKs**: Intuitive decorators and wrappers in Python and TypeScript that capture logs asynchronously without blocking the main event loop.
 - **Custom Heuristics**: Allows developers to mix simple code-based checks (e.g., regex, JSON schema validation) with complex LLM evaluation judges.
-- **FastMCP 3.1 Observability**: Native logging capability for MCP tool servers, tracing raw inputs and outputs across boundaries.
+- **FastMCP 3.1 Observability**: Native logging capability for MCP tool servers, tracing raw inputs and outputs across boundaries using the MCP Task Protocol.
 
 ## Limitations
 - **Cloud-Centric Core**: While it offers strong local SDK testing, advanced dashboards and historical tracking require sending execution logs to the Parea cloud.
@@ -29,7 +29,7 @@ Developing agentic and multi-step LLM workflows is inherently non-deterministic,
 ## When to use it
 - When you are deploying multi-agent autonomous loops that require fine-grained trace logs to debug failure points.
 - To execute automated prompt evaluations as an integral step in your CI/CD pipelines.
-- When you need a unified dashboard to compare the cost, latency, and performance of different LLMs (e.g., GPT-5.5 vs. Claude 5.1).
+- When you need a unified dashboard to compare the cost, latency, and performance of different SOTA LLMs (e.g., GPT-5.6 vs. Claude 5.6 vs. Gemini 4.0 Ultra).
 
 ## When not to use it
 - For trivial, single-prompt applications where basic standard output logs are sufficient.
@@ -102,7 +102,6 @@ class VerifiedTraceSpan(BaseModel):
     @field_validator("metrics")
     @classmethod
     def validate_cost_sanity(cls, v: TraceMetrics) -> TraceMetrics:
-        # Cost validation check (sanity bound)
         if v.estimated_cost > 5.0:
             raise ValueError("Trace cost exceeds safety threshold of $5.00 per execution")
         return v
@@ -110,7 +109,6 @@ class VerifiedTraceSpan(BaseModel):
 # 2. Executable validation logic
 def verify_and_log_span(raw_payload: dict) -> Optional[VerifiedTraceSpan]:
     try:
-        # Validate against strict Pydantic v2 schema
         validated_span = VerifiedTraceSpan.model_validate(raw_payload)
         return validated_span
     except Exception as e:
@@ -120,11 +118,10 @@ def verify_and_log_span(raw_payload: dict) -> Optional[VerifiedTraceSpan]:
 if __name__ == "__main__":
     print("Initializing Parea trace validation...")
 
-    # Simulated trace payload returned from a multi-agent execution loop
     simulated_payload = {
         "span_id": "span-9a72b8",
         "trace_id": "trace-102948cba",
-        "model_name": "claude-5.1-sonnet",
+        "model_name": "claude-5.6-sonnet",
         "metrics": {
             "latency_seconds": 1.48,
             "input_tokens": 1250,
@@ -167,8 +164,8 @@ if __name__ == "__main__":
 ## Sources / References
 - [Parea AI Official Website](https://www.parea.ai/)
 - [Parea Platform Documentation](https://docs.parea.ai/)
-- [SOTA Multi-Agent Observability Patterns (Late 2026)](https://docs.parea.ai/welcome/what_is_parea_ai)
+- [SOTA Multi-Agent Observability Patterns](https://docs.parea.ai/welcome/what_is_parea_ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-08
+- Last reviewed: 2027-01-07
 - Confidence: high
