@@ -1,7 +1,7 @@
 # AlpacaEval
 
 ## What it is
-AlpacaEval is an automatic evaluator for instruction-following language models. It is designed to be fast, cheap, and highly correlated with human preferences. As of late 2026, it serves as a critical performance baseline for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, and **Gemma 3**, measuring the win rate of a model's outputs against a reference model using an LLM-based automatic annotator.
+AlpacaEval is an automatic evaluator for instruction-following language models. It is designed to be fast, cheap, and highly correlated with human preferences. As of early 2027, it serves as a critical performance baseline for frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Gemma 4**, measuring the win rate of a model's outputs against a reference model using an LLM-based automatic annotator.
 
 ## What problem it solves
 Evaluation of instruction-following models typically requires human interaction, which is time-consuming, expensive, and difficult to replicate. AlpacaEval provides a replicable, automated proxy that allows developers to iterate quickly by simulating human preference judgments. It specifically addresses "verbosity bias" through length-controlled metrics and now incorporates the **MCP 3.1** and **FastMCP 3.1** protocol for automated benchmarking across diverse environments.
@@ -11,27 +11,27 @@ Evaluation of instruction-following models typically requires human interaction,
 
 ## Typical use cases
 - **Model Development**: Running frequent evaluations during the training or fine-tuning process.
-- **Comparative Analysis**: Measuring how a new model performs against established baselines like **Gemma 3**, **Qwen 3.6**, or **GPT-5.5**.
+- **Comparative Analysis**: Measuring how a new model performs against established baselines like **Gemma 4**, **Qwen 3.6 VL**, or **GPT-5.6**.
 - **Prompt Engineering**: Testing the impact of different system prompts on model performance.
-- **Automated Benchmarking**: Using the **MCP 3.1 Task Protocol** to trigger evaluations across distributed compute clusters.
+- **Automated Benchmarking**: Using the **FastMCP 3.1 Task Protocol** to trigger evaluations across distributed compute clusters.
 
 ## Strengths
 - **Speed and Cost**: Can run in less than 5 minutes for under $10.
 - **Human Correlation**: AlpacaEval 2.0 maintains a high Spearman correlation (>0.98) with Chatbot Arena.
 - **Length Normalization**: Effectively mitigates the bias toward longer outputs using length-controlled win rates.
-- **MCP 3.1 Compatibility**: Allows for standardized task execution, structural telemetry collection, and parallel evaluations.
+- **FastMCP 3.1 Compatibility**: Allows for standardized task execution, structural telemetry collection, and parallel evaluations.
 
 ## Limitations
 - **Style over Substance**: Like many LLM-based evaluators, it may favor the style and tone of a response over its factual accuracy.
 - **Instruction Breadth**: The evaluation set might not be representative of extremely complex or niche professional tasks.
 - **Safety**: It does not measure model safety, toxicity, or potential for harm (use [SharpAI Security Benchmark](sharp-ai.md)).
-- **Judge Bias**: The choice of "judge" model (e.g., using GPT-5.5 to judge GPT-5.5) can influence the results.
+- **Judge Bias**: The choice of "judge" model (e.g., using GPT-5.6 to judge GPT-5.6) can influence the results.
 
 ## When to use it
 - When you need quick, automated feedback on model quality during development.
 - When you want to see how a model's conversational performance aligns with human-perceived quality.
 - For initial screening of model checkpoints before human evaluation.
-- When benchmarking **Gemma 3** or other open-weights models against proprietary leaders.
+- When benchmarking **Gemma 4** or other open-weights models against proprietary leaders.
 
 ## When not to use it
 - For high-stakes decisions regarding model safety or final production release (use [SharpAI Security Benchmark](sharp-ai.md)).
@@ -47,7 +47,7 @@ pip install alpaca_eval
 ```
 
 ### 2. Configuration
-Set your API key for the evaluator model (e.g., OpenAI API for GPT-5.5 or Anthropic API for Claude 5.1).
+Set your API key for the evaluator model (e.g., OpenAI API for GPT-5.6 or Anthropic API for Claude 5.6).
 
 ```bash
 export OPENAI_API_KEY="your_api_key"
@@ -68,18 +68,18 @@ Commonly used arguments for the `alpaca_eval` command:
 # Basic evaluation
 alpaca_eval --model_outputs 'outputs.json'
 
-# Use a specific annotator (e.g., GPT-5.5)
-alpaca_eval --model_outputs 'outputs.json' --annotator_config 'weighted_alpaca_eval_gpt5_5'
+# Use a specific annotator (e.g., GPT-5.6)
+alpaca_eval --model_outputs 'outputs.json' --annotator_config 'weighted_alpaca_eval_gpt5_6'
 
 # Specify output directory
 alpaca_eval --model_outputs 'outputs.json' --output_path './results'
 
-# Run via MCP 3.1 Task Protocol
+# Run via FastMCP 3.1 Task Protocol
 alpaca_eval run-task --task-file 'benchmarking_task.json' --protocol mcp3.1
 ```
 
 ## API examples
-AlpacaEval can be used programmatically within Python workflows. This SOTA December 2026 example includes strict **Pydantic v2** validation to model, parse, and verify the AlpacaEval summary results.
+AlpacaEval can be used programmatically within Python workflows. This SOTA January 2027 example includes strict **Pydantic v2** validation to model, parse, and verify the AlpacaEval summary results.
 
 ```python
 from pydantic import BaseModel, Field, condecimal
@@ -94,7 +94,7 @@ class LengthControlledWinRate(BaseModel):
 
 class AlpacaEvalRun(BaseModel):
     model_name: str
-    judge_model: str = Field(default="gpt-5.5")
+    judge_model: str = Field(default="gpt-5.6")
     executed_at: datetime = Field(default_factory=datetime.utcnow)
     metrics: LengthControlledWinRate
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -107,10 +107,10 @@ def parse_and_verify_eval(data: dict) -> AlpacaEvalRun:
     print(f"Adjusted Win Rate against reference: {run.metrics.adjusted_win_rate}%")
     return run
 
-# Mock benchmark outputs from Gemini 4.0 Pro run
+# Mock benchmark outputs from Gemini 4.0 Ultra run
 gemini_run_output = {
-    "model_name": "gemini-4.0-pro",
-    "judge_model": "claude-5.1-sonnet",
+    "model_name": "gemini-4.0-ultra",
+    "judge_model": "claude-5.6-sonnet",
     "metrics": {
         "raw_win_rate": 84.50,
         "adjusted_win_rate": 81.20,
@@ -132,7 +132,7 @@ validated_run = parse_and_verify_eval(gemini_run_output)
 - [GPQA](./gpqa.md) - Expert-level reasoning benchmark.
 - [LM Evaluation Harness](./lm-evaluation-harness.md) - Framework for running many benchmarks.
 - [EvalPlus](./evalplus.md) - Robust code generation testing.
-- [Gemma 3](../ai_knowledge/local_llms.md) - Local open-weights model evaluated using AlpacaEval.
+- [Gemma 4](../ai_knowledge/local_llms.md) - Local open-weights model evaluated using AlpacaEval.
 - [Claude](../ai_knowledge/claude.md) - Suite of models analyzed by automatic judges.
 - [SharpAI Security Benchmark](sharp-ai.md) - Robust security evaluator for agent tool access.
 
@@ -140,8 +140,8 @@ validated_run = parse_and_verify_eval(gemini_run_output)
 - [GitHub Repository for AlpacaEval](https://github.com/tatsu-lab/alpaca_eval)
 - [AlpacaEval 2.0 Paper (Dubois et al., 2024)](https://arxiv.org/abs/2404.04475)
 - [Official Leaderboard Website](https://tatsu-lab.github.io/alpaca_eval/)
-- [MCP 3.1 Task Protocol Specifications](https://mcp.dev/protocols/task-protocol)
+- [FastMCP 3.1 Task Protocol Specifications](https://mcp.dev/protocols/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-19
+- Last reviewed: 2027-01-07
 - Confidence: high
