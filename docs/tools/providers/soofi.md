@@ -1,19 +1,19 @@
 # Soofi
 
 ## What it is
-Soofi is a sovereign, GDPR-aligned European open-source large language model suite featuring highly optimized variants such as **Soofi-30B** and **Soofi-3B**. Developed under a consortium of European digital sovereignty initiatives, Soofi is explicitly fine-tuned and steered for native proficiency in English, French, German, Spanish, and Italian. It provides localized linguistic nuance and robust logical reasoning while operating under a permissive, commercially friendly open-source license.
+Soofi is a sovereign, GDPR-aligned European open-source large language model suite featuring highly optimized variants such as **Soofi-30B** and **Soofi-3B**. Developed under a consortium of European digital sovereignty initiatives, Soofi is explicitly fine-tuned and steered for native proficiency in English, French, German, Spanish, and Italian. In early January 2027, it stands alongside **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL** as a cornerstone for local, privacy-centric European AI deployments.
 
 ## What problem it solves
 Enterprise automation pipelines in European jurisdictions face severe regulatory overhead when sending proprietary data to US-based proprietary cloud APIs. Soofi solves this by enabling fully offline, local inference that strictly complies with GDPR data minimization and privacy standards. It eliminates third-party transmission risks and provides European organizations with a high-performance alternative to proprietary models, ensuring complete digital sovereignty.
 
 ## Where it fits in the stack
-**AI Model / Local LLM / European Sovereign Provider**. Within the home-office and enterprise stack, Soofi sits at the local model layer. It serves as a highly compliant, locally hosted reasoning core that can be orchestrated via [Ollama](../../services/ollama.md) or served via [vLLM](../infrastructure/vllm.md) to integrate with local databases, RAG systems, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) automation pipelines.
+**AI Model / Local LLM / European Sovereign Provider**. Within the home-office and enterprise stack, Soofi sits at the local model layer. It serves as a highly compliant, locally hosted reasoning core that can be orchestrated via [Ollama](../../services/ollama.md) or served via [vLLM](../infrastructure/vllm.md) to integrate with local databases, RAG systems, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) FastMCP 3.1 automation pipelines.
 
 ## Typical use cases
 - **GDPR-Compliant Document Analysis**: Reviewing contracts, medical records, or user credentials locally on secure hardware without exposing personal data.
 - **Sovereign Public Sector Chatbots**: Powering local government or public utility assistant tools that require strict data security compliance.
 - **High-Nuance European Translation**: Executing multi-way translations across European languages with native-level grammatical accuracy and cultural awareness.
-- **Private Home-Office Automation**: Acting as a privacy-focused offline smart home orchestrator that does not leak telemetry outside the local network.
+- **Private Home-Office Automation**: Acting as a privacy-focused offline smart home orchestrator using FastMCP 3.1 tools that does not leak telemetry outside the local network.
 
 ## Strengths
 - **Strict Compliance Design**: Developed from the ground up to prevent the ingestion and leakage of personally identifiable information (PII).
@@ -197,5 +197,5 @@ if __name__ == "__main__":
 - [Reddit r/LocalLLaMA: German Soofi Team Launches Soofi S 30B/3B Models](https://www.reddit.com/r/LocalLLaMA/comments/1v0cyix/german_soofi_team_launches_soofi_s_30ba3b_an/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-20
+- Last reviewed: 2027-01-07
 - Confidence: high

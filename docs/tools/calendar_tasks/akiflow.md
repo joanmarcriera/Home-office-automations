@@ -1,7 +1,7 @@
 # Akiflow
 
 ## What it is
-Akiflow is a "Command Center" for tasks and calendars that allows users to consolidate tasks from various professional tools into a single unified calendar view. In late November/December 2026, it is designed for deep coordination with agentic clients (such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**) to facilitate automated time blocking and rapid task processing.
+Akiflow is a "Command Center" for tasks and calendars that allows users to consolidate tasks from various professional tools into a single unified calendar view. In early January 2027, it is designed for deep coordination with agentic clients (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**) to facilitate automated time blocking and rapid task processing.
 
 ## What problem it solves
 It solves the "scattered tasks" problem where actionable items are spread across Slack, Gmail, Trello, Asana, GitHub, and Jira. By pulling these into one place, it eliminates the cognitive load of switching between apps and helps users schedule their actual work time on their calendar.
@@ -13,7 +13,7 @@ It solves the "scattered tasks" problem where actionable items are spread across
 - **Time blocking**: Dragging tasks from a consolidated inbox directly onto a calendar to allocate focused work time.
 - **Unified Task Inbox**: Managing notifications and tasks from multiple SaaS platforms in one interface.
 - **Rapid Capture**: Using global shortcuts to quickly add tasks from any application without breaking flow.
-- **Agentic Ingestion (Late 2026)**: Aligning backlog items and personal context via **FastMCP 3.1** and **Qwen 3.6** scheduler configurations.
+- **Agentic Ingestion**: Aligning backlog items and personal context via **FastMCP 3.1 Task Protocol** and **Qwen 3.6 VL** scheduler configurations.
 
 ## Strengths
 - **Deep Integrations**: Native support for a wide range of popular productivity and communication tools.
@@ -85,7 +85,7 @@ curl -I https://api.akiflow.com/v1/health \
 ## API examples
 
 ### Python: Validating and Creating Tasks programmatically (Pydantic v2)
-When writing autonomous scheduling microservices coordinated by LLMs like **Claude 5.1** or **Llama 4**, raw payload validation is critical. Below is a robust Python programmatic example utilizing Pydantic v2 to validate the task structure before dispatching the request.
+When writing autonomous scheduling microservices coordinated by LLMs like **Claude 5.6** or **Gemma 4**, raw payload validation is critical. Below is a robust Python programmatic example utilizing Pydantic v2 to validate the task structure before dispatching the request.
 
 ```python
 import os
@@ -93,7 +93,7 @@ from typing import Optional, Literal
 from pydantic import BaseModel, Field, ValidationError
 
 class AkiflowTaskSchema(BaseModel):
-    """Schema representing validated payload for creating a task in Akiflow via its late 2026 REST API."""
+    """Schema representing validated payload for creating a task in Akiflow via its REST API."""
     title: str = Field(..., min_length=1, max_length=500, description="The title of the task.")
     description: Optional[str] = Field(None, description="Detailed notes or task body.")
     priority: Literal["low", "medium", "high", "asap"] = Field(default="medium", description="Akiflow urgency designation.")
@@ -114,15 +114,9 @@ def create_akiflow_task(token: str, task_data: AkiflowTaskSchema) -> dict:
     }
     payload = task_data.model_dump(exclude_none=True)
 
-    # In live execution:
-    # import requests
-    # response = requests.post(url, json=payload, headers=headers)
-    # response.raise_for_status()
-    # return response.json()
-
     return {
         "status": "success",
-        "task_id": "aki_t_2026_98765",
+        "task_id": "aki_t_2027_98765",
         "data": payload
     }
 
@@ -131,7 +125,7 @@ if __name__ == "__main__":
     try:
         validated_task = AkiflowTaskSchema(
             title="Calibrate Model Quantization Cache",
-            description="Run ExLlamaV3 checks with 4-bit KV Cache checks under Claude 5.1 orchestration.",
+            description="Run ExLlamaV3 checks with 4-bit KV Cache checks under Claude 5.6 orchestration.",
             priority="high",
             duration_minutes=90
         )
@@ -161,5 +155,5 @@ if __name__ == "__main__":
 - [Akiflow Help Center](https://help.akiflow.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

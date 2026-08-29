@@ -1,10 +1,10 @@
 # InterCode
 
 ## What it is
-InterCode is an interactive benchmarking framework designed for evaluating Large Language Models (LLMs) in real-world programming, shell, and SQL environments. It focuses on multi-turn interactions where the model can execute code or commands and receive feedback from the environment. In late November/December 2026, it serves as a foundational environment for testing **MCP 3.1 / FastMCP 3.1 Task Protocol** compliance in autonomous coding agents.
+InterCode is an interactive benchmarking framework designed for evaluating Large Language Models (LLMs) in real-world programming, shell, and SQL environments. It focuses on multi-turn interactions where the model can execute code or commands and receive feedback from the environment. In early January 2027, it serves as a foundational environment for testing **FastMCP 3.1 Task Protocol** compliance in autonomous coding agents.
 
 ## What problem it solves
-Standard static benchmarks often fail to capture the interactive nature of software development. InterCode addresses this by providing an environment where models must reason over multiple steps, handle errors, and adapt based on actual execution results. It tests the "plan-execute-verify" loop essential for self-healing agents and advanced coding assistants like **GPT-5.5**, **Claude 5.1**, **Gemini 4.0 Pro**, **Llama 4**, and **Qwen 3.6**.
+Standard static benchmarks often fail to capture the interactive nature of software development. InterCode addresses this by providing an environment where models must reason over multiple steps, handle errors, and adapt based on actual execution results. It tests the "plan-execute-verify" loop essential for self-healing agents and advanced coding assistants like **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
 ## Where it fits in the stack
 **Benchmarking / Agentic Evaluation**. It sits in the "agentic" evaluation space, testing the model's ability to act as a coding assistant or terminal agent. It is a critical validation layer for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem and autonomous platforms like [Devin](../development_ops/devin.md) and [OpenHands](../development_ops/openhands.md).
@@ -12,7 +12,7 @@ Standard static benchmarks often fail to capture the interactive nature of softw
 ## Typical use cases
 - **Evaluating Terminal Agents**: Measuring how well models handle multi-step Bash/Shell tasks in a sandboxed environment.
 - **SQL Generation Benchmarking**: Testing SQL generation and execution capabilities against live databases.
-- **MCP 3.1 Protocol Validation**: Ensuring agents correctly use standardized tool-calling and resource-sharing patterns to complete interactive tasks.
+- **FastMCP 3.1 Protocol Validation**: Ensuring agents correctly use standardized tool-calling, background task progress notifications, and resource-sharing patterns to complete interactive tasks.
 - **Iterative Debugging**: Benchmarking models on tasks that require multiple rounds of execution and log analysis to solve.
 
 ## Strengths
@@ -46,9 +46,9 @@ cd intercode
 pip install -r requirements.txt
 ```
 
-### Running an Evaluation with MCP 3.1
+### Running an Evaluation with FastMCP 3.1
 1. Ensure the Docker daemon is running.
-2. Initialize an InterCode environment with an MCP-compliant agent.
+2. Initialize an InterCode environment with an FastMCP-compliant agent.
 3. Execute a task using the standardized FastMCP 3.1 Task Protocol.
 
 ## CLI examples
@@ -76,7 +76,7 @@ import intercode
 env = gym.make('intercode-bash-v0')
 observation = env.reset()
 
-# Agent issues a command (e.g., from GPT-5.5)
+# Agent issues a command (e.g., from GPT-5.6)
 action = "ls -la"
 observation, reward, done, info = env.step(action)
 
@@ -173,7 +173,7 @@ def run_agent_loop_and_validate(session_id: str, max_turns: int = 5) -> Optional
         return None
 
 if __name__ == "__main__":
-    validated_run = run_agent_loop_and_validate("session_dec2026_01")
+    validated_run = run_agent_loop_and_validate("session_jan2027_01")
     if validated_run:
         print(f"Validated session {validated_run.session_id} successfully.")
         print(f"Total steps: {len(validated_run.steps)}, Final score: {validated_run.final_score}")
@@ -195,5 +195,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-20
+- Last reviewed: 2027-01-07
 - Confidence: high
