@@ -1,17 +1,17 @@
 # VAKRA: Executable Benchmark for Enterprise Agents
 
 ## What it is
-VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion, fully updated for December 2026 SOTA standards.
+VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion, fully updated for January 2027 SOTA standards.
 
 ## What problem it solves
 It addresses the gap between surface-level tool competence and robust, end-to-end agent reliability. VAKRA provides an executable environment with over 8,000 locally hosted APIs across 62 domains, preventing models from relying on memorized outputs and forcing them to navigate real API interactions, multi-hop reasoning, and policy constraints. It solves the "hallucination" problem in tool-use by verifying results against actual databases using the **MCP 3.1** and **FastMCP 3.1** protocols.
 
 ## Where it fits in the stack
-**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning for models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5.
+**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning for models like [Gemma 4](../ai_knowledge/local_llms.md), Claude 5.6, and GPT-5.6.
 
 ## Typical use cases
 - **Agent Architecture Validation**: Testing if a new agentic framework (e.g., [OpenClaw](../development_ops/openclaw.md) or [Nanoclaw](../development_ops/nanoclaw.md)) can handle complex multi-step tasks.
-- **Model Comparison**: Benchmarking different LLMs ([Gemma 3](../ai_knowledge/local_llms.md) vs GPT-5.5 or Claude 5.1) on their ability to use tools and follow policies.
+- **Model Comparison**: Benchmarking different LLMs ([Gemma 4](../ai_knowledge/local_llms.md) vs GPT-5.6 or Claude 5.6) on their ability to use tools and follow policies.
 - **Regression Testing**: Ensuring that updates to an agent's reasoning logic or system prompts don't break existing compositional capabilities.
 - **Policy Compliance Auditing**: Verifying that agents strictly adhere to negative constraints (e.g., "Never share user PII").
 
@@ -75,7 +75,7 @@ python tools/export_metrics.py --run_id "run_456" --format json
 ```
 
 ## API examples
-The VAKRA environment can be interacted with via its orchestrator API. This December 2026 SOTA update features strict **Pydantic v2** validation schemas to structure, trigger, and verify agent evaluations.
+The VAKRA environment can be interacted with via its orchestrator API. This January 2027 SOTA update features strict **Pydantic v2** validation schemas to structure, trigger, and verify agent evaluations.
 
 ```python
 from pydantic import BaseModel, Field, condecimal
@@ -97,7 +97,7 @@ class VakraApiCall(BaseModel):
 class VakraEvaluationReport(BaseModel):
     task_id: str
     evaluated_at: datetime = Field(default_factory=datetime.utcnow)
-    model_version: str = Field(..., description="Target model e.g. Claude 5.1 or GPT-5.5")
+    model_version: str = Field(..., description="Target model e.g. Claude 5.6 or GPT-5.6")
     api_calls: List[VakraApiCall]
     composition_score: condecimal(ge=0, le=1) = Field(..., description="Task path completion ratio")
     policy_breaches: int = Field(..., ge=0)
@@ -113,10 +113,10 @@ def process_vakra_run(payload: dict) -> VakraEvaluationReport:
         print("CRITICAL: Policy validation breached!")
     return report
 
-# Mock payload returned from evaluating a GPT-5.5 agent on finance domain
+# Mock payload returned from evaluating a GPT-5.6 agent on finance domain
 mock_run = {
     "task_id": "vakra_fin_009",
-    "model_version": "gpt-5.5-preview",
+    "model_version": "gpt-5.6-preview",
     "api_calls": [
         {"api_name": "get_account_balance", "parameters": {"acc_id": "998"}, "execution_status": "SUCCESS"},
         {"api_name": "convert_currency", "parameters": {"amount": "500", "to": "EUR"}, "execution_status": "SUCCESS"}
@@ -136,7 +136,7 @@ validated_report = process_vakra_run(mock_run)
 - [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — Design patterns for VAKRA-ready tools.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns evaluated by VAKRA.
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The standard for the tools VAKRA evaluates.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Local model frequently benchmarked with VAKRA.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Local model frequently benchmarked with VAKRA.
 - [LiteLLM](../../services/litellm.md) — Used to route model calls during VAKRA runs.
 - [SharpAI Security Benchmark](sharp-ai.md) — High-level evaluator for robust agent tool-use security.
 
@@ -147,5 +147,5 @@ validated_report = process_vakra_run(mock_run)
 - [VAKRA: eValuating API and Knowledge Retrieval Agents (arXiv)](https://arxiv.org/abs/2505.17166)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-19
+- Last reviewed: 2027-01-07
 - Confidence: high

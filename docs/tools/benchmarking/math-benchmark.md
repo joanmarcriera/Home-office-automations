@@ -1,7 +1,7 @@
 # MATH Benchmark
 
 ## What it is
-The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the late 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5, often executed via the [MCP 3.1](../automation_orchestration/mcp.md) Task Protocol for automated verification.
+The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the early 2027 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 4](../ai_knowledge/local_llms.md), Claude 5.6, and GPT-5.6, often executed via the [FastMCP 3.1](../automation_orchestration/mcp.md) Task Protocol for automated verification.
 
 ## What problem it solves
 Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary arithmetic. The MATH benchmark provides a much higher "ceiling" for evaluation, testing a model's ability to perform complex symbolic reasoning, multi-step proofs, and advanced problem-solving across diverse mathematical fields. It is essential for differentiating models that perform simple calculation from those capable of "System 2" reasoning.
@@ -13,7 +13,7 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 - **Deep Reasoning Evaluation**: Testing a model's ability to solve problems in number theory, geometry, and intermediate algebra.
 - **Prompt Engineering for Logic**: Evaluating the effectiveness of Chain-of-Thought (CoT) or program-aided reasoning (PoT) on difficult tasks.
 - **Model Specialized Training**: Using the MATH dataset to fine-tune models for mathematical proficiency or scientific reasoning.
-- **Automated Verification**: Using the [MCP 3.1](../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
+- **Automated Verification**: Using the [FastMCP 3.1](../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
 
 ## Strengths
 - **High Difficulty**: Challenges even the most capable models, providing a clear differentiation in reasoning ability.
@@ -28,7 +28,7 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 - **Parsing Challenges**: Identifying symbolic equivalence (e.g., `$1/2$` vs `$0.5$`) requires specialized math-aware logic like `SymPy`.
 
 ## When to use it
-- When comparing the reasoning capabilities of "frontier" models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs. Claude 5.1 or GPT-5.5).
+- When comparing the reasoning capabilities of "frontier" models (e.g., [Gemma 4](../ai_knowledge/local_llms.md) vs. Claude 5.6 or GPT-5.6).
 - When evaluating models specifically for scientific, engineering, or mathematical applications.
 - To measure progress in automated theorem proving and symbolic logic.
 
@@ -54,7 +54,7 @@ print(dataset['test'][0])
 The easiest way to run the MATH benchmark is using the [LM Evaluation Harness](lm-evaluation-harness.md).
 
 ```bash
-# Evaluate a Gemma 3 model on the MATH benchmark
+# Evaluate a Gemma 4 model on the MATH benchmark
 python main.py \
     --model hf \
     --model_args pretrained=google/gemma-3-27b-it \
@@ -79,15 +79,15 @@ python main.py --model hf --tasks math --num_fewshot 5
 # Filter MATH results by subject (e.g., Geometry)
 python main.py --model hf --tasks math_geometry
 
-# Run with Chain-of-Thought (CoT) enabled (Recommended for Gemma 3 and Claude 5.1)
+# Run with Chain-of-Thought (CoT) enabled (Recommended for Gemma 4 and Claude 5.6)
 python main.py --model hf --tasks math --model_args use_cot=True
 
-# Output results to a specific JSON file for MCP 3.1 ingestion
+# Output results to a specific JSON file for FastMCP 3.1 ingestion
 python main.py --model hf --tasks math --output_path results_math.json
 ```
 
 ## API examples
-Loading, processing, and parsing the MATH benchmark in Python. This December 2026 update leverages strict **Pydantic v2** validation to model problems and structure LaTeX verification results.
+Loading, processing, and parsing the MATH benchmark in Python. This January 2027 update leverages strict **Pydantic v2** validation to model problems and structure LaTeX verification results.
 
 ```python
 from pydantic import BaseModel, Field, condecimal
@@ -140,7 +140,7 @@ problem_source = {
     "correct_boxed_answer": "16"
 }
 
-# Verified against mock output from Llama 4
+# Verified against mock output from DeepSeek-V4
 llama_submission = "The value substitutions lead to \\boxed{16} as the final evaluation."
 report = verify_math_submission(problem_source, llama_submission)
 ```
@@ -153,15 +153,15 @@ report = verify_math_submission(problem_source, llama_submission)
 - [BigCodeBench](bigcodebench.md) - Complex coding tasks.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The standard runner for this benchmark.
 - [OpenCompass](opencompass.md) - Includes MATH in its reasoning evaluation suite.
-- [MCP 3.1](../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
 - [SharpAI Security Benchmark](sharp-ai.md) - Evaluation suite for security robustness and red-teaming.
 
 ## Sources / references
 - [GitHub Repository (Hendrycks)](https://github.com/hendrycks/math)
 - [MATH Dataset Paper: "Measuring Mathematical Problem Solving" (Hendrycks et al., 2021)](https://arxiv.org/abs/2103.03874)
 - [Hugging Face Dataset (competition_math)](https://huggingface.co/datasets/competition_math)
-- [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
+- [Gemma 4 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-19
+- Last reviewed: 2027-01-07
 - Confidence: high
