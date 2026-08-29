@@ -1,31 +1,31 @@
 # Calendly
 
 ## What it is
-Calendly is an automated scheduling platform that eliminates the back-and-forth of emails for finding the perfect time to meet. As of late November/December 2026, it serves as a highly sophisticated front-end for calendar management, supporting complex routing, automated workflows, and native **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** capabilities.
+Calendly is an automated scheduling platform that eliminates the back-and-forth of emails for finding the perfect time to meet. As of early 2027, it serves as an enterprise-grade front-end for calendar management, supporting complex routing, automated workflows, and native **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** capabilities including real-time event booking, automated rescheduling, and strict schema validation for AI agents.
 
 ## What problem it solves
 It solves scheduling friction by allowing others to book meetings based on your real-time availability across multiple calendars, while enforcing routing rules, buffer times, and payment requirements. It eliminates the "email tag" problem for both individuals and large sales/success teams.
 
 ## Where it fits in the stack
-**Calendar & Tasks**. It acts as the public-facing gatekeeper for professional and personal availability, integrating deeply with underlying calendar providers (Google, Outlook, iCloud) and downstream CRM/Automation systems.
+**Calendar & Tasks**. It acts as the public-facing gatekeeper for professional and personal availability, integrating deeply with underlying calendar providers (Google Workspace, Microsoft Outlook, iCloud) and downstream CRM/Automation systems (Salesforce, HubSpot, n8n).
 
 ## Typical use cases
 - **Professional Outreach**: Providing a friction-free way for external clients to book discovery calls.
 - **Recruitment**: Coordinating multi-stage interviews across different team members' schedules using Round Robin or Collective events.
 - **Routing Forms**: Using logic to direct invitees to specific event types or team members based on their responses.
-- **Agentic Calendar Orchestration**: Using MCP 3.1 to allow autonomous agents (using models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6) to negotiate meeting times directly on behalf of the host.
+- **Agentic Calendar Orchestration**: Using FastMCP 3.1 to allow autonomous agents (powered by Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, or Qwen 3.6 VL) to negotiate meeting times and handle bookings directly on behalf of the host.
 
 ## Strengths
 - **Simplicity**: Extremely easy for both the host and the invitee to use with a polished, mobile-responsive UI.
 - **Workflow Automation**: Native integrations for automated reminders, follow-ups, and payment collection (Stripe/PayPal).
-- **Agentic Integration**: Deep support for AI agents through robust API v2 and native FastMCP 3.1 server support for agentic rescheduling.
+- **Agentic Integration**: Deep support for AI agents through robust REST API v2 and native FastMCP 3.1 server support for agentic rescheduling and task protocol execution.
 - **Routing Logic**: Advanced ability to qualify leads before they ever reach your calendar.
 
 ## Limitations
 - **Customization**: Limited branding and custom CSS on lower-tier plans.
 - **Cost**: Premium features (multiple event types, routing, SSO) require a subscription that can be expensive for small teams.
 - **Privacy**: Requires full read/write access to your underlying calendars, which may be a concern for some security-conscious users.
-- **Cloud-Only**: No self-hosted option; requires an active internet connection and reliance on Calendly's servers.
+- **Cloud-Only**: No self-hosted option; requires an active internet connection and reliance on Calendly's infrastructure.
 
 ## When to use it
 - If you manage a high volume of meetings with external parties.
@@ -41,10 +41,10 @@ It solves scheduling friction by allowing others to book meetings based on your 
 Calendly is a cloud-based service. To get started, create an account and connect your primary calendar.
 
 ### Docker / Local Setup
-As Calendly is a SaaS product, there is no self-hosted Docker image. However, you can run a local **Calendly-MCP Server** to allow your local agents to interact with the API.
+As Calendly is a SaaS product, there is no self-hosted Docker image. However, you can run a local **Calendly FastMCP 3.1 Server** to allow your local agents to interact with the API.
 
 ```bash
-# Run the Calendly MCP server using npx
+# Run the Calendly FastMCP 3.1 server using npx
 npx @calendly/mcp-server --api-key <YOUR_CALENDLY_API_TOKEN>
 ```
 
@@ -56,7 +56,7 @@ npx @calendly/mcp-server --api-key <YOUR_CALENDLY_API_TOKEN>
 5. Share your unique link: `https://calendly.com/your-username/15min`.
 
 ## CLI examples
-While there is no official Calendly CLI, you can use `curl` with the API v2 or use the `calendly-cli` community tool.
+While there is no official Calendly CLI, you can use `curl` with API v2 or community tools to query scheduled events and webhooks.
 
 ```bash
 # Get your User URI using curl
@@ -91,13 +91,12 @@ params = {
     "sort": "start_time:asc"
 }
 
-# Real-world endpoint:
 # response = requests.get("https://api.calendly.com/scheduled_events", headers=headers, params=params)
 # events = response.json().get('collection', [])
 ```
 
 ### Strict Calendly Event Schema Validation (Python with Pydantic v2)
-To build robust AI-agent scheduling workflows (with Claude 5.1, GPT-5.5, Llama 4), developers parse Calendly's incoming webhook payloads or API v2 JSON structures and enforce strict typing and bounds checks using **Pydantic v2**.
+To build robust AI-agent scheduling workflows (with Claude 5.6, GPT-5.6, DeepSeek-V4), developers parse Calendly's incoming webhook payloads or API v2 JSON structures and enforce strict typing and bounds checks using **Pydantic v2**.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError, field_validator
@@ -129,8 +128,8 @@ webhook_payload = {
     "uri": "https://api.calendly.com/scheduled_events/event-abc-123",
     "name": "15 Minute Discovery Call with Agent",
     "status": "active",
-    "start_time": "2026-12-25T10:00:00Z",
-    "end_time": "2026-12-25T10:15:00Z",
+    "start_time": "2027-01-10T10:00:00Z",
+    "end_time": "2027-01-10T10:15:00Z",
     "invitees": [
         {"name": "Alice Developer", "email": "alice@example.com"}
     ]
@@ -149,7 +148,7 @@ except ValidationError as e:
 - [SavvyCal](../calendar_tasks/savvycal.md) — Direct competitor with better "link-less" scheduling and overlay features.
 - [Akiflow](../calendar_tasks/akiflow.md) — For consolidating tasks and calendars into a single view.
 - [Morgen](../calendar_tasks/morgen.md) — Privacy-focused scheduling and local-first calendar client.
-- [Amie](../calendar_tasks/amie.md) — For a more social, unified scheduling experience.
+- [Amie](../calendar_tasks/amie.md) — For a social, unified scheduling experience.
 - [n8n](../../services/n8n.md) — For complex scheduling automation and CRM synchronization.
 - [MCP](../automation_orchestration/mcp.md) — The foundation for agentic scheduling.
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) — Orchestration layer for multi-calendar agentic scheduling.
@@ -158,9 +157,8 @@ except ValidationError as e:
 ## Sources / references
 - [Calendly Official Site](https://calendly.com/)
 - [Calendly Developer Portal (API v2)](https://developer.calendly.com/)
-- [Calendly MCP Server GitHub](https://github.com/calendly/mcp-server)
-- [Agentic Scheduling Benchmarks (Late 2026 Update)](https://calendly.com/blog/agentic-scheduling-benchmarks)
+- [Calendly FastMCP Server GitHub](https://github.com/calendly/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

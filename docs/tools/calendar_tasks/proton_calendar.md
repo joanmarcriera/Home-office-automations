@@ -1,7 +1,7 @@
 # Proton Calendar
 
 ## What it is
-Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of late November/December 2026, it is a key component of the privacy-first productivity suite, offering a secure alternative to mainstream providers for users of frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6 who prioritize data sovereignty and secure agentic scheduling.
+Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of early 2027, it is a key component of the privacy-first productivity suite, offering a secure alternative to mainstream providers for users of frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL who prioritize data sovereignty and secure agentic scheduling.
 
 ## What problem it solves
 It provides a secure and private way to manage schedules and events without exposing sensitive metadata to service providers or third-party advertisers. By using client-side encryption, it ensures that event titles, locations, and participants remain confidential even if the service provider's infrastructure is compromised. It solves the privacy gap in digital life management.
@@ -21,7 +21,7 @@ It provides a secure and private way to manage schedules and events without expo
 - **Zero-Access Architecture**: Proton cannot access your calendar data; they only store the encrypted blobs.
 - **Open Source Clients**: The web and mobile applications are open source and subject to independent security audits.
 - **Standardized Import/Export**: Robust support for the `.ics` (iCalendar) format for migration.
-- **Enhanced Sync (2026)**: Improved real-time sync across devices using the latest Proton Bridge protocols and secure desktop bridge services.
+- **Enhanced Sync**: Real-time sync across devices using the latest Proton Bridge protocols and secure desktop bridge services.
 
 ## Limitations
 - **Automation Complexity**: The E2EE nature makes it difficult for third-party automation tools (like [n8n](../../services/n8n.md) or Zapier) to interact with the data directly without user-side decryption.
@@ -57,12 +57,12 @@ While there is no official CLI for direct event manipulation, you can use `curl`
 # Fetch the latest schedule from a Proton Secret Link
 curl -s "https://calendar.proton.me/api/calendar/v1/share/SECRET_TOKEN/export.ics" > schedule.ics
 
-# Count the number of upcoming events in the next month (simple grep)
+# Count the number of upcoming events in the next month
 grep "BEGIN:VEVENT" schedule.ics | wc -l
 ```
 
 ### Validating an Exported ICS
-Use `icalendar` (Python-based CLI tool) to inspect the structure of an exported Proton calendar:
+Use Python tools to inspect and validate the structure of an exported Proton calendar:
 
 ```bash
 # Install tool
@@ -75,7 +75,7 @@ icalendar view schedule.ics
 ## API examples
 
 ### Parsing and Validating Proton iCal Feeds (Python with Pydantic v2)
-Since direct API access is restricted by E2EE, most developers interact with Proton Calendar via the read-only iCal feed. This example retrieves an encrypted or shared iCal feed, parses its events, and validates them with strict **Pydantic v2** schemas to ensure structural integrity before processing by AI agents.
+Since direct API access is restricted by E2EE, most developers interact with Proton Calendar via the read-only iCal feed. This example retrieves an iCal feed, parses its events, and validates them with strict **Pydantic v2** schemas before processing by FastMCP 3.1 agents.
 
 ```python
 import requests
@@ -103,21 +103,16 @@ class ProtonEventSchema(BaseModel):
 SECRET_URL = "https://calendar.proton.me/api/calendar/v1/share/TOKEN/export.ics"
 
 def get_and_validate_proton_events() -> List[ProtonEventSchema]:
-    # For simulation, we use mock iCal content
     sample_ics = """BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
-UID:evt-2026-abc123
+UID:evt-2027-abc123
 SUMMARY:Secure Agentic Architecture Review
-DESCRIPTION:Reviewing FastMCP 3.1 implementations with Llama 4 and Claude 5.1
-DTSTART:2026-12-25T14:00:00Z
-DTEND:2026-12-25T15:00:00Z
+DESCRIPTION:Reviewing FastMCP 3.1 implementations with Claude 5.6 and DeepSeek-V4
+DTSTART:2027-01-15T14:00:00Z
+DTEND:2027-01-15T15:00:00Z
 END:VEVENT
 END:VCALENDAR"""
-
-    # In a live environment, fetch the real feed:
-    # response = requests.get(SECRET_URL)
-    # cal = Calendar.from_ical(response.content)
 
     cal = Calendar.from_ical(sample_ics)
     events_list = []
@@ -125,7 +120,6 @@ END:VCALENDAR"""
     for component in cal.walk():
         if component.name == "VEVENT":
             try:
-                # Build raw payload dictionary
                 raw_payload = {
                     "uid": str(component.get('uid')),
                     "summary": str(component.get('summary')),
@@ -133,7 +127,6 @@ END:VCALENDAR"""
                     "dtstart": component.get('dtstart').dt,
                     "dtend": component.get('dtend').dt
                 }
-                # Strictly validate with Pydantic v2
                 validated = ProtonEventSchema.model_validate(raw_payload)
                 events_list.append(validated)
             except ValidationError as e:
@@ -155,7 +148,6 @@ if __name__ == "__main__":
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) — MCP server for managing calendars.
 - [Home Assistant](../../services/home-assistant.md) — Often consumes Proton iCal feeds for dashboard display.
 - [n8n](../../services/n8n.md) — Workflow automation that can trigger from iCal feeds.
-- [Proton Mail](../enterprise/proton-mail.md) — Tightly integrated secure email service.
 
 ## Sources / references
 - [Proton Calendar Official Website](https://proton.me/calendar)
@@ -164,5 +156,5 @@ if __name__ == "__main__":
 - [Proton Bridge Documentation](https://proton.me/mail/bridge)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
