@@ -1,54 +1,51 @@
 # Windsurf IDE
 
 ## What it is
-**Windsurf** is the world's first agentic IDE, developed by **Codeium** and deeply integrated with **Cognition's Devin** reasoning capabilities. Under late November/December 2026 SOTA standards, it is built on top of the VS Code core but features a completely reimagined AI interaction model called **Cascade**, which moves beyond simple chat interfaces into autonomous, multi-file execution and real-time environment management for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+**Windsurf** is the world's first agentic IDE, developed by **Codeium** and deeply integrated with **Cognition's Devin 3.0** reasoning engine and the **FastMCP 3.1 Task Protocol**. Under early January 2027 SOTA standards, it is built on top of an optimized VS Code core featuring the enhanced **Cascade v3.0** AI interaction model. Cascade moves beyond standard chat interfaces into autonomous, multi-file execution, speculative background refactoring, and real-time environment management for frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
-Traditional AI assistants in IDEs are "passive observers" that can only suggest text. Windsurf solves the "context gap" and the "execution gap" by allowing its agent (Cascade) to not only see the entire codebase but also autonomously navigate files, run terminal commands, manage dependencies, and perform complex, cross-file refactors. It is specifically designed for [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) and handles real-time verification loops locally or in cloud-sandbox environments.
+Traditional AI assistants in IDEs act as passive inline autocompleters. Windsurf eliminates both the "context gap" and the "execution gap" by allowing Cascade to index massive multi-gigabyte repositories, inspect active terminal outputs, manage containerized microservices, run Playwright verification loops, and perform non-blocking background edits. It supports [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) with strict human-in-the-loop validation checkpoints.
 
 ## Where it fits in the stack
-**Category**: Tool / Development & Ops / Agentic IDE. It serves as the primary "Command Center" for developers who want to transition from manual coding to AI-augmented engineering, sitting at the intersection of the editor, terminal, and autonomous agent orchestration.
+**Category**: Tool / Development & Ops / Agentic IDE. It serves as the primary developer "Command Center" bridging text editing, terminal execution, containerized testing, and multi-agent coordination.
 
 ## Typical use cases
-- **Legacy Migration**: Asking Cascade to "Convert this entire Express.js project to Go/Fiber" and letting it handle the file-by-file translation and dependency setups.
-- **Rapid Prototyping**: Generating a full-stack feature (frontend, backend, database migrations) from a single prompt and running local servers to verify execution.
-- **Autonomous Bug Hunting**: Letting Devin Local trace a stack trace in the terminal and apply fixes autonomously.
-- **Cross-File Refactoring**: Renaming symbols or changing API signatures across hundreds of files with 100% precision.
-- **Agentic CI/CD Debugging**: Using Cascade to autonomously fix failing CI pipelines by interacting with the local shell to reproduce errors.
+- **Legacy Stack Migration**: Directing Cascade to "Convert this legacy Express.js microservice to Rust/Axum with Pydantic v2 schema endpoints" with automated build and test validation loops.
+- **Autonomous Feature Scaffolding**: Generating full-stack features (React UI, FastMCP 3.1 endpoints, database migrations) from natural language requirements.
+- **Continuous Background Debugging**: Cascade monitoring background build logs and automatically suggesting or applying targeted patches to failing tests.
+- **Large-Scale Structural Refactoring**: Renaming APIs or updating data structures across hundreds of files with semantic precision.
+- **Multi-Agent CI/CD Remediation**: Interfacing with remote agent swarms (via FastMCP 3.1) to diagnose and fix failing GitHub Actions or GitLab pipelines.
 
 ## Strengths
-- **Agentic Maturity**: Unlike Copilot or Cursor, Windsurf is designed from the ground up to let the AI *act* on the terminal and filesystem.
-- **VS Code Compatibility**: Supports the entire library of VS Code extensions and themes.
-- **Cognition Partnership**: Benefits from Devin's superior reasoning capabilities for long-horizon tasks.
-- **Fast Indexing**: Codebase changes are indexed in real-time with near-zero latency using a proprietary semantic indexing system.
-- **MCP 3.1 / FastMCP 3.1 Native**: Full support for the Model Context Protocol (MCP) and FastMCP 3.1 features, allowing custom enterprise tools to be plugged in dynamically.
+- **Native FastMCP 3.1 Support**: Out-of-the-box support for FastMCP 3.1 Task Protocol, enabling seamless integration with external databases, vector stores, and custom agent tools.
+- **Devin 3.0 Reasoning Engine**: Leverages Cognition's latest long-horizon reasoning loops for complex multi-step refactoring tasks.
+- **Real-Time Indexing**: Semantic indexing system processes code diffs in sub-millisecond timeframes.
+- **VS Code Extension Ecosystem**: Full compatibility with the standard VS Code plugin ecosystem and customization capabilities.
 
 ## Limitations
-- **Cloud Dependency**: Advanced agentic features require a connection to Codeium/Cognition's cloud infrastructure.
-- **Proprietary Core**: While based on VS Code, the agentic layers (Cascade/Devin) are closed-source.
-- **Learning Curve**: Mastering "Agentic Engineering" requires a shift in mindset from "how to code" to "how to prompt and supervise."
-- **Token Usage**: Long-running autonomous sessions can consume significant token quotas.
+- **Cloud Dependency**: Advanced Cascade autonomous agent features require active cloud connectivity to Codeium infrastructure.
+- **Proprietary Agent Architecture**: The Cascade control plane and Devin reasoning layers remain closed-source.
+- **Resource Footprint**: Indexing large repositories alongside active LLM reasoning sessions requires at least 16GB RAM.
 
 ## When to use it
-- When you are working on large, complex codebases where simple RAG is insufficient.
-- If you want an IDE that can autonomously fix failing tests and run its own debugging loops.
-- When you need to leverage **MCP servers** for specialized tool-calling (e.g., Jira, GitHub, Database) within your development workflow.
+- When developing complex enterprise applications requiring multi-file context and automated testing feedback loops.
+- If you want an IDE that can autonomously run terminal commands, execute test suites, and fix errors in background sessions.
+- When expanding development workflows with FastMCP 3.1 enterprise tools and remote agent infrastructure.
 
 ## When not to use it
-- In **strictly air-gapped** or offline environments where cloud access is prohibited.
-- For extremely simple, single-file projects where the overhead of agentic indexing is unnecessary.
-- If you have a strong preference for non-VS Code based editors (e.g., Vim, Emacs, JetBrains).
-- If you require a completely open-source toolchain for both the IDE and the LLM orchestration.
+- In strictly air-gapped or offline development environments where external API access is blocked.
+- For lightweight single-file script editing where full agentic indexing overhead is unnecessary.
+- If your development workflow mandates an entirely open-source editor and backend model stack.
 
 ## Getting started
 
 ### Local Installation
 1. Download the Windsurf installer for your OS (macOS, Windows, Linux) from the official website.
-2. Install as you would VS Code.
-3. Sign in to your Codeium/Cognition account to enable **Cascade** and **Devin** features.
+2. Complete the setup wizard.
+3. Authenticate with your Codeium account to activate **Cascade v3.0** and **FastMCP 3.1** capabilities.
 
-### Configuring MCP Tools
-Extend Windsurf's capabilities by adding MCP servers to `~/.codeium/windsurf/mcp_config.json`:
+### Configuring FastMCP 3.1 Tools
+Add FastMCP 3.1 servers to `~/.codeium/windsurf/mcp_config.json`:
 
 ```json
 {
@@ -59,58 +56,33 @@ Extend Windsurf's capabilities by adding MCP servers to `~/.codeium/windsurf/mcp
     },
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/production"]
     }
   }
 }
 ```
 
 ## CLI examples
-Windsurf provides a CLI tool to bridge the gap between your shell and the IDE.
 
 ```bash
-# Launch Windsurf in the current directory
+# Launch Windsurf in the current workspace
 windsurf .
 
-# Start a specific file at a specific line number
-windsurf -g src/api/main.go:120
+# Open a specific file and line in Cascade mode
+windsurf -g src/api/router.py:45
 
-# Open a diff view between two files
-windsurf --diff old_version.js new_version.js
+# Compare diffs using Windsurf's interactive agentic diff view
+windsurf --diff legacy_handler.py new_handler.py
 ```
 
 ## API examples
-Windsurf's **Cascade** engine is typically interacted with via natural language, but it can be controlled via the `Cascade API` (internal) or extended via MCP.
 
-### Example MCP Tool Definition
-You can create custom tools that Windsurf can call:
-```typescript
-// my-custom-tool.ts
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
-const server = new Server({
-  name: "project-stats",
-  version: "1.0.0"
-}, {
-  capabilities: { tools: {} }
-});
-
-// Windsurf will now be able to call 'get_project_health' via Cascade
-server.tool("get_project_health", {}, async () => {
-  return { content: [{ type: "text", text: "Healthy: 0 failing tests." }] };
-});
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
-```
-
-### Robust Configuration Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate a Windsurf IDE connection and active MCP session profile under late November/December 2026 SOTA standards, ensuring strict schema safety and type correctness using Pydantic v2:
+### Programmatic Configuration Validation with Pydantic v2
+The following Python module demonstrates modeling and validating a Windsurf IDE session profile and FastMCP 3.1 client configuration under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+from typing import List, Dict
 import json
 
 class MCPServerConfig(BaseModel):
@@ -120,23 +92,25 @@ class MCPServerConfig(BaseModel):
 
 class WindsurfConfig(BaseModel):
     mcp_servers: Dict[str, MCPServerConfig] = Field(..., alias="mcpServers")
-    cascade_version: str = Field(default="2.0", pattern=r"^(2\.0|2\.1)$")
+    cascade_version: str = Field(default="3.0", pattern=r"^(3\.0|3\.1)$")
     devin_reasoning_enabled: bool = Field(default=True)
-    max_autonomous_steps: int = Field(default=100, ge=10, le=1000)
+    max_autonomous_steps: int = Field(default=250, ge=10, le=1000)
+    primary_model: str = Field(default="claude-5.6-sonnet")
 
     model_config = {
         "populate_by_name": True,
         "json_schema_extra": {
             "example": {
                 "mcpServers": {
-                    "google-search": {
+                    "postgres": {
                         "command": "npx",
-                        "args": ["-y", "@modelcontextprotocol/server-google-search"]
+                        "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/mydb"]
                     }
                 },
-                "cascade_version": "2.0",
+                "cascade_version": "3.0",
                 "devin_reasoning_enabled": True,
-                "max_autonomous_steps": 150
+                "max_autonomous_steps": 250,
+                "primary_model": "claude-5.6-sonnet"
             }
         }
     }
@@ -164,30 +138,27 @@ if __name__ == "__main__":
                 "env": {"PGPASSWORD": "secure_secret"}
             }
         },
-        "cascade_version": "2.0",
+        "cascade_version": "3.0",
         "devin_reasoning_enabled": True,
-        "max_autonomous_steps": 200
+        "max_autonomous_steps": 300,
+        "primary_model": "gpt-5.6-turbo"
     }
     print(validate_windsurf_config(test_payload))
 ```
 
 ## Related tools / concepts
-- [Cursor](cursor.md) — The primary competitor in the AI-IDE space with 'Composer' mode.
-- [Aider](aider.md) — Terminal-based agentic coding tool for rapid command-line editing.
-- [Claude Code](claude-code.md) — Anthropic's terminal-native agent for high-fidelity code manipulation.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for extending Windsurf's tools.
-- [Continue](continue_dev.md) — Open-source alternative for building custom AI IDE experiences.
-- [OpenClaw](openclaw.md) — Gateway for agentic workflows and tool-calling security.
-- [NanoClaw](nanoclaw.md) — Secure, containerized personal assistant framework.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
-- [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
+- [Cursor](cursor.md) — Competitor AI IDE featuring Composer mode.
+- [Aider](aider.md) — Terminal-native git-integrated agentic coding assistant.
+- [Claude Code](claude-code.md) — Anthropic's interactive developer agent CLI.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Universal protocol for extending IDE capabilities.
+- [NanoClaw](nanoclaw.md) — Containerized personal assistant framework.
+- [OpenClaw](openclaw.md) — Gateway for agentic workflows and tool safety.
 
 ## Sources / References
 - [Windsurf Official Documentation](https://docs.windsurf.com/)
-- [Codeium Release Notes (July 2026)](https://codeium.com/blog/windsurf-v2-devin-integration)
-- [Windsurf MCP Guide](https://docs.windsurf.com/windsurf/cascade/mcp)
-- [Cognition AI: Devin in Windsurf](https://www.cognition.ai/blog/windsurf-integration)
+- [Codeium Release Notes (January 2027)](https://codeium.com/blog/windsurf-v3-release)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high

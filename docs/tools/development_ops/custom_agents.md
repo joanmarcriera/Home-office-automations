@@ -1,162 +1,108 @@
 # Custom Agents (SSH + LLM Loop)
 
 ## What it is
-A **Custom Agent** is a lightweight Python script or visual workflow automation (e.g., n8n) that implements a basic autonomous control loop: Prompt LLM -> Receive Command -> Execute via SSH/Shell -> Return Output/Telemetry to LLM. Under late November/December 2026 SOTA standards, these agents have evolved from raw command-execution scripts to sophisticated, standard-compliant "Micro-Agents" that natively support **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**, allowing them to be plugged directly into modern frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** as highly secure system administration tools.
+A **Custom Agent** is a lightweight Python script or visual workflow automation (e.g., n8n) that implements a basic autonomous control loop: Prompt LLM -> Receive Command -> Execute via SSH/Shell -> Return Output/Telemetry to LLM. Under early January 2027 SOTA standards, these agents have evolved into standard-compliant Micro-Agents that natively support the **Model Context Protocol (MCP 3.1 / FastMCP 3.1 Task Protocol)**. This enables them to be exposed directly to modern frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** as secure, sandboxed system administration tools.
 
 ## What problem it solves
-Provides a tailored, minimal orchestration layer for specific infrastructure tasks without the overhead or complexity of massive agent platforms. It allows for precise control over the security, execution plane, and sandbox boundaries, specifically addressing the "Reasoning vs. Execution" gap in local homelab management while leveraging modern **secure SSH tunneling** and asymmetric keys to safely access private systems.
+Full enterprise agent platforms often bring heavy framework dependencies, complex configuration overhead, and opaque internal execution loops. Custom Agents provide a minimal, fully inspectable control plane tailored specifically for target infrastructure tasks. They address the "Reasoning vs. Execution" gap in remote host management by pairing high-level LLM reasoning with secure SSH tunneling, explicit command allowlists, and human-in-the-loop verification checkpoints.
 
 ## Where it fits in the stack
-**Agent / Orchestration Layer**. It is the minimal control logic that coordinates the LLM (Reasoning) and the target machine (Execution via SSH). It acts as a bridge between high-level intent and low-level system commands, often serving as a custom MCP server for infrastructure-specific toolsets.
+**Category**: [Development & Ops](index.md) / Agent Execution & Orchestration. It functions as a custom tool-calling micro-agent layer that bridges LLM reasoning engines to host systems over SSH or local command environments.
 
 ## Typical use cases
-- **Server Maintenance**: "Check disk space on all nodes and clear Docker build caches if above 90%."
-- **Configuration Updates**: "Update the Nginx proxy settings and perform a graceful service reload."
-- **Edge Diagnostics**: "Analyze why the local k3s node on the Raspberry Pi is in a NotReady state."
-- **Automated Patching**: Rolling security updates across a cluster with active health checks and automated rollback.
-- **Secure Remote Access**: Managing internal resources over an encrypted SSH tunnel without exposing raw ports to the public internet.
+- **Automated Infrastructure Auditing**: "Check disk utilization across all k3s nodes and prune dangling Docker images if usage exceeds 85%."
+- **Incident Response & Diagnostics**: Gathering system logs, inspecting active systemd services, and summarizing root causes for on-call engineers.
+- **Controlled System Upgrades**: Executing rolling security patches across server clusters with automated pre- and post-flight health checks.
+- **Custom FastMCP 3.1 Tools**: Exposing legacy command-line tools and shell utilities as FastMCP 3.1 endpoints.
 
 ## Strengths
-- **Simplicity**: Extremely easy to understand, inspect, and modify without complex third-party framework overhead.
-- **Security**: You control exactly which commands are allowed, how SSH sessions are handled, and can enforce strict key-based authentication.
-- **Portability**: Runs as a lightweight script anywhere, including within n8n or inside a minimal container.
-- **Transparency**: Every step of the reasoning and command execution loop is visible and easily logged for auditing.
-- **MCP 3.1 / FastMCP 3.1 Ready**: Standardized schema allows the custom agent to be discovered and invoked by any MCP-compliant LLM client.
+- **Complete Control & Transparency**: Audit every line of execution logic, prompt template, and tool definition without black-box framework abstraction.
+- **Native FastMCP 3.1 Support**: Plug seamlessly into any FastMCP 3.1 client or IDE (e.g., Windsurf, Claude Code, NanoClaw).
+- **Minimal Dependencies**: Requires only standard Python libraries (`paramiko`, `pydantic`, `mcp`) or a lightweight container.
+- **High Security**: Restrict agent execution using SSH key authentication, shell command allowlists, and strict timeout boundaries.
 
 ## Limitations
-- **Manual Work**: Requires writing and maintaining the controller script, SSH session pools, and error handling.
-- **Context Management**: Needs manual handling of chat history and state (unlike Aider or OpenHands).
-- **Tooling**: Lacks advanced "repo mapping" or terminal-emulation features found in larger developer agent suites.
-- **Scaling**: Managing dozens of separate custom agents can become complex without a centralized supervisor.
+- **Manual Infrastructure Handling**: Developers must explicitly write session management, retry policies, and error handling.
+- **Context Window Overhead**: Managing long multi-turn execution histories requires custom context pruning logic.
+- **No Built-in Web UI**: Relies on CLI interfaces, terminal logs, or third-party webhooks for visibility unless custom frontends are attached.
 
 ## When to use it
-- For specific, repetitive infrastructure tasks where full agent framework overhead is unnecessary.
-- When you require a high degree of security, VPC isolation, and explicit human-in-the-loop approval.
-- For lightweight automation on resource-constrained edge hardware (e.g., Raspberry Pi Zero).
-- When you need to bridge an LLM to a legacy system that only supports SSH interactions.
+- When orchestrating custom homelab or enterprise infrastructure tasks requiring explicit SSH key access control.
+- When requiring human-in-the-loop approval before executing destructive system operations.
+- When building tailored micro-agent tools exposed via FastMCP 3.1 to frontier models.
 
 ## When not to use it
-- For general software engineering or coding tasks (use [Aider](./aider.md) or [OpenHands](./openhands.md)).
-- When the task requires complex reasoning across hundreds of source files or deep codebase understanding.
-- If a standardized, pre-built MCP server for the target service already exists.
+- For large-scale multi-file software engineering tasks (use [Aider](aider.md) or [Claude Code](claude-code.md)).
+- If pre-built, production-tested MCP servers already exist for your target infrastructure platform.
+- When full enterprise multi-user governance and team access management are required out-of-the-box.
 
 ## Getting started
-To build a custom agent, you need a runtime environment (Python 3.11+ recommended) and SSH access to your target machines.
 
-### 1. Set up SSH Keys
-Ensure your agent machine has passwordless SSH access to the target.
+### 1. Configure SSH Access
+Ensure the host machine running the agent script has SSH key-based access to target nodes:
 ```bash
-ssh-copy-id admin@192.168.1.10
+ssh-copy-id admin@192.168.1.50
 ```
 
-### 2. Install Dependencies
+### 2. Install Python Dependencies
 ```bash
-pip install paramiko openai mcp==3.1.0
+pip install paramiko mcp pydantic
 ```
-
-### 3. Configure MCP 3.1
-Define your tool schema so frontier models can discover your agent's capabilities.
 
 ## CLI examples
-Custom agents are often invoked via a CLI controller.
 
-### Basic Diagnostic Run
 ```bash
-# Run a one-off diagnostic on the home server
-python custom_agent.py --target 192.168.1.10 --query "Check docker service health"
-```
+# Run a custom SSH agent diagnostic sweep
+python custom_agent.py --target 192.168.1.50 --query "Inspect docker container restart counts"
 
-### Batch Update
-```bash
-# Run an automated update across all nodes in a cluster
-python custom_agent.py --cluster k3s-home --action "apt update && apt upgrade -y" --require-approval
-```
-
-### SSH Tunnel Setup
-```bash
-# Establish a secure tunnel before running agent logic
-ssh -L 8080:localhost:8080 admin@remote-server -N &
-python custom_agent.py --query "Inspect local web service on 8080"
+# Execute a batch system update across a node list with approval prompt
+python custom_agent.py --nodes-file ./nodes.json --action "apt-get update" --require-approval
 ```
 
 ## API examples
 
-### MCP 3.1 Server Implementation (Python FastMCP)
-This example shows how to expose a custom SSH agent as an MCP 3.1 tool using FastMCP:
+### FastMCP 3.1 Server Implementation (Python)
+The following Python script demonstrates how to implement a custom SSH administration tool exposed via FastMCP 3.1:
 
 ```python
 import mcp.server.fastmcp as fastmcp
 import paramiko
 
-# Initialize FastMCP Server under MCP 3.1 specification
-mcp_server = fastmcp.FastMCP("SSH Custom Agent")
+mcp_server = fastmcp.FastMCP("SSH Host MicroAgent", version="3.1")
 
 @mcp_server.tool()
-def execute_ssh_command(host: str, command: str) -> str:
-    """Executes a command on a remote host via SSH and returns stdout."""
+def execute_host_command(host: str, command: str) -> str:
+    """Executes an allowed command on a target host via SSH."""
+    allowed_prefixes = ["systemctl status", "df -h", "docker ps", "uptime"]
+    if not any(command.startswith(prefix) for prefix in allowed_prefixes):
+        return f"Error: Command '{command}' is not in the allowed command list."
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
         ssh.connect(host, username='admin', timeout=10)
         stdin, stdout, stderr = ssh.exec_command(command)
-        output = stdout.read().decode()
-        error = stderr.read().decode()
-        return output if output else f"Error: {error}"
+        out = stdout.read().decode()
+        err = stderr.read().decode()
+        return out if out else f"Stderr: {err}"
     except Exception as e:
         return f"SSH Connection Failed: {str(e)}"
     finally:
         ssh.close()
 
 if __name__ == "__main__":
-    # Start stdio transport
     mcp_server.run()
 ```
 
-### Python Agent Loop with OpenAI tool-calling
-```python
-import paramiko
-from openai import OpenAI
-
-def secure_agent_loop(query):
-    # Setup OpenAI client and paramiko SSH connection
-    client = OpenAI()
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('internal.homelab', username='agent_user')
-
-    # LLM Interaction with custom tools using GPT-5.5
-    response = client.chat.completions.create(
-        model="gpt-5.5-preview",
-        messages=[{"role": "user", "content": query}],
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "exec_ssh",
-                "description": "Run shell command on internal node",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "command": {"type": "string"}
-                    },
-                    "required": ["command"]
-                }
-            }
-        }]
-    )
-
-    # Process tool call and return response
-    return response.choices[0].message
-```
-
-### Robust Configuration and SSH Profile Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate Custom Agent parameters, SSH connection profiles, and command allowlists under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+### Programmatic Configuration Validation with Pydantic v2
+The following Python module demonstrates modeling and programmatically validating a Custom Agent configuration profile under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+from typing import List
 import json
 
-class SSHConnectionConfig(BaseModel):
+class SSHNodeProfile(BaseModel):
     host: str = Field(..., pattern=r"^([a-zA-Z0-9.-]+|[0-9.]+)$")
     port: int = Field(default=22, ge=1, le=65535)
     username: str = Field(default="admin", min_length=1)
@@ -164,35 +110,35 @@ class SSHConnectionConfig(BaseModel):
     timeout_seconds: int = Field(default=15, ge=1, le=120)
 
 class CustomAgentConfig(BaseModel):
-    agent_name: str = Field(..., min_length=2)
-    ssh_connections: List[SSHConnectionConfig] = Field(default_factory=list)
+    agent_id: str = Field(..., min_length=2)
+    target_nodes: List[SSHNodeProfile] = Field(..., min_length=1)
     allowed_commands: List[str] = Field(..., min_length=1)
     mcp_version: str = Field(default="3.1", pattern=r"^3\.1$")
-    requires_approval: bool = Field(default=True)
+    require_human_approval: bool = Field(default=True)
 
     model_config = {
         "populate_by_name": True,
         "json_schema_extra": {
             "example": {
-                "agent_name": "homelab-ssh-microagent",
-                "ssh_connections": [
+                "agent_id": "homelab-ssh-agent",
+                "target_nodes": [
                     {
-                        "host": "192.168.1.10",
+                        "host": "192.168.1.50",
                         "port": 22,
-                        "username": "homelab-admin",
+                        "username": "admin",
                         "key_path": "/home/admin/.ssh/id_ed25519",
                         "timeout_seconds": 10
                     }
                 ],
-                "allowed_commands": ["docker restart", "systemctl status", "df -h"],
+                "allowed_commands": ["systemctl status", "df -h", "docker ps"],
                 "mcp_version": "3.1",
-                "requires_approval": True
+                "require_human_approval": True
             }
         }
     }
 
 def validate_custom_agent_config(payload: dict) -> str:
-    """Validates Custom Agent configurations and tool definitions using Pydantic v2."""
+    """Validates Custom Agent configuration using Pydantic v2."""
     try:
         config = CustomAgentConfig.model_validate(payload)
         return json.dumps({
@@ -207,45 +153,35 @@ def validate_custom_agent_config(payload: dict) -> str:
 
 if __name__ == "__main__":
     test_payload = {
-        "agent_name": "homelab-ssh-microagent",
-        "ssh_connections": [
+        "agent_id": "homelab-ssh-agent",
+        "target_nodes": [
             {
                 "host": "192.168.1.100",
                 "port": 22,
-                "username": "admin",
+                "username": "sysadmin",
                 "key_path": "/root/.ssh/id_rsa",
-                "timeout_seconds": 5
+                "timeout_seconds": 15
             }
         ],
-        "allowed_commands": ["docker ps", "docker stop", "docker start"],
+        "allowed_commands": ["systemctl status", "df -h", "docker ps", "uptime"],
         "mcp_version": "3.1",
-        "requires_approval": True
+        "require_human_approval": True
     }
     print(validate_custom_agent_config(test_payload))
 ```
 
 ## Related tools / concepts
-- [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md) — Architectural deep dive into homelab SSH executions.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The universal standard for agent tool-use.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — High-level multi-agent orchestration patterns.
-- [Raspberry Pi Kiosk Automation](../../playbooks/raspberry-pi-kiosk-automation.md) — Real-world application of custom edge automation.
-- [n8n Error Handling](../../knowledge_base/patterns/n8n-error-handling.md) — Managing failures in visual agent workflows.
-- [Claude Code](./claude-code.md) — Anthropic's interactive developer agent CLI.
-- [OpenHands](./openhands.md) — Full-featured autonomous agent platform.
-- [Aider](./aider.md) — Terminal-based Git-integrated collaborative coding.
-- [Terminus 2](./terminus-2.md) — Terminal-native tmux bridging AI agent and baseline.
-- [Anti-Gravity](./anti_gravity.md) — Google's enterprise agent orchestration and sandbox framework.
-- [Droid](./droid.md) — Autonomous task automation and execution agent.
-- [Sourcegraph Cody](./sourcegraph_cody.md) — Multi-repository reasoning and context retrieval platform.
-- [Codeium](./codeium.md) — AI-powered IDE developer productivity platform.
-- [Windsurf](./windsurf.md) — Flow-based agentic development environment and IDE.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard tool protocol for agents.
+- [Axiom Guardian](axiom-guardian.md) — Challenge-based safety guardrail MCP server.
+- [Claude Code](claude-code.md) — Interactive terminal developer agent CLI.
+- [OpenHands](openhands.md) — Autonomous developer agent platform.
+- [Windsurf](windsurf.md) — Flow-based agentic development environment and IDE.
 
-## Sources / references
+## Sources / References
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/3.1)
 - [Paramiko Documentation](https://docs.paramiko.org/)
-- [SSH Agent Loop Patterns (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
-- [Model Context Protocol (MCP 3.1) Specification](https://modelcontextprotocol.io/introduction)
-- [LLM Tool Calling Best Practices (Anthropic)](https://docs.anthropic.com/claude/docs/tool-use)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high

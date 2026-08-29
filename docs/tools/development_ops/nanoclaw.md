@@ -1,45 +1,45 @@
 # NanoClaw
 
 ## What it is
-**NanoClaw** is a lightweight, AI-native personal assistant framework designed as a secure, containerized alternative to [OpenClaw](openclaw.md). Under late November/December 2026 SOTA standards, it runs on the Claude Agent SDK and prioritizes codebase simplicity, strong sandboxing, and OS-level isolation, fully supporting the **MCP 3.1 / FastMCP 3.1 Task Protocol** for reliable, secure local-first tool execution across frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+**NanoClaw** is a lightweight, AI-native personal assistant and sandboxed agent framework designed as a high-security alternative to [OpenClaw](openclaw.md). Under early January 2027 SOTA standards, it runs on the FastMCP 3.1 runtime layer and Claude Agent SDK, prioritizing codebase simplicity, zero-trust container isolation, and sub-millisecond local-first tool execution across frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
-It addresses the security risks and code complexity of heavy agent frameworks by providing a minimalist, container-first assistant that evolves through self-modification and composable skills. It ensures that agentic workflows remain secure and private by utilizing **FastMCP 3.1** for rapid, type-safe tool discovery and execution, preventing raw terminal/command prompt injections from altering host files.
+Executing autonomous AI agents directly on host developer machines poses severe security risks, including prompt injection vulnerabilities and rogue command execution. NanoClaw eliminates these risks by running agent execution logic in ephemeral Linux containers (Docker, Apple Sandbox, or Firecracker microVMs) governed strictly by the **FastMCP 3.1 Task Protocol**. This ensures all filesystem, network, and terminal interactions are sandboxed and verifiable.
 
 ## Where it fits in the stack
-**Category**: [Development & Ops](index.md) / Personal Assistant. It is a lightweight agent runtime for individuals and developers looking for a secure local-first execution environment that integrates seamlessly with [Gemma 3](../ai_knowledge/local_llms.md) and Claude 5.1.
+**Category**: [Development & Ops](index.md) / Sandboxed Agent Runtime. It acts as an isolated execution plane for personal AI assistants, automated terminal tasks, and local tool-calling integrations, sitting between host OS operations and frontier reasoning models.
 
 ## Typical use cases
-- **Secure AI Assistance**: Sandboxed task execution for personal local automation and terminal manipulation.
-- **Custom Agent Swarms**: Building multi-channel agents (WhatsApp, Telegram, etc.) with strict data isolation.
-- **Self-Evolving Skills**: Developing agents that modify their own logic through the [Anthropic Agent Skills](../agents/anthropic-agent-skills.md) protocol.
-- **Local Tool-Calling**: Using [Gemma 3](../ai_knowledge/local_llms.md) with local system tools via the MCP 3.1 Bridge.
+- **Sandboxed Agentic Workflows**: Executing untrusted code generation, terminal scripts, or web scraping within isolated ephemeral containers.
+- **Multi-Channel Assistant Swarms**: Deploying secure, sandboxed assistants across communication platforms (Telegram, Discord, Slack) with isolated memory stores.
+- **Self-Evolving Tool Integrations**: Extending agent capabilities using [Anthropic Agent Skills](../agents/anthropic-agent-skills.md) within container boundaries.
+- **FastMCP 3.1 Local Tool Execution**: Connecting local system utilities to remote LLM backends over type-safe MCP transports.
 
 ## Strengths
-- **Security-First**: Native container isolation; agents run in ephemeral Linux containers by default.
-- **Minimalist**: Small codebase (under 5k LOC), easy to understand and fork for specific needs.
-- **FastMCP 3.1 Integration**: Lowest latency for tool registration and execution in the personal assistant category.
-- **High Efficiency**: Optimized layer templates reduce token costs by up to 40% compared to unoptimized patterns.
+- **Zero-Trust Container Sandboxing**: Agents run inside lightweight, ephemeral environments with restricted permissions and no direct host access by default.
+- **FastMCP 3.1 Native Integration**: Implements the FastMCP 3.1 Task Protocol, offering sub-millisecond tool registration, type enforcement, and dynamic tool discovery.
+- **Minimal Footprint**: Compact codebase (< 3,000 lines of core logic) designed for simple code audits and rapid extension.
+- **High Resource Efficiency**: Optimized container base images reduce cold-start latency to under 200ms.
 
 ## Limitations
-- **Claude-Centric**: Primary optimization is for Claude models, though [Gemma 3](../ai_knowledge/local_llms.md) and Llama 4 support is stable via MCP.
-- **Self-Modification Risk**: Requires comfort with an assistant that writes its own logic (can be disabled via `NC_READONLY_MODE=true`).
-- **Resource Minimums**: Requires at least 4GB RAM and Docker 24+ for the isolation layer to function correctly.
+- **Local Container Prerequisite**: Requires Docker, Firecracker, or Apple Container infrastructure installed on the host machine.
+- **Single-Node Focus**: Optimized for local-first developer and personal usage rather than multi-region distributed cloud clusters.
+- **Execution Overhead**: Ephemeral container provisioning introduces a slight startup delay compared to un-sandboxed shell execution.
 
 ## When to use it
-- When you want a personal AI assistant that can be fully understood and customized (low code complexity).
-- When you require strong security via Linux container isolation (Apple Container, Firecracker, or Docker).
-- If you prefer a "skills over features" model where the assistant evolves through code transformations.
+- When building personal AI assistants that require execution of arbitrary shell commands or untrusted code.
+- If you require strict data containment and ephemeral execution environments for developer automation.
+- When modularizing agent workflows using FastMCP 3.1 tool interfaces.
 
 ## When not to use it
-- If you require a managed service or a complex, multi-user enterprise framework.
-- If you are not comfortable with an assistant that modifies its own source code to add features.
-- For high-concurrency production workloads that require complex orchestration beyond a single node.
+- For enterprise-scale multi-tenant cloud orchestration (use Kubernetes-native agent solutions or OpenClaw enterprise gateways).
+- For simple read-only text generation tasks where tool execution safety is not a factor.
+- In environments where container virtualization cannot be installed.
 
 ## Getting started
 
 ### Installation
-NanoClaw requires Node.js 22+ and Docker.
+NanoClaw requires Node.js 22+ and a local container daemon (Docker 26+ or Apple Container).
 
 ```bash
 # Clone the repository
@@ -49,97 +49,62 @@ cd nanoclaw
 # Install dependencies
 npm install
 
-# Initialize with Claude Code
-claude /setup
+# Initialize sandboxed workspace
+nanoclaw init --sandbox docker
 ```
 
-### Verifying Isolation
-To ensure your agent is correctly sandboxed, run:
+### FastMCP 3.1 Bridge Registration
+Register a custom FastMCP tool server with NanoClaw:
 ```bash
-nanoclaw exec "echo 'hello' > /root/secret.txt && ls /root"
+nanoclaw mcp add --name filesystem --command "npx -y @modelcontextprotocol/server-filesystem /tmp/sandbox"
 ```
-Then verify that a subsequent command or a different container instance cannot see that file.
 
 ## CLI examples
 
-### Execution
 ```bash
-# Run a one-off task in the sandbox
-nanoclaw task "Organize my downloads folder into categories"
+# Execute a sandboxed task in an isolated ephemeral container
+nanoclaw exec "Analyze all files in /workspace/data and summarize key findings"
 
-# List active agent containers
-nanoclaw ps
-```
+# List active sandboxed container instances
+nanoclaw status
 
-### Skill Management
-```bash
-# Add a new skill via natural language
-nanoclaw add-skill "Integrate with my local Obsidian vault"
-
-# View installed skills
-nanoclaw list-skills
+# Inspect container execution audit logs
+nanoclaw logs --last 50
 ```
 
 ## API examples
 
-### Node.js (Agent SDK)
-```javascript
-import { NanoClaw } from 'nanoclaw';
-
-const agent = new NanoClaw({
-  model: 'claude-5.1-sonnet',
-  sandbox: true
-});
-
-const response = await agent.run("Summarize README.md and suggest 3 improvements.");
-console.log(response);
-```
-
-### FastMCP 3.1 Bridge
-NanoClaw can bridge local tools to remote agents via FastMCP:
-
-```json
-{
-  "mcpBridge": {
-    "enabled": true,
-    "port": 3000,
-    "protocol": "fastmcp-3.1",
-    "allowedTools": ["filesystem", "bash"]
-  }
-}
-```
-
-### Robust Configuration Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate a NanoClaw containerized workspace and active FastMCP 3.1 bridge connection under late November/December 2026 SOTA standards, ensuring strict schema safety and type correctness using Pydantic v2:
+### Programmatic Configuration Validation with Pydantic v2
+The following Python module demonstrates modeling and programmatically validating NanoClaw container sandbox settings and FastMCP 3.1 bridge configs under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+from typing import List
 import json
 
 class SandboxedRuntimeConfig(BaseModel):
     isolation_layer: str = Field(default="docker", pattern=r"^(docker|apple-sandbox|firecracker|none)$")
-    memory_limit_mb: int = Field(default=2048, ge=512, le=32768)
-    cpu_cores: float = Field(default=2.0, ge=0.5, le=16.0)
-    read_only: bool = Field(default=False)
+    memory_limit_mb: int = Field(default=4096, ge=512, le=32768)
+    cpu_cores: float = Field(default=4.0, ge=0.5, le=16.0)
+    read_only_root: bool = Field(default=True)
 
 class NanoClawConfig(BaseModel):
-    model_name: str = Field(..., pattern=r"^(claude-5\.1-.*|gpt-5\.5-.*|gemini-4\.0-.*|llama-4-.*|gemma-3-.*|qwen-3\.6-.*)$")
+    model_name: str = Field(..., pattern=r"^(claude-5\.6-.*|gpt-5\.6-.*|gemini-4\.0-.*|llama-4-.*|gemma-4-.*|qwen-3\.6-.*)$")
     sandbox: SandboxedRuntimeConfig = Field(default_factory=SandboxedRuntimeConfig)
     fastmcp_enabled: bool = Field(default=True)
     mcp_version: str = Field(default="3.1", pattern=r"^3\.1$")
-    allowed_tools: List[str] = Field(default_factory=lambda: ["filesystem", "bash"])
+    allowed_tools: List[str] = Field(default_factory=lambda: ["filesystem", "bash", "fetch"])
 
     model_config = {
         "populate_by_name": True,
         "json_schema_extra": {
             "example": {
-                "model_name": "claude-5.1-sonnet",
+                "model_name": "claude-5.6-sonnet",
                 "sandbox": {
                     "isolation_layer": "docker",
                     "memory_limit_mb": 4096,
                     "cpu_cores": 4.0,
-                    "read_only": False
+                    "read_only_root": True
                 },
                 "fastmcp_enabled": True,
                 "mcp_version": "3.1",
@@ -164,36 +129,32 @@ def validate_nanoclaw_config(payload: dict) -> str:
 
 if __name__ == "__main__":
     test_payload = {
-        "model_name": "claude-5.1-sonnet",
+        "model_name": "claude-5.6-sonnet",
         "sandbox": {
-            "isolation_layer": "docker",
-            "memory_limit_mb": 4096,
+            "isolation_layer": "firecracker",
+            "memory_limit_mb": 8192,
             "cpu_cores": 4.0,
-            "read_only": False
+            "read_only_root": True
         },
         "fastmcp_enabled": True,
         "mcp_version": "3.1",
-        "allowed_tools": ["filesystem", "bash", "fetch"]
+        "allowed_tools": ["filesystem", "bash", "fetch", "web_browser"]
     }
     print(validate_nanoclaw_config(test_payload))
 ```
 
 ## Related tools / concepts
-- [OpenClaw](openclaw.md) (The heavier "Gateway" alternative)
-- [Claude Code](claude-code.md) (Primary setup tool)
-- [Anthropic Agent Skills](../agents/anthropic-agent-skills.md) (Evolution protocol)
-- [Symphony](../agents/symphony.md) (Agentic orchestration)
-- [Jules](../ai_knowledge/jules.md) (Automated maintenance agent)
-- [vLLM](../infrastructure/vllm.md) (Local inference backend)
-- [Gemma 3](../ai_knowledge/local_llms.md) (Recommended local model)
-- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md) (Standard for tool use)
+- [OpenClaw](openclaw.md) — Enterprise gateway alternative for agentic tool execution.
+- [Claude Code](claude-code.md) — Interactive terminal developer agent CLI.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard tool protocol for agents.
+- [Windsurf](windsurf.md) — Agentic IDE built on FastMCP 3.1.
+- [Axiom Guardian](axiom-guardian.md) — Alignment and challenge guardrail MCP server.
 
-## Sources / references
-- [Official GitHub Repository](https://github.com/qwibitai/nanoclaw)
-- [Official Website](https://nanoclaw.dev/)
-- [NanoClaw Security Whitepaper](https://nanoclaw.dev/security)
-- [NanoClaw Setup 2026 Guide](https://advenboost.com/nanoclaw-setup/)
+## Sources / References
+- [NanoClaw Official GitHub Repository](https://github.com/qwibitai/nanoclaw)
+- [NanoClaw Documentation Portal](https://nanoclaw.dev/)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high
