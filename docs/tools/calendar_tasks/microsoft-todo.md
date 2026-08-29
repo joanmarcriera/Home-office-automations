@@ -1,10 +1,10 @@
 # Microsoft To Do
 
 ## What it is
-A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. In late 2026, it features advanced **Agentic Calendar Orchestration** via **Claude 5.1**, **GPT-5.5**, and [Gemma 3](../ai_knowledge/local_llms.md), utilizing **MCP 3.1** and **FastMCP 3.1** for cross-service tool routing.
+A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. As of early January 2027, it features advanced **Agentic Calendar Orchestration** via **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Qwen 3.6 VL**, and [Gemma 4](../ai_knowledge/local_llms.md), utilizing **MCP 3.1** and **FastMCP 3.1** Task Protocols for cross-service tool routing.
 
 ## What problem it solves
-Helps users stay organized and manage their day-to-day tasks with features like "My Day" and seamless, native synchronization with Outlook, Teams, and Microsoft Planner. It solves the fragmentation of enterprise tasks by centralizing them in a single, mobile-first interface with AI-native prioritization.
+Helps users stay organized and manage their day-to-day tasks with features like "My Day" and seamless, native synchronization with Outlook, Teams, and Microsoft Planner. It solves the fragmentation of enterprise tasks by centralizing them in a single, mobile-first interface with AI-native prioritization and multi-agent intent resolution.
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management. It acts as the personal task layer for the enterprise-grade Microsoft 365 stack, bridging the gap between communication (Teams/Outlook) and execution.
@@ -13,16 +13,16 @@ Helps users stay organized and manage their day-to-day tasks with features like 
 - **Personal Productivity**: Managing daily to-do lists via the "My Day" smart list.
 - **Enterprise Integration**: Capturing tasks directly from flagged Outlook emails and Microsoft Teams chats.
 - **Shared Collaboration**: Managing family shopping lists or small team project tasks with real-time sync.
-- **Agentic Automation**: Using [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, and Qwen 3.6 via **MCP 3.1** to autonomously prioritize, schedule, and execute tasks via natural language.
+- **Agentic Automation**: Using [Gemma 4](../ai_knowledge/local_llms.md), DeepSeek-V4, and Qwen 3.6 VL via **FastMCP 3.1** to autonomously prioritize, schedule, and execute tasks via natural language.
 
 ## Strengths
 - **Ecosystem Synergy**: Deep integration with Outlook Tasks, Flagged Emails, and Microsoft Planner.
 - **My Day Focus**: A unique feature that resets every morning, encouraging intentional daily planning.
 - **Cross-Platform Accessibility**: Consistent experience across Web, Windows, macOS, iOS, and Android.
-- **Agentic Scheduling**: Native support for **Agentic Calendar Orchestration**, allowing AI agents like Claude 5.1 and GPT-5.5 to move tasks between To Do and Outlook Calendar based on priority.
+- **Agentic Scheduling**: Native support for **Agentic Calendar Orchestration**, allowing AI agents like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra to move tasks between To Do and Outlook Calendar based on priority and urgency.
 
 ## Limitations
-- **Power User Gaps**: Lacks complex features found in [Todoist](todoist.md) like robust natural language date parsing for all fields.
+- **Power User Gaps**: Lacks complex features found in [Todoist](todoist.md) like robust natural language date parsing for all custom fields.
 - **Project Complexity**: Not suitable for large-scale project management (use Microsoft Planner or Azure DevOps).
 - **Privacy**: Tasks are stored within the Microsoft cloud, which may not meet "local-first" or strict privacy requirements.
 
@@ -54,9 +54,9 @@ mgc login
 # List all your To Do task lists
 mgc users todo lists list --user-id me
 
-# Create a high-priority task in a specific list (Late 2026 Syntax)
+# Create a high-priority task in a specific list (Early January 2027 Syntax)
 mgc users todo lists tasks create --user-id me --todo-task-list-id <list-id> \
-  --body '{"title": "Verify Batch 339 Metadata", "importance": "high"}'
+  --body '{"title": "Verify FastMCP 3.1 Task Protocol Integration", "importance": "high"}'
 ```
 
 ## API examples
@@ -106,15 +106,15 @@ def create_microsoft_todo_task(access_token: str, list_id: str, raw_task_data: d
         print("Schema validation failed for Microsoft To Do Task payload:")
         raise e
 
-# Example execution by Claude 5.1 or GPT-5.5 agent
+# Example execution by Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra agent
 token_placeholder = "token-xyz"
 list_placeholder = "list-abc"
 raw_input = {
-    "title": "Document Late 2026 Graph API Patterns",
+    "title": "Document Early January 2027 FastMCP Graph API Patterns",
     "importance": "high",
     "categories": ["Work", "Documentation"],
     "dueDateTime": {
-        "dateTime": "2026-12-31T17:00:00",
+        "dateTime": "2027-01-31T17:00:00",
         "timeZone": "UTC"
     }
 }
@@ -135,8 +135,8 @@ create_microsoft_todo_task(token_placeholder, list_placeholder, raw_input)
 ## Sources / References
 - [Microsoft To Do Official Site](https://todo.microsoft.com/)
 - [Microsoft Graph API Documentation (Tasks)](https://learn.microsoft.com/en-us/graph/api/resources/todo-overview)
-- [Microsoft 365 late 2026 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap)
+- [Microsoft 365 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
