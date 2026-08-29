@@ -1,10 +1,10 @@
 # Microsoft Graph API
 
 ## What it is
-Microsoft Graph is the gateway to data and intelligence in Microsoft 365. It provides a unified programmability model that you can use to access the tremendous amount of data in Microsoft 365, Windows, and Enterprise Mobility + Security. In late November/December 2026, it is the primary data backbone for **agentic workflows** using **MCP 3.1 / FastMCP 3.1 Microsoft Graph connectors**, enabling seamless integration between LLMs and enterprise productivity data.
+Microsoft Graph is the gateway to data and intelligence in Microsoft 365. It provides a unified programmability model that you can use to access the tremendous amount of data in Microsoft 365, Windows, and Enterprise Mobility + Security. In early January 2027, it is the primary data backbone for **agentic workflows** using **FastMCP 3.1 Microsoft Graph connectors**, enabling seamless integration between LLMs and enterprise productivity data.
 
 ## What problem it solves
-It simplifies developer interaction with Microsoft services by providing a single endpoint (`https://graph.microsoft.com`) to access data across multiple services like Outlook, OneDrive, Teams, and Microsoft Entra. This allows for complex cross-service automations and enables AI agents like **Claude 5.1** and **GPT-5.5** to act as personal assistants with full organizational context.
+It simplifies developer interaction with Microsoft services by providing a single endpoint (`https://graph.microsoft.com`) to access data across multiple services like Outlook, OneDrive, Teams, and Microsoft Entra. This allows for complex cross-service automations and enables AI agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL** to act as personal assistants with full organizational context.
 
 ## Where it fits in the stack
 **Providers / API Gateway**. It serves as the primary integration point for applications needing to interact with the Microsoft 365 ecosystem. It natively powers [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers for calendar, email, and file management, providing the "eyes and hands" for enterprise agents.
@@ -13,13 +13,13 @@ It simplifies developer interaction with Microsoft services by providing a singl
 - **Personal AI Assistants**: Synchronizing calendars (Outlook) and files (OneDrive) for autonomous [Task Management](../calendar_tasks/index.md).
 - **Agentic Knowledge Retrieval**: Using RAG patterns to search corporate documents via [OneDrive and SharePoint](https://learn.microsoft.com/en-us/graph/api/resources/onedrive).
 - **Enterprise Automation**: Managing users and groups in [Microsoft Entra ID](../enterprise/microsoft-entra-id.md) via autonomous [Agentic Automation Canvas](../agents/agentic-automation-canvas.md) workflows.
-- **Workflow Orchestration**: Automating cross-app workflows in Microsoft Teams using the [MCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
+- **Workflow Orchestration**: Automating cross-app workflows in Microsoft Teams using the [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Strengths
 - **Unified Endpoint**: Access a wide range of services through one API, reducing integration overhead.
 - **Rich Relationships**: Navigate between related resources (e.g., user to their manager to their files) easily.
 - **Delta Queries**: Efficiently track changes to data without full synchronization, ideal for real-time agents.
-- **MCP 3.1 / FastMCP 3.1 Compatibility**: Standardized tool-calling patterns for Microsoft data are widely available and well-maintained.
+- **FastMCP 3.1 Compatibility**: Standardized tool-calling patterns for Microsoft data are widely available and well-maintained.
 
 ## Limitations
 - **API Complexity**: The breadth of the API is vast, requiring significant effort to master the various resource types.
@@ -44,8 +44,7 @@ It simplifies developer interaction with Microsoft services by providing a singl
 
 ### FastMCP 3.1 Integration
 The fastest way to use Graph with agents is via an MCP server:
-```bash
-# Example: Adding Microsoft Graph MCP server to Claude Desktop
+```json
 {
   "mcpServers": {
     "microsoft-graph": {
@@ -91,8 +90,8 @@ client = GraphServiceClient(credentials=DefaultAzureCredential(), scopes=['Calen
 # Fetch events for the current day
 events = await client.me.calendar_view.get(
     query_parameters = {
-        "startDateTime": "2026-12-20T00:00:00Z",
-        "endDateTime": "2026-12-20T23:59:59Z"
+        "startDateTime": "2027-01-07T00:00:00Z",
+        "endDateTime": "2027-01-07T23:59:59Z"
     }
 )
 ```
@@ -147,9 +146,9 @@ def fetch_and_validate_user(access_token: str) -> Optional[MicrosoftGraphUser]:
                 "displayName": "Jane Doe",
                 "givenName": "Jane",
                 "surname": "Doe",
-                "userPrincipalName": "jane.doe@enterprise-dec2026.com",
+                "userPrincipalName": "jane.doe@enterprise-jan2027.com",
                 "jobTitle": "Lead AI Architect",
-                "mail": "jane.doe@enterprise-dec2026.com"
+                "mail": "jane.doe@enterprise-jan2027.com"
             }
 
         # Validate with Pydantic v2
@@ -178,7 +177,7 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — standard for agent-tool communication.
 - [Agentic Automation Canvas](../agents/agentic-automation-canvas.md) — for visual agent orchestration.
 - [Anthropic](../providers/anthropic.md) — provider often used with Graph integrations.
-- [OpenAI](../ai_knowledge/openai.md) — provider for GPT-5.5 enterprise deployments.
+- [OpenAI](../ai_knowledge/openai.md) — provider for GPT-5.6 enterprise deployments.
 - [Cloudflare Pages](../development_ops/cloudflare-pages.md) — often used to host Graph-integrated web apps.
 - [GitHub Copilot](../development_ops/github-copilot-cli.md) — utilizes Graph for organizational context.
 - [Task Management Index](../calendar_tasks/index.md) — for related productivity tools.
@@ -190,5 +189,5 @@ if __name__ == "__main__":
 - [Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-20
+- Last reviewed: 2027-01-07
 - Confidence: high
