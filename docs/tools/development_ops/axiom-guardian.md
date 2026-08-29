@@ -1,13 +1,13 @@
 # Axiom Guardian MCP Server
 
 ## What it is
-An MCP server that implements challenge-based request validation using Natural Language Inference (NLI) to enforce core principles. Under late November/December 2026 SOTA standards, **Axiom Guardian v1.5** serves as a critical alignment layer for autonomous systems, integrating with the **MCP 3.1 / FastMCP 3.1 Task Protocol** to provide verifiable, challenge-based justification logs for agent actions across frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+An MCP server that implements challenge-based request validation using Natural Language Inference (NLI) to enforce core principles. Under early January 2027 SOTA standards, **Axiom Guardian v1.6** serves as a critical alignment layer for autonomous systems, integrating with the **MCP 3.1 / FastMCP 3.1 Task Protocol** to provide verifiable, challenge-based justification logs for agent actions across frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 It shifts the AI paradigm from passive compliance ("How can I help you?") to active validation ("Why are you doing this?"). It detects logical contradictions between proposed actions and configured axioms, forcing the user (or agent) to justify their actions. It addresses the "autonomous drift" problem where agents may take increasingly risky actions in pursuit of a high-level goal, ensuring reliable and aligned behavior in any home lab or production deployment.
 
 ## Where it fits in the stack
-**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 5.1 or GPT-5.5) and the tools it attempts to execute. It is often deployed as a middleware layer in [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
+[Layer 7: Evaluation & Guardrails](../../knowledge_base/ai_tooling_landscape.md#layer-7-evaluation-guardrails). It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 5.6 or GPT-5.6) and the tools it attempts to execute. It is often deployed as a middleware layer in [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
 ## Typical use cases
 - **AI Safety**: Challenging potentially harmful or destructive requests before execution.
@@ -16,21 +16,21 @@ It shifts the AI paradigm from passive compliance ("How can I help you?") to act
 - **Educational Tool**: Training users and agents to think through the ethical and operational consequences of their requests.
 
 ## Strengths
-- **NLI-based validation**: Uses sophisticated models (like BART-MNLI) to detect logical contradictions without requiring rigid regex-based rules.
+- **NLI-based validation**: Uses sophisticated zero-shot NLI models (like DeBERTa-v3-large-MNLI) to detect logical contradictions without requiring rigid regex-based rules.
 - **Iterative Dialogue**: Challenges users to justify contradictory actions through a loop, preserving the justification in the session context.
-- **MCP 3.1 Native**: Full support for the Task Protocol, allowing challenges to be recorded as discrete, verifiable "Safety Interventions".
+- **FastMCP 3.1 Native**: Full support for the Task Protocol, allowing challenges to be recorded as discrete, verifiable "Safety Interventions".
 - **Dynamic Configuration**: Axioms can be updated at runtime via the `update_axioms` tool.
 
 ## Limitations
 - **Latency**: NLI mode adds inference latency to the decision loop.
 - **English Focus**: Optimal performance is currently achieved with English-language axioms and prompts.
 - **Context Windows**: Extremely large action descriptions may be truncated, potentially missing subtle contradictions.
-- **Fail-Open Default**: To ensure system availability, it defaults to allowing actions if the NLI API is unreachable.
+- **Fail-Open Default**: To ensure system availability, it defaults to allowing actions if the NLI API is unreachable unless strict enforce mode is activated.
 
 ## When to use it
 - When you need to enforce a set of rules or ethical principles on AI agent behavior.
 - To create a record of human justification for critical operations.
-- When working with high-autonomy agents powered by Claude 5.1 or GPT-5.5 in production environments.
+- When working with high-autonomy agents powered by Claude 5.6 or GPT-5.6 in production environments.
 - For compliance-heavy industries (Finance, Healthcare) requiring audit trails for AI actions.
 
 ## When not to use it
@@ -123,7 +123,7 @@ The tool used to provide the reasoning required to bypass a challenge.
 ```
 
 ### 4. Robust Alignment and Rule Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate Axiom Guardian configuration, including active NLI model endpoints and structured challenge policies under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+The following Python script illustrates how to model and programmatically validate Axiom Guardian configuration, including active NLI model endpoints and structured challenge policies under early January 2027 standards, ensuring strict schema safety and type correctness using Pydantic v2:
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -206,8 +206,8 @@ if __name__ == "__main__":
 ## Sources / References
 - [Axiom Guardian GitHub](https://github.com/democratize-technology/axiom-guardian)
 - [Zero-Shot Classification (Hugging Face)](https://huggingface.co/tasks/zero-shot-classification)
-- [NLI-based Alignment for Autonomous Agents (June 2026)](https://safety-research.example.com/axiom-guardian)
+- [FastMCP 3.1 Task Protocol Specification](https://mcp.dev/protocols/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high

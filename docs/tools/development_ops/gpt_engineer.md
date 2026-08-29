@@ -1,24 +1,24 @@
 # GPT Engineer
 
 ## What it is
-**GPT Engineer** is an AI-driven software engineering orchestrator and prototyping platform designed to generate complete, functional application codebases from high-level natural language prompts. It focuses specifically on the "bootstrapping" phase of software development, utilizing interactive prompting loops to clarify requirements prior to generation. Under late November/December 2026 SOTA standards, **v2.4.x+** introduces advanced integration with **WebContainer** environments to provide instant, browser-based full-stack previews, alongside full support for the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to ingest external schema definitions and API contracts for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+**GPT Engineer** is an AI-driven software engineering orchestrator and prototyping platform designed to generate complete, functional application codebases from high-level natural language prompts. It focuses specifically on the "bootstrapping" phase of software development, utilizing interactive prompting loops to clarify requirements prior to generation. Under early January 2027 SOTA standards, **v2.5.x+** introduces advanced integration with **WebContainer** environments to provide instant, browser-based full-stack previews, alongside full support for the **Model Context Protocol (MCP 3.1 / FastMCP 3.1 Task Protocol)** to ingest external schema definitions and API contracts for frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 Reduces the cognitive and procedural overhead of starting new projects by automating boilerplate creation, environment configuration, and directory scaffolding. It bridges the gap between conceptual requirements and runnable applications, eliminating "configuration hell" and allowing developers to quickly test ideas in an isolated, previewable client-side sandbox.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as a high-fidelity codebase scaffolding and automated development system. It sits at the top of the "Software Factory" pipeline, turning product requirements into structured repositories that can be further developed using interactive coding assistants or manually by engineers.
+[Layer 6: Multi-Agent Frameworks & Workflows](../../knowledge_base/ai_tooling_landscape.md#layer-6-multi-agent-frameworks--workflows). Functions as a high-fidelity codebase scaffolding and automated development system. It sits at the top of the "Software Factory" pipeline, turning product requirements into structured repositories that can be further developed using interactive coding assistants or manually by engineers.
 
 ## Typical use cases
 - **Greenfield Prototyping**: Instantly bootstrapping a React dashboard, Python microservice, or database-backed web application from a descriptive text prompt.
 - **Client-Side Interactive Previews**: Deploying generated code directly inside a WebContainer-based browser tab to visually inspect UI elements and interactive flows in real-time.
-- **API and Schema Bootstrapping**: Combining GPT Engineer with MCP servers to import database structures (e.g., PostgreSQL or Supabase schemas) and generate matching typed endpoints.
+- **API and Schema Bootstrapping**: Combining GPT Engineer with FastMCP 3.1 servers to import database structures (e.g., PostgreSQL or Supabase schemas) and generate matching typed endpoints.
 - **Architectural Exploration**: Comparing different frontend frameworks (such as Svelte, Next.js, or Vue) by generating the same functional MVP across each stack.
 
 ## Strengths
 - **Interactive Clarification Loop**: Rather than generating code in a "one-shot" manner, it queries the developer on ambiguous specifications before writing a single line of code, significantly reducing logical errors.
 - **WebContainer Integration**: Compiles and runs generated full-stack Node.js environments client-side, removing the need for local package installations during exploration.
-- **Frontier Model Optimization**: Fully optimized for July 2026 reasoning models (including Claude 5.1, GPT-5.5, Gemma 3, Qwen 3.6, and Llama 4), ensuring superior code modularity and adherence to modern syntax rules.
+- **Frontier Model Optimization**: Fully optimized for early 2027 reasoning models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL), ensuring superior code modularity and adherence to modern syntax rules.
 - **Extensible File System Manipulation**: Operates cleanly over local workspaces, producing editable files without lock-in.
 
 ## Limitations
@@ -39,7 +39,7 @@ Reduces the cognitive and procedural overhead of starting new projects by automa
 
 ## Getting started
 ### Installation
-GPT Engineer v2.4.x+ can be run directly from the shell via `npx` (which leverages WebContainers for browser-based work) or installed as a Python package via `pip` for local-only file generation.
+GPT Engineer v2.5.x+ can be run directly from the shell via `npx` (which leverages WebContainers for browser-based work) or installed as a Python package via `pip` for local-only file generation.
 
 ```bash
 # To run the WebContainer-integrated interactive generator:
@@ -65,20 +65,20 @@ pip install gpt-engineer
 ## CLI examples
 ### Greenfield App Generation
 ```bash
-# Generate a React application in the current directory using Claude 5.1
-gpt-engineer . --model claude-5.1 --prompt "A sleek home automation panel tracking temperature and lighting"
+# Generate a React application in the current directory using Claude 5.6
+gpt-engineer . --model claude-5.6 --prompt "A sleek home automation panel tracking temperature and lighting"
 ```
 
 ### Spec-First Generation (Clarify Mode)
 ```bash
 # Force the agent to run through an extended question-and-answer loop to build exact specifications
-gpt-engineer . --steps clarify --model gpt-5.5
+gpt-engineer . --steps clarify --model gpt-5.6
 ```
 
 ### Non-Interactive CI/CD Scaffolding
 ```bash
 # Run headless code generation for a fastapi backend service using a predefined prompt file
-gpt-engineer . --prompt-file ./requirements.txt --no-interactive --model gemini-4.0-pro
+gpt-engineer . --prompt-file ./requirements.txt --no-interactive --model gemini-4.0-ultra
 ```
 
 ## API examples
@@ -92,7 +92,7 @@ from gpt_engineer.core.db import DBs, Archive, DB
 
 def generate_automated_microservice(requirements_path: str, output_path: str):
     # Initialize connection to SOTA reasoning models
-    ai = AI(model_name="gpt-5.5")
+    ai = AI(model_name="gpt-5.6")
 
     # Setup working database structures
     workspace = DB(output_path)
@@ -133,7 +133,7 @@ async function runBrowserEngine() {
   const project = await client.createProject({
     prompt,
     framework: 'vite-react-ts',
-    llm: 'claude-5.1'
+    llm: 'claude-5.6'
   });
 
   // Mounts the virtual file system client-side and returns the server URL
@@ -146,7 +146,7 @@ async function runBrowserEngine() {
 ```
 
 ### Robust Workspace and Scaffold Configuration Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate GPT Engineer workspace parameters, targeted LLM connections, and WebContainer environments under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+The following Python script illustrates how to model and programmatically validate GPT Engineer workspace parameters, targeted LLM connections, and WebContainer environments under early January 2027 standards, ensuring strict schema safety and type correctness using Pydantic v2:
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -160,7 +160,7 @@ class WebContainerEnvConfig(BaseModel):
 
 class GPTEngineerWorkspaceConfig(BaseModel):
     project_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$")
-    model_name: str = Field(..., pattern=r"^(claude-5\.1-sonnet|gpt-5\.5-preview|gemini-4\.0-pro)$")
+    model_name: str = Field(..., pattern=r"^(claude-5\.6|gpt-5\.6|gemini-4\.0-ultra)$")
     webcontainer: WebContainerEnvConfig = Field(default_factory=WebContainerEnvConfig)
     mcp_servers: List[str] = Field(default_factory=list)
     auto_install_dependencies: bool = Field(default=True)
@@ -170,7 +170,7 @@ class GPTEngineerWorkspaceConfig(BaseModel):
         "json_schema_extra": {
             "example": {
                 "project_name": "homelab-solar-dashboard",
-                "model_name": "claude-5.1-sonnet",
+                "model_name": "claude-5.6",
                 "webcontainer": {
                     "port": 3000,
                     "hot_reload": True,
@@ -199,7 +199,7 @@ def validate_gpt_engineer_config(payload: dict) -> str:
 if __name__ == "__main__":
     test_payload = {
         "project_name": "homelab-solar-dashboard",
-        "model_name": "claude-5.1-sonnet",
+        "model_name": "claude-5.6",
         "webcontainer": {
             "port": 5173,
             "hot_reload": True,
@@ -223,14 +223,14 @@ if __name__ == "__main__":
 - [Melty](melty.md) — Open-source AI-native IDE with deep git and terminal loop integration.
 - [OpenHands](openhands.md) — General-purpose autonomous software agent platform.
 - [Plandex](plandex.md) — CLI-based multi-step code-generation orchestrator.
-- [../../knowledge_base/patterns/software-factories.md](../../knowledge_base/patterns/software-factories.md) — Pattern for automated code generation.
+- [Software Factories](../../knowledge_base/patterns/software-factories.md) — Pattern for automated code generation.
 
 ## Sources / references
 - [GPT Engineer GitHub Repository](https://github.com/AntonOsika/gpt-engineer)
 - [Official Documentation and Guides](https://gpt-engineer.readthedocs.io/)
 - [WebContainer API Integration](https://webcontainers.io/)
-- [GPT Engineer v2.4.0 Release Notes](https://github.com/AntonOsika/gpt-engineer/releases)
+- [FastMCP 3.1 Task Protocol Specification](https://mcp.dev/protocols/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high

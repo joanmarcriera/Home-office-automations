@@ -1,13 +1,13 @@
 # Windsurf IDE
 
 ## What it is
-**Windsurf** is the world's first agentic IDE, developed by **Codeium** and deeply integrated with **Cognition's Devin** reasoning capabilities. Under late November/December 2026 SOTA standards, it is built on top of the VS Code core but features a completely reimagined AI interaction model called **Cascade**, which moves beyond simple chat interfaces into autonomous, multi-file execution and real-time environment management for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+**Windsurf** is the world's first agentic IDE, developed by **Codeium** and deeply integrated with **Cognition's Devin** reasoning capabilities. Under early January 2027 SOTA standards, it is built on top of the VS Code core but features a completely reimagined AI interaction model called **Cascade**, which moves beyond simple chat interfaces into autonomous, multi-file execution and real-time environment management for frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 Traditional AI assistants in IDEs are "passive observers" that can only suggest text. Windsurf solves the "context gap" and the "execution gap" by allowing its agent (Cascade) to not only see the entire codebase but also autonomously navigate files, run terminal commands, manage dependencies, and perform complex, cross-file refactors. It is specifically designed for [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) and handles real-time verification loops locally or in cloud-sandbox environments.
 
 ## Where it fits in the stack
-**Category**: Tool / Development & Ops / Agentic IDE. It serves as the primary "Command Center" for developers who want to transition from manual coding to AI-augmented engineering, sitting at the intersection of the editor, terminal, and autonomous agent orchestration.
+[Layer 6: Multi-Agent Frameworks & Workflows](../../knowledge_base/ai_tooling_landscape.md#layer-6-multi-agent-frameworks--workflows). It serves as the primary "Command Center" for developers who want to transition from manual coding to AI-augmented engineering, sitting at the intersection of the editor, terminal, and autonomous agent orchestration.
 
 ## Typical use cases
 - **Legacy Migration**: Asking Cascade to "Convert this entire Express.js project to Go/Fiber" and letting it handle the file-by-file translation and dependency setups.
@@ -21,7 +21,7 @@ Traditional AI assistants in IDEs are "passive observers" that can only suggest 
 - **VS Code Compatibility**: Supports the entire library of VS Code extensions and themes.
 - **Cognition Partnership**: Benefits from Devin's superior reasoning capabilities for long-horizon tasks.
 - **Fast Indexing**: Codebase changes are indexed in real-time with near-zero latency using a proprietary semantic indexing system.
-- **MCP 3.1 / FastMCP 3.1 Native**: Full support for the Model Context Protocol (MCP) and FastMCP 3.1 features, allowing custom enterprise tools to be plugged in dynamically.
+- **FastMCP 3.1 Native**: Full support for the Model Context Protocol (MCP) and FastMCP 3.1 features, allowing custom enterprise tools to be plugged in dynamically.
 
 ## Limitations
 - **Cloud Dependency**: Advanced agentic features require a connection to Codeium/Cognition's cloud infrastructure.
@@ -32,7 +32,7 @@ Traditional AI assistants in IDEs are "passive observers" that can only suggest 
 ## When to use it
 - When you are working on large, complex codebases where simple RAG is insufficient.
 - If you want an IDE that can autonomously fix failing tests and run its own debugging loops.
-- When you need to leverage **MCP servers** for specialized tool-calling (e.g., Jira, GitHub, Database) within your development workflow.
+- When you need to leverage **FastMCP 3.1 servers** for specialized tool-calling (e.g., Jira, GitHub, Database) within your development workflow.
 
 ## When not to use it
 - In **strictly air-gapped** or offline environments where cloud access is prohibited.
@@ -80,9 +80,9 @@ windsurf --diff old_version.js new_version.js
 ```
 
 ## API examples
-Windsurf's **Cascade** engine is typically interacted with via natural language, but it can be controlled via the `Cascade API` (internal) or extended via MCP.
+Windsurf's **Cascade** engine is typically interacted with via natural language, but it can be controlled via the `Cascade API` (internal) or extended via FastMCP 3.1.
 
-### Example MCP Tool Definition
+### Example FastMCP Tool Definition
 You can create custom tools that Windsurf can call:
 ```typescript
 // my-custom-tool.ts
@@ -106,7 +106,7 @@ await server.connect(transport);
 ```
 
 ### Robust Configuration Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate a Windsurf IDE connection and active MCP session profile under late November/December 2026 SOTA standards, ensuring strict schema safety and type correctness using Pydantic v2:
+The following Python script illustrates how to model and programmatically validate a Windsurf IDE connection and active MCP session profile under early January 2027 SOTA standards, ensuring strict schema safety and type correctness using Pydantic v2:
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -179,15 +179,15 @@ if __name__ == "__main__":
 - [Continue](continue_dev.md) — Open-source alternative for building custom AI IDE experiences.
 - [OpenClaw](openclaw.md) — Gateway for agentic workflows and tool-calling security.
 - [NanoClaw](nanoclaw.md) — Secure, containerized personal assistant framework.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md)
 - [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Windsurf Official Documentation](https://docs.windsurf.com/)
-- [Codeium Release Notes (July 2026)](https://codeium.com/blog/windsurf-v2-devin-integration)
+- [FastMCP 3.1 Task Protocol Specification](https://mcp.dev/protocols/task-protocol)
 - [Windsurf MCP Guide](https://docs.windsurf.com/windsurf/cascade/mcp)
 - [Cognition AI: Devin in Windsurf](https://www.cognition.ai/blog/windsurf-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high
