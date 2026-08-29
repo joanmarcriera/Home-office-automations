@@ -1,6 +1,6 @@
 # Amie
 
-Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of late 2026, it has deepened its integration with frontier models like [Claude 5.1](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), Llama 4, and [Gemma 3](../ai_knowledge/local_llms.md) to provide autonomous daily planning and proactive time-blocking.
+Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of early January 2027, it has deepened its integration with frontier models like [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), DeepSeek-V4, Qwen 3.6 VL, and [Gemma 4](../ai_knowledge/local_llms.md) to provide autonomous daily planning, multi-agent scheduling, and proactive time-blocking via the **FastMCP 3.1 Task Protocol**.
 
 ## What it is
 Amie is an all-in-one AI-powered productivity app that combines your calendar, tasks, and emails into a single, cohesive interface. It focuses on reducing friction in the planning process through natural language and high-performance design.
@@ -15,17 +15,17 @@ It reduces context-switching by unifying personal and professional scheduling wi
 - **AI-Powered Time Blocking**: Automatically scheduling tasks based on priority and typical user behavior patterns.
 - **Natural Language Event Creation**: Using the `Cmd + K` palette to create complex events like "Coffee with Alex this Friday at 4pm at Starbucks".
 - **Unified Email-to-Task**: Dragging emails onto the calendar to instantly convert them into time-blocked tasks.
-- **Agentic Scheduling**: Using [Claude 5.1](../ai_knowledge/claude.md) via MCP 3.1 / FastMCP 3.1 to query availability and propose meeting times to external partners.
+- **Agentic Scheduling**: Using [Claude 5.6](../ai_knowledge/claude.md) via FastMCP 3.1 Task Protocol to query availability and propose meeting times to external partners.
 
 ## Strengths
-- **Frontier AI Integration (Late 2026)**: Native support for [Claude 5.1](../ai_knowledge/claude.md), GPT-5.5, Gemini 4.0 Pro, Qwen 3.6, and [Gemma 3](../ai_knowledge/local_llms.md) for advanced natural language scheduling.
+- **Frontier AI Integration (Early January 2027)**: Native support for [Claude 5.6](../ai_knowledge/claude.md), GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL, and [Gemma 4](../ai_knowledge/local_llms.md) for advanced natural language scheduling.
 - **Design-First UX**: Extremely polished interface with smooth animations and intuitive keyboard shortcuts.
 - **High Performance**: One of the fastest applications in the productivity space for search and event creation.
 - **Deep Integrations**: Robust connectors for Jira, GitHub, Slack, and Linear.
 
 ## Limitations
 - **Proprietary SaaS**: No self-hosting or local-first option; requires full cloud access to calendar/email data.
-- **Ecosystem Focus**: Primarily optimized for iOS and macOS; Android support is still maturing.
+- **Ecosystem Focus**: Primarily optimized for iOS and macOS; Android support is maturing.
 - **API Access**: Public REST API is limited compared to enterprise-grade tools like Airflow or Dagster.
 
 ## When to use it
@@ -51,13 +51,13 @@ Amie does not provide a traditional command-line binary. However, its "Command B
 
 ```bash
 # Natural Language Commands in Cmd + K
-"Plan my week" -> Triggers Gemma 3 / Qwen 3.6 to distribute backlog tasks.
+"Plan my week" -> Triggers Gemma 4 / Qwen 3.6 VL to distribute backlog tasks.
 "Meet with @Sarah tomorrow" -> Opens a scheduling link for Sarah.
 "Remind me to call the bank at 10am" -> Creates a task with a reminder.
 ```
 
 ## API examples
-As of late 2026, Amie has expanded its developer access through a limited Beta API and MCP 3.1 server integration.
+Amie expands its developer access through a limited Beta API and **FastMCP 3.1 Task Protocol** integration.
 
 **Triggering a Task Sync (cURL):**
 ```bash
@@ -67,8 +67,8 @@ curl -X POST "https://api.amie.so/v1/sync" \
   -d '{"source": "github", "scope": "assigned_issues"}'
 ```
 
-**Querying Availability via MCP 3.1 / FastMCP 3.1 (Claude Desktop):**
-Amie now supports a "Read-Only Calendar" tool for AI agents. The following Python snippet demonstrates how an agentic script validates availability data returned by the Amie MCP server using **Pydantic v2**.
+**Querying Availability via FastMCP 3.1 (Claude Desktop / FastMCP Server):**
+Amie supports a "Read-Only Calendar" tool for AI agents. The following Python snippet demonstrates how an agentic script validates availability data returned by the Amie FastMCP server using **Pydantic v2**.
 
 ```python
 import os
@@ -98,18 +98,18 @@ def validate_mcp_availability(raw_response: dict) -> AmieAvailabilityResponse:
         print("Pydantic validation failed for Amie availability structure:")
         raise e
 
-# Example payload returned by Amie's FastMCP 3.1 server to Claude 5.1
+# Example payload returned by Amie's FastMCP 3.1 server to Claude 5.6
 mcp_mock_payload = {
     "timezone": "Europe/London",
     "slots": [
         {
-            "startTime": "2026-12-22T09:00:00Z",
-            "endTime": "2026-12-22T10:30:00Z",
+            "startTime": "2027-01-08T09:00:00Z",
+            "endTime": "2027-01-08T10:30:00Z",
             "status": "FREE"
         },
         {
-            "startTime": "2026-12-22T14:00:00Z",
-            "endTime": "2026-12-22T15:00:00Z",
+            "startTime": "2027-01-08T14:00:00Z",
+            "endTime": "2027-01-08T15:00:00Z",
             "status": "FREE"
         }
     ]
@@ -130,8 +130,8 @@ validate_mcp_availability(mcp_mock_payload)
 ## Sources / references
 - [Amie Official Website](https://www.amie.so/)
 - [Amie Help Center & FAQ](https://amie.so/help)
-- [AI-Powered Planning Trends 2026](https://www.usecarly.com/blog/best-ai-tools-daily-planning/)
+- [AI-Powered Planning Trends](https://www.usecarly.com/blog/best-ai-tools-daily-planning/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
