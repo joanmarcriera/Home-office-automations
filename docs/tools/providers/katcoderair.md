@@ -3,7 +3,7 @@
 ## What it is
 KatCoderAir (specifically KatCoderAir v2.5) is a highly optimized, open-weight coding Large Language Model (LLM) developed by the KatCoder Collective. Engineered with a specialized focus on low-latency, edge-native software development, it is designed to run efficiently on consumer workstations, laptops, and local hardware setups. Based on an advanced Mixture-of-Experts (MoE) architecture, KatCoderAir v2.5 balances parameter size with execution speed, allowing developers to enjoy top-tier code intelligence without relying on costly cloud providers.
 
-In August 2026, the KatCoder Collective announced **Kat Coder 2.5 Dev**, a specialized developmental-grade coding model designed specifically for aggressive multi-file code reasoning, deep AST analysis, and agentic code modifications. Operating with a virtual 30B parameter size via 7B active parameters per token, Kat Coder 2.5 Dev is tailored for developers seeking raw reasoning power and high instruction-following accuracy in software engineering domains.
+In early 2027, the KatCoder Collective expanded its suite with **Kat Coder 2.5 Dev**, a specialized developmental-grade coding model designed specifically for aggressive multi-file code reasoning, deep AST analysis, FastMCP 3.1 Task Protocol execution, and agentic code modifications. Operating with a virtual 30B parameter size via 7B active parameters per token, Kat Coder 2.5 Dev is tailored for developers seeking raw reasoning power and high instruction-following accuracy in software engineering domains.
 
 ## What problem it solves
 Proprietary cloud-based coding assistants often suffer from latency issues, high cost of operation, and severe security concerns regarding source code telemetry and data residency. KatCoderAir and Kat Coder 2.5 Dev address these pain points by offering powerful, open-weight coding alternatives that can be deployed entirely locally. By running on local hardware, they guarantee absolute privacy, zero latency variation, and complete operational sovereignty.
@@ -25,7 +25,7 @@ Proprietary cloud-based coding assistants often suffer from latency issues, high
 - **AST-Aware Reasoning**: Kat Coder 2.5 Dev features specialized attention maps focused on syntax structural dependencies.
 
 ## Limitations
-- **General Knowledge**: Not a general-purpose model; trails behind [Qwen](../ai_knowledge/qwen.md) and [DeepSeek](deepseek.md) in general trivia, creative writing, or non-technical reasoning.
+- **General Knowledge**: Not a general-purpose model; trails behind [Qwen](../ai_knowledge/qwen.md), [DeepSeek](deepseek.md) (DeepSeek-V4), and Gemma 4 in general trivia, creative writing, or non-technical reasoning.
 - **High Concurrency VRAM Footprint**: Though active parameters are small, loading the full MoE weights requires substantial VRAM if running multiple concurrent streams.
 - **Setup Complexity**: Requires local model execution setup, which can be more complex than subscribing to a SaaS provider.
 
@@ -173,7 +173,7 @@ except Exception as e:
 
 ## Related tools / concepts
 - [Local LLMs](../ai_knowledge/local_llms.md) — Standard overview of open weights models.
-- [DeepSeek](deepseek.md) — The flagship MoE open-weight models.
+- [DeepSeek](deepseek.md) — The flagship MoE open-weight models (DeepSeek-V4).
 - [Codestral](codestral.md) — Coding model from Mistral AI.
 - [llama.cpp](../infrastructure/llama-cpp.md) — The primary runtime engine for CPU/GPU.
 - [MLX](../infrastructure/mlx.md) — Apple Silicon array framework.
@@ -187,5 +187,5 @@ except Exception as e:
 - [Reddit LocalLLaMA Thread: Kat Coder 2.5 Dev - Do yourself a favor and try it](https://www.reddit.com/r/LocalLLaMA/comments/1ve9r2q/kat_coder_25_dev_do_yourself_a_favor_and_try_it/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

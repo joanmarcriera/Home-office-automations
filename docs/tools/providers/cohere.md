@@ -1,17 +1,17 @@
 # Cohere
 
 ## What it is
-Cohere is an enterprise-focused AI platform providing large language models (Command R family), edge vision-instruct models (**Cohere Labs NorthMicroVision-Instruct**), embeddings, and reranking models. As of mid-2026, Cohere combines its leadership in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search with specialized edge multimodal vision models and native **FastMCP 3.1** support for enterprise tool orchestration.
+Cohere is an enterprise-focused AI platform providing large language models (Command R family, R7), edge vision-instruct models (**Cohere Labs NorthMicroVision-Instruct**), embeddings, and reranking models. As of January 2027, Cohere combines its leadership in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search with specialized edge multimodal vision models and native **FastMCP 3.1** support for enterprise tool orchestration.
 
 ## What problem it solves
 Cohere provides high-performance models specifically optimized for RAG, complex tool use, and multilingual applications. It solves the "hallucination problem" in RAG systems through native, automated citations and addresses the difficulty of high-precision search with its industry-standard reranking endpoint. It also streamlines enterprise agent deployment via standardized protocols.
 
 ## Where it fits in the stack
-**Category**: Provider / Embedding / Reranking. Cohere sits at the core of the reasoning and retrieval layer. While it competes with providers like OpenAI and Anthropic, it is often used as a specialized retrieval-enhancement layer (via Rerank) alongside models like `claude-5-1-sonnet` or GPT-5.5.
+**Category**: Provider / Embedding / Reranking. Cohere sits at the core of the reasoning and retrieval layer. While it competes with providers like OpenAI and Anthropic, it is often used as a specialized retrieval-enhancement layer (via Rerank) alongside models like `claude-5-6-sonnet` or GPT-5.6.
 
 ## Typical use cases
 - **Edge Vision-Instruct Tasks**: Utilizing **Cohere Labs NorthMicroVision-Instruct** for low-latency visual document parsing and instruction-following on localized devices.
-- **Enterprise RAG**: Using Command R+ for complex retrieval-augmented generation with native citation grounding.
+- **Enterprise RAG**: Using Command R+ and R7 for complex retrieval-augmented generation with native citation grounding.
 - **Multilingual Search**: Using Cohere Embed to power semantic search across 100+ languages with a single vector space.
 - **Search Relevance Optimization**: Using Cohere Rerank as a "cross-encoder" step to significantly improve the accuracy of initial keyword or vector search results.
 - **Agentic Workflows**: Leveraging **FastMCP 3.1** to build agents that orchestrate complex enterprise tool calls with high reliability.
@@ -24,7 +24,7 @@ Cohere provides high-performance models specifically optimized for RAG, complex 
 - **Optimized Tool Use**: High reliability in following complex tool schemas and executing multi-step reasoning using standard protocols.
 
 ## Limitations
-- **Creativity**: Generally less focused on creative writing or artistic tasks compared to models like GPT-5.5.
+- **Creativity**: Generally less focused on creative writing or artistic tasks compared to models like GPT-5.6.
 - **Multimodal**: Native image generation and deep multimodal reasoning have historically been less central than their text and retrieval focus.
 - **Ecosystem Size**: Smaller community-built library ecosystem compared to the OpenAI "monolith."
 
@@ -178,9 +178,9 @@ except Exception as e:
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The primary general-purpose competitor.
-- [Anthropic](anthropic.md) — Known for Claude 5.1 and high-reasoning models.
+- [Anthropic](anthropic.md) — Known for Claude 5.6 and high-reasoning models.
 - [Mistral](mistral.md) — Performance-oriented open-weights provider.
-- [DeepSeek](deepseek.md) — Efficient retrieval and reasoning models.
+- [DeepSeek](deepseek.md) — Efficient retrieval and reasoning models (DeepSeek-V4).
 - [Pinecone](../infrastructure/pinecone.md) — Vector database for storing Cohere Embeddings.
 - [LangChain](../ai_knowledge/langchain.md) — Framework with deep Cohere integrations.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework optimized for RAG using Cohere.
@@ -196,5 +196,5 @@ except Exception as e:
 - [FastMCP 3.1 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

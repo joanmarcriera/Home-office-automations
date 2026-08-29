@@ -1,7 +1,7 @@
 # Perplexity
 
 ## What it is
-Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of December 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 5.1](../ai_knowledge/claude.md), and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
+Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of January 2027, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 4](../ai_knowledge/local_llms.md), [Claude 5.6](../ai_knowledge/claude.md), GPT-5.6, Gemini 4.0 Ultra, and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
 
 ## What problem it solves
 It addresses the "hallucination" and "knowledge cutoff" problems of traditional LLMs by grounding every response in current web data. Perplexity can search the internet in real-time to provide up-to-date information with verifiable citations, allowing for rapid verification of facts, technical specifications, and market trends.
@@ -16,13 +16,13 @@ It addresses the "hallucination" and "knowledge cutoff" problems of traditional 
 - **Research Agents**: Automating the collection of cited information for reports and technical audits.
 - **Autonomous Browsing**: Leveraging the "Computer" orchestration layer for multi-step web research.
 
-### Model Routing (December 2026)
+### Model Routing (January 2027)
 | Model | Primary Use Case | Default? |
 | :--- | :--- | :--- |
 | **Sonar Small / Medium** | Fast, high-volume search tasks and simple extraction | No |
 | **Sonar Reasoning** | Standard research tasks requiring a balance of speed and depth | Yes |
 | **Sonar Reasoning Pro** | Complex, multi-step research, deep analysis, and high-stakes reasoning | No (Premium) |
-| **Agent API** | Supports third-party models like [Claude 5.1](../ai_knowledge/claude.md) for tool-calling | No |
+| **Agent API** | Supports third-party models like [Claude 5.6](../ai_knowledge/claude.md) for tool-calling | No |
 
 ## Strengths
 - **Verifiable Citations**: Every claim is linked to a source, drastically reducing hallucinations.
@@ -73,7 +73,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
-    messages=[{"role": "user", "content": "What is the status of FastMCP 3.1 adoption in December 2026?"}]
+    messages=[{"role": "user", "content": "What is the status of FastMCP 3.1 adoption in January 2027?"}]
 )
 print(response.choices[0].message.content)
 ```
@@ -88,14 +88,14 @@ curl -X POST https://api.perplexity.ai/chat/completions \
   -d '{
     "model": "sonar-reasoning-pro",
     "messages": [
-      {"role": "user", "content": "Latest stable version of Kubernetes as of December 2026."}
+      {"role": "user", "content": "Latest stable version of Kubernetes as of January 2027."}
     ]
   }'
 ```
 
 ### 2. Integration with LiteLLM CLI
 ```bash
-litellm --model perplexity/sonar-reasoning-pro --messages '{"role": "user", "content": "Compare Gemma 3 vs Llama 4 for home-office automation."}'
+litellm --model perplexity/sonar-reasoning-pro --messages '{"role": "user", "content": "Compare Gemma 4 vs Llama 4 Maverick for home-office automation."}'
 ```
 
 ### 3. Checking Model Availability
@@ -122,7 +122,7 @@ response = client.chat.completions.create(
     model="sonar-reasoning-pro",
     messages=[
         {"role": "system", "content": "Be precise and cited."},
-        {"role": "user", "content": "Research the current status of EKS Auto Mode in December 2026."}
+        {"role": "user", "content": "Research the current status of EKS Auto Mode in January 2027."}
     ]
 )
 
@@ -158,7 +158,7 @@ try:
         model="sonar-reasoning-pro",
         messages=[
             {"role": "system", "content": "You are a precise search parser. Output JSON matching the requested schema strictly."},
-            {"role": "user", "content": "Query: What is the current status of FastMCP 3.1 adoption in December 2026?"}
+            {"role": "user", "content": "Query: What is the current status of FastMCP 3.1 adoption in January 2027?"}
         ],
         response_format={
             "type": "json_object",
@@ -195,7 +195,7 @@ def web_search(query: str):
 - [Genspark](../ai_knowledge/genspark.md) — AI-driven research and custom page generation.
 - [Tavily](tavily.md) — Search-optimized API for LLM agents.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Access Perplexity models via a unified gateway.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [n8n](../../services/n8n.md) — Workflow automation with native Perplexity support.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for connecting search tools to agents.
 - [LiteLLM](../../services/litellm.md) — Proxy for managing Perplexity API access.
@@ -207,5 +207,5 @@ def web_search(query: str):
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

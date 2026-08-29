@@ -1,7 +1,7 @@
 # Fireworks AI
 
 ## What it is
-Fireworks AI is a high-performance inference platform providing an ultra-fast API for running and fine-tuning open-source generative AI models (Llama 4, Gemma 3, Qwen 3.6). As of December 2026, it is recognized for its proprietary "FireAttention" optimization stack and full support for the **FastMCP 3.1 Task Protocol**, which allows for standardized, automated benchmarking and seamless tool-calling of frontier open-weights models.
+Fireworks AI is a high-performance inference platform providing an ultra-fast API for running and fine-tuning open-source generative AI models (Llama 4 Maverick, Gemma 4, Qwen 3.6 VL, DeepSeek-V4). As of January 2027, it is recognized for its proprietary "FireAttention" optimization stack and full support for the **FastMCP 3.1 Task Protocol**, which allows for standardized, automated benchmarking and seamless tool-calling of frontier open-weights models.
 
 ## What problem it solves
 It provides reliable, low-latency, and cost-effective access to the latest open-source models, eliminating the performance overhead of standard GPU deployments and the complexity of managing private inference infrastructure. It solves the "speed-to-token" bottleneck for real-time agentic workflows.
@@ -10,7 +10,7 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 **Inference Provider**. Fireworks AI sits in the **Infrastructure** layer, providing the raw compute and model serving capability that powers higher-level agentic frameworks. It serves as a performance-optimized alternative to self-hosting via [vLLM](../infrastructure/vllm.md) or using general-purpose providers like [Together AI](together.md).
 
 ## Typical use cases
-- **Automated Benchmarking**: Leveraging the **FastMCP 3.1 Task Protocol** to perform high-throughput evaluation of models like Gemma 3, Qwen 3.6, and Llama 4.
+- **Automated Benchmarking**: Leveraging the **FastMCP 3.1 Task Protocol** to perform high-throughput evaluation of models like Gemma 4, Qwen 3.6 VL, DeepSeek-V4, and Llama 4 Maverick.
 - **High-Throughput Applications**: Production apps requiring many concurrent, low-latency LLM requests for real-time interaction.
 - **Function Calling**: Using optimized models for reliable structured data extraction and autonomous tool use.
 - **Custom Model Deployment**: Deploying specialized fine-tuned models on dedicated, scalable infrastructure via LoRA adapters.
@@ -18,7 +18,7 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 
 ## Strengths
 - **Extreme Speed**: The FireAttention engine provides exceptionally high throughput and low time-to-first-token (TTFT).
-- **Gemma 3 Optimization**: Native support and hardware-level optimizations for the Gemma 3 model family.
+- **Gemma 4 & DeepSeek-V4 Optimization**: Native support and hardware-level optimizations for the Gemma 4 model family and DeepSeek-V4.
 - **LoRA Support**: Native, first-class support for deploying and switching between custom LoRA adapters with zero cold-start latency.
 - **FastMCP 3.1 Integration**: Standardized integration for automated task execution and monitoring via the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 - **Developer Experience**: Fully OpenAI-compatible API ensures seamless migration from other providers.
@@ -29,13 +29,13 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 - **Cloud-Only**: Does not offer a standalone local version for completely offline environments (see [vLLM](../infrastructure/vllm.md)).
 
 ## When to use it
-- When you need the fastest possible inference for Llama 4, Gemma 3, or other top-tier open models.
+- When you need the fastest possible inference for Llama 4 Maverick, Gemma 4, DeepSeek-V4, or other top-tier open models.
 - For high-volume production applications where reliability and consistent latency are critical.
 - When you need to deploy and manage multiple fine-tuned LoRA adapters efficiently.
 - When building real-time interactive agents using [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## When not to use it
-- If your application requires proprietary "frontier" models like `claude-5-1-sonnet` or `gpt-5-5-preview`.
+- If your application requires proprietary "frontier" models like `claude-5-6-sonnet` or `gpt-5-6`.
 - For extremely niche or research models that are not included in their curated performance-optimized list.
 - If strict data sovereignty requires 100% on-premises local hosting (see [TGI](../infrastructure/tgi.md)).
 
@@ -59,8 +59,8 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="accounts/fireworks/models/gemma-3-27b-it",
-    messages=[{"role": "user", "content": "Hello Fireworks! Tell me about Gemma 3."}]
+    model="accounts/fireworks/models/gemma-4-31b-it",
+    messages=[{"role": "user", "content": "Hello Fireworks! Tell me about Gemma 4."}]
 )
 print(response.choices[0].message.content)
 ```
@@ -74,7 +74,7 @@ curl https://api.fireworks.ai/inference/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
   -d '{
-    "model": "accounts/fireworks/models/llama-v4-70b-instruct",
+    "model": "accounts/fireworks/models/llama-v4-maverick-70b-instruct",
     "messages": [{"role": "user", "content": "Compare PagedAttention and FireAttention."}]
   }'
 ```
@@ -119,7 +119,7 @@ class ExecutionPlan(BaseModel):
 
 try:
     response = client.chat.completions.create(
-        model="accounts/fireworks/models/qwen-36b-instruct",
+        model="accounts/fireworks/models/qwen-36b-vl-instruct",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that responds ONLY with valid JSON matching the schema requested."},
             {"role": "user", "content": "Task: Upgrade database schema, Priority: 1. Actions: Stop app, Run migrations, Restart app."}
@@ -170,7 +170,7 @@ response = client.chat.completions.create(
 - [SGLang](../infrastructure/sglang.md) — High-throughput runtime for LLMs.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified model access gateway.
 - [LiteLLM](../../services/litellm.md) — Proxy for unified API calls.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Guide for running Llama 4 and Gemma 3 locally.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Guide for running Llama 4 Maverick and Gemma 4 locally.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized agent communication protocol.
 
 ## Sources / references
@@ -181,5 +181,5 @@ response = client.chat.completions.create(
 - [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/3.1/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
