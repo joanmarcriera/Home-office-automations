@@ -1,5 +1,61 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-29
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 📌 **OpenAI cuts ties with Cursor**: Following Cursor's acquisition by SpaceX, OpenAI has decided to wind down its contract providing models to the AI code editor.
+* 🔥 **Qwen 3.8-Flash-Next Hype**: A surge of community benchmarks and optimizations for Alibaba's new MoE model, with users reporting impressive speeds on everything from M5 Macs to DGX Spark clusters.
+* 🛠️ **Local Inference Breakthroughs**: New tools like **FreeToken** and custom "hot expert" offloading techniques are pushing frontier MoE models onto consumer-grade hardware.
+* ⚠️ **Quantization Audit**: A community audit reveals that a significant number of GGUF quants across various repositories are mislabeled, effectively running at higher bit-rates than claimed.
+
+---
+
+## 🚀 Models & Releases
+
+### Alibaba Qwen Series
+* **Qwen 3.8-Flash**: Alibaba has released this open-weight, multimodal MoE model, described as an early preview of the architecture coming in **Qwen 4**. [The New Stack](https://thenewstack.io/qwen38-flash-previews-qwen4/)
+* **Community Benchmarks & Optimizations**:
+    * **High Performance**: Users report hitting 181 tok/s aggregate on 2x DGX Spark clusters. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1486l/today_i_hit_181_tokss_aggregate_on/)
+    * **Apple Silicon**: Performance tests on M5 Air show 150 tps prefill and 3.6 tps decode for the 3-bit MoE version. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1inuk/qwen38next_streaming_150tps_prefill_36_tps_decode/)
+    * **GGUF Release**: New SOTA GGUFs for Qwen 3.8-27B using GSQ-RCO quantization (2.5 to 3.0 bpw) are now available. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w13vse/release_sota_ggufs_for_qwen3827b_gsqrco_at_25_to/)
+* **Real-world Win**: A user reported using Qwen 3.8-27B to successfully troubleshoot and fix a boot-looping folding phone, saving $600 in repairs. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1cbb0/saved_my_fiances_phone_with_qwen_38_27b/)
+
+### Other Releases
+* **Breeze-TTS-2**: Initial impressions suggest this is a "frontier" level Text-to-Speech model. It is ~7GB and can be run locally. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1002h/breezetts2_initial_impressions_genuinely_frontier/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **FreeToken**: A new open-source inference engine from UC Berkeley and MIT that uses dynamic co-execution to bring frontier MoE inference to consumer hardware. [InfoQ](https://www.infoq.com/news/2026/08/freetoken-local-inference/)
+* **LLMOG**: A local tool for auto-annotating datasets and reclassifying YOLO datasets using llama.cpp or vLLM. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w18v86/use_llms_to_auto_annotation_your_dataset_locally/)
+* **Data Layer Architecture**: A new presentation on architecting data for AI agents, focusing on the Model Context Protocol (MCP) and semantic models to reduce token overhead. [InfoQ](https://www.infoq.com/presentations/enterprise-data-architecture-ai-agents/)
+* **LM Studio**: Discussion on the challenges of building "judges" for AI shell commands to prevent dangerous executions. [The New Stack](https://thenewstack.io/bionic-shell-command-safety/)
+
+---
+
+## 🔬 Research & Technical Insights
+
+* **Quantization Audit**: An audit of 443 GGUF quants found that 64 were mislabeled. Due to tensor row requirements in `llama-quantize`, some low-bit quants were silently swapped to ~4.5 bpw. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w11ob5/i_audited_443_gguf_quants_across_25_repos_64_of/)
+* **MoE Optimization**: A user discovered a 50% performance boost in `llama.cpp` by offloading only "hot" experts to VRAM rather than entire layers. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1996t/50_tg_increase_with_offloading_hot_experts_to_vram/)
+* **Speculative Decoding**: Observations on how MTP (Multi-Token Prediction) creates visible "bursts" of speed during predictable phrases. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1je5d/if_your_ts_is_low_enough_you_can_see_speculative/)
+* **ASR Progress**: The Open ASR Leaderboard has added its first Global South language to improve speech recognition inclusivity. [Hugging Face](https://huggingface.co/blog/open-asr-leaderboard-global-south)
+
+---
+
+## 🏢 Industry News
+
+* 📌 **OpenAI vs. Cursor**: OpenAI is winding down its model provision to Cursor following the latter's acquisition by SpaceX. [OpenAI Blog](https://openai.com/index/our-decision-on-cursor-following-its-acquisition-by-spacex) | [Latent Space](https://www.latent.space/p/ainews-openai-shuts-off-cursor)
+* **Hardware Updates**:
+    * **AMD ROCm 10.0**: A major release aimed at "Agentic AI" is out, with `llama.cpp` support currently in PR. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w0yfmn/rocm_100_a_decade_of_open_compute_built_for_the/)
+    * **Tenstorrent Quietbox 2**: Early user reports on the new hardware, featuring 256GB system memory and 128GB interconnected GDDR. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w18pu9/tenstorrent_quietbox_2_arrived/)
+* **Security Alert**: JetBrains is urging users of its Cadence cloud service to rotate credentials following a patching failure. [The New Stack](https://thenewstack.io/jetbrains-told-everyone-to-patch-it-didnt-patch-itself/)
+
+---
+
+
 ## 📅 Digest for 2026-08-28
 
 # AI & Technology Daily Digest
