@@ -8,13 +8,13 @@ Simplifies personal and professional organization by unifying tasks, calendars, 
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management
-It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Gemma 3 for automated task ingestion and prioritization. As of late 2026, Any.do is a core participant in the Model Context Protocol (MCP 3.1) and FastMCP 3.1 ecosystem, enabling standardized cross-tool task synchronization and Agentic Calendar Orchestration.
+It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL for automated task ingestion and prioritization. As of January 2027, Any.do is a core participant in the Model Context Protocol (MCP 3.1) and FastMCP 3.1 ecosystem, enabling standardized cross-tool task synchronization and Agentic Calendar Orchestration.
 
 ## Typical use cases
 - **Personal Daily Planning**: Organizing household chores, shopping lists, and personal appointments.
 - **Small Team Collaboration**: Managing shared projects, assigning tasks, and tracking progress in a unified workspace.
 - **Omnichannel Task Capture**: Using the WhatsApp bot to turn fleeting thoughts or requests into actionable tasks without leaving the chat app.
-- **Autonomous Task Ingestion**: Utilizing local LLMs like Qwen 3.6 or Llama 4 to parse speech or texts and dynamically populate lists.
+- **Autonomous Task Ingestion**: Utilizing local LLMs like Gemma 4 or Llama 4 Maverick to parse speech or texts and dynamically populate lists.
 
 ## Strengths
 - **Native Messaging Integration**: The "Any.do for WhatsApp" feature remains a market leader for chat-to-task conversion.
@@ -39,7 +39,7 @@ It serves as the execution layer for personal and small-team workflows, often in
 - When deep hierarchical task structures and complex dependencies are mandatory.
 
 ## Getting started
-Any.do is accessible via web browsers, mobile apps (iOS/Android), and desktop applications. For developers and AI agents, it provides a REST API and pre-built integrations with Zapier, Make, and the Model Context Protocol (MCP 3.1 / FastMCP 3.1) for Claude 5.1 and GPT-5.5.
+Any.do is accessible via web browsers, mobile apps (iOS/Android), and desktop applications. For developers and AI agents, it provides a REST API and pre-built integrations with Zapier, Make, and the Model Context Protocol (MCP 3.1 / FastMCP 3.1) for Claude 5.6 and GPT-5.6.
 
 ## CLI examples
 While Any.do does not have an official CLI, it can be interacted with via `curl` for quick task creation from the terminal.
@@ -50,14 +50,14 @@ curl -X POST https://api.any.do/v1/tasks \
   -H "Authorization: Bearer $ANYDO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Finalize roadmap with GPT-5.5",
+    "title": "Finalize roadmap with GPT-5.6",
     "priority": "High",
-    "dueDate": "2026-12-31T09:00:00Z"
+    "dueDate": "2027-01-31T09:00:00Z"
   }'
 ```
 
 ## API examples
-The Any.do API allows for advanced automation, such as using Claude 5.1 to parse unstructured notes into structured tasks, strictly validated using **Pydantic v2**.
+The Any.do API allows for advanced automation, such as using Claude 5.6 to parse unstructured notes into structured tasks, strictly validated using **Pydantic v2**.
 
 ```python
 import os
@@ -77,7 +77,7 @@ class AnyDoTaskSchema(BaseModel):
 
 def create_structured_task(parsed_content: dict) -> dict:
     """
-    Creates a task in Any.do using data typically parsed by a reasoning model like Claude 5.1 or GPT-5.5,
+    Creates a task in Any.do using data typically parsed by a reasoning model like Claude 5.6 or GPT-5.6,
     validated programmatically via Pydantic v2.
     """
     url = "https://api.any.do/v1/tasks"
@@ -102,10 +102,10 @@ def create_structured_task(parsed_content: dict) -> dict:
         print("Pydantic Validation Error during task parsing:")
         raise e
 
-# Example: Task data extracted from a Claude 5.1 session
+# Example: Task data extracted from a Claude 5.6 session
 extracted_data = {
     "title": "Review AI Audit results",
-    "notes": "Examine the 13-section compliance for the latest documentation batch.",
+    "notes": "Examine the compliance for the latest documentation batch.",
     "priority": "High"
 }
 
@@ -115,7 +115,7 @@ create_structured_task(extracted_data)
 ## Related tools / concepts
 - [TickTick](ticktick.md) — advanced task management with built-in Pomo timer.
 - [Todoist](todoist.md) — natural language input for fast task entry.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for AI-driven task orchestration.
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md) — Canonical guide for AI-driven task orchestration.
 - [Microsoft To Do](microsoft-todo.md) — integrated task management for Microsoft 365.
 - [Google Tasks](google-tasks.md) — lightweight task list within the Google ecosystem.
 - [Motion](motion.md) — AI-driven scheduling that automatically places tasks on the calendar.
@@ -128,5 +128,5 @@ create_structured_task(extracted_data)
 - [WhatsApp Integration Overview](https://www.any.do/whatsapp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
