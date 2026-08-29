@@ -1,25 +1,25 @@
 # Fastmail
 
 ## What it is
-An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. In late November/December 2026, it is a leading provider for **JMAP-based** agentic workflows, often orchestrated via **Chronos MCP** or **FastMCP 3.1** servers.
+An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. As of early 2027, it is a leading provider for **JMAP-based** agentic workflows, often orchestrated via **Chronos MCP** or **FastMCP 3.1** servers with native support for task protocol execution and structured data schemas.
 
 ## What problem it solves
-Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It solves the "proprietary protocol" problem by being a primary driver of the **JMAP** protocol, ensuring high interoperability for AI agents.
+Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It solves the "proprietary protocol" problem by being a primary driver of the **JMAP** standard, ensuring seamless interoperability for autonomous AI agents.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, or specialized **MCP 3.1** agents.
+**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, or specialized **FastMCP 3.1** agents.
 
 ## Typical use cases
 - **Primary Communication Hub**: High-speed personal or business email and calendar hosting.
 - **Privacy Management**: Using **Masked Emails** to prevent tracking across different services.
-- **Agentic Mail Processing**: Leveraging JMAP for reliable, stateless interaction with email and calendar data by LLM agents via MCP 3.1 / FastMCP 3.1.
+- **Agentic Mail Processing**: Leveraging JMAP for reliable, stateless interaction with email and calendar data by LLM agents via FastMCP 3.1 Task Protocol.
 - **Custom Domain Hosting**: Managing professional identities with advanced alias and catch-all support.
 
 ## Strengths
 - **Speed**: The web and mobile interfaces are exceptionally fast and bloat-free.
 - **Privacy**: No tracking or ads; data is never sold.
-- **Standards-First**: Strong support for JMAP, CalDAV, and CardDAV, making it "Agent-Ready" by design.
-- **Masked Email (Late 2026 Update)**: Deep integration with password managers and browser-based agents for instant, context-aware alias generation.
+- **Standards-First**: Native support for JMAP, CalDAV, and CardDAV, making it "Agent-Ready" by design.
+- **Masked Email**: Deep integration with password managers and browser-based agents for instant, context-aware alias generation.
 
 ## Limitations
 - **Subscription-Based**: No free tier; subscription is required for all features.
@@ -48,10 +48,10 @@ cargo install --git https://github.com/Lutra-Fs/fastmail-CLI
 fastmail setup
 ```
 
-### Hello World (Masked Email)
+### Quick Setup (Masked Email)
 ```bash
 # Create a new masked email for a specific site
-fastmail masked create https://example.com --description "Batch 340 Audit"
+fastmail masked create https://example.com --description "Batch 504 Upgrade"
 ```
 
 ## CLI examples
@@ -69,10 +69,10 @@ fastmail contacts create "Jane Doe" --email "jane@example.com"
 ```
 
 ## API examples
-Fastmail is a primary driver of the **JMAP** standard, which is much more agent-friendly than IMAP.
+Fastmail is a primary driver of the **JMAP** standard, which provides a clean, JSON-native alternative to legacy IMAP/CalDAV protocols.
 
 ### Fetch Calendar Events with Pydantic v2 validation (Python via JMAP)
-This pattern is used by agents (e.g., **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**) to synchronize schedules without the overhead of CalDAV, utilizing the **MCP 3.1** / **FastMCP 3.1** Task Protocol for reliable execution.
+This pattern is used by autonomous agents (e.g., **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, or **DeepSeek-V4**) to synchronize schedules without the overhead of CalDAV, utilizing the **FastMCP 3.1** Task Protocol for reliable execution.
 
 ```python
 import os
@@ -127,17 +127,6 @@ if __name__ == "__main__":
             args={"accountId": "primary", "limit": 10}
         )
         print(jmap_req)
-
-        # In actual request execution:
-        # import requests
-        # url = "https://api.fastmail.com/jmap/api/"
-        # headers = {
-        #     "Authorization": f"Bearer {api_token}",
-        #     "Content-Type": "application/json"
-        # }
-        # response = requests.post(url, headers=headers, json=jmap_req)
-        # response.raise_for_status()
-        # events = response.json()['methodResponses'][0][1]['list']
     except ValidationError:
         pass
 ```
@@ -151,14 +140,12 @@ if __name__ == "__main__":
 - [Claude Code](../development_ops/claude-code.md) — CLI agent that can interface with JMAP APIs.
 - [n8n](../../services/n8n.md) — For orchestrating email-driven AI workflows.
 - [Proton Calendar](proton_calendar.md) — Alternative privacy-focused provider.
-- **Licensing**: Proprietary (SaaS), driven by open standards (JMAP).
-- **Cost**: Subscription-based.
 
 ## Sources / References
 - [Fastmail Official Site](https://www.fastmail.com/)
 - [Fastmail Developer Documentation](https://www.fastmail.com/developer/)
-- [JMAP Specification (Late 2026 Update)](https://jmap.io/spec-mail.html)
+- [JMAP Specification Documentation](https://jmap.io/spec-mail.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

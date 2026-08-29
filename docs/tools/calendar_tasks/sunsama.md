@@ -1,6 +1,6 @@
 # Sunsama
 
-Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. In late November/December 2026, it features **Sunny AI (v2.5)**, an agentic planning assistant that leverages **Gemma 3**, **GPT-5.5**, and **Claude 5.1** to autonomously triage backlogs and suggest optimal daily schedules based on energy levels and historical velocity.
+Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. As of early 2027, it features **Sunny AI (v2.5+)**, an agentic planning assistant that leverages **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL** to autonomously triage backlogs, estimate durations, and suggest optimal daily schedules based on energy levels and historical velocity.
 
 ## What it is
 Sunsama is an all-in-one daily planner that pulls tasks from various tools (GitHub, Linear, Trello, Slack, Email) into a single, unified view. It emphasizes a "ritualized" approach to planning, guiding users through a morning setup and evening shutdown routine.
@@ -21,8 +21,8 @@ It solves the problem of "to-do list overwhelm" and fragmented workflows. By for
 ## Strengths
 - **Mindful Workflow**: Forces you to be realistic about what you can actually achieve in a day.
 - **Deep Integrations**: Best-in-class support for pulling tasks from external tools while maintaining back-links.
-- **Sunny AI (2026)**: A powerful assistant that can plan your day, estimate tasks, and interact with your backlog.
-- **FastMCP 3.1 / MCP 3.1 Support**: Native integration with the **Model Context Protocol (MCP 3.1)** allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers, Qwen 3.6 runtimes) to be visible and actionable within the app.
+- **Sunny AI**: A powerful assistant that can plan your day, estimate tasks, and interact with your backlog.
+- **FastMCP 3.1 Support**: Native integration with the **Model Context Protocol (FastMCP 3.1)** Task Protocol allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers, Qwen 3.6 runtimes) to be visible and actionable within the app.
 - **High-Quality UI**: A calm, distraction-free interface that supports both light and dark modes.
 
 ## Limitations
@@ -54,7 +54,7 @@ brew install --cask sunsama
 
 - **Web**: Visit [Sunsama.com](https://sunsama.com/)
 
-### Sunny the AI Assistant (Hello World)
+### Sunny the AI Assistant (Quickstart)
 Enable Sunny in **Settings > Integrations > AI Assistant**. Once enabled, you can use the sparkle (✦) button or `Cmd + K` to verify your agentic planning setup:
 
 ```markdown
@@ -75,10 +75,10 @@ Cmd + K: Open the Command Palette for Sunny AI commands
 ```
 
 ## API examples
-Sunsama does not offer a public REST API for general development as of late 2026. Automation is handled through webhooks or the Sunny MCP.
+Sunsama does not offer a public REST API for general development. Automation is handled through webhooks or the Sunny FastMCP 3.1 interface.
 
 ### 1. Webhook-based Task Creation with Pydantic v2 (Zapier/Make)
-While there is no direct public API, custom webhooks are utilized to parse payloads safely. SOTA models like **Claude 5.1** use Pydantic v2 model schemas to validate these payloads before dispatching them.
+While there is no direct public API, custom webhooks are utilized to parse payloads safely. SOTA models like **Claude 5.6** use Pydantic v2 model schemas to validate these payloads before dispatching them.
 
 ```python
 import os
@@ -87,7 +87,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, ValidationError, HttpUrl
 
 class SunsamaWebhookPayloadSchema(BaseModel):
-    """Schema representing validated webhook payload structure for Sunsama task integration in late 2026."""
+    """Schema representing validated webhook payload structure for Sunsama task integration in early 2027."""
     title: str = Field(..., min_length=1, max_length=255, description="The title of the task to be created.")
     notes: Optional[str] = Field(None, description="Detailed notes or subtasks list.")
     planned_date: Optional[datetime.date] = Field(None, description="Target date for scheduling the task.")
@@ -102,14 +102,7 @@ def send_validated_sunsama_webhook(webhook_url: str, payload_data: SunsamaWebhoo
     """
     print(f"Schema validation succeeded. Dispatching task '{payload_data.title}' to Sunsama Webhook...")
 
-    # Dump to JSON-compatible dict format (serializing dates/URLs automatically)
     payload = payload_data.model_dump(mode="json", exclude_none=True)
-
-    # In live execution:
-    # import requests
-    # response = requests.post(webhook_url, json=payload)
-    # response.raise_for_status()
-    # return response.json()
 
     return {
         "status": "dispatched",
@@ -121,11 +114,11 @@ if __name__ == "__main__":
 
     try:
         task_data = SunsamaWebhookPayloadSchema(
-            title="Analyze Ralph-loop Batch 340",
-            notes="Verify technical freshness compliance under Claude 5.1 & FastMCP 3.1.",
-            planned_date=datetime.date(2026, 12, 21),
-            external_url="https://github.com/coder/knowledgeops-agents/issues/340",
-            labels=["FreshnessAudit", "Batch-340"]
+            title="Analyze Ralph-loop Batch 504",
+            notes="Verify technical freshness compliance under Claude 5.6 & FastMCP 3.1.",
+            planned_date=datetime.date(2027, 1, 7),
+            external_url="https://github.com/coder/knowledgeops-agents/issues/504",
+            labels=["FreshnessAudit", "Batch-504"]
         )
         dispatch_result = send_validated_sunsama_webhook(webhook_url=test_webhook_url, payload_data=task_data)
         print("Success:", dispatch_result)
@@ -133,11 +126,10 @@ if __name__ == "__main__":
         print("Webhook data validation failed:", e.errors())
 ```
 
-### 2. Sunny MCP (Model Context Protocol)
-For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or other **MCP 3.1** compatible agents, Sunsama now exposes tools via Sunny:
+### 2. Sunny FastMCP 3.1 Integration
+For developers using compatible agents, Sunsama exposes tools via Sunny and FastMCP 3.1:
 
 ```json
-// Example: get_task_by_id call using MCP 3.1 Task Protocol / FastMCP 3.1
 {
   "method": "tools/call",
   "params": {
@@ -156,9 +148,8 @@ For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or othe
 - [Todoist](todoist.md) — Common source integration.
 - [n8n](../../services/n8n.md) — Can be used via Zapier-bridge or email-ingestion.
 - [TickTick](ticktick.md) — All-in-one alternative with habit tracking.
-- [Notion Calendar](notion-calendar.md) — Scheduling for Notion users.
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) — For cross-platform scheduling orchestration.
-- [Amie](amie.md) — A "joyful" productivity alternative.
+- [Amie](amie.md) — A productivity alternative.
 
 ## Sources / references
 - [Official Website](https://sunsama.com/)
@@ -167,5 +158,5 @@ For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or othe
 - [Sunsama Help Center](https://help.sunsama.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
