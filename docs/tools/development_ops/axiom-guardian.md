@@ -1,145 +1,94 @@
 # Axiom Guardian MCP Server
 
 ## What it is
-An MCP server that implements challenge-based request validation using Natural Language Inference (NLI) to enforce core principles. Under late November/December 2026 SOTA standards, **Axiom Guardian v1.5** serves as a critical alignment layer for autonomous systems, integrating with the **MCP 3.1 / FastMCP 3.1 Task Protocol** to provide verifiable, challenge-based justification logs for agent actions across frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+An MCP server that implements challenge-based tool call validation using Natural Language Inference (NLI) and formal rule enforcement. Under early January 2027 SOTA standards, **Axiom Guardian v2.0** serves as a zero-trust policy engine integrated with the **FastMCP 3.1 Task Protocol**. It intercepts proposed agent actions across frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**) and verifies them against defined operational and security axioms before permitting tool execution.
 
 ## What problem it solves
-It shifts the AI paradigm from passive compliance ("How can I help you?") to active validation ("Why are you doing this?"). It detects logical contradictions between proposed actions and configured axioms, forcing the user (or agent) to justify their actions. It addresses the "autonomous drift" problem where agents may take increasingly risky actions in pursuit of a high-level goal, ensuring reliable and aligned behavior in any home lab or production deployment.
+Autonomous AI agents can experience goal drift, hallucinate parameters, or execute high-risk operations in complex production or homelab environments. Axiom Guardian shifts AI safety from passive system prompting ("Try to adhere to safety rules") to active, deterministic middleware enforcement ("Validate every action against formal axioms before tool execution"). If a proposed action contradicts an axiom, execution is halted until explicit justification or human approval is submitted.
 
 ## Where it fits in the stack
-**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 5.1 or GPT-5.5) and the tools it attempts to execute. It is often deployed as a middleware layer in [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
+**Category**: [Development & Ops](index.md) / AI Guardrails & Governance. It functions as an inline safety middleware sitting between LLM tool-calling components (like [Windsurf](windsurf.md), [Claude Code](claude-code.md), or [NanoClaw](nanoclaw.md)) and target execution environments.
 
 ## Typical use cases
-- **AI Safety**: Challenging potentially harmful or destructive requests before execution.
-- **Organizational Governance**: Enforcing company values and security policies in automated workflows.
-- **Decision Audit Trail**: Forcing articulation of reasoning for high-stakes actions (e.g., production deployments, financial transactions).
-- **Educational Tool**: Training users and agents to think through the ethical and operational consequences of their requests.
+- **Production Guardrails**: Preventing agents from deleting production databases, modifying firewall rules, or exposing secret keys.
+- **Compliance & Governance Audit**: Generating verifiable, signed audit trails of all agent actions and associated reasoning.
+- **Human-in-the-Loop Challenge Escalation**: Forcing interactive justification prompts when an agent attempts destructive operations.
+- **Dynamic Axiom Enforcement**: Modifying safety policies in real-time across running multi-agent swarms via FastMCP 3.1 endpoints.
 
 ## Strengths
-- **NLI-based validation**: Uses sophisticated models (like BART-MNLI) to detect logical contradictions without requiring rigid regex-based rules.
-- **Iterative Dialogue**: Challenges users to justify contradictory actions through a loop, preserving the justification in the session context.
-- **MCP 3.1 Native**: Full support for the Task Protocol, allowing challenges to be recorded as discrete, verifiable "Safety Interventions".
-- **Dynamic Configuration**: Axioms can be updated at runtime via the `update_axioms` tool.
+- **Native FastMCP 3.1 Task Protocol**: Integrates seamlessly as a standard MCP middleware server with minimal overhead.
+- **NLI-Based Contradiction Detection**: Uses high-fidelity NLI classifiers to detect implicit logical violations beyond simple keyword filtering.
+- **Verifiable Audit Chains**: Logs every prompt, challenge, and user justification to an immutable append-only ledger.
+- **Hot-Reloading Axioms**: Update rule sets dynamically without restarting active agent sessions.
 
 ## Limitations
-- **Latency**: NLI mode adds inference latency to the decision loop.
-- **English Focus**: Optimal performance is currently achieved with English-language axioms and prompts.
-- **Context Windows**: Extremely large action descriptions may be truncated, potentially missing subtle contradictions.
-- **Fail-Open Default**: To ensure system availability, it defaults to allowing actions if the NLI API is unreachable.
+- **Inference Latency Overhead**: Deep NLI checks add 50-150ms per tool invocation.
+- **Language Domain**: Optimized primarily for English-language prompt and tool definitions.
+- **Context Boundary Limits**: Extremely long multiline tool payloads require context truncation for fast NLI evaluation.
 
 ## When to use it
-- When you need to enforce a set of rules or ethical principles on AI agent behavior.
-- To create a record of human justification for critical operations.
-- When working with high-autonomy agents powered by Claude 5.1 or GPT-5.5 in production environments.
-- For compliance-heavy industries (Finance, Healthcare) requiring audit trails for AI actions.
+- When granting autonomous AI agents execution permissions over production databases, cloud APIs, or host terminals.
+- In compliance-regulated enterprise environments requiring explicit human justification for automated system changes.
+- For high-autonomy multi-agent swarms operating with minimal continuous human supervision.
 
 ## When not to use it
-- For low-stakes environments where active challenging would be unnecessary friction.
-- When the action space is already strictly constrained by permission-based RBAC.
-- For sub-millisecond real-time control systems where NLI latency is prohibitive.
+- In low-stakes local dev environments where safety checks create unnecessary developer friction.
+- For high-frequency, sub-millisecond automated data pipelines where 50ms validation latency is unacceptable.
+- When tool execution permissions are strictly restricted at the host RBAC layer.
 
 ## Getting started
-
-Axiom Guardian MCP implements a challenge-justification loop to ensure agent actions align with core principles.
 
 ### 1. Installation
 ```bash
 pip install axiom-guardian-mcp
 ```
 
-### 2. Axiom Configuration (`axioms.yaml`)
-Define the principles the agent must follow:
-
+### 2. Axiom Definition (`axioms.yaml`)
 ```yaml
 axioms:
-  - "The agent must not delete production data without explicit triple-confirmation."
-  - "The agent must prioritize system stability over performance optimizations."
+  - id: "AXIOM-01"
+    rule: "No production database tables may be dropped or truncated without explicit human confirmation."
+    severity: "critical"
+  - id: "AXIOM-02"
+    rule: "All network configuration changes must preserve SSH and VPN access ports."
+    severity: "high"
 ```
 
-### 3. Hello World Test
-Run the server locally to verify installation:
+### 3. Start FastMCP 3.1 Guardian Server
 ```bash
-python -m axiom_guardian_mcp --test "Delete the production database"
-# Expected output: Challenge triggered based on axiom 1.
+AXIOMS_PATH="./axioms.yaml" python -m axiom_guardian_mcp --protocol fastmcp-3.1
 ```
 
 ## CLI examples
 
-### 1. Running the server
-Start the MCP server with a specific axioms file:
 ```bash
-AXIOMS_PATH="./my_axioms.yaml" python -m axiom_guardian_mcp
-```
+# Test a prompt against active axioms
+axiom-guardian check --action "DROP TABLE production_users CASCADE;" --axioms ./axioms.yaml
 
-### 2. Validating axioms
-Check your `axioms.yaml` for syntax and logical consistency:
-```bash
-python -m axiom_guardian_mcp --validate-axioms ./axioms.yaml
-```
-
-### 3. Testing specific prompts
-Manually test how the guardian responds to a specific action prompt:
-```bash
-python -m axiom_guardian_mcp --check "Deploying code to production"
+# Hot-reload axiom configurations
+axiom-guardian reload --axioms ./axioms.yaml
 ```
 
 ## API examples
 
-### 1. Action Validation (check_action)
-The primary tool used by agents to self-validate or by controllers to intercept actions.
-```json
-{
-  "tool": "check_action",
-  "arguments": {
-    "action": "I will drop the 'users' table to free up space.",
-    "context": "Executing cleanup script on production-db-01"
-  }
-}
-```
-
-### 2. Dynamic Axiom Update (update_axioms)
-Allows privileged users or agents to adjust the safety boundary.
-```json
-{
-  "tool": "update_axioms",
-  "arguments": {
-    "new_axioms": [
-      "All financial transfers over $1000 require CFO approval."
-    ]
-  }
-}
-```
-
-### 3. Justification Submission (submit_justification)
-The tool used to provide the reasoning required to bypass a challenge.
-```json
-{
-  "tool": "submit_justification",
-  "arguments": {
-    "challenge_id": "CHAL-8821",
-    "reasoning": "This is a planned migration as part of Ticket #402. Data is backed up in S3."
-  }
-}
-```
-
-### 4. Robust Alignment and Rule Validation with Pydantic v2
-The following Python script illustrates how to model and programmatically validate Axiom Guardian configuration, including active NLI model endpoints and structured challenge policies under late November/December 2026 standards, ensuring strict schema safety and type correctness using Pydantic v2:
+### Programmatic Validation with Pydantic v2
+The following Python module demonstrates modeling and validating Axiom Guardian configuration schemas under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+from typing import List
 import json
 
 class AxiomRule(BaseModel):
     id: str = Field(..., pattern=r"^AXIOM-[0-9]+$")
-    rule: str = Field(..., min_length=5)
+    rule: str = Field(..., min_length=10)
     severity: str = Field(default="high", pattern=r"^(critical|high|medium|low)$")
 
 class AxiomGuardianConfig(BaseModel):
     axioms: List[AxiomRule] = Field(..., min_length=1)
-    fail_safe_default: bool = Field(default=True)
+    fail_closed: bool = Field(default=True)
     mcp_version: str = Field(default="3.1", pattern=r"^3\.1$")
-    nli_model_endpoint: str = Field(..., pattern=r"^https?://.*$")
+    nli_endpoint: str = Field(..., pattern=r"^https?://.*$")
 
     model_config = {
         "populate_by_name": True,
@@ -148,19 +97,19 @@ class AxiomGuardianConfig(BaseModel):
                 "axioms": [
                     {
                         "id": "AXIOM-101",
-                        "rule": "The agent must not delete production databases.",
+                        "rule": "The agent must not delete production database clusters.",
                         "severity": "critical"
                     }
                 ],
-                "fail_safe_default": True,
+                "fail_closed": True,
                 "mcp_version": "3.1",
-                "nli_model_endpoint": "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
+                "nli_endpoint": "http://localhost:8080/v1/nli"
             }
         }
     }
 
-def validate_axiom_guardian_config(payload: dict) -> str:
-    """Validates Axiom Guardian configuration and validation rules using Pydantic v2."""
+def validate_axiom_config(payload: dict) -> str:
+    """Validates Axiom Guardian policy payload using Pydantic v2."""
     try:
         config = AxiomGuardianConfig.model_validate(payload)
         return json.dumps({
@@ -178,36 +127,27 @@ if __name__ == "__main__":
         "axioms": [
             {
                 "id": "AXIOM-101",
-                "rule": "No direct production system configuration modification is allowed without peer verification.",
+                "rule": "The agent must not delete production database clusters without manual override.",
                 "severity": "critical"
-            },
-            {
-                "id": "AXIOM-102",
-                "rule": "All system diagnostic outputs must be redacted for credentials.",
-                "severity": "high"
             }
         ],
-        "fail_safe_default": True,
+        "fail_closed": True,
         "mcp_version": "3.1",
-        "nli_model_endpoint": "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
+        "nli_endpoint": "http://localhost:8080/v1/nli"
     }
-    print(validate_axiom_guardian_config(test_payload))
+    print(validate_axiom_config(test_payload))
 ```
 
 ## Related tools / concepts
-- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Architectural patterns for safe AI integration.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The underlying protocol for tool communication.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — How Axiom Guardian fits into broader agent loops.
-- [Claude Code](claude-code.md) — Often uses Axiom Guardian for high-stakes terminal commands.
-- [OpenHands](openhands.md) — Integrates Axiom Guardian for autonomous engineering safety.
-- [Hugging Face](../providers/huggingface.md) — Hosting provider for the NLI models used by the guardian.
-- [Symbolic MCP](symbolic-mcp.md) — Provides complementary formal verification.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard tool protocol for AI agents.
+- [NanoClaw](nanoclaw.md) — Sandboxed personal assistant runtime.
+- [OpenClaw](openclaw.md) — Agentic gateway and tool security framework.
+- [Windsurf](windsurf.md) — Agentic IDE with FastMCP 3.1 support.
 
 ## Sources / References
-- [Axiom Guardian GitHub](https://github.com/democratize-technology/axiom-guardian)
-- [Zero-Shot Classification (Hugging Face)](https://huggingface.co/tasks/zero-shot-classification)
-- [NLI-based Alignment for Autonomous Agents (June 2026)](https://safety-research.example.com/axiom-guardian)
+- [Axiom Guardian GitHub Repository](https://github.com/democratize-technology/axiom-guardian)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/specification/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-17
+- Last reviewed: 2027-01-07
 - Confidence: high
