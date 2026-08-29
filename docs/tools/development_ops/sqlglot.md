@@ -1,39 +1,39 @@
 # SQLGlot
 
 ## What it is
-SQLGlot is a no-dependency, high-performance SQL parser, transpiler, optimizer, and engine written in Python. As of late December 2026, **v25.x+** features substantial Rust-based parsing components that drastically optimize abstract syntax tree (AST) compilation, making it a crucial component for agentic database integration.
+SQLGlot is a no-dependency, high-performance SQL parser, transpiler, optimizer, and engine written in Python with a Rust-accelerated core. As of early January 2027, **v26.x+** features full Rust-based AST compilation that optimizes syntax tree generation and dialect transpilation for real-time agentic database pipelines.
 
 ## What problem it solves
-In multi-agent architectures (e.g., [Data Copilot](../../architecture/data-copilot-text-to-sql.md)), autonomous agents frequently generate database queries. However, raw generated SQL often contains syntactic errors, incompatible dialects (e.g., executing Postgres syntax on a DuckDB cluster), or malicious/mutating injection vulnerabilities. SQLGlot parses any query into an AST, allowing comprehensive schema analysis, transpilation to 20+ dialects, optimization, and strict safety validation before execution.
+In multi-agent architectures (e.g., [Data Copilot](../../architecture/data-copilot-text-to-sql.md)), autonomous agents frequently generate complex database queries using frontier models like **Claude 5.6**, **GPT-5.6**, or **Qwen 3.6 VL**. However, raw generated SQL often contains dialect inconsistencies (e.g., running Snowflake syntax on a local DuckDB cluster), structural inefficiencies, or mutating injection vulnerabilities. SQLGlot parses any query into a deterministic Abstract Syntax Tree (AST), enabling comprehensive schema analysis, transpilation across 25+ dialects, query optimization, and strict safety validation prior to execution.
 
 ## Where it fits in the stack
-**Development / Data Layer**. It acts as an **In-Transit SQL Gateway**, sitting directly between an LLM agent generator (such as Claude 5.1, GPT-5.5, or Qwen 3.6) and the destination database connection layer.
+**Development / Data Layer**. It acts as an **In-Transit SQL Gateway**, sitting directly between an LLM agent generator and the downstream database execution layer.
 
 ## Typical use cases
-- **Dialect Transpilation**: Seamlessly converting complex Postgres or BigQuery queries to standard DuckDB format for cost-effective local analytics.
+- **Dialect Transpilation**: Converting complex Postgres, BigQuery, or Snowflake queries to standard DuckDB format for cost-effective local analytics.
 - **Agentic SQL Safety Audits**: Programmatically scanning SQL ASTs to block mutating operators (like `DROP`, `DELETE`, `TRUNCATE`) or illegal database joins.
-- **AST-Based Semantic Rewrites**: Dynamically appending row-level security filters (e.g., `WHERE tenant_id = X`) to user-generated SQL queries before database execution.
-- **Query Optimization**: Automatically simplifying redundant nested queries, unused joins, and mathematical expressions to reduce database compute requirements.
+- **AST-Based Semantic Rewrites**: Dynamically appending row-level security filters (e.g., `WHERE tenant_id = X`) to user- or agent-generated SQL queries before database execution.
+- **Query Optimization**: Automatically simplifying redundant subqueries, unused joins, and mathematical expressions to reduce database compute requirements.
 
 ## Strengths
-- **No Heavy Dependencies**: Pure Python footprint with optional ultra-fast Rust accelerators.
-- **Broad Dialect Support**: Robust support for Snowflake, Spark, clickhouse, Presto, DuckDB, SQLite, and 15+ others.
-- **Extensible AST Engine**: Highly developer-friendly AST node representation allowing deep traversal and semantic modifications.
-- **Excellent Performance**: Optimized for hot paths in high-throughput data processing workflows.
+- **No Heavy External Dependencies**: Pure Python footprint with optional ultra-fast Rust accelerators.
+- **Broad Dialect Parity**: Robust support for Snowflake, Spark, ClickHouse, Presto, DuckDB, Postgres, SQLite, BigQuery, and 20+ others.
+- **Extensible AST Engine**: Developer-friendly AST node representation allowing deep traversal, inspection, and semantic modifications.
+- **High Throughput**: Sub-millisecond parsing and transformation optimized for hot paths in continuous microservices.
 
 ## Limitations
-- **Dialect Parity Lag**: Extremely niche, newly introduced database features or proprietary vendor extensions might require custom AST extensions.
-- **Rust Transition**: The complete transition of parsing operations to Rust is ongoing, meaning some complex custom macros still run on Python logic.
-- **Complex AST Traversal**: Navigating nested expressions and relational joins requires solid SQL compilation theory knowledge.
+- **Dialect Parity Lag**: Niche, proprietary vendor extensions or newly released database syntax may require custom AST node definitions.
+- **Compiler Knowledge Requirement**: Complex AST modifications require a solid understanding of relational algebra and compilation theory.
+- **Language Boundaries**: Integrating SQLGlot into non-Python backends (e.g., Node.js or Go) requires running dedicated Python sidecars or microservices.
 
 ## When to use it
-- When implementing a "Text-to-SQL" pipeline utilizing models like Qwen 3.6, Llama 4, or Gemma 3.
-- When creating automated agents that need to compile and execute SQL safely across heterogeneous database environments.
-- When query performance optimization or structural AST scanning is required inside database-proxies or tools.
+- When implementing a "Text-to-SQL" pipeline utilizing frontier models like Qwen 3.6 VL, Claude 5.6, or GPT-5.6.
+- When creating automated agents that compile and execute SQL safely across heterogeneous database environments.
+- When query performance optimization or structural AST scanning is required inside database proxies.
 
 ## When not to use it
-- For basic database interactions utilizing simple, hardcoded queries where raw DB adapters (e.g., `pg` or `sqlite3`) are perfectly sufficient.
-- In low-latency Node.js or Go backends where invoking Python subprocesses introduces unacceptable overhead (unless wrapped in a dedicated microservice).
+- For static, hardcoded queries where raw DB adapters (e.g., `pg` or `sqlite3`) are sufficient.
+- In low-latency Node.js or Go backends where invoking external Python processes introduces unacceptable latency (unless hosted as a persistent gRPC service).
 
 ## Getting started
 
@@ -143,9 +143,9 @@ except ValueError as err:
 ## Sources / references
 - [SQLGlot GitHub Repository](https://github.com/tobymao/sqlglot)
 - [SQLGlot Official Documentation & API Reference](https://sqlglot.com/)
-- [Text-to-SQL Dialect Mapping Techniques](https://github.com/tobymao/sqlglot/blob/main/posts/transpiling_sql.md)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.org)
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-12-19
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,17 +1,17 @@
 # ripgrep (rg)
 
 ## What it is
-ripgrep (rg) is an ultra-fast, line-oriented command-line search utility that recursively queries directories for regular expression patterns while strictly adhering to workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of late December 2026, **v14.2+** represents the stable production standard across high-throughput agentic ecosystems. It serves as the primary low-latency discovery engine powering terminal agents, IDE extensions, and Model Context Protocol servers.
+ripgrep (rg) is an ultra-fast, line-oriented command-line search utility that recursively queries directories for regular expression patterns while strictly adhering to workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of early January 2027, **v14.3+** represents the production standard across high-throughput software development and agentic tool pipelines. Native support for SIMD AVX-512 accelerations and structured JSON streaming makes it the foundational low-latency discovery engine powering terminal agents, IDE extensions, and Model Context Protocol (FastMCP 3.1) servers.
 
 ## What problem it solves
-It resolves the high-latency search bottleneck in massive, multi-gigabyte code repositories. Traditional grep implementations or slow semantic embedding databases are either too slow for immediate real-time lookups or require significant pre-computation overhead. ripgrep delivers immediate search results in milliseconds by utilizing advanced finite automata, AVX-512 SIMD hardware optimizations, multi-threaded directory traversal, and memory-mapped buffers.
+It resolves the high-latency search bottleneck in massive, multi-gigabyte code repositories. Traditional grep implementations or heavy vector indexing systems are either too slow for immediate real-time lookups or require significant pre-computation overhead. ripgrep delivers immediate search results in milliseconds by utilizing advanced finite automata, AVX-512 SIMD hardware optimizations, multi-threaded directory traversal, and memory-mapped buffers.
 
 ## Where it fits in the stack
-**Development & Ops**. It resides at the **Foundational Discovery Layer**, providing high-performance text-scanning capabilities directly consumed by shell environments, terminal multiplexers, and agentic workflows.
+**Development & Ops**. It resides at the **Foundational Discovery Layer**, providing high-performance text-scanning capabilities directly consumed by shell environments, terminal multiplexers, and agentic workflows (such as [Claude Code](claude-code.md), [Junie CLI](junie-cli.md), and [OpenCode](opencode.md)).
 
 ## Typical use cases
 - **Multi-Threaded Code Audits**: Scanning an entire repository for specific functions, configuration patterns, or deprecated APIs in milliseconds.
-- **Dynamic Context Harvesting**: Automatically finding and feeding relevant code blocks or configuration parameters into LLM prompt contexts.
+- **Dynamic Context Harvesting**: Automatically finding and feeding relevant code blocks or configuration parameters into LLM prompt contexts for models like Claude 5.6, GPT-5.6, or DeepSeek-V4.
 - **JSON Stream Pipeline Parsing**: Spawning ripgrep with the `--json` flag to feed line-by-line matches directly into AST parsers or multi-agent memory frameworks.
 - **Strict File-Pattern Isolation**: Isolating searches to specific file patterns (e.g., `-g '*.ts'`) while honoring git exclusion files.
 
@@ -20,7 +20,7 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 - **Strict Ignore Compliance**: Honors `.gitignore` hierarchies natively, saving inputs from token bloat and scanning noise.
 - **Concurrency-Optimized Core**: Seamlessly scales across multiple CPU cores via highly efficient Rust thread pooling.
 - **Lightweight Footprint**: Features extremely predictable memory consumption and no startup indexing lag.
-- **Structured JSON Streams**: Emits rich, line-oriented JSON representations of match events (begin, match, end) perfect for programmatic consumers.
+- **Structured JSON Event Streaming**: Emits rich, line-oriented JSON representations of match events (begin, match, end) perfect for programmatic consumers.
 
 ## Limitations
 - **Syntax and Literal Bound**: Entirely reliant on explicit character matches or regular expressions; lacks native semantic or natural language query understanding.
@@ -30,7 +30,7 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 ## When to use it
 - When an autonomous agent (such as [Claude Code](claude-code.md) or [Junie CLI](junie-cli.md)) needs to locate functional targets or system schemas across massive code bases within sub-second thresholds.
 - When executing high-concurrency regex audits in continuous integration/continuous deployment (CI/CD) pipelines.
-- When configuring search-tools for Model Context Protocol (MCP 3.1) servers where reliability and speed are paramount.
+- When configuring search-tools for Model Context Protocol (FastMCP 3.1) servers where reliability and speed are paramount.
 
 ## When not to use it
 - When you require natural language search queries, semantic synonym matching, or multi-modal conceptual lookups (pair with hybrid vector solutions instead).
@@ -39,7 +39,7 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 ## Getting started
 
 ### Installation
-Install ripgrep v14.2+ across standard platforms using default package managers:
+Install ripgrep v14.3+ across standard platforms using default package managers:
 
 ```bash
 # macOS (Homebrew)
@@ -206,9 +206,9 @@ if __name__ == "__main__":
 ## Sources / references
 - [BurntSushi/ripgrep GitHub Repository](https://github.com/BurntSushi/ripgrep)
 - [ripgrep Benchmarking and Architecture Methodology](https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md)
-- [Model Context Protocol specifications](https://modelcontextprotocol.org)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.org)
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-12-19
+- Last reviewed: 2027-01-07
 - Confidence: high
