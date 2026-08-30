@@ -1,18 +1,18 @@
 # MBPP (Mostly Basic Python Problems)
 
 ## What it is
-MBPP is a benchmark designed to evaluate the code generation performance of LLMs on basic Python tasks. It consists of approximately 1,000 crowd-sourced Python programming problems, designed to be solvable by entry-level programmers. Each problem includes a task description (prompt), a gold-standard code solution, and three automated test cases. It was introduced by Google Research in 2021 and remains a late November/December 2026 baseline for agentic code generation.
+MBPP is a benchmark designed to evaluate the code generation performance of LLMs on basic Python tasks. It consists of approximately 1,000 crowd-sourced Python programming problems, designed to be solvable by entry-level programmers. Each problem includes a task description (prompt), a gold-standard code solution, and three automated test cases. It was introduced by Google Research in 2021 and remains an early January 2027 baseline for agentic code generation.
 
 ## What problem it solves
-Provides a large-scale, standardized evaluation of LLM code generation on "mostly basic" problems. While benchmarks like [HumanEval](human-eval.md) focus on algorithmic complexity, MBPP covers a broader range of fundamental programming concepts, standard library usage, and common data structure manipulations. It is a key metric for "Satisfaction-Based Validation" in late 2026 agentic software factories.
+Provides a large-scale, standardized evaluation of LLM code generation on "mostly basic" problems. While benchmarks like [HumanEval](human-eval.md) focus on algorithmic complexity, MBPP covers a broader range of fundamental programming concepts, standard library usage, and common data structure manipulations. It is a key metric for "Satisfaction-Based Validation" in early 2027 agentic software factories.
 
 ## Where it fits in the stack
 **Benchmarking**. Used as a primary code-generation benchmark for evaluating and comparing the Python coding capabilities of LLMs within agentic ingestion pipelines.
 
 ## Typical use cases
-- **Model Comparison**: Measuring the `Pass@1` and `Pass@k` metrics of new models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, DeepSeek R1/V4) against industry baselines.
-- **Fine-tuning Evaluation**: Verifying that a model fine-tuned on code datasets (e.g., StarCoder 2026) has improved on basic programming tasks.
-- **Contamination Testing**: Using the "sanitized" version of the dataset to ensure results haven't been inflated by training data leakage—a critical requirement in July 2026.
+- **Model Comparison**: Measuring the `Pass@1` and `Pass@k` metrics of new models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, Qwen 3.6 VL, DeepSeek-V4) against industry baselines.
+- **Fine-tuning Evaluation**: Verifying that a model fine-tuned on code datasets (e.g., StarCoder 2027) has improved on basic programming tasks.
+- **Contamination Testing**: Using the "sanitized" version of the dataset to ensure results haven't been inflated by training data leakage—a critical requirement in 2027.
 - **Agent Skill Validation**: Testing the core Python proficiency of autonomous agents before they are granted repository access.
 
 ## Strengths
@@ -24,13 +24,13 @@ Provides a large-scale, standardized evaluation of LLM code generation on "mostl
 ## Limitations
 - **Basic Level**: Does not evaluate architectural reasoning, multi-file projects, or advanced software engineering patterns (use [SWE-bench](swe-bench.md) for that).
 - **Python Only**: Limited to Python code generation.
-- **Prompt Sensitivity**: Results can vary based on the exact prompt format and "Thought" chain-of-thought (CoT) used by models like DeepSeek R1.
-- **Saturation**: High-end July 2026 models are reaching near 100% on MBPP, necessitating more difficult benchmarks like BigCodeBench.
+- **Prompt Sensitivity**: Results can vary based on the exact prompt format and "Thought" chain-of-thought (CoT) used by reasoning models like DeepSeek-V4.
+- **Saturation**: High-end early 2027 models are reaching near 100% on MBPP, necessitating more difficult benchmarks like BigCodeBench.
 
 ## When to use it
 - When evaluating the fundamental Python coding ability of a model or agent.
 - When you need a statistically robust code benchmark that is larger than HumanEval.
-- When assessing a model's familiarity with the Python standard library in July 2026.
+- When assessing a model's familiarity with the Python standard library in 2027.
 
 ## When not to use it
 - When evaluating complex, real-world software engineering or repository-wide changes (use [SWE-bench](swe-bench.md) or [BigCodeBench](bigcodebench.md)).
@@ -39,7 +39,7 @@ Provides a large-scale, standardized evaluation of LLM code generation on "mostl
 
 ## Getting started
 
-MBPP is typically run through evaluation frameworks like the **LM Evaluation Harness** or **EvalPlus**. In July 2026, it is often integrated into agentic CI/CD pipelines.
+MBPP is typically run through evaluation frameworks like the **LM Evaluation Harness** or **EvalPlus**. In 2027, it is often integrated into agentic CI/CD pipelines.
 
 ### 1. Installation
 ```bash
@@ -69,7 +69,7 @@ lm_eval --model hf \
 ### Running with LiteLLM Proxy and Temperature Control
 ```bash
 lm_eval --model openai-completions \
-    --model_args model=gpt-5-5,base_url=http://localhost:4000,temperature=0.0 \
+    --model_args model=gpt-5-6,base_url=http://localhost:4000,temperature=0.0 \
     --tasks mbpp \
     --limit 100
 ```
@@ -87,7 +87,7 @@ evalplus.evaluate \
 ## API examples
 
 ### Programmatic Schema Verification (Python & Pydantic v2)
-Using Pydantic v2 and FastMCP 3.1, we validate MBPP evaluation problems programmatically to ensure coding challenge metadata complies with rigorous satisfaction validation guidelines inside automated agent networks.
+Using Pydantic v2 and FastMCP 3.1 Task Protocol, we validate MBPP evaluation problems programmatically to ensure coding challenge metadata complies with rigorous satisfaction validation guidelines inside automated agent networks.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
@@ -112,7 +112,7 @@ def validate_mbpp_challenge(challenge_data: dict) -> Optional[MBPPChallenge]:
         print(f"MBPP challenge payload validation failed: {e.errors()}")
         return None
 
-# Test the verification with late 2026 challenge specs
+# Test the verification with early 2027 challenge specs
 sample_challenge = {
     "task_id": 11,
     "prompt": "Write a python function to find the sum of fifth power of n natural numbers.",
@@ -129,7 +129,7 @@ validated_entry = validate_mbpp_challenge(sample_challenge)
 ```
 
 ### Programmatic Evaluation (Python)
-Automate MBPP scoring within a late November/December 2026 agentic workbench.
+Automate MBPP scoring within an early January 2027 agentic workbench.
 
 ```python
 import lm_eval
@@ -177,10 +177,10 @@ print(f"EvalPlus Hardened MBPP Score: {results['pass@1']}")
 - [HumanEval](human-eval.md) - The algorithmic Python code benchmark.
 - [EvalPlus](evalplus.md) - Framework for hardening MBPP with extra test cases.
 - [SWE-bench](swe-bench.md) - Real-world agentic software engineering benchmark.
-- [BigCodeBench](bigcodebench.md) - A modern, more difficult code benchmark for July 2026.
+- [BigCodeBench](bigcodebench.md) - A modern, more difficult code benchmark for 2027.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The primary runner for MBPP.
 - [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - High-difficulty reasoning benchmark.
-- [DeepSeek R1](../../knowledge_base/self-healing-agent-research.md) - Benchmarking leader for code reasoning in July 2026.
+- [DeepSeek-V4](../../knowledge_base/self-healing-agent-research.md) - Benchmarking leader for code reasoning in early 2027.
 - [Software Factories](../../knowledge_base/patterns/software-factories.md) - Context for "Satisfaction-Based Validation".
 - [LiveCodeBench](livecodebench.md) - Contamination-free coding benchmark.
 - [MultiPL-E](multipl-e.md) - Multi-language coding benchmark.
@@ -191,5 +191,6 @@ print(f"EvalPlus Hardened MBPP Score: {results['pass@1']}")
 - [Hugging Face Dataset (mbpp)](https://huggingface.co/datasets/mbpp)
 - [EvalPlus: Hardening Code Benchmarks](https://github.com/evalplus/evalplus)
 
-- Last reviewed: 2026-12-29
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high

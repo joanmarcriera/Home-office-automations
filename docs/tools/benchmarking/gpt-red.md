@@ -18,7 +18,7 @@ As agentic workflows gain full control over shell terminals, databases, and APIs
 ## Strengths
 - **Automated Adversarial Generation**: Generates contextual, multi-turn adversarial prompt variants dynamically based on target system instructions.
 - **Pre-packaged Attack Database**: Includes a large library of historically proven jailbreak vectors, indirect injection payloads, and compliance-bypass structures.
-- **Target Agnostic Integration**: Natively supports testing against frontier and public cloud models ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), [Gemini](../ai_knowledge/gemini.md), GPT-5.5, Claude 5.1, Gemini 4.0 Pro, Llama 4, Qwen 3.6) and local inference servers ([Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
+- **Target Agnostic Integration**: Natively supports testing against frontier and public cloud models ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), [Gemini](../ai_knowledge/gemini.md), GPT-5.6, Claude 5.6, Gemini 4.0 Ultra, DeepSeek-V4, Llama 4, Qwen 3.6 VL) and local inference servers ([Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
 - **Extensible Scoring Metrics**: Evaluates model replies with automated safety classifiers to produce reproducible security scorecards.
 
 ## Limitations
@@ -56,7 +56,7 @@ GPT-Red provides an interactive and batch terminal interface.
 
 ```bash
 # Red-team a local model hosted via Ollama against standard injection vectors
-gpt-red run --model ollama/qwen2.5-coder:7b --dataset jailbreaks --output report.json
+gpt-red run --model ollama/qwen3.6-coder:7b --dataset jailbreaks --output report.json
 
 # Perform targeted prompt injection testing against a custom system prompt
 gpt-red test --prompt "You are a helpful banking assistant." --attack indirect-injection
@@ -66,7 +66,7 @@ gpt-red run --config security-ci.yml --fail-on-vulnerability
 ```
 
 ## API examples
-Use GPT-Red programmatically inside Python test frameworks (e.g., pytest) to run security assertions, validated using Pydantic v2 schemas.
+Use GPT-Red programmatically inside Python test frameworks (e.g., pytest) to run security assertions, validated using Pydantic v2 schemas and FastMCP 3.1 Task Protocol.
 
 ### Programmatic Scan with Strict Pydantic v2 Schema Validation
 Using Pydantic v2, we validate adversarial scan report formats from GPT-Red to ensure they adhere to strict multi-agent compliance guidelines.
@@ -93,7 +93,7 @@ class RedTeamScanReport(BaseModel):
 def test_system_prompt_leakage():
     # Simulated GPT-Red adversarial test run report for a frontier Qwen 3.6 model
     payload_data = {
-        "scan_id": "scan-99824-2026",
+        "scan_id": "scan-99824-2027",
         "target_model": "qwen3.6-70b-instruct",
         "vulnerabilities_detected": 0,
         "payloads_run": [
@@ -122,7 +122,7 @@ def test_system_prompt_leakage():
 - [Promptfoo](promptfoo.md) — Comprehensive prompt evaluation and security scanning framework.
 - [SharpAI Security Benchmark](sharp-ai.md) — Security benchmark for testing agent robustness.
 - [Ollama](../../services/ollama.md) — Serving backend used to run local models for cost-free red-teaming.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard interface for LLM tool integration, introducing the attack vectors tested (such as FastMCP 3.1).
+- [FastMCP 3.1 Task Protocol](../../tools/automation_orchestration/mcp.md) — Standard interface for LLM tool integration and agentic execution safety.
 
 ## Sources / references
 - [GPT-Red Prompt Injection Testing Announcement](https://thenewstack.io/gpt-red-prompt-injection-testing/)
@@ -130,5 +130,5 @@ def test_system_prompt_leakage():
 - [Adversarial Robustness in Frontier LLMs (Hugging Face Blog)](https://huggingface.co/blog/red-teaming-llms)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-29
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -3,7 +3,7 @@
 Argo Workflows is an open-source, container-native workflow engine designed specifically for orchestrating parallel jobs, complex data pipelines, and machine learning workloads on Kubernetes. Implemented as a Custom Resource Definition (CRD), it allows for native, seamless integration with Kubernetes security, scaling, and observability paradigms.
 
 ## What it is
-Argo Workflows is a container-native workflow engine that runs natively on Kubernetes clusters. As of late November/December 2026, **v4.2.1** is the latest major stable release, featuring fully pluggable **GRPC-based Artifact Drivers**, server-side Common Expression Language (CEL) validations, dynamic parallelism adjustments via ConfigMaps without requiring controller restarts, and native client integrations with the **FastMCP 3.1** protocol.
+Argo Workflows is a container-native workflow engine that runs natively on Kubernetes clusters. As of early January 2027, **v4.2.1** is the latest major stable release, featuring fully pluggable **GRPC-based Artifact Drivers**, server-side Common Expression Language (CEL) validations, dynamic parallelism adjustments via ConfigMaps without requiring controller restarts, and native client integrations with the **FastMCP 3.1 Task Protocol**.
 - **Licensing**: Apache License 2.0 (Open Source)
 - **Cost**: Free
 - **Self-hostable**: Yes (CNCF Graduated Project)
@@ -12,10 +12,10 @@ Argo Workflows is a container-native workflow engine that runs natively on Kuber
 Managing complex, multi-step parallel computations on a distributed system typically leads to "dependency hell" and scaling bottlenecks. Argo Workflows solves this by executing each step of a pipeline within its own isolated container environment. It provides developers and platform engineers with a unified, version-controlled way (via YAML or Python) to define dependencies, handle automated retries, map inputs/outputs across tasks, and orchestrate massive scale without manual resource scheduling.
 
 ## Where it fits in the stack
-**Orchestration / Kubernetes-Native Workflow Engine**. Argo serves as the backbone for high-performance computing, continuous integration, and data processing on top of local Kubernetes distributions like [K3s](../infrastructure/k3s.md) or enterprise cloud clusters (EKS, GKE). In late November/December 2026, Argo is the primary engine of choice for executing high-throughput, parallel agentic reasoning loops—scaling multiple [Gemma 3](../ai_knowledge/gemini-macos.md) or [Claude 5.1](../ai_knowledge/claude-macos.md) instances inside dedicated pods that coordinate and exchange structured context using [FastMCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Kubernetes-Native Workflow Engine**. Argo serves as the backbone for high-performance computing, continuous integration, and data processing on top of local Kubernetes distributions like [K3s](../infrastructure/k3s.md) or enterprise cloud clusters (EKS, GKE). In early January 2027, Argo is the primary engine of choice for executing high-throughput, parallel agentic reasoning loops—scaling multiple [Gemma 4](../ai_knowledge/gemini-macos.md), [Claude 5.6](../ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/openai.md), or [DeepSeek-V4](../ai_knowledge/deepseek.md) instances inside dedicated pods that coordinate and exchange structured context using [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Typical use cases
-- **Parallel Agentic Evaluation Loops**: Running hundred-way concurrent simulations of AI agents (utilizing [Claude 5.1](../ai_knowledge/claude-macos.md) and [Gemma 3](../ai_knowledge/gemini-macos.md)) to parse, verify, and summarize massive datasets.
+- **Parallel Agentic Evaluation Loops**: Running hundred-way concurrent simulations of AI agents (utilizing [Claude 5.6](../ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemma 4](../ai_knowledge/gemini-macos.md)) to parse, verify, and summarize massive datasets.
 - **Machine Learning (MLOps) Pipelines**: Coordinating data preprocessing, distributed GPU-accelerated model training, and model registration.
 - **Continuous Integration / Continuous Deployment (CI/CD)**: Running secure, multi-stage software builds and automated system tests in isolated, ephemeral environments.
 - **High-Throughput Data ETL**: Running large-scale batch ingestion, transformations, and indexing across distributed Kubernetes nodes.
@@ -134,7 +134,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 class ArgoWorkflowConfig(BaseModel):
     workflow_id: str = Field(..., pattern="^[a-z0-9-]+$")
     target_cluster: str = Field(..., pattern="^(k3s-dev|k3s-prod)$")
-    model_preferences: List[str] = Field(default_factory=lambda: ["claude-5.1", "gemma-3"])
+    model_preferences: List[str] = Field(default_factory=lambda: ["claude-5.6", "gpt-5.6", "gemma-4", "deepseek-v4"])
     max_concurrency: int = Field(default=10, ge=1, le=100)
     parameters: Optional[Dict[str, Any]] = None
 
@@ -146,9 +146,9 @@ class ArgoWorkflowConfig(BaseModel):
 
 # 2. Example representation of raw input configuration parameters
 raw_input = {
-    "workflow_id": "parallel-agent-eval-batch-348",
+    "workflow_id": "parallel-agent-eval-batch-512",
     "target_cluster": "k3s-prod",
-    "model_preferences": ["claude-5.1", "gpt-5.5", "gemma-3"],
+    "model_preferences": ["claude-5.6", "gpt-5.6", "gemma-4", "qwen-3.6-vl"],
     "max_concurrency": 25,
     "parameters": {"retries": 5, "timeout_seconds": 1200}
 }
@@ -166,9 +166,9 @@ except ValidationError as e:
 ## Related tools / concepts
 - [K3s](../infrastructure/k3s.md) — Lightweight, single-binary Kubernetes distribution perfect for running Argo Workflows.
 - [Hera Python SDK](https://github.com/argoproj-labs/hera) — The premier Python SDK for declarative Argo Workflow construction.
-- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized protocol for connecting agent execution environments to data contexts and tools.
-- [Claude 5.1](../ai_knowledge/claude.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
-- [Gemma 3](../ai_knowledge/gemini-macos.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.
+- [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) — Standardized protocol for connecting agent execution environments to data contexts and tools.
+- [Claude 5.6](../ai_knowledge/claude.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
+- [Gemma 4](../ai_knowledge/gemini-macos.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.
 - [Apache Airflow](apache-airflow.md) — Enterprise workflow manager, often used to schedule high-level jobs that trigger Argo Workflows.
 - [Flyte](flyte.md) — Container-native workflow platform specifically engineered for machine learning and data engineering pipelines.
 - [Kestra](kestra.md) — Event-driven declarative orchestrator built on YAML.
@@ -187,5 +187,5 @@ except ValidationError as e:
 - [Argo Workflows endoflife.date](https://endoflife.date/argo-workflows)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-28
+- Last reviewed: 2027-01-07
 - Confidence: high
