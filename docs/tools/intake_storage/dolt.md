@@ -1,7 +1,7 @@
 # Dolt
 
 ## What it is
-Dolt is a fully SQL-compliant relational database that features Git-style version control capabilities (such as commit, branch, merge, pull, and push). Designed to be a drop-in replacement for MySQL, Dolt allows developers to version data alongside or instead of code. As of late 2026, Dolt has emerged as a crucial component in AI workflows for maintaining reproducible dataset versions, tracking model inputs/outputs, and managing training records over time.
+Dolt is a fully SQL-compliant relational database that features Git-style version control capabilities (such as commit, branch, merge, pull, and push). Designed to be a drop-in replacement for MySQL, Dolt allows developers to version data alongside or instead of code. As of early 2027, Dolt has emerged as a crucial component in AI workflows for maintaining reproducible dataset versions, tracking model inputs/outputs, and managing training records over time.
 
 ## What problem it solves
 Managing dataset lineage and schema drift in machine learning pipelines or multi-agent environments is notoriously difficult. Standard databases do not track revisions, making it hard to query "what did this database look like on Tuesday?" or run complex schema rollbacks. Dolt solves this by enabling branching and merging of the actual relational database state, providing perfect lineage, data audits, and instantaneous safe rollbacks.
@@ -117,8 +117,8 @@ with engine.connect() as connection:
         print(r)
 ```
 
-### Python: Strict Commit Log and Schema Verification (Pydantic v2)
-When managing dataset lineage under autonomous coordination by SOTA models (e.g., **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**), commit logs should be strictly parsed and validated using Pydantic v2 to ensure no unauthorized database modifications occurred.
+### Python: FastMCP 3.1 Task Protocol & Strict Commit Log Validation (Pydantic v2)
+When managing dataset lineage under autonomous coordination by early 2027 SOTA models (e.g., **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, or **Qwen 3.6 VL**), commit logs should be strictly parsed and validated using Pydantic v2 to ensure no unauthorized database modifications occurred.
 
 ```python
 import json
@@ -130,6 +130,7 @@ class DoltCommitLogSchema(BaseModel):
     commit_hash: str = Field(..., alias="commitHash", min_length=32, max_length=40, description="Dolt SHA-1 commit hash")
     committer: str = Field(..., min_length=1, description="Entity or agent committing the data")
     commit_date: datetime = Field(..., alias="commitDate", description="UTC timestamp of the commit")
+    task_id: Optional[str] = Field(None, alias="taskId", description="FastMCP 3.1 task protocol ID")
     message: str = Field(..., max_length=5000, description="Audit log commit description")
 
 def validate_dolt_commit(row_data: dict) -> DoltCommitLogSchema:
@@ -146,9 +147,10 @@ def validate_dolt_commit(row_data: dict) -> DoltCommitLogSchema:
 if __name__ == "__main__":
     test_row = {
         "commitHash": "2b30c4d009e8b7c6d5e4f3a2b1c0e9d8c7b6a5fa",
-        "committer": "Agent_Claude_5.1",
-        "commitDate": "2026-12-22T01:30:00Z",
-        "message": "Update prompt embeddings for Gemma 3 dataset"
+        "committer": "Agent_Claude_5.6",
+        "commitDate": "2027-01-07T01:30:00Z",
+        "taskId": "task-fastmcp-2027-0107",
+        "message": "Update prompt embeddings for Gemma 4 dataset under FastMCP 3.1 task context"
     }
     try:
         validated_commit = validate_dolt_commit(test_row)
@@ -176,5 +178,5 @@ if __name__ == "__main__":
 - [InfoQ: Dolt SQL Version Control Announcement](https://www.infoq.com/news/2026/07/dolt-version-control/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high

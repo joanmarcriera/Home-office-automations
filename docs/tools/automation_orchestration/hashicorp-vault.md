@@ -1,7 +1,7 @@
 # HashiCorp Vault
 
 ## What it is
-HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of December 2026, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro** via standardized **Vault MCP** and **FastMCP 3.1** integrations.
+HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of early 2027, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**, **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** via standardized **Vault MCP** and **FastMCP 3.1** integrations.
 
 ## What problem it solves
 Managing secrets in plain text, environment variables, or unprotected configuration files creates significant security vulnerabilities. Vault provides a single, secure source of truth with strict access control, automated secret rotation, and granular auditing. It eliminates "secret sprawl" by centralizing credential management and ensuring that only authorized agents and services can access specific sensitive information.
@@ -60,7 +60,7 @@ vault operator unseal <unseal-key-3>
 ```
 
 ### 3. Configure Agent Access
-Set up [Vault MCP](vault-mcp.md) to bridge your Vault instance with your AI agents.
+Set up [Vault MCP](vault-mcp.md) to bridge your Vault instance with your AI agents using FastMCP 3.1 Task Protocol.
 
 ## CLI examples
 
@@ -96,8 +96,8 @@ curl --header "X-Vault-Token: <token>" \
      http://127.0.0.1:8200/v1/secret/data/agents/config
 ```
 
-### Python Integration with hvac & Pydantic v2 Validation
-To maintain compliance with December 2026 security and KnowledgeOps contract checks, secret payloads retrieved from Vault must undergo validation using Pydantic v2 before downstream model ingestion.
+### Python Integration with hvac & Pydantic v2 Validation (FastMCP 3.1 Context)
+To maintain compliance with early 2027 security and KnowledgeOps contract checks, secret payloads retrieved from Vault must undergo validation using Pydantic v2 before downstream model ingestion.
 
 ```python
 import hvac
@@ -106,13 +106,14 @@ from typing import Optional
 
 # 1. Define a strict validation schema using Pydantic v2
 class ProviderCredentials(BaseModel):
-    provider_name: str = Field(..., pattern="^(anthropic|openai|google|cohere)$")
+    provider_name: str = Field(..., pattern="^(anthropic|openai|google|cohere|deepseek)$")
     api_key: SecretStr = Field(..., min_length=16, description="Vault-stored provider API key.")
+    task_id: Optional[str] = Field(None, alias="taskId", description="FastMCP 3.1 Task Protocol execution ID")
     api_url: Optional[str] = Field(None, description="Optional custom base URL.")
 
 # 2. Programmatic secret retrieval from KV v2 with Pydantic validation
 def fetch_and_validate_credentials(path: str) -> ProviderCredentials:
-    # Initialize the client with late 2026 security standards
+    # Initialize the client with early 2027 security standards
     client = hvac.Client(url='http://127.0.0.1:8200', token='myroot')
 
     try:
@@ -141,11 +142,11 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Vault MCP](vault-mcp.md) — The Model Context Protocol interface for HashiCorp Vault.
-- [Model Context Protocol (MCP)](mcp.md) — The standardized protocol for agent-tool communication.
+- [Model Context Protocol (MCP)](mcp.md) — The standardized protocol for agent-tool communication (FastMCP 3.1).
 - [Authentik](../../services/authentik.md) — Identity provider for managing Vault access.
 - [Aider](../development_ops/aider.md) — Agentic IDE that can leverage Vault-stored credentials.
 - [n8n](../../services/n8n.md) — Automation platform that often requires secure secret management.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier model used for orchestrating secure workflows.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Frontier model used for orchestrating secure workflows.
 - [Axiom Guardian](../development_ops/axiom-guardian.md) — For validating requests and managing security boundaries.
 - [Docker](../infrastructure/docker.md) — The preferred method for containerized Vault deployment.
 
@@ -157,5 +158,5 @@ if __name__ == "__main__":
 - [Vault MCP Repository](https://github.com/democratize-technology/vault-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-23
+- Last reviewed: 2027-01-07
 - Confidence: high

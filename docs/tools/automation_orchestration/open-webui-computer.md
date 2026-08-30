@@ -11,14 +11,14 @@ Managing and executing developer workflows on a local or remote host usually req
 
 ## Typical use cases
 - **Mobile Workstation Access**: Pushing git commits, managing Docker containers, or editing source code directly from a phone or tablet.
-- **Autonomous Coding Agent Sessions**: Triggering an LLM (such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**) to execute local tests, read compile errors, apply code changes, and push fixes.
+- **Autonomous Coding Agent Sessions**: Triggering an LLM (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, or **Qwen 3.6 VL**) to execute local tests, read compile errors, apply code changes, and push fixes.
 - **Remote Systems Administration**: Running shell tasks, managing backups, and editing configuration files via secure messaging bots (Telegram, Discord, Slack) connected to the host machine.
 - **Multimodal Web Scraping & Automation**: Instructing an agent to navigate websites, handle authentication, fill out forms, and capture screenshots using an automated browser.
 
 ## Strengths
 - **Persistent Sessions**: Terminal processes and agent execution keep running in the background even if the browser tab is closed or disconnected.
 - **Mobile-First Design**: A responsive interface crafted specifically for touch inputs, swipe gestures, and portrait layouts.
-- **Extensible Agent Capabilities**: Built-in agentic modes supporting web search, voice control (speech-to-text/text-to-speech), reasoning trace rendering (e.g., o3/Claude thought blocks), and custom instruction sets (SKILL.md files).
+- **Extensible Agent Capabilities**: Built-in agentic modes supporting web search, voice control (speech-to-text/text-to-speech), reasoning trace rendering (e.g., FastMCP 3.1 thought blocks), and custom instruction sets (SKILL.md files).
 - **Gateway API Integration**: Exposes an `/v1/chat/completions` API that turns any workspace into an OpenAI-compatible model, making it easy to plug into larger multi-agent frameworks.
 - **Comprehensive Tooling**: Out-of-the-box support for visual git staging/diffs, syntax-highlighted code editing, file searching, and multi-pane terminal layouts.
 
@@ -107,17 +107,19 @@ curl -X POST http://localhost:8000/v1/chat/completions \
   }'
 ```
 
-### Dynamic Shell Command Invocation (Python Client with Pydantic v2)
-To satisfy technical robustness requirements and KnowledgeOps contract compliance in December 2026, shell command execution requests are strictly validated using Pydantic v2 before transmission.
+### Dynamic Shell Command Invocation (Python Client with FastMCP 3.1 & Pydantic v2)
+To satisfy technical robustness requirements and KnowledgeOps contract compliance in early 2027, shell command execution requests are strictly validated using Pydantic v2 before transmission.
 
 ```python
 import requests
+from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
 
 # 1. Define strict validation schemas using Pydantic v2
 class TerminalCommand(BaseModel):
     command: str = Field(..., min_length=2, max_length=500, description="Shell command to execute.")
     timeout_seconds: int = Field(default=30, ge=1, le=300, description="Execution timeout limit.")
+    task_id: Optional[str] = Field(None, alias="taskId", description="FastMCP 3.1 Task Protocol context ID.")
 
 class ExecutionRequest(BaseModel):
     workspace_id: str = Field(default="default", pattern=r"^[a-zA-Z0-9_\-]+$")
@@ -149,7 +151,8 @@ if __name__ == "__main__":
         "workspace_id": "prod-environment",
         "payload": {
             "command": "git diff --stat",
-            "timeout_seconds": 15
+            "timeout_seconds": 15,
+            "taskId": "task-cptr-2027-0107"
         }
     }
     try:
@@ -161,8 +164,8 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md) — The main parent conversational user interface that can integrate `cptr` as a gateway backend.
-- [Ollama](../../services/ollama.md) — Local LLM runner to serve models like Gemma 3 and Llama 4 directly to your agent.
-- [Model Context Protocol (MCP)](mcp.md) — The standardization protocol used by `cptr` to load and interact with external systems.
+- [Ollama](../../services/ollama.md) — Local LLM runner to serve models like Gemma 4 and DeepSeek-V4 directly to your agent.
+- [Model Context Protocol (MCP)](mcp.md) — The standardization protocol used by `cptr` to load and interact with external systems (FastMCP 3.1).
 - [LiteLLM](../../services/litellm.md) — Useful proxy router to aggregate model endpoints (Anthropic, OpenAI, local) for cptr consumption.
 - [Browser Use](browser-use.md) — Multi-agent browser automation framework similar to the built-in browser capabilities in Open WebUI Computer.
 - [Playwright MCP Server](playwright-mcp.md) — A specialized tool server enabling agents to scrape and parse complex websites.
@@ -175,5 +178,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-23
+- Last reviewed: 2027-01-07
 - Confidence: high
