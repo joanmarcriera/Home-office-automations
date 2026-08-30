@@ -1,7 +1,7 @@
 # Dashworks
 
 ## What it is
-Dashworks is an AI-powered search and knowledge management platform designed to enable teams to find and synthesize information across all their internal applications through a unified, conversational interface. As of late November/December 2026, Dashworks has fully adopted the **FastMCP 3.1** protocol, serving as a critical "Internal Brain" for agents using **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
+Dashworks is an AI-powered search and knowledge management platform designed to enable teams to find and synthesize information across all their internal applications through a unified, conversational interface. As of early 2027, Dashworks has fully adopted the **FastMCP 3.1 Task Protocol**, serving as a critical "Internal Brain" for agents using **Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It effectively eliminates the "information silo" problem by centralizing access to data fragmented across tools like Slack, Google Drive, Jira, Confluence, GitHub, and Notion. Dashworks allows users and AI agents to ask natural language questions and receive grounded, cited answers based on the organization's collective intelligence, significantly reducing time wasted on manual information retrieval.
@@ -51,7 +51,7 @@ curl -X POST https://api.dashworks.ai/v1/search \
   -H "Authorization: Bearer ${DASHWORKS_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "What is the timeline for the Gemma 3 deployment?",
+    "query": "What is the timeline for the Gemma 4 deployment?",
     "stream": false
   }'
 ```
@@ -83,7 +83,7 @@ def query_internal_brain(question: str):
     return response.json()
 
 # Example: An agent verifying compliance against local retention policies
-compliance_data = query_internal_brain("What are our data retention rules for 2026?")
+compliance_data = query_internal_brain("What are our data retention rules for 2027?")
 print(f"Grounded Answer: {compliance_data.get('answer')}")
 ```
 
@@ -112,10 +112,10 @@ class DashworksQueryConfig(BaseModel):
 
 # 2. Example representation of raw input parameters
 raw_input = {
-    "query": "Timeline and status report for Gemma 3 and FastMCP 3.1",
+    "query": "Timeline and status report for Gemma 4 and FastMCP 3.1",
     "allowed_sources": ["slack", "github", "jira"],
     "max_citations": 8,
-    "filter_by_date": "2026-12-28",
+    "filter_by_date": "2027-01-07",
     "strict_permissions": True
 }
 
@@ -144,5 +144,5 @@ except ValidationError as e:
 - [Search Patterns](../../knowledge_base/patterns/search-patterns.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-28
+- Last reviewed: 2027-01-07
 - Confidence: high

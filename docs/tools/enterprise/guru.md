@@ -1,7 +1,7 @@
 # Guru
 
 ## What it is
-Guru is an enterprise knowledge management platform that uses AI to capture, verify, and deliver trusted information directly into team workflows. It emphasizes "verified knowledge" to ensure that the information users find is accurate and up-to-date. As of late November/December 2026, Guru has integrated the **FastMCP 3.1** protocol, enabling its verified knowledge cards to be used as high-fidelity grounding sources for autonomous agentic workflows powered by **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
+Guru is an enterprise knowledge management platform that uses AI to capture, verify, and deliver trusted information directly into team workflows. It emphasizes "verified knowledge" to ensure that the information users find is accurate and up-to-date. As of early 2027, Guru has integrated the **FastMCP 3.1 Task Protocol**, enabling its verified knowledge cards to be used as high-fidelity grounding sources for autonomous agentic workflows powered by **Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It solves the problem of "knowledge decay" and "shoulder-tapping." By institutionalizing a verification workflow, Guru ensures that internal wikis don't become stale. It also reduces repetitive questions by making verified info available via a browser extension and Slack, preventing "hallucinations" in agentic responses by providing a "source of truth" for RAG (Retrieval-Augmented Generation).
@@ -83,10 +83,10 @@ def create_verified_card(title, content, collection_id):
     response.raise_for_status()
     return response.json()
 
-# Example: Ingesting a new policy updated by Claude 5.1
+# Example: Ingesting a new policy updated by Claude 5.6
 new_card = create_verified_card(
-    "December 2026 AI Ethics Guidelines",
-    "<p>Updated guidelines for the use of Gemma 3 and FastMCP 3.1...</p>",
+    "January 2027 AI Ethics Guidelines",
+    "<p>Updated guidelines for the use of Gemma 4 and FastMCP 3.1...</p>",
     "COLLECTION_ID_123"
 )
 print(f"Created Card ID: {new_card['id']}")
@@ -116,7 +116,7 @@ class GuruCardMetadata(BaseModel):
 
 # 2. Example representation of raw input parameters
 raw_metadata = {
-    "title": "December 2026 GDPR Retention Policy",
+    "title": "January 2027 GDPR Retention Policy",
     "collection_id": "legal-compliance-101",
     "verification_interval_days": 60,
     "owner_team": "Legal Operations",
@@ -151,5 +151,5 @@ except ValidationError as e:
 - [Guru MCP Server GitHub](https://github.com/getguru/mcp-server-guru)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-28
+- Last reviewed: 2027-01-07
 - Confidence: high
