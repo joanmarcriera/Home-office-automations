@@ -1,6 +1,6 @@
 # Hamilton
 
-Hamilton is a general-purpose micro-orchestration framework for creating dataflows from simple Python functions. Unlike traditional macro-orchestrators (like Airflow), Hamilton focuses on how code is structured *inside* a task, rather than how tasks are scheduled on a cluster. As of December 2026, it is a core component for managing complex **agentic reasoning chains** and **FastMCP 3.1-based tool execution** where modularity and testability are paramount.
+Hamilton is a general-purpose micro-orchestration framework for creating dataflows from simple Python functions. Unlike traditional macro-orchestrators (like Airflow), Hamilton focuses on how code is structured *inside* a task, rather than how tasks are scheduled on a cluster. As of early January 2027, it is a core component for managing complex **agentic reasoning chains** and **FastMCP 3.1 Task Protocol-based tool execution** where modularity and testability are paramount.
 
 ## What it is
 Hamilton is a micro-orchestration framework that maps function names to output artifacts. By defining your dataflow as a collection of Python functions where the function signatures define the DAG, Hamilton ensures that your logic is modular, self-documenting, and easy to test.
@@ -16,7 +16,7 @@ It solves the "unmaintainable spaghetti code" problem in data and ML pipelines. 
 - **FastMCP 3.1 Tool Execution**: Managing the internal logic of complex tools registered with the Model Context Protocol.
 - **Feature Engineering**: Creating versioned features for ML models with baked-in lineage.
 - **Web Request Logic**: Breaking down complex API response generation into manageable functions.
-- **Agentic Workflows**: Providing a structured framework for agents (like those powered by Claude 5.1 or Gemma 3) to execute multi-step reasoning processes that are easy to audit.
+- **Agentic Workflows**: Providing a structured framework for agents (like those powered by Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, or Qwen 3.6 VL) to execute multi-step reasoning processes that are easy to audit.
 
 ## Strengths
 - **Lineage as Code**: The DAG is defined by function signatures, ensuring transparent dependencies.
@@ -172,5 +172,5 @@ except ValidationError as e:
 - [Burr: Stateful Python Applications](https://github.com/DAGWorks-Inc/burr)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-26
+- Last reviewed: 2027-01-07
 - Confidence: high

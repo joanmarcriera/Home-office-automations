@@ -1,6 +1,6 @@
 # Apache Airflow
 
-Apache Airflow is an open-source platform for authoring, scheduling, and monitoring workflows as Python-defined DAGs. As of December 2026, **Airflow v3.1+** is the established major release, introducing a service-oriented architecture, event-driven scheduling, and AI-native orchestration with the **Edge Executor** and native support for the **FastMCP 3.1** Task Protocol.
+Apache Airflow is an open-source platform for authoring, scheduling, and monitoring workflows as Python-defined DAGs. As of early January 2027, **Airflow v3.1+** is the established major release, introducing a service-oriented architecture, event-driven scheduling, and AI-native orchestration with the **Edge Executor** and native support for the **FastMCP 3.1** Task Protocol.
 
 ## What it is
 Apache Airflow is a workflow orchestration platform that allows users to programmatically author, schedule, and monitor workflows. Workflows are defined as Directed Acyclic Graphs (DAGs) in Python, providing a flexible and powerful way to manage complex task dependencies.
@@ -9,7 +9,7 @@ Apache Airflow is a workflow orchestration platform that allows users to program
 Airflow turns recurring operational work into versioned workflow code with built-in retries, logging, and monitoring. It solves the problem of managing complex task dependencies and scheduling across multi-cloud and hybrid environments, providing a centralized control plane for data operations.
 
 ## Where it fits in the stack
-**Orchestration / Enterprise Workflow Platform**. It serves as the "brain" for batch and event-driven data operations. It coordinates between data ingestion, transformation (dbt), and AI/ML model execution layers. In late November/December 2026, it is a primary orchestrator for agentic workflows, coordinating model execution with AI agents like [Claude 5.1](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Llama 4](../ai_knowledge/local_llms.md), [Gemma 3](../ai_knowledge/gemma.md), or [Qwen 3.6](../ai_knowledge/qwen.md) and extending capability via [FastMCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Enterprise Workflow Platform**. It serves as the "brain" for batch and event-driven data operations. It coordinates between data ingestion, transformation (dbt), and AI/ML model execution layers. In early January 2027, it is a primary orchestrator for agentic workflows, coordinating model execution with AI agents like [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Gemma 4](../ai_knowledge/gemma.md), [DeepSeek-V4](../ai_knowledge/local_llms.md), or [Qwen 3.6 VL](../ai_knowledge/qwen.md) and extending capability via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **AI Inference Execution**: Utilizing Airflow v3.1's synchronous DAG execution and ad-hoc scheduling for real-time model serving.
@@ -175,5 +175,5 @@ except ValidationError as e:
 - [Apache Airflow GitHub](https://github.com/apache/airflow)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-26
+- Last reviewed: 2027-01-07
 - Confidence: high
