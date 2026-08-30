@@ -1,6 +1,6 @@
 # Kestra
 
-Kestra is an open-source orchestration platform for declarative, scheduled, event-driven, and business-critical workflows. It uses YAML-defined flows, a web UI, and a powerful plugin architecture. As of December 2026, **v0.20.x** is the stable release, featuring enhanced **Flow Loops**, first-class **Python Script** support, and native **FastMCP 3.1** support for extending Kestra with agentic tools.
+Kestra is an open-source orchestration platform for declarative, scheduled, event-driven, and business-critical workflows. It uses YAML-defined flows, a web UI, and a powerful plugin architecture. As of early January 2027, **v0.20.x** is the stable release, featuring enhanced **Flow Loops**, first-class **Python Script** support, and native **FastMCP 3.1** Task Protocol support for extending Kestra with agentic tools.
 
 ## What it is
 Kestra is a declarative orchestration platform that allows engineering teams to define complex workflows as simple YAML files. It provides a unified control plane for coordinating scripts (Python, Node.js, Shell), data tools, and cloud services.
@@ -9,7 +9,7 @@ Kestra is a declarative orchestration platform that allows engineering teams to 
 Kestra bridges the gap between infrastructure automation and data orchestration. It eliminates the "hidden" logic often found in cron jobs or custom scripts by making every execution observable, retryable, and version-controllable. It simplifies the creation of event-driven agentic loops by providing native triggers for external events.
 
 ## Where it fits in the stack
-**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In late November/December 2026, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.1](../ai_knowledge/claude-mythos.md), [GPT-5.5](../ai_knowledge/chatgpt.md), [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md), [Llama 4](../ai_knowledge/llama.md), [Gemma 3](../ai_knowledge/gemma.md), or [Qwen 3.6](../ai_knowledge/qwen.md) to be integrated into structured, declarative processes via [FastMCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In early January 2027, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.6](../ai_knowledge/claude-mythos.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini-macos.md), [Gemma 4](../ai_knowledge/gemma.md), [DeepSeek-V4](../ai_knowledge/llama.md), or [Qwen 3.6 VL](../ai_knowledge/qwen.md) to be integrated into structured, declarative processes via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **AI Model Retraining**: Triggering a training pipeline when new data arrives, followed by evaluation and notification.
@@ -182,5 +182,5 @@ except ValidationError as e:
 - [Kestra MCP Server Integration Guide](https://kestra.io/docs/how-to-guides/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-26
+- Last reviewed: 2027-01-07
 - Confidence: high

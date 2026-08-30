@@ -1,6 +1,6 @@
 # Dagster
 
-Dagster is an open-source orchestrator designed for the development, production, and observation of data assets. Unlike traditional task-based orchestrators, Dagster focuses on the **Data Asset**—the persistent object (such as a database table, cloud storage file, or trained model) produced by a computation. As of late November/December 2026, **v1.9.12** is the established production standard, introducing enhancements to its **Declarative Automation** engine, deep metadata integration for agentic data pipelines, and full **Model Context Protocol (MCP) 3.1** compatibility.
+Dagster is an open-source orchestrator designed for the development, production, and observation of data assets. Unlike traditional task-based orchestrators, Dagster focuses on the **Data Asset**—the persistent object (such as a database table, cloud storage file, or trained model) produced by a computation. As of early January 2027, **v1.9.12+** is the established production standard, introducing enhancements to its **Declarative Automation** engine, deep metadata integration for agentic data pipelines, and full **FastMCP 3.1** Task Protocol compatibility.
 
 ## What it is
 Dagster is a data orchestrator that treats data assets as first-class citizens. By focusing on asset lineage, schemas, and data quality checks rather than raw task executions, Dagster enables teams to define *what* data should exist and *when* it should be materialized based on logical freshness policies.
@@ -9,7 +9,7 @@ Dagster is a data orchestrator that treats data assets as first-class citizens. 
 It clarifies the relationship between computational code and the resulting data assets, resolving the "black box" pipeline issue. Dagster provides a unified control plane that reduces reliance on complex cron schedules, replacing them with declarative, lineage-aware materialization. Additionally, its native asset checks ensure data quality, and its testing utilities help maintain parity between local development and production environments.
 
 ## Where it fits in the stack
-**Orchestration / Data Asset Management**. It serves as the coordination layer for modern data platforms, sitting above data transformation tools (dbt, SQLMesh, Spark) and below business intelligence (BI) or AI consumer applications. It is frequently employed as an orchestrator for **Agentic Data Engineering**, where reasoning models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** interact with the Dagster asset graph via [MCP 3.1](../automation_orchestration/mcp.md).
+**Orchestration / Data Asset Management**. It serves as the coordination layer for modern data platforms, sitting above data transformation tools (dbt, SQLMesh, Spark) and below business intelligence (BI) or AI consumer applications. It is frequently employed as an orchestrator for **Agentic Data Engineering**, where reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** interact with the Dagster asset graph via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Declarative Asset Materialization**: Automatically materializing downstream database tables as soon as upstream source files are validated or updated.
@@ -206,5 +206,5 @@ if __name__ == "__main__":
 - [Dagster Public GitHub Codebase](https://github.com/dagster-io/dagster)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-25
+- Last reviewed: 2027-01-07
 - Confidence: high

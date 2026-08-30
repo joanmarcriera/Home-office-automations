@@ -1,12 +1,12 @@
 # Flyte
 
-Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of December 2026, **Flyte v2.2+** is the stable major release, featuring a reimagined Python SDK, native async support, and deep integration with the **FastMCP 3.1** Task Protocol for agentic orchestration.
+Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of early January 2027, **Flyte v2.2+** is the stable major release, featuring a reimagined Python SDK, native async support, and deep integration with the **FastMCP 3.1** Task Protocol for agentic orchestration.
 
 ## What it is
 Flyte is a container-native orchestrator that manages the execution of complex ML and data workflows on Kubernetes. It ensures that every task is isolated, versioned, and reproducible, making it ideal for large-scale AI platforms. It provides a strongly-typed interface that allows for safe and predictable workflow execution across heterogeneous compute resources.
 
 ## What problem it solves
-It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. In late November/December 2026, Flyte addresses the "Agentic Loop" problem by allowing [Claude 5.1](../../tools/ai_knowledge/claude-macos.md), [GPT-5.5](../ai_knowledge/chatgpt.md), [Gemini 4.0 Pro](../../tools/ai_knowledge/gemini-macos.md), [Llama 4](../../tools/ai_knowledge/llama.md), [Gemma 3](../../tools/ai_knowledge/gemini-macos.md), or [Qwen 3.6](../../tools/ai_knowledge/qwen.md) to dynamically steer containerized tasks via [FastMCP 3.1](../automation_orchestration/mcp.md) integration.
+It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. In early January 2027, Flyte addresses the "Agentic Loop" problem by allowing [Claude 5.6](../../tools/ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini-macos.md), [Gemma 4](../../tools/ai_knowledge/gemini-macos.md), [DeepSeek-V4](../../tools/ai_knowledge/llama.md), or [Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md) to dynamically steer containerized tasks via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) integration.
 
 ## Where it fits in the stack
 **Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes. It coordinates between data storage, compute resources (CPU/GPU), and model registries. It is often used alongside [ZenML](zenml.md) for experiment tracking and [NVIDIA](../providers/nvidia.md) for hardware-accelerated training.
@@ -170,5 +170,5 @@ except ValidationError as e:
 - [Flyte FastMCP 3.1 Specification](https://flyte.org/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-26
+- Last reviewed: 2027-01-07
 - Confidence: high
