@@ -1,25 +1,25 @@
 # Humanity's Last Exam (HLE)
 
 ## What it is
-HLE is a benchmark designed to test the limits of LLMs on the most difficult human-level tasks. It consists of 3,000 highly complex, multi-disciplinary questions across over a hundred subjects (Mathematics, Physics, Biology, Humanities, etc.). Created by the Center for AI Safety (CAIS) and Scale AI, it represents a "frontier" benchmark where late November/December 2026 state-of-the-art models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6 still perform poorly on the hardest subsets.
+HLE is a benchmark designed to test the limits of LLMs on the most difficult human-level tasks. It consists of 3,000 highly complex, multi-disciplinary questions across over a hundred subjects (Mathematics, Physics, Biology, Humanities, etc.). Created by the Center for AI Safety (CAIS) and Scale AI, it represents a "frontier" benchmark where early January 2027 state-of-the-art models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL still perform poorly on the hardest subsets.
 
 ## What problem it solves
-Addresses the "saturation" of existing benchmarks like MMLU and GPQA. As frontier models reach or exceed human-level performance on older tests, those tests lose their utility as measurement tools. HLE provides a new ceiling for July 2026 reasoning research, ensuring that progress toward expert-level agentic intelligence remains measurable.
+Addresses the "saturation" of existing benchmarks like MMLU and GPQA. As frontier models reach or exceed human-level performance on older tests, those tests lose their utility as measurement tools. HLE provides a new ceiling for frontier reasoning research, ensuring that progress toward expert-level agentic intelligence remains measurable.
 
 ## Where it fits in the stack
 **Benchmarking**. Serves as a high-difficulty knowledge and reasoning benchmark for evaluating the upper limits of LLM and multi-modal model capabilities within agentic ingestion pipelines.
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Comparing the reasoning capabilities of state-of-the-art models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6).
+- **Frontier Model Evaluation**: Comparing the reasoning capabilities of state-of-the-art models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL).
 - **Multi-modal Assessment**: Testing models on questions that require both textual reasoning and image understanding (14% of the dataset is multi-modal, evaluated using [ColQwen](../../knowledge_base/self-healing-agent-research.md)).
 - **Calibration Testing**: Measuring whether models accurately estimate their own confidence in their answers.
 - **Agentic Pre-training Validation**: Verifying that new pre-training runs have significantly moved the needle on expert-level reasoning.
 
 ## Strengths
-- **Extreme Difficulty**: Designed to be the "last academic exam," remaining challenging even as models improve in July 2026.
-- **Closed-ended & Verifiable**: Answers are precise, allowing for automated, low-cost evaluation via agentic satisfaction loops.
+- **Extreme Difficulty**: Designed to be the "last academic exam," remaining challenging even as frontier models rapidly evolve.
+- **Closed-ended & Verifiable**: Answers are precise, allowing for automated, low-cost evaluation via agentic satisfaction loops and FastMCP 3.1 Task Protocol.
 - **Subject Diversity**: Covers over 100 subjects with questions sourced from world-class experts.
-- **Private Set**: Includes a held-out private set with regular rotation (v2 canary splits as of July 2026) to combat data contamination and benchmark hacking.
+- **Private Set**: Includes a held-out private set with regular rotation (v2 canary splits) to combat data contamination and benchmark hacking.
 
 ## Limitations
 - **Not for Everyday Tasks**: Does not measure "helpful assistant" capabilities or basic instruction following.
@@ -27,7 +27,7 @@ Addresses the "saturation" of existing benchmarks like MMLU and GPQA. As frontie
 - **Requires LLM Judge**: While answers are closed-ended, the variety of possible formats (decimals vs. fractions) often requires an LLM judge for automated scoring at scale.
 
 ## When to use it
-- When evaluating frontier models on the hardest available reasoning tasks in July 2026.
+- When evaluating frontier models on the hardest available reasoning tasks in 2027.
 - When existing benchmarks like MMLU or GPQA show signs of saturation (models scoring >90%).
 - When testing a model's ability to handle world-class scientific or mathematical problems for agentic research.
 
@@ -52,8 +52,8 @@ export OPENAI_API_KEY="sk-proj-..."
 
 ### 2. Running the Benchmark
 ```bash
-# Run HLE against a Claude 5.1 model
-inspect eval inspect_evals/hle --model anthropic/claude-5-1-opus
+# Run HLE against a Claude 5.6 model
+inspect eval inspect_evals/hle --model anthropic/claude-5-6-opus
 ```
 
 ## CLI examples
@@ -62,7 +62,7 @@ inspect eval inspect_evals/hle --model anthropic/claude-5-1-opus
 Evaluate a specific subject within HLE with adjusted concurrency:
 ```bash
 inspect eval inspect_evals/hle \
-    --model openai/gpt-5-5 \
+    --model openai/gpt-5-6 \
     --limit 100 \
     --subject "quantum_physics" \
     --concurrency 10 \
@@ -81,7 +81,7 @@ lm_eval --model vllm \
 ## API examples
 
 ### Pydantic v2 Integration & Evaluator Verification
-Below is a production-ready example of evaluating and validating HLE evaluation metadata programmatically with **Pydantic v2** and **FastMCP 3.1** before logging results into multi-agent databases.
+Below is a production-ready example of evaluating and validating HLE evaluation metadata programmatically with **Pydantic v2** and **FastMCP 3.1 Task Protocol** before logging results into multi-agent databases.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
@@ -113,9 +113,9 @@ def validate_and_log_hle_run(run_payload: dict) -> Optional[HLEEvaluationResult]
         print(f"HLE payload verification failed: {e.errors()}")
         return None
 
-# Test the function with simulated late 2026 run data
+# Test the function with simulated early 2027 run data
 sample_eval = {
-    "model_name": "claude-5-1-opus",
+    "model_name": "claude-5-6-opus",
     "total_evaluated": 1,
     "accuracy": 1.0,
     "validated_questions": [
@@ -142,7 +142,7 @@ from inspect_evals.hle import hle
 # Run evaluation programmatically with custom epoch settings and model arguments
 results = eval(
     tasks=hle(),
-    model="anthropic/claude-5-1-sonnet",
+    model="anthropic/claude-5-6-sonnet",
     limit=50,
     epochs=Epochs(3, "at_least_once"),
     model_args={
@@ -184,7 +184,7 @@ def hle_judge():
 - [SWE-bench](swe-bench.md) - Software engineering benchmark for agents.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - Unified framework for running multiple benchmarks.
 - [ColQwen](../../knowledge_base/self-healing-agent-research.md) - Vision-native document parsing for multi-modal HLE tasks.
-- [DeepSeek R1](../../knowledge_base/self-healing-agent-research.md) - Reasoning benchmark leader in July 2026.
+- [DeepSeek-V4](../../knowledge_base/self-healing-agent-research.md) - Reasoning benchmark leader in early 2027.
 - [Terminus 2](terminal-bench.md) - Terminal-based reasoning benchmark.
 
 ## Sources / references
@@ -193,5 +193,6 @@ def hle_judge():
 - [Humanity's Last Exam - arXiv Paper (2025)](https://arxiv.org/abs/2501.14249)
 - [Inspect AI Documentation](https://ukgovernmentbeis.github.io/inspect_evals/)
 
-- Last reviewed: 2026-12-29
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high

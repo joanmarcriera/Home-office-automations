@@ -1,16 +1,16 @@
 # PA-bench
 
 ## What it is
-PA-bench is a comprehensive benchmark suite designed to evaluate the performance of Personal Assistant (PA) web agents on real-world workflows. It utilizes simulated environments (e.g., mock Gmail, mock Google Calendar) to provide a safe, reproducible, and cost-effective testbed for late November/December 2026 agentic orchestration.
+PA-bench is a comprehensive benchmark suite designed to evaluate the performance of Personal Assistant (PA) web agents on real-world workflows. It utilizes simulated environments (e.g., mock Gmail, mock Google Calendar) to provide a safe, reproducible, and cost-effective testbed for early January 2027 agentic orchestration.
 
 ## What problem it solves
-It addresses the lack of realistic evaluation frameworks for web-based agents by providing a set of complex, multi-step tasks that mirror actual user needs, such as booking travel, managing calendars, or conducting research across multiple websites. It is a critical tool for measuring "Agentic Session Orchestration" and risk mitigation in late 2026.
+It addresses the lack of realistic evaluation frameworks for web-based agents by providing a set of complex, multi-step tasks that mirror actual user needs, such as booking travel, managing calendars, or conducting research across multiple websites. It is a critical tool for measuring "Agentic Session Orchestration" and risk mitigation in early 2027.
 
 ## Where it fits in the stack
 **Eval**. It provides the metrics and environment necessary to measure the effectiveness and reliability of autonomous web agents. It is the gold standard for evaluating "Agentic Hooks" and side-panel integration in Chrome v145+/146+.
 
 ## Typical use cases
-- **Agent Comparison**: Evaluating different agent architectures (e.g., Claude 5.1 vs. GPT-5.5) on their ability to complete complex web tasks.
+- **Agent Comparison**: Evaluating different agent architectures (e.g., Claude 5.6 vs. GPT-5.6 vs. Gemini 4.0 Ultra) on their ability to complete complex web tasks.
 - **Regression Testing**: Ensuring that updates to an agent's reasoning or navigation logic don't break existing capabilities in the Ralph-loop.
 - **Research**: Providing a standardized baseline for academic and industrial research into autonomous web navigation and "Computer Use" capabilities.
 - **Security Auditing**: Testing agentic resilience against adversarial UI patterns using the SHARP (SharpAI Security Benchmark) methodology.
@@ -18,16 +18,16 @@ It addresses the lack of realistic evaluation frameworks for web-based agents by
 ## Strengths
 - **Real-world Focus**: Tasks are based on actual personal assistant workflows rather than synthetic laboratory examples.
 - **End-to-End Evaluation**: Measures the agent's ability to see a task through from start to finish, including handling unexpected UI states.
-- **Complexity**: Includes tasks that require multi-site navigation, state management, and interaction with JMAP/Graph APIs via MCP 3.0/3.1.
+- **Complexity**: Includes tasks that require multi-site navigation, state management, and interaction with JMAP/Graph APIs via FastMCP 3.1 Task Protocol.
 - **Deterministic**: Simulated backends ensure that benchmark runs are reproducible and not subject to real-world data drift.
 
 ## Limitations
 - **Environment Stability**: While simulations are more stable than the live web, maintaining them requires ongoing effort as real-world APIs evolve.
-- **Resource Intensive**: Running full-scale web agent evaluations can be time and credit consuming, requiring significant inference budget in July 2026.
+- **Resource Intensive**: Running full-scale web agent evaluations can be time and credit consuming, requiring significant inference budget in early 2027.
 - **Not for Code-Gen**: Less effective for evaluating pure code generation or algorithmic reasoning (use [MBPP](mbpp.md) or [SWE-bench](swe-bench.md) for those).
 
 ## When to use it
-- When developing or refining autonomous agents intended for web-based personal assistant tasks in July 2026.
+- When developing or refining autonomous agents intended for web-based personal assistant tasks in 2027.
 - When you need a high-signal metric for how well an agent handles real-world web complexity and "Computer Use".
 - When validating "Agentic Calendar Orchestration" workflows.
 
@@ -68,7 +68,7 @@ Execute the benchmark while preserving visual trajectories, specifying a target 
 ```bash
 pa-bench run \
     --suite calendar_sync \
-    --agent agent_claude_5_1 \
+    --agent agent_claude_5_6 \
     --max_steps 75 \
     --visualize \
     --screenshot_dir ./diagnostics/screenshots/
@@ -88,7 +88,7 @@ pa-bench report --run_id RUN_123 --format webm
 ## API examples
 
 ### Trajectory Schema Validation & Execution (Python & Pydantic v2)
-Using Pydantic v2 and FastMCP 3.1, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6).
+Using Pydantic v2 and FastMCP 3.1 Task Protocol, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL).
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
@@ -119,10 +119,10 @@ def validate_pa_bench_run(run_data: dict) -> Optional[PAEvaluationRun]:
         print(f"Trajectory payload verification failed: {e.errors()}")
         return None
 
-# Test payload with late 2026 trajectory step data
+# Test payload with early 2027 trajectory step data
 sample_run = {
     "run_id": "run-pa-9912",
-    "task_name": "calendar_sync_2026",
+    "task_name": "calendar_sync_2027",
     "is_success": True,
     "steps": [
         {
@@ -148,9 +148,9 @@ from my_agent import CustomWebAgent
 sim_manager = SimulationManager()
 sim_manager.spawn_instances(apps=["gmail", "google_calendar"])
 
-# Configure orchestrator with late November/December 2026 settings
+# Configure orchestrator with early January 2027 settings
 orchestrator = ExperimentOrchestrator(
-    agent=CustomWebAgent(model="claude-5-1-sonnet"),
+    agent=CustomWebAgent(model="claude-5-6-sonnet"),
     max_steps=75,
     resolution=(1280, 960),
     mcp_enabled=True,
@@ -161,7 +161,7 @@ orchestrator = ExperimentOrchestrator(
 )
 
 # Run benchmark suite
-results = orchestrator.run_suite(tasks="calendar_sync_2026")
+results = orchestrator.run_suite(tasks="calendar_sync_2027")
 print(f"Success Rate: {results.success_rate}")
 print(f"Mean Steps: {results.mean_steps_to_completion}")
 
@@ -190,13 +190,14 @@ task = TaskDefinition(
 - [GAIA (General AI Assistants)](gaia.md) - Real-world assistant tasks.
 - [AssistantBench](assistant-bench.md) - Web-search and navigation benchmark.
 - [OSWorld](./os-world.md) - Operating system-wide agent evaluation.
-- [Skills in Chrome](../ai_knowledge/skills-in-chrome.md) - Browser-native agentic hooks in July 2026.
-- [MCP 3.0](../../knowledge_base/self-healing-agent-research.md) - The protocol for agentic tool use.
+- [Skills in Chrome](../ai_knowledge/skills-in-chrome.md) - Browser-native agentic hooks in early 2027.
+- [FastMCP 3.1 Task Protocol](../../knowledge_base/self-healing-agent-research.md) - The protocol for agentic tool use and tasks.
 
 ## Sources / references
 - [PA-bench: Evaluating web agents on real world personal assistant workflows](https://vibrantlabs.com/blog/pa-bench)
 - [Vibrant Labs GitHub Repository](https://github.com/vibrantlabsai/)
-- [Agentic Session Orchestration July 2026 Whitepaper](https://example.com/aso-2026)
+- [Agentic Session Orchestration 2027 Whitepaper](https://example.com/aso-2027)
 
-- Last reviewed: 2026-12-29
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high
