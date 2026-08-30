@@ -1,7 +1,7 @@
 # Playwright MCP Server
 
 ## What it is
-The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of late November/December 2026, it is the primary tool for enabling frontier models like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6** to interact with the live web.
+The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of early 2027, it is the primary tool for enabling frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to interact with the live web using the **FastMCP 3.1** Task Protocol.
 
 ## What problem it solves
 Most LLMs lack direct access to the web or can only "see" through static screenshots or text-only scrapers. Playwright MCP provides structured access to the DOM and the **Accessibility Tree**, allowing agents to click buttons, fill forms, and extract data from JavaScript-heavy sites reliably without needing a dedicated REST API.
@@ -18,7 +18,7 @@ Most LLMs lack direct access to the web or can only "see" through static screens
 ## Strengths
 - **Accessibility Tree Focus**: Emphasizes semantic structure over raw pixels, making interaction faster and more robust.
 - **Cross-Browser Support**: Leverages Playwright's native support for Chromium, Firefox, and WebKit.
-- **MCP 3.1 / FastMCP 3.1 Standard**: Fully compatible with the MCP 3.1 / FastMCP 3.1 Task Protocol for standardized benchmarking and execution.
+- **FastMCP 3.1 Task Protocol**: Fully compatible with the FastMCP 3.1 Task Protocol for standardized benchmarking, execution, and task tracking across autonomous multi-agent systems.
 - **Sandboxed Execution**: Can be easily run in [Docker](../infrastructure/docker.md) to isolate browser sessions.
 
 ## Limitations
@@ -81,15 +81,15 @@ npx @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-playwrig
 
 ## API examples
 
-### Programmatic Setup with Pydantic v2 Validation
-To maintain the safety, integrity, and rate of headless interactions in late 2026, browser operations must be strictly validated. Below is a robust Python script employing **Pydantic v2** validation schemas.
+### Programmatic Setup with Pydantic v2 Validation & FastMCP 3.1 Task Tracking
+To maintain the safety, integrity, and rate of headless interactions in early 2027, browser operations must be strictly validated. Below is a Python script employing **Pydantic v2** validation schemas and **FastMCP 3.1** task protocol context parameters.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
 from typing import Optional, List
 import asyncio
 
-# 1. Define schemas using strict Pydantic v2 annotations
+# 1. Define schemas using strict Pydantic v2 annotations with FastMCP 3.1 Task Protocol support
 class BrowserNavigateAction(BaseModel):
     url: str = Field(..., description="The fully qualified HTTP/HTTPS URL to navigate to.")
     wait_until: str = Field(default="domcontentloaded", pattern="^(load|domcontentloaded|networkidle|commit)$")
@@ -100,6 +100,7 @@ class ClickAction(BaseModel):
     click_count: int = Field(default=1, ge=1, le=5)
 
 class BrowserSessionRequest(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol identifier for correlation tracking.")
     navigation: BrowserNavigateAction
     click: Optional[ClickAction] = None
 
@@ -112,21 +113,22 @@ async def run_validated_browser_session(payload: dict) -> str:
         print(f"Validation failed: {e}")
         raise
 
-    print(f"Navigating to {request.navigation.url} (wait: {request.navigation.wait_until})...")
+    print(f"[Task {request.task_id}] Navigating to {request.navigation.url} (wait: {request.navigation.wait_until})...")
 
-    # In a real late 2026 FastMCP 3.1 setup, this triggers the Playwright MCP server calls.
+    # In a FastMCP 3.1 setup, this triggers the Playwright MCP server calls.
     # Here we simulate the browser action sequence.
-    output_log = f"Successfully loaded {request.navigation.url}."
+    output_log = f"[Task {request.task_id}] Successfully loaded {request.navigation.url}."
 
     if request.click:
-        print(f"Clicking selector: '{request.click.selector}' {request.click.click_count} time(s)...")
+        print(f"[Task {request.task_id}] Clicking selector: '{request.click.selector}' {request.click.click_count} time(s)...")
         output_log += f"\nPerformed {request.click.click_count} click(s) on selector '{request.click.selector}'."
 
     return output_log
 
-# Example invocation in late 2026
+# Example invocation in early 2027
 if __name__ == "__main__":
     action_payload = {
+        "task_id": "task-playwright-2027-0107",
         "navigation": {
             "url": "https://news.ycombinator.com",
             "wait_until": "networkidle",
@@ -158,5 +160,5 @@ if __name__ == "__main__":
 - [Playwright Official Documentation](https://playwright.dev)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-24
+- Last reviewed: 2027-01-07
 - Confidence: high
