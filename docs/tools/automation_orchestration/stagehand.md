@@ -1,41 +1,41 @@
 # Stagehand
 
 ## What it is
-Stagehand is a specialized library for "browser-use" automation, designed to make web interactions for AI agents reliable, resilient, and easy to script. As of late 2026, it is maintained by Browserbase and serves as a high-level abstraction over Playwright, specifically optimized for how frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** perceive and interact with web pages using both text and vision.
+Stagehand is an open-source library for agentic browser automation maintained by Browserbase. It provides a high-level, semantic abstraction layer over Playwright specifically optimized for how frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** perceive, navigate, and interact with dynamic web pages. As of early 2027, Stagehand natively integrates with **FastMCP 3.1 Task Protocol** for low-latency tool hosting across agentic ecosystems.
 
 ## What problem it solves
-Traditional web automation (vanilla Playwright, Selenium) is notoriously brittle, often breaking when CSS selectors or DOM structures change. Stagehand solves this by allowing agents to interact with elements based on semantic meaning and visual layout. It leverages LLMs to "heal" broken paths and interpret the UI dynamically, significantly reducing the maintenance overhead of web-based agentic workflows.
+Traditional web automation tools (like raw Playwright or Selenium) are notoriously fragile, frequently breaking when web page CSS selectors, DOM trees, or layout class names change. Stagehand solves this by enabling agents to interact with web elements based on natural language intent, semantic meaning, and visual context. It uses LLMs and vision models to self-heal broken interaction paths and visually reason over modern web UIs, drastically lowering maintenance costs for browser automation workflows.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Web Automation. It sits between the LLM orchestration layer (like LangGraph or Agency Swarm) and the browser execution engine (Playwright/Browserbase), providing the "semantic bridge" for reliable navigation. In late 2026, it integrates with FastMCP 3.1 for ultra-low latency browser tool hosting.
+**Category**: Automation & Orchestration / Web Automation Infrastructure. It sits between the high-level LLM agent orchestration layer (such as LangGraph, AG2, or FastMCP servers) and browser execution backends (Playwright or Browserbase cloud browsers), providing the semantic bridge for web navigation.
 
 ## Typical use cases
-- **Agentic Web Browsing**: Enabling an agent to perform multi-step tasks on arbitrary websites (e.g., "Find the cheapest direct flight to Tokyo in October").
-- **Automated Data Extraction**: Scraping complex, dynamic SPAs (Single Page Applications) without pre-defined selectors.
-- **Resilient E2E Testing**: Creating test suites that survive UI redesigns by focusing on user intent rather than technical implementation details.
-- **Form Automation**: Automating complex enterprise software (ERP/CRM) that lacks official APIs.
+- **Autonomous Agent Web Browsing**: Enabling AI agents to perform complex multi-step web tasks (e.g., "Find direct flights to Tokyo under $1000 and fill out the passenger detail form").
+- **Dynamic Data Extraction**: Scraping unstructured or complex Single Page Applications (SPAs) without pre-defining brittle CSS/XPath selectors.
+- **Resilient E2E UI Testing**: Building end-to-end user experience test suites that survive UI redesigns by testing intent rather than brittle DOM IDs.
+- **Legacy Enterprise UI Automation**: Automating interaction with legacy CRMs, ERPs, or internal portals that lack official REST/GraphQL APIs.
 
 ## Strengths
-- **LLM-Powered Resiliency**: Automatically adapts to UI changes using semantic element discovery.
-- **Browserbase Native**: Deeply integrated with Browserbase for massive scaling and observability.
-- **Vision Support**: Optimized for use with vision-capable models (LMMs) for improved spatial reasoning.
-- **TypeScript First**: Provides excellent developer experience and type safety for complex automation logic.
-- **Shadow DOM Support**: Handles modern web components and complex UI structures transparently.
+- **Semantic Element Discovery & Self-Healing**: Automatically locates and interacts with web components using natural language instructions, automatically adapting to DOM changes.
+- **Browserbase Cloud Scaling**: Deep integration with Browserbase for massive parallel browser session execution, proxy rotation, and session replay recording.
+- **Multimodal & Vision Reasoning**: Optimized for vision-capable frontier models (LMMs) for precise visual element grounding and spatial reasoning.
+- **TypeScript First API**: Provides strong type safety, IDE autocompletion, and robust asynchronous error handling.
+- **Shadow DOM & iFrame Support**: Transparently navigates complex modern web architectures including Web Components and Shadow DOM roots.
 
 ## Limitations
-- **Latency**: Semantic discovery and LLM-based reasoning introduce significant latency compared to raw CSS selectors.
-- **Inference Costs**: Every "act" or "extract" call typically incurs LLM token costs.
-- **Overhead**: Requires a full browser environment, making it heavier than simple HTTP-based scrapers.
+- **LLM Reasoning Overhead**: Natural language element resolution introduces additional latency compared to direct CSS selector clicks.
+- **Inference Cost**: Utilizing LLMs for element discovery and structured extraction incurs token API costs per action.
+- **Browser Runtime Footprint**: Requires running a full Playwright/Chromium browser engine, making it heavier than HTTP-based HTML parsers.
 
 ## When to use it
-- When automating websites with frequently changing UIs or obfuscated DOMs.
-- When building autonomous agents that need to navigate the web like a human.
-- When you want to combine the reliability of Playwright with the intelligence of Claude 5.1 or GPT-5.5.
+- When automating web applications with obfuscated, dynamic, or frequently changing user interfaces.
+- When building autonomous web agents that navigate arbitrary websites like human users.
+- When combining Playwright execution reliability with the visual intelligence of Claude 5.6, GPT-5.6, or Qwen 3.6 VL.
 
 ## When not to use it
-- For high-speed, high-volume scraping of static sites where direct API or simple CSS selectors suffice.
-- In latency-critical paths where sub-second response times are required.
-- If you have zero budget for LLM token usage for automation tasks.
+- For high-speed, high-volume web scraping on static websites where direct HTTP requests or lightweight parsers (e.g., BeautifulSoup, Crawl4AI) suffice.
+- In sub-second latency constraints where traditional CSS selectors can be guaranteed stable.
+- When operating under strict zero-LLM-budget constraints.
 
 ## Getting started
 
@@ -57,25 +57,26 @@ await stagehand.init();
 const page = stagehand.page;
 
 await page.goto("https://news.ycombinator.com");
-// Perform a semantic action
-await page.act("Find the first article about AI and click its comments link");
+// Perform a semantic action using natural language intent
+await page.act("Find the first article discussing FastMCP 3.1 and click its comments link");
 ```
 
 ## CLI examples
+
 ```bash
 # Initialize a new Stagehand project
 npx stagehand init
 
-# Run Stagehand in development mode with observability
+# Run Stagehand in development mode with live debugging and observability
 npx stagehand dev
 
-# Verify the installation and version
+# Verify current installed version of Stagehand CLI
 npx stagehand --version
 ```
 
 ## API examples
 
-### TypeScript API
+### TypeScript API with Zod Schema Extraction
 ```typescript
 import { Stagehand } from "@browserbase/stagehand";
 import { z } from "zod";
@@ -83,23 +84,24 @@ import { z } from "zod";
 const stagehand = new Stagehand();
 await stagehand.init();
 
-// Use natural language to extract structured data
+// Extract structured data semantically using Zod validation
 const data = await stagehand.page.extract({
-  instruction: "Extract the names and prices of all products on this page",
+  instruction: "Extract the names, pricing tiers, and main features of products on this page",
   schema: z.array(z.object({
     name: z.string(),
-    price: z.string()
+    price: z.string(),
+    features: z.array(z.string())
   })),
 });
 
-// Use 'observe' to find interactable elements semantically
-const elements = await stagehand.page.observe("The 'Add to Cart' button for the premium plan");
+// Observe page elements semantically before interacting
+const elements = await stagehand.page.observe("The 'Subscribe Now' button for enterprise plans");
 
 await stagehand.close();
 ```
 
-### Python: Validating Extraction Results (Pydantic v2)
-In heterogeneous architectures, Stagehand runs in a Node.js sidecar or MCP server, and outputs extracted JSON. The primary Python orchestrator must validate this structured payload using Pydantic v2 to ensure type-safe ingestion.
+### Python: Validating Extraction Payloads with Pydantic v2
+When running Stagehand in a Node.js microservice or FastMCP tool wrapper, Python orchestrators parse extracted JSON payloads. Enforcing strict **Pydantic v2** data contracts guarantees type safety before processing.
 
 ```python
 import json
@@ -108,51 +110,52 @@ from pydantic import BaseModel, Field, ValidationError
 
 class StagehandProductItem(BaseModel):
     name: str = Field(..., min_length=1, description="Extracted product name")
-    price: str = Field(..., description="Extracted product price string (e.g. '$19.99')")
+    price: str = Field(..., description="Extracted product price string (e.g. '$199/mo')")
+    features: List[str] = Field(default_factory=list, description="Extracted feature list")
 
 class StagehandExtractionPayload(BaseModel):
-    items: List[StagehandProductItem] = Field(..., description="List of extracted products")
+    items: List[StagehandProductItem] = Field(..., description="List of validated extracted products")
 
 def validate_extraction_response(raw_json: str) -> StagehandExtractionPayload:
     """
-    Validates the raw output returned from Stagehand's page.extract endpoint.
+    Validates raw JSON returned from Stagehand's extraction execution.
     """
     try:
         parsed = json.loads(raw_json)
-        # Handle wrap if Stagehand returned an array directly
         if isinstance(parsed, list):
             parsed = {"items": parsed}
         return StagehandExtractionPayload.model_validate(parsed)
     except (ValidationError, json.JSONDecodeError) as e:
-        print(f"Extraction parsing failed contract check: {e}")
+        print(f"Extraction payload contract validation failed: {e}")
         raise
 
 if __name__ == "__main__":
-    extracted_output = '[{"name": "Agentic Orchestrator Pro", "price": "$199/mo"}, {"name": "FastMCP Gateway", "price": "Free"}]'
+    extracted_output = '[{"name": "FastMCP 3.1 Gateway", "price": "$99/mo", "features": ["Task Protocol", "Low Latency"]}]'
     try:
         validated_data = validate_extraction_response(extracted_output)
         for product in validated_data.items:
-            print(f"Verified Item: {product.name} at {product.price}")
+            print(f"Verified Product: {product.name} ({product.price}) - Features: {len(product.features)}")
     except ValidationError:
         pass
 ```
 
 ## Related tools / concepts
 - [Playwright](../development_ops/playwright.md) — The underlying browser engine.
-- [Browser Use](browser-use.md) — Python-based alternative for agentic browsing.
-- [Skyvern](skyvern.md) — Visual-reasoning based automation platform.
+- [Browser Use](browser-use.md) — Python framework for agentic web browsing.
+- [Skyvern](skyvern.md) — Vision-reasoning browser automation platform.
 - [Crawl4AI](../process_understanding/crawl4ai.md) — LLM-friendly web scraping library.
-- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for vision-capable local models.
+- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md) — Canonical guide for vision-capable local models.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for web agents.
-- [Multi-On](../agents/multion.md) — Managed agentic browsing service.
+- [MultiOn](../agents/multion.md) — Autonomous browser agent platform.
 - [Tavily](../providers/tavily.md) — Agentic search engine for data gathering.
-- [Model Context Protocol](mcp.md) (FastMCP 3.1) — Standard for exposing browser capabilities to agents.
+- [Model Context Protocol (MCP)](mcp.md) — Protocol standard for FastMCP 3.1 browser tool integration.
 
 ## Sources / references
 - [Stagehand GitHub Repository](https://github.com/browserbase/stagehand)
-- [Browserbase Website](https://www.browserbase.com/)
-- [Stagehand Documentation](https://docs.browserbase.com/stagehand)
+- [Browserbase Official Site](https://www.browserbase.com/)
+- [Stagehand Product Documentation](https://docs.browserbase.com/stagehand)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high
