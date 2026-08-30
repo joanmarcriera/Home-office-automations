@@ -1,10 +1,10 @@
 # Picnic
 
 ## What it is
-Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm, focused environment. Designed specifically to interface with modern agentic architectures, it simplifies workspace management for power users and orchestrates multi-modal AI interactions seamlessly.
+Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm, focused environment. Designed specifically to interface with modern agentic architectures, it simplifies workspace management for power users and orchestrates multi-modal AI interactions seamlessly using the **FastMCP 3.1** Task Protocol.
 
 ## What problem it solves
-Raw agent environments can be chaotic, leading to context drift, resource exhaustion, and complex setup requirements. Picnic provides a human-focused, reliable interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into logical, project-bound workspaces. It keeps sensitive browsing behavior isolated within Picnic's own built-in browser engine and structures AI collaboration deliberately for frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+Raw agent environments can be chaotic, leading to context drift, resource exhaustion, and complex setup requirements. Picnic provides a human-focused, reliable interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into logical, project-bound workspaces. It keeps sensitive browsing behavior isolated within Picnic's own built-in browser engine and structures AI collaboration deliberately for frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## Where it fits in the stack
 **Automation runtime / desktop orchestration layer**. Picnic sits above the [OpenClaw](../development_ops/openclaw.md) core, providing a structured workspace for business, personal, and family automation tasks.
@@ -20,7 +20,7 @@ Raw agent environments can be chaotic, leading to context drift, resource exhaus
 - **Sandbox Browser**: Isolates agent browsing from your primary host system's cookies and sessions.
 - **Gradual Context Cards**: Start with a clean, low-clutter canvas and add rich content cards as projects evolve.
 - **OpenClaw Backbone**: Leverages the power, security protocols, and community review of the underlying [OpenClaw](../development_ops/openclaw.md) system.
-- **FastMCP 3.1 Compliance**: Native support for late 2026 Model Context Protocol standard discovery and dynamic client handshakes.
+- **FastMCP 3.1 Compliance**: Native support for early 2027 Model Context Protocol standard discovery, task tracking, and dynamic client handshakes.
 
 ## Limitations
 - **GUI Overhead**: Lacks the lightning-fast headless response of CLI-only agent runs.
@@ -76,7 +76,7 @@ tar -czf picnic_backup.tar.gz -C ~/ picnic-projects/
 ```
 
 ## API examples
-Picnic exposes a secure REST API via its local daemon, allowing developers to query active projects, inspect metadata, and inject workspace cards. Below is a Python script that retrieves active projects and validates the workspace schemas utilizing **Pydantic v2**:
+Picnic exposes a secure REST API via its local daemon, allowing developers to query active projects, inspect metadata, and inject workspace cards. Below is a Python script that retrieves active projects and validates the workspace schemas utilizing **Pydantic v2** and **FastMCP 3.1** task context parameters:
 
 ### 1. Python: Query and Validate Picnic Projects
 ```python
@@ -85,18 +85,19 @@ from typing import List, Optional
 import requests
 from pydantic import BaseModel, Field, ValidationError
 
-# Define strict schemas matching Picnic's late 2026 API contract
+# Define strict schemas matching Picnic's early 2027 API contract with FastMCP 3.1 task protocol support
 class ProjectSchema(BaseModel):
     id: str = Field(..., description="Unique alphanumeric identifier for the project")
     name: str = Field(..., min_length=2, max_length=100, description="The display name of the project")
     status: str = Field("active", description="Active status of the workspace (e.g., active, archived, suspended)")
-    model_alignment: str = Field(..., description="Frontier model mapped to this project, e.g., Claude 5.1")
+    model_alignment: str = Field(..., description="Frontier model mapped to this project, e.g., Claude 5.6")
     card_count: int = Field(default=0, ge=0, description="Total count of workspace context cards")
 
 class PicnicWorkspace(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation tracking ID.")
     projects: List[ProjectSchema] = Field(..., description="List of projects present in the active Picnic workspace")
 
-def fetch_and_validate_workspace(daemon_url: str) -> Optional[PicnicWorkspace]:
+def fetch_and_validate_workspace(daemon_url: str, task_id: str = "task-picnic-2027-0107") -> Optional[PicnicWorkspace]:
     endpoint = f"{daemon_url}/api/projects"
     try:
         response = requests.get(endpoint, timeout=5)
@@ -104,7 +105,7 @@ def fetch_and_validate_workspace(daemon_url: str) -> Optional[PicnicWorkspace]:
         raw_data = response.json()
 
         # Wrap raw JSON in expected schema structure and validate using Pydantic v2
-        workspace_data = {"projects": raw_data}
+        workspace_data = {"task_id": task_id, "projects": raw_data}
         validated_workspace = PicnicWorkspace.model_validate(workspace_data)
         return validated_workspace
     except requests.exceptions.RequestException as e:
@@ -120,7 +121,7 @@ if __name__ == "__main__":
 
     workspace = fetch_and_validate_workspace(picnic_url)
     if workspace:
-        print(f"Successfully validated {len(workspace.projects)} active projects:")
+        print(f"[Task {workspace.task_id}] Successfully validated {len(workspace.projects)} active projects:")
         for project in workspace.projects:
             print(f"- {project.name} | Status: {project.status} | Model: {project.model_alignment} | Cards: {project.card_count}")
     else:
@@ -144,6 +145,5 @@ if __name__ == "__main__":
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-12-25
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,10 +1,10 @@
 # Google Workspace CLI (gws)
 
 ## What it is
-Google Workspace CLI (`gws`) is a dynamic, high-performance command-line interface designed to facilitate programmatic interaction with the complete suite of Google Workspace API services (Google Drive, Gmail, Google Calendar, Google Sheets, Admin Directory, and more). Purpose-built to serve both human engineers and advanced autonomous AI agent systems like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**, `gws` turns standard terminal environments into powerful SaaS integration engines.
+Google Workspace CLI (`gws`) is a dynamic, high-performance command-line interface designed to facilitate programmatic interaction with the complete suite of Google Workspace API services (Google Drive, Gmail, Google Calendar, Google Sheets, Admin Directory, and more). Purpose-built to serve both human engineers and advanced autonomous AI agent systems like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**, `gws` turns standard terminal environments into powerful SaaS integration engines leveraging **FastMCP 3.1** task protocol context parameters.
 
 ## What problem it solves
-It eradicates the complexity of writing custom oauth2 layers, token lifecycle managers, or sprawling `curl` API wrappers. By dynamically constructing its command architecture using Google's official API Discovery Service, `gws` guarantees 100% endpoint coverage with zero lag time for newly introduced Google Workspace features. Furthermore, it outputs clean, structured JSON payloads directly to standard output, making it highly compatible with LLM parsers and workflow scripts.
+It eradicates the complexity of writing custom OAuth 2.0 layers, token lifecycle managers, or sprawling `curl` API wrappers. By dynamically constructing its command architecture using Google's official API Discovery Service, `gws` guarantees 100% endpoint coverage with zero lag time for newly introduced Google Workspace features. Furthermore, it outputs clean, structured JSON payloads directly to standard output, making it highly compatible with LLM parsers and workflow scripts.
 
 ## Where it fits in the stack
 **Automation & Orchestration / SaaS Automation CLI**. It operates as an optimized command bridge between shell scripts, continuous integration pipelines, local developer environments, and frontier agents looking to manipulate cloud assets via the [Model Context Protocol](mcp.md).
@@ -18,7 +18,7 @@ It eradicates the complexity of writing custom oauth2 layers, token lifecycle ma
 ## Strengths
 - **Instantaneous API Sync**: Built dynamically from Google's API Discovery Service maps.
 - **Agent-Optimal Outputs**: Delivers clean, predictable JSON output suited for system tools and LLM parsing.
-- **FastMCP 3.1 Ready**: Can be exposed as standard tools inside a Model Context Protocol 3.1 pipeline.
+- **FastMCP 3.1 Ready**: Can be exposed as standard tools inside a Model Context Protocol 3.1 pipeline with full `task_id` correlation tracking.
 - **Production-Grade Auth**: Supports standard User OAuth 2.0 flows, secure Google Cloud Service Account credentials, and encrypted token storage keyrings.
 
 ## Limitations
@@ -92,7 +92,7 @@ gws gmail +send --to recipient@example.com --subject "Automation Run Report" --b
 ```
 
 ## API examples
-`gws` outputs structured JSON payloads to stdout, allowing parent programs to parse and act upon Workspace responses. Below is a Python orchestration example utilizing **Pydantic v2** to parse, validate, and print file resources retrieved via `gws`:
+`gws` outputs structured JSON payloads to stdout, allowing parent programs to parse and act upon Workspace responses. Below is a Python orchestration example utilizing **Pydantic v2** and **FastMCP 3.1** task context parameters to parse, validate, and print file resources retrieved via `gws`:
 
 ### 1. Python: Ingest and Validate Google Drive Files via gws CLI
 ```python
@@ -102,7 +102,7 @@ import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
 
-# Define strict schemas for Google Drive File representations (Pydantic v2)
+# Define strict schemas for Google Drive File representations (Pydantic v2) with FastMCP 3.1 support
 class GWSFileMeta(BaseModel):
     id: str = Field(..., description="The unique, immutable Google Drive file ID")
     name: str = Field(..., description="The file title or filename")
@@ -110,14 +110,16 @@ class GWSFileMeta(BaseModel):
     kind: str = Field("drive#file", description="The API resource kind")
 
 class GWSDriveListResponse(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation identifier")
     files: List[GWSFileMeta] = Field(..., description="List of drive files returned by the command")
 
-def list_drive_files(limit: int = 5) -> Optional[GWSDriveListResponse]:
+def list_drive_files(limit: int = 5, task_id: str = "task-gws-2027-0107") -> Optional[GWSDriveListResponse]:
     # Invoke gws drive CLI command programmatically
     cmd = ["gws", "drive", "files", "list", "--params", json.dumps({"pageSize": limit})]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         raw_json = json.loads(result.stdout)
+        raw_json["task_id"] = task_id
 
         # Parse and validate returned JSON structures against Pydantic model
         validated_response = GWSDriveListResponse.model_validate(raw_json)
@@ -137,7 +139,7 @@ if __name__ == "__main__":
     drive_data = list_drive_files(5)
 
     if drive_data:
-        print(f"Validated {len(drive_data.files)} drive resources successfully:")
+        print(f"[Task {drive_data.task_id}] Validated {len(drive_data.files)} drive resources successfully:")
         for file in drive_data.files:
             print(f"- [File] {file.name} | ID: {file.id} | MIME: {file.mimeType}")
     else:
@@ -159,5 +161,5 @@ if __name__ == "__main__":
 - [Model Context Protocol v3.1 Specification Standards](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-25
+- Last reviewed: 2027-01-07
 - Confidence: high

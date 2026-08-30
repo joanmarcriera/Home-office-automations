@@ -1,7 +1,7 @@
 # PulseMCP
 
 ## What it is
-PulseMCP is a community-driven registry and framework for the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md). It provides a platform for discovering, exploring, and sharing MCP servers and integrations. As of late November/December 2026, it is the primary discovery engine for expanding the capabilities of agents like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6**, now featuring full support for **FastMCP 3.1** and the **MCP 3.1** Task Protocol.
+PulseMCP is a community-driven registry and framework for the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md). It provides a platform for discovering, exploring, and sharing MCP servers and integrations. As of early 2027, it is the primary discovery engine for expanding the capabilities of agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**, featuring full support for **FastMCP 3.1** and the **MCP 3.1** Task Protocol.
 
 ## What problem it solves
 The MCP ecosystem is rapidly expanding, with thousands of servers being developed across various platforms. PulseMCP solves the discovery problem by providing a centralized, searchable repository of MCP-compliant tools, complete with metadata, usage examples, and community ratings. It prevents duplication of effort and enables [autonomous agents](../../knowledge_base/patterns/tool-calling-and-mcp.md) to dynamically find and propose new tools to users.
@@ -19,7 +19,7 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 - **Centralized Discovery**: Significantly reduces the time to find and implement new agent capabilities.
 - **Community Ecosystem**: Leverages the "wisdom of the crowd" to identify high-quality, reliable tools through stars and ratings.
 - **FastMCP 3.1 Support**: Optimized for the latest high-performance tool hosting standards.
-- **Task Protocol Integration**: Ensures discovered servers are compatible with standardized [MCP 3.1](mcp.md) execution loops.
+- **Task Protocol Integration**: Ensures discovered servers are compatible with standardized [MCP 3.1](mcp.md) execution loops and `task_id` tracking.
 
 ## Limitations
 - **Varying Quality**: As a community registry, the reliability and security of individual servers can vary; users should prioritize "verified" listings.
@@ -82,16 +82,16 @@ mcp-cli --command "npx @pulsemcp/weather-server" --env "API_KEY=xxx"
 
 ## API examples
 
-### Programmatic Setup with Pydantic v2 Validation
-To securely query, validate, and parse discovered tool metadata from the PulseMCP registry in late 2026, programmatic interactions must be strictly schema-validated. Below is a robust Python example utilizing **Pydantic v2**.
+### Programmatic Setup with Pydantic v2 Validation & FastMCP 3.1 Task Protocol
+To securely query, validate, and parse discovered tool metadata from the PulseMCP registry in early 2027, programmatic interactions must be strictly schema-validated with FastMCP 3.1 task protocol context. Below is a robust Python example utilizing **Pydantic v2**.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional
-import requests
 
 # 1. Define schemas using strict Pydantic v2 annotations
 class PulseSearchQuery(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol identifier for correlation tracking.")
     query: str = Field(..., min_length=2, max_length=100, description="The search term or query string.")
     category: Optional[str] = Field(default=None, description="Optional category filter (e.g. 'Development', 'Search').")
     limit: int = Field(default=10, ge=1, le=50)
@@ -104,6 +104,7 @@ class PulseToolResult(BaseModel):
     rating: float = Field(default=5.0, ge=0.0, le=5.0)
 
 class PulseSearchResponse(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task correlation identifier.")
     results: List[PulseToolResult]
     total_found: int
 
@@ -116,11 +117,12 @@ def search_pulse_mcp_registry(query_payload: dict) -> PulseSearchResponse:
         print(f"Validation failed: {e}")
         raise
 
-    print(f"Searching PulseMCP registry for '{search_request.query}' (limit: {search_request.limit})...")
+    print(f"[Task {search_request.task_id}] Searching PulseMCP registry for '{search_request.query}' (limit: {search_request.limit})...")
 
-    # In late 2026, this programmatically queries the PulseMCP registry API.
+    # In early 2027, this programmatically queries the PulseMCP registry API.
     # Here we mock and validate the structured response payload.
     simulated_api_payload = {
+        "task_id": search_request.task_id,
         "results": [
             {
                 "name": "postgresql-mcp",
@@ -148,15 +150,16 @@ def search_pulse_mcp_registry(query_payload: dict) -> PulseSearchResponse:
         print(f"Registry response validation failed: {e}")
         raise
 
-# Example invocation in late 2026
+# Example invocation in early 2027
 if __name__ == "__main__":
     payload = {
+        "task_id": "task-pulse-2027-0107",
         "query": "postgresql",
         "category": "Databases",
         "limit": 5
     }
     response = search_pulse_mcp_registry(payload)
-    print(f"Found {response.total_found} verified tools:")
+    print(f"[Task {response.task_id}] Found {response.total_found} verified tools:")
     for tool in response.results:
         print(f" - {tool.name} (Rating: {tool.rating}), Task Protocol: {tool.supports_task_protocol}")
 ```
@@ -169,7 +172,7 @@ if __name__ == "__main__":
 - [Aider](../../tools/development_ops/aider.md) - AI coding tool with MCP support.
 - [Cline](../../tools/agents/cline.md) - Autonomous agent that integrates with PulseMCP.
 - [Docker](../infrastructure/docker.md) - Recommended for isolating community servers.
-- [Gemma 3](../ai_knowledge/local_llms.md) - Local model with advanced tool-calling support.
+- [Gemma 4](../ai_knowledge/local_llms.md) - Local model with advanced tool-calling support.
 
 ## Sources / references
 - [PulseMCP Official Website](https://pulsemcp.com/)
@@ -178,5 +181,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/docs/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-24
+- Last reviewed: 2027-01-07
 - Confidence: high

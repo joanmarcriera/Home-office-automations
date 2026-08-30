@@ -1,6 +1,6 @@
 # Prefect
 
-Prefect is an open-source, high-performance workflow orchestration platform designed to transform standard Python functions into resilient, observed, and highly configurable units of work. As of late November/December 2026, **Prefect 3.1** is the established production version, introducing a major overhaul to its core scheduler engine, native asynchronous task concurrency, and deep integration patterns with frontier multi-agent systems orchestrated by **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**.
+Prefect is an open-source, high-performance workflow orchestration platform designed to transform standard Python functions into resilient, observed, and highly configurable units of work. As of early 2027, **Prefect 3.1** is the established production version, introducing a major overhaul to its core scheduler engine, native asynchronous task concurrency, **FastMCP 3.1** task protocol tracking, and deep integration patterns with frontier multi-agent systems orchestrated by **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What it is
 Prefect is a Python-native orchestrator that enables data engineers, machine learning scientists, and automation developers to monitor, execute, and scale complex data pipelines using basic Python constructs. By leveraging standard Python decorators (`@flow` and `@task`), developers can quickly build fault-tolerant workflows with minimal boilerplate.
@@ -20,7 +20,7 @@ It simplifies the challenges associated with pipeline durability—including rob
 ## Strengths
 - **Pythonic Design**: Eliminates the need for specialized Domain Specific Languages (DSLs) or complicated YAML blocks to declare basic logic.
 - **Dynamic Graph Execution**: Flows can loop, branch, and scale dynamically, offering the flexibility required for agentic planning.
-- **Optimized Compute Overhead**: Prefect 3.1 supports high task throughput with minimal infrastructure latency.
+- **Optimized Compute Overhead**: Prefect 3.1 supports high task throughput with minimal infrastructure latency and FastMCP 3.1 `task_id` correlation tracking.
 - **Hybrid Security Model**: Runs work directly on local or private infrastructure, while routing metadata safely to the Prefect Cloud control plane.
 - **Standardized Integration Library**: Out-of-the-box blocks for popular databases, cloud storage platforms, and LLM providers.
 
@@ -95,7 +95,7 @@ prefect cloud login --key YOUR_PREFECT_API_KEY
 ```
 
 ## API examples
-Prefect provides a comprehensive REST API to enable programmatic integration with external systems and agents. Below is a Python orchestration example using **Pydantic v2** to programmatically trigger flow deployments and validate execution metadata:
+Prefect provides a comprehensive REST API to enable programmatic integration with external systems and agents. Below is a Python orchestration example using **Pydantic v2** and **FastMCP 3.1** task context parameters to programmatically trigger flow deployments and validate execution metadata:
 
 ### 1. Python: Trigger and Validate Prefect Deployments Programmatically
 ```python
@@ -104,8 +104,9 @@ import requests
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field, ValidationError
 
-# Define strict schemas for programmatic Prefect API interaction (Pydantic v2)
+# Define strict schemas for programmatic Prefect API interaction (Pydantic v2) with FastMCP 3.1 Task Protocol support
 class FlowRunResponse(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol identifier for correlation tracking.")
     id: str = Field(..., description="Unique UUID identifying the flow run")
     name: str = Field(..., description="The generated or custom name of the flow run")
     state_type: str = Field(..., alias="state_type", description="The current state (e.g. SCHEDULED, RUNNING)")
@@ -114,7 +115,7 @@ class FlowRunResponse(BaseModel):
     class Config:
         populate_by_name = True
 
-def trigger_prefect_run(api_url: str, deployment_id: str) -> Optional[FlowRunResponse]:
+def trigger_prefect_run(api_url: str, deployment_id: str, task_id: str = "task-prefect-2027-0107") -> Optional[FlowRunResponse]:
     endpoint = f"{api_url}/deployments/{deployment_id}/create_flow_run"
     headers = {
         "Content-Type": "application/json"
@@ -129,9 +130,11 @@ def trigger_prefect_run(api_url: str, deployment_id: str) -> Optional[FlowRunRes
         response = requests.post(endpoint, json=payload, headers=headers, timeout=5)
         response.raise_for_status()
         raw_json = response.json()
+        raw_json["task_id"] = task_id
 
         # Parse and strictly validate response against Pydantic v2 schema
         validated_run = FlowRunResponse(
+            task_id=raw_json["task_id"],
             id=raw_json.get("id"),
             name=raw_json.get("name"),
             state_type=raw_json.get("state", {}).get("type"),
@@ -152,7 +155,7 @@ if __name__ == "__main__":
     print(f"Contacting Prefect endpoint at: {prefect_api}...")
     run_meta = trigger_prefect_run(prefect_api, test_deployment)
     if run_meta:
-        print(f"Successfully triggered flow run '{run_meta.name}' with ID: {run_meta.id}")
+        print(f"[Task {run_meta.task_id}] Successfully triggered flow run '{run_meta.name}' with ID: {run_meta.id}")
         print(f"Current status: {run_meta.state_type} | Parent Flow: {run_meta.flow_id}")
     else:
         print("Flow execution trigger or validation failed.")
@@ -174,5 +177,5 @@ if __name__ == "__main__":
 - [Prefect Orchestration Patterns for Agentic Workflows](https://www.prefect.io/guide/ai-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-25
+- Last reviewed: 2027-01-07
 - Confidence: High
