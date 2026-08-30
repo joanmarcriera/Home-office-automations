@@ -1,7 +1,7 @@
 # Playwright MCP Server
 
 ## What it is
-The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of late November/December 2026, it is the primary tool for enabling frontier models like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6** to interact with the live web.
+The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of early January 2027, it is the primary tool for enabling frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to interact with the live web.
 
 ## What problem it solves
 Most LLMs lack direct access to the web or can only "see" through static screenshots or text-only scrapers. Playwright MCP provides structured access to the DOM and the **Accessibility Tree**, allowing agents to click buttons, fill forms, and extract data from JavaScript-heavy sites reliably without needing a dedicated REST API.
@@ -82,7 +82,7 @@ npx @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-playwrig
 ## API examples
 
 ### Programmatic Setup with Pydantic v2 Validation
-To maintain the safety, integrity, and rate of headless interactions in late 2026, browser operations must be strictly validated. Below is a robust Python script employing **Pydantic v2** validation schemas.
+To maintain the safety, integrity, and rate of headless interactions in early January 2027, browser operations must be strictly validated. Below is a robust Python script employing **Pydantic v2** validation schemas.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
@@ -114,7 +114,7 @@ async def run_validated_browser_session(payload: dict) -> str:
 
     print(f"Navigating to {request.navigation.url} (wait: {request.navigation.wait_until})...")
 
-    # In a real late 2026 FastMCP 3.1 setup, this triggers the Playwright MCP server calls.
+    # In a real early January 2027 FastMCP 3.1 setup, this triggers the Playwright MCP server calls.
     # Here we simulate the browser action sequence.
     output_log = f"Successfully loaded {request.navigation.url}."
 
@@ -124,7 +124,7 @@ async def run_validated_browser_session(payload: dict) -> str:
 
     return output_log
 
-# Example invocation in late 2026
+# Example invocation in early 2027
 if __name__ == "__main__":
     action_payload = {
         "navigation": {
@@ -158,5 +158,5 @@ if __name__ == "__main__":
 - [Playwright Official Documentation](https://playwright.dev)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-24
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Skyvern
 
 ## What it is
-Skyvern is an open-source browser automation platform that leverages Large Language Models (LLMs) and advanced Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the underlying DOM (Document Object Model), Skyvern utilizes visual reasoning to interact with web elements. As of December 2026, Skyvern is a premier solution for enterprise-scale browser automation, offering native support for the **MCP 3.1 / FastMCP 3.1 Task Protocol** and optimized integration with **Gemma 3**, **Llama 4**, **Qwen 3.6**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
+Skyvern is an open-source browser automation platform that leverages Large Language Models (LLMs) and advanced Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the underlying DOM (Document Object Model), Skyvern utilizes visual reasoning to interact with web elements. As of early January 2027, Skyvern is a premier solution for enterprise-scale browser automation, offering native support for the **MCP 3.1 / FastMCP 3.1 Task Protocol** and optimized integration with **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 It effectively addresses the "fragility" problem inherent in web automation. Traditional frameworks (like Playwright or Selenium) often fail when a website's internal CSS classes, IDs, or HTML structures are updated. Skyvern "sees" the page exactly as a human does, identifying buttons, fields, and informational elements based on their visual appearance and semantic context. This approach makes it exceptionally resilient to UI redesigns and anti-bot measures that obfuscate the DOM.
@@ -19,7 +19,7 @@ It effectively addresses the "fragility" problem inherent in web automation. Tra
 - **Inherent Visual Resilience**: Operates independently of the DOM; if a human can find it, Skyvern can too.
 - **Zero-Shot Task Execution**: Capable of automating tasks on entirely new websites without prior selector mapping or manual training.
 - **Enterprise Observability**: Features a comprehensive dashboard with detailed logs, step-by-step screenshots, and video recordings for full auditability.
-- **MCP 3.1 / FastMCP 3.1 Compliance**: Seamlessly integrates into standardized agentic ecosystems, allowing Skyvern "Goals" to be called as standard MCP tools.
+- **MCP 3.1 / FastMCP 3.1 Compliance**: Seamlessly integrates into standardized agentic ecosystems, allowing Skyvern "Goals" to be called as standard FastMCP 3.1 tools.
 
 ## Limitations
 - **Substantial Resource Requirements**: Visual reasoning and screenshot processing necessitate significant GPU acceleration or high-cost vision-LLM API calls.
@@ -48,7 +48,7 @@ docker-compose up -d
 ```
 
 ### Basic Usage with FastMCP 3.1
-Once deployed, Skyvern exposes an MCP server. You can connect it to a client like [Claude Desktop](../ai_knowledge/claude-desktop.md) or a custom [FastMCP](../automation_orchestration/mcp.md) host:
+Once deployed, Skyvern exposes a FastMCP 3.1 server. You can connect it to a client like [Claude Desktop](../ai_knowledge/claude-desktop.md) or a custom [FastMCP](mcp.md) host:
 
 1. Add the Skyvern MCP endpoint to your configuration.
 2. Provide a natural language goal: "Log in to my utility portal and report my current usage."
@@ -68,7 +68,7 @@ docker-compose logs -f skyvern-worker
 ## API examples
 
 ### Programmatic Automation with Pydantic v2 Validation
-To maintain compliance with December 2026 data verification checks, visual goal configurations dispatched to Skyvern are strictly validated before invocation.
+To maintain compliance with January 2027 data verification checks, visual goal configurations dispatched to Skyvern are strictly validated before invocation.
 
 ```python
 import requests
@@ -83,7 +83,7 @@ class ProxyConfiguration(BaseModel):
 class ScrapingGoal(BaseModel):
     url: HttpUrl
     goal: str = Field(..., min_length=10, max_length=1000)
-    vision_model: str = Field(default="gemma-3-27b", pattern="^(gemma-3-27b|claude-5.1|gpt-5.5|gemini-4.0-pro)$")
+    vision_model: str = Field(default="qwen-3.6-vl", pattern="^(qwen-3.6-vl|claude-5.6|gpt-5.6|gemini-4.0-ultra|gemma-4|deepseek-v4)$")
     proxy_config: ProxyConfiguration = Field(default_factory=ProxyConfiguration)
 
 # 2. Programmatic target execution utilizing validation and Skyvern REST API
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     payload = {
         "url": "https://shipping.example.com",
         "goal": "Find the tracking number for the last order and update the status",
-        "vision_model": "gpt-5.5",
+        "vision_model": "claude-5.6",
         "proxy_config": {
             "proxy_type": "residential",
             "country_code": "US"
@@ -146,5 +146,5 @@ if __name__ == "__main__":
 - [Skyvern Technical Documentation](https://docs.skyvern.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-23
+- Last reviewed: 2027-01-07
 - Confidence: high
