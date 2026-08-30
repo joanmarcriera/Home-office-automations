@@ -1,6 +1,6 @@
 # TickTick
 
-TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of late November/December 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summarization, and **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for seamless AI agent integration with frontier models.
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of early January 2027, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summarization, and **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** Task Protocol support for seamless AI agent integration with frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## What it is
 TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
@@ -16,7 +16,7 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
 - **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
 - **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
-- **Agentic Task Management**: Using Claude 5.1, GPT-5.5, or Gemma 3 via MCP 3.1 to create tasks from meeting transcripts or code reviews.
+- **Agentic Task Management**: Using Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, or Qwen 3.6 VL via FastMCP 3.1 Task Protocol to create tasks from meeting transcripts or code reviews.
 
 ## Strengths
 - **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than most competitors.
@@ -160,5 +160,5 @@ except ValidationError as e:
 - [TickTick MCP Server (GitHub)](https://github.com/alexarevalo/mcp-server-ticktick)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

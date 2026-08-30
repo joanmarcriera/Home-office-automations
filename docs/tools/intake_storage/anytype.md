@@ -1,7 +1,7 @@
 # AnyType
 
 ## What it is
-AnyType is an open-source, decentralized, and local-first personal knowledge management application. It is built on the Anysync protocol, which enables peer-to-peer data synchronization and end-to-end encryption. As of late 2026, it is a primary target for **Agentic Knowledge Management** due to its local-first API and deep support for the [Model Context Protocol](../automation_orchestration/mcp.md) (MCP 3.1 / FastMCP 3.1).
+AnyType is an open-source, decentralized, and local-first personal knowledge management application. It is built on the Anysync protocol, which enables peer-to-peer data synchronization and end-to-end encryption. As of early January 2027, it is a primary target for **Agentic Knowledge Management** due to its local-first API and deep support for the [Model Context Protocol](../automation_orchestration/mcp.md) (MCP 3.1 / FastMCP 3.1 Task Protocol).
 
 ## What problem it solves
 It provides a unified "operating system for your life," allowing you to store notes, tasks, files, and data in a structured, private environment. It eliminates reliance on centralized cloud providers by keeping your data on your own devices while still offering seamless synchronization.
@@ -41,7 +41,7 @@ It provides a unified "operating system for your life," allowing you to store no
 Download the desktop client for your platform from the [official downloads page](https://anytype.io/download). For headless use in late 2026, the `any-sync-node` can be deployed via Docker.
 
 ### 2. Enable API Access
-Anytype provides a local API (typically on port 31009). To use it with advanced AI agents running frontier models such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**:
+Anytype provides a local API (typically on port 31009). To use it with advanced AI agents running frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, or **Qwen 3.6 VL**:
 1. Open Anytype Settings > API Keys.
 2. Create a new API Key.
 3. Use the provided credentials to connect via the Model Context Protocol (FastMCP 3.1).
@@ -151,5 +151,5 @@ if __name__ == "__main__":
 - [AnyType Documentation](https://doc.anytype.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high

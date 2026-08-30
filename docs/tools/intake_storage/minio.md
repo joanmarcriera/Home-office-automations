@@ -1,7 +1,7 @@
 # MinIO
 
 ## What it is
-MinIO is a high-performance, S3-compatible object storage server designed for large-scale AI/ML data infrastructure, high-concurrency workloads, and private-cloud storage. As of late November/December 2026, it implements the Amazon S3 API entirely in software, allowing developers to manage self-hosted object stores with optimized performance for modern LLM fine-tuning pipelines and agent workflows.
+MinIO is a high-performance, S3-compatible object storage server designed for large-scale AI/ML data infrastructure, high-concurrency workloads, and private-cloud storage. As of early January 2027, it implements the Amazon S3 API entirely in software, allowing developers to manage self-hosted object stores with optimized performance for modern LLM fine-tuning pipelines and FastMCP 3.1 agent workflows.
 
 ## What problem it solves
 It provides a way to host your own S3-compatible storage on-premises or in private clouds, offering the same API as Amazon S3 but with full control over the infrastructure, data sovereignty, and cost. It eliminates vendor lock-in for object storage and enables low-latency model loading and dataset interaction within local environments.
@@ -13,7 +13,7 @@ It provides a way to host your own S3-compatible storage on-premises or in priva
 - **AI/ML Data Lake**: Storing large datasets (Terabytes to Petabytes) for AI model training, fine-tuning, and evaluation.
 - **Self-Hosted Backend**: Providing S3-compatible storage for applications like [Nextcloud](../../services/nextcloud.md), [Gitea](../../services/gitea.md), or [Authentik](../../services/authentik.md).
 - **Private Cloud Infrastructure**: Building a scalable data layer for enterprise Kubernetes clusters.
-- **Agentic Model Management**: Using MCP 3.1 / FastMCP 3.1 to allow agents (using frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6) to autonomously version and deploy LLM weights from MinIO buckets.
+- **Agentic Model Management**: Using FastMCP 3.1 Task Protocol to allow agents (using frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL) to autonomously version and deploy LLM weights from MinIO buckets.
 
 ## Strengths
 - **Extreme Performance**: Capable of hundreds of GB/s throughput, with native support for NVIDIA Blackwell/NVLink-integrated storage protocols, enabling 10x faster model weight loading.
@@ -157,5 +157,5 @@ except ValidationError as e:
 - [MinIO Blackwell Performance Benchmarks (2026 Update)](https://www.min.io/blog/blackwell-storage-performance)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high

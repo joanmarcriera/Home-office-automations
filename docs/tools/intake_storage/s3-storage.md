@@ -1,7 +1,7 @@
 # S3 / S3-Compatible Storage
 
 ## What it is
-S3 (Simple Storage Service) is a highly scalable object storage service pioneered by AWS. "S3-compatible" refers to storage services and software (like Cloudflare R2, MinIO, or Google Cloud Storage) that utilize the exact same API for object management. As of late November/December 2026, it is the universal backbone for AI data persistence, log archiving, and federated storage across hybrid cloud environments.
+S3 (Simple Storage Service) is a highly scalable object storage service pioneered by AWS. "S3-compatible" refers to storage services and software (like Cloudflare R2, MinIO, or Google Cloud Storage) that utilize the exact same API for object management. As of early January 2027, it is the universal backbone for AI data persistence, log archiving, and federated storage across hybrid cloud environments, supporting FastMCP 3.1 Task Protocol integrations and multi-agent trace streams.
 
 ## What problem it solves
 It provides virtually unlimited, durable, and highly available storage for unstructured data (images, videos, documents, backups, and logs). It allows AI agents and applications to store and retrieve data from any location via simple HTTP/HTTPS calls, serving as the primary "data lake" for agentic workflows and long-term memory.
@@ -12,9 +12,9 @@ It provides virtually unlimited, durable, and highly available storage for unstr
 ## Typical use cases
 - **AI Log Storage**: Storing raw traces and JSON logs from AI providers like [OpenRouter](../ai_knowledge/openrouter.md).
 - **RAG Data Lakes**: Hosting the original PDF, Word, and HTML documents used in retrieval-augmented generation.
-- **Model Checkpoint Storage**: Saving and versioning large LLM weights and fine-tuning artifacts for Llama 4, Mistral, and Qwen 3.6.
+- **Model Checkpoint Storage**: Saving and versioning large LLM weights and fine-tuning artifacts for Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 - **Data Backups**: Storing automated backups of home-office services and knowledge bases.
-- **Agent Memory Persistence**: Saving long-term context files for frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, and Qwen 3.6.
+- **Agent Memory Persistence**: Saving long-term context files for frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 - **OIDC-Auth Storage**: Implementing secure, identity-based access for AI agents to private data buckets.
 
 ## Strengths
@@ -160,5 +160,5 @@ except ValidationError as e:
 - [OIDC for S3 access](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-21
+- Last reviewed: 2027-01-07
 - Confidence: high
