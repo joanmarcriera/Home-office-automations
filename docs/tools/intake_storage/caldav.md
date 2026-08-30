@@ -1,7 +1,7 @@
 # CalDAV
 
 ## What it is
-CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange. As of late 2026, it remains the primary open standard for cross-vendor calendar synchronization in sovereign AI stacks.
+CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange. As of early January 2027, it remains the primary open standard for cross-vendor calendar synchronization in sovereign AI stacks, supporting FastMCP 3.1 Task Protocol integrations.
 
 ## What problem it solves
 It provides an open, standardized protocol for calendar synchronization, enabling interoperability between different calendar clients (e.g., Apple Calendar, Thunderbird, Android apps) and servers (e.g., Nextcloud, Radicale, Baïkal, Google Calendar) without vendor lock-in. It allows users to own their scheduling data while maintaining cross-device availability.
@@ -84,7 +84,7 @@ curl -u 'user:password' https://caldav.example.com/remote.php/dav/calendars/user
 ## API examples
 
 ### Python Integration with Strict Pydantic v2 Validation
-To integrate CalDAV with AI agents using frontier models (e.g., **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, or **Qwen 3.6**), schedules must be parsed and validated programmatically to avoid syntax injection and data corruption.
+To integrate CalDAV with AI agents using frontier models (e.g., **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, or **Qwen 3.6 VL**), schedules must be parsed and validated programmatically to avoid syntax injection and data corruption.
 
 ```python
 import caldav
@@ -157,5 +157,5 @@ def fetch_verified_schedule(cal_url: str, user: str, sec: str) -> List[CalendarE
 - [FastMCP 3.1 Task Protocol for Calendaring](https://modelcontextprotocol.io/3.1/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high
