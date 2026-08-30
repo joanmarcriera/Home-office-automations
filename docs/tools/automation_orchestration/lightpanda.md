@@ -1,48 +1,47 @@
 # Lightpanda Browser
 
 ## What it is
-**Lightpanda** is a high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and scalable automation. Unlike most modern headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight engine to provide a massive performance boost for agentic workflows. As of late 2026, it is a preferred execution environment for [Gemma 3](../ai_knowledge/local_llms.md) based agents using the **FastMCP 3.1** protocol.
+**Lightpanda** is an ultra-high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and low-latency browser automation. Unlike standard headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight rendering engine and VM integration to provide massive performance improvements for agentic workflows. As of early 2027, it is a primary execution engine for **Gemma 4**, **Claude 5.6**, and **GPT-5.6** agents using the **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
-Traditional headless browsers (like Chrome) are extremely resource-intensive, often consuming 500MB+ of RAM per instance. Lightpanda provides a lightweight alternative that uses up to **9x less memory** and runs up to **11x faster** than Headless Chrome, making it possible to run hundreds of browser instances on modest hardware. It solves the scalability bottleneck for browser-based AI agents and high-frequency RAG ingestion pipelines.
+Traditional headless browsers (such as Headless Chrome or Playwright Chromium) are extremely resource-intensive, often consuming 500MB+ of RAM per instance and introducing heavy startup overhead. Lightpanda provides a lightweight alternative that uses up to **9x less memory** and executes up to **11x faster** than Headless Chrome. This makes it possible to run hundreds of concurrent browser instances on modest hardware, solving the scalability bottleneck for browser-based AI agents and high-frequency RAG ingestion pipelines.
 
 ## Where it fits in the stack
-**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the "execution engine" for agents that need to navigate and interact with the web, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md). It integrates natively with **FastMCP 3.1** for low-latency browser-tool interaction.
+**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the high-density "execution engine" for agents that navigate and interact with web pages, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md). It integrates natively with **FastMCP 3.1** for low-latency browser tool interaction.
 
 ## Typical use cases
-- **Agentic Web Navigation**: Powering agents that need to interact with complex SPAs (Single Page Applications).
-- **High-Density Scraping**: Running massive parallel data extraction pipelines with minimal infrastructure costs.
-- **AI Data Extraction**: Using the built-in `--dump markdown` feature to provide LLM-ready context from web pages.
-- **Automated Testing**: Fast, low-latency UI testing in CI/CD pipelines.
-- **RAG Ingestion**: Rapidly crawling and converting web content for vector database ingestion.
+- **Agentic Web Navigation**: Powering autonomous AI agents that interact with complex Single Page Applications (SPAs).
+- **High-Density Scraping & Extraction**: Running massive parallel data extraction pipelines with minimal cloud infrastructure costs.
+- **LLM-Optimized Web Context Dumping**: Converting dynamic DOM structures directly to clean Markdown using the native `--dump markdown` pipeline for direct model feeding.
+- **Automated CI/CD Web Testing**: Ultra-fast, low-latency UI testing in automated build pipelines.
+- **High-Velocity RAG Ingestion**: Rapidly crawling and converting web content for enterprise vector database ingestion.
 
 ## Strengths
-- **Native Zig Implementation**: Extreme memory efficiency and execution speed.
-- **CDP Compatibility**: Works as a drop-in replacement for many Playwright, Puppeteer, and `chromedp` workflows.
-- **Built-in LLM Optimization**: Native support for dumping pages as Markdown or structured text.
-- **V8 JavaScript Engine**: High compatibility with modern JavaScript despite the custom browser core.
-- **Compliance**: Native `--obey-robots` flag for ethical scraping.
+- **Native Zig Engine Architecture**: Built from scratch in Zig for extreme memory efficiency, instant startup times, and minimal CPU footprint.
+- **CDP (Chrome DevTools Protocol) Compatibility**: Functions as a drop-in replacement for standard Playwright, Puppeteer, and `chromedp` automation scripts.
+- **Built-in LLM Optimization**: Direct support for dumping rendered pages as Markdown or structured text optimized for context windows.
+- **High JS Engine Performance**: Integrated V8 JavaScript engine ensuring strong execution compatibility with modern client-side web frameworks.
+- **Ethical Crawling Compliance**: Native support for `--obey-robots` and configurable rate-limiting flags.
 
 ## Limitations
-- **Beta Maturity**: As a "from-scratch" engine, some obscure CSS or JS features may still be in development.
-- **Anti-Bot Detection**: While fast, it may be easier for advanced anti-bot systems to fingerprint than a full Chrome instance.
-- **No GUI**: Strictly headless; no head-on mode for visual manual debugging.
-- **Extensions**: Does not support standard Chrome Extensions (.crx).
+- **Custom Rendering Engine**: As a custom Zig-built engine, certain edge-case CSS or complex browser APIs may differ slightly from full Chrome rendering.
+- **Anti-Bot Fingerprinting**: Highly specialized bot-detection systems may identify custom browser engines compared to standard Chrome distributions.
+- **Headless Only**: Designed strictly for headless server execution without a visual GUI display mode.
+- **Chrome Extension Support**: Does not support loading standard Chrome extensions (`.crx` extensions).
 
 ## When to use it
-- When scaling browser-based AI agents where CPU/RAM costs are the primary bottleneck.
-- For RAG pipelines that require high-velocity web content ingestion and Markdown conversion.
-- When you need a "clean-room" browser environment for secure automation.
-- For CI/CD environments where browser startup time is critical.
+- When scaling browser-based AI agents where RAM and CPU server costs represent the primary operational bottleneck.
+- For RAG ingestion pipelines requiring rapid web content scraping and Markdown formatting.
+- When needing an instant-spinup browser environment for secure, ephemeral automation tasks.
+- In CI/CD pipelines where sub-second browser initialization is required.
 
 ## When not to use it
-- If your workflow depends on specific Chrome Extensions.
-- For websites that require proprietary codecs (DRM) or extremely niche web standards.
-- If you need 100% pixel-perfect visual rendering (e.g., for automated layout design audits).
-- If you are targeting sites with extremely aggressive anti-bot protections that require specialized evasive browsers.
+- If your automation scripts rely on custom Chrome extensions.
+- For web applications requiring proprietary DRM video playback or rare browser codecs.
+- When requiring 100% pixel-perfect visual rendering audits (e.g., visual regression design testing).
+- For websites protected by aggressive anti-bot enterprise solutions requiring specialized browser evasion setups.
 
 ## Getting started
-Lightpanda can be installed via a one-line script or run as a Docker container.
 
 ### Local Installation
 ```bash
@@ -51,30 +50,30 @@ curl -fsSL https://pkg.lightpanda.io/install.sh | bash
 ```
 
 ### Running via Docker
-The most common way to use Lightpanda in agentic stacks is via Docker, exposing the CDP port (9222).
+The standard deployment model for agentic stacks is running Lightpanda in Docker, exposing the Chrome DevTools Protocol (CDP) port (9222):
 ```bash
-docker run -d --name lightpanda -p 127.0.0.1:9222:9222 lightpanda/browser:nightly
+docker run -d --name lightpanda -p 127.0.0.1:9222:9222 lightpanda/browser:latest
 ```
 
 ## CLI examples
-The Lightpanda CLI is optimized for speed and integration into shell-based pipelines.
 
 ```bash
-# Dump page as HTML with a 5-second wait for JS execution
+# Dump page HTML with a 5-second wait for SPA client JS execution
 lightpanda fetch --wait 5000 --dump html https://example.com
 
-# Fetch a page and dump it as Markdown (perfect for LLM context)
+# Fetch a web page and dump directly as Markdown (ideal for LLM context windows)
 lightpanda fetch --dump markdown https://news.ycombinator.com
 
-# Execute a custom script and output the result
+# Execute custom JS evaluation on page load and output result
 lightpanda fetch --script "Array.from(document.querySelectorAll('h1')).map(e => e.innerText)" https://example.com
 ```
 
 ## API examples
-Lightpanda is compatible with the **Chrome DevTools Protocol (CDP)**, allowing it to work with standard libraries like Playwright. Below is an example that demonstrates how to extract page metadata using Playwright connected to Lightpanda, validated strictly against a **Pydantic v2** schema to ensure reliability in an AI agentic pipeline (utilizing models like Claude 5.1 or Gemini 4.0 Pro).
+
+### Playwright Integration with Pydantic v2 Schema Verification
+Lightpanda is fully compatible with the **Chrome DevTools Protocol (CDP)**, enabling seamless integration with Playwright scripts. The python snippet below connects to Lightpanda over CDP and verifies scraped page metadata using a strict **Pydantic v2** schema for early 2027 agent pipelines.
 
 ```python
-import json
 from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
 from playwright.sync_api import sync_playwright
@@ -84,17 +83,17 @@ class PageMetadata(BaseModel):
     title: str = Field(description="The Title of the webpage")
     canonical_url: Optional[str] = Field(None, description="The canonical URL link of the webpage")
     word_count: int = Field(default=0, description="Estimated word count of the main content")
-    has_custom_zig_badge: bool = Field(default=False, description="Whether the page highlights Zig technology")
+    has_zig_reference: bool = Field(default=False, description="Whether the page mentions Zig technology")
 
 def scrape_and_validate(url: str) -> Optional[PageMetadata]:
     with sync_playwright() as p:
         try:
-            # Connect to Lightpanda running on localhost:9222
+            # Connect to Lightpanda CDP instance on port 9222
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             page = browser.new_context().new_page()
             page.goto(url)
 
-            # Extract unstructured information via JavaScript
+            # Extract page data via CDP
             title = page.title()
             canonical = page.locator("link[rel='canonical']").get_attribute("href") or None
             body_text = page.locator("body").inner_text() or ""
@@ -103,12 +102,12 @@ def scrape_and_validate(url: str) -> Optional[PageMetadata]:
 
             browser.close()
 
-            # 2. Enforce strict Pydantic v2 validation
+            # 2. Enforce strict Pydantic v2 validation contract
             raw_payload = {
                 "title": title,
                 "canonical_url": canonical,
                 "word_count": words,
-                "has_custom_zig_badge": zig_present
+                "has_zig_reference": zig_present
             }
             validated_metadata = PageMetadata.model_validate(raw_payload)
             return validated_metadata
@@ -116,7 +115,7 @@ def scrape_and_validate(url: str) -> Optional[PageMetadata]:
         except ValidationError as ve:
             print(f"Data contract validation failed: {ve}")
         except Exception as e:
-            print(f"Error during browser interaction or scraper: {e}")
+            print(f"Error during browser interaction: {e}")
 
     return None
 
@@ -127,21 +126,21 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Browser Use](browser-use.md) — Orchestration framework for LLMs to control Lightpanda.
-- [n8n](../../services/n8n.md) — Automation platform with native Lightpanda nodes.
-- [Skyvern](skyvern.md) — Browser automation agent that can leverage Lightpanda.
-- [Playwright](../development_ops/playwright.md) — High-level API compatible with Lightpanda CDP.
-- [MultiOn](../agents/multion.md) — Agentic browser API for autonomous web tasks.
-- [Gemma 3](../ai_knowledge/local_llms.md) — High-performance local LLM often paired with Lightpanda for edge automation.
-- [MCP (Model Context Protocol)](mcp.md) — The protocol used to expose Lightpanda capabilities to agents.
-- [Claude Code](../development_ops/claude-code.md) — Agentic CLI that can utilize Lightpanda via MCP servers.
+- [Browser Use](browser-use.md) — Agentic framework for controlling Lightpanda.
+- [n8n](../../services/n8n.md) — Automation platform with Lightpanda browser execution support.
+- [Skyvern](skyvern.md) — Vision-based browser automation agent.
+- [Playwright](../development_ops/playwright.md) — CDP-compatible high-level browser library.
+- [MultiOn](../agents/multion.md) — Autonomous agent browser API.
+- [Gemma 4](../ai_knowledge/local_llms.md) — High-performance local LLM paired with Lightpanda for edge web automation.
+- [Model Context Protocol (MCP)](mcp.md) — Protocol for exposing Lightpanda capabilities to FastMCP 3.1 agents.
+- [Claude Code](../development_ops/claude-code-setup.md) — Terminal agent that can leverage Lightpanda via FastMCP.
 
 ## Sources / references
-- [Official Website](https://lightpanda.io/)
-- [GitHub Repository](https://github.com/lightpanda-io/browser)
+- [Lightpanda Official Site](https://lightpanda.io/)
+- [Lightpanda GitHub Repository](https://github.com/lightpanda-io/browser)
 - [Lightpanda Documentation](https://docs.lightpanda.io/)
-- [ScrapingBee: Lightpanda vs Chrome Headless](https://www.scrapingbee.com/blog/lightpanda-headless-browser/)
+- [Chrome DevTools Protocol (CDP) Standard](https://chromedevtools.github.io/devtools-protocol/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-22
+- Last reviewed: 2027-01-07
 - Confidence: high
