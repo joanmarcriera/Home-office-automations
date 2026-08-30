@@ -1,7 +1,7 @@
 # Elastic (Elasticsearch)
 
 ## What it is
-Elasticsearch is a distributed, RESTful search and analytics engine designed for horizontal scalability, real-time search, and advanced data analysis. As of late November/December 2026, **Elasticsearch v9.5+** is the industry standard for production-grade Retrieval-Augmented Generation (RAG) and hybrid search, featuring the powerful **ES|QL** (Elasticsearch Query Language) and native vector database capabilities.
+Elasticsearch is a distributed, RESTful search and analytics engine designed for horizontal scalability, real-time search, and advanced data analysis. As of early 2027, **Elasticsearch v9.6+** is the industry standard for production-grade Retrieval-Augmented Generation (RAG) and hybrid search, featuring the powerful **ES|QL** (Elasticsearch Query Language) and native vector database capabilities.
 - **Licensing**: Elastic License 2.0 (Source-available) / SSPL / AGPL-3.0
 - **Cost**: Free (Self-hosted) / Paid (Elastic Cloud managed service)
 - **Self-hostable**: Yes
@@ -10,7 +10,7 @@ Elasticsearch is a distributed, RESTful search and analytics engine designed for
 It solves the problem of finding "needles in haystacks" across massive datasets. Traditional databases struggle with fuzzy matching, relevance ranking, and multi-modal (text + vector) queries. Elasticsearch provides a unified infrastructure for logs, metrics, application search, and AI-driven retrieval, eliminating the need for separate keyword and vector stores.
 
 ## Where it fits in the stack
-**Data & Storage Layer / Enterprise AI Search**. It acts as the primary "Context Layer" for agentic workflows, providing high-performance retrieval of both structured and unstructured data. In late November/December 2026, it serves as a central hub for context management across multiple SOTA models (including Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4), integrating smoothly via standard FastMCP 3.1 APIs.
+**Data & Storage Layer / Enterprise AI Search**. It acts as the primary "Context Layer" for agentic workflows, providing high-performance retrieval of both structured and unstructured data. In early 2027, it serves as a central hub for context management across multiple SOTA models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), integrating smoothly via standard FastMCP 3.1 Task Protocol APIs.
 
 ## Typical use cases
 - **Production RAG**: Storing and retrieving chunks of data for LLM context using hybrid search (BM25 + kNN).
@@ -21,10 +21,10 @@ It solves the problem of finding "needles in haystacks" across massive datasets.
 
 ## Strengths
 - **Hybrid Retrieval**: Native support for Reciprocal Rank Fusion (RRF) to combine keyword search (BM25) with dense vector search for maximum RAG accuracy.
-- **ES|QL**: A modern, easy-to-learn query language that replaces complex JSON DSL; v9.5+ adds robust subqueries and JSON function extraction.
+- **ES|QL**: A modern, easy-to-learn query language that replaces complex JSON DSL; v9.6+ adds robust subqueries and JSON function extraction.
 - **Scalability**: Capable of handling petabytes of data across hundreds of nodes with automatic rebalancing and shard management.
 - **Semantic Text**: Native `semantic_text` field type that handles chunking and embedding automatically within the database using internal inference.
-- **FastMCP 3.1 Support**: Native FastMCP 3.1 compatibility allows agents (e.g., Claude 5.1, Gemma 3) to execute context-aware semantic searches directly via standardized tool interfaces.
+- **FastMCP 3.1 Support**: Native FastMCP 3.1 compatibility allows agents (e.g., Claude 5.6, Gemma 4) to execute context-aware semantic searches directly via standardized tool interfaces.
 
 ## Limitations
 - **Operational Complexity**: Managing a multi-node cluster requires significant knowledge of heap tuning, sharding, and index lifecycle management (ILM).
@@ -35,7 +35,7 @@ It solves the problem of finding "needles in haystacks" across massive datasets.
 - When building production-ready RAG systems that require more than just a simple vector store.
 - When you need to search across structured (SQL-like) and unstructured (text/vector) data simultaneously.
 - When you require a centralized logging and monitoring solution (the "Search AI" platform).
-- When enabling autonomous AI search workflows that leverage FastMCP 3.1 and frontier models like Claude 5.1 and Gemma 3.
+- When enabling autonomous AI search workflows that leverage FastMCP 3.1 and frontier models like Claude 5.6 and Gemma 4.
 
 ## When not to use it
 - For simple keyword search on small datasets where a lighter tool would suffice.
@@ -50,7 +50,7 @@ docker run -d --name elasticsearch -p 9200:9200 \
   -e "discovery.type=single-node" \
   -e "xpack.security.enabled=false" \
   -e "ES_JAVA_OPTS=-Xms2g -Xmx2g" \
-  docker.elastic.co/elasticsearch/elasticsearch:9.5.1
+  docker.elastic.co/elasticsearch/elasticsearch:9.6.0
 ```
 
 ### Health Check (cURL)
@@ -72,7 +72,7 @@ The Elastic stack provides several CLI tools, but most interaction happens via t
 # Check cluster version and health
 curl -X GET "http://localhost:9200/"
 
-# Use the ES|QL CLI to run a query (v9.5+)
+# Use the ES|QL CLI to run a query (v9.6+)
 ./bin/elasticsearch-esql-cli --query "FROM logs-* | WHERE level == 'error' | LIMIT 5"
 
 # Manage indices via curl
@@ -83,10 +83,10 @@ mcp register --command "npx" --args "-y @modelcontextprotocol/server-elasticsear
 ```
 
 ## API examples
-Elasticsearch v9.5+ emphasizes ES|QL for analytics and native vector integration for hybrid RAG.
+Elasticsearch v9.6+ emphasizes ES|QL for analytics and native vector integration for hybrid RAG.
 
 ### 1. Hybrid Search (BM25 + kNN) via Python API
-Below is a modern Python snippet executing hybrid search with Reciprocal Rank Fusion (RRF) using the v9.5+ client.
+Below is a modern Python snippet executing hybrid search with Reciprocal Rank Fusion (RRF) using the v9.6+ client.
 
 ```python
 from elasticsearch import Elasticsearch
@@ -139,7 +139,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 class ElasticSearchConfig(BaseModel):
     query_string: str = Field(..., min_length=2, max_length=200)
     target_index: str = Field(..., pattern="^[a-z0-9-_]+$")
-    model_preference: str = Field("claude-5.1", pattern="^(claude-5.1|gpt-5.5|gemma-3|llama-4)$")
+    model_preference: str = Field("claude-5.6", pattern="^(claude-5.6|gpt-5.6|gemma-4|deepseek-v4)$")
     vector_search_enabled: bool = Field(default=True)
     num_results: int = Field(default=10, ge=1, le=100)
 
@@ -153,7 +153,7 @@ class ElasticSearchConfig(BaseModel):
 raw_input = {
     "query_string": "How to scale K3s cluster architectures",
     "target_index": "production-rag-index",
-    "model_preference": "claude-5.1",
+    "model_preference": "claude-5.6",
     "vector_search_enabled": True,
     "num_results": 15
 }
@@ -176,18 +176,18 @@ except ValidationError as e:
 - [Supabase](../infrastructure/supabase.md) — Open-source Postgres database with pgvector vector search capabilities.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized communication protocol for connecting LLMs to data stores.
 - [Claude](../ai_knowledge/claude.md) — Frontier LLM utilized for orchestrating advanced enterprise search workflows.
-- [Gemma 3](../ai_knowledge/gemini-macos.md) — Lightweight model capable of running local vector and semantic searches.
+- [Gemma 4](../ai_knowledge/gemini-macos.md) — Lightweight model capable of running local vector and semantic searches.
 - [RAG Patterns](../../knowledge_base/patterns/rag.md) — Architectural pattern for Retrieval-Augmented Generation context retrieval.
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md) — Technical comparison of dedicated vector databases (Qdrant, Milvus, Pinecone).
 - [LiteLLM](../../services/litellm.md) — Multi-provider LLM proxy for unified model orchestration.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — Core repository-wide multi-agent interaction standard.
 
 ## Sources / references
-- [Elasticsearch v9.5 Release Notes](https://www.elastic.co/guide/en/elasticsearch/reference/current/release-notes.html)
+- [Elasticsearch v9.6 Release Notes](https://www.elastic.co/guide/en/elasticsearch/reference/current/release-notes.html)
 - [ES|QL Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/esql.html)
 - [Elastic Search Labs: RAG and Semantic Search Guide](https://www.elastic.co/search-labs/blog)
 - [Model Context Protocol GitHub Registry](https://github.com/modelcontextprotocol/servers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-28
+- Last reviewed: 2027-01-07
 - Confidence: high

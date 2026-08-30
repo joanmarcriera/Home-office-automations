@@ -1,17 +1,17 @@
 # ZenML
 
 ## What it is
-ZenML is an open-source, extensible MLOps framework designed to create portable, production-ready AI pipelines and agentic workflows. It provides a standardized abstraction layer (the "Stack") that decouples pipeline logic from the underlying infrastructure. As of December 2026, **v1.2.x** is the stable release, featuring native **MLStack** management, robust **Experiment Tracking** integrations, and full support for the **Model Control Plane (FastMCP 3.1)** to empower multi-agent autonomous operations.
+ZenML is an open-source, extensible MLOps framework designed to create portable, production-ready AI pipelines and agentic workflows. It provides a standardized abstraction layer (the "Stack") that decouples pipeline logic from the underlying infrastructure. As of early 2027, **v1.3.x** is the stable release, featuring native **MLStack** management, robust **Experiment Tracking** integrations, and full support for the **Model Control Plane (FastMCP 3.1 Task Protocol)** to empower multi-agent autonomous operations.
 
 ## What problem it solves
-ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its late 2026 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
+ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its 2027 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
 
 ## Where it fits in the stack
 **Orchestration / MLOps Pipeline Framework**. It serves as the management and coordination layer that sits above specialized tools for data versioning, experiment tracking, and model registries. ZenML translates high-level pipeline declarations into target-specific execution steps while maintaining a unified control plane.
 
 ## Typical use cases
 - **MLStack Experiment Tracking**: Integrating unified experiment tracking components (e.g., MLflow, Weights & Biases, or TensorBoard) into swappable stacks to monitor model parameters, training metrics, and artifacts automatically.
-- **Agentic Workflows**: Orchestrating multi-stage AI agents (utilizing models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Gemma 3) that require durable state, observability, and structured execution across distributed environments.
+- **Agentic Workflows**: Orchestrating multi-stage AI agents (utilizing models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL) that require durable state, observability, and structured execution across distributed environments.
 - **Portable ML Pipelines**: Developing cloud-agnostic machine learning lifecycles that can be migrated between environments (local vs. cloud) without modifications to the core code.
 - **Autonomous MLOps**: Enabling autonomous coding agents like Claude Code to independently inspect active stack configurations, run pipelines, and evaluate experiment metrics via FastMCP 3.1 tool interfaces.
 
@@ -58,7 +58,7 @@ def train_and_track_step(data: str) -> dict:
     # Log training metrics to the active MLStack experiment tracker
     import mlflow
 
-    accuracy = 0.945
+    accuracy = 0.958
     mlflow.log_param("data_source", data)
     mlflow.log_metric("accuracy", accuracy)
 
@@ -66,7 +66,7 @@ def train_and_track_step(data: str) -> dict:
 
 @pipeline
 def agentic_ml_pipeline():
-    train_and_track_step(data="december_2026_dataset")
+    train_and_track_step(data="january_2027_dataset")
 
 if __name__ == "__main__":
     agentic_ml_pipeline()
@@ -197,12 +197,12 @@ except ValidationError as e:
 - [Argo Workflows](argo-workflows.md) — Kubernetes-native orchestration for parallel containerized pipelines.
 - [Apache Hamilton](apache-hamilton.md) — Elegant micro-framework for defining data and model pipelines.
 - [Model Control Plane (MCP)](../automation_orchestration/mcp.md) — The core protocol standard for extending ZenML with agentic tooling.
-- [Claude 5.1](../ai_knowledge/claude-mythos.md) — Primary frontier model for orchestrating ZenML tasks and auditing experiment parameters.
-- [GPT-5.5](../ai_knowledge/chatgpt.md) — SOTA model for advanced pipeline synthesis.
-- [Gemini 4.0 Pro](../ai_knowledge/gemini-macos.md) — High-performance reasoner.
-- [Llama 4](../ai_knowledge/llama.md) — Next-generation open model.
-- [Gemma 3](../ai_knowledge/gemma.md) — Lightweight, high-performance model for local task execution.
-- [Qwen 3.6](../ai_knowledge/qwen.md) — Next-generation open reasoning model.
+- [Claude 5.6](../ai_knowledge/claude-mythos.md) — Primary frontier model for orchestrating ZenML tasks and auditing experiment parameters.
+- [GPT-5.6](../ai_knowledge/chatgpt.md) — SOTA model for advanced pipeline synthesis.
+- [Gemini 4.0 Ultra](../ai_knowledge/gemini-macos.md) — High-performance reasoner.
+- [Gemma 4](../ai_knowledge/gemma.md) — Lightweight, high-performance model for local task execution.
+- [DeepSeek-V4](../ai_knowledge/deepseek.md) — Frontier reasoning model.
+- [Qwen 3.6 VL](../ai_knowledge/qwen.md) — SOTA vision-language model.
 - [LiteLLM](../../services/litellm.md) — Proxy tool for managing multiple LLM providers within pipeline steps.
 - [n8n](../../services/n8n.md) — Visual workflow automation alternative.
 - [Agent Skills](../../knowledge_base/patterns/prompt_requests.md) — Standard instruction packages for empowering agentic coding tools.
@@ -214,5 +214,5 @@ except ValidationError as e:
 - [GitHub: ZenML Core Repository](https://github.com/zenml-io/zenml)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-26
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Coveo
 
 ## What it is
-Coveo is an enterprise AI platform that provides intelligent search, personalized recommendations, and advanced generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace. As of late November/December 2026, Coveo has integrated the **FastMCP 3.1** protocol, allowing its unified search index to be exposed as a high-fidelity resource for agentic workflows powered by **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
+Coveo is an enterprise AI platform that provides intelligent search, personalized recommendations, and advanced generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace. As of early 2027, Coveo has integrated the **FastMCP 3.1 Task Protocol**, allowing its unified search index to be exposed as a high-fidelity resource for agentic workflows powered by **Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## What problem it solves
 It addresses the critical challenge of information fragmentation and lack of relevance at enterprise scale. By unifying data from hundreds of disparate siloed sources, Coveo ensures that users (customers, employees, or AI agents) receive the most relevant information or products based on their real-time intent, visual context, and historical behavior, thereby reducing "search fatigue" and increasing operational efficiency.
@@ -147,5 +147,5 @@ except ValidationError as e:
 - [Coveo MCP Integration Guide](https://github.com/coveo/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-28
+- Last reviewed: 2027-01-07
 - Confidence: high
