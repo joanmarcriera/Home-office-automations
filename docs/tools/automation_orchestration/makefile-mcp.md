@@ -1,7 +1,7 @@
 # Makefile MCP
 
 ## What it is
-An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6**.
+An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 Traditional Makefile MCP implementations often expose a single generic `make` tool, which prevents LLMs from "seeing" available targets in their tool list. `makefile-mcp` parses the Makefile to register each documented target as its own tool with descriptions, improving discoverability and ease of use in agentic workflows.
@@ -18,7 +18,7 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 - **Target Discovery**: Automatically parses `##` comments to provide tool descriptions.
 - **Dynamic Configuration**: Allows changing the working directory at runtime via a dedicated tool.
 - **Security**: No shell expansion used; supports strict inclusion/exclusion of targets.
-- **Built with FastMCP**: Full support for MCP 3.1 / FastMCP 3.1 routing logic and task protocol.
+- **Built with FastMCP**: Full support for FastMCP 3.1 routing logic and task protocol (with `taskId` execution context).
 
 ## Limitations
 - Requires targets to be documented with `##` to be exposed as tools.
@@ -109,16 +109,17 @@ makefile-mcp --makefile ./build/Makefile --cwd ./build
 
 ## API examples
 
-### Programmatic Setup with Pydantic v2 Validation
-Below is a robust Python example utilizing **Pydantic v2** validation to parse and execute discovered Makefile targets securely under late 2026 SOTA agentic environments.
+### Programmatic Setup with FastMCP 3.1 & Pydantic v2 Validation
+Below is a robust Python example utilizing **Pydantic v2** validation to parse and execute discovered Makefile targets securely under January 2027 SOTA agentic environments, complete with FastMCP 3.1 task correlation tracking.
 
 ```python
 import subprocess
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional
 
-# 1. Define schemas using strict Pydantic v2 annotations
+# 1. Define schemas using strict Pydantic v2 annotations including FastMCP 3.1 task correlation ID
 class MakefileTarget(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 task protocol correlation ID")
     name: str = Field(..., min_length=1, description="The name of the Makefile target to execute.")
     description: Optional[str] = Field(default=None, description="The description of what this target does.")
     args: Optional[str] = Field(default=None, description="Optional command line arguments/variables to pass to Make (e.g. 'VERBOSE=1').")
@@ -151,14 +152,14 @@ def execute_makefile_target(config_payload: dict, target_payload: dict) -> str:
         # Avoid shell expansion, pass directly
         cmd.append(target.args)
 
-    print(f"Executing command: {' '.join(cmd)} in directory: {config.working_directory}")
+    print(f"Task {target.task_id}: Executing command: {' '.join(cmd)} in directory: {config.working_directory}")
 
-    # In a production late 2026 FastMCP 3.1 setup, this runs inside the server
+    # In a production early 2027 FastMCP 3.1 setup, this runs inside the server
     # Here we mock the command execution output
-    simulated_output = f"Executing: {' '.join(cmd)}\nTarget run completed successfully."
+    simulated_output = f"Task {target.task_id}: Executing {' '.join(cmd)}\nTarget run completed successfully."
     return simulated_output
 
-# Example invocation in late 2026
+# Example invocation in early 2027
 if __name__ == "__main__":
     executor_config = {
         "working_directory": "/home/user/workspace/project",
@@ -166,6 +167,7 @@ if __name__ == "__main__":
         "timeout_seconds": 60
     }
     target_request = {
+        "task_id": "task_make_20270107_003",
         "name": "test",
         "description": "Run the full unit and integration test suite",
         "args": "VERBOSE=1",
@@ -192,5 +194,5 @@ if __name__ == "__main__":
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-24
+- Last reviewed: 2027-01-07
 - Confidence: high

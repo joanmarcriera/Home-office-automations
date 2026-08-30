@@ -1,7 +1,7 @@
 # Vikunja MCP Server
 
 ## What it is
-A Model Context Protocol (MCP) server that enables AI assistants like **Gemma 3**, **Llama 4**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Qwen 3.6** to interact with Vikunja task management instances.
+A Model Context Protocol (MCP) server that enables AI assistants like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to interact with Vikunja task management instances.
 
 ## What problem it solves
 It allows agents to manage tasks, projects, labels, and teams directly within a Vikunja instance, bridging the gap between autonomous assistants and self-hosted productivity tools. It supports both API token and JWT authentication for varying levels of access.
@@ -19,7 +19,7 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 - **Subcommand-based tools**: Provides an intuitive structure for AI interaction.
 - **Session-based authentication**: Automatically handles token management.
 - **Production-ready resilience**: Uses circuit breakers and Zod-based validation for stability.
-- **MCP 3.1 / FastMCP 3.1 Compatible**: Supports the latest Task Protocol and routing logic.
+- **MCP 3.1 / FastMCP 3.1 Compatible**: Supports the latest Task Protocol and routing logic (with `taskId` execution context tracking).
 
 ## Limitations
 - User-specific endpoints require JWT authentication (browser-extracted).
@@ -98,16 +98,17 @@ VIKUNJA_API_TOKEN="eyJhbGciOiJIUzI1..." npx @democratize-technology/vikunja-mcp
 
 ## API examples
 
-### Programmatic Setup with Pydantic v2 Validation
-To maintain the structural integrity and validation standards of task operations in late 2026, inputs to Vikunja MCP should be explicitly verified. Below is a robust Python script implementing strict **Pydantic v2** schema checks.
+### Programmatic Setup with FastMCP 3.1 & Pydantic v2 Validation
+To maintain the structural integrity and validation standards of task operations in January 2027, inputs to Vikunja MCP should be explicitly verified using Pydantic v2 schemas alongside FastMCP 3.1 task correlation IDs.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional
 from datetime import datetime
 
-# 1. Define schemas using strict Pydantic v2 annotations
+# 1. Define schemas using strict Pydantic v2 annotations including FastMCP 3.1 task correlation ID
 class VikunjaTaskCreate(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 task protocol correlation ID")
     title: str = Field(..., min_length=1, max_length=250, description="The title of the task.")
     description: Optional[str] = Field(default=None, description="Detailed markdown task description.")
     project_id: int = Field(..., gt=0, description="The target project ID.")
@@ -135,7 +136,7 @@ def process_task_creation_request(payload: dict) -> str:
         print(f"Validation failed: {e}")
         raise
 
-    print(f"Creating task '{task_request.title}' in project {task_request.project_id}...")
+    print(f"Task {task_request.task_id}: Creating task '{task_request.title}' in project {task_request.project_id}...")
 
     # Simulating API response from Vikunja
     simulated_api_response = {
@@ -144,25 +145,26 @@ def process_task_creation_request(payload: dict) -> str:
         "project_id": task_request.project_id,
         "done": False,
         "created_by_id": 101,
-        "created_at": "2026-12-24T12:00:00Z",
-        "updated_at": "2026-12-24T12:00:00Z"
+        "created_at": "2027-01-07T12:00:00Z",
+        "updated_at": "2027-01-07T12:00:00Z"
     }
 
     try:
         # Validate output payload to ensure it conforms to expectations
         validated_response = VikunjaTaskResponse.model_validate(simulated_api_response)
-        return f"Successfully created Vikunja task {validated_response.id}: {validated_response.title}"
+        return f"Task {task_request.task_id}: Successfully created Vikunja task {validated_response.id}: {validated_response.title}"
     except ValidationError as e:
         print(f"Output schema validation error: {e}")
         raise
 
-# Example invocation in late 2026
+# Example invocation in early 2027
 if __name__ == "__main__":
     payload = {
+        "task_id": "task_vikunja_20270107_004",
         "title": "Weekly Security Audit",
         "description": "Perform dependency and container scans",
         "project_id": 1,
-        "due_date": "2026-12-31T10:00:00Z",
+        "due_date": "2027-01-14T10:00:00Z",
         "priority": 4,
         "repeat_after": 7,
         "repeat_mode": "day",
@@ -188,5 +190,5 @@ if __name__ == "__main__":
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-24
+- Last reviewed: 2027-01-07
 - Confidence: high

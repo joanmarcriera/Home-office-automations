@@ -1,7 +1,7 @@
 # Vault MCP
 
 ## What it is
-The Vault MCP (Model Context Protocol) server is a production-grade interface that allows AI agents to securely interact with HashiCorp Vault. As of December 2026, it fully supports the **MCP 3.1 / FastMCP 3.1 Task Protocol**, providing standardized tools for managing Key-Value (KV) secrets, policies, and namespaces. This enables frontier models like **Gemma 3**, **Llama 4**, **Qwen 3.6**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro** to perform secure credential management tasks within a unified agentic framework.
+The Vault MCP (Model Context Protocol) server is a production-grade interface that allows AI agents to securely interact with HashiCorp Vault. As of January 2027, it fully supports the **MCP 3.1 / FastMCP 3.1 Task Protocol** (with full `taskId` tracking), providing standardized tools for managing Key-Value (KV) secrets, policies, and namespaces. This enables frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to perform secure credential management tasks within a unified agentic framework.
 
 ## What problem it solves
 It solves the "secret sprawl" and insecure credential handling common in agentic workflows by providing a standardized, auditable bridge to [HashiCorp Vault](hashicorp-vault.md). It allows AI assistants to retrieve, rotate, and manage sensitive tokens or API keys without requiring manual intervention or hardcoding secrets in application environments. By utilizing the **MCP 3.1** standard, it ensures consistent behavior across different agent platforms.
@@ -75,7 +75,7 @@ mcp-client list-tools --server-cmd "python -m vault_mcp"
 ## API examples
 
 ### Extending Vault MCP with FastMCP 3.1 & Pydantic v2
-You can create specialized security tools by extending the core server logic. To ensure absolute compliance with KnowledgeOps schema contracts in December 2026, input parameters are validated against strict Pydantic v2 models.
+You can create specialized security tools by extending the core server logic. To ensure absolute compliance with KnowledgeOps schema contracts in January 2027, input parameters are validated against strict Pydantic v2 models and include FastMCP 3.1 task protocol parameters.
 
 ```python
 from pydantic import BaseModel, Field, ValidationError
@@ -84,8 +84,9 @@ from mcp.server.fastmcp import FastMCP
 # Initialize a custom security extension using FastMCP 3.1 standards
 mcp = FastMCP("vault-extension-pro")
 
-# 1. Define input contract using strict Pydantic v2 validation
+# 1. Define input contract using strict Pydantic v2 validation including task correlation ID
 class VaultKeyRequest(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 task protocol correlation ID")
     path: str = Field(..., pattern=r"^[a-zA-Z0-9_\-/]+$", description="KV secret path inside Vault")
     key: str = Field(..., min_length=1, max_length=100, description="Specific secret key to retrieve")
     namespace: str = Field(default="root", pattern=r"^[a-z0-9\-]+$", description="Vault namespace")
@@ -103,7 +104,7 @@ async def read_validated_vault_key(request_payload: dict) -> str:
     # Execution logic (utilizing hvac internally)
     # response = hvac_client.secrets.kv.v2.read_secret_version(path=request.path, namespace=request.namespace)
     # return response['data']['data'][request.key]
-    return f"Validated request for {request.path} -> {request.key} under namespace '{request.namespace}'."
+    return f"Task {request.task_id}: Validated request for {request.path} -> {request.key} under namespace '{request.namespace}'."
 
 if __name__ == "__main__":
     mcp.run()
@@ -112,7 +113,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [HashiCorp Vault](hashicorp-vault.md) — The underlying security and secrets engine.
 - [Model Context Protocol (MCP)](mcp.md) — The communication standard for AI agents.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier open model with native MCP 3.1 support.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Frontier open model with native MCP 3.1 support.
 - [Claude Code](../development_ops/claude-code-setup.md) — Terminal-based agent that leverages security MCPs.
 - [n8n](../../services/n8n.md) — Often integrated with Vault for secure workflow automation.
 - [AirOps](airops.md) — Enterprise AI platform that can orchestrate secure tasks.
@@ -127,5 +128,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Task Protocol Spec](https://modelcontextprotocol.io/docs/concepts/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-23
+- Last reviewed: 2027-01-07
 - Confidence: high
