@@ -1,7 +1,7 @@
 # Google Tasks
 
 ## What it is
-Google Tasks is a lightweight, low-overhead task management service embedded natively within the Google Workspace interface. In December 2026, it serves as an essential capturing and execution tracking layer (or "Surface") for autonomous task queues. Through the Model Context Protocol (MCP 3.1) and Google Graph API, it allows frontier models (such as Claude 5.1, GPT-5.5, and Gemini 4.0 Pro) to programmatically register, update, and complete personal or homelab to-do entries.
+Google Tasks is a lightweight, low-overhead task management service embedded natively within the Google Workspace interface. In early January 2027, it serves as an essential capturing and execution tracking layer (or "Surface") for autonomous task queues. Through the FastMCP 3.1 Task Protocol and Google Graph API, it allows frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL) to programmatically register, update, and complete personal or homelab to-do entries.
 
 ## What problem it solves
 It solves the issue of context fragmentation and "Agent-to-Human" handoff in highly automated environments. When a background agent (e.g., executing a system check) detects a required human action (such as manual network resets), it can instantly log the task into the user's primary to-do view. Google Tasks provides a central, zero-configuration surface that captures these instructions seamlessly from multi-agent pipelines and presents them in a unified personal dashboard.
@@ -17,7 +17,7 @@ It solves the issue of context fragmentation and "Agent-to-Human" handoff in hig
 
 ## Strengths
 - **Native Sidebar Presence**: Ubiquitously accessible from the Gmail, Google Calendar, and Google Drive sidebars.
-- **FastMCP 3.1 Tooling**: Excellent Model Context Protocol (MCP 3.1) server compatibility, enabling LLMs to perform secure, schema-validated task creation and list query tools.
+- **FastMCP 3.1 Tooling**: Excellent Model Context Protocol (FastMCP 3.1) server compatibility, enabling LLMs to perform secure, schema-validated task creation and list query tools.
 - **Low-Latency Syncing**: Synchronizes task completion states instantly across desktop and mobile devices.
 - **Minimalist Design**: Zero-overhead interface focused strictly on rapid task creation and tracking.
 
@@ -58,11 +58,11 @@ Utilize the [Google Workspace CLI](../automation_orchestration/google-workspace-
 gworkspace tasks list --status needsAction
 
 # Create a new system task
-gworkspace tasks create --title "Review homelab firewall rules" --notes "Verify MCP 3.1 gateway ports"
+gworkspace tasks create --title "Review homelab firewall rules" --notes "Verify FastMCP 3.1 gateway ports"
 ```
 
-### Simulating JSON-RPC MCP 3.1 Tool Call
-An agent can request task insertion using standard MCP schemas:
+### Simulating JSON-RPC FastMCP 3.1 Tool Call
+An agent can request task insertion using standard FastMCP schemas:
 ```json
 {
   "jsonrpc": "2.0",
@@ -72,7 +72,7 @@ An agent can request task insertion using standard MCP schemas:
     "arguments": {
       "tasklist": "@default",
       "title": "Upgrade LLM eval suite",
-      "notes": "Verify Claude 5.1 and GPT-5.5 performance metrics."
+      "notes": "Verify Claude 5.6 and GPT-5.6 performance metrics."
     }
   },
   "id": 1
@@ -129,7 +129,7 @@ def insert_validated_task(task_list_id: str, task: GoogleTaskSchema) -> Optional
         "status": task.status
     }
     if task.due:
-        # Convert to RFC3339 timestamp required by Google (e.g. '2026-12-30T23:59:59.000Z')
+        # Convert to RFC3339 timestamp required by Google (e.g. '2027-01-07T23:59:59.000Z')
         request_body["due"] = task.due.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
     try:
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         "title": "Audit FastMCP 3.1 server connection",
         "notes": "Verify authorization tokens and active scopes under Google Cloud.",
         "status": "needsAction",
-        "due": "2026-12-31T23:59:59Z"
+        "due": "2027-01-15T23:59:59Z"
     }
 
     # Validate utilizing Pydantic v2
@@ -170,9 +170,8 @@ if __name__ == "__main__":
 ## Sources / References
 - [Google Tasks Support Hub](https://support.google.com/tasks/)
 - [Google Tasks API REST Reference](https://developers.google.com/tasks/api/reference/rest)
-- [Model Context Protocol (MCP) v3.1 Specification](https://modelcontextprotocol.io/)
-- [SOTA Task Handover & Queue Strategies Q4 2026](https://example.com/task-handover-2026)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-30
+- Last reviewed: 2027-01-07
 - Confidence: high

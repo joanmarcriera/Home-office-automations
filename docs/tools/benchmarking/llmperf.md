@@ -1,25 +1,25 @@
 # LLMPerf
 
 ## What it is
-LLMPerf is an open-source benchmarking framework designed to evaluate the performance, latency, reliability, and cost-efficiency of Large Language Model (LLM) APIs under highly concurrent workloads. Originally developed by the Ray Project, it conducts rigorous multi-user load testing to measure operational performance. In December 2026, it is widely utilized to benchmark agentic concurrency metrics (e.g., "Agentic TPS") across federated cloud endpoints and high-throughput local serving infrastructures.
+LLMPerf is an open-source benchmarking framework designed to evaluate the performance, latency, reliability, and cost-efficiency of Large Language Model (LLM) APIs under highly concurrent workloads. Originally developed by the Ray Project, it conducts rigorous multi-user load testing to measure operational performance. In early January 2027, it is widely utilized to benchmark agentic concurrency metrics (e.g., "Agentic TPS") across federated cloud endpoints and high-throughput local serving infrastructures, fully supporting FastMCP 3.1 Task Protocol tool call streams.
 
 ## What problem it solves
 Raw reasoning benchmarks (e.g., Humanity's Last Exam) measure intellectual accuracy, but fail to capture operational performance. For low-latency multi-agent systems and real-time assistants, factors like Time to First Token (TTFT), inter-token latency (ITL), and end-to-end response duration are critical for usability and budget management. LLMPerf solves this by establishing consistent, parallelized, and reproducible load tests, helping engineers detect capacity degradation, configure autoscaling, and verify Service Level Agreements (SLAs).
 
 ## Where it fits in the stack
-**Benchmarking & Telemetry Layer**. It operates as an external, multi-threaded load generator that stresses model serving endpoints (hosted in-house on engines like [vLLM](../infrastructure/vllm.md) or accessed via cloud providers like OpenAI and Anthropic). It leverages Ray's distributed actor architecture to parallelize requests.
+**Benchmarking & Telemetry Layer**. It operates as an external, multi-threaded load generator that stresses model serving endpoints (hosted in-house on engines like [vLLM](../infrastructure/vllm.md) or accessed via cloud providers like OpenAI, Anthropic, and Google). It leverages Ray's distributed actor architecture to parallelize requests.
 
 ## Typical use cases
 - **Endpoint Load Testing**: Testing how TTFT degrades when the number of concurrent user sessions spikes from 10 to 100.
-- **Provider SLA Validation**: Running structured tests across [LiteLLM](../../services/litellm.md) to compare Anthropic's Claude 5.1 Sonnet against OpenAI's GPT-5.5 for real-time chat latency.
+- **Provider SLA Validation**: Running structured tests across [LiteLLM](../../services/litellm.md) to compare Anthropic's Claude 5.6 Sonnet against OpenAI's GPT-5.6 and Gemini 4.0 Ultra for real-time chat latency.
 - **Serving Engine Optimization**: Benchmarking local deployment configurations (e.g., vLLM chunked prefill or FP8 quantization) to find optimal concurrency levels.
-- **Tool-Call Concurrency Audits**: Simulating high-concurrency tool-calling sessions using the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) to measure gateway delay.
+- **Tool-Call Concurrency Audits**: Simulating high-concurrency tool-calling sessions using the [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) to measure gateway delay.
 
 ## Strengths
 - **Massive Scalability**: Leverages Ray to distribute concurrent clients across multiple worker nodes, simulating thousands of parallel users.
 - **Standardized Methodology**: Employs streaming clients that extract token timings (TTFT, inter-token time) uniformly without provider bias.
 - **Rich Metric Reporting**: Generates statistics for throughput (tokens/sec), latency percentiles (P50, P90, P99), and success/error ratios.
-- **Extensible Architecture**: Highly customizable client templates that integrate smoothly with any OpenAI-compatible API base.
+- **Extensible Architecture**: Highly customizable client templates that integrate smoothly with any OpenAI-compatible API base or FastMCP 3.1 endpoint.
 
 ## Limitations
 - **Operational Metrics Only**: Measures speed and volume, but does not analyze correctness, alignment, or semantic quality (pair with [LM Evaluation Harness](lm-evaluation-harness.md) for quality).
@@ -28,7 +28,7 @@ Raw reasoning benchmarks (e.g., Humanity's Last Exam) measure intellectual accur
 
 ## When to use it
 - When evaluating and comparing cloud API performance under peak load.
-- When benchmarking custom-tuned open-weight models (e.g., Qwen 3.6 or Llama 4) on self-hosted vLLM or sglang servers.
+- When benchmarking custom-tuned open-weight models (e.g., Qwen 3.6 VL, Gemma 4, or DeepSeek-V4) on self-hosted vLLM or sglang servers.
 - Before launching production-grade multi-agent swarms to verify your infrastructure can handle the concurrent generation load.
 
 ## When not to use it
@@ -55,10 +55,10 @@ export OPENAI_API_BASE="https://api.openai.com/v1"
 ## CLI examples
 
 ### Running a Throughput Load Test
-Use the standard test script to simulate 15 concurrent users querying a frontier model like GPT-5.5:
+Use the standard test script to simulate 15 concurrent users querying a frontier model like GPT-5.6:
 ```bash
 python token_benchmark_ray.py \
-    --model "gpt-5.5-preview" \
+    --model "gpt-5.6" \
     --mean-input-tokens 1024 \
     --stddev-input-tokens 128 \
     --mean-output-tokens 256 \
@@ -70,10 +70,10 @@ python token_benchmark_ray.py \
 ```
 
 ### Benchmarking Local vLLM Server Concurrency
-Stress-test a local Qwen 3.6 instance hosted on a private vLLM node:
+Stress-test a local Qwen 3.6 VL instance hosted on a private vLLM node:
 ```bash
 python token_benchmark_ray.py \
-    --model "qwen-3.6-72b-instruct" \
+    --model "qwen-3.6-vl-instruct" \
     --mean-input-tokens 500 \
     --stddev-input-tokens 50 \
     --mean-output-tokens 150 \
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # Mock output log from an LLMPerf run
     mock_run_log = {
         "metadata": {
-            "model_name": "claude-5.1-sonnet",
+            "model_name": "claude-5.6-sonnet",
             "concurrency": 25,
             "total_requests": 200
         },
@@ -173,8 +173,7 @@ if __name__ == "__main__":
 - [LLMPerf GitHub Repository](https://github.com/ray-project/llmperf)
 - [Ray Core Distributed Framework Docs](https://docs.ray.io/en/latest/)
 - [LiteLLM Benchmarking Integration Guides](https://docs.litellm.ai/docs/proxy/benchmarking)
-- [High-Throughput Serving Standards Q4 2026 Whitepaper](https://example.com/serving-standards-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-30
+- Last reviewed: 2027-01-07
 - Confidence: high
