@@ -1,7 +1,7 @@
 # SGLang
 
 ## What it is
-SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention. By late December 2026, it has become the standard high-performance runtime for serving complex multi-agent reasoning chains and large multimodal models.
+SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention. In January 2027, it has become the standard high-performance runtime for serving complex multi-agent reasoning chains and large multimodal models like DeepSeek-V4, Qwen 3.6 VL, Gemma 4, and Claude 5.6 integrations.
 
 ## What problem it solves
 LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation. It specifically solves the "First Token Latency" (TTFT) problem in long-context multi-turn conversations and agent tool-calling loops.
@@ -12,7 +12,7 @@ LLM applications often involve repetitive prompting, structured output requireme
 ## Typical use cases
 - **Multi-turn Chat & Agents**: High-performance serving where prompt history (system prompts, context, tool descriptions) is reused across multiple turns.
 - **Structured Data Extraction**: Applications requiring complex, multi-turn JSON or regex-constrained generation (e.g., [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)).
-- **Vision-Language Applications**: Serving models like LLaVA-1.6, Qwen-VL, or Gemini-compatible open weights with high throughput.
+- **Vision-Language Applications**: Serving models like Qwen 3.6 VL, Gemma 4, or Gemini-compatible open weights with high throughput.
 - **Agentic Workflows**: Powering frameworks like [AG2](../../tools/frameworks/ag2.md) or [Langflow](../../tools/frameworks/langflow.md) where state persistence and rapid tool-calling loops are critical.
 
 ## Strengths
@@ -20,7 +20,7 @@ LLM applications often involve repetitive prompting, structured output requireme
 - **Fast Structured Generation**: Optimized engine for constrained generation (JSON Schema, regex) using compressed finite state machines.
 - **Chunked Prefill**: Efficiently handles large prompt processing without blocking small generation tasks, improving overall system throughput.
 - **Comprehensive VLM Support**: Native support and high performance for vision-based models with multi-image processing.
-- **Native FastMCP 3.1 Integration**: Natively processes Model Context Protocol (FastMCP 3.1) tool definitions, passing structured context directly into the RadixAttention loop for sub-10ms tool routing.
+- **Native FastMCP 3.1 Integration**: Natively processes Model Context Protocol (FastMCP 3.1 Task Protocol) tool definitions, passing structured context directly into the RadixAttention loop for sub-10ms tool routing.
 
 ## Limitations
 - **Hardware Bound**: Primarily targets NVIDIA GPUs (CUDA); support for other accelerators (ROCm, Gaudi) is trailing.
@@ -46,7 +46,7 @@ pip install "sglang[all]" --extra-index-url https://flashinfer.ai/whl/cu128/torc
 ### Basic Server Launch
 ```bash
 python -m sglang.launch_server \
-    --model-path meta-llama/Llama-4-8B-Instruct \
+    --model-path deepseek-ai/DeepSeek-V4-Base \
     --port 30000 \
     --mem-fraction-static 0.85
 ```
@@ -54,16 +54,16 @@ python -m sglang.launch_server \
 ### Hardware Verification (RTX 5080/5090 16-24 GB)
 | Model size | Precision | VRAM Needed | Status | Notes |
 |---|---|---|---|---|
-| Llama 4 8B | fp16 | 16 GB | ✅ | Fits natively in RTX 5080 |
+| Gemma 4 9B | fp16 | 18 GB | ✅ | Fits natively in RTX 5080 |
 | Qwen 3.6 72B | AWQ 4-bit | 42 GB | ❌ | Requires dual GPU (RTX 5090 SLI) |
-| Llama 4 70B | AWQ 4-bit | 40 GB | ✅ | Dual RTX 5080/5090 setup |
+| DeepSeek-V4 70B | AWQ 4-bit | 40 GB | ✅ | Dual RTX 5080/5090 setup |
 
 ## CLI examples
 ### Launching with Quantization
 ```bash
 # Launching an AWQ model for low-memory environments
 python -m sglang.launch_server \
-    --model-path TheBloke/Mistral-7B-Instruct-v0.3-AWQ \
+    --model-path Qwen/Qwen-3.6-72B-Instruct-AWQ \
     --quantization awq \
     --port 30000
 ```
@@ -77,7 +77,7 @@ curl http://localhost:30000/stats
 
 ## API examples
 ### Structured Generation (Python SDK with Pydantic v2)
-SGLang allows for highly efficient constrained generation using its native interpreter and standard schema-first Pydantic classes (v2.13+).
+SGLang allows for highly efficient constrained generation using its native interpreter and standard schema-first Pydantic classes (v2).
 
 ```python
 from pydantic import BaseModel, Field
@@ -107,7 +107,7 @@ from openai import OpenAI
 client = OpenAI(base_url="http://localhost:30000/v1", api_key="sglang")
 
 response = client.chat.completions.create(
-    model="meta-llama/Llama-4-8B-Instruct",
+    model="deepseek-ai/DeepSeek-V4-Base",
     messages=[{"role": "user", "content": "What is RadixAttention?"}]
 )
 print(response.choices[0].message.content)
@@ -129,8 +129,8 @@ print(response.choices[0].message.content)
 - [Official Website](https://sgl-project.github.io/)
 - [SGLang GitHub Repository](https://github.com/sgl-project/sglang)
 - [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
-- [SGLang Blog: Optimization for Agents](https://sgl-project.github.io/blog/agents)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
