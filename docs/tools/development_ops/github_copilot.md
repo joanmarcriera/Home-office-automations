@@ -39,9 +39,20 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## Getting started
 
 ### Installation
-GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrains, and Neovim.
+GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrains, and Neovim, or via the GitHub CLI:
 
-1. **Install Extension**: Install the "GitHub Copilot" and "GitHub Copilot Chat" extensions from your IDE's marketplace.
+```bash
+gh extension install github/gh-copilot
+```
+
+### Hello-world example
+Verify installation and invoke Copilot in the terminal to explain a command:
+
+```bash
+gh copilot explain "git status"
+```
+
+1. **IDE Setup**: Install the "GitHub Copilot" and "GitHub Copilot Chat" extensions from your IDE marketplace.
 2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
 3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the inline chat.
 
