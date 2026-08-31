@@ -1,7 +1,7 @@
 # LM Studio
 
 ## What it is
-LM Studio is a desktop application for discovering, downloading, running, and chatting with local models. It provides a user-friendly interface for managing GGUF and MLX models on local hardware, including a native inference server. As of late December 2026, it serves as the premier local development workbench, powering distributed inference across Apple Silicon and NVIDIA workstations.
+LM Studio is a desktop application for discovering, downloading, running, and chatting with local models. It provides a user-friendly interface for managing GGUF and MLX models on local hardware, including a native inference server. In January 2027, it serves as a premier local development workbench, powering distributed inference across Apple Silicon and NVIDIA workstations alongside frontier local reasoning models like Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and Claude 5.6 integrations.
 
 ## What problem it solves
 It lowers the barrier to local LLM experimentation by packaging model discovery, downloads, chat, and an OpenAI-compatible local server into one desktop workflow. It eliminates the need for complex CLI setups for users who want to quickly evaluate models or run private inference on their workstations, solving latency, cost, and security challenges associated with cloud API vendors.
@@ -10,19 +10,19 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 **AI & Knowledge / Local Model Workbench**. It is a practical bridge between end-user experimentation and local inference, sitting above the [Inference Engine](../infrastructure/index.md) layer.
 
 ## Typical use cases
-- **Model Evaluation**: Testing frontier local models (Llama 4, Gemma 3, Qwen 3.6) without a CLI-heavy setup.
+- **Model Evaluation**: Testing frontier local models (Gemma 4, DeepSeek-V4, Qwen 3.6 VL) without a CLI-heavy setup.
 - **Local API Endpoint**: Running a local OpenAI-compatible endpoint for development of agentic applications.
 - **Hardware Benchmarking**: Comparing performance of small and medium models on Apple Silicon or NVIDIA hardware.
 - **Private Chat**: Interacting with LLMs locally to ensure data privacy for sensitive workflows.
 - **Distributed Local Inference**: Coordinating multi-device hardware pools to serve larger parameter models with sub-100ms latency.
 
 ## Strengths
-- **Native Apple Silicon Support**: Fully optimized for macOS Sequoia and M4/M5 unified memory architecture, allowing an M5 Max (128 GB) to host models up to Llama 4 70B (Q4_K_M) with excellent performance.
+- **Native Apple Silicon Support**: Fully optimized for macOS Sequoia and M4/M5 unified memory architecture, allowing an M5 Max (128 GB) to host models up to Gemma 4 and DeepSeek-V4 (Q4_K_M) with excellent performance.
 - **LM Studio Bionic**: Features a high-performance local discovery and coordination layer for distributed multi-device local inference, intelligent peer model synchronization, and dynamic weight offloading.
 - **Integrated Model Browser**: Direct access to Hugging Face GGUF and EXL3 models with one-click downloads.
 - **Multi-Backend**: Supports both `llama.cpp` (GGUF) and native MLX backends with flash-attention-3 integration.
 - **Zero-Config Server**: Instantly spin up an OpenAI-compatible API server.
-- **Native FastMCP 3.1 Integration**: Supports the Model Context Protocol (FastMCP 3.1) as both a client and a host, allowing local models to interact with standard MCP servers natively with secure execution environments.
+- **Native FastMCP 3.1 Integration**: Supports the Model Context Protocol (FastMCP 3.1 Task Protocol) as both a client and a host, allowing local models to interact with standard MCP servers natively with secure execution environments.
 
 ## Limitations
 - **Desktop-Centric**: Designed as a GUI application; not ideal for headless server-grade or multi-user production deployments.
@@ -50,7 +50,7 @@ brew install lmstudio
 
 ```bash
 # Load model and launch local server
-lms load llama-4-8b-instruct --gpu max
+lms load gemma-4-9b-instruct --gpu max
 ```
 
 ## CLI examples
@@ -61,7 +61,7 @@ The `lms` CLI (v0.6.x+) allows for headless management of the LM Studio backend 
 lms status
 
 # Search for and download a model
-lms get llama-4-8b-instruct
+lms get gemma-4-9b-instruct
 
 # Start the local OpenAI-compatible API server on a specific port
 lms server start --port 1234 --gpu-layers auto
@@ -74,7 +74,7 @@ lms ls
 ```
 
 ## API examples
-LM Studio provides a local server that is a drop-in replacement for the OpenAI API, featuring seamless streaming and tool-calling validation using Pydantic v2.13+:
+LM Studio provides a local server that is a drop-in replacement for the OpenAI API, featuring seamless streaming and tool-calling validation using Pydantic v2:
 
 ```python
 import os
@@ -84,9 +84,9 @@ from pydantic import BaseModel, Field
 # Point to the local LM Studio endpoint
 client = OpenAI(base_url="http://localhost:1234/v1", api_key="lmstudio")
 
-# Chat completion request targeting a loaded Llama 4 or Gemma 3 model
+# Chat completion request targeting a loaded Gemma 4 or DeepSeek-V4 model
 response = client.chat.completions.create(
-    model="llama-4-8b-instruct",
+    model="gemma-4-9b-instruct",
     messages=[
         {"role": "system", "content": "You are a helpful assistant running on local hardware via LM Studio."},
         {"role": "user", "content": "Explain the benefit of unified memory for local LLM inference."}
@@ -114,9 +114,9 @@ print(response.choices[0].message.content)
 - [Official Website](https://lmstudio.ai/)
 - [Introducing LM Studio Bionic](https://lmstudio.ai/blog/introducing-lm-studio-bionic)
 - [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
-- [LM Studio v0.6.x Release Notes](https://lmstudio.ai/blog/v0.6.0)
+- [FastMCP 3.1 Task Protocol Specifications](https://modelcontextprotocol.io/)
 - [Apple Silicon Unified Memory for LLMs](https://developer.apple.com/metal/tensorflow-plugin/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

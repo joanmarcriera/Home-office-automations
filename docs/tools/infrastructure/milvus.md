@@ -1,26 +1,26 @@
 # Milvus
 
 ## What it is
-Milvus is an open-source, high-performance vector database built for scalable similarity search and AI applications. Developed by Zilliz and hosted by the Linux Foundation (LF AI & Data), it is designed to manage, index, and search massive collections of vector embeddings. As of late December 2026, Milvus has established itself as the enterprise standard for "Agentic Memory" storage with multi-vector indexing, CAGRA GPU-accelerated indices, partition key routing, and native FastMCP 3.1 tool-calling connectivity.
+Milvus is an open-source, high-performance vector database built for scalable similarity search and AI applications. Developed by Zilliz and hosted by the Linux Foundation (LF AI & Data), it is designed to manage, index, and search massive collections of vector embeddings. In January 2027, Milvus serves as the enterprise standard for "Agentic Memory" storage with multi-vector indexing, CAGRA GPU-accelerated indices, partition key routing, and native FastMCP 3.1 Task Protocol tool-calling connectivity.
 
 ## What problem it solves
-Traditional databases are not optimized for the high-dimensional vector data produced by machine learning models. Milvus provides a specialized engine that can perform approximate nearest neighbor (ANN) searches across billions of vectors with millisecond latency. It solves the challenge of scaling vector search from local prototypes to massive, distributed enterprise production environments, particularly for multi-agent systems requiring shared, real-time semantic memory.
+Traditional databases are not optimized for the high-dimensional vector data produced by machine learning models. Milvus provides a specialized engine that can perform approximate nearest neighbor (ANN) searches across billions of vectors with millisecond latency. It solves the challenge of scaling vector search from local prototypes to massive, distributed enterprise production environments, particularly for multi-agent systems requiring shared, real-time semantic memory across frontier reasoning models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / Vector Databases. It serves as the "Long-Term Memory" layer in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) architecture, often integrated via Model Context Protocol [MCP 3.1](../automation_orchestration/mcp.md).
+**Category**: Infrastructure / Vector Databases. It serves as the "Long-Term Memory" layer in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) architecture, often integrated via FastMCP 3.1 [MCP 3.1](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Enterprise RAG**: Storing and retrieving billions of document chunks for large-scale Retrieval-Augmented Generation.
 - **Agentic Memory**: Providing a persistent, searchable memory space for autonomous agents to store past observations and tool outputs.
-- **Multimodal Search**: Enabling search across different data types (text-to-image, image-to-video) using a shared vector space with Gemini 4.0 Pro or Claude 5.1.
+- **Multimodal Search**: Enabling search across different data types (text-to-image, image-to-video) using a shared vector space with Gemini 4.0 Ultra, Qwen 3.6 VL, or Claude 5.6.
 - **Molecular Similarity Search**: Used in drug discovery to find similar chemical structures with high-dimensional descriptors.
 
 ## Strengths
 - **Massive Scalability**: Designed with a cloud-native, distributed architecture that can scale to tens of billions of vectors.
 - **High Performance**: Frequently benchmarks as one of the fastest vector databases, utilizing GPU-accelerated indexes (like CAGRA) for ultra-low-latency search.
 - **Multi-Vector Support**: Allows multiple vector fields per entity, enabling complex cross-modal retrieval and hybrid embeddings.
-- **Dynamic Schema**: Supports JSON fields and dynamic schema updates without downtime, crucial for evolving multi-agent requirements in late 2026.
-- **FastMCP 3.1 Integration**: Provides a native gateway that allows agents to interactively discover collections and run similarity queries using standard tool-calling contracts.
+- **Dynamic Schema**: Supports JSON fields and dynamic schema updates without downtime, crucial for evolving multi-agent requirements in early 2027.
+- **FastMCP 3.1 Integration**: Provides a native gateway that allows agents to interactively discover collections and run similarity queries using standard FastMCP 3.1 Task Protocol contracts.
 
 ## Limitations
 - **Operational Complexity**: The distributed version requires significant infrastructure knowledge (Kubernetes, S3/MinIO, etcd, Pulsar/Kafka).
@@ -172,8 +172,8 @@ if __name__ == "__main__":
 - [Milvus Official Site](https://milvus.io/)
 - [Milvus GitHub Repository](https://github.com/milvus-io/milvus)
 - [Milvus Documentation](https://milvus.io/docs)
-- [Milvus 3.1 Release Notes](https://milvus.io/blog/milvus-3-0-announcement)
+- [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
