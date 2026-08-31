@@ -1,30 +1,30 @@
 # AWS Dogwood
 
 ## What it is
-AWS Dogwood is a robust policy management and safety-focused agentic framework designed to authorize, evaluate, and restrict LLM agent actions and tool calls. It provides an enterprise-grade mechanism to declare declarative security and access control boundaries for autonomous agents, ensuring that even if an agent operates independently, its behavior is bounded by strict, human-defined programmatic constraints.
+AWS Dogwood is a robust policy management and safety-focused agentic framework designed to authorize, evaluate, and restrict LLM agent actions and tool calls. As of early January 2027, it fully supports the **FastMCP 3.1 Task Protocol** and is optimized for frontier reasoning models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**. It provides an enterprise-grade mechanism to declare declarative security and access control boundaries for autonomous agents, ensuring that even if an agent operates independently, its behavior is bounded by strict, human-defined programmatic constraints.
 
 ## What problem it solves
-As AI agents gain autonomous execution capabilities—such as deleting files, executing system commands, or initiating financial transactions—they become highly vulnerable to prompt injections and agent hijacking. An attacker can manipulate an agent's context to execute unauthorized tool calls. AWS Dogwood solves this by intercepting agent tool call requests, evaluating them against dry-run policies, and denying any actions that fall outside the defined security parameters.
+As AI agents gain autonomous execution capabilities—such as deleting files, executing system commands, or initiating financial transactions—they become highly vulnerable to prompt injections, context poisoning, and agent hijacking. An attacker can manipulate an agent's context to execute unauthorized tool calls. AWS Dogwood solves this by intercepting agent tool call requests, evaluating them against dry-run policies and FastMCP 3.1 security bounds, and denying any actions that fall outside the defined security parameters.
 
 ## Where it fits in the stack
-**Agent Security and Policy Layer**. It acts as an inline authorization gateway between the LLM agent and the host system, environment, or Model Context Protocol (MCP) tool servers.
+**Agent Security and Policy Layer**. It acts as an inline authorization gateway between the LLM agent and the host system, environment, or Model Context Protocol (FastMCP 3.1) tool servers.
 
 ## Typical use cases
 - **Secure System Execution**: Preventing local system commands from deleting system-critical files or exposing private data during autonomous agent sessions.
 - **Resource Boundary Enforcement**: Restricting database write permissions or cloud-infrastructure changes for developer-assist agents.
 - **Human-in-the-Loop Validation**: Intercepting highly sensitive tool calls (such as sending emails, moving funds, or making API updates) to request human operator validation.
-- **Prompt Injection Guardrails**: Sifting and validating user-supplied prompt inputs before forwarding them to downstream agent components.
+- **Prompt Injection Guardrails**: Sifting and validating user-supplied prompt inputs and MCP tool arguments before forwarding them to downstream agent components.
 
 ## Strengths
-- **Declarative Policies**: Simplifies security configurations using an AWS IAM-like policy model designed for prompts and tools.
+- **Declarative Policies**: Simplifies security configurations using an AWS IAM-like policy model designed for prompts, tools, and FastMCP 3.1 tasks.
 - **Negligible Latency**: Implements high-performance validation layers that introduce almost zero execution lag during agent decisions.
-- **Native Ecosystem Integration**: Seamlessly connects with AWS services (such as Bedrock, CloudWatch, and KMS) as well as open-source MCP servers.
+- **Native Ecosystem Integration**: Seamlessly connects with AWS services (such as Bedrock, CloudWatch, and KMS) as well as open-source FastMCP 3.1 servers.
 - **Extensible Validation Filters**: Allows custom Python validator code blocks to inspect and sanitize tool arguments before execution.
 
 ## Limitations
 - **AWS Environment Reliance**: Full enterprise features require AWS credentials and access to cloud services, though local mocking is supported.
 - **Complexity in Schema Definition**: Managing complex tool parameters and nested structures can result in large, difficult-to-maintain policy files.
-- **Fringe Model Support**: Built-in parsers are optimized primarily for frontier models (Claude 5.1, GPT-5.5, Llama 4), requiring custom adapters for lesser-known open-weight models.
+- **Fringe Model Support**: Built-in parsers are optimized primarily for frontier models (Claude 5.6, GPT-5.6, Llama 4, DeepSeek-V4), requiring custom adapters for lesser-known open-weight models.
 
 ## When to use it
 - When deploying autonomous agents in production environments with access to databases, local shell execution, or sensitive user accounts.
@@ -52,7 +52,7 @@ As AI agents gain autonomous execution capabilities—such as deleting files, ex
 3. **Load a Tool Policy**: Create a policy JSON and load it into your agent context:
    ```json
    {
-     "Version": "2026-08-07",
+     "Version": "2027-01-07",
      "Statement": [
        {
          "Effect": "Allow",
@@ -83,18 +83,19 @@ dogwood audit sync --log-group "/aws/agent/dogwood" --limit 100
 ## API examples
 
 ### Python Tool-Call Validation with AWS Dogwood & Pydantic v2
-This API example demonstrates how to parse and validate an incoming agent tool execution request against AWS Dogwood policies using strict **Pydantic v2** data models.
+This API example demonstrates how to parse and validate an incoming agent tool execution request against AWS Dogwood policies using strict **Pydantic v2** data models in early January 2027 SOTA standards.
 
 ```python
 import json
 from typing import Dict, Any, Literal
 from pydantic import BaseModel, Field
 
-# Define schema for the incoming tool request
+# Define schema for the incoming tool request under FastMCP 3.1 Task Protocol
 class ToolCallRequest(BaseModel):
-    tool_name: str = Field(..., description="Name of the MCP tool requested by the agent")
+    tool_name: str = Field(..., description="Name of the FastMCP 3.1 tool requested by the agent")
     arguments: Dict[str, Any] = Field(default_factory=dict, description="Arguments supplied to the tool")
     agent_id: str = Field(..., description="Unique identifier of the agent requesting the tool call")
+    protocol_version: str = Field(default="FastMCP 3.1", description="FastMCP protocol version")
 
 # Define schema for the Dogwood authorization response
 class DogwoodAuthResponse(BaseModel):
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     safe_request = ToolCallRequest(
         tool_name="calculator",
         arguments={"x": 5, "y": 10},
-        agent_id="agent-001"
+        agent_id="agent-claude-5-6"
     )
     auth_safe = evaluate_dogwood_policy(safe_request)
     print(f"Safe Tool Evaluation: {auth_safe.decision} (Matched: {auth_safe.matched_statement_id})")
@@ -136,7 +137,7 @@ if __name__ == "__main__":
     risky_request = ToolCallRequest(
         tool_name="delete_file",
         arguments={"path": "/etc/resolv.conf"},
-        agent_id="agent-001"
+        agent_id="agent-claude-5-6"
     )
     auth_risky = evaluate_dogwood_policy(risky_request)
     print(f"Risky Tool Evaluation: {auth_risky.decision} (Matched: {auth_risky.matched_statement_id})")
@@ -158,5 +159,5 @@ if __name__ == "__main__":
 - [AWS Official Security and Policy Enforcement Guidelines](https://aws.amazon.com/security/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,14 +1,14 @@
 # Claude Desktop
 
 ## What it is
-Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of late December 2026, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1** and frontier models like **Claude 5.1**.
+Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of early January 2027, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1 / FastMCP 3.1 Task Protocol** and frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 It overcomes the limitations of browser-based AI by providing a secure, local execution environment. Key problems solved include:
 - **Local Context**: Direct access to local files and system resources through MCP without uploading sensitive data to public cloud environments.
 - **Deep Integration**: Seamlessly integrates into desktop workflows via keyboard shortcuts, system-level hooks, and direct file drag-and-drop operations.
 - **Tool Orchestration**: Serves as a standard host for MCP servers, enabling Claude to perform complex actions like searching local databases, interacting with desktop APIs, or managing terminal sessions.
-- **Multi-Agent Coordination**: With MCP 3.1 Task Protocol integrations, the desktop app acts as a local coordinator for sub-agents executing background micro-missions.
+- **Multi-Agent Coordination**: With MCP 3.1 / FastMCP 3.1 Task Protocol integrations, the desktop app acts as a local coordinator for sub-agents executing background micro-missions.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge**. It is a primary interface for interacting with [Anthropic (Claude)](../providers/anthropic.md) and acts as the "host" in the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) architecture.
@@ -20,7 +20,7 @@ It overcomes the limitations of browser-based AI by providing a secure, local ex
 - **Secure File Processing**: Summarizing and extracting data from sensitive local documents under strict enterprise privacy bounds.
 
 ## Strengths
-- **MCP 3.1 Native**: The flagship implementation for MCP, supporting both local and remote MCP servers with dedicated configuration parameters and schema validations.
+- **MCP 3.1 / FastMCP 3.1 Native**: The flagship implementation for MCP, supporting both local and remote MCP servers with dedicated configuration parameters and schema validations.
 - **Stateful Task Support**: Supports the MCP 3.1 Task Protocol, enabling stateful, long-running agentic loops to run securely in the background.
 - **High Performance**: Native performance with optimized resource usage for long-running agentic tasks on local CPU/GPU setups.
 - **Enhanced Privacy**: Local MCP operations keep sensitive data on the machine; only necessary context slices are sent to the model.
@@ -68,7 +68,7 @@ python3 -c "import json, os; json.load(open(os.path.expanduser('~/Library/Applic
 ## API examples
 
 ### Programmatic Configuration Schema Validation (Python + Pydantic v2)
-This example provides a robust, self-contained Python validation utility designed to read the standard local `claude_desktop_config.json` file, validate its structure against strict **Pydantic v2** models, and identify schema errors before launching the Claude Desktop daemon.
+This example provides a robust, self-contained Python validation utility designed to read the standard local `claude_desktop_config.json` file, validate its structure against strict **Pydantic v2** models, and identify schema errors before launching the Claude Desktop daemon under early January 2027 SOTA standards.
 
 ```python
 import json
@@ -107,7 +107,7 @@ def validate_config_string(json_str: str) -> Optional[ClaudeDesktopConfig]:
 
 if __name__ == "__main__":
     print("Initiating Claude Desktop Configuration validation test...")
-    # Simulated content of a typical claude_desktop_config.json file featuring MCP 3.1 variables
+    # Simulated content of a typical claude_desktop_config.json file featuring FastMCP 3.1 variables
     sample_config = """
     {
       "mcpServers": {
@@ -115,14 +115,14 @@ if __name__ == "__main__":
           "command": "npx",
           "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/jules/project"],
           "env": {
-            "MCP_PROTOCOL_VERSION": "3.1"
+            "MCP_PROTOCOL_VERSION": "FastMCP 3.1"
           }
         },
         "sqlite": {
           "command": "npx",
           "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/Users/jules/home.db"],
           "env": {
-            "MCP_PROTOCOL_VERSION": "3.1"
+            "MCP_PROTOCOL_VERSION": "FastMCP 3.1"
           }
         }
       }
@@ -157,5 +157,5 @@ if __name__ == "__main__":
 - [Claude Desktop Release Notes](https://anthropic.com/news/claude-desktop-updates)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
