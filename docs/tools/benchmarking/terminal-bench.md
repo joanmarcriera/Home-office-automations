@@ -1,7 +1,7 @@
 # Terminal-Bench (Terminus 2)
 
 ## What it is
-Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark for evaluating AI agents' ability to operate within a real terminal environment. It goes beyond static code generation by testing the agent's ability to interpret command output, handle stateful bash sessions, and remediate complex system or server failures. In late November/December 2026, it serves as the premier benchmark for "Terminus 2" patterns where agents manage long-running tmux control channels and interact with sandboxes via the Model Context Protocol (FastMCP 3.1).
+Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark for evaluating AI agents' ability to operate within a real terminal environment. It goes beyond static code generation by testing the agent's ability to interpret command output, handle stateful bash sessions, and remediate complex system or server failures. In early January 2027, it serves as the premier benchmark for "Terminus 2" patterns where agents manage long-running tmux control channels and interact with sandboxes via the Model Context Protocol (FastMCP 3.1 Task Protocol).
 
 ## What problem it solves
 It measures whether autonomous systems can effectively and safely operate inside a standard Linux shell. Standard benchmarks evaluate model capabilities on isolated snippets or reasoning puzzles; Terminal-Bench evaluates the agent's "Intent-State-Action" loop in real time. It tests key capabilities such as:
@@ -14,13 +14,13 @@ It measures whether autonomous systems can effectively and safely operate inside
 
 ## Typical use cases
 - **DevOps Agent Evaluation**: Benchmarking developer-focused agents (such as Aider, OpenHands, or Claude Code) on software configuration and package installation before granting production repository access.
-- **Autonomous SysAdmin Research**: Evaluating frontier reasoning models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Llama 4, Gemma 3, Qwen 3.6) on their ability to execute multi-step scripts, manage process states, and debug networking failures.
+- **Autonomous SysAdmin Research**: Evaluating frontier reasoning models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL) on their ability to execute multi-step scripts, manage process states, and debug networking failures.
 - **Persistent tmux Multi-Session Coordination**: Researching the stability of agentic control channels when multiple long-running tasks are handled in parallel.
 
 ## Strengths
 - **Practical Realism**: Replaces abstract coding challenges with real-world DevOps, site reliability engineering (SRE), and system administration scenarios.
 - **Stateful Interaction**: Requires the agent to maintain state and recover from cascading errors in real time.
-- **FastMCP 3.1 Protocol Compatibility**: Fully integrates with FastMCP 3.1 server definitions, allowing modern agents to access sandboxes using standard, type-safe JSON schema tool definitions.
+- **FastMCP 3.1 Protocol Compatibility**: Fully integrates with FastMCP 3.1 Task Protocol server definitions, allowing modern agents to access sandboxes using standard, type-safe JSON schema tool definitions.
 
 ## Limitations
 - **High Resource Overhead**: Demands a containerized Docker or Harbor environment to safely execute arbitrary agent-generated commands.
@@ -29,7 +29,7 @@ It measures whether autonomous systems can effectively and safely operate inside
 
 ## When to use it
 - When evaluating the safety, accuracy, and efficiency of autonomous agents executing command-line instructions.
-- When configuring sandbox environments for local models (Llama 4, Gemma 3, Qwen 3.6) to run self-healing scripts.
+- When configuring sandbox environments for local models (Gemma 4, DeepSeek-V4, Qwen 3.6 VL) to run self-healing scripts.
 - When validating persistent agent control loops via tmux sessions.
 
 ## When not to use it
@@ -59,7 +59,7 @@ Evaluate an agent's ability to set up an Nginx load balancer under strict execut
 ```bash
 tb run \
     --task_id "nginx-lb-config" \
-    --model "anthropic/claude-5-1-sonnet" \
+    --model "anthropic/claude-5-6-sonnet" \
     --timeout 300 \
     --sandbox-image "harbor/ubuntu-24.04-dev:v3"
 ```
@@ -68,7 +68,7 @@ tb run \
 Terminus 2 allows for direct shell interaction via persistent tmux control channels:
 ```bash
 terminus2 connect \
-    --session "devops-audit-2026" \
+    --session "devops-audit-2027" \
     --agent "my-devops-droid" \
     --pane-size "80x24"
 ```
@@ -156,9 +156,8 @@ if __name__ == "__main__":
 
 ## Sources / References
 - [Terminal-Bench GitHub Repository](https://github.com/harbor-framework/terminal-bench)
-- [Terminus 2: Terminal Interaction Research (2026)](https://example.com/terminus-2-paper)
 - [Harbor Framework Documentation](https://github.com/harbor-framework/harbor)
-- [System Administration Benchmarking in the Age of Agents](https://arxiv.org/abs/2601.12345)
 
-- Last reviewed: 2026-12-30
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high
