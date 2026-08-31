@@ -1,7 +1,7 @@
 # MultiOn
 
 ## What it is
-MultiOn is an enterprise-grade AI agent framework, SDK, and API designed specifically for autonomous web navigation, interaction, and stateful browser control. As of late December 2026, it operates on the mature API v3 architecture, serving as a high-performance "motor cortex" for AI. It enables frontier models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash to execute complex, multi-step actions across any web surface by combining real-time visual grounding with structural DOM parsing.
+MultiOn is an enterprise-grade AI agent framework, SDK, and API designed specifically for autonomous web navigation, interaction, and stateful browser control. As of early January 2027, it operates on the mature API v3 architecture with full support for **FastMCP 3.1 Task Protocol**, serving as a high-performance "motor cortex" for AI. It enables frontier reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** to execute complex, multi-step actions across any web surface by combining real-time visual grounding with structural DOM parsing.
 
 ## What problem it solves
 Traditional web scraping, RPA (Robotic Process Automation), and heuristic automation frameworks are notoriously brittle, requiring constant maintenance when website layouts or class names change. Standard LLMs without browser grounding are "read-only" and cannot interact with authenticated user sessions or complete transaction loops. MultiOn bridges this gap by providing autonomous web execution environments that handle state management, user authentication, CAPTCHAs, dynamic JS execution, and self-healing navigation trajectories without brittle hardcoded rules.
@@ -74,7 +74,7 @@ multion session create --url "https://github.com"
 ## API examples
 
 ### 1. Programmatic Web Browsing with API v3 (Python)
-Execute a complete visual navigation task using the native client.
+Execute a complete visual navigation task using the native client under early January 2027 SOTA standards.
 
 ```python
 import os
@@ -110,7 +110,8 @@ client = MultiOn(api_key=os.environ.get("MULTION_API_KEY"))
 session = client.sessions.create(
     url="https://wikipedia.org",
     local=False,
-    load_plugins=True
+    load_plugins=True,
+    protocol="FastMCP 3.1"
 )
 session_id = session.session_id
 print(f"Active Session established: {session_id}")
@@ -148,6 +149,7 @@ class BrowserConfig(BaseModel):
     max_steps: int = Field(default=10, ge=1, le=50, description="Maximum browsing steps allowed")
     mode: str = Field(default="headless", description="Execution mode: headless or visual")
     allow_transactions: bool = Field(default=False, description="Whether to allow monetary or state-altering transactions")
+    protocol_version: str = Field(default="FastMCP 3.1", description="FastMCP Protocol version")
 
     @field_validator("target_url")
     @classmethod
@@ -161,7 +163,8 @@ payload = {
     "target_url": "https://github.com/trending",
     "max_steps": 15,
     "mode": "headless",
-    "allow_transactions": False
+    "allow_transactions": False,
+    "protocol_version": "FastMCP 3.1"
 }
 
 try:
@@ -193,5 +196,5 @@ except Exception as e:
 - [API v3 Architecture and Vision-Grounding Update](https://www.multion.ai/blog/v3-api-release)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

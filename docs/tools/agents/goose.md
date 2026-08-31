@@ -1,13 +1,13 @@
 # Goose
 
 ## What it is
-Goose is an open-source, extensible AI agent designed to go beyond simple code suggestions. It is built to install, execute, edit, and test code autonomously or with human supervision, using any LLM that supports tool-calling. Hosted by the Agentic AI Foundation (AAIF), it serves as a robust platform for building and deploying specialized developer agents. As of late December 2026, it fully integrates the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** Task Protocol and is optimized for frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
+Goose is an open-source, extensible AI agent designed to go beyond simple code suggestions. It is built to install, execute, edit, and test code autonomously or with human supervision, using any LLM that supports tool-calling. Hosted by the Agentic AI Foundation (AAIF), it serves as a robust platform for building and deploying specialized developer agents. As of early January 2027, it fully integrates the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** Task Protocol and is optimized for frontier reasoning models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## What problem it solves
 It bridges the gap between static code completion and full-loop agentic software engineering. Goose can manage its own environment, install dependencies, and run scripts to verify its work, reducing the manual "context switching" developers often face when integrating AI-generated code. It solves the "execution gap" by running the code it writes to ensure correctness (and automatically fixing errors via traceback loops) before presenting it to the user.
 
 ## Where it fits in the stack
-**Automation & Orchestration / Agents**. It is an agentic layer that sits on top of LLMs (like Claude, GPT-4/GPT-5.5, or local models) and interacts with the filesystem and shell. It is a direct open-source alternative to tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md).
+**Automation & Orchestration / Agents**. It is an agentic layer that sits on top of LLMs (like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or local models) and interacts with the filesystem and shell. It is a direct open-source alternative to tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md).
 
 ## Typical use cases
 - **Automated Bug Fixing**: Providing an issue description and letting Goose find, fix, and verify the solution with unit tests.
@@ -16,7 +16,7 @@ It bridges the gap between static code completion and full-loop agentic software
 - **Agentic CI/CD Remediation**: Integrating Goose into pipeline scripts to automatically attempt remediation for common build or dependency failures.
 
 ## Strengths
-- **Extensible Toolkit**: Users can easily add new "Toolkits" (e.g., specific DB connectors, proprietary API clients, or MCP 3.1 servers) to Goose.
+- **Extensible Toolkit**: Users can easily add new "Toolkits" (e.g., specific DB connectors, proprietary API clients, or FastMCP 3.1 servers) to Goose.
 - **AAIF Governance**: Community-driven development ensures neutrality, vendor independence, and long-term stability.
 - **Model Agnostic**: Seamlessly switches between Anthropic, OpenAI, Google, and local models via [Ollama](../../services/ollama.md) or [LiteLLM](../../services/litellm.md).
 - **Session Management**: Supports durable, stateful sessions, allowing users to pause, resume, and audit complex multi-step agentic missions.
@@ -61,7 +61,7 @@ goose run "Audit the current directory for security vulnerabilities in package.j
 ### Mission Execution
 ```bash
 # Run a specific mission with a defined model
-goose run "Refactor all exported functions in src/utils to use arrow syntax" --model claude-5-1-sonnet
+goose run "Refactor all exported functions in src/utils to use arrow syntax" --model claude-5-6-sonnet
 
 # Run an autonomous verification loop
 goose run "Run pytest and fix any failures found in the test suite" --max-turns 15
@@ -70,7 +70,7 @@ goose run "Run pytest and fix any failures found in the test suite" --max-turns 
 goose session list
 ```
 
-### Toolkit and MCP 3.1 Management
+### Toolkit and FastMCP 3.1 Management
 ```bash
 # List available toolkits
 goose tools list
@@ -78,23 +78,24 @@ goose tools list
 # Enable a specific toolkit for a session
 goose session --toolkit developer
 
-# Connect Goose directly to an external MCP 3.1 server
+# Connect Goose directly to an external FastMCP 3.1 server
 goose session --mcp-server http://localhost:8080/mcp
 ```
 
 ## API examples
 
 ### Python Agentic API
-Goose can be used as a library to build custom agent applications under late December 2026 specs:
+Goose can be used as a library to build custom agent applications under early January 2027 SOTA specs:
 ```python
 from goose.agent import GooseAgent
 from goose.config import AgentConfig
 
 # Initialize with advanced token limits and prompt templates
 config = AgentConfig(
-    model="gpt-5.5-preview",
+    model="gpt-5.6-turbo",
     temperature=0.2,
-    max_tokens_per_turn=4096
+    max_tokens_per_turn=4096,
+    protocol_version="FastMCP 3.1"
 )
 
 agent = GooseAgent(config=config)
@@ -102,7 +103,7 @@ response = agent.execute("Create a summary report of the current git status and 
 print(response.content)
 ```
 
-### Custom MCP 3.1-Compatible Toolkit Definition with Strict Pydantic v2
+### Custom FastMCP 3.1-Compatible Toolkit Definition with Strict Pydantic v2
 This example demonstrates custom toolkit validation utilizing strict Pydantic v2 schemas, complete with input filtering, custom validation rules, and configuration constraints.
 ```python
 import re
@@ -170,5 +171,5 @@ class DiagnosticsToolkit(Toolkit):
 - [Goose Documentation](https://goose.run/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

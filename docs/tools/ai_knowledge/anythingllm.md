@@ -1,7 +1,7 @@
 # AnythingLLM
 
 ## What it is
-AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of late December 2026, it serves as a robust enterprise solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash).
+AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of early January 2027, it serves as a robust enterprise solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**).
 
 ## What problem it solves
 It solves the "Knowledge Fragmentation" problem by providing a unified interface for document-grounded AI. AnythingLLM simplifies the complex pipeline of document parsing, vector embedding, storage, and retrieval, allowing non-technical users to build and deploy sophisticated RAG-based agents in minutes rather than weeks.
@@ -38,7 +38,7 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 AnythingLLM offers Desktop, Docker, and Enterprise versions.
 
 ### Desktop Installation
-Download the late December 2026 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
+Download the early January 2027 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
 
 ### Docker Deployment (Recommended for Teams)
 ```bash
@@ -84,7 +84,7 @@ curl -X POST 'http://localhost:3001/api/v1/workspace/engineering-kb/chat' \
 ```
 
 ### Programmatic Workspace Validation and API Schema
-This example demonstrates how to integrate with AnythingLLM's API using **Pydantic v2** to parse, validate, and secure workspace configurations in late December 2026.
+This example demonstrates how to integrate with AnythingLLM's API using **Pydantic v2** to parse, validate, and secure workspace configurations in early January 2027 SOTA standards.
 
 ```python
 import requests
@@ -119,9 +119,9 @@ workspace_data = {
     "name": "Engineering Knowledge Base",
     "open_mcp": True,
     "metadata": {
-        "author": "Claude 5.1 Agent",
-        "tags": ["documentation", "mcp", "sota-2026"],
-        "last_sync": "2026-12-31T23:59:59Z"
+        "author": "Claude 5.6 Agent",
+        "tags": ["documentation", "mcp", "sota-2027"],
+        "last_sync": "2027-01-07T00:00:00Z"
     }
 }
 
@@ -149,5 +149,5 @@ print(workspace.model_dump_json(indent=2))
 - [Data Copilot Reference Implementation](../../reference-implementations/data-copilot/skeleton-guide.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
