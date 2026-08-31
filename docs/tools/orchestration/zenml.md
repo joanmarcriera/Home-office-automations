@@ -201,7 +201,7 @@ except ValidationError as e:
 - [GPT-5.6](../ai_knowledge/chatgpt.md) — SOTA model for advanced pipeline synthesis.
 - [Gemini 4.0 Ultra](../ai_knowledge/gemini-macos.md) — High-performance reasoner.
 - [Gemma 4](../ai_knowledge/gemma.md) — Lightweight, high-performance model for local task execution.
-- [DeepSeek-V4](../ai_knowledge/deepseek.md) — Frontier reasoning model.
+- [DeepSeek-V4](../providers/deepseek.md) — Frontier reasoning model.
 - [Qwen 3.6 VL](../ai_knowledge/qwen.md) — SOTA vision-language model.
 - [LiteLLM](../../services/litellm.md) — Proxy tool for managing multiple LLM providers within pipeline steps.
 - [n8n](../../services/n8n.md) — Visual workflow automation alternative.

@@ -111,8 +111,8 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [LlamaIndex](llamaindex.md) — Framework supporting knowledge graph index abstractions.
-- [LangChain](langchain.md) — Modular framework for RAG and graph retrieval pipelines.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework supporting knowledge graph index abstractions.
+- [LangChain](../ai_knowledge/langchain.md) — Modular framework for RAG and graph retrieval pipelines.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Protocol for exposing graph resources to agents.
 - [Neo4j](../infrastructure/milvus.md) — Graph database backend options for enterprise scale.
 - [RAG Patterns](../../knowledge_base/patterns/rag.md) — Architectural patterns for retrieval augmented generation.
