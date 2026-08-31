@@ -115,6 +115,8 @@ print("Model Response:", raw_content)
 - [GS1-1T Model Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1v3q47x/genesisscience1_gs1_1t_openweight_model_later/) — Open-weight 1-Trillion parameter model.
 - [G9V-33B Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v46ay5/ai9stars_released_g9v33b/) — 33B local open LLM model.
 - [Microsoft Fara-1527B on Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1v3ny84/microsoftfara1527b_hugging_face/) — Large open-weights model family.
+- [Apodex 1.1 Team AMA on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vzxdui/were_the_team_behind_apodex_11_ask_us_anything/) — AI local tooling and framework discussion.
+- [Hugging Face MicroDuck Robot](https://thenewstack.io/hugging-face-microduck-robot/) — Robotics-focused AI model/tool from Hugging Face.
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

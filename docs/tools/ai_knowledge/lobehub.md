@@ -1,7 +1,7 @@
 # LobeHub
 
 ## What it is
-LobeHub (primarily known for LobeChat) is an open-source, high-performance multi-agent framework and UI platform designed for the late December 2026 agentic ecosystem. It provides a sophisticated interface for interacting with various AI models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro) and serves as a centralized hub for **FastMCP 3.1** integration.
+LobeHub (primarily known for LobeChat) is an open-source, high-performance multi-agent framework and UI platform designed for the early January 2027 agentic ecosystem. It provides a sophisticated interface for interacting with various AI models (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4, and Gemini 4.0 Ultra) and serves as a centralized hub for **FastMCP 3.1** and **MCP 3.0 Task Protocol** integration.
 
 ## What problem it solves
 It eliminates the fragmentation of AI interfaces by providing a unified, self-hostable "Agentic Workbench." It solves the complexity of managing disparate API keys, plugin ecosystems, and local model backends (Ollama, LocalAI, ExLlamaV3) while providing a professional-grade UI that supports full-duplex voice, vision, and complex tool-calling workflows.
@@ -26,7 +26,7 @@ It eliminates the fragmentation of AI interfaces by providing a unified, self-ho
 - **Resource Intensive**: Running multiple high-fidelity plugins and multi-agent workflows can be taxing on local hardware or server resources.
 
 ## When to use it
-- When you need a professional, feature-rich interface that supports the latest late December 2026 models and FastMCP 3.1.
+- When you need a professional, feature-rich interface that supports early January 2027 frontier models and FastMCP 3.1.
 - When you want to build and manage a library of specialized agents for different workflows.
 - For self-hosted deployments where privacy and custom tool integration are priorities.
 
@@ -35,19 +35,17 @@ It eliminates the fragmentation of AI interfaces by providing a unified, self-ho
 - If you prefer a "low-code" flow-builder approach rather than a chat-centric interface (see [Langflow](../frameworks/langflow.md)).
 
 ## Getting started
-
-To get started with LobeChat, you can install the container image using Docker and launch a local instance.
+To get started with LobeChat, launch the container image using Docker.
 
 ### Installation
 ```bash
-# Pull the official LobeChat image from Docker Hub
 docker pull lobehub/lobe-chat
 ```
 
-### Hello-World Example
-Launch LobeChat locally and run a basic endpoint verification using Curl:
+### Verification
+Launch LobeChat locally and run a basic endpoint verification using curl:
 ```bash
-# 1. Run the container with a local access code and OpenAI API key
+# 1. Run the container with a local access code and API key
 docker run -d -p 3210:3210 \
   -e OPENAI_API_KEY="sk-xxxx" \
   -e ACCESS_CODE="lobe66" \
@@ -59,39 +57,32 @@ curl -I http://localhost:3210/
 ```
 
 ## CLI examples
-
-Below are 3 common CLI management operations executed inside the host or within LobeChat's database container.
+Management operations executed inside the host or within LobeChat's database container:
 
 ```bash
-# 1. Update the LobeChat Docker container to the latest version and restart
+# Update the LobeChat Docker container to the latest version and restart
 docker pull lobehub/lobe-chat:latest && docker restart lobe-chat
 
-# 2. Check Postgres database connectivity (applicable for the DB-backed version)
+# Check Postgres database connectivity (applicable for the DB-backed version)
 docker exec -it lobe-chat-db psql -U lobe -d lobe_chat -c "SELECT version();"
 
-# 3. Bootstrapping a local Model Context Protocol (FastMCP 3.1) Inspector instance
+# Bootstrapping a local Model Context Protocol (FastMCP 3.1) Inspector instance
 npx @modelcontextprotocol/inspector lobe-mcp-config.json
 ```
 
 ## API examples
-
 ### Python: Model Configuration & Route Validation (Pydantic v2)
-LobeChat allows headless configurations via custom JSON definition payloads. Below is a robust Python example that validates provider configurations, dynamic model limits, and FastMCP integration parameters using **Pydantic v2** before deploying them to LobeChat.
+LobeChat allows headless configurations via custom JSON definition payloads. Below is a Python example that validates provider configurations, dynamic model limits, and FastMCP integration parameters using **Pydantic v2**.
 
 ```python
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
-import json
 
-# Define the model registration schema with strict validations
 class ModelConfig(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     top_p: float = Field(default=1.0, ge=0.0, le=1.0)
     use_mcp: bool = Field(default=True, alias="useMcp")
     mcp_version: str = Field(default="3.1", alias="mcpVersion")
-
-    class Config:
-        populate_by_name = True
 
 class ModelRegistration(BaseModel):
     model_id: str = Field(..., alias="model", description="The canonical identifier of the AI model")
@@ -107,30 +98,22 @@ class ModelRegistration(BaseModel):
         return v.lower()
 
     def serialize_for_lobechat(self) -> str:
-        """Outputs serialized JSON using CamelCase aliases suitable for LobeChat import."""
         return self.model_dump_json(by_alias=True, indent=2)
 
-
-# Operational Verification: Validate a registration payload
 if __name__ == "__main__":
-    try:
-        registration_data = {
-            "model": "gemini-4.0-pro",
-            "provider": "google",
-            "config": {
-                "temperature": 0.5,
-                "useMcp": True,
-                "mcpVersion": "3.1"
-            }
+    registration_data = {
+        "model": "gemini-4.0-ultra",
+        "provider": "google",
+        "config": {
+            "temperature": 0.5,
+            "useMcp": True,
+            "mcpVersion": "3.1"
         }
+    }
 
-        # Validate strictly using Pydantic v2
-        reg = ModelRegistration(**registration_data)
-        print("LobeChat Model Configuration validated successfully!")
-        print(reg.serialize_for_lobechat())
-
-    except Exception as e:
-        print(f"Validation failed: {e}")
+    reg = ModelRegistration.model_validate(registration_data)
+    print("LobeChat Model Configuration validated successfully with Pydantic v2:")
+    print(reg.serialize_for_lobechat())
 ```
 
 ## Related tools / concepts
@@ -138,19 +121,14 @@ if __name__ == "__main__":
 - [Open WebUI](../../services/open-webui.md) — Popular alternative UI for LLMs.
 - [LibreChat](librechat.md) — Enterprise-grade chat platform.
 - [Ollama](../../services/ollama.md) — Local model serving backend.
-- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for connecting agents to tools.
-- [OpenClaw](../development_ops/openclaw.md) — Primary MCP 3.1 gateway.
-- [Claude Code](../development_ops/claude-code.md) — CLI-native agentic development tool.
-- [Agentic Workbench](../agents/agentic-workbench.md) — Architectural pattern and workspace for human-agent collaboration.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standard for connecting agents to tools.
 
 ## Sources / references
 - [LobeHub Official Site](https://lobehub.com/)
 - [LobeChat GitHub Repository](https://github.com/lobehub/lobe-chat)
 - [LobeHub Documentation](https://lobehub.com/docs)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io)
-- [June 2026 Agentic Ecosystem Report](https://lobehub.com/blog/june-2026-update)
-- [Agentic Workbench Search & Verification](https://github.com/search?q=Agentic+Workbench&ref=2026-07-27-audit)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

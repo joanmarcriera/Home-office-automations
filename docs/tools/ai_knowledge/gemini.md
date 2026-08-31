@@ -152,6 +152,8 @@ print("Findings:", result.critical_findings)
 - [Gemini API Release Notes and Changelog (January 2027)](https://ai.google.dev/gemini-api/docs/changelog)
 - [Google AI Studio Console](https://aistudio.google.com/)
 - [Antigravity Agent Platform Guide](https://ai.google.dev/gemini-api/docs/antigravity)
+- [Gemini Omni 1.1 Flash Announcement](https://deepmind.google/blog/gemini-omni-1-1-flash-lets-you-build-with-more-control/)
+- [Intelligent Transcription with Gemini 3.5 Transcribe](https://deepmind.google/blog/intelligent-transcription-with-gemini-3-5-transcribe/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

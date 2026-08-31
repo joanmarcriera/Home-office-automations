@@ -133,6 +133,7 @@ validated_harness_config = validate_and_create_config(harness_data)
 - [Microsoft Agent Framework Release Details](https://devblogs.microsoft.com/agent-framework/microsoft-agent-framework-version-1-0/)
 - [MBZUAI VILA-Lab Research Paper: Dive into Claude Code](https://arxiv.org/abs/2604.14228)
 - [Microsoft Agent Framework at Build 2026 Announcements](https://devblogs.microsoft.com/agent-framework/microsoft-agent-framework-at-build-2026-announce/)
+- [Microsoft Agent Lightning Harness Overview](https://thenewstack.io/microsoft-agent-lightning-harness/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-12-31

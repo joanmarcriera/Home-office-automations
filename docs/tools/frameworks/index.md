@@ -26,6 +26,7 @@ Software frameworks, SDKs, and libraries for developing AI-driven applications, 
 | [FastAPI](fastapi.md) | High-performance Python web framework widely used for serving AI microservices |
 | [Firebase Genkit](firebase-genkit.md) | Google open-source framework for building AI features in Node.js and Go |
 | [Google ADK](google-adk.md) | Agent Development Kit for building, testing, and deploying Gemini agentic workflows |
+| [GraphRAG](graphrag.md) | Graph-based retrieval augmented generation framework for multi-hop reasoning |
 | [Haystack](haystack.md) | Open-source NLP and RAG framework by Deepset for building search and agent pipelines |
 | [Instructor](instructor.md) | Python/TypeScript library for structured LLM outputs powered by Pydantic |
 | [Langflow](langflow.md) | Visual framework for building multi-agent and RAG applications |
@@ -46,4 +47,4 @@ Software frameworks, SDKs, and libraries for developing AI-driven applications, 
 | [Tritium](tritium.md) | High-speed LLM orchestration runtime optimized for low-latency agent loops |
 
 ---
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
