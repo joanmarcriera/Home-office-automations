@@ -1,30 +1,30 @@
 # Fallback Patterns
 
 ## What it is
-Fallback and failover patterns are architectural resilience strategies designed to ensure high availability and reliability for AI applications. They automatically redirect request traffic between different Large Language Model (LLM) providers, models, or local configurations when a primary server encounters failures, rate limits, latency spikes, or response quality drops. In December 2026, these have evolved into highly sophisticated "Self-Healing Agentic Cascades" that dynamically recover from API or connectivity outages.
+Fallback and failover patterns are architectural resilience strategies designed to ensure high availability and reliability for AI applications. They automatically redirect request traffic between different Large Language Model (LLM) providers, models, or local configurations when a primary server encounters failures, rate limits, latency spikes, or response quality drops. As of early January 2027, these have evolved into highly sophisticated "Self-Healing Agentic Cascades" that dynamically recover from API or connectivity outages.
 
 ## What problem it solves
 LLM API integrations are susceptible to multiple distinct failure modes in modern multi-agent systems:
 - **API Outages**: Cloud providers experience service degradation or total downtime (e.g., HTTP 500/503 errors).
 - **Rate Limiting**: Reaching Tier caps or experiencing request bursts triggers HTTP 429 (Too Many Requests).
 - **Latency Spikes**: High global demand can stall generation times, causing timeouts in time-critical agent pipelines.
-- **Structural Integrity Failures**: A model may fail to output valid JSON or violate a schema, requiring an immediate fallback escalation to a more capable reasoning engine like [GPT-5.5](../../tools/ai_knowledge/openai.md) (utilizing High effort) or [Claude 5.1](../../tools/ai_knowledge/claude.md) (Sonnet/Opus).
-- **Local-to-Cloud Boundaries**: Edge devices running [Gemma 3](../../tools/ai_knowledge/gemma-4-31b-antihal.md) or [Qwen 3.6](../../tools/ai_knowledge/qwen.md) may hit resource constraints, requiring a cloud fallback to [Gemini 4.0 Pro](../../tools/ai_knowledge/gemini.md).
+- **Structural Integrity Failures**: A model may fail to output valid JSON or violate a schema, requiring an immediate fallback escalation to a more capable reasoning engine like [GPT-5.6](../../tools/ai_knowledge/openai.md) (utilizing Sol/Luna/Terra reasoning tiers) or [Claude 5.6](../../tools/ai_knowledge/claude.md).
+- **Local-to-Cloud Boundaries**: Edge devices running [Gemma 4](../../tools/ai_knowledge/gemma-4-31b-antihal.md) or [Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md) may hit resource constraints, requiring a cloud fallback to [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md).
 
 ## Where it fits in the stack
 Fallback patterns typically reside in the **Middleware or Gateway Layer** (such as [LiteLLM](../../services/litellm.md) or [Portkey](../../tools/providers/portkey.md)). They act as a smart interceptor between raw agent prompts and the physical inference API hosts. In durable agentic loops, fallback and retry policies are built into the **Workflow Orchestration** engine (such as [Temporal](../../tools/orchestration/temporal.md)) to maintain transaction state.
 
 ## Typical use cases
-- **Frontier Model Escalation**: Attempting extraction with cheap, fast models (Claude 5.1 Haiku) and failing over to premium models (GPT-5.5) on exception.
-- **Local-First Failover**: Running primary offline workflows on [Ollama](../../services/ollama.md) (Llama 4 or Qwen 3.6) and calling cloud endpoints only when local hardware is overloaded or unavailable.
+- **Frontier Model Escalation**: Attempting extraction with cheap, fast models (Claude 5.6 Haiku) and failing over to premium models (GPT-5.6 Sol) on exception.
+- **Local-First Failover**: Running primary offline workflows on [Ollama](../../services/ollama.md) (DeepSeek-V4 or Qwen 3.6 VL) and calling cloud endpoints only when local hardware is overloaded or unavailable.
 - **Multi-Gateway Buffering**: Distributing high-volume requests across backup routes in [OpenRouter](../../tools/ai_knowledge/openrouter.md) to circumvent regional rate limits.
-- **Dynamic Context Routing**: Automatically switching a 500k token processing task from Claude 5.1 to Gemini 4.0 Pro if Anthropic endpoints report capacity limits.
+- **Dynamic Context Routing**: Automatically switching a 500k token processing task from Claude 5.6 to Gemini 4.0 Ultra if Anthropic endpoints report capacity limits.
 
 ## Strengths
 - **Service Continuity**: Insulates downstream services and end-users from intermittent provider downtime.
 - **Cost Minimization**: Allows "cheapest-model-first" execution policies with conditional escalation to premium tiers.
 - **Predictable Latency**: Cuts off slow requests early using aggressive timeout policies and retries on faster endpoints.
-- **Resilient Tool Use**: Seamlessly maintains [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) FastMCP 3.1 sessions even if a specific server node resets.
+- **Resilient Tool Use**: Seamlessly maintains FastMCP 3.1 Task Protocol sessions even if a specific server node resets.
 
 ## Limitations
 - **Accumulated Latency**: Sequential retries add up, increasing the overall round-trip time for end-users.
@@ -63,15 +63,15 @@ Example `fallback_config.yaml`:
 model_list:
   - model_name: primary-frontier
     litellm_params:
-      model: anthropic/claude-5-1-sonnet
+      model: anthropic/claude-5-6-sonnet
       api_key: os.environ/ANTHROPIC_API_KEY
   - model_name: secondary-frontier
     litellm_params:
-      model: openai/gpt-5.5
+      model: openai/gpt-5.6-sol
       api_key: os.environ/OPENAI_API_KEY
   - model_name: local-backup
     litellm_params:
-      model: ollama/llama4
+      model: ollama/gemma4
       api_base: http://localhost:11434
 
 router_settings:
@@ -84,7 +84,7 @@ router_settings:
 ## API examples
 
 ### Python: Robust Pydantic v2 Validated Fallback Router
-The following script demonstrates how to define, validate, and execute a fallback cascade utilizing Pydantic v2 schemas and mock HTTP clients. It illustrates a self-healing pattern transitioning from Anthropic Claude 5.1 Sonnet to OpenAI GPT-5.5, and finally to local Qwen 3.6.
+The following script demonstrates how to define, validate, and execute a fallback cascade utilizing Pydantic v2 schemas and mock HTTP clients. It illustrates a self-healing pattern transitioning from Anthropic Claude 5.6 Sonnet to OpenAI GPT-5.6 Sol, and finally to local Qwen 3.6 VL.
 
 ```python
 import time
@@ -130,7 +130,7 @@ class FallbackRunner:
             # Simulate real-world failures for demonstration:
             # - Primary Anthropic: Simulates a 429 Rate Limit
             # - Secondary OpenAI: Simulates a 503 Outage
-            # - Local Qwen 3.6: Succeeds gracefully
+            # - Local Qwen 3.6 VL: Succeeds gracefully
             try:
                 if "claude" in endpoint.model_id:
                     raise RuntimeError("HTTP 429 Too Many Requests - Anthropic Rate Limit Reached")
@@ -159,19 +159,19 @@ if __name__ == "__main__":
     policy_data = {
         "policy_id": "homelab-orchestration-safety",
         "primary_endpoint": {
-            "model_id": "claude-5.1-sonnet",
+            "model_id": "claude-5.6-sonnet",
             "endpoint_url": "https://api.anthropic.com/v1",
             "api_key_env": "ANTHROPIC_API_KEY"
         },
         "cascade_endpoints": [
             {
-                "model_id": "gpt-5.5-medium",
+                "model_id": "gpt-5.6-sol",
                 "endpoint_url": "https://api.openai.com/v1",
                 "api_key_env": "OPENAI_API_KEY",
                 "timeout_seconds": 8.0
             },
             {
-                "model_id": "qwen-3.6-72b-local",
+                "model_id": "qwen-3.6-vl-local",
                 "endpoint_url": "http://localhost:11434/v1",
                 "api_key_env": "LOCAL_OLLAMA_KEY",
                 "timeout_seconds": 15.0
@@ -211,5 +211,5 @@ if __name__ == "__main__":
 - [Temporal Retry Policies & Durable Execution Patterns](https://docs.temporal.io/workflows#retry-policy)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-30
+- Last reviewed: 2027-01-07
 - Confidence: high
