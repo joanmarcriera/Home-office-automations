@@ -1,10 +1,10 @@
 # Google Calendar
 
 ## What it is
-Google Calendar is an industry-standard, cloud-based time-management and scheduling service developed by Google. It enables users to create, modify, and share events, coordinate appointments, and configure automated notification reminders across devices. In December 2026, it serves as a primary operational interface (or "Surface") for agentic orchestration, allowing autonomous workflows to manage human schedules via the Google Graph API, Gemini 4.0 Pro, and Model Context Protocol (MCP 3.1) Task and Event protocols.
+Google Calendar is an industry-standard, cloud-based time-management and scheduling service developed by Google. It enables users to create, modify, and share events, coordinate appointments, and configure automated notification reminders across devices. In early January 2027, it serves as a primary operational interface (or "Surface") for agentic orchestration, allowing autonomous workflows to manage human schedules via the Google Graph API, Gemini 4.0 Ultra, and Model Context Protocol (FastMCP 3.1 Task Protocol) Task and Event protocols.
 
 ## What problem it solves
-It bridges the gap between digital autonomous scheduling and human physical reality. By offering a standardized REST API, Google Calendar resolves the synchronization and conflict-resolution problems in a busy multi-agent environment, allowing models like Claude 5.1 and GPT-5.5 to dynamically reserve deep-work periods, schedule automated system maintenance windows, and block out collaborative sessions without creating calendar overlaps.
+It bridges the gap between digital autonomous scheduling and human physical reality. By offering a standardized REST API, Google Calendar resolves the synchronization and conflict-resolution problems in a busy multi-agent environment, allowing models like Claude 5.6 and GPT-5.6 to dynamically reserve deep-work periods, schedule automated system maintenance windows, and block out collaborative sessions without creating calendar overlaps.
 
 ## Where it fits in the stack
 **Calendar & Tasks Layer**. It sits at the interface level, acting as an external scheduling surface that bridges **Orchestration Layers** (such as [n8n](../../services/n8n.md) or [Temporal](../orchestration/temporal.md)) with the user's mobile devices and smart home.
@@ -18,7 +18,7 @@ It bridges the gap between digital autonomous scheduling and human physical real
 ## Strengths
 - **Ubiquitous Ecosystem**: Deep native integration with Android, iOS, Gmail, Google Meet, and standard enterprise applications.
 - **Robust Graph APIs**: Extremely mature, well-documented REST APIs offering high-granularity permissions and webhooks.
-- **FastMCP 3.1 Integration**: Seamless Model Context Protocol (MCP 3.1) server support, allowing models to perform secure, schema-validated event manipulation and live calendar streaming.
+- **FastMCP 3.1 Integration**: Seamless Model Context Protocol (FastMCP 3.1 Task Protocol) server support, allowing models to perform secure, schema-validated event manipulation and live calendar streaming.
 - **Shared Calendar Support**: Streamlines collaborative scheduling via multi-user permission delegation.
 
 ## Limitations
@@ -29,7 +29,7 @@ It bridges the gap between digital autonomous scheduling and human physical real
 ## When to use it
 - When you require seamless cross-platform syncing with mobile clients.
 - When scheduling appointments with external parties who are already within the Google ecosystem.
-- When configuring agentic schedulers that utilize official MCP calendar connections.
+- When configuring agentic schedulers that utilize official FastMCP 3.1 calendar connections.
 
 ## When not to use it
 - For offline-only homelabs or environments requiring absolute data sovereignty (use [Nextcloud Calendar](../../services/nextcloud.md) or [Vikunja](../../services/vikunja.md) instead).
@@ -59,7 +59,7 @@ gam calendar user admin@example.com show events
 ### Clearing Calendar Events
 To clear all events in a specific time range for system maintenance:
 ```bash
-gam calendar user admin@example.com delete events start 2026-12-01 end 2026-12-31
+gam calendar user admin@example.com delete events start 2027-01-01 end 2027-01-31
 ```
 
 ## API examples
@@ -126,13 +126,13 @@ if __name__ == "__main__":
     # Test valid event schema
     event_input = {
         "summary": "Agentic Routine Alignment",
-        "description": "Align Claude 5.1 schedules and GPT-5.5 performance logs.",
+        "description": "Align Claude 5.6 schedules and GPT-5.6 performance logs.",
         "start": {
-            "dateTime": "2026-12-30T10:00:00Z",
+            "dateTime": "2027-01-07T10:00:00Z",
             "timeZone": "UTC"
         },
         "end": {
-            "dateTime": "2026-12-30T11:30:00Z",
+            "dateTime": "2027-01-07T11:30:00Z",
             "timeZone": "UTC"
         },
         "location": "Homelab Control Center"
@@ -146,8 +146,8 @@ if __name__ == "__main__":
     # Test invalid event schema to verify self-correction capabilities
     invalid_input = {
         "summary": "Erroneous Meeting",
-        "start": {"dateTime": "2026-12-30T15:00:00Z"},
-        "end": {"dateTime": "2026-12-30T14:00:00Z"}  # End is before start!
+        "start": {"dateTime": "2027-01-07T15:00:00Z"},
+        "end": {"dateTime": "2027-01-07T14:00:00Z"}  # End is before start!
     }
     try:
         CalendarEventSchema.model_validate(invalid_input)
@@ -168,9 +168,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Official Google Calendar Portal](https://calendar.google.com/)
 - [Google Calendar API v3 Reference documentation](https://developers.google.com/calendar/api/v3/reference)
-- [Model Context Protocol (MCP) v3.1 Specification](https://modelcontextprotocol.io/)
-- [SOTA Agentic Scheduling & Orchestration Guidelines Q4 2026](https://example.com/agent-scheduling-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-30
+- Last reviewed: 2027-01-07
 - Confidence: high

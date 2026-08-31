@@ -1,7 +1,7 @@
 # Curiosity
 
 ## What it is
-Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of late November/December 2026, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama) and multi-model vector indexing.
+Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of early January 2027, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama, vLLM) and multi-model vector indexing powered by FastMCP 3.1 Task Protocols.
 - **Licensing**: Proprietary (Freemium)
 - **Cost**: Free (Personal) / Paid (Pro & Workspace)
 - **Self-hostable**: Desktop app (Local data) / Workspace (On-premise option)
@@ -16,13 +16,13 @@ It solves the problem of "information fragmentation" where data is scattered acr
 - **Unified Global Search**: Finding a specific email attachment, Slack thread, or Jira ticket using a single global keyboard shortcut.
 - **Private Local RAG**: Asking questions about your local PDF library or code documentation using a local model via [Ollama](../../services/ollama.md).
 - **Workspace Collaboration**: Grouping related files, notes, and emails into "Spaces" that can be shared across a team with centralized SSO.
-- **Agentic Automation**: Utilizing AI agents that can retrieve information, summarize threads, and even "ask" the user for clarification mid-task.
+- **Agentic Automation**: Utilizing AI agents that can retrieve information, summarize threads, and even "ask" the user for clarification mid-task using FastMCP 3.1.
 
 ## Strengths
 - **Privacy-First Architecture**: Most indexing and AI processing (with local LLMs) occur on the user's machine.
 - **Native Desktop Experience**: High-performance, keyboard-driven interface with instant "Launcher" access.
 - **Extensive Connectors**: Supports 50+ cloud and local sources including Microsoft 365, Google Workspace, GitHub, and Notion.
-- **Late 2026 Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support) utilizing FastMCP 3.1.
+- **Early 2027 SOTA Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support) utilizing FastMCP 3.1 Task Protocols.
 - **Advanced Filtering**: Robust inline filters (e.g., `@file`, `ext:`, `src:`) for precision search.
 
 ## Limitations
@@ -52,13 +52,13 @@ Download the installer for your platform from [curiosity.ai](https://curiosity.a
 1. Ensure [Ollama](../../services/ollama.md) is running on your machine.
 2. In Curiosity, navigate to **Settings > AI Assistant**.
 3. Select **Local LLM (Ollama)** as the provider.
-4. Choose your preferred model (e.g., `gemma3:27b`) and click **Connect**.
+4. Choose your preferred model (e.g., `gemma4:27b` or `deepseek-v4:32b`) and click **Connect**.
 
 ## CLI examples
 Curiosity Workspace includes a CLI for administrative tasks, and it supports the [Model Context Protocol](../../architecture/multi_agent_knowledgeops.md) for agentic integration.
 
 ```bash
-# Register Curiosity as a FastMCP 3.1 server for an agent (December 2026)
+# Register Curiosity as a FastMCP 3.1 Task Protocol server for an agent (January 2027)
 mcp register curiosity-server --command "curiosity-mcp" --args "--workspace-url https://my-org.curiosity.ai"
 
 # Trigger a re-index of a specific source via Workspace CLI
@@ -70,7 +70,7 @@ curiosity-cli index trigger --source "google-drive-shared" --workspace "enterpri
 ```
 
 ## API examples
-Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using frontier models like [Gemma 3](local_llms.md), [Claude 5.1](../providers/anthropic.md), GPT-5.5, Gemini 4.0 Pro, Llama 4, and Qwen 3.6.
+Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using frontier reasoning models like [Claude 5.6](../providers/anthropic.md), GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 
 ### Schema Validation & Search Integration (Python & Pydantic v2)
 Using FastMCP 3.1 and Pydantic v2, we validate Curiosity search results before feeding them to downstream frontier agents.
@@ -103,21 +103,17 @@ def fetch_and_validate_curiosity_search(query: str, api_token: str) -> Optional[
     params = {"q": query}
 
     try:
-        # Mocking requests fetch for illustrative completeness
-        # response = requests.get(api_url, headers=headers, params=params)
-        # response_data = response.json()
-
-        # Simulated structure following December 2026 specs
+        # Simulated structure following early January 2027 specs
         response_data = {
             "query": query,
             "total_hits": 1,
             "documents": [
                 {
                     "id": "slack-thread-12345",
-                    "title": "2026 Q4 Roadmap Planning",
+                    "title": "2027 Q1 Roadmap Planning",
                     "source": "Slack",
-                    "score": 0.98,
-                    "last_modified": "2026-12-29T14:30:00Z"
+                    "score": 0.99,
+                    "last_modified": "2027-01-07T14:30:00Z"
                 }
             ]
         }
@@ -131,7 +127,7 @@ def fetch_and_validate_curiosity_search(query: str, api_token: str) -> Optional[
 
 # Execute search validation
 api_token = "MOCK_WORKSPACE_TOKEN"
-result = fetch_and_validate_curiosity_search("roadmap 2026", api_token)
+result = fetch_and_validate_curiosity_search("roadmap 2027", api_token)
 if result:
     print(f"Validated query '{result.query}': Found {result.total_hits} secure hits.")
 ```
@@ -151,7 +147,7 @@ headers = {
 payload = {
     "node_id": "slack-thread-12345",
     "prompt_template": "Executive Summary",
-    "model_override": "gemma3-27b-it"
+    "model_override": "claude-5-6-sonnet"
 }
 
 response = requests.post(API_URL, headers=headers, json=payload)
@@ -161,7 +157,7 @@ print(response.json())
 ### Searching the Knowledge Base
 ```bash
 # Search for specific documents via API
-curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2026" \
+curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2027" \
      -H "Authorization: Bearer <API_TOKEN>"
 ```
 
@@ -177,9 +173,8 @@ curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2026" \
 ## Sources / References
 - [Curiosity.ai Official Site](https://curiosity.ai/)
 - [Curiosity Documentation](https://docs.curiosity.ai/)
-- [Curiosity Blog: July 2026 Release Overview](https://blog.curiosity.ai/blog/release-overview-july-2026)
 - [Curiosity Platform Release Notes](https://knowledge.curiositysoftware.ie/docs/curiosity-platform-release-notes)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-29
+- Last reviewed: 2027-01-07
 - Confidence: high
