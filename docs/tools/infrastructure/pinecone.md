@@ -1,10 +1,10 @@
 # Pinecone
 
 ## What it is
-Pinecone is a managed, cloud-native vector database designed for high-performance AI applications. It provides a simple API for storing, indexing, and querying high-dimensional vector embeddings. As of late December 2026, Pinecone has evolved into a "Serverless Knowledge Platform" with the launch of Pinecone Nexus, optimized for low-latency agentic reasoning, multi-turn agent persistence, and dynamic BM25 sparse-dense hybrid search.
+Pinecone is a managed, cloud-native vector database designed for high-performance AI applications. It provides a simple API for storing, indexing, and querying high-dimensional vector embeddings. As of early 2027, Pinecone has evolved into a "Serverless Knowledge Platform" with Pinecone Nexus and native FastMCP 3.1 Task Protocol support, optimized for low-latency agentic reasoning with frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra), multi-turn agent persistence, and dynamic BM25 sparse-dense hybrid search.
 
 ## What problem it solves
-Managing vector databases at scale is operationally complex. Developers need to handle indexing algorithms (like HNSW), resource allocation, scaling, and high availability. Pinecone solves this by offering a fully managed experience where the underlying infrastructure is abstracted away, allowing developers to focus on building AI features rather than managing database clusters. It specifically addresses "Agentic Latency" by providing optimized endpoints and native tool-calling integrations for rapid multi-turn agent sessions.
+Managing vector databases at scale is operationally complex. Developers need to handle indexing algorithms (like HNSW), resource allocation, scaling, and high availability. Pinecone solves this by offering a fully managed experience where the underlying infrastructure is abstracted away, allowing developers to focus on building AI features rather than managing database clusters. It specifically addresses "Agentic Latency" by providing optimized endpoints and native FastMCP 3.1 tool interfaces for rapid multi-turn agent sessions.
 
 ## Where it fits in the stack
 **Category**: Infrastructure / Vector Databases. It serves as a managed retrieval layer in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) stack, frequently used alongside [OpenAI](../ai_knowledge/openai.md) and [Anthropic](../providers/anthropic.md) for RAG and agent state persistence.
@@ -206,5 +206,5 @@ if __name__ == "__main__":
 - [Pinecone Nexus](https://www.infoq.com/news/2026/07/pinecon-nexus-knowledge-engine/) — Integrated from daily log reference.
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

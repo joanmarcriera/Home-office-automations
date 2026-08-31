@@ -1,7 +1,7 @@
 # Weaviate
 
 ## What it is
-Weaviate is an open-source vector database that allows you to store data objects and vector embeddings from your favorite ML-models, and scale seamlessly into billions of data objects. As of late December 2026, it is a primary infrastructure choice for AI-native applications requiring high-performance semantic search, multi-vector hybrid query architectures, and native FastMCP 3.1 tool integration.
+Weaviate is an open-source vector database that allows you to store data objects and vector embeddings from your favorite ML-models, and scale seamlessly into billions of data objects. As of early 2027, it is a primary infrastructure choice for AI-native applications requiring high-performance semantic search, multi-vector hybrid query architectures, and native FastMCP 3.1 Task Protocol tool integration.
 
 ## What problem it solves
 Managing and searching through massive amounts of unstructured data (text, images, audio) is challenging. Weaviate provides a scalable infrastructure for vector search, enabling semantic search, recommendation engines, and Retrieval-Augmented Generation (RAG) by converting unstructured data into searchable vectors. It bridges the gap between raw data and agentic reasoning.
@@ -196,5 +196,5 @@ if __name__ == "__main__":
 - [Weaviate v4 Python Client Release Notes](https://weaviate.io/blog/python-client-v4-release)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

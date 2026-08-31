@@ -1,7 +1,7 @@
 # Azure AI Gateway
 
 ## What it is
-Azure AI Gateway is a specialized, enterprise-grade API Management (APIM) tier designed specifically to govern, secure, rate-limit, and load-balance calls to LLMs, provider endpoints, and Model Context Protocol (MCP) server tools. It operates as an inline gateway layer, managing credentials, tracking token consumption, and validating request payloads before they reach downstream model hosts.
+Azure AI Gateway is a specialized, enterprise-grade API Management (APIM) tier designed specifically to govern, secure, rate-limit, and load-balance calls to frontier model fleets (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4), provider endpoints, and FastMCP 3.1 task protocol tools. It operates as an inline gateway layer, managing credentials, tracking token consumption, and validating request payloads before they reach downstream model hosts.
 
 ## What problem it solves
 Deploying commercial AI applications introduces high operational risks: unpredictable API latency, rate-limiting (HTTP 429) errors from API providers, runaway token-based cloud spending, and potential data leakage of sensitive user information. Azure AI Gateway solves these challenges by providing a dedicated tier within Azure API Management that automatically load-balances requests across multiple endpoints, enforces token rate limits, redacts PII data, and logs granular performance telemetry.
@@ -138,5 +138,5 @@ if __name__ == "__main__":
 - [Microsoft Azure API Management Policy Configuration Reference Guides](https://learn.microsoft.com/en-us/azure/api-management/api-management-policies)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

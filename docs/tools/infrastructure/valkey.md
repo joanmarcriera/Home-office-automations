@@ -1,7 +1,7 @@
 # Valkey
 
 ## What it is
-Valkey is an open-source, high-performance, in-memory key-value datastore, cache, and message broker. Created as a fully open-source fork of Redis (following its relicensing announcement) under the auspices of the Linux Foundation, Valkey is highly optimized for low-latency operational workloads, real-time agent state storage, prompt-cache registries, and pub/sub messaging patterns.
+Valkey is an open-source, high-performance, in-memory key-value datastore, cache, and message broker. Created as a fully open-source fork of Redis under the Linux Foundation, Valkey is highly optimized for low-latency operational workloads, real-time agent state storage, FastMCP 3.1 task protocol message queues, prompt-cache registries, and pub/sub messaging patterns across multi-agent systems.
 
 ## What problem it solves
 Stateful AI applications and autonomous multi-agent systems need extremely fast access to transient system variables, chat history streams, session states, and large prompt cache indexes. Storing these parameters in disk-bound relational databases introduces significant latency, degrading the responsiveness of the AI. Valkey solves this speed constraint by storing and indexing data entirely in-memory with microsecond-level latency, preventing agents from lagging during context-retrieval steps.
@@ -160,5 +160,5 @@ if __name__ == "__main__":
 - [Valkey Official Open-Source Project Governance and Repositories](https://github.com/valkey-io/valkey)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
