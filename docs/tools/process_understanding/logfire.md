@@ -61,12 +61,17 @@ logfire.info("Logfire instrumentation initialized successfully.")
 
 ## CLI examples
 
-### CLI Project Verification
+### 1. CLI Environment Authentication
+```bash
+logfire auth
+```
+
+### 2. CLI Project Verification
 ```bash
 logfire check
 ```
 
-### Stream Live Logs via CLI
+### 3. Stream Live Logs via CLI
 ```bash
 logfire projects list
 ```

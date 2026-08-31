@@ -52,11 +52,14 @@ mentat --non-interactive --prompt "Add docstrings to all functions in main.py" s
 
 ## CLI examples
 ```bash
-# Launch Mentat targeting specific source files
+# 1. Launch Mentat targeting specific source files
 mentat src/main.py src/utils.py
 
-# Execute automated multi-file refactoring command
+# 2. Execute automated multi-file refactoring command
 mentat --prompt "Refactor error handling across main.py and utils.py to use custom Pydantic v2 exceptions"
+
+# 3. Include directories and auto-accept edits
+mentat --auto-accept src/
 ```
 
 ## API examples
