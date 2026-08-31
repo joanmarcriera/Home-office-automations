@@ -1,20 +1,20 @@
 # Gemini
 
 ## What it is
-Gemini is Google's most capable and general family of multimodal AI models, natively engineered from the ground up to reason seamlessly across text, code, images, audio, and video. As of early 2027, the ecosystem is anchored by the **Gemini 4.0** family alongside specialized ultra-fast releases like **Gemini 3.7 Flash**. This lineup includes the frontier-class **Gemini 4.0 Ultra** for maximum logical depth, the enterprise workhorse **Gemini 4.0 Pro**, the fast and highly efficient **Gemini 4.0 Flash**, the low-latency **Gemini 3.7 Flash**, the ultra-high-throughput **Gemini 4.0 Flash-Lite**, and the specialized cyber-defense model **Gemini 4.0 Flash Cyber** (integrated within CodeMender for automated security auditing and patching).
+Gemini is Google's most capable and general family of multimodal AI models, natively engineered from the ground up to reason seamlessly across text, code, images, audio, and video. As of early January 2027, the ecosystem is anchored by the **Gemini 4.0** family alongside specialized ultra-fast releases like **Gemini 3.7 Flash**. This lineup includes the frontier-class **Gemini 4.0 Ultra** for maximum logical depth, the enterprise workhorse **Gemini 4.0 Pro**, the fast and highly efficient **Gemini 4.0 Flash**, the low-latency **Gemini 3.7 Flash**, the ultra-high-throughput **Gemini 4.0 Flash-Lite**, and the specialized cyber-defense model **Gemini 4.0 Flash Cyber** (integrated within CodeMender for automated security auditing and patching).
 
 ## What problem it solves
 Traditional language model workflows suffer from fragmentation when coordinating multiple single-modality models, resulting in high latency, data-loss across conversions, and elevated operational costs. Gemini solves this "multimodal tax" by utilizing a unified, native multimodal reasoning engine. Specifically, it addresses:
 - **High Output Latency**: Gemini 3.7 Flash and 4.0 Flash-Lite generate up to 450+ output tokens per second with ultra-low time-to-first-token (TTFT), making real-time, interactive multi-agent configurations highly viable.
 - **Context Capacity Bottlenecks**: Exposes a massive, industry-leading 4-million token context window, allowing developers to process hours of video, massive audio logs, or entire multi-million-line code repositories in a single interaction.
-- **Agentic Overhead**: Natively integrates with the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, allowing agents to dynamically query local data systems, filesystems, and databases without custom integration layer glue.
+- **Agentic Overhead**: Natively integrates with the **FastMCP 3.1 Task Protocol**, allowing agents to dynamically query local data systems, filesystems, and databases without custom integration layer glue.
 - **Security Vulnerabilities**: Gemini 4.0 Flash Cyber automates the closed-loop identification, testing, and pull-request-level patching of complex software vulnerabilities.
 
 ## Where it fits in the stack
-**AI Model / Multimodal Foundation Layer**. Gemini acts as the central intelligence engine for Google-integrated agentic architectures, self-hosted developer workspaces, and multi-agent coordination frameworks (such as [Antigravity Agent](antigravity-agent.md)). It is accessed via Google AI Studio, Google Cloud Vertex AI, and Google Antigravity platforms, and works natively alongside local offline models like [Gemma 3](local_llms.md).
+**AI Model / Multimodal Foundation Layer**. Gemini acts as the central intelligence engine for Google-integrated agentic architectures, self-hosted developer workspaces, and multi-agent coordination frameworks (such as [Antigravity Agent](antigravity-agent.md)). It is accessed via Google AI Studio, Google Cloud Vertex AI, and Google Antigravity platforms, and works natively alongside local offline models like [Gemma 4](local_llms.md).
 
 ## Typical use cases
-- **Multi-Agent Orchestration**: Coordinating complex, multi-turn reasoning steps with Gemini 4.0 Pro serving as a master router/orchestrator and Gemini 4.0 Flash-Lite running sub-tasks in parallel.
+- **Multi-Agent Orchestration**: Coordinating complex, multi-turn reasoning steps with Gemini 4.0 Ultra serving as a master router/orchestrator and Gemini 4.0 Flash-Lite running sub-tasks in parallel.
 - **Full-Codebase Software Engineering**: Running large-scale migrations, automated dependency upgrades, and code refactoring by feeding entire codebases into the 4M context window of Gemini 4.0 Pro (scoring 68.2% on MLE Bench and 55% on DeepSWE).
 - **Automated Security Patching**: Deploying Gemini 4.0 Flash Cyber within CodeMender pipelines to analyze, validate, and patch production vulnerabilities.
 - **High-Volume Multimodal Ingestion**: Processing high-throughput streams of multimodal enterprise data, such as audio calls, legal PDFs, and video walkthroughs, and saving results as structured JSON.
@@ -40,7 +40,7 @@ Traditional language model workflows suffer from fragmentation when coordinating
 - When developing enterprise systems with deep integrations into Google Cloud Vertex AI, Google Workspace, or FastMCP 3.1 ecosystems.
 
 ## When not to use it
-- For strictly local, air-gapped workloads requiring 100% offline execution; use [Gemma 3](local_llms.md) or Llama 4 via [Ollama](../../services/ollama.md) instead.
+- For strictly local, air-gapped workloads requiring 100% offline execution; use [Gemma 4](local_llms.md) or Llama 4 via [Ollama](../../services/ollama.md) instead.
 - If your application is limited to single-turn, text-only prompts and does not utilize multimodal or caching optimizations.
 
 ## Getting started
@@ -123,7 +123,7 @@ config = types.GenerateContentConfig(
 
 response = client.models.generate_content(
     model='gemini-4.0-pro',
-    contents="Analyze the following system logs for unauthorized access patterns:\n'ERROR 2026-12-28 23:41:02 Unauthorized admin login attempt detected from IP 192.168.1.104'",
+    contents="Analyze the following system logs for unauthorized access patterns:\n'ERROR 2027-01-05 23:41:02 Unauthorized admin login attempt detected from IP 192.168.1.104'",
     config=config
 )
 
@@ -136,23 +136,23 @@ print("Findings:", result.critical_findings)
 ```
 
 ## Related tools / concepts
-- [Claude](claude.md) — Anthropic's primary frontier competitor (Claude 5.1).
-- [OpenAI](openai.md) — Main competitor ecosystem (GPT-5.5).
+- [Claude](claude.md) — Anthropic's primary frontier competitor (Claude 5.6).
+- [OpenAI](openai.md) — Main competitor ecosystem (GPT-5.6).
 - [NotebookLM](notebooklm.md) — Google's AI-powered research assistant powered by the Gemini backbone.
-- [Gemma 3](local_llms.md) — Google's state-of-the-art open-weights model family for local execution.
+- [Gemma 4](local_llms.md) — Google's state-of-the-art open-weights model family for local execution.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for integrating models with tools and data.
 - [Antigravity Agent](antigravity-agent.md) — Google's premier multi-agent orchestration framework.
 - [Gemini CLI](gemini-cli.md) — CLI utility for quick local scripting and model querying.
 - [Gemini Canvas](gemini-canvas.md) — Visual infinite-workspace canvas for multi-agent execution.
-- [DeepSeek](../providers/deepseek.md) — Highly efficient open-weights multimodal competitor.
+- [DeepSeek-V4](../providers/deepseek.md) — Highly efficient open-weights multimodal competitor.
 
 ## Sources / references
 - [Introducing Gemini 3.7 Flash](https://deepmind.google/blog/introducing-gemini-3-7-flash/)
 - [Introducing Gemini 4.0: SOTA Multimodal Reasoning and Caching Protocols](https://deepmind.google/blog/introducing-gemini-4-0/)
-- [Gemini API Release Notes and Changelog (December 2026)](https://ai.google.dev/gemini-api/docs/changelog)
+- [Gemini API Release Notes and Changelog (January 2027)](https://ai.google.dev/gemini-api/docs/changelog)
 - [Google AI Studio Console](https://aistudio.google.com/)
 - [Antigravity Agent Platform Guide](https://ai.google.dev/gemini-api/docs/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
