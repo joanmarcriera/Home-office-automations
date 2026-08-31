@@ -1,10 +1,10 @@
 # Everything Claude Code (ECC)
 
 ## What it is
-Everything Claude Code (ECC) is an advanced, production-grade performance optimization ecosystem and suite of extensions built specifically for terminal-native AI harnesses, primarily [Claude Code](../development_ops/claude-code.md). It is not just a collection of static files but an active, integrated runtime of specialized subagents, lifecycle hooks, and contextual rules designed to maximize reasoning fidelity.
+Everything Claude Code (ECC) is an advanced, production-grade performance optimization ecosystem and suite of extensions built specifically for terminal-native AI harnesses, primarily [Claude Code](../development_ops/claude-code.md). Built for early January 2027 workflows, it functions as an active, integrated runtime of specialized subagents, lifecycle hooks, and contextual rules designed to maximize reasoning fidelity across frontier models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL).
 
 ## What problem it solves
-It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses agent context-window saturation, security vulnerability exposures, memory state persistence across development sessions, and domain-specific coding standard compliance. It is tuned to optimize token efficiency for frontier reasoning models like Claude 5.1 using FastMCP 3.1.
+It bridges the critical gap between a raw AI terminal CLI and a fully functional, autonomous software engineering environment. ECC addresses agent context-window saturation, security vulnerability exposures, memory state persistence across development sessions, and domain-specific coding standard compliance. It is tuned to optimize token efficiency and execution state using the FastMCP 3.1 Task Protocol.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Developer Tooling Layer**. It functions as the local runtime supervisor and rule enforcement subsystem, operating directly on top of command-line agents.
@@ -18,7 +18,7 @@ It bridges the critical gap between a raw AI terminal CLI and a fully functional
 ## Strengths
 - **Massive Skill Library**: Contains over 182+ domain-specific skills for 10+ core programming languages.
 - **AgentShield Integration**: Built-in v2.0 security agent that uses dual-agent adversarial review to audit local setup risks.
-- **SOTA Alignment**: Native support for Claude 5.1 planning models, optimizing `MAX_THINKING_TOKENS` configuration metrics.
+- **SOTA Alignment**: Native support for Claude 5.6 and GPT-5.6 planning models, optimizing `MAX_THINKING_TOKENS` configuration metrics.
 - **Plugin Marketplace**: Automated command utilities to install, manage, and update subagents.
 
 ## Limitations
@@ -110,7 +110,7 @@ class ECCConfig(BaseModel):
     @classmethod
     def validate_mcp_version(cls, val: str) -> str:
         if val not in ["3.1", "3.0"]:
-            raise ValueError("Only MCP versions 3.0 and 3.1 are supported.")
+            raise ValueError("Only FastMCP versions 3.0 and 3.1 are supported.")
         return val
 
 # Verify active configurations
@@ -167,5 +167,5 @@ module.exports = async ({ file, content }) => {
 - [AgentShield Project Release Notes](https://ecc.tools/blog/agentshield-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

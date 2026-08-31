@@ -1,7 +1,7 @@
 # Gemini Canvas
 
 ## What it is
-Gemini Canvas is a collaborative, infinite-workspace interface within the Gemini ecosystem designed for multi-step AI orchestration and visual content creation. By late December 2026, it has evolved into a primary interface for [Antigravity Agent](antigravity-agent.md) missions, allowing users to coordinate multiple autonomous agents on a single persistent, non-linear board utilizing the advanced reasoning capabilities of the **Gemini 4.0 Pro** and **Gemini 4.0 Flash** models.
+Gemini Canvas is a collaborative, infinite-workspace interface within the Gemini ecosystem designed for multi-step AI orchestration and visual content creation. As of early January 2027, it has evolved into a primary interface for [Antigravity Agent](antigravity-agent.md) missions, allowing users to coordinate multiple autonomous agents on a single persistent, non-linear board utilizing the advanced reasoning capabilities of the **Gemini 4.0 Ultra**, **Gemini 4.0 Pro**, and **Gemini 4.0 Flash** models alongside FastMCP 3.1 Task Protocol integrations.
 
 ## What problem it solves
 It addresses the "Chat Fatigue" and context-switching overhead of complex, multi-stage projects. Instead of scrolling through long, linear chat histories, Canvas allows users to pin insights, visualize information hierarchies, and transform raw data into interactive widgets. It provides a visual "Working Memory" for both humans and AI agents.
@@ -21,7 +21,7 @@ It addresses the "Chat Fatigue" and context-switching overhead of complex, multi
 - **Native Antigravity Integration**: Seamlessly deploy and monitor autonomous agents within the canvas environment.
 - **Real-time Collaboration**: Multiple humans and agents can work on the same canvas simultaneously.
 - **Component Generation**: Direct creation of HTML/JS/React widgets (e.g., "Build a project timeline component here").
-- **Persistent Context**: The entire canvas acts as a 2M+ token context window for the underlying Gemini 4.0 models.
+- **Persistent Context**: The entire canvas acts as a 2M+ token context window for the underlying Gemini 4.0 Ultra models.
 
 ## Limitations
 - **Ecosystem Lock-in**: Deepest integration is limited to Google Workspace and Google Cloud services.
@@ -97,7 +97,7 @@ class CanvasMission(BaseModel):
 # Operational Verification: Validate a complex Canvas workspace with multiple blocks and agents
 try:
     mission_data = {
-        "workspace_id": "ws_canvas_2026_999",
+        "workspace_id": "ws_canvas_2027_001",
         "mission_name": "Decentralized Energy Research",
         "agent_roles": ["researcher", "synthesizer", "ui-generator"],
         "blocks": [
@@ -145,5 +145,5 @@ except Exception as e:
 - [Infinite Canvas Design Patterns](https://canvas.google.design/patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

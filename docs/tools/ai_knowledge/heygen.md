@@ -1,7 +1,7 @@
 # HeyGen
 
 ## What it is
-HeyGen is a leading AI video generation platform that enables the creation of professional-quality videos featuring realistic AI avatars. As of late December 2026, HeyGen has evolved into a comprehensive "Agentic Video Surface," supporting real-time interactive avatars, seamless API v3 integration, and high-fidelity digital twins.
+HeyGen is a leading AI video generation platform that enables the creation of professional-quality videos featuring realistic AI avatars. As of early January 2027, HeyGen has evolved into a comprehensive "Agentic Video Surface," supporting real-time interactive avatars, FastMCP 3.1 Task Protocol integrations, seamless API v3 orchestration, and high-fidelity digital twins.
 
 ## What problem it solves
 It eliminates the traditional barriers to video production—cost, time, and specialized talent. HeyGen allows for the rapid scaling of video content, enabling personalized sales outreach, corporate training, and multilingual communication at a fraction of the cost of traditional film crews and actors.
@@ -19,7 +19,7 @@ It eliminates the traditional barriers to video production—cost, time, and spe
 - **Interactive Avatars**: Low-latency, real-time interactive mode for live conversations with sub-150ms response times.
 - **API v3 Modernization**: Robust, developer-friendly API for headless video orchestration and real-time streaming.
 - **Industry-Leading Fidelity**: Unmatched realism in digital twins, including natural micro-expressions and body language.
-- **Multi-Modal Integration**: Seamlessly connects with frontier models like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro for script generation and reasoning.
+- **Multi-Modal Integration**: Seamlessly connects with frontier reasoning models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL for script generation and reasoning.
 
 ## Limitations
 - **SaaS Only**: Currently requires a cloud connection; no full local-only execution for the high-fidelity avatar models.
@@ -78,7 +78,7 @@ curl -X GET https://api.heygen.com/v1/webhook.list \
 ## API examples
 
 ### Headless Video Creation (Python) with Pydantic v2 validation
-Using the late December 2026 `heygen-sdk` featuring modern schema structures validated with **Pydantic v2**.
+Using the early January 2027 `heygen-sdk` featuring modern schema structures validated with **Pydantic v2**.
 
 ```python
 from pydantic import BaseModel, Field, field_validator
@@ -104,8 +104,8 @@ class VideoGenerationRequest(BaseModel):
 
 # Validate raw payload before invoking HeyGen API
 raw_payload = {
-    "avatar_id": "Josh_Lite_2026",
-    "script": "Hello! Welcome to the late December 2026 technology update. Synthesizing new digital assets.",
+    "avatar_id": "Josh_Lite_2027",
+    "script": "Hello! Welcome to the early January 2027 technology update. Synthesizing new digital assets.",
     "title": "Morning Briefing",
     "dimension": "16:9"
 }
@@ -155,8 +155,8 @@ avatar.speak('How can I help you today?');
 - [HeyGen API v3 Documentation](https://developers.heygen.com/v3)
 - [HeyGen Interactive Avatar Launch](https://www.heygen.com/blog/interactive-avatars-ga)
 - [HeyGen Security & Compliance](https://www.heygen.com/security)
-- [Synthesia vs HeyGen: late December 2026 Comparison](../../knowledge_base/landscape-overview.md)
+- [Synthesia vs HeyGen: early January 2027 Comparison](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
