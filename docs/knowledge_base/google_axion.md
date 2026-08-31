@@ -1,17 +1,17 @@
 # Google Axion Processors
 
 ## What it is
-Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of late November/December 2026), it is engineered to power general-purpose computing, containerized microservices, and large-scale AI inference infrastructure across Google Cloud Platform (GCP).
+Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Google specifically for high-efficiency data center workloads. Built on the advanced Arm Neoverse V3 platform (fully deployed as of early January 2027), it is engineered to power general-purpose computing, containerized microservices, and large-scale AI inference infrastructure across Google Cloud Platform (GCP).
 
 ## What problem it solves
-It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning and large-scale agentic loops scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
+It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning and large-scale agentic loops (powering Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL) scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
 
 ## Where it fits in the stack
-**Category**: Compute Infrastructure. It serves as the physical (and virtualized) **Hardware/Compute Layer** within GCP, directly hosting Google Kubernetes Engine (GKE) clusters, multi-node compute pools, and containerized inference runners.
+**Category**: Compute Infrastructure. It serves as the physical (and virtualized) **Hardware/Compute Layer** within GCP, directly hosting Google Kubernetes Engine (GKE) clusters, multi-node compute pools, FastMCP 3.1 Task Protocol servers, and containerized inference runners.
 
 ## Typical use cases
 - **Multi-Architecture GKE Workloads**: Running highly scalable, containerized microservices on ARM64 nodes with automatic x86-64 fallbacks.
-- **Energy-Efficient AI Inference**: Powering low-latency CPU-based inference pipelines for open-weight models (such as Llama 4 8B, Gemma 3, or Qwen 3.6).
+- **Energy-Efficient AI Inference**: Powering low-latency CPU-based inference pipelines for open-weight models (such as Gemma 4, Qwen 3.6 VL, or DeepSeek-V4).
 - **High-Performance Data Processing**: Accelerating memory-intensive databases, real-time analytics engines, and stream processing services.
 - **Agentic Fleet Orchestration**: Hosting thousands of simultaneous, long-running agent execution graphs (e.g., LangGraph or custom Python loops) under strict power-budget caps.
 
@@ -29,7 +29,7 @@ It solves the critical "energy ceiling" constraint of modern cloud compute infra
 ## When to use it
 - When deploying cloud-native containerized applications or model pipelines on Google Cloud Platform and seeking to optimize hosting costs.
 - When running high-throughput, continuous AI workloads where power efficiency ("Tokens per Watt") is a primary design constraint.
-- When modernizing GKE clusters to take advantage of multi-architecture scheduling policies in late 2026.
+- When modernizing GKE clusters to take advantage of multi-architecture scheduling policies in early 2027.
 
 ## When not to use it
 - If your workload relies heavily on x86-64 closed-source compiled binaries or legacy libraries that are not ported to ARM64.
@@ -162,7 +162,7 @@ Integrating Axion into multi-architecture clusters is modeled as a simple schedu
 The rapid scaling of frontier AI models has shifted the optimization goal from raw speed to physical cluster power efficiency:
 - **Physical Power Caps**: Modern data centers operate under rigid physical wattage restrictions. Maximizing the work done per unit of electricity is the absolute bottleneck.
 - **Cost Efficiency**: Axion's 60% energy reduction translates directly into reduced utility fees, freeing up compute budget to execute more agent loops and higher context lengths.
-- **Inference Density**: ARM64 Neoverse V3's dedicated vector pipelines and optimized instruction sets allow more concurrent local model threads (e.g., Gemma 3 or Llama 4) to run in parallel compared to classical x86 nodes.
+- **Inference Density**: ARM64 Neoverse V3's dedicated vector pipelines and optimized instruction sets allow more concurrent local model threads (e.g., Gemma 4 or Qwen 3.6 VL) to run in parallel compared to classical x86 nodes.
 
 ## Impact on Homelab Operations
 The design choices powering cloud platforms like Axion mirror and guide modern homelab strategies:
@@ -184,5 +184,6 @@ The design choices powering cloud platforms like Axion mirror and guide modern h
 - [GKE Compute Classes Configuration Reference](https://cloud.google.com/kubernetes-engine/docs/concepts/compute-classes)
 - [Docker Buildx Multi-Platform Build Guide](https://docs.docker.com/build/building/multi-platform/)
 
-- Last reviewed: 2026-12-30
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Home Admin Agent Architecture
 
 ## What it is
-The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. It acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the Model Context Protocol (FastMCP 3.1).
+The Home Admin Agent is a stateful, LangChain- and LangGraph-based autonomous coordination system designed to orchestrate complex homelab pipelines, manage family knowledge graphs, and control local smart home environments. As of early January 2027, it acts as the centralized intelligent operating system ("brain") for the home, capable of multi-step reasoning, persistent memory tracking, and dynamic tool invocation using the FastMCP 3.1 Task Protocol.
 
 ## What problem it solves
 Managing a multi-service smart home or homelab environment typically requires navigating disconnected interfaces and protocols (e.g., Home Assistant, Paperless-ngx, Vikunja, and CalDAV). The Home Admin Agent architecture solves this fragmentation by offering an intelligent, natural-language interface capable of cross-service reasoning and complex long-horizon planning—such as coordinating between document uploads, task creation, and calendar scheduling without manual human coordination.
@@ -18,8 +18,8 @@ Managing a multi-service smart home or homelab environment typically requires na
 ## Strengths
 - **Stateful Long-Horizon Planning**: Uses advanced LangGraph-based Plan-and-Execute loops to construct, monitor, and adapt multi-step completion strategies dynamically.
 - **Durable Memory & Checkpointing**: Persists complete execution traces, message histories, and plan states across system restarts using robust SQLite backend storage.
-- **Dynamic Tool Discovery (FastMCP 3.1)**: Leverages FastMCP 3.1 Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
-- **Hybrid Inference Execution**: Seamlessly routes tasks between lightweight local models (e.g., Gemma 3, Llama 4, or Qwen 3.6) for low-latency operations and frontier APIs (such as Claude 5.1 or GPT-5.5) for complex reasoning.
+- **Dynamic Tool Discovery (FastMCP 3.1 Task Protocol)**: Leverages FastMCP 3.1 Task Protocol interfaces to dynamically bind, inspect, and execute remote and local tool definitions.
+- **Hybrid Inference Execution**: Seamlessly routes tasks between lightweight local models (e.g., Gemma 4, DeepSeek-V4, or Qwen 3.6 VL) for low-latency operations and frontier APIs (such as Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra) for complex reasoning.
 
 ## Limitations
 - **Processing Latency**: Sequential model execution and multi-agent planning overhead introduce noticeable delay (often 3–15 seconds) compared to traditional rule-based scripts.
@@ -56,11 +56,11 @@ Interacting with the Home Admin Agent environment via the administrative CLI:
 # Initialize the persistent SQLite database for conversation state and memory checkpointing
 ralph-admin init-db --db-path ./data/agent_memory.db
 
-# Launch the LangGraph orchestration server with active MCP 3.1 server registration
+# Launch the LangGraph orchestration server with active FastMCP 3.1 server registration
 ralph-admin start --port 8080 --config ./config/agent_config.yaml --enable-mcp
 
 # Test a specific tool in isolation to verify credentials and response schemas
-ralph-admin tool-run --tool "paperless_search" --arguments '{"query": "december 2026 water bill"}'
+ralph-admin tool-run --tool "paperless_search" --arguments '{"query": "january 2027 water bill"}'
 ```
 
 ## API examples
@@ -82,7 +82,7 @@ class StateMessage(BaseModel):
 class SubTask(BaseModel):
     id: int = Field(..., description="Unique sub-task sequence ID")
     instruction: str = Field(..., description="Explicit sub-task instruction")
-    assigned_model: str = Field(default="gemma3", description="Model routed for execution: e.g., gemma3, llama4, claude-5-1")
+    assigned_model: str = Field(default="gemma4", description="Model routed for execution: e.g., gemma4, qwen3.6-vl, claude-5.6")
     status: str = Field(default="pending", pattern="^(pending|running|completed|failed)$")
 
 class HomeAgentStateUpdate(BaseModel):
@@ -107,7 +107,7 @@ def process_state_update(raw_payload: dict) -> Optional[HomeAgentStateUpdate]:
 if __name__ == "__main__":
     # Mock runtime payload representing an updated agent loop
     mock_payload = {
-        "thread_id": "homelab-sync-2026-12-30",
+        "thread_id": "homelab-sync-2027-01-07",
         "messages": [
             {
                 "role": "user",
@@ -124,13 +124,13 @@ if __name__ == "__main__":
             {
                 "id": 1,
                 "instruction": "Retrieve matching document metadata from Paperless-ngx",
-                "assigned_model": "gemma3",
+                "assigned_model": "gemma4",
                 "status": "completed"
             },
             {
                 "id": 2,
                 "instruction": "Create a high-priority synchronized todo item in Vikunja",
-                "assigned_model": "llama4",
+                "assigned_model": "qwen3.6-vl",
                 "status": "pending"
             }
         ],
@@ -159,8 +159,9 @@ if __name__ == "__main__":
 ## Sources / References
 - [LangGraph Core State Documentation](https://langchain-ai.github.io/langgraph/)
 - [SQLite Checkpointer Spec (LangGraph API)](https://langchain-ai.github.io/langgraph/reference/checkpoints/)
-- [Model Context Protocol (MCP) v3.1 Technical Specification](https://modelcontextprotocol.io/)
+- [Model Context Protocol (MCP) FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 - [Pydantic V2 Migration & Custom Types Guide](https://docs.pydantic.dev/latest/)
 
-- Last reviewed: 2026-12-30
+## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high
