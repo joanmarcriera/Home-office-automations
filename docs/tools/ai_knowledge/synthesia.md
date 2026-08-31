@@ -1,10 +1,10 @@
 # Synthesia
 
 ## What it is
-Synthesia is a leading AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. By late December 2026, it has expanded its capabilities to support **Real-time Interactive Avatars** via ultra-low-latency API v3 streaming, and seamless script pipelines with frontier models like [Claude 5.1](claude.md) and [GPT-5.5](openai.md).
+Synthesia is a leading AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. By early January 2027, it has expanded its capabilities to support **Real-time Interactive Avatars** via ultra-low-latency API v3 streaming, native **FastMCP 3.1** protocol endpoints, and seamless script pipelines integrated with frontier models like [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), DeepSeek-V4, Qwen 3.6 VL, and [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences in 140+ languages with minimal effort.
+It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences in 140+ languages with minimal effort while supporting automated agentic triggers.
 
 ## Where it fits in the stack
 **AI & Knowledge / Generative Video Platform**. It serves as a downstream output layer for content generation, transforming text-based insights or instructions into engaging, human-led video content. It often integrates with [Dify](dify.md) or [Make.com](../automation_orchestration/make.md) for automated workflows.
@@ -14,14 +14,14 @@ It drastically reduces the cost and complexity of corporate video production. Tr
 - **Personalized Sales Outreach**: Generating thousands of individual video messages for leads using API-driven variables.
 - **Product Updates**: Creating quick video walkthroughs for new features directly from release notes.
 - **Automated News/Briefings**: Transforming daily summary text into "anchor-led" video segments.
-- **Interactive Customer Support**: Powering real-time video chatbots that respond with realistic human avatars.
+- **Interactive Customer Support**: Powering real-time video chatbots that respond with realistic human avatars via FastMCP 3.1.
 
 ## Strengths
 - **Native Lip-Syncing**: High-fidelity neural lip-syncing and natural micro-gestures for 160+ ethnically diverse avatars.
 - **Scale**: Ability to generate thousands of personalized videos simultaneously via API.
 - **Localization**: Support for 140+ languages and accents with automated translation and cultural adaptation.
 - **Interactive Avatars**: Full support for low-latency, real-time video interaction for customer service and education.
-- **Frontier Integration**: Easy to pipe scripts from [Claude 5.1](claude.md) or [GPT-5.5](openai.md) directly into the video generation engine.
+- **Frontier Integration**: Easy to pipe scripts from [Claude 5.6](../ai_knowledge/claude.md) or [GPT-5.6](../ai_knowledge/openai.md) directly into the video generation engine.
 
 ## Limitations
 - **Creative Control**: While highly realistic, avatars are less suitable for high-emotion acting or complex physical actions compared to traditional film.
@@ -39,23 +39,20 @@ It drastically reduces the cost and complexity of corporate video production. Tr
 - If you lack the budget for a premium generative video service and only need occasional, low-fidelity content.
 
 ## Getting started
-
-To get started with Synthesia's programmatic platform, you can install the required dependencies and execute a basic HTTP handshake.
+Programmatic integration with Synthesia API v3 requires installing standard Python request libraries and setting your authorization headers.
 
 ### Installation
 ```bash
-# Synthesia APIs are RESTful; install requests and pydantic for programmatic integration
-pip install requests pydantic
+pip install requests pydantic>=2.0.0
 ```
 
-### Hello-World Example
-Below is a simple Python verification script to check your API key validity and print the available video models/voices:
+### Verification Script
+Below is a simple Python verification script to check your API key validity and inspect active synthetic avatar endpoints:
 ```python
 import requests
 
 API_KEY = "your_synthesia_api_key"
 
-# Perform a lightweight request to verify integration
 headers = {
     "Authorization": API_KEY,
     "Content-Type": "application/json"
@@ -72,66 +69,48 @@ except Exception as e:
 ```
 
 ## CLI examples
-
-While Synthesia is primarily configured in the cloud dashboard, technical teams can utilize their batch CLI tool to deploy or track ongoing video rendering tasks.
+Technical teams can utilize Synthesia CLI utilities to deploy or track ongoing video rendering tasks.
 
 ```bash
-# 1. Retrieve a list of available AI avatar identifiers
+# Retrieve a list of available AI avatar identifiers
 synthesia avatars list --api-key "YOUR_KEY"
 
-# 2. Trigger video generation using a script file and target avatar
+# Trigger video generation using a script file and target avatar
 synthesia video create --script script.txt --avatar anna_costume_1 --output output.mp4
 
-# 3. Poll the render pipeline status for a specific video ID
+# Poll the render pipeline status for a specific video ID
 synthesia video status --id vid_9812304
 ```
 
 ## API examples
-
 ### Python: Video Generation with Strict Schema Validation (Pydantic v2)
-In enterprise workflows, validating the script structure, voice options, and avatar placement before sending jobs to Synthesia is essential to prevent costly API processing errors. We enforce this using **Pydantic v2**.
+Enterprise pipelines validate script parameters, voice settings, and layout options using **Pydantic v2** prior to dispatching render jobs.
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import List, Optional
 import requests
 
-# Schema representing Synthesia avatar alignment & display behavior
 class AvatarSettings(BaseModel):
     horizontal_align: str = Field(default="center", alias="horizontalAlign")
     scale: float = Field(default=1.0, ge=0.5, le=2.0, description="Scale of avatar between 0.5 and 2.0")
 
-    class Config:
-        populate_by_name = True
-
-# Schema representing a single video input segment
 class VideoSegment(BaseModel):
     script_text: str = Field(..., alias="scriptText", min_length=10, description="The spoken script text")
     avatar: str = Field(default="anna_costume_1", description="Identifier of the synthetic avatar")
     avatar_settings: AvatarSettings = Field(default_factory=AvatarSettings, alias="avatarSettings")
 
-    class Config:
-        populate_by_name = True
-
-# Parent schema representing the Synthesia API v3 payload
 class SynthesiaVideoRequest(BaseModel):
-    test_mode: bool = Field(default=False, alias="test", description="Flag to run as non-chargeable sandbox run")
+    test_mode: bool = Field(default=False, alias="test", description="Sandbox test mode flag")
     input_segments: List[VideoSegment] = Field(..., alias="input", description="Ordered list of video segments")
 
-    class Config:
-        populate_by_name = True
-
     def dispatch_render_job(self, api_key: str) -> Optional[str]:
-        """Dispatches the validated payload to the Synthesia API endpoint."""
         url = "https://api.synthesia.io/v3/videos"
         headers = {
             "Authorization": api_key,
             "Content-Type": "application/json"
         }
-
-        # Serialize with Pydantic v2 using alias names for API compliance
         payload = self.model_dump(by_alias=True)
-
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=15)
             if response.status_code == 201:
@@ -145,49 +124,37 @@ class SynthesiaVideoRequest(BaseModel):
             print(f"Handshake failed: {e}")
             return None
 
-
-# Operational Verification: Validate and mock-run the payload validation
 if __name__ == "__main__":
-    try:
-        mock_payload = {
-            "test": True,
-            "input": [{
-                "scriptText": "Welcome to our December 2026 enterprise AI platform rollout!",
-                "avatar": "anna_costume_1",
-                "avatarSettings": {
-                    "horizontalAlign": "center",
-                    "scale": 1.2
-                }
-            }]
-        }
-
-        # Enforce strict validation
-        validated_request = SynthesiaVideoRequest(**mock_payload)
-        print("Synthesia request schema successfully validated!")
-        print(validated_request.model_dump_json(by_alias=True, indent=2))
-
-    except Exception as e:
-        print(f"Validation failed: {e}")
+    mock_payload = {
+        "test": True,
+        "input": [{
+            "scriptText": "Welcome to our 2027 enterprise AI platform rollout with FastMCP 3.1!",
+            "avatar": "anna_costume_1",
+            "avatarSettings": {
+                "horizontalAlign": "center",
+                "scale": 1.2
+            }
+        }]
+    }
+    validated_request = SynthesiaVideoRequest.model_validate(mock_payload)
+    print("Synthesia request schema successfully validated with Pydantic v2:")
+    print(validated_request.model_dump_json(by_alias=True, indent=2))
 ```
 
 ## Related tools / concepts
 - [HeyGen](heygen.md)
 - [Luma Dream Machine](luma-dream-machine.md)
-- [Sora](sora.md)
-- [RunwayML](runwayml.md)
 - [ElevenLabs](elevenlabs.md)
-- [Dify](dify.md)
+- [FastMCP 3.1](../automation_orchestration/mcp.md)
 - [Make.com](../automation_orchestration/make.md)
-- [Zapier](../automation_orchestration/zapier.md)
-- [Claude](claude.md)
-- [GPT-5.5](openai.md)
+- [Claude](../ai_knowledge/claude.md)
+- [OpenAI](openai.md)
 
 ## Sources / References
 - [Official Website](https://www.synthesia.io/)
 - [Synthesia API Documentation](https://docs.synthesia.io/)
 - [Synthesia Blog: Real-time Interactive Avatars](https://www.synthesia.io/blog/interactive-avatars)
-- [Generative Video Market Report 2026](https://www.synthesia.io/reports/2026-video-trends)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

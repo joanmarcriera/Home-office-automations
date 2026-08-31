@@ -145,6 +145,7 @@ with client.beta.realtime.connect(model="gpt-5.5-realtime") as connection:
 - [GPT-5.5 Technical Overview](https://openai.com/news/gpt-5-5-announcement/)
 - [Realtime API Guide](https://platform.openai.com/docs/guides/realtime)
 - [Advancing the Price-Performance Frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6)
+- [OpenAI Astra Persistent Agents](https://thenewstack.io/openai-astra-persistent-agents/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

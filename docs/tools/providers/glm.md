@@ -184,6 +184,7 @@ except Exception as e:
 - [THUDM GitHub Codebase](https://github.com/THUDM)
 - [GLM-5.3 Release Discussion on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vny9zs/glm_53_released/)
 - [Reddit LocalLLaMA Thread: GLM-5.3 Spotted and Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1ve9ms0/glm_53_spotted/)
+- [GLM-5.3 on Hugging Face](https://huggingface.co/zai-org/GLM-5.3)
 
 ## Contribution Metadata
 - Last reviewed: 2026-12-31
