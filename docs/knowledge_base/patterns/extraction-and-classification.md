@@ -1,7 +1,7 @@
 # Extraction and Classification
 
 ## What it is
-Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In late December 2026, these patterns rely on **Schema-First Design** and the **Model Context Protocol (MCP 3.1)** / FastMCP 3.1 to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces.
+Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In early January 2027, these patterns rely on **Schema-First Design** and the **FastMCP 3.1 Task Protocol** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces powered by frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## What problem it solves
 LLMs are inherently probabilistic and return unstructured text by default. However, software architectures require deterministic, strongly typed data to execute downstream business logic, update relational databases, or trigger operational pipelines. This pattern solves:
@@ -148,5 +148,5 @@ print(extracted_data)
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

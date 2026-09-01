@@ -1,7 +1,7 @@
 # Task Schema
 
 ## What it is
-The Task Schema is a standardized, platform-agnostic metadata specification used within the OpenClaw ecosystem to represent actionable tasks, tickets, or missions across different enterprise environments (such as ServiceNow, Jira, GitHub Issues, and Antigravity). In late December 2026, it serves as the foundational **Autonomous Task Object (ATO)** structure for multi-agent loops operating via the **Model Context Protocol (FastMCP 3.1) Task Protocol**, allowing collaborative agents to declare, delegate, track, and synchronize sub-task states seamlessly.
+The Task Schema is a standardized, platform-agnostic metadata specification used within the OpenClaw ecosystem to represent actionable tasks, tickets, or missions across different environments (such as ServiceNow, Jira, GitHub Issues, and Antigravity). In early January 2027, it serves as the foundational **Autonomous Task Object (ATO)** structure for multi-agent loops operating via the **FastMCP 3.1 Task Protocol**, allowing collaborative agents (powered by Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL) to declare, delegate, track, and synchronize sub-task states seamlessly.
 
 ## What problem it solves
 It solves the "API Fragmentation" and interoperability problems in multi-agent environments. Traditional enterprise systems use highly customized, proprietary data formats (e.g., ServiceNow `incident` fields vs. Jira `issue` types vs. GitHub YAML specifications). Asking AI agents to understand and interact with each API natively leads to brittle tool-calling behaviors and frequent formatting errors. The Task Schema:
@@ -34,7 +34,7 @@ It solves the "API Fragmentation" and interoperability problems in multi-agent e
 - When orchestrating complex, multi-agent systems that need to collaboratively work on and hand off tasks.
 - To standardize task reporting, performance metrics, and compliance logs across multiple backends.
 - When building lightweight developer integrations or custom personal task automations.
-- For managing stateful [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) in late December 2026.
+- For managing stateful [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) in early January 2027.
 
 ## When not to use it
 - For simple, isolated integrations that only interact with a single platform and require zero cross-system mappings.
@@ -154,5 +154,5 @@ def transform_jira_to_task(raw_issue: dict) -> TaskObject:
 - [Jira Cloud Platform API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
