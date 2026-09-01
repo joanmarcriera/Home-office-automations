@@ -4,7 +4,7 @@
 The AI Company Starter Stack is an opinionated selection of tools and architectural patterns designed to turn a traditional business into an AI-native organization. It provides a curated list of "defaults" across various layers—from web surfaces and agent operating models to workflow control planes and local inference options—enabling teams to build operating leverage rather than just side experiments.
 
 ## What problem it solves
-Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research, fully utilizing SOTA 2026 frontier models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, Gemini 3.5 Pro/Ultra/Flash/Spark/Omni).
+Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research, fully utilizing SOTA early January 2027 frontier models (Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra, Gemma 4, Qwen 3.6 VL).
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Architectural Pattern. It serves as the **operational blueprint** of the repository, integrating various tools from the `docs/services/` and `docs/tools/` directories into a cohesive business framework.
@@ -20,7 +20,7 @@ Most organizations struggle with "tool sprawl" when adopting AI, often implement
 - **Cost-Efficiency**: Prioritizes free or low-cost starter tiers and local inference options.
 - **Scalable**: Provides a clear "Replace when" path for every layer, ensuring the stack grows with the company.
 - **Outcome-Focused**: Categorized into "Expansion packs" targeted at specific business results.
-- **State-of-the-Art Integration**: Fully supports Model Context Protocol (MCP 3.1) Task Protocol specifications for distributed agent orchestration and long-running context.
+- **State-of-the-Art Integration**: Fully supports FastMCP 3.1 Task Protocol specifications for distributed agent orchestration and long-running context.
 
 ## Limitations
 - **Opinionated**: The "Default choice" may not fit companies with strict legacy infrastructure constraints (e.g., non-Google Workspace environments).
@@ -46,10 +46,10 @@ To implement the AI Company Starter Stack:
 
 ## CLI examples
 ```bash
-# Initialize a new MCP 3.1-based project within the stack
+# Initialize a new FastMCP 3.1-based project within the stack
 mcp init my-agentic-workflow --version 3.1
 
-# Deploy an MCP 3.1 server with native Task Protocol capabilities
+# Deploy a FastMCP 3.1 server with native Task Protocol capabilities
 mcp dev run my-agentic-workflow --port 8080
 
 # Use Google Workspace CLI to list company documents for the agent
@@ -57,7 +57,7 @@ gw drive list --query "folder:'Company Strategy'"
 ```
 
 ## API examples
-The following snippet demonstrates how to define a "Skill" and leverage the Model Context Protocol (MCP 3.1) Task Protocol with strict **Pydantic v2** validation within the starter stack:
+The following snippet demonstrates how to define a "Skill" and leverage the FastMCP 3.1 Task Protocol with strict **Pydantic v2** validation within the starter stack:
 
 ```python
 from typing import Dict, Any, Optional
@@ -74,9 +74,9 @@ class CompanyKnowledgeSearch(BaseModel):
 class StackTaskConfig(BaseModel):
     name: str = Field(..., max_length=100, description="Name of the orchestration task")
     instruction: str = Field(..., description="Objective instructions for the execution engine")
-    model_routing: str = Field(default="claude-5.1", description="Standard router model target")
+    model_routing: str = Field(default="claude-5.6", description="Standard router model target")
 
-# Standard MCP 3.1 Task Protocol registration
+# Standard FastMCP 3.1 Task Protocol registration
 client = Client(endpoint="http://localhost:8080")
 task_proto = TaskProtocol(client)
 
@@ -94,17 +94,17 @@ async def run_analysis():
         # Build task configuration model and validate
         task_payload = {
             "name": "Knowledge Synthesis",
-            "instruction": f"Synthesize internal knowledge base on {validated_search.query} utilizing Qwen 3.6 and Claude 5.1",
-            "model_routing": "claude-5.1"
+            "instruction": f"Synthesize internal knowledge base on {validated_search.query} utilizing DeepSeek-V4 and Claude 5.6",
+            "model_routing": "claude-5.6"
         }
         validated_task_cfg = StackTaskConfig.model_validate(task_payload)
 
-        # Spawning a stateful research task using validated payload via MCP 3.1 Task Protocol
+        # Spawning a stateful research task using validated payload via FastMCP 3.1 Task Protocol
         task = await task_proto.create_task(
             name=validated_task_cfg.name,
             instruction=validated_task_cfg.instruction
         )
-        print(f"Successfully initialized validated MCP 3.1 Task {task.id} with status: {task.status}")
+        print(f"Successfully initialized validated FastMCP 3.1 Task {task.id} with status: {task.status}")
 
     except ValidationError as e:
         print(f"Starter Stack Task configuration validation failed: {e}")
@@ -140,5 +140,5 @@ async def run_analysis():
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

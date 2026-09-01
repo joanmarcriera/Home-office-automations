@@ -2,7 +2,7 @@
 
 ## What it is
 
-Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.8.0 (August 2026)** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup, along with structured sub-item barcode scans. By late December 2026, Grocy is frequently paired with SOTA agentic systems (e.g. Claude 5.1 and FastMCP 3.1) to automate stock tracking via image recognition and voice prompts.
+Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.8.0** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup, along with structured sub-item barcode scans. By early January 2027, Grocy is frequently paired with SOTA agentic systems (e.g., Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra, and FastMCP 3.1) to automate stock tracking via vision recognition and voice prompts.
 
 ## What problem it solves
 
@@ -18,7 +18,7 @@ Managing a household's inventory manually often leads to food waste (expired ite
 - **Meal Planning**: Planning meals and automatically generating shopping lists for missing ingredients.
 - **Task Management**: Managing recurring household chores like "Clean the fridge" or "Change furnace filter".
 - **Battery/Equipment Tracking**: Keeping track of battery charging cycles and maintenance for home appliances.
-- **Agentic Grocery Reordering**: Connecting an agent running Claude 5.1 or GPT-5.5 to check low stock levels via Grocy API and automatically build a cart on home shopping apps.
+- **Agentic Grocery Reordering**: Connecting an agent running Claude 5.6, GPT-5.6, or Qwen 3.6 VL to check low stock levels via Grocy API and automatically build a cart on home shopping apps.
 
 ## Strengths
 
@@ -26,7 +26,7 @@ Managing a household's inventory manually often leads to food waste (expired ite
 - **Local Control**: All data stays on your own server, ensuring privacy.
 - **Automation Ready**: Offers a robust REST API for integration with barcode scanners or smart home systems.
 - **Lightweight**: Easy to run on low-power devices like a Raspberry Pi.
-- **Quantity Unit Flexibility**: Advanced mapping (v4.8.0+) allows for automatic "1:1" unit conversions and tiered packaging setups during product creation.
+- **Quantity Unit Flexibility**: Advanced mapping allows for automatic "1:1" unit conversions and tiered packaging setups during product creation.
 
 ## Limitations
 
@@ -191,5 +191,5 @@ To implement barcode scanning for faster data entry:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
