@@ -1,7 +1,7 @@
 # Date Extraction
 
 ## What it is
-Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In late December 2026, this has matured into **Agentic Temporal Reasoning**, where autonomous agent loops utilize stateful "Current System Time" offsets, timezone database contexts, and FastMCP 3.1 temporal capabilities to resolve complex multi-step execution timelines, relative deadlines, and recurring events with high precision.
+Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In early January 2027, this has matured into **Agentic Temporal Reasoning**, where autonomous agent loops utilize stateful "Current System Time" offsets, timezone database contexts, and FastMCP 3.1 Task Protocol temporal capabilities to resolve complex multi-step execution timelines, relative deadlines, and recurring events with high precision.
 
 ## What problem it solves
 Temporal data is notoriously difficult for LLMs to handle accurately because:
@@ -137,5 +137,5 @@ async def extract_meeting_time(user_query: str) -> TemporalEvent:
 - [Model Context Protocol (MCP) 3.1 & FastMCP 3.1 Specifications](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

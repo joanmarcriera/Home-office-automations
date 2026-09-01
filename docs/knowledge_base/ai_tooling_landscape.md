@@ -51,8 +51,8 @@ nvidia-smi
 # Inference & Serving Layer (Layer 3): List local models
 ollama list
 
-# Development Layer (Layer 7): Run an AI coding session using Claude 5.1
-aider --model claude-5-1-sonnet
+# Development Layer (Layer 7): Run an AI coding session using Claude 5.6
+aider --model claude-5-6-sonnet
 ```
 
 ## API examples
@@ -88,7 +88,7 @@ class StackComponent(BaseModel):
     is_self_hosted: bool = True
 
 class ToolingLandscapeSchema(BaseModel):
-    version: str = Field(default="2026-12-31")
+    version: str = Field(default="2027-01-07")
     architecture_name: str = Field(min_length=3)
     components: List[StackComponent]
 
@@ -97,7 +97,7 @@ landscape_data = {
     "architecture_name": "Decentralized Homelab Agent Stack",
     "components": [
         {"name": "Ollama", "layer": 3, "category": "Inference & Serving", "is_self_hosted": True},
-        {"name": "Claude 5.1", "layer": 2, "category": "Models", "primary_model_or_api": "Anthropic API", "is_self_hosted": False},
+        {"name": "Claude 5.6", "layer": 2, "category": "Models", "primary_model_or_api": "Anthropic API", "is_self_hosted": False},
         {"name": "FastMCP 3.1", "layer": 4, "category": "Protocols & Standards", "is_self_hosted": True},
         {"name": "n8n", "layer": 6, "category": "Agents & Orchestration", "is_self_hosted": True}
     ]
@@ -149,7 +149,7 @@ response = litellm.completion(
 ├────────────────────────────────────────────────────────────────────────────────┤
 │ Layer 3: Inference & Serving (vLLM, TGI, Ollama, SGLang)                       │
 ├────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 2: Models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Qwen 3.6) │
+│ Layer 2: Models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6) │
 ├────────────────────────────────────────────────────────────────────────────────┤
 │ Layer 1: Providers (OpenAI, Anthropic, Google, Meta, Mistral, OpenRouter)      │
 ├────────────────────────────────────────────────────────────────────────────────┤
@@ -185,7 +185,7 @@ Engines that run model weights and provide APIs for applications to consume.
 ### Layer 2: Models
 The core reasoning engines (LLMs, VLMs) that process information and generate text or actions.
 - **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Gemini](../tools/ai_knowledge/gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
-- **Key Trends**: Rise of specialized reasoning models (like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6) using test-time compute.
+- **Key Trends**: Rise of specialized reasoning models (like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL) using test-time compute.
 
 ### Layer 1: Providers
 Companies and platforms that host models and provide them as-a-service via API.
@@ -217,5 +217,5 @@ The underlying hardware, storage, and low-level optimizations.
 - **"I want to build a website or small app on free infrastructure"** → [AI Builder Index](ai_builder_index.md) and [Free AI Website Playbook](free_ai_website_playbook.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

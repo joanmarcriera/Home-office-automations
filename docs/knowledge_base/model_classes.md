@@ -1,7 +1,7 @@
 # Classes of Large Language Models
 
 ## What it is
-Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities. This classification helps in selecting the right tool for a specific task. As of late December 2026, the taxonomy has consolidated around reasoning-native, MoE-native, multimodal-unified, and edge-native small models.
+Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities. This classification helps in selecting the right tool for a specific task. As of early January 2027, the taxonomy has consolidated around reasoning-native, MoE-native, multimodal-unified, and edge-native small models.
 
 ## What problem it solves
 The "one-size-fits-all" approach to LLMs is increasingly inefficient. Understanding model classes allows developers to optimize for cost, latency, and reasoning depth by matching the model's specialized architecture (e.g., Mixture-of-Experts for cost-efficiency, reasoning-native for multi-step planning, or edge-native for air-gapped systems) to the problem at hand.
@@ -139,5 +139,5 @@ print(f"Successfully validated model class: {validated_model_class.model_id} of 
 - [Model Context Protocol Task Protocol Specs (MCP 3.1, July 2026)](https://modelcontextprotocol.org/docs/protocols/3.1/task)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
