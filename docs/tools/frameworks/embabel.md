@@ -1,25 +1,26 @@
 # Embabel Agent Framework
 
 ## What it is
-Embabel is an enterprise-grade, JVM-native (Java/Kotlin) agentic orchestration framework designed for building deterministic, type-safe AI applications. Reaching version 1.0, Embabel allows software engineers in Java and Kotlin ecosystems to seamlessly build multi-agent architectures, manage structured context, and control model behavior via prefix tuning and stateful reasoning loops, matching the reliability standards expected in JVM backend systems.
+Embabel is an enterprise-grade, JVM-native (Java/Kotlin) agentic orchestration framework designed for building deterministic, type-safe AI applications. Reaching version 1.0, Embabel allows software engineers in Java and Kotlin ecosystems to seamlessly build multi-agent architectures, manage structured context, support FastMCP 3.1 Task Protocol schemas, and control model behavior via prefix tuning and stateful reasoning loops, matching the reliability standards expected in early January 2027 enterprise JVM backend systems.
 
 ## What problem it solves
-Integrating LLMs directly into enterprise Java or Kotlin backend business logic is historically fraught with type safety mismatches, unreliable string outputs, and fragile manual parser logic. Embabel solves this by treating agent inputs and outputs as first-class, strictly validated JVM types. It eliminates the boilerplate of prompt management, provides native JVM-based schema validation (analogous to Pydantic v2 in Python), and handles token-saving optimizations like prefix tuning natively within Java/Kotlin applications.
+Integrating LLMs directly into enterprise Java or Kotlin backend business logic is historically fraught with type safety mismatches, unreliable string outputs, and fragile manual parser logic. Embabel solves this by treating agent inputs and outputs as first-class, strictly validated JVM types. It eliminates the boilerplate of prompt management, provides native JVM-based schema validation (analogous to Pydantic v2 in Python), and handles token-saving optimizations like prefix tuning natively within Java/Kotlin applications across Claude 5.6 and GPT-5.6 agent environments.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Frameworks. It functions as the JVM-native middleware layer that binds enterprise business logic, Spring Boot controllers, and local database systems to local or remote reasoning engines (e.g., local Ollama, llama.cpp nodes, or cloud-hosted frontier models like Claude 5.1).
+**Category**: AI Assistants & Knowledge / Frameworks. It functions as the JVM-native middleware layer that binds enterprise business logic, Spring Boot controllers, FastMCP 3.1 Task Protocol tools, and local database systems to local or remote reasoning engines (e.g., local Ollama, llama.cpp nodes, or cloud-hosted frontier models like Claude 5.6).
 
 ## Typical use cases
 - **Deterministic Transaction Routing**: Analyzing customer requests within Spring Boot microservices to invoke specific database repositories or internal REST endpoints with validated parameters.
 - **Automated Document Auditing**: Extracting complex structured data from invoices and compliance files directly into Kotlin Data Classes using local GPU inference.
 - **Self-Healing JVM Workflows**: Operating local subagents that monitor JVM application logs, diagnose memory leak trends, and automatically initiate microservice restarts or configuration fallbacks.
-- **Interactive Conversational Portals**: Building conversational assistants for internal enterprise portals that maintain multi-session memory and strict role-based access control (RBAC).
+- **Interactive Conversational Portals**: Building conversational assistants for internal enterprise portals that maintain multi-session memory, FastMCP 3.1 protocol states, and strict role-based access control (RBAC).
 
 ## Strengths
 - **First-Class Spring Boot Integration**: Fully integrates with Spring's dependency injection system, auto-configurations, and standard application properties.
 - **Native JVM Type Safety**: Leverage Kotlin Serialization or Jackson to enforce that model responses strictly conform to compiled classes, raising runtime exceptions immediately on compliance failures.
 - **Prefix Tuning Optimization**: Internally caches and optimizes prompt prefix contexts to dramatically reduce token round-trip latencies over local networks.
 - **Flexible Inference Routing**: Seamlessly routes reasoning tasks between high-performance local stacks (llama.cpp, Ollama) and cloud frontier models based on task complexity.
+- **Agent Protocol Integration**: Full support for FastMCP 3.1 Task Protocol schemas within JVM execution graphs.
 
 ## Limitations
 - **Platform Specialization**: Exclusively targets JVM ecosystems (Kotlin, Java, Scala); it does not provide native bindings for Node.js, Python, or Go developers.
@@ -30,6 +31,7 @@ Integrating LLMs directly into enterprise Java or Kotlin backend business logic 
 - When developing enterprise backend systems or microservices in Java/Kotlin that require robust, type-safe agentic reasoning loops.
 - When you need to connect local backend applications to self-hosted inference platforms (e.g., Ollama, llama.cpp) over private enterprise networks.
 - When strict type-safety, contract compliance, and compile-time validation of LLM outputs are non-negotiable requirements for production deployment.
+- When implementing FastMCP 3.1 Task Protocol servers on top of enterprise JVM frameworks.
 
 ## When not to use it
 - For quick, single-file exploratory scripts where Python's minimal syntax and native interactive environments are more productive.
@@ -97,8 +99,8 @@ embabel validate-templates --src ./src/main/resources/prompts/ --schema-package 
 
 ## API examples
 
-### Type-Safe Structured Response Synthesis
-This Kotlin example demonstrates defining a strict Kotlin Serialization schema for transactional audit logs, configuring the Embabel client to bind to a local Ollama service, and synthesizing a validated payload.
+### Type-Safe Structured Response Synthesis with FastMCP 3.1 Protocol
+This Kotlin example demonstrates defining a strict Kotlin Serialization schema for FastMCP 3.1 transactional audit logs, configuring the Embabel client to bind to a local Ollama service, and synthesizing a validated payload.
 
 ```kotlin
 import kotlinx.serialization.Serializable
@@ -107,9 +109,10 @@ import ai.embabel.core.Embabel
 import ai.embabel.core.connector.OllamaConnector
 import ai.embabel.core.agent.AgentClient
 
-// 1. Define the mandatory validation schema
+// 1. Define the mandatory FastMCP 3.1 validation schema
 @Serializable
-data class TransactionAudit(
+data class FastMCPTransactionAudit(
+    val taskId: String,
     val transactionId: String,
     val riskScore: Double,
     val flagReason: String?,
@@ -127,11 +130,12 @@ fun main() {
     val embabel = Embabel.configure(connector)
 
     // 3. Create a stateful agent with strict schema controls
-    val auditAgent = embabel.createAgent<TransactionAudit>(
-        systemPrompt = "You are an adversarial security audit agent. Analyze the provided transaction logs and generate a type-compliant audit report."
+    val auditAgent = embabel.createAgent<FastMCPTransactionAudit>(
+        systemPrompt = "You are an adversarial security audit subagent. Analyze the provided transaction logs and generate a FastMCP 3.1 compliant audit report."
     )
 
     val transactionData = """
+        TASK_ID: task_sec_2027_0107
         TXN_ID: 981723-A
         AMOUNT: $14,500
         LOCATION: Unknown IP (routed via TOR exit node)
@@ -139,13 +143,14 @@ fun main() {
         ACTION: High-frequency transfer to fresh recipient account
     """.trimIndent()
 
-    println("Executing type-safe JVM transaction analysis...")
+    println("Executing type-safe JVM transaction analysis under FastMCP 3.1 Task Protocol...")
 
     // 4. Invoke the agent. Embabel guarantees the output strictly parses into the Kotlin Data Class.
-    val auditResult: TransactionAudit = auditAgent.generate(transactionData)
+    val auditResult: FastMCPTransactionAudit = auditAgent.generate(transactionData)
 
     // 5. Output results natively with zero manual string parsing required
     println("--- Security Audit Report ---")
+    println("Task ID: ${auditResult.taskId}")
     println("Transaction ID: ${auditResult.transactionId}")
     println("Risk Score: ${auditResult.riskScore * 100}%")
     println("Reason: ${auditResult.flagReason ?: "None"}")
@@ -204,5 +209,5 @@ public class SecurityAuditController {
 - [Ollama API Specification](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

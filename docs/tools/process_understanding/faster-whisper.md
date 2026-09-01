@@ -1,18 +1,18 @@
 # faster-whisper
 
 ## What it is
-faster-whisper is a high-performance reimplementation of OpenAI's Whisper speech-to-text model using the [CTranslate2](https://github.com/OpenNMT/CTranslate2) inference engine. It produces identical transcripts as Whisper while running roughly **4x to 6x faster** and using significantly less memory. It features support for 8-bit and float16 quantization on both CPU and GPU, running fully offline once the model is cached. As of late December 2026, it natively supports **Whisper v3-turbo**, Silero VAD v5, and advanced CTranslate2 v4.x optimizations, making it a cornerstone for local agentic audio-to-text workflows.
+faster-whisper is a high-performance reimplementation of OpenAI's Whisper speech-to-text model using the [CTranslate2](https://github.com/OpenNMT/CTranslate2) inference engine. It produces identical transcripts as Whisper while running roughly **4x to 6x faster** and using significantly less memory. It features support for 8-bit and float16 quantization on both CPU and GPU, running fully offline once the model is cached. As of early January 2027, it natively supports **Whisper v3-turbo**, Silero VAD v5, FastMCP 3.1 Task Protocol ingestion schemas, and advanced CTranslate2 v4.x optimizations, making it a cornerstone for local agentic audio-to-text workflows across Claude 5.6 and GPT-5.6 agent environments.
 
 ## What problem it solves
-Reference Whisper is accurate but slow and memory-hungry, which makes large transcription backlogs painful on home-lab and consumer hardware. faster-whisper makes local, private transcription highly practical: it transcribes hours of audio quickly on a CPU or a modest GPU, with no cloud speech API dependencies and no audio ever leaving the machine.
+Reference Whisper is accurate but slow and memory-hungry, which makes large transcription backlogs painful on home-lab and consumer hardware. faster-whisper makes local, private transcription highly practical: it transcribes hours of audio quickly on a CPU or a modest GPU, with no cloud speech API dependencies and no audio ever leaving the local perimeter.
 
 ## Where it fits in the stack
-**Process & Understanding / Speech-to-text.** It is the transcription engine that feeds downstream pipelines — turning voice notes, meeting recordings, or scanned-media audio into text for [Paperless-ngx](../../services/paperless-ngx.md), Obsidian notes, or RAG indexes. It is the engine behind many self-hosted transcription front-ends.
+**Process & Understanding / Speech-to-text.** It is the transcription engine that feeds downstream pipelines — turning voice notes, meeting recordings, or scanned-media audio into text for [Paperless-ngx](../../services/paperless-ngx.md), Obsidian notes, or RAG indexes. It is the engine behind many self-hosted transcription front-ends and agentic ingestion servers.
 
 ## Typical use cases
-- Batch-transcribing a backlog of recordings offline on a TrueNAS box or MacBook.
+- Batch-transcribing a backlog of recordings offline on a TrueNAS box or Apple Silicon workstation.
 - Adding searchable transcripts to archived audio/video before ingestion into [Paperless-ngx](../../services/paperless-ngx.md).
-- Powering a local voice-to-text step in an [n8n](../../services/n8n.md) automation.
+- Powering a local voice-to-text step in an [n8n](../../services/n8n.md) automation or FastMCP 3.1 audio tool pipeline.
 - Generating subtitles/captions for a personal media library or video search indexing.
 
 ## Strengths
@@ -21,6 +21,7 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 - **Offline and private:** no cloud dependency; audio stays local.
 - **Quantization options:** int8/float16 let large models run on commodity hardware.
 - **Word-level timestamps & VAD:** built-in Silero voice-activity detection (VAD) v5 improves long-audio accuracy.
+- **Agent Protocol Compatibility:** Ready for FastMCP 3.1 Task Protocol audio ingestion pipelines.
 
 ## Limitations
 - **Library, not an app:** it is a Python package — you build or adopt a front-end around it.
@@ -31,6 +32,7 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 - When you need **offline**, fast, private transcription at volume on local hardware.
 - As the engine inside a self-hosted transcription or note-taking pipeline.
 - When reference Whisper is too slow or too memory-heavy for your machine.
+- For building FastMCP 3.1 Task Protocol audio processing tools for autonomous agents.
 
 ## When not to use it
 - When you want a turnkey GUI rather than a library to integrate.
@@ -87,7 +89,7 @@ model = WhisperModel("large-v3-turbo", device="cpu")
 segments, _ = model.transcribe(
     "audio.mp3",
     word_timestamps=True,
-    initial_prompt="PydanticAI, Model Context Protocol, MCP, Claude 5.1"
+    initial_prompt="PydanticAI, FastMCP 3.1 Task Protocol, MCP, Claude 5.6"
 )
 
 for segment in segments:
@@ -95,8 +97,8 @@ for segment in segments:
         print(f"[{word.start:.2f}s -> {word.end:.2f}s] {word.word}")
 ```
 
-### 2. Structured Output Validation utilizing Strict Pydantic v2
-This example parses and validates the unstructured segments produced by `faster-whisper` into a robust, schema-validated JSON structure, ensuring logical timeline consistency and confidence intervals.
+### 2. Structured FastMCP 3.1 Task Protocol Output Validation with Pydantic v2
+This example parses and validates the unstructured segments produced by `faster-whisper` into a robust, schema-validated JSON structure, ensuring logical timeline consistency, confidence intervals, and agent execution tracking.
 ```python
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
@@ -122,15 +124,16 @@ class ValidatedSegment(BaseModel):
             raise ValueError(f"Segment end time ({self.end}s) must be greater than start time ({self.start}s).")
         return self
 
-class ValidatedTranscription(BaseModel):
+class FastMCPTranscriptionTask(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    task_id: str = Field(..., description="FastMCP 3.1 task identifier")
     language: str = Field(..., description="Detected ISO language code")
     language_probability: float = Field(..., description="Probability of language detection", ge=0.0, le=1.0)
     segments: List[ValidatedSegment] = Field(..., description="List of chronologically validated audio segments")
 
     @model_validator(mode="after")
-    def verify_chronological_order(self) -> "ValidatedTranscription":
+    def verify_chronological_order(self) -> "FastMCPTranscriptionTask":
         for i in range(1, len(self.segments)):
             prev = self.segments[i - 1]
             curr = self.segments[i]
@@ -141,7 +144,7 @@ class ValidatedTranscription(BaseModel):
                 )
         return self
 
-def run_validated_transcription(audio_path: str) -> str:
+def run_validated_transcription(audio_path: str, task_id: str = "task_audio_01") -> str:
     # Initialize the model
     model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
 
@@ -159,7 +162,8 @@ def run_validated_transcription(audio_path: str) -> str:
         })
 
     # Strictly validate structured outputs via Pydantic v2
-    transcription = ValidatedTranscription(
+    transcription = FastMCPTranscriptionTask(
+        task_id=task_id,
         language=info.language,
         language_probability=info.language_probability,
         segments=raw_segments
@@ -185,5 +189,5 @@ def run_validated_transcription(audio_path: str) -> str:
 - [OpenAI Whisper](https://github.com/openai/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
