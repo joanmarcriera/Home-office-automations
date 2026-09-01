@@ -4,7 +4,7 @@
 KokoClone is a highly efficient, lightweight neural voice cloning extension built on top of [Kokoro TTS](https://huggingface.co/hexgrad/Kokoro-82M), an ultra-fast local text-to-speech engine. Leveraging the Kokoro-ONNX runtime, KokoClone provides real-time, high-fidelity multilingual voice replication on standard consumer workstations.
 
 ## What problem it solves
-It eliminates the reliance on expensive, proprietary cloud-hosted voice cloning services, enabling developers to maintain absolute data privacy. KokoClone solves the high latency and massive compute overhead typically associated with voice replication models, allowing high-quality clones to run seamlessly alongside LLM workflows (like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro) on local workstations.
+It eliminates the reliance on expensive, proprietary cloud-hosted voice cloning services, enabling developers to maintain absolute data privacy. KokoClone solves the high latency and massive compute overhead typically associated with voice replication models, allowing high-quality clones to run seamlessly alongside frontier LLM workflows (like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL) on local workstations via the **FastMCP 3.1 Task Protocol**.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Speech & Audio Layer**. It serves as the local auditory output interface, converting text responses from autonomous agents or home automation systems into natural, personalized synthesized voices.
@@ -170,5 +170,5 @@ async def api_generate_cloned_speech(payload: TTSRequest):
 - [ONNX Local Execution optimization guidelines](https://onnxruntime.ai/docs/performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

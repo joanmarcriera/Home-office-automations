@@ -1,7 +1,7 @@
 # Filesystem-as-Interface Pattern
 
 ## What it is
-The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an architectural approach where the local filesystem serves as the primary persistence layer, configuration source, and communication medium for AI agents. Instead of relying on opaque or proprietary remote databases, agents use human-readable, structured Markdown and YAML files directly within the workspace to maintain state, memory, and operational context. In late December 2026, this has matured into the core foundation of **Agentic Workspaces** and local-first IDE integrations, using real-time sync engines (such as CRDT-based workspace synchronization in Melty and Windsurf Cascade) to maintain context consistency across multi-agent pipelines.
+The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an architectural approach where the local filesystem serves as the primary persistence layer, configuration source, and communication medium for AI agents. Instead of relying on opaque or proprietary remote databases, agents use human-readable, structured Markdown and YAML files directly within the workspace to maintain state, memory, and operational context. In early January 2027, this has matured into the core foundation of **Agentic Workspaces** and local-first IDE integrations, using real-time sync engines (such as CRDT-based workspace synchronization in Melty and Windsurf Cascade) to maintain context consistency across multi-agent pipelines powered by Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Gemma 4.
 
 ## What problem it solves
 It solves the "Black Box" transparency and latency problems of AI memory and configuration. Traditional SaaS-based agents store user preferences, memory logs, and project-specific contexts in proprietary cloud databases, making it extremely difficult for developers to audit, migrate, or version-control their agent's instructions. This pattern ensures that context is:
@@ -10,7 +10,7 @@ It solves the "Black Box" transparency and latency problems of AI memory and con
 - **Ultra-Low Latency**: Directly reading from local directories is orders of magnitude faster than querying remote database backends.
 
 ## Where it fits in the stack
-This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the local development environment and frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6), providing a standardized system interface through tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) via **Model Context Protocol (MCP 3.1)** / FastMCP 3.1.
+This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the local development environment and frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), providing a standardized system interface through tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) via the **FastMCP 3.1 Task Protocol**.
 
 ## Typical use cases
 - **Workspace Operating Rules (CLAUDE.md)**: Storing precise build commands, test patterns, linting constraints, and architectural guidelines for coding agents.
@@ -179,5 +179,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification: System Access and Filesystem Tools](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

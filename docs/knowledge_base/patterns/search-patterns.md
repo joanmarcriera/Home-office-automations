@@ -1,7 +1,7 @@
 # Search Patterns
 
 ## What it is
-Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In late December 2026, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the latest **Model Context Protocol (MCP 3.1)** / FastMCP 3.1. Late-Interaction embeddings (such as ColBERT and ColQwen) are widely used to maintain token-level alignment and superior retrieval accuracy.
+Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In early January 2027, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search** and **Autonomous Discovery Loops**, where frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL) iteratively refine queries, navigate dynamic knowledge graphs, and negotiate tool endpoints using the **FastMCP 3.1 Task Protocol**. Late-Interaction embeddings (such as ColBERT and ColQwen) are widely used to maintain token-level alignment and superior retrieval accuracy.
 
 ## What problem it solves
 As the volume of unstructured data grows, simple keyword search often fails to capture the underlying meaning or intent of a user's query. Conversely, purely semantic search can miss exact matches for technical terms or product IDs. Modern search patterns solve:
@@ -215,5 +215,5 @@ if __name__ == "__main__":
 - [Cohere ClientV2 Re-rank Guide](https://docs.cohere.com/docs/reranking)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
