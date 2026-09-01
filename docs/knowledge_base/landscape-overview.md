@@ -16,10 +16,10 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 - **Onboarding**: Providing a comprehensive map for new agents or human contributors to understand the repository's scope.
 
 ## Strengths
-- **Data-Driven**: Grounded in repository metadata and growth metrics from `data/growth-metrics.json`.
+- **Data-Driven**: Grounded in repository metadata and growth metrics from `data/growth-metrics.json` and `data/all_tools.json`.
 - **Structural Clarity**: Organizes complex information into distinct categories for easy navigation.
 - **Graph Insight**: Highlights the most connected and influential tools in the knowledge base, indicating their importance in the stack.
-- **January 2027 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4.
+- **January 2027 Context**: Reflects the transition toward autonomous "Software Factories" and agentic orchestration with FastMCP 3.1 standards, Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## Limitations
 - **Repository-Scoped**: Reflects current documentation coverage rather than the entire global AI market.
@@ -29,7 +29,7 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 ## When to use it
 - When you are new to the repository and need a comprehensive map of its contents.
 - When you are planning a new integration and want to see existing tools and patterns in that space.
-- When you want to see the latest "High Engineering" additions to the catalogue (e.g., Claude Code, ZenML Agent Skills).
+- When you want to see the latest "High Engineering" additions to the catalogue (e.g., Kiro Crew, FastMCP 3.1 Task Protocol servers).
 
 ## When not to use it
 - When you need deep technical setup instructions for a specific tool (refer to its canonical page instead).
@@ -37,56 +37,61 @@ Navigating hundreds of specialized tools and services can be overwhelming. This 
 - For fine-grained architectural diagrams (see the [Architecture Component Map](../architecture/component_map.md)).
 
 ## Overview
-- **Last Generated:** 2026-11-15
-- **Total Docs Documented:** 452 (Steady growth from 446 in late July)
+- **Last Generated:** 2027-01-07
+- **Total Docs Documented:** 524 (including 471 tool docs and 53 service docs)
 
 ## Category Breakdown
-Current tool count and focus per category, verified against `all_tools.json` and `growth-metrics.json`:
+Current tool count per category verified against `data/growth-metrics.json` and `data/all_tools.json`:
 
 | Category | Count | Summary |
 | :--- | :--- | :--- |
-| **AI Assistants & Knowledge (ai_knowledge)** | 81 | General-purpose chat interfaces, RAG platforms, and local knowledge bases. |
-| **Development & Ops (development_ops)** | 59 | Coding assistants, IDEs, and agentic development tools (e.g., Claude Code, Cursor). |
-| **Services** | 53 | Self-hosted AI-related services and utilities (e.g., Paperless-ngx, Immich). |
-| **Benchmarking (benchmarking)** | 38 | Evaluation frameworks, security benchmarks (SharpAI), and performance tools. |
-| **Process & Understanding (process_understanding)** | 32 | Data extraction, OCR, telemetry, and document processing (Docling). |
-| **Automation & Orchestration (automation_orchestration)** | 30 | Workflow automation, tool integration servers, and MCP implementations. |
-| **Infrastructure (infrastructure)** | 28 | Model serving (vLLM), inference engines (Ollama), and vector databases. |
-| **Agents (agents)** | 27 | Multi-agent orchestration frameworks (Letta, Phidata, CrewAI). |
-| **Providers (providers)** | 27 | LLM API providers and model marketplaces (Anthropic, DeepSeek). |
-| **Frameworks (frameworks)** | 25 | Development libraries for building AI-powered applications (AG2, Mastra). |
-| **Calendar & Tasks (calendar_tasks)** | 21 | Scheduling and task management integrations (Sunsama, Amie). |
-| **Enterprise AI (enterprise)** | 12 | Enterprise-grade AI search and productivity suites (Elastic, Curiosity). |
-| **Intake & Storage (intake_storage)** | 10 | Data collection, self-hosted storage, and document management. |
-| **Orchestration (orchestration)** | 9 | Advanced workflow engines (Argo, ZenML) and data pipeline orchestrators. |
+| **AI Assistants & Knowledge (`ai_knowledge`)** | 95 | General-purpose chat interfaces, RAG platforms, and local knowledge bases. |
+| **Development & Ops (`development_ops`)** | 63 | Coding assistants, IDEs, agentic development tools, and CLI context servers. |
+| **Infrastructure (`infrastructure`)** | 45 | Model serving engines, inference runtimes, vector databases, and compute acceleration. |
+| **Benchmarking (`benchmarking`)** | 41 | LLM evaluation frameworks, agentic test suites, and performance benchmark suites. |
+| **Process & Understanding (`process_understanding`)** | 40 | Data extraction, OCR, speech recognition, telemetry, and document understanding tools. |
+| **Providers (`providers`)** | 36 | Cloud LLM API providers, model marketplaces, and specialized model hosting. |
+| **Agents (`agents`)** | 34 | Multi-agent orchestration frameworks, autonomous coding agents, and agentic skills. |
+| **Frameworks (`frameworks`)** | 33 | Development libraries and SDKs for building LLM applications and agent pipelines. |
+| **Automation & Orchestration (`automation_orchestration`)** | 30 | Workflow automation engines, MCP server implementations, and integration servers. |
+| **Calendar & Tasks (`calendar_tasks`)** | 21 | Scheduling tools, task management integrations, and calendar synchronization servers. |
+| **Enterprise AI (`enterprise`)** | 14 | Enterprise search engines, identity systems, and enterprise productivity suites. |
+| **Intake & Storage (`intake_storage`)** | 10 | Data ingestion tools, self-hosted object storage, and document stores. |
+| **Orchestration (`orchestration`)** | 9 | Advanced workflow orchestrators, data pipeline engines, and DAG runners. |
+
+### Categories with Fewer than 8 Docs
+None. All 13 active tool categories currently meet or exceed the target threshold of 8 documents, ranging from **9 docs** in `orchestration` to **95 docs** in `ai_knowledge`.
 
 ## Top 10 Most-Connected Tools
-Based on internal links in their 'Related tools / concepts' sections (November 2026):
+The top 10 most-connected tools based on the number of outgoing links in their `## Related` sections:
 
-| Tool | Related Links |
-| :--- | :--- |
-| MMLU | 13 |
-| Gemini | 12 |
-| Portracker | 12 |
-| qBittorrent Automation | 12 |
-| Tabnine | 12 |
-| Authentik | 11 |
-| Claude Code Container MCP | 11 |
-| ClickHouse | 11 |
-| Copy.ai | 11 |
-| Docker | 11 |
+| Tool | Related Links | Canonical Document Path |
+| :--- | :--- | :--- |
+| **Kestra** | 17 | `docs/tools/orchestration/kestra.md` |
+| **ZenML** | 17 | `docs/tools/orchestration/zenml.md` |
+| **Hamilton** | 16 | `docs/tools/orchestration/apache-hamilton.md` |
+| **Flyte** | 15 | `docs/tools/orchestration/flyte.md` |
+| **Apache Airflow** | 15 | `docs/tools/orchestration/apache-airflow.md` |
+| **RAGFlow** | 14 | `docs/tools/process_understanding/ragflow.md` |
+| **Terminus 2 (Terminal-Bench)** | 14 | `docs/tools/development_ops/terminus-2.md` |
+| **Cloud Code** | 14 | `docs/tools/development_ops/cloud_code.md` |
+| **Melty** | 14 | `docs/tools/development_ops/melty.md` |
+| **Argo Workflows** | 14 | `docs/tools/orchestration/argo-workflows.md` |
 
-## What's New This Month (November 2026)
-Significant updates and new additions from the November execution phases:
-- **Benchmarking:** Fully audited GPQA, HumanEval, MMLU, and specialized LLM benchmarks.
-- **Development & Ops:** Standardized setup and configuration guides for Claude Code, Aider, and Windsurf.
-- **Model Context Protocol:** Universal adoption of FastMCP 3.1 with standardized Python/TypeScript API client schemas.
-- **Frontier Models:** Native integration of Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 features across all active modules.
+## What's New This Month
+New tool documentation added under `docs/tools/` in the last 30 days (verified via `git log` intake tracking):
+
+- **Agents (`agents`)**: Integrated **Kiro Crew** (`docs/tools/agents/kiro-crew.md`), **Agency-Agents**, **Anthropic Agent Skills**, **Perplexity Agent API**, and **Symphony (OpenAI)**.
+- **Frameworks (`frameworks`)**: Integrated **GraphRAG** (`docs/tools/frameworks/graphrag.md`), **OpenAI Agents SDK**, **Pydantic AI**, **Smolagents**, **Google ADK**, and **Firebase Genkit**.
+- **Process & Understanding (`process_understanding`)**: Added **BreezeTTS2** (`docs/tools/process_understanding/breezetts2.md`), **OvisOCR2**, **Docling MCP Server**, **Crawl4AI**, and **Comet Opik**.
+- **Infrastructure (`infrastructure`)**: Added **FreeToken** (`docs/tools/infrastructure/freetoken.md`), **ROCm** (`docs/tools/infrastructure/rocm.md`), **Aphrodite Engine**, **ExLlamaV3**, **Diagrid Catalyst**, and **ClawRouter**.
+- **Development & Ops (`development_ops`)**: Added **Bionic Shell** (`docs/tools/development_ops/bionic-shell.md`), **Claude Code Router**, **Junie CLI**, **Free Will MCP**, and **Desktop Commander MCP**.
+- **Automation & Orchestration (`automation_orchestration`)**: Added **Vault MCP Server**, **Atlassian Jira MCP**, **Stagehand**, **Lightpanda**, and **Open WebUI Computer**.
 
 ## Getting started
 To contribute to the landscape or audit existing docs:
-1. Run `python3 scripts/growth_tracker.py` to see current metrics.
-2. Use `python3 find_oldest_issues.py` to find stale documentation.
+1. Run `python3 scripts/growth_tracker.py` to update current repository metrics.
+2. Use `python3 scripts/find_oldest_issues.py` to locate open intake items.
 3. Follow the 13-section 'High Confidence' standard in `docs/standards.md`.
 
 ## CLI examples
@@ -99,8 +104,8 @@ python3 scripts/growth_tracker.py
 # Check for unlinked tool mentions to improve connectivity
 python3 scripts/cross_link_report.py
 
-# List categories with fewer than 10 documents
-python3 -c "import json; d=json.load(open('data/growth-metrics.json')); print([k for k,v in d['by_category'].items() if v < 10])"
+# Verify categories with fewer than 8 documents
+python3 -c "import json; d=json.load(open('data/growth-metrics.json')); print([k for k,v in d['by_category'].items() if v < 8])"
 ```
 
 ## API examples
@@ -127,15 +132,15 @@ class GrowthMetricsSnapshot(BaseModel):
 
 # Sample validation check
 snapshot_data = {
-    "snapshot_date": "2026-11-15",
-    "total_docs": 452,
-    "tool_docs": 399,
+    "snapshot_date": "2027-01-07",
+    "total_docs": 524,
+    "tool_docs": 471,
     "service_docs": 53,
     "by_category": {
-        "agents": 27,
-        "ai_knowledge": 81,
-        "development_ops": 59,
-        "benchmarking": 38
+        "agents": 34,
+        "ai_knowledge": 95,
+        "development_ops": 63,
+        "benchmarking": 41
     }
 }
 validated_snapshot = GrowthMetricsSnapshot(**snapshot_data)
@@ -155,7 +160,7 @@ print(f"Validated snapshot for {validated_snapshot.snapshot_date} with {validate
 - [All Tools Metadata](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
 - [Growth Metrics Snapshot](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/growth-metrics.json)
 - [MCP 3.1 Standard Specification](https://modelcontextprotocol.io)
-- [Gemma 3 Release Notes](https://blog.google/technology/ai/google-gemma-3/)
+- [FastMCP Task Protocol Specification](https://github.com/jupysql/fastmcp)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
