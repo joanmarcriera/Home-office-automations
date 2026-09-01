@@ -34,6 +34,7 @@ Tools, runtime environments, and frameworks for building, running, and orchestra
 | [GPT Researcher](gpt-researcher.md) | Autonomous agent for comprehensive web research and synthesis |
 | [Home Admin Tools](home-admin-tools.md) | Local agentic toolsuite for home management and IoT orchestration |
 | [Jules](../ai_knowledge/jules.md) | Google's autonomous background coding agent |
+| [Kiro Crew](kiro-crew.md) | Enterprise agent workforce orchestration platform and multi-agent development environment |
 | [LangGraph](../frameworks/langgraph.md) | Stateful multi-agent orchestration framework by LangChain |
 | [Letta](letta.md) | State-of-the-art memory-centric agent framework (formerly MemGPT) |
 | [mem0](mem0.md) | Intelligent memory layer for agent and application personalization |
