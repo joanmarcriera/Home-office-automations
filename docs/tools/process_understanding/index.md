@@ -8,6 +8,7 @@ Tools and frameworks for process understanding, document processing, observabili
 - [AI Auditing Tools](ai-auditing-tools.md) — AI compliance, model governance, safety auditing, and algorithmic accountability suites
 - [Arize AI](arize-ai.md) — Observability, prompt tracing, drift detection, and evaluation platform for AI applications
 - [Braintrust](braintrust.md) — Enterprise LLM evaluation, prompt playground, logging, and dataset management platform
+- [BreezeTTS2](breezetts2.md) — Open-weights neural text-to-speech framework for low-latency zero-shot voice cloning
 - [ClickHouse](clickhouse.md) — High-performance columnar database for real-time observability, event logging, and vector analytics
 - [Comet Opik](comet-opik.md) — Open-source LLM evaluation, tracing, and prompt engineering platform
 - [Crawl4AI](crawl4ai.md) — High-speed asynchronous web crawler optimized for LLM raw text, Markdown, and structured data extraction
