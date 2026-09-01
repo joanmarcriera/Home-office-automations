@@ -9,6 +9,7 @@ Tools and platforms for AI-assisted coding, DevOps automation, CI/CD, and develo
 | [Aider](aider.md) | Terminal-based AI pair programmer with multi-file git integration |
 | [Anti Gravity](anti_gravity.md) | Context-aware agent harness for local repository management |
 | [Axiom Guardian](axiom-guardian.md) | Monitoring and security guardrails for agentic execution |
+| [Bionic Shell](bionic-shell.md) | Security-first shell environment and AI agent execution sandbox for command safety |
 | [Claude Code Container MCP](claude-code-container-mcp.md) | Sandboxed container execution environment for Claude Code |
 | [Claude Code Router](claude-code-router.md) | Intelligent model routing for Claude Code developer workflows |
 | [Claude Code Setup](claude-code-setup.md) | Initialization and configuration guide for Claude Code workflows |

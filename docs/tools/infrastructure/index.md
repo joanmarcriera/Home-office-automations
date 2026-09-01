@@ -26,6 +26,7 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [ExLlamaV2](exllamav2.md) | Fast inference library for quantized LLMs on modern NVIDIA GPUs |
 | [ExLlamaV3](exllamav3.md) | Next-generation GPU inference engine supporting advanced FP4 and custom quantization |
 | [Flash-MSA](flash-msa.md) | High-speed memory-efficient sequence alignment and attention mechanism runtime |
+| [FreeToken](freetoken.md) | High-performance local LLM inference engine and token-management sidecar daemon |
 | [GPT4All](gpt4all.md) | Ecosystem of open-source desktop applications and local LLM runtimes |
 | [Jan AI](jan-ai.md) | Open-source desktop alternative to ChatGPT running local models |
 | [K3s](k3s.md) | Lightweight Kubernetes distribution optimized for edge and homelab AI deployment |
@@ -40,6 +41,7 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [OlmoEarth](olmoearth.md) | Specialized geospatial and environmental model serving infrastructure |
 | [OpenPipe](openpipe.md) | Developer platform for fine-tuning, evaluating, and deploying specialized smaller models |
 | [Pinecone](pinecone.md) | Managed vector database platform for real-time similarity search |
+| [ROCm](rocm.md) | AMD open software platform and unified driver framework for GPU computing |
 | [SGLang](sglang.md) | Fast execution engine for structured outputs and complex LLM prompts |
 | [Supabase](supabase.md) | Open-source Firebase alternative with built-in pgvector support for AI applications |
 | [TGI](tgi.md) | Hugging Face Text Generation Inference framework for high-throughput model serving |

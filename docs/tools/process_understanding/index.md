@@ -7,6 +7,7 @@ Tools and frameworks for process understanding, document processing, observabili
 - [AgentOps](agentops.md) — Agentic execution tracing, cost tracking, and session debugging for autonomous multi-agent systems
 - [AI Auditing Tools](ai-auditing-tools.md) — AI compliance, model governance, safety auditing, and algorithmic accountability suites
 - [Arize AI](arize-ai.md) — Observability, prompt tracing, drift detection, and evaluation platform for AI applications
+- [BreezeTTS2](breezetts2.md) — Frontier open-source text-to-speech generation engine for low-latency audio synthesis and voice cloning
 - [Braintrust](braintrust.md) — Enterprise LLM evaluation, prompt playground, logging, and dataset management platform
 - [ClickHouse](clickhouse.md) — High-performance columnar database for real-time observability, event logging, and vector analytics
 - [Comet Opik](comet-opik.md) — Open-source LLM evaluation, tracing, and prompt engineering platform
