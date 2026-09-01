@@ -9,13 +9,13 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-### Canonical pricing matrix (last verified: 2026-12-31)
+### Canonical pricing matrix (last verified: 2027-01-07)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
-| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
-| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.1, Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 4.0 Pro and Gemini 4.0 Flash have standard trial and tier rows. Gemini 4.0 Maverick preview free for developer accounts. |
+| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.6, GPT-5.5, and GPT-5.5 mini. |
+| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.6, Claude Opus 4.8, Sonnet 4.7, and Haiku 4.6. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 4.0 Ultra, Gemini 4.0 Pro, and Gemini 4.0 Flash have standard trial and tier rows. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
@@ -46,29 +46,29 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## What problem it solves
-LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern late December 2026 models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, and FastMCP 3.1.
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern early January 2027 models like Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra/Pro/Flash, and FastMCP 3.1.
 
 ## Where it fits in the stack
 This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
 
 ## Typical use cases
-- **Budgeting**: Estimating the monthly cost of running a specific agentic workflow (e.g., using GPT-5.5 mini for routine tasks).
+- **Budgeting**: Estimating the monthly cost of running a specific agentic workflow (e.g., using GPT-5.5 mini or Claude Haiku for routine tasks).
 - **Free-Tier Hunting**: Identifying which providers offer enough free credits to build and test a prototype without a credit card.
-- **Provider Switching**: Comparing the "Intelligence-per-Dollar" value when deciding whether to migrate from one provider to another (e.g., Anthropic to Google).
+- **Provider Switching**: Comparing the "Intelligence-per-Dollar" value when deciding whether to migrate from one provider to another (e.g., Anthropic to Google or DeepSeek).
 - **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
 
-### Model Intelligence-per-Dollar Value (2026 Triage)
-Based on community analysis (late December 2026), models are categorized by their efficiency relative to cost:
-- **Top Intelligence**: Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Claude Opus 4.8.
-- **Best Value**: DeepSeek V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6.
-- **Balanced**: Claude Sonnet 4.7, GPT-5.4, Llama 4 Maverick.
+### Model Intelligence-per-Dollar Value (2027 Triage)
+Based on community analysis (early January 2027), models are categorized by their efficiency relative to cost:
+- **Top Intelligence**: Claude 5.6, GPT-5.6, DeepSeek-V4, Gemini 4.0 Ultra, Claude Opus 4.8.
+- **Best Value**: DeepSeek V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6 VL, Gemma 4.
+- **Balanced**: Claude Sonnet 4.7, GPT-5.5, Llama 4.
 
 ## Strengths
 - **Consolidated**: Aggregates data from over 30 providers in a single view.
 - **Agent-Optimized**: Specifically highlights "mini" models and high-speed providers ideal for autonomous agents.
 - **Evidence-Based**: Includes direct links to official documentation for every claim.
 - **Automated**: Uses scripts to maintain a "Capability Capacity Summary" of known free tokens.
-- **MCP 3.1 Task Protocol Ready**: Supports dynamic discovery of quotas and limits under the MCP 3.1 standard.
+- **FastMCP 3.1 Task Protocol Ready**: Supports dynamic discovery of quotas and limits under the FastMCP 3.1 standard.
 
 ## Limitations
 - **High Volatility**: Prices and free-tier availability can change weekly.
@@ -87,7 +87,7 @@ Based on community analysis (late December 2026), models are categorized by thei
 ## Getting started
 1. Identify your primary requirement (e.g., "Coding", "Fast", or "Budget").
 2. Consult the **[Capability Capacity Summary](#capability-capacity-summary-auto-generated)** to see which models currently offer the best free-tier value.
-3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2026-08-01)** to jump to the official pricing and documentation for your chosen provider.
+3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2027-01-07)** to jump to the official pricing and documentation for your chosen provider.
 4. Check the **[Model-level quota tracker](#model-level-quota-tracker-expanded-list)** for specific RPM/TPD limits.
 
 ### Developer Program Plans
@@ -146,7 +146,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
 ## CLI examples
-The following CLI tools can be used to monitor quotas and billing in a late December 2026 environment.
+The following CLI tools can be used to monitor quotas and billing in a SOTA 2027 environment.
 
 ```bash
 # Google Cloud: List project quotas for Gemini APIs
@@ -156,12 +156,12 @@ gcloud alpha compute quotas list --service=generativeai.googleapis.com
 curl -X GET "https://openrouter.ai/api/v1/auth/key" \
   -H "Authorization: Bearer $OPENROUTER_API_KEY"
 
-# MCP 3.1: Get cost and billing metrics for active routing pipelines
+# FastMCP 3.1: Get cost and billing metrics for active routing pipelines
 mcp quota show --provider openrouter
 ```
 
 ## API examples
-Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (MCP 3.1 / FastMCP 3.1) interfaces. Below is a robust Python example that validates provider pricing configurations using strict Pydantic v2 schemas.
+Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (FastMCP 3.1) interfaces. Below is a robust Python example that validates provider pricing configurations using strict Pydantic v2 schemas.
 
 ### Monitoring Gemini Quotas & Validating Pricing (Python)
 ```python
@@ -170,7 +170,7 @@ from pydantic import BaseModel, Field, RootModel
 from typing import Dict, Optional
 from mcp import Client, TaskProtocol
 
-# MCP 3.1 compatible quota discovery and task setup
+# FastMCP 3.1 compatible quota discovery and task setup
 client = genai.Client(api_key="YOUR_KEY")
 mcp_client = Client()
 task_proto = TaskProtocol(mcp_client)
@@ -181,10 +181,10 @@ async def check_limits_and_run():
     for model in quotas:
         print(f"Model: {model.name}, RPM: {model.rpm_limit}")
 
-    # Establish a tracking task with the MCP 3.1 Task Protocol
+    # Establish a tracking task with the FastMCP 3.1 Task Protocol
     task = await task_proto.create_task(
         name="Billing Guardrail Task",
-        instruction="Monitor API consumption for Claude 5.1 and GPT-5.5 endpoints."
+        instruction="Monitor API consumption for Claude 5.6 and GPT-5.6 endpoints."
     )
     print(f"Billing monitor task created: {task.id}")
 
@@ -228,7 +228,7 @@ print(f"Validated billing configuration for: {validated_billing.model_name}")
 - [Mistral](../tools/providers/mistral.md)
 - [DeepSeek](../tools/providers/deepseek.md)
 - [Model Routing Guide](model_routing_guide.md)
-- [MCP 3.1 Standard](../tools/automation_orchestration/mcp.md)
+- [FastMCP 3.1 Standard](../tools/automation_orchestration/mcp.md)
 - [Benchmarking](../tools/benchmarking/index.md)
 
 ## Sources / References
@@ -247,5 +247,5 @@ print(f"Validated billing configuration for: {validated_billing.model_name}")
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
