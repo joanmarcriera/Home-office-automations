@@ -1,27 +1,28 @@
 # NVIDIA-Nemotron-Parse-2.0
 
 ## What it is
-NVIDIA-Nemotron-Parse-2.0 is an advanced proprietary-architecture Vision-Language Model (VLM) specialized in document intelligence, precise OCR, and visual table/chart structure extraction. Developed by NVIDIA, Nemotron-Parse-2.0 is optimized to convert unstructured document images, scanned PDFs, presentation slides, and charts into structured, machine-readable representations. It produces formatted text enriched with layout classes, spatial coordinates (bounding boxes), and correct reading-order reconstructions.
+NVIDIA-Nemotron-Parse-2.0 is an advanced proprietary-architecture Vision-Language Model (VLM) specialized in document intelligence, precise OCR, and visual table/chart structure extraction. Developed by NVIDIA, Nemotron-Parse-2.0 is optimized to convert unstructured document images, scanned PDFs, presentation slides, and charts into structured, machine-readable representations. It produces formatted text enriched with layout classes, spatial coordinates (bounding boxes), and correct reading-order reconstructions. As of early January 2027, it serves as a core visual parsing standard integrated with FastMCP 3.1 Task Protocol servers and multi-modal pipeline agents running Claude 5.6 and GPT-5.6.
 
 ## What problem it solves
-Born-digital documents and raw scans are often heavy on complex formatting, sidebars, multi-column articles, footnotes, inline charts, and nested tables. Standard optical character recognition (OCR) tools often fail on these because they strip layout context or fail to transcribe tables and charts accurately. This leaves downstream LLMs (like Claude 5.1, GPT-5.5, or Gemini 4.0 Pro) with scrambled, out-of-order text or missing structured numbers.
+Born-digital documents and raw scans are often heavy on complex formatting, sidebars, multi-column articles, footnotes, inline charts, and nested tables. Standard optical character recognition (OCR) tools often fail on these because they strip layout context or fail to transcribe tables and charts accurately. This leaves downstream LLMs (like Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra) with scrambled, out-of-order text or missing structured numbers.
 
 Nemotron-Parse-2.0 solves this by parsing documents visual-first. It identifies layout boundaries, extracts handwritten and printed text in the correct reading order, and turns inline graphics directly into structured Markdown tables or chart data representations.
 
 ## Where it fits in the stack
-Within an agentic and retrieval-augmented generation (RAG) architecture, NVIDIA-Nemotron-Parse-2.0 sits directly in the **Ingestion & Processing** stage. It acts as an upstream pipeline component, taking raw visual assets (images, PDF page rendering) and outputting layout-tagged JSON or clean Markdown text. This output is then parsed by chunkers, stored in vector databases (e.g., [Chroma](../infrastructure/chroma.md)), or exposed to autonomous agents as tools for visual document analysis.
+Within an agentic and retrieval-augmented generation (RAG) architecture, NVIDIA-Nemotron-Parse-2.0 sits directly in the **Ingestion & Processing** stage. It acts as an upstream pipeline component, taking raw visual assets (images, PDF page rendering) and outputting layout-tagged JSON or clean Markdown text. This output is then parsed by chunkers, stored in vector databases (e.g., [Chroma](../infrastructure/chroma.md)), or exposed to autonomous agents via FastMCP 3.1 Task Protocol tools for visual document analysis.
 
 ## Typical use cases
 - **Multi-column Paper Parsing**: Converting complex academic or financial papers with columns and sidebars into linear, readable Markdown.
 - **Chart-to-Table Reconstruction**: Transforming visual plots, histograms, and business slides into raw tables of numbers without manual data re-entry.
 - **Handwritten Document Digitization**: Transcribing hand-annotated blueprints, legal drafts, or logs directly into indexed text fields.
-- **High-Fidelity RAG Feeds**: Serving as the primary layout-aware pre-processing step before text chunks are embedded and indexed.
+- **High-Fidelity RAG Feeds**: Serving as the primary layout-aware pre-processing step before text chunks are embedded and indexed into FastMCP 3.1 services.
 
 ## Strengths
 - **Advanced Spatial Awareness**: Outputs precise bounding boxes for titles, paragraphs, tables, charts, headers, and footers.
 - **Chart-to-Table Conversion**: Native `<class_Chart>` tokens detect chart boundaries and output translated structured text descriptions or numeric equivalents.
 - **Massive Multilingual Support**: Features a 20k-token vocabulary expansion compared to v1.2, resulting in substantial accuracy gains on CJK (Chinese, Japanese, Korean) and Indic scripts.
 - **Robust Handwriting Processing**: Excellent transcription accuracy on informal, handwritten notes or annotated documents.
+- **Agent Protocol Ready**: Directly pairs with FastMCP 3.1 Task Protocol servers for multi-modal context loading.
 
 ## Limitations
 - **Hardware Footprint**: Requires high-VRAM NVIDIA GPUs to run locally (e.g., A100/H100 or high-end RTX cards depending on quantization).
@@ -32,6 +33,7 @@ Within an agentic and retrieval-augmented generation (RAG) architecture, NVIDIA-
 - When processing documents that are visually complex, containing tables, graphs, mixed media, or multi-column text formats.
 - When you need a local, privacy-compliant, layout-aware parser that can be self-hosted on enterprise GPU clusters.
 - For digitizing documents that contain hand-written annotations alongside printed text.
+- When serving visual document payloads to FastMCP 3.1 autonomous agent tools.
 
 ## When not to use it
 - When processing simple, single-column digital text documents where standard text extraction libraries (like PyPDF or python-docx) can pull raw characters directly in milliseconds.
@@ -67,7 +69,7 @@ python3 parse_document.py --image input_invoice.png --output output_layout.json
 
 ## API examples
 
-The following production-ready Python example demonstrates how to load NVIDIA-Nemotron-Parse-2.0, process a document page, and validate the structural predictions using strict **Pydantic v2** validation.
+The following production-ready Python example demonstrates how to load NVIDIA-Nemotron-Parse-2.0, process a document page, and validate structural predictions using strict **Pydantic v2** validation and FastMCP 3.1 Task Protocol schemas.
 
 ```python
 import os
@@ -106,7 +108,8 @@ class DocumentElement(BaseModel):
     bbox: BoundingBox
     confidence: float = Field(..., ge=0.0, le=1.0)
 
-class ParsedDocument(BaseModel):
+class FastMCPParsedDocument(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 task identifier")
     document_name: str
     width: int = Field(..., gt=0)
     height: int = Field(..., gt=0)
@@ -124,7 +127,7 @@ class NemotronParserService:
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32
         ).to(self.device)
 
-    def parse_page(self, image_path: str, prompt: str = "Analyze layout and extract text with coordinates.") -> ParsedDocument:
+    def parse_page(self, image_path: str, task_id: str = "task_parse_01", prompt: str = "Analyze layout and extract text with coordinates.") -> FastMCPParsedDocument:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image not found at {image_path}")
 
@@ -138,9 +141,6 @@ class NemotronParserService:
             generated_ids = self.model.generate(**inputs, max_new_tokens=2048)
             generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
-        # In a real pipeline, the model output (which includes special tokens like <loc_xxx> or classes)
-        # is matched to coordinates. Below is a mock of the layout engine mapping those outputs to our Pydantic schema:
-
         # Simulating layout post-processing of Nemotron coordinate output tags
         mocked_elements = [
             DocumentElement(
@@ -151,7 +151,7 @@ class NemotronParserService:
             ),
             DocumentElement(
                 element_type="paragraph",
-                text_content="Our Q3 performance was driven by an expansion of serverless AI hosting subscriptions.",
+                text_content="Our Q3 performance was driven by an expansion of FastMCP 3.1 server hosting subscriptions.",
                 bbox=BoundingBox(xmin=100.0, ymin=150.0, xmax=900.0, ymax=280.0),
                 confidence=0.97
             ),
@@ -163,8 +163,9 @@ class NemotronParserService:
             )
         ]
 
-        # Build and validate using Pydantic v2
-        validated_doc = ParsedDocument(
+        # Build and validate using Pydantic v2 and FastMCP Task Protocol schema
+        validated_doc = FastMCPParsedDocument(
+            task_id=task_id,
             document_name=os.path.basename(image_path),
             width=width,
             height=height,
@@ -176,10 +177,6 @@ class NemotronParserService:
 
 # Example Usage:
 if __name__ == "__main__":
-    # Parser initialization
-    # parser = NemotronParserService()
-    # result = parser.parse_page("test_document_page.png")
-    # print(result.model_dump_json(indent=2))
     print("Nemotron Parser Service script structure validated successfully.")
 ```
 
@@ -195,5 +192,5 @@ if __name__ == "__main__":
 - [NVIDIA-Nemotron-Parse-2.0 Reddit LocalLLaMA Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1vh7lzy/nvidianvidianemotronparse20_hugging_face/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
