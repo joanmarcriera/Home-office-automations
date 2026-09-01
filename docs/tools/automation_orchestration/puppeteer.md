@@ -1,7 +1,7 @@
 # Puppeteer
 
 ## What it is
-Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. Developed by the Chrome DevTools team, it runs in headless mode by default but can be configured to run in full (non-headless) Chrome/Chromium. As of late December 2026 (v26+), it features native **WebDriver BiDi** support, advanced stealth patterns, and deep integration with **Chrome for Testing**.
+Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. Developed by the Chrome DevTools team, it runs in headless mode by default but can be configured to run in full (non-headless) Chrome/Chromium. As of early 2027 (v26+), it features native **WebDriver BiDi** support, advanced stealth patterns, and deep integration with **Chrome for Testing** and **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
 It automates tasks that are typically performed manually in a web browser. It solves the "execution gap" for AI agents by providing a programmable interface to navigate, interact with, and extract data from modern, complex web applications that require JavaScript execution, authentication, and state management.
@@ -22,7 +22,7 @@ Puppeteer sits in the **Automation & Orchestration** and **Browser Control** lay
 - **Granular Control**: Direct access to the Chrome DevTools Protocol (CDP) for network interception, heap snapshots, and emulation.
 - **Mature Ecosystem**: Extensive support via `puppeteer-extra` for stealth browsing, ad-blocking, and captcha solving.
 - **Chrome for Testing**: Bundles specific, pinned browser versions to eliminate "it works on my machine" inconsistencies.
-- **MCP 3.1 Client Integration**: Seamlessly maps standard browser control tools into Model Context Protocol schemas for frontier LLMs (Claude 5.1, GPT-5.5).
+- **FastMCP 3.1 Client Integration**: Seamlessly maps standard browser control tools into FastMCP 3.1 Task Protocol schemas for frontier LLMs (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
 
 ## Limitations
 - **Chromium-First**: While BiDi support improves cross-browser compatibility, it remains primarily optimized for the Chromium engine.
@@ -185,7 +185,7 @@ page.on('request', (request) => {
 
 ## Related tools / concepts
 - [Playwright](../development_ops/playwright.md) - High-performance multi-browser automation.
-- [Playwright MCP Server](playwright-mcp.md) - Model Context Protocol integration for browser control.
+- [Playwright MCP Server](playwright-mcp.md) - FastMCP 3.1 Task Protocol integration for browser control.
 - [Stagehand](stagehand.md) - LLM-driven browser automation library.
 - [Skyvern](skyvern.md) - Browser automation using AI vision and reasoning.
 - [OpenHands](../development_ops/openhands.md) - Autonomous AI software engineer.
@@ -196,8 +196,8 @@ page.on('request', (request) => {
 - [Official Website](https://pptr.dev/)
 - [Puppeteer Documentation](https://pptr.dev/docs)
 - [Puppeteer GitHub Repository](https://github.com/puppeteer/puppeteer)
-- [WebDriver BiDi Progress Report (2026)](https://developer.chrome.com/blog/webdriver-bidi-status)
+- [WebDriver BiDi Progress Report](https://developer.chrome.com/blog/webdriver-bidi-status)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07

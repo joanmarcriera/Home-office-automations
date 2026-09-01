@@ -1,7 +1,7 @@
 # AssistantBench
 
 ## What it is
-AssistantBench is a rigorous, open-source evaluation benchmark designed to measure the capability of web-connected AI agents and autonomous assistants to execute complex, realistic, and time-consuming multi-step tasks on the live web. As of late December 2026, AssistantBench is established as a critical component of the "Agentic Evaluation Standard." It systematically quantifies the planning, navigation, retrieval, and reasoning capabilities of frontier models (including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash) operating in stateful browser environments.
+AssistantBench is a rigorous, open-source evaluation benchmark designed to measure the capability of web-connected AI agents and autonomous assistants to execute complex, realistic, and time-consuming multi-step tasks on the live web. As of early 2027, AssistantBench is established as a critical component of the "Agentic Evaluation Standard." It systematically quantifies the planning, navigation, retrieval, and reasoning capabilities of frontier models (including Claude 5.6, GPT-5.6, Llama 4, Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and Gemini 4.0 Ultra) operating in stateful browser environments and FastMCP 3.1 Task Protocol integrations.
 
 ## What problem it solves
 Most traditional LLM benchmarks evaluate atomic capabilities, such as isolated code generation or single-turn QA, in synthetic environments. However, these benchmarks fail to evaluate real-world agentic execution, where an agent must navigate dynamic websites, bypass anti-bot systems, manage complex browser states, retrieve scattered data, and reason across multiple pages to complete a single user request. AssistantBench solves this by providing long-horizon, multi-domain web-agent tasks that typically take a human developer or assistant 10 to 30 minutes to complete, allowing teams to rigorously benchmark success rates and measure Agentic Latency.
@@ -26,7 +26,7 @@ It functions as a high-level performance and capability auditing layer, typicall
 
 ## Limitations
 - **Live Web Volatility**: Because tests are executed on the live internet, unexpected modifications to external websites can occasionally impact test reproducibility and baseline consistency.
-- **Compute and Token Cost**: Running long-horizon, multi-step browser loops utilizing frontier visual models (like Claude 5.1 or GPT-5.5) consumes a high volume of input and output tokens.
+- **Compute and Token Cost**: Running long-horizon, multi-step browser loops utilizing frontier visual models (like Claude 5.6 or GPT-5.6) consumes a high volume of input and output tokens.
 - **Operational Execution Speed**: Executing true end-to-end browser trajectories on live websites is intrinsically slower than running synthetic unit tests, making it better suited for periodic scheduled runs rather than rapid pre-commit checks.
 
 ## When to use it
@@ -59,13 +59,13 @@ The `inspect` command-line utility provides intuitive controls to run, configure
 
 ```bash
 # Run a standard AssistantBench evaluation using a frontier model
-inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5
+inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.6
 
 # Restrict the evaluation run to a small, sample-limited set (e.g., 5 tasks) for debugging
-inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-5.1 --limit 5
+inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-5.6 --limit 5
 
 # Compare performance across multiple frontier models simultaneously
-inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5,anthropic/claude-5.1
+inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.6,anthropic/claude-5.6
 
 # Boot up the interactive visual log viewer to analyze step-by-step agent trajectories
 inspect view
@@ -87,7 +87,7 @@ os.environ["ANTHROPIC_API_KEY"] = "your_api_key_here"
 # Execute the evaluation run on a limited set of samples
 evaluation_results = eval(
     assistant_bench_web_browser(),
-    model="anthropic/claude-5.1",
+    model="anthropic/claude-5.6",
     limit=10,
     score_filter=None
 )
@@ -109,7 +109,7 @@ from inspect_evals import assistant_bench_web_browser
 # Initialize custom evaluation with specific model parameters
 results = eval(
     assistant_bench_web_browser(),
-    model="openai/gpt-5.5",
+    model="openai/gpt-5.6",
     limit=5,
     max_connections=2, # limit concurrent browser execution threads
     model_args={
@@ -154,7 +154,7 @@ class BenchResult(BaseModel):
 
 # Simulating raw API outputs or log parses
 raw_json = {
-    "model_name": "claude-5.1",
+    "model_name": "claude-5.6",
     "successful_runs": 8,
     "failed_runs": 2,
     "metrics": {
@@ -179,7 +179,7 @@ print(f"Agentic Latency: {validated_result.metrics.agentic_latency} seconds/step
 - [MultiOn](../agents/multion.md) — High-performance visual navigation and execution engine.
 - [Stagehand](../automation_orchestration/stagehand.md) — LLM-driven browser-automation SDK built on Playwright.
 - [Browser Use](../automation_orchestration/browser-use.md) — Multi-agent browser control framework.
-- [Agentic Latency](../enterprise/index.md) — The measure of cognitive and network delay during autonomous long-horizon runs.
+- [Agentic Latency](../../knowledge_base/patterns/index.md) — The measure of cognitive and network delay during autonomous long-horizon runs.
 
 ## Licensing and cost
 - **License**: Apache-2.0 (Open Source)
@@ -190,8 +190,7 @@ print(f"Agentic Latency: {validated_result.metrics.agentic_latency} seconds/step
 - [AssistantBench Official Webpage](https://assistantbench.github.io/)
 - [AssistantBench Project GitHub Repository](https://github.com/assistantbench/assistantbench)
 - [UK AISI Inspect-AI Documentation](https://github.com/UKGovernmentBEIS/inspect-ai)
-- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-12-31-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

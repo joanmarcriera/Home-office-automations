@@ -1,7 +1,7 @@
 # Giskard
 
 ## What it is
-Giskard is an open-source evaluation, testing, and red-teaming framework specifically designed for Large Language Models (LLMs), RAG systems, and autonomous agentic workflows. As of late December 2026, it provides a highly modular, lightweight, and robust environment to systematically detect hallucinations, adversarial vulnerabilities, data leakage, and compliance risks across SOTA models like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash.
+Giskard is an open-source evaluation, testing, and red-teaming framework specifically designed for Large Language Models (LLMs), RAG systems, and autonomous agentic workflows. As of early 2027, it provides a highly modular, lightweight, and robust environment to systematically detect hallucinations, adversarial vulnerabilities, data leakage, and compliance risks across SOTA models like Claude 5.6, GPT-5.6, Llama 4, Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and Gemini 4.0 Ultra.
 
 ## What problem it solves
 LLM-based agents and multi-agent systems often display unpredictable behaviors, including hallucinated facts, compliance violations, susceptibility to prompt injections, and tool-calling errors. Hand-crafting test suites or running manual red-teaming sessions is slow, expensive, and not reproducible. Giskard automates this process by using advanced adversarial LLMs to automatically generate thousands of target probes, stress-testing models against domain-specific requirements and transforming qualitative evaluation into a quantitative, reproducible CI/CD engineering practice.
@@ -13,7 +13,7 @@ It serves as the critical validation and safety auditing layer during the develo
 ## Typical use cases
 - **Continuous Red Teaming**: Scanning conversational agents or search interfaces for prompt injection, jailbreaking, and sensitive PII or system prompt extraction.
 - **RAG Factuality & Hallucination Audits**: Stress-testing Retrieval-Augmented Generation (RAG) pipelines to verify that responses are strictly grounded in retrieved document contexts.
-- **Agentic Loop Testing**: Evaluating how robustly autonomous agents handle tool execution and parameters, particularly within Model Context Protocol (FastMCP 3.1) environments.
+- **Agentic Loop Testing**: Evaluating how robustly autonomous agents handle tool execution and parameters, particularly within FastMCP 3.1 Task Protocol environments.
 - **Regression Detection**: Ensuring that prompt engineering changes, model fine-tunes, or parameter tweaks do not introduce new security gaps or accuracy regressions.
 - **Enterprise Compliance & Governance**: Generating comprehensive, audit-ready safety reports and metrics dashboards for regulatory bodies and risk management teams.
 
@@ -27,7 +27,7 @@ It serves as the critical validation and safety auditing layer during the develo
 ## Limitations
 - **Hub Feature Licensing**: While the Python core library is open-source, advanced enterprise collaborative features, large-scale team management, and long-term storage require a Giskard Hub paid license.
 - **Judge Calibration Requirements**: Relying heavily on an LLM-as-a-judge can introduce secondary biases or errors if the evaluator model is not carefully calibrated and monitored.
-- **Token and Compute Cost**: Running thousands of automated adversarial test cases across high-tier frontier models like Claude 5.1 or GPT-5.5 can result in substantial API usage and latency.
+- **Token and Compute Cost**: Running thousands of automated adversarial test cases across high-tier frontier models like Claude 5.6 or GPT-5.6 can result in substantial API usage and latency.
 
 ## When to use it
 - When deploying enterprise AI assistants, RAG pipelines, or autonomous agents that deal with sensitive client data.
@@ -91,7 +91,7 @@ from giskard import Dataset, Model, scan
 def model_predict_fn(df: pd.DataFrame) -> list:
     responses = []
     for _, row in df.iterrows():
-        # Call your frontier LLM (e.g., Claude 5.1, GPT-5.5) inside your agent setup
+        # Call your frontier LLM (e.g., Claude 5.6, GPT-5.6) inside your agent setup
         prompt = row["user_input"]
         # Dummy prediction simulation
         responses.append(f"Processed response for: {prompt}")
@@ -154,7 +154,7 @@ class GiskardScanResult(BaseModel):
 
 # Example parsing Giskard scan outputs into structured validation models
 report_payload = {
-    "model_name": "Claude 5.1 Enterprise Agent",
+    "model_name": "Claude 5.6 Enterprise Agent",
     "passed": False,
     "total_vulnerabilities": 1,
     "vulnerabilities": [
@@ -187,9 +187,7 @@ print(validated_report.model_dump_json(indent=2))
 - [Giskard Technical Documentation](https://docs.giskard.ai/)
 - [Giskard Open Source GitHub Repository](https://github.com/Giskard-AI/giskard)
 - [RealHarm Benchmark Database](https://realharm.giskard.ai/)
-- [Giskard Late July 2026 Core Release Notes](https://www.giskard.ai/blog/june-2026-update)
-- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
