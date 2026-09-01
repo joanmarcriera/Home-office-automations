@@ -1,7 +1,7 @@
 # Pipedream
 
 ## What it is
-Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of late December 2026, it features native **Model Context Protocol (MCP 3.1)** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.1 and GPT-5.5.
+Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of early 2027, it features native **FastMCP 3.1 Task Protocol** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ## What problem it solves
 It simplifies the process of connecting disparate services by handling authentication (OAuth), event sourcing, and serverless execution infrastructure. It allows developers to focus on the logic of their integrations—and the orchestration of AI agents—rather than the boilerplate code required to talk to various APIs or manage persistent state.
@@ -10,7 +10,7 @@ It simplifies the process of connecting disparate services by handling authentic
 Pipedream sits in the **Automation & Orchestration** layer. It acts as the "connective tissue" for agentic systems, providing stable, managed tool-calling interfaces to thousands of SaaS applications and local services through its gateway.
 
 ## Typical use cases
-- **AI Agents and Chatbots**: Connecting frontier models (Claude 5.1, GPT-5.5) to real-time data sources and execution tools (Slack, GitHub, Discord).
+- **AI Agents and Chatbots**: Connecting frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra) to real-time data sources and execution tools (Slack, GitHub, Discord).
 - **Agentic Webhook Handlers**: Ingesting, reasoning over, and acting upon webhooks from services like Stripe or custom apps.
 - **Data Synthesizers**: Moving and transforming data between SaaS applications and vector databases for RAG.
 - **Custom Agentic Notifications**: Building sophisticated alerting systems where an AI agent triages multi-source event triggers.
@@ -19,7 +19,7 @@ Pipedream sits in the **Automation & Orchestration** layer. It acts as the "conn
 ## Strengths
 - **Massive Integration Library**: Supports over 5,000+ integrated apps with pre-built, production-tested triggers and actions.
 - **Code-Level Flexibility**: Write any code in Node.js, Python, Go, or Bash within any step, with access to all standard libraries and `pip`/`npm` packages.
-- **Native MCP 3.1 Support**: Acts as either an MCP host or client, supporting the complete MCP 3.1 Task Protocol specification for routing execution payloads.
+- **Native FastMCP 3.1 Support**: Acts as either a FastMCP host or client, supporting the complete FastMCP 3.1 Task Protocol specification for routing execution payloads.
 - **Managed Auth & Vault**: Handles OAuth and key-based authentication automatically; includes an encrypted secret vault.
 - **Stateful Workflows**: Built-in Key-Value store and Data Stores for maintaining state across asynchronous executions.
 - **Real-Time Monitoring**: Deep observability into execution logs, step-by-step data inspection, and error handling.
@@ -47,7 +47,7 @@ Create an account at [pipedream.com](https://pipedream.com/).
 
 ### Creating an Agentic Workflow
 1. **Choose a Trigger**: Select a source like an HTTP Webhook or a scheduled interval.
-2. **Add an AI Step**: Use the "Claude 5.1" or "GPT-5.5" pre-built actions to process incoming data.
+2. **Add an AI Step**: Use the "Claude 5.6" or "GPT-5.6" pre-built actions to process incoming data.
 3. **Add an Action**: Use a pre-built app action (e.g., "Slack - Send Message") and pass the AI output to it.
 4. **Deploy**: Workflows are live immediately upon deployment.
 
@@ -128,14 +128,14 @@ def handler(pd: "pipedream"):
     }
 ```
 
-### Node.js Action with Native Fetch (MCP 3.1 Integrated)
-Making an authenticated call to a connected service while adhering to MCP 3.1 schemas.
+### Node.js Action with Native Fetch (FastMCP 3.1 Integrated)
+Making an authenticated call to a connected service while adhering to FastMCP 3.1 Task Protocol schemas.
 
 ```javascript
 export default defineComponent({
   props: {
     google_sheets: { type: "app", app: "google_sheets" },
-    mcp_payload: { type: "object", label: "MCP 3.1 Task Payload", optional: true }
+    mcp_payload: { type: "object", label: "FastMCP 3.1 Task Payload", optional: true }
   },
   async run({ steps, $ }) {
     // Auth is managed automatically by Pipedream
@@ -166,8 +166,7 @@ export default defineComponent({
 - [Pipedream Documentation](https://pipedream.com/docs)
 - [Pipedream Component Registry (GitHub)](https://github.com/PipedreamHQ/pipedream)
 - [Pipedream REST API Reference](https://pipedream.com/docs/api/rest/)
-- [Agentic Automation with Pipedream (2026 Blog)](https://pipedream.com/blog/agentic-workflows-mcp)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
