@@ -4,7 +4,7 @@
 System prompts (also known as system messages or developer messages) are the foundational instructions provided to a Large Language Model (LLM) before a conversation begins. They define the model's persona, its capabilities, its behavioral constraints, and the tone it should adopt.
 
 ## What problem it solves
-Raw LLMs are often overly generic or prone to irrelevant outputs. System prompts "steer" the model toward a specific goal, ensuring it follows technical protocols (like tool-calling), maintains a consistent persona, and adheres to safety and style guidelines without the user having to repeat instructions in every message, fully leveraging late December 2026 SOTA reasoning engines such as Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6, and FastMCP 3.1.
+Raw LLMs are often overly generic or prone to irrelevant outputs. System prompts "steer" the model toward a specific goal, ensuring it follows technical protocols (like tool-calling), maintains a consistent persona, and adheres to safety and style guidelines without the user having to repeat instructions in every message, fully leveraging early 2027 SOTA reasoning engines such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL, and FastMCP 3.1 Task Protocols.
 
 ## Where it fits in the stack
 It belongs to the **Interface & Configuration Layer** of the AI stack. It is the primary mechanism for aligning a generic **Intelligence Layer** (the model) with a specific **Application Layer** (the task).
@@ -24,7 +24,7 @@ It belongs to the **Interface & Configuration Layer** of the AI stack. It is the
 ## Limitations
 - **Prompt Injection**: Sophisticated user prompts can sometimes "bypass" or "jailbreak" system instructions.
 - **Instruction Fatigue**: Very long system prompts can lead to "forgetting" earlier instructions or reduced performance on the core task.
-- **Model Sensitivity**: Different models respond differently to the same system prompt; what works for GPT-5.5 may fail for Claude 5.1 or Qwen 3.6.
+- **Model Sensitivity**: Different models respond differently to the same system prompt; what works for GPT-5.6 may fail for Claude 5.6 or DeepSeek-V4.
 
 ## When to use it
 - When building any production-grade AI application where consistent behavior is required.
@@ -40,7 +40,7 @@ To begin engineering system prompts:
 2. **Set the Objective**: Explain the primary goal of the interaction.
 3. **Establish Constraints**: List negative constraints (e.g., "Do not use external libraries").
 4. **Format Requirements**: Specify the desired output structure (e.g., "Always return a valid JSON object").
-5. **Test with Different Models**: Verify behavior across Claude 5.1, GPT-5.5, and Llama 4.
+5. **Test with Different Models**: Verify behavior across Claude 5.6, GPT-5.6, and Llama 4.
 
 ## CLI examples
 While system prompts are typically passed via API, you can test them using various CLI tools.
@@ -49,19 +49,19 @@ While system prompts are typically passed via API, you can test them using vario
 # Testing a system prompt with Ollama (Llama 4)
 ollama run llama4 "You are a concise technical writer. Explain MCP 3.1."
 
-# Testing with the OpenAI CLI (GPT-5.5)
-openai chat create --model gpt-5.5 --message system "Act as a Python security auditor." --message user "Analyze this script: ..."
+# Testing with the OpenAI CLI (GPT-5.6)
+openai chat create --model gpt-5.6 --message system "Act as a Python security auditor." --message user "Analyze this script: ..."
 ```
 
 ## API examples
 Most modern APIs use a list of message objects where the first message is often the system prompt.
 
-### OpenAI / LiteLLM Pattern (GPT-5.5)
+### OpenAI / LiteLLM Pattern (GPT-5.6)
 ```python
 import openai
 
 response = openai.ChatCompletion.create(
-    model="gpt-5.5",
+    model="gpt-5.6",
     messages=[
         {"role": "system", "content": "You are a senior DevOps engineer specializing in K3s and MCP 3.1."},
         {"role": "user", "content": "How do I secure my node?"}
@@ -69,7 +69,7 @@ response = openai.ChatCompletion.create(
 )
 ```
 
-### Anthropic Pattern (Claude 5.1)
+### Anthropic Pattern (Claude 5.6)
 Anthropic treats the system prompt as a separate top-level parameter. Below is an example that integrates MCP 3.1 / FastMCP 3.1 Task Protocol with strict Pydantic v2 validation for structured system prompts and behavioral constraints.
 
 ```python
@@ -80,7 +80,7 @@ from mcp import Client, TaskProtocol
 
 client = anthropic.Anthropic()
 message = client.messages.create(
-    model="claude-5-1-sonnet-20260731",
+    model="claude-5-6-sonnet-20270107",
     system="You are a helpful assistant that always responds in Haiku.",
     messages=[
         {"role": "user", "content": "Tell me about MCP 3.1."}
@@ -94,7 +94,7 @@ task_proto = TaskProtocol(mcp_client)
 async def trigger_agent_task():
     task = await task_proto.create_task(
         name="Structured Prompt Execution",
-        instruction="Deploy an agent using Claude 5.1 to auto-correct prompt injection patterns."
+        instruction="Deploy an agent using Claude 5.6 to auto-correct prompt injection patterns."
     )
     print(f"Task launched: {task.id}")
 
@@ -143,5 +143,5 @@ print(f"Validated system prompt configuration for persona: {validated_prompt.per
 - [GPT-5.5 System Prompt Analysis](https://openai.com/index/gpt-5-5-system-prompt-analysis)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

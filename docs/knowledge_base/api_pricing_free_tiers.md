@@ -9,12 +9,12 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-### Canonical pricing matrix (last verified: 2026-12-31)
+### Canonical pricing matrix (last verified: 2027-01-07)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
-| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
-| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.1, Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
+| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.6, GPT-5.5, and GPT-5.5 mini. |
+| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.6, Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
 | Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 4.0 Pro and Gemini 4.0 Flash have standard trial and tier rows. Gemini 4.0 Maverick preview free for developer accounts. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
@@ -46,7 +46,7 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## What problem it solves
-LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern late December 2026 models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, and FastMCP 3.1.
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern early 2027 models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and FastMCP 3.1.
 
 ## Where it fits in the stack
 This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
@@ -57,11 +57,11 @@ This document belongs to the **Layer 1: Providers** and **Layer 2: Models** anal
 - **Provider Switching**: Comparing the "Intelligence-per-Dollar" value when deciding whether to migrate from one provider to another (e.g., Anthropic to Google).
 - **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
 
-### Model Intelligence-per-Dollar Value (2026 Triage)
-Based on community analysis (late December 2026), models are categorized by their efficiency relative to cost:
-- **Top Intelligence**: Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Claude Opus 4.8.
-- **Best Value**: DeepSeek V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6.
-- **Balanced**: Claude Sonnet 4.7, GPT-5.4, Llama 4 Maverick.
+### Model Intelligence-per-Dollar Value (Early 2027 Triage)
+Based on community analysis (early January 2027), models are categorized by their efficiency relative to cost:
+- **Top Intelligence**: Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Claude Opus 4.8.
+- **Best Value**: DeepSeek-V4, MiniMax-H3, Gemini 4.0 Flash, Qwen 3.6 VL.
+- **Balanced**: Claude Sonnet 4.7, GPT-5.5, Llama 4 Maverick.
 
 ## Strengths
 - **Consolidated**: Aggregates data from over 30 providers in a single view.
@@ -184,7 +184,7 @@ async def check_limits_and_run():
     # Establish a tracking task with the MCP 3.1 Task Protocol
     task = await task_proto.create_task(
         name="Billing Guardrail Task",
-        instruction="Monitor API consumption for Claude 5.1 and GPT-5.5 endpoints."
+        instruction="Monitor API consumption for Claude 5.6 and GPT-5.6 endpoints."
     )
     print(f"Billing monitor task created: {task.id}")
 
@@ -247,5 +247,5 @@ print(f"Validated billing configuration for: {validated_billing.model_name}")
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

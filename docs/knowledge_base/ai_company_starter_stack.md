@@ -4,7 +4,7 @@
 The AI Company Starter Stack is an opinionated selection of tools and architectural patterns designed to turn a traditional business into an AI-native organization. It provides a curated list of "defaults" across various layers—from web surfaces and agent operating models to workflow control planes and local inference options—enabling teams to build operating leverage rather than just side experiments.
 
 ## What problem it solves
-Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research, fully utilizing SOTA 2026 frontier models (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, Gemini 3.5 Pro/Ultra/Flash/Spark/Omni).
+Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research, fully utilizing SOTA early-2027 frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL).
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Architectural Pattern. It serves as the **operational blueprint** of the repository, integrating various tools from the `docs/services/` and `docs/tools/` directories into a cohesive business framework.
@@ -94,8 +94,8 @@ async def run_analysis():
         # Build task configuration model and validate
         task_payload = {
             "name": "Knowledge Synthesis",
-            "instruction": f"Synthesize internal knowledge base on {validated_search.query} utilizing Qwen 3.6 and Claude 5.1",
-            "model_routing": "claude-5.1"
+            "instruction": f"Synthesize internal knowledge base on {validated_search.query} utilizing Qwen 3.6 VL and Claude 5.6",
+            "model_routing": "claude-5.6"
         }
         validated_task_cfg = StackTaskConfig.model_validate(task_payload)
 
@@ -140,5 +140,5 @@ async def run_analysis():
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

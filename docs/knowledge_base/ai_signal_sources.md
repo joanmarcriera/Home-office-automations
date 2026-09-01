@@ -4,7 +4,7 @@
 AI Signal Sources is a curated directory of high-signal information streams focused on model updates, tooling direction, safety changes, and practical engineering patterns. It serves as the authoritative intake list for the repository's intelligence-gathering activities.
 
 ## What problem it solves
-The AI landscape moves at an overwhelming pace, making it difficult to distinguish between marketing hype and substantive technical advancement. This document filters the noise, identifying the specific sources that provide actionable technical signal for homelab automation and agentic engineering, covering late December 2026 SOTA models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6, and FastMCP 3.1 features/schemas.
+The AI landscape moves at an overwhelming pace, making it difficult to distinguish between marketing hype and substantive technical advancement. This document filters the noise, identifying the specific sources that provide actionable technical signal for homelab automation and agentic engineering, covering early 2027 SOTA models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL, and FastMCP 3.1 Task Protocols.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Management / Intelligence** layer. It acts as the intake strategy for staying informed about changes in the underlying AI technologies (providers, frameworks, and tools) that power the homelab.
@@ -78,7 +78,7 @@ task_proto = TaskProtocol(client)
 async def setup_signal_watcher():
     task = await task_proto.create_task(
         name="Ingest Anthropic RSS Feed",
-        instruction="Parse the Anthropic news RSS feed, looking for Claude 5.1 news and API specifications."
+        instruction="Parse the Anthropic news RSS feed, looking for Claude 5.6 news and API specifications."
     )
     print(f"Created ingestion pipeline with task ID: {task.id}")
 
@@ -105,15 +105,15 @@ def validate_and_process_signal(raw_payload: dict) -> IngestedSignal:
     print(f"Successfully validated signal: {validated_signal.title}")
     return validated_signal
 
-# Sample high-signal feed item matching late December 2026 SOTA
+# Sample high-signal feed item matching early January 2027 SOTA
 sample_feed_item = {
-    "title": "Claude 5.1 and FastMCP 3.1 Interoperability Standards",
-    "source_url": "https://simonwillison.net/2026/Dec/fastmcp-3-1",
-    "published_at": "2026-12-31T12:00:00Z",
-    "summary": "Practical guidelines on utilizing the new FastMCP 3.1 standard with Claude 5.1 models for rapid tool calling.",
+    "title": "Claude 5.6 and FastMCP 3.1 Task Protocol Standards",
+    "source_url": "https://simonwillison.net/2027/Jan/fastmcp-3-1-task-protocol",
+    "published_at": "2027-01-07T12:00:00Z",
+    "summary": "Practical guidelines on utilizing the new FastMCP 3.1 Task Protocol with Claude 5.6 models for long-running task orchestration.",
     "metadata": {
         "author": "Simon Willison",
-        "target_models": ["Claude 5.1", "FastMCP 3.1"],
+        "target_models": ["Claude 5.6", "FastMCP 3.1 Task Protocol"],
         "confidence_score": 0.98
     }
 }
@@ -182,5 +182,5 @@ processed = validate_and_process_signal(sample_feed_item)
 - [Latent Space](https://www.latent.space/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
