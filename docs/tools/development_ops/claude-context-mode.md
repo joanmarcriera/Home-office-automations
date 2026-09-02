@@ -1,25 +1,25 @@
 # Claude Context Mode
 
 ## What it is
-Claude Context Mode refers to community and workflow patterns for giving Claude Code richer, better-structured operating context, often through MCP servers, repository memory files, and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows using frontier models like **Claude 5.1** (`claude-5.1-sonnet-20261220`) and **GPT-5.5**.
+Claude Context Mode refers to community and workflow patterns for giving Claude Code richer, better-structured operating context, often through MCP servers, repository memory files (`AGENTS.md`, `MEMORY.md`), and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows using frontier models like **Claude 5.6** (`claude-5.6-sonnet-20270115`), **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
 ## What problem it solves
-It reduces prompt sprawl and makes agent behavior more repeatable than pasting large amounts of context into every session. It solves the "context window amnesia" problem by ensuring the agent has access to a durable, versioned source of truth about the project's architecture, standards, and progress. It leverages **FastMCP 3.1** to dynamically inject context as needed.
+It reduces prompt sprawl and makes agent behavior more repeatable than pasting large amounts of context into every session. It solves the "context window amnesia" problem by ensuring the agent has access to a durable, versioned source of truth about the project's architecture, standards, and progress. It leverages **FastMCP 3.1 Task Protocol** to dynamically inject context as needed across multi-step execution sessions.
 
 ## Where it fits in the stack
-**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around Claude Code, MCP, and AI-native IDEs (like Cursor 3.0 or VS Code with Continue).
+**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around Claude Code, FastMCP 3.1, and AI-native IDEs (like Cursor 3.0 or VS Code with Continue).
 
 ## Typical use cases
-- **Repository Onboarding**: Giving an agent a high-level map of a new codebase using `find_oldest_issues.py`.
-- **Architectural Guardrails**: Ensuring the agent follows specific design patterns (e.g., "always use FastAPI dependency injection").
-- **Task Persistence**: Resuming a complex, multi-day coding task across different chat sessions.
+- **Repository Onboarding**: Giving an agent a high-level map of a new codebase using `find_oldest_issues.py` or repository indexers.
+- **Architectural Guardrails**: Ensuring the agent follows specific design patterns (e.g., "always use FastAPI dependency injection and Pydantic v2").
+- **Task Persistence & State Tracking**: Resuming a complex, multi-day coding task across different chat sessions using FastMCP 3.1 task protocol schemas.
 - **Standardized Workflows**: Using `AGENTS.md` to define repository-wide operating contracts for autonomous agents.
 
 ## Strengths
 - **Consistency**: Agent behavior becomes more predictable across sessions.
 - **Efficiency**: Reduces the amount of manual context pasting required.
 - **Versionable**: Context files (like `MEMORY.md` or `AGENTS.md`) live in the repo and evolve with the code.
-- **Native Integration**: Supported natively by **FastMCP 3.1** for dynamic context injection and resource discovery.
+- **Native Integration**: Supported natively by **FastMCP 3.1 Task Protocol** for dynamic context injection, resource discovery, and task state management.
 
 ## Limitations
 - **Maintenance Overhead**: Requires human (or agent) discipline to keep context files up to date.
@@ -29,7 +29,7 @@ It reduces prompt sprawl and makes agent behavior more repeatable than pasting l
 ## When to use it
 - When working on complex, long-running projects where architectural consistency is critical.
 - When collaborating with multiple agents or human-agent teams.
-- When you need to provide the agent with external tool context via specialized MCPs like **Chronos MCP** or **Free Will MCP**.
+- When you need to provide the agent with external tool context via specialized FastMCP 3.1 servers like **Chronos MCP** or **Free Will MCP**.
 
 ## When not to use it
 - For trivial, one-off scripts where the overhead of creating context files exceeds the task effort.
@@ -67,14 +67,14 @@ claude --prompt "Project context: $(cat AGENTS.md) -- Review current folder stru
 # 2. Append a newly completed feature to your progress log
 claude --prompt "Task complete. Update AGENTS.md progress list with 'Authentication added'."
 
-# 3. Serve a directory of context documents using FastMCP 3.1
-uvx mcp-server-context7 --path ./docs/knowledge_base
+# 3. Serve a directory of context documents using FastMCP 3.1 Task Protocol
+uvx mcp-server-context7 --path ./docs/knowledge_base --task-protocol-version 3.1
 ```
 
 ## API examples
 
 ### Python (Injecting Context with Pydantic v2 Validation)
-For automated pipelines, you can load, validate the project's context rules, and pass the verified context directly to the system prompt of the Anthropic SDK.
+For automated pipelines, you can load, validate the project's context rules, and pass the verified context directly to the system prompt of the Anthropic SDK using strict **Pydantic v2**.
 
 ```python
 import os
@@ -82,17 +82,23 @@ import anthropic
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 
-# Define strict Pydantic v2 schemas for repository rules and context limits
+# Define strict Pydantic v2 schemas for repository rules, context limits, and FastMCP task state
 class ContextRule(BaseModel):
     rule_id: str = Field(..., pattern=r"^RULE-\d{3}$")
     description: str = Field(..., min_length=10)
     severity: str = Field(..., pattern=r"^(high|medium|low)$")
+
+class FastMCPTaskProtocol(BaseModel):
+    protocol_version: str = Field(default="3.1", alias="protocolVersion")
+    task_id: str = Field(..., alias="taskId")
+    active_step: int = Field(1, alias="activeStep")
 
 class RepoContextConfig(BaseModel):
     project_name: str = Field(..., min_length=2)
     mcp_servers: List[str] = Field(default_factory=list)
     rules: List[ContextRule]
     max_context_tokens: int = Field(200000, gt=0)
+    task_protocol: Optional[FastMCPTaskProtocol] = Field(default=None, alias="taskProtocol")
 
     @field_validator("mcp_servers")
     @classmethod
@@ -110,7 +116,12 @@ config_payload = {
     "rules": [
         {"rule_id": "RULE-001", "description": "Always follow standards.md schema structures.", "severity": "high"},
         {"rule_id": "RULE-002", "description": "Strictly implement FastMCP 3.1 interface contracts.", "severity": "high"}
-    ]
+    ],
+    "taskProtocol": {
+        "protocolVersion": "3.1",
+        "taskId": "task-534-context-refactor",
+        "activeStep": 2
+    }
 }
 
 config = RepoContextConfig.model_validate(config_payload)
@@ -118,9 +129,9 @@ config = RepoContextConfig.model_validate(config_payload)
 # Initialize the official Anthropic client
 client = anthropic.Anthropic()
 
-# Send the prompt containing the validated context config to Claude 5.1
+# Send the prompt containing the validated context config to Claude 5.6
 response = client.messages.create(
-    model="claude-5.1-sonnet-20261220",
+    model="claude-5.6-sonnet-20270115",
     max_tokens=1024,
     system=f"Project Operating Context rules:\n{config.model_dump_json(indent=2)}",
     messages=[{"role": "user", "content": "Analyze the codebase structure."}]
@@ -146,5 +157,5 @@ print(response.content)
 - [Architecture Index Search & Verification](https://github.com/search?q=Architecture+Index&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

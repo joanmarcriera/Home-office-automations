@@ -10,10 +10,10 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6).
+- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Llama 4, Gemma 4, Qwen 3.6).
 - **Contamination Diagnostics**: Identifying whether high performance on legacy benchmarks is inflated by pre-training memorization.
 - **Holistic Code Assessment**: Evaluating models across three distinct scenarios: code generation, code execution reasoning (predicting program output), and automated debugging/self-repair.
-- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (MCP 3.1) execution servers.
+- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (FastMCP 3.1) execution servers.
 
 ## Strengths
 - **Contamination-Free**: Continuous problem ingest from active competitive programming contests released post-2023.
@@ -40,7 +40,7 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 LiveCodeBench can be utilized via its public leaderboard or run locally by cloning the evaluation runner and preparing your execution environment.
 
 ### 1. Installation
-Clone the repository and install the runner requirements. It is recommended to use a virtual environment or an MCP-sandboxed docker container.
+Clone the repository and install the runner requirements. It is recommended to use a virtual environment or a FastMCP 3.1 sandboxed docker container.
 ```bash
 git clone https://github.com/LiveCodeBench/LiveCodeBench
 cd LiveCodeBench
@@ -60,22 +60,22 @@ export OPENAI_API_KEY="your-key"
 Evaluate code generation performance on problems released after a specific date slice using a frontier model:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "anthropic/claude-5.1" \
+    --model "anthropic/claude-5.6" \
     --scenario "codegeneration" \
     --start_date "2026-01-01" \
-    --end_date "2026-12-31"
+    --end_date "2027-01-01"
 ```
 
 ### Running Execution Reasoning
 Measure the model's ability to predict the output of Python code snippets:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "openai/gpt-5.5" \
+    --model "openai/gpt-5.6" \
     --scenario "execution" \
     --difficulty "Medium"
 ```
 
-### Sandboxed Evaluation with Docker
+### Sandboxed Evaluation with Docker & FastMCP 3.1
 Execute code evaluations in a secure dockerized container to prevent untrusted LLM code execution on host machines:
 ```bash
 python -m lcb_runner.evaluation.main \
@@ -91,10 +91,10 @@ python -m lcb_runner.evaluation.main \
 A typical problem instance returned by the LCB dataset loader contains comprehensive metadata:
 ```json
 {
-    "question_id": "lcb-2026-12-45",
+    "question_id": "lcb-2027-01-12",
     "title": "Subarray Sum Queries",
     "platform": "Codeforces",
-    "release_date": "2026-12-15T14:30:00",
+    "release_date": "2027-01-05T14:30:00",
     "difficulty": "Hard",
     "question_content": "Implement a dynamic range query...",
     "test_cases": {
@@ -104,39 +104,51 @@ A typical problem instance returned by the LCB dataset loader contains comprehen
 }
 ```
 
-### Programmatic Ingestion and Run Hook
-Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows:
+### Programmatic Ingestion and Run Hook with FastMCP 3.1 & Pydantic v2
+Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows using strict **Pydantic v2**:
+
 ```python
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List, Optional
 
 class TestSuite(BaseModel):
     inputs: List[str] = Field(default_factory=list)
     outputs: List[str] = Field(default_factory=list)
+
+class FastMCPTaskState(BaseModel):
+    task_id: str = Field(..., alias="taskId")
+    protocol_version: str = Field("3.1", alias="protocolVersion")
 
 class LCBProblem(BaseModel):
     question_id: str = Field(..., alias="questionId")
     title: str
     difficulty: str
     test_cases: TestSuite = Field(..., alias="testCases")
+    task_state: Optional[FastMCPTaskState] = Field(None, alias="taskState")
 
     class Config:
         populate_by_name = True
 
 # Validate active LCB evaluation schema
 raw_problem = {
-    "questionId": "lcb-2026-12-45",
+    "questionId": "lcb-2027-01-12",
     "title": "Subarray Sum Queries",
     "difficulty": "Hard",
     "testCases": {
         "inputs": ["[[1, 2], [3, 4]]"],
         "outputs": ["[7]"]
+    },
+    "taskState": {
+        "taskId": "task-534-lcb-eval",
+        "protocolVersion": "3.1"
     }
 }
 
 problem = LCBProblem.model_validate(raw_problem)
 print(f"Validated LCB Problem: {problem.title} ({problem.difficulty})")
 print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
+if problem.task_state:
+    print(f"FastMCP Task ID: {problem.task_state.task_id}")
 ```
 
 ## Related tools / concepts
@@ -159,5 +171,5 @@ print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
 - [LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code (arXiv)](https://arxiv.org/abs/2403.07974)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
