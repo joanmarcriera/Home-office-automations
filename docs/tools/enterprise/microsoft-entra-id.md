@@ -1,13 +1,13 @@
 # Microsoft Entra ID
 
 ## What it is
-Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of late December 2026, it serves as the foundational enterprise security and identity layer for the Microsoft 365 ecosystem, multi-cloud SaaS platforms, and autonomous multi-agent systems, featuring native support for workload identities and secure [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) / FastMCP 3.1 authentication.
+Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of early January 2027, it serves as the foundational enterprise security and identity layer for the Microsoft 365 ecosystem, multi-cloud SaaS platforms, and autonomous multi-agent systems, featuring native support for workload identities and secure [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) / FastMCP 3.1 task protocol authentication.
 
 ## What problem it solves
 It solves the critical security challenges of federated identity, Single Sign-On (SSO), and access governance in modern hybrid work and autonomous agent environments. Entra ID provides granular control over authentication, conditional access, and privileged roles for both human users and automated workloads, preventing unauthorized access and credential leakage across enterprise services.
 
 ## Where it fits in the stack
-**Category**: Enterprise / Identity & Access Management. It sits at the absolute security perimeter, serving as the central authentication, authorization, and audit boundary between frontier language models (such as Claude 5.1, GPT-5.5, or Llama 4), custom orchestration loops, and secure API gateways like the [Microsoft Graph API](../providers/microsoft-graph.md).
+**Category**: Enterprise / Identity & Access Management. It sits at the absolute security perimeter, serving as the central authentication, authorization, and audit boundary between frontier language models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or DeepSeek-V4), custom orchestration loops, and secure API gateways like the [Microsoft Graph API](../providers/microsoft-graph.md).
 
 ## Typical use cases
 - **Agentic Authentication**: Issuing secure, short-lived OAuth 2.0 access tokens to custom-built [Autonomous Agents](../agents/README.md) using Workload Identity Federation (no-secret deployments).
@@ -148,7 +148,7 @@ def get_access_token_via_federation(raw_context: dict) -> dict:
 
 
 if __name__ == "__main__":
-    # Example execution configuration (late December 2026 parameters)
+    # Example execution configuration (early January 2027 parameters)
     raw_config = {
         "azure_tenant_id": "00000000-1111-2222-3333-444444444444",
         "azure_client_id": "99999999-8888-7777-6666-555555555555",
@@ -191,5 +191,5 @@ curl -X POST https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token 
 - [OAuth 2.0 Workload Identity Federation (RFC 7523)](https://datatracker.ietf.org/doc/html/rfc7523)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

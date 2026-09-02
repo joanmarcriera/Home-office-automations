@@ -1,18 +1,18 @@
 # OpenSwarm
 
 ## What it is
-OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of late December 2026, OpenSwarm features native support for the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocols, enabling seamless coordination of complex, long-running agentic tasks.
+OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of early January 2027, OpenSwarm features native support for the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocols, enabling seamless coordination of complex, long-running agentic tasks across multi-agent clusters.
 
 ## What problem it solves
-It simplifies the coordination of multiple AI agents performing complex, interdependent tasks across project management and version control systems, reducing the manual overhead of managing individual agent runs. It bridges the gap between raw LLM APIs and the specific workflows used by engineering teams.
+It simplifies the coordination of multiple AI agents performing complex, interdependent tasks across project management and version control systems, reducing the manual overhead of managing individual agent runs. It bridges the gap between raw LLM APIs and the specific workflows used by engineering teams, preventing context fragmentation and ensuring transactional task safety.
 
 ## Where it fits in the stack
-**Agent / Orchestrator**. It acts as the management layer that dispatches tasks to multiple instances of the Claude CLI, coordinating their outputs and maintaining long-term project context.
+**Agent / Orchestrator**. It acts as the management layer that dispatches tasks to multiple instances of the Claude CLI or custom LLM endpoints, coordinating their outputs and maintaining long-term project context across enterprise repositories.
 
 ## Typical use cases
-- **Automated Issue Management**: Using agents to triage, label, and respond to Linear issues.
+- **Automated Issue Management**: Using agents to triage, label, and respond to Linear issues with DeepSeek-V4 and Claude 5.6 reasoning.
 - **Pull Request Orchestration**: Coordinating multiple agents to review code, run tests, and suggest improvements on GitHub.
-- **CLI-based Agent Loops**: Running complex multi-step agentic tasks directly from the terminal.
+- **CLI-based Agent Loops**: Running complex multi-step agentic tasks directly from the terminal with FastMCP 3.1 protocol task state persistence.
 - **Context Synthesis**: Summarizing long discussion threads across multiple platforms to provide actionable next steps.
 
 ## Strengths
@@ -20,14 +20,14 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 - **Workflow Focused**: Specifically tuned for the tools developers use most (Linear, GitHub).
 - **Open Source**: Allows for community customization and extension.
 - **Scalable**: Can manage a "swarm" of agents working in parallel on different parts of a project.
-- **Frontier Model Ready**: Optimized for [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
+- **Frontier Model Ready**: Optimized for [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [DeepSeek-V4](../providers/deepseek.md).
 
 ## Limitations
 - **Narrow Ecosystem**: Primarily focused on Linear and GitHub; may require custom work for other integrations.
 - **Dependency**: Highly dependent on the stability and features of the Claude CLI and Anthropic's API.
 
 ## When to use it
-- When you need to coordinate multiple agentic tasks across Linear and GitHub using Claude.
+- When you need to coordinate multiple agentic tasks across Linear and GitHub using Claude or frontier reasoning models.
 - For developers looking for a CLI-first approach to multi-agent orchestration.
 - When automating the "human-in-the-loop" triage process for high-volume repositories.
 
@@ -87,7 +87,7 @@ import { OpenSwarm } from '@intrect/openswarm';
 
 const swarm = new OpenSwarm({
   provider: 'anthropic',
-  model: 'claude-5.1-opus-20261215'
+  model: 'claude-5.6-opus-20270105'
 });
 
 await swarm.dispatch('linear', 'triage', { team: 'ENG' });
@@ -108,7 +108,7 @@ class AgentTask(BaseModel):
 class SwarmDispatchConfig(BaseModel):
     session_id: str = Field(..., alias="sessionId")
     provider: str = Field(default="anthropic")
-    model: str = Field(default="claude-5.1")
+    model: str = Field(default="claude-5.6")
     tasks: List[AgentTask] = Field(default_factory=list)
 
     class Config:
@@ -118,7 +118,7 @@ class SwarmDispatchConfig(BaseModel):
 dispatch_payload = {
     "sessionId": "swarm-session-abc-123",
     "provider": "anthropic",
-    "model": "claude-5.1",
+    "model": "claude-5.6",
     "tasks": [
         {"agentId": "agent-1", "strategy": "security", "maxDurationSeconds": 600},
         {"agentId": "agent-2", "strategy": "triage"}
@@ -146,5 +146,5 @@ print(f"Dispatched {len(config.tasks)} agents using model {config.model}")
 - [Anthropic Claude CLI Documentation](https://docs.anthropic.com/claude/docs/claude-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

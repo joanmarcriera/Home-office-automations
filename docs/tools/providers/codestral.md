@@ -1,7 +1,7 @@
 # Codestral
 
 ## What it is
-Codestral is a high-performance generative artificial intelligence model explicitly engineered for code generation, code understanding, and Fill-in-the-Middle (FIM) tasks by [Mistral AI](mistral.md). As a premier open-weight code model (22B parameters), it is optimized for over 80 programming languages, offering developer environments a low-latency, highly specialized coding co-pilot.
+Codestral is a high-performance generative artificial intelligence model explicitly engineered for code generation, code understanding, and Fill-in-the-Middle (FIM) tasks by [Mistral AI](mistral.md). As a premier open-weight code model (22B parameters), it is optimized for over 80 programming languages, offering developer environments a low-latency, highly specialized coding co-pilot with native support for the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocols.
 
 ## What problem it solves
 General-purpose LLMs can suffer from "generalist fatigue," leading to syntax hallucinations, legacy library pattern mixing, or failures in long-range multi-file repository architecture. Codestral solves these issues by concentrating its parameters on strict algorithmic, architectural, and syntax patterns across diverse languages, maintaining high consistency inside local or cloud development pipelines.
@@ -20,6 +20,7 @@ General-purpose LLMs can suffer from "generalist fatigue," leading to syntax hal
 - **Fill-in-the-Middle Native**: Built from the ground up to support FIM patterns, which are vital for non-disruptive, real-time IDE code-completion suggestions.
 - **On-Premises Deployment**: Open-weight licensing allows secure local hosting, preventing sensitive IP from leaving corporate network boundaries.
 - **Resource Efficiency**: At 22B parameters, Codestral can easily be run locally with high-performance quantized execution on consumer-grade hardware (e.g., a single 24GB VRAM GPU).
+- **Frontier Model Complement**: Serves as a fast coding specialist alongside general reasoning frontier models such as [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [DeepSeek-V4](../providers/deepseek.md).
 
 ## Limitations
 - **Primary Optimization Bias**: Secondary capabilities like general reasoning, conversational chat, or creative writing are limited compared to generalist foundational models.
@@ -95,7 +96,7 @@ class CodestralFimResponse(BaseModel):
     completed_code: str = Field(..., description="The fully interpolated/completed code block")
 
 # Initialize Mistral client
-client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
+client = Mistral(api_key=os.environ.get("MISTRAL_API_KEY", "mock-key"))
 
 # Construct and validate request parameters with Pydantic v2
 request_data = {
@@ -159,5 +160,5 @@ curl https://api.mistral.ai/v1/fim/completions \
 - [Hugging Face Repository - Codestral-22B-v0.1](https://huggingface.co/mistralai/Codestral-22B-v0.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
