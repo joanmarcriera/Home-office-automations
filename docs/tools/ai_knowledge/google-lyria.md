@@ -24,7 +24,7 @@ Traditional music generation pipelines are highly fragmented, requiring separate
 ## Strengths
 - **Cohesive Song Structure**: Excels at creating multi-minute tracks with logical verse-chorus-verse transitions, bridge build-ups, and natural fade-outs.
 - **Native SynthID Watermarking**: Built-in verification mechanisms for corporate accountability and protection.
-- **Google Ecosystem Synergy**: Native compatibility with **Gemini 4.0 Pro** audio-parsing, Google Cloud Vertex AI pipelines, and YouTube Shorts creation frameworks.
+- **Google Ecosystem Synergy**: Native compatibility with **Gemini 4.0 Ultra** audio-parsing, Google Cloud Vertex AI pipelines, and YouTube Shorts creation frameworks.
 
 ## Limitations
 - **Access Restrictions**: Direct raw model weights are heavily gated; primary access is restricted to enterprise Vertex AI partners and specific Google Labs channels.
@@ -266,5 +266,5 @@ def edit_track_infill(project_id: str, request: InfillEditRequest) -> dict:
 - [Google Cloud Vertex AI Audio Model Garden](https://cloud.google.com/vertex-ai/docs/model-garden/explore-models)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

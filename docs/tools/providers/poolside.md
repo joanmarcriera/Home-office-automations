@@ -1,7 +1,7 @@
 # Poolside AI
 
 ## What it is
-Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, Laguna S 2.1 supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek V4 and Claude 5.1/GPT-5.5/Gemini 4.0 Pro in automated code generation, complex planning, and long-context repository parsing.
+Poolside AI is an industry-leading artificial intelligence provider focused on building foundation models designed specifically for software developers and autonomous coding systems. Their flagship model series, **Laguna**, is anchored by **Laguna S 2.1** (a highly optimized 118-billion parameter Mixture-of-Experts model). Deployed with native support for FP8 and ultra-efficient NVFP4 quantization formats, Laguna S 2.1 supports an expansive context window of up to **1 million tokens**, rivaling top-tier reasoning engines like DeepSeek-V4 and Claude 5.6/GPT-5.6/Gemini 4.0 Ultra in automated code generation, complex planning, and long-context repository parsing.
 
 ## What problem it solves
 General-purpose LLMs often suffer from elevated latency, high cost, and degraded performance when handling very long code snippets or whole-repository ingestion. Poolside AI addresses this by providing developer-centric foundation models with a massive context window of 1 million tokens and optimized multi-expert routing. This enables fast, low-latency, and cost-efficient processing of massive context-rich projects directly on enterprise or consumer-grade hardware via advanced quantization configurations, integrating seamlessly with next-generation protocols like FastMCP 3.1.
@@ -32,7 +32,7 @@ General-purpose LLMs often suffer from elevated latency, high cost, and degraded
 - When running local-first developer environments on modern NVIDIA workstations where NVFP4/FP8 can be utilized for peak acceleration.
 
 ## When not to use it
-- For highly creative or non-technical copywriting, where models like Claude 5.1 are superior.
+- For highly creative or non-technical copywriting, where models like Claude 5.6 are superior.
 - On legacy hardware lacking hardware-accelerated low-bit float math (unless relying on remote cloud API hosting).
 
 ## Getting started
@@ -165,5 +165,5 @@ if __name__ == "__main__":
 - [Poolside AI releases Laguna-S-2.1 Latent Space](https://www.latent.space/p/ainews-laguna-s-21-released-cheaper)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-04
+- Last reviewed: 2027-01-07
 - Confidence: high
