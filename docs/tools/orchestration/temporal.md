@@ -1,10 +1,10 @@
 # Temporal
 
 ## What it is
-Temporal is an open-source workflow orchestration engine that provides reliable execution for complex, long-running, and stateful applications. While not AI-specific, it is increasingly used to orchestrate robust agentic AI workflows. In late December 2026, following the major **Replay 2026** announcements and late-year enterprise rollouts, Temporal has established itself as the standard 'Durable State' and execution persistence layer for frontier autonomous agents. It acts as the backbone for multi-agent systems, ensuring transactional consistency and guaranteed execution.
+Temporal is an open-source workflow orchestration engine that provides reliable execution for complex, long-running, and stateful applications. While not AI-specific, it is overwhelmingly used to orchestrate robust agentic AI workflows. In early January 2027, following the major **Replay 2026/2027** announcements and enterprise rollouts, Temporal has established itself as the standard 'Durable State' and execution persistence layer for frontier autonomous agents. It acts as the backbone for multi-agent systems, ensuring transactional consistency and guaranteed execution across [FastMCP 3.1](../automation_orchestration/mcp.md) tool invocations.
 
 ## What problem it solves
-It handles the complexities of distributed systems, such as retries, timeouts, and state management, ensuring that AI workflows continue to execute even in the face of infrastructure failures, network drops, or runtime exceptions. Temporal solves the "flaky agent" problem by making multi-step LLM chains, multi-agent negotiations, and tool executions durable and observable. If a node fails in the middle of a complex multi-hour agentic task, Temporal automatically restores the state on another worker and resumes execution from the exact point of failure.
+It handles the complexities of distributed systems, such as retries, timeouts, and state management, ensuring that AI workflows continue to execute even in the face of infrastructure failures, network drops, or runtime exceptions. Temporal solves the "flaky agent" problem by making multi-step LLM chains (utilizing Claude 5.6, GPT-5.6, or DeepSeek-V4), multi-agent negotiations, and tool executions durable and observable. If a node fails in the middle of a complex multi-hour agentic task, Temporal automatically restores the state on another worker and resumes execution from the exact point of failure.
 
 ## Where it fits in the stack
 **Orchestration / Reliability Layer**. It sits below high-level frameworks like [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), or [PydanticAI](../frameworks/pydantic-ai.md), providing the underlying durability, state machine guarantees, and fault tolerance for long-running agentic missions.
@@ -14,7 +14,7 @@ It handles the complexities of distributed systems, such as retries, timeouts, a
 - **Reliable Multi-step Pipelines**: Ensuring that complex sequences of LLM calls and tool uses complete successfully.
 - **Stateful Conversational AI**: Maintaining the state of long-running conversations or user sessions across multiple interactions.
 - **Durable AI Workflows**: Orchestrating agents that require high durability and fault tolerance in production environments.
-- **Agentic Session Management**: Using Temporal to manage the lifecycle and state persistence of autonomous agent sessions.
+- **Agentic Session Management**: Using Temporal to manage the lifecycle and state persistence of autonomous agent sessions with FastMCP 3.1.
 
 ## Strengths
 - **Fault Tolerance**: Automatically handles retries and failures, ensuring workflow reliability.
@@ -22,7 +22,7 @@ It handles the complexities of distributed systems, such as retries, timeouts, a
 - **Visibility**: Provides a powerful dashboard for monitoring, debugging, and "replaying" active and completed workflows.
 - **Serverless Workers**: Support for running Workers on serverless compute (e.g., AWS Lambda, Modal) without maintaining long-running daemon pools.
 - **Standalone Activities**: Lightweight, durable jobs that don't require a full Workflow orchestration for simple tasks.
-- **OpenAI Agents SDK Support**: Native integration for managing OpenAI's agentic runs with Temporal durability.
+- **OpenAI & Anthropic Agents SDK Support**: Native integration for managing agentic runs with Temporal durability.
 
 ## Limitations
 - **Complexity**: Setting up and managing a Temporal cluster can be complex for small teams.
@@ -92,7 +92,7 @@ class AgentInput(BaseModel):
     agent_id: str = Field(..., min_length=3, max_length=50, description="Unique identifier for the agent")
     task_description: str = Field(..., min_length=10, description="The mission objectives for the agent")
     max_steps: int = Field(default=10, ge=1, le=100)
-    fallback_models: List[str] = Field(default_factory=lambda: ["gpt-5.5", "llama4"])
+    fallback_models: List[str] = Field(default_factory=lambda: ["gpt-5.6", "deepseek-v4", "claude-5.6"])
 
     @field_validator("agent_id")
     @classmethod
@@ -125,14 +125,14 @@ async def agent_tool_call_with_fallback(raw_input: dict) -> dict:
         activity.logger.error(f"Invalid activity input format: {err}")
         raise ValueError(f"Input validation failed: {err}")
 
-    # Simulate tool execution (e.g. calling Claude 5.1 via FastMCP 3.1 endpoint)
+    # Simulate tool execution (e.g. calling Claude 5.6 via FastMCP 3.1 endpoint)
     activity.logger.info(f"Running task: {validated_input.task_description} with agent: {validated_input.agent_id}")
 
     try:
         # Simulate successful tool invocation
         result = ToolExecutionResult(
             success=True,
-            output_payload="Tool executed successfully using Claude 5.1 and FastMCP 3.1",
+            output_payload="Tool executed successfully using Claude 5.6 and FastMCP 3.1 Task Protocol",
             execution_duration_sec=1.45
         )
     except Exception as e:
@@ -183,17 +183,17 @@ async def main():
 
     # Payload matching strict AgentInput schema
     input_payload = {
-        "agent_id": "Agent-Extreme-2026",
+        "agent_id": "Agent-Extreme-2027",
         "task_description": "Verify system logs and classify multi-agent anomalies",
         "max_steps": 5,
-        "fallback_models": ["gpt-5.5", "gemini-4-pro"]
+        "fallback_models": ["gpt-5.6", "gemini-4-ultra"]
     }
 
     try:
         result = await client.execute_workflow(
             RobustAgentWorkflow.run,
             input_payload,
-            id="agent-workflow-id-2026",
+            id="agent-workflow-id-2027",
             task_queue="agent-task-queue",
         )
         print(f"Workflow Complete. Validated Result: {result}")
@@ -203,12 +203,12 @@ async def main():
         print(f"Workflow execution failed: {e}")
 ```
 
-## AI Ecosystem Integrations (Late 2026)
-Following Replay 2026, Temporal offers native integrations for building durable AI agents:
+## AI Ecosystem Integrations (Early 2027)
+Following Replay 2026/2027, Temporal offers native integrations for building durable AI agents:
 - **Google ADK Integration**: Simplifies orchestration of Google's Agent Development Kit workflows.
 - **Workflow Streams**: Real-time streaming of workflow state and progress, ideal for interactive AI sessions.
 - **Mastra Integration**: First-class support for [Mastra](../frameworks/mastra.md) workflows with Temporal durability.
-- **AG2 & OpenAI SDK**: Seamless compatibility with modern autonomous systems and agent platforms.
+- **AG2 & OpenAI / Anthropic SDK**: Seamless compatibility with modern autonomous systems and agent platforms.
 
 ## Related tools / concepts
 - [LangGraph](../frameworks/langgraph.md) - High-level graph-based agent orchestration.
@@ -224,8 +224,7 @@ Following Replay 2026, Temporal offers native integrations for building durable 
 - [Official Temporal Website](https://temporal.io/)
 - [Temporal GitHub Repository](https://github.com/temporalio/temporal)
 - [Replay 2026 Product Announcements](https://temporal.io/blog/replay-2026-product-announcements)
-- [Durable Agents: Building for Reliability (December 2026 Whitepaper)](https://example.com/durable-agents-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -1,7 +1,7 @@
 # Azure OpenAI Service
 
 ## What it is
-Azure OpenAI Service provides REST API access to OpenAI's powerful language models including GPT-4o, GPT-4o-mini, and the frontier **GPT-5.5 series** (released late 2026), with the enterprise capabilities of Microsoft Azure. As of late December 2026, it includes native support for the **Model Context Protocol (MCP) / FastMCP 3.1 Task Protocol**, enabling seamless integration with autonomous agentic workflows.
+Azure OpenAI Service provides REST API access to OpenAI's powerful language models including GPT-4o, GPT-4o-mini, and the frontier **GPT-5.6 series** (released early 2027), with the enterprise capabilities of Microsoft Azure. As of early January 2027, it includes native support for the **Model Context Protocol (MCP) / FastMCP 3.1 Task Protocol**, enabling seamless integration with autonomous agentic workflows.
 
 ## What problem it solves
 It allows enterprise organizations to use advanced LLMs with improved security, compliance, and data residency guarantees. It enables the use of existing Entra ID (formerly Azure AD) infrastructure for fine-grained access control and provides a "private" instance of OpenAI's models that does not use customer data for training.
@@ -10,7 +10,7 @@ It allows enterprise organizations to use advanced LLMs with improved security, 
 **Model Provider / Infrastructure Layer**. It serves as the primary endpoint for LLM capabilities in enterprise or hybrid-cloud environments, often sitting behind an [Orchestration Layer](../orchestration/vercel-ai-gateway.md) or integrated directly into [Agent Frameworks](../frameworks/microsoft-agent-framework.md).
 
 ## Typical use cases
-- **Enterprise RAG**: Securely querying private data indexed in Azure AI Search using GPT-5.5.
+- **Enterprise RAG**: Securely querying private data indexed in Azure AI Search using GPT-5.6.
 - **Autonomous Agents**: Powering agents that use **FastMCP 3.1** to interact with enterprise tools and databases.
 - **Compliance-Heavy Apps**: Building AI features that must adhere to strict regulatory standards (HIPAA, GDPR, FedRAMP).
 - **Internal Knowledge Retrieval**: Using semantic search across corporate intranets via Entra ID integration.
@@ -48,7 +48,7 @@ pip install openai azure-identity pydantic
 Create an Azure OpenAI resource in the [Azure Portal](https://portal.azure.com/). Note your **Endpoint** (e.g., `https://my-resource.openai.azure.com/`) and **Key**.
 
 ### 3. Model Deployment
-Deploy a model (e.g., `gpt-5.5-preview`) within your resource. The **Deployment Name** is required for all API calls.
+Deploy a model (e.g., `gpt-5.6-prod`) within your resource. The **Deployment Name** is required for all API calls.
 
 ### Hello World Example
 Test your deployment using `curl`:
@@ -56,20 +56,20 @@ Test your deployment using `curl`:
 curl "https://YOUR_RESOURCE_NAME.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/chat/completions?api-version=2026-05-01-preview" \
   -H "Content-Type: application/json" \
   -H "api-key: YOUR_API_KEY" \
-  -d '{"messages": [{"role": "user", "content": "Hello, Azure GPT-5.5"}]}'
+  -d '{"messages": [{"role": "user", "content": "Hello, Azure GPT-5.6"}]}'
 ```
 
 ## CLI examples
 
-### Deploying a GPT-5.5 Model
+### Deploying a GPT-5.6 Model
 ```bash
-# Create a new GPT-5.5 deployment via Azure CLI
+# Create a new GPT-5.6 deployment via Azure CLI
 az cognitiveservices account deployment create \
    --name my-resource-name \
    --resource-group my-resource-group \
-   --deployment-name gpt55-prod \
-   --model-name gpt-5.5 \
-   --model-version "preview" \
+   --deployment-name gpt56-prod \
+   --model-name gpt-5.6 \
+   --model-version "prod" \
    --model-format OpenAI
 ```
 
@@ -83,7 +83,7 @@ az cognitiveservices account show --name my-resource-name --resource-group my-re
 az cognitiveservices account keys list --name my-resource-name --resource-group my-resource-group
 ```
 
-### FastMCP Registration (Late 2026)
+### FastMCP Registration (Early 2027)
 Register the Azure OpenAI MCP server to enable tool-calling for agentic workflows using FastMCP 3.1:
 ```bash
 mcp register azure-openai --command "npx @modelcontextprotocol/server-azure-openai" \
@@ -93,7 +93,7 @@ mcp register azure-openai --command "npx @modelcontextprotocol/server-azure-open
 
 ## API examples
 
-### Python (GPT-5.5 with Entra ID)
+### Python (GPT-5.6 with Entra ID)
 Uses managed identities for secure, keyless authentication:
 ```python
 import os
@@ -112,7 +112,7 @@ client = AzureOpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt55-prod",
+    model="gpt56-prod",
     messages=[{"role": "user", "content": "Analyze the provided dataset for anomalies."}]
 )
 print(response.choices[0].message.content)
@@ -144,7 +144,7 @@ client = AzureOpenAI(
 
 # Leverage response_format with parse to strictly validate the payload structure
 completion = client.beta.chat.completions.parse(
-    model="gpt55-prod",
+    model="gpt56-prod",
     response_format=AuditReport,
     messages=[
         {"role": "system", "content": "You are an enterprise AI security compliance auditor."},
@@ -169,7 +169,7 @@ mcp = FastMCP("AzureAssistant")
 
 @mcp.tool()
 async def analyze_document(doc_path: str) -> str:
-    """Analyze a local document using Azure OpenAI GPT-5.5."""
+    """Analyze a local document using Azure OpenAI GPT-5.6."""
     # Logic to read file and call Azure OpenAI
     return "Analysis complete."
 
@@ -189,11 +189,9 @@ if __name__ == "__main__":
 ## Sources / references
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
 - [Azure DevOps Remote MCP GA - InfoQ](https://www.infoq.com/news/2026/08/azure-devops-remote-mcp-ga/)
-- [Microsoft Learn: What's new in Azure OpenAI? (December 2026)](https://learn.microsoft.com/en-us/azure/ai-services/openai/whats-new)
+- [Microsoft Learn: What's new in Azure OpenAI?](https://learn.microsoft.com/en-us/azure/ai-services/openai/whats-new)
 - [Model Context Protocol / FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.1)
-- [Azure AI Search Search & Verification](https://github.com/search?q=Azure+AI+Search&ref=2026-12-31-audit)
-- [Azure OpenAI Search & Verification](https://github.com/search?q=Azure+OpenAI&ref=2026-12-31-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

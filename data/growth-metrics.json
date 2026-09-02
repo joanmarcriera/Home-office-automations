@@ -36,11 +36,11 @@
     "docs/tools/ai_knowledge/big-agi.md",
     "docs/tools/infrastructure/lm-studio.md",
     "docs/tools/ai_knowledge/teamout.md",
-    "docs/tools/development_ops/openswarm.md",
     "docs/tools/benchmarking/gsm8k.md",
     "docs/tools/intake_storage/verba.md",
     "docs/tools/infrastructure/valkey.md",
-    "docs/tools/calendar_tasks/reclaim.md"
+    "docs/tools/calendar_tasks/reclaim.md",
+    "docs/tools/ai_knowledge/openrouter.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
