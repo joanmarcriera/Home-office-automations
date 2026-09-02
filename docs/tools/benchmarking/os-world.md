@@ -1,19 +1,19 @@
 # OSWorld
 
 ## What it is
-OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. It is the premier environment for testing 'Computer Use' and OS-level control capabilities of frontier models.
+OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. As of early 2027, OSWorld is the premier environment for testing 'Computer Use', FastMCP 3.1 OS-level tool execution, and desktop control capabilities of frontier models.
 
 ## What problem it solves
-Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise.
+Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise and FastMCP 3.1 Task Protocol multi-step execution.
 
 ## Where it fits in the stack
-**Eval / Environment**. It provides the benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
+**Eval / Environment**. It provides benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
 
 ## Typical use cases
 - **Desktop Agent Evaluation**: Benchmarking autonomous agents interacting with native OS elements (e.g., system menus, file managers, desktop configurations).
 - **Multi-App GUI Workflows**: Testing an agent's ability to orchestrate tasks across applications, such as copying data from a spreadsheet, querying a web browser, and generating a local markdown report.
 - **Multimodal Visual Grounding**: Evaluating the ability of Vision-Language Models (VLMs) to translate pixel-level GUI screenshots into accurate click, drag, type, and scroll coordinates.
-- **Computer Use Research**: Training and assessing agents (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) on raw keyboard and mouse control without custom tool-specific APIs.
+- **Computer Use Research**: Training and assessing agents (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL) on raw keyboard and mouse control without custom tool-specific APIs.
 
 ## Strengths
 - **Real OS Deployments**: Integrates with actual operating systems (Ubuntu, Windows, macOS) hosted inside secure virtual machines or containers.
@@ -40,7 +40,7 @@ Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OS
 OSWorld is run by cloning its repository, configuring the hypervisor backend (Docker, VMware, or VirtualBox), and loading the target OS virtual machine images.
 
 ### 1. Installation
-Clone the repository and install the standard dependencies:
+Clone the repository and install standard dependencies:
 ```bash
 git clone https://github.com/xlang-ai/OSWorld
 cd OSWorld
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. Configure VM/Container Backend
-Ensure that Docker is running (for Ubuntu-only tasks) or that VMware/VirtualBox is configured on your host. Download the required virtual machine snapshots as instructed in the OSWorld documentation.
+Ensure Docker is running (for Ubuntu-only tasks) or VMware/VirtualBox is configured on your host. Download required virtual machine snapshots as instructed in OSWorld documentation.
 
 ## CLI examples
 
@@ -57,7 +57,7 @@ Evaluate an agent on a specific Docker-based Ubuntu task using a frontier model:
 ```bash
 python run_task.py \
     --task_id "ubuntu-123" \
-    --model "anthropic/claude-5.1" \
+    --model "anthropic/claude-5.6" \
     --env_type "docker"
 ```
 
@@ -66,7 +66,7 @@ Execute a full evaluation suite against a defined configuration file using a GPT
 ```bash
 python run_benchmark.py \
     --config configs/ubuntu_all.json \
-    --model "openai/gpt-5.5"
+    --model "openai/gpt-5.6"
 ```
 
 ### Recording Agent Trajectories
@@ -76,23 +76,29 @@ python run_task.py \
     --task_id "windows-456" \
     --record_video \
     --output_dir ./recordings/ \
-    --model "meta-llama/llama-4-70b-instruct"
+    --model "qwen/qwen-3.6-vl"
 ```
 
 ## API examples
 
-### Programmatic Environment Setup with Pydantic v2 Validation
+### Programmatic Environment Setup with FastMCP 3.1 & Pydantic v2 Validation
 To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models:
 
 ```python
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Optional
 from pydantic import BaseModel, Field, ValidationError
 from osworld.env import OSWorldEnv
 
-# Define rigid Pydantic v2 models for computer-use operations
+# Define rigid Pydantic v2 models for computer-use operations and FastMCP 3.1 Task Protocol
+class FastMCPTaskState(BaseModel):
+    task_id: str
+    protocol_version: str = Field("3.1", pattern=r"^3\.1$")
+    current_step: int = Field(0, ge=0)
+
 class OSWorldObservation(BaseModel):
     screenshot: Any = Field(..., description="VLM-compatible pixel buffer, base64 data, or image path")
     instruction: str = Field(..., description="Task objective or user prompt to achieve")
+    task_state: Optional[FastMCPTaskState] = None
 
 class OSWorldAction(BaseModel):
     action_type: str = Field(..., description="The primitive action type (e.g., click, key_type, scroll)")
@@ -105,7 +111,7 @@ env = OSWorldEnv(os_type="ubuntu", backend="docker")
 obs = env.reset(task_id="ubuntu-tasks-1")
 
 try:
-    # Validate the environment observations against our Pydantic v2 schema
+    # Validate environment observations against our Pydantic v2 schema
     validated_obs = OSWorldObservation.model_validate(obs)
     print(f"Validated task instruction: {validated_obs.instruction}")
 
@@ -116,7 +122,7 @@ try:
     }
     validated_action = OSWorldAction.model_validate(action_payload)
 
-    # Map the validated parameters back to standard environment action format
+    # Map validated parameters back to standard environment action format
     env_action = f"mouse_click({validated_action.parameters['x']}, {validated_action.parameters['y']})"
     next_obs, reward, done, info = env.step(env_action)
 
@@ -130,7 +136,7 @@ OSWorld executes target verification scripts inside the guest OS to determine ta
 def verify_task_completion():
     import os
     # Success condition: User must have downloaded the correct file and moved it
-    target_path = "/home/user/Desktop/invoice_july_2026.csv"
+    target_path = "/home/user/Desktop/invoice_jan_2027.csv"
     if os.path.exists(target_path):
         with open(target_path, "r") as f:
             if "total_due,4500.0" in f.read():
@@ -160,5 +166,5 @@ def verify_task_completion():
 - [OSWorld GitHub Repository](https://github.com/xlang-ai/OSWorld)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

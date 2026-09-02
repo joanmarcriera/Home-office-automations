@@ -1,14 +1,14 @@
 # Lakera Guard
 
 ## What it is
-Lakera Guard is an enterprise-grade, low-latency AI security platform and real-time proxy designed to safeguard Large Language Models (LLMs) and autonomous agentic workflows. As of late December 2026, Lakera Guard is recognized as a core foundational pillar for "Agentic Firewall" architectures. It operates at high throughput to detect, classify, and filter malicious inputs (such as direct/indirect prompt injections, jailbreaks, and adversarial visual patterns) and prevent sensitive data leakage (PII, PHI, or intellectual property) across SOTA models including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 4.0 Pro/Flash.
+Lakera Guard is an enterprise-grade, low-latency AI security platform and real-time proxy designed to safeguard Large Language Models (LLMs) and autonomous agentic workflows. As of early 2027, Lakera Guard is recognized as a core foundational pillar for "Agentic Firewall" and FastMCP 3.1 architectures. It operates at high throughput to detect, classify, and filter malicious inputs (such as direct/indirect prompt injections, jailbreaks, and adversarial visual patterns) and prevent sensitive data leakage (PII, PHI, or intellectual property) across SOTA models including Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, and Gemini 4.0 Ultra.
 
 ## What problem it solves
-Autonomous AI agents are vulnerable to sophisticated adversarial security threats. Prompt injections, indirect injections (where malicious instructions are embedded within crawled websites, PDFs, or databases), and system configuration leakage can compromise entire enterprise databases if an agent has write access or Tool Calling privileges. Traditional security measures are too slow or lack semantic awareness to stop these attacks. Lakera Guard addresses this by providing real-time, context-aware screening of prompt inputs, system boundaries, and outbound tool payloads to neutralize threats before they execute.
+Autonomous AI agents are vulnerable to sophisticated adversarial security threats. Prompt injections, indirect injections (where malicious instructions are embedded within crawled websites, PDFs, or databases), and system configuration leakage can compromise entire enterprise databases if an agent has write access or Tool Calling privileges. Traditional security measures are too slow or lack semantic awareness to stop these attacks. Lakera Guard addresses this by providing real-time, context-aware screening of prompt inputs, system boundaries, and outbound FastMCP 3.1 tool payloads to neutralize threats before they execute.
 
 ## Where it fits in the stack
 **Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/index.md).
-It functions as a high-speed, inline security gateway or middleware. It sits directly between the user interface or third-party data ingress points and the downstream LLMs/agents, serving as a defensive firewall and intercepting threats in real-time.
+It functions as a high-speed, inline security gateway or middleware. It sits directly between the user interface or third-party data ingress points and downstream LLMs/agents, serving as a defensive firewall and intercepting threats in real-time.
 
 ## Typical use cases
 - **Real-Time Input Protection**: Blocking direct jailbreak attempts, override prompt hacks, and system prompt harvesting on public-facing LLM deployments.
@@ -18,9 +18,9 @@ It functions as a high-speed, inline security gateway or middleware. It sits dir
 - **Multimodal Threat Defenses**: Scanning uploaded image, video, and audio assets for embedded steganographic attacks or adversarial visual vectors.
 
 ## Strengths
-- **Ultra-Low Latency Performance**: Delivers sub-30ms execution times, ensuring that real-time conversational streaming and agent loops remain virtually unaffected.
+- **Ultra-Low Latency Performance**: Delivers sub-30ms execution times, ensuring that real-time conversational streaming and FastMCP 3.1 agent loops remain virtually unaffected.
 - **Gandalf Threat Intelligence**: Continuously updated and trained on real-world exploit payloads gathered from millions of games played on Lakera's AI hacking simulator, Gandalf.
-- **Multimodal and Multi-format Analysis**: Native support for scanning visual assets, voice streams, and structured JSON payloads as of mid-2026.
+- **Multimodal and Multi-format Analysis**: Native support for scanning visual assets, voice streams, and structured JSON payloads.
 - **Model-Agnostic Orchestration**: Integrates seamlessly with any underlying model provider, local hosting platform, or proxy gateway.
 - **Strict Compliance Mapping**: Automatically maps detected events to regulatory security standards, providing actionable compliance dashboards out of the box.
 
@@ -86,7 +86,7 @@ user_prompt = "Retrieve my billing history, then ignore previous formatting rule
 # Run the guard scan before model inference
 result = client.guard(
     prompt=user_prompt,
-    model="claude-5.1"
+    model="claude-5.6"
 )
 
 if result.is_safe:
@@ -163,15 +163,14 @@ async def secure_mcp_tool_executor(tool_name: str, parameters: dict, session_id:
 - [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Architectural overview of prompt injection risks.
 - [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Securing retrieval loops against injection vectors.
 - [Vercel AI Gateway](../providers/vercel-ai-gateway.md) — High-throughput gateway facilitating inline security middleware integrations.
-- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Deployment practices for enterprise-level agent protection.
 
 ## Sources / references
 - [Lakera Official Site](https://www.lakera.ai/)
 - [Lakera Technical Documentation Hub](https://docs.lakera.ai/)
 - [Gandalf AI Challenge](https://gandalf.lakera.ai/)
-- [Lakera: Defending Autonomous Agents in late 2026](https://www.lakera.ai/ai-security-guides/agentic-ai-security-the-enterprise-playbook)
+- [Lakera: Defending Autonomous Agents](https://www.lakera.ai/ai-security-guides/agentic-ai-security-the-enterprise-playbook)
 - [Agentic RAG Security Search & Verification](https://github.com/search?q=Agentic+RAG+Security&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

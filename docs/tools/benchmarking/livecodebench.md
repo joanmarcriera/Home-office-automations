@@ -1,7 +1,7 @@
 # LiveCodeBench
 
 ## What it is
-LiveCodeBench is a holistic, contamination-free benchmark for evaluating Large Language Models (LLMs) on complex coding tasks. It continuously collects new problems from premier competitive programming platforms (LeetCode, AtCoder, Codeforces) to ensure model evaluations are conducted on datasets completely absent from their pre-training windows.
+LiveCodeBench is a holistic, contamination-free benchmark for evaluating Large Language Models (LLMs) on complex coding tasks. It continuously collects new problems from premier competitive programming platforms (LeetCode, AtCoder, Codeforces) to ensure model evaluations are conducted on datasets completely absent from their pre-training windows. As of early 2027, LiveCodeBench incorporates **FastMCP 3.1 Task Protocol** integration for agentic multi-turn debugging and sandboxed execution validation.
 
 ## What problem it solves
 Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data contamination, as their problem definitions and test suites are widely indexed in pre-training corpora. LiveCodeBench provides a dynamic, time-indexed evaluation framework that assesses a model's true generalization, algorithmic reasoning, and real-time problem-solving abilities rather than its capacity for memory recall.
@@ -10,10 +10,10 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6).
+- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Llama 4, Gemma 4, Qwen 3.6 VL).
 - **Contamination Diagnostics**: Identifying whether high performance on legacy benchmarks is inflated by pre-training memorization.
 - **Holistic Code Assessment**: Evaluating models across three distinct scenarios: code generation, code execution reasoning (predicting program output), and automated debugging/self-repair.
-- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (MCP 3.1) execution servers.
+- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using FastMCP 3.1 execution servers.
 
 ## Strengths
 - **Contamination-Free**: Continuous problem ingest from active competitive programming contests released post-2023.
@@ -60,7 +60,7 @@ export OPENAI_API_KEY="your-key"
 Evaluate code generation performance on problems released after a specific date slice using a frontier model:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "anthropic/claude-5.1" \
+    --model "anthropic/claude-5.6" \
     --scenario "codegeneration" \
     --start_date "2026-01-01" \
     --end_date "2026-12-31"
@@ -70,7 +70,7 @@ python -m lcb_runner.evaluation.main \
 Measure the model's ability to predict the output of Python code snippets:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "openai/gpt-5.5" \
+    --model "openai/gpt-5.6" \
     --scenario "execution" \
     --difficulty "Medium"
 ```
@@ -79,7 +79,7 @@ python -m lcb_runner.evaluation.main \
 Execute code evaluations in a secure dockerized container to prevent untrusted LLM code execution on host machines:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "meta-llama/llama-4-70b-instruct" \
+    --model "deepseek/deepseek-v4" \
     --scenario "codegeneration" \
     --use_docker \
     --difficulty "Hard"
@@ -105,10 +105,14 @@ A typical problem instance returned by the LCB dataset loader contains comprehen
 ```
 
 ### Programmatic Ingestion and Run Hook
-Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows:
+Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows using strict **Pydantic v2** validation models:
 ```python
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List, Dict, Optional
+
+class FastMCPExecOptions(BaseModel):
+    sandbox_mode: str = Field("docker", pattern=r"^(docker|podman|mcp_server)$")
+    timeout_seconds: int = Field(30, gt=0)
 
 class TestSuite(BaseModel):
     inputs: List[str] = Field(default_factory=list)
@@ -119,6 +123,7 @@ class LCBProblem(BaseModel):
     title: str
     difficulty: str
     test_cases: TestSuite = Field(..., alias="testCases")
+    mcp_exec: Optional[FastMCPExecOptions] = None
 
     class Config:
         populate_by_name = True
@@ -131,6 +136,10 @@ raw_problem = {
     "testCases": {
         "inputs": ["[[1, 2], [3, 4]]"],
         "outputs": ["[7]"]
+    },
+    "mcp_exec": {
+        "sandbox_mode": "docker",
+        "timeout_seconds": 30
     }
 }
 
@@ -159,5 +168,5 @@ print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
 - [LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code (arXiv)](https://arxiv.org/abs/2403.07974)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
