@@ -3,7 +3,7 @@
 ## What it is
 The GLM (General Language Model) family is a series of highly powerful, open-weight and proprietary large language models developed by Zhipu AI and Tsinghua University. Utilizing a unique autoregressive blank-filling pre-training objective, the GLM family specializes in advanced bilingual (English and Chinese) reasoning, multi-turn agentic workflows, complex mathematical deduction, and high-quality code generation.
 
-In late December 2026, the series is led by **GLM-5.3**, a state-of-the-art model designed for high-concurrency enterprise workloads and highly precise tool orchestration. GLM-5.3 features highly optimized Mixture-of-Experts (MoE) routing, native support for multi-modal context understanding, and an extensive context window that makes it a formidable open-weights option alongside [Qwen](../ai_knowledge/qwen.md) and [DeepSeek](deepseek.md).
+In early January 2027, the series is led by **GLM-5.3**, a state-of-the-art model designed for high-concurrency enterprise workloads and highly precise tool orchestration natively compliant with **FastMCP 3.1 Task Protocol**. GLM-5.3 features highly optimized Mixture-of-Experts (MoE) routing, native support for multi-modal context understanding (working seamlessly alongside Claude 5.6 and GPT-5.6 pipelines), and an extensive context window that makes it a formidable open-weights option alongside [Qwen](../ai_knowledge/qwen.md) and [DeepSeek](deepseek.md).
 
 ## What problem it solves
 It solves the latency, pricing, and compliance challenges associated with closed-source, single-region frontier API providers. By offering highly capable, open-weight checkpoints (such as ChatGLM and GLM-5.3 variants) that can be hosted entirely on-premises, it allows global enterprises to deploy cutting-edge conversational reasoning pipelines while preserving full data sovereignty. Its bilingual training natively addresses linguistic barriers that often degrade reasoning quality in English-centric LLMs.
@@ -187,5 +187,5 @@ except Exception as e:
 - [GLM-5.3 on Hugging Face](https://huggingface.co/zai-org/GLM-5.3)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

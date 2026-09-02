@@ -1,7 +1,7 @@
 # Tavily
 
 ## What it is
-Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of late December 2026, it operates as a core component of the **Nebius Group** AI cloud ecosystem. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web, optimized for RAG (Retrieval-Augmented Generation) and agentic research.
+Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of early January 2027, it operates as a core component of the **Nebius Group** AI cloud ecosystem. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web, optimized for RAG (Retrieval-Augmented Generation) and agentic research.
 
 ## What problem it solves
 It gives agents a reliable way to search the web and retrieve grounded results without the "glue code" burden of generic search scraping or parsing raw HTML. Tavily handles JavaScript rendering, proxy rotation, and content deduplication automatically, delivering context-rich, citation-ready results with minimal latency.
@@ -20,7 +20,7 @@ Tavily sits in the **Providers / Search** layer. It acts as the primary "Agentic
 - **RAG-First Features**: Specialized endpoints like `get_search_context` return a single combined string of relevant context to minimize token usage.
 - **Nebius Cloud Scale**: Deep integration with Nebius infrastructure ensures high availability and enterprise-grade performance.
 - **Built-in Research Logic**: The `/research` endpoint can generate comprehensive research reports across multiple sources in a single call.
-- **Native MCP 3.1 Support**: Provides an official Model Context Protocol (MCP 3.1) server for seamless integration with Claude Desktop, GPT-5.5 tools, and other agentic workbenches.
+- **Native FastMCP 3.1 Task Protocol Support**: Provides an official Model Context Protocol (FastMCP 3.1) server for seamless integration with Claude 5.6, GPT-5.6 tools, and other agentic workbenches.
 
 ## Limitations
 - **API Latency**: Advanced search depth (which uses multiple scrapers) can introduce 1-3 seconds of latency.
@@ -51,9 +51,9 @@ npm install @tavily/core
 from tavily import TavilyClient
 
 tavily = TavilyClient(api_key="tvly-YOUR_API_KEY")
-# Late December 2026 update supporting Claude 5.1 and GPT-5.5 optimization parameters
+# Early January 2027 update supporting Claude 5.6 and GPT-5.6 optimization parameters
 response = tavily.search(
-    query="Current status of the Model Context Protocol MCP 3.1",
+    query="Current status of the Model Context Protocol FastMCP 3.1 Task Protocol",
     search_depth="advanced",
     include_answer=True,
     max_results=5
@@ -68,10 +68,10 @@ Tavily provides a CLI for quick research and configuration.
 
 ```bash
 # Research a topic and output a report
-tavily research "Impact of GPT-5.5 on enterprise automation" --format markdown
+tavily research "Impact of GPT-5.6 on enterprise automation" --format markdown
 
 # Search and get context-only output
-tavily search "Nebius Tavily integration 2026" --context-only
+tavily search "Nebius Tavily integration 2027" --context-only
 
 # Verify API key and usage
 tavily usage
@@ -105,7 +105,7 @@ def search_web_and_validate(query: str, api_key: str) -> Optional[TavilySearchRe
     client = TavilyClient(api_key=api_key)
 
     try:
-        # Perform advanced search Optimized for Claude 5.1 & GPT-5.5
+        # Perform advanced search Optimized for Claude 5.6 & GPT-5.6
         raw_response = client.search(
             query=query,
             search_depth="advanced",
@@ -139,8 +139,8 @@ if __name__ == "__main__":
             print(f"- {res.title} ({res.url})")
 ```
 
-### MCP 3.1 Configuration (`claude_desktop_config.json`)
-The Model Context Protocol (MCP 3.1) setup enables seamless tool schema binding:
+### FastMCP 3.1 Configuration (`claude_desktop_config.json`)
+The Model Context Protocol (FastMCP 3.1) setup enables seamless tool schema binding:
 ```json
 {
   "mcpServers": {
@@ -169,8 +169,8 @@ The Model Context Protocol (MCP 3.1) setup enables seamless tool schema binding:
 - [Official Website](https://tavily.com/)
 - [Tavily Documentation](https://docs.tavily.com/)
 - [Nebius Acquisition Announcement](https://nebius.com/news/tavily-acquisition)
-- [Tavily v3.1 Release Notes (August 2026)](https://docs.tavily.com/release-notes/v3)
+- [Tavily v3.1 Release Notes](https://docs.tavily.com/release-notes/v3)
 
 ## Contribution Metadata
+- Last reviewed: 2027-01-07
 - Confidence: high
-- Last reviewed: 2026-12-31
