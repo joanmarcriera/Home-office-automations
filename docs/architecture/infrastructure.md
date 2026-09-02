@@ -15,7 +15,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 ## Typical use cases
 
 - **Centralized Data Lake**: Storing all family documents, media, and backups in a high-availability ZFS pool.
-- **Local AI Hosting**: Running [Claude 5.1](../tools/ai_knowledge/claude.md) (via local hooks) and [GPT-5.5](../tools/ai_knowledge/openai.md) reasoning loops on local GPU/CPU hardware.
+- **Local AI Hosting**: Running [Claude 5.6](../tools/ai_knowledge/claude.md) (via local hooks), [GPT-5.6](../tools/ai_knowledge/openai.md), Gemini 4.0 Ultra, and DeepSeek-V4 reasoning loops on local GPU/CPU hardware.
 - **Service Orchestration**: Deploying and managing a suite of interrelated tools (n8n, Paperless, Nextcloud) as a cohesive unit.
 - **Secure Remote Access**: Connecting to the home lab via [Tailscale](../services/tailscale.md) without exposing ports to the open internet.
 
@@ -24,7 +24,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 - **Data Integrity**: ZFS provides snapshots, replication, and self-healing to protect against data corruption.
 - **Scalability**: EKS Auto Mode and Karpenter allow the cluster to scale resources dynamically based on workload demand.
 - **Privacy**: All processing and storage happen locally, ensuring sensitive family data remains private.
-- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 Pro) load in seconds.
+- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4, Gemini 4.0 Ultra) load in seconds.
 
 ## Limitations
 
@@ -108,7 +108,7 @@ To allow automated agents to scale and provision services programmatically, the 
     "parameters": {
       "pool_name": "gpu-pool",
       "desired_replicas": 3,
-      "scale_reason": "High demand from Qwen 3.8 72B local inference tasks"
+      "scale_reason": "High demand from Qwen 3.6 VL and DeepSeek-V4 local inference tasks"
     },
     "actions": [
       {
@@ -194,7 +194,7 @@ if __name__ == "__main__":
             "parameters": {
                 "pool_name": "gpu-pool",
                 "desired_replicas": 3,
-                "scale_reason": "High demand from Qwen 3.8 72B local inference tasks"
+                "scale_reason": "High demand from Qwen 3.6 VL and DeepSeek-V4 local inference tasks"
             },
             "actions": [
                 {
@@ -246,5 +246,5 @@ if __name__ == "__main__":
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

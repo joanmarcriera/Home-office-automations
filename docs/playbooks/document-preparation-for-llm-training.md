@@ -2,7 +2,7 @@
 
 ## What it is
 
-This playbook defines a repeatable architectural process for preparing heterogeneous business documents (`docx`, `pdf`, `pptx`, spreadsheets) for use in LLM fine-tuning or retrieval-augmented generation (RAG) pipelines. It focuses on normalization, metadata preservation, and selective consolidation to create a safe and consistent training corpus in late December 2026 / early January 2027.
+This playbook defines a repeatable architectural process for preparing heterogeneous business documents (`docx`, `pdf`, `pptx`, spreadsheets) for use in LLM fine-tuning or retrieval-augmented generation (RAG) pipelines. It focuses on normalization, metadata preservation, and selective consolidation to create a safe and consistent training corpus under early January 2027 SOTA standards.
 
 ## What problem it solves
 
@@ -17,8 +17,8 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **Corpus Construction**: Building a supervised fine-tuning dataset from existing office files.
 - **RAG Pre-processing**: Normalizing a fragmented knowledge base into Markdown for high-fidelity retrieval.
 - **Data Auditing**: Cleaning and deduplicating an archive of board packs and policy manuals.
-- **Synthetic Data Generation**: Using GPT-5.5 to generate high-quality training pairs from normalized document text.
-- **High-Fidelity Extraction**: Using Claude 5.1 for section-aware parsing of complex layout PDFs.
+- **Synthetic Data Generation**: Using GPT-5.6 or Gemini 4.0 Ultra to generate high-quality training pairs from normalized document text.
+- **High-Fidelity Extraction**: Using Claude 5.6 or DeepSeek-V4 for section-aware parsing of complex layout PDFs.
 
 ## Strengths
 
@@ -58,8 +58,8 @@ flowchart TD
     C --> D
     D -- Apache Tika / Docling FastMCP --> E[Markdown Normalization]
     E --> F[Manifest Generation JSON]
-    F --> G[Semantic Deduplication / GPT-5.5]
-    G --> H[Semantic Merging / Claude 5.1]
+    F --> G[Semantic Deduplication / GPT-5.6]
+    G --> H[Semantic Merging / Claude 5.6]
     H --> I[Final Training Corpus]
 ```
 
@@ -67,7 +67,7 @@ flowchart TD
 2. **Run OCR**: Use [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) on any scanned PDFs.
 3. **Extract and Normalize**: Use [Apache Tika](../services/tika.md) or [Docling MCP](../tools/process_understanding/docling-mcp.md) to convert files to Markdown.
 4. **Generate Manifests**: Create a JSON sidecar for every file capturing source provenance and checksums.
-5. **Deduplicate**: Use GPT-5.5 to identify and remove repeated template noise (headers, footers) before merging related documents.
+5. **Deduplicate**: Use GPT-5.6 to identify and remove repeated template noise (headers, footers) before merging related documents.
 
 ## CLI examples
 
@@ -146,5 +146,5 @@ Standardized metadata sidecar for every ingested document, adhering to FastMCP 3
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-04
+- Last reviewed: 2027-01-07
 - Confidence: high
