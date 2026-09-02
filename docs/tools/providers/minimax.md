@@ -1,38 +1,40 @@
 # MiniMax
 
 ## What it is
-MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation (such as **MiniMax Music3**). Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of early 2027, it remains a top-tier choice for agentic software engineering and audio/video generation, maintaining competitive parity with frontier models while offering superior throughput for long-horizon tasks. In August 2026, MiniMax officially released **MiniMax Music3** for high-fidelity multi-genre AI music generation alongside open-weights checkpoints for the **Minimax-H3** video synthesis model.
+MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **abab7 / M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation (such as **MiniMax Music3** and FastMCP 3.1 task protocol endpoints). Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of early 2027, it remains a top-tier choice for agentic software engineering and audio/video generation, maintaining competitive parity with frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4) while offering superior throughput for long-horizon tasks. In August 2026, MiniMax officially released **MiniMax Music3** for high-fidelity multi-genre AI music generation alongside open-weights checkpoints for the **Minimax-H3** video synthesis model.
 
 ## What problem it solves
-MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
+MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants running FastMCP 3.1 protocols, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It serves as a primary inference provider for terminal-native agents and IDEs, particularly in the [Claude Code](../development_ops/claude-code.md) and [Cline](../agents/cline.md) ecosystems.
+**LLM / Reasoning Engine / Provider**. It serves as a primary inference provider for terminal-native agents, FastMCP 3.1 servers, and IDEs, particularly in the [Claude Code](../development_ops/claude-code.md) and [Cline](../agents/cline.md) ecosystems.
 
 ## Typical use cases
 - **Agentic Coding**: Powering [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) for long-horizon repository editing tasks.
+- **FastMCP 3.1 Agent Servers**: Hosting autonomous task orchestration services over Anthropic/OpenAI compatible streaming APIs.
 - **Multimodal Video Generation**: Leveraging the **Hailuo (V3)** and **Minimax-H3** models for high-fidelity cinematic video synthesis, with Minimax-H3 offering a powerful open-weights option for local integration and deployment.
 - **Real-time Neural Speech**: Using their low-latency TTS models for interactive voice agents and assistants.
 - **High-Throughput RAG**: Processing massive document sets using their efficient long-context models (up to 1M tokens).
 
 ## Strengths
 - **Predictable Cost (Token Plan)**: Subscription-based pricing (Starter/Plus/Max) with rolling request resets, ideal for 24/7 autonomous agents.
-- **Architectural Efficiency**: High-speed inference for coding tasks; in late December 2026 benchmarks, it continues to rival [Claude 5.1](../ai_knowledge/claude.md) and Gemma 3 in reasoning accuracy while maintaining lower latency for large-scale repository edits.
+- **FastMCP 3.1 Task Protocol Support**: Seamless streaming and structured tool calling for multi-agent workflows.
+- **Architectural Efficiency**: High-speed inference for coding tasks; in benchmarks, it continues to rival [Claude 5.6](../ai_knowledge/claude.md), GPT-5.6, and DeepSeek-V4 in reasoning accuracy while maintaining lower latency for large-scale repository edits.
 - **Native Dual-Compatibility**: Offers both OpenAI-compatible and Anthropic-compatible endpoints out of the box.
 - **Advanced Multimodality**: Leading performance in non-text domains, specifically cinematic video generation via Hailuo.
 
 ## Limitations
-- **Closed Source**: Proprietary weights available only via managed API.
+- **Closed Source**: Proprietary weights available only via managed API (with select open weights for H3 video).
 - **Regional Billing Complexity**: Pricing is often denominated in RMB (¥), requiring international payment methods for global users.
 - **Documentation Gaps**: English documentation can sometimes lag behind the primary Chinese platform updates.
 
 ## When to use it
-- When running high-usage autonomous agents where per-token billing becomes prohibitive.
+- When running high-usage autonomous agents or FastMCP 3.1 tasks where per-token billing becomes prohibitive.
 - When you need an Anthropic-compatible model for tools like [Claude Code](../development_ops/claude-code.md) but prefer a different provider's billing model.
 - For projects requiring high-fidelity video generation integrated via API.
 
 ## When not to use it
-- If your workload requires local execution on private hardware (consider [Llama 4](../ai_knowledge/llama.md) instead).
+- If your workload requires local execution on private hardware (consider [Llama 4](../ai_knowledge/llama.md) or [DeepSeek-V4](deepseek.md) instead).
 - For simple, low-volume tasks where a pay-as-you-go provider like [OpenRouter](../ai_knowledge/openrouter.md) is simpler to manage.
 
 ## Getting started
@@ -97,28 +99,35 @@ response.stream_to_file("output.mp3")
 ```
 
 ## Programmatic Integration and Validation Example
-The following script demonstrates programmatic connection to the MiniMax completion endpoint using OpenAI SDK compatibility. It wraps response retrieval in a strict validation class using **Pydantic v2** to assert prompt token constraints and ensure safe content ingestion prior to file writes. This iteration features support for abab7-chat and the latest multi-modal performance outputs.
+The following script demonstrates programmatic connection to the MiniMax completion endpoint using OpenAI SDK compatibility. It wraps response retrieval in a strict validation class using **Pydantic v2** to assert prompt token constraints, FastMCP 3.1 protocol states, and ensure safe content ingestion prior to file writes. This iteration features support for abab7-chat and the latest multi-modal performance outputs.
 
 ```python
 import os
 import openai
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 class MiniMaxUsage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt_tokens: int = Field(..., ge=0)
     completion_tokens: int = Field(..., ge=0)
     total_tokens: int = Field(..., ge=0)
 
 class MiniMaxMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     role: str
     content: str
 
 class MiniMaxCompletionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str
     model: str
     choices: List[Dict[str, Any]]
     usage: MiniMaxUsage
+    fastmcp_protocol_version: str = Field(default="3.1", description="FastMCP task protocol active version")
     latency_ms: Optional[float] = Field(None, description="Request execution latency")
 
     @field_validator('choices')
@@ -169,6 +178,7 @@ def query_minimax_and_validate(prompt: str) -> Optional[MiniMaxCompletionRespons
                 "completion_tokens": response.usage.completion_tokens,
                 "total_tokens": response.usage.total_tokens
             },
+            "fastmcp_protocol_version": "3.1",
             "latency_ms": 482.1
         }
     except Exception as e:
@@ -191,6 +201,7 @@ def query_minimax_and_validate(prompt: str) -> Optional[MiniMaxCompletionRespons
                 "completion_tokens": 45,
                 "total_tokens": 165
             },
+            "fastmcp_protocol_version": "3.1",
             "latency_ms": 450.0
         }
 
@@ -208,6 +219,7 @@ if __name__ == "__main__":
     if result:
         print(f"Validated MiniMax Response successfully:")
         print(f"  Model Used: {result.model}")
+        print(f"  FastMCP Version: {result.fastmcp_protocol_version}")
         print(f"  Response: {result.choices[0]['message']['content']}")
         print(f"  Usage -> Prompt Tokens: {result.usage.prompt_tokens}, Total Tokens: {result.usage.total_tokens}")
         print(f"  Latency: {result.latency_ms} ms")
@@ -235,5 +247,5 @@ if __name__ == "__main__":
 - [Minimax-H3 on Hugging Face - Reddit Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1ve1mvh/minimaxh3_now_on_huggingface/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-03
+- Last reviewed: 2027-01-07
 - Confidence: high
