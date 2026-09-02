@@ -1,7 +1,7 @@
 # llama.cpp
 
 ## What it is
-`llama.cpp` is a lightweight, dependency-free C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It serves as the foundational library enabling highly efficient local execution of frontier-class models like **Llama 4 Maverick**, **Gemma 3**, and **Qwen 3.6 / Qwen 3.8**.
+`llama.cpp` is a lightweight, dependency-free C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It serves as the foundational library enabling highly efficient local execution of frontier-class models like **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 / Qwen 3.8**.
 
 ## What problem it solves
 It makes local LLM inference highly practical on consumer CPUs and smaller edge devices by combining state-of-the-art quantization techniques with optimized low-level CPU/GPU inference execution paths. It solves the massive hardware and budget barriers of running large models by allowing high-quality 4-bit and 8-bit quantized models to run with negligible performance and perplexity loss.
@@ -11,16 +11,16 @@ It makes local LLM inference highly practical on consumer CPUs and smaller edge 
 
 ## Typical use cases
 - Running quantized LLMs completely offline on developer laptops, edge gateways, or local homelab servers.
-- Serving as a reliable local backend for agentic frameworks orchestrating **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro** via OpenAI-compatible API interfaces.
+- Serving as a reliable local backend for agentic frameworks orchestrating **Claude 5.6**, **GPT-5.6**, or **Gemini 4.0 Ultra** via OpenAI-compatible API interfaces.
 - Powering local-first RAG applications with high-throughput prompt-processing and persistent KV caching.
 - Fine-tuning, compiling, or evaluating custom quantization strategies for brand-new model architectures.
-- Providing a local inference engine for **Model Context Protocol (FastMCP 3.1 / MCP 3.1)** tool-calling configurations.
+- Providing a local inference engine for **Model Context Protocol (FastMCP 3.1 Task Protocol)** tool-calling configurations.
 
 ## Strengths
-- **Native MCP Support**: Includes built-in support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md), allowing local GGUF models to interact with local tools directly under the **MCP 3.1 / FastMCP 3.1** protocol specification.
+- **Native FastMCP 3.1 Support**: Includes built-in support for the Model Context Protocol, allowing local GGUF models to interact with local tools directly under the **FastMCP 3.1 Task Protocol** specification.
 - **Portability**: Minimal dependencies and high performance across Apple Silicon (Metal), NVIDIA (CUDA), and standard CPU instruction sets (AVX2, AVX-512).
 - **Structured Output**: Full support for GBNF (GGML Backus-Naur Form) grammars ensures models follow strict JSON, CSV, or custom schemas, critical for agentic tool use.
-- **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick**, **Gemma 3**, and **DeepSeek-V3/V4**.
+- **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick**, **Gemma 4**, and **DeepSeek-V4**.
 - **Efficiency**: State-of-the-art quantization techniques (K-Quants, IQ-Quants) minimize VRAM usage while maintaining accuracy.
 
 ## Limitations
@@ -102,7 +102,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-### MCP 3.1 Tool Access Configuration & Verification
+### FastMCP 3.1 Task Protocol Access Configuration & Verification
 `llama.cpp` can serve as an MCP client or server. Example of configuring a tool in an MCP 3.1-aware environment with dynamic port selection:
 
 ```json
@@ -255,5 +255,5 @@ if __name__ == "__main__":
 - [llama.app & llama-serve Mac App PSA on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vdt1i2/psa_llamaapp_mac_app_and_llama_serve_from_llamacpp/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-02
+- Last reviewed: 2027-01-07
 - Confidence: high

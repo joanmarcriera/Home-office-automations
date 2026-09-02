@@ -10,7 +10,7 @@ Standard search engines optimize results for human browsers, often cluttering re
 **Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms.
 
 ## Typical use cases
-- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) to execute complex, multi-query research missions over the live web.
+- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4) to execute complex, multi-query research missions over the live web.
 - **Dynamic Context Grounding**: Supplying real-time, high-fidelity context slices into enterprise RAG systems to keep corporate knowledge bases dynamically up to date.
 - **Automated Lead and Market Synthesis**: Aggregating structured company, academic, or product information via custom domain and timestamp filters.
 - **Factual Claims Verification**: Querying reference documents and extracting clean source texts to cross-examine and ground agent-generated responses.
@@ -19,7 +19,7 @@ Standard search engines optimize results for human browsers, often cluttering re
 - **Clean Markdown Delivery**: Returns sanitized, readable markdown or raw text directly, bypassing the need for custom headless scrapers or proxy layers.
 - **High-Signal Neural Search**: Uses semantic vector representations to locate relevant pages based on exact intent rather than literal keyword occurrences.
 - **Flexible Filter Controls**: Supports precise filtering by domain, category (e.g., personal blogs, academic papers, news, company sites), and exact publish dates.
-- **Robust SDKs & MCP Integration**: Native libraries for Python and TypeScript, alongside fully compliant Model Context Protocol (MCP 3.1) servers for drag-and-drop tool integration.
+- **Robust SDKs & FastMCP 3.1 Integration**: Native libraries for Python and TypeScript, alongside fully compliant Model Context Protocol (FastMCP 3.1 Task Protocol) servers for drag-and-drop tool integration.
 
 ## Limitations
 - **Key-Based API Billing**: Requires a paid subscription and charges based on monthly search volumes and token retrieval size.
@@ -61,7 +61,7 @@ curl -X POST https://api.exa.ai/search \
   -H "Content-Type: application/json" \
   -H "x-api-key: $EXA_API_KEY" \
   -d '{
-    "query": "Model Context Protocol MCP 3.1 implementation patterns",
+    "query": "Model Context Protocol FastMCP 3.1 implementation patterns",
     "useAutoprompt": true,
     "numResults": 3
   }'
@@ -103,7 +103,7 @@ class ExaQueryResult(BaseModel):
 
 # Initialize client
 exa = Exa(api_key=os.getenv("EXA_API_KEY"))
-query_str = "Best design practices for building secure multi-agent systems in 2026"
+query_str = "Best design practices for building secure multi-agent systems in 2027"
 
 # Perform semantic neural search
 response = exa.search(
@@ -155,7 +155,7 @@ class ExaHighlightDocument(BaseModel):
 
 # Execute combined search and contents call
 search_results = exa.search_and_contents(
-    "How to configure LangGraph with MCP 3.1 servers",
+    "How to configure LangGraph with FastMCP 3.1 Task Protocol servers",
     num_results=1,
     text=True,  # Return clean text
     highlights={"num_sentences": 3}  # Extract semantic highlights
@@ -197,8 +197,8 @@ except ValidationError as e:
 - [Exa AI Official Website](https://exa.ai/)
 - [Exa AI Developer Documentation](https://docs.exa.ai/)
 - [Exa Python Client GitHub Repository](https://github.com/exa-labs/exa-py)
-- [Agentic Search Best Practices (2026 Blog)](https://exa.ai/blog/agentic-search)
+- [Agentic Search Best Practices](https://exa.ai/blog/agentic-search)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
