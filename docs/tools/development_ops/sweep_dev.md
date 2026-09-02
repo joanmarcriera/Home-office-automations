@@ -1,7 +1,7 @@
 # Sweep
 
 ## What it is
-Sweep is an AI "junior developer" that automates the process of transforming GitHub issues into Pull Requests. It monitors a repository's issue tracker and, when triggered, analyzes the codebase to implement the requested fix or feature, handling the entire lifecycle from triage to code generation and PR creation.
+Sweep is an AI "junior developer" that automates the process of transforming GitHub issues into Pull Requests. As of early January 2027, it monitors a repository's issue tracker and, when triggered, analyzes the codebase using frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to implement requested fixes or features under FastMCP 3.1 task protocols, handling the entire lifecycle from triage to code generation and PR creation.
 
 ## What problem it solves
 It automates the conversion of GitHub issues into working pull requests, reducing the manual effort of triaging and implementing straightforward bug fixes and feature requests. Sweep helps teams maintain a "zero backlog" state by handling the smaller, well-defined tasks that often pile up.
@@ -12,15 +12,15 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 ## Typical use cases
 - **Bug Fix Automation**: Automatically generating PRs for well-described bugs.
 - **Small Feature Requests**: Implementing incremental features directly from a GitHub issue description.
-- **Code Debt Reduction**: Using Sweep to handle repetitive refactoring or documentation updates via issues.
+- **Code Debt Reduction**: Using Sweep to handle repetitive refactoring or documentation updates via issues under FastMCP 3.1 Task Protocol workflows.
 - **Initial Triaging**: Letting Sweep provide a "first pass" implementation for review.
 
 ## Strengths
-- **Native GitHub Integration**: seamless workflow within the tools developers already use.
+- **Native GitHub Integration**: Seamless workflow within the tools developers already use.
 - **End-to-End Automation**: Handles cloning, branching, coding, and PR creation without human intervention.
 - **"Sweep Rules"**: Allows defining project-specific coding standards that the agent must follow.
 - **Interactive PRs**: Users can comment on the generated PR, and Sweep will iterate on the code.
-- **Frontier Model Support**: Utilizes [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) for complex reasoning tasks.
+- **Frontier Model Support**: Utilizes [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemini 4.0 Ultra](../providers/gemini.md) for complex reasoning tasks.
 
 ## Limitations
 - **Scope Restriction**: Primarily optimized for tasks that can be completed in a few hundred lines of code.
@@ -102,10 +102,12 @@ jobs:
 Validate Sweep rule structures programmatically to ensure perfect alignment with repository configuration requirements:
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 
 class SweepRuleConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     branch: str = Field(default="main")
     rules: List[str] = Field(default_factory=list)
     exclude: List[str] = Field(default_factory=list)
@@ -146,5 +148,5 @@ print(f"Loaded {len(config.rules)} active rules")
 - [GitHub Repository](https://github.com/sweepai/sweep)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

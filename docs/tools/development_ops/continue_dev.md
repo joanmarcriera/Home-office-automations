@@ -1,7 +1,7 @@
 # Continue.dev
 
 ## What it is
-Continue is an open-source AI code assistant and IDE extension that enables developers to integrate frontier LLMs directly into VS Code and JetBrains. It is model-agnostic, supporting local inference (via [Ollama](../../services/ollama.md)) and remote APIs ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md)), and provides deep codebase context through a customizable "Context Provider" system.
+Continue is an open-source AI code assistant and IDE extension that enables developers to integrate frontier LLMs directly into VS Code and JetBrains. As of early January 2027, Continue is model-agnostic, supporting local inference (via [Ollama](../../services/ollama.md)) and remote APIs ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), Gemini), with support for frontier models including **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**, and provides deep codebase context through a customizable FastMCP 3.1 "Context Provider" system.
 
 ## What problem it solves
 Continue solves the problem of vendor lock-in by providing a flexible, open-source layer between the IDE and the AI provider. It enables privacy-conscious development by allowing 100% local operation and addresses the "context awareness" challenge by providing a framework to pull in documentation, GitHub issues, and terminal logs directly into the AI's prompt.
@@ -10,15 +10,15 @@ Continue solves the problem of vendor lock-in by providing a flexible, open-sour
 **Development & Ops / [Development Environment](index.md)**. It acts as an extensible AI companion inside existing IDEs, serving as an open alternative to [GitHub Copilot](github_copilot.md) and [Cursor](cursor.md).
 
 ## Typical use cases
-- **Privacy-First Coding**: Using local Llama 4 or Starcoder 2 models via [Ollama](../../services/ollama.md) for enterprise development.
+- **Privacy-First Coding**: Using local Llama 4, Gemma 4, or Starcoder 2 models via [Ollama](../../services/ollama.md) for enterprise development.
 - **Context-Aware Debugging**: Pulling in terminal output and recent file history automatically to help the AI diagnose errors.
 - **Documentation Q&A**: Adding specific documentation URLs as context providers to ask questions about new libraries.
-- **Custom Workflow Automation**: Defining project-specific slash commands for repetitive tasks like unit test generation or code review.
+- **Custom Workflow Automation**: Defining project-specific slash commands for repetitive tasks like unit test generation or code review under FastMCP 3.1 Task Protocol.
 - **Enterprise Model Routing**: Routing different tasks to different models (e.g., small models for autocomplete, large models for chat).
 
 ## Strengths
 - **Model Agnostic**: Seamlessly switch between local and cloud providers.
-- **Extensible Context**: High-performance "Context Providers" for codebases, docs, terminal, and [MCP](../automation_orchestration/mcp.md).
+- **Extensible Context**: High-performance "Context Providers" for codebases, docs, terminal, and [FastMCP 3.1](../automation_orchestration/mcp.md).
 - **Open Source**: Fully transparent and community-driven, under the Apache 2.0 license.
 - **IDE Support**: Native extensions for both VS Code and the full JetBrains suite.
 - **Customizable**: Deep configuration via a standard `config.json` for team-wide consistency.
@@ -66,7 +66,7 @@ npx continue-index .
 You can use the Continue CLI to manage your local config programmatically:
 
 ```bash
-continue config set models.default "anthropic/claude-5.1"
+continue config set models.default "anthropic/claude-5.6"
 ```
 
 ### Checking Context Provider Health
@@ -78,16 +78,16 @@ continue doctor
 
 ## API examples
 
-### config.json with Native MCP Support (December 2026)
-As of late December 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration, incorporating SOTA FastMCP 3.1 features:
+### config.json with Native FastMCP 3.1 Support
+Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration, incorporating SOTA FastMCP 3.1 Task Protocol features:
 
 ```json
 {
   "models": [
     {
-      "title": "Claude 5.1",
+      "title": "Claude 5.6",
       "provider": "anthropic",
-      "model": "claude-5.1-opus-20261215"
+      "model": "claude-5.6"
     }
   ],
   "contextProviders": [
@@ -123,29 +123,32 @@ export async function getCustomContext(query: string) {
 Validate the `config.json` structure programmatically to ensure flawless IDE extension loading:
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 
 class ModelConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     title: str
     provider: str
     model: str
 
 class ContextProviderConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     name: str
     params: Dict[str, Any] = Field(default_factory=dict)
 
 class ContinueConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     models: List[ModelConfig] = Field(default_factory=list)
     context_providers: List[ContextProviderConfig] = Field(default_factory=list, alias="contextProviders")
-
-    class Config:
-        populate_by_name = True
 
 # Validate a potential config payload
 raw_data = {
     "models": [
-        {"title": "Claude 5.1", "provider": "anthropic", "model": "claude-5.1"}
+        {"title": "Claude 5.6", "provider": "anthropic", "model": "claude-5.6"}
     ],
     "contextProviders": [
         {"name": "mcp", "params": {"url": "http://localhost:3000/mcp"}},
@@ -177,5 +180,5 @@ print(f"First model title: {parsed_config.models[0].title}")
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

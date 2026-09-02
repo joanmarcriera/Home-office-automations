@@ -1,25 +1,25 @@
 # Microsoft Agent Framework Harness
 
 ## What it is
-The **Microsoft Agent Framework Harness** (or simply **Agent Harness**) is the production-grade, supported execution runtime for the Microsoft Agent Framework. Reaching General Availability (GA) alongside **Foundry Hosted Agents** at Build 2026, it transitions the agentic stack from an SDK library to a managed, self-contained binary environment. The Harness wraps models (including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, and **Gemma 3**) to provide turnkey handling of planning, run-loop management, persistence, compaction, and security policy enforcement.
+The **Microsoft Agent Framework Harness** (or simply **Agent Harness**) is the production-grade, supported execution runtime for the Microsoft Agent Framework. Reaching General Availability (GA) alongside **Foundry Hosted Agents**, it transitions the agentic stack from an SDK library to a managed, self-contained binary environment. As of early January 2027, the Harness wraps frontier models (including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, and **DeepSeek-V4**) to provide turnkey handling of planning, run-loop management, persistence, compaction, FastMCP 3.1 task protocol delegation, and security policy enforcement.
 
 ## What problem it solves
 Before the Harness, developers had to manually write orchestration infrastructure—including state persistence, context compaction (to prevent token overflow), runaway safety brakes, manual tool approval prompts, and OpenTelemetry hooks. Research shows that up to 98.4% of high-autonomy agent code (like Claude Code or Codex CLI) is comprised of this harness infrastructure, with only 1.6% devoted to actual decision logic. The Microsoft Agent Framework Harness eliminates this development overhead by acting as a standard, secure, and production-supported runtime that wraps the agent logic, preventing common issues such as infinite agent loops and unmanaged context growth.
 
 ## Where it fits in the stack
 **Category**: Frameworks & Orchestration.
-It represents the runtime execution layer that hosts, governs, and runs agent workflows. It sits directly on top of the Microsoft Agent Framework and Semantic Kernel SDKs, connecting agents with underlying inference layers (such as Azure OpenAI, Anthropic, or custom local model endpoints) and tool integrations (such as the **Model Context Protocol (MCP)**).
+It represents the runtime execution layer that hosts, governs, and runs agent workflows. It sits directly on top of the Microsoft Agent Framework and Semantic Kernel SDKs, connecting agents with underlying inference layers (such as Azure OpenAI, Anthropic, or custom local model endpoints) and tool integrations (such as the **FastMCP 3.1 Protocol**).
 
 ## Typical use cases
-- **Fleet Governance**: Wrapping diverse model-based agents (e.g. specialized Azure OpenAI or Claude 5.1 agents) in a single unified execution harness to guarantee standard auditing, policy enforcement, and telemetry across the entire enterprise.
+- **Fleet Governance**: Wrapping diverse model-based agents (e.g. specialized Azure OpenAI or Claude 5.6 agents) in a single unified execution harness to guarantee standard auditing, policy enforcement, and telemetry across the entire enterprise.
 - **Runaway Prevention**: Setting rigid execution limits on highly autonomous agents to prevent token draining, infinite tool-calling loops, or rogue operations.
-- **Long-Running Task Delegation**: Allowing continuous live-voice conversation agents to delegate complex, background-running reasoning or search queries to decoupled frontier models without interrupting active conversations.
+- **Long-Running Task Delegation**: Allowing continuous live-voice conversation agents to delegate complex, background-running reasoning or search queries to decoupled frontier models without interrupting active conversations under FastMCP 3.1 Task execution.
 - **Context Preservation**: Automatically maintaining a per-call persistent history and compacting long conversation threads on the fly for heavy agents.
 
 ## Strengths
 - **Production Runtime vs SDK**: Serves as a single, compiled binary running consistently across local development, Docker containers, and Azure Foundry Hosted Agents.
 - **Robust Built-In Features**: Features out-of-the-box support for per-call history persistence, automatic context compaction, structured task planning, local file memory, and OpenTelemetry instrumentation.
-- **Ecosystem Integration**: Built-in support for Claude Agent SDK and GitHub Copilot SDK connectors, permitting different agent loops to compose in a single cohesive workflow.
+- **Ecosystem Integration**: Built-in support for Claude Agent SDK, FastMCP 3.1, and GitHub Copilot SDK connectors, permitting different agent loops to compose in a single cohesive workflow.
 - **Rigid Runaway Brakes**: Incorporates host-side stopping controls (stopping loops after a configurable number of turns) to enforce budget and loop safety.
 
 ## Limitations
@@ -82,14 +82,19 @@ To build highly secure applications, configuration parameters are checked with s
 ```python
 import asyncio
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 
 # Define strict Pydantic v2 schemas to validate Harness settings before execution
 class ToolPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     allowed_tools: List[str] = Field(default_factory=list, description="Names of tools allowed for invocation")
     require_approval: bool = Field(True, description="Enforce human-in-the-loop approval before tool calling")
+    fastmcp_31_enabled: bool = Field(True, description="Enable FastMCP 3.1 Task Protocol delegation")
 
 class HarnessAgentConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     agent_instructions: str = Field(..., min_length=10, description="The core instruction set for the agent")
     max_execution_loops: int = Field(40, ge=1, le=100, description="Runaway loop prevention ceiling")
     enable_telemetry: bool = Field(True, description="Expose OpenTelemetry traces")
@@ -112,7 +117,8 @@ harness_data = {
     "enable_telemetry": True,
     "tool_policy": {
         "allowed_tools": ["web_search", "document_reader"],
-        "require_approval": True
+        "require_approval": True,
+        "fastmcp_31_enabled": True
     }
 }
 
@@ -136,5 +142,5 @@ validated_harness_config = validate_and_create_config(harness_data)
 - [Microsoft Agent Lightning Harness Overview](https://thenewstack.io/microsoft-agent-lightning-harness/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
