@@ -10,10 +10,10 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.6).
+- **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra/Flash, Llama 4, Gemma 4, DeepSeek-V4, Qwen 3.6 VL).
 - **Contamination Diagnostics**: Identifying whether high performance on legacy benchmarks is inflated by pre-training memorization.
 - **Holistic Code Assessment**: Evaluating models across three distinct scenarios: code generation, code execution reasoning (predicting program output), and automated debugging/self-repair.
-- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (MCP 3.1) execution servers.
+- **Agentic Sandboxing**: Sandboxed runtime validation of agent-generated code using Model Context Protocol (FastMCP 3.1 Task Protocol) execution servers.
 
 ## Strengths
 - **Contamination-Free**: Continuous problem ingest from active competitive programming contests released post-2023.
@@ -40,7 +40,7 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 LiveCodeBench can be utilized via its public leaderboard or run locally by cloning the evaluation runner and preparing your execution environment.
 
 ### 1. Installation
-Clone the repository and install the runner requirements. It is recommended to use a virtual environment or an MCP-sandboxed docker container.
+Clone the repository and install the runner requirements. It is recommended to use a virtual environment or an FastMCP-sandboxed docker container.
 ```bash
 git clone https://github.com/LiveCodeBench/LiveCodeBench
 cd LiveCodeBench
@@ -60,10 +60,10 @@ export OPENAI_API_KEY="your-key"
 Evaluate code generation performance on problems released after a specific date slice using a frontier model:
 ```bash
 python -m lcb_runner.evaluation.main \
-    --model "anthropic/claude-5.1" \
+    --model "anthropic/claude-5.6" \
     --scenario "codegeneration" \
     --start_date "2026-01-01" \
-    --end_date "2026-12-31"
+    --end_date "2027-01-01"
 ```
 
 ### Running Execution Reasoning
@@ -91,10 +91,10 @@ python -m lcb_runner.evaluation.main \
 A typical problem instance returned by the LCB dataset loader contains comprehensive metadata:
 ```json
 {
-    "question_id": "lcb-2026-12-45",
+    "question_id": "lcb-2027-01-45",
     "title": "Subarray Sum Queries",
     "platform": "Codeforces",
-    "release_date": "2026-12-15T14:30:00",
+    "release_date": "2027-01-05T14:30:00",
     "difficulty": "Hard",
     "question_content": "Implement a dynamic range query...",
     "test_cases": {
@@ -125,7 +125,7 @@ class LCBProblem(BaseModel):
 
 # Validate active LCB evaluation schema
 raw_problem = {
-    "questionId": "lcb-2026-12-45",
+    "questionId": "lcb-2027-01-45",
     "title": "Subarray Sum Queries",
     "difficulty": "Hard",
     "testCases": {
@@ -159,5 +159,5 @@ print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
 - [LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code (arXiv)](https://arxiv.org/abs/2403.07974)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

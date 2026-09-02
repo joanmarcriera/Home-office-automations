@@ -13,7 +13,7 @@ Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OS
 - **Desktop Agent Evaluation**: Benchmarking autonomous agents interacting with native OS elements (e.g., system menus, file managers, desktop configurations).
 - **Multi-App GUI Workflows**: Testing an agent's ability to orchestrate tasks across applications, such as copying data from a spreadsheet, querying a web browser, and generating a local markdown report.
 - **Multimodal Visual Grounding**: Evaluating the ability of Vision-Language Models (VLMs) to translate pixel-level GUI screenshots into accurate click, drag, type, and scroll coordinates.
-- **Computer Use Research**: Training and assessing agents (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) on raw keyboard and mouse control without custom tool-specific APIs.
+- **Computer Use Research**: Training and assessing agents (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 4, DeepSeek-V4, Qwen 3.6 VL) on raw keyboard and mouse control without custom tool-specific APIs.
 
 ## Strengths
 - **Real OS Deployments**: Integrates with actual operating systems (Ubuntu, Windows, macOS) hosted inside secure virtual machines or containers.
@@ -57,7 +57,7 @@ Evaluate an agent on a specific Docker-based Ubuntu task using a frontier model:
 ```bash
 python run_task.py \
     --task_id "ubuntu-123" \
-    --model "anthropic/claude-5.1" \
+    --model "anthropic/claude-5.6" \
     --env_type "docker"
 ```
 
@@ -66,7 +66,7 @@ Execute a full evaluation suite against a defined configuration file using a GPT
 ```bash
 python run_benchmark.py \
     --config configs/ubuntu_all.json \
-    --model "openai/gpt-5.5"
+    --model "openai/gpt-5.6"
 ```
 
 ### Recording Agent Trajectories
@@ -81,7 +81,7 @@ python run_task.py \
 
 ## API examples
 
-### Programmatic Environment Setup with Pydantic v2 Validation
+### Programmatic Environment Setup with FastMCP 3.1 Task Protocol and Pydantic v2 Validation
 To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models:
 
 ```python
@@ -89,7 +89,7 @@ from typing import Dict, Any, Union
 from pydantic import BaseModel, Field, ValidationError
 from osworld.env import OSWorldEnv
 
-# Define rigid Pydantic v2 models for computer-use operations
+# Define rigid Pydantic v2 models for computer-use operations under FastMCP 3.1 Task Protocol
 class OSWorldObservation(BaseModel):
     screenshot: Any = Field(..., description="VLM-compatible pixel buffer, base64 data, or image path")
     instruction: str = Field(..., description="Task objective or user prompt to achieve")
@@ -130,7 +130,7 @@ OSWorld executes target verification scripts inside the guest OS to determine ta
 def verify_task_completion():
     import os
     # Success condition: User must have downloaded the correct file and moved it
-    target_path = "/home/user/Desktop/invoice_july_2026.csv"
+    target_path = "/home/user/Desktop/invoice_january_2027.csv"
     if os.path.exists(target_path):
         with open(target_path, "r") as f:
             if "total_due,4500.0" in f.read():
@@ -160,5 +160,5 @@ def verify_task_completion():
 - [OSWorld GitHub Repository](https://github.com/xlang-ai/OSWorld)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

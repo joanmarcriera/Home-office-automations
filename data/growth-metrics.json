@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-01",
+  "snapshot_date": "2026-09-02",
   "total_docs": 524,
   "tool_docs": 471,
   "service_docs": 53,
@@ -29,11 +29,11 @@
     "docs/tools/benchmarking/gpqa.md",
     "docs/tools/ai_knowledge/llama-4-maverick.md",
     "docs/tools/ai_knowledge/llama-4.md",
-    "docs/tools/development_ops/github_copilot.md",
     "docs/tools/ai_knowledge/llama.md",
     "docs/tools/development_ops/context7.md",
     "docs/tools/development_ops/aider.md",
     "docs/tools/ai_knowledge/big-agi.md",
+    "docs/tools/development_ops/github_copilot.md",
     "docs/tools/infrastructure/lm-studio.md",
     "docs/tools/ai_knowledge/teamout.md",
     "docs/tools/development_ops/openswarm.md",
@@ -43,8 +43,8 @@
     "docs/tools/calendar_tasks/reclaim.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 6,
-  "intake_items_7d": 29,
+  "weekly_additions": 0,
+  "intake_items_7d": 23,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }

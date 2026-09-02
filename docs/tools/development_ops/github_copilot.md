@@ -19,7 +19,7 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## Strengths
 - Deep integration with GitHub ecosystem (Issues, PRs, Actions).
 - Supported in many popular IDEs (VS Code, JetBrains, Visual Studio, Neovim).
-- Support for multiple frontier models, including [GPT-5.5](../ai_knowledge/openai.md) and [Claude 5.1](../providers/anthropic.md).
+- Support for multiple frontier models, including [GPT-5.6](../ai_knowledge/openai.md), [Claude 5.6](../providers/anthropic.md), and Gemini 4.0 Ultra.
 - Enterprise-grade security and compliance features.
 
 ## Limitations
@@ -30,7 +30,7 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## When to use it
 - When you want a well-supported, mainstream AI code completion tool.
 - When working within the GitHub ecosystem.
-- When you need to toggle between different frontier models (GPT-5.5 vs Claude 5.1) for different tasks.
+- When you need to toggle between different frontier models (GPT-5.6 vs Claude 5.6) for different tasks.
 
 ## When not to use it
 - When strict local-only code processing is required (consider [Ollama](../../services/ollama.md) + [Continue](continue_dev.md)).
@@ -56,10 +56,10 @@ gh copilot explain "git status"
 2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
 3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the inline chat.
 
-### Model Selection (December 2026)
+### Model Selection (January 2027)
 You can now select your preferred model in the Copilot Chat settings:
-- **Default**: GPT-5.5 (Optimized for speed and general coding).
-- **Advanced Reasoning**: Claude 5.1 (Optimized for complex architectural tasks).
+- **Default**: GPT-5.6 (Optimized for speed and general coding).
+- **Advanced Reasoning**: Claude 5.6 (Optimized for complex architectural tasks and FastMCP 3.1 Task Protocol integrations).
 
 ## CLI examples
 
@@ -86,17 +86,17 @@ Developers can build custom extensions for Copilot Chat to integrate internal to
 // Minimal Copilot Extension snippet
 export async function handleRequest(request) {
   const { prompt, model } = request;
-  // Custom logic to fetch internal context
+  // Custom logic to fetch internal docs
   const context = await fetchInternalDocs(prompt);
   return {
     message: `Based on internal docs: ${context}`,
-    model: 'gpt-5.5'
+    model: 'gpt-5.6'
   };
 }
 ```
 
-### Programmatic Python Setup (Pydantic v2)
-Validate enterprise configuration properties and model routing policies:
+### Programmatic Python Setup (FastMCP 3.1 Task Protocol with Pydantic v2)
+Validate enterprise configuration properties and model routing policies using **Pydantic v2**:
 
 ```python
 from pydantic import BaseModel, Field
@@ -108,7 +108,7 @@ class EnterprisePolicy(BaseModel):
     blocked_patterns: List[str] = Field(default_factory=list, alias="blockedPatterns")
 
 class CopilotConfig(BaseModel):
-    user_model: Literal["gpt-5.5", "claude-5.1"] = Field(default="gpt-5.5")
+    user_model: Literal["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"] = Field(default="gpt-5.6")
     enable_autocomplete: bool = Field(default=True)
     policy: Optional[EnterprisePolicy] = None
 
@@ -117,10 +117,10 @@ class CopilotConfig(BaseModel):
 
 # Validate active policy configuration
 config_data = {
-    "user_model": "claude-5.1",
+    "user_model": "claude-5.6",
     "enable_autocomplete": True,
     "policy": {
-        "allowedModels": ["gpt-5.5", "claude-5.1"],
+        "allowedModels": ["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"],
         "allowTelemetry": False,
         "blockedPatterns": ["**/*.key", "**/*.pem"]
     }
@@ -149,5 +149,5 @@ if config.policy:
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
