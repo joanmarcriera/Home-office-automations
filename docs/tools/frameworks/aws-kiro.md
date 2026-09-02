@@ -1,18 +1,18 @@
 # AWS Kiro
 
 ## What it is
-AWS Kiro is an open-source, lightweight agent-client protocol and runtime layer designed to cleanly decouple AI agents from the editors, IDEs, and local user environments they interact with. It standardizes the message formats, capabilities handshake, and bidirectional file/terminal synchronization, allowing developers to run any Kiro-compliant agent inside any Kiro-compliant host application without custom adapter code.
+AWS Kiro is an open-source, lightweight agent-client protocol and runtime layer designed to cleanly decouple AI agents from the editors, IDEs, and local user environments they interact with. As of early January 2027, Kiro standardizes message formats, FastMCP 3.1 capabilities handshakes, and bidirectional file/terminal synchronization, allowing software engineering agents powered by models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to run inside any Kiro-compliant host application without custom adapter code.
 
 ## What problem it solves
 Historically, AI software engineering agents were tightly-coupled to specific environments—resulting in custom VS Code extensions, separate Neovim configurations, and non-reusable command-line runners. When a new IDE or a new agent is released, authors have to build redundant glue code. AWS Kiro solves this fragmentation by defining a standardized protocol, letting any developer host any Kiro agent instantly with unified transport primitives.
 
 ## Where it fits in the stack
-**Agent Client & Interoperability Layer**. It operates as a communication standard between frontend user interfaces (IDEs, web consoles, shell terminals) and backend agent runtimes, complementing standard protocols like LSP (Language Server Protocol) and MCP (Model Context Protocol).
+**Agent Client & Interoperability Layer**. It operates as a communication standard between frontend user interfaces (IDEs, web consoles, shell terminals) and backend agent runtimes, complementing standard protocols like LSP (Language Server Protocol) and FastMCP 3.1 (Model Context Protocol).
 
 ## Typical use cases
 - **Multi-Editor Agent Deployments**: Running a single, advanced software engineering agent across multiple environments like VS Code, Cursor, and Vim.
 - **Remote Developer Workspace Integration**: Deploying coding agents in cloud-hosted workspaces while controlling them from local editor interfaces.
-- **Agent Capabilities Negotiation**: Determining at startup whether a newly connected agent supports terminal commands, multi-file editing, or search filters.
+- **Agent Capabilities Negotiation**: Determining at startup whether a newly connected agent supports terminal commands, multi-file editing, or search filters under FastMCP 3.1 Task Protocol definitions.
 - **Bidirectional Terminal Streaming**: Creating a secure, buffered pipe to stream interactive terminal states and user approvals between editors and autonomous agents.
 
 ## Strengths
@@ -39,7 +39,7 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 ## Getting started
 1. **Add AWS Kiro to your codebase**: Install the official runtime package:
    ```bash
-   pip install aws-kiro
+   pip install aws-kiro pydantic>=2.0.0
    ```
 2. **Launch a Kiro Server**: Start the local Kiro loop inside your custom agent:
    ```python
@@ -80,27 +80,34 @@ kiro-cli stream --url "http://localhost:9090" --verbose
 ## API examples
 
 ### Python JSON-RPC Capability Validation with AWS Kiro & Pydantic v2
-This API example demonstrates how to validate Kiro capabilities negotiation and handshaking messages using strict **Pydantic v2** structures.
+This API example demonstrates how to validate Kiro capabilities negotiation and handshaking messages using strict **Pydantic v2** structures and FastMCP 3.1 task parameters.
 
 ```python
 import json
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Define schema for Kiro client workspace capabilities
 class WorkspaceCapabilities(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     file_edit: bool = Field(default=False, alias="fileEdit", description="Whether the host supports direct file editing")
     terminal_exec: bool = Field(default=False, alias="terminalExec", description="Whether the host supports terminal command execution")
     user_approval_required: bool = Field(default=True, alias="userApprovalRequired", description="Whether user confirmation is needed for write actions")
+    fastmcp_task_support: bool = Field(default=True, alias="fastmcpTaskSupport", description="Support for FastMCP 3.1 Task Protocol")
 
 # Define schema for Kiro initial handshake message
 class KiroInitializeParams(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     client_name: str = Field(..., alias="clientName", description="Name of the editor host application")
-    protocol_version: str = Field(default="1.0.0", alias="protocolVersion", description="The Kiro protocol version used")
+    protocol_version: str = Field(default="1.1.0", alias="protocolVersion", description="The Kiro protocol version used")
     capabilities: WorkspaceCapabilities = Field(..., description="Workspace features supported by the editor host")
 
 # Define schema for the Kiro initialization response
 class KiroInitializeResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     agent_name: str = Field(..., alias="agentName", description="Name of the responsive AI agent")
     status: str = Field(..., description="Verification status, e.g., 'authenticated' or 'ready'")
     negotiated_capabilities: WorkspaceCapabilities = Field(..., alias="negotiatedCapabilities")
@@ -108,7 +115,7 @@ class KiroInitializeResult(BaseModel):
 def process_kiro_handshake(raw_json_payload: str) -> KiroInitializeResult:
     # Parse and validate incoming client handshake
     data = json.loads(raw_json_payload)
-    params = KiroInitializeParams(**data)
+    params = KiroInitializeParams.model_validate(data)
 
     # Simulated negotiation: If client lacks terminal execution, ensure agent matches it
     negotiated_terminal = params.capabilities.terminal_exec
@@ -116,7 +123,8 @@ def process_kiro_handshake(raw_json_payload: str) -> KiroInitializeResult:
     negotiated = WorkspaceCapabilities(
         fileEdit=params.capabilities.file_edit,
         terminalExec=negotiated_terminal,
-        userApprovalRequired=True
+        userApprovalRequired=True,
+        fastmcpTaskSupport=params.capabilities.fastmcp_task_support
     )
 
     result = KiroInitializeResult(
@@ -130,11 +138,12 @@ if __name__ == "__main__":
     # Simulate a VS Code client handshake request
     handshake_payload = {
         "clientName": "VSCode-Host-Client",
-        "protocolVersion": "1.0.2",
+        "protocolVersion": "1.1.0",
         "capabilities": {
             "fileEdit": True,
             "terminalExec": False,
-            "userApprovalRequired": True
+            "userApprovalRequired": True,
+            "fastmcpTaskSupport": True
         }
     }
 
@@ -163,5 +172,5 @@ if __name__ == "__main__":
 - [JSON-RPC 2.0 Specifications](https://www.jsonrpc.org/specification)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

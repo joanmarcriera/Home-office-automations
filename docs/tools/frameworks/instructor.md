@@ -1,7 +1,7 @@
 # Instructor
 
 ## What it is
-Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of late December 2026, **Instructor v2.x** remains the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
+Instructor is a multi-language library (Python, TypeScript, Go, Ruby, Rust) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of early January 2027, **Instructor v2.x** remains the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
@@ -11,8 +11,8 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 
 ## Typical use cases
 - **Reliable Data Extraction**: Converting messy natural language (e.g., medical records, customer emails) into structured database records.
-- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically under **MCP 3.1 / FastMCP 3.1** Task definitions.
-- **Quality Gates**: Implementing subjective validation rules (e.g., "The answer must be polite") that are enforced via LLM-based evaluators and automatic retries.
+- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically under **FastMCP 3.1** Task Protocol definitions.
+- **Quality Gates**: Implementing subjective validation rules (e.g., "The answer must be polite and accurate") that are enforced via LLM-based evaluators and automatic retries.
 - **Streaming Structured Data**: Processing partial LLM responses in real-time while maintaining schema validity.
 
 ## Strengths
@@ -56,7 +56,7 @@ class User(BaseModel):
 client = instructor.from_provider(OpenAI())
 
 user = client.chat.completions.create(
-    model="gpt-5.5-preview",
+    model="gpt-5.6",
     response_model=User,
     messages=[{"role": "user", "content": "Jason is 25 years old."}],
 )
@@ -74,7 +74,7 @@ Instructor provides a CLI for testing schemas and inspecting provider capabiliti
 instructor hub check openai
 
 # Test a schema against a prompt from the CLI
-instructor jobs run --model gpt-5.5-preview --schema UserSchema.py --prompt "Extract user info from: Alice is 30"
+instructor jobs run --model gpt-5.6 --schema UserSchema.py --prompt "Extract user info from: Alice is 30"
 ```
 
 ## API examples
@@ -93,7 +93,7 @@ client = instructor.from_provider(OpenAI())
 def validate_professional_tone(v: str) -> str:
     # LLM-based grading step for semantic validation
     response = client.chat.completions.create(
-        model="gpt-5.5-preview",
+        model="gpt-5.6",
         response_model=bool,
         messages=[
             {
@@ -127,7 +127,7 @@ class ProfessionalResponse(BaseModel):
 # self-corrects by sending the error traceback back to the model (up to max_retries).
 try:
     response = client.chat.completions.create(
-        model="gpt-5.5-preview",
+        model="gpt-5.6",
         response_model=ProfessionalResponse,
         max_retries=3,
         messages=[
@@ -142,7 +142,7 @@ except Exception as e:
     print("Failed to produce validated response after retries:", e)
 ```
 
-### 2. Streaming Lists of Objects (MCP 3.1 Conforming)
+### 2. Streaming Lists of Objects (FastMCP 3.1 Conforming)
 ```python
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List
@@ -156,7 +156,7 @@ class TaskItem(BaseModel):
 
 # Stream a list of task models from a single LLM response
 tasks = client.chat.completions.create_iterable(
-    model="gpt-5.5-preview",
+    model="gpt-5.6",
     response_model=TaskItem,
     messages=[{"role": "user", "content": "Decompose the project build setup into 3 priority tasks."}],
 )
@@ -183,5 +183,5 @@ for task in tasks:
 - [Semantic Validation Guide](https://python.useinstructor.com/concepts/validation/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high
