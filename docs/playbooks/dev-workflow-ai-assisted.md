@@ -2,7 +2,7 @@
 
 ## What it is
 
-The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor or Melty, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules, Anti-Gravity, and FastMCP 3.1 tooling ecosystems in late December 2026 / early January 2027.
+The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor or Melty, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules, Anti-Gravity, and FastMCP 3.1 tooling ecosystems in early January 2027 SOTA standards.
 
 ## What problem it solves
 
@@ -14,8 +14,8 @@ Traditional software development is often slowed by repetitive tasks, context sw
 
 ## Typical use cases
 
-- **Bootstrapping New Scripts**: Rapidly generating Python automation scripts for homelab infrastructure using GPT-5.5 or Gemini 4.0 Pro.
-- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 5.1) to modernize old scripts with current best practices and better test coverage.
+- **Bootstrapping New Scripts**: Rapidly generating Python automation scripts for homelab infrastructure using GPT-5.6 or Gemini 4.0 Ultra.
+- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 5.6 or DeepSeek-V4) to modernize old scripts with current best practices and better test coverage.
 - **Large-Scale Maintenance**: Automating documentation audits and repository-wide consistency checks.
 - **Continuous Verification**: Running autonomous test loops to ensure infrastructure changes don't break complex Home Assistant or K3s configurations.
 
@@ -23,7 +23,7 @@ Traditional software development is often slowed by repetitive tasks, context sw
 
 - **High Velocity**: Significantly reduces the time from "idea" to "tested code."
 - **Layered Defense**: Uses different agents for different tasks (drafting vs. implementation vs. refactoring) to minimize errors.
-- **Local-First Ready**: Fully compatible with local models like `Llama 4` or `Qwen 3.6` for private, zero-cost development.
+- **Local-First Ready**: Fully compatible with local models like `Llama 4`, `Gemma 4`, or `Qwen 3.6 VL` for private, zero-cost development.
 - **Reviewable Autonomy**: Includes a "PR-readiness gate" to ensure AI-generated work remains human-understandable.
 - **Protocol Native**: Natively supports the Model Context Protocol (FastMCP 3.1) for tool discovery, context injection, and sandbox execution.
 
@@ -49,8 +49,8 @@ Traditional software development is often slowed by repetitive tasks, context sw
 To adopt the AI-Assisted Dev Workflow:
 
 1. **Setup the Environment**: Install [Cursor](../tools/development_ops/cursor.md) or [Melty](../tools/development_ops/melty.md) and [Aider](../tools/development_ops/aider.md).
-2. **Draft the Outline**: Use Cursor to define the high-level architecture and data contracts (GPT-5.5 or Claude 5.1 are excellent for this).
-3. **Run the Implementation**: Start an Aider session: `aider --model claude-5.1 <file-to-edit>`.
+2. **Draft the Outline**: Use Cursor to define the high-level architecture and data contracts (GPT-5.6 or Claude 5.6 are excellent for this).
+3. **Run the Implementation**: Start an Aider session: `aider --model claude-5.6 <file-to-edit>`.
 4. **Trigger the Audit**: Once the implementation is complete, run the verification scripts listed in the "Verification Checklist" below.
 5. **Review the Gate**: Complete the "PR-readiness gate" before merging your changes.
 
@@ -58,8 +58,8 @@ To adopt the AI-Assisted Dev Workflow:
 
 ```mermaid
 flowchart TD
-    A[Drafting: Cursor / GPT-5.5] -->|Outline & Python script| B[Implementation: Aider / Claude 5.1]
-    B -->|Complex functions| C[Refactoring: Jules / Claude 5.1]
+    A[Drafting: Cursor / GPT-5.6] -->|Outline & Python script| B[Implementation: Aider / Claude 5.6]
+    B -->|Complex functions| C[Refactoring: Jules / Claude 5.6]
     C -->|Best practices & Unit tests| D[Verification: Anti-Gravity / FastMCP 3.1]
     D -->|Plan-Code-Test loop| E[Audit: Human Review]
     E -->|Approved| F[Merge to main]
@@ -72,8 +72,8 @@ flowchart TD
 ### Starting an Aider Session
 Launching Aider with a specific model and file context.
 ```bash
-# Start Aider with Claude 5.1 Sonnet
-aider --model anthropic/claude-5-1-sonnet-20260820 docs/playbooks/dev-workflow-ai-assisted.md
+# Start Aider with Claude 5.6 Sonnet
+aider --model anthropic/claude-5-6-sonnet-20270101 docs/playbooks/dev-workflow-ai-assisted.md
 ```
 
 ### Running Repository Validation
@@ -113,8 +113,8 @@ An agent recording its discovery and validation process.
 import json
 
 gate_entry = {
-    "scope": "Updated dev-workflow playbook for Late 2026 / Early 2027.",
-    "discovery": "ripgrep search for 'Claude 4.8' to replace with 'Claude 5.1'.",
+    "scope": "Updated dev-workflow playbook for Early January 2027 SOTA standards.",
+    "discovery": "ripgrep search for 'Claude 5.1' to replace with 'Claude 5.6'.",
     "validation": "Passed check_docs_contract.py locally.",
     "risk": "Low. Documentation update only.",
     "rollback_path": "git checkout main"
@@ -146,5 +146,5 @@ with open("docs/reports/pr-gate-feature-audit.json", "w") as f:
 - [ripgrep](../tools/development_ops/ripgrep.md)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-04
+- Last reviewed: 2027-01-07
 - Confidence: high

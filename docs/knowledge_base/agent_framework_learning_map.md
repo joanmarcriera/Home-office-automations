@@ -15,7 +15,7 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1 or GPT-5.5.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
@@ -39,7 +39,7 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
-- **Model Agnostic**: Explicitly supports routing between Claude 5.1 (reasoning), GPT-5.5 (speed), Gemini 4.0 Pro/Flash, and Llama 4 (local).
+- **Model Agnostic**: Explicitly supports routing between Claude 5.6 (reasoning), GPT-5.6 (speed), Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL, and Llama 4 (local).
 - **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (FastMCP 3.1) for universal tool access.
 
 ## Limitations
@@ -71,13 +71,13 @@ To adopt agent frameworks systematically:
 ### Recommended Learning Order (Late 2026 / Early 2027 Update)
 
 #### Fundamentals
-1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 or GPT-5.5 for advanced reasoning and routing)
-2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5 or Gemini 4.0 Pro)
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.6 or GPT-5.6 for advanced reasoning and routing)
+2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.6 or Gemini 4.0 Ultra)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
 #### Coding Agents
-1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 5.1 / Aider)
+1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 5.6 / DeepSeek-V4 / Aider)
 2. [OpenClaw](../tools/development_ops/openclaw.md)
 
 #### Specialized Patterns
@@ -112,7 +112,7 @@ docker run -it \
 ## API examples
 
 ### Simple Agent Handoff (OpenAI Agents SDK)
-A minimal example showing how to hand off a task between two specialized agents using GPT-5.5 or Claude 5.1.
+A minimal example showing how to hand off a task between two specialized agents using GPT-5.6 or Claude 5.6.
 ```python
 from openai_agents import Agent, Runner
 
@@ -137,7 +137,7 @@ print(response.final_text)
 ```
 
 ### Stateful Graph Logic (LangGraph)
-Defining a simple cycle where an auditor checks the work of a writer using Claude 5.1.
+Defining a simple cycle where an auditor checks the work of a writer using Claude 5.6.
 ```python
 from langgraph.graph import StateGraph, END
 
@@ -170,7 +170,7 @@ Standardized FastMCP 3.1 Task Protocol JSON payload structure for tool calling a
 {
   "$schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json",
   "task_id": "task-abc-123",
-  "executor": "claude-5.1-sonnet",
+  "executor": "claude-5.6-sonnet",
   "tool_calls": [
     {
       "name": "fetch_mcp_context",
@@ -213,5 +213,5 @@ Standardized FastMCP 3.1 Task Protocol JSON payload structure for tool calling a
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-04
+- Last reviewed: 2027-01-07
 - Confidence: high

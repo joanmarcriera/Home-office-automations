@@ -1,7 +1,7 @@
 # Playbook: Scan to Task
 
 ## What it is
-Scan to Task is a paperless automation pattern that transforms physical documents (mail, receipts, invoices) into actionable digital tasks. It uses OCR, LLM-based extraction, and workflow orchestration to eliminate manual data entry in late December 2026 / early January 2027.
+Scan to Task is a paperless automation pattern that transforms physical documents (mail, receipts, invoices) into actionable digital tasks. It uses OCR, LLM-based extraction, and workflow orchestration to eliminate manual data entry under early January 2027 SOTA standards.
 
 ## What problem it solves
 Managing physical paperwork often leads to forgotten deadlines or lost information. Scan to Task digitizes the intake process, automatically identifying due dates, amounts, and required actions from scanned images or PDFs, and injecting them directly into a task management system, fully powered by FastMCP 3.1 tooling ecosystems.
@@ -12,17 +12,17 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 ## Typical use cases
 - **Invoice Management**: Scanning a utility bill and automatically creating a task in Vikunja with the due date and amount.
 - **Mail Triage**: Scanning incoming letters and creating tasks for items requiring a response.
-- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM (Claude 5.1 Vision) extracting the vendor and total.
+- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM (Claude 5.6 Vision / Qwen 3.6 VL) extracting the vendor and total.
 - **Warranty Tracking**: Scanning product manuals or receipts to create a reminder for warranty expiration.
 
 ## Strengths
 - **Automation**: Reduces the friction of moving from physical paper to a digital action list.
 - **Searchability**: Documents are indexed and searchable in Paperless-ngx, linked directly from the task.
 - **Accuracy**: LLMs can extract structured data from diverse document layouts better than traditional regex-based systems.
-- **Vision Mastery**: Claude 5.1's improved vision capabilities allow for high-accuracy extraction from crumpled or low-contrast scans.
+- **Vision Mastery**: Claude 5.6's and Qwen 3.6 VL's improved vision capabilities allow for high-accuracy extraction from crumpled or low-contrast scans.
 
 ## Limitations
-- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail (mitigated by using Claude 5.1 Vision).
+- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail (mitigated by using Claude 5.6 Vision or Qwen 3.6 VL).
 - **Privacy**: If using cloud-based LLMs, sensitive document text is sent to an external provider (mitigated by using local models).
 - **Setup Complexity**: Requires multiple services (Paperless, n8n, Vikunja) to be correctly configured and integrated.
 
@@ -41,9 +41,9 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 - [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
 - [Vikunja](../services/vikunja.md) or another task manager with an API.
 - [n8n](../services/n8n.md) for workflow orchestration.
-- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4` or Claude 5.1/GPT-5.5 via API).
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4`, `Gemma 4`, or Claude 5.6/GPT-5.6 via API).
 
-### Workflow Architecture (Late 2026 / Early 2027 Update)
+### Workflow Architecture (Early 2027 Update)
 
 ```mermaid
 flowchart TD
@@ -52,7 +52,7 @@ flowchart TD
     C -->|OCR & Classification| D{Action Required?}
     D -- Yes --> E[n8n Webhook Trigger]
     D -- No --> F[Archive]
-    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision / GPT-5.5]
+    E -->|Extraction| G[LLM Processing: Claude 5.6 Vision / GPT-5.6 / Qwen 3.6 VL]
     G -->|Create Task| H[Vikunja Task]
     H -->|Link Back| C
 ```
@@ -124,5 +124,5 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task, inco
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-04
+- Last reviewed: 2027-01-07
 - Confidence: high
