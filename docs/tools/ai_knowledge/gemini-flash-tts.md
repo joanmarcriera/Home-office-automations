@@ -16,7 +16,7 @@ Traditional text-to-speech architectures rely on a distinct dual-model process: 
 **AI & Knowledge / Generative Audio**. It serves as the speech generation and output layer for real-time agentic voice assistants, interactive media, and customer support systems.
 
 ## Typical use cases
-- **Agentic Conversational Coworkers**: Providing natural voice interfaces for desktop coworkers.
+- **Agentic Conversational Coworkers**: Providing natural voice interfaces for desktop coworkers integrated with FastMCP 3.1 Task Protocol loops.
 - **Interactive Narrative Generation**: Voicing dynamically generated role-playing video games with emotional depth.
 - **Automated Audio Newsletters**: Automatically parsing daily text summaries (e.g., AI Daily Digests) into high-fidelity morning podcast voiceovers.
 - **Sovereign Accessibility Layers**: Creating real-time, context-aware screen readers that adapt their tone based on the urgency of website notifications.
@@ -265,5 +265,5 @@ if __name__ == "__main__":
 - [Google Gen AI SDK Developer Portal](https://ai.google.dev/gemini-api/docs/quickstart)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

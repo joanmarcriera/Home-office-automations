@@ -1,7 +1,7 @@
 # Nano Banana
 
 ## What it is
-Nano Banana is Google's conversation-driven generative image editor and design assistant integrated directly inside Google AI Studio and Vertex AI. Operating natively on Google's multimodal foundation models (**Gemini 4.0 Pro** and **Gemini 4.0 Flash Image**), it allows developers and designers to create, refine, inpaint, and edit complex graphical layouts using natural language dialogue instead of manual masking tools.
+Nano Banana is Google's conversation-driven generative image editor and design assistant integrated directly inside Google AI Studio and Vertex AI. Operating natively on Google's multimodal foundation models (**Gemini 4.0 Ultra** and **Gemini 4.0 Flash Image**), it allows developers and designers to create, refine, inpaint, and edit complex graphical layouts using natural language dialogue instead of manual masking tools.
 
 Key capabilities of the early 2027 ecosystem include:
 - **Unified Interactions API**: Run conversational, multi-turn image generation and modifications, where each turn builds upon the spatial layout of previous iterations.
@@ -246,5 +246,5 @@ if __name__ == "__main__":
 - [Google Gen AI SDK Quickstart Guides](https://ai.google.dev/gemini-api/docs/quickstart)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

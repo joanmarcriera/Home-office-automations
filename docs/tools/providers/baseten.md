@@ -1,7 +1,7 @@
 # Baseten
 
 ## What it is
-Baseten is a high-performance, developer-focused AI inference provider designed for deploying and serving machine learning models in production. Deployed as a serverless platform with native cold-start optimization and auto-scaling, it provides specialized infrastructure for hosting deep learning models (such as LLMs, Whisper, Stable Diffusion, and custom embeddings). In August 2026, Baseten launched a direct integration with Hugging Face, allowing developers to spin up dedicated serverless endpoints directly from Hugging Face Model Cards with single-click provisioning and pay-as-you-go billing.
+Baseten is a high-performance, developer-focused AI inference provider designed for deploying and serving machine learning models in production. Deployed as a serverless platform with native cold-start optimization and auto-scaling, it provides specialized infrastructure for hosting deep learning models (such as LLMs, DeepSeek-V4, Qwen 3.6 VL, Whisper, Stable Diffusion, and custom embeddings). Baseten provides direct integrations with Hugging Face and FastMCP 3.1 Task Protocol agents, allowing developers to spin up dedicated serverless endpoints directly with single-click provisioning, real-time telemetry, and pay-as-you-go billing.
 
 ## What problem it solves
 Deploying, scaling, and managing large machine learning models requires complex Kubernetes orchestrations, GPU virtualization tuning, and cold-start management. Baseten solves these operational bottlenecks by providing serverless GPU deployment. Developers can transition any open-weight model from research to a production-grade REST API within minutes, utilizing specialized execution runtimes like TensorRT-LLM and vLLM without managing underlying compute layers.
@@ -10,7 +10,7 @@ Deploying, scaling, and managing large machine learning models requires complex 
 **AI Model Provider / Infrastructure Layer**. It bridges the gap between local developer workstations and enterprise cloud architectures, serving as a reliable external inference endpoint for agent frameworks and orchestration stacks.
 
 ## Typical use cases
-- **Serverless API Gateway for Agent Swarms**: Offloading heavy LLM reasoning, code generation, and multi-agent loops to auto-scaling cloud GPUs.
+- **Serverless API Gateway for Agent Swarms**: Offloading heavy LLM reasoning (such as Claude 5.6, GPT-5.6, or DeepSeek-V4 fine-tunes), code generation, and multi-agent loops to auto-scaling cloud GPUs.
 - **Single-Click Hugging Face Deployments**: Deploying custom quantized checkpoints directly from Hugging Face into a production endpoint with one click.
 - **Local-to-Cloud Hybrid Workflows**: Developing agent pipelines locally using Ollama and transitioning to Baseten for scalable production traffic.
 - **Enterprise Fine-Tuned Model Serving**: Serving highly customized, fine-tuned models with zero cold starts using active weight-caching.
@@ -135,5 +135,5 @@ if __name__ == "__main__":
 - [Truss Open Source Model Packaging Framework GitHub](https://github.com/basetenlabs/truss)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-03
+- Last reviewed: 2027-01-07
 - Confidence: high
