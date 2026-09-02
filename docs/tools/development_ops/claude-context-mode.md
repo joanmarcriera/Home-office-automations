@@ -1,25 +1,25 @@
 # Claude Context Mode
 
 ## What it is
-Claude Context Mode refers to community and workflow patterns for giving Claude Code richer, better-structured operating context, often through MCP servers, repository memory files, and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows using frontier models like **Claude 5.1** (`claude-5.1-sonnet-20261220`) and **GPT-5.5**.
+Claude Context Mode refers to community and workflow patterns for giving Claude Code and agentic execution environments richer, better-structured operating context, often through MCP servers, repository memory files, and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows using frontier models like **Claude 5.6** (`claude-5.6-sonnet-20270115`), **GPT-5.6**, and **Gemini 4.0 Ultra**. As of early 2027, it relies natively on the **FastMCP 3.1 Task Protocol** for multi-step background context sync and sub-agent orchestration.
 
 ## What problem it solves
-It reduces prompt sprawl and makes agent behavior more repeatable than pasting large amounts of context into every session. It solves the "context window amnesia" problem by ensuring the agent has access to a durable, versioned source of truth about the project's architecture, standards, and progress. It leverages **FastMCP 3.1** to dynamically inject context as needed.
+It reduces prompt sprawl and makes agent behavior more repeatable than pasting large amounts of context into every session. It solves the "context window amnesia" problem by ensuring the agent has access to a durable, versioned source of truth about the project's architecture, standards, and progress. It leverages **FastMCP 3.1** to dynamically inject context and execute sub-tasks as needed.
 
 ## Where it fits in the stack
-**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around Claude Code, MCP, and AI-native IDEs (like Cursor 3.0 or VS Code with Continue).
+**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around Claude Code, FastMCP 3.1, and AI-native IDEs (like Cursor 3.0 or VS Code with Continue).
 
 ## Typical use cases
-- **Repository Onboarding**: Giving an agent a high-level map of a new codebase using `find_oldest_issues.py`.
+- **Repository Onboarding**: Giving an agent a high-level map of a new codebase using `find_oldest_issues.py` and FastMCP 3.1 context servers.
 - **Architectural Guardrails**: Ensuring the agent follows specific design patterns (e.g., "always use FastAPI dependency injection").
-- **Task Persistence**: Resuming a complex, multi-day coding task across different chat sessions.
+- **Task Persistence & Decomposition**: Resuming complex, multi-day coding tasks across different chat sessions using FastMCP 3.1 Task Protocol loops.
 - **Standardized Workflows**: Using `AGENTS.md` to define repository-wide operating contracts for autonomous agents.
 
 ## Strengths
 - **Consistency**: Agent behavior becomes more predictable across sessions.
 - **Efficiency**: Reduces the amount of manual context pasting required.
 - **Versionable**: Context files (like `MEMORY.md` or `AGENTS.md`) live in the repo and evolve with the code.
-- **Native Integration**: Supported natively by **FastMCP 3.1** for dynamic context injection and resource discovery.
+- **Native Integration**: Supported natively by **FastMCP 3.1** for dynamic context injection, resource discovery, and task decomposition tracking.
 
 ## Limitations
 - **Maintenance Overhead**: Requires human (or agent) discipline to keep context files up to date.
@@ -50,7 +50,7 @@ npm install -g @anthropic-ai/claude-code
 To bootstrap a project with persistent memory, create an `AGENTS.md` file in the repository root and launch the `claude` CLI:
 ```bash
 # 1. Create a basic context file
-echo -e "# Repository Rules\n- Use Node.js v20+\n- Write clean TypeScript" > AGENTS.md
+echo -e "# Repository Rules\n- Use Node.js v22+\n- Write clean TypeScript with strict type checking" > AGENTS.md
 
 # 2. Start Claude Code with the loaded context
 claude
@@ -73,8 +73,8 @@ uvx mcp-server-context7 --path ./docs/knowledge_base
 
 ## API examples
 
-### Python (Injecting Context with Pydantic v2 Validation)
-For automated pipelines, you can load, validate the project's context rules, and pass the verified context directly to the system prompt of the Anthropic SDK.
+### Python (Injecting Context with FastMCP 3.1 & Pydantic v2 Validation)
+For automated pipelines, you can load, validate the project's context rules and FastMCP 3.1 Task Protocol options, passing verified context directly to the Anthropic SDK.
 
 ```python
 import os
@@ -88,10 +88,16 @@ class ContextRule(BaseModel):
     description: str = Field(..., min_length=10)
     severity: str = Field(..., pattern=r"^(high|medium|low)$")
 
+class FastMCPTaskProtocol(BaseModel):
+    version: str = Field("3.1", pattern=r"^3\.1$")
+    task_decomposition_enabled: bool = True
+    sub_agent_delegation: bool = True
+
 class RepoContextConfig(BaseModel):
     project_name: str = Field(..., min_length=2)
     mcp_servers: List[str] = Field(default_factory=list)
     rules: List[ContextRule]
+    task_protocol: FastMCPTaskProtocol = Field(default_factory=FastMCPTaskProtocol)
     max_context_tokens: int = Field(200000, gt=0)
 
     @field_validator("mcp_servers")
@@ -107,6 +113,11 @@ config_payload = {
     "project_name": "Home-Office Automation",
     "mcp_servers": ["mcp://chronos-server", "mcp://free-will-server"],
     "max_context_tokens": 200000,
+    "task_protocol": {
+        "version": "3.1",
+        "task_decomposition_enabled": True,
+        "sub_agent_delegation": True
+    },
     "rules": [
         {"rule_id": "RULE-001", "description": "Always follow standards.md schema structures.", "severity": "high"},
         {"rule_id": "RULE-002", "description": "Strictly implement FastMCP 3.1 interface contracts.", "severity": "high"}
@@ -118,11 +129,11 @@ config = RepoContextConfig.model_validate(config_payload)
 # Initialize the official Anthropic client
 client = anthropic.Anthropic()
 
-# Send the prompt containing the validated context config to Claude 5.1
+# Send prompt with validated context config to Claude 5.6
 response = client.messages.create(
-    model="claude-5.1-sonnet-20261220",
+    model="claude-5.6-sonnet-20270115",
     max_tokens=1024,
-    system=f"Project Operating Context rules:\n{config.model_dump_json(indent=2)}",
+    system=f"Project Operating Context rules & FastMCP 3.1 Task Protocol:\n{config.model_dump_json(indent=2)}",
     messages=[{"role": "user", "content": "Analyze the codebase structure."}]
 )
 print(response.content)
@@ -146,5 +157,5 @@ print(response.content)
 - [Architecture Index Search & Verification](https://github.com/search?q=Architecture+Index&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-12-31
+- Last reviewed: 2027-01-07
 - Confidence: high

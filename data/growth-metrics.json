@@ -29,7 +29,6 @@
     "docs/tools/benchmarking/gpqa.md",
     "docs/tools/ai_knowledge/llama-4-maverick.md",
     "docs/tools/ai_knowledge/llama-4.md",
-    "docs/tools/development_ops/github_copilot.md",
     "docs/tools/ai_knowledge/llama.md",
     "docs/tools/development_ops/context7.md",
     "docs/tools/development_ops/aider.md",
@@ -40,7 +39,8 @@
     "docs/tools/intake_storage/verba.md",
     "docs/tools/infrastructure/valkey.md",
     "docs/tools/calendar_tasks/reclaim.md",
-    "docs/tools/ai_knowledge/openrouter.md"
+    "docs/tools/ai_knowledge/openrouter.md",
+    "docs/tools/intake_storage/khoj.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
