@@ -1,7 +1,7 @@
 # OpenClaw Security and Operations Pattern
 
 ## What it is
-An operating pattern for running OpenClaw and other high-autonomy agents with explicit trust boundaries, patch discipline, skill review, and approval gates for high-impact actions. As of January 2027, it is the primary framework for managing agents powered by frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **Llama 4**, **Gemma 3**, and **Qwen 3.8** utilizing **FastMCP 3.1** security bindings.
+An operating pattern for running OpenClaw and other high-autonomy agents with explicit trust boundaries, patch discipline, skill review, and approval gates for high-impact actions. As of January 2027, it is the primary framework for managing agents powered by frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL** utilizing **FastMCP 3.1** security bindings.
 
 ## What problem it solves
 OpenClaw combines messaging channels, browser automation, shell-capable skills, and third-party integrations. This power creates a massive attack surface where "prompt injection" or "malicious skill execution" can lead to credential theft or destructive filesystem actions. This pattern provides a "defense-in-depth" strategy for agentic operations.
@@ -44,9 +44,9 @@ Before deploying OpenClaw in an "always-on" mode, complete these steps:
 3. **Skill Audit**: Remove all unused default skills, especially those with shell access or file deletion capabilities.
 4. **Approval Setup**: Configure a messaging provider (Slack/Telegram) to receive `requires_approval` notifications.
 
-## Technical Implementation: Claude Hooks & Trust Tagging
+## Technical Implementation: Claude Hooks & FastMCP 3.1 Trust Tagging
 
-Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution. Under the **Model Context Protocol (FastMCP 3.1)** standard, Claude Hooks include specialized `PreToolUse` and `PostToolUse` logic, enabling granular control over the full tool-calling lifecycle for frontier engines.
+Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution. Under the **FastMCP 3.1 Task Protocol** standard, Claude Hooks include specialized `PreToolUse` and `PostToolUse` logic, enabling granular control over the full tool-calling lifecycle for frontier engines.
 
 ### 1. PreToolUse Hook (Approval Gate)
 Configure a middleware layer that pauses execution for high-risk tools.
@@ -55,6 +55,7 @@ Configure a middleware layer that pauses execution for high-risk tools.
 // claude_hooks_config.json
 {
   "mcp_version": "3.1",
+  "task_protocol": "fastmcp-3.1",
   "hooks": {
     "PreToolUse": [
       {
@@ -71,7 +72,7 @@ Configure a middleware layer that pauses execution for high-risk tools.
 ```
 
 ### 2. Prompt-Level Trust Tagging
-Always wrap untrusted external data in XML tags to prevent the model from confusing it with system instructions. This is highly effective with high-reasoning models like **Claude 5.1** and **GPT-5.5**.
+Always wrap untrusted external data in XML tags to prevent the model from confusing it with system instructions. This is highly effective with high-reasoning models like **Claude 5.6** and **GPT-5.6**.
 
 ```markdown
 System: You are an OpenClaw security-hardened assistant.
@@ -91,7 +92,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Any
 
 class SecurityHookEvaluation(BaseModel):
-    """Pydantic v2 model for auditing and evaluating OpenClaw tool call permissions."""
+    """Pydantic v2 model for auditing and evaluating OpenClaw tool call permissions under FastMCP 3.1."""
     tool_name: str = Field(..., description="Target tool name requested by agent")
     tool_args: Dict[str, Any] = Field(default_factory=dict, description="Arguments passed to tool call")
     user_id: str = Field(..., description="Identifier of worker or user triggering tool")
@@ -117,7 +118,7 @@ class SecurityPayload(BaseModel):
         return re.sub(r'</?untrusted_content>', '', v, flags=re.IGNORECASE)
 
 def validate_and_execute_payload(payload: SecurityPayload, hook_eval: SecurityHookEvaluation) -> str:
-    """Evaluates security gates and formats boundary prompt for Claude 5.1 / GPT-5.5."""
+    """Evaluates security gates and formats boundary prompt for Claude 5.6 / GPT-5.6 / FastMCP 3.1."""
     if hook_eval.is_approval_required():
         return f"APPROVAL_REQUIRED: Action [{hook_eval.tool_name}] requested by [{hook_eval.user_id}] requires human confirmation."
 
@@ -154,13 +155,14 @@ openclaw config rotate-token --force --expiry 24h
 ## API examples
 
 ### Programmatic Approval (n8n Integration)
-Use a webhook to confirm or deny an agent's requested action under MCP 3.1.
+Use a webhook to confirm or deny an agent's requested action under FastMCP 3.1.
 
 ```javascript
-// Example webhook payload sent to n8n for approval under MCP 3.1 payload schemas
+// Example webhook payload sent to n8n for approval under FastMCP 3.1 payload schemas
 {
   "mcp_version": "3.1",
-  "agent_id": "research-bot-alpha-v5",
+  "task_protocol": "fastmcp-3.1",
+  "agent_id": "research-bot-alpha-v5.6",
   "tool_call": "browser_open_url",
   "arguments": {
     "url": "https://suspicious-site.com/payload.sh"
@@ -187,5 +189,5 @@ Use a webhook to confirm or deny an agent's requested action under MCP 3.1.
 - [Anthropic: Tool Use Security Best Practices](https://docs.anthropic.com/claude/docs/tool-use-security)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

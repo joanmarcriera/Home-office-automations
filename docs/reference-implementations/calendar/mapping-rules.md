@@ -3,25 +3,25 @@
 ## What it is
 This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a structured data contract for automation workflows, ensuring that AI-generated events are clean, consistent, and searchable.
 
-As of early January 2027, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar and CalDAV management.
+As of early January 2027, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar and CalDAV management utilizing **FastMCP 3.1 Task Protocol**.
 
 ## What problem it solves
 LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule and maintaining the integrity of the family's temporal source of truth.
 
 ## Where it fits in the stack
-This logic resides in the **Data Transformation step** of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like **n8n** or via an **MCP server** running in the local homelab.
+This logic resides in the **Data Transformation step** of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like **n8n** or via a **FastMCP 3.1 server** running in the local homelab.
 
 ## Typical use cases
 - **Automatic Bill Reminders**: Mapping the due date of a scanned PDF bill to a calendar reminder with a link to the source document.
 - **Appointment Scheduling**: Extracting dates from confirmation emails and creating events across different providers (Fastmail, Apple, Microsoft).
 - **School Schedule Integration**: Processing school newsletters to add holidays and parent-teacher meetings to the family calendar.
-- **Unified Event Creation**: Using a single tool call to create events across multiple calendar providers via the Chronos MCP server.
+- **Unified Event Creation**: Using a single tool call to create events across multiple calendar providers via the Chronos FastMCP server.
 
 ## Strengths
 - **Consistency**: Ensures every AI-generated event follows the same structural pattern (e.g., Summary, Start/End, Description).
 - **Enrichment**: Adds value by linking back to the source document in **Paperless-ngx** using the `doc_id`.
 - **Flexibility**: The logic can be easily extended to support additional fields like "reminders", "visibility", or custom labels.
-- **MCP Native**: Fully compatible with Model Context Protocol 3.1 and FastMCP 3.1 for agent-driven scheduling.
+- **FastMCP Native**: Fully compatible with Model Context Protocol FastMCP 3.1 for agent-driven scheduling.
 
 ## Limitations
 - **Timezone Sensitivity**: Requires the extraction pipeline to be aware of the user's local timezone to avoid off-by-one errors during conversion to UTC.
@@ -41,10 +41,10 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 ## Getting started
 
 ### 1. Extraction
-Use **Claude 5.1** or **GPT-5.5** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
+Use **Claude 5.6**, **GPT-5.6**, or **Gemini 4.0 Ultra** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
 
 ### 2. Implementation
-Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server. The server will apply these mapping rules automatically during the event creation process.
+Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server under FastMCP 3.1. The server will apply these mapping rules automatically during the event creation process.
 
 ## CLI examples
 Use the following commands to test and apply calendar mappings.
@@ -57,11 +57,11 @@ python3 scripts/gcal_sync_reference.py --dry-run --input extracted_data.json
 python3 scripts/gcal_sync_reference.py --input extracted_data.json --provider google
 
 # Use Chronos MCP to list events for a specific day
-mcp-client chronos list-events --date 2027-01-06
+mcp-client chronos list-events --date 2027-01-07
 ```
 
 ## API examples
-The following table defines how extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and Chronos MCP event fields.
+The following table defines how extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and Chronos FastMCP event fields.
 
 ### Mapping Table
 | Extracted Field | Calendar Field | Logic / Format |
@@ -76,8 +76,10 @@ The following table defines how extracted LLM fields map to [Google Calendar](..
 ### JSON Payload Example
 ```json
 {
+  "mcp_version": "3.1",
+  "task_protocol": "fastmcp-3.1",
   "event_name": "Water Bill Due",
-  "start_date": "2027-01-06T12:00:00Z",
+  "start_date": "2027-01-07T12:00:00Z",
   "location": "Online Portal",
   "doc_id": "12345",
   "reasoning": "Detected 'due date' in scanned utility bill."
@@ -133,7 +135,7 @@ class ExtractedEvent(BaseModel):
 - [Vikunja](../../services/vikunja.md): Alternative target for task-based "events".
 - [Habitica](../../services/habitica.md): For mapping recurring habits or chores derived from documents.
 - [Chronos MCP](../../scripts/calendar_tool.py): The reference implementation for CalDAV and GCal unified event management.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For unified calendar event creation.
+- [Model Context Protocol (FastMCP 3.1)](../../tools/automation_orchestration/mcp.md): For unified calendar event creation.
 
 ## Sources / references
 - [Google Calendar API Events Reference](https://developers.google.com/calendar/api/v3/reference/events/insert)
@@ -141,5 +143,5 @@ class ExtractedEvent(BaseModel):
 - [JMAP for Calendars (RFC 8984)](https://datatracker.ietf.org/doc/html/rfc8984)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

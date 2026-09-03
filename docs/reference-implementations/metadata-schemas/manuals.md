@@ -3,7 +3,7 @@
 ## What it is
 A YAML-based and JSON-schema-validated metadata structure that defines the fields for indexing, tagging, and retrieving scanned household manuals. It ensures that technical documentation is stored with enough semantic context to be useful for both human reference and automated AI retrieval.
 
-As of early January 2027, this schema enables frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** to navigate complex physical documents by providing a semantic "table of contents" and highly precise metadata anchors.
+As of early January 2027, this schema enables frontier agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra/Flash**, **DeepSeek-V4**, and **Qwen 3.6 VL** to navigate complex physical documents by providing a semantic "table of contents" and highly precise metadata anchors under **FastMCP 3.1**.
 
 ## What problem it solves
 Scanned manuals are often large, unsearchable PDFs. Without a structured schema, finding specific information (like the "Troubleshooting" section or "Error Codes" for a specific dishwasher model) is highly inefficient. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located, reducing hallucinations and retrieval latency.
@@ -15,13 +15,13 @@ The schema sits at the **Data Management Layer**. It is used by **Document Manag
 - **Automated Troubleshooting**: An agent reads the "Error Codes" section of a manual to explain a blinking light on an appliance.
 - **Maintenance Reminders**: Extracting service intervals from a car manual to create calendar events.
 - **Home Inventory**: Building a digital twin of a home's appliances with direct links to their manuals.
-- **Auto-Discovery**: MCP servers can expose tools to list all available manuals and their associated metadata (manufacturer, model) to autonomous agents.
+- **Auto-Discovery**: FastMCP servers can expose tools to list all available manuals and their associated metadata (manufacturer, model) to autonomous agents.
 
 ## Strengths
 - **Granularity**: Section-aware page ranges allow for precise retrieval of technical instructions.
 - **Consistency**: Standardizes how model numbers and manufacturers are recorded across the entire library.
 - **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
-- **MCP Native**: Integrates with Model Context Protocol 3.1 and FastMCP 3.1 for querying via agentic tools.
+- **FastMCP Native**: Integrates with Model Context Protocol FastMCP 3.1 for querying via agentic tools.
 
 ## Limitations
 - **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via VLM/OCR post-processing).
@@ -35,7 +35,7 @@ The schema sits at the **Data Management Layer**. It is used by **Document Manag
 
 ## When not to use it
 - For simple, one-page quick start guides that don't have multiple sections.
-- If the manufacturer provides a robust, searchable online portal that the agent can already access via a specialized MCP tool.
+- If the manufacturer provides a robust, searchable online portal that the agent can already access via a specialized FastMCP tool.
 - For ephemeral or disposable product documentation.
 
 ## Getting started
@@ -83,7 +83,7 @@ manual_metadata:
 ```
 
 ### Metadata Integration via Pydantic v2
-Here is how the YAML metadata is parsed, validated, and embedded in the vector store:
+Here is how the YAML metadata is parsed, validated, and embedded in the vector store under FastMCP 3.1:
 
 ```python
 from typing import List, Tuple, Optional
@@ -120,13 +120,13 @@ class ManualMetadata(BaseModel):
 - [n8n](../../services/n8n.md): Orchestrating the flow from scan to RAG database.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Multi-step processes for handling document intake.
 - [Manual Processor Script](../../scripts/process_manuals.py): The reference implementation for PDF processing and vector storage.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For querying manuals via agentic tools.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For querying manuals via agentic tools under FastMCP 3.1.
 
 ## Sources / References
 - [Paperless-ngx Custom Fields](https://docs.paperless-ngx.com/usage/#custom-fields)
 - [YAML Standard Specification](https://yaml.org/spec/1.2.2/)
-- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
