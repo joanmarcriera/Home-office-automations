@@ -82,7 +82,7 @@ class WorkflowParams(BaseModel):
     """Strict Pydantic v2 model for validating workflow prompt execution payload."""
     prompt_id: str = Field(..., description="Unique identifier for the OpenClaw workflow prompt")
     context: Dict[str, Any] = Field(default_factory=dict, description="Key-value mapping of prompt placeholders")
-    model_override: str = Field(default="claude-5.1-sonnet", description="Target frontier model for execution")
+    model_override: str = Field(default="claude-5.6-sonnet", description="Target frontier model for execution")
 
 @mcp.tool()
 def execute_workflow(params: WorkflowParams) -> str:
@@ -119,5 +119,5 @@ def execute_workflow(params: WorkflowParams) -> str:
 - [OpenClaw Foundation Documentation (January 2027)](https://openclaw.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
