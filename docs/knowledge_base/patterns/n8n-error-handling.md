@@ -11,7 +11,7 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 
 ## Typical use cases
 - **API Monitoring**: Catching and notifying when a third-party service (e.g., Google Calendar) is down.
-- **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 5.1](../../tools/ai_knowledge/claude.md)) fails to meet the required schema.
+- **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 5.6](../../tools/ai_knowledge/claude.md) or [GPT-5.6](../../tools/ai_knowledge/openai.md)) fails to meet the required schema.
 - **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) notification servers.
 - **Self-Healing**: Triggering an LLM-based reasoning loop to diagnose and fix transient errors.
 
@@ -75,7 +75,7 @@ n8n list:executions --workflowId=10 --status=failed
 The following script demonstrates how to parse, validate, and structure the n8n error payload before pushing it to alerting or monitoring endpoints (e.g., Home Assistant or Telegram) using Pydantic v2 schemas:
 
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 
@@ -84,7 +84,7 @@ class N8nErrorPayload(BaseModel):
     workflow_id: str = Field(..., min_length=1, max_length=64)
     workflow_name: str = Field(..., min_length=2)
     node_name: str = Field(..., min_length=1)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     message: str = Field(..., min_length=2)
     execution_id: str = Field(..., min_length=1)
     error_details: Optional[Dict[str, Any]] = None
@@ -92,7 +92,7 @@ class N8nErrorPayload(BaseModel):
     @field_validator('timestamp')
     @classmethod
     def ensure_not_future(cls, v: datetime) -> datetime:
-        if v > datetime.utcnow():
+        if v > datetime.now(timezone.utc):
             raise ValueError("Timestamp cannot be in the future")
         return v
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         "workflow_id": "12",
         "workflow_name": "Sync Google Calendar to FastMail",
         "node_name": "Fetch Events from GCal API",
-        "timestamp": "2027-01-05T14:32:00Z",
+        "timestamp": "2027-01-07T14:32:00Z",
         "message": "API Rate Limit Exceeded (429)",
         "execution_id": "98273",
         "error_details": {
@@ -136,5 +136,5 @@ if __name__ == "__main__":
 - [n8n v1.65+ Release Notes and Error Tracing](https://github.com/n8n-io/n8n/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

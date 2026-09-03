@@ -7,13 +7,14 @@ Key components evaluated in early January 2027:
 - **UI Frameworks**: Comparison between Open WebUI and Streamlit for family use.
 - **RAG Orchestration**: Integration with Ollama and local embedding models.
 - **Agentic Loops**: Implementation of self-healing loops for autonomous remediation.
+- **Protocol Standards**: Execution via FastMCP 3.1 Task Protocol with asynchronous task decomposition.
 - **Schema Validation**: Enforcement of client-server and tool payloads using strict Pydantic v2 schemas.
 
 ## What problem it solves
 Scanned manuals are often long, poorly indexed, and difficult to search during a "household emergency" (e.g., a leaking dishwasher). This assistant provides immediate, natural language answers to specific troubleshooting questions, reducing time-to-fix.
 
 ## Where it fits in the stack
-**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 5.1, Gemini 4.0 Pro/Flash, or GPT-5.5) and the Vector DB containing chunked manual data.
+**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or Gemma 4) and the Vector DB containing chunked manual data.
 
 ## Typical use cases
 - Interpreting cryptic error codes on the oven or washing machine.
@@ -25,7 +26,7 @@ Scanned manuals are often long, poorly indexed, and difficult to search during a
 - **Accessibility**: Family members can ask questions via phone or tablet without technical knowledge.
 - **Privacy**: Entirely self-hosted when using local LLMs and embeddings.
 - **Accuracy**: RAG reduces hallucinations by grounding the LLM in the actual text of the manual.
-- **Frontier Support**: Optimized for Claude 5.1 and GPT-5.5 reasoning patterns.
+- **Frontier Support**: Optimized for Claude 5.6, GPT-5.6, and Qwen 3.6 VL multi-modal reasoning patterns.
 
 ## Limitations
 - **OCR Quality**: Poorly scanned manuals may lead to incorrect information retrieval.
@@ -113,8 +114,8 @@ if __name__ == "__main__":
     print("Payload validated successfully:", query_payload.model_dump())
 ```
 
-### 2. Dynamic Troubleshooting using MCP 3.1 Task Protocol
-Under the early January 2027 standard, we represent a troubleshooting task dynamically using the MCP 3.1 Task Protocol JSON payload.
+### 2. Dynamic Troubleshooting using FastMCP 3.1 Task Protocol
+Under the early January 2027 standard, we represent a troubleshooting task dynamically using the FastMCP 3.1 Task Protocol JSON payload.
 
 ```json
 {
@@ -138,7 +139,7 @@ Under the early January 2027 standard, we represent a troubleshooting task dynam
       },
       {
         "name": "generate-remediation",
-        "tool": "claude-5-1-reason",
+        "tool": "claude-5-6-reason",
         "arguments": {
           "prompt": "Based on retrieved chunks: {{steps.query-vector-db.output}}, construct clear, illustrated step-by-step instructions to clear the E24 error."
         }
@@ -164,5 +165,5 @@ Under the early January 2027 standard, we represent a troubleshooting task dynam
 - [Self-Healing Agentic Loops for Homelab Automation](https://riera.co.uk/blog/self-healing-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
