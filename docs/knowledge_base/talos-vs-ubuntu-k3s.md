@@ -21,7 +21,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - **Evaluating Node OS**: Deciding which distribution to install on physical hardware or Proxmox VMs for a new K3s cluster.
 - **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to eliminate SSH-based attack vectors.
 - **GitOps Implementation**: Designing a cluster where node configuration is entirely managed via YAML and stored in Git (e.g., via ArgoCD or Flux).
-- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 5.1, Llama 4, or Qwen 3.8, requiring specialized driver integration.
+- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 5.6, DeepSeek-V4, or Qwen 3.6 VL, requiring specialized driver integration.
 
 ## Strengths
 
@@ -29,7 +29,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - **Familiarity**: Most users are comfortable with Bash and standard Linux tools.
 - **Versatility**: Can easily run non-K8s workloads (e.g., Docker containers) alongside the cluster.
 - **Support**: Massive community and extensive documentation for Ubuntu 26.04 LTS.
-- **Hardware Support**: Superior out-of-the-box support for specialized hardware like NVIDIA GPUs for GPT-5.5 inference.
+- **Hardware Support**: Superior out-of-the-box support for specialized hardware like NVIDIA GPUs for GPT-5.6 inference.
 
 ### Talos OS
 - **Security by Design**: Minimal attack surface; no SSH, no shell, and a read-only root filesystem.
@@ -207,11 +207,11 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 - [Ceph](../tools/infrastructure/ceph.md) — Distributed storage alternative.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — For agent-infrastructure interaction.
 
-## Sources / References
+## Sources / references
 - [Talos OS v1.10 Documentation](https://www.talos.dev/v1.10/)
 - [K3s Official Site](https://k3s.io/)
 - [Ubuntu 26.04 Noble Numbat Release Notes](https://discourse.ubuntu.com/t/noble-numbat-release-notes/44068)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
