@@ -4,9 +4,9 @@
 This document defines the technical standards and operational conventions for the homelab automation stack. It ensures interoperability between diverse tools, maintains documentation quality, and provides a clear protocol for autonomous agents and human contributors.
 
 Key updates for the early January 2027 ecosystem include:
-- **Foundational LLM Standards**: Multi-agent alignment across frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Llama 4, Gemma 3, Qwen 3.8, and FastMCP 3.1).
+- **Foundational LLM Standards**: Multi-agent alignment across frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and FastMCP 3.1).
 - **Enforced Schema Validation**: Standardization of all API integration scripts using strict Pydantic v2 schemas.
-- **Model Context Protocol (MCP 3.1) Task Protocol**: Full alignment with the MCP 3.1 Task Protocol JSON schema for multi-agent execution pipelines and structured tool tracking.
+- **Model Context Protocol (FastMCP 3.1) Task Protocol**: Full alignment with the FastMCP 3.1 Task Protocol JSON schema for multi-agent execution pipelines and structured tool tracking.
 
 ## What problem it solves
 In a complex, multi-tool environment with frequent contributions from AI agents, fragmentation and inconsistency are high risks. These standards eliminate ambiguity in naming, document structure, metadata, and cross-tool communication, ensuring the repository remains a reliable source of truth.
@@ -16,9 +16,9 @@ In a complex, multi-tool environment with frequent contributions from AI agents,
 
 ## Typical use cases
 - **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
-- **Agent Onboarding**: Giving new AI agents (e.g., Claude 5.1) the "rules of the road" for how to contribute safely and effectively.
+- **Agent Onboarding**: Giving new AI agents (e.g., Claude 5.6) the "rules of the road" for how to contribute safely and effectively.
 - **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
-- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5, Llama 4, and Qwen 3.8 for self-correction.
+- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.6, DeepSeek-V4, and Qwen 3.6 VL for self-correction.
 
 ## Strengths
 - **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
@@ -62,7 +62,7 @@ python3 scripts/check_doc_freshness.py docs --max-days 30
 ```
 
 ## API examples
-The following Python script demonstrates programmatic validation of document metadata using Pydantic v2 schemas and mock MCP 3.1 task integration.
+The following Python script demonstrates programmatic validation of document metadata using Pydantic v2 schemas and mock FastMCP 3.1 task integration.
 
 ```python
 import re
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     sample_content = """
     # Sample Page
     ## Contribution Metadata
-    - Last reviewed: 2027-01-05
+    - Last reviewed: 2027-01-07
     - Confidence: high
     """
 
@@ -167,5 +167,5 @@ Every knowledge page must include this section at the bottom:
 - [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

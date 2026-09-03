@@ -12,8 +12,8 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 ## Typical use cases
 
 ### Model Routing and Placement
-- **Low-Latency Inference**: Running 3-8B models (Llama 4, Qwen 3.8) on RTX 4060/5070 GPUs for sub-second agent responses.
-- **Large Context Windows**: Utilizing Apple Silicon's unified memory (M5/M6 48GB+) for 32B-70B models with 128k+ context windows.
+- **Low-Latency Inference**: Running 3-8B models (Gemma 4, Qwen 3.6 VL) on RTX 4060/5070 GPUs for sub-second agent responses.
+- **Large Context Windows**: Utilizing Apple Silicon's unified memory (M5/M6 48GB+) for 32B-70B models (DeepSeek-V4) with 128k+ context windows.
 - **Background Tasks**: Offloading audio transcription (Whisper) and image generation (Flux) to dedicated GPU servers.
 
 ### VRAM and Memory Capacity Planning
@@ -37,7 +37,7 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 - **Apple Silicon Cost**: While efficient, the "Apple Tax" on RAM upgrades remains a significant entry barrier for high-memory configurations.
 
 ## When to use it
-- Use this guide when planning a new home lab build or upgrading existing hardware to support frontier models like Claude 5.1 or GPT-5.5.
+- Use this guide when planning a new home lab build or upgrading existing hardware to support frontier models like Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra.
 - Use it to calibrate your [Model Routing Guide](../knowledge_base/model_routing_guide.md) based on your specific VRAM availability.
 
 ## When not to use it
@@ -47,7 +47,7 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 ## Getting started
 
 ### 1. The Value Baseline (Intel N100 / N200)
-For persistent services like n8n, Home Assistant, and Paperless-ngx, the **Intel N100** mini PC is the 2026 standard.
+For persistent services like n8n, Home Assistant, and Paperless-ngx, the **Intel N100** mini PC is the standard.
 - **Pros**: 6W-15W TDP, AVX-512 support, integrated QuickSync for 4K transcoding.
 - **Ideal For**: Lightweight Docker services and 1B-3B "helper" LLMs.
 
@@ -132,11 +132,11 @@ if __name__ == "__main__":
         }
     )
 
-    llama4_70b = TargetModel(model_name="llama4:70b", size_params_b=70.0, quantization="Q4_K_M", estimated_memory_required_gb=42.0)
-    qwen_38_8b = TargetModel(model_name="qwen3.8:8b", size_params_b=8.0, quantization="Q4_K_M", estimated_memory_required_gb=6.0)
+    deepseek_v4_70b = TargetModel(model_name="deepseek:v4-70b", size_params_b=70.0, quantization="Q4_K_M", estimated_memory_required_gb=42.0)
+    qwen_36_8b = TargetModel(model_name="qwen3.6-vl:8b", size_params_b=8.0, quantization="Q4_K_M", estimated_memory_required_gb=6.0)
 
-    print(f"Nodes capable of running Llama 4 70B: {cluster.find_capable_nodes(llama4_70b)}")
-    print(f"Nodes capable of running Qwen 3.8 8B: {cluster.find_capable_nodes(qwen_38_8b)}")
+    print(f"Nodes capable of running DeepSeek-V4 70B: {cluster.find_capable_nodes(deepseek_v4_70b)}")
+    print(f"Nodes capable of running Qwen 3.6 VL 8B: {cluster.find_capable_nodes(qwen_36_8b)}")
 ```
 
 ### Programmatic Resource Routing (LiteLLM)
@@ -145,11 +145,11 @@ Configure your hardware endpoints to be consumed by agents:
 model_list:
   - model_name: "local-fast"
     litellm_params:
-      model: "ollama/qwen3.8:7b"
+      model: "ollama/qwen3.6-vl:8b"
       api_base: "http://n100-server:11434"
   - model_name: "local-large"
     litellm_params:
-      model: "ollama/llama4:70b"
+      model: "ollama/deepseek:v4-70b"
       api_base: "http://macbook-m6:11434"
 ```
 
@@ -176,8 +176,8 @@ model_list:
 - [Intel N100 Technical Specifications](https://ark.intel.com/content/www/us/en/ark/products/231803/intel-processor-n100-6m-cache-up-to-3-40-ghz.html)
 - [NVIDIA GeForce RTX 50-Series Power Efficiency Guide](https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/)
 - [Apple Developer: Metal Performance Shaders](https://developer.apple.com/metal/pytorch/)
-- [Raspberry Pi 5+ Performance Benchmarks (2026)](https://www.raspberrypi.com/news/pi-5-performance/)
+- [Raspberry Pi 5+ Performance Benchmarks](https://www.raspberrypi.com/news/pi-5-performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
