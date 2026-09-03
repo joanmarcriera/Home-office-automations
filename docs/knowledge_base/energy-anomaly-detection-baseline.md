@@ -1,7 +1,7 @@
 # Home Energy Anomaly Detection Baseline
 
 ## What it is
-The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In early January 2027, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 5.1, GPT-5.5, or Gemini 4.0 Pro/Flash, integrated natively via the FastMCP 3.1 / Model Context Protocol Task Protocol.
+The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In early January 2027, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, or Qwen 3.6 VL, integrated natively via the FastMCP 3.1 / Model Context Protocol Task Protocol.
 
 The logic relies on three core pillars:
 1. **Statistical Baseline**: Calculating the moving average and standard deviation ($P_{avg} + 2\sigma$) for specific time buckets.
@@ -22,7 +22,7 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 
 ## Strengths
 - **Low Latency Detection**: Initial spike detection occurs locally within Home Assistant (sub-second response).
-- **High Confidence Classification**: Uses Claude 5.1, Qwen 3.8, or GPT-5.5 to eliminate false positives from complex appliance signatures.
+- **High Confidence Classification**: Uses Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or DeepSeek-V4 to eliminate false positives from complex appliance signatures.
 - **Privacy First**: Can be implemented entirely on-premises using [Ollama](../services/ollama.md) and local inference for sensitive data.
 - **Extensible**: Easily integrates with new sensors as the homelab grows.
 
@@ -67,7 +67,7 @@ python3 scripts/hw-check.py --sensor sensor.fridge_power --threshold 500
 ## API examples
 
 ### Python: Energy Anomaly Validation (Pydantic v2)
-A robust Python validation script for early January 2027 pipelines using strict Pydantic v2 schemas to parse, enforce, and classify energy anomalies prior to routing to Claude 5.1 or Gemini 4.0 Pro/Flash agent loops:
+A robust Python validation script for early January 2027 pipelines using strict Pydantic v2 schemas to parse, enforce, and classify energy anomalies prior to routing to Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra agent loops:
 
 ```python
 from datetime import datetime
@@ -116,11 +116,11 @@ if __name__ == "__main__":
     print(result.model_dump_json(indent=2))
 ```
 
-### n8n Agentic Reasoning Payload (Claude 5.1)
+### n8n Agentic Reasoning Payload (Claude 5.6)
 Using FastMCP 3.1 Task Protocol JSON structure:
 ```json
 {
-  "model": "claude-5.1-opus-20270105",
+  "model": "claude-5.6-opus-20270107",
   "task": "anomaly-detection",
   "messages": [
     {
@@ -154,5 +154,5 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
 - [Energy Anomaly Detection in Smart Homes (2025 Study)](https://arxiv.org/abs/2501.00000)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
