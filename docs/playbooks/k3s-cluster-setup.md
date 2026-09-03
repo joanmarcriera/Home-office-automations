@@ -16,7 +16,7 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 
 - **Critical Home Services**: Hosting Nextcloud, Home Assistant, and Authentik with 24/7 uptime.
 - **Agentic Workflows**: Providing a resilient platform for [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md).
-- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md).
+- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 5.6](../tools/ai_knowledge/claude.md), [GPT-5.6](../tools/ai_knowledge/openai.md), and [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md).
 - **Edge Resilience**: Managing small clusters where manual SRE intervention is minimized via autonomous controllers.
 
 ## Strengths
@@ -88,7 +88,7 @@ curl -sfL https://get.k3s.io | K3S_TOKEN=YOUR_NODE_TOKEN sh -s - server \
 ### Installing Cilium CNI
 Using the Cilium CLI to install eBPF networking:
 ```bash
-cilium install --version 1.18.0
+cilium install --version 1.19.0
 ```
 
 ## API examples
@@ -184,5 +184,5 @@ spec:
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

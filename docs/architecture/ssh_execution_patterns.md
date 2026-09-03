@@ -38,7 +38,7 @@ It belongs in the **Architecture** layer. Specifically, it defines the interface
 To implement secure agentic SSH, follow the "Three Planes" architecture.
 
 ### Architecture: The Three Planes
-1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.1, GPT-5.5, Llama 4, Gemini 4.0 Pro). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
+1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
 2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., FastMCP 3.1 server) that manages the loop and initiates connections.
 3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed.
 
@@ -144,5 +144,5 @@ if __name__ == "__main__":
 - [Teleport: Agentless SSH with FastMCP 3.1 Integrations](https://goteleport.com/ssh-server/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
