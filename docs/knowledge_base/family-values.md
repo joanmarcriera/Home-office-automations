@@ -1,7 +1,7 @@
 # Family Values and Agent Communication Style
 
 ## What it is
-The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In early January 2027, this framework is essential for aligning frontier models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, and Llama 4 Maverick with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
+The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In early January 2027, this framework is essential for aligning frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4 with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
 
 ### Core Family Values
 1. **Privacy First**: Local data (schedules, health, documents) remains local by default. Use of cloud APIs requires explicit "Value-Based Consent."
@@ -23,7 +23,7 @@ This sits in the **Governance & Policy Layer** of the KnowledgeOps architecture.
 
 ## Strengths
 - **Trust Preservation**: Builds long-term confidence in AI systems by making their behavior predictable and ethical.
-- **Model Agnostic**: Applies equally to Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash, Qwen 3.8, or local Llama 4 Maverick models.
+- **Model Agnostic**: Applies equally to Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Qwen 3.6 VL, or local Gemma 4 / DeepSeek-V4 models.
 - **Safety**: Reduces the risk of "accidental leaks" or socially inappropriate AI behavior.
 
 ## Limitations
@@ -151,11 +151,11 @@ if __name__ == "__main__":
 - [Model Routing Guide](model_routing_guide.md) — Selecting models based on the complexity of the ethical task.
 - [Privacy First Design](https://en.wikipedia.org/wiki/Privacy_by_design) — Foundational concept for the homelab.
 
-## Sources / References
+## Sources / references
 - [Anthropic: Constitutional AI](https://www.anthropic.com/news/constitutional-ai-harmlessness-from-ai-feedback)
 - [Microsoft: Guidelines for Human-AI Interaction](https://www.microsoft.com/en-us/research/project/guidelines-for-human-ai-interaction/)
 - [OpenClaw Ethics Charter (Internal Draft)](https://github.com/OpenClaw/OpenClaw/docs/architecture/ethics.md)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
