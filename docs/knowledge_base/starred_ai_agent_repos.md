@@ -11,7 +11,7 @@ Star counts below are from a GitHub API snapshot pulled on 2027-01-06 from your 
 - **Library Overload**: Helps navigate the "sea of stars" by filtering for high-momentum, high-reputation projects.
 - **Integration Friction**: Identifies which tools are "baselines" (always use) vs "situational" (only use for specific tasks).
 - **Stack Optimization**: Suggests bundles (e.g., Claude-centric, Local-first) to simplify architectural decisions.
-- **SOTA Alignment**: Integrates with early January 2027 state-of-the-art architectures (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 series) and the Model Context Protocol (FastMCP 3.1) to avoid stale recommendations.
+- **SOTA Alignment**: Integrates with early January 2027 state-of-the-art architectures (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, Gemini 4.0 Ultra series) and the Model Context Protocol (FastMCP 3.1 Task Protocol) to avoid stale recommendations.
 
 ## Where it fits in the stack
 
@@ -138,7 +138,7 @@ class MemoryItem(BaseModel):
     text: str = Field(..., description="Fact or instruction to persist")
     user_id: str = Field(..., description="Target user identifier")
 
-item = MemoryItem(text="User prefers Claude 5.1 for coding tasks", user_id="jules")
+item = MemoryItem(text="User prefers Claude 5.6 for complex architecture tasks", user_id="jules")
 m = Memory()
 m.add(item.text, user_id=item.user_id)
 
@@ -150,7 +150,7 @@ print(response.json())
 
 ## Related tools / concepts
 
-- [Claude 5.1](../tools/providers/anthropic.md) — primary reasoning model for these repositories.
+- [Claude 5.6](../tools/providers/anthropic.md) — primary reasoning model for these repositories.
 - [AI Tool Access Matrix](ai_tool_access_matrix.md) — real-time availability and status of these tools.
 - [Model Routing Guide](model_routing_guide.md) — deciding which model to use with these repositories.
 - [Agentic Workflows](patterns/agentic-workflows.md) — patterns for operationalizing these repos.
@@ -194,5 +194,5 @@ print(response.json())
 - [plandex-ai/plandex](https://github.com/plandex-ai/plandex)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

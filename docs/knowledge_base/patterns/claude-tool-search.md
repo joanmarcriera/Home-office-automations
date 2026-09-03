@@ -1,7 +1,7 @@
 # Claude Tool Search Pattern
 
 ## What it is
-A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution. This pattern has become the industry standard for Claude 5.1, GPT-5.5, and Gemini 4.0 Pro agents managing heterogeneous toolsets.
+A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution. This pattern has become the industry standard for Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL agents managing heterogeneous toolsets.
 
 ## What problem it solves
 Naive tool-calling often fails when an agent is presented with a large or overlapping tool catalog. The Claude Tool Search pattern improves reliability by making tool selection an explicit, model-guided process, reducing "wrong tool" hallucinations and improving first-shot accuracy in complex workflows. It specifically addresses the "context window saturation" problem encountered when passing 100+ tool definitions to Llama 4 Maverick models.
@@ -19,7 +19,7 @@ Orchestration Layer — sits in the agentic loop, specifically at the intersecti
 - **Improved Accuracy**: Higher success rates in complex tool selection scenarios.
 - **Scalability**: Allows agents to handle far more tools than would fit in a standard context window.
 - **Transparency**: The explicit search step provides an audit trail of *why* a particular tool was chosen.
-- **Model Agnostic**: Works effectively across Claude 5.1 (Opus/Sonnet), GPT-5.5 (Omni), and Llama 4 Maverick.
+- **Model Agnostic**: Works effectively across Claude 5.6 (Opus/Sonnet), GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## Limitations
 - **Latency**: Adding a discovery step increases the time to the first action.
@@ -78,7 +78,7 @@ search_input = ToolSearchQuery(query="calendar event creation")
 
 # The system prompt instructs the model to use the search_tools first
 response = client.messages.create(
-    model="claude-5-1-opus-20260831",
+    model="claude-5-6-opus-20270105",
     max_tokens=1024,
     system="Search for tools before execution if you are unsure which one to use.",
     tools=[{
@@ -140,5 +140,5 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 - [MCP Foundation Specification v3.1 (August 2026)](https://mcp-foundation.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
