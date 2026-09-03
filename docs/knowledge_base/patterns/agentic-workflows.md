@@ -7,13 +7,13 @@ Agentic workflows are design patterns where Large Language Models (LLMs) are not
 It enables the automation of complex tasks that require more than a single LLM call, such as multi-step research, software development, or sophisticated data analysis, by allowing the model to "think" and act over several turns. It addresses the reliability gap in complex automation by introducing feedback loops and reflection.
 
 ## Where it fits in the stack
-It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Qwen 3.8, and Llama 4) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
+It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Qwen 3.6 VL, Gemma 4, DeepSeek-V4, and Llama 4) and integrates with the **Tool/Action Layer** (APIs and services via FastMCP 3.1) to complete end-to-end tasks.
 
 ## Typical use cases
 - **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
-- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md), synthesize information with [Claude 5.1](../../tools/ai_knowledge/claude.md), and write reports.
-- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.5](../../tools/ai_knowledge/openai.md) and [Llama 4](../../tools/ai_knowledge/meta_llama.md).
-- **Self-Healing Infrastructure**: Agents that monitor system logs and autonomously remediate service failures.
+- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md) or [Exa AI](../../tools/providers/exa_ai.md), synthesize information with [Claude 5.6](../../tools/ai_knowledge/claude.md), and write reports.
+- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.6](../../tools/ai_knowledge/openai.md) and [Llama 4](../../tools/ai_knowledge/meta_llama.md).
+- **Self-Healing Infrastructure**: Agents that monitor system logs and autonomously remediate service failures via FastMCP 3.1 Task Protocol.
 
 ## Strengths
 - **Handles Complexity**: Can solve problems that are too difficult for a single LLM prompt.
@@ -38,14 +38,14 @@ To build an agentic workflow, select a framework like [LangGraph](../../tools/fr
 
 ### Core Concepts
 - **Planning**: The agent breaks down a complex goal into smaller, manageable steps.
-- **Tool Use**: The agent can interact with external systems (APIs, databases, web browsers).
+- **Tool Use**: The agent can interact with external systems (APIs, databases, web browsers) via FastMCP 3.1 Task Protocol.
 - **Reflection**: The agent evaluates its own performance or output and makes adjustments.
 - **Multi-agent Collaboration**: Multiple specialized agents work together.
 
 ## CLI examples
 ```bash
 # Example: Running an Aider session to refactor a local repository
-aider --model claude-5-1-sonnet-20270101 --auto-test
+aider --model claude-5-6-sonnet --auto-test
 
 # Using the CrewAI CLI to kick off a multi-agent task
 crewai run "Analyze the latest market trends for NVIDIA"
@@ -78,14 +78,14 @@ class AgentAction(BaseModel):
     parameters: dict
 
 def generate(state: ReflectionState) -> ReflectionState:
-    # Simulates calling Claude 5.1 / GPT-5.5 to draft content
+    # Simulates calling Claude 5.6 / GPT-5.6 to draft content
     print(f"Generating draft (Iteration: {state.iteration + 1})...")
     state.draft = "Substantive early January 2027 AI documentation standards."
     state.iteration += 1
     return state
 
 def reflect(state: ReflectionState) -> ReflectionState:
-    # Simulates calling Gemini 4.0 Pro to critique the draft
+    # Simulates calling Gemini 4.0 Ultra to critique the draft
     print("Reflecting and critiquing...")
     state.critique = "The draft is highly technical but could use more Pydantic v2 schemas."
     state.is_satisfactory = True  # Mark satisfactory once criteria are met
@@ -131,5 +131,5 @@ if __name__ == "__main__":
 - [LangChain: LangGraph Documentation and FastMCP 3.1 Task Protocol Integration](https://langchain-ai.github.io/langgraph/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

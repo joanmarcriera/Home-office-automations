@@ -1,10 +1,10 @@
 # SSO Solutions Comparison (Self-Hosted)
 
 ## What it is
-A comparative analysis of self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions. These platforms enable users to use a single set of secure credentials to access multiple independent software systems within a homelab or enterprise environment. In early January 2027, the focus has shifted toward high-performance, security-first identities like Kanidm, minimalist LDAP directories like LLDAP, and native support for the Model Context Protocol (MCP 3.1) Task Protocol for multi-agent credential delegation.
+A comparative analysis of self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions. These platforms enable users to use a single set of secure credentials to access multiple independent software systems within a homelab or enterprise environment. In early January 2027, the focus has shifted toward high-performance, security-first identities like Kanidm, minimalist LDAP directories like LLDAP, and native support for the FastMCP 3.1 Task Protocol for multi-agent credential delegation.
 
 ## What problem it solves
-Managing separate usernames and passwords for dozens of self-hosted services (Nextcloud, Gitea, etc.) is insecure and leads to "password fatigue." SSO centralizes authentication, enables mandatory Multi-Factor Authentication (MFA) or WebAuthn across all services, and simplifies the lifecycle management (onboarding/offboarding) of users. For autonomous AI agent swarms (e.g., using Claude 5.1, GPT-5.5, or Gemini 4.0 Pro), central SSO is crucial to handle programmatic access without exposing raw passwords.
+Managing separate usernames and passwords for dozens of self-hosted services (Nextcloud, Gitea, etc.) is insecure and leads to "password fatigue." SSO centralizes authentication, enables mandatory Multi-Factor Authentication (MFA) or WebAuthn across all services, and simplifies the lifecycle management (onboarding/offboarding) of users. For autonomous AI agent swarms (e.g., using Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or Gemma 4), central SSO is crucial to handle programmatic access without exposing raw passwords.
 
 ## Where it fits in the stack
 SSO sits in the **Identity and Access** layer of the infrastructure stack. It typically integrates with a directory service (like LDAP or Kanidm's internal store) and provides standardized authentication protocols—OIDC (OpenID Connect), SAML 2.0, and OAuth2—to application-layer services, as well as sandboxed agent authentication tokens.
@@ -13,7 +13,7 @@ SSO sits in the **Identity and Access** layer of the infrastructure stack. It ty
 - **Homelab Consolidation**: Unifying access to Gitea, Nextcloud, and Home Assistant dashboards.
 - **Enterprise-Lite**: Providing OIDC/SAML for small business internal tools with professional-grade security.
 - **Legacy Support**: Using LLDAP to provide authentication for older applications that only support the LDAP protocol.
-- **Agentic Authentication**: Allowing Claude 5.1, Llama 4, Qwen 3.8, or GPT-5.5 agents to authenticate securely via OIDC token exchange (MCP 3.1 Task Protocol) to retrieve data from private services without master keys.
+- **Agentic Authentication**: Allowing Claude 5.6, Llama 4, Qwen 3.6 VL, or GPT-5.6 agents to authenticate securely via OIDC token exchange (FastMCP 3.1 Task Protocol) to retrieve data from private services without master keys.
 
 ## Strengths
 
@@ -108,7 +108,7 @@ This script demonstrates programmatic user creation and OIDC token schema valida
 ```python
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Literal, Optional
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
@@ -125,7 +125,7 @@ class OIDCTokenExchange(BaseModel):
     expires_in: int = Field(..., ge=0)
     refresh_token: Optional[str] = None
     scope: str
-    issued_at: datetime = Field(default_factory=datetime.utcnow)
+    issued_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 def provision_sso_user(api_url: str, token: str, user: SSOUser) -> dict:
     """Provisions a new user in the Identity Provider (e.g., Authentik)."""
@@ -193,5 +193,5 @@ kanidm system oauth2 create gitea "Gitea Instance" https://gitea.example.com/oau
 - [OAuth 2.0 and OpenID Connect Explained](https://openid.net/developers/specs/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -5,10 +5,10 @@ Obsidian Vector Search is the architectural implementation of semantic search an
 
 Key capabilities of the early January 2027 ecosystem include:
 - **Local Embedding Pipelines**: Utilizing open-weight embedding models (e.g., `nomic-embed-text` or `bge-large-en-v1.5`) running locally via Ollama to ensure complete data privacy.
-- **Unified Personal RAG (Retrieval-Augmented Generation)**: Providing real-time note retrieval to frontier local agents (such as Llama 4 or Gemma 3) or API models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro/Flash) for personalized synthesis.
+- **Unified Personal RAG (Retrieval-Augmented Generation)**: Providing real-time note retrieval to frontier local agents (such as Gemma 4 or Llama 4) or API models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Qwen 3.6 VL) for personalized synthesis.
 - **Pipali v2.0 Desktop Coworker**: A desktop companion application from Khoj that acts as an ambient assistant, automatically indexing Obsidian vaults and executing tasks in the background.
 - **Open Paper Research Workbench**: An advanced semantic canvas built for synthesizing scholarly papers and personal research vaults in parallel.
-- **Model Context Protocol (MCP 3.1) Support**: Standardized MCP servers that expose your Obsidian vault directly as a secure, real-time context resource to developer workstations using FastMCP 3.1.
+- **FastMCP 3.1 Task Protocol Support**: Standardized FastMCP 3.1 servers that expose your Obsidian vault directly as a secure, real-time context resource to developer workstations using the FastMCP 3.1 Task Protocol.
 
 ## What problem it solves
 Traditional keyword searches fail when different terms are used to represent identical concepts (e.g., searching for "home automation" will miss notes that only mention "smart home lights"). Furthermore, as personal vaults scale beyond thousands of files, strict hierarchical folders and manual tag structures become impossible to maintain. Vector search bridges this "lexical gap" and uncovers forgotten conceptual connections automatically.
@@ -19,7 +19,7 @@ Traditional keyword searches fail when different terms are used to represent ide
 ## Typical use cases
 - **Semantic Concept Synthesis**: Uncovering unexpected connections across years of fragmented journal entries, meeting logs, and technical research.
 - **Context-Aware Daily Briefings**: Prompting an assistant to "Summarize everything I have worked on regarding home servers over the past year," retrieving and synthesizing historical details.
-- **Desktop Agent Memory**: Exposing personal notes as an active context repository for local coding agents using MCP 3.1.
+- **Desktop Agent Memory**: Exposing personal notes as an active context repository for local coding agents using FastMCP 3.1.
 - **Academic and Research Mapping**: Correlating personal thoughts with crawled scholarly articles using the Open Paper canvas.
 
 ## Strengths
@@ -61,8 +61,8 @@ Khoj provides a deep system-level coworker.
 3. Pipali will automatically start a background watcher, building semantic embeddings offline.
 4. Interact with your vault using the ambient desktop sidebar or hotkeys.
 
-### Option 3: Standard Obsidian MCP Server
-Expose your vault as a Model Context Protocol tool for Claude Desktop.
+### Option 3: Standard Obsidian FastMCP 3.1 Server
+Expose your vault as a Model Context Protocol tool for Claude Desktop or FastMCP clients.
 1. Run the official obsidian-mcp server using `uvx`:
    ```bash
    uvx mcp-server-obsidian --path ~/Documents/Obsidian/MainVault
@@ -179,7 +179,7 @@ class ObsidianLocalSearch:
             if idx != -1:
                 results.append(SearchResultMetadata(
                     filepath=self.filenames[idx],
-                    last_reviewed=date(2027, 1, 5),  # Example placeholder date
+                    last_reviewed=date(2027, 1, 7),  # Updated review date
                     distance=float(dist),
                     snippet=self.documents[idx][:250] + "..."
                 ))
@@ -229,5 +229,5 @@ def query_khoj_knowledge_base(query_text: str) -> dict:
 - [FAISS: A Library for Efficient Similarity Search](https://github.com/facebookresearch/faiss)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
