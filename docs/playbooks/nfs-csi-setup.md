@@ -6,7 +6,7 @@ This playbook defines the technical process for configuring the NFS CSI (Contain
 
 ## What problem it solves
 
-Standard local path provisioning in K3s is limited to the storage available on individual nodes and does not support high availability or shared storage across nodes. This setup solves the "persistent storage bottleneck" by centralizing data on a dedicated NAS, allowing pods to migrate between nodes while maintaining access to their data. It is particularly useful for storing massive model weights for [Claude 5.1](../tools/ai_knowledge/claude.md) and [GPT-5.5](../tools/ai_knowledge/openai.md).
+Standard local path provisioning in K3s is limited to the storage available on individual nodes and does not support high availability or shared storage across nodes. This setup solves the "persistent storage bottleneck" by centralizing data on a dedicated NAS, allowing pods to migrate between nodes while maintaining access to their data. It is particularly useful for storing massive model weights for [Claude 5.6](../tools/ai_knowledge/claude.md) and [GPT-5.6](../tools/ai_knowledge/openai.md).
 
 ## Where it fits in the stack
 
@@ -39,9 +39,9 @@ flowchart TD
 
 - **Clustered App Storage**: Providing shared persistent volumes for applications like Nextcloud or Plex that may run on any cluster node.
 - **Dynamic Provisioning**: Automatically creating NFS sub-directories on the NAS whenever a pod requests a new `PersistentVolumeClaim`.
-- **Large Model Weights**: Storing 100GB+ weights for [Llama 4](../tools/ai_knowledge/meta_llama.md), Gemma 3, and Qwen 3.8 in a centralized, accessible location.
+- **Large Model Weights**: Storing 100GB+ weights for [Llama 4](../tools/ai_knowledge/meta_llama.md), Gemma 4, and Qwen 3.8 in a centralized, accessible location.
 - **High Availability**: Ensuring service continuity by allowing pods to restart on healthy nodes without data loss during a node failure.
-- **Agentic Infrastructure**: Supporting [Claude 5.1](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
+- **Agentic Infrastructure**: Supporting [Claude 5.6](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
 
 ## Strengths
 
@@ -243,8 +243,8 @@ if __name__ == "__main__":
 - [Paperless-ngx Service](../services/paperless-ngx.md)
 - [Home Assistant Service](../services/home-assistant.md)
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
-- [Claude 5.1](../tools/ai_knowledge/claude.md)
-- [GPT-5.5](../tools/ai_knowledge/openai.md)
+- [Claude 5.6](../tools/ai_knowledge/claude.md)
+- [GPT-5.6](../tools/ai_knowledge/openai.md)
 - [Llama 4](../tools/ai_knowledge/meta_llama.md)
 
 ## Sources / References
@@ -255,5 +255,5 @@ if __name__ == "__main__":
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

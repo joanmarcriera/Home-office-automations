@@ -2,7 +2,7 @@
 
 ## What it is
 
-School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By early January 2027, it utilizes [Llama 4](../tools/ai_knowledge/llama.md) (70B), [Gemma 3](../tools/ai_knowledge/gemma.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md) for privacy-first, local document processing with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) tool integration.
+School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By early January 2027, it utilizes [Llama 4](../tools/ai_knowledge/llama.md) (70B), [Gemma 4](../tools/ai_knowledge/gemma.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md) for privacy-first, local document processing with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) tool integration.
 
 ## What problem it solves
 
@@ -163,5 +163,5 @@ Creating a school event from extracted data:
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

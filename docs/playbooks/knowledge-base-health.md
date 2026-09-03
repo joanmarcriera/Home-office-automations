@@ -1,7 +1,7 @@
 # Playbook: Knowledge Base Health
 
 ## What it is
-Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates. In early January 2027, these gates natively inspect model tags for Claude 5.1, GPT-5.5, Llama 4, and other frontier architectures, integrated with the FastMCP 3.1 / Model Context Protocol Task Protocol.
+Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates. In early January 2027, these gates natively inspect model tags for Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and other frontier architectures, integrated with the FastMCP 3.1 / Model Context Protocol Task Protocol.
 
 ## What problem it solves
 In a rapidly evolving technical environment, documentation quickly becomes stale or fragmented. This playbook prevents "documentation rot" by establishing clear ownership, a structured review cadence, and automated enforcement of formatting standards, ensuring users can always trust the information in the repository.
@@ -122,7 +122,7 @@ flowchart TD
 - **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`.
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains.
 - **Duplicate pages**: two pages document the same tool.
-- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.1", "Qwen 3.6" instead of "Qwen 3.8").
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.6", "Qwen 3.6" instead of "Qwen 3.8").
 - **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`.
 
 ## CLI examples
@@ -185,9 +185,9 @@ if __name__ == "__main__":
     try:
         meta = DocMetadata(
             filepath="docs/tools/ai_knowledge/claude.md",
-            last_reviewed=date(2027, 1, 5),
+            last_reviewed=date(2027, 1, 7),
             confidence=ConfidenceLevel.HIGH,
-            sources=["https://www.anthropic.com/news/claude-5-1"]
+            sources=["https://www.anthropic.com/news/claude-5-6"]
         )
         result = HealthCheckResult(metadata=meta)
         print(result.model_dump_json(indent=2))
@@ -212,5 +212,5 @@ if __name__ == "__main__":
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
