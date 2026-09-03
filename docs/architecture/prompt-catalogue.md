@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of early January 2027, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (FastMCP 3.1) Task Protocol compliance matrices.
+The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of early January 2027, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (FastMCP 3.1) Task Protocol compliance matrices with frontier model support (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL).
 
 ## What problem it solves
 
@@ -94,7 +94,7 @@ To use the catalogue, identify the automation type (Recurring GA, One-Shot Jules
 | **Schedule** | `0 1 * * *` and `0 13 * * *` (01:00 & 13:00 UTC) |
 | **Script** | `scripts/digest_to_intake.py` |
 | **Secrets** | `OPENROUTER_API_KEY` |
-| **Models** | Llama 4 400B → Claude 5.1 → GPT-5.5 → Gemini 4.0 Pro → Qwen 3.8 (fallback chain) |
+| **Models** | Claude 5.6 → GPT-5.6 → Gemini 4.0 Ultra → DeepSeek-V4 → Qwen 3.6 VL (fallback chain) |
 
 #### LLM System Prompt (FastMCP 3.1 & Early January 2027 Compatible)
 
@@ -138,7 +138,7 @@ Return ONLY valid JSON. No markdown wrapping.
 This is an automated daily maintenance task. Please complete the steps
 below **in order**, stopping at the first step that produces meaningful
 work. Do not attempt all three steps in a single PR. Optimize reasoning
-using frontier capabilities (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.8, Gemini 4.0 Pro).
+using frontier capabilities (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Qwen 3.6 VL).
 
 ---
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
         "catalogue": {
             "GA-2": {
                 "workflow_id": "digest-to-intake",
-                "target_models": ["Claude-5.1", "GPT-5.5", "Gemini-4.0-Pro"],
+                "target_models": ["Claude-5.6", "GPT-5.6", "Gemini-4.0-Ultra"],
                 "system_prompt": "You are an AI tools curator. Given a list of items...",
                 "temperature": 0.1,
                 "tools": [
@@ -326,5 +326,5 @@ if __name__ == "__main__":
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

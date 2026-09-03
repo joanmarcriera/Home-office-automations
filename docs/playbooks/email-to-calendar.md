@@ -2,7 +2,7 @@
 
 ## What it is
 
-Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs), [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md), and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md) for precise temporal reasoning.
+Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs), [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md), and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 5.6](../tools/ai_knowledge/claude.md), [GPT-5.6](../tools/ai_knowledge/openai.md), or [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md) for precise temporal reasoning.
 
 ## What problem it solves
 
@@ -21,7 +21,7 @@ Digital calendars are often incomplete because event data is trapped in unstruct
 
 ## Strengths
 
-- **High Precision**: Uses early January 2027-class models ([Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md)) for complex date/time reasoning.
+- **High Precision**: Uses early January 2027-class models ([Claude 5.6](../tools/ai_knowledge/claude.md), [GPT-5.6](../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md)) for complex date/time reasoning.
 - **Self-Cleaning**: Automatically tags processed emails in [Paperless-ngx](../services/paperless-ngx.md) to avoid duplicate entries.
 - **Model Agnostic**: Supports routing between cloud models (GPT-5.5) and local models ([Llama 4](../tools/ai_knowledge/llama.md)) based on data sensitivity.
 - **Protocol Native**: Utilizes [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) for standardized calendar tool access.
@@ -59,7 +59,7 @@ To implement Email to Calendar Automation:
         B --> C[Convert Email to PDF]
         C --> D[Upload to Paperless-ngx]
         D --> E[Extract Text via OCR]
-        E --> F[Call LLM (Claude 5.1) for Date Extraction]
+        E --> F[Call LLM (Claude 5.6) for Date Extraction]
         F --> G{Event Found?}
         G -- Yes --> H[Create Calendar Event via MCP 3.1]
         G -- No --> I[Tag as Failed / Notify]
@@ -87,10 +87,10 @@ mcp tool call chronos-mcp list_events --start_date "2026-08-26" --end_date "2026
 ## API examples
 
 ### n8n Extraction Prompt (JSON)
-Configuring the Claude 5.1 node to return structured event data:
+Configuring the Claude 5.6 node to return structured event data:
 ```json
 {
-  "model": "claude-5-1-opus-20260820",
+  "model": "claude-5-6-sonnet-20270105",
   "prompt": "Extract event details from the following email text. Sent Date: {{ $json.sent_date }}. Return JSON with fields: event_name, start_date (ISO), end_date (ISO), location, and summary.",
   "text": "{{ $json.ocr_content }}"
 }
@@ -158,5 +158,5 @@ def create_calendar_event(summary: str, location: Optional[str], start_time_str:
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high

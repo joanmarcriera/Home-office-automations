@@ -2,7 +2,7 @@
 
 ## What it is
 
-Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By early January 2027, this has evolved into a "Self-Healing Agentic Loop" where [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md) proactively manage household operations via [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md).
+Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By early January 2027, this has evolved into a "Self-Healing Agentic Loop" where [Claude 5.6](../tools/ai_knowledge/claude.md), [GPT-5.6](../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md), or [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md) proactively manage household operations via [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) and [FastMCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 
@@ -18,12 +18,12 @@ Household administration is often fragmented across multiple family members, lea
 - **Insurance Document Archival**: Tagging and filing insurance policies and medical records for easy retrieval during emergencies.
 - **School Form Routing**: Pushing new school forms to a shared "Action Required" dashboard in Home Assistant.
 - **Home Maintenance Tracking**: Automating reminders for recurring maintenance tasks based on scanned service records.
-- **Sentiment-Based Escalation**: Using [Claude 5.1](../tools/ai_knowledge/claude.md) or [Qwen 3.8](../tools/ai_knowledge/qwen.md) to detect "Final Notice" language and trigger high-priority alerts.
+- **Sentiment-Based Escalation**: Using [Claude 5.6](../tools/ai_knowledge/claude.md) or [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md) to detect "Final Notice" language and trigger high-priority alerts.
 
 ## Strengths
 
 - **High Visibility**: Centralizes task status on a shared dashboard that all family members can see.
-- **Automatic Classification**: Uses Paperless-ngx matching rules and LLM-based reasoning (Claude 5.1) to route documents.
+- **Automatic Classification**: Uses Paperless-ngx matching rules and LLM-based reasoning (Claude 5.6) to route documents.
 - **Multi-Channel**: Supports notifications via Matrix, Signal, or Home Assistant mobile alerts.
 - **Archival Integrity**: Ensures every task is backed by a permanent, OCR'd digital record.
 - **Agent-Ready**: Natively supports [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) for autonomous task resolution.
@@ -51,7 +51,7 @@ Household administration is often fragmented across multiple family members, lea
 
 1.  **Configure Paperless**: Set up [Paperless-ngx](../services/paperless-ngx.md) with matching rules for tags like `Utility`, `Medical`, and `Insurance`.
 2.  **Setup the Workflow**: Deploy an [n8n](../services/n8n.md) workflow that triggers on the `needs-action` tag.
-3.  **Integrate LLM**: Use the [Claude 5.1](../tools/ai_knowledge/claude.md) node in n8n for document analysis.
+3.  **Integrate LLM**: Use the [Claude 5.6](../tools/ai_knowledge/claude.md) node in n8n for document analysis.
 4.  **Connect Home Assistant**: Link [Home Assistant](../services/home-assistant.md) to n8n to create notifications and update dashboard sensors.
 5.  **Step-by-Step Flow**:
     ```mermaid
@@ -86,13 +86,13 @@ hass-cli service call notify.family_app \
 ## API examples
 
 ### n8n Agent Node Configuration (JSON)
-Extracting due dates and amounts from a Paperless document using Claude 5.1:
+Extracting due dates and amounts from a Paperless document using Claude 5.6:
 ```json
 {
-  "node": "Claude 5.1 Agent",
+  "node": "Claude 5.6 Agent",
   "parameters": {
     "prompt": "Analyze the following document text and extract the 'Due Date' and 'Amount Due'. Return only JSON.",
-    "model": "claude-5-1-opus-20260820",
+    "model": "claude-5-6-sonnet-20270105",
     "context": "{{$node[\"Paperless-ngx\"].json[\"content\"]}}"
   }
 }
@@ -151,5 +151,5 @@ def update_sensor_state(token: str, sensor_id: str, state_value: str, friendly_n
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
