@@ -1,7 +1,7 @@
 # Raspberry Pi Kiosk Automation
 
 ## What it is
-Raspberry Pi Kiosk Automation is an agentic operational pattern for transforming standard Raspberry Pi devices into dedicated, single-purpose interactive dashboards, digital signage, or smart mirror endpoints. By leveraging autonomous LLMs (e.g., Claude 5.1 and GPT-5.5) coupled with execution servers adhering to the Model Context Protocol (MCP v3.1 / FastMCP 3.1), this pattern orchestrates headless display configuration, browser optimization, window management, and remote state healing without manual operator intervention.
+Raspberry Pi Kiosk Automation is an agentic operational pattern for transforming standard Raspberry Pi devices into dedicated, single-purpose interactive dashboards, digital signage, or smart mirror endpoints. By leveraging autonomous LLMs (e.g., Claude 5.6 and GPT-5.6) coupled with execution servers adhering to the Model Context Protocol (MCP v3.1 / FastMCP 3.1), this pattern orchestrates headless display configuration, browser optimization, window management, and remote state healing without manual operator intervention.
 
 ## What problem it solves
 Deploying and maintaining reliable physical displays typically involves a complex series of manual configurations including setting up lightweight window managers, handling auto-login, disabling screen blanking and power management (DPMS), and clearing browser crash flags upon unexpected power cuts. In standard setups, Chromium often displays annoying "Restore pages" popups or resource-exhaustion crashes. This playbook automates these brittle steps via agentic execution loops and provides robust systemd-level resilience, ensuring re-entrant, self-healing, and unattended kiosk behavior.
@@ -19,7 +19,7 @@ This playbook resides in the **Operations / Playbooks** layer of the homelab aut
 - **Fully Automated Provisioning**: Replaces hour-long manual configuration checklists with a single execution step orchestrated by an LLM agent.
 - **Unattended Recovery**: Leverages lightweight systemd service supervisors to automatically clear Chromium crash files, clear locks, and restart the browser on crash.
 - **Low Footprint**: Tailored to run efficiently with lightweight X11 (Openbox/Xinit) without the overhead of heavy desktop environments like GNOME or KDE.
-- **Agentic Self-Correction**: Built-in remote diagnostic scripts allow agents like Claude 5.1 to detect missing dependencies or misconfigured environment variables and resolve them autonomously.
+- **Agentic Self-Correction**: Built-in remote diagnostic scripts allow agents like Claude 5.6 to detect missing dependencies or misconfigured environment variables and resolve them autonomously.
 
 ## Limitations
 - **Debian/Raspberry Pi OS Specific**: Specifically tailored to Debian-based Raspberry Pi OS (Bookworm or newer) running either classic X11 or Wayland (with specific modifications required for Wayfire).
@@ -41,7 +41,7 @@ This playbook resides in the **Operations / Playbooks** layer of the homelab aut
 ### Pre-requisites
 - A Raspberry Pi (Model 3B+, 4, or 5) running Raspberry Pi OS (Bookworm or newer recommended).
 - SSH server enabled and Tailscale installed on the Pi for remote access.
-- A modern agent framework utilizing Claude 5.1, GPT-5.5, or Gemini 4.0 Pro connected to a local shell execution MCP server (FastMCP 3.1).
+- A modern agent framework utilizing Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra connected to a local shell execution MCP server (FastMCP 3.1).
 
 ### Typical Automation Workflow
 
@@ -130,7 +130,7 @@ def apply_device_config(config_data: dict) -> str:
         print(f"Validation passed for device: {config.device_id}")
         return f"ssh pi@{config.host_ip} 'echo \"{cmd}\" > /home/pi/kiosk.sh'"
     except ValidationError as e:
-        print(f"Configuration validation failed: {e.errors()}")
+        print(f"Configuration validation failed: {e}")
         raise
 
 # Example payload to validate
@@ -201,5 +201,5 @@ done
 - [Home Assistant Kiosk Mode](https://github.com/maykar/kiosk-mode)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-05
+- Last reviewed: 2027-01-07
 - Confidence: high
