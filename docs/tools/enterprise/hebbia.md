@@ -1,7 +1,7 @@
 # Hebbia
 
 ## What it is
-Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, government, and corporate strategy where precision and cross-document synthesis are critical. As of early January 2027, it serves as a primary "Reasoning Engine" for enterprise data using state-of-the-art models like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro.
+Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, government, and corporate strategy where precision and cross-document synthesis are critical. As of early January 2027, it serves as a primary "Reasoning Engine" for enterprise data using state-of-the-art models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## What problem it solves
 It addresses the "synthesis bottleneck." Instead of users manually reviewing thousands of pages of filings, transcripts, or contracts to find signals, Hebbia uses LLMs to reason across entire document sets simultaneously, providing structured answers with direct citations, significantly reducing time-to-insight for due diligence.
@@ -20,7 +20,7 @@ It addresses the "synthesis bottleneck." Instead of users manually reviewing tho
 - **Vertical Focus**: Deeply understands the specific workflows of finance and law.
 - **Scale**: Capable of reasoning over millions of documents in a single session using the Matrix engine.
 - **Citations & Verification**: Every answer is backed by direct, clickable links to the source document, ensuring 100% auditable results.
-- **FastMCP 3.1 Integration**: Connects seamlessly with agent execution environments for automated quantitative and qualitative research loops.
+- **FastMCP 3.1 Task Protocol Integration**: Connects seamlessly with agent execution environments for automated quantitative and qualitative research loops.
 
 ## Limitations
 - **Vertical Specificity**: May be less effective for general creative or generic writing tasks.
@@ -30,7 +30,7 @@ It addresses the "synthesis bottleneck." Instead of users manually reviewing tho
 ## When to use it
 - When you need to synthesize information across hundreds of complex documents (PDFs, transcripts, filings).
 - In high-stakes finance or legal environments where every AI claim must be auditable via direct citations.
-- When you need a reasoning engine (Claude 5.1 or GPT-5.5 based) that understands professional terminology and complex financial structures.
+- When you need a reasoning engine (Claude 5.6 or GPT-5.6 based) that understands professional terminology and complex financial structures.
 
 ## When not to use it
 - For simple web-based questions that don't require deep document analysis (use [Perplexity](../providers/perplexity.md)).
@@ -174,5 +174,5 @@ if __name__ == "__main__":
 - [Hebbia Skills: Expertise at Institutional Scale](https://www.hebbia.com/blog/hebbia-skills-expertise-at-institutional-scale)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

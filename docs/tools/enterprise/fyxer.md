@@ -1,7 +1,7 @@
 # Fyxer AI
 
 ## What it is
-Fyxer AI is an executive-grade AI assistant platform designed to automate inbox triage, calendar scheduling, and administrative workflows for high-volume professionals and leadership teams. Operating as an intelligent agentic layer across communication platforms (Gmail, Microsoft Outlook, Teams), it natively incorporates frontier models ([Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md)) and supports **FastMCP 3.1** protocol standards.
+Fyxer AI is an executive-grade AI assistant platform designed to automate inbox triage, calendar scheduling, and administrative workflows for high-volume professionals and leadership teams. Operating as an intelligent agentic layer across communication platforms (Gmail, Microsoft Outlook, Teams), it natively incorporates frontier models ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md)) and supports **FastMCP 3.1** protocol standards.
 
 Key capabilities include:
 - **AI Inbox Management**: Automatically triages and labels incoming emails, drafts context-aware responses in the user's voice, and highlights critical action items.
@@ -94,7 +94,7 @@ def get_executive_brief(api_token: str) -> FyxerDailyBrief:
     }
     # Simulated response structure for illustration
     mock_response = json.dumps({
-        "brief_id": "brief-2027-0106",
+        "brief_id": "brief-2027-0107",
         "summary": "3 high-priority emails requiring approval; 2 meetings scheduled for today.",
         "action_items": [
             {"task": "Approve Q1 budget proposal", "source": "email", "priority": "high"},
@@ -142,5 +142,5 @@ print(handle_mcp_fyxer_brief(FastMCPBriefRequest(user_id="exec_101")))
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
