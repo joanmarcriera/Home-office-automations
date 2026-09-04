@@ -3,7 +3,7 @@
 Reference implementation for a RAG-based backend to search and answer questions from household manuals.
 
 ## What it is
-A FastAPI-based backend that integrates with ChromaDB v0.6+ to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of January 2027, it supports native **FastMCP 3.1** and **Model Context Protocol** for direct tool-calling by **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4**.
+A FastAPI-based backend that integrates with ChromaDB v0.6+ to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of January 2027, it supports native **FastMCP 3.1** and **Model Context Protocol** for direct tool-calling by **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
 
 ## What problem it solves
 It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../../roadmap.md), allowing users to ask natural language questions like "How do I clean the filter on my Bosch dishwasher?" and get answers directly from the scanned PDF. It solves the "lost physical manual" problem and provides immediate, context-aware troubleshooting advice.
@@ -25,7 +25,7 @@ It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../.
 - **Metadata Filtering**: Quickly narrows search to the correct manufacturer/model.
 - **Async Execution**: Built on FastAPI for high performance.
 - **Decoupled**: Can be used by multiple frontends (web, mobile, voice).
-- **Agentic**: Exposes manual search as a FastMCP 3.1 tool to Claude 5.1 and GPT-5.5.
+- **Agentic**: Exposes manual search as a FastMCP 3.1 tool to Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 - **Robustness**: Uses semantic search to handle OCR noise from scanned documents.
 
 ## Limitations
@@ -134,7 +134,7 @@ async def search_manual(request: ManualSearchRequest):
 ```
 
 ### FastMCP 3.1 Tool Call & Implementation
-Example tool definition and validation block for Claude 5.1 and GPT-5.5:
+Example tool definition and validation block for Claude 5.6 and GPT-5.6:
 
 ```python
 from fastmcp import FastMCP
@@ -169,7 +169,7 @@ def lookup_manual(input_data: ManualQueryInput) -> str:
 
     client = OpenAI()
     response = client.chat.completions.create(
-        model="gpt-5.5-preview",
+        model="gpt-5.6",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1
     )
@@ -193,5 +193,5 @@ def lookup_manual(input_data: ManualQueryInput) -> str:
 - [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
