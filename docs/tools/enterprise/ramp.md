@@ -1,7 +1,7 @@
 # Ramp
 
 ## What it is
-Ramp is a finance automation platform that combines corporate cards, expense management, bill payments, and accounting integrations into a single, AI-powered interface. It is designed to help businesses control spend, automate manual tasks, and close their books faster. As of early January 2027, it features deeply integrated **Ramp Intelligence** for autonomous finance operations, driven by frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro).
+Ramp is a finance automation platform that combines corporate cards, expense management, bill payments, and accounting integrations into a single, AI-powered interface. It is designed to help businesses control spend, automate manual tasks, and close their books faster. As of early January 2027, it features deeply integrated **Ramp Intelligence** for autonomous finance operations, driven by frontier models ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [DeepSeek-V4](../providers/deepseek.md)).
 
 ## What problem it solves
 It eliminates the friction of traditional expense reporting and manual data entry. By using AI to categorize transactions, extract data from receipts, and flag policy violations in real-time, Ramp reduces the operational burden on finance teams and employees, while providing real-time visibility into AI provider costs (e.g., token usage).
@@ -17,7 +17,7 @@ It eliminates the friction of traditional expense reporting and manual data entr
 
 ## Strengths
 - **Native AI (Ramp Intelligence)**: Deeply integrated AI for receipt parsing, categorization, and anomaly detection.
-- **AI Cost Visibility**: Real-time tracking of AI provider spend (Claude 5.1, GPT-5.5, Gemini 4.0 Pro), essential for managing model-heavy R&D budgets.
+- **AI Cost Visibility**: Real-time tracking of AI provider spend (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra), essential for managing model-heavy R&D budgets.
 - **Agentic Commerce**: Employs AI agents to research, compare, and buy for the organization.
 - **FastMCP 3.1 & Model Context Protocol Support**: Connects spend management capabilities directly into enterprise developer agents.
 - **Speed**: Built for efficiency, often allowing companies to close their books in days rather than weeks.
@@ -102,17 +102,17 @@ def audit_ai_provider_spend() -> RampSpendAuditReport:
                 id="tx_101",
                 merchant_name="Anthropic PBC",
                 amount=2450.00,
-                category="AI Infrastructure / Claude 5.1 API",
+                category="AI Infrastructure / Claude 5.6 API",
                 cardholder_name="Engineering Lead",
-                skus_identified=["Claude 5.1 Tokens"]
+                skus_identified=["Claude 5.6 Tokens"]
             ),
             RampTransaction(
                 id="tx_102",
                 merchant_name="OpenAI Inc",
                 amount=1820.50,
-                category="AI Infrastructure / GPT-5.5 API",
+                category="AI Infrastructure / GPT-5.6 API",
                 cardholder_name="R&D Team",
-                skus_identified=["GPT-5.5 API"]
+                skus_identified=["GPT-5.6 API"]
             )
         ]
 
@@ -166,5 +166,5 @@ if __name__ == "__main__":
 - [Ramp Stack: Autonomous Finance for Enterprises](https://ramp.com/blog/ramp-stack-launch)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

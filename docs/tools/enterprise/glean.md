@@ -6,7 +6,7 @@ Glean is an AI-powered enterprise search and knowledge management platform that 
 Key capabilities as of early January 2027:
 - **Unified Search**: Search across 100+ popular SaaS applications with a single query.
 - **Enterprise Knowledge Graph**: Maps the relationships between people, documents, and activities to deliver context-aware results.
-- **Glean Assistant**: A generative AI coworker (Claude 5.1, GPT-5.5, and Gemini 4.0 Pro optimized) that answers questions based on internal documentation.
+- **Glean Assistant**: A generative AI coworker ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), and [DeepSeek-V4](../providers/deepseek.md) optimized) that answers questions based on internal documentation.
 - **Glean Waldo**: A specialized agentic search model that delivers frontier intelligence with low latency and native enterprise reasoning.
 - **Glean Canvas**: An interactive workspace for synthesizing information and generating presentations or interactive pages.
 - **FastMCP 3.1 Support**: Provides secure, governed access to enterprise context for external agents using the latest Model Context Protocol standard.
@@ -34,7 +34,7 @@ It eliminates "information silos" by providing a centralized gateway to institut
 ## When to use it
 - When your organization has information spread across 10+ different SaaS platforms (Slack, Jira, Drive, GitHub, etc.).
 - When employees spend significant time searching for "who knows what" or "where is that doc."
-- When you need a permissions-aware AI assistant (GPT-5.5 or Claude 5.1 based) that only reveals information the user is authorized to see.
+- When you need a permissions-aware AI assistant (GPT-5.6 or Claude 5.6 based) that only reveals information the user is authorized to see.
 
 ## When not to use it
 - For very small teams (e.g., <20 people) where information is easily managed in one or two tools.
@@ -99,7 +99,7 @@ def search_glean(query: str, domain: str = "your-company.glean.com") -> GleanSea
     payload = {
         "query": query,
         "pageSize": 5,
-        "model": "gpt-5.5"  # Specifying GPT-5.5 as the baseline reasoning agent
+        "model": "gpt-5.6"  # Specifying GPT-5.6 as the baseline reasoning agent
     }
 
     req = urllib.request.Request(
@@ -171,5 +171,5 @@ if __name__ == "__main__":
 - [Introducing FastMCP & MCP 3.1 in Glean](https://www.glean.com/blog/mcp-mar-drop-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

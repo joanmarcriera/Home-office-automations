@@ -1,7 +1,7 @@
 # LlamaIndex
 
 ## What it is
-LlamaIndex is an open-source data framework for building LLM applications, retrieval-augmented generation (RAG) systems, and autonomous data agents. As of early 2027, LlamaIndex (v0.12+) features event-driven Workflows, native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, and seamless integration with frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](gemini.md), [Qwen 3.8](qwen.md), and [Gemma 3](local_llms.md).
+LlamaIndex is an open-source data framework for building LLM applications, retrieval-augmented generation (RAG) systems, and autonomous data agents. As of early 2027, LlamaIndex (v0.12+) features event-driven Workflows, native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, and seamless integration with frontier models including [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](gemini.md), [DeepSeek-V4](../providers/deepseek.md), [Qwen 3.6 VL](qwen.md), and [Gemma 4](local_llms.md).
 
 ## What problem it solves
 Simplifies connecting LLMs to private and heterogeneous data sources (PDFs, SQL databases, Notion, vector stores, APIs). It abstracts context window optimization, document parsing, embedding generation, chunking strategies, and multi-hop retrieval pipelines while eliminating brittle custom ingestion logic.
@@ -19,7 +19,7 @@ Simplifies connecting LLMs to private and heterogeneous data sources (PDFs, SQL 
 - **Data Centricity**: Built from the ground up for data loading, indexing, and retrieval across hundreds of LlamaHub integrations.
 - **Workflows Architecture**: Event-driven execution model replacing rigid legacy chains with explicit state management.
 - **Native FastMCP 3.1 & MCP 3.0 Support**: Out-of-the-box MCP client and server capabilities for agentic tool discovery.
-- **Frontier Model Optimization**: Native support for Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.8, and local Gemma 3 models via Ollama or vLLM.
+- **Frontier Model Optimization**: Native support for Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL, and local Gemma 4 models via Ollama or vLLM.
 - **Built-in Evaluation**: Comprehensive suite for measuring retrieval context precision, recall, and response faithfulness.
 
 ## Limitations
@@ -109,7 +109,7 @@ program = LLMTextCompletionProgram.from_defaults(
     output_parser=None,
     output_cls=DocumentSummary,
     prompt_template_str=prompt_template_str,
-    llm=OpenAI(model="gpt-5.5"),
+    llm=OpenAI(model="gpt-5.6"),
 )
 
 result = program(text="Project Alpha kickoff: Complete API contract review by Friday. Lead: Sarah.")
@@ -137,7 +137,7 @@ print(response)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architectural pattern for retrieval.
 - [ChromaDB](../../services/chromadb.md) — Vector database integration.
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Interoperability standard.
-- [Gemma 3](local_llms.md) — Local frontier model.
+- [Gemma 4](local_llms.md) — Local frontier model.
 
 ## Sources / references
 - [LlamaIndex Official Documentation](https://docs.llamaindex.ai/)
@@ -145,5 +145,5 @@ print(response)
 - [FastMCP 3.1 & MCP 3.0 Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
