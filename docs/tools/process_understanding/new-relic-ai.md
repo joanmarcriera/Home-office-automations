@@ -4,13 +4,13 @@
 New Relic AI (part of the New Relic Intelligent Observability platform) is a specialized, enterprise-grade observability solution for monitoring large language model (LLM) applications and multi-agentic workflows. It provides "one-click" automated visibility into AI performance, security, and quality, seamlessly integrated with the broader New Relic Application Performance Monitoring (APM) ecosystem. It is a proprietary, usage-based SaaS offering that is not self-hostable.
 
 ## What problem it solves
-It addresses the distinct challenges of production AI systems, including tracking non-deterministic model outputs, identifying token inefficiencies, detecting hallucinations or prompt injections, and managing spiraling LLM costs across highly distributed providers. By uniting system-level infrastructure telemetry with complex agent-level logic, New Relic AI gives developers complete visibility into system operations, especially as complexity grows with **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 4.0 Pro** deployments.
+It addresses the distinct challenges of production AI systems, including tracking non-deterministic model outputs, identifying token inefficiencies, detecting hallucinations or prompt injections, and managing spiraling LLM costs across highly distributed providers. By uniting system-level infrastructure telemetry with complex agent-level logic, New Relic AI gives developers complete visibility into system operations, especially as complexity grows with **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra** deployments.
 
 ## Where it fits in the stack
 **Observability / Eval**. It operates within the **Governance & Monitoring** layer of modern agentic frameworks, competing directly with enterprise platforms like [Datadog](datadog.md) and open-source or specialized alternatives such as [Grafana Cloud](grafana-cloud.md) and [Langfuse](langfuse.md).
 
 ## Typical use cases
-- **LLM Performance Monitoring**: Real-time tracking of latency, response times, and token usage statistics across diverse model engines including **Claude 5.1**, **GPT-5.5**, and **Qwen 3.8**.
+- **LLM Performance Monitoring**: Real-time tracking of latency, response times, and token usage statistics across diverse model engines including **Claude 5.6**, **GPT-5.6**, and **Qwen 3.6 VL**.
 - **Quality and Bias Analysis**: Programmatically measuring output sentiment, quality, and semantic relevance using built-in or custom NLP evaluators.
 - **Trace Visualization**: Visualizing full multi-turn agent execution runs, highlighting where slow tool calls, database fetches, or intermediate prompts introduce performance bottlenecks.
 - **Cost Management**: Granular attribution of LLM spend on a per-user, per-organization, or per-agent-task basis to manage operational margins.
@@ -19,7 +19,7 @@ It addresses the distinct challenges of production AI systems, including trackin
 - **Low-Configuration Setup**: Automatic, zero-code instrumentation for major developer libraries including [LangChain](../ai_knowledge/langchain.md) and [LlamaIndex](../ai_knowledge/llamaindex.md).
 - **Unified Telemetry**: Seamlessly correlates high-level AI application tracing with system-level infrastructure metrics (CPU, Memory, IO, Kubernetes health).
 - **Security & PII Redaction**: Robust client-side filters and server-side rules to scrub sensitive personal data, API tokens, and credentials before persistent logging.
-- **Native FastMCP 3.1 Support**: Features an official Model Context Protocol (FastMCP 3.1) server implementation enabling conversational AI assistants to query historical telemetry directly.
+- **Native FastMCP 3.1 Support**: Features an official Model Context Protocol (FastMCP 3.1) Task Protocol server implementation enabling conversational AI assistants to query historical telemetry directly.
 
 ## Limitations
 - **SaaS Vendor Lock-in**: Proprietary platform with significant egress and structural dependencies compared to pure OpenTelemetry frameworks.
@@ -82,8 +82,8 @@ Record deployments to correlate performance shifts with specific model prompt ad
 ```bash
 newrelic-admin record-deploy \
   --user="ci-cd-pipeline" \
-  --revision="release-v2.6.1-gpt5.5" \
-  --description="Upgraded agent backbone to GPT-5.5 and added FastMCP 3.1 tools" \
+  --revision="release-v3.0.0-gpt5.6" \
+  --description="Upgraded agent backbone to GPT-5.6 and added FastMCP 3.1 Task Protocol tools" \
   "Agent-Factory-Observability"
 ```
 
@@ -116,22 +116,22 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class AgentConfig(BaseModel):
     """Pydantic v2 validation schema for agent execution settings."""
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-    model_name: str = Field(default="gpt-5.5", description="Target LLM model name.")
+    model_name: str = Field(default="gpt-5.6", description="Target LLM model name.")
     temperature: float = Field(default=0.2, ge=0.0, le=1.0)
 
 
 def run_monitored_langchain_agent(config: AgentConfig, user_prompt: str) -> str:
-    # LLM metrics for GPT-5.5, Claude 5.1, and Llama 4 are captured autonomously by New Relic APM
+    # LLM metrics for GPT-5.6, Claude 5.6, and DeepSeek-V4 are captured autonomously by New Relic APM
     llm = ChatOpenAI(model_name=config.model_name, temperature=config.temperature)
     response = llm.invoke(user_prompt)
     return response.content
 
 
 if __name__ == "__main__":
-    cfg = AgentConfig(model_name="gpt-5.5", temperature=0.2)
-    prompt = "Summarize late August 2026 SOTA changes in Model Context Protocol v3.1."
+    cfg = AgentConfig(model_name="gpt-5.6", temperature=0.2)
+    prompt = "Summarize SOTA changes in Model Context Protocol v3.1 Task Protocol."
     print(f"Executing monitored LangChain call with model: {cfg.model_name}")
 ```
 
@@ -145,7 +145,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class NRQLQueryConfig(BaseModel):
     """Pydantic v2 schema for validating New Relic query parameters."""
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     account_id: str = Field(..., pattern=r"^\d+$", description="Numeric New Relic account ID.")
     api_key: str = Field(..., min_length=10, description="NRAK Query API key.")
@@ -187,9 +187,9 @@ if __name__ == "__main__":
 ## Sources / references
 - [New Relic AI Monitoring Official Site](https://newrelic.com/products/ai-monitoring)
 - [New Relic MCP Server Guide](https://docs.newrelic.com/docs/apis/mcp-server/)
-- [Monitoring Llama 4 and Claude 5.1 with New Relic](https://docs.newrelic.com/docs/observability/ai-monitoring/llama-4-guide/)
+- [Monitoring DeepSeek-V4 and Claude 5.6 with New Relic](https://docs.newrelic.com/docs/observability/ai-monitoring/deepseek-v4-guide/)
 - [New Relic Python Agent AI Guide](https://docs.newrelic.com/docs/apm/agents/python-agent/getting-started/introduction-new-relic-python/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

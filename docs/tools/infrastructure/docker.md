@@ -4,15 +4,15 @@
 Docker is an open-source platform that enables developers to build, deploy, run, update, and manage containers—standardized, executable components that combine application source code with the operating system (OS) libraries and dependencies required to run that code in any environment. As of January 2027, Docker Engine 27+ and Compose v2.30+ remain the industry standard for containerization, powering everything from local development sandboxes to multi-GPU AI inference clusters.
 
 ## What problem it solves
-It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly. This is critical for AI agents like Claude 5.1, GPT-5.5, Gemini 4.0 Pro, and Llama 4, which require isolated, reproducible environments to safely execute code under strict memory and hardware caps.
+It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly. This is critical for AI agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL**, which require isolated, reproducible environments to safely execute code under strict memory and hardware caps.
 
 ## Where it fits in the stack
-**Infrastructure / Containerization**. It is the foundational layer for running self-hosted services, AI workloads, and FastMCP 3.1 servers in isolated environments. It sits below the orchestration layer (e.g., K3s) and above the host operating system.
+**Infrastructure / Containerization**. It is the foundational layer for running self-hosted services, AI workloads, and FastMCP 3.1 Task Protocol servers in isolated environments. It sits below the orchestration layer (e.g., K3s) and above the host operating system.
 
 ## Typical use cases
 - **AI Agent Sandboxing**: Providing isolated environments for agents to run and test code safely.
-- **Self-Hosted AI Services**: Deploying inference engines like vLLM, TGI, or Ollama for Llama 4, Gemma 3, and Qwen 3.8.
-- **FastMCP 3.1 Server Deployment**: Hosting Model Context Protocol servers in a standardized, security-hardened network environment.
+- **Self-Hosted AI Services**: Deploying inference engines like vLLM, TGI, or Ollama for DeepSeek-V4, Gemma 4, and Qwen 3.6 VL.
+- **FastMCP 3.1 Server Deployment**: Hosting Model Context Protocol Task Protocol servers in a standardized, security-hardened network environment.
 - **Microservices Orchestration**: Running multi-container applications with Docker Compose v2.30+.
 - **CI/CD Pipelines**: Standardizing build and test environments across devops pipelines.
 
@@ -53,7 +53,7 @@ Follow the official guides for:
 
 ## CLI examples
 ```bash
-# Run a FastMCP 3.1 server in a container
+# Run a FastMCP 3.1 Task Protocol server in a container
 docker run -d --name mcp-server -e API_KEY=$API_KEY my-mcp-image
 
 # List running containers
@@ -77,10 +77,12 @@ AI agents often use the Docker Python SDK to manage their own sandboxes securely
 ```python
 import docker
 from docker.errors import ContainerError, ImageNotFound
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 class SandboxConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     image: str = Field(default="python:3.12-slim", description="Docker image for execution sandbox")
     memory_limit: str = Field(default="256m", description="RAM allocation cap")
     nano_cpus: int = Field(default=1000000000, description="CPU resource limit (10^9 = 1 CPU)")
@@ -89,6 +91,8 @@ class SandboxConfig(BaseModel):
     timeout_seconds: int = Field(default=10, ge=1, le=60)
 
 class ExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     output: str
     exit_code: Optional[int] = None
@@ -169,5 +173,5 @@ services:
 - [Docker Engine API Reference](https://docs.docker.com/engine/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

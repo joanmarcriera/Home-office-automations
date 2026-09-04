@@ -1,7 +1,7 @@
 # OpenTelemetry Collector
 
 ## What it is
-The OpenTelemetry (OTel) Collector is a high-performance, vendor-agnostic proxy designed to receive, process, and export telemetry data (traces, metrics, and logs). As of early January 2027, it serves as the universal standard for AI and agentic telemetry pipelines. It allows developers to unify metrics across traditional infrastructure layers and multi-agent workflows running on engines like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 4.0 Pro**. It is open-source and highly self-hostable.
+The OpenTelemetry (OTel) Collector is a high-performance, vendor-agnostic proxy designed to receive, process, and export telemetry data (traces, metrics, and logs). As of early January 2027, it serves as the universal standard for AI and agentic telemetry pipelines. It allows developers to unify metrics across traditional infrastructure layers and multi-agent workflows running on engines like **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra**. It is open-source and highly self-hostable.
 
 ## What problem it solves
 Managing telemetry in multi-agent environments often introduces high performance overheads, strict vendor lock-in, and compliance risks related to personally identifiable information (PII). The OTel Collector mitigates these concerns by providing:
@@ -9,7 +9,7 @@ Managing telemetry in multi-agent environments often introduces high performance
 - **Client-Side Processing**: Real-time scrubbing of sensitive customer fields, prompt content, or API keys directly within the local network prior to routing.
 - **Dynamic Routing**: A "receive once, distribute many" setup, sending trace metrics concurrently to cloud metrics providers, security databases, and local archives.
 - **Sampling Governance**: Cost-defensive tail-based sampling configurations to drop redundant, successful runs and isolate only anomalous or slow multi-turn traces.
-- **FastMCP 3.1 Session Instrumentation**: The ability to translate Model Context Protocol (FastMCP 3.1) connection patterns, tool invocations, and payload responses into standardized OTLP traces.
+- **FastMCP 3.1 Session Instrumentation**: The ability to translate Model Context Protocol (FastMCP 3.1) Task Protocol connection patterns, tool invocations, and payload responses into standardized OTLP traces.
 
 ## Where it fits in the stack
 The OpenTelemetry Collector sits in the **Observability Infrastructure** layer, acting as a telemetry router positioned securely between your production agent workflows (or proxies like [OpenRouter](../ai_knowledge/openrouter.md)) and target downstream monitoring platforms.
@@ -124,7 +124,7 @@ otelcol --version
 ## API examples
 
 ### Python Trace Ingestion with Pydantic v2 Payload Validation
-Configure your multi-agentic application (e.g., a **Claude 5.1** task routing loop) to validate payload metadata using Pydantic v2 and ship performance traces to your local Collector instance:
+Configure your multi-agentic application (e.g., a **Claude 5.6** task routing loop) to validate payload metadata using Pydantic v2 and ship performance traces to your local Collector instance:
 
 ```python
 from pydantic import BaseModel, Field, ConfigDict
@@ -134,7 +134,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 class AgentSpanMetadata(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     model_name: str = Field(..., description="Target frontier model identifier")
     prompt_tokens: int = Field(..., ge=0, description="Token count in input prompt")
@@ -152,7 +152,7 @@ trace.get_tracer_provider().add_span_processor(span_processor)
 
 # Validate metadata via Pydantic v2
 metadata = AgentSpanMetadata(
-    model_name="claude-5-1-sonnet",
+    model_name="claude-5-6-sonnet",
     prompt_tokens=452,
     completion_tokens=128,
     agent_id="finance_routing_agent"
@@ -185,8 +185,8 @@ const tokenCounter = meter.createCounter('tokens_spent', {
   description: 'Tracks total prompt and completion token counts',
 });
 
-// Record token cost metrics for a GPT-5.5 call
-tokenCounter.add(1024, { 'model.name': 'gpt-5.5-preview', 'agent.id': 'finance_routing_agent' });
+// Record token cost metrics for a GPT-5.6 call
+tokenCounter.add(1024, { 'model.name': 'gpt-5.6-preview', 'agent.id': 'finance_routing_agent' });
 ```
 
 ## Related tools / concepts
@@ -209,5 +209,5 @@ tokenCounter.add(1024, { 'model.name': 'gpt-5.5-preview', 'agent.id': 'finance_r
 - [OpenTelemetry semantic conventions for AI applications](https://opentelemetry.io/docs/specs/semconv/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
