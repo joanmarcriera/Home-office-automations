@@ -3,7 +3,7 @@
 ## What it is
 A collection of specialized prompt templates and schemas for Large Language Models (LLMs) to perform two core administrative tasks: **Task Extraction** (identifying actionable items from text) and **Document Classification** (categorizing documents into predefined buckets).
 
-As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
 
 ## What problem it solves
 Managing a high volume of scanned documents requires significant cognitive effort to decide where each file belongs and what actions are required. Manual classification and task creation are major bottlenecks. These prompts turn raw OCR text into structured data, allowing for automated routing to [Vikunja](../../services/vikunja.md) and [Paperless-ngx](../../services/paperless-ngx.md).
@@ -21,7 +21,7 @@ This implementation sits in the **Intelligent Processing Layer** of the ingestio
 - **Multi-Purpose**: Handles both the "what to do" (tasks) and "where to put it" (classification) in a single intelligent pipeline.
 - **Priority Intelligence**: Uses heuristic definitions to assign consistent priorities (High/Medium/Low) better than simple keyword matching.
 - **JSON Standardized**: Outputs data in a format ready for immediate API consumption or **MCP tool** invocation.
-- **Local Model Friendly**: Includes optimized prompts for local **Llama 4**, **Gemma 3**, and **Qwen 3.8** variants.
+- **Local Model Friendly**: Includes optimized prompts for local **Gemma 4**, **Llama 4**, and **Qwen 3.6 VL** variants.
 
 ## Limitations
 - **Classification Ambiguity**: Documents that span multiple categories (e.g., a "Medical Bill") may be classified inconsistently depending on model temperature.
@@ -44,7 +44,7 @@ This implementation sits in the **Intelligent Processing Layer** of the ingestio
 Configure your scanner or phone to upload PDFs to a "To-Process" folder. Use **n8n** to trigger the extraction pipeline when a new file arrives.
 
 ### 2. Model Selection
-Use **Claude 5.1** or **Gemini 4.0 Pro** for high-precision extraction, or a local **Llama 4** or **Qwen 3.8** instance for privacy-sensitive documents.
+Use **Claude 5.6** or **Gemini 4.0 Ultra** for high-precision extraction, or a local **Gemma 4** or **Qwen 3.6 VL** instance for privacy-sensitive documents.
 
 ### 3. Integration
 Map the JSON output to the [Calendar Mapping Rules](../calendar/mapping-rules.md) for date-based events or directly to the Vikunja API for tasks.
@@ -57,7 +57,7 @@ Test your extraction prompts using the following CLI commands.
 claude --prompt "$(cat task_extraction_prompt.txt)" --file ocr_text.txt
 
 # Classify a document using a local Ollama instance
-ollama run llama-4 "Classify this text into [SCHOOL, ADMIN, FINANCE]: $(cat ocr_text.txt)"
+ollama run gemma-4 "Classify this text into [SCHOOL, ADMIN, FINANCE]: $(cat ocr_text.txt)"
 
 # Validate extraction output against a schema
 python3 scripts/validate_json.py --schema task_schema.json --data extraction_output.json
@@ -132,7 +132,7 @@ json_data = """
   "tasks": [
     {
       "task": "Review and submit water bill",
-      "due_date": "2027-01-06",
+      "due_date": "2027-01-07",
       "priority": "high",
       "owner": "Jules"
     }
@@ -167,5 +167,5 @@ except ValidationError as e:
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

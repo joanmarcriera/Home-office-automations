@@ -3,7 +3,7 @@
 ## What it is
 A specialized prompt template designed for Large Language Models (LLMs) to extract structured event and date information from raw OCR (Optical Character Recognition) text. It focuses on converting unstructured human language into a precise JSON format compatible with calendar APIs.
 
-As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro/Flash** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** utilizing **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
 
 ## What problem it solves
 Scanned documents (receipts, school flyers, medical letters) contain critical dates that are often buried in noise. Manual entry is error-prone and tedious. This prompt automates the extraction process, handling relative dates (e.g., "next Tuesday") and implicit context that traditional regex-based scrapers miss.
@@ -24,7 +24,7 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 ## Limitations
 - **Hallucination Risk**: LLMs may occasionally "invent" dates if the OCR text is highly garbled or ambiguous.
 - **Token Usage**: Long documents with a lot of irrelevant text can consume significant prompt tokens.
-- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. SOTA frontier models like **GPT-5.5**, **Claude 5.1**, and **Gemini 4.0 Pro/Flash** have significantly improved reasoning for complex temporal logic.
+- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. SOTA frontier models like **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra** have significantly improved reasoning for complex temporal logic.
 
 ## When to use it
 - When you need to extract dates from unstructured documents where the layout is not consistent.
@@ -65,9 +65,9 @@ If no event is found, return {"event_name": null}.
 You can test extraction from a text file using the `openai` CLI tool.
 
 ```bash
-# Extract dates from a text file using GPT-5.5
+# Extract dates from a text file using GPT-5.6
 cat ocr_output.txt | openai api chat.completions.create \
-  -m gpt-5.5-preview \
+  -m gpt-5.6-preview \
   -g system "You are a precision administrative assistant. Return JSON." \
   -g user
 ```
@@ -107,9 +107,9 @@ async def extract_and_create_event(ocr_text: str, current_date: str):
     client = openai.AsyncOpenAI()
 
     try:
-        # Request a structured parsing response from the SOTA LLM (such as GPT-5.5)
+        # Request a structured parsing response from the SOTA LLM (such as GPT-5.6)
         completion = await client.beta.chat.completions.parse(
-            model="gpt-5.5-preview",
+            model="gpt-5.6-preview",
             messages=[
                 {"role": "system", "content": f"You are a precision administrative assistant. Today's date is {current_date}."},
                 {"role": "user", "content": ocr_text}
@@ -129,7 +129,7 @@ async def extract_and_create_event(ocr_text: str, current_date: str):
                 start_time=extracted.start_date,
                 end_time=end_time,
                 location=extracted.location,
-                description=f"Auto-extracted via GPT-5.5.\nReasoning: {extracted.reasoning}"
+                description=f"Auto-extracted via GPT-5.6.\nReasoning: {extracted.reasoning}"
             )
             print(result)
         else:
@@ -142,7 +142,7 @@ async def extract_and_create_event(ocr_text: str, current_date: str):
 # Example trigger
 if __name__ == "__main__":
     ocr_sample = "Dentist appointment scheduled for Jan 15th, 2027 at 2 PM at Smile Clinic."
-    asyncio.run(extract_and_create_event(ocr_sample, "2027-01-06"))
+    asyncio.run(extract_and_create_event(ocr_sample, "2027-01-07"))
 ```
 
 ## Related tools / concepts
@@ -161,5 +161,5 @@ if __name__ == "__main__":
 - [ISO 8601 Date Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
