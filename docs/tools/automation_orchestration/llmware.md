@@ -18,7 +18,7 @@ Enterprise AI applications often encounter privacy constraints (sending sensitiv
 ## Strengths
 - **SLM Optimization**: Purpose-built to maximize accuracy using ultra-compact, domain-specific models (BLING, DRAGON, SLIM).
 - **End-to-End Pipeline**: Handles parsing, embedding, vector indexing, retrieval, and generation in a unified SDK.
-- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md)).
+- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), [DeepSeek-V4](../ai_knowledge/local_llms.md)).
 - **Hardware Efficiency**: Optimized CPU/GPU execution via GGUF and llama.cpp/vLLM backends.
 
 ## Limitations
@@ -140,5 +140,5 @@ print(handle_mcp_request(req_data))
 - [FastMCP 3.1 Protocol Standard](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -4,7 +4,7 @@
 Text Generation Inference (TGI) is a specialized toolkit for deploying and serving Large Language Models (LLMs). Developed by Hugging Face, it is designed for high-performance text generation in production environments. It is written in Rust and Python, offering a robust solution for serving the most popular open-weight models.
 
 ## What problem it solves
-TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. As of January 2027, it serves as a high-performance alternative to **NVIDIA NIM**, fully optimized for **NVIDIA Blackwell** and **Rubin** GPU architectures, and provides a critical backend for developers benchmarking self-hosted models against frontier services like **Claude 5.1** (supporting advanced FastMCP 3.1 tooling and pipelines), **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
+TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. As of January 2027, it serves as a high-performance alternative to **NVIDIA NIM**, fully optimized for **NVIDIA Blackwell** and **Rubin** GPU architectures, and provides a critical backend for developers benchmarking self-hosted models against frontier services like **Claude 5.6** (supporting advanced FastMCP 3.1 tooling and pipelines), **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
 
 ## Where it fits in the stack
 **Infra**. It provides the high-performance serving layer for Hugging Face models, bridging the gap between raw weights and a production-ready API.
@@ -179,5 +179,5 @@ if __name__ == "__main__":
 - [Hugging Face Optimized Inference License](https://huggingface.co/docs/text-generation-inference/conceptual/license)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

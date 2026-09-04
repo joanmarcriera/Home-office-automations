@@ -1,10 +1,10 @@
 # Oh My OpenAgent (OmO) / oh-my-opencode
 
 ## What it is
-Oh My OpenAgent (OmO, previously styled as oh-my-opencode) is an open-source, highly customizable agent harness and terminal workspace. It is designed to orchestrate complex multi-agent coding sessions across various model providers. Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits. As of early 2027, OmO features full support for **FastMCP 3.1**, stateful agent loops, and frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), and [Llama 4](../ai_knowledge/local_llms.md).
+Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits. As of early 2027, OmO features full support for **FastMCP 3.1**, stateful agent loops, and frontier models including [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [DeepSeek-V4](../ai_knowledge/local_llms.md), [Qwen 3.8](../ai_knowledge/qwen.md), and [Llama 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.1**, **GPT-5.5**, **Llama 4**, or **Qwen 3.8** execute modifications with high precision.
+It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, **Llama 4**, or **Qwen 3.8** execute modifications with high precision.
 
 ## Where it fits in the stack
 **Development & Ops / Agent Harness Layer**. OmO represents an open, customizable, terminal-based alternative to proprietary "walled garden" developer engines like [Claude Code](claude-code.md), cursor-based IDEs, or [Windsurf](windsurf.md).
@@ -26,7 +26,7 @@ OmO features a specialized multi-agent division of labor called the **Sisyphus T
 
 ## Strengths
 - **Surgical Code Editing**: Employs structural code hashing to apply edits precisely, avoiding line-drift errors common in simple regex-based replacements.
-- **Multi-Provider Consensus**: Supports routing tasks to the best-suited model engine (e.g., calling **Claude 5.1** for reasoning, and **Qwen 3.8** for rapid syntax generation).
+- **Multi-Provider Consensus**: Supports routing tasks to the best-suited model engine (e.g., calling **Claude 5.6** for reasoning, and **Qwen 3.8** for rapid syntax generation).
 - **First-Class FastMCP 3.1 Protocols**: Seamlessly hosts Model Context Protocol (FastMCP 3.1) servers to grant agents access to terminal commands, databases, and memory engines.
 - **Advanced AST and LSP Integration**: Uses `ast-grep` and Language Server Protocols (LSP) to perform type-aware edits and semantic symbol searches.
 - **Fully Self-Hostable**: Free from vendor lock-in; connects to local model infrastructures like [Llama 4](../ai_knowledge/local_llms.md) via llama.cpp or Ollama.
@@ -170,5 +170,5 @@ runAutomation();
 - [FastMCP 3.1 & MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

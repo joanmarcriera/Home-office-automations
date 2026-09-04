@@ -4,10 +4,10 @@
 ClawRouter is an open-source (MIT), agent-native smart LLM router designed for autonomous workflows. It provides a local proxy that analyzes requests across 15 dimensions (cost, latency, reasoning depth, etc.) and routes them to the optimal model in under 1ms.
 
 ## What problem it solves
-It solves the "autonomous agent payment gap" by using the **x402 protocol** for USDC micropayments and wallet signatures for authentication. This allows agents to operate independently without human-managed API keys, accounts, or credit cards. It also reduces LLM costs by up to 92% through aggressive model routing across frontier models (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**) and local open-weights servers (vLLM, TGI, Ollama).
+It solves the "autonomous agent payment gap" by using the **x402 protocol** for USDC micropayments and wallet signatures for authentication. This allows agents to operate independently without human-managed API keys, accounts, or credit cards. It also reduces LLM costs by up to 92% through aggressive model routing across frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) and local open-weights servers (vLLM, TGI, Ollama).
 
 ## Where it fits in the stack
-**Infrastructure / Routing Layer**. ClawRouter sits between the AI agent (Claude 5.1, GPT-5.5) and model providers (Anthropic, OpenAI, Google, NVIDIA, etc.), acting as a smart, payment-integrated proxy.
+**Infrastructure / Routing Layer**. ClawRouter sits between the AI agent (Claude 5.6, GPT-5.6) and model providers (Anthropic, OpenAI, Google, NVIDIA, etc.), acting as a smart, payment-integrated proxy.
 
 ## Typical use cases
 - **Autonomous Agent Ops**: Powering agents that need to pay for their own inference via on-chain USDC.
@@ -215,8 +215,8 @@ if __name__ == "__main__":
 - [OpenClaw](../development_ops/openclaw.md)
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
-- [Claude 5.1](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
+- [Claude 5.6](../providers/anthropic.md)
+- [GPT-5.6](../ai_knowledge/openai.md)
 - [Llama 4 Maverick](../providers/nvidia.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Aider](../development_ops/aider.md)
@@ -227,5 +227,5 @@ if __name__ == "__main__":
 - [x402 Protocol Specification](https://x402.org)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
