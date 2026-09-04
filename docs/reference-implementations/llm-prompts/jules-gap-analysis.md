@@ -21,7 +21,7 @@ This prompt is part of the **Maintenance & Governance Layer**. It consumes data 
 - **Data-Driven**: Improvements are based on actual execution logs, not just theoretical gaps or anecdotal evidence.
 - **Actionable Output**: Designed to be fed directly into an [Automation Improvement PR](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
 - **Proactive Maintenance**: Identifies patterns and trends before they become critical system-wide failures.
-- **Reasoning-Aware**: Optimized for **Claude 5.1** and **GPT-5.5** to perform deep chain-of-thought root cause analysis.
+- **Reasoning-Aware**: Optimized for **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4** to perform deep chain-of-thought root cause analysis.
 
 ## Limitations
 - **Log Dependency**: Reliability is strictly dependent on the quality and verbosity of error messages provided by n8n nodes.
@@ -47,7 +47,7 @@ python3 scripts/n8n_log_aggregator.py --hours 168 > logs_summary.txt
 ```
 
 ### 2. Analysis
-Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.1** or **Gemini 4.0 Pro**).
+Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.6** or **Gemini 4.0 Ultra**).
 
 ### 3. Implementation
 Review the proposed fixes and execute them using the [Automation PR Template](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
@@ -62,8 +62,8 @@ python3 scripts/n8n_log_aggregator.py --hours 24 --filter "status=error"
 # Generate a report for a specific workflow ID
 python3 scripts/n8n_log_aggregator.py --workflow-id "AbC123XyZ" > workflow_logs.txt
 
-# Run a dry-run analysis using a local Llama 4 instance
-ollama run llama-4 "$(cat jules_prompt.txt) $(cat workflow_logs.txt)"
+# Run a dry-run analysis using a local Gemma 4 instance
+ollama run gemma-4 "$(cat jules_prompt.txt) $(cat workflow_logs.txt)"
 ```
 
 ## API examples
@@ -77,7 +77,7 @@ Task: Analyze n8n failure patterns and propose improvements using deep reasoning
 Context:
 - Current Date: Early January 2027
 - Standards: High Confidence Documentation (13-section contract)
-- Models: Claude 5.1 / GPT-5.5 / Gemini 4.0 Pro / Llama 4 / Qwen 3.8
+- Models: Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra / Gemma 4 / DeepSeek-V4
 
 Data provided:
 {{LOG_AGGREGATOR_OUTPUT}}
@@ -108,7 +108,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 
 class AnalysisRequest(BaseModel):
-    model: str = Field("claude-5.1", description="LLM used for log audit")
+    model: str = Field("claude-5.6", description="LLM used for log audit")
     temperature: float = Field(0.0, ge=0.0, le=1.0)
     logs_summary: str = Field(..., description="Aggregated log text content")
 
@@ -146,7 +146,7 @@ def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
 - [Jules](../../tools/ai_knowledge/jules.md): The AI agent persona executing the analysis.
 - [Claude Code](../../tools/development_ops/claude-code.md): The environment where Jules executes these tasks.
 - [MCP](../../tools/automation_orchestration/mcp.md): Used to extend n8n capabilities and improve reliability.
-- [Claude 5.1](../../tools/providers/anthropic.md): The recommended model for running this complex analysis.
+- [Claude 5.6](../../tools/providers/anthropic.md): The recommended model for running this complex analysis.
 
 ## Sources / references
 - [n8n API Documentation - Execution Logs](https://docs.n8n.io/api/v1/executions/)
@@ -154,5 +154,5 @@ def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
 - [Model Context Protocol (MCP) in n8n Workflows](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.mcp/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

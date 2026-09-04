@@ -1,7 +1,7 @@
 # Playbook: Data Copilot SQL Validation & Repair
 
 ## What it is
-A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. It establishes a "guardrail" system that combines static analysis, dynamic dry-runs, and LLM-based semantic checks to ensure safety, performance, and correctness. This playbook leverages state-of-the-art early January 2027 patterns designed for frontier architectures like Claude 5.1, GPT-5.5, and Gemini 4.0 Pro.
+A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. It establishes a "guardrail" system that combines static analysis, dynamic dry-runs, and LLM-based semantic checks to ensure safety, performance, and correctness. This playbook leverages state-of-the-art early January 2027 patterns designed for frontier architectures like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## What problem it solves
 Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
@@ -219,7 +219,7 @@ flowchart TD
 ## Low-Cost Implementation Options
 - **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
-- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.8) specifically to check the generated SQL against the policy checklist.
+- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.8 / Gemma 4) specifically to check the generated SQL against the policy checklist.
 
 ## Related tools / concepts
 - [Data Copilot Architecture](../architecture/data-copilot-text-to-sql.md)
@@ -239,6 +239,6 @@ flowchart TD
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
 - Related Issues: #189
