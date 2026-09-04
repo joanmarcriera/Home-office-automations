@@ -1,10 +1,10 @@
 # n8n Golden Sub-workflows
 
 ## What it is
-n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of January 2027, these sub-workflows are optimized for full integration with **FastMCP 3.1** servers, enabling **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4** to trigger complex, multi-stage n8n logic as native tools.
+n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of January 2027, these sub-workflows are optimized for full integration with **FastMCP 3.1** servers, enabling **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4** to trigger complex, multi-stage n8n logic as native tools.
 
 ## What problem it solves
-Reduces duplication of logic across multiple workflows, ensures consistent handling of sensitive data (like risk gating or human approval), and simplifies the creation of new automations by providing pre-validated patterns for common operations. It also ensures that advanced models like Claude 5.1 and GPT-5.5 have a predictable execution environment for complex multi-step tasks.
+Reduces duplication of logic across multiple workflows, ensures consistent handling of sensitive data (like risk gating or human approval), and simplifies the creation of new automations by providing pre-validated patterns for common operations. It also ensures that advanced models like Claude 5.6 and GPT-5.6 have a predictable execution environment for complex multi-step tasks.
 
 ## Where it fits in the stack
 **Orchestration Layer** — serves as the "standard library" for all n8n-based automations, connecting intake sources (Email, Webhooks) to destination services (Vikunja, Google Calendar). It bridges the gap between raw API calls and high-level [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
@@ -74,7 +74,7 @@ n8n execute:workflow --id=123 --data='{"body": "test email"}'
 ```
 
 ## API examples
-Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 5.1 / GPT-5.5 compatible):
+Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 5.6 / GPT-5.6 compatible):
 
 ```python
 import requests
@@ -164,7 +164,7 @@ def check_mcp_3_1_workflow(base_url: str, payload: SubWorkflowPayload) -> bool:
 ## Core Implementation Patterns (Reference)
 
 ### 1. Email Triage (`email-triage`)
-**Purpose**: Classifies incoming emails and extracts structured metadata using Claude 5.1.
+**Purpose**: Classifies incoming emails and extracts structured metadata using Claude 5.6.
 
 #### Logic Flow
 1. **Input**: Raw email body and headers.
@@ -218,5 +218,5 @@ Email Content: {{ $json.body }}
 - [Advanced n8n Patterns for AI Agents (January 2027 Update)](https://n8n.io/blog/ai-agent-patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
