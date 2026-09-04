@@ -7,7 +7,7 @@ Key capabilities as of early January 2027 include:
 - **Autonomous Meeting Agents**: Custom-branded AI meeting bots that automatically join scheduled calendar events, handle audio/video capture, and process transcripts in real-time.
 - **Cross-Meeting Intelligence**: Semantic aggregation across dozens of historical meetings to detect recurring themes, customer sentiment changes, or process bottlenecks.
 - **Sales Playbook Coaching**: Automated evaluation of sales conversations against pre-defined qualification models (e.g., BANT, MEDDPICC), producing structured scorecards and direct CRM updates.
-- **FastMCP 3.1 & Model Context Protocol integration**: Local and cloud-hosted MCP servers that feed real-time meeting context directly into developer workspaces (such as Claude 5.1, GPT-5.5, and Gemini 4.0 Pro-based IDEs).
+- **FastMCP 3.1 & Model Context Protocol integration**: Local and cloud-hosted MCP servers that feed real-time meeting context directly into developer workspaces (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4-based IDEs).
 
 ## What problem it solves
 It solves the issue of lost organizational knowledge and meeting fatigue by replacing manual minute-taking with structured, searchable transcripts. It bridges synchronous call discussions with asynchronous documentation, making meeting highlights immediately referenceable.
@@ -22,7 +22,7 @@ It solves the issue of lost organizational knowledge and meeting fatigue by repl
 - **Onboarding & Training**: Creating bite-sized video clip playbooks for fast transfer of veteran knowledge to new team members.
 
 ## Strengths
-- **Native AI Summaries**: Sophisticated, template-driven summarization leveraging leading early January 2027 models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro).
+- **Native AI Summaries**: Sophisticated, template-driven summarization leveraging leading early January 2027 models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4).
 - **High Multilingual Accuracy**: Real-time translation and transcription across more than 40 languages, handling complex technical jargon and accents.
 - **No-Code & Low-Code Ecosystem**: Deep native integrations with Notion, Slack, Jira, and Salesforce, alongside robust Webhook and REST endpoints.
 - **FastMCP 3.1 Native Integration**: Exposes real-time meeting contexts directly to AI agents via standard MCP tool calls.
@@ -120,7 +120,7 @@ def fetch_meeting_analysis(meeting_id: str) -> MeetingSummary:
             duration=3600,
             key_takeaways=[
                 "Adopt FastMCP 3.1 for all local microservice integrations.",
-                "Migrate primary reasoning loops to Claude 5.1 and GPT-5.5."
+                "Migrate primary reasoning loops to Claude 5.6 and GPT-5.6."
             ],
             action_items=[
                 ActionItem(owner="DevOps Lead", description="Setup FastMCP server endpoint", due_date="2027-01-15")
@@ -168,5 +168,5 @@ if __name__ == "__main__":
 - [Google Meet FastMCP Integration & Virtual Meetings](https://tldv.io/blog/google-meet-mcp/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
