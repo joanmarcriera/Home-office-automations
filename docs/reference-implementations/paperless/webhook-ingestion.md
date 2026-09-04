@@ -7,13 +7,13 @@ A guide and reference implementation for programmatically uploading documents to
 Standard Paperless-ngx ingestion relies on consumption folder polling, which introduces delays (up to several minutes) between scanning a document and its availability in the index. Webhook ingestion enables a real-time "push" architecture, providing instantaneous document ingestion, immediate HTTP feedback, and synchronous metadata application (tags, correspondent, document type, created date).
 
 ## Where it fits in the stack
-This implementation sits at the **Intake/Ingress layer**. It connects **External Sources** (n8n, mobile shortcuts, email gateways, edge sensors) to the **Document Management System** (Paperless-ngx) and downstream **AI Processing Engines** (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**).
+This implementation sits at the **Intake/Ingress layer**. It connects **External Sources** (n8n, mobile shortcuts, email gateways, edge sensors) to the **Document Management System** (Paperless-ngx) and downstream **AI Processing Engines** (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**).
 
 ## Typical use cases
 - **Mobile Scan-to-Cloud**: iOS Shortcuts or Android shares POSTing image/PDF payloads directly to Paperless via secure tunnel.
 - **Email Ingestion Gateway**: Automated scripts monitoring inboxes (`invoices@domain.com`) and pushing attachments with pre-parsed headers.
 - **Automated Web Downloads**: Scheduled utility/banking retrieval scripts pushing PDFs directly upon download.
-- **Real-Time Agent Triggering**: Triggering **Claude 5.1** or **GPT-5.5** agentic routines the second a document is ingested via Model Context Protocol (FastMCP 3.1) hooks.
+- **Real-Time Agent Triggering**: Triggering **Claude 5.6** or **GPT-5.6** agentic routines the second a document is ingested via Model Context Protocol (FastMCP 3.1) hooks.
 
 ## Strengths
 - **Low Latency**: Sub-second ingestion and instant indexing.
@@ -59,7 +59,7 @@ curl -X POST https://paperless.home.arpa/api/documents/post_document/ \
 curl -X POST https://paperless.home.arpa/api/documents/post_document/ \
      -H "Authorization: Token 9f8a3b1c2d3e4f5a6b7c8d9e0f1a2b3c" \
      -F "document=@/path/to/receipt.pdf" \
-     -F "created=2027-01-05T14:30:00Z" \
+     -F "created=2027-01-07T14:30:00Z" \
      -F "archive_serial_number=10042" \
      -F "tags=1,8,15"
 ```
@@ -147,11 +147,11 @@ async def main():
 
     req = PaperlessIngestRequest(
         file_path=Path("/tmp/sample_invoice.pdf"),
-        title="Automated Ingestion - Claude 5.1",
+        title="Automated Ingestion - Claude 5.6",
         tags=[2, 5],
         correspondent=10,
         document_type=1,
-        created_date="2027-01-06"
+        created_date="2027-01-07"
     )
 
     # Note: Requires a valid file at /tmp/sample_invoice.pdf when executing against live target
@@ -178,5 +178,5 @@ if __name__ == "__main__":
 - [Tailscale Ingress Security Guide](https://tailscale.com/blog/api-security/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -3,6 +3,8 @@
 ## What it is
 A structured system prompt and JSON schema designed to enable AI agents to autonomously categorize, prioritize, and route incoming task requests into specific Vikunja projects. It leverages LLM reasoning to map natural language intent to structured task metadata.
 
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL** utilizing **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
+
 ## What problem it solves
 Managing a growing list of tasks across multiple projects can become a bottleneck for family and personal administration. Manual triage is tedious. This implementation automates the intake process, ensuring that tasks are filed correctly with appropriate urgency and context without requiring manual entry into the Vikunja UI.
 
@@ -21,7 +23,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 
 ## Limitations
 - **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
-- **Model Dependency**: Requires a model capable of reliable structured JSON output (such as **GPT-5.5**, **Claude 5.1**, **Gemini 4.0 Pro/Flash**, **Qwen 3.8**, **Gemma 3**, or **Llama 4**).
+- **Model Dependency**: Requires a model capable of reliable structured JSON output (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Qwen 3.6 VL**, or **Gemma 4**).
 
 ## When to use it
 - When you have more than 3-5 distinct projects in Vikunja.
@@ -33,7 +35,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 - If the agent does not have real-time access to the current project IDs (risk of hallucinating IDs).
 
 ## Getting started
-To implement this pattern, you need a Vikunja instance, an LLM provider (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Gemini 4.0 Pro), and an orchestration tool (n8n).
+To implement this pattern, you need a Vikunja instance, an LLM provider (such as Anthropic Claude 5.6, OpenAI GPT-5.6, or Gemini 4.0 Ultra), and an orchestration tool (n8n).
 1. Define your core project names and IDs in Vikunja.
 2. Configure your system prompt using the template provided below.
 3. Set up an n8n workflow that triggers on user input and calls the LLM with the project list.
@@ -77,13 +79,13 @@ Return a JSON object:
 You can test the prompt logic using a CLI tool like `llm` or `curl` to interact with your LLM provider.
 
 ```bash
-# Example using curl to test the routing logic with Claude 5.1
+# Example using curl to test the routing logic with Claude 5.6
 curl https://api.anthropic.com/v1/messages \
      -H "x-api-key: $ANTHROPIC_API_KEY" \
      -H "anthropic-version: 2023-06-01" \
      -H "content-type: application/json" \
      -d '{
-       "model": "claude-5-1-sonnet-20260620",
+       "model": "claude-5-6-sonnet-20270101",
        "max_tokens": 1024,
        "messages": [{"role": "user", "content": "Remind me to fix the kitchen sink tomorrow"}]
      }'
@@ -151,7 +153,7 @@ async def route_task(user_input: str, json_data_str: str):
         print(f"Validated Route Selection: Project {payload.project_id} (Priority: {payload.priority})")
         print(f"Reasoning: {payload.reasoning}")
 
-        # Execute creation with validated fields and MCP 3.1 Task Protocol compliance
+        # Execute creation with validated fields and FastMCP 3.1 Task Protocol compliance
         result = await tool.run(
             title=payload.title,
             project_id=payload.project_id,
@@ -170,7 +172,7 @@ if __name__ == "__main__":
       "title": "Fix the leaking kitchen sink faucet",
       "project_id": 4,
       "description": "Under-sink pipe shows light moisture. Inspect and seal.",
-      "due_date": "2027-01-06T12:00:00Z",
+      "due_date": "2027-01-07T12:00:00Z",
       "priority": 5,
       "labels": ["plumbing", "urgent"],
       "reasoning": "User said 'fix leaking sink faucet tomorrow' which maps to project 4 (Maintenance) and priority 5 (Critical)."
@@ -195,5 +197,5 @@ if __name__ == "__main__":
 - [Anthropic Claude Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

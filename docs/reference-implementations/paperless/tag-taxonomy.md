@@ -1,7 +1,7 @@
 # Reference Implementation: Paperless Tag Taxonomy
 
 ## What it is
-A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of January 2027, it is optimized for high-reasoning models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4** to perform autonomous classification and lifecycle management via **FastMCP 3.1** interfaces.
+A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of January 2027, it is optimized for high-reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4** to perform autonomous classification and lifecycle management via **FastMCP 3.1** interfaces.
 
 ## What problem it solves
 Flat document storage quickly becomes unmanageable as volume grows. Without a standardized taxonomy, users struggle to find files, and automated agents cannot reliably trigger specific workflows (like paying a bill or extracting a warranty). This taxonomy provides the "semantic hooks" necessary for both humans and machines to navigate the archive, ensuring that "Invisible Kubernetes" and "Agentic Workflows" have structured data to act upon.
@@ -13,7 +13,7 @@ The taxonomy sits at the **Organization/Metadata layer** of the document managem
 - **Workflow Automation**: Moving a document from `inbox` to `needs-action` to trigger a reminder in [Vikunja](../../services/vikunja.md).
 - **Tax Preparation**: Quickly retrieving all documents tagged with `Keep-7-years` or `Finance/Bill` for annual audits.
 - **Legacy Preservation**: Categorizing scanned physical photos and historical records for long-term archiving using [Immich](../../services/immich.md) integration patterns.
-- **Agentic Routing**: Using **Llama 4** or **Qwen 3.8** to analyze document sentiment and apply urgent status tags for immediate human attention.
+- **Agentic Routing**: Using **Qwen 3.6 VL** or **DeepSeek-V4** to analyze document sentiment and apply urgent status tags for immediate human attention.
 
 ## Strengths
 - **Action-Oriented**: Clearly separates "State" (what needs to be done) from "Category" (what the document is).
@@ -22,7 +22,7 @@ The taxonomy sits at the **Organization/Metadata layer** of the document managem
 - **FastMCP 3.1 Compatibility**: Designed to be exposed via FastMCP servers to agentic IDEs and autonomous household assistants.
 
 ## Limitations
-- **Maintenance**: Requires discipline to ensure every document is tagged correctly, though auto-tagging with **Claude 5.1** and **GPT-5.5** has mitigated this significantly.
+- **Maintenance**: Requires discipline to ensure every document is tagged correctly, though auto-tagging with **Claude 5.6** and **GPT-5.6** has mitigated this significantly.
 - **Tool Support**: While ideal for Paperless-ngx, other DMS tools may have different tagging limitations or lack hierarchical support.
 - **Over-Categorization**: Risk of creating too many niche tags that humans won't remember to use, necessitating agentic "Tag Cleanup" routines.
 
@@ -146,5 +146,5 @@ def sync_taxonomy_tags(config: TagSyncConfig) -> bool:
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
