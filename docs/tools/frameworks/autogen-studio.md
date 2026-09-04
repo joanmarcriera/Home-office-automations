@@ -8,14 +8,14 @@ Creating cooperative multi-agent systems using traditional, imperative code can 
 - **Visual Team Modeling**: Providing an intuitive web UI to set up agent identities, system instructions, memory constraints, and communication structures.
 - **Unified Skill Management**: Providing an interface to develop, test, and inject custom Python scripts (skills) dynamically without restarting backend services.
 - **Session Visualization**: Displaying agent communication traces to let users analyze how agents deliberate, troubleshoot code errors, and run tasks.
-- **Standardized Inter-agent Tooling**: Integrating **FastMCP 3.1 & Model Context Protocol (MCP)** tools to expose local database catalogs, shell tools, or calendar APIs to multi-agent loops.
+- **Standardized Inter-agent Tooling**: Integrating **FastMCP 3.1 Task Protocol** tools to expose local database catalogs, shell tools, or calendar APIs to multi-agent loops.
 
 ## Where it fits in the stack
 **Frameworks / Agent UI**. AutoGen Studio operates within the **Agent Orchestration and Design** layer, serving as a rapid visual design portal for workflows that are eventually compiled into production-grade multi-agent execution engines.
 
 ## Typical use cases
 - **Multi-Agent Deliberation Testing**: Designing workflows where a planner agent decomposes problems, a coder agent writes scripts, and a reviewer agent validates outputs.
-- **Prompt and Model Comparative Iteration**: Running identical session prompts across different models (e.g., comparing the reasoning performance of **Claude 5.1** versus **GPT-5.5** or **Gemini 4.0 Pro**).
+- **Prompt and Model Comparative Iteration**: Running identical session prompts across different models (e.g., comparing the reasoning performance of **Claude 5.6** versus **GPT-5.6**, **DeepSeek-V4**, or **Gemini 4.0 Ultra**).
 - **Localized Execution Prototyping**: Developing sandboxed agent systems that interface with local developer resources via the CLI.
 - **Dynamic Skill Assembly**: Creating reusable snippets of code (like web scrapers or API connectors) and distributing them as capabilities to select agents.
 
@@ -23,7 +23,7 @@ Creating cooperative multi-agent systems using traditional, imperative code can 
 - **Low-Code Accessibility**: Visual workspace dramatically reduces the initial design time required to build complex agent configurations.
 - **Code Generation and Execution**: Built-in, sandboxed Docker or localized python environments allow agents to write, execute, debug, and iterate on code autonomously.
 - **Seamless Exportability**: Workflows built in the UI can be exported cleanly as JSON or Python configurations for direct integration into CI/CD pipelines.
-- **FastMCP 3.1 & MCP Native Support**: Seamlessly registers standard MCP servers, instantly giving agents capabilities from databases, file servers, or productivity applications.
+- **FastMCP 3.1 Task Protocol Native Support**: Seamlessly registers standard MCP servers, instantly giving agents capabilities from databases, file servers, or productivity applications.
 
 ## Limitations
 - **Feature Gap with Code API**: Experimental patterns in the core AutoGen framework may take several releases to be fully reflected in the Studio UI.
@@ -51,7 +51,7 @@ pip install autogenstudio "autogen-ext[mcp]" fastmcp
 ```
 
 ### Starting the Studio Web Interface
-Configure your API keys (e.g., Anthropic Claude 5.1) and launch the web server on a customized port:
+Configure your API keys (e.g., Anthropic Claude 5.6) and launch the web server on a customized port:
 
 ```bash
 export ANTHROPIC_API_KEY="your_secure_anthropic_api_key"
@@ -91,15 +91,19 @@ Below are executable Python examples demonstrating programmatic execution of vis
 import os
 import json
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class AgentMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     sender: str
     recipient: str
     content: str
     timestamp: Optional[str] = None
 
 class WorkflowRunResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     workflow_id: str
     status: str
     summary: str
@@ -125,7 +129,7 @@ def execute_studio_workflow(config_file: str, query: str) -> WorkflowRunResult:
             summary="Processed query using multi-agent planner-coder-reviewer team.",
             agent_messages=[
                 AgentMessage(sender="PlannerAgent", recipient="CoderAgent", content="Break down file indexing into 3 sub-tasks."),
-                AgentMessage(sender="CoderAgent", recipient="ReviewerAgent", content="Generated FastMCP 3.1 server registration script.")
+                AgentMessage(sender="CoderAgent", recipient="ReviewerAgent", content="Generated FastMCP 3.1 Task Protocol server registration script.")
             ]
         )
 
@@ -170,5 +174,5 @@ if __name__ == "__main__":
 - [Microsoft AutoGen FastMCP Tool API Guide](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

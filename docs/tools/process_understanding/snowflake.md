@@ -5,8 +5,8 @@ Snowflake is a cloud-based analytical data warehousing and processing platform. 
 
 ## What problem it solves
 It solves the performance bottlenecks, security risks, and latency overheads of moving sensitive corporate data to external APIs for LLM operations. Snowflake enables in-database ML operations, native multi-modal model processing, and massive-scale telemetry storage. In modern agent systems, it is heavily used to:
-- **Consolidate AI Telemetry**: Standardize structured log and transaction traces from models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4**.
-- **Model Context Integration**: Utilize **FastMCP 3.1 (Model Context Protocol)** connectors to bridge relational enterprise schemas directly to agent workflows.
+- **Consolidate AI Telemetry**: Standardize structured log and transaction traces from models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
+- **Model Context Integration**: Utilize **FastMCP 3.1 Task Protocol** connectors to bridge relational enterprise schemas directly to agent workflows.
 - **In-place AI Processing**: Run serverless inference directly on sensitive table columns using **Snowflake Cortex AI** without data egress.
 
 ## Where it fits in the stack
@@ -115,14 +115,14 @@ snowsql -c agent_conn -q "PUT file://./local_traces.json @%AGENT_RUN_TRACES/stag
 ## API examples
 
 ### Python Connection & Pydantic v2 Log Validation
-Connect programmatically, validate query result metrics using strict Pydantic v2 schemas, and aggregate run costs across Claude 5.1 and GPT-5.5 runs:
+Connect programmatically, validate query result metrics using strict Pydantic v2 schemas, and aggregate run costs across Claude 5.6 and GPT-5.6 runs:
 
 ```python
 import snowflake.connector
 from pydantic import BaseModel, Field, ConfigDict
 
 class AgentMetricSummary(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     model_name: str = Field(..., description="Name of the evaluated AI model")
     total_cost: float = Field(..., ge=0.0, description="Aggregated token spend in USD")
@@ -143,7 +143,7 @@ try:
     cursor.execute("""
         SELECT MODEL_NAME, SUM(TOKEN_COST), AVG(LATENCY_MS)
         FROM AGENT_RUN_TRACES
-        WHERE MODEL_NAME IN ('claude-5-1-sonnet', 'gpt-5.5-preview')
+        WHERE MODEL_NAME IN ('claude-5-6-sonnet', 'gpt-5.6-preview')
         GROUP BY MODEL_NAME
     """)
     for (model, cost, latency) in cursor:
@@ -207,5 +207,5 @@ vectorized_df.show(5)
 - [Snowpark Developer Guide for Python](https://docs.snowflake.com/en/developer-guide/snowpark/python/index)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
