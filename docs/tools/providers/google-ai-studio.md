@@ -7,7 +7,7 @@
 Developing agentic applications and optimizing multimodal LLM prompts often requires complex local runtime setups or expensive cloud deployment cycles. Google AI Studio eliminates setup overhead by offering a zero-friction web sandbox alongside production-ready REST and SDK endpoints, enabling developers to prototype prompts, test long-context capabilities, and export production code in seconds.
 
 ## Where it fits in the stack
-**Category**: Provider / Development & Ops / AI Developer Portal. It sits at the **Intelligence & API Gateway Layer**, providing developer tooling and API access to Google's foundation models alongside [Vertex AI](google-vertex-ai.md), competing with OpenAI Platform and Anthropic Console.
+**Category**: Provider / Development & Ops / AI Developer Portal. It sits at the **Intelligence & API Gateway Layer**, providing developer tooling and API access to Google's foundation models alongside [Vertex AI](google-ai-studio.md), competing with OpenAI Platform and Anthropic Console.
 
 ## Typical use cases
 - **Rapid Prompt Engineering**: Iterating on system instructions, temperature settings, and safety parameters for Gemini 4.0 models.

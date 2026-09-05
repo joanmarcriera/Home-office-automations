@@ -6,7 +6,7 @@ Flyte is an open-source, container-native workflow orchestrator built on Kuberne
 Flyte is a container-native orchestrator that manages the execution of complex ML and data workflows on Kubernetes. It ensures that every task is isolated, versioned, and reproducible, making it ideal for large-scale AI platforms. It provides a strongly-typed interface that allows for safe and predictable workflow execution across heterogeneous compute resources.
 
 ## What problem it solves
-It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. In early January 2027, Flyte addresses the "Agentic Loop" problem by allowing [Claude 5.6](../../tools/ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini-macos.md), [Gemma 4](../../tools/ai_knowledge/gemini-macos.md), [DeepSeek-V4](../../tools/ai_knowledge/llama.md), or [Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md) to dynamically steer containerized tasks via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) integration.
+It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. In early January 2027, Flyte addresses the "Agentic Loop" problem by allowing [Claude 5.6](../../tools/ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../providers/google-ai-studio.md), [Gemma 4](../providers/google-ai-studio.md), [DeepSeek-V4](../../tools/ai_knowledge/llama.md), or [Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md) to dynamically steer containerized tasks via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) integration.
 
 ## Where it fits in the stack
 **Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes. It coordinates between data storage, compute resources (CPU/GPU), and model registries. It is often used alongside [ZenML](zenml.md) for experiment tracking and [NVIDIA](../providers/nvidia.md) for hardware-accelerated training.
@@ -155,9 +155,9 @@ except ValidationError as e:
 - [MCP](../automation_orchestration/mcp.md) — The protocol used to extend Flyte with agentic tools.
 - [Claude 5.1](../ai_knowledge/claude.md) — Frontier model for orchestrating Flyte tasks.
 - [GPT-5.5](../ai_knowledge/chatgpt.md) — SOTA model for advanced reasoning.
-- [Gemini 4.0 Pro](../../tools/ai_knowledge/gemini-macos.md) — High-performance model.
+- [Gemini 4.0 Pro](../providers/google-ai-studio.md) — High-performance model.
 - [Llama 4](../../tools/ai_knowledge/llama.md) — Next-generation open model.
-- [Gemma 3](../../tools/ai_knowledge/gemini-macos.md) — Lightweight model for task-level logic.
+- [Gemma 3](../providers/google-ai-studio.md) — Lightweight model for task-level logic.
 - [Qwen 3.6](../../tools/ai_knowledge/qwen.md) — High-quality reasoning open model.
 - [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md) — Simplifies K8s management for Flyte.
 - [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md) — For tracing Flyte executions.
