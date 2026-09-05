@@ -2,13 +2,13 @@
 title: "Infrastructure & Local LLM Serving"
 description: "Directory of local inference engines, vector databases, gateways, and AI infrastructure platforms."
 category: "infrastructure"
-date: 2027-01-06
+date: 2027-01-07
 status: "Completed"
 ---
 
 # Infrastructure & Local LLM Serving
 
-Engines, serving runtimes, vector databases, API gateways, and deployment infrastructure for local and enterprise AI execution.
+Engines, serving runtimes, vector databases, API gateways, and deployment infrastructure for local and enterprise AI execution. Infrastructure stacks support FastMCP 3.1 Task Protocol orchestration and inference optimizations for frontier architectures including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
 ## Contents
 
@@ -52,6 +52,9 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [vLLM](vllm.md) | High-throughput LLM serving engine with PagedAttention and FP8 support |
 | [Waste](waste.md) | Minimalist local LLM process supervisor and GPU memory reclamation utility |
 | [Weaviate](weaviate.md) | Open-source vector database with multi-modal search and hybrid filtering |
+| [Qdrant](qdrant.md) | High-performance Rust-native vector search engine and vector database |
+| [TensorRT-LLM](tensorrt-llm.md) | NVIDIA GPU library for high-throughput LLM inference compilation |
+| [Triton](triton.md) | Open-source Pythonic GPU kernel compiler and language |
 | [Zero-Shot Engine (ZSE)](zse.md) | High-efficiency zero-shot classification and extraction pipeline engine |
 
 ## Additional Key Infrastructure Platforms
@@ -59,10 +62,4 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 - **[Warp Software Factory](https://thenewstack.io/warp-software-factory-infrastructure/)**: AI-driven software development infrastructure for automated agent execution and scalable cloud development environments.
 
 ---
-- Last reviewed: 2027-01-06
-
-- [Qdrant](qdrant.md) — High-performance Rust-native vector search engine and vector database.
-
-- [TensorRT-LLM](tensorrt-llm.md) — NVIDIA GPU library for high-throughput LLM inference compilation.
-
-- [Triton](triton.md) — Open-source Pythonic GPU kernel compiler and language.
+- Last reviewed: 2027-01-07
