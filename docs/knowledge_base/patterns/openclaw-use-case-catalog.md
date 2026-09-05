@@ -177,7 +177,7 @@ except ValidationError as err:
 ## Related tools / concepts
 
 - [OpenClaw](../../tools/development_ops/openclaw.md) — Main agent execution runtime.
-- [n8n](../../docs/services/n8n.md) — Workflow engine for visual automation.
+- [n8n](../../services/n8n.md) — Workflow engine for visual automation.
 - [OpenHands](../../tools/development_ops/openhands.md) — Code-generation agent environment.
 - [Claude Code](../../tools/development_ops/claude-code.md) — Anthropic's developer agent CLI.
 - [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) — Standardized protocol for tool and context integration.

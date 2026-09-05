@@ -20,7 +20,7 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 - **End-to-End Automation**: Handles cloning, branching, coding, and PR creation without human intervention.
 - **"Sweep Rules"**: Allows defining project-specific coding standards that the agent must follow.
 - **Interactive PRs**: Users can comment on the generated PR, and Sweep will iterate on the code.
-- **Frontier Model Support**: Utilizes [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemini 4.0 Ultra](../providers/gemini.md) for complex reasoning tasks.
+- **Frontier Model Support**: Utilizes [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemini 4.0 Ultra](../ai_knowledge/gemini.md) for complex reasoning tasks.
 
 ## Limitations
 - **Scope Restriction**: Primarily optimized for tasks that can be completed in a few hundred lines of code.

@@ -3,7 +3,7 @@
 ## What it is
 Unsloth is an open-source framework designed to significantly accelerate the fine-tuning of Large Language Models (LLMs). As of January 2027, it is the industry standard for memory-efficient and high-speed training of open-weights models like Llama 4, Mistral, Gemma 3, and Qwen 3.8 on consumer-grade and enterprise hardware.
 
-In August 2026, Unsloth introduced the **Unsloth Desktop App**, bringing a full graphical interface for local dataset preparation, automated hyperparameter tuning, model quantization, and one-click export directly to local runtimes such as [Ollama](../../services/ollama.md), [LM Studio](../ai_knowledge/lm-studio.md), and [vLLM](vllm.md) without requiring complex command-line setups.
+In August 2026, Unsloth introduced the **Unsloth Desktop App**, bringing a full graphical interface for local dataset preparation, automated hyperparameter tuning, model quantization, and one-click export directly to local runtimes such as [Ollama](../../services/ollama.md), [LM Studio](lm-studio.md), and [vLLM](vllm.md) without requiring complex command-line setups.
 
 ## What problem it solves
 Fine-tuning LLMs traditionally requires massive VRAM, complex environment dependencies, and long training times. Unsloth solves this by using hand-written Triton kernels, Dynamic Quantization, and optimized memory management, allowing users to fine-tune frontier-class models on a single GPU (e.g., 8GB - 24GB VRAM) while achieving up to 2x-5x faster training speeds compared to standard Hugging Face implementations. The Unsloth Desktop App removes developer workflow friction by enabling non-CLI users and fast prototyping teams to manage fine-tuning jobs visually.

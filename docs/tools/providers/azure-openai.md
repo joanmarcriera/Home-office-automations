@@ -7,7 +7,7 @@ Azure OpenAI Service provides REST API access to OpenAI's powerful language mode
 It allows enterprise organizations to use advanced LLMs with improved security, compliance, and data residency guarantees. It enables the use of existing Entra ID (formerly Azure AD) infrastructure for fine-grained access control and provides a "private" instance of OpenAI's models that does not use customer data for training.
 
 ## Where it fits in the stack
-**Model Provider / Infrastructure Layer**. It serves as the primary endpoint for LLM capabilities in enterprise or hybrid-cloud environments, often sitting behind an [Orchestration Layer](../orchestration/vercel-ai-gateway.md) or integrated directly into [Agent Frameworks](../frameworks/microsoft-agent-framework.md).
+**Model Provider / Infrastructure Layer**. It serves as the primary endpoint for LLM capabilities in enterprise or hybrid-cloud environments, often sitting behind an [Orchestration Layer](vercel-ai-gateway.md) or integrated directly into [Agent Frameworks](../frameworks/microsoft-agent-framework.md).
 
 ## Typical use cases
 - **Enterprise RAG**: Securely querying private data indexed in Azure AI Search using GPT-5.6.

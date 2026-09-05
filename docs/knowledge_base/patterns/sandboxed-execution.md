@@ -188,9 +188,9 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 
-- **[Docker](../tools/infrastructure/docker.md)**: Container engine providing cgroups, namespace isolation, and ephemeral base images.
-- **[Inspect AI](../tools/benchmarking/inspect-ai.md)**: Framework for orchestrating model evaluations using sandboxed execution.
-- **[Agency-Agents](../tools/agents/agency-agents.md)**: Agent personas utilizing sandboxed tools for secure multi-step tasks.
+- **[Docker](../../tools/infrastructure/docker.md)**: Container engine providing cgroups, namespace isolation, and ephemeral base images.
+- **[Inspect AI](../../tools/benchmarking/inspect-ai.md)**: Framework for orchestrating model evaluations using sandboxed execution.
+- **[Agency-Agents](../../tools/agents/agency-agents.md)**: Agent personas utilizing sandboxed tools for secure multi-step tasks.
 
 
 ## Sources / references

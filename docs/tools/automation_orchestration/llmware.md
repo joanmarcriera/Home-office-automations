@@ -7,7 +7,7 @@ LLMWare is an open-source framework designed for enterprise-grade Retrieval-Augm
 Enterprise AI applications often encounter privacy constraints (sending sensitive data to cloud APIs) and resource complexity (managing sprawling RAG stacks). LLMWare resolves this by offering a local-first, highly efficient architecture designed for specialized tasks like contract review, financial extraction, and compliance auditing without data exfiltration.
 
 ## Where it fits in the stack
-**Automation & Orchestration / Enterprise RAG Layer**. It specializes in sovereign AI and specialized local model execution within the [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) framework.
+**Automation & Orchestration / Enterprise RAG Layer**. It specializes in sovereign AI and specialized local model execution within the [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) framework.
 
 ## Typical use cases
 - **Privacy-First Sovereign RAG**: Deploying enterprise search assistants on isolated internal networks.
@@ -18,7 +18,7 @@ Enterprise AI applications often encounter privacy constraints (sending sensitiv
 ## Strengths
 - **SLM Optimization**: Purpose-built to maximize accuracy using ultra-compact, domain-specific models (BLING, DRAGON, SLIM).
 - **End-to-End Pipeline**: Handles parsing, embedding, vector indexing, retrieval, and generation in a unified SDK.
-- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), [DeepSeek-V4](../ai_knowledge/local_llms.md)).
+- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), [DeepSeek-V4](../ai_knowledge/local_llms.md)).
 - **Hardware Efficiency**: Optimized CPU/GPU execution via GGUF and llama.cpp/vLLM backends.
 
 ## Limitations

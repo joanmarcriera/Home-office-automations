@@ -35,7 +35,7 @@ Guru serves as the "source of truth" for verified company information, often int
 ## When not to use it
 - For personal note-taking or loosely organized research (consider [Obsidian](../ai_knowledge/obsidian.md) or [Logseq](../ai_knowledge/logseq.md)).
 - If your team is small enough that informal knowledge sharing is still highly effective.
-- For managing high-concurrency technical documentation that belongs in a Git-backed system (consider [MkDocs](../infrastructure/mkdocs.md) or Docusaurus).
+- For managing high-concurrency technical documentation that belongs in a Git-backed system (consider [MkDocs](../development_ops/mkdocs.md) or Docusaurus).
 
 ## Getting started
 Guru is typically deployed as a web application and browser extension. Organizations create "Collections" and "Cards" to store information. Developers can use the Guru API or the [FastMCP 3.1](../automation_orchestration/mcp.md) server to automate card creation, search, and the verification process.

@@ -6,7 +6,7 @@ Diskover is an open-source file indexer and data management tool that uses Elast
 Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the early January 2027 ecosystem, it serves as the ground truth for agents managing large-scale data archives, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP specifications for automated storage queries.
 
 ## What problem it solves
-It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/openai.md), and [Claude 5.1](../tools/providers/anthropic.md) to make informed decisions about data retention.
+It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [Claude 5.1](../tools/providers/anthropic.md) to make informed decisions about data retention.
 
 ## Where it fits in the stack
 In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides the metadata that allows automation scripts and autonomous agents to identify which files should be archived, moved to cold storage (like [Storj](storj.md)), or deleted to free up space. It integrates with [n8n](n8n.md) for automated lifecycle management.
@@ -35,7 +35,7 @@ In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides t
 - When you need to gain visibility into large, heterogeneous storage environments.
 - To identify "dark data," such as old, large, or duplicate files that are wasting space.
 - When you want a searchable index of your files without having to scan the live file system every time.
-- To provide storage-context to AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/openai.md), or [Claude 5.1](../tools/providers/anthropic.md).
+- To provide storage-context to AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Claude 5.1](../tools/providers/anthropic.md).
 
 ## When not to use it
 - If you only need a simple, real-time disk usage visualizer for a single local drive (consider `ncdu` or WizTree).
