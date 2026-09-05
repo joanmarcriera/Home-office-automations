@@ -1,6 +1,10 @@
 # Automation & Orchestration
 
-Tools, protocols, and frameworks for automating repetitive tasks, connecting disparate services, and orchestrating complex multi-step workflows.
+Tools, protocols, and frameworks for automating repetitive tasks, connecting disparate services, and orchestrating complex multi-step workflows in early 2027.
+
+## Overview & Ecosystem Context
+
+In early 2027, enterprise and local automation workloads rely on stateful workflow execution and standardized agentic tool invocation. Tools in this index natively leverage **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, orchestrating actions across frontier foundation models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
 ## Contents
 
@@ -49,5 +53,5 @@ Tools, protocols, and frameworks for automating repetitive tasks, connecting dis
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

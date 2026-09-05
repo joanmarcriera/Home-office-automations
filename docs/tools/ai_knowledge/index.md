@@ -1,6 +1,10 @@
 # Ai & Knowledge
 
-A curated index of AI tools, platforms, frameworks, and knowledge bases for research, content creation, multi-modal synthesis, and personal productivity.
+A curated index of AI tools, platforms, frameworks, and knowledge bases for research, content creation, multi-modal synthesis, and personal productivity in early 2027.
+
+## Overview & Ecosystem Context
+
+This directory catalogues tools driving the frontier of personal and enterprise AI knowledge management. In early 2027, tools in this index natively interoperate via **FastMCP 3.1**, **MCP 3.0 Task Protocols**, and frontier reasoning backends including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## Contents
 
@@ -72,7 +76,7 @@ A curated index of AI tools, platforms, frameworks, and knowledge bases for rese
 | [Notion AI](notion-ai.md) | AI-powered features integrated into the Notion workspace |
 | [NVIDIA Nemotron](nemotron.md) | Open-weights LLMs engineered for enterprise synthetic data generation |
 | [Obsidian](obsidian.md) | Extensible local Markdown knowledge base with AI integrations |
-| [OpenAI](openai.md) | Overview of OpenAI frontier models (GPT-5.5) and API capabilities |
+| [OpenAI](openai.md) | Overview of OpenAI frontier models (GPT-5.6) and API capabilities |
 | [OpenBB](openbb.md) | Investment research platform with AI Terminal and agent integration |
 | [OpenRouter](openrouter.md) | Unified API gateway for hundreds of open and proprietary models |
 | [Parlor Voice Assistant](parlor.md) | Fully local continuous voice interface and speech-to-speech assistant |
@@ -101,5 +105,5 @@ A curated index of AI tools, platforms, frameworks, and knowledge bases for rese
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high

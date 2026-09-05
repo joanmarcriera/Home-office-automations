@@ -1,14 +1,18 @@
 ---
 title: "Agents & Agent Frameworks"
-description: "Directory of tools, frameworks, and runtime environments for building, running, and orchestrating autonomous AI agents."
+description: "Directory of tools, frameworks, and runtime environments for building, running, and orchestrating autonomous AI agents powered by FastMCP 3.1 and early 2027 frontier models."
 category: "agents"
-date: 2027-01-06
+date: 2027-01-07
 status: "Completed"
 ---
 
 # Agents & Agent Frameworks
 
-Tools, runtime environments, and frameworks for building, running, and orchestrating autonomous AI agents.
+Tools, runtime environments, and frameworks for building, running, and orchestrating autonomous AI agents natively leveraging **FastMCP 3.1**, **MCP 3.0 Task Protocols**, and frontier model backends such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
+
+## Overview & Architecture Integration
+
+Modern agentic systems in early 2027 rely on structured multi-agent coordination, memory persistence layers, and standardized tool-calling protocols. These tools integrate directly with [Multi-Agent KnowledgeOps Governance](../../architecture/multi_agent_knowledgeops.md) and enterprise workflow buses.
 
 ## Contents
 
@@ -23,7 +27,7 @@ Tools, runtime environments, and frameworks for building, running, and orchestra
 | [AWS Dogwood](aws-dogwood.md) | Enterprise agent runtime and policy enforcement framework on AWS |
 | [Bee Agent Framework](bee-agent-framework.md) | IBM open-source TypeScript/Python framework for enterprise agent applications |
 | [Claude Skills Ecosystem](claude-skills-ecosystem.md) | Community skill packs, directories, and reusable workflows for Claude |
-| [Cline](cline.md) | Autonomous CLI and IDE coding assistant with MCP tool integration |
+| [Cline](cline.md) | Autonomous CLI and IDE coding assistant with FastMCP 3.1 tool integration |
 | [Composio](composio.md) | Tool integration platform providing 250+ enterprise app connectors for agents |
 | [DeerFlow](deerflow.md) | Open-source deep research workflow project from ByteDance |
 | [Documentation Writer](documentation-writer.md) | Specialist agent for repository documentation generation and sync |
@@ -59,4 +63,5 @@ Tools, runtime environments, and frameworks for building, running, and orchestra
 - [Frameworks](../frameworks/index.md)
 
 ---
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
+- Confidence: high
