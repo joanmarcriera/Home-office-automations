@@ -2,13 +2,13 @@
 title: "Data Intake & Storage Tools"
 description: "Directory of data intake, document parsing, object storage, and knowledge storage solutions."
 category: "intake_storage"
-date: 2027-01-06
+date: 2027-01-07
 status: "Completed"
 ---
 
 # Data Intake & Storage Tools
 
-Tools, protocols, and platforms for document ingestion, unstructured data parsing, object storage, and local knowledge management.
+Tools, protocols, and platforms for document ingestion, unstructured data parsing, object storage, and local knowledge management. Modern intake and storage systems integrate with FastMCP 3.1 Task Protocols and extract structured representations using models like Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
 ## Contents
 
@@ -26,4 +26,4 @@ Tools, protocols, and platforms for document ingestion, unstructured data parsin
 | [Verba](verba.md) | Open-source RAG application framework built on top of Weaviate |
 
 ---
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07

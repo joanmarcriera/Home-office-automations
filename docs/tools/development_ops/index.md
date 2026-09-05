@@ -1,6 +1,14 @@
-# Development & Ops
+---
+title: "Development & Ops Tools"
+description: "Directory of AI coding assistants, agent harnesses, DevOps automation, CI/CD, and developer tools."
+category: "development_ops"
+date: 2027-01-07
+status: "Completed"
+---
 
-Tools and platforms for AI-assisted coding, DevOps automation, CI/CD, and developer productivity.
+# Development & Ops Tools
+
+Tools, platforms, and agent harnesses for AI-assisted coding, DevOps automation, CI/CD, and autonomous developer workflows. Modern developer environments leverage FastMCP 3.1 Task Protocols, containerized agent execution loops, and frontier models including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## Contents
 
@@ -77,5 +85,5 @@ Tools and platforms for AI-assisted coding, DevOps automation, CI/CD, and develo
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
