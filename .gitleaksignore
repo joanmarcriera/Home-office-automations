@@ -1,0 +1,44 @@
+# gitleaks false positives, pinned by fingerprint.
+# Documentation placeholders only (sk_live_12345, airflow:airflow, YOUR_API_KEY-style
+# examples in service how-to docs). Verified 2026-09-06 — no real credentials.
+# Fingerprints are commit:file:rule:line, so a NEW secret in the same file
+# still fires — this only silences these exact reviewed findings.
+038bac300988f1a7ce38a455fd9b004049bcbe1c:docs/knowledge_base/voice-to-task-research.md:curl-auth-header:90
+1c27a6438655625fb4987eee5ec6d69fb86a31bf:search/search_index.json:curl-auth-header:1
+217df53d951ce85de40150d79b84e06b289b4d44:docs/services/headscale.md:curl-auth-header:91
+217df53d951ce85de40150d79b84e06b289b4d44:docs/services/prowlarr.md:curl-auth-header:88
+31c313047c4744bc2f0f1aad4b05bf956b921cf8:docs/services/portracker.md:curl-auth-header:77
+3294959fcdfc3e44c71702290646749d462f715c:docs/tools/orchestration/apache-airflow.md:curl-auth-user:94
+332291d9b289451c384fb4696489ba2a713ff274:docs/services/homebox.md:curl-auth-header:78
+37df0636b1fad3332330642e0e08dcde0e6432c4:docs/playbooks/tailscale-to-headscale-migration.md:generic-api-key:149
+3be150fa726741606dc07cdf3262887bcd559355:docs/services/prowlarr.md:curl-auth-header:77
+5a9fbed18f82085a82f67b5bfcbade81444eeb54:docs/services/immich.md:curl-auth-header:127
+61c7e33b3771da718d57c4c0fac013e7dd77ee92:docs/services/paperless-ngx.md:curl-auth-header:89
+633d8b3538805a2efb57c747e730170679bca9e5:docs/reference-implementations/paperless/tag-taxonomy.md:curl-auth-header:63
+633d8b3538805a2efb57c747e730170679bca9e5:docs/reference-implementations/paperless/tag-taxonomy.md:curl-auth-header:70
+633d8b3538805a2efb57c747e730170679bca9e5:docs/reference-implementations/paperless/tag-taxonomy.md:curl-auth-header:76
+6bab01a2387eb6727b69fa799cf3d12e5954ae00:docs/services/open-webui.md:curl-auth-header:92
+6fd3dfed3cbaa5c69a1d479a4df957579a8ff7a0:docs/services/linkwarden.md:curl-auth-header:121
+6fd3dfed3cbaa5c69a1d479a4df957579a8ff7a0:docs/services/mealie.md:curl-auth-header:96
+76e6bd991955c881fca009f7fbc9a58df6338da2:docs/tools/calendar_tasks/reclaim.md:curl-auth-header:74
+89c7084036bd75366b4d4cb9552177221c28f1ba:docs/tools/process_understanding/fiddler.md:curl-auth-header:58
+904937d0f0391fcc3e8861ff3054ea3f47d2de95:docs/tools/intake_storage/anytype.md:curl-auth-header:84
+904937d0f0391fcc3e8861ff3054ea3f47d2de95:docs/tools/providers/azure-openai.md:curl-auth-header:51
+a3121351cc06a9f790f2d193b0dfaf6cef9a4808:docs/tools/intake_storage/khoj.md:curl-auth-header:73
+b257192c6d97a3f7d15971890d0543eefedfb9de:docs/tools/calendar_tasks/todoist.md:curl-auth-header:48
+bf48ef0459fd6d7fd2ccf8512a9e2295cf673410:docs/tools/agents/mem0.md:curl-auth-header:86
+c999ac5d7289f9a2ba5ddebf2b7feb96e01fdee4:docs/services/habitica.md:curl-auth-header:79
+cab2893f3e08db23df9a854bdbd5286e169f2cb2:docs/reference-implementations/paperless/webhook-ingestion.md:curl-auth-header:21
+cab44e0abd5b627d98aa2a5f97d88d95ed945fee:docs/services/actual-budget.md:curl-auth-header:96
+d099b2930530896f641ee33c5a65c8f85ae99e1e:docs/services/jellyfin.md:curl-auth-header:55
+d099b2930530896f641ee33c5a65c8f85ae99e1e:docs/services/jellyfin.md:curl-auth-header:62
+d099b2930530896f641ee33c5a65c8f85ae99e1e:docs/services/tailscale.md:curl-auth-header:51
+d6c986ec8c1f335d6dda30c90f59e7785f6efb49:docs/services/homebox.md:curl-auth-header:60
+d7352b57f8ba007181d65dc0f8343a86ac12d795:docs/tools/automation_orchestration/hashicorp-vault.md:generic-api-key:57
+e242354363984dd92d32cb6bad913418bcd71b88:docs/tools/automation_orchestration/hashicorp-vault.md:generic-api-key:79
+e2790e03ad3fedbce11c597d875dec892225bbe3:docs/tools/ai_knowledge/luma-dream-machine.md:curl-auth-header:54
+e294897ead86cb9324e819387d4f68b3b7590293:docs/knowledge_base/multi-calendar-conflict-research.md:curl-auth-header:62
+e4f5c42ce16f298700b7a739f46e46f0745c093a:docs/services/paperless-ngx.md:curl-auth-header:62
+ecc572b4eb6d2a077776986529403f6c6d6b23bd:docs/tools/frameworks/superinterface.md:curl-auth-header:56
+ecc572b4eb6d2a077776986529403f6c6d6b23bd:docs/tools/frameworks/superinterface.md:curl-auth-header:60
+fa6eb1d0b0682c9047fe11861ba1da2e94259e05:docs/tools/automation_orchestration/airops.md:curl-auth-header:60
