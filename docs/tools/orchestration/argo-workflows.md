@@ -12,10 +12,10 @@ Argo Workflows is a container-native workflow engine that runs natively on Kuber
 Managing complex, multi-step parallel computations on a distributed system typically leads to "dependency hell" and scaling bottlenecks. Argo Workflows solves this by executing each step of a pipeline within its own isolated container environment. It provides developers and platform engineers with a unified, version-controlled way (via YAML or Python) to define dependencies, handle automated retries, map inputs/outputs across tasks, and orchestrate massive scale without manual resource scheduling.
 
 ## Where it fits in the stack
-**Orchestration / Kubernetes-Native Workflow Engine**. Argo serves as the backbone for high-performance computing, continuous integration, and data processing on top of local Kubernetes distributions like [K3s](../infrastructure/k3s.md) or enterprise cloud clusters (EKS, GKE). In early January 2027, Argo is the primary engine of choice for executing high-throughput, parallel agentic reasoning loops—scaling multiple [Gemma 4](../ai_knowledge/gemini-macos.md), [Claude 5.6](../ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/openai.md), or [DeepSeek-V4](../providers/deepseek.md) instances inside dedicated pods that coordinate and exchange structured context using [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
+**Orchestration / Kubernetes-Native Workflow Engine**. Argo serves as the backbone for high-performance computing, continuous integration, and data processing on top of local Kubernetes distributions like [K3s](../infrastructure/k3s.md) or enterprise cloud clusters (EKS, GKE). In early January 2027, Argo is the primary engine of choice for executing high-throughput, parallel agentic reasoning loops—scaling multiple [Gemma 4](../ai_knowledge/local_llms.md), [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), or [DeepSeek-V4](../providers/deepseek.md) instances inside dedicated pods that coordinate and exchange structured context using [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
 ## Typical use cases
-- **Parallel Agentic Evaluation Loops**: Running hundred-way concurrent simulations of AI agents (utilizing [Claude 5.6](../ai_knowledge/claude-macos.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemma 4](../ai_knowledge/gemini-macos.md)) to parse, verify, and summarize massive datasets.
+- **Parallel Agentic Evaluation Loops**: Running hundred-way concurrent simulations of AI agents (utilizing [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), and [Gemma 4](../ai_knowledge/local_llms.md)) to parse, verify, and summarize massive datasets.
 - **Machine Learning (MLOps) Pipelines**: Coordinating data preprocessing, distributed GPU-accelerated model training, and model registration.
 - **Continuous Integration / Continuous Deployment (CI/CD)**: Running secure, multi-stage software builds and automated system tests in isolated, ephemeral environments.
 - **High-Throughput Data ETL**: Running large-scale batch ingestion, transformations, and indexing across distributed Kubernetes nodes.
@@ -168,7 +168,7 @@ except ValidationError as e:
 - [Hera Python SDK](https://github.com/argoproj-labs/hera) — The premier Python SDK for declarative Argo Workflow construction.
 - [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) — Standardized protocol for connecting agent execution environments to data contexts and tools.
 - [Claude 5.6](../ai_knowledge/claude.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
-- [Gemma 4](../ai_knowledge/gemini-macos.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.
+- [Gemma 4](../ai_knowledge/local_llms.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.
 - [Apache Airflow](apache-airflow.md) — Enterprise workflow manager, often used to schedule high-level jobs that trigger Argo Workflows.
 - [Flyte](flyte.md) — Container-native workflow platform specifically engineered for machine learning and data engineering pipelines.
 - [Kestra](kestra.md) — Event-driven declarative orchestrator built on YAML.
