@@ -1,6 +1,10 @@
 # Benchmarking
 
-Standardized tests, leaderboards, and evaluation frameworks used to measure the performance, reasoning, coding, and safety of AI models.
+Standardized tests, leaderboards, and evaluation frameworks used to measure the performance, reasoning, coding, safety, and agentic capability of AI models in early 2027.
+
+## Overview & Ecosystem Context
+
+In early 2027, benchmarking AI models has expanded beyond simple static context benchmarks to dynamic agentic execution tests, long-context reasoning suites, and real-time environment interaction evaluation. Benchmarking frameworks in this index evaluate frontier backends like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4** operating via **FastMCP 3.1** task execution protocols.
 
 For a conceptual overview of model comparison platforms and evaluation metrics, see [Model Comparison and Evaluation](../../knowledge_base/model_comparison_and_evaluation.md).
 
@@ -57,5 +61,5 @@ For a conceptual overview of model comparison platforms and evaluation metrics, 
 
 ## Contribution Metadata
 
-- Last reviewed: 2027-01-06
+- Last reviewed: 2027-01-07
 - Confidence: high
