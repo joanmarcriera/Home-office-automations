@@ -13,7 +13,7 @@ It eliminates search profiling, behavioral tracking, and search bubble bias enfo
 
 ## Typical use cases
 - **Privacy-First Search Infrastructure**: Secure search backend for enterprise networks and self-hosted environments without tracking or analytics leakage.
-- **Agentic Web Retrieval**: Providing structured search capabilities to FastMCP 3.1 tools for [Claude 5.1](../tools/providers/anthropic.md), [GPT-5.5](../tools/providers/openai.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
+- **Agentic Web Retrieval**: Providing structured search capabilities to FastMCP 3.1 tools for [Claude 5.1](../tools/providers/anthropic.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
 - **Domain-Specific Aggregation**: Filtering and weighting results across specialized sources (e.g., GitHub, StackOverflow, ArXiv, Wikipedia) for developer research loops.
 - **RAG Context Expansion**: Fetching real-time web citations and context snippets to augment prompt context windows for local models like Gemma 3 and Llama 4.
 - **Unified Internal & External Search**: Integrating local documentation JSON endpoints alongside public search providers.

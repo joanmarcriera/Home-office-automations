@@ -1,7 +1,7 @@
 # AI Builder Index
 
 ## What it is
-The AI Builder Index is the primary discovery portal for the automation and AI engineering stack documented in this repository. It serves as a high-signal directory that routes builders to the appropriate playbooks, tools, and architectural patterns based on their desired outcomes. As of early 2027, it is optimized for the **FastMCP 3.1** and **MCP 3.1 Task Protocol** ecosystem, helping users navigate the complex landscape of frontier models like [Claude 5.6](../tools/providers/anthropic.md), [GPT-5.6](../tools/providers/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md), [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md), [Gemma 4](local_llms.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
+The AI Builder Index is the primary discovery portal for the automation and AI engineering stack documented in this repository. It serves as a high-signal directory that routes builders to the appropriate playbooks, tools, and architectural patterns based on their desired outcomes. As of early 2027, it is optimized for the **FastMCP 3.1** and **MCP 3.1 Task Protocol** ecosystem, helping users navigate the complex landscape of frontier models like [Claude 5.6](../tools/providers/anthropic.md), [GPT-5.6](../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md), [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md), [Gemma 4](../tools/ai_knowledge/local_llms.md), and [DeepSeek-V4](../tools/providers/deepseek.md).
 
 ## What problem it solves
 The repository contains a vast array of specialized tools, which can be overwhelming for new users. The AI Builder Index solves "discovery friction" by organizing technical documentation into logical "outcome buckets." Instead of browsing a flat file list, builders can start with a goal (e.g., "Build a private RAG system") and immediately find the curated set of tools and standards needed to achieve it, reducing decision fatigue and implementation errors.
@@ -23,7 +23,7 @@ The repository contains a vast array of specialized tools, which can be overwhel
 - **Opinionated Defaults**: Provides clear "Practical Defaults" to help builders ship faster with proven tool combinations.
 
 ## Limitations
-- **Manual Indexing**: Requires proactive updates as the AI ecosystem (e.g., new [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md) and [Gemma 4](local_llms.md) variants) evolves.
+- **Manual Indexing**: Requires proactive updates as the AI ecosystem (e.g., new [Qwen 3.6 VL](../tools/ai_knowledge/qwen.md) and [Gemma 4](../tools/ai_knowledge/local_llms.md) variants) evolves.
 - **Abstraction Layer**: Provides the roadmap but does not contain the low-level implementation details found in specific tool docs.
 - **Path Dependency**: Highly optimized for the repository's core philosophy of AI-assisted development and automation.
 
@@ -102,7 +102,7 @@ The AI Builder Index does not provide a public API. It is designed to be consume
 - [Infrastructure](../architecture/infrastructure.md) — The hardware and software foundation.
 
 ## Sources / references
-- [KnowledgeOps Documentation Standards](../../standards.md)
+- [KnowledgeOps Documentation Standards](../standards.md)
 - [FastMCP 3.1 & MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
 - [Awesome Claude AI Curated List](https://awesomeclaude.ai/)
 

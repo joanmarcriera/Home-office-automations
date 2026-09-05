@@ -25,7 +25,7 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 ## Limitations
 - **Paid Service**: Requires a Perplexity API subscription (usage-based pricing).
 - **Rate Limits**: Subject to API usage limits which can be restrictive for high-volume automated agents.
-- **Cloud Dependent**: Not suitable for 100% offline or air-gapped environments (unlike [Llama 4](../providers/llama.md) or [Gemma 4](../ai_knowledge/local_llms.md)).
+- **Cloud Dependent**: Not suitable for 100% offline or air-gapped environments (unlike [Llama 4](../ai_knowledge/llama.md) or [Gemma 4](../ai_knowledge/local_llms.md)).
 
 ## When to use it
 - When your agent needs the absolute latest information from the web (e.g., news, market trends, public filings).

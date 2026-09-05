@@ -19,7 +19,7 @@
 
 ## Typical use cases
 
-- **Specialized Agent Personas**: Creating domain-specific personas (e.g., Code Reviewer, Security Auditor, Data Analyst, Technical Writer) used in suites like [Agency-Agents](../tools/agents/agency-agents.md).
+- **Specialized Agent Personas**: Creating domain-specific personas (e.g., Code Reviewer, Security Auditor, Data Analyst, Technical Writer) used in suites like [Agency-Agents](../../tools/agents/agency-agents.md).
 - **Multi-Agent Orchestration Swarms**: Configuring system prompts for specialized sub-agents (Planner, Researcher, Coder, Verifier) in multi-agent frameworks.
 - **Enterprise Regulatory Compliance**: Enforcing privacy policies, anti-hallucination guardrails, and compliance standards in customer-facing and internal assistant deployments.
 - **Fast Router & Classifier Models**: Instructing high-speed router models (e.g., DeepSeek Flash Pro, Gemini 4.0 Flash) to categorize intent and route requests to downstream pipelines.
@@ -180,9 +180,9 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 
-- **[Agency-Agents](../tools/agents/agency-agents.md)**: Open-source repository of 110+ specialized system prompt personas.
-- **[Claude Context Mode](../tools/development_ops/claude-context-mode.md)**: Optimizing system prompt window layouts for Anthropic Claude models.
-- **[Inspect AI](../tools/benchmarking/inspect-ai.md)**: Benchmarking framework evaluating system prompt performance across safety suites.
+- **[Agency-Agents](../../tools/agents/agency-agents.md)**: Open-source repository of 110+ specialized system prompt personas.
+- **[Claude Context Mode](../../tools/development_ops/claude-context-mode.md)**: Optimizing system prompt window layouts for Anthropic Claude models.
+- **[Inspect AI](../../tools/benchmarking/inspect-ai.md)**: Benchmarking framework evaluating system prompt performance across safety suites.
 
 
 ## Sources / references

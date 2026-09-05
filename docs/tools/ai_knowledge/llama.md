@@ -32,7 +32,7 @@ Proprietary LLM APIs present continuous operational costs, latency overhead, ven
 - When building cost-effective, high-throughput LLM pipelines free from third-party rate limits.
 
 ## When not to use it
-- For instant serverless prototyping where hosted APIs ([Claude 5.1](../providers/anthropic.md) or [GPT-5.5](../providers/openai.md)) eliminate hardware setup entirely.
+- For instant serverless prototyping where hosted APIs ([Claude 5.1](../providers/anthropic.md) or [GPT-5.5](openai.md)) eliminate hardware setup entirely.
 - When sub-100M parameter micro-models are required for ultra-low-power microcontrollers.
 
 ## Getting started

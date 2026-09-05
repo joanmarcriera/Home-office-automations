@@ -32,7 +32,7 @@ Proprietary LLM APIs introduce network latency, ongoing operational cost, and da
 - When executing local coding and structured extraction tasks using FastMCP tools.
 
 ## When not to use it
-- For massive-scale frontier tasks requiring trillion-parameter reasoning (use [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](../providers/openai.md)).
+- For massive-scale frontier tasks requiring trillion-parameter reasoning (use [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](openai.md)).
 - When serverless API pay-as-you-go infrastructure is preferred over self-hosted compute.
 
 ## Getting started

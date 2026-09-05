@@ -1,7 +1,7 @@
 # Fyxer AI
 
 ## What it is
-Fyxer AI is an executive-grade AI assistant platform designed to automate inbox triage, calendar scheduling, and administrative workflows for high-volume professionals and leadership teams. Operating as an intelligent agentic layer across communication platforms (Gmail, Microsoft Outlook, Teams), it natively incorporates frontier models ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../providers/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md)) and supports **FastMCP 3.1** protocol standards.
+Fyxer AI is an executive-grade AI assistant platform designed to automate inbox triage, calendar scheduling, and administrative workflows for high-volume professionals and leadership teams. Operating as an intelligent agentic layer across communication platforms (Gmail, Microsoft Outlook, Teams), it natively incorporates frontier models ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md)) and supports **FastMCP 3.1** protocol standards.
 
 Key capabilities include:
 - **AI Inbox Management**: Automatically triages and labels incoming emails, drafts context-aware responses in the user's voice, and highlights critical action items.

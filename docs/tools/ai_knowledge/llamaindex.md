@@ -1,13 +1,13 @@
 # LlamaIndex
 
 ## What it is
-LlamaIndex is an open-source data framework for building LLM applications, retrieval-augmented generation (RAG) systems, and autonomous data agents. As of early 2027, LlamaIndex (v0.12+) features event-driven Workflows, native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, and seamless integration with frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../providers/openai.md), [Gemini 4.0 Pro](gemini.md), [Qwen 3.8](qwen.md), and [Gemma 3](local_llms.md).
+LlamaIndex is an open-source data framework for building LLM applications, retrieval-augmented generation (RAG) systems, and autonomous data agents. As of early 2027, LlamaIndex (v0.12+) features event-driven Workflows, native support for **FastMCP 3.1** and the **MCP 3.0 Task Protocol**, and seamless integration with frontier models including [Claude 5.1](../providers/anthropic.md), [GPT-5.5](openai.md), [Gemini 4.0 Pro](gemini.md), [Qwen 3.8](qwen.md), and [Gemma 3](local_llms.md).
 
 ## What problem it solves
 Simplifies connecting LLMs to private and heterogeneous data sources (PDFs, SQL databases, Notion, vector stores, APIs). It abstracts context window optimization, document parsing, embedding generation, chunking strategies, and multi-hop retrieval pipelines while eliminating brittle custom ingestion logic.
 
 ## Where it fits in the stack
-**Data Framework / Context Orchestration Layer**. It sits between raw enterprise or local storage repositories and high-level agent frameworks or applications, acting as the primary retrieval and context ingestion engine for [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) pipelines.
+**Data Framework / Context Orchestration Layer**. It sits between raw enterprise or local storage repositories and high-level agent frameworks or applications, acting as the primary retrieval and context ingestion engine for [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) pipelines.
 
 ## Typical use cases
 - **Modular RAG Pipelines**: Building question-answering systems over unstructured and structured document collections.

@@ -1,7 +1,7 @@
 # Lophius
 
 ## What it is
-Lophius is an open-source, modular research workbench and evaluation environment designed for language model internal state inspection, activation steering, and mechanistic interpretability experiments. Released in August 2026, Lophius provides researchers and AI safety engineers with fine-grained controls to record, analyze, and perturb latent model activations during inference across frontier open-weights LLMs (such as [Llama 4](../../knowledge_base/model_classes.md), [Gemma 3](local_llms.md), and [Qwen 3.8](qwen.md)).
+Lophius is an open-source, modular research workbench and evaluation environment designed for language model internal state inspection, activation steering, and mechanistic interpretability experiments. Released in August 2026, Lophius provides researchers and AI safety engineers with fine-grained controls to record, analyze, and perturb latent model activations during inference across frontier open-weights LLMs (such as [Llama 4](../../knowledge_base/model_classes.md), [Gemma 3](../ai_knowledge/local_llms.md), and [Qwen 3.8](../ai_knowledge/qwen.md)).
 
 ## What problem it solves
 Understanding internal representation dynamics in transformer architectures often requires complex custom PyTorch hooks, manual tensor manipulations, and fragmented tooling. Lophius solves this friction by unifying latent activation logging, Sparse Autoencoder (SAE) feature extraction, and real-time activation steering vectors into a single high-performance research interface. It empowers researchers to rapidly audit model trust boundaries, detect hidden chain-of-thought deviations, and verify safety alignment.
@@ -32,7 +32,7 @@ Understanding internal representation dynamics in transformer architectures ofte
 
 ## When not to use it
 - For standard production inference serving where intermediate tensor logging overhead is unnecessary.
-- When interacting exclusively with closed API providers (e.g., [Anthropic](../providers/anthropic.md) or [OpenAI](openai.md)) that do not expose intermediate layer weights.
+- When interacting exclusively with closed API providers (e.g., [Anthropic](../providers/anthropic.md) or [OpenAI](../ai_knowledge/openai.md)) that do not expose intermediate layer weights.
 
 ## Getting started
 

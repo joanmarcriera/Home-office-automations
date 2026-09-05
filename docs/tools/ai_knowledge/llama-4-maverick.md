@@ -33,7 +33,7 @@ Standard open-weight models often experience severe context drift and tool-execu
 
 ## When not to use it
 - For resource-constrained edge devices with less than 16GB RAM (use lightweight variants like [Gemma 4](gemma.md)).
-- When serverless pay-as-you-go APIs (e.g., [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](../providers/openai.md)) are preferred over hosting infrastructure.
+- When serverless pay-as-you-go APIs (e.g., [Claude 5.1](../providers/anthropic.md) or [GPT-5.5](openai.md)) are preferred over hosting infrastructure.
 
 ## Getting started
 
