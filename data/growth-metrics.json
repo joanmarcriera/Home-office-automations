@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-09-06",
-  "total_docs": 529,
-  "tool_docs": 476,
+  "total_docs": 531,
+  "tool_docs": 478,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -12,21 +12,23 @@
     "development_ops": 63,
     "enterprise": 14,
     "frameworks": 33,
-    "infrastructure": 48,
+    "infrastructure": 50,
     "intake_storage": 10,
     "orchestration": 9,
     "process_understanding": 40,
     "providers": 36
   },
-  "docs_with_code_examples": 529,
+  "docs_with_code_examples": 531,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/privategpt.md",
+    "docs/tools/development_ops/mentat.md",
     "docs/tools/automation_orchestration/mcp-servers.md",
     "docs/tools/infrastructure/ramalama.md",
+    "docs/tools/ai_knowledge/privategpt.md",
     "docs/tools/infrastructure/lancedb.md",
-    "docs/tools/development_ops/mentat.md",
+    "docs/tools/infrastructure/llama-swap.md",
     "docs/tools/infrastructure/local-embeddings.md",
+    "docs/tools/infrastructure/text-generation-webui.md",
     "docs/tools/ai_knowledge/joplin.md",
     "docs/tools/ai_knowledge/sora.md",
     "docs/tools/process_understanding/logfire.md",
@@ -38,13 +40,11 @@
     "docs/tools/development_ops/context7.md",
     "docs/tools/development_ops/aider.md",
     "docs/tools/ai_knowledge/big-agi.md",
-    "docs/tools/infrastructure/lm-studio.md",
-    "docs/tools/ai_knowledge/teamout.md",
-    "docs/tools/benchmarking/gsm8k.md"
+    "docs/tools/infrastructure/lm-studio.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 5,
-  "intake_items_7d": 10,
+  "weekly_additions": 2,
+  "intake_items_7d": 12,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }
