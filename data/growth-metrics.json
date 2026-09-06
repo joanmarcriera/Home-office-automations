@@ -26,8 +26,8 @@
     "docs/tools/infrastructure/ramalama.md",
     "docs/tools/ai_knowledge/privategpt.md",
     "docs/tools/infrastructure/lancedb.md",
-    "docs/tools/infrastructure/llama-swap.md",
     "docs/tools/infrastructure/local-embeddings.md",
+    "docs/tools/infrastructure/llama-swap.md",
     "docs/tools/infrastructure/text-generation-webui.md",
     "docs/tools/ai_knowledge/joplin.md",
     "docs/tools/ai_knowledge/sora.md",
@@ -43,7 +43,7 @@
     "docs/tools/infrastructure/lm-studio.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 2,
+  "weekly_additions": 0,
   "intake_items_7d": 12,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
