@@ -599,6 +599,8 @@ nav:
           - Koboldcpp: tools/infrastructure/koboldcpp.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
+          - llama-swap: tools/infrastructure/llama-swap.md
+          - Text Generation WebUI: tools/infrastructure/text-generation-webui.md
           - llama.cpp Windows Manager: tools/infrastructure/llamacpp-windows-manager.md
           - Llamafile: tools/infrastructure/llamafile.md
           - LM Studio: tools/infrastructure/lm-studio.md

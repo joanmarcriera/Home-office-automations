@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-09-07 | [2026-09-07](/new-sources/2026-09-07/) | 0 | 2 | Resolved remaining frontier coverage gap issues (llama-swap, text-generation-webui) |
 | 2026-09-06 | [2026-09-06](/new-sources/2026-09-06/) | 0 | 5 | Integrated top 5 frontier coverage gap issues from watchlist |
 | 2026-08-31 | [2026-08-31](/new-sources/2026-08-31/) | 1 | 0 | Logged missing tools referenced in Related sections |
 | 2026-08-30 | [2026-08-30](/new-sources/2026-08-30/) | 0 | 0 | Bridge auto-discovery |
@@ -73,7 +74,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 | 2026-03-09 | [2026-03-09](/new-sources/2026-03-09/) | 0 | 8 | Integrated Software Factory, Symphony, Superpowers, BigSwitch, NanoClaw, and Filesystem-as-Interface patterns |
 | 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 5 | 18 | Added local AI desktop tools and triaged Heretic/ARA, Ubuntu 26.04 AI, and Qwen3-Coder-Next. |
 | 2026-03-07 | [2026-03-07](/new-sources/2026-03-07/) | 8 | 4 | Ingested Daily Digest (llama.cpp MCP, Open WebUI terminal, GPT-5.4 AINews). |
-| 2026-03-06 | [2026-03-06](/new-sources/2026-03-06/) | 11 | 6 | Ingested Daily Digest (GPT-5.4 launch, ChatGPT Excel, Qwen 3.5 122B impressions). |
+| 2026-03-06 | [2026-03-06](/new-sources/2026-03-06/) | 11 | 6 | Ingested Daily Digest (GPT-5.4 launch, ChatGPT Excel, Qwen 3.5 vibe coding). |
 | 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |
 | 2026-03-04 | [2026-03-04](/new-sources/2026-03-04/) | 18 | 6 | Ingested Daily Digest (GPT-5.3 Instant, Gemini 3.1 Flash-Lite, Qwen 3.5 vibe coding). |
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 21 | Provider, agent, and infrastructure updates |
@@ -82,7 +83,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 | 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 10 | Daily ingestion (infrastructure, benchmarking) |
 | 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 21 | Daily ingestion (agents, frameworks, providers, and analysis) |
 | 2026-02-26 | [2026-02-26](/new-sources/2026-02-26/) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
-| 2026-02-25 | [2026-02-25](/new-sources/2026-02-25/) | 0 | 9 | Initial daily migration |
+| 2026-02-25 | [2026-02-25](/new-sources/2026-02-25/) | 0 | 18 | Intake log |
 | 2025-02-25 | [2025-02-25](/new-sources/2025-02-25/) | 0 | 5 | Legacy entries migrated from old monolithic inbox |
 
 ## Required Daily Log Schema

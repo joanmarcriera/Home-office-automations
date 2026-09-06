@@ -13,22 +13,16 @@
       "doc_path": "docs/tools/frameworks/ag2.md"
     },
     {
-      "id": "agency-swarm",
-      "name": "Agency Swarm",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/agency-swarm.md"
-    },
-    {
       "id": "agency-agents",
       "name": "Agency-Agents",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agency-agents.md"
     },
     {
-      "id": "google-adk",
-      "name": "Agent Development Kit (ADK)",
-      "category": "Frameworks",
-      "doc_path": "docs/tools/frameworks/google-adk.md"
+      "id": "agency-swarm",
+      "name": "Agency Swarm",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agency-swarm.md"
     },
     {
       "id": "agent-framework-learning-map",
@@ -73,18 +67,6 @@
       "doc_path": "docs/tools/process_understanding/ai-auditing-tools.md"
     },
     {
-      "id": "vercel-ai-sdk",
-      "name": "AI SDK (by Vercel)",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/vercel-ai-sdk.md"
-    },
-    {
-      "id": "aitmpl",
-      "name": "AI Templates",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
-    },
-    {
       "id": "aider",
       "name": "Aider",
       "category": "Development & Ops",
@@ -101,6 +83,12 @@
       "name": "AirOps",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/airops.md"
+    },
+    {
+      "id": "aitmpl",
+      "name": "AI Templates",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
     },
     {
       "id": "akiflow",
@@ -125,12 +113,6 @@
       "name": "AmpCode",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/ampcode.md"
-    },
-    {
-      "id": "karpathy-skills",
-      "name": "Andrej Karpathy Skills",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
     },
     {
       "id": "ansigpt",
@@ -196,12 +178,6 @@
       "name": "Apache Hamilton",
       "category": "Orchestration",
       "doc_path": "docs/tools/orchestration/apache-hamilton.md"
-    },
-    {
-      "id": "tika",
-      "name": "Apache Tika",
-      "category": "Process & Understanding",
-      "doc_path": "docs/services/tika.md"
     },
     {
       "id": "aphrodite-engine",
@@ -1095,28 +1071,34 @@
       "doc_path": "docs/tools/ai_knowledge/gemini.md"
     },
     {
-      "id": "gemini-flash-tts",
-      "name": "Gemini 3.1 Flash TTS",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
-    },
-    {
-      "id": "gemini-managed-agents",
-      "name": "Gemini API Managed Agents",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/gemini-managed-agents.md"
-    },
-    {
       "id": "gemini-canvas",
       "name": "Gemini Canvas",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini-canvas.md"
     },
     {
+      "id": "gemini-cli",
+      "name": "Google Gemini CLI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-cli.md"
+    },
+    {
+      "id": "gemini-flash-tts",
+      "name": "Gemini 3.1 Flash TTS",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
+    },
+    {
       "id": "gemini-macos",
       "name": "Gemini for macOS",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini-macos.md"
+    },
+    {
+      "id": "gemini-managed-agents",
+      "name": "Gemini API Managed Agents",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gemini-managed-agents.md"
     },
     {
       "id": "gemini-robotics",
@@ -1203,6 +1185,12 @@
       "doc_path": "docs/tools/automation_orchestration/gnu-make.md"
     },
     {
+      "id": "google-adk",
+      "name": "Agent Development Kit (ADK)",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/google-adk.md"
+    },
+    {
       "id": "google-ai-studio",
       "name": "Google AI Studio",
       "category": "Providers",
@@ -1213,12 +1201,6 @@
       "name": "Google Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/google_calendar.md"
-    },
-    {
-      "id": "gemini-cli",
-      "name": "Google Gemini CLI",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/gemini-cli.md"
     },
     {
       "id": "google-lyria",
@@ -1275,16 +1257,16 @@
       "doc_path": "docs/tools/development_ops/gpt_engineer.md"
     },
     {
-      "id": "gpt-researcher",
-      "name": "GPT Researcher",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/gpt-researcher.md"
-    },
-    {
       "id": "gpt-red",
       "name": "GPT-Red",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/gpt-red.md"
+    },
+    {
+      "id": "gpt-researcher",
+      "name": "GPT Researcher",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gpt-researcher.md"
     },
     {
       "id": "gpt4all",
@@ -1556,6 +1538,18 @@
       "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
     },
     {
+      "id": "k3s",
+      "name": "Kubernetes (K3s)",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/k3s.md"
+    },
+    {
+      "id": "karpathy-skills",
+      "name": "Andrej Karpathy Skills",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
+    },
+    {
       "id": "katcoderair",
       "name": "KatCoderAir",
       "category": "Providers",
@@ -1602,12 +1596,6 @@
       "name": "KokoClone",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/kokoclone.md"
-    },
-    {
-      "id": "k3s",
-      "name": "Kubernetes (K3s)",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/k3s.md"
     },
     {
       "id": "kumo-ai",
@@ -1754,16 +1742,22 @@
       "doc_path": "docs/tools/ai_knowledge/llama-4-maverick.md"
     },
     {
+      "id": "llama-cpp",
+      "name": "llama.cpp",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/infrastructure/llama-cpp.md"
+    },
+    {
       "id": "llama-factory",
       "name": "LLaMA Factory",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/llama-factory.md"
     },
     {
-      "id": "llama-cpp",
-      "name": "llama.cpp",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/infrastructure/llama-cpp.md"
+      "id": "llama-swap",
+      "name": "llama-swap",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/llama-swap.md"
     },
     {
       "id": "llamacpp-windows-manager",
@@ -1932,12 +1926,6 @@
       "doc_path": "docs/tools/benchmarking/math-benchmark.md"
     },
     {
-      "id": "synapse",
-      "name": "Matrix Synapse",
-      "category": "Creative & Communication",
-      "doc_path": "docs/services/synapse.md"
-    },
-    {
       "id": "matt-pocock-skills",
       "name": "Matt Pocock Skills",
       "category": "AI Assistants & Knowledge",
@@ -1950,10 +1938,22 @@
       "doc_path": "docs/tools/benchmarking/mbpp.md"
     },
     {
+      "id": "mcp",
+      "name": "Model Context Protocol (MCP)",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/mcp.md"
+    },
+    {
       "id": "mcp-registry",
       "name": "MCP Registry",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
+    },
+    {
+      "id": "mcp-servers",
+      "name": "Model Context Protocol Servers",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/mcp-servers.md"
     },
     {
       "id": "mealie",
@@ -2070,18 +2070,6 @@
       "doc_path": "docs/tools/benchmarking/mmlu.md"
     },
     {
-      "id": "mcp",
-      "name": "Model Context Protocol (MCP)",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/tools/automation_orchestration/mcp.md"
-    },
-    {
-      "id": "mcp-servers",
-      "name": "Model Context Protocol Servers",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/tools/automation_orchestration/mcp-servers.md"
-    },
-    {
       "id": "monolith",
       "name": "Monolith",
       "category": "Providers",
@@ -2187,10 +2175,38 @@
       "doc_path": "docs/tools/frameworks/nemo-automodel.md"
     },
     {
+      "id": "nemo-retriever",
+      "name": "NVIDIA NeMo Retriever",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemo-retriever.md"
+    },
+    {
       "id": "nemo-speech",
       "name": "NeMo-Speech.cpp",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/nemo-speech.md"
+    },
+    {
+      "id": "nemoclaw",
+      "name": "Nvidia NemoClaw",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemoclaw.md"
+    },
+    {
+      "id": "nemotron",
+      "name": "NVIDIA Nemotron-3 Super",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
+    },
+    {
+      "id": "nemotron-lightning",
+      "name": "NVIDIA Nemotron-3.5-Lightning-30B",
+      "categories": [
+        "AI Knowledge",
+        "Enterprise Open-Weights Models"
+      ],
+      "description": "Ultra-low-latency 30B MoE language model with active 3B routing for extreme throughput.",
+      "doc_path": "docs/tools/ai_knowledge/nemotron-lightning.md"
     },
     {
       "id": "netlify",
@@ -2233,40 +2249,6 @@
       "name": "NVIDIA",
       "category": "Providers",
       "doc_path": "docs/tools/providers/nvidia.md"
-    },
-    {
-      "id": "nemo-retriever",
-      "name": "NVIDIA NeMo Retriever",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/nemo-retriever.md"
-    },
-    {
-      "id": "nemoclaw",
-      "name": "Nvidia NemoClaw",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/nemoclaw.md"
-    },
-    {
-      "id": "nemotron",
-      "name": "NVIDIA Nemotron-3 Super",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
-    },
-    {
-      "id": "nemotron-lightning",
-      "name": "NVIDIA Nemotron-3.5-Lightning-30B",
-      "categories": [
-        "AI Knowledge",
-        "Enterprise Open-Weights Models"
-      ],
-      "description": "Ultra-low-latency 30B MoE language model with active 3B routing for extreme throughput.",
-      "doc_path": "docs/tools/ai_knowledge/nemotron-lightning.md"
-    },
-    {
-      "id": "personaplex",
-      "name": "NVIDIA PersonaPlex",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/personaplex.md"
     },
     {
       "id": "nvidia-nemotron-parse",
@@ -2507,6 +2489,12 @@
       "name": "Perplexity Agent API",
       "category": "Agents",
       "doc_path": "docs/tools/agents/perplexity-agent-api.md"
+    },
+    {
+      "id": "personaplex",
+      "name": "NVIDIA PersonaPlex",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/personaplex.md"
     },
     {
       "id": "phidata",
@@ -2988,6 +2976,12 @@
       "doc_path": "docs/tools/agents/symphony.md"
     },
     {
+      "id": "synapse",
+      "name": "Matrix Synapse",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/synapse.md"
+    },
+    {
       "id": "syncthing",
       "name": "Syncthing",
       "category": "Intake & Storage",
@@ -3066,6 +3060,12 @@
       "doc_path": "docs/tools/process_understanding/tesseract.md"
     },
     {
+      "id": "text-generation-webui",
+      "name": "Text Generation WebUI",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/text-generation-webui.md"
+    },
+    {
       "id": "tgi",
       "name": "Text Generation Inference (TGI)",
       "category": "Infrastructure",
@@ -3076,6 +3076,12 @@
       "name": "TickTick",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/ticktick.md"
+    },
+    {
+      "id": "tika",
+      "name": "Apache Tika",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/tika.md"
     },
     {
       "id": "tldv",
@@ -3216,6 +3222,12 @@
       "doc_path": "docs/tools/providers/vercel-ai-gateway.md"
     },
     {
+      "id": "vercel-ai-sdk",
+      "name": "AI SDK (by Vercel)",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vercel-ai-sdk.md"
+    },
+    {
       "id": "vercel-oss",
       "name": "Vercel OSS",
       "category": "Development & Ops",
@@ -3270,16 +3282,16 @@
       "doc_path": "docs/tools/development_ops/vscode.md"
     },
     {
-      "id": "wandb-weave",
-      "name": "W&B Weave",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/process_understanding/wandb-weave.md"
-    },
-    {
       "id": "wan-dancer",
       "name": "Wan-Dancer",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/wan-dancer.md"
+    },
+    {
+      "id": "wandb-weave",
+      "name": "W&B Weave",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/wandb-weave.md"
     },
     {
       "id": "waste",

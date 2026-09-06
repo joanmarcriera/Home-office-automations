@@ -105,7 +105,7 @@ def deploy_model_container(model_name: str, port: int = 8080) -> dict:
 ```
 
 ## Related tools / concepts
-- [Ollama](ollama.md) — Popular local model runner.
+- [Ollama](../../services/ollama.md) — Popular local model runner.
 - [Docker](docker.md) — Container runtime infrastructure.
 - [K3s Cluster Setup](../../playbooks/k3s-cluster-setup.md) — Kubernetes deployment playbook.
 
