@@ -114,7 +114,7 @@ def swap_model(model_name: str, target_port: int = 8080) -> dict:
 
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Core backend execution engine for GGUF models.
-- [Ollama](ollama.md) — Alternative local model runner with built-in model management.
+- [Ollama](../../services/ollama.md) — Alternative local model runner with built-in model management.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Architectural patterns for local model routing.
 
 ## Sources / references
