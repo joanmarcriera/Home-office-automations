@@ -173,6 +173,7 @@ nav:
       - Overview: tools/README.md
       - AI & Knowledge:
           - Overview: tools/ai_knowledge/index.md
+          - PrivateGPT: tools/ai_knowledge/privategpt.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
           - Antigravity Agent: tools/ai_knowledge/antigravity-agent.md
@@ -270,6 +271,7 @@ nav:
           - WeatherNext: tools/ai_knowledge/weathernext.md
       - Automation & Orchestration:
           - Overview: tools/automation_orchestration/index.md
+          - Model Context Protocol Servers: tools/automation_orchestration/mcp-servers.md
           - AirOps: tools/automation_orchestration/airops.md
           - Atlassian Jira MCP: tools/automation_orchestration/atlassian-jira-mcp.md
           - Browser Use: tools/automation_orchestration/browser-use.md
@@ -580,6 +582,9 @@ nav:
           - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
+          - LanceDB: tools/infrastructure/lancedb.md
+          - Local Embedding Models: tools/infrastructure/local-embeddings.md
+          - Ramalama: tools/infrastructure/ramalama.md
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
           - Azure AI Gateway: tools/infrastructure/azure-ai-gateway.md
           - BeeLlama.cpp: tools/infrastructure/beellama-cpp.md
