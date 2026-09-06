@@ -19,7 +19,7 @@ This prompt is part of the **Maintenance & Governance Layer**. It consumes data 
 
 ## Strengths
 - **Data-Driven**: Improvements are based on actual execution logs, not just theoretical gaps or anecdotal evidence.
-- **Actionable Output**: Designed to be fed directly into an [Automation Improvement PR](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
+- **Actionable Output**: Designed to be fed directly into an [Automation Improvement PR](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
 - **Proactive Maintenance**: Identifies patterns and trends before they become critical system-wide failures.
 - **Reasoning-Aware**: Optimized for **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4** to perform deep chain-of-thought root cause analysis.
 
@@ -50,7 +50,7 @@ python3 scripts/n8n_log_aggregator.py --hours 168 > logs_summary.txt
 Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capable model (e.g., **Claude 5.6** or **Gemini 4.0 Ultra**).
 
 ### 3. Implementation
-Review the proposed fixes and execute them using the [Automation PR Template](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
+Review the proposed fixes and execute them using the [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
 
 ## CLI examples
 The analysis process is managed via the command line and LLM interfaces.
@@ -140,8 +140,8 @@ def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
 ## Related tools / concepts
 - [n8n](../../services/n8n.md): The automation platform being monitored.
 - [n8n Log Aggregator](../../scripts/n8n_log_aggregator.py): The primary data source for this prompt.
-- [Automation PR Template](../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md): The output format for improvements.
-- [KnowledgeOps](../../knowledge_base/patterns/knowledge-ops.md): The broader framework for repository-driven automation maintenance.
+- [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md): The output format for improvements.
+- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The broader framework for repository-driven automation maintenance.
 - [Error Handling Patterns](../../services/n8n.md#3-error-handling): The foundational n8n patterns this analysis helps enforce.
 - [Jules](../../tools/ai_knowledge/jules.md): The AI agent persona executing the analysis.
 - [Claude Code](../../tools/development_ops/claude-code.md): The environment where Jules executes these tasks.

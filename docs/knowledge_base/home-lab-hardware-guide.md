@@ -168,7 +168,7 @@ model_list:
 - [LiteLLM](../services/litellm.md) — Unifying multi-machine hardware endpoints.
 - [MLX](../tools/infrastructure/mlx.md) — Specialized framework for Apple Silicon hardware.
 - [NVENC / QuickSync](../services/jellyfin.md) — Hardware-accelerated video transcoding.
-- [Proxmox](../tools/infrastructure/proxmox.md) — Virtualizing hardware resources for the lab.
+- [Infrastructure Architecture](../architecture/infrastructure.md) — Virtualizing hardware resources for the lab.
 - [Whisper](../services/whisper.md) — Utilizing GPU for high-speed audio transcription.
 - [AVX-512 Requirements](../knowledge_base/patterns/fine-tuning-open-models.md) — Deep dive into CPU instruction sets.
 

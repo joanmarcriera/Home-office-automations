@@ -35,7 +35,7 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [LiteLLM](../../services/litellm.md)
-- [Durable Functions](../../knowledge_base/patterns/durable-functions.md)
+- [Temporal Durable Execution](temporal.md)
 
 ## Sources / References
 

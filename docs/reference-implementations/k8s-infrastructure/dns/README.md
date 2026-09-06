@@ -60,8 +60,8 @@ kubectl logs -f deployment/external-dns -n kube-system
 ```
 
 ## Related Tools / Concepts
-- [Cert-Manager](../cert-manager/README.md): Automated TLS certificate management.
-- [Traefik Ingress](../traefik/README.md): Popular ingress controller for K3s.
+- [Cert-Manager](../cert-manager/cluster-issuer.yaml): Automated TLS certificate management.
+- [Traefik Ingress](../traefik/helm-values.yaml): Popular ingress controller for K3s.
 - [Authentik](../../../services/authentik.md): For securing exposed services.
 
 ## Sources / References

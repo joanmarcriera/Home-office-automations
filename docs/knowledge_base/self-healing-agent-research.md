@@ -143,7 +143,7 @@ if __name__ == "__main__":
 - [Home Admin Agent Architecture](home-admin-agent-architecture.md) — Integration with the primary family assistant.
 - [Gitea](../services/gitea.md) — For config rollback patterns.
 - [n8n](../services/n8n.md) — Automation platform for recovery workflows.
-- [Uptime Kuma](../services/uptime-kuma.md) — For service monitoring and triggers.
+- [Home Assistant](../services/home-assistant.md) — For service monitoring and triggers.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Preferred local reasoning engine for edge remediation.
 - [MCP (Model Context Protocol)](../tools/automation_orchestration/mcp.md) — The protocol enabling secure tool access for agents.
 

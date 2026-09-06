@@ -154,7 +154,7 @@ if __name__ == "__main__":
 - [Vikunja](../services/vikunja.md)
 - [LangGraph](../tools/frameworks/langgraph.md)
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
-- [Pydantic](../tools/development_ops/pydantic.md)
+- [Pydantic](../tools/frameworks/pydantic-ai.md)
 
 ## Sources / References
 - [LangGraph Core State Documentation](https://langchain-ai.github.io/langgraph/)
