@@ -122,7 +122,7 @@ if __name__ == "__main__":
 - [Model Routing Guide](../model_routing_guide.md)
 - [System Prompts](../system_prompts.md)
 - [LangGraph](../../tools/frameworks/langgraph.md)
-- [AutoGPT](../../tools/agents/autogpt.md)
+- [Multi-Agent Systems](../../tools/agents/multi-agent-systems.md)
 
 ## Sources / References
 - [Anthropic: Agentic Workflows](https://www.anthropic.com/news/agentic-workflows)

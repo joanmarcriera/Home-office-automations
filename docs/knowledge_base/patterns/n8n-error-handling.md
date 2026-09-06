@@ -127,7 +127,7 @@ if __name__ == "__main__":
 - [Home Assistant](../../services/home-assistant.md)
 - [Self-Healing Agent Research](../self-healing-agent-research.md)
 - [Agentic Workflows](agentic-workflows.md)
-- [Gotify](../../services/gotify.md)
+- [Paperless-ngx](../../services/paperless-ngx.md)
 - [Webhooks](../../tools/process_understanding/webhook.md)
 - [LLM-based Log Reasoning](../../architecture/multi_agent_knowledgeops.md)
 

@@ -203,8 +203,8 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 - [Infrastructure Architecture](../architecture/infrastructure.md) — High-level stack overview.
 - [Home Assistant](../services/home-assistant.md) — Running smart home tools on K3s.
 - [K3s v1.31+](../playbooks/k3s-cluster-setup.md) — Baseline for high-performance clusters.
-- [Proxmox](../tools/infrastructure/proxmox.md) — Often used to host these OS instances.
-- [Ceph](../tools/infrastructure/ceph.md) — Distributed storage alternative.
+- [Infrastructure Architecture](../architecture/infrastructure.md) — Host infrastructure for OS instances.
+- [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — Persistent storage management.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — For agent-infrastructure interaction.
 
 ## Sources / references
