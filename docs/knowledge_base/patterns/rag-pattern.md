@@ -51,8 +51,8 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 
 ## Getting started
 1. **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
-2. **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4](../../tools/ai_knowledge/meta_llama.md) or [Gemma 4](../../tools/ai_knowledge/gemma-4.md) native embeddings.
-3. **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chromadb.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
+2. **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4](../../tools/ai_knowledge/llama-4.md) or [Gemma 4](../../tools/ai_knowledge/gemma-4.md) native embeddings.
+3. **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chroma.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
 4. **Retrieve & Augment**: Use [FastMCP 3.1 Task Protocol](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 5.6](../../tools/providers/anthropic.md), [GPT-5.6](../../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../../tools/providers/google.md), or [DeepSeek-V4](../../tools/providers/deepseek.md).
 
 ## CLI examples
@@ -135,14 +135,14 @@ def run_grounded_rag(request_json: str) -> RAGResponse:
 
 ## Related tools / concepts
 - [Agentic RAG](data-copilot-agentic-rag.md)
-- [Knowledge Graphs](../patterns/knowledge-graphs.md)
+- [GraphRAG](../../tools/frameworks/graphrag.md)
 - [Docling](../../tools/process_understanding/docling.md)
 - [Milvus 3.0](../../tools/infrastructure/milvus.md)
-- [ChromaDB](../../tools/infrastructure/chromadb.md)
+- [ChromaDB](../../tools/infrastructure/chroma.md)
 - [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
 - [Model Context Protocol (FastMCP 3.1 Task Protocol)](../../tools/automation_orchestration/mcp.md)
-- [Llama 4](../../tools/ai_knowledge/meta_llama.md)
+- [Llama 4](../../tools/ai_knowledge/llama-4.md)
 - [Claude 5.6](../../tools/providers/anthropic.md)
 
 ## Sources / References

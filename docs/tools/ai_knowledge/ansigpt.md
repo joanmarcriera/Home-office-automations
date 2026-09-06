@@ -162,7 +162,7 @@ print(f"Target compiled configuration: {validated_config.model_name} with {valid
 - [TinyGrad and Minimalist AI Research](https://github.com/geohot/tinygrad)
 - [C89 Standard Specification (ISO/IEC 9899:1990)](https://www.iso.org/standard/17782.html)
 - [Edge AI Patterns](../../knowledge_base/patterns/software-factories.md)
-- [Embedded Systems C Reference](../../knowledge_base/learning-map.md)
+- [Agent Framework Learning Map](../../knowledge_base/agent_framework_learning_map.md)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

@@ -149,7 +149,7 @@ def transform_jira_to_task(raw_issue: dict) -> TaskObject:
 
 ## Sources / References
 - [JSON Schema Specification](https://json-schema.org/)
-- [OpenClaw Core Architecture Index](../../ARCHITECTURE.md)
+- [OpenClaw Core Architecture Index](../../../ARCHITECTURE.md)
 - [FastMCP 3.1 Specification: Core Resources, Tasks, and Tools](https://modelcontextprotocol.io/)
 - [Jira Cloud Platform API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/)
 

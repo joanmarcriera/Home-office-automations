@@ -7,7 +7,7 @@ The AI Builder Index is the primary discovery portal for the automation and AI e
 The repository contains a vast array of specialized tools, which can be overwhelming for new users. The AI Builder Index solves "discovery friction" by organizing technical documentation into logical "outcome buckets." Instead of browsing a flat file list, builders can start with a goal (e.g., "Build a private RAG system") and immediately find the curated set of tools and standards needed to achieve it, reducing decision fatigue and implementation errors.
 
 ## Where it fits in the stack
-**Knowledge Base / Navigation Layer**. It sits at the top of the documentation hierarchy, acting as the bridge between the [Home Index](../../index.md) and the deep technical specifications in `docs/tools/`, `docs/services/`, and `docs/playbooks/`. It defines the "Practical Defaults" for the entire KnowledgeOps system.
+**Knowledge Base / Navigation Layer**. It sits at the top of the documentation hierarchy, acting as the bridge between the [Home Index](../index.md) and the deep technical specifications in `docs/tools/`, `docs/services/`, and `docs/playbooks/`. It defines the "Practical Defaults" for the entire KnowledgeOps system.
 
 ## Typical use cases
 - **New User Onboarding**: Rapidly identifying the "Starter Stack" for home or small business automation.
@@ -98,7 +98,7 @@ The AI Builder Index does not provide a public API. It is designed to be consume
 - [Agent Framework Learning Map](agent_framework_learning_map.md) — Comparing [LangGraph](../tools/frameworks/langgraph.md) and [OpenClaw](../tools/development_ops/openclaw.md).
 - [Agentic Workflows](patterns/agentic-workflows.md) — Designing multi-step reasoning tasks.
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — The communication standard.
-- [Home Index](../../index.md) — Root of the documentation tree.
+- [Home Index](../index.md) — Root of the documentation tree.
 - [Infrastructure](../architecture/infrastructure.md) — The hardware and software foundation.
 
 ## Sources / references

@@ -144,7 +144,7 @@ When Jules detects a failure during a pre-commit step, it enters a self-correcti
 - [Jules Homepage](https://jules.google/)
 - [Repository Standards](../../standards.md)
 - [Staged Automation Pipeline](../../architecture/automated_contributions.md)
-- [Agent Operating Guide](../../AGENTS.md)
+- [Agent Operating Guide](../../../AGENTS.md)
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/tasks)
 
 ## Contribution Metadata
