@@ -9,7 +9,7 @@ SearXNG is a free, privacy-preserving internet metasearch engine that aggregates
 It eliminates search profiling, behavioral tracking, and search bubble bias enforced by commercial engines. For autonomous AI agent workflows, SearXNG solves rate-limiting, engine-specific IP blocking, and formatting fragmentation by unifying diverse upstream search provider responses into standardized JSON payloads accessible via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers and direct HTTP APIs.
 
 ## Where it fits in the stack
-**Category**: Services / Search & Discovery. SearXNG acts as the primary web search and live-retrieval engine for private RAG pipelines and autonomous agent toolkits. It typically resides behind reverse proxies (Nginx, Traefik, or Caddy) with authentication secured by [Authentik](authentik.md) or [Authelia](authelia.md), interfacing directly with orchestration engines like [n8n](n8n.md) or custom MCP servers.
+**Category**: Services / Search & Discovery. SearXNG acts as the primary web search and live-retrieval engine for private RAG pipelines and autonomous agent toolkits. It typically resides behind reverse proxies (Nginx, Traefik, or Caddy) with authentication secured by [Authentik](authentik.md) or Authelia, interfacing directly with orchestration engines like [n8n](n8n.md) or custom MCP servers.
 
 ## Typical use cases
 - **Privacy-First Search Infrastructure**: Secure search backend for enterprise networks and self-hosted environments without tracking or analytics leakage.
