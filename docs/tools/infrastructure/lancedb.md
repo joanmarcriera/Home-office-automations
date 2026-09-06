@@ -114,7 +114,7 @@ def query_vector_store(collection_name: str, vector: list[float], limit: int = 5
 ```
 
 ## Related tools / concepts
-- [ChromaDB](chromadb.md) — Embedded vector database comparison.
+- [ChromaDB](chroma.md) — Embedded vector database comparison.
 - [Qdrant](qdrant.md) — Dedicated vector database.
 - [Local Embedding Models](local-embeddings.md) — Offline vector embedding generation.
 

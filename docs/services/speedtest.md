@@ -136,8 +136,8 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [InfluxDB](influxdb.md) — For storing historical speed data.
-- [Grafana](grafana.md) — For visualizing network performance trends.
+- [Grafana Cloud](../tools/process_understanding/grafana-cloud.md) — For visualizing network performance trends and telemetry.
+- [Grafana Loki](../tools/process_understanding/grafana-loki.md) — For log management and bandwidth telemetry aggregation.
 - [n8n](n8n.md) — For triggering alerts based on speed thresholds.
 - [qBittorrent](qbittorrent.md) — Its speed can be dynamically throttled based on results.
 - [Plex](plex.md) — Monitoring remote streaming capability.

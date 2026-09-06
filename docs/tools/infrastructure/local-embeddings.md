@@ -107,8 +107,8 @@ def generate_local_vector(text: str, model: str = "nomic-embed-text") -> list[fl
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local model runner supporting embedding models.
-- [ChromaDB](../infrastructure/chromadb.md) — Embedded vector store.
-- [Qdrant](../infrastructure/qdrant.md) — Production vector database.
+- [ChromaDB](chroma.md) — Embedded vector store.
+- [Qdrant](qdrant.md) — Production vector database.
 - [Paperless-ngx](../../services/paperless-ngx.md) — Document management system.
 
 ## Sources / references
