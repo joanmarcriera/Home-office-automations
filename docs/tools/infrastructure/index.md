@@ -32,6 +32,7 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [K3s](k3s.md) | Lightweight Kubernetes distribution optimized for edge and homelab AI deployment |
 | [KoboldCpp](koboldcpp.md) | Cross-platform C++ GGML/GGUF LLM loader with interactive web GUI |
 | [llama.cpp](llama-cpp.md) | C/C++ LLM inference engine supporting GGUF quantization and hardware acceleration |
+| [llama-swap](llama-swap.md) | Model proxy and routing engine for hot-swapping local GGUF models on demand |
 | [llamafile](llamafile.md) | Single-file executable format for distributing and running LLMs locally |
 | [LM Studio](lm-studio.md) | Desktop application for discovering, downloading, and running local LLMs |
 | [LocalAI](localai.md) | Drop-in OpenAI-compatible API replacement for local model inference |
@@ -54,6 +55,7 @@ Engines, serving runtimes, vector databases, API gateways, and deployment infras
 | [Weaviate](weaviate.md) | Open-source vector database with multi-modal search and hybrid filtering |
 | [Qdrant](qdrant.md) | High-performance Rust-native vector search engine and vector database |
 | [TensorRT-LLM](tensorrt-llm.md) | NVIDIA GPU library for high-throughput LLM inference compilation |
+| [text-generation-webui](text-generation-webui.md) | Gradio web UI and multi-backend inference server for local language models |
 | [Triton](triton.md) | Open-source Pythonic GPU kernel compiler and language |
 | [Zero-Shot Engine (ZSE)](zse.md) | High-efficiency zero-shot classification and extraction pipeline engine |
 

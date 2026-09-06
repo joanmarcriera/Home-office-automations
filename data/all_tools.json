@@ -1760,6 +1760,20 @@
       "doc_path": "docs/tools/frameworks/llama-factory.md"
     },
     {
+      "name": "llama-swap",
+      "url": "https://github.com/sammcj/llama-swap",
+      "category": "Infrastructure",
+      "subcategory": "Model Serving & Routing",
+      "doc_path": "docs/tools/infrastructure/llama-swap.md",
+      "description": "Hot-swaps local GGUF models behind one OpenAI-compatible endpoint for constrained home-lab hardware.",
+      "offline_capable": true,
+      "tags": [
+        "offline-first",
+        "local-llm",
+        "model-routing"
+      ]
+    },
+    {
       "id": "llama-cpp",
       "name": "llama.cpp",
       "category": "Process & Understanding",
@@ -3070,6 +3084,20 @@
       "name": "Text Generation Inference (TGI)",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/tgi.md"
+    },
+    {
+      "name": "text-generation-webui",
+      "url": "https://github.com/oobabooga/text-generation-webui",
+      "category": "Infrastructure",
+      "subcategory": "Model Runners & Web UI",
+      "doc_path": "docs/tools/infrastructure/text-generation-webui.md",
+      "description": "Mature local web UI and inference server supporting multiple backends (llama.cpp, ExLlamaV2, Transformers).",
+      "offline_capable": true,
+      "tags": [
+        "offline-first",
+        "local-llm",
+        "web-ui"
+      ]
     },
     {
       "id": "ticktick",

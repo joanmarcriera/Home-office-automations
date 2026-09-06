@@ -600,6 +600,7 @@ nav:
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
           - llama.cpp Windows Manager: tools/infrastructure/llamacpp-windows-manager.md
+          - llama-swap: tools/infrastructure/llama-swap.md
           - Llamafile: tools/infrastructure/llamafile.md
           - LM Studio: tools/infrastructure/lm-studio.md
           - LocalAI: tools/infrastructure/localai.md
@@ -615,6 +616,7 @@ nav:
           - Supabase: tools/infrastructure/supabase.md
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
           - TensorRT-LLM: tools/infrastructure/tensorrt-llm.md
+          - text-generation-webui: tools/infrastructure/text-generation-webui.md
           - Turbo-fieldfare: tools/infrastructure/turbo-fieldfare.md
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
           - Unsloth: tools/infrastructure/unsloth.md
