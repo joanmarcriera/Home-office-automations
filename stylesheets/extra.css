@@ -1,0 +1,148 @@
+/* Improve readability for dense markdown tables across the site. */
+.md-grid {
+  max-width: 92rem;
+}
+
+.md-typeset .md-typeset__table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.md-typeset .md-typeset__table {
+  margin-bottom: 1.25rem;
+}
+
+.md-typeset table:not([class]) {
+  font-size: 0.86rem;
+  line-height: 1.35;
+  min-width: 34rem;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.md-typeset table:not([class]) code {
+  font-variant-numeric: tabular-nums;
+  white-space: normal;
+}
+
+.md-typeset .cap-tag {
+  display: inline-block;
+  margin: 0 0.28rem 0.28rem 0;
+  padding: 0.08rem 0.44rem;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.md-typeset .cap-code {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e3a8a;
+}
+
+.md-typeset .cap-verify {
+  background: #ccfbf1;
+  border-color: #5eead4;
+  color: #115e59;
+}
+
+.md-typeset .cap-reason {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #5b21b6;
+}
+
+.md-typeset .cap-longctx {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.md-typeset .cap-fast {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.md-typeset .cap-budget {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.md-typeset .cap-open {
+  background: #e5e7eb;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-code {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #dbeafe;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-verify {
+  background: #134e4a;
+  border-color: #2dd4bf;
+  color: #ccfbf1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-reason {
+  background: #4c1d95;
+  border-color: #8b5cf6;
+  color: #ede9fe;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-longctx {
+  background: #78350f;
+  border-color: #f59e0b;
+  color: #fef3c7;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-fast {
+  background: #7c2d12;
+  border-color: #fb923c;
+  color: #ffedd5;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-budget {
+  background: #14532d;
+  border-color: #4ade80;
+  color: #dcfce7;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cap-open {
+  background: #334155;
+  border-color: #94a3b8;
+  color: #f1f5f9;
+}
+
+@media screen and (max-width: 76.1875em) {
+  .md-grid {
+    max-width: 100%;
+  }
+
+  .md-typeset table:not([class]) {
+    font-size: 0.78rem;
+  }
+
+  .md-typeset .cap-tag {
+    font-size: 0.64rem;
+  }
+}
+
+@media screen and (min-width: 100em) {
+  .md-grid {
+    max-width: 108rem;
+  }
+}

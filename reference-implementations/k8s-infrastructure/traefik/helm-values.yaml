@@ -1,0 +1,51 @@
+# Traefik Helm Configuration for Homelab
+
+# Deployment via Helm:
+# helm repo add traefik https://traefik.github.io/charts
+# helm repo update
+# helm install traefik traefik/traefik -f helm-values.yaml
+
+deployment:
+  kind: Deployment
+  replicas: 1 # Standard for single-node compute
+
+service:
+  type: LoadBalancer # Requires MetalLB in the cluster
+  annotations:
+    # Optional: assign a specific IP from the MetalLB pool
+    # metallb.universe.tf/loadBalancerIPs: 192.168.1.240
+
+# Enable Dashboard
+ingressRoute:
+  dashboard:
+    enabled: true
+    # Secure with basic auth in production
+    # annotations:
+    #   traefik.ingress.kubernetes.io/router.middlewares: default-auth@kubernetescrd
+
+# Configure Entrypoints
+ports:
+  web:
+    expose: true
+    port: 8000
+    nodePort: 30080
+    redirectTo:
+      port: websecure
+  websecure:
+    expose: true
+    port: 8443
+    nodePort: 30443
+    tls:
+      enabled: true
+
+# Persistence for ACME (if not using cert-manager)
+# persistence:
+#   enabled: true
+#   path: /data
+#   size: 128Mi
+
+# Additional Arguments
+additionalArguments:
+  - "--providers.kubernetesingress=true"
+  - "--providers.kubernetescreds=true"
+  - "--log.level=INFO"
