@@ -7,7 +7,7 @@ Google Opal is a no-code AI app builder from Google Labs that transforms natural
 It lowers the barrier to entry for building AI applications by eliminating the need for custom engineering, API management, and backend infrastructure. It turns high-level intent into structured, repeatable productized flows, enabling "shadow AI" productivity within enterprises without requiring IT-intensive development cycles.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Managed AI Builder**. It serves as a rapid prototyping and deployment layer for Gemini-powered applications, sitting between raw prompt interfaces and custom-coded agent frameworks like [LangChain](langchain.md) or [AutoGPT](../agents/autogpt.md).
+**AI Assistants & Knowledge / Managed AI Builder**. It serves as a rapid prototyping and deployment layer for Gemini-powered applications, sitting between raw prompt interfaces and custom-coded agent frameworks like [LangChain](langchain.md) or [AutoGPT](../agents/index.md).
 
 ## Typical use cases
 - **Rapid Prototyping**: Turning a product vision into a functional visual workflow in minutes.

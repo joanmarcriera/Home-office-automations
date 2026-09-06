@@ -24,7 +24,7 @@ Simplifies connecting LLMs to private and heterogeneous data sources (PDFs, SQL 
 
 ## Limitations
 - **Workflow Learning Curve**: Migrating from early `VectorStoreIndex` patterns to event-driven `Workflow` state machines requires explicit step design.
-- **Resource Footprint**: High-throughput vector indexing and local embedding models require adequate GPU/RAM resources or managed vector stores like [ChromaDB](../../services/chromadb.md).
+- **Resource Footprint**: High-throughput vector indexing and local embedding models require adequate GPU/RAM resources or managed vector stores like [ChromaDB](../infrastructure/chromadb.md).
 
 ## When to use it
 - When building data-intensive LLM applications requiring complex RAG, hybrid search, or knowledge graph querying.
@@ -135,7 +135,7 @@ print(response)
 ## Related tools / concepts
 - [LangChain](langchain.md) — Multi-agent and chain ecosystem.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architectural pattern for retrieval.
-- [ChromaDB](../../services/chromadb.md) — Vector database integration.
+- [ChromaDB](../infrastructure/chromadb.md) — Vector database integration.
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Interoperability standard.
 - [Gemma 4](local_llms.md) — Local frontier model.
 

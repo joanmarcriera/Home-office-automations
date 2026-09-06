@@ -10,7 +10,7 @@ Deploying and maintaining reliable physical displays typically involves a comple
 This playbook resides in the **Operations / Playbooks** layer of the homelab automation stack. It links high-level agentic tools from the **Development & Ops** layer (such as [Claude Code](../tools/development_ops/claude-code.md) or [Aider](../tools/development_ops/aider.md)) to bare-metal hardware and operating system parameters in the **Infrastructure** layer, relying on [Tailscale](../services/tailscale.md) for secure, encrypted remote shell access.
 
 ## Typical use cases
-- **Homelab Command Center**: Launching full-screen [Home Assistant](../services/home-assistant.md) or [Grafana](../services/grafana.md) dashboards in kitchens, workshops, or server closets.
+- **Homelab Command Center**: Launching full-screen [Home Assistant](../services/home-assistant.md) or [Grafana](../tools/process_understanding/grafana-cloud.md) dashboards in kitchens, workshops, or server closets.
 - **Continuous Monitoring**: High-density display of real-time CI/CD status, system resources, and network traffic.
 - **Smart Mirror Integration**: Low-latency information overlay (weather, transit, calendar events) powered by fully-offline transcription or local model services.
 - **Interactive Intake Kiosk**: Providing localized entry portals for household administration or school forms connected to databases.
@@ -191,7 +191,7 @@ done
 - [Aider](../tools/development_ops/aider.md) — CLI-based git-integrated agent useful for deployment configuration.
 - [Claude Code](../tools/development_ops/claude-code.md) — SOTA local software agent to automate infrastructure.
 - [Paperless-ngx](../services/paperless-ngx.md) — For displaying digitized family/school records.
-- [Grafana](../services/grafana.md) — High-density monitoring dashboard for visual kiosks.
+- [Grafana](../tools/process_understanding/grafana-cloud.md) — High-density monitoring dashboard for visual kiosks.
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Protocol for remote shell and file tool interactions.
 
 ## Sources / References
