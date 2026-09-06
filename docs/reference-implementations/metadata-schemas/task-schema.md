@@ -141,7 +141,7 @@ def transform_jira_to_task(raw_issue: dict) -> TaskObject:
 - [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md) — ServiceNow target integration.
 - [Atlassian Jira MCP](../../tools/automation_orchestration/atlassian-jira-mcp.md) — Jira target integration.
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for agent tool-calling capabilities.
-- [Antigravity](../../tools/agents/antigravity.md) — Stateful agent execution engine using task objects.
+- [Antigravity](../../tools/ai_knowledge/antigravity-agent.md) — Stateful agent execution engine using task objects.
 - [Temporal](../../tools/orchestration/temporal.md) — Workflow orchestrator for persistent task lifecycles.
 - [Instructor](../../tools/frameworks/instructor.md) — Structured extraction validation for task inputs.
 - [Google Tasks](../../tools/calendar_tasks/google-tasks.md) — Lightweight endpoint for personal tasks.
