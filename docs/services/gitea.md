@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Authentik](authentik.md) — For centralized SSO and user management.
-- [Ansible](../tools/orchestration/ansible.md) — For automating the deployment of Gitea itself.
+- [Docker](../tools/infrastructure/docker.md) — Core containerization engine for Gitea hosting.
 - [Syncthing](syncthing.md) — For syncing documentation and larger LLM fine-tuning binary datasets.
 - [n8n](n8n.md) — For orchestrating workflows triggered by Gitea webhooks.
 - [Vikunja](vikunja.md) — For project management integrated with Gitea issues.
