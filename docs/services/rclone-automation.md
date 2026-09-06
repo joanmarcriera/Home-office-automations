@@ -145,7 +145,7 @@ curl -m 10 --retry 5 https://hc-ping.com/<uuid>/fail
 
 ## Related tools / concepts
 - [Storj](storj.md) — A primary decentralized target for Rclone backups.
-- [BorgBackup](borg.md) — For deduplicated, encrypted local-to-local backups.
+- [Backup & Disaster Recovery](../playbooks/backup-disaster-recovery.md) — Playbook for deduplicated, encrypted local-to-local backups.
 - [Nextcloud](nextcloud.md) — For synchronizing user-facing data.
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of digitized documents.
 - [Immich](immich.md) — For backing up photo and video libraries.

@@ -104,7 +104,7 @@ def query_private_documents(prompt: str, top_k: int = 3) -> dict:
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local model inference engine.
-- [ChromaDB](../infrastructure/chromadb.md) — Local vector database.
+- [ChromaDB](../infrastructure/chroma.md) — Local vector database.
 - [Local Embedding Models](../infrastructure/local-embeddings.md) — Offline embeddings for RAG.
 
 ## Sources / references
