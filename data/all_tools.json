@@ -2225,6 +2225,12 @@
       "doc_path": "docs/services/nextcloud.md"
     },
     {
+      "id": "ninfer",
+      "name": "nInfer",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/ninfer.md"
+    },
+    {
       "id": "notebooklm",
       "name": "NotebookLM",
       "category": "AI Assistants & Knowledge",
@@ -2461,6 +2467,12 @@
       "name": "Outlook Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/outlook.md"
+    },
+    {
+      "id": "otaku",
+      "name": "Otaku",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/otaku.md"
     },
     {
       "id": "ovisocr2",
@@ -3296,6 +3308,12 @@
       "name": "VS Code",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/vscode.md"
+    },
+    {
+      "id": "vortex",
+      "name": "Vortex",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/vortex.md"
     },
     {
       "id": "wandb-weave",
