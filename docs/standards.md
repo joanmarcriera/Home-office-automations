@@ -123,8 +123,13 @@ The knowledge base uses a stable set of top-level categories. Do not create new 
 | **Frameworks** | `docs/tools/frameworks/` | Libraries for building LLM apps (LangChain, LlamaIndex, etc.) |
 | **Providers** | `docs/tools/providers/` | Companies offering LLM APIs or managed AI services |
 | **Agents** | `docs/tools/agents/` | Agent frameworks and autonomous AI tools |
-| **Orchestration** | `docs/tools/orchestration/` | Workflow automation, multi-agent routing, pipeline tools |
-| **Infrastructure** | `docs/tools/infrastructure/` | Inference engines, vector DBs, serving stacks, quantisation |
+| **Orchestration** | `docs/tools/orchestration/` | Multi-agent routing and specialized pipeline tools |
+| **Automation & Orchestration** | `docs/tools/automation_orchestration/` | Workflow engines, n8n, MCP servers, and automation frameworks |
+| **Calendar & Tasks** | `docs/tools/calendar_tasks/` | Task management, calendar synchronization, time tracking |
+| **Enterprise** | `docs/tools/enterprise/` | Enterprise integration, identity management, compliance |
+| **Intake & Storage** | `docs/tools/intake_storage/` | Document intake, storage integrations, asset management |
+| **Process Understanding** | `docs/tools/process_understanding/` | Mining, analysis, document processing, OCR |
+| **Infrastructure** | `docs/tools/infrastructure/` | Inference engines, vector DBs, serving stacks, quantization |
 | **Benchmarking** | `docs/tools/benchmarking/` | Eval frameworks, benchmarks, leaderboards |
 | **Development & Ops** | `docs/tools/development_ops/` | AI-assisted coding tools and IDEs |
 | **Patterns** | `docs/knowledge_base/patterns/` | Recurring design patterns (RAG, tool calling, routing, etc.) |

@@ -184,7 +184,7 @@ if __name__ == "__main__":
 - [Vikunja](vikunja.md) — For project management integrated with Gitea issues.
 - [Paperless-ngx](paperless-ngx.md) — For archiving documentation generated from Git repositories.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for integrating Gitea into AI agent workflows.
-- [Docker](../tools/infrastructure/docker.md) — Core containerization engine for Gitea hosting.
+- [Claude Code](../tools/development_ops/claude-code-setup.md) — Recommended AI coding agent integration for local Git development.
 
 ## Sources / references
 - [Official Website](https://gitea.com/)
