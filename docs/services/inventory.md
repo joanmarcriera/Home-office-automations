@@ -48,7 +48,7 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 
 ## When not to use it
 - For real-time monitoring (use Prometheus/Grafana or [Dashworks](../tools/enterprise/dashworks.md)).
-- For managing secrets or environment variables (use [Vault](../tools/automation_orchestration/hashicorp-vault.md)).
+- For managing secrets or environment variables (use [Vault](../tools/automation_orchestration/vault-mcp.md)).
 - For temporary, development-only services that are not part of the production lab.
 
 ## Getting started
