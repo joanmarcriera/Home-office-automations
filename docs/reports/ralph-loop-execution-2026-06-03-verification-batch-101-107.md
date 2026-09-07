@@ -60,11 +60,11 @@ Integrated items 32-41 from `docs/new-sources/2026-06-01.md`. Placeholders were 
 - **Llama-deploy**: Linked to [GitHub Repository](https://github.com/run-llama/llama-deploy).
 - **TraceAI**: Linked to [LlamaTrace](https://llamatrace.com/).
 - **LangChain (OpenAI)**: Linked to [Integration Guide](https://python.langchain.com/v0.2/docs/integrations/chat/openai/).
-- **Infinite Canvas Patterns**: Linked to internal [Learning Map](../../knowledge_base/learning-map.md).
+- **Infinite Canvas Patterns**: Linked to internal [Knowledge Base Index](../knowledge_base/index.md).
 - **Runway Gen-3**: Linked to [Overview Guide](https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Overview).
 - **HeyGen**: Linked to [API Documentation](https://docs.heygen.com/).
 - **MCP (LobeHub)**: Linked to [LobeHub MCP Guide](https://lobehub.com/docs/usage/mcp).
-- **Low-Latency Audio Patterns**: Linked to internal [Learning Map](../../knowledge_base/learning-map.md).
+- **Low-Latency Audio Patterns**: Linked to internal [Knowledge Base Index](../knowledge_base/index.md).
 
 ---
 - **Status**: Verified & Closed

@@ -1,6 +1,6 @@
 # Element
 
-Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
+Element is a secure, decentralized communication app built on the [Matrix](https://matrix.org) protocol.
 
 ## What it is
 Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of **early January 2027**, it supports **Matrix v1.170.0+**, featuring advanced metadata protection, sliding sync capabilities natively, and **FastMCP 3.1** / **MCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, allowing users to choose or host their own "homeserver" while communicating seamlessly across federated networks.
@@ -180,7 +180,7 @@ curl -X POST \
 - [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
 - [Vikunja](vikunja.md) — For task management notifications and team coordination.
 - [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK.
-- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Local LLM for agentic room participation and summarization.
+- [Gemma 3](../tools/ai_knowledge/gemma.md) — Local LLM for agentic room participation and summarization.
 
 ## Sources / References
 - [Official Element Website](https://element.io/)

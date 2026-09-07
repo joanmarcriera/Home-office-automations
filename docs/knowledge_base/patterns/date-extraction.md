@@ -18,7 +18,7 @@ This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, a
 - **Autonomous Scheduling**: Converting "set a meeting for tomorrow at 2:30pm" into a structured [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) object with precise UTC bounds.
 - **Log Timeline Parsing**: Normalizing relative offsets in legacy database or server log streams into absolute temporal entries.
 - **Financial Document Ingestion**: Extracting transaction dates from invoices or receipts for indexing in [Paperless-ngx](../../services/paperless-ngx.md).
-- **Long-Horizon Mission Tracking**: Determining start, end, and duration parameters for sub-tasks within an [Antigravity](../../tools/agents/antigravity.md) execution plan.
+- **Long-Horizon Mission Tracking**: Determining start, end, and duration parameters for sub-tasks within an [Antigravity](../../tools/ai_knowledge/antigravity-agent.md) execution plan.
 
 ## Strengths
 - **Downstream Reliability**: Converts arbitrary human language into machine-readable ISO 8601 strings for deterministic execution.
