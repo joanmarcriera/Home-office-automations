@@ -18,12 +18,12 @@
     "process_understanding": 40,
     "providers": 36
   },
-  "docs_with_code_examples": 534,
-  "docs_without_code_examples": 0,
+  "docs_with_code_examples": 533,
+  "docs_without_code_examples": 1,
   "shallow_docs": [
+    "docs/tools/infrastructure/ramalama.md",
     "docs/tools/development_ops/mentat.md",
     "docs/tools/automation_orchestration/mcp-servers.md",
-    "docs/tools/infrastructure/ramalama.md",
     "docs/tools/ai_knowledge/privategpt.md",
     "docs/tools/infrastructure/lancedb.md",
     "docs/tools/infrastructure/local-embeddings.md",
@@ -43,7 +43,7 @@
     "docs/tools/development_ops/context7.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 3,
+  "weekly_additions": 0,
   "intake_items_7d": 12,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
