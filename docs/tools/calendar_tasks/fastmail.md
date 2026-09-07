@@ -7,7 +7,7 @@ An independent, privacy-focused email and calendar provider that serves as a hig
 Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It solves the "proprietary protocol" problem by being a primary driver of the **JMAP** standard, ensuring seamless interoperability for autonomous AI agents.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, or specialized **FastMCP 3.1** agents.
+**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a de-Googled stack, often interfaced via **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, or specialized **FastMCP 3.1** agents.
 
 ## Typical use cases
 - **Primary Communication Hub**: High-speed personal or business email and calendar hosting.

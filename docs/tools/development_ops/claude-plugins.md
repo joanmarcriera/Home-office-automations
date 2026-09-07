@@ -17,7 +17,7 @@ Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. Thi
 - **Environment Standardization**: Reusing workflow packs across multiple repos or teams.
 - **Skill Discovery**: Standardizing local coding-agent environments using [Superpowers](../agents/superpowers.md).
 - **Data Access**: Integrating with **Model Context Protocol (FastMCP 3.1)** servers to expose local data.
-- **Automated Quality**: Running [Agentlint](../agents/agentlint.md) to check whether a repo is friendly to AI agents.
+- **Automated Quality**: Running static analysis tools to check whether a repo is friendly to AI agents.
 - **PR Review**: Using `code-review` plugins to run structured PR reviews before shipping.
 - **Bug Remediation**: Utilizing `debugger` and `bug-fix` plugins to investigate complex failures and apply targeted patches.
 

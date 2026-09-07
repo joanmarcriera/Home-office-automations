@@ -30,7 +30,7 @@ Guru serves as the "source of truth" for verified company information, often int
 ## When to use it
 - When your organization struggles with outdated documentation and "stale wiki" syndrome.
 - If you need a solution that pushes information to users within their existing tools (like Zendesk or Salesforce).
-- For teams that prioritize "verified truth" over raw data volume for [AI Quality Engineering](../../knowledge_base/patterns/ai-quality-engineering.md).
+- For teams that prioritize "verified truth" over raw data volume for AI Quality Engineering.
 
 ## When not to use it
 - For personal note-taking or loosely organized research (consider [Obsidian](../ai_knowledge/obsidian.md) or [Logseq](../ai_knowledge/logseq.md)).

@@ -12,7 +12,7 @@ It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above t
 ## Typical use cases
 - **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
 - **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md) or [Exa AI](../../tools/providers/exa_ai.md), synthesize information with [Claude 5.6](../../tools/ai_knowledge/claude.md), and write reports.
-- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.6](../../tools/ai_knowledge/openai.md) and [Llama 4](../../tools/ai_knowledge/meta_llama.md).
+- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.6](../../tools/ai_knowledge/openai.md) and [Llama 4](../../tools/ai_knowledge/llama-4.md).
 - **Self-Healing Infrastructure**: Agents that monitor system logs and autonomously remediate service failures via FastMCP 3.1 Task Protocol.
 
 ## Strengths

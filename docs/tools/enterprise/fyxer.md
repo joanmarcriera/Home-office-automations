@@ -36,7 +36,7 @@ It eliminates administrative overhead and inbox fragmentation. Rather than servi
 - When establishing personalized "AI voice profiles" for consistent executive communication.
 
 ## When not to use it
-- For organizations relying exclusively on [Slack](../../services/slack.md) or [Discord](../../services/discord.md) without heavy email workflows.
+- For organizations relying exclusively on Slack or Discord without heavy email workflows.
 - For low-volume administrative environments where automated triage provides minimal incremental leverage.
 
 ## Getting started

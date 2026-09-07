@@ -1,6 +1,6 @@
 # Element
 
-Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
+Element is a secure, decentralized communication app built on the Matrix protocol.
 
 ## What it is
 Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of **early January 2027**, it supports **Matrix v1.170.0+**, featuring advanced metadata protection, sliding sync capabilities natively, and **FastMCP 3.1** / **MCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, allowing users to choose or host their own "homeserver" while communicating seamlessly across federated networks.

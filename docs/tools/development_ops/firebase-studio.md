@@ -10,7 +10,7 @@ It reduces the friction of configuring local development environments for comple
 - **Collaboration Friction**: Generates live shared preview URLs for instantaneous review of multi-agent and full-stack workflows.
 
 ## Where it fits in the stack
-**Development & Ops**. It is a cloud IDE and rapid prototyping platform within the Google Cloud/Firebase ecosystem, competing with platforms like [Vercel](./vercel.md) and [Replit](./replit.md) for AI-native application developers.
+**Development & Ops**. It is a cloud IDE and rapid prototyping platform within the Google Cloud/Firebase ecosystem, competing with platforms like [Vercel](./vercel.md) and [Replit Agent](../agents/replit-agent.md) for AI-native application developers.
 
 ## Typical use cases
 - **Rapid Prototyping**: Instantly spinning up full-stack web and mobile backends to test new agentic tool workflows.
