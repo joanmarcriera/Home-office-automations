@@ -14,7 +14,7 @@
 [Why this matters for the tools and patterns tracked here]
 
 ## Related tools / concepts
-- [Related page](relative-link.md)
+- [Related page](../index.md)
 
 ## Sources / References
 - [Original paper / article](URL)

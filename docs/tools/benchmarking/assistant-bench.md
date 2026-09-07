@@ -7,7 +7,7 @@ AssistantBench is a rigorous, open-source evaluation benchmark designed to measu
 Most traditional LLM benchmarks evaluate atomic capabilities, such as isolated code generation or single-turn QA, in synthetic environments. However, these benchmarks fail to evaluate real-world agentic execution, where an agent must navigate dynamic websites, bypass anti-bot systems, manage complex browser states, retrieve scattered data, and reason across multiple pages to complete a single user request. AssistantBench solves this by providing long-horizon, multi-domain web-agent tasks that typically take a human developer or assistant 10 to 30 minutes to complete, allowing teams to rigorously benchmark success rates and measure Agentic Latency.
 
 ## Where it fits in the stack
-**Category**: [Benchmarking](index.md) / [Agentic Evaluations](../../knowledge_base/index.md).
+**Category**: [Benchmarking](index.md) / [Agentic Evaluations](../../knowledge_base/README.md).
 It functions as a high-level performance and capability auditing layer, typically orchestrated via modular evaluation frameworks like the UK AISI's `inspect-ai` and integrated into development workflows to compare agent planning architectures (e.g., ReAct, plan-and-solve, or custom state-machines).
 
 ## Typical use cases

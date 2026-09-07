@@ -19,7 +19,7 @@ The Model Routing Guide is an architecture framework for selecting and dispatchi
 Frontier models in 2027 vary significantly in operational expense, execution latency, and token throughput. This guide prevents "over-allocation" (dispatching low-complexity tasks to high-cost frontier reasoning models like GPT-5.6 or Claude 5.6 Opus) and "under-allocation" (routing multi-step agentic workflows to low-tier models lacking tool schema adherence). It ensures token efficiency, cost control, and latency minimization across [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Where it fits in the stack
-It functions at the **Decision & Gateway Layer** of the AI stack, informing [Autonomous Agents](../tools/agents/README.md) and orchestration gateways on which model endpoint to invoke for specific nodes in a computational graph. It integrates natively with FastMCP 3.1 and [Data Copilot MCP Tooling](patterns/data-copilot-mcp-tooling.md) for tool-aware, schema-verified routing.
+It functions at the **Decision & Gateway Layer** of the AI stack, informing [Autonomous Agents](../tools/agents/index.md) and orchestration gateways on which model endpoint to invoke for specific nodes in a computational graph. It integrates natively with FastMCP 3.1 and [Data Copilot MCP Tooling](patterns/data-copilot-mcp-tooling.md) for tool-aware, schema-verified routing.
 
 ## Typical use cases
 - **Tiered Multi-Model Pipeline**: Routing incoming requests to a lightweight classifier model (Claude 5.1 Haiku or Gemma 3-12B) first, escalating to a high-reasoning model (GPT-5.6 High or Claude 5.6) only if complex reasoning is triggered.

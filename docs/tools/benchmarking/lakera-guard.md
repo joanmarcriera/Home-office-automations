@@ -7,7 +7,7 @@ Lakera Guard is an enterprise-grade, low-latency AI security platform and real-t
 Autonomous AI agents are vulnerable to sophisticated adversarial security threats. Prompt injections, indirect injections (where malicious instructions are embedded within crawled websites, PDFs, or databases), and system configuration leakage can compromise entire enterprise databases if an agent has write access or Tool Calling privileges. Traditional security measures are too slow or lack semantic awareness to stop these attacks. Lakera Guard addresses this by providing real-time, context-aware screening of prompt inputs, system boundaries, and outbound FastMCP 3.1 tool payloads to neutralize threats before they execute.
 
 ## Where it fits in the stack
-**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/index.md).
+**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/README.md).
 It functions as a high-speed, inline security gateway or middleware. It sits directly between the user interface or third-party data ingress points and downstream LLMs/agents, serving as a defensive firewall and intercepting threats in real-time.
 
 ## Typical use cases

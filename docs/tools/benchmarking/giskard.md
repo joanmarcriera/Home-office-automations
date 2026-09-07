@@ -7,7 +7,7 @@ Giskard is an open-source evaluation, testing, and red-teaming framework specifi
 LLM-based agents and multi-agent systems often display unpredictable behaviors, including hallucinated facts, compliance violations, susceptibility to prompt injections, and tool-calling errors. Hand-crafting test suites or running manual red-teaming sessions is slow, expensive, and not reproducible. Giskard automates this process by using advanced adversarial LLMs to automatically generate thousands of target probes, stress-testing models against domain-specific requirements and transforming qualitative evaluation into a quantitative, reproducible CI/CD engineering practice.
 
 ## Where it fits in the stack
-**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/index.md).
+**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/README.md).
 It serves as the critical validation and safety auditing layer during the development, testing, and integration phases of LLM applications, typically integrated as an automated test runner inside CI/CD pipelines before production deployment.
 
 ## Typical use cases

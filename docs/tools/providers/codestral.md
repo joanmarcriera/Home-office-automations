@@ -7,7 +7,7 @@ Codestral is a high-performance generative artificial intelligence model explici
 General-purpose LLMs can suffer from "generalist fatigue," leading to syntax hallucinations, legacy library pattern mixing, or failures in long-range multi-file repository architecture. Codestral solves these issues by concentrating its parameters on strict algorithmic, architectural, and syntax patterns across diverse languages, maintaining high consistency inside local or cloud development pipelines.
 
 ## Where it fits in the stack
-**Inference Layer / Specialized Model**. It serves as the local or API-driven intelligence engine powering [autonomous coding agents](../agents/README.md), IDE extensions (such as Continue), and automated CI/CD code-remediation pipelines.
+**Inference Layer / Specialized Model**. It serves as the local or API-driven intelligence engine powering [autonomous coding agents](../agents/index.md), IDE extensions (such as Continue), and automated CI/CD code-remediation pipelines.
 
 ## Typical use cases
 - **Autonomous Multi-file Refactoring**: Powering advanced coding agents like [Cline](../agents/cline.md) or [Roo Code](../agents/roo-code.md) to parse, refactor, and write complex repository codebases.
