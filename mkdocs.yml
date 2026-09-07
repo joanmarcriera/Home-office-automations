@@ -251,6 +251,7 @@ nav:
           - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
           - Obsidian: tools/ai_knowledge/obsidian.md
           - OMLab-VLX-Seek-15-10B: tools/ai_knowledge/omlab-vlx-seek.md
+          - Otaku: tools/ai_knowledge/otaku.md
           - OpenAI: tools/ai_knowledge/openai.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
@@ -607,6 +608,7 @@ nav:
           - Milvus: tools/infrastructure/milvus.md
           - MLX: tools/infrastructure/mlx.md
           - Msty: tools/infrastructure/msty.md
+          - nInfer: tools/infrastructure/ninfer.md
           - OLMoEarth: tools/infrastructure/olmoearth.md
           - PEFT: tools/infrastructure/peft.md
           - OpenPipe: tools/infrastructure/openpipe.md
@@ -623,6 +625,7 @@ nav:
           - Triton: tools/infrastructure/triton.md
           - vLLM: tools/infrastructure/vllm.md
           - Valkey: tools/infrastructure/valkey.md
+          - Vortex: tools/infrastructure/vortex.md
           - WASTE: tools/infrastructure/waste.md
           - Weaviate: tools/infrastructure/weaviate.md
           - ZSE: tools/infrastructure/zse.md
