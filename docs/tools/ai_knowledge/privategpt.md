@@ -33,73 +33,55 @@ Organizations and home lab administrators frequently handle confidential documen
 - When simple static keyword search (like ripgrep) is sufficient for un-embedded text files.
 
 ## Getting started
-To run PrivateGPT locally with Ollama support:
+Install PrivateGPT via `uv` or package managers and launch the service:
 
 ```bash
-# Clone and install dependencies
-git clone https://github.com/zylon-ai/private-gpt
-cd private-gpt
-poetry install --extras "ui vector-stores-qdrant llms-ollama embeddings-ollama"
+uv tool install --python 3.11 \
+  --find-links https://wheels.privategpt.dev/packages/ \
+  "private-gpt[core]"
+```
 
-# Set Ollama mode in settings.yaml and launch
-PGPT_PROFILES=ollama make run
+A minimal working example starting PrivateGPT connected to a local Ollama LLM endpoint:
+
+```bash
+OPENAI_API_BASE=http://localhost:11434/v1 \
+OPENAI_EMBEDDING_API_BASE=http://localhost:11434/v1 \
+private-gpt serve
 ```
 
 ## CLI examples
 
 ```bash
-# Launch PrivateGPT in Ollama mode using Makefile CLI
-PGPT_PROFILES=ollama make run
+# 1. Install PrivateGPT with uv tool runner
+uv tool install --python 3.11 "private-gpt[core]"
 
-# Ingest a document file into PrivateGPT via CLI
+# 2. Launch the PrivateGPT server with Ollama local model server backend
+PGPT_PROFILES=ollama private-gpt serve
+
+# 3. Ingest local document directory into PrivateGPT RAG store
 python scripts/ingest_folder.py --dir /data/documents
 ```
 
 ## API examples
 
-### 1. Pydantic v2 Schema for PrivateGPT Ingestion Payload
+Minimal Python snippet querying PrivateGPT's Claude/OpenAI-compatible `/v1/chat/completions` API:
+
 ```python
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict, Field
+import urllib.request
+import json
 
-class IngestDocumentRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+req = urllib.request.Request(
+    "http://localhost:8080/v1/chat/completions",
+    data=json.dumps({
+        "messages": [{"role": "user", "content": "Summarize my ingested documents."}],
+        "use_context": True
+    }).encode("utf-8"),
+    headers={"Content-Type": "application/json"}
+)
 
-    file_name: str = Field(..., description="Name of the file being ingested")
-    content: str = Field(..., description="Extracted plain text or OCR content")
-    tags: List[str] = Field(default_factory=list, description="Categorization tags")
-
-class IngestDocumentResponse(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    doc_id: str
-    status: str
-    chunks_indexed: int
-
-def ingest_private_document(req: IngestDocumentRequest) -> IngestDocumentResponse:
-    # Simulated local ingestion pipeline execution
-    return IngestDocumentResponse(
-        doc_id="doc_98765",
-        status="indexed",
-        chunks_indexed=len(req.content) // 500 + 1
-    )
-
-if __name__ == "__main__":
-    req = IngestDocumentRequest(file_name="tax_2026.pdf", content="Confidential tax return details...", tags=["finance"])
-    res = ingest_private_document(req)
-    print(f"Ingested {req.file_name} -> ID: {res.doc_id}, Chunks: {res.chunks_indexed}")
-```
-
-### 2. FastMCP 3.1 Task Protocol Integration
-```python
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("privategpt-service")
-
-@mcp.tool()
-def query_private_documents(prompt: str, top_k: int = 3) -> dict:
-    """Executes a private, local RAG query over PrivateGPT indexed documents."""
-    return {"prompt": prompt, "answer": "Synthesized answer from local document context", "sources": ["tax_2026.pdf"]}
+with urllib.request.urlopen(req) as response:
+    result = json.loads(response.read().decode())
+    print(result["choices"][0]["message"]["content"])
 ```
 
 ## Related tools / concepts

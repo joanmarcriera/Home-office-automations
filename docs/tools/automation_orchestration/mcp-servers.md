@@ -33,7 +33,29 @@ Before MCP, every AI agent framework (LangChain, AutoGen, LlamaIndex) required c
 - When communicating over restricted legacy protocols that prohibit JSON-RPC over stdio/SSE.
 
 ## Getting started
-To register and run a self-hosted stdio MCP server:
+Install FastMCP and create a simple MCP server:
+
+```bash
+uv add fastmcp
+```
+
+A minimal working example defining a FastMCP server with a tool prompt:
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP("Demo Server")
+
+@mcp.tool()
+def add(a: int, b: int) -> int:
+    """Add two numbers."""
+    return a + b
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+To configure client integrations (e.g. Claude Desktop or Cursor), add the server definition to `claude_desktop_config.json`:
 
 ```json
 {
@@ -49,56 +71,22 @@ To register and run a self-hosted stdio MCP server:
 ## CLI examples
 
 ```bash
-# Launch an MCP server via uvx
+# 1. Install FastMCP package
+uv add fastmcp
+
+# 2. Launch an MCP server directly via uvx
 uvx mcp-server-sqlite --db-path /data/homelab.db
 
-# Inspect running FastMCP server tools
+# 3. Inspect and debug running FastMCP server tools
 mcp dev server.py
 ```
 
 ## API examples
 
-### 1. Pydantic v2 Schema for MCP Server Tool Registration
+Minimal FastMCP 3.1 Python server snippet:
+
 ```python
-from typing import Dict, Any, List
-from pydantic import BaseModel, ConfigDict, Field
-
-class MCPToolDefinition(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    name: str = Field(..., description="Unique tool identifier")
-    description: str = Field(..., description="Human-readable tool prompt description")
-    parameters_schema: Dict[str, Any] = Field(..., description="JSON Schema for tool arguments")
-
-class MCPServerCatalog(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    server_id: str
-    protocol_version: str = "3.1"
-    tools: List[MCPToolDefinition]
-
-def validate_mcp_catalog(data: Dict[str, Any]) -> MCPServerCatalog:
-    return MCPServerCatalog.model_validate(data)
-
-if __name__ == "__main__":
-    payload = {
-        "server_id": "paperless-mcp",
-        "protocol_version": "3.1",
-        "tools": [
-            {
-                "name": "search_documents",
-                "description": "Searches Paperless documents by query",
-                "parameters_schema": {"type": "object", "properties": {"query": {"type": "string"}}}
-            }
-        ]
-    }
-    catalog = validate_mcp_catalog(payload)
-    print(f"Validated MCP Server '{catalog.server_id}' with {len(catalog.tools)} tool(s)")
-```
-
-### 2. FastMCP 3.1 Server Definition
-```python
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 mcp = FastMCP("homelab-task-server")
 

@@ -1,6 +1,6 @@
 # Mentat
 
-> **Notice**: Official documentation and repository for Mentat (`https://www.mentat.ai` / `https://github.com/AbanteAI/mentat`) are currently offline or no longer publicly maintained. Historical code examples and installation reference instructions are provided for legacy reference.
+> **Notice**: Official documentation and repository for Mentat (`https://www.mentat.ai` / `https://github.com/AbanteAI/mentat`) are currently offline or no longer publicly maintained. Because Mentat has no active official documentation, code examples and code sections are skipped.
 
 ## What it is
 Mentat is an AI tool designed to coordinate complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat was designed to handle large-scale refactorings where the context spans dozens of files. In early 2027, Mentat features theoretical native integration concepts with **FastMCP 3.1** and frontier reasoning models (**Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**).
@@ -37,39 +37,13 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 - When a graphical editor experience (like [Cursor](cursor.md)) is preferred.
 
 ## Getting started
-> *Historical Reference Note*: Upstream repository is offline. Historical CLI installation utilized pip:
-
-```bash
-pip install mentat
-export OPENAI_API_KEY="your-api-key"
-```
-
-A minimal working example launching Mentat in non-interactive mode against a local module:
-
-```bash
-mentat --non-interactive --prompt "Add docstrings to all functions in main.py" src/main.py
-```
+*Note*: Official documentation and repository for Mentat are offline. Code sections and installation commands are skipped as there are no active official docs.
 
 ## CLI examples
-```bash
-# 1. Launch Mentat targeting specific source files
-mentat src/main.py src/utils.py
-
-# 2. Execute automated multi-file refactoring command
-mentat --prompt "Refactor error handling across main.py and utils.py to use custom Pydantic v2 exceptions"
-
-# 3. Include directories and auto-accept edits
-mentat --auto-accept src/
-```
+*Note*: Code sections skipped as Mentat has no active official documentation or maintained repository.
 
 ## API examples
-```python
-# Historical Python client concept for Mentat terminal runner
-from mentat.session import Session
-
-session = Session(paths=["src/main.py", "src/utils.py"])
-session.start()
-```
+*Note*: Code sections skipped as Mentat has no active official documentation or maintained repository.
 
 ## Related tools / concepts
 - [Aider](aider.md) — Active terminal-based AI pair programmer.
