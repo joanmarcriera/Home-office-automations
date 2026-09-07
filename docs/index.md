@@ -64,7 +64,7 @@ hide:
 | **Architecture** | Component map, data flows, infrastructure decisions, and multi-agent governance. | [architecture/README.md](architecture/README.md) |
 | **Reference Implementations** | Concrete prompts, mapping rules, and workflow exports for direct reuse. | [reference-implementations/index.md](reference-implementations/index.md) |
 | **Reports** | Triage reports, execution logs, and backlog status. | [reports/index.md](reports/index.md) |
-| **Roadmap** | Planned improvements and known gaps. | [roadmap.md](roadmap.md) |
+| **Roadmap** | Planned improvements and known gaps. | [roadmap](../roadmap.md) |
 | **Standards** | Taxonomy, canonical-page rules, metadata requirements, and dedup policy. | [standards.md](standards.md) |
 
 ---

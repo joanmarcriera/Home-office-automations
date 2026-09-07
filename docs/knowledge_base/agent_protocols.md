@@ -33,7 +33,7 @@ Protocols act as the **Communication Layer** in the AI stack. They sit between a
 ## When to use it
 - When building a modular AI system that needs to support multiple toolsets or environments.
 - To ensure your AI tools remain compatible with the widest possible range of agent frameworks.
-- When local data privacy and controlled resource access are primary requirements for your [homelab automation](../README.md).
+- When local data privacy and controlled resource access are primary requirements for your [homelab automation](../architecture/README.md).
 - When orchestrating multi-agent systems where agents must discover and negotiate capabilities dynamically.
 
 ## When not to use it
