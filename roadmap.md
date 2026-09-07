@@ -16,19 +16,19 @@ This document tracks missing components and planned technical improvements for t
     - [x] Implement reference implementation for HITL UI (see [HITL UI Implementation](docs/reference-implementations/hitl-ui/)).
     - [x] Integrate verified dates with Google/Proton Calendar:
         - [x] Implement Google Calendar API integration (POST /events) (see [Reference Script](scripts/gcal_sync_reference.py)).
-        - [x] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) (see [Reference Script](scripts/chronos_sync_reference.py)).
+        - [x] Implement Proton Calendar event creation via [Chronos MCP](docs/tools/automation_orchestration/chronos-mcp.md) (see [Reference Script](scripts/chronos_sync_reference.py)).
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
 
 ## Nice-to-Haves
 - [x] **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
     - [x] Research Google Calendar Free/Busy API for availability checks (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
-    - [x] Research [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
+    - [x] Research [Chronos MCP](docs/tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
     - [x] Implement n8n logic to aggregate availability and identify conflicts (see [Multi-Calendar Conflict Checker](docs/reference-implementations/n8n/multi-calendar-conflict-checker.json)).
         - [x] Design n8n workflow to fetch Free/Busy data from multiple Google accounts.
         - [x] Implement JSON logic to find overlapping busy slots and identify available 'free' gaps.
         - [x] Create n8n 'Conflict Alert' notification for Telegram.
-- [x] **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
+- [x] **Voice-to-Task**: Integrating [Ollama](docs/services/ollama.md) with local voice-to-text for hands-free task creation.
     - [x] Research Whisper.cpp for local high-performance Speech-to-Text (STT) (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
     - [x] Integrate STT with Home Assistant Assist voice pipeline (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
     - [x] Create n8n trigger to process voice-extracted tasks and route to Vikunja (see [Voice to Vikunja](docs/reference-implementations/n8n/voice-to-vikunja.json)).
@@ -49,7 +49,7 @@ This document tracks missing components and planned technical improvements for t
 ### Home Operations
 - [x] **AI-Powered Warranty & Manual Assistant**:
     - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.
-    - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
+    - *Stack*: [Paperless-ngx](docs/services/paperless-ngx.md), [n8n](docs/services/n8n.md), local LLM (RAG).
     - [x] Define Paperless-ngx tag schema for warranties and manuals.
     - [x] Create n8n workflow to extract expiration dates from warranty documents (see [Warranty Extraction Prompt](docs/reference-implementations/llm-prompts/warranty-extraction.md)).
     - [x] Set up Vector DB index for scanned manuals:
@@ -66,7 +66,7 @@ This document tracks missing components and planned technical improvements for t
         - [x] Implement Python backend for hybrid search (keyword + vector) and LLM orchestration. (see [Reference Backend](docs/reference-implementations/manual-assistant/backend.py))
 - [x] **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
-    - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
+    - *Stack*: [Home Assistant](docs/services/home-assistant.md), [Ollama](docs/services/ollama.md).
     - [x] Identify candidate power monitoring sensors in Home Assistant for key appliances (Washer, Fridge, EV) (see [Baseline Logic](docs/knowledge_base/energy-anomaly-detection-baseline.md)).
     - [x] Research Home Assistant "Utility Meter" and "Derivative" sensors for baseline usage patterns.
     - [x] Define baseline vs anomaly logic (e.g., spike duration, time-of-day weighting) in a new reference implementation file.
@@ -75,13 +75,13 @@ This document tracks missing components and planned technical improvements for t
 ### Family Knowledge Management
 - [x] **Personalized Family "Daily Briefing"**:
     - *Goal*: A unified morning report (voice or chat) summarizing the day's schedule, chores, weather, and "On This Day" memories.
-    - *Stack*: [n8n](./services/n8n.md), [Vikunja](./services/vikunja.md), [Google Calendar](./tools/calendar_tasks/google_calendar.md).
+    - *Stack*: [n8n](docs/services/n8n.md), [Vikunja](docs/services/vikunja.md), [Google Calendar](docs/tools/calendar_tasks/google_calendar.md).
     - [x] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation (see [Integration Details](docs/reference-implementations/llm-prompts/daily-briefing.md)).
     - [x] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/daily-briefing.md`.
     - [x] Implement n8n workflow for scheduled morning delivery via Telegram/Email (see [Workflow Template](docs/reference-implementations/n8n/daily-briefing-flow.json)).
 - [x] **Semantic Search for Family History**:
     - *Goal*: Natural language search across decades of family documents, journals, and logs.
-    - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [Obsidian](./tools/ai_knowledge/obsidian.md), local Vector DB.
+    - *Stack*: [Paperless-ngx](docs/services/paperless-ngx.md), [Obsidian](docs/tools/ai_knowledge/obsidian.md), local Vector DB.
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [x] Set up local Vector DB index for OCR'd text search.
@@ -103,7 +103,7 @@ This document tracks missing components and planned technical improvements for t
         - [x] Create a Streamlit-based video search UI with preview capabilities. (see `docs/reference-implementations/video-archive/`)
 - [x] **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
-    - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
+    - *Stack*: Whisper (local), [Ollama](docs/services/ollama.md).
     - [x] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper) (see [Audio Transcription Research](docs/knowledge_base/audio-transcription-research.md)).
     - [x] Design metadata schema for audio transcriptions (speaker ID, timestamps, chapter markers) (see [Audio Transcription Schema](docs/reference-implementations/metadata-schemas/audio-transcription.md)).
     - [x] Implement transcription pipeline script for large audio files. (see `scripts/transcribe_audio.py`)
@@ -111,8 +111,8 @@ This document tracks missing components and planned technical improvements for t
 
 ### Advanced Infrastructure
 - [x] **Self-Healing Homelab Agent**:
-    - *Goal*: An AI agent that monitors [TrueNAS SCALE](architecture/infrastructure.md) logs and automatically restarts services or alerts on hardware failure.
-    - *Stack*: [n8n](./services/n8n.md), [Tailscale](./services/tailscale.md), local specialized agent.
+    - *Goal*: An AI agent that monitors [TrueNAS SCALE](docs/architecture/infrastructure.md) logs and automatically restarts services or alerts on hardware failure.
+    - *Stack*: [n8n](docs/services/n8n.md), [Tailscale](docs/services/tailscale.md), local specialized agent.
     - [x] Research TrueNAS SCALE log streaming via syslog or webhooks for real-time monitoring (see [Self-Healing Agent Research](docs/knowledge_base/self-healing-agent-research.md)).
     - [x] Identify critical service health check endpoints (e.g., Paperless-ngx, Home Assistant).
     - [x] Define automated restart logic for Docker containers vs K3s pods.
@@ -129,22 +129,22 @@ This document tracks missing components and planned technical improvements for t
 ### Short-Term
 - [x] Add [webhook-based ingestion](docs/reference-implementations/paperless/webhook-ingestion.md) for Paperless-ngx.
 - [x] Refine [Task Extraction Prompt](reference-implementations/llm-prompts/extraction-and-classification.md) for better priority detection.
-- [x] Standardize [n8n](./services/n8n.md) error handling using sub-workflows (see [Error Handling Pattern](docs/knowledge_base/patterns/n8n-error-handling.md)).
+- [x] Standardize [n8n](docs/services/n8n.md) error handling using sub-workflows (see [Error Handling Pattern](docs/knowledge_base/patterns/n8n-error-handling.md)).
 - [x] Roll out the Multi-Agent KnowledgeOps contract (see [Standards](docs/standards.md)).
 
 ### Medium-Term
-- [x] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
+- [x] Implement [Headscale](docs/services/headscale.md) for a fully self-hosted mesh network.
     - [x] Deploy Headscale container.
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
     - [x] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
         - [x] Migrate TrueNAS SCALE NAS node.
         - [x] Migrate primary K3s compute node. (see `scripts/headscale_migration.sh`)
         - [x] Migrate Home Assistant VM.
-- [x] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
+- [x] Integrate [Vikunja](docs/services/vikunja.md) task dependencies into n8n flows.
     - [x] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
     - [x] Create a reference n8n workflow for checking task blockers and relations. (see `docs/reference-implementations/n8n/vikunja-task-relations.json`)
     - [x] Implement auto-unblocking logic in the daily briefing or a dedicated worker to notify when a blocker is closed. (see `scripts/vikunja_unblock_notifier.py`)
-- [x] Deploy [LiteLLM](./services/litellm.md) proxy.
+- [x] Deploy [LiteLLM](docs/services/litellm.md) proxy.
     - [x] Configure Prometheus/Grafana monitoring for LiteLLM.
     - [x] Implement usage-based quotas for internal API keys.
     - [x] Set up load balancing between multiple Ollama instances.
@@ -152,7 +152,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Implement API key management for internal services.
 
 ### Long-Term
-- [x] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
+- [x] Build a custom "Home Admin Agent" using [LangChain](docs/tools/ai_knowledge/langchain.md).
     - [x] **Agent Architecture**:
         - [x] Design LangChain agent structure and tool definitions (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [x] Research and select state management for agent memory (e.g., LangGraph).
