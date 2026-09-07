@@ -6,7 +6,7 @@ Reference implementation for a RAG-based backend to search and answer questions 
 A FastAPI-based backend that integrates with ChromaDB v0.6+ to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of January 2027, it supports native **FastMCP 3.1** and **Model Context Protocol** for direct tool-calling by **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
 
 ## What problem it solves
-It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../../roadmap.md), allowing users to ask natural language questions like "How do I clean the filter on my Bosch dishwasher?" and get answers directly from the scanned PDF. It solves the "lost physical manual" problem and provides immediate, context-aware troubleshooting advice.
+It centralizes the "brain" for the AI-Powered Warranty & Manual Assistant, allowing users to ask natural language questions like "How do I clean the filter on my Bosch dishwasher?" and get answers directly from the scanned PDF. It solves the "lost physical manual" problem and provides immediate, context-aware troubleshooting advice.
 
 ## Where it fits in the stack
 **Orchestration Layer** — acts as the logic bridge between document storage and user interfaces.

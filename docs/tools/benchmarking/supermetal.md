@@ -33,7 +33,7 @@ It addresses the latency and complexity bottlenecks in Change Data Capture (CDC)
 
 ## When not to use it
 - For small datasets that don't justify the overhead of a dedicated CDC tool.
-- If you require complex in-flight data transformations (consider [Fivetran](fivetran.md) or [dbt](dbt.md) for heavy T in ELT).
+- If you require complex in-flight data transformations (consider Fivetran or dbt for heavy T in ELT).
 - For unsupported source or target systems where traditional connectors remain the only option.
 
 ## Getting started
