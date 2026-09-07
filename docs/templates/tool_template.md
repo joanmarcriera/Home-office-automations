@@ -33,7 +33,7 @@
 - **Self-hostable**: [Yes/No]
 
 ## Related tools / concepts
-- [Related tool 1](relative-link.md)
+- [Related tool 1](../index.md)
 
 ## Sources / References
 - [Official Website](URL)

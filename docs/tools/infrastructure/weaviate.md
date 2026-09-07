@@ -7,7 +7,7 @@ Weaviate is an open-source, highly scalable vector database designed to store da
 Indexing and searching unstructured data (text, images, audio) across multi-tenant applications requires high-throughput similarity search. Weaviate provides vector and hybrid search infrastructure that enables Retrieval-Augmented Generation (RAG) and long-term memory for autonomous agents running models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 
 ## Where it fits in the stack
-**Category**: [Infrastructure](index.md) / [Vector Database](../../knowledge_base/index.md). It operates as the persistent memory and vector retrieval layer in AI-native architectures.
+**Category**: [Infrastructure](index.md) / [Vector Database](../../knowledge_base/README.md). It operates as the persistent memory and vector retrieval layer in AI-native architectures.
 
 ## Typical use cases
 - **Retrieval-Augmented Generation (RAG)**: Delivering contextual document snippets to LLM reasoning engines.

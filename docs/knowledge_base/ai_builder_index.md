@@ -35,7 +35,7 @@ The repository contains a vast array of specialized tools, which can be overwhel
 ## When not to use it
 - If you already know the specific tool you need (use the global search or category indices).
 - When seeking low-level API reference documentation (go directly to the tool page in `docs/tools/`).
-- For tracking daily repository changes (use the [AI Daily Digest](../../ai-daily-digest/index.md) instead).
+- For tracking daily repository changes (use [New Sources](../new-sources.md) instead).
 
 ## Getting started
 

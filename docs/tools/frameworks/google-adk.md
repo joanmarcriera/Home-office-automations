@@ -7,7 +7,7 @@ The Google Agent Development Kit (ADK) is an open-source framework designed for 
 While lightweight scripting libraries are suitable for single-agent chat loops, they fail to bridge the "Prototype-to-Production" gap for complex corporate workflows. They often lack strict state management, explicit orchestration, multi-language interoperability, and robust evaluation paths. The ADK addresses these enterprise requirements by providing reliable, deterministic state-machine orchestration, standardized "Skills" (tool-calling interfaces), FastMCP 3.1 Task Protocol execution loops, and integrated evaluation runtimes that ensure agent execution remains predictable, auditable, and SLA-compliant.
 
 ## Where it fits in the stack
-**Category**: [Frameworks](index.md) / [Enterprise Agent Frameworks](../../knowledge_base/index.md).
+**Category**: [Frameworks](index.md) / [Enterprise Agent Frameworks](../../knowledge_base/README.md).
 It sits directly between the foundation model layer (Gemini, Claude, GPT) and the production application layer, acting as a structured, stateful middleware that coordinates business logic, session state, tool execution, FastMCP 3.1 tasks, and deployment orchestration.
 
 ## Typical use cases
