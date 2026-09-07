@@ -51,10 +51,11 @@ The recommended way to run Diskover is using Docker Compose, as it handles both 
 version: '2'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     volumes:
       - esdata:/usr/share/elasticsearch/data
   diskover:
