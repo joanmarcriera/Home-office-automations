@@ -34,16 +34,17 @@ Traditional vector databases (like Milvus or Qdrant cluster setups) require dedi
 - When already utilizing existing PostgreSQL/pgvector deployments for simple relational + vector storage.
 
 ## Getting started
-To install and use LanceDB in Python:
+Install LanceDB via pip:
 
 ```bash
 pip install lancedb
 ```
 
+A minimal working hello-world example connecting to an embedded LanceDB database and executing nearest neighbor search:
+
 ```python
 import lancedb
 
-# Connect to a local directory storage
 db = lancedb.connect("./data/lancedb_store")
 table = db.create_table(
     "documents",
@@ -53,7 +54,6 @@ table = db.create_table(
     ]
 )
 
-# Search nearest neighbors
 results = table.search([0.1, 0.2, 0.3]).limit(1).to_list()
 print("Search Result:", results)
 ```
@@ -61,56 +61,29 @@ print("Search Result:", results)
 ## CLI examples
 
 ```bash
-# Install LanceDB python package and CLI tool
+# 1. Install LanceDB Python package
 pip install lancedb
 
-# Inspect a local Lance table file using python CLI
+# 2. Inspect local database table names via Python CLI invocation
 python3 -c "import lancedb; db = lancedb.connect('./data/lancedb_store'); print(db.table_names())"
+
+# 3. Quick count query over an embedded Lance table via Python CLI
+python3 -c "import lancedb; db = lancedb.connect('./data/lancedb_store'); print(db.open_table('documents').count_rows())"
 ```
 
 ## API examples
 
-### 1. Pydantic v2 Schema & LanceDB Vector Store Handler
+Minimal Python code snippet querying an embedded LanceDB collection:
+
 ```python
-from typing import List, Dict, Any
-from pydantic import BaseModel, ConfigDict, Field
+import lancedb
 
-class VectorRecord(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+db = lancedb.connect("./data/lancedb_store")
+table = db.open_table("documents")
 
-    id: str
-    text: str
-    vector: List[float] = Field(..., min_length=3)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-class SearchQuery(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    query_vector: List[float]
-    top_k: int = Field(default=5, ge=1, le=100)
-
-def search_lancedb_table(query: SearchQuery) -> List[Dict[str, Any]]:
-    # Simulated search execution over LanceDB index
-    return [
-        {"id": "doc1", "text": "Paperless receipt metadata", "score": 0.98}
-    ][:query.top_k]
-
-if __name__ == "__main__":
-    query = SearchQuery(query_vector=[0.1, 0.2, 0.3], top_k=2)
-    results = search_lancedb_table(query)
-    print(f"Retrieved {len(results)} match(es)")
-```
-
-### 2. FastMCP 3.1 Task Protocol Integration
-```python
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("lancedb-service")
-
-@mcp.tool()
-def query_vector_store(collection_name: str, vector: list[float], limit: int = 5) -> list[dict]:
-    """Queries an embedded LanceDB collection using FastMCP 3.1 task protocol."""
-    return [{"id": "item1", "score": 0.95}]
+results = table.search([0.1, 0.2, 0.3]).limit(5).to_list()
+for row in results:
+    print(f"Doc ID: {row['id']}, Text: {row['text']}")
 ```
 
 ## Related tools / concepts

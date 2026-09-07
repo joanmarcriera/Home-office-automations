@@ -33,75 +33,51 @@ Managing local AI model binaries, dependencies, CUDA/ROCm driver versions, and r
 - When using managed cloud inference endpoints where local container orchestration is unnecessary.
 
 ## Getting started
-To run a local model container using Ramalama and Podman:
+Install Ramalama via pip and launch a local model:
 
 ```bash
-# Install Ramalama
 pip install ramalama
+```
 
-# Run an LLM containerized using Podman
+A minimal working example running an LLM chatbot containerized using Ramalama and Podman/Docker:
+
+```bash
 ramalama run granite-3.1-dense
-
-# Serve an OpenAI-compatible endpoint on port 8080
-ramalama serve -p 8080 granite-3.1-dense
 ```
 
 ## CLI examples
 
 ```bash
-# Pull and run a containerized model via Ramalama CLI
+# 1. Run a containerized AI model chatbot
 ramalama run granite-3.1-dense
 
-# List locally cached OCI model containers
-ramalama ls
+# 2. Serve an OpenAI-compatible REST API endpoint on port 8080
+ramalama serve -p 8080 granite-3.1-dense
+
+# 3. List all downloaded local AI models
+ramalama list
 ```
 
 ## API examples
 
-### 1. Pydantic v2 Schema for Ramalama Container Runtime Metrics
+Minimal Python snippet querying a served Ramalama OpenAI-compatible endpoint:
+
 ```python
-from typing import Dict, Any
-from pydantic import BaseModel, ConfigDict, Field
+import urllib.request
+import json
 
-class RamalamaRuntimeConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+req = urllib.request.Request(
+    "http://localhost:8080/v1/chat/completions",
+    data=json.dumps({
+        "model": "granite-3.1-dense",
+        "messages": [{"role": "user", "content": "Hello world!"}]
+    }).encode('utf-8'),
+    headers={"Content-Type": "application/json"}
+)
 
-    model_tag: str = Field(..., description="OCI image tag or HuggingFace model path")
-    engine: str = Field(default="llama.cpp", description="Containerized runtime engine")
-    port: int = Field(default=8080, ge=1024, le=65535)
-    gpu_accelerator: str = Field(default="cuda", description="Hardware acceleration driver")
-
-class RamalamaContainerStatus(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    container_id: str
-    status: str
-    endpoint_url: str
-
-def start_ramalama_container(config: RamalamaRuntimeConfig) -> RamalamaContainerStatus:
-    # Simulated Podman container spawn for model execution
-    return RamalamaContainerStatus(
-        container_id="podman_a1b2c3d4",
-        status="running",
-        endpoint_url=f"http://localhost:{config.port}/v1"
-    )
-
-if __name__ == "__main__":
-    cfg = RamalamaRuntimeConfig(model_tag="granite-3.1-dense", port=8080)
-    status = start_ramalama_container(cfg)
-    print(f"Ramalama container {status.container_id} active at {status.endpoint_url}")
-```
-
-### 2. FastMCP 3.1 Task Protocol Integration
-```python
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("ramalama-orchestrator")
-
-@mcp.tool()
-def deploy_model_container(model_name: str, port: int = 8080) -> dict:
-    """Deploys a containerized local model using Ramalama and Podman."""
-    return {"status": "deployed", "model": model_name, "port": port}
+with urllib.request.urlopen(req) as response:
+    result = json.loads(response.read().decode())
+    print(result["choices"][0]["message"]["content"])
 ```
 
 ## Related tools / concepts
