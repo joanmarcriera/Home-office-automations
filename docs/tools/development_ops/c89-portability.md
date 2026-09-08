@@ -127,7 +127,7 @@ int main(void) {
 ```
 
 ## Related tools / concepts
-- [ansigpt](ansigpt.md)
+- [ansigpt](../ai_knowledge/ansigpt.md)
 - [ripgrep](ripgrep.md)
 - [GNU Make](../automation_orchestration/gnu-make.md)
 - [Makefile MCP](../automation_orchestration/makefile-mcp.md)
