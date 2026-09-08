@@ -373,6 +373,7 @@ nav:
           - AI SDK (by Vercel): tools/development_ops/vercel-ai-sdk.md
           - Aider: tools/development_ops/aider.md
           - Anti Gravity: tools/development_ops/anti_gravity.md
+          - C89 Portability Guide: tools/development_ops/c89-portability.md
           - Axiom Guardian: tools/development_ops/axiom-guardian.md
           - Claude Code: tools/development_ops/claude-code.md
           - Claude Code Container MCP: tools/development_ops/claude-code-container-mcp.md
@@ -399,6 +400,7 @@ nav:
           - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
           - GitHub Pages: tools/development_ops/github-pages.md
           - MkDocs: tools/development_ops/mkdocs.md
+          - Material for MkDocs: tools/development_ops/mkdocs-material.md
           - Github Copilot: tools/development_ops/github_copilot.md
           - Google Stitch: tools/development_ops/google-stitch.md
           - Gpt Engineer: tools/development_ops/gpt_engineer.md
@@ -526,6 +528,7 @@ nav:
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
           - Microsoft Entra ID: tools/enterprise/microsoft-entra-id.md
+          - OAuth 2.0 / OIDC: tools/enterprise/oauth2-oidc.md
           - Okta: tools/enterprise/okta.md
           - Proton Mail: tools/enterprise/proton-mail.md
           - Ramp: tools/enterprise/ramp.md
@@ -578,6 +581,7 @@ nav:
           - ZenML: tools/orchestration/zenml.md
       - Infrastructure:
           - Chroma: tools/infrastructure/chroma.md
+          - Dapr: tools/infrastructure/dapr.md
           - Diagrid Catalyst: tools/infrastructure/diagrid-catalyst.md
           - Docker: tools/infrastructure/docker.md
           - DuckDB: tools/infrastructure/duckdb.md
