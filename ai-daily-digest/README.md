@@ -1,5 +1,48 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-07
+
+## Digest fallback for 2026-09-07
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Supporting independent journalism in Ukraine](https://openai.com/index/supporting-independent-journalism-in-ukraine) (OpenAI Blog)
+2. [An Alien Mind](https://openai.com/index/an-alien-mind) (OpenAI Blog)
+3. [Research acceleration: The view inside OpenAI](https://openai.com/index/research-acceleration-view-inside-openai) (OpenAI Blog)
+4. [Me trying to keep up with all the new AI models being released](https://www.reddit.com/r/LocalLLaMA/comments/1w9of3u/me_trying_to_keep_up_with_all_the_new_ai_models/) (r/LocalLLaMA)
+5. [New Benchmark: The Struggle Bench](https://www.reddit.com/r/LocalLLaMA/comments/1w9dlf1/new_benchmark_the_struggle_bench/) (r/LocalLLaMA)
+6. [tencent/EVIE-8B and EVIE-4.5B (High-Capacity Visual Document Retrieval)](https://www.reddit.com/r/LocalLLaMA/comments/1w9nphc/tencentevie8b_and_evie45b_highcapacity_visual/) (r/LocalLLaMA)
+7. [8 uncensored Qwen 3.8 27B variants, one base, 167 GPU hours - Abliterlitics](https://www.reddit.com/r/LocalLLaMA/comments/1w8vx6w/8_uncensored_qwen_38_27b_variants_one_base_167/) (r/LocalLLaMA)
+8. [Benchmarking calories evaluation with LLMs](https://www.reddit.com/r/LocalLLaMA/comments/1w9jmo8/benchmarking_calories_evaluation_with_llms/) (r/LocalLLaMA)
+9. [Qwen 3.8 Next Flash is really really REALLY verbose..](https://www.reddit.com/r/LocalLLaMA/comments/1w9nfx8/qwen_38_next_flash_is_really_really_really_verbose/) (r/LocalLLaMA)
+10. [DeepSeek-V4-Flash-Vision Q8 vs Qwen3.8-Flash-Next Q8](https://www.reddit.com/r/LocalLLaMA/comments/1w96xoi/deepseekv4flashvision_q8_vs_qwen38flashnext_q8/) (r/LocalLLaMA)
+11. [2x R9700, 64 GB DDR5 is an absolute beast machine with vLLM Radiance / R9V and Qwen 3.8 27b and Flash next](https://www.reddit.com/r/LocalLLaMA/comments/1w92x3j/2x_r9700_64_gb_ddr5_is_an_absolute_beast_machine/) (r/LocalLLaMA)
+12. [Which models are you running on 32Gb VRAM (16+16) and 128Gb RAM?](https://www.reddit.com/r/LocalLLaMA/comments/1w9omj0/which_models_are_you_running_on_32gb_vram_1616/) (r/LocalLLaMA)
+13. [Thinking about grabbing an RTX 2000 Ada 16gb to add to my gaming pc for inference due to Wattage constraints, any advice?](https://www.reddit.com/r/LocalLLaMA/comments/1w9l8qc/thinking_about_grabbing_an_rtx_2000_ada_16gb_to/) (r/LocalLLaMA)
+14. [Best local models for hardware programming?](https://www.reddit.com/r/LocalLLaMA/comments/1w9oso4/best_local_models_for_hardware_programming/) (r/LocalLLaMA)
+15. [I built an LLM benchmark harness that lets you browse and compare how models answered each question](https://www.reddit.com/r/LocalLLaMA/comments/1w9ad9q/i_built_an_llm_benchmark_harness_that_lets_you/) (r/LocalLLaMA)
+16. [Qwen Next on 24 + 64 GB VRAM?](https://www.reddit.com/r/LocalLLaMA/comments/1w9p7vy/qwen_next_on_24_64_gb_vram/) (r/LocalLLaMA)
+17. [Expert expansion with llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1w9404e/expert_expansion_with_llamacpp/) (r/LocalLLaMA)
+18. [Coding benchmarks that are quickly showcasing deep capability](https://www.reddit.com/r/LocalLLaMA/comments/1w8us6t/coding_benchmarks_that_are_quickly_showcasing/) (r/LocalLLaMA)
+19. [4xRadeon AI Pro R9700 people, how are your benchmarks?](https://www.reddit.com/r/LocalLLaMA/comments/1w9c8u7/4xradeon_ai_pro_r9700_people_how_are_your/) (r/LocalLLaMA)
+20. [[Model] Support for Spark2_5ForCausalLM implementation by KnightYao · Pull Request #27868 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1w90zdc/model_support_for_spark2_5forcausallm/) (r/LocalLLaMA)
+21. [Lit Review on Benchmarking LLMs Running in your phone!: MobileWorld: Benchmarking Autonomous Mobile Agents in Agent-User Interactive and MCP-Augmented Environments](https://www.reddit.com/r/LocalLLaMA/comments/1w9kfs3/lit_review_on_benchmarking_llms_running_in_your/) (r/LocalLLaMA)
+22. [Dual R9700 on Asus X570 VIII Motherboard](https://www.reddit.com/r/LocalLLaMA/comments/1w9njvw/dual_r9700_on_asus_x570_viii_motherboard/) (r/LocalLLaMA)
+23. [Bifurcation and riser cables suggestions](https://www.reddit.com/r/LocalLLaMA/comments/1w9n6fx/bifurcation_and_riser_cables_suggestions/) (r/LocalLLaMA)
+24. [What is the obstacle in front of Local Frontiers?](https://www.reddit.com/r/LocalLLaMA/comments/1w9n2np/what_is_the_obstacle_in_front_of_local_frontiers/) (r/LocalLLaMA)
+25. [Trying to create my own server and consuming it for code with my phone remotely (Mac OS)](https://www.reddit.com/r/LocalLLaMA/comments/1w9bz4i/trying_to_create_my_own_server_and_consuming_it/) (r/LocalLLaMA)
+26. [Permissions belong in the assembly context](https://thenewstack.io/enterprise-rag-permission-assembly/) (The New Stack)
+27. [Polars 2.0 pre-release comes with a 5x speed boost — but it could change row order](https://thenewstack.io/polars-streaming-row-order/) (The New Stack)
+28. [Presentation: From AI Agent Demo to Production: Automated Testing and Evaluation](https://www.infoq.com/presentations/ai-agent-testing-evaluation/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+29. [Google Mantis: An Agentic Vulnerability Scanning Harness for Reducing False Positives](https://www.infoq.com/news/2026/09/google-mantis-vulnerability-scan/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-06
 
 # AI & Technology Daily Digest
