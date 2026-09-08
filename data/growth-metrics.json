@@ -1,7 +1,7 @@
 {
-  "snapshot_date": "2026-09-07",
-  "total_docs": 534,
-  "tool_docs": 481,
+  "snapshot_date": "2026-09-08",
+  "total_docs": 538,
+  "tool_docs": 485,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -9,16 +9,16 @@
     "automation_orchestration": 31,
     "benchmarking": 41,
     "calendar_tasks": 21,
-    "development_ops": 63,
+    "development_ops": 66,
     "enterprise": 14,
     "frameworks": 33,
-    "infrastructure": 52,
+    "infrastructure": 53,
     "intake_storage": 10,
     "orchestration": 9,
     "process_understanding": 40,
     "providers": 36
   },
-  "docs_with_code_examples": 533,
+  "docs_with_code_examples": 537,
   "docs_without_code_examples": 1,
   "shallow_docs": [
     "docs/tools/infrastructure/ramalama.md",
@@ -43,8 +43,8 @@
     "docs/tools/development_ops/context7.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 0,
-  "intake_items_7d": 12,
+  "weekly_additions": 4,
+  "intake_items_7d": 18,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }
