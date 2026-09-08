@@ -137,10 +137,10 @@ def search_web(query: str, category: str = "general", max_results: int = 5) -> s
         formatted = []
         for item in results:
             title = item.get("title", "No Title")
-            link = item.get("url", "")
+            res_url = item.get("url", "")
             content = item.get("content", "")
             engine = item.get("engine", "unknown")
-            formatted.append(f"[{title}]({link}) (via {engine})\n{content}")
+            formatted.append(f"[{title}]({res_url}) (via {engine})\n{content}")
 
         return "\n\n".join(formatted) if formatted else "No results found."
     except Exception as e:
