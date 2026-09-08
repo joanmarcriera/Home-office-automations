@@ -150,7 +150,8 @@ def execute_fused_add(config_payload: Dict[str, Any]) -> str:
     out = torch.empty_like(x)
 
     grid = lambda meta: (triton.cdiv(cfg.vector_size, meta['BLOCK_SIZE']),)
-    vector_add_kernel[grid](x, y, out, cfg.vector_size, BLOCK_SIZE=cfg.block_size, num_warps=cfg.num_warps)
+    kernel = vector_add_kernel[grid]
+    kernel(x, y, out, cfg.vector_size, BLOCK_SIZE=cfg.block_size, num_warps=cfg.num_warps)
 
     return f"Successfully executed Triton vector addition kernel on GPU for {cfg.vector_size} elements."
 
