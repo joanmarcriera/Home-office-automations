@@ -1,5 +1,48 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-08
+
+## Digest fallback for 2026-09-08
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Friends Don't Let Friends Use Ollama](https://www.reddit.com/r/LocalLLaMA/comments/1wa26pn/friends_dont_let_friends_use_ollama/) (r/LocalLLaMA)
+2. [WSJ: Unregulated Open-Weight AI Is an Invitation to Disaster](https://www.reddit.com/r/LocalLLaMA/comments/1wa9309/wsj_unregulated_openweight_ai_is_an_invitation_to/) (r/LocalLLaMA)
+3. [I REALLY hope the new gemma 5 family sticks to the "chat model first" philsophy and doesn't fall into the Qwen trap](https://www.reddit.com/r/LocalLLaMA/comments/1w9ylhh/i_really_hope_the_new_gemma_5_family_sticks_to/) (r/LocalLLaMA)
+4. [Voice conversations between Gemma4 12B and E2B on GPU and Jetson Orin](https://www.reddit.com/r/LocalLLaMA/comments/1waefz4/voice_conversations_between_gemma4_12b_and_e2b_on/) (r/LocalLLaMA)
+5. [My Qwen3.8-27B task-aware quant reaches 99% of BF16 reasoning performance at 15% of the size.](https://www.reddit.com/r/LocalLLaMA/comments/1wa5dp9/my_qwen3827b_taskaware_quant_reaches_99_of_bf16/) (r/LocalLLaMA)
+6. [I made a custom llama.cpp build optimized for 7900xtx (one or two). for qwen 3.8 next and 27B. includes optimizations for PciE x4 and tensor parallel. read inside! (no AI slop)](https://www.reddit.com/r/LocalLLaMA/comments/1waif2b/i_made_a_custom_llamacpp_build_optimized_for/) (r/LocalLLaMA)
+7. [I made Warrior Quest, a local LLM-powered dark-fantasy RPG where the model only plays NPCs and the actual game state stays deterministic](https://www.reddit.com/r/LocalLLaMA/comments/1wa84sa/i_made_warrior_quest_a_local_llmpowered/) (r/LocalLLaMA)
+8. [What are some practical tasks I can assign to my local AI models?](https://www.reddit.com/r/LocalLLaMA/comments/1waj4k4/what_are_some_practical_tasks_i_can_assign_to_my/) (r/LocalLLaMA)
+9. [For Strix Halo - Official llama.cpp isn't ideal and how to highest possible throughput](https://www.reddit.com/r/LocalLLaMA/comments/1wa9m61/for_strix_halo_official_llamacpp_isnt_ideal_and/) (r/LocalLLaMA)
+10. [DeepSeek-V4-Flash-Vision-Exp is amazing at creating game worlds!](https://www.reddit.com/r/LocalLLaMA/comments/1wa06k3/deepseekv4flashvisionexp_is_amazing_at_creating/) (r/LocalLLaMA)
+11. [MiniCPM5-2B Release Day](https://www.reddit.com/r/LocalLLaMA/comments/1w9skjz/minicpm52b_release_day/) (r/LocalLLaMA)
+12. [After over a year of my nights and weekends, the Jenny app is done!](https://www.reddit.com/r/LocalLLaMA/comments/1w9wvkb/after_over_a_year_of_my_nights_and_weekends_the/) (r/LocalLLaMA)
+13. [Are you running Qwen 3.8 27b or Qwen Flash Next?](https://www.reddit.com/r/LocalLLaMA/comments/1w9v6qp/are_you_running_qwen_38_27b_or_qwen_flash_next/) (r/LocalLLaMA)
+14. [ExLlamaV3 is underrated](https://www.reddit.com/r/LocalLLaMA/comments/1wa36d1/exllamav3_is_underrated/) (r/LocalLLaMA)
+15. [The models are fine, our toolings and methods are shit.](https://www.reddit.com/r/LocalLLaMA/comments/1wa0l2t/the_models_are_fine_our_toolings_and_methods_are/) (r/LocalLLaMA)
+16. [Qwen3.8-Flash-Next on 2x3090: 9–12% faster decode at ~119k context, with a completed quality screen](https://www.reddit.com/r/LocalLLaMA/comments/1wacae2/qwen38flashnext_on_2x3090_912_faster_decode_at/) (r/LocalLLaMA)
+17. [Cybersecurity is local AI model's killer use case](https://www.reddit.com/r/LocalLLaMA/comments/1wa0ucq/cybersecurity_is_local_ai_models_killer_use_case/) (r/LocalLLaMA)
+18. [9 easy steps for llama.cpp, a local model, Freecad (and pi coding agent) to generate solid objects that sound mechanically good and can be also be 3D printed/milled](https://www.reddit.com/r/LocalLLaMA/comments/1w9r73k/9_easy_steps_for_llamacpp_a_local_model_freecad/) (r/LocalLLaMA)
+19. [exllamav3 comfortably beats llama.cpp running CPU-offloaded Qwen-3.8-Flash-Next on my setup!](https://www.reddit.com/r/LocalLLaMA/comments/1wa1jkb/exllamav3_comfortably_beats_llamacpp_running/) (r/LocalLLaMA)
+20. [Can Some Generous Soul Grant Me My Wish?](https://www.reddit.com/r/LocalLLaMA/comments/1wa6wsp/can_some_generous_soul_grant_me_my_wish/) (r/LocalLLaMA)
+21. [Super-intelligent small models vs. super-efficient large models.](https://www.reddit.com/r/LocalLLaMA/comments/1wajzc1/superintelligent_small_models_vs_superefficient/) (r/LocalLLaMA)
+22. [Why are the SOTA open-weight models scoring (relatively) low scores on AA-Omniscience Index](https://www.reddit.com/r/LocalLLaMA/comments/1w9t83y/why_are_the_sota_openweight_models_scoring/) (r/LocalLLaMA)
+23. [Higher acceptance length, slower prose: Ling’s n=1/2/3 MTP test on one Spark](https://www.reddit.com/r/LocalLLaMA/comments/1w9v4yz/higher_acceptance_length_slower_prose_lings_n123/) (r/LocalLLaMA)
+24. [The Frontier AEO Tracker: What Astra Chooses (and every other frontier model, and what you can do about it)](https://www.latent.space/p/aeo) (Latent Space)
+25. [“Some agents will be pursuing their own objectives”: OpenAI’s chief scientist warns AI could trick and blackmail humans](https://thenewstack.io/openai-voluntary-slowdown-safety/) (The New Stack)
+26. [AI agents are creating more work, not less — and OpenAI’s own numbers back it up](https://thenewstack.io/openai-agent-research-bottleneck/) (The New Stack)
+27. [OpenAI’s new model costs 2.5x more per token — and developers are saving money anyway](https://thenewstack.io/astra-reasoning-effort-cost/) (The New Stack)
+28. [“Twenty years of brand building simply froze in time”: How coding agents select their tools of choice](https://thenewstack.io/coding-agents-tool-choice/) (The New Stack)
+29. [AI Agent Reliability: Debug, Evaluate, and Monitor in Production](https://blog.n8n.io/ai-agent-reliability-debug-evaluate-and-monitor-in-production/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-07
 
 ## Digest fallback for 2026-09-07
