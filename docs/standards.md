@@ -7,6 +7,7 @@ Key updates for the early January 2027 ecosystem include:
 - **Foundational LLM Standards**: Multi-agent alignment across frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and FastMCP 3.1).
 - **Enforced Schema Validation**: Standardization of all API integration scripts using strict Pydantic v2 schemas.
 - **Model Context Protocol (MCP 3.1) Task Protocol**: Full alignment with the MCP 3.1 Task Protocol JSON schema for multi-agent execution pipelines and structured tool tracking.
+- **Agentic Task Decomposition**: Standardized protocols for breaking complex maintenance tasks into smaller, deterministic batches with JSON execution traces.
 
 ## What problem it solves
 In a complex, multi-tool environment with frequent contributions from AI agents, fragmentation and inconsistency are high risks. These standards eliminate ambiguity in naming, document structure, metadata, and cross-tool communication, ensuring the repository remains a reliable source of truth.
