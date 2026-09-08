@@ -7,7 +7,7 @@ Changedetection.io is a self-hosted open-source tool designed to monitor website
 It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [Gemini 4.0 Flash](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
 
 ## Where it fits in the stack
-In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [FastMCP 3.1 Specification](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements.
+In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [FastMCP 3.1 Specification](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements and real-time triggers.
 
 ## Typical use cases
 - **Price Tracking**: Monitoring retail sites for discounts or stock availability.

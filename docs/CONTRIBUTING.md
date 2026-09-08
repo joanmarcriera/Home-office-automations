@@ -17,7 +17,7 @@ It prevents "documentation rot" and repository fragmentation by enforcing a unif
 
 ## Strengths
 - **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Claude 5.1](tools/providers/anthropic.md), GPT-5.5/5.6, and DeepSeek-V4.
-- **Systematic Decomposition**: The Ralph-loop (Action C) allows complex technical debt to be broken into manageable batches with extracted context.
+- **Systematic Decomposition**: The Ralph-loop (Action C) allows complex technical debt to be broken into manageable batches with extracted context and sub-task logs.
 - **Multi-Agent Ready**: Supports a Federated KnowledgeOps model using FastMCP 3.1 for high-performance tool execution and cross-agent orchestration.
 
 ## Limitations
