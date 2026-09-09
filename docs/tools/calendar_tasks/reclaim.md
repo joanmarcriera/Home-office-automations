@@ -37,19 +37,50 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 
 ## Getting started
 To begin using Reclaim.ai:
-1. Sign up at [Reclaim.ai](https://reclaim.ai/).
-2. Connect your Google or Outlook calendars during onboarding.
-3. **Hello-world example**: Create your first "Habit" (e.g., "Daily Review") by selecting **Habits** in the sidebar. Reclaim will find the best slot in your schedule.
-4. **Agent Setup**: Connect Reclaim to your AI agent using a FastMCP 3.1 server (see below).
+
+1. Sign up at [Reclaim.ai](https://reclaim.ai/) and obtain an API key from Settings > Integrations > API.
+2. Install Python HTTP helper dependencies:
+
+```bash
+pip install requests pydantic
+```
+
+3. **Minimal working Python example**: Authenticate and retrieve your current user profile and schedule configuration:
+
+```python
+import requests
+
+API_TOKEN = "your-reclaim-api-key"
+headers = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
+
+response = requests.get("https://api.app.reclaim.ai/api/users/current", headers=headers)
+if response.status_code == 200:
+    user_info = response.json()
+    print(f"Connected to Reclaim as: {user_info.get('email')}")
+else:
+    print(f"Authentication failed: HTTP {response.status_code}")
+```
 
 ## CLI examples
 
-> [!NOTE]
-> Reclaim.ai does not offer an official first-party CLI.
+```bash
+# 1. Fetch user account details via cURL
+curl -s -H "Authorization: Bearer $RECLAIM_API_KEY" \
+  https://api.app.reclaim.ai/api/users/current
 
-The primary ways to interact with Reclaim from the command line or desktop are:
-- **Raycast Extension**: Use `Create Task` or `View Schedule` directly from the Raycast palette.
-- **MCP Server**: Use `npx -y @jj3ny/reclaim-mcp-server` to give your AI agent access via FastMCP 3.1.
+# 2. List current active scheduled tasks
+curl -s -H "Authorization: Bearer $RECLAIM_API_KEY" \
+  https://api.app.reclaim.ai/api/tasks
+
+# 3. Create a new task with focus time duration via cURL POST
+curl -s -X POST -H "Authorization: Bearer $RECLAIM_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Review Architecture Playbook", "eventCategory": "WORK", "timeChunksRequired": 4}' \
+  https://api.app.reclaim.ai/api/tasks
+```
 
 ## API examples
 Reclaim provides a REST API for managing tasks and schedules.
