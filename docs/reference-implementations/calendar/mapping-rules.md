@@ -44,17 +44,17 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 Use **Claude 5.6**, **GPT-5.6**, or **Gemini 4.0 Ultra** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
 
 ### 2. Implementation
-Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server under FastMCP 3.1. The server will apply these mapping rules automatically during the event creation process.
+Pass the JSON to the Google Calendar sync module or the **Chronos MCP** server under FastMCP 3.1. The server will apply these mapping rules automatically during the event creation process.
 
 ## CLI examples
 Use the following commands to test and apply calendar mappings.
 
 ```bash
 # Test a mapping rule against a sample JSON file
-python3 scripts/gcal_sync_reference.py --dry-run --input extracted_data.json
+python3 -m calendar_sync --dry-run --input extracted_data.json
 
 # Synchronize extracted data to Google Calendar
-python3 scripts/gcal_sync_reference.py --input extracted_data.json --provider google
+python3 -m calendar_sync --input extracted_data.json --provider google
 
 # Use Chronos MCP to list events for a specific day
 mcp-client chronos list-events --date 2027-01-07
@@ -134,7 +134,7 @@ class ExtractedEvent(BaseModel):
 - [HITL UI Design](../hitl-ui-design.md): The interface for reviewing these mappings before they are committed.
 - [Vikunja](../../services/vikunja.md): Alternative target for task-based "events".
 - [Habitica](../../services/habitica.md): For mapping recurring habits or chores derived from documents.
-- [Chronos MCP](../../scripts/calendar_tool.py): The reference implementation for CalDAV and GCal unified event management.
+- Chronos MCP: The reference implementation for CalDAV and GCal unified event management.
 - [Model Context Protocol (FastMCP 3.1)](../../tools/automation_orchestration/mcp.md): For unified calendar event creation.
 
 ## Sources / references
