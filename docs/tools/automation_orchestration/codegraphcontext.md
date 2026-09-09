@@ -19,7 +19,7 @@ It addresses the challenge of "context window overload" and "hallucination" when
 - **Token Efficiency**: Dramatic reduction in context usage compared to raw text ingestion, preserving the model's reasoning capacity.
 - **Semantic Precision**: Indexes files, functions, classes, calls, imports, and inheritance at the symbol level.
 - **Language Support**: Supports 15+ coding languages (including Python, TypeScript, Go, and Rust) as of early 2027.
-- **MCP 3.1 Native**: Integrates seamlessly with any MCP-compliant client (e.g., Claude Desktop, [Cursor](../development_ops/index.md), [Claude Code](../development_ops/claude-code.md)).
+- **MCP 3.1 Native**: Integrates seamlessly with any MCP-compliant client (e.g., Claude Desktop, [Cursor](../development_ops/cursor.md), [Claude Code](../development_ops/claude-code.md)).
 - **Graph RAG Integration**: Supports Graph RAG patterns for more accurate multi-step reasoning over code.
 
 ## Limitations
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 - [Aider / OpenHands](../development_ops/openhands.md) — Alternative agentic coding tools.
 - [Graph RAG](../../knowledge_base/patterns/rag.md) — The reasoning pattern enabled by this tool.
 - [vLLM](../infrastructure/vllm.md) — High-performance inference for the agents using this context.
-- [Cursor](../development_ops/index.md) — IDE with native support for similar graph-based context.
+- [Cursor](../development_ops/cursor.md) — IDE with native support for similar graph-based context.
 - [Gemma 4](../ai_knowledge/local_llms.md) — High-performance local model compatible with MCP 3.1 / FastMCP 3.1 Task Protocol.
 - [FastMCP 3.1](mcp.md) — Accelerated tool interaction protocol for low-latency graph queries.
 

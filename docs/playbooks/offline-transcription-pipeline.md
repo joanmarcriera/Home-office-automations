@@ -10,6 +10,26 @@ It solves the "Leaky Audio & Voice Privacy" problem where sensitive voice record
 - **Searchable Audio Knowledge Base**: Indexes hours of recorded audio into full-text searchable document repositories (Paperless-ngx, Milvus).
 - **Network Independence**: Processes multi-gigabyte audio files locally without reliance on external network upload bandwidth.
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[Voice Audio / Recording Source] -->|Sync MP3 / WAV / M4A| B[Local Ingestion Folder Watcher]
+    B --> C{FastMCP 3.1 / n8n Orchestrator}
+
+    subgraph Local Inference Edge
+        C --> D[faster-whisper GPU Runtime]
+        D -->|Raw JSON Transcript| E[Ollama / Local LLM Edge Engine]
+        E -->|Semantic Analysis| F[Pydantic v2 Task & Summary Parser]
+    end
+
+    subgraph Downstream Persistence Layer
+        F -->|Full Text & Metadata| G[Paperless-ngx Archival Vault]
+        F -->|Formatted Markdown Notes| H[Obsidian Local Vault]
+        F -->|Structured Action Items| I[Vikunja Task Engine]
+    end
+```
+
 ## Where it fits in the stack
 **Category**: Playbook / Information Processing. It serves as the **voice ingestion, normalization, and semantic extraction layer**, bridging local audio capture devices to downstream knowledge (`docs/tools/ai_knowledge/`) and task (`docs/services/`) management engines.
 

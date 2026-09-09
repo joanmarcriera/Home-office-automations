@@ -136,6 +136,7 @@ except Exception as e:
 - [Claude 5.1](../providers/anthropic.md) — Recommended model for reasoning over parsed data.
 - [GPT-5.5](../ai_knowledge/openai.md) — High-performance alternative for document synthesis.
 - [Llama 4](../ai_knowledge/local_llms.md) — Local model for processing LlamaParse outputs.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized agent tool-calling protocol.
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)

@@ -162,13 +162,14 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- **[Apache Airflow](apache-airflow.md)**: Traditional task-based orchestrator.
-- **[Dagster](dagster.md)**: Asset-centric, metadata-driven orchestration framework.
-- **[Kestra](kestra.md)**: Declarative, multi-language YAML orchestrator.
-- **[Temporal](temporal.md)**: Stateful workflow engine for complex backend automation.
-- **[n8n](../../services/n8n.md)**: Low-code integration platform.
-- **[LangGraph](../frameworks/langgraph.md)**: Agent-routing framework often monitored via Prefect.
-- **[LiteLLM](../../services/litellm.md)**: Model proxy utility.
+- [Apache Airflow](apache-airflow.md) — Traditional task-based orchestrator.
+- [Dagster](dagster.md) — Asset-centric, metadata-driven orchestration framework.
+- [Kestra](kestra.md) — Declarative, multi-language YAML orchestrator.
+- [Temporal](temporal.md) — Stateful workflow engine for complex backend automation.
+- [n8n](../../services/n8n.md) — Low-code integration platform.
+- [LangGraph](../frameworks/langgraph.md) — Agent-routing framework often monitored via Prefect.
+- [LiteLLM](../../services/litellm.md) — Model proxy utility.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized task correlation framework.
 
 ## Sources / references
 - [Prefect Official Documentation Portal](https://docs.prefect.io/)
