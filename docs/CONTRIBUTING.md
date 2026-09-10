@@ -1,7 +1,7 @@
 # Contributing to the AI Hub
 
 ## What it is
-The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.1](tools/providers/anthropic.md), GPT-5.5, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework in early January 2027.
+The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.6](tools/providers/anthropic.md), GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework in early January 2027.
 
 ## What problem it solves
 It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" early January 2027 State-of-the-Art standard.
@@ -16,7 +16,7 @@ It prevents "documentation rot" and repository fragmentation by enforcing a unif
 - **Catalog Maintenance**: Standardizing the ingestion of new sources via `docs/new-sources/`.
 
 ## Strengths
-- **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Claude 5.1](tools/providers/anthropic.md), GPT-5.5/5.6, and DeepSeek-V4.
+- **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Claude 5.6](tools/providers/anthropic.md), GPT-5.6, and DeepSeek-V4.
 - **Systematic Decomposition**: The Ralph-loop (Action C) allows complex technical debt to be broken into manageable batches with extracted context and sub-task logs.
 - **Multi-Agent Ready**: Supports a Federated KnowledgeOps model using FastMCP 3.1 for high-performance tool execution and cross-agent orchestration.
 
@@ -135,7 +135,7 @@ def submit_standards_verification(task_id: str, file_path: str, passed: bool):
         "status": "passed" if passed else "failed",
         "metadata": {
             "standards_version": "2027.01",
-            "enforcing_model": "Claude 5.1"
+            "enforcing_model": "Claude 5.6"
         }
     }
 

@@ -6,7 +6,7 @@ Gitea is a community-managed lightweight code hosting solution written in Go. It
 ## What problem it solves
 It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub.
 
-In early January 2027, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md). It provides a central hub for code collaboration, issue tracking, and multi-agent automation that can run on low-power hardware.
+In early January 2027, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), [GPT-5.6](../tools/providers/index.md), and [Claude 5.6](../tools/providers/anthropic.md). It provides a central hub for code collaboration, issue tracking, and multi-agent automation that can run on low-power hardware.
 
 ## Where it fits in the stack
 Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
@@ -52,7 +52,7 @@ To run Gitea using Docker Compose:
 ```yaml
 services:
   server:
-    image: gitea/gitea:1.26.2
+    image: gitea/gitea:1.27.0
     container_name: gitea
     environment:
       - USER_UID=1000
