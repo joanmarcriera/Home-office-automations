@@ -147,8 +147,8 @@ if __name__ == "__main__":
 - [Nextcloud](nextcloud.md) — For storing and syncing exported snapshots.
 - [Home Assistant](home-assistant.md) — For triggering physical home alerts based on web content changes.
 - [Playwright](../tools/development_ops/playwright.md) — The underlying engine used for monitoring Javascript-heavy sites.
-- [Apprise](https://github.com/caronc/apprise) — Notification engine for 70+ services.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic control of web monitoring.
+- [FastMCP Task Protocol](../tools/automation_orchestration/mcp-servers.md) — Infrastructure for MCP server orchestration and task state synchronization.
 
 ## Sources / references
 - [Official Website](https://changedetection.io/)
