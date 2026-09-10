@@ -1,5 +1,208 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-10
+
+## Digest fallback for 2026-09-10
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The AI policy window is open. We need to act.](https://openai.com/index/ai-policy-window) (OpenAI Blog)
+2. [GPT-6 Astra: The next generation in intelligence for work](https://openai.com/index/gpt-6-astra-next-generation-work) (OpenAI Blog)
+3. [Paul Christiano joins OpenAI Foundation Board](https://openai.com/index/paul-christiano-joins-openai-foundation-board) (OpenAI Blog)
+4. [Get ready for the game with new football features in Search](https://blog.google/products-and-platforms/products/search/football-features-google-search/) (Google AI Blog)
+5. [Recreating a 70-year love story frame by frame](https://blog.google/innovation-and-ai/technology/ai/love-rendered-film/) (Google AI Blog)
+6. [IBM releases SOTA Granite Time Series PatchTST-FM-r2 model with commercial-friendly license](https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series) (Hugging Face Blog)
+7. [deepseek-ai/DeepSeek-V4.1-Flash · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wcagoi/deepseekaideepseekv41flash_hugging_face/) (r/LocalLLaMA)
+8. [DeepSeek V4-1 Flash is out](https://www.reddit.com/r/LocalLLaMA/comments/1wcbid7/deepseek_v41_flash_is_out/) (r/LocalLLaMA)
+9. [So relevant](https://www.reddit.com/r/LocalLLaMA/comments/1wc6krf/so_relevant/) (r/LocalLLaMA)
+10. [DeepSeek-V4.1-Flash surprised ....](https://www.reddit.com/r/LocalLLaMA/comments/1wcdati/deepseekv41flash_surprised/) (r/LocalLLaMA)
+11. [DeepSeek V4.1 Flash: Stronger, Faster, More Accessible](https://www.reddit.com/r/LocalLLaMA/comments/1wcb0o3/deepseek_v41_flash_stronger_faster_more_accessible/) (r/LocalLLaMA)
+12. [Deepseek V4.1 Flash is 748B, not 552B](https://www.reddit.com/r/LocalLLaMA/comments/1wcd4rx/deepseek_v41_flash_is_748b_not_552b/) (r/LocalLLaMA)
+13. [Apple A20 Pro debuts with 7-core GPU, 32-core Neural Engine and 50% more memory bandwidth (~115 GB/s)](https://www.reddit.com/r/LocalLLaMA/comments/1wc0ekw/apple_a20_pro_debuts_with_7core_gpu_32core_neural/) (r/LocalLLaMA)
+14. [Closed AI doesn't like biological research, user turns to open weight models](https://www.reddit.com/r/LocalLLaMA/comments/1wcbt99/closed_ai_doesnt_like_biological_research_user/) (r/LocalLLaMA)
+15. [Deepseek v4.1 flash finally has engrams, what do you expect from 4.1 pro?](https://www.reddit.com/r/LocalLLaMA/comments/1wcbm3p/deepseek_v41_flash_finally_has_engrams_what_do/) (r/LocalLLaMA)
+16. [Don't let FOMO win if you're interested in local llm from a hobby/learning aspect](https://www.reddit.com/r/LocalLLaMA/comments/1wbufx5/dont_let_fomo_win_if_youre_interested_in_local/) (r/LocalLLaMA)
+17. [Why the hell is LM Studio making LM Studio so difficult to download?](https://www.reddit.com/r/LocalLLaMA/comments/1wble79/why_the_hell_is_lm_studio_making_lm_studio_so/) (r/LocalLLaMA)
+18. [What TTS models do you recommend as today?](https://www.reddit.com/r/LocalLLaMA/comments/1wceiz6/what_tts_models_do_you_recommend_as_today/) (r/LocalLLaMA)
+19. [Surveillance plagiarism by OpenAI](https://www.reddit.com/r/LocalLLaMA/comments/1wby2cm/surveillance_plagiarism_by_openai/) (r/LocalLLaMA)
+20. [Hosting Local Models](https://www.reddit.com/r/LocalLLaMA/comments/1wcbtba/hosting_local_models/) (r/LocalLLaMA)
+21. [Mention if a "new model" is a finetune](https://www.reddit.com/r/LocalLLaMA/comments/1wbpf6i/mention_if_a_new_model_is_a_finetune/) (r/LocalLLaMA)
+22. [Qwen3.8-Flash-Next on 2x3090 + DDR4, part 4: 2.2-2.5x faster prefill by kicking the expert cache off the GPU while the prompt runs](https://www.reddit.com/r/LocalLLaMA/comments/1wc6fsk/qwen38flashnext_on_2x3090_ddr4_part_4_2225x/) (r/LocalLLaMA)
+23. [What are these models good at?](https://www.reddit.com/r/LocalLLaMA/comments/1wcca9d/what_are_these_models_good_at/) (r/LocalLLaMA)
+24. [guide to using reasoning_effort on deepseek v4.1 flash](https://www.reddit.com/r/LocalLLaMA/comments/1wcesmy/guide_to_using_reasoning_effort_on_deepseek_v41/) (r/LocalLLaMA)
+25. [Local LLM / Qwen 3.8 win](https://www.reddit.com/r/LocalLLaMA/comments/1wc5t3s/local_llm_qwen_38_win/) (r/LocalLLaMA)
+26. [Running qwen 3.8 27B iq3 xxs on RTX 3060.](https://www.reddit.com/r/LocalLLaMA/comments/1wc2cs2/running_qwen_38_27b_iq3_xxs_on_rtx_3060/) (r/LocalLLaMA)
+27. [What's the next big breakthrough after attention mechanism? My bet is not on Engrams.](https://www.reddit.com/r/LocalLLaMA/comments/1wcaqul/whats_the_next_big_breakthrough_after_attention/) (r/LocalLLaMA)
+28. [Apodex-1.1-mini-GGUF*Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wcdwl6/apodex11miniggufhugging_face/) (r/LocalLLaMA)
+29. [When will they mass produce cheap high capacity and bandwidth memristors and neuromorphic engines ?](https://www.reddit.com/r/LocalLLaMA/comments/1wcc8ay/when_will_they_mass_produce_cheap_high_capacity/) (r/LocalLLaMA)
+30. [[AINews] not much happened today](https://www.latent.space/p/ainews-not-much-happened-today-d3b) (Latent Space)
+31. [“AI factories are among the most complex systems ever built”: Nvidia and Palantir turn Nvidia’s supply chain into a proving ground for sovereign AI](https://thenewstack.io/ai-factories-are-among-the-most-complex-systems-ever-built-nvidia-and-palantir-turn-nvidias-supply-chain-into-a-proving-ground-for-sovereign-ai/) (The New Stack)
+32. [Claude performed best on a new benchmark for ‘agents that build agents’. But it passed fewer than a quarter of the tests.](https://thenewstack.io/claude-build-agents-benchmark/) (The New Stack)
+33. [OpenAI gave an AI the power to block its own engineers’ code](https://thenewstack.io/openai-ai-code-review/) (The New Stack)
+34. [“It could kill us all”: what Anthropic’s own researchers really think about superintelligence](https://thenewstack.io/anthropic-alignment-superintelligence-warnings/) (The New Stack)
+35. [How much control should AI get? A CISO roundtable takes on SOC autonomy](https://thenewstack.io/ai-agents-soc-autonomy/) (The New Stack)
+36. [K2 Horizon just shipped as six new fully open models — developers aren’t fully convinced](https://thenewstack.io/k2-horizon-fully-open/) (The New Stack)
+37. [Harness rebuilt its Git repository for nonstop AI agent traffic](https://thenewstack.io/harness-ai-code-review/) (The New Stack)
+38. [When will average people feel AI’s impact?](https://www.interconnects.ai/p/when-will-average-people-feel-ais) (Interconnects (Nathan Lambert))
+39. [GPT-6 Astra, Looped Transformers, and Hidden Reasoning](https://magazine.sebastianraschka.com/p/gpt-6-astra-looped-transformers-and) (Ahead of AI (Sebastian Raschka))
+40. [AI and democracy: the right to resist optimization](https://humanistreview.ai/issue-1/tang-ai-democracy-optimization/) (Lobsters — AI tag)
+41. [An alignment assessment of recent cybersecurity incidents](https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents) (Lobsters — AI tag)
+42. [Efficient and accurate systems for querying unstructured data](https://stacks.stanford.edu/file/fk030tb6783/thesis-augmented.pdf) (Lobsters — AI tag)
+43. [Better AI code comment detector](https://entropicthoughts.com/better-ai-comment-classifier) (Lobsters — AI tag)
+44. [Article: When Spec-Driven Development Pays Off](https://www.infoq.com/articles/when-spec-driven-development-pays-off/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+45. [Meta's Recipe for Building Agents as "Organizational Second Brains"](https://www.infoq.com/news/2026/09/meta-organizational-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+46. [Presentation: Fixing the AI Infra Scale Problem by Stuffing 1M Sandboxes in a Single Server](https://www.infoq.com/presentations/unikraft-microvm-sandboxes-cloud-scaling/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+47. [Introducing n8n Assistant](https://blog.n8n.io/introducing-n8n-assistant/) (n8n Blog)
+
+
+---
+
+
+## 📅 Digest for 2026-09-09
+
+## Digest fallback for 2026-09-09
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [How GPT-5.6 Sol helps run quantum computing experiments](https://openai.com/index/codex-quantum-computing-experiments) (OpenAI Blog)
+2. [The Work Now Within Reach](https://openai.com/index/the-work-now-within-reach) (OpenAI Blog)
+3. [Introducing ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5) (OpenAI Blog)
+4. [On the Navier–Stokes Millennium Prize Problem](https://openai.com/index/navier-stokes-solution) (OpenAI Blog)
+5. [Funding grants for new research into AI and teen development](https://openai.com/index/teen-development-research-grants) (OpenAI Blog)
+6. [OpenAI expands initiatives to support journalism from classrooms to newsrooms](https://openai.com/index/supporting-journalism-from-classrooms-to-newsrooms) (OpenAI Blog)
+7. [1Password increases engineering productivity 21% with Codex](https://openai.com/index/1password) (OpenAI Blog)
+8. [Safety for Whom? Refusing the Right Subset of a Topic, Not the Whole Topic](https://huggingface.co/blog/MultiverseComputingCAI/safety-for-whom) (Hugging Face Blog)
+9. [Deepseek Has Soft Retired Deepseek V4 Pro](https://www.reddit.com/r/LocalLLaMA/comments/1wbfrut/deepseek_has_soft_retired_deepseek_v4_pro/) (r/LocalLLaMA)
+10. [Qwen3.8-Flash-Next on MLX-serve, 1m context is released!](https://www.reddit.com/r/LocalLLaMA/comments/1wb7p70/qwen38flashnext_on_mlxserve_1m_context_is_released/) (r/LocalLLaMA)
+11. [OpenAI alleged of stealing mathematicians work](https://www.reddit.com/r/LocalLLaMA/comments/1wapjaw/openai_alleged_of_stealing_mathematicians_work/) (r/LocalLLaMA)
+12. [Qwen/Qwen-Drive-1.0-4B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wauxg9/qwenqwendrive104b_hugging_face/) (r/LocalLLaMA)
+13. [Qwen 3.8 27b with PI agent - pushed to its 3D graphic game limits](https://www.reddit.com/r/LocalLLaMA/comments/1waz5a0/qwen_38_27b_with_pi_agent_pushed_to_its_3d/) (r/LocalLLaMA)
+14. [MiMo-X-Pro-Preview and MiMo-X-Flash-Preview - New Mimo Model found in Mimo Desktop preview announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wbejtp/mimoxpropreview_and_mimoxflashpreview_new_mimo/) (r/LocalLLaMA)
+15. [US accuses Chinese AI firms of 'malicious' copying of AI technology](https://www.reddit.com/r/LocalLLaMA/comments/1wb9prm/us_accuses_chinese_ai_firms_of_malicious_copying/) (r/LocalLLaMA)
+16. [new Nex model](https://www.reddit.com/r/LocalLLaMA/comments/1wbemg0/new_nex_model/) (r/LocalLLaMA)
+17. [What OpenBMB 1B version is this?](https://www.reddit.com/r/LocalLLaMA/comments/1wbagpr/what_openbmb_1b_version_is_this/) (r/LocalLLaMA)
+18. [DeepSeek Flash 4.1 is already being tested via API and rolling out.](https://www.reddit.com/r/LocalLLaMA/comments/1wan3nl/deepseek_flash_41_is_already_being_tested_via_api/) (r/LocalLLaMA)
+19. [Is there a dummies guide for setting up qwen 27B with dflash2 and n-gram?](https://www.reddit.com/r/LocalLLaMA/comments/1wbcbuv/is_there_a_dummies_guide_for_setting_up_qwen_27b/) (r/LocalLLaMA)
+20. [Is anyone working on conversation compaction?](https://www.reddit.com/r/LocalLLaMA/comments/1wbgqnp/is_anyone_working_on_conversation_compaction/) (r/LocalLLaMA)
+21. [GPU guide (GB per dollar, bandwidth)](https://www.reddit.com/r/LocalLLaMA/comments/1waq7hu/gpu_guide_gb_per_dollar_bandwidth/) (r/LocalLLaMA)
+22. [inclusionAI/Ling-3.0-flash-VL · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wasdnn/inclusionailing30flashvl_hugging_face/) (r/LocalLLaMA)
+23. [On the Value of Human Ideas: What data poisoning research reveals about "autonomous" AI breakthroughs](https://www.reddit.com/r/LocalLLaMA/comments/1wazzes/on_the_value_of_human_ideas_what_data_poisoning/) (r/LocalLLaMA)
+24. [Qwen3-0.6B (400 MB) on a Samsung Note 8 (2017) phone drives a real desktop Chrome](https://www.reddit.com/r/LocalLLaMA/comments/1wapzjg/qwen306b_400_mb_on_a_samsung_note_8_2017_phone/) (r/LocalLLaMA)
+25. [Qwen3.8-Flash-Next in llama.cpp vs SGLang vs FreeToken: 35s vs 258s to first token at full context. My findings on new PRs coming to engines.](https://www.reddit.com/r/LocalLLaMA/comments/1waydqj/qwen38flashnext_in_llamacpp_vs_sglang_vs/) (r/LocalLLaMA)
+26. [nex-agi/Nex-N2.5-mini - 35b](https://www.reddit.com/r/LocalLLaMA/comments/1wat4ay/nexaginexn25mini_35b/) (r/LocalLLaMA)
+27. [Qwen3.6 35B A3B or Nex-N2.5-mini?](https://www.reddit.com/r/LocalLLaMA/comments/1wb6cp9/qwen36_35b_a3b_or_nexn25mini/) (r/LocalLLaMA)
+28. [A hilarious comment about llama.cpp: “It’s a FB business using the pipeline to make profits”](https://www.reddit.com/r/LocalLLaMA/comments/1wazp0v/a_hilarious_comment_about_llamacpp_its_a_fb/) (r/LocalLLaMA)
+29. [I built Infercat: Share your local AI with friends over an encrypted p2p tunnel. Connect with an invite code from anywhere.](https://www.reddit.com/r/LocalLLaMA/comments/1waxlpb/i_built_infercat_share_your_local_ai_with_friends/) (r/LocalLLaMA)
+30. [Gemma4 12B cannot listen to audio from the videos?](https://www.reddit.com/r/LocalLLaMA/comments/1wbhsv4/gemma4_12b_cannot_listen_to_audio_from_the_videos/) (r/LocalLLaMA)
+31. [GitHub - coder543/minnow: Fast LLaDA2.2 inference server](https://www.reddit.com/r/LocalLLaMA/comments/1wb8gp5/github_coder543minnow_fast_llada22_inference/) (r/LocalLLaMA)
+32. [I’ve been writing a small .NET 10 OpenAI-compatible client mainly for llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1wbherc/ive_been_writing_a_small_net_10_openaicompatible/) (r/LocalLLaMA)
+33. [[AINews] OpenAI reports Navier-Stokes singularity find in 88 hours using Astra-next, roughly 10,000 agents and 130B tokens (>$40M), a contender for second ever Millennium Prize awarded](https://www.latent.space/p/ainews-openai-reports-navier-stokes) (Latent Space)
+34. [Anthropic promised 20x more usage. Then developers hit a weekly ceiling.](https://thenewstack.io/anthropic-claude-max-lawsuit/) (The New Stack)
+35. [DeepSeek is hiring 150 engineers, and none of them will touch a model](https://thenewstack.io/deepseek-dsec-agent-hiring/) (The New Stack)
+36. [AI broke code review. Two experts disagree on what replaces it.](https://thenewstack.io/ai-code-review-pipelines/) (The New Stack)
+37. [After nine years as HashiCorp CEO, Dave McJannet now wants to “unblock” enterprise AI agents](https://thenewstack.io/hashicorp-mcjannet-dome-agents/) (The New Stack)
+38. [AlphaGenome Atlas: A predictive map of every possible DNA letter change in the human genome](https://deepmind.google/blog/alphagenome-atlas-a-predictive-map-of-every-possible-dna-letter-change-in-the-human-genome/) (Google DeepMind Blog)
+39. [Latest open artifacts (#24): Motif-3, GLM-5.3, Hy4-preview and open model licenses](https://www.interconnects.ai/p/latest-open-artifacts-24-motif-3) (Interconnects (Nathan Lambert))
+40. [Serving LLMs on Tenstorrent Hardware: Inside the vLLM TT Plugin](https://vllm.ai/blog/2026-09-07-vllm-tt-plugin) (Lobsters — AI tag)
+41. [Presentation: Platform Engineering in the Age of AI](https://www.infoq.com/presentations/ai-platform-engineering-roundtable/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+42. [GitLab Warns That AI Agent Sandboxes Are Only as Secure as Their Network Access](https://www.infoq.com/news/2026/09/gitlab-ai-sandbox-access/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
+## 📅 Digest for 2026-09-08
+
+## Digest fallback for 2026-09-08
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Friends Don't Let Friends Use Ollama](https://www.reddit.com/r/LocalLLaMA/comments/1wa26pn/friends_dont_let_friends_use_ollama/) (r/LocalLLaMA)
+2. [WSJ: Unregulated Open-Weight AI Is an Invitation to Disaster](https://www.reddit.com/r/LocalLLaMA/comments/1wa9309/wsj_unregulated_openweight_ai_is_an_invitation_to/) (r/LocalLLaMA)
+3. [I REALLY hope the new gemma 5 family sticks to the "chat model first" philsophy and doesn't fall into the Qwen trap](https://www.reddit.com/r/LocalLLaMA/comments/1w9ylhh/i_really_hope_the_new_gemma_5_family_sticks_to/) (r/LocalLLaMA)
+4. [Voice conversations between Gemma4 12B and E2B on GPU and Jetson Orin](https://www.reddit.com/r/LocalLLaMA/comments/1waefz4/voice_conversations_between_gemma4_12b_and_e2b_on/) (r/LocalLLaMA)
+5. [My Qwen3.8-27B task-aware quant reaches 99% of BF16 reasoning performance at 15% of the size.](https://www.reddit.com/r/LocalLLaMA/comments/1wa5dp9/my_qwen3827b_taskaware_quant_reaches_99_of_bf16/) (r/LocalLLaMA)
+6. [I made a custom llama.cpp build optimized for 7900xtx (one or two). for qwen 3.8 next and 27B. includes optimizations for PciE x4 and tensor parallel. read inside! (no AI slop)](https://www.reddit.com/r/LocalLLaMA/comments/1waif2b/i_made_a_custom_llamacpp_build_optimized_for/) (r/LocalLLaMA)
+7. [I made Warrior Quest, a local LLM-powered dark-fantasy RPG where the model only plays NPCs and the actual game state stays deterministic](https://www.reddit.com/r/LocalLLaMA/comments/1wa84sa/i_made_warrior_quest_a_local_llmpowered/) (r/LocalLLaMA)
+8. [What are some practical tasks I can assign to my local AI models?](https://www.reddit.com/r/LocalLLaMA/comments/1waj4k4/what_are_some_practical_tasks_i_can_assign_to_my/) (r/LocalLLaMA)
+9. [For Strix Halo - Official llama.cpp isn't ideal and how to highest possible throughput](https://www.reddit.com/r/LocalLLaMA/comments/1wa9m61/for_strix_halo_official_llamacpp_isnt_ideal_and/) (r/LocalLLaMA)
+10. [DeepSeek-V4-Flash-Vision-Exp is amazing at creating game worlds!](https://www.reddit.com/r/LocalLLaMA/comments/1wa06k3/deepseekv4flashvisionexp_is_amazing_at_creating/) (r/LocalLLaMA)
+11. [MiniCPM5-2B Release Day](https://www.reddit.com/r/LocalLLaMA/comments/1w9skjz/minicpm52b_release_day/) (r/LocalLLaMA)
+12. [After over a year of my nights and weekends, the Jenny app is done!](https://www.reddit.com/r/LocalLLaMA/comments/1w9wvkb/after_over_a_year_of_my_nights_and_weekends_the/) (r/LocalLLaMA)
+13. [Are you running Qwen 3.8 27b or Qwen Flash Next?](https://www.reddit.com/r/LocalLLaMA/comments/1w9v6qp/are_you_running_qwen_38_27b_or_qwen_flash_next/) (r/LocalLLaMA)
+14. [ExLlamaV3 is underrated](https://www.reddit.com/r/LocalLLaMA/comments/1wa36d1/exllamav3_is_underrated/) (r/LocalLLaMA)
+15. [The models are fine, our toolings and methods are shit.](https://www.reddit.com/r/LocalLLaMA/comments/1wa0l2t/the_models_are_fine_our_toolings_and_methods_are/) (r/LocalLLaMA)
+16. [Qwen3.8-Flash-Next on 2x3090: 9–12% faster decode at ~119k context, with a completed quality screen](https://www.reddit.com/r/LocalLLaMA/comments/1wacae2/qwen38flashnext_on_2x3090_912_faster_decode_at/) (r/LocalLLaMA)
+17. [Cybersecurity is local AI model's killer use case](https://www.reddit.com/r/LocalLLaMA/comments/1wa0ucq/cybersecurity_is_local_ai_models_killer_use_case/) (r/LocalLLaMA)
+18. [9 easy steps for llama.cpp, a local model, Freecad (and pi coding agent) to generate solid objects that sound mechanically good and can be also be 3D printed/milled](https://www.reddit.com/r/LocalLLaMA/comments/1w9r73k/9_easy_steps_for_llamacpp_a_local_model_freecad/) (r/LocalLLaMA)
+19. [exllamav3 comfortably beats llama.cpp running CPU-offloaded Qwen-3.8-Flash-Next on my setup!](https://www.reddit.com/r/LocalLLaMA/comments/1wa1jkb/exllamav3_comfortably_beats_llamacpp_running/) (r/LocalLLaMA)
+20. [Can Some Generous Soul Grant Me My Wish?](https://www.reddit.com/r/LocalLLaMA/comments/1wa6wsp/can_some_generous_soul_grant_me_my_wish/) (r/LocalLLaMA)
+21. [Super-intelligent small models vs. super-efficient large models.](https://www.reddit.com/r/LocalLLaMA/comments/1wajzc1/superintelligent_small_models_vs_superefficient/) (r/LocalLLaMA)
+22. [Why are the SOTA open-weight models scoring (relatively) low scores on AA-Omniscience Index](https://www.reddit.com/r/LocalLLaMA/comments/1w9t83y/why_are_the_sota_openweight_models_scoring/) (r/LocalLLaMA)
+23. [Higher acceptance length, slower prose: Ling’s n=1/2/3 MTP test on one Spark](https://www.reddit.com/r/LocalLLaMA/comments/1w9v4yz/higher_acceptance_length_slower_prose_lings_n123/) (r/LocalLLaMA)
+24. [The Frontier AEO Tracker: What Astra Chooses (and every other frontier model, and what you can do about it)](https://www.latent.space/p/aeo) (Latent Space)
+25. [“Some agents will be pursuing their own objectives”: OpenAI’s chief scientist warns AI could trick and blackmail humans](https://thenewstack.io/openai-voluntary-slowdown-safety/) (The New Stack)
+26. [AI agents are creating more work, not less — and OpenAI’s own numbers back it up](https://thenewstack.io/openai-agent-research-bottleneck/) (The New Stack)
+27. [OpenAI’s new model costs 2.5x more per token — and developers are saving money anyway](https://thenewstack.io/astra-reasoning-effort-cost/) (The New Stack)
+28. [“Twenty years of brand building simply froze in time”: How coding agents select their tools of choice](https://thenewstack.io/coding-agents-tool-choice/) (The New Stack)
+29. [AI Agent Reliability: Debug, Evaluate, and Monitor in Production](https://blog.n8n.io/ai-agent-reliability-debug-evaluate-and-monitor-in-production/) (n8n Blog)
+
+
+---
+
+
+## 📅 Digest for 2026-09-07
+
+## Digest fallback for 2026-09-07
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Supporting independent journalism in Ukraine](https://openai.com/index/supporting-independent-journalism-in-ukraine) (OpenAI Blog)
+2. [An Alien Mind](https://openai.com/index/an-alien-mind) (OpenAI Blog)
+3. [Research acceleration: The view inside OpenAI](https://openai.com/index/research-acceleration-view-inside-openai) (OpenAI Blog)
+4. [Me trying to keep up with all the new AI models being released](https://www.reddit.com/r/LocalLLaMA/comments/1w9of3u/me_trying_to_keep_up_with_all_the_new_ai_models/) (r/LocalLLaMA)
+5. [New Benchmark: The Struggle Bench](https://www.reddit.com/r/LocalLLaMA/comments/1w9dlf1/new_benchmark_the_struggle_bench/) (r/LocalLLaMA)
+6. [tencent/EVIE-8B and EVIE-4.5B (High-Capacity Visual Document Retrieval)](https://www.reddit.com/r/LocalLLaMA/comments/1w9nphc/tencentevie8b_and_evie45b_highcapacity_visual/) (r/LocalLLaMA)
+7. [8 uncensored Qwen 3.8 27B variants, one base, 167 GPU hours - Abliterlitics](https://www.reddit.com/r/LocalLLaMA/comments/1w8vx6w/8_uncensored_qwen_38_27b_variants_one_base_167/) (r/LocalLLaMA)
+8. [Benchmarking calories evaluation with LLMs](https://www.reddit.com/r/LocalLLaMA/comments/1w9jmo8/benchmarking_calories_evaluation_with_llms/) (r/LocalLLaMA)
+9. [Qwen 3.8 Next Flash is really really REALLY verbose..](https://www.reddit.com/r/LocalLLaMA/comments/1w9nfx8/qwen_38_next_flash_is_really_really_really_verbose/) (r/LocalLLaMA)
+10. [DeepSeek-V4-Flash-Vision Q8 vs Qwen3.8-Flash-Next Q8](https://www.reddit.com/r/LocalLLaMA/comments/1w96xoi/deepseekv4flashvision_q8_vs_qwen38flashnext_q8/) (r/LocalLLaMA)
+11. [2x R9700, 64 GB DDR5 is an absolute beast machine with vLLM Radiance / R9V and Qwen 3.8 27b and Flash next](https://www.reddit.com/r/LocalLLaMA/comments/1w92x3j/2x_r9700_64_gb_ddr5_is_an_absolute_beast_machine/) (r/LocalLLaMA)
+12. [Which models are you running on 32Gb VRAM (16+16) and 128Gb RAM?](https://www.reddit.com/r/LocalLLaMA/comments/1w9omj0/which_models_are_you_running_on_32gb_vram_1616/) (r/LocalLLaMA)
+13. [Thinking about grabbing an RTX 2000 Ada 16gb to add to my gaming pc for inference due to Wattage constraints, any advice?](https://www.reddit.com/r/LocalLLaMA/comments/1w9l8qc/thinking_about_grabbing_an_rtx_2000_ada_16gb_to/) (r/LocalLLaMA)
+14. [Best local models for hardware programming?](https://www.reddit.com/r/LocalLLaMA/comments/1w9oso4/best_local_models_for_hardware_programming/) (r/LocalLLaMA)
+15. [I built an LLM benchmark harness that lets you browse and compare how models answered each question](https://www.reddit.com/r/LocalLLaMA/comments/1w9ad9q/i_built_an_llm_benchmark_harness_that_lets_you/) (r/LocalLLaMA)
+16. [Qwen Next on 24 + 64 GB VRAM?](https://www.reddit.com/r/LocalLLaMA/comments/1w9p7vy/qwen_next_on_24_64_gb_vram/) (r/LocalLLaMA)
+17. [Expert expansion with llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1w9404e/expert_expansion_with_llamacpp/) (r/LocalLLaMA)
+18. [Coding benchmarks that are quickly showcasing deep capability](https://www.reddit.com/r/LocalLLaMA/comments/1w8us6t/coding_benchmarks_that_are_quickly_showcasing/) (r/LocalLLaMA)
+19. [4xRadeon AI Pro R9700 people, how are your benchmarks?](https://www.reddit.com/r/LocalLLaMA/comments/1w9c8u7/4xradeon_ai_pro_r9700_people_how_are_your/) (r/LocalLLaMA)
+20. [[Model] Support for Spark2_5ForCausalLM implementation by KnightYao · Pull Request #27868 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1w90zdc/model_support_for_spark2_5forcausallm/) (r/LocalLLaMA)
+21. [Lit Review on Benchmarking LLMs Running in your phone!: MobileWorld: Benchmarking Autonomous Mobile Agents in Agent-User Interactive and MCP-Augmented Environments](https://www.reddit.com/r/LocalLLaMA/comments/1w9kfs3/lit_review_on_benchmarking_llms_running_in_your/) (r/LocalLLaMA)
+22. [Dual R9700 on Asus X570 VIII Motherboard](https://www.reddit.com/r/LocalLLaMA/comments/1w9njvw/dual_r9700_on_asus_x570_viii_motherboard/) (r/LocalLLaMA)
+23. [Bifurcation and riser cables suggestions](https://www.reddit.com/r/LocalLLaMA/comments/1w9n6fx/bifurcation_and_riser_cables_suggestions/) (r/LocalLLaMA)
+24. [What is the obstacle in front of Local Frontiers?](https://www.reddit.com/r/LocalLLaMA/comments/1w9n2np/what_is_the_obstacle_in_front_of_local_frontiers/) (r/LocalLLaMA)
+25. [Trying to create my own server and consuming it for code with my phone remotely (Mac OS)](https://www.reddit.com/r/LocalLLaMA/comments/1w9bz4i/trying_to_create_my_own_server_and_consuming_it/) (r/LocalLLaMA)
+26. [Permissions belong in the assembly context](https://thenewstack.io/enterprise-rag-permission-assembly/) (The New Stack)
+27. [Polars 2.0 pre-release comes with a 5x speed boost — but it could change row order](https://thenewstack.io/polars-streaming-row-order/) (The New Stack)
+28. [Presentation: From AI Agent Demo to Production: Automated Testing and Evaluation](https://www.infoq.com/presentations/ai-agent-testing-evaluation/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+29. [Google Mantis: An Agentic Vulnerability Scanning Harness for Reducing False Positives](https://www.infoq.com/news/2026/09/google-mantis-vulnerability-scan/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-06
 
 # AI & Technology Daily Digest
