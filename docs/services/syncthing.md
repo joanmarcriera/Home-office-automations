@@ -3,12 +3,12 @@
 ## What it is
 Syncthing is a continuous, decentralized file synchronization program. It allows you to synchronize files between two or more computers in real time, safely and securely, without relying on a central server or cloud provider.
 
-In early January 2027, Syncthing is a foundational service for decentralized edge networks and [Local LLMs](../tools/ai_knowledge/local_llms.md) (such as Gemma 3, Qwen 3.6, Llama 4, DeepSeek-V4, and Claude 5.1 edge configurations). It is widely utilized to synchronize massive LLM model weights, fine-tuning datasets, and [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) settings seamlessly across multiple homelab and remote edge nodes with real-time state verification.
+In early January 2027, Syncthing is a foundational service for decentralized edge networks and [Local LLMs](../tools/ai_knowledge/local_llms.md) (such as Gemma 3, Qwen 3.6, Llama 4, DeepSeek-V4, and Claude 5.6 edge configurations). It is widely utilized to synchronize massive LLM model weights, fine-tuning datasets, and [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) settings seamlessly across multiple homelab and remote edge nodes with real-time state verification.
 
 ## What problem it solves
 Managing files across multiple devices usually requires a central cloud service, which can pose privacy risks and incur high monthly subscription fees. Syncthing solves this by providing a peer-to-peer synchronization mechanism that keeps data entirely on your own hardware, ensuring complete data sovereignty.
 
-In the AI-native workspace, Syncthing solves the bandwidth and latency challenges of distributing model updates to local inference servers. Instead of pulling multi-gigabyte GGUF weights repeatedly from Hugging Face over public WANs, homelab nodes can use local peer-to-peer synchronization to distribute model updates across the private network. It also guarantees secure, automated sync for private [Obsidian](../knowledge_base/multi-calendar-conflict-research.md) vaults and configuration stores.
+In the AI-native workspace, Syncthing solves the bandwidth and latency challenges of distributing model updates to local inference servers. Instead of pulling multi-gigabyte GGUF weights repeatedly from Hugging Face over public WANs, homelab nodes can use local peer-to-peer synchronization to distribute model updates across the private network. It also guarantees secure, automated sync for private [Obsidian](../tools/ai_knowledge/obsidian.md) vaults and configuration stores.
 
 ## Where it fits in the stack
 **Category**: Services / Data Synchronization. It sits in the **storage and sync** layer of a self-hosted environment, providing the backbone for data consistency, often managed via [Docker](../tools/infrastructure/docker.md).
@@ -16,7 +16,7 @@ In the AI-native workspace, Syncthing solves the bandwidth and latency challenge
 ## Typical use cases
 - **Multi-Device File Sync**: Syncing a "Work" folder between a desktop and a laptop.
 - **Automated Backups**: Backing up photos from an Android phone to a home server automatically (often paired with [Immich](immich.md)).
-- **Knowledge Base Sync**: Synchronizing an [Obsidian](../knowledge_base/multi-calendar-conflict-research.md) vault or KeyPassXC database across devices.
+- **Knowledge Base Sync**: Synchronizing an [Obsidian](../tools/ai_knowledge/obsidian.md) vault or KeyPassXC database across devices.
 - **Local LLM Data Sync**: Distributing model weights and [MCP 3.1](../tools/automation_orchestration/mcp.md) tool configurations across a fleet of local LLM agents.
 - **Edge Deployment Ingestion**: Deploying automation scripts or workflow rules across a cluster of local [n8n](n8n.md) runners.
 
@@ -140,7 +140,7 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Tailscale](tailscale.md) — To connect devices across different networks securely.
 - [Docker](../tools/infrastructure/docker.md) — For consistent containerized deployment.
 - [Local LLM](../tools/ai_knowledge/local_llms.md) — The primary consumer of synchronized weights and data.
-- [Obsidian](../knowledge_base/multi-calendar-conflict-research.md) — Popular knowledge base using Syncthing for sync.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Popular knowledge base using Syncthing for sync.
 - [Immich](immich.md) — Self-hosted photo management.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Protocol for tool configurations synced by Syncthing.
 - [n8n](n8n.md) — Workflow automation tool that can be triggered by folder scan completions.
