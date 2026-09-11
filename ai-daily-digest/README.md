@@ -1,5 +1,66 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-11
+
+## Digest fallback for 2026-09-11
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [How a researcher uses Codex and ChatGPT to search for new antimicrobial molecules](https://openai.com/index/using-codex-chatgpt-to-search-for-new-antimicrobials) (OpenAI Blog)
+2. [Now everyone can put data to work](https://openai.com/index/put-data-to-work) (OpenAI Blog)
+3. [Introducing ChatGPT for Financial Services](https://openai.com/index/introducing-chatgpt-financial-services) (OpenAI Blog)
+4. [Expanding AI access and cyber defense for federal, state, local, and tribal governments](https://openai.com/index/expanding-ai-access-us-government) (OpenAI Blog)
+5. [Build more natural voice experiences with GPT‑Live‑1 in the API](https://openai.com/index/introducing-gpt-live-1-in-the-api) (OpenAI Blog)
+6. [Introducing the Agents API](https://openai.com/index/introducing-the-agents-api) (OpenAI Blog)
+7. [3 ways to prep for your next big race with Search](https://blog.google/products-and-platforms/products/search/running-race-training-tips/) (Google AI Blog)
+8. [Rebuilding AUTOMATIC1111 with Gradio Workflow](https://huggingface.co/blog/gradio-workflow-1111) (Hugging Face Blog)
+9. [Hugging Face security.txt](https://www.reddit.com/r/LocalLLaMA/comments/1wdbvlt/hugging_face_securitytxt/) (r/LocalLLaMA)
+10. [Someone apparently managed to kind of replicate what V4.1 flash does on KV for fast prefill on Qwen](https://www.reddit.com/r/LocalLLaMA/comments/1wd4xxv/someone_apparently_managed_to_kind_of_replicate/) (r/LocalLLaMA)
+11. [New Music Model YuE2-3B Released!](https://www.reddit.com/r/LocalLLaMA/comments/1wd19c7/new_music_model_yue23b_released/) (r/LocalLLaMA)
+12. [I find it funny that a flash model is now 512GB](https://www.reddit.com/r/LocalLLaMA/comments/1wcvmuo/i_find_it_funny_that_a_flash_model_is_now_512gb/) (r/LocalLLaMA)
+13. [ANOTHER researcher accuses OpenAI of training on conversations and then claiming a breakthrough](https://www.reddit.com/r/LocalLLaMA/comments/1wcmgbn/another_researcher_accuses_openai_of_training_on/) (r/LocalLLaMA)
+14. [Artificial Analysis is not "broken", and they prove it.](https://www.reddit.com/r/LocalLLaMA/comments/1wcxxm8/artificial_analysis_is_not_broken_and_they_prove/) (r/LocalLLaMA)
+15. [Pi Agent Users - Nvidia Released Sol-Pi - A Pi-Extension based on AutoResearch loops to make the Harness more efficient](https://www.reddit.com/r/LocalLLaMA/comments/1wcujgg/pi_agent_users_nvidia_released_solpi_a/) (r/LocalLLaMA)
+16. [Nex N2.5 Pro (407GB) released](https://www.reddit.com/r/LocalLLaMA/comments/1wdbd0b/nex_n25_pro_407gb_released/) (r/LocalLLaMA)
+17. [OUI-1: a model that generates bespoke UI elements](https://www.reddit.com/r/LocalLLaMA/comments/1wcqa03/oui1_a_model_that_generates_bespoke_ui_elements/) (r/LocalLLaMA)
+18. [CUDA/HIP: Flash Attention tuning (gfx1201) by pwilkin · Pull Request #28102 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1wdbal8/cudahip_flash_attention_tuning_gfx1201_by_pwilkin/) (r/LocalLLaMA)
+19. [What can you run on 8GB VRAM?](https://www.reddit.com/r/LocalLLaMA/comments/1wd96dk/what_can_you_run_on_8gb_vram/) (r/LocalLLaMA)
+20. [Muse-glimmer-30b really punches above its weight(s) for creative writing](https://www.reddit.com/r/LocalLLaMA/comments/1wcwa7i/museglimmer30b_really_punches_above_its_weights/) (r/LocalLLaMA)
+21. [Harness does matter](https://www.reddit.com/r/LocalLLaMA/comments/1wcj5q3/harness_does_matter/) (r/LocalLLaMA)
+22. [Notes on a hobby sub going mainstream](https://www.reddit.com/r/LocalLLaMA/comments/1wctos6/notes_on_a_hobby_sub_going_mainstream/) (r/LocalLLaMA)
+23. [CyberTiel 35B-A3B’s uncensored 4-bit quant beats Opus 4.6 medium cleanly on real codebase issues, in 27% of the time Qwen3.8-27b medium takes.](https://www.reddit.com/r/LocalLLaMA/comments/1wcpppm/cybertiel_35ba3bs_uncensored_4bit_quant_beats/) (r/LocalLLaMA)
+24. [Are we missing a benchmark for agent runtimes, not just models?](https://www.reddit.com/r/LocalLLaMA/comments/1wd99iw/are_we_missing_a_benchmark_for_agent_runtimes_not/) (r/LocalLLaMA)
+25. [New tensor type layouts for my GGUF uploads](https://www.reddit.com/r/LocalLLaMA/comments/1wcsj6v/new_tensor_type_layouts_for_my_gguf_uploads/) (r/LocalLLaMA)
+26. [PCIe downgraded test (m.2-oculink)](https://www.reddit.com/r/LocalLLaMA/comments/1wd9x99/pcie_downgraded_test_m2oculink/) (r/LocalLLaMA)
+27. [antirez working on DSV4.1 support for ds4](https://www.reddit.com/r/LocalLLaMA/comments/1wctnq7/antirez_working_on_dsv41_support_for_ds4/) (r/LocalLLaMA)
+28. [GigaChat-3.5-Reasoning](https://www.reddit.com/r/LocalLLaMA/comments/1wchl1x/gigachat35reasoning/) (r/LocalLLaMA)
+29. [AWS open-sources Pizza Bot: email-style inbox for background AI agents](https://thenewstack.io/aws-pizza-bot-agent-inbox/) (The New Stack)
+30. [OpenAI split a voice model’s brain. Then one team deleted 23,000 lines of code.](https://thenewstack.io/gpt-live-1-voice-api/) (The New Stack)
+31. [“Six tools, one harness”: Salesforce loops together a six-pack of favorites](https://thenewstack.io/salesforce-enterprise-ai-harness/) (The New Stack)
+32. [“Valuable warning shots”: How Anthropic now views Claude’s cyber incidents](https://thenewstack.io/anthropic-claude-cyber-alignment/) (The New Stack)
+33. [Shopify spent years on React Native — then rebuilt everything in 12 weeks](https://thenewstack.io/shopify-native-ai-agents/) (The New Stack)
+34. [GPT Images 2.5 promises edits that leave the rest of your image alone](https://thenewstack.io/gpt-images-2-5-sunburst-flare/) (The New Stack)
+35. [Mistral wants open-weight AI to compete at the frontier. It just raised $3.5 billion to do it.](https://thenewstack.io/mistral-funding-open-infrastructure/) (The New Stack)
+36. [Red Hat AI 3.5 tackles the GPU queue that can stall AI pilots](https://thenewstack.io/red-hat-ai-multitenancy/) (The New Stack)
+37. [Researchers found that 1 in 5 MCP access policies came back broken or missing](https://thenewstack.io/mcp-vibe-coding-security/) (The New Stack)
+38. [Fable 5.1 vs. Fable 5: Results on a real-world budget, not the spec sheet](https://thenewstack.io/claude-fable-benchmark-budget/) (The New Stack)
+39. [47,000 job listings reveal the engineering roles that AI is creating](https://thenewstack.io/ai-engineering-roles-emerging/) (The New Stack)
+40. [Stop AI code sprawl before it destroys your software design](https://thenewstack.io/stop-ai-code-sprawl/) (The New Stack)
+41. [AI floods security teams with flaws — business context sets priorities](https://thenewstack.io/vulnerability-prioritization-business-context/) (The New Stack)
+42. [One resignation turned the embers of AI fear into a wildfire](https://www.interconnects.ai/p/one-resignation-turned-the-embers) (Interconnects (Nathan Lambert))
+43. [How LinkedIn Trains AI Job Search 8x Faster with Multi-Teacher Distillation](https://www.infoq.com/news/2026/09/linkedin-ai-multi-teacher/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+44. [Session Traces and Cost Controls Help Diagnose AI Agent Failures](https://www.infoq.com/news/2026/09/observability-ai-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+45. [OpenAI Releases GPT-6 Astra for Coding and Computer Use](https://www.infoq.com/news/2026/09/openai-gpt6-astra/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+46. [MCP vs. API: Key Differences and When To Use Each](https://blog.n8n.io/mcp-vs-api/) (n8n Blog)
+47. [Autonomous AI Agents: Architecture and Risk Mitigation](https://blog.n8n.io/autonomous-ai-agents/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-10
 
 ## Digest fallback for 2026-09-10
