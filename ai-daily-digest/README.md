@@ -1,5 +1,57 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-12
+
+## Digest fallback for 2026-09-12
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Perplexity trusts GPT-6 Astra with end-to-end systems](https://openai.com/index/perplexity-improving-accuracy-with-astra) (OpenAI Blog)
+2. [Rapidly scaling online storage to serve over 1 billion ChatGPT users](https://openai.com/index/scaling-storage-one-billion-users-part-one) (OpenAI Blog)
+3. [Cognition helps Devin test its own work with GPT‑6 Astra](https://openai.com/index/cognition-devin-testing-with-astra) (OpenAI Blog)
+4. [Agnes-AI/Agnes-3.0-Flash 33B Multimodal, AA score: 36](https://www.reddit.com/r/LocalLLaMA/comments/1we6lrn/agnesaiagnes30flash_33b_multimodal_aa_score_36/) (r/LocalLLaMA)
+5. [Concerning "humanlike models" and chatbot RP in general...](https://www.reddit.com/r/LocalLLaMA/comments/1we2rp2/concerning_humanlike_models_and_chatbot_rp_in/) (r/LocalLLaMA)
+6. [Qwen3.8-27B-Humanlike-Chat: A model I tuned to imitate realistic human-to-human conversation](https://www.reddit.com/r/LocalLLaMA/comments/1wdl2qa/qwen3827bhumanlikechat_a_model_i_tuned_to_imitate/) (r/LocalLLaMA)
+7. [Countering misuse of AI: September 2026 / Anthropic](https://www.reddit.com/r/LocalLLaMA/comments/1wdxspd/countering_misuse_of_ai_september_2026_anthropic/) (r/LocalLLaMA)
+8. [Antirez Deepseek 4.1 flash gguf on HF](https://www.reddit.com/r/LocalLLaMA/comments/1we5jne/antirez_deepseek_41_flash_gguf_on_hf/) (r/LocalLLaMA)
+9. [Unsloth UD-quants - Qwen 3.8 27b for example - worth using 8-bit or stick with faster 6 bit for coding?](https://www.reddit.com/r/LocalLLaMA/comments/1we2fi6/unsloth_udquants_qwen_38_27b_for_example_worth/) (r/LocalLLaMA)
+10. [Qwen3.8 Flash Next llama.cpp config tuning](https://www.reddit.com/r/LocalLLaMA/comments/1we6tau/qwen38_flash_next_llamacpp_config_tuning/) (r/LocalLLaMA)
+11. [Qwen-Next seems worse to me then 3.8 27b for coding, but I feel like I must be missing something?](https://www.reddit.com/r/LocalLLaMA/comments/1wdx463/qwennext_seems_worse_to_me_then_38_27b_for_coding/) (r/LocalLLaMA)
+12. [Is a ZIMA Board 2 + RTX 2000 ADA the cheapest path to a decent Qwen-3.8 27b self-contained endpoint?](https://www.reddit.com/r/LocalLLaMA/comments/1wdqnpq/is_a_zima_board_2_rtx_2000_ada_the_cheapest_path/) (r/LocalLLaMA)
+13. ["Matrix Bros", a mash-up of Matrix and Super Mario vibe coded using Ornith-1.5-35B-Q4_K_M with 6GB VRAM with (almost) a single prompt :-)](https://www.reddit.com/r/LocalLLaMA/comments/1we6mkg/matrix_bros_a_mashup_of_matrix_and_super_mario/) (r/LocalLLaMA)
+14. [nvidia rtx 5090 with 96gb of vram.](https://www.reddit.com/r/LocalLLaMA/comments/1wdrvru/nvidia_rtx_5090_with_96gb_of_vram/) (r/LocalLLaMA)
+15. [Got an old slow low vram GPU laying around? Might be worth it to use for Just Vision mmproj llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1wdyprr/got_an_old_slow_low_vram_gpu_laying_around_might/) (r/LocalLLaMA)
+16. [Any 12gb VRAM users out there?](https://www.reddit.com/r/LocalLLaMA/comments/1wdl7vp/any_12gb_vram_users_out_there/) (r/LocalLLaMA)
+17. [Orukeet, new ASR model based on Parakeet](https://www.reddit.com/r/LocalLLaMA/comments/1wdk2he/orukeet_new_asr_model_based_on_parakeet/) (r/LocalLLaMA)
+18. [I fine-tuned a 2B LLM on our WhatsApp group chat, and shared how to do it on GitHub as a cookbook.](https://www.reddit.com/r/LocalLLaMA/comments/1wdxz12/i_finetuned_a_2b_llm_on_our_whatsapp_group_chat/) (r/LocalLLaMA)
+19. [CodeFinetuner: Fine-tune a local code autocomplete model on your own codebase](https://www.reddit.com/r/LocalLLaMA/comments/1wdp9qc/codefinetuner_finetune_a_local_code_autocomplete/) (r/LocalLLaMA)
+20. [This is why we need open-source harnesses + local models](https://www.reddit.com/r/LocalLLaMA/comments/1wdushp/this_is_why_we_need_opensource_harnesses_local/) (r/LocalLLaMA)
+21. [Running Qwen3.8-27B-Q4 at max context on a 32 GB GPU while avoiding kvcache quantization](https://www.reddit.com/r/LocalLLaMA/comments/1wdqit1/running_qwen3827bq4_at_max_context_on_a_32_gb_gpu/) (r/LocalLLaMA)
+22. [Terminal Bench v4 scores](https://www.reddit.com/r/LocalLLaMA/comments/1wdc7r9/terminal_bench_v4_scores/) (r/LocalLLaMA)
+23. [Learning/RSI through ngrams?](https://www.reddit.com/r/LocalLLaMA/comments/1wdwmwh/learningrsi_through_ngrams/) (r/LocalLLaMA)
+24. [What GPUs will give me GOOD speeds and on DSV4 Flash and similar models, and not have to run a mega quantized version? Budget around $15k-ish.](https://www.reddit.com/r/LocalLLaMA/comments/1wdooag/what_gpus_will_give_me_good_speeds_and_on_dsv4/) (r/LocalLLaMA)
+25. [Is anyone using K2-Horizon-MoVA-36B-A4B? If yes, what is the usecase?](https://www.reddit.com/r/LocalLLaMA/comments/1wdrvd4/is_anyone_using_k2horizonmova36ba4b_if_yes_what/) (r/LocalLLaMA)
+26. [OpenAI agents attacked RubyGems back in May](https://simonwillison.net/2026/Sep/12/openai-agents-rubygems/) (Simon Willison's Weblog)
+27. [[AINews] DeepSeek v4.1-Flash: 763B-P8B-D16B novel causal Encoder–Decoder architecture with vision marks the Return of the Whale](https://www.latent.space/p/ainews-deepseek-v41-flash-763b-p8b) (Latent Space)
+28. [OpenAI’s researchers burned $7,000 a day on AI agents — now it’s opening the floodgates](https://thenewstack.io/openai-agents-api-compute/) (The New Stack)
+29. [OpenAI’s safety system is already cutting off API responses mid-task](https://thenewstack.io/openai-slowing-ai-development/) (The New Stack)
+30. [Cohere’s new translation model is open weights — but not for commercial use](https://thenewstack.io/cohere-translation-commercial-licensing/) (The New Stack)
+31. [Kubernetes v1.37 brings 67 enhancements. Which matter for operators?](https://thenewstack.io/kubecon-kubernetes-updates-security/) (The New Stack)
+32. [How AWS Lambda logs every flow across thousands of microVMs per host with eBPF and Rust](https://thenewstack.io/aws-lambda-ebpf-rust/) (The New Stack)
+33. [Open-Source AI & Open Models Reading List](https://www.interconnects.ai/p/open-source-ai-reading-list) (Interconnects (Nathan Lambert))
+34. [Retrospectively Reverse-Engineering Apple's Neural Engine](https://eiln.github.io/posts/ane.html) (Lobsters — AI tag)
+35. [NVIDIA Personal AI Router Distributes AI Tasks across Local Compute](https://www.infoq.com/news/2026/09/nvidia-pair-ai-task-router/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+36. [Self-Host Weekly (11 September 2026)](https://selfh.st/weekly/2026-09-11/) (Self-Host Weekly (selfh.st))
+37. [Process Orchestration: Execution Models, Observability, and Production Challenges](https://blog.n8n.io/process-orchestration/) (n8n Blog)
+38. [Reflection Pattern: AI Agents Self-Correct in Production](https://blog.n8n.io/reflection-pattern-ai-agents-self-correct-in-production/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-11
 
 ## Digest fallback for 2026-09-11
