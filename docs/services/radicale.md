@@ -168,7 +168,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- Vikunja — Task management that can sync with Radicale.
+- [Vikunja](vikunja.md) — Task management that can sync with Radicale.
 - [Authentik](authentik.md) — For unified SSO and OIDC authentication.
 - [Tailscale](tailscale.md) — Secure remote access to your Radicale instance.
 - [Home Assistant](home-assistant.md) — For integrating calendars into home automation.
