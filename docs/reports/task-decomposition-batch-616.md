@@ -1,7 +1,7 @@
-# Task Decomposition Tracking — Batch 613
+# Task Decomposition Tracking — Batch 616
 
 ## Overview
-This task decomposition tracking report logs the execution and closure of the top 5 oldest repository issues/audits as part of Ralph-loop Batch 613 execution on January 7, 2027.
+This task decomposition tracking report logs the execution and closure of the top 5 oldest repository issues/audits as part of Ralph-loop Batch 616 execution on January 7, 2027.
 
 ## Issues Audited & Closed
 
@@ -14,12 +14,11 @@ This task decomposition tracking report logs the execution and closure of the to
 | 5 | `docs/services/changedetection.md` | Technical freshness audit | **Closed** | Audited service page against 13-section KnowledgeOps contract, async Pydantic v2 REST validation code, and relative links. Verified full compliance. |
 
 ## Sub-Task Logs & Context Extraction
-1. **Sub-task 613.1 (`docs/standards.md`)**: Ensured strict adherence to rule preventing metadata-only edits (`Last reviewed` date untouched).
-2. **Sub-task 613.2 (`docs/CONTRIBUTING.md`)**: Verified Ralph-loop Action A/B/C workflows and AI PR checklists.
-3. **Sub-task 613.3 (`docs/services/syncthing.md`)**: Checked Pydantic v2 `SyncthingStatus` model and edge sync cross-references.
-4. **Sub-task 613.4 (`docs/services/gitea.md`)**: Verified link resolution for Gitea webhooks and Authentik OIDC integration.
-5. **Sub-task 613.5 (`docs/services/changedetection.md`)**: Verified async `httpx` and `WatchModel` Pydantic v2 validation script.
-6. **Sub-task 613.6 (`docs/services/radicale.md`)**: Fixed unformatted text link for Vikunja to proper relative Markdown link `[Vikunja](../services/vikunja.md)`.
+1. **Sub-task 616.1 (`docs/standards.md`)**: Ensured strict adherence to rule preventing metadata-only edits (`Last reviewed` date untouched).
+2. **Sub-task 616.2 (`docs/CONTRIBUTING.md`)**: Verified Ralph-loop Action A/B/C workflows and AI PR checklists.
+3. **Sub-task 616.3 (`docs/services/syncthing.md`)**: Checked Pydantic v2 `SyncthingStatus` model and edge sync cross-references.
+4. **Sub-task 616.4 (`docs/services/gitea.md`)**: Verified link resolution for Gitea webhooks and Authentik OIDC integration.
+5. **Sub-task 616.5 (`docs/services/changedetection.md`)**: Verified async `httpx` and `WatchModel` Pydantic v2 validation script.
 
 ## Verification
 - Repository growth metrics updated via `scripts/growth_tracker.py`.
