@@ -1,5 +1,52 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-13
+
+## Digest fallback for 2026-09-13
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The Hugging Bay](https://www.reddit.com/r/LocalLLaMA/comments/1weujw6/the_hugging_bay/) (r/LocalLLaMA)
+2. [This seems more probable than it was before.](https://www.reddit.com/r/LocalLLaMA/comments/1wepx7w/this_seems_more_probable_than_it_was_before/) (r/LocalLLaMA)
+3. [The Local LLM community feels like the golden era of the internet all over again](https://www.reddit.com/r/LocalLLaMA/comments/1wf3i1m/the_local_llm_community_feels_like_the_golden_era/) (r/LocalLLaMA)
+4. [Should I sell my RTX 5090 for a Mac Studio M5 Ultra 96GB?](https://www.reddit.com/r/LocalLLaMA/comments/1wez30k/should_i_sell_my_rtx_5090_for_a_mac_studio_m5/) (r/LocalLLaMA)
+5. [Is there still strong interest in a dense 9b model?](https://www.reddit.com/r/LocalLLaMA/comments/1wezm58/is_there_still_strong_interest_in_a_dense_9b_model/) (r/LocalLLaMA)
+6. [internlm/Intern-S2 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wf3wt2/internlminterns2_hugging_face/) (r/LocalLLaMA)
+7. [Qwen3.8 Flash Next now at 1.2k t/s prefill on Strix Halo](https://www.reddit.com/r/LocalLLaMA/comments/1weobt6/qwen38_flash_next_now_at_12k_ts_prefill_on_strix/) (r/LocalLLaMA)
+8. [Looks like a coordination to stop distribution of intelligence](https://www.reddit.com/r/LocalLLaMA/comments/1wehlyi/looks_like_a_coordination_to_stop_distribution_of/) (r/LocalLLaMA)
+9. [huggingface_hub silently fingerprints which AI coding agent you're using and sends it as telemetry](https://www.reddit.com/r/LocalLLaMA/comments/1wey19g/huggingface_hub_silently_fingerprints_which_ai/) (r/LocalLLaMA)
+10. [DS 4.1 and the new Harness](https://www.reddit.com/r/LocalLLaMA/comments/1wewz9p/ds_41_and_the_new_harness/) (r/LocalLLaMA)
+11. [3.8-27B has ruined 3.5/3.6-35B’s for me. It’s just *absurdly* superior.](https://www.reddit.com/r/LocalLLaMA/comments/1we8tl1/3827b_has_ruined_353635bs_for_me_its_just/) (r/LocalLLaMA)
+12. [What's the Story with Agnes-3.0-Flash?](https://www.reddit.com/r/LocalLLaMA/comments/1wers2v/whats_the_story_with_agnes30flash/) (r/LocalLLaMA)
+13. [Real-SWE Benchmark (new)](https://www.reddit.com/r/LocalLLaMA/comments/1wemcdc/realswe_benchmark_new/) (r/LocalLLaMA)
+14. [For those of you forced to only use open models from Western labs in production, what are you deploying?](https://www.reddit.com/r/LocalLLaMA/comments/1wegs2w/for_those_of_you_forced_to_only_use_open_models/) (r/LocalLLaMA)
+15. [How does Qwen 3.8 27B compare on low thinking mode to the older 3.6 models?](https://www.reddit.com/r/LocalLLaMA/comments/1wf39vc/how_does_qwen_38_27b_compare_on_low_thinking_mode/) (r/LocalLLaMA)
+16. [bartowski/Qwen3.8-27B-GGUF · Hugging Face - Updated (Per-tensor layout)](https://www.reddit.com/r/LocalLLaMA/comments/1webfsq/bartowskiqwen3827bgguf_hugging_face_updated/) (r/LocalLLaMA)
+17. [I built a serverless hosting platform for LoRA adapters with vLLM](https://www.reddit.com/r/LocalLLaMA/comments/1weum85/i_built_a_serverless_hosting_platform_for_lora/) (r/LocalLLaMA)
+18. [tencent/AuK-Flash · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1wecf25/tencentaukflash_hugging_face/) (r/LocalLLaMA)
+19. [Benchmark your custom Pi tools](https://www.reddit.com/r/LocalLLaMA/comments/1weufjc/benchmark_your_custom_pi_tools/) (r/LocalLLaMA)
+20. [Releasing smolbenchmark: Helps you choose the best model for your hardware!](https://www.reddit.com/r/LocalLLaMA/comments/1weekio/releasing_smolbenchmark_helps_you_choose_the_best/) (r/LocalLLaMA)
+21. [What pi.dev plugin do you suggest for context, compaction and memory management of local models?](https://www.reddit.com/r/LocalLLaMA/comments/1weolwq/what_pidev_plugin_do_you_suggest_for_context/) (r/LocalLLaMA)
+22. [M2 Ultra/Qwen3.8 Flash Next Update - latest oMLX introduces substantial speedup](https://www.reddit.com/r/LocalLLaMA/comments/1wei63j/m2_ultraqwen38_flash_next_update_latest_omlx/) (r/LocalLLaMA)
+23. [Anybody use frontier models like Astra/Fable for planning/judging, and qwen3.8 as the main workhorse? Curious to hear about your setups!](https://www.reddit.com/r/LocalLLaMA/comments/1web1jd/anybody_use_frontier_models_like_astrafable_for/) (r/LocalLLaMA)
+24. [Generating running routes with GPT-6 Astra and ChatGPT Work](https://simonwillison.net/2026/Sep/12/astra-running-routes/) (Simon Willison's Weblog)
+25. [The Rise of the Forward Deployed Engineer — and How To Do the Job Right](https://www.latent.space/p/forward-deployed-engineer-best-practices) (Latent Space)
+26. [Why MCP security is about permissions overhaul](https://thenewstack.io/mcp-security-permissions-overhaul/) (The New Stack)
+27. [“Same mission, bigger stage”: OpenAI hires Git AI founders to help Codex prove its ROI](https://thenewstack.io/openai-hires-git-ai/) (The New Stack)
+28. [The AI-native SDLC won’t be one process](https://thenewstack.io/spec-driven-sdlc-gates/) (The New Stack)
+29. [Jacob Coxon warns AI could kill us all. Anthropic’s own report exposes safety gaps.](https://thenewstack.io/coxon-anthropic-ai-monitoring-failures/) (The New Stack)
+30. [Everyone should slow down AI development except for me](https://xeiaso.net/notes/2026/everyone-slowdown-but-me/) (Lobsters — AI tag)
+31. [We Must Pace the Frontier](https://darioamodei.com/post/we-must-pace-the-frontier) (Lobsters — AI tag)
+32. [GitHub Copilot's Project HydraFusion Promises Frontier Level Performance Through Multi-Model Routing](https://www.infoq.com/news/2026/09/github-hydrafusion/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+33. [Presentation: From Retrieval to Reasoning: Building Production-Ready Agentic AI Systems with Knowledge Graphs](https://www.infoq.com/presentations/knowledge-graphs-agentic-systems-patterns/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-12
 
 ## Digest fallback for 2026-09-12
