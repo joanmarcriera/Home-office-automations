@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-13",
+  "snapshot_date": "2026-09-14",
   "total_docs": 538,
   "tool_docs": 485,
   "service_docs": 53,
@@ -21,10 +21,10 @@
   "docs_with_code_examples": 538,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/ramalama.md",
-    "docs/tools/automation_orchestration/mcp-servers.md",
     "docs/tools/ai_knowledge/privategpt.md",
     "docs/tools/infrastructure/lancedb.md",
+    "docs/tools/infrastructure/ramalama.md",
+    "docs/tools/automation_orchestration/mcp-servers.md",
     "docs/tools/infrastructure/local-embeddings.md",
     "docs/tools/development_ops/mkdocs-material.md",
     "docs/tools/infrastructure/vortex.md",
@@ -44,7 +44,7 @@
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
-  "intake_items_7d": 6,
+  "intake_items_7d": 0,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }
