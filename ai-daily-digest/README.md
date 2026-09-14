@@ -1,5 +1,52 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-14
+
+## Digest fallback for 2026-09-14
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [RTX PRO 5500 Blackwell (84GB) released](https://www.reddit.com/r/LocalLLaMA/comments/1wfxi36/rtx_pro_5500_blackwell_84gb_released/) (r/LocalLLaMA)
+2. [DeepSeek V4.1 Flash beats Astra on AA's new benchmark](https://www.reddit.com/r/LocalLLaMA/comments/1wfpwhj/deepseek_v41_flash_beats_astra_on_aas_new/) (r/LocalLLaMA)
+3. [Right to Intelligence. Protect your right to run local AI.](https://www.reddit.com/r/LocalLLaMA/comments/1wfqwfh/right_to_intelligence_protect_your_right_to_run/) (r/LocalLLaMA)
+4. [5090 Stock is Almost Gone](https://www.reddit.com/r/LocalLLaMA/comments/1wft5v9/5090_stock_is_almost_gone/) (r/LocalLLaMA)
+5. [3k$ 128GB VRAM + 256GB RAM DDR4 Server](https://www.reddit.com/r/LocalLLaMA/comments/1wfe9zt/3k_128gb_vram_256gb_ram_ddr4_server/) (r/LocalLLaMA)
+6. [Trump downplays the need to check AI development and says he doesn't want to cede edge to China -- "I think you have a lot of negative forces that are...bringing up things that won’t happen...whoever wins with AI wins"](https://www.reddit.com/r/LocalLLaMA/comments/1wfm3v4/trump_downplays_the_need_to_check_ai_development/) (r/LocalLLaMA)
+7. [Running Qwen 3.8 next on 16vram+32ram - A useful/fun post for the gpu poors](https://www.reddit.com/r/LocalLLaMA/comments/1wfxl0m/running_qwen_38_next_on_16vram32ram_a_usefulfun/) (r/LocalLLaMA)
+8. [Another Qwen3.8-27b Appreciation Post](https://www.reddit.com/r/LocalLLaMA/comments/1wfsvgy/another_qwen3827b_appreciation_post/) (r/LocalLLaMA)
+9. [Micron's memory wall chart. Compute up ~3x every two years, HBM bandwidth under 2x](https://www.reddit.com/r/LocalLLaMA/comments/1wfrk63/microns_memory_wall_chart_compute_up_3x_every_two/) (r/LocalLLaMA)
+10. [What are the current best retail GPUs for max VRAM at a reasonable price?](https://www.reddit.com/r/LocalLLaMA/comments/1wfy4vo/what_are_the_current_best_retail_gpus_for_max/) (r/LocalLLaMA)
+11. [Interesting Video by Asionometry on the state of SF Chips](https://www.reddit.com/r/LocalLLaMA/comments/1wfzokx/interesting_video_by_asionometry_on_the_state_of/) (r/LocalLLaMA)
+12. [Intern-S2-397B (multimodal, reasoning, coding, and scientific agent capabilities)](https://www.reddit.com/r/LocalLLaMA/comments/1wfzqwh/interns2397b_multimodal_reasoning_coding_and/) (r/LocalLLaMA)
+13. [Decided to build a game, and test the ceiling of Qwen3.8 27b](https://www.reddit.com/r/LocalLLaMA/comments/1wfpyvv/decided_to_build_a_game_and_test_the_ceiling_of/) (r/LocalLLaMA)
+14. [3D viz of how Deepseek Flash v4.1 is different from a typical decode only transformer](https://www.reddit.com/r/LocalLLaMA/comments/1wfty27/3d_viz_of_how_deepseek_flash_v41_is_different/) (r/LocalLLaMA)
+15. [R9V Update: now ~100 tok/s in TG on Qwen3.8 Flash Next IQ4_XS on x2 R9700 + 128GB RAM. Fixed crashes with n-gram SSD streaming, improved diagnostics, plus pinned images. Q4_K_XL now supported, 50 tok/s TG.](https://www.reddit.com/r/LocalLLaMA/comments/1wfroih/r9v_update_now_100_toks_in_tg_on_qwen38_flash/) (r/LocalLLaMA)
+16. [CachyLlama archived?](https://www.reddit.com/r/LocalLLaMA/comments/1wfvcwa/cachyllama_archived/) (r/LocalLLaMA)
+17. [Aurora1.0-150M Releases!](https://www.reddit.com/r/LocalLLaMA/comments/1wfg0sb/aurora10150m_releases/) (r/LocalLLaMA)
+18. [best local model for Japanese translation right now?](https://www.reddit.com/r/LocalLLaMA/comments/1wfpvw5/best_local_model_for_japanese_translation_right/) (r/LocalLLaMA)
+19. [Hoping for Optimized Smarter Upcoming Models .... Like DeepSeek-V4.1-Flash( KVCache + Engram) in Small/Medium/Big sizes](https://www.reddit.com/r/LocalLLaMA/comments/1wfbnhc/hoping_for_optimized_smarter_upcoming_models_like/) (r/LocalLLaMA)
+20. [Muse spark 1.3 is great, but will they open source it?](https://www.reddit.com/r/LocalLLaMA/comments/1wfxtsg/muse_spark_13_is_great_but_will_they_open_source/) (r/LocalLLaMA)
+21. [Are there any experimental small models (9B or less) which are out or currently being trained using engram/n-grams?](https://www.reddit.com/r/LocalLLaMA/comments/1wfkb2t/are_there_any_experimental_small_models_9b_or/) (r/LocalLLaMA)
+22. [Dear 24G owners, try VLLM you might be able to run Qwen3.8 27B INT4, 144K FP8 KV on RTX 3090 with better speed. (TLDR VLLM AOT)](https://www.reddit.com/r/LocalLLaMA/comments/1wfdtm7/dear_24g_owners_try_vllm_you_might_be_able_to_run/) (r/LocalLLaMA)
+23. [Talk me out of buying a 3rd Spark](https://www.reddit.com/r/LocalLLaMA/comments/1wfefc4/talk_me_out_of_buying_a_3rd_spark/) (r/LocalLLaMA)
+24. [Changelog IRL @ PlanetScale (Sept 17, 2026)](https://changelog.com/posts/changelog-irl-sf26-planetscale) (The Changelog)
+25. [Why an old caching trick is your secret to lower LLM costs](https://thenewstack.io/llm-response-caching-costs/) (The New Stack)
+26. [Chip Huyen explains how to cut inference costs without new hardware](https://thenewstack.io/pg-99-conf-2026-inference-costs/) (The New Stack)
+27. [“Machine translation is still broken for most of the world’s languages”: Cohere builds non-reasoning for a reason](https://thenewstack.io/cohere-north-translate-sovereignty/) (The New Stack)
+28. [It passed CI. It passed your evals. The customer still got the wrong answer.](https://thenewstack.io/ai-agent-trace-debugging/) (The New Stack)
+29. [We are all Product Engineers now](https://seldo.com/posts/we-are-all-product-engineers-now/) (Lobsters — AI tag)
+30. [Article: Implementing Durable Workflows on Postgres Without an External Orchestrator](https://www.infoq.com/articles/durable-workflows-postgres/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+31. [Podcast: How Will We Train Developers If AI Does the Routine Work: A Conversation with Scott Hanselman](https://www.infoq.com/podcasts/train-developers-ai-routine-work/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+32. [Presentation: Decision Models in Agentic Architectures: From Production to Agent Skills](https://www.infoq.com/presentations/decision-models-agentic-ai/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+33. [Independent Investigation of Hugging Face Incident Reveals How Agents Collaborated and Behaved](https://www.infoq.com/news/2026/09/metr-hugging-face-hack-report/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-13
 
 ## Digest fallback for 2026-09-13
