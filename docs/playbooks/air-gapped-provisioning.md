@@ -13,6 +13,26 @@ It solves the "Bootstrapping at the Edge" problem where secure infrastructure re
 ## Where it fits in the stack
 **Category**: Playbook / Infrastructure. It acts as the secure operational **bridge** between the internet-connected "Inlet / Staging" workstation and the isolated "Air-Gapped Core" infrastructure.
 
+## Architecture & Workflow
+
+```mermaid
+flowchart TD
+    subgraph OnlineStaging ["Online Staging Workstation"]
+        A[Pull Model Weights / Containers / ZIMs] --> B[Generate SHA256 Integrity Manifest]
+        B --> C[Package Artifacts onto Encrypted Media]
+    end
+
+    subgraph AirBridge ["Air-Bridge / Sneakernet Transport"]
+        C --> D[Physical Transport & Audit Check]
+    end
+
+    subgraph AirGappedCore ["Air-Gapped Core Infrastructure"]
+        D --> E[Mount Encrypted Transport Media]
+        E --> F[Cryptographic SHA256 Verification]
+        F --> G[Ingest Artifacts into Local Ollama / Docker / Kiwix]
+    end
+```
+
 ## Typical use cases
 - **Ollama / vLLM Air-Gapped Weight Delivery**: Staging 70B+ model weights (e.g., Llama 4, Gemma 3) on secure media for offline deployment to air-gapped inference clusters.
 - **Kiwix Offline Knowledge Update**: Distributing multi-terabyte ZIM archives (Wikipedia, StackOverflow, Medical Repositories) for local RAG retrieval.

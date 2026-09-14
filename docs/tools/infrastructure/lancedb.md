@@ -89,6 +89,7 @@ for row in results:
 ## Related tools / concepts
 - [ChromaDB](chroma.md) — Embedded vector database comparison.
 - [Qdrant](qdrant.md) — Dedicated vector database.
+- [Paperless-ngx](../../services/paperless-ngx.md) — Local document management and indexing service.
 - [Local Embedding Models](local-embeddings.md) — Offline vector embedding generation.
 
 ## Sources / references
