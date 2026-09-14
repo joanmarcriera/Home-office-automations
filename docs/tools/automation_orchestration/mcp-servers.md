@@ -33,29 +33,31 @@ Before MCP, every AI agent framework (LangChain, AutoGen, LlamaIndex) required c
 - When communicating over restricted legacy protocols that prohibit JSON-RPC over stdio/SSE.
 
 ## Getting started
-Install FastMCP and create a simple MCP server:
+Install FastMCP via `uv` or `pip` and create a production FastMCP 3.1 server:
 
 ```bash
 uv add fastmcp
 ```
 
-A minimal working example defining a FastMCP server with a tool prompt:
+A minimal working example defining a FastMCP server with a tool for home-lab cluster storage calculations:
 
 ```python
 from fastmcp import FastMCP
 
-mcp = FastMCP("Demo Server")
+mcp = FastMCP("Homelab Storage Calculator")
 
 @mcp.tool()
-def add(a: int, b: int) -> int:
-    """Add two numbers."""
-    return a + b
+def calculate_storage_used(total_gb: float, used_gb: float) -> dict[str, float]:
+    """Calculates available disk space and usage percentage for home-lab nodes."""
+    free_gb = max(0.0, total_gb - used_gb)
+    usage_pct = round((used_gb / total_gb) * 100, 2) if total_gb > 0 else 0.0
+    return {"free_gb": free_gb, "usage_pct": usage_pct}
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-To configure client integrations (e.g. Claude Desktop or Cursor), add the server definition to `claude_desktop_config.json`:
+To configure client integrations (e.g., Claude Code, Claude Desktop, or Cursor), add the server definition to `claude_desktop_config.json`:
 
 ```json
 {
@@ -71,29 +73,39 @@ To configure client integrations (e.g. Claude Desktop or Cursor), add the server
 ## CLI examples
 
 ```bash
-# 1. Install FastMCP package
+# 1. Install FastMCP package into local Python project environment
 uv add fastmcp
 
-# 2. Launch an MCP server directly via uvx
+# 2. Launch an MCP server binary directly using uvx runner
 uvx mcp-server-sqlite --db-path /data/homelab.db
 
-# 3. Inspect and debug running FastMCP server tools
+# 3. Inspect, test, and debug running FastMCP server tools in interactive mode
 mcp dev server.py
 ```
 
 ## API examples
 
-Minimal FastMCP 3.1 Python server snippet:
+Minimal FastMCP 3.1 Python server exposing tools and resource endpoints:
 
 ```python
 from fastmcp import FastMCP
 
-mcp = FastMCP("homelab-task-server")
+mcp = FastMCP("homelab-control-server")
 
 @mcp.tool()
-def get_system_status() -> dict:
-    """Returns homelab cluster operational health metrics."""
-    return {"status": "healthy", "cluster": "k3s-primary"}
+def get_system_status(node_name: str = "k3s-primary") -> dict:
+    """Returns homelab cluster operational health metrics for a given node."""
+    return {
+        "node": node_name,
+        "status": "healthy",
+        "cpu_usage_pct": 14.2,
+        "memory_used_gb": 12.8
+    }
+
+@mcp.resource("config://homelab/cluster")
+def get_cluster_config() -> str:
+    """Exposes static JSON cluster configuration resource to AI agents."""
+    return '{"cluster_name": "home-core", "domain": "lab.local"}'
 
 if __name__ == "__main__":
     mcp.run()

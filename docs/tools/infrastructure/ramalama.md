@@ -33,13 +33,13 @@ Managing local AI model binaries, dependencies, CUDA/ROCm driver versions, and r
 - When using managed cloud inference endpoints where local container orchestration is unnecessary.
 
 ## Getting started
-Install Ramalama via pip and launch a local model:
+Install Ramalama via pip and launch a local model containerized using Podman or Docker:
 
 ```bash
 pip install ramalama
 ```
 
-A minimal working example running an LLM chatbot containerized using Ramalama and Podman/Docker:
+A minimal working example pulling and running a containerized LLM chatbot using Ramalama:
 
 ```bash
 ramalama run granite-3.1-dense
@@ -48,40 +48,51 @@ ramalama run granite-3.1-dense
 ## CLI examples
 
 ```bash
-# 1. Run a containerized AI model chatbot
+# 1. Run a containerized AI model chatbot in interactive terminal mode
 ramalama run granite-3.1-dense
 
 # 2. Serve an OpenAI-compatible REST API endpoint on port 8080
 ramalama serve -p 8080 granite-3.1-dense
 
-# 3. List all downloaded local AI models
+# 3. List all cached OCI model images and local containerized models
 ramalama list
+
+# 4. Remove a downloaded model image from local container storage
+ramalama rm granite-3.1-dense
 ```
 
 ## API examples
 
-Minimal Python snippet querying a served Ramalama OpenAI-compatible endpoint:
+Minimal Python snippet querying a served Ramalama OpenAI-compatible endpoint with complete response parsing:
 
 ```python
 import urllib.request
 import json
 
+payload = {
+    "model": "granite-3.1-dense",
+    "messages": [
+        {"role": "system", "content": "You are a helpful home-lab assistant."},
+        {"role": "user", "content": "How do I configure rootless Podman?"}
+    ],
+    "temperature": 0.7
+}
+
 req = urllib.request.Request(
     "http://localhost:8080/v1/chat/completions",
-    data=json.dumps({
-        "model": "granite-3.1-dense",
-        "messages": [{"role": "user", "content": "Hello world!"}]
-    }).encode('utf-8'),
+    data=json.dumps(payload).encode("utf-8"),
     headers={"Content-Type": "application/json"}
 )
 
 with urllib.request.urlopen(req) as response:
-    result = json.loads(response.read().decode())
-    print(result["choices"][0]["message"]["content"])
+    result = json.loads(response.read().decode("utf-8"))
+    answer = result["choices"][0]["message"]["content"]
+    print("Ramalama Response:\n", answer)
 ```
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Popular local model runner.
+- [vLLM](vllm.md) — High-throughput local model serving engine.
 - [Docker](docker.md) — Container runtime infrastructure.
 - [K3s Cluster Setup](../../playbooks/k3s-cluster-setup.md) — Kubernetes deployment playbook.
 
