@@ -210,6 +210,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "dapr.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "deepmind.google": {
       "discovered": 7,
       "integrated": 7,
@@ -326,8 +331,8 @@
       "score": 1.0
     },
     "en.wikipedia.org": {
-      "discovered": 2,
-      "integrated": 2,
+      "discovered": 3,
+      "integrated": 3,
       "score": 1.0
     },
     "exa.ai": {
@@ -517,8 +522,8 @@
     },
     "infoq.com": {
       "discovered": 23,
-      "integrated": 22,
-      "score": 0.96
+      "integrated": 23,
+      "score": 1.0
     },
     "jan.ai": {
       "discovered": 1,
@@ -820,6 +825,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "oauth.net": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "obsidian.md": {
       "discovered": 2,
       "integrated": 2,
@@ -1017,8 +1027,8 @@
     },
     "reddit.com": {
       "discovered": 165,
-      "integrated": 163,
-      "score": 0.99
+      "integrated": 165,
+      "score": 1.0
     },
     "render.com": {
       "discovered": 1,
@@ -1106,6 +1116,11 @@
       "score": 1.0
     },
     "sqlite.org](https:": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "squidfunk.github.io": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -1301,5 +1316,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-09-07"
+  "updated": "2026-09-14"
 }
