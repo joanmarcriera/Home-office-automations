@@ -60,6 +60,9 @@ python3 scripts/audit_docs_quality.py
 
 # Find documentation pages that are stale or missing metadata
 python3 scripts/check_doc_freshness.py docs --max-days 30
+
+# Track repository growth metrics and underdeveloped categories
+python3 scripts/growth_tracker.py
 ```
 
 ## API examples

@@ -73,6 +73,9 @@ syncthing --version
 
 # Generate a new API key and configuration
 syncthing --generate="/path/to/config"
+
+# Check REST API endpoint health status
+curl -s -H "X-API-Key: <your_api_key>" http://localhost:8384/rest/system/ping
 ```
 
 ### Reset GUI Access

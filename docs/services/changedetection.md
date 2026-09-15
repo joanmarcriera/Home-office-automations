@@ -80,6 +80,9 @@ docker exec changedetection python3 -c "import changedetectionio; print(changede
 
 # Force a restart of the monitoring service
 docker restart changedetection
+
+# Ping local API endpoint health
+curl -s http://localhost:5000/api/v1/watch
 ```
 
 ## API examples

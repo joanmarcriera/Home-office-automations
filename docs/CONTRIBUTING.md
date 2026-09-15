@@ -81,6 +81,9 @@ python3 scripts/check_docs_contract.py docs/services/n8n.md
 
 # Find oldest issues for Ralph-loop processing
 python3 scripts/find_oldest_issues.py
+
+# Update growth metrics and track category health
+python3 scripts/growth_tracker.py
 ```
 
 ## API examples
