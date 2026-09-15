@@ -99,6 +99,9 @@ docker exec -u 1000 -it gitea gitea dump
 
 # List all repositories on the instance
 docker exec -u 1000 -it gitea gitea admin repo list
+
+# Check server health via HTTP API
+curl -s http://localhost:3000/api/v1/version
 ```
 
 ## API examples
