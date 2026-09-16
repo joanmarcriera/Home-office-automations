@@ -9,6 +9,44 @@ This fallback keeps ingestion moving and preserves source links.
 
 ## New items
 
+1. [How do I improve my SWEBench run on 3090?](https://www.reddit.com/r/LocalLLaMA/comments/1whs6f5/how_do_i_improve_my_swebench_run_on_3090/) (r/LocalLLaMA)
+2. [Just heard about EchoMuse, pretty excited](https://www.reddit.com/r/homeassistant/comments/1wh0p83/just_heard_about_echomuse_pretty_excited/) (r/homeassistant)
+3. [I made my cheap AC smart with an ESP32, Matter over Thread, and closed-loop state feedback](https://www.reddit.com/r/homeassistant/comments/1whe6oy/i_made_my_cheap_ac_smart_with_an_esp32_matter/) (r/homeassistant)
+4. [Shelly unveils ThreadLink with approximate availability by EOY by opt-in](https://www.reddit.com/r/homeassistant/comments/1whq687/shelly_unveils_threadlink_with_approximate/) (r/homeassistant)
+5. [Made HA my Running Coach and App](https://www.reddit.com/r/homeassistant/comments/1whrolb/made_ha_my_running_coach_and_app/) (r/homeassistant)
+6. [Here's how we built our devices for our booth at IFA 2026](https://www.reddit.com/r/homeassistant/comments/1wh144y/heres_how_we_built_our_devices_for_our_booth_at/) (r/homeassistant)
+7. [DIY server from a Chromebook](https://www.reddit.com/r/homeassistant/comments/1whcoxj/diy_server_from_a_chromebook/) (r/homeassistant)
+8. [My TV now shows my solar power when I walk past, and a magic cube controls it. My wife has opinions.](https://www.reddit.com/r/homeassistant/comments/1wh8nzf/my_tv_now_shows_my_solar_power_when_i_walk_past/) (r/homeassistant)
+9. [I built HomeCar – a full Home Assistant dashboard for Android Auto [Open Source]](https://www.reddit.com/r/homeassistant/comments/1whalku/i_built_homecar_a_full_home_assistant_dashboard/) (r/homeassistant)
+10. [New low cost HA wall panel](https://www.reddit.com/r/homeassistant/comments/1whb8uo/new_low_cost_ha_wall_panel/) (r/homeassistant)
+11. [Is there really no high-quality, pre-built voice assistant speaker?](https://www.reddit.com/r/homeassistant/comments/1wh9n84/is_there_really_no_highquality_prebuilt_voice/) (r/homeassistant)
+12. [Kasa switches recently stopped working on HA](https://www.reddit.com/r/homeassistant/comments/1whlk9a/kasa_switches_recently_stopped_working_on_ha/) (r/homeassistant)
+13. [Made a swappable-icon cover for the IKEA Bilresa remote, pairs well with the community blueprint](https://www.reddit.com/r/homeassistant/comments/1whqodw/made_a_swappableicon_cover_for_the_ikea_bilresa/) (r/homeassistant)
+14. [Sensors to Detect / Products to mitigate smoke smell](https://www.reddit.com/r/homeassistant/comments/1whkkto/sensors_to_detect_products_to_mitigate_smoke_smell/) (r/homeassistant)
+15. [Can you use an airtag like traker for simple home presence?](https://www.reddit.com/r/homeassistant/comments/1whdkiw/can_you_use_an_airtag_like_traker_for_simple_home/) (r/homeassistant)
+16. [Companion App Roadmap](https://www.reddit.com/r/homeassistant/comments/1wh799q/companion_app_roadmap/) (r/homeassistant)
+17. [One of my favorite HA projects!!!](https://www.reddit.com/r/homeassistant/comments/1whki0e/one_of_my_favorite_ha_projects/) (r/homeassistant)
+18. [D.A.R.S. — see what drones are flying nearby on a live map in HA](https://www.reddit.com/r/homeassistant/comments/1wh4odv/dars_see_what_drones_are_flying_nearby_on_a_live/) (r/homeassistant)
+19. [Using Amazon Fire Tablet as an HA Dashboard](https://www.reddit.com/r/homeassistant/comments/1whfw7e/using_amazon_fire_tablet_as_an_ha_dashboard/) (r/homeassistant)
+20. [My ESPHome firmware for the Waveshare ESP32-S3 Audio Board: echo cancellation and 48 kHz playback, looking for beta testers](https://www.reddit.com/r/homeassistant/comments/1whs32t/my_esphome_firmware_for_the_waveshare_esp32s3/) (r/homeassistant)
+21. [Adding matter device to HA](https://www.reddit.com/r/homeassistant/comments/1whr0dw/adding_matter_device_to_ha/) (r/homeassistant)
+22. [Super fast multilingual home voice assistant](https://www.reddit.com/r/homeassistant/comments/1wgwrib/super_fast_multilingual_home_voice_assistant/) (r/homeassistant)
+23. [Old Ademco Alarm System](https://www.reddit.com/r/homeassistant/comments/1whhe3x/old_ademco_alarm_system/) (r/homeassistant)
+24. [Z2M OTA takes a long time](https://www.reddit.com/r/homeassistant/comments/1whq4e0/z2m_ota_takes_a_long_time/) (r/homeassistant)
+
+
+---
+
+
+## 📅 Digest for 2026-09-16
+
+## Digest fallback for 2026-09-16
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
 1. [AI for Societal Impact](https://blog.google/innovation-and-ai/technology/ai/ai-for-societal-impact/) (Google AI Blog)
 2. [Building AI to accelerate science and improve lives](https://blog.google/innovation-and-ai/technology/ai/ai-applications-science-people/) (Google AI Blog)
 3. [AI for everyone in every language](https://blog.google/innovation-and-ai/technology/ai/ai-for-every-language/) (Google AI Blog)
