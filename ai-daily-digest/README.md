@@ -1,5 +1,60 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-16
+
+## Digest fallback for 2026-09-16
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [AI for Societal Impact](https://blog.google/innovation-and-ai/technology/ai/ai-for-societal-impact/) (Google AI Blog)
+2. [Building AI to accelerate science and improve lives](https://blog.google/innovation-and-ai/technology/ai/ai-applications-science-people/) (Google AI Blog)
+3. [AI for everyone in every language](https://blog.google/innovation-and-ai/technology/ai/ai-for-every-language/) (Google AI Blog)
+4. [New insights from Google’s AI & Economy ATLAS](https://blog.google/innovation-and-ai/technology/ai/ai-economy-atlas-september-2026/) (Google AI Blog)
+5. [Your Agent Aced the Task. Will It Do It Again?](https://huggingface.co/blog/ibm-research/altk-evolve-consistency) (Hugging Face Blog)
+6. [Don’t buy a $9K RTX 5090.... instead.](https://www.reddit.com/r/LocalLLaMA/comments/1whf7ov/dont_buy_a_9k_rtx_5090_instead/) (r/LocalLLaMA)
+7. [Hey, Meta. Where's those Muse Spark weights?](https://www.reddit.com/r/LocalLLaMA/comments/1whqm2c/hey_meta_wheres_those_muse_spark_weights/) (r/LocalLLaMA)
+8. [Qwen3.8 27b Game Dev Part 2](https://www.reddit.com/r/LocalLLaMA/comments/1whk35i/qwen38_27b_game_dev_part_2/) (r/LocalLLaMA)
+9. [What's the next local model you are excited about?](https://www.reddit.com/r/LocalLLaMA/comments/1whiz3y/whats_the_next_local_model_you_are_excited_about/) (r/LocalLLaMA)
+10. [mlabonne/LFM2.5-230M-Chess · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1whngur/mlabonnelfm25230mchess_hugging_face/) (r/LocalLLaMA)
+11. [LACT PR to let NVIDIA gpus go lower than stock VBIOS limit (so below 400W for 5090, or below 250W for 6000 PRO MaxQ)](https://www.reddit.com/r/LocalLLaMA/comments/1whjezk/lact_pr_to_let_nvidia_gpus_go_lower_than_stock/) (r/LocalLLaMA)
+12. [Open Source Appreciation Post](https://www.reddit.com/r/LocalLLaMA/comments/1whj1fv/open_source_appreciation_post/) (r/LocalLLaMA)
+13. [Koboldcpp v1.121 released](https://www.reddit.com/r/LocalLLaMA/comments/1wh4cg9/koboldcpp_v1121_released/) (r/LocalLLaMA)
+14. [Apple Foundation Models: local AI natively on MacOS 27](https://www.reddit.com/r/LocalLLaMA/comments/1wh5fpa/apple_foundation_models_local_ai_natively_on/) (r/LocalLLaMA)
+15. [Cut Qwen3.8-27B Reasoning Tokens by 40% -- 3.8 'ThinkingCap' benchmarked!](https://www.reddit.com/r/LocalLLaMA/comments/1wh5elt/cut_qwen3827b_reasoning_tokens_by_40_38/) (r/LocalLLaMA)
+16. [qwen4exp: add hc ops by am17an · Pull Request #28901 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1whsqio/qwen4exp_add_hc_ops_by_am17an_pull_request_28901/) (r/LocalLLaMA)
+17. [Mozilla Report: China-U.S. AI Model Capability Gap Narrows to 4.4 Months](https://www.reddit.com/r/LocalLLaMA/comments/1whsw2g/mozilla_report_chinaus_ai_model_capability_gap/) (r/LocalLLaMA)
+18. [What's the best open weight model for Blender? That's comparable to Astra](https://www.reddit.com/r/LocalLLaMA/comments/1whpe2r/whats_the_best_open_weight_model_for_blender/) (r/LocalLLaMA)
+19. [Is an X399 rig still viable?](https://www.reddit.com/r/LocalLLaMA/comments/1whob9e/is_an_x399_rig_still_viable/) (r/LocalLLaMA)
+20. [Connected a local model (Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-Q4_K_M) to GIMP via MCP tools using llama.cpp - and here's the image result from my first prompt "can you draw a picture of a flower in gimp?". Needs work. Setup follows.](https://www.reddit.com/r/LocalLLaMA/comments/1whjqv6/connected_a_local_model/) (r/LocalLLaMA)
+21. [A Hitchhiker’s Guide to the3D Ecosystem](https://www.reddit.com/r/LocalLLaMA/comments/1whrhz6/a_hitchhikers_guide_to_the3d_ecosystem/) (r/LocalLLaMA)
+22. [ByteShape Qwen 3.8 27B: To KL Diverge or Not to KL Diverge, Part 2: Metric Boogaloo](https://www.reddit.com/r/LocalLLaMA/comments/1wh21e9/byteshape_qwen_38_27b_to_kl_diverge_or_not_to_kl/) (r/LocalLLaMA)
+23. [Should we get Apple silicon or a 24gb GPU + 128gb ram?](https://www.reddit.com/r/LocalLLaMA/comments/1whssu5/should_we_get_apple_silicon_or_a_24gb_gpu_128gb/) (r/LocalLLaMA)
+24. [Qwen3.8-27B-NVFP4 1M context. So far so good.](https://www.reddit.com/r/LocalLLaMA/comments/1wh4gai/qwen3827bnvfp4_1m_context_so_far_so_good/) (r/LocalLLaMA)
+25. [Voice Acting Arena](https://www.reddit.com/r/LocalLLaMA/comments/1whdgee/voice_acting_arena/) (r/LocalLLaMA)
+26. [For Web game development, I swear Flash Next on Q2 is better than Gemini Flash 3.8](https://www.reddit.com/r/LocalLLaMA/comments/1whbhty/for_web_game_development_i_swear_flash_next_on_q2/) (r/LocalLLaMA)
+27. [Can Skills Learned in Games Transfer to Real-World Work?](https://www.latent.space/p/good-start-labs) (Latent Space)
+28. [OpenAI president: “The computer should be there to empower you.” So stop retooling software for AI agents](https://thenewstack.io/computer-use-agent-connectors/) (The New Stack)
+29. [Meta lets Claude and Codex configure WhatsApp Business via MCP. But the agents don’t get their own identity.](https://thenewstack.io/meta-mcp-whatsapp-business-claude/) (The New Stack)
+30. [OpenAI’s voice model doesn’t think. That’s the point.](https://thenewstack.io/voice-agent-latency-architectures/) (The New Stack)
+31. [AWS agents will suggest your new flights. Code decides what gets booked.](https://thenewstack.io/aws-agents-deterministic-validation/) (The New Stack)
+32. [Bolt is giving developers 50x more compute. But there’s a catch.](https://thenewstack.io/bolt-forge-training-data/) (The New Stack)
+33. [Agents operate, humans govern: Scale your operations and reduce toil with Azure SRE Agent](https://thenewstack.io/azure-sre-agent-operations/) (The New Stack)
+34. [How to attach an owner to every cloud resource you find](https://thenewstack.io/attach-owner-cloud-resources/) (The New Stack)
+35. [Kubernetes 1.36 restores a lost guarantee for database backups](https://thenewstack.io/kubernetes-volume-group-snapshots/) (The New Stack)
+36. [Introducing Gemini 3.8 Live and 3.8 Live Extended Thinking](https://deepmind.google/blog/introducing-gemini-3-8-live-and-3-8-live-extended-thinking/) (Google DeepMind Blog)
+37. [Easy way to stop dangerous AI](https://youtu.be/9tr7Mby62bo) (Lobsters — AI tag)
+38. [Interpreting Pangram](https://lucumr.pocoo.org/2026/9/14/interpreting-pangram/) (Lobsters — AI tag)
+39. [Model Training Incidents are Negligence](https://taggart-tech.com/lying/) (Lobsters — AI tag)
+40. [openarm: A fully open-source humanoid arm for physical AI research and deployment in contact-rich environments](https://github.com/enactic/OpenArm) (Lobsters — AI tag)
+41. [Dropbox Outlines How Focusing on Existing Infrastructure Efficiency Can Create Headroom for AI](https://www.infoq.com/news/2026/09/dropbox-datacenter/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-09-15
 
 ## Digest fallback for 2026-09-15
