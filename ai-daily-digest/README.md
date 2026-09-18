@@ -1,5 +1,12 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-09-18
+
+# AI & Technology Daily Digest
+
+---
+
+
 ## 📅 Digest for 2026-09-17
 
 ## Digest fallback for 2026-09-17
