@@ -63,3 +63,8 @@ This repository is optimized for long-term maintainability:
 - Cross-linked documentation with stable taxonomy.
 - CI quality gates for catalog consistency and docs contract compliance.
 - Scheduled GitHub workflows for source intake and backlog processing.\n
+
+<!-- vikunja-tracking -->
+## Tracking
+
+Vikunja project **72 · Home-office-automations** — https://familia.riera.co.uk/projects/72
