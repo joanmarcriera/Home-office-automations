@@ -187,6 +187,9 @@ if __name__ == "__main__":
 - [Crawl4AI](../tools/process_understanding/crawl4ai.md) — For deep-crawling URLs extracted from SearXNG search results.
 - [n8n](n8n.md) — Workflow engine for multi-step search pipelines.
 - [Authentik](authentik.md) — Securing SearXNG endpoints in production.
+- [Paperless-ngx](paperless-ngx.md) — For archiving extracted web search summaries.
+- [Gitea](gitea.md) — For managing custom SearXNG plugin and automation repositories.
+- [Ollama](ollama.md) — For local LLM processing of search results.
 
 ## Sources / references
 - [SearXNG Developer Documentation](https://docs.searxng.org/dev/search_api.html)
