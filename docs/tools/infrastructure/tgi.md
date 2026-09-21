@@ -170,7 +170,7 @@ if __name__ == "__main__":
 - [MLX](mlx.md) — Apple Silicon native inference.
 - [Inference engines](index.md) — Overview of the LLM serving ecosystem.
 - [Docker](../infrastructure/docker.md) — Containerization platform for TGI.
-- [Prometheus](https://prometheus.io/) — Monitoring system supported by TGI.
+- [Prometheus](../process_understanding/prometheus.md) — Monitoring system supported by TGI.
 
 ## Sources / References
 - [Official Website](https://huggingface.co/docs/text-generation-inference)

@@ -153,7 +153,7 @@ validated_meta = validate_stream_metadata(metadata_payload)
 
 ## Related tools / concepts
 - [Vercel](vercel.md) — The primary hosting platform for Vercel OSS.
-- [Vercel AI SDK](https://sdk.vercel.ai/) — Core library for AI integration.
+- [Vercel AI SDK](vercel-ai-sdk.md) — Core library for AI integration.
 - [v0.dev](https://v0.dev/) — Generative UI tool for React.
 - [Next.js](https://nextjs.org/) — The foundational web framework.
 - [Claude 5.1](../ai_knowledge/claude.md) — Flagship reasoning model optimized for web agents.
