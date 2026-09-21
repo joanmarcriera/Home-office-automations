@@ -33,17 +33,18 @@ Before MCP, every AI agent framework (LangChain, AutoGen, LlamaIndex) required c
 - When communicating over restricted legacy protocols that prohibit JSON-RPC over stdio/SSE.
 
 ## Getting started
-Install FastMCP via `uv` or `pip` and create a production FastMCP 3.1 server:
+Install FastMCP framework via `uv` or `pip` to construct Model Context Protocol 3.1 compliant servers:
 
 ```bash
 uv add fastmcp
 ```
 
-A minimal working example defining a FastMCP server with a tool for home-lab cluster storage calculations:
+A minimal working hello-world example defining a FastMCP server with a tool for home-lab cluster storage calculations:
 
 ```python
 from fastmcp import FastMCP
 
+# Create a named FastMCP server instance
 mcp = FastMCP("Homelab Storage Calculator")
 
 @mcp.tool()
@@ -85,7 +86,7 @@ mcp dev server.py
 
 ## API examples
 
-Minimal FastMCP 3.1 Python server exposing tools and resource endpoints:
+Minimal FastMCP 3.1 Python server exposing custom tools and resource endpoints:
 
 ```python
 from fastmcp import FastMCP

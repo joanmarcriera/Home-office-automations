@@ -33,17 +33,19 @@ Organizations and home lab administrators frequently handle confidential documen
 - When simple static keyword search (like ripgrep) is sufficient for un-embedded text files.
 
 ## Getting started
-Install PrivateGPT via `uv` or package managers and launch the service:
+Install PrivateGPT via `uv` tool runner or Homebrew and launch the service connected to a local model runner:
 
 ```bash
+# Install PrivateGPT using uv package manager
 uv tool install --python 3.11 \
   --find-links https://wheels.privategpt.dev/packages/ \
   "private-gpt[core]"
 ```
 
-A minimal working example starting PrivateGPT connected to a local Ollama LLM endpoint:
+A minimal working hello-world example starting PrivateGPT connected to a local Ollama LLM and embedding endpoint:
 
 ```bash
+# Start PrivateGPT pointed at local Ollama OpenAI-compatible inference server
 OPENAI_API_BASE=http://localhost:11434/v1 \
 OPENAI_EMBEDDING_API_BASE=http://localhost:11434/v1 \
 private-gpt serve
@@ -52,36 +54,39 @@ private-gpt serve
 ## CLI examples
 
 ```bash
-# 1. Install PrivateGPT with uv tool runner
-uv tool install --python 3.11 "private-gpt[core]"
+# 1. Install PrivateGPT using uv tool runner
+uv tool install --python 3.11 --find-links https://wheels.privategpt.dev/packages/ "private-gpt[core]"
 
-# 2. Launch the PrivateGPT server with Ollama local model server backend
+# 2. Launch PrivateGPT service with Ollama local profile enabled
 PGPT_PROFILES=ollama private-gpt serve
 
-# 3. Ingest local document directory into PrivateGPT RAG store
+# 3. Ingest local document directory into PrivateGPT vector store
 python scripts/ingest_folder.py --dir /data/documents
 ```
 
 ## API examples
 
-Minimal Python snippet querying PrivateGPT's Claude/OpenAI-compatible `/v1/chat/completions` API:
+Minimal Python code snippet querying PrivateGPT's Claude/OpenAI-compatible `/v1/chat/completions` API endpoint:
 
 ```python
-import urllib.request
 import json
+import urllib.request
+
+url = "http://localhost:8080/v1/chat/completions"
+payload = {
+    "messages": [{"role": "user", "content": "Summarize my ingested documents."}],
+    "use_context": True
+}
 
 req = urllib.request.Request(
-    "http://localhost:8080/v1/chat/completions",
-    data=json.dumps({
-        "messages": [{"role": "user", "content": "Summarize my ingested documents."}],
-        "use_context": True
-    }).encode("utf-8"),
+    url,
+    data=json.dumps(payload).encode("utf-8"),
     headers={"Content-Type": "application/json"}
 )
 
 with urllib.request.urlopen(req) as response:
-    result = json.loads(response.read().decode())
-    print(result["choices"][0]["message"]["content"])
+    result = json.loads(response.read().decode("utf-8"))
+    print("PrivateGPT Summary:", result["choices"][0]["message"]["content"])
 ```
 
 ## Related tools / concepts
