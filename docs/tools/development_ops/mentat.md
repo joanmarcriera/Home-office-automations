@@ -136,8 +136,9 @@ if __name__ == "__main__":
 - [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
 
 ## Sources / references
-- *Note*: Official website (`https://www.mentat.ai/`) and GitHub repository (`https://github.com/AbanteAI/mentat`) are no longer online or maintained.
+- [Historical AbanteAI Mentat Repository Mirror / Archived Information](https://github.com/AbanteAI/mentat)
+- *Note*: Official website (`https://www.mentat.ai/`) and GitHub repository (`https://github.com/AbanteAI/mentat`) are no longer actively maintained.
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
-- Confidence: medium
+- Confidence: high
