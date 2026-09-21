@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 
-- [Dapr](https://dapr.io/) — The Distributed Application Runtime on which Catalyst is built.
+- [Dapr](dapr.md) — The Distributed Application Runtime on which Catalyst is built.
 - [Temporal](../orchestration/temporal.md) — Code-first durable execution orchestrator.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool and resource governance protocol.
 - [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md) — Unified telemetry collector for Catalyst metrics.

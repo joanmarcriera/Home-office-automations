@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-09-21 | [2026-09-21](/new-sources/2026-09-21/) | 28 | 0 | Logged missing tools referenced in Related sections |
 | 2026-09-14 | [2026-09-14](/new-sources/2026-09-14/) | 1 | 0 | Logged missing tools referenced in Related sections |
 | 2026-09-07 | [2026-09-07](/new-sources/2026-09-07/) | 4 | 0 | Logged missing tools referenced in Related sections |
 | 2026-09-06 | [2026-09-06](/new-sources/2026-09-06/) | 0 | 5 | Integrated top 5 frontier coverage gap issues from watchlist |

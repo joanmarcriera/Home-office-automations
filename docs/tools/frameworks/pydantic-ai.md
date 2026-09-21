@@ -163,8 +163,8 @@ with agent.capture_run() as run:
 
 ## Related tools / concepts
 - [Pydantic](https://docs.pydantic.dev/) — Core data validation library.
-- [Logfire](https://pydantic.dev/logfire) — Native observability for Pydantic and PydanticAI.
-- [FastAPI](https://fastapi.tiangolo.com/) — Often used together for building AI microservices.
+- [Logfire](../process_understanding/logfire.md) — Native observability for Pydantic and PydanticAI.
+- [FastAPI](fastapi.md) — Often used together for building AI microservices.
 - [LangGraph](langgraph.md) — Alternative graph-based orchestration framework.
 - [CrewAI](crewai.md) — Collaborative agents framework.
 - [Agentic Design Patterns](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
