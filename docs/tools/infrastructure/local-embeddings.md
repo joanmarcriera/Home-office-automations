@@ -50,10 +50,13 @@ curl http://localhost:11434/api/embeddings -d '{
 ## CLI examples
 
 ```bash
-# Generate embeddings using Python CLI tool
+# 1. Pull nomic-embed-text embedding model via Ollama CLI
+ollama pull nomic-embed-text
+
+# 2. Generate embeddings using SentenceTransformers Python CLI snippet
 python3 -c "from sentence_transformers import SentenceTransformer; model = SentenceTransformer('BAAI/bge-m3'); print(model.encode(['Home lab test']))"
 
-# Pull BGE embedding model via Ollama CLI
+# 3. Pull BGE embedding model via Ollama CLI
 ollama pull bge-m3
 ```
 

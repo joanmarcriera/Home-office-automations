@@ -34,26 +34,31 @@ Traditional vector databases (like Milvus or Qdrant cluster setups) require dedi
 - When already utilizing existing PostgreSQL/pgvector deployments for simple relational + vector storage.
 
 ## Getting started
-Install LanceDB via pip:
+Install LanceDB via `pip` or `uv`:
 
 ```bash
 pip install lancedb
 ```
 
-A minimal working hello-world example connecting to an embedded LanceDB database and executing nearest neighbor search:
+A minimal working hello-world example connecting to an embedded LanceDB storage directory, creating a table, and executing vector nearest-neighbor search:
 
 ```python
 import lancedb
 
+# Connect to local embedded database path
 db = lancedb.connect("./data/lancedb_store")
+
+# Create table with vector embeddings and metadata
 table = db.create_table(
     "documents",
     data=[
         {"vector": [0.1, 0.2, 0.3], "text": "Home-lab backup policy", "id": "doc1"},
         {"vector": [0.4, 0.5, 0.6], "text": "K3s cluster config", "id": "doc2"}
-    ]
+    ],
+    mode="overwrite"
 )
 
+# Execute vector search query
 results = table.search([0.1, 0.2, 0.3]).limit(1).to_list()
 print("Search Result:", results)
 ```
@@ -61,19 +66,19 @@ print("Search Result:", results)
 ## CLI examples
 
 ```bash
-# 1. Install LanceDB Python package
+# 1. Install LanceDB Python SDK package
 pip install lancedb
 
 # 2. Inspect local database table names via Python CLI invocation
 python3 -c "import lancedb; db = lancedb.connect('./data/lancedb_store'); print(db.table_names())"
 
-# 3. Quick count query over an embedded Lance table via Python CLI
+# 3. Query row count over an embedded LanceDB table via Python CLI
 python3 -c "import lancedb; db = lancedb.connect('./data/lancedb_store'); print(db.open_table('documents').count_rows())"
 ```
 
 ## API examples
 
-Minimal Python code snippet querying an embedded LanceDB collection:
+Minimal Python code snippet opening an existing LanceDB collection and executing similarity retrieval with limit parameters:
 
 ```python
 import lancedb
@@ -81,9 +86,10 @@ import lancedb
 db = lancedb.connect("./data/lancedb_store")
 table = db.open_table("documents")
 
+# Search nearest vectors and format matches
 results = table.search([0.1, 0.2, 0.3]).limit(5).to_list()
 for row in results:
-    print(f"Doc ID: {row['id']}, Text: {row['text']}")
+    print(f"ID: {row['id']} | Text: {row['text']} | Score/Distance: {row.get('_distance', 0.0):.4f}")
 ```
 
 ## Related tools / concepts

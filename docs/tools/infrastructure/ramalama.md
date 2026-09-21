@@ -33,15 +33,16 @@ Managing local AI model binaries, dependencies, CUDA/ROCm driver versions, and r
 - When using managed cloud inference endpoints where local container orchestration is unnecessary.
 
 ## Getting started
-Install Ramalama via pip and launch a local model containerized using Podman or Docker:
+Install Ramalama via `pip` or Fedora package manager (`dnf install ramalama`), then launch a local model containerized using Podman or Docker:
 
 ```bash
 pip install ramalama
 ```
 
-A minimal working example pulling and running a containerized LLM chatbot using Ramalama:
+A minimal working hello-world example pulling and executing a containerized LLM chatbot using Ramalama:
 
 ```bash
+# Run interactive chatbot session inside isolated container runtime
 ramalama run granite-3.1-dense
 ```
 
@@ -51,24 +52,25 @@ ramalama run granite-3.1-dense
 # 1. Run a containerized AI model chatbot in interactive terminal mode
 ramalama run granite-3.1-dense
 
-# 2. Serve an OpenAI-compatible REST API endpoint on port 8080
+# 2. Serve an OpenAI-compatible REST API endpoint on port 8080 using container runtime
 ramalama serve -p 8080 granite-3.1-dense
 
-# 3. List all cached OCI model images and local containerized models
+# 3. List all cached local model images and OCI container artifacts
 ramalama list
 
-# 4. Remove a downloaded model image from local container storage
+# 4. Remove a cached model image from local container storage
 ramalama rm granite-3.1-dense
 ```
 
 ## API examples
 
-Minimal Python snippet querying a served Ramalama OpenAI-compatible endpoint with complete response parsing:
+Minimal Python code snippet querying a served Ramalama OpenAI-compatible `/v1/chat/completions` REST endpoint:
 
 ```python
-import urllib.request
 import json
+import urllib.request
 
+url = "http://localhost:8080/v1/chat/completions"
 payload = {
     "model": "granite-3.1-dense",
     "messages": [
@@ -79,7 +81,7 @@ payload = {
 }
 
 req = urllib.request.Request(
-    "http://localhost:8080/v1/chat/completions",
+    url,
     data=json.dumps(payload).encode("utf-8"),
     headers={"Content-Type": "application/json"}
 )
