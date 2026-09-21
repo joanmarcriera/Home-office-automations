@@ -157,6 +157,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 679** | Oldest Service Docs Audit | **Verified & Closed** | Audited home-assistant, homebox, immich, inventory, and it-tools for early January 2027 technical freshness. Verified 2027-01-07. |
 | **Batch 680** | Oldest Service Docs Audit | **Verified & Closed** | Audited jackett, jellyfin, kiwix, grocy, and mealie for early January 2027 technical freshness. Verified 2027-01-07. |
 | **Batch 681** | Architecture Docs Audit | **Verified & Closed** | Audited multi_agent_knowledgeops, infrastructure, flows, component_map, and automated_contributions for early January 2027 technical freshness. Verified 2027-01-07. |
+| **Batch 682** | Playbook Docs Audit | **Verified & Closed** | Audited dev-workflow-ai-assisted, document-preparation-for-llm-training, fully-offline-assistant, family-admin-automation, and email-to-calendar for early January 2027 technical freshness. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
