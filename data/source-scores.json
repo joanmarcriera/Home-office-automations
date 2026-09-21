@@ -1240,6 +1240,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "v0.dev": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "v0.dev](https:": {
       "discovered": 1,
       "integrated": 1,
@@ -1316,5 +1321,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-09-14"
+  "updated": "2026-09-21"
 }
