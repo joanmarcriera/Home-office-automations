@@ -434,6 +434,7 @@ nav:
           - Superconductor: tools/development_ops/superconductor.md
           - Sweep Dev: tools/development_ops/sweep_dev.md
           - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
+          - Tailwind CSS: tools/development_ops/tailwind-css.md
           - TrellisCPP: tools/development_ops/trelliscpp.md
           - Tabnine: tools/development_ops/tabnine.md
           - Terminus 2: tools/development_ops/terminus-2.md
@@ -465,6 +466,7 @@ nav:
           - AutoGen Studio: tools/frameworks/autogen-studio.md
           - Axolotl: tools/frameworks/axolotl.md
           - CrewAI: tools/frameworks/crewai.md
+          - DeepSpeed: tools/frameworks/deepspeed.md
           - Distilabel: tools/frameworks/distilabel.md
           - DSPy: tools/frameworks/dspy.md
           - Embabel: tools/frameworks/embabel.md
@@ -485,6 +487,7 @@ nav:
           - NeMo AutoModel: tools/frameworks/nemo-automodel.md
           - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
           - Overview: tools/frameworks/index.md
+          - Pydantic: tools/frameworks/pydantic.md
           - PydanticAI: tools/frameworks/pydantic-ai.md
           - Rivet: tools/frameworks/rivet.md
           - Semantic Kernel: tools/frameworks/semantic-kernel.md
@@ -531,6 +534,7 @@ nav:
           - xAI Grok: tools/providers/xai-grok.md
       - Enterprise AI:
           - AmpCode: tools/enterprise/ampcode.md
+          - Bloomberg Terminal: tools/enterprise/bloomberg-terminal.md
           - Coveo: tools/enterprise/coveo.md
           - Curiosity: tools/enterprise/curiosity.md
           - Dashworks: tools/enterprise/dashworks.md

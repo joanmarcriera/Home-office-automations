@@ -360,6 +360,12 @@
       "doc_path": "docs/tools/providers/bigswitch.md"
     },
     {
+      "id": "bloomberg-terminal",
+      "name": "Bloomberg Terminal",
+      "category": "Enterprise",
+      "doc_path": "docs/tools/enterprise/bloomberg-terminal.md"
+    },
+    {
       "id": "bonsai",
       "name": "Bonsai (PrismML)",
       "category": "AI Assistants & Knowledge",
@@ -754,6 +760,12 @@
       "name": "DeepSeek R1",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/deepseek-r1.md"
+    },
+    {
+      "id": "deepspeed",
+      "name": "DeepSpeed",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/deepspeed.md"
     },
     {
       "id": "deeptutor",
@@ -2722,6 +2734,12 @@
       "doc_path": "docs/tools/automation_orchestration/puppeteer.md"
     },
     {
+      "id": "pydantic",
+      "name": "Pydantic",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/pydantic.md"
+    },
+    {
       "id": "pydantic-ai",
       "name": "PydanticAI",
       "category": "Frameworks",
@@ -3109,6 +3127,12 @@
       "name": "Tailscale",
       "category": "Automation & Orchestration",
       "doc_path": "docs/services/tailscale.md"
+    },
+    {
+      "id": "tailwind-css",
+      "name": "Tailwind CSS",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/tailwind-css.md"
     },
     {
       "id": "taskfile",

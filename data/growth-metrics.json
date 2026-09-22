@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-09-22",
-  "total_docs": 551,
-  "tool_docs": 498,
+  "total_docs": 555,
+  "tool_docs": 502,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -9,16 +9,16 @@
     "automation_orchestration": 34,
     "benchmarking": 41,
     "calendar_tasks": 22,
-    "development_ops": 69,
-    "enterprise": 15,
-    "frameworks": 33,
+    "development_ops": 70,
+    "enterprise": 16,
+    "frameworks": 35,
     "infrastructure": 53,
     "intake_storage": 10,
     "orchestration": 9,
     "process_understanding": 40,
     "providers": 36
   },
-  "docs_with_code_examples": 551,
+  "docs_with_code_examples": 555,
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/tools/ai_knowledge/privategpt.md",
