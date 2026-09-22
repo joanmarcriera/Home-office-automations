@@ -409,6 +409,7 @@ nav:
           - MkDocs: tools/development_ops/mkdocs.md
           - Material for MkDocs: tools/development_ops/mkdocs-material.md
           - Github Copilot: tools/development_ops/github_copilot.md
+          - Tailwind CSS: tools/development_ops/tailwindcss.md
           - Google Stitch: tools/development_ops/google-stitch.md
           - Gpt Engineer: tools/development_ops/gpt_engineer.md
           - Humanizer: tools/development_ops/humanizer.md
@@ -461,6 +462,7 @@ nav:
           - AutoGen Studio: tools/frameworks/autogen-studio.md
           - Axolotl: tools/frameworks/axolotl.md
           - CrewAI: tools/frameworks/crewai.md
+          - DeepSpeed: tools/frameworks/deepspeed.md
           - Distilabel: tools/frameworks/distilabel.md
           - DSPy: tools/frameworks/dspy.md
           - Embabel: tools/frameworks/embabel.md
@@ -481,6 +483,7 @@ nav:
           - NeMo AutoModel: tools/frameworks/nemo-automodel.md
           - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
           - Overview: tools/frameworks/index.md
+          - Pydantic: tools/frameworks/pydantic.md
           - PydanticAI: tools/frameworks/pydantic-ai.md
           - Rivet: tools/frameworks/rivet.md
           - Semantic Kernel: tools/frameworks/semantic-kernel.md
@@ -527,6 +530,7 @@ nav:
           - xAI Grok: tools/providers/xai-grok.md
       - Enterprise AI:
           - AmpCode: tools/enterprise/ampcode.md
+          - Bloomberg Terminal: tools/enterprise/bloomberg-terminal.md
           - Coveo: tools/enterprise/coveo.md
           - Curiosity: tools/enterprise/curiosity.md
           - Dashworks: tools/enterprise/dashworks.md
@@ -592,6 +596,7 @@ nav:
           - Dapr: tools/infrastructure/dapr.md
           - Diagrid Catalyst: tools/infrastructure/diagrid-catalyst.md
           - Docker: tools/infrastructure/docker.md
+          - Docker Compose: tools/infrastructure/docker-compose.md
           - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
