@@ -1,15 +1,15 @@
 {
   "snapshot_date": "2026-09-22",
-  "total_docs": 547,
-  "tool_docs": 494,
+  "total_docs": 551,
+  "tool_docs": 498,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
     "ai_knowledge": 102,
-    "automation_orchestration": 33,
+    "automation_orchestration": 34,
     "benchmarking": 41,
-    "calendar_tasks": 21,
-    "development_ops": 67,
+    "calendar_tasks": 22,
+    "development_ops": 69,
     "enterprise": 15,
     "frameworks": 33,
     "infrastructure": 53,
@@ -18,7 +18,7 @@
     "process_understanding": 40,
     "providers": 36
   },
-  "docs_with_code_examples": 547,
+  "docs_with_code_examples": 551,
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/tools/ai_knowledge/privategpt.md",
@@ -43,7 +43,7 @@
     "docs/tools/ai_knowledge/llama.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 0,
+  "weekly_additions": 4,
   "intake_items_7d": 30,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
