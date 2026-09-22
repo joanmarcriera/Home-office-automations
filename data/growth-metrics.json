@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-09-22",
-  "total_docs": 560,
-  "tool_docs": 507,
+  "total_docs": 563,
+  "tool_docs": 510,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -15,21 +15,24 @@
     "infrastructure": 57,
     "intake_storage": 10,
     "orchestration": 10,
-    "process_understanding": 40,
-    "providers": 36
+    "process_understanding": 41,
+    "providers": 38
   },
-  "docs_with_code_examples": 560,
+  "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/llama-app.md",
-    "docs/tools/infrastructure/podman.md",
-    "docs/tools/infrastructure/zilliz.md",
-    "docs/tools/orchestration/hera.md",
+    "docs/tools/providers/hailuo-ai.md",
     "docs/tools/ai_knowledge/privategpt.md",
     "docs/tools/infrastructure/ramalama.md",
-    "docs/tools/infrastructure/docker-compose.md",
+    "docs/tools/infrastructure/llama-app.md",
+    "docs/tools/infrastructure/zilliz.md",
+    "docs/tools/infrastructure/podman.md",
     "docs/tools/infrastructure/lancedb.md",
+    "docs/tools/providers/nebius.md",
+    "docs/tools/orchestration/hera.md",
     "docs/tools/automation_orchestration/mcp-servers.md",
+    "docs/tools/process_understanding/weights-and-biases.md",
+    "docs/tools/infrastructure/docker-compose.md",
     "docs/tools/development_ops/mkdocs-material.md",
     "docs/tools/infrastructure/vortex.md",
     "docs/tools/infrastructure/llama-swap.md",
@@ -37,13 +40,10 @@
     "docs/tools/infrastructure/text-generation-webui.md",
     "docs/tools/infrastructure/ninfer.md",
     "docs/tools/ai_knowledge/joplin.md",
-    "docs/tools/ai_knowledge/otaku.md",
-    "docs/tools/ai_knowledge/sora.md",
-    "docs/tools/process_understanding/logfire.md",
-    "docs/tools/benchmarking/human-eval.md"
+    "docs/tools/ai_knowledge/otaku.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 5,
+  "weekly_additions": 3,
   "intake_items_7d": 30,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
