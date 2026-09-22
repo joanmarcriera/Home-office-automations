@@ -1454,6 +1454,12 @@
       "doc_path": "docs/tools/development_ops/humanizer.md"
     },
     {
+      "id": "ifttt",
+      "name": "IFTTT",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/ifttt.md"
+    },
+    {
       "id": "immich",
       "name": "Immich",
       "category": "Media & Entertainment",
@@ -1524,6 +1530,12 @@
       "name": "Jellyfin",
       "category": "Intake & Storage",
       "doc_path": "docs/services/jellyfin.md"
+    },
+    {
+      "id": "jmap",
+      "name": "JMAP Protocol",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/jmap.md"
     },
     {
       "id": "joplin",
@@ -2270,6 +2282,12 @@
       "name": "Nextcloud",
       "category": "Intake & Storage",
       "doc_path": "docs/services/nextcloud.md"
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/nextjs.md"
     },
     {
       "id": "ninfer",
@@ -3268,6 +3286,12 @@
       "name": "Unstructured.io",
       "category": "Intake & Storage",
       "doc_path": "docs/tools/intake_storage/unstructured.md"
+    },
+    {
+      "id": "v0-dev",
+      "name": "v0.dev",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/v0-dev.md"
     },
     {
       "id": "vakra",

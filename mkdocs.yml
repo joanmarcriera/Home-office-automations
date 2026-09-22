@@ -285,6 +285,7 @@ nav:
           - CliHub: tools/automation_orchestration/clihub.md
           - CodeGraphContext: tools/automation_orchestration/codegraphcontext.md
           - GNU Make: tools/automation_orchestration/gnu-make.md
+          - IFTTT: tools/automation_orchestration/ifttt.md
           - Just: tools/automation_orchestration/just.md
           - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
           - Gumloop: tools/automation_orchestration/gumloop.md
@@ -361,6 +362,7 @@ nav:
           - Calendly: tools/calendar_tasks/calendly.md
           - Fantastical: tools/calendar_tasks/fantastical.md
           - Fastmail: tools/calendar_tasks/fastmail.md
+          - JMAP Protocol: tools/calendar_tasks/jmap.md
           - Google Calendar: tools/calendar_tasks/google_calendar.md
           - Google Tasks: tools/calendar_tasks/google-tasks.md
           - Microsoft To Do: tools/calendar_tasks/microsoft-todo.md
@@ -418,6 +420,7 @@ nav:
           - Melty: tools/development_ops/melty.md
           - Mentat: tools/development_ops/mentat.md
           - NanoClaw: tools/development_ops/nanoclaw.md
+          - Next.js: tools/development_ops/nextjs.md
           - Netlify: tools/development_ops/netlify.md
           - OpenClaw: tools/development_ops/openclaw.md
           - OpenCode: tools/development_ops/opencode.md
@@ -437,6 +440,7 @@ nav:
           - Vercel: tools/development_ops/vercel.md
           - Vercel OSS: tools/development_ops/vercel-oss.md
           - Vercel v0 API: tools/development_ops/vercel-v0-api.md
+          - v0.dev: tools/development_ops/v0-dev.md
           - Vscode: tools/development_ops/vscode.md
           - Windsurf: tools/development_ops/windsurf.md
           - Zed: tools/development_ops/zed.md
