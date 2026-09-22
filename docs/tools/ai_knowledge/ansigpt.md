@@ -153,8 +153,8 @@ print(f"Target compiled configuration: {validated_config.model_name} with {valid
 - [Smolagents](../frameworks/smolagents.md) — Minimalist agentic framework from Hugging Face.
 - [Pydantic AI](../frameworks/pydantic-ai.md) — Production-grade agentic framework with strict schema validation.
 - [Transformer Architecture](../../knowledge_base/patterns/index.md) — Core concept.
-- [MicroGPT](https://github.com/karpathy/microGPT) — The original inspiration for ansigpt.
-- [C89 Portability Guide](https://en.wikipedia.org/wiki/ANSI_C) — Standard compliance reference.
+- [MicroGPT](microgpt.md) — The original inspiration for ansigpt.
+- [C89 Portability Guide](../development_ops/c89-portability-guide.md) — Standard compliance reference.
 
 ## Sources / references
 - [ansigpt: c89 implementation of microgpt](https://github.com/yobibyte/ansigpt)

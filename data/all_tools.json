@@ -381,7 +381,7 @@
       "id": "c89-portability",
       "name": "C89 Portability Guide",
       "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/c89-portability.md"
+      "doc_path": "docs/tools/development_ops/c89-portability-guide.md"
     },
     {
       "id": "caldav",
@@ -508,6 +508,12 @@
       "name": "Claude Skills Ecosystem",
       "category": "Agents",
       "doc_path": "docs/tools/agents/claude-skills-ecosystem.md"
+    },
+    {
+      "id": "clawhub",
+      "name": "ClawHub",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/clawhub.md"
     },
     {
       "id": "clawrouter",
@@ -2006,6 +2012,12 @@
       "doc_path": "docs/tools/development_ops/mentat.md"
     },
     {
+      "id": "microgpt",
+      "name": "MicroGPT",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/microgpt.md"
+    },
+    {
       "id": "microsoft-agent-framework",
       "name": "Microsoft Agent Framework",
       "category": "Frameworks",
@@ -2954,6 +2966,12 @@
       "doc_path": "docs/services/storj.md"
     },
     {
+      "id": "suno",
+      "name": "Suno",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/suno.md"
+    },
+    {
       "id": "sunsama",
       "name": "Sunsama",
       "category": "Calendar & Tasks",
@@ -3206,6 +3224,12 @@
       "name": "Ubuntu AI Snaps",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/ubuntu-ai.md"
+    },
+    {
+      "id": "udio",
+      "name": "Udio",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/udio.md"
     },
     {
       "id": "unsloth",
