@@ -517,7 +517,9 @@ nav:
           - Liquid AI: tools/providers/liquid-ai.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
           - MiniMax: tools/providers/minimax.md
+          - Hailuo AI: tools/providers/hailuo-ai.md
           - Mistral AI: tools/providers/mistral.md
+          - Nebius Group: tools/providers/nebius.md
           - Monolith: tools/providers/monolith.md
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
@@ -694,6 +696,7 @@ nav:
           - Tesseract CLI: tools/process_understanding/tesseract.md
           - Tempo: tools/process_understanding/tempo.md
           - W&B Weave: tools/process_understanding/wandb-weave.md
+          - Weights & Biases (Core): tools/process_understanding/weights-and-biases.md
           - Webhook: tools/process_understanding/webhook.md
   - Reports:
       - Overview: reports/ralph-loop-triage.md

@@ -1370,6 +1370,12 @@
       "doc_path": "docs/services/habitica.md"
     },
     {
+      "id": "hailuo-ai",
+      "name": "Hailuo AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/hailuo-ai.md"
+    },
+    {
       "id": "hashicorp-vault",
       "name": "HashiCorp Vault",
       "category": "Automation & Orchestration",
@@ -2254,6 +2260,12 @@
       "name": "Navidrome",
       "category": "Media & Entertainment",
       "doc_path": "docs/services/navidrome.md"
+    },
+    {
+      "id": "nebius",
+      "name": "Nebius Group",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/nebius.md"
     },
     {
       "id": "nemo-automodel",
@@ -3496,6 +3508,12 @@
       "name": "Webhook",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/webhook.md"
+    },
+    {
+      "id": "weights-and-biases",
+      "name": "Weights & Biases (Core)",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/weights-and-biases.md"
     },
     {
       "id": "whisper",
