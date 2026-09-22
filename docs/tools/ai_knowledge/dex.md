@@ -188,7 +188,7 @@ console.log(data);
 - [Notion AI](notion-ai.md)
 - [Obsidian](obsidian.md)
 - [Logseq](logseq.md)
-- [ClawHub](https://www.clawhub.ai/) (Skill marketplace)
+- [ClawHub](clawhub.md) (Skill marketplace)
 
 ## Sources / references
 - [Official Website](https://getdex.com/)

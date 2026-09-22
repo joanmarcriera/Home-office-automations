@@ -255,8 +255,8 @@ def edit_track_infill(project_id: str, request: InfillEditRequest) -> dict:
 - [Project Genie](project-genie.md)
 - [Luma Dream Machine](luma-dream-machine.md)
 - [Synthesia](synthesia.md)
-- [Suno](https://suno.com/)
-- [Udio](https://www.udio.com/)
+- [Suno](suno.md)
+- [Udio](udio.md)
 - [Stable Audio](https://www.stableaudio.com/)
 - [AudioCPP](../ai_knowledge/audiocpp.md)
 

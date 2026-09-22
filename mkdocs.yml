@@ -189,6 +189,7 @@ nav:
           - Claude Desktop: tools/ai_knowledge/claude-desktop.md
           - Claude How-To: tools/ai_knowledge/claude-howto.md
           - Claude Mythos: tools/ai_knowledge/claude-mythos.md
+          - ClawHub: tools/ai_knowledge/clawhub.md
           - ComfyUI: tools/ai_knowledge/comfyui.md
           - ColQwen: tools/ai_knowledge/colqwen.md
           - Copy.ai: tools/ai_knowledge/copy-ai.md
@@ -241,6 +242,7 @@ nav:
           - Luma Dream Machine: tools/ai_knowledge/luma-dream-machine.md
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Mellum2: tools/ai_knowledge/mellum2.md
+          - MicroGPT: tools/ai_knowledge/microgpt.md
           - Muse Glimmer: tools/ai_knowledge/muse-glimmer.md
           - Moondream: tools/ai_knowledge/moondream.md
           - Nano Banana: tools/ai_knowledge/nano-banana.md
@@ -263,6 +265,8 @@ nav:
           - Runway ML: tools/ai_knowledge/runwayml.md
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
           - Sora: tools/ai_knowledge/sora.md
+          - Suno: tools/ai_knowledge/suno.md
+          - Udio: tools/ai_knowledge/udio.md
           - Supraelegans-500K: tools/ai_knowledge/supraelegans.md
           - Synthesia: tools/ai_knowledge/synthesia.md
           - TeamOut: tools/ai_knowledge/teamout.md
@@ -373,7 +377,7 @@ nav:
           - AI SDK (by Vercel): tools/development_ops/vercel-ai-sdk.md
           - Aider: tools/development_ops/aider.md
           - Anti Gravity: tools/development_ops/anti_gravity.md
-          - C89 Portability Guide: tools/development_ops/c89-portability.md
+          - C89 Portability Guide: tools/development_ops/c89-portability-guide.md
           - Axiom Guardian: tools/development_ops/axiom-guardian.md
           - Claude Code: tools/development_ops/claude-code.md
           - Claude Code Container MCP: tools/development_ops/claude-code-container-mcp.md
