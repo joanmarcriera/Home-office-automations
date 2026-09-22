@@ -265,6 +265,7 @@ nav:
           - Runway ML: tools/ai_knowledge/runwayml.md
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
           - Sora: tools/ai_knowledge/sora.md
+          - Stable Audio: tools/ai_knowledge/stable-audio.md
           - Suno: tools/ai_knowledge/suno.md
           - Udio: tools/ai_knowledge/udio.md
           - Supraelegans-500K: tools/ai_knowledge/supraelegans.md
@@ -284,6 +285,7 @@ nav:
           - CliHub: tools/automation_orchestration/clihub.md
           - CodeGraphContext: tools/automation_orchestration/codegraphcontext.md
           - GNU Make: tools/automation_orchestration/gnu-make.md
+          - Just: tools/automation_orchestration/just.md
           - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
           - Gumloop: tools/automation_orchestration/gumloop.md
           - HashiCorp Vault: tools/automation_orchestration/hashicorp-vault.md
@@ -303,6 +305,7 @@ nav:
           - ServiceNow MCP: tools/automation_orchestration/servicenow-mcp.md
           - Skyvern: tools/automation_orchestration/skyvern.md
           - Stagehand: tools/automation_orchestration/stagehand.md
+          - Task (Taskfile): tools/automation_orchestration/taskfile.md
           - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
           - Vellum: tools/automation_orchestration/vellum.md
           - Vikunja MCP Server: tools/automation_orchestration/vikunja-mcp.md
@@ -420,6 +423,7 @@ nav:
           - OpenCode: tools/development_ops/opencode.md
           - OpenSwarm: tools/development_ops/openswarm.md
           - Openhands: tools/development_ops/openhands.md
+          - Optuna: tools/development_ops/optuna.md
           - Plandex: tools/development_ops/plandex.md
           - Playwright: tools/development_ops/playwright.md
           - ripgrep: tools/development_ops/ripgrep.md

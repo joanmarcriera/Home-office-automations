@@ -1556,6 +1556,12 @@
       "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
     },
     {
+      "id": "just",
+      "name": "Just",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/just.md"
+    },
+    {
       "id": "k3s",
       "name": "Kubernetes (K3s)",
       "category": "Infrastructure",
@@ -1783,7 +1789,8 @@
         "offline-first",
         "local-llm",
         "model-routing"
-      ]
+      ],
+      "id": "llama-swap"
     },
     {
       "id": "llamacpp-windows-manager",
@@ -2469,6 +2476,12 @@
       "doc_path": "docs/tools/process_understanding/opentelemetry-collector.md"
     },
     {
+      "id": "optuna",
+      "name": "Optuna",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/optuna.md"
+    },
+    {
       "id": "os-world",
       "name": "OSWorld",
       "category": "Benchmarking",
@@ -2954,6 +2967,12 @@
       "doc_path": "docs/services/speedtest.md"
     },
     {
+      "id": "stable-audio",
+      "name": "Stable Audio",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/stable-audio.md"
+    },
+    {
       "id": "stagehand",
       "name": "Stagehand",
       "category": "Automation & Orchestration",
@@ -3074,6 +3093,12 @@
       "doc_path": "docs/services/tailscale.md"
     },
     {
+      "id": "taskfile",
+      "name": "Task (Taskfile)",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/taskfile.md"
+    },
+    {
       "id": "tavily",
       "name": "Tavily",
       "category": "Providers",
@@ -3133,7 +3158,8 @@
         "offline-first",
         "local-llm",
         "web-ui"
-      ]
+      ],
+      "id": "text-generation-webui"
     },
     {
       "id": "tgi",
