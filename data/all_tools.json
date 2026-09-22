@@ -838,6 +838,12 @@
       "doc_path": "docs/tools/infrastructure/docker.md"
     },
     {
+      "id": "docker-compose",
+      "name": "Docker Compose",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/docker-compose.md"
+    },
+    {
       "id": "docling",
       "name": "Docling",
       "category": "Process & Understanding",
@@ -1400,6 +1406,12 @@
       "doc_path": "docs/tools/benchmarking/helm.md"
     },
     {
+      "id": "hera",
+      "name": "Hera Python SDK",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/hera.md"
+    },
+    {
       "id": "heretic-ara",
       "name": "Heretic / ARA",
       "category": "AI Assistants & Knowledge",
@@ -1788,6 +1800,12 @@
       "name": "Llama 4 Maverick",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/llama-4-maverick.md"
+    },
+    {
+      "id": "llama-app",
+      "name": "llama.app",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/llama-app.md"
     },
     {
       "id": "llama-cpp",
@@ -2648,6 +2666,12 @@
       "name": "Plex Automation",
       "category": "Services",
       "doc_path": "docs/services/plex-automation.md"
+    },
+    {
+      "id": "podman",
+      "name": "Podman",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/podman.md"
     },
     {
       "id": "poolside",
@@ -3514,6 +3538,12 @@
       "name": "ZenML",
       "category": "Orchestration",
       "doc_path": "docs/tools/orchestration/zenml.md"
+    },
+    {
+      "id": "zilliz",
+      "name": "Zilliz",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/zilliz.md"
     },
     {
       "id": "zse",
