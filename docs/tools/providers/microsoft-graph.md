@@ -114,9 +114,11 @@ This example demonstrates a programmatic helper that retrieves Microsoft Graph u
 ```python
 import httpx
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, ValidationError, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, EmailStr
 
 class MicrosoftGraphUser(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
     id: str = Field(..., description="The unique object ID of the Entra user.")
     display_name: str = Field(..., alias="displayName", description="The formatted full name of the user.")
     given_name: Optional[str] = Field(None, alias="givenName")
@@ -124,6 +126,7 @@ class MicrosoftGraphUser(BaseModel):
     user_principal_name: EmailStr = Field(..., alias="userPrincipalName", description="The standard login principal email.")
     job_title: Optional[str] = Field(None, alias="jobTitle")
     mail: Optional[EmailStr] = Field(None)
+    fastmcp_protocol_version: str = Field(default="3.1", description="FastMCP task protocol target version.")
 
 def fetch_and_validate_user(access_token: str) -> Optional[MicrosoftGraphUser]:
     """Fetches user profile data from Microsoft Graph API and validates structure using Pydantic v2."""
@@ -134,7 +137,7 @@ def fetch_and_validate_user(access_token: str) -> Optional[MicrosoftGraphUser]:
     url = "https://graph.microsoft.com/v1.0/me"
 
     try:
-        # Mock representation of safe HTTP exchange
+        # Representation of safe HTTP exchange
         response = httpx.get(url, headers=headers, timeout=10.0)
 
         if response.status_code == 200:
@@ -148,7 +151,8 @@ def fetch_and_validate_user(access_token: str) -> Optional[MicrosoftGraphUser]:
                 "surname": "Doe",
                 "userPrincipalName": "jane.doe@enterprise-jan2027.com",
                 "jobTitle": "Lead AI Architect",
-                "mail": "jane.doe@enterprise-jan2027.com"
+                "mail": "jane.doe@enterprise-jan2027.com",
+                "fastmcp_protocol_version": "3.1"
             }
 
         # Validate with Pydantic v2
@@ -170,6 +174,7 @@ if __name__ == "__main__":
         print(f"  Name: {user_profile.display_name}")
         print(f"  UPN: {user_profile.user_principal_name}")
         print(f"  Title: {user_profile.job_title}")
+        print(f"  Protocol: FastMCP {user_profile.fastmcp_protocol_version}")
 ```
 
 ## Related tools / concepts
