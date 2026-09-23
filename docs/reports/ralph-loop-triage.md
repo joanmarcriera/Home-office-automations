@@ -172,6 +172,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 694** | Oldest Intake Issues Processing | **Verified & Closed** | Processed Weights & Biases (Core), Hailuo AI, and Nebius Group intake entries. Verified 2027-01-07. |
 | **Batch 695** | AI Provider Docs Audit | **Verified & Closed** | Audited huggingface, internlm, katcoderair, lfm-encoders, and liquid-ai for early January 2027 technical freshness. Verified 2027-01-07. |
 | **Batch 696** | AI Provider Docs Audit | **Verified & Closed** | Audited microsoft-graph, minimax, mistral, monolith, and moonshot for early January 2027 technical freshness. Verified 2027-01-07. |
+| **Batch 697** | AI Provider Docs Audit | **Verified & Closed** | Audited nebius, nvidia, openpangu, perplexity, and poolside for early January 2027 technical freshness. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
