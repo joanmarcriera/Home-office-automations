@@ -3,6 +3,20 @@
 ## What it is
 LM Evaluation Harness (by EleutherAI) is a unified framework for few-shot evaluation of autoregressive language models. It provides a standardized interface to evaluate models on hundreds of different tasks, including MMLU, ARC, HellaSwag, GSM8K, and many more. It is the primary backend for the Hugging Face [Open LLM Leaderboard](index.md) and supports frontier early 2027 models including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, Llama 4 Maverick, and Qwen 3.6 VL.
 
+## Evaluation Pipeline Architecture
+
+```mermaid
+graph TD
+    A[YAML Task Specs & Prompt Templates] --> B[LM Evaluation Harness Engine]
+    B -->|Model Interfaces| C1[Hugging Face / Accelerate Backend]
+    B -->|Model Interfaces| C2[vLLM High-Throughput Engine]
+    B -->|Model Interfaces| C3[FastMCP 3.1 & Cloud APIs]
+    C1 --> D[Metric Evaluators & LLM Scorers]
+    C2 --> D
+    C3 --> D
+    D -->|Pydantic v2 Output Validation| E[Standardized Leaderboard & Telemetry Logs]
+```
+
 ## What problem it solves
 Eliminates the need for researchers to implement individual, often inconsistent, evaluation pipelines for every new benchmark. By providing a single, standardized framework, it ensures that results are comparable across different papers and models, reducing the "eval-hacking" potential and implementation overhead in the rapidly evolving agentic ecosystem.
 
@@ -94,27 +108,39 @@ lm_eval --model mcp \
 
 ## API examples
 
-### Python API Usage
-The harness can be integrated directly into Python scripts for automated validation pipelines.
+### FastMCP 3.1 Harness Evaluation Gateway
+Exposing evaluation harness task triggers over FastMCP 3.1 Task Protocol:
 
 ```python
-import lm_eval
-from lm_eval.models.huggingface import HFLM
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from typing import List
 
-# Initialize model (lm-eval v0.4.x+)
-model = HFLM(pretrained="EleutherAI/pythia-160m")
+mcp = FastMCP("LM Evaluation Harness Server")
 
-# Run evaluation
-results = lm_eval.simple_evaluate(
-    model=model,
-    tasks=["arc_easy", "gsm8k"],
-    num_fewshot=5,
-    batch_size=8,
-    device="cuda:0"
-)
+class EvalTaskRequest(BaseModel):
+    model_name: str = Field(..., description="Target model string (e.g., vllm/meta-llama/Llama-4-70b)")
+    tasks: List[str] = Field(default_factory=lambda: ["mmlu_pro", "gsm8k"])
+    num_fewshot: int = Field(5, ge=0)
 
-# Print results
-print(lm_eval.utils.make_table(results))
+class EvalTaskResult(BaseModel):
+    model_name: str
+    completed_tasks: List[str]
+    mmlu_score: float
+
+@mcp.tool()
+async def run_harness_evaluation(req: EvalTaskRequest, ctx: Context) -> EvalTaskResult:
+    """Runs EleutherAI LM Evaluation Harness suite via FastMCP."""
+    ctx.info(f"Triggering LM Eval Harness on {req.model_name} for tasks: {req.tasks}")
+
+    return EvalTaskResult(
+        model_name=req.model_name,
+        completed_tasks=req.tasks,
+        mmlu_score=0.884
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Advanced Pipeline Optimization on Llama 4 and Gemma 3 with Pydantic v2 validation

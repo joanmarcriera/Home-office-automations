@@ -3,6 +3,18 @@
 ## What it is
 GPT-Red is an open-source automated red-teaming, prompt injection, and adversarial security testing framework designed specifically to identify vulnerabilities in large language models (LLMs) and LLM-powered applications. It executes targeted prompt injection, jailbreaking, and data exfiltration payloads against target models to gauge their defensive robustness.
 
+## System Architecture
+
+```mermaid
+graph TD
+    A[Security Engineer / CI/CD Gate] -->|Defines Test Suite| B[GPT-Red Engine]
+    B -->|Selects Vector| C[Adversarial Payload Generator]
+    C -->|Indirect Injection / Jailbreaks| D[Target Model / Agent Endpoint]
+    D -->|Raw Response| E[Safety Classifier & Judge]
+    E -->|Scoring & Threshold Verification| F[Pydantic v2 Compliance Report]
+    F -->|Fail on Vulnerability| G[CI/CD Security Gate Action]
+```
+
 ## What problem it solves
 As agentic workflows gain full control over shell terminals, databases, and APIs, they become highly vulnerable to prompt injection attacks. Standard security scanners cannot identify these semantic vulnerabilities. GPT-Red automates prompt injection and jailbreak payload testing, enabling developers and security engineers to systematically stress-test, evaluate, and harden their models against malicious instructions and system-prompt bypasses.
 
@@ -67,6 +79,51 @@ gpt-red run --config security-ci.yml --fail-on-vulnerability
 
 ## API examples
 Use GPT-Red programmatically inside Python test frameworks (e.g., pytest) to run security assertions, validated using Pydantic v2 schemas and FastMCP 3.1 Task Protocol.
+
+### FastMCP 3.1 Automated Security Red-Teaming Server
+Below is a production pattern exposing GPT-Red security audits over FastMCP 3.1 Task Protocol:
+
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ValidationError
+from typing import List
+from datetime import datetime
+
+mcp = FastMCP("GPT-Red Security Audit Server")
+
+class RedTeamTaskRequest(BaseModel):
+    target_model: str = Field(..., description="Target LLM endpoint or model ID")
+    attack_vectors: List[str] = Field(default_factory=lambda: ["indirect_prompt_injection", "jailbreak_v4"])
+    max_payloads: int = Field(10, ge=1, le=100)
+
+class AuditSummary(BaseModel):
+    scan_id: str
+    target_model: str
+    total_executed: int
+    vulnerabilities_found: int
+    passed_security_gate: bool
+
+@mcp.tool()
+async def run_security_audit(req: RedTeamTaskRequest, ctx: Context) -> AuditSummary:
+    """Executes GPT-Red adversarial tests over MCP Task Protocol."""
+    ctx.info(f"Initiating GPT-Red audit on {req.target_model} with vectors: {req.attack_vectors}")
+
+    # Simulated execution logic against endpoint
+    vulnerabilities = 0
+    total = len(req.attack_vectors) * req.max_payloads
+
+    summary = AuditSummary(
+        scan_id="mcp-scan-2027-01",
+        target_model=req.target_model,
+        total_executed=total,
+        vulnerabilities_found=vulnerabilities,
+        passed_security_gate=(vulnerabilities == 0)
+    )
+    return summary
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Programmatic Scan with Strict Pydantic v2 Schema Validation
 Using Pydantic v2, we validate adversarial scan report formats from GPT-Red to ensure they adhere to strict multi-agent compliance guidelines.

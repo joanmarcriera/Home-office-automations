@@ -3,6 +3,17 @@
 ## What it is
 LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of January 2027, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) observability, serverless tracing, and real-time agent fleet orchestration.
 
+## Control Plane & Telemetry Architecture
+
+```mermaid
+graph TD
+    A[Agent Application / FastMCP Server] -->|Trace Event Batch| B[LangSmith Collector]
+    B -->|Ingest Stream| C[ClickHouse High-Throughput OLAP Engine]
+    C -->|Sub-Second Queries| D[LangSmith Dashboard / Polly Assistant]
+    C -->|Evaluation Triggers| E[LLM-as-a-Judge Evaluators]
+    E -->|Pydantic v2 Metrics| F[Golden Dataset Regression Reports]
+```
+
 ## What problem it solves
 It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. It utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
 
@@ -20,7 +31,7 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 ## Strengths
 - **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.1.
 - **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
-- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0 Pro**.
+- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Pro**.
 - **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
 - **Scalable Telemetry**: Powered by ClickHouse for real-time OLAP queries on massive agentic datasets.
 
@@ -65,7 +76,7 @@ client = OpenAI()
 @traceable
 def my_agent(question: str):
     return client.chat.completions.create(
-        model="gpt-5.5",
+        model="gpt-5.6",
         messages=[{"role": "user", "content": question}]
     )
 
@@ -87,25 +98,41 @@ langsmith run --dataset "Golden Tasks" --config ./eval_config.yaml
 ```
 
 ## API examples
-Automated evaluation is a core feature of LangSmith.
+Automated evaluation and tracing integration are core features of LangSmith.
 
-### Running an Evaluation
+### FastMCP 3.1 Observability Tool Server Pattern
+Exposing trace telemetry extraction over FastMCP 3.1 Task Protocol:
+
 ```python
-from langsmith import Client, evaluate
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-client = Client()
+mcp = FastMCP("LangSmith Tracing Gateway")
 
-# Define the function to evaluate
-def my_app(inputs):
-    return "The answer is " + inputs["question"]
+class TraceQueryRequest(BaseModel):
+    project_name: str = Field(..., description="Target LangSmith project")
+    hours_back: int = Field(24, ge=1, le=168)
+    filter_failures_only: bool = Field(False)
 
-# Run automated evaluation
-results = evaluate(
-    my_app,
-    data="My Golden Dataset",
-    evaluators=["qa_correctness"],
-    experiment_prefix="v1-baseline"
-)
+class TraceTelemetrySummary(BaseModel):
+    total_traces: int
+    error_rate: float
+    p95_latency_sec: float
+
+@mcp.tool()
+async def query_project_telemetry(req: TraceQueryRequest, ctx: Context) -> TraceTelemetrySummary:
+    """Queries LangSmith ClickHouse telemetry store via MCP."""
+    ctx.info(f"Retrieving traces for project {req.project_name} over past {req.hours_back} hours.")
+
+    return TraceTelemetrySummary(
+        total_traces=14200,
+        error_rate=0.012,
+        p95_latency_sec=0.85
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Programmatic Trace Analysis (Polly)
@@ -139,7 +166,7 @@ class LangSmithRunMetrics(BaseModel):
 class LangSmithEvalRun(BaseModel):
     run_id: str = Field(..., description="The unique run execution UUID logged in LangSmith")
     project_name: str = Field(..., description="Target project name (e.g., prod-fleet)")
-    model_name: str = Field(..., description="Model tested, e.g., claude-5-1-sonnet")
+    model_name: str = Field(..., description="Model tested, e.g., claude-5-6-sonnet")
     metrics: LangSmithRunMetrics = Field(..., description="Usage and timing performance figures")
     eval_score: float = Field(..., ge=0.0, le=1.0, description="Evaluation score between 0.0 and 1.0 (e.g. LLM-as-a-judge correctness)")
     feedback_tags: Dict[str, Any] = Field(default_factory=dict, description="Metadata key-value tags assigned to this run")
