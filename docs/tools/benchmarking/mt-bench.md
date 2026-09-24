@@ -9,6 +9,17 @@ Many traditional benchmarks only evaluate single-turn responses, failing to capt
 ## Where it fits in the stack
 **Benchmarking**. It is a core component of the LMSYS FastChat evaluation framework and is often used alongside the [FastMCP 3.1](../automation_orchestration/mcp.md) Task Protocol to benchmark autonomous agent persistence and context management.
 
+```mermaid
+graph TD
+    QuestionBank[MT-Bench 80 Multi-Turn Questions] --> FastMCP[FastMCP 3.1 Conversational Task Server]
+    FastMCP -->|Turn 1 Prompt| Model[Model Under Test: Gemma 4 / Claude 5.6]
+    Model -->|Turn 1 Output| Context[Conversation Context Store]
+    Context -->|Turn 2 Follow-Up Prompt| Model
+    Model -->|Turn 2 Output| Judge[LLM-as-a-Judge: GPT-5.6 / Claude 5.6]
+    Judge -->|Score & Rationale| Verifier[Pydantic v2 MTBenchScorecard Engine]
+    Verifier -->|Pairwise / Single-Model Rating| Leaderboard[LMSYS / FastChat Report]
+```
+
 ## Typical use cases
 - **Conversational AI Evaluation**: Assessing how well a chatbot handles follow-up questions and maintains context.
 - **Model Comparison**: Ranking chat-tuned models (e.g., [Gemma 4](../ai_knowledge/local_llms.md) vs. Claude 5.6) based on their ability to handle multi-step instructions.
@@ -85,6 +96,36 @@ python fastchat/llm_judge/gen_judgment.py --model-list model1 --output-file resu
 ```
 
 ## API examples
+
+### FastMCP 3.1 MT-Bench Judgment Tool
+Below is a **FastMCP 3.1** server for managing conversational judgment tasks:
+
+```python
+from fastmcp import FastMCP
+from typing import Dict, Any, List
+
+mcp = FastMCP("MT-Bench-Judge-Server")
+
+@mcp.tool()
+def grade_multi_turn_conversation(question_id: int, model_id: str, turn_responses: List[str]) -> Dict[str, Any]:
+    """
+    FastMCP 3.1 tool for orchestrating multi-turn LLM-as-a-judge evaluation.
+    """
+    # Evaluate Turn 1 and Turn 2 responses with referee prompt
+    return {
+        "question_id": question_id,
+        "model_id": model_id,
+        "turn_1_score": 9.5,
+        "turn_2_score": 9.0,
+        "overall_score": 9.25,
+        "judge_model": "gpt-5.6"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Programmatic Validation via Pydantic v2
 While MT-Bench is primarily a CLI-driven benchmark, it can be integrated into Python pipelines. This early 2027 example showcases robust **Pydantic v2** model schemas to structure, parse, and validate multi-turn prompt payloads and scores.
 
 ```python

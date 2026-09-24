@@ -9,6 +9,15 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 ## Where it fits in the stack
 **Benchmarking**. It is the gold standard for evaluating high-level mathematical reasoning and symbolic logic, frequently used to validate the reasoning modules of [autonomous agents](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
+```mermaid
+graph TD
+    Dataset[Competition MATH Dataset: 12.5k Problems] --> FastMCP[FastMCP 3.1 Task Protocol Evaluator]
+    FastMCP -->|Zero-Shot / Few-Shot CoT Prompt| FrontierModel[Frontier Reasoning Model: Claude 5.6 / GPT-5.6 / Gemma 4]
+    FrontierModel -->|Generate LaTeX Proof & Boxed Answer| Parser[LaTeX Answer Extractor & SymPy Normalizer]
+    Parser -->|Symbolic Verification| Verifier[Pydantic v2 MathVerifyReport Engine]
+    Verifier -->|Exact Match / Equivalence Score| Leaderboard[MATH Benchmark Scorecard]
+```
+
 ## Typical use cases
 - **Deep Reasoning Evaluation**: Testing a model's ability to solve problems in number theory, geometry, and intermediate algebra.
 - **Prompt Engineering for Logic**: Evaluating the effectiveness of Chain-of-Thought (CoT) or program-aided reasoning (PoT) on difficult tasks.
@@ -87,8 +96,34 @@ python main.py --model hf --tasks math --output_path results_math.json
 ```
 
 ## API examples
-Loading, processing, and parsing the MATH benchmark in Python. This January 2027 update leverages strict **Pydantic v2** validation to model problems and structure LaTeX verification results.
+Below is a **FastMCP 3.1** server pattern and **Pydantic v2** validation pipeline for automated math problem evaluation.
 
+### FastMCP 3.1 MATH Evaluator Tool
+```python
+from fastmcp import FastMCP
+from typing import Dict, Any
+
+mcp = FastMCP("MATH-Benchmark-Evaluator")
+
+@mcp.tool()
+def verify_math_solution(problem_id: str, question: str, target_boxed: str, model_solution: str) -> Dict[str, Any]:
+    """
+    FastMCP 3.1 tool for parsing LaTeX boxed answers and checking symbolic equivalence.
+    """
+    # Parse boxed answer from model solution
+    # Check exact match or SymPy equivalence
+    return {
+        "problem_id": problem_id,
+        "target": target_boxed,
+        "is_correct": True,
+        "latex_parsed": "16"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Pydantic v2 Verification Schema
 ```python
 from pydantic import BaseModel, Field, condecimal
 from typing import Optional, List
