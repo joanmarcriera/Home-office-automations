@@ -6,6 +6,16 @@ EvalPlus is a rigorous evaluation framework for Large Language Models (LLMs) foc
 ## What problem it solves
 Original coding benchmarks like [HumanEval](human-eval.md) often have very few test cases, allowing fragile or incorrect code to pass. EvalPlus addresses this "under-testing" problem by adding 80x more tests to HumanEval and 35x more tests to MBPP, revealing model weaknesses that simpler benchmarks miss.
 
+```mermaid
+graph TD
+    Prompt[Coding Task Prompt] -->|Generate Code| LLM[Frontier LLM / vLLM / Ollama]
+    LLM -->|Generated Python Solution| Generator[EvalPlus Codegen Engine]
+    Generator -->|Code Candidates| TestSuite[Enhanced Test Suite: HumanEval+ / MBPP+]
+    TestSuite -->|Execute 80x Enhanced Tests| DockerSandbox[Sandboxed Docker Runner]
+    DockerSandbox -->|Test Pass/Fail Results| Evaluator[EvalPlus Scoring Pipeline]
+    Evaluator -->|Robust Pass@k & EvalPerf Metrics| Report[Robustness & Efficiency Report]
+```
+
 ## Where it fits in the stack
 **Benchmarking**. It is a specialized tool for deeply evaluating the code generation capabilities and efficiency of LLMs. It sits between basic algorithmic benchmarks and full agentic benchmarks like [SWE-bench](swe-bench.md).
 
