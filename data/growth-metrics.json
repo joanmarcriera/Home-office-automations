@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-23",
+  "snapshot_date": "2026-09-24",
   "total_docs": 563,
   "tool_docs": 510,
   "service_docs": 53,
@@ -28,7 +28,6 @@
     "docs/tools/infrastructure/podman.md",
     "docs/tools/infrastructure/lancedb.md",
     "docs/tools/orchestration/hera.md",
-    "docs/tools/automation_orchestration/mcp-servers.md",
     "docs/tools/providers/hailuo-ai.md",
     "docs/tools/infrastructure/docker-compose.md",
     "docs/tools/development_ops/mkdocs-material.md",
@@ -40,7 +39,8 @@
     "docs/tools/infrastructure/ninfer.md",
     "docs/tools/ai_knowledge/joplin.md",
     "docs/tools/ai_knowledge/otaku.md",
-    "docs/tools/ai_knowledge/sora.md"
+    "docs/tools/ai_knowledge/sora.md",
+    "docs/tools/process_understanding/logfire.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
