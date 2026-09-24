@@ -6,6 +6,23 @@ HELM (Holistic Evaluation of Language Models) is an open-source evaluation frame
 ## What problem it solves
 LLM evaluation is often narrow, focusing only on accuracy for a few tasks. HELM addresses this by evaluating models across a wide range of "scenarios" (tasks) and "metrics" (accuracy, fairness, safety, efficiency, etc.). It solves the problem of "performance gaming" by providing a holistic view of model behavior rather than just a single, easily-optimizable score. It also supports the **FastMCP 3.1 Task Protocol** for evaluating agentic tool-use reliability and complex multi-agent workflows.
 
+## System Architecture
+
+```
+                                      HELM Holistic Evaluation Framework
+
+  +-----------------------+        +------------------------+        +--------------------------+
+  | Task Scenarios Grid   | ---->  | FastMCP 3.1 Task      | ---->  | LiteLLM Proxy / Frontier |
+  | (MMLU/MedQA/AIR-Bench)|        | Protocol Controller    |        | Model Inferences         |
+  +-----------------------+        +------------------------+        +--------------------------+
+                                                                                  |
+                                                                                  v
+  +-----------------------+        +------------------------+        +--------------------------+
+  | Leaderboard Dashboard | <----  | Pydantic v2 Scenario   | <----  | Multi-Metric Evaluator   |
+  | & Audit Workspace     |        | Report Validator       |        | (Accuracy/Safety/Bias)   |
+  +-----------------------+        +------------------------+        +--------------------------+
+```
+
 ## Where it fits in the stack
 **Benchmarking Layer**. It is a major framework used by researchers and engineers to perform deep-dive evaluations of foundation models. It serves as the "gold standard" for academic-grade verification and agentic reasoning audits.
 

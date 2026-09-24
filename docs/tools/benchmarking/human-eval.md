@@ -6,6 +6,23 @@ HumanEval is a benchmark released by OpenAI to evaluate the code generation capa
 ## What problem it solves
 Provides a standardized, non-contaminated measure of whether LLMs can generate functionally correct code from natural language descriptions. Since the problems were handwritten, it provides a cleaner evaluation of zero-shot coding ability than benchmarks derived from public repositories which may have been seen during training.
 
+## System Architecture
+
+```
+                                  HumanEval Code Generation Evaluation
+
+  +-----------------------+        +------------------------+        +--------------------------+
+  | 164 Python Problems   | ---->  | FastMCP 3.1 Task      | ---->  | Frontier LLM             |
+  | (Docstring & Specs)   |        | Protocol Orchestrator  |        | (Claude 5.1/GPT-5.5)     |
+  +-----------------------+        +------------------------+        +--------------------------+
+                                                                                  |
+                                                                                  v
+  +-----------------------+        +------------------------+        +--------------------------+
+  | Pass@k Metric &       | <----  | Pydantic v2 Pass@k     | <----  | Unit Test Execution      |
+  | Leaderboard Telemetry |        | Calculation Pipeline   |        | Sandbox (pytest/unittest)|
+  +-----------------------+        +------------------------+        +--------------------------+
+```
+
 ## Where it fits in the stack
 **Benchmarking**. Used as a primary reference benchmark for code generation and algorithmic reasoning capabilities of LLMs.
 
