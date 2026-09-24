@@ -9,6 +9,18 @@ Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data
 ## Where it fits in the stack
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
+```mermaid
+graph TD
+    Platforms[Competitive Coding Ingest: LeetCode / AtCoder / Codeforces] --> TimeSlice[Time-Indexed Problem Split]
+    TimeSlice --> Runner[LiveCodeBench Runner]
+    Runner --> Scenarios{Evaluation Scenario}
+    Scenarios -->|Code Generation| Gen[LLM Code Synth: Claude 5.6 / GPT-5.6 / DeepSeek-V4]
+    Scenarios -->|Execution Reasoning| Exec[Output Prediction Dry-Run]
+    Scenarios -->|Debugging & Self-Repair| Repair[Multi-Turn Self-Correction Loop]
+    Gen & Exec & Repair --> Sandbox[FastMCP 3.1 Sandboxed Docker Container]
+    Sandbox --> Score[Test Suite Pass Rate & Metrics Summary]
+```
+
 ## Typical use cases
 - **Frontier Model Evaluation**: Head-to-head coding capacity comparison between frontier models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Llama 4, Gemma 4, Qwen 3.6 VL).
 - **Contamination Diagnostics**: Identifying whether high performance on legacy benchmarks is inflated by pre-training memorization.
@@ -44,7 +56,7 @@ Clone the repository and install the runner requirements. It is recommended to u
 ```bash
 git clone https://github.com/LiveCodeBench/LiveCodeBench
 cd LiveCodeBench
-pip install -r requirements.txt
+pip install -r requirements.txt fastmcp pydantic
 ```
 
 ### 2. Configure Environment

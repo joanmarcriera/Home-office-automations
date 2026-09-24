@@ -9,6 +9,15 @@ Standard static benchmarks often fail to capture the interactive nature of softw
 ## Where it fits in the stack
 **Benchmarking / Agentic Evaluation**. It sits in the "agentic" evaluation space, testing the model's ability to act as a coding assistant or terminal agent. It is a critical validation layer for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) ecosystem and autonomous platforms like [Devin](../development_ops/devin.md) and [OpenHands](../development_ops/openhands.md).
 
+```mermaid
+graph TD
+    Agent[LLM Agent / GPT-5.6 / Claude 5.6] -->|Dispatches Command| GymEnv[InterCode Gym Environment]
+    GymEnv -->|Executes in Sandbox| Container[Docker Container: Bash / SQL / Python]
+    Container -->|Returns Standard Output / Errors| GymEnv
+    GymEnv -->|Formats Observation & Reward| Agent
+    GymEnv -->|Exposes Tools via FastMCP 3.1| MCP[FastMCP 3.1 Task Server]
+```
+
 ## Typical use cases
 - **Evaluating Terminal Agents**: Measuring how well models handle multi-step Bash/Shell tasks in a sandboxed environment.
 - **SQL Generation Benchmarking**: Testing SQL generation and execution capabilities against live databases.
@@ -43,7 +52,7 @@ InterCode requires [Docker](../infrastructure/docker.md) and Python 3.11+.
 ```bash
 git clone https://github.com/princeton-nlp/intercode
 cd intercode
-pip install -r requirements.txt
+pip install -r requirements.txt fastmcp
 ```
 
 ### Running an Evaluation with FastMCP 3.1
@@ -85,17 +94,24 @@ print(f"Shell Output: {observation}")
 
 ### FastMCP 3.1 Task Integration
 ```python
-from mcp.server.fastmcp import FastMCP
-from intercode.mcp import InterCodeMCPServer
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
 # Expose InterCode environment as an MCP 3.1 tool server using FastMCP
 mcp = FastMCP("InterCode Execution Server")
 
+class ExecutionRequest(BaseModel):
+    command: str = Field(..., description="Bash command to execute in sandbox")
+    environment: str = Field("bash", description="Target environment type (bash/sql/python)")
+
 @mcp.tool()
-def execute_bash_command(cmd: str) -> str:
-    """Executes a bash command within the isolated InterCode environment."""
+def execute_intercode_command(req: ExecutionRequest) -> str:
+    """Executes a command within the isolated InterCode sandbox environment via FastMCP 3.1."""
     # Internal execution logic mapping to the Docker container
-    return f"Executed: {cmd}"
+    return f"[{req.environment.upper()} Output]: Executed successfully: {req.command}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Programmatic Integration and Validation Example

@@ -1,13 +1,22 @@
 # JudgeGPT
 
 ## What it is
-JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judge** paradigm. It provides a framework for using large language models to evaluate and score the outputs of other models across various dimensions like accuracy, tone, and adherence to instructions. In early January 2027, it is natively integrated with the **MCP 3.1 Task Protocol** (and **FastMCP 3.1**), allowing for automated, standardized qualitative assessment of agentic task completion.
+JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judge** paradigm. It provides a framework for using large language models to evaluate and score the outputs of other models across various dimensions like accuracy, tone, and adherence to instructions. In early January 2027, it is natively integrated with the **FastMCP 3.1 Task Protocol**, allowing for automated, standardized qualitative assessment of agentic task completion.
 
 ## What problem it solves
 It addresses the limitations of traditional, static evaluation metrics (like BLEU or ROUGE) which fail to capture the nuance, creativity, and semantic correctness of modern LLM outputs. JudgeGPT automates the labor-intensive process of human evaluation while providing more consistent and scalable results. It specifically solves the "subjectivity gap" in evaluating agentic tool-use and multi-step reasoning traces.
 
 ## Where it fits in the stack
 **Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality or used within [Langsmith](langsmith.md) for production monitoring.
+
+```mermaid
+graph TD
+    Input[Candidate Agent Response & Context] --> Rubric[YAML Evaluation Rubric & Criteria]
+    Rubric --> JudgeEngine[Judge Engine: Claude 5.6 / GPT-5.6 / Gemini 4.0]
+    JudgeEngine --> Scoring[Criteria Breakdown & Score Weighting]
+    Scoring --> FastMCP[FastMCP 3.1 Automated Scoring Server]
+    FastMCP --> Report[Pydantic v2 Validated Judge Evaluation Output]
+```
 
 ## Typical use cases
 - **Model Comparison**: Automatically scoring two different models on the same set of prompts to determine which performs better.
@@ -17,7 +26,7 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 
 ## Strengths
 - **Open Source**: Allows for customization of judging criteria and prompt templates.
-- **Scalable**: Can evaluate thousands of responses quickly using frontier models like `claude-5-1-sonnet`, GPT-5.5, or Gemini 4.0 Pro.
+- **Scalable**: Can evaluate thousands of responses quickly using frontier models like `claude-5-6-sonnet`, GPT-5.6, or Gemini 4.0 Pro.
 - **Semantic Understanding**: Judges based on intent and meaning rather than just exact character matches.
 - **Explanation Generation**: Provides a rationale for its score, aiding in debugging and model alignment.
 
@@ -33,7 +42,7 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 
 ## When not to use it
 - For simple tasks that can be evaluated with deterministic code (e.g., JSON schema validation).
-- If you don't have access to a sufficiently powerful model (e.g., [Gemma 3](../ai_knowledge/local_llms.md), Qwen 3.6, Llama 4 or higher) to serve as a reliable judge.
+- If you don't have access to a sufficiently powerful model (e.g., [Gemma 4](../ai_knowledge/local_llms.md), Qwen 3.6, Llama 4 or higher) to serve as a reliable judge.
 
 ## Getting started
 
@@ -41,13 +50,48 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 JudgeGPT can be installed via pip:
 
 ```bash
-pip install judgegpt-eval
+pip install judgegpt-eval fastmcp pydantic
 ```
 
 ### Basic Setup
 1. Define your evaluation rubric in YAML format.
 2. Provide the reference (gold standard) and model outputs.
-3. Select your judge model (e.g., `gpt-5.5` or `claude-5-1-sonnet`).
+3. Select your judge model (e.g., `gpt-5.6` or `claude-5-6-sonnet`).
+
+## FastMCP 3.1 Automated Scoring Server Pattern
+
+JudgeGPT can be hosted as a FastMCP 3.1 tool server, exposing qualitative judgment endpoints to automated testing pipelines:
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("JudgeGPT Automated Scoring Server")
+
+class JudgeTaskRequest(BaseModel):
+    prompt: str = Field(..., description="Original query or task prompt")
+    candidate_response: str = Field(..., description="Model response to be evaluated")
+    judge_model: str = Field("anthropic/claude-5-6", description="Judge LLM provider/model")
+
+@mcp.tool()
+def score_agent_response(req: JudgeTaskRequest) -> dict:
+    """Evaluates candidate response using LLM-as-a-judge via FastMCP 3.1."""
+    # Simulated FastMCP evaluation response for demonstration
+    return {
+        "status": "completed",
+        "judge": req.judge_model,
+        "overall_score": 9.2,
+        "criteria": {
+            "accuracy": 9.5,
+            "clarity": 9.0,
+            "safety": 10.0
+        },
+        "rationale": "Response is highly accurate, logically structured, and contains no safety policy violations."
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ## CLI examples
 
@@ -57,7 +101,7 @@ judgegpt compare \
   --ref ./gold_standard.json \
   --model_a ./model_a_outputs.json \
   --model_b ./model_b_outputs.json \
-  --judge claude-5-1-sonnet
+  --judge claude-5-6-sonnet
 ```
 
 ### MCP 3.1 Task Audit
@@ -89,7 +133,7 @@ rubric:
 ```
 
 ### Programmatic Judging (Python) with strict Pydantic v2 validation
-Using GPT-5.5 or Claude 5.1 as a high-fidelity judge, validating the scoring output with a Pydantic v2 model.
+Using GPT-5.6 or Claude 5.6 as a high-fidelity judge, validating the scoring output with a Pydantic v2 model.
 
 ```python
 from typing import Dict, List, Optional
@@ -107,10 +151,10 @@ class JudgeEvalOutput(BaseModel):
     judge_model: str
 
 def evaluate_response_safely(prompt: str, response: str, rubric_path: str) -> Optional[JudgeEvalOutput]:
-    """Queries JudgeGPT using SOTA GPT-5.5 and enforces strict structural validation."""
+    """Queries JudgeGPT using SOTA GPT-5.6 and enforces strict structural validation."""
     try:
-        # Initialize GPT-5.5 as high-fidelity judge
-        judge = Judge(model="gpt-5.5")
+        # Initialize GPT-5.6 as high-fidelity judge
+        judge = Judge(model="gpt-5.6")
 
         raw_result = judge.evaluate(
             prompt=prompt,
@@ -146,7 +190,7 @@ if __name__ == "__main__":
 - [MT-Bench](mt-bench.md) — for multi-turn conversation evaluation.
 - [Langsmith](langsmith.md) — platform for LLM application development and monitoring.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — standard for agent-tool communication.
-- [Claude 5.1](../ai_knowledge/claude.md) — frequently used as a benchmark judge.
+- [Claude 5.6](../ai_knowledge/claude.md) — frequently used as a benchmark judge.
 
 ## Sources / references
 - [Project JudgeGPT: Open-source LLM-as-judge](https://github.com/example/judgegpt)
