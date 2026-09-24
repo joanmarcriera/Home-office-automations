@@ -10,6 +10,17 @@ Autonomous AI agents are vulnerable to sophisticated adversarial security threat
 **Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/README.md).
 It functions as a high-speed, inline security gateway or middleware. It sits directly between the user interface or third-party data ingress points and downstream LLMs/agents, serving as a defensive firewall and intercepting threats in real-time.
 
+```mermaid
+graph TD
+    UserQuery[User Prompt / Ingress Payload] --> Gateway[Lakera Guard Real-Time Proxy]
+    Gateway --> ThreatEngine[Gandalf Threat Intelligence Engine]
+    ThreatEngine -->|Scan Prompt Injections & PII| Decision{Threat Detected?}
+    Decision -->|Yes| Block[Block Request & Return Security Violation]
+    Decision -->|No| FastMCP[FastMCP 3.1 Tool Middleware & LLM Agent]
+    FastMCP --> OutputScan[Outbound Data Leakage / DLP Filter]
+    OutputScan --> User[Safe Response / Result Output]
+```
+
 ## Typical use cases
 - **Real-Time Input Protection**: Blocking direct jailbreak attempts, override prompt hacks, and system prompt harvesting on public-facing LLM deployments.
 - **Indirect Prompt Injection Filtering**: Neutralizing malicious instructions hidden in external web data retrieved by search agents, RAG engines, or web-browsing frameworks.
@@ -44,9 +55,9 @@ It functions as a high-speed, inline security gateway or middleware. It sits dir
 Lakera Guard is integrated into agent codebases either via its high-performance REST API or utilizing its native language SDKs.
 
 ### 1. Installation
-Install the official Lakera Python SDK:
+Install the official Lakera Python SDK and dependencies:
 ```bash
-pip install lakera
+pip install lakera pydantic fastmcp
 ```
 
 ### 2. Authentication
