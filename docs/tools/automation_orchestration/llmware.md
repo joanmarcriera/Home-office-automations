@@ -10,15 +10,26 @@ Enterprise AI applications often encounter privacy constraints (sending sensitiv
 **Automation & Orchestration / Enterprise RAG Layer**. It specializes in sovereign AI and specialized local model execution within the [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) framework.
 
 ## Typical use cases
-- **Privacy-First Sovereign RAG**: Deploying enterprise search assistants on isolated internal networks.
+- **Privacy-First Sovereign RAG**: Deploying enterprise search assistants on isolated internal networks without third-party API dependencies.
 - **Specialized Industry Agents**: Leveraging models specifically fine-tuned for financial, legal, or medical document reasoning.
-- **Automated High-Volume Document Extraction**: Extracting structured entities from PDFs, spreadsheets, and scanned documents.
-- **On-Device / Edge Agent Deployment**: Running structured reasoning agents on resource-constrained local infrastructure.
+- **Automated High-Volume Document Extraction**: Extracting structured entities, key clauses, and numerical metrics from PDFs, spreadsheets, and scanned documents.
+- **On-Device / Edge Agent Deployment**: Running structured reasoning agents on resource-constrained local infrastructure or workstation clusters.
+
+## Architecture & Technical Overview
+LLMWare uses a modular component architecture that cleanly separates document parsing, text chunking, embedding generation, vector storing, and model generation:
+
+1. **Library Engine**: Handles high-performance document ingestion across 20+ file formats (PDF, DOCX, PPTX, CSV, JSON, TXT). Uses native C-based parser bindings to maintain high throughput.
+2. **Embeddings & Vector Database Adapters**: Integrates directly with local vector stores (Milvus, Qdrant, Chroma, PGVector, FAISS) while offering zero-code switching between local sentence transformers and cloud embeddings.
+3. **SLM Catalog (BLING / DRAGON / SLIM)**:
+   - **BLING (Best Little Intelligent N-Instruction Generator)**: 1B-3B parameter instruct-tuned models optimized for low-latency CPU inference.
+   - **DRAGON (Data Retrieval Augmented Generation Optimization Network)**: 6B-7B parameter models fine-tuned specifically for complex multi-document synthesis and grounded Q&A.
+   - **SLIM (Structured Language Instruction Models)**: Task-specific micro-models (NER, intent analysis, sentiment, classification, summary) designed for deterministic function calling and structured outputs.
+4. **FastMCP 3.1 & Agent Interoperability Layer**: Exposes LLMWare workflows as standard Model Context Protocol (MCP) tools and resources, allowing orchestration engines to invoke sovereign local pipelines seamlessly.
 
 ## Strengths
 - **SLM Optimization**: Purpose-built to maximize accuracy using ultra-compact, domain-specific models (BLING, DRAGON, SLIM).
 - **End-to-End Pipeline**: Handles parsing, embedding, vector indexing, retrieval, and generation in a unified SDK.
-- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontier agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), [DeepSeek-V4](../ai_knowledge/local_llms.md)).
+- **FastMCP 3.1 Interoperability**: Direct tool-calling integration with local and frontend agents ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Qwen 3.8](../ai_knowledge/qwen.md), [DeepSeek-V4](../ai_knowledge/local_llms.md)).
 - **Hardware Efficiency**: Optimized CPU/GPU execution via GGUF and llama.cpp/vLLM backends.
 
 ## Limitations
@@ -71,6 +82,9 @@ llmware library create --name "ComplianceDocs" --path "./docs"
 # Download and test a local SLM model
 llmware model download --model "bling-phi-3-gguf"
 llmware model run --model "bling-phi-3-gguf" --prompt "Extract key contract dates."
+
+# Inspect local library statistics
+llmware library info --name "ComplianceDocs"
 ```
 
 ## API examples
@@ -102,11 +116,62 @@ extracted = EntityExtractionResult(
 print(extracted.model_dump_json(indent=2))
 ```
 
+### Advanced Multi-Step Audit Workflow
+Combining vector retrieval with SLIM intent classification and Pydantic validation:
+
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field
+from llmware.library import Library
+from llmware.retrieval import Query
+from llmware.models import ModelCatalog
+
+class ClauseAuditRecord(BaseModel):
+    document_name: str = Field(description="Source document name")
+    clause_text: str = Field(description="Relevant text clause excerpt")
+    risk_level: str = Field(description="Categorized risk level (Low, Medium, High)")
+    action_required: bool = Field(description="Whether manual review is needed")
+
+def audit_contract_library(library_name: str, topic: str) -> List[ClauseAuditRecord]:
+    lib = Library().load_library(library_name)
+    query = Query(lib)
+    search_results = query.semantic_search(topic, number_of_results=5)
+
+    slim_classifier = ModelCatalog().load_model("slim-sentiment-tool")
+    audit_records = []
+
+    for result in search_results:
+        snippet = result.get("text", "")
+        doc_name = result.get("file_source", "unknown")
+
+        # Analyze risk using SLIM classifier
+        classification = slim_classifier.function_call(snippet)
+        sentiment = classification.get("sentiment", ["neutral"])[0]
+
+        risk = "High" if sentiment == "negative" else "Low"
+
+        record = ClauseAuditRecord(
+            document_name=doc_name,
+            clause_text=snippet[:200],
+            risk_level=risk,
+            action_required=(risk == "High")
+        )
+        audit_records.append(record)
+
+    return audit_records
+
+# Example execution call
+if __name__ == "__main__":
+    records = audit_contract_library("internal_compliance", "indemnification liabilities")
+    print(f"Generated {len(records)} audit records.")
+```
+
 ### FastMCP 3.1 Server Registration Example
 Exposing LLMWare SLM reasoning as a FastMCP 3.1 tool service:
 
 ```python
 from pydantic import BaseModel, Field
+from llmware.models import ModelCatalog
 
 class FastMCPToolRequest(BaseModel):
     tool_name: str = Field(default="slim_ner_tool", description="FastMCP tool name")
@@ -125,6 +190,20 @@ def handle_mcp_request(request: FastMCPToolRequest) -> dict:
 req_data = FastMCPToolRequest(input_text="Global Tech Inc opened a new office in Tokyo.")
 print(handle_mcp_request(req_data))
 ```
+
+## Production Deployment & Operational Considerations
+- **Memory & CPU Sizing**:
+  - SLIM micro-models (1B) run comfortably in under 2 GB RAM per instance on standard x86 CPU cores.
+  - DRAGON 7B models require 8-16 GB RAM (GGUF Q4 quantification) or 16 GB GPU VRAM (FP16 via vLLM) for high concurrency.
+- **Docker Containerization**:
+  - Run LLMWare workers in stateless containers with shared mounted volumes for library indexes or persistent vector stores (Qdrant/Milvus).
+- **Data Governance**:
+  - Because all model weights and vector indexes run locally on premises, compliance audit logs are retained entirely within private VPC boundaries.
+
+## Troubleshooting & Common Failure Modes
+- **Out of Memory During Large PDF Ingestion**: High-resolution scanned PDFs may saturate memory during image extraction. Enable text-only parsing mode or pass `--batch-size 10` during ingestion.
+- **Vector DB Connection Failures**: Ensure vector store host ports (e.g., Qdrant `:6333` or Milvus `:19530`) are reachable from the LLMWare process environment.
+- **GGUF Model Load Errors**: Verify that C++ build tools or `llama-cpp-python` drivers match local CPU instruction extensions (AVX2/AVX512 or Metal on macOS).
 
 ## Related tools / concepts
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
