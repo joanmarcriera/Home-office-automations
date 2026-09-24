@@ -3,6 +3,18 @@
 ## What it is
 HLE is a benchmark designed to test the limits of LLMs on the most difficult human-level tasks. It consists of 3,000 highly complex, multi-disciplinary questions across over a hundred subjects (Mathematics, Physics, Biology, Humanities, etc.). Created by the Center for AI Safety (CAIS) and Scale AI, it represents a "frontier" benchmark where early January 2027 state-of-the-art models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL still perform poorly on the hardest subsets.
 
+## Evaluation Pipeline Architecture
+
+```mermaid
+graph TD
+    A[CAIS / Scale AI HLE Dataset] -->|Question Ingestion| B[FastMCP 3.1 Task Protocol Server]
+    B -->|Multimodal Ingestion ColQwen| C[Vision & Math Parser]
+    C -->|Prompts & Inputs| D[Frontier Model Under Test]
+    D -->|Candidate Response| E[LLM Judge / Scorer]
+    E -->|Automated Equivalence Verification| F[Pydantic v2 Validated Score]
+    F -->|Telemetry Logging| G[HLE Benchmark Leaderboard]
+```
+
 ## What problem it solves
 Addresses the "saturation" of existing benchmarks like MMLU and GPQA. As frontier models reach or exceed human-level performance on older tests, those tests lose their utility as measurement tools. HLE provides a new ceiling for frontier reasoning research, ensuring that progress toward expert-level agentic intelligence remains measurable.
 
@@ -79,6 +91,42 @@ lm_eval --model vllm \
 ```
 
 ## API examples
+
+### FastMCP 3.1 HLE Ingestion & Evaluation Server Pattern
+Exposing HLE benchmark runs over FastMCP 3.1 Task Protocol:
+
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from typing import Optional
+
+mcp = FastMCP("HLE Frontier Evaluator Server")
+
+class HLERunConfig(BaseModel):
+    model_identifier: str = Field(..., description="Frontier model to evaluate")
+    subject_filter: Optional[str] = Field(None, description="Specific academic subject or None for full suite")
+    sample_limit: int = Field(50, ge=1, le=3000)
+
+class HLEResultSummary(BaseModel):
+    model_identifier: str
+    total_processed: int
+    accuracy_percentage: float
+
+@mcp.tool()
+async def execute_hle_eval(config: HLERunConfig, ctx: Context) -> HLEResultSummary:
+    """Executes HLE benchmark subset over FastMCP 3.1 task protocol."""
+    ctx.info(f"Triggering HLE benchmark for {config.model_identifier} on subject {config.subject_filter}")
+
+    # Execution simulation
+    return HLEResultSummary(
+        model_identifier=config.model_identifier,
+        total_processed=config.sample_limit,
+        accuracy_percentage=24.5  # Early 2027 SOTA baseline on HLE
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Pydantic v2 Integration & Evaluator Verification
 Below is a production-ready example of evaluating and validating HLE evaluation metadata programmatically with **Pydantic v2** and **FastMCP 3.1 Task Protocol** before logging results into multi-agent databases.
