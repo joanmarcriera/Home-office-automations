@@ -6,6 +6,23 @@ AlpacaEval is an automatic evaluator for instruction-following language models. 
 ## What problem it solves
 Evaluation of instruction-following models typically requires human interaction, which is time-consuming, expensive, and difficult to replicate. AlpacaEval provides a replicable, automated proxy that allows developers to iterate quickly by simulating human preference judgments. It specifically addresses "verbosity bias" through length-controlled metrics and now incorporates the **MCP 3.1** and **FastMCP 3.1** protocol for automated benchmarking across diverse environments.
 
+## System Architecture
+
+```
+                                  AlpacaEval 2.0 Benchmarking Pipeline
+
+  +------------------+         +--------------------+         +------------------------+
+  |  Target Model    | ------> |  Model Outputs     | ------> |   GPT-5.6 / Claude 5.6 |
+  | (e.g., Gemini 4) |         | (AlpacaEval 2.0)   |         |    Automatic Judge     |
+  +------------------+         +--------------------+         +------------------------+
+                                                                          |
+                                                                          v
+  +------------------+         +--------------------+         +------------------------+
+  | FastMCP 3.1      | <------ | Length-Controlled  | <------ | Pairwise Preference    |
+  | Telemetry/Report |         | Win-Rate Adjuster  |         | Annotations & Stats    |
+  +------------------+         +--------------------+         +------------------------+
+```
+
 ## Where it fits in the stack
 [Layer 7: Evaluation & Guardrails](../../knowledge_base/ai_tooling_landscape.md#layer-7-evaluation-guardrails) — specifically as an **Automated Instruction-Following Benchmark**.
 

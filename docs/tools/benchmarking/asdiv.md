@@ -6,6 +6,23 @@ ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed fo
 ## What problem it solves
 Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. Under the latest Model Context Protocol (**FastMCP 3.1**) schemas, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
 
+## System Architecture
+
+```
+                                  ASDiv Semantic Evaluation Pipeline
+
+  +------------------+         +--------------------+         +------------------------+
+  | K-6 MWP Corpus   | ------> | Lexicon & Grammar  | ------> | Model Solver           |
+  | (2,305 Problems) |         | Diversity Filter   |         | (Claude/GPT/Gemini)    |
+  +------------------+         +--------------------+         +------------------------+
+                                                                          |
+                                                                          v
+  +------------------+         +--------------------+         +------------------------+
+  | FastMCP 3.1      | <------ | Pydantic v2 Answer | <------ | Equation Generator &   |
+  | Accuracy Metrics |         | Verification Engine|         | CoT Reasoning Engine   |
+  +------------------+         +--------------------+         +------------------------+
+```
+
 ## Where it fits in the stack
 ASDiv belongs to the **Benchmarking** category, specifically focusing on mathematical reasoning and lexicon usage diversity. It acts as a specialized check within an evaluation suite, alongside broader benchmarks like [MMLU](../benchmarking/mmlu.md) and [GSM8K](../benchmarking/gsm8k.md).
 
