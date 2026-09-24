@@ -6,6 +6,23 @@ GSM8K is a benchmark for evaluating the multi-step mathematical reasoning capabi
 ## What problem it solves
 Provides a standardized way to measure whether LLMs can perform multi-step arithmetic reasoning. It moves beyond simple "calculator" tasks to test the model's ability to decompose a problem into logical steps, which is a fundamental building block for complex agentic planning.
 
+## System Architecture
+
+```
+                                  GSM8K Multi-Step Math Evaluation
+
+  +-----------------------+        +------------------------+        +--------------------------+
+  | 8.5K Word Problems    | ---->  | FastMCP 3.1 Task      | ---->  | CoT Reasoning Engine     |
+  | Arithmetic Dataset    |        | Harness Runner         |        | (Claude 5.1/GPT-5.6)     |
+  +-----------------------+        +------------------------+        +--------------------------+
+                                                                                  |
+                                                                                  v
+  +-----------------------+        +------------------------+        +--------------------------+
+  | Exact Match (EM)      | <----  | Pydantic v2 Numerical  | <----  | Answer Extractor         |
+  | Benchmarking Matrix   |        | Validator              |        | (#### Exact Parse)       |
+  +-----------------------+        +------------------------+        +--------------------------+
+```
+
 ## Where it fits in the stack
 **Benchmarking**. Serves as a widely used reference for evaluating mathematical reasoning and the efficacy of Chain-of-Thought (CoT) prompting.
 

@@ -6,6 +6,23 @@ GPQA is a highly challenging benchmark for evaluating high-level reasoning and e
 ## What problem it solves
 Measures whether LLMs possess deep, expert-level scientific knowledge and reasoning that cannot be trivially looked up, providing a more rigorous assessment than general knowledge benchmarks like MMLU which are increasingly appearing in training sets (contamination).
 
+## System Architecture
+
+```
+                                  GPQA Expert Reasoning Evaluation
+
+  +-----------------------+        +------------------------+        +--------------------------+
+  | 448 Diamond / Main    | ---->  | FastMCP 3.1 Task      | ---->  | Target Frontier Model    |
+  | Google-Proof Dataset  |        | Execution Engine       |        | (Claude 5.1/GPT-5.5)     |
+  +-----------------------+        +------------------------+        +--------------------------+
+                                                                                  |
+                                                                                  v
+  +-----------------------+        +------------------------+        +--------------------------+
+  | Accuracy & Reasoning  | <----  | Pydantic v2 Answer     | <----  | Multiple-Choice Solution |
+  | Accuracy Telemetry    |        | Validation Pipeline    |        | Extraction & Verifier    |
+  +-----------------------+        +------------------------+        +--------------------------+
+```
+
 ## Where it fits in the stack
 **Benchmarking**. Used as a reference benchmark for evaluating advanced reasoning and scientific competence in state-of-the-art LLMs.
 
