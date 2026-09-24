@@ -6,6 +6,16 @@ DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation f
 ## What problem it solves
 It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where fluent writing and plausible citations hide factual errors or reasoning flaws. Static judges cannot verify claims against real-world evidence; DREAM solves this by making the evaluator as capable (agentic) as the agent it is testing, utilizing **FastMCP 3.1** for dynamic tool discovery and tool execution.
 
+```mermaid
+graph TD
+    AgentReport[Generated Research Report] -->|Extract Claims| ClaimExtractor[DREAM Claim Extractor]
+    ClaimExtractor -->|Unverified Claims| VerificationAgent[Agentic Evaluator Loop]
+    VerificationAgent -->|FastMCP 3.1 Protocol| SearchTools[Tavily / Web Search / FastMCP]
+    SearchTools -->|Live Web Evidence| VerificationAgent
+    VerificationAgent -->|Cross-Reference & Fact Check| VerdictEngine[Status & Decay Engine]
+    VerdictEngine -->|Output Verification Matrix| ResultReport[DREAM Evaluation Report]
+```
+
 ## Where it fits in the stack
 **Eval / Benchmarking**: It is a framework for benchmarking and evaluating advanced LLM agentic performance, particularly for models when used in complex research loops. It bridges the gap between static benchmarks like [GPQA](gpqa.md) and real-world utility.
 

@@ -6,6 +6,17 @@ Chatbot Arena is a crowdsourced open platform for evaluating LLMs through human 
 ## What problem it solves
 It provides a human-preference-based ranking of LLMs that captures subjective quality differences not easily measured by automated, synthetic benchmarks. It counters "benchmark contamination" (where models are trained on test data) by using blind human testing on unpredictable user prompts, providing a critical counter-narrative to traditional metrics like MMLU, GPQA, or GSM8K.
 
+```mermaid
+graph TD
+    User([Human Evaluator]) -->|Submits Blind Prompt| Router[Arena Router / Load Balancer]
+    Router -->|Dispatch Prompt| ModelA[Anonymous Model A]
+    Router -->|Dispatch Prompt| ModelB[Anonymous Model B]
+    ModelA -->|Stream Response A| UI[Comparison Interface]
+    ModelB -->|Stream Response B| UI
+    UI -->|Vote: Model A / B / Tie / Both Bad| EloEngine[Bradley-Terry Elo Ranking Engine]
+    EloEngine -->|Update Ratings| Leaderboard[(Public Category Leaderboards)]
+```
+
 ## Where it fits in the stack
 **Benchmarking**. Serves as the primary reference leaderboard for comparing LLM quality and "reasoning density" based on real-world human interactions and preferences.
 

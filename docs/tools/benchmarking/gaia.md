@@ -6,6 +6,16 @@ GAIA (General AI Assistants) is a benchmark designed to evaluate General AI Assi
 ## What problem it solves
 Existing benchmarks often focus on synthetic reasoning, code syntax, or closed-book trivia. GAIA targets real-world, open-ended tasks that require fundamental human-like abilities: complex reasoning, multi-modality handling (text, spreadsheets, images, PDFs, audio), web browsing, and programmatic tool execution. It exposes the 'reasoning gap' in frontier models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), serving as a reliable metric of actual operational utility.
 
+```mermaid
+graph TD
+    GAIATask[GAIA Multimodal Question & Assets] -->|Load Task & Files| InspectEngine[Inspect AI Benchmark Runner]
+    InspectEngine -->|Prompt & File Context| Agent[General AI Assistant / VLM]
+    Agent -->|Execute Action | FastMCPTools[FastMCP 3.1 Tools: Web Browser, Python, Shell]
+    FastMCPTools -->|Tool Outputs / Execution Results| Agent
+    Agent -->|Final Submitted Answer| InspectEngine
+    InspectEngine -->|Strict Ground Truth Verification| Score[Level 1-3 Success / Accuracy Score]
+```
+
 ## Where it fits in the stack
 **Eval / Benchmarking**. It provides a high-signal evaluation standard for testing autonomous agents, VLMs, and multi-agent workflows. It is used to validate the 'Agentic Core' of systems built on frontier LLMs such as Claude 5.6 and GPT-5.6.
 

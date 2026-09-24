@@ -6,6 +6,16 @@ DeepEval is an open-source Large Language Model (LLM) evaluation and unit-testin
 ## What problem it solves
 Evaluating generative AI models and multi-agent workflows using manual QA or subjective spot-checks is unscalable and error-prone. DeepEval solves this by providing programmatic unit testing, deterministic heuristic metrics, and calibrated LLM-as-a-judge scoring frameworks. It allows engineering teams to detect accuracy regressions, groundlessness, prompt injection vulnerabilities, and tool-calling drift early in CI/CD pipelines before code is merged into production.
 
+```mermaid
+graph TD
+    App[LLM / Agent Application] -->|Produces Response & Context| TestCase[DeepEval LLMTestCase]
+    TestCase -->|Pass Input & Output| Metrics[Evaluation Metrics Suite]
+    Metrics -->|Measure G-Eval / Hallucination| Judge[LLM-as-a-Judge / Heuristics]
+    Judge -->|Score & Reason| Evaluator[DeepEval Test Engine]
+    Evaluator -->|Assert Thresholds| Pytest[Pytest CI/CD Runner]
+    Evaluator -->|Telemetry Push| Dashboard[Confident AI Cloud / Self-Hosted]
+```
+
 ## Where it fits in the stack
 **Category**: [Benchmarking](index.md) / [Development & QA](index.md).
 It operates at the testing and validation layer of the KnowledgeOps ecosystem, sitting alongside CI/CD workflows and running unit tests against inference models (e.g., Claude 5.1, GPT-5.5, GPT-5.6, Gemini 4.0 Pro, DeepSeek-V4) and local MCP tool integrations (FastMCP 3.1).
