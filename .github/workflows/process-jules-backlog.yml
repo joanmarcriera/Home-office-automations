@@ -2,7 +2,7 @@ name: Process Jules Backlog
 
 on:
   schedule:
-    - cron: '30 0 * * *'  # Runs daily at 00:30 UTC
+    - cron: '30 0 1-31/2 * *'  # 00:30 UTC on odd days only
   issues:
     types: [opened, reopened, labeled]
   workflow_dispatch: # allow manual trigger

@@ -55,6 +55,8 @@ mkdocs serve          # Runs on http://localhost:8000
 3. **Jules worker retirement** — `julep-sprint-workers` lane deprecated; use `digest-ingestion` + `knowledge-base-update` instead.
 4. **Watchdog escalation** — New automation health watchdog flags unmerged rollup PRs; confirms throttles are active before closure.
 
+5. **Alternate-day cadence (2026-09-25)** — every daily lane runs on odd days of the month only (`1-31/2` in the cron day field; hygiene went from 2-hourly to once) so the repo is quiet every other day. Weekly lanes and the health watchdog are unchanged; the watchdog classifies `/2` day fields as `alternate-day` (4-day stall threshold). Month ends give two consecutive active days (31st → 1st) — accepted.
+
 ## Skills (use instead of manual work)
 
 - `/knowledge-base-update` — Process `docs/new-sources.md` intake queue into canonical docs.

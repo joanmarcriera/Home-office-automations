@@ -46,6 +46,7 @@ RERUN_MAX_AGE_HOURS = 24
 # is older than this, i.e. it has missed several of its own schedule slots.
 STALL_THRESHOLDS = {
     "daily": timedelta(days=2),
+    "alternate-day": timedelta(days=4),  # odd-days-only lanes (dom 1-31/2)
     "weekly": timedelta(days=9),
     "monthly": timedelta(days=35),
 }
@@ -72,6 +73,8 @@ def cadence_of(cron: str) -> str:
     if len(fields) != 5:
         return "daily"  # be strict rather than miss a stall
     _minute, _hour, dom, _month, dow = fields
+    if "/2" in dom:
+        return "alternate-day"
     if dom != "*":
         return "monthly"
     if dow != "*":
@@ -93,6 +96,7 @@ def discover_scheduled_workflows() -> list[dict]:
         # Most frequent cadence wins: a lane that also runs daily must not get
         # a monthly grace period.
         cadence = ("daily" if "daily" in cadences
+                   else "alternate-day" if "alternate-day" in cadences
                    else "weekly" if "weekly" in cadences else "monthly")
         lanes.append({
             "file": wf.name,

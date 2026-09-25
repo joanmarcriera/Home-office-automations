@@ -4,7 +4,7 @@ on:
   issue_comment:
     types: [created, edited]
   schedule:
-    - cron: "15 */2 * * *" # Every 2 hours
+    - cron: "15 1 1-31/2 * *" # 01:15 UTC on odd days only (alternate-day cadence, 2026-09-25)
   workflow_dispatch:
 
 permissions:

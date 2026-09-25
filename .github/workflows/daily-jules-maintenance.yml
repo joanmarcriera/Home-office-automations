@@ -2,8 +2,8 @@ name: Daily Jules Maintenance
 
 on:
   schedule:
-    - cron: '20 7 * * *'  # 07:20 UTC — after digest-to-intake bridge completes
-    - cron: '0 19 * * *'  # 19:00 UTC — afternoon maintenance pass
+    - cron: '20 7 1-31/2 * *'  # 07:20 UTC odd days — after digest-to-intake bridge completes
+    - cron: '0 19 1-31/2 * *'  # 19:00 UTC odd days — afternoon maintenance pass
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:

@@ -2,7 +2,7 @@ name: Daily Jules Knowledge Expansion
 
 on:
   schedule:
-    - cron: '0 2,9,16 * * *'  # 02:00, 09:00, 16:00 UTC
+    - cron: '0 9 1-31/2 * *'  # 09:00 UTC on odd days only (was 3x daily; alternate-day cadence, 2026-09-25)
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:

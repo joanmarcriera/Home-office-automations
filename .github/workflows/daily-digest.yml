@@ -2,7 +2,7 @@ name: Daily AI Digest
 
 on:
   schedule:
-    - cron: "0 6 * * *"  # 06:00 UTC — single daily run to conserve CI minutes
+    - cron: "0 6 1-31/2 * *"  # 06:00 UTC on odd days only (alternate-day cadence, 2026-09-25)
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
 concurrency:
