@@ -5,6 +5,33 @@ SWE-bench is a benchmark for evaluating LLMs on real-world software engineering 
 
 With the launch of **SWE-bench Multilingual**, the benchmark has been expanded to support a wider array of programming languages (C, C++, Go, Java, JavaScript, TypeScript, PHP, Ruby, and Rust), making it a truly language-agnostic evaluator for autonomous engineering agents across diverse modern software stacks.
 
+## System Architecture
+
+The following diagram illustrates SWE-bench's dockerized execution sequence, from task instance ingestion and FastMCP 3.1 agent tool interactions to patch application and automated test suite evaluation:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Harness as SWE-bench Evaluation Harness
+    participant Agent as Autonomous Agent (FastMCP 3.1)
+    participant Container as Isolated Docker Container
+    participant TestSuite as Repository PyTest / Cargo Test Suite
+    participant Verifier as Pydantic v2 Patch Verifier
+
+    Harness->>Container: Spawn repository workspace (base commit SHA)
+    Harness->>Agent: Send GitHub issue problem statement
+    loop Search & Edit Cycle
+        Agent->>Container: Execute CLI search / FastMCP file edits
+        Container-->>Agent: Return file content / terminal stdout
+    end
+    Agent->>Verifier: Output unified git diff patch proposal
+    Verifier->>Verifier: Validate diff syntax & schema via Pydantic v2
+    Verifier->>Container: Apply unified patch proposal
+    Container->>TestSuite: Run test suite (FAIL_TO_PASS & PASS_TO_PASS)
+    TestSuite-->>Harness: Return unit test pass/fail report
+    Harness->>Harness: Compute instance resolution score
+```
+
 ## What problem it solves
 Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging **FastMCP 3.1 (Model Context Protocol)** for dynamic tool discovery and execution.
 
@@ -72,46 +99,17 @@ docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval --predicti
 
 ## API examples
 
-### Loading the Dataset (Python)
-```python
-from datasets import load_dataset
-
-# Load the human-verified subset (500 high-quality tasks)
-dataset = load_dataset("princeton-nlp/SWE-bench_Verified", split="test")
-
-# Access a specific task instance
-task = dataset[0]
-print(f"Task ID: {task['instance_id']}")
-print(f"Problem: {task['problem_statement']}")
-```
-
-### Running an Evaluation Instance (Python)
-```python
-from swebench.harness.test_spec import make_test_spec
-from swebench.harness.run_evaluation import run_instance
-
-# Define a task instance with a proposed patch
-instance = {
-    "repo": "django/django",
-    "instance_id": "django__django-12345",
-    "base_commit": "abc12345",
-    "patch": "diff --git a/django/db/models/fields/__init__.py...",
-    "test_patch": "diff --git a/tests/model_fields/tests.py..."
-}
-
-# Run evaluation within the Docker environment
-spec = make_test_spec(instance)
-result = run_instance(spec)
-print(f"Issue Resolved: {result['resolved']}")
-```
-
-### Programmatic Prediction Validation using Pydantic v2
-This Python script validates predicting patches and evaluation inputs for SWE-bench instances using **Pydantic v2** prior to kicking off Docker execution runs:
+### Programmatic Prediction Validation using Pydantic v2 & FastMCP Server Pattern
+Below is a complete FastMCP 3.1 server implementation that validates SWE-bench patch proposals and evaluates task instances using Pydantic v2 schemas:
 
 ```python
 import json
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel, Field, ValidationError, field_validator
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for SWE-bench Evaluation
+mcp = FastMCP("SWE-bench-Evaluation-Server", version="3.1")
 
 class SWEBenchPrediction(BaseModel):
     instance_id: str = Field(..., description="The unique SWE-bench task identifier (e.g. django__django-12345)")
@@ -127,19 +125,27 @@ class SWEBenchPrediction(BaseModel):
             raise ValueError("Patch must be a valid unified diff starting with 'diff --git'")
         return value
 
-def validate_prediction_file(raw_json_line: str) -> Optional[SWEBenchPrediction]:
-    try:
-        data = json.loads(raw_json_line)
-        # Validate prediction using Pydantic v2
-        prediction = SWEBenchPrediction.model_validate(data)
-        return prediction
-    except json.JSONDecodeError:
-        print("Error: Line is not valid JSON.")
-    except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-    return None
+class SWEBenchResult(BaseModel):
+    instance_id: str = Field(..., description="Task ID evaluated")
+    resolved: bool = Field(..., description="Whether all FAIL_TO_PASS tests passed and PASS_TO_PASS tests remained green")
+    test_stdout: str = Field(..., description="Execution logs from PyTest or Cargo test suite")
 
-# Example usage:
+@mcp.tool(name="verify_swe_bench_patch", description="Validates a proposed patch diff against SWE-bench schema guidelines.")
+def verify_swe_bench_patch(raw_prediction_json: str) -> str:
+    """Parses raw model output JSON and verifies patch formatting."""
+    try:
+        data = json.loads(raw_prediction_json)
+        pred = SWEBenchPrediction.model_validate(data)
+        return json.dumps({
+            "status": "VALID",
+            "instance_id": pred.instance_id,
+            "patch_length": len(pred.patch)
+        }, indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "Invalid JSON string"})
+    except ValidationError as e:
+        return json.dumps({"error": "Schema validation failed", "details": e.errors()})
+
 if __name__ == "__main__":
     sample_prediction = """
     {
@@ -149,10 +155,7 @@ if __name__ == "__main__":
         "tokens_used": 14205
     }
     """
-    validated = validate_prediction_file(sample_prediction)
-    if validated:
-        print("SWE-bench prediction schema is valid!")
-        print(validated.model_dump_json(indent=2))
+    print(verify_swe_bench_patch(sample_prediction))
 ```
 
 ## Related tools / concepts

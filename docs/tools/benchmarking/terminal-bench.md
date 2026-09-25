@@ -3,6 +3,30 @@
 ## What it is
 Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark for evaluating AI agents' ability to operate within a real terminal environment. It goes beyond static code generation by testing the agent's ability to interpret command output, handle stateful bash sessions, and remediate complex system or server failures. In early January 2027, it serves as the premier benchmark for "Terminus 2" patterns where agents manage long-running tmux control channels and interact with sandboxes via the Model Context Protocol (FastMCP 3.1 Task Protocol).
 
+## System Architecture
+
+The following diagram illustrates the interaction flow between the Terminal-Bench orchestrator, Terminus 2 persistent tmux control channels, containerized sandboxes, and FastMCP 3.1 task protocol tools:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Harness as Terminal-Bench Orchestrator (Harbor)
+    participant Agent as Autonomous Agent (Terminus 2)
+    participant Tmux as Persistent Tmux Control Channel
+    participant Container as Isolated Linux Sandbox (Ubuntu 24.04)
+    participant FastMCP as FastMCP 3.1 Task Server
+    participant Guard as Pydantic v2 Trajectory Verifier
+
+    Harness->>Container: Spin up isolated sandbox container
+    Harness->>Tmux: Initialize persistent control channel & pane
+    Agent->>Tmux: Issue bash command sequence
+    Tmux->>Container: Execute command in shell environment
+    Container-->>Tmux: Return stdout, stderr, and exit code
+    Tmux-->>FastMCP: Forward execution trace over FastMCP 3.1 transport
+    FastMCP->>Guard: Validate trajectory schema & verify exit state
+    Guard-->>Harness: Log execution step & score task status
+```
+
 ## What problem it solves
 It measures whether autonomous systems can effectively and safely operate inside a standard Linux shell. Standard benchmarks evaluate model capabilities on isolated snippets or reasoning puzzles; Terminal-Bench evaluates the agent's "Intent-State-Action" loop in real time. It tests key capabilities such as:
 - Installing software and fixing configuration mismatches (e.g., mismatched Nginx load balancers).
@@ -75,15 +99,19 @@ terminus2 connect \
 
 ## API examples
 
-### Orchestrating Terminal Evaluation with Strict Pydantic v2 Validation
-This robust example demonstrates how to orchestrate a Terminal-Bench task, monitor execution, and validate the output and trajectory against a strict schema using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `ValidationError`).
+### Orchestrating Terminal Evaluation with FastMCP 3.1 & Pydantic v2
+This robust example demonstrates how to orchestrate a Terminal-Bench task via FastMCP 3.1 server tools and validate trajectory telemetry using **Pydantic v2**:
 
 ```python
 import sys
+import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
 
-# Define strict configuration schemas using Pydantic V2
+# Initialize FastMCP 3.1 Server for Terminal-Bench Trajectory Telemetry
+mcp = FastMCP("Terminal-Bench-Evaluator", version="3.1")
+
 class SandboxConfig(BaseModel):
     image: str = Field(..., description="The Docker image to use for the sandbox")
     network_isolated: bool = Field(default=True, description="Enforce strict network isolation")
@@ -102,22 +130,25 @@ class TerminalEvaluationResult(BaseModel):
     final_status_code: int = Field(..., description="The final status code returned by the sandbox")
     trajectories: List[ExecutionTrajectory] = Field(default_factory=list, description="Sequence of commands executed")
 
-def validate_and_process_result(raw_payload: dict) -> Optional[TerminalEvaluationResult]:
-    """Validates the raw evaluation payload against the strict Pydantic V2 schemas."""
+@mcp.tool(name="evaluate_terminal_trajectory", description="Validates terminal execution telemetry against Pydantic v2 schemas and computes summary stats.")
+def evaluate_terminal_trajectory(raw_json: str) -> str:
+    """Parses raw evaluation payload, verifies against Pydantic v2, and outputs status summary."""
     try:
-        # Pydantic V2 model_validate parses and verifies the data
-        result = TerminalEvaluationResult.model_validate(raw_payload)
-        print(f"✅ Successfully validated task: {result.task_id}")
-        print(f"Status: {'SUCCESS' if result.success else 'FAILED'} (Exit: {result.final_status_code})")
-        print(f"Commands run: {len(result.trajectories)}")
-        return result
+        data = json.loads(raw_json)
+        result = TerminalEvaluationResult.model_validate(data)
+        return json.dumps({
+            "status": "VALIDATED",
+            "task_id": result.task_id,
+            "success": result.success,
+            "total_commands_executed": len(result.trajectories)
+        }, indent=2)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "Invalid JSON format"})
     except ValidationError as e:
-        print(f"❌ Validation failed for the evaluation result: {e}", file=sys.stderr)
-        return None
+        return json.dumps({"error": "Validation failed", "details": e.errors()})
 
 if __name__ == "__main__":
-    # Mock data representing a run on a C memory-leak debugging task
-    raw_execution_data = {
+    sample_data = json.dumps({
         "task_id": "debug-c-memory-leak",
         "success": True,
         "final_status_code": 0,
@@ -125,23 +156,17 @@ if __name__ == "__main__":
             {
                 "command": "gcc -o debug_app main.c -fsanitize=address",
                 "exit_code": 0,
-                "stdout_preview": "Compilation finished successfully.",
+                "stdout_preview": "Compilation finished successfully."
             },
             {
                 "command": "./debug_app",
                 "exit_code": 1,
                 "stdout_preview": "AddressSanitizer: heap-use-after-free",
-                "stderr_preview": "ERROR: AddressSanitizer: heap-use-after-free on address 0x6020000000b0"
+                "stderr_preview": "ERROR: AddressSanitizer: heap-use-after-free"
             }
         ]
-    }
-
-    # Run validation
-    validated_obj = validate_and_process_result(raw_execution_data)
-    if validated_obj:
-        print("Trajectory analysis:")
-        for idx, step in enumerate(validated_obj.trajectories, 1):
-            print(f"  [{idx}] Run: '{step.command}' -> Exit {step.exit_code}")
+    })
+    print(evaluate_terminal_trajectory(sample_data))
 ```
 
 ## Related tools / concepts

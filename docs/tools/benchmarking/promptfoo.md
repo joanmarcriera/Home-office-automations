@@ -3,6 +3,32 @@
 ## What it is
 Promptfoo is an open-source (MIT) CLI tool and library for evaluating, testing, and securing LLM prompts, agents, and FastMCP 3.1 tool implementations. It allows you to run systematic test cases across multiple providers and models, with a heavy focus on **AI Security** and **Red Teaming**. While the core CLI is free and self-hostable, a paid enterprise tier exists for governance and team features.
 
+## System Architecture
+
+The following diagram illustrates how Promptfoo orchestrates test cases, handles model provider dispatching, enforces FastMCP 3.1 tool privilege checks, and aggregates vulnerability scorecards:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Engineer / CI Pipeline
+    participant Runner as Promptfoo Test Runner
+    participant MCP as FastMCP 3.1 Proxy Server
+    participant Provider as Model Provider (GPT-5.5 / Claude 5.1)
+    participant Evaluator as Red Team & Assertion Engine
+
+    Dev->>Runner: Execute promptfoo eval / redteam run
+    Runner->>Runner: Load promptfooconfig.yaml & test suites
+    loop For Each Test Case / Vulnerability Vector
+        Runner->>MCP: Dispatch tool call requests / system prompts
+        MCP->>Provider: Send prompt payload with security probes
+        Provider-->>MCP: Return model completion or tool execution
+        MCP-->>Runner: Return response payload & tool trace
+        Runner->>Evaluator: Evaluate assertion rules (Pydantic v2 / LLM Rubric)
+        Evaluator-->>Runner: Score result (Pass/Fail, Risk Severity)
+    end
+    Runner->>Dev: Generate CLI summary & html/json report matrix
+```
+
 ## What problem it solves
 It solves the problem of "prompt regression" and security vulnerabilities by providing a framework for regression testing and automated red teaming. It allows you to quantify how changes to a prompt or agent workflow affect output quality and safety across many different test cases, preventing silent failures when updating to frontier models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, **DeepSeek-V4**, or **Llama 4 Maverick**.
 
@@ -97,16 +123,49 @@ const results = await promptfoo.evaluate({
 console.log(results);
 ```
 
-### Custom Python Assertion (Pydantic v2 Validation)
-Promptfoo supports writing custom assertion logic in Python. Below is a robust, type-hinted custom assertion function that parses and validates a JSON response against a structured schema using Pydantic v2:
+### Custom Python Assertion & FastMCP 3.1 Integration Pattern
+Below is a complete FastMCP 3.1 evaluation server pattern alongside a Pydantic v2 custom assertion module for parsing and scorecard generation:
 
 ```python
+import json
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, ValidationError
-from typing import Dict, Any
+from mcp.server.fastmcp import FastMCP
 
-class EvalOutputSchema(BaseModel):
-    summary: str = Field(..., description="The summarized content", max_length=500)
-    contains_mcp_details: bool = Field(True, description="Indicates if MCP standard references are present")
+# Initialize FastMCP 3.1 Server for Promptfoo Red Team Metrics
+mcp = FastMCP("Promptfoo-Eval-Server", version="3.1")
+
+class SecurityScanItem(BaseModel):
+    vulnerability_id: str = Field(..., description="Vulnerability category (e.g., prompt-injection, mcp-tool-escalation)")
+    passed: bool = Field(..., description="Whether the model resisted the attack vector")
+    severity: str = Field("medium", description="Risk level: critical, high, medium, low")
+    response_latency_ms: float = Field(..., description="Evaluation probe latency in milliseconds")
+    details: Optional[str] = Field(None, description="Diagnostic logs or payload traces")
+
+class PromptfooScanScorecard(BaseModel):
+    total_probes: int = Field(..., description="Total vulnerability vectors evaluated")
+    passed_probes: int = Field(..., description="Total resisted probes")
+    security_score: float = Field(..., description="Ratio of passed probes to total probes (0.0 to 1.0)")
+    vulnerability_summary: Dict[str, bool] = Field(..., description="Pass status keyed by vulnerability ID")
+
+@mcp.tool(name="evaluate_security_scorecard", description="Parses Promptfoo evaluation probe outputs and generates a Pydantic v2 verified scorecard.")
+def evaluate_security_scorecard(scan_data: List[Dict]) -> str:
+    """Parses raw red teaming probe results and returns a structured JSON scorecard."""
+    try:
+        items = [SecurityScanItem.model_validate(item) for item in scan_data]
+        total = len(items)
+        passed = sum(1 for item in items if item.passed)
+        vuln_map = {item.vulnerability_id: item.passed for item in items}
+
+        scorecard = PromptfooScanScorecard(
+            total_probes=total,
+            passed_probes=passed,
+            security_score=passed / total if total > 0 else 0.0,
+            vulnerability_summary=vuln_map
+        )
+        return scorecard.model_dump_json(indent=2)
+    except ValidationError as e:
+        return json.dumps({"error": "Schema validation failed", "details": e.errors()})
 
 def check_length(output: str, vars: Dict[str, Any]) -> bool:
     """
@@ -115,12 +174,17 @@ def check_length(output: str, vars: Dict[str, Any]) -> bool:
     Integrates seamlessly into promptfoo's python assertion environment.
     """
     try:
-        # Validate structured JSON output using Pydantic v2 model_validate_json
-        parsed_output = EvalOutputSchema.model_validate_json(output)
-        return len(parsed_output.summary) < 500
+        parsed = SecurityScanItem.model_validate_json(output)
+        return parsed.passed
     except ValidationError:
-        # Gracefully fall back to plain-text length check if not JSON
         return len(output) < 500
+
+if __name__ == "__main__":
+    sample_probes = [
+        {"vulnerability_id": "prompt-injection", "passed": True, "severity": "high", "response_latency_ms": 140.2},
+        {"vulnerability_id": "mcp-tool-escalation", "passed": False, "severity": "critical", "response_latency_ms": 210.0, "details": "Unauthorized tool invocation detected"}
+    ]
+    print(evaluate_security_scorecard(sample_probes))
 ```
 
 To integrate this in your `promptfooconfig.yaml`, specify the assertion type as `python` and refer to the file:

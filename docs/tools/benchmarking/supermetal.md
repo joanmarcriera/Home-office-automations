@@ -3,6 +3,28 @@
 ## What it is
 Supermetal is a high-performance data movement and processing tool designed for low-latency synchronization between production databases and modern data lake formats. As of January 2027, it is recognized for its industry-leading Postgres-to-Iceberg synchronization speeds, outperforming traditional distributed computing frameworks.
 
+## System Architecture
+
+The following diagram details Supermetal's low-latency Change Data Capture (CDC) pipeline architecture, leveraging zero-copy Apache Arrow buffers and FastMCP 3.1 task orchestration for low-latency sync between Postgres and Apache Iceberg:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant PG as PostgreSQL (Logical Replication)
+    participant SM as Supermetal Engine (Rust Core)
+    participant Arrow as Apache Arrow Zero-Copy Buffer
+    participant Iceberg as Apache Iceberg / S3 Object Store
+    participant FastMCP as FastMCP 3.1 Task Orchestrator
+
+    FastMCP->>SM: Trigger synchronization task / snapshot request
+    PG->>SM: Stream WAL CDC events via logical replication
+    SM->>Arrow: Deserialize binary stream to Arrow RecordBatches
+    Arrow->>Arrow: In-memory schema alignment & Arrow-to-Parquet translation
+    SM->>Iceberg: Write Parquet data files & commit table snapshot
+    Iceberg-->>FastMCP: Return commit metadata & byte payload size
+    FastMCP-->>SM: Confirm job metrics & throughput latency
+```
+
 ## What problem it solves
 It addresses the latency and complexity bottlenecks in Change Data Capture (CDC) pipelines. Traditionally, moving data from production databases (like Postgres) to analytics platforms (like Apache Iceberg) required complex setups involving Flink, Kafka Connect, or Spark. Supermetal simplifies this by:
 - **Reducing Latency**: Benchmarks show Postgres-to-Iceberg synchronization in as little as 13 minutes for massive datasets, providing high-freshness data for **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0** RAG systems.
@@ -59,41 +81,18 @@ curl -X POST "https://your-supermetal-instance/api/v1/snapshot/source_table_name
 ```
 
 ## API examples
-Connectors are defined and managed via a JSON API.
 
-### Create a new Postgres-to-Iceberg Connector
-```bash
-curl -X POST "https://your-supermetal-instance/api/v1/connectors/my-pg-to-iceberg" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "id": "my-pg-to-iceberg",
-    "source": {
-      "postgres": {
-        "connection": {
-          "host": "pg-host",
-          "user": "sync_user",
-          "password": "password",
-          "database": "prod_db"
-        },
-        "replication_type": { "logical_replication": {} }
-      }
-    },
-    "sink": {
-      "iceberg": {
-        "catalog_type": "glue",
-        "database": "analytics"
-      }
-    }
-  }'
-```
-
-### Programmatic Connector Configuration Validation using Pydantic v2
-This Python script validates the configuration JSON for Supermetal's REST API connectors using **Pydantic v2** prior to deployment in production data environments:
+### FastMCP 3.1 Task Server and Pydantic v2 Connector Schema
+Below is a complete FastMCP 3.1 server pattern that validates Supermetal connector payloads using Pydantic v2 and exposes a synchronization management interface:
 
 ```python
 import json
-from typing import Literal, Optional
+from typing import Literal, Optional, List, Dict
 from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for Supermetal Data Synchronization
+mcp = FastMCP("Supermetal-Sync-Server", version="3.1")
 
 class PostgresConnection(BaseModel):
     host: str = Field(..., description="PostgreSQL host IP or domain")
@@ -120,44 +119,44 @@ class SupermetalConnectorConfig(BaseModel):
     source: PostgresSource = Field(..., description="PostgreSQL database source configuration")
     sink: IcebergSink = Field(..., description="Apache Iceberg analytical sink configuration")
 
-def validate_connector_config(raw_json: str) -> Optional[SupermetalConnectorConfig]:
+@mcp.tool(name="validate_and_deploy_connector", description="Validates Supermetal CDC connector configuration JSON using Pydantic v2.")
+def validate_and_deploy_connector(raw_json: str) -> str:
+    """Parses raw connector config, validates against schema, and returns status JSON."""
     try:
         data = json.loads(raw_json)
-        # Validate task payload using Pydantic v2
         config = SupermetalConnectorConfig.model_validate(data)
-        return config
+        return json.dumps({
+            "status": "VALIDATED",
+            "connector_id": config.connector_id,
+            "validated_config": config.model_dump(by_alias=True)
+        }, indent=2)
     except json.JSONDecodeError:
-        print("Error: Input is not valid JSON.")
+        return json.dumps({"error": "Invalid JSON format"})
     except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-    return None
+        return json.dumps({"error": "Schema validation failed", "details": e.errors()})
 
-# Example usage:
-# if __name__ == "__main__":
-#     sample_payload = """
-#     {
-#         "id": "my-pg-to-iceberg",
-#         "source": {
-#             "connection": {
-#                 "host": "postgres.internal.net",
-#                 "port": 5432,
-#                 "user": "supermetal_cdc",
-#                 "password": "super-secure-pwd",
-#                 "database": "production_transactions"
-#             },
-#             "replicationType": "logical_replication"
-#         },
-#         "sink": {
-#             "catalogType": "glue",
-#             "database": "lakehouse_analytics",
-#             "warehousePath": "s3://my-company-lakehouse/warehouse/"
-#         }
-#     }
-#     """
-#     validated = validate_connector_config(sample_payload)
-#     if validated:
-#         print("Supermetal connector configuration is valid and clean!")
-#         print(validated.model_dump_json(indent=2))
+if __name__ == "__main__":
+    sample_payload = """
+    {
+        "id": "my-pg-to-iceberg",
+        "source": {
+            "connection": {
+                "host": "postgres.internal.net",
+                "port": 5432,
+                "user": "supermetal_cdc",
+                "password": "super-secure-pwd",
+                "database": "production_transactions"
+            },
+            "replicationType": "logical_replication"
+        },
+        "sink": {
+            "catalogType": "glue",
+            "database": "lakehouse_analytics",
+            "warehousePath": "s3://my-company-lakehouse/warehouse/"
+        }
+    }
+    """
+    print(validate_and_deploy_connector(sample_payload))
 ```
 
 ## Related tools / concepts
