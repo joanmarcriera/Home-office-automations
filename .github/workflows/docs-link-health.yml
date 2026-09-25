@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check markdown links
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@v2.9.0 # pinned: floating v2 setup failed to download lychee (curl 35) on 2026-09-25
         with:
           lycheeVersion: latest
           args: --config .github/lychee.toml "docs/**/*.md" "README.md" "skills.md"
