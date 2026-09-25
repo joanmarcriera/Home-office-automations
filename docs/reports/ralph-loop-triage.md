@@ -192,6 +192,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 714** | Benchmarking Docs Audit | **Verified & Closed** | Deepened gpt-red, humanitys-last-exam, langsmith, llmperf, and lm-evaluation-harness with Mermaid architecture diagrams and FastMCP 3.1 patterns. Verified 2027-01-07. |
 | **Batch 715** | Benchmarking Docs Audit | **Verified & Closed** | Deepened longcli-bench, math-benchmark, mbpp, mmlu, and mt-bench with Mermaid architecture diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 716** | Benchmarking Docs Audit | **Verified & Closed** | Deepened multipl-e, ollama-benchmark-cli, opencompass, os-world, and pa-bench with Mermaid architecture diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
+| **Batch 717** | Benchmarking Docs Audit | **Verified & Closed** | Deepened promptfoo, sharp-ai, supermetal, swe-bench, and terminal-bench with Mermaid architecture diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
