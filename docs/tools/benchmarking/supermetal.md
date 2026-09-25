@@ -1,5 +1,15 @@
 # Supermetal Benchmark
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[Operational Postgres DB] -->|Logical Replication / CDC| B[Supermetal Engine - Rust/Arrow]
+    B -->|Zero-Copy Serialization| C[Apache Iceberg / S3 Lakehouse]
+    C -->|High-Freshness Context| D[vLLM RAG Pipeline / FastMCP 3.1 Tools]
+    D --> E[Claude 5.1 / GPT-5.6 / Gemini 4.0 Agents]
+```
+
 ## What it is
 Supermetal is a high-performance data movement and processing tool designed for low-latency synchronization between production databases and modern data lake formats. As of January 2027, it is recognized for its industry-leading Postgres-to-Iceberg synchronization speeds, outperforming traditional distributed computing frameworks.
 

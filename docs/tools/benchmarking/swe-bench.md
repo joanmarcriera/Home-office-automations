@@ -1,5 +1,17 @@
 # SWE-bench
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[SWE-bench Dataset / Multilingual] --> B[Issue Problem Statement]
+    B --> C[Agentic Coding Loop - Claude 5.1 / GPT-5.6]
+    C --> D[FastMCP 3.1 Tool Actions - Read/Edit/Search]
+    D --> E[Generated Git Unified Diff Patch]
+    E --> F[Docker Sandbox Evaluation Harness]
+    F --> G[Test Execution - Pass/Fail Result]
+```
+
 ## What it is
 SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of January 2027, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro / Ultra**, and **DeepSeek-V4**.
 

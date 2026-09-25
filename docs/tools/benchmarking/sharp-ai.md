@@ -1,5 +1,17 @@
 # SharpAI Security Benchmark
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[Red Team Orchestrator] --> B[Adversarial Scenario Generator]
+    B --> C[FastMCP 3.1 Attack Vectors]
+    C --> D[Target Agent under Test]
+    D --> E[Tool Privilege Boundaries / Call Interceptor]
+    E --> F[Behavioral Scoring Engine]
+    F --> G[Pydantic v2 Safety Audit Report]
+```
+
 ## What it is
 The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation framework designed to quantify the resilience of Large Language Models (LLMs) and agentic systems against complex security threats. Unlike traditional performance benchmarks (e.g., MMLU), SHARP focuses on the **adversarial robustness** of models when they are given tool-access and delegated autonomy, fully updated for January 2027 SOTA standards.
 

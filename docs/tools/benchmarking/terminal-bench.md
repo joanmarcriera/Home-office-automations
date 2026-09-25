@@ -1,5 +1,17 @@
 # Terminal-Bench (Terminus 2)
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[Terminal-Bench Task / Harbor Framework] --> B[Environment Specification & Sandbox]
+    B --> C[Terminus 2 tmux Control Channels]
+    C --> D[FastMCP 3.1 Task Protocol Server]
+    D --> E[Autonomous Agent - Claude 5.6 / GPT-5.6 / Gemma 4]
+    E --> F[Command Execution & State Observation]
+    F --> G[Pydantic v2 Trajectory & Result Validation]
+```
+
 ## What it is
 Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark for evaluating AI agents' ability to operate within a real terminal environment. It goes beyond static code generation by testing the agent's ability to interpret command output, handle stateful bash sessions, and remediate complex system or server failures. In early January 2027, it serves as the premier benchmark for "Terminus 2" patterns where agents manage long-running tmux control channels and interact with sandboxes via the Model Context Protocol (FastMCP 3.1 Task Protocol).
 

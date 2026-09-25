@@ -1,5 +1,19 @@
 # Promptfoo
 
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[Promptfoo CLI / CI Pipeline] --> B[Test Config YAML]
+    B --> C[Assertion Engine / Red Team Suite]
+    C --> D[Provider Layer]
+    D --> E1[OpenAI GPT-5.5 / GPT-5.6]
+    D --> E2[Anthropic Claude 5.1 / 5.6]
+    D --> E3[FastMCP 3.1 Proxy Server]
+    E3 --> F[Local / Remote MCP Tools]
+    C --> G[Evaluation Matrix & Web Viewer]
+```
+
 ## What it is
 Promptfoo is an open-source (MIT) CLI tool and library for evaluating, testing, and securing LLM prompts, agents, and FastMCP 3.1 tool implementations. It allows you to run systematic test cases across multiple providers and models, with a heavy focus on **AI Security** and **Red Teaming**. While the core CLI is free and self-hostable, a paid enterprise tier exists for governance and team features.
 
