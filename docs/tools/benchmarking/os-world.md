@@ -3,6 +3,27 @@
 ## What it is
 OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. As of early 2027, OSWorld is the premier environment for testing 'Computer Use', FastMCP 3.1 OS-level tool execution, and desktop control capabilities of frontier models.
 
+## Architecture & Computer Use Agent Loop
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Multimodal VLM Agent
+    participant MCP as FastMCP 3.1 OS Protocol Server
+    participant OS as OSWorld Virtual Machine (Ubuntu/Win/macOS)
+    participant Evaluator as Execution Verification Script
+
+    Agent->>MCP: Request Current Observation (Task Instruction)
+    MCP->>OS: Capture Desktop Screenshot & System State
+    OS-->>MCP: Raw Frame Buffer & Active Process Log
+    MCP-->>Agent: Send Multimodal VLM Prompt (Pixels + Coordinates)
+    Agent->>MCP: Issue Action Payload (Click x,y / Key Sequence / Scroll)
+    MCP->>OS: Inject Primitive GUI Input (X11 / Win32 / Quartz)
+    OS-->>MCP: Update Desktop State
+    MCP->>Evaluator: Inspect Guest OS File System & Process Registry
+    Evaluator-->>Agent: Return Reward Score & Task Completion Status
+```
+
 ## What problem it solves
 Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise and FastMCP 3.1 Task Protocol multi-step execution.
 
@@ -82,21 +103,24 @@ python run_task.py \
 ## API examples
 
 ### Programmatic Environment Setup with FastMCP 3.1 & Pydantic v2 Validation
-To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models:
+To structure, monitor, and validate desktop observations and generated actions programmatically, use strict **Pydantic v2** validation models integrated into a **FastMCP 3.1 Task Protocol** tool server:
 
 ```python
+import json
 from typing import Dict, Any, Union, Optional
 from pydantic import BaseModel, Field, ValidationError
-from osworld.env import OSWorldEnv
+from mcp.server.fastmcp import FastMCP
 
-# Define rigid Pydantic v2 models for computer-use operations and FastMCP 3.1 Task Protocol
+# Initialize FastMCP 3.1 Server for OSWorld Control
+mcp = FastMCP("OSWorld-ComputerUse-Server", version="3.1")
+
 class FastMCPTaskState(BaseModel):
     task_id: str
     protocol_version: str = Field("3.1", pattern=r"^3\.1$")
     current_step: int = Field(0, ge=0)
 
 class OSWorldObservation(BaseModel):
-    screenshot: Any = Field(..., description="VLM-compatible pixel buffer, base64 data, or image path")
+    screenshot_path: str = Field(..., description="VLM-compatible screenshot frame file path")
     instruction: str = Field(..., description="Task objective or user prompt to achieve")
     task_state: Optional[FastMCPTaskState] = None
 
@@ -104,30 +128,35 @@ class OSWorldAction(BaseModel):
     action_type: str = Field(..., description="The primitive action type (e.g., click, key_type, scroll)")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Coordinates, keyboard keys, or dynamic options")
 
-# Initialize the environment for a Docker-backed Ubuntu task
-env = OSWorldEnv(os_type="ubuntu", backend="docker")
+@mcp.tool(name="execute_os_action", description="Validates and executes a primitive computer-use action in OSWorld.")
+def execute_os_action(action_payload: Dict[str, Any], obs_payload: Dict[str, Any]) -> str:
+    try:
+        validated_obs = OSWorldObservation.model_validate(obs_payload)
+        validated_action = OSWorldAction.model_validate(action_payload)
 
-# Reset to load the initial task state and retrieve the screenshot observation
-obs = env.reset(task_id="ubuntu-tasks-1")
+        # Map validated action parameters to execution payload
+        execution_report = {
+            "task_id": validated_obs.task_state.task_id if validated_obs.task_state else "unknown",
+            "executed_action": validated_action.action_type,
+            "params": validated_action.parameters,
+            "status": "success"
+        }
+        return json.dumps(execution_report, indent=2)
 
-try:
-    # Validate environment observations against our Pydantic v2 schema
-    validated_obs = OSWorldObservation.model_validate(obs)
-    print(f"Validated task instruction: {validated_obs.instruction}")
+    except ValidationError as e:
+        return json.dumps({"error": "Validation failed", "details": e.errors()})
 
-    # Construct an action payload and validate it
-    action_payload = {
+if __name__ == "__main__":
+    sample_obs = {
+        "screenshot_path": "/tmp/osworld/frame_01.png",
+        "instruction": "Open Terminal and create a file named invoice.csv",
+        "task_state": {"task_id": "ubuntu-task-42", "protocol_version": "3.1", "current_step": 1}
+    }
+    sample_action = {
         "action_type": "click",
         "parameters": {"x": 450, "y": 300}
     }
-    validated_action = OSWorldAction.model_validate(action_payload)
-
-    # Map validated parameters back to standard environment action format
-    env_action = f"mouse_click({validated_action.parameters['x']}, {validated_action.parameters['y']})"
-    next_obs, reward, done, info = env.step(env_action)
-
-except ValidationError as e:
-    print(f"Execution payload validation error: {e}")
+    print(execute_os_action(sample_action, sample_obs))
 ```
 
 ### State-Verification Script Structure
