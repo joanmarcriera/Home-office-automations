@@ -1,59 +1,110 @@
 # Zed
 
 ## What it is
-Zed is a high-performance, multiplayer code editor from the creators of Atom and Tree-sitter. Written in Rust, it leverages multi-core CPU threading and GPU hardware acceleration via the GPUI framework to provide a responsive, low-latency editing experience. As of early 2027, it has matured into a leading AI-native IDE with first-class support for agentic workflows, streaming inline transformations, and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) FastMCP 3.1 standard.
+Zed is a high-performance, multiplayer code editor authored in Rust by the creators of Atom and Tree-sitter. Operating directly on the GPU hardware via the custom GPUI UI framework and leveraging multi-core CPU threading, Zed delivers sub-millisecond input rendering and ultra-low latency text buffer manipulation. As of early 2027, **Zed 0.180+** has evolved into a premier AI-native editor featuring native multi-model Assistant workspaces, streaming inline transformations, CRDT-based multiplayer pair programming, and native **FastMCP 3.1** Model Context Protocol integrations.
+
+By eliminating Electron abstractions and JavaScript runtime overhead, Zed provides a lightweight, battery-efficient editing platform capable of handling multi-gigabyte source repositories without frame drops or input lag.
+
+## System Architecture
+
+```mermaid
+graph TD
+    SubGraph_GPUI[Native GPUI Rendering Engine - Rust]
+        GPUI[GPUI Hardware Canvas - Vulkan / Metal / Direct3D]
+        TreeSitter[Tree-sitter Incremental AST Parser]
+        Buffer[Rope Buffer & CRDT Sync Engine]
+    end
+
+    SubGraph_Core[Zed Core & AI Controller]
+        Assistant[Assistant Panel v2]
+        Inline[Inline Transformations - Streaming Engine]
+        FastMCP[FastMCP 3.1 Context Server Manager]
+        WASM[Wasm Extension Runtime - Wasip1]
+    end
+
+    SubGraph_External[External AI Services & Tools]
+        LLM[Frontier Models - Claude 5.1 / GPT-5.5 / Gemini 4 Pro]
+        LocalLLM[Local Models - Ollama / vLLM Llama 4]
+        MCPServers[Remote & Local FastMCP Tools]
+    end
+
+    GPUI --> TreeSitter
+    GPUI --> Buffer
+    Buffer --> Assistant
+    Buffer --> Inline
+    Assistant --> FastMCP
+    FastMCP --> MCPServers
+    Assistant --> LLM
+    Inline --> LLM
+    Inline --> LocalLLM
+    WASM --> FastMCP
+```
 
 ## What problem it solves
-It resolves the input latency, startup overhead, and memory bloating associated with Electron-based editors (such as [VS Code](vscode.md)). Furthermore, Zed embeds AI pairing and real-time multiplayer collaboration directly into the editor kernel rather than offloading them to secondary extensions. This enables instant feedback loops when pairing with frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
+Zed addresses the fundamental performance and resource constraints of modern developer tooling:
+1. **Input & UI Latency**: Replaces heavy WebKit/Electron rendering loops with native Metal/Vulkan GPU shaders, eliminating keystroke latency even under high LSF/AST indexing loads.
+2. **Memory Bloat**: Consumes a fraction of the memory required by Electron IDEs (typically <300MB RAM versus 2GB+ for VS Code with extensions).
+3. **Multiplayer Friction**: Replaces screen-sharing or third-party extension overlays with native CRDT (Conflict-free Replicated Data Type) shared buffers for zero-latency collaborative pair programming.
+4. **AI Context Friction**: Integrates **FastMCP 3.1** servers directly into the assistant runtime, allowing LLMs to access database schemas, logs, and terminal state natively during chat or inline refactoring.
 
 ## Where it fits in the stack
-**Development & Ops / Editor**. It serves as a high-performance, resource-efficient alternative to [VS Code](vscode.md) and [Cursor](cursor.md), particularly favored by software engineers working in Rust, Go, C++, or TypeScript monorepos who require native **FastMCP 3.1** server integrations.
+**Development & Ops / High-Performance IDE & AI Workbench**. Zed serves as a resource-efficient, high-speed alternative to VS Code and Cursor, particularly favored by systems engineers, Rust/Go/C++ developers, and AI engineers requiring instant editor startup, native Wasm extensions, and FastMCP 3.1 connectivity.
 
 ## Typical use cases
-- **Zero-Latency Editing**: Providing sub-millisecond input response and high-FPS canvas rendering on large codebases.
-- **Native AI Pairing**: Utilizing the built-in Assistant panel to stream code generation, refactoring, and inline edits from **Claude 5.1** or **GPT-5.5**.
-- **Real-Time Multiplayer**: Collaborative pair programming using CRDT-based shared buffers with instant cursor synchronization.
-- **FastMCP 3.1 Tooling**: Direct discovery and execution of [MCP 3.1](../automation_orchestration/mcp.md) servers for database inspection, log streaming, and API testing.
-- **Local Model Routing**: Connecting to local [Ollama](../../services/ollama.md) instances to power zero-cost inline completions with open models like **Llama 4**.
+- **Sub-Millisecond Code Editing**: Editing massive monorepos with zero lag and instant tree-sitter syntax highlighting.
+- **Multi-Model AI Pairing**: Alternating between **Claude 5.1** for complex refactoring, **GPT-5.5** for logic synthesis, and local **Llama 4** models for zero-cost inline auto-completions.
+- **CRDT Multiplayer Pair Programming**: Collaborating live on codebases across distributed teams with real-time cursor tracking, selection highlighting, and voice channels.
+- **FastMCP 3.1 Tooling**: Discovering and invoking local or remote Model Context Protocol servers for live DB schema inspection, unit test execution, and log streaming.
+- **Custom Wasm Plugin Execution**: Extending editor features safely using WebAssembly plugins compiled from Rust.
 
 ## Strengths
-- **Unrivaled Performance**: Instant startup times and zero input lag achieved through native Rust compilation and GPU acceleration.
-- **Embedded AI Workspaces**: Streamlined Assistant UI supporting context-aware inline refactoring without extension overhead.
-- **FastMCP 3.1 Native**: Out-of-the-box discovery and connection management for Model Context Protocol context servers.
-- **Minimal Resource Footprint**: Significantly reduced RAM and CPU consumption compared to Electron IDE alternatives.
-- **Collaborative CRDT Engine**: Superior multiplayer editing architecture for low-latency team pair programming.
+- **Unrivaled Input Responsiveness**: Native GPU rendering engine delivering 120+ FPS canvas refresh rates and sub-5ms keystroke latencies.
+- **Embedded Multi-Model Assistant**: Native AI UI panel supporting side-by-side prompt buffers, inline transformation diffs, and customizable system prompts.
+- **Native FastMCP 3.1 Protocol Support**: Out-of-the-box discovery and connection management for Model Context Protocol servers.
+- **Minimal Resource Footprint**: Starts in under 200 milliseconds and maintains a minimal RAM/CPU footprint.
+- **Multiplayer CRDT Architecture**: Built-in real-time collaboration engine supporting seamless multi-cursor pair programming.
 
 ## Limitations
-- **Ecosystem Scale**: While expanding rapidly, the extension catalog is still smaller than the decade-old VS Code ecosystem.
-- **Wasm/Rust Extension Model**: Developing custom plugins requires Rust knowledge and WebAssembly compilation target setups.
-- **Legacy Enterprise Tooling**: Specialized GUI-based extensions for legacy enterprise application servers are still maturing.
+- **Growing Extension Ecosystem**: While expanding rapidly via the Wasm plugin API, the plugin marketplace is smaller than VS Code's extension library.
+- **Rust/Wasm Plugin Curve**: Writing custom plugins requires Rust knowledge and WebAssembly compilation targets (`wasm32-wasip1`).
+- **Niche Legacy Enterprise Tooling**: Specialized visual drag-and-drop design tools for legacy enterprise platforms are less prevalent compared to VS Code.
 
 ## When to use it
-- When requiring maximum editor responsiveness, low memory overhead, and minimal battery consumption.
-- When pairing on live codebases using real-time multiplayer editing capabilities.
-- When integrating **FastMCP 3.1** tool servers natively alongside frontier models (**Claude 5.1**, **GPT-5.5**).
-- For high-speed development in Rust, Go, C++, Python, or TypeScript.
+- When requiring maximum editor speed, minimal RAM usage, and long battery life on mobile development rigs.
+- For pair programming sessions where zero latency multi-user editing is required.
+- When working extensively with **FastMCP 3.1** context servers alongside frontier models.
+- When developing systems-level code in Rust, Go, C++, Zig, TypeScript, or Python.
 
 ## When not to use it
-- When strictly dependent on proprietary VS Code extensions lacking Zed Wasm equivalents.
-- In enterprise environments that block WebAssembly extension runtimes or local binary execution.
-- When requiring complex visual designer tools for legacy enterprise GUI applications.
+- If your daily workflow requires specific proprietary VS Code extensions without Wasm equivalents in Zed.
+- In enterprise environments that forbid WebAssembly runtime execution or local compiled binaries.
+- If visual drag-and-drop UI builders for legacy frameworks are mandatory.
 
 ## Getting started
 
 ### Installation
-On macOS, Linux, and Windows, Zed can be installed via terminal or binary package:
+Install Zed on macOS, Linux, or Windows using official installation scripts or package managers:
 
 ```bash
+# Official installation script (macOS / Linux)
 curl https://zed.dev/install.sh | sh
+
+# macOS via Homebrew
+brew install --cask zed
+
+# Linux via Flatpak
+flatpak install flathub dev.zed.Zed
 ```
 
 ### Configuration
-Zed is configured via a central JSON configuration file (`settings.json`).
+Zed is configured via a central JSON file (`~/.config/zed/settings.json`).
 
-#### Configuring Native AI Providers
+#### Native AI & FastMCP 3.1 Configuration
 ```json
 {
+  "theme": "One Dark",
+  "buffer_font_family": "JetBrains Mono",
+  "buffer_font_size": 14,
   "assistant": {
     "default_model": {
       "provider": "anthropic",
@@ -68,23 +119,15 @@ Zed is configured via a central JSON configuration file (`settings.json`).
     "openai": {
       "api_key": "YOUR_OPENAI_API_KEY"
     }
-  }
-}
-```
-
-#### Configuring FastMCP 3.1 Servers
-Zed manages Model Context Protocol integrations directly in `settings.json`:
-
-```json
-{
+  },
   "context_servers": {
-    "home-admin-mcp": {
+    "zed-mcp-tools": {
       "source": "custom",
       "command": {
-        "path": "/usr/local/bin/home-admin-mcp",
-        "args": ["--port", "8080"],
+        "path": "python3",
+        "args": ["-m", "servers.zed_tools"],
         "env": {
-          "MCP_TOKEN": "YOUR_API_TOKEN"
+          "PYTHONUNBUFFERED": "1"
         }
       }
     }
@@ -92,70 +135,203 @@ Zed manages Model Context Protocol integrations directly in `settings.json`:
 }
 ```
 
-### AI Assistant Shortcuts
+### Essential Shortcuts
 - `Cmd+Shift+>` / `Ctrl+Shift+>`: Toggle Assistant Panel.
-- `Cmd+Enter` / `Ctrl+Enter`: Execute AI Prompt.
-- `Cmd+Shift+I` / `Ctrl+Shift+I`: Inline AI Refactor.
+- `Cmd+R` / `Ctrl+R`: Inline AI Prompt / Refactor.
+- `Cmd+Alt+C` / `Ctrl+Alt+C`: Connect FastMCP Context Tools.
+- `Cmd+Shift+P` / `Ctrl+Shift+P`: Command Palette.
 
 ## CLI examples
-The `zed` CLI binary allows invoking workspace instances directly:
+
+### Workspace & Buffer Manipulation
+Invoke Zed from your shell for interactive editing or diffing:
 
 ```bash
-# Open current directory in Zed
+# Open current workspace
 zed .
 
-# Open specific file at line number 42
-zed path/to/file.rs:42
+# Open file at line 84
+zed src/main.rs:84
 
-# Block terminal until editor buffer closes (ideal for Git commit messages)
-zed --wait README.md
+# Wait for buffer completion before returning (useful for Git commit editor)
+zed --wait COMMIT_EDITMSG
+```
+
+### Managing Extensions & MCP Servers via CLI
+Zed provides command-line flags for extension discovery and context management:
+
+```bash
+# List installed Wasm extensions
+zed --list-extensions
+
+# Verify status of registered FastMCP 3.1 servers
+zed --mcp-status
 ```
 
 ## API examples
-Zed extensions are authored in Rust and target WebAssembly (`wasm32-wasip1`).
 
-### extension.toml (Metadata)
-```toml
-id = "mcp-extension"
-name = "MCP FastMCP Tooling"
-version = "0.4.0"
-schema_version = 1
-authors = ["Home Admin <admin@homelab.local>"]
-description = "Integrates FastMCP 3.1 tools directly into Zed Assistant."
+### FastMCP 3.1 Python Context Server Integration
+Zed communicates with tools using standard FastMCP 3.1. Below is a complete Python FastMCP server implementation that exposes repository analysis and linting tools to Zed Assistant sessions:
 
-[lib]
-kind = "rust"
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import os
+import subprocess
+
+# Initialize FastMCP 3.1 Server for Zed Assistant
+mcp = FastMCP("ZedContextTools")
+
+class SyntaxCheckResult(BaseModel):
+    filepath: str = Field(description="Target file checked")
+    is_valid: bool = Field(description="True if syntax check passed")
+    errors: str = Field(default="", description="Compiler or linter error output")
+
+class ProjectSearchRequest(BaseModel):
+    query: str = Field(description="Search string or regex")
+    extension: str = Field(default="rs", description="File extension filter")
+
+@mcp.tool()
+def run_cargo_check(project_dir: str) -> str:
+    """Runs 'cargo check' on a Rust workspace and returns errors directly to Zed Assistant."""
+    if not os.path.exists(os.path.join(project_dir, "Cargo.toml")):
+        return f"Error: '{project_dir}' is not a valid Cargo workspace root."
+
+    try:
+        result = subprocess.run(
+            ["cargo", "check", "--message-format=short"],
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode == 0:
+            return "Cargo Check Passed: No errors found."
+        return f"Cargo Check Failures:\n{result.stderr or result.stdout}"
+    except Exception as e:
+        return f"Execution error: {str(e)}"
+
+@mcp.tool()
+def search_codebase(project_dir: str, search_req: ProjectSearchRequest) -> str:
+    """Searches files in project directory for specific text queries for Zed context context injection."""
+    matches = []
+    for root, _, files in os.walk(project_dir):
+        if "target" in root or ".git" in root:
+            continue
+        for file in files:
+            if file.endswith(f".{search_req.extension}"):
+                filepath = os.path.join(root, file)
+                try:
+                    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                        for idx, line in enumerate(f, 1):
+                            if search_req.query in line:
+                                matches.append(f"{filepath}:{idx}: {line.strip()}")
+                except Exception:
+                    pass
+
+    if not matches:
+        return f"No matches found for '{search_req.query}' in .{search_req.extension} files."
+    return f"Found {len(matches)} matches:\n" + "\n".join(matches[:25])
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Rust Extension Implementation
-```rust
-use zed_extension_api::{self as zed, Result};
+### Validating Zed Config Schemas with Pydantic v2
+Ensure local Zed configuration files and MCP server definitions comply with strict Pydantic v2 schemas before syncing:
 
-struct FastMcpExtension;
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, List, Optional
 
-impl zed::Extension for FastMcpExtension {
-    fn new() -> Self {
-        Self
+class MCPCommand(BaseModel):
+    path: str = Field(description="Path to executable binary")
+    args: List[str] = Field(default_factory=list, description="Command line arguments")
+    env: Dict[str, str] = Field(default_factory=dict, description="Environment flags")
+
+class ContextServerConfig(BaseModel):
+    source: str = Field(default="custom")
+    command: MCPCommand
+
+class ZedSettingsSchema(BaseModel):
+    theme: str = Field(default="One Dark")
+    buffer_font_size: int = Field(default=14, alias="buffer_font_size")
+    context_servers: Dict[str, ContextServerConfig] = Field(default_factory=dict, alias="context_servers")
+
+    @field_validator("buffer_font_size")
+    @classmethod
+    def check_font_size(cls, v: int) -> int:
+        if v < 8 or v > 48:
+            raise ValueError("Font size must be between 8 and 48 pt")
+        return v
+
+    class Config:
+        populate_by_name = True
+
+# Validate active Zed settings payload
+sample_zed_settings = {
+    "theme": "One Dark",
+    "buffer_font_size": 15,
+    "context_servers": {
+        "zed-mcp-tools": {
+            "source": "custom",
+            "command": {
+                "path": "python3",
+                "args": ["-m", "servers.zed_tools"],
+                "env": {"PYTHONUNBUFFERED": "1"}
+            }
+        }
     }
 }
 
-zed::register_extension!(FastMcpExtension);
+config = ZedSettingsSchema.model_validate(sample_zed_settings)
+print(f"Validated Zed Theme: {config.theme}")
+print(f"Registered MCP Tool: {list(config.context_servers.keys())[0]}")
+```
+
+### Authoring Wasm Extensions for Zed in Rust
+Zed plugins compile to `wasm32-wasip1`. Below is an example plugin skeleton that registers language grammar support and FastMCP tools:
+
+```rust
+use zed_extension_api::{self as zed, Result};
+
+struct FastMcpZedExtension;
+
+impl zed::Extension for FastMcpZedExtension {
+    fn new() -> Self {
+        Self
+    }
+
+    fn language_server_command(
+        &mut self,
+        _config: &zed::LanguageServerId,
+        _worktree: &zed::Worktree,
+    ) -> Result<zed::Command> {
+        Ok(zed::Command {
+            command: "fastmcp-lsp".string(),
+            args: vec!["--stdio".to_string()],
+            env: Default::default(),
+        })
+    }
+}
+
+zed::register_extension!(FastMcpZedExtension);
 ```
 
 ## Related tools / concepts
-- [VS Code](vscode.md) — The primary industry standard editor.
-- [Cursor](cursor.md) — An AI-native editor fork of VS Code.
-- [Aider](aider.md) — Terminal-based AI coding assistant that complements Zed.
-- [Claude Code](claude-code.md) — Anthropic's agentic coding CLI for high-speed development.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — The standard for connecting AI to tools (MCP 3.1).
-- [Codeium](codeium.md) — High-performance AI completion service with Zed support.
-- [GitHub Copilot](github_copilot.md) — Standard AI completion service supported natively by Zed.
+- [VS Code](vscode.md) — The dominant industry-standard editor framework.
+- [Cursor](cursor.md) — VS Code-derived AI-native editor.
+- [Aider](aider.md) — Terminal pair programming agent.
+- [Claude Code](claude-code.md) — Agentic command-line interface by Anthropic.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standardized protocol for external tool connectivity (FastMCP 3.1).
+- [Ollama](../../services/ollama.md) — Local model runner supported directly by Zed for zero-cost completions.
+- [Codeium](codeium.md) — High-speed code completion service with native Zed integration.
 
 ## Sources / references
 - [Zed Official Website](https://zed.dev/)
-- [Zed Documentation](https://zed.dev/docs)
-- [Zed GitHub Repository](https://github.com/zed-industries/zed)
-- [MCP 3.1 Specification](https://modelcontextprotocol.io/)
+- [Zed Documentation & Assistant Guide](https://zed.dev/docs)
+- [Zed Open-Source Repository on GitHub](https://github.com/zed-industries/zed)
+- [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
