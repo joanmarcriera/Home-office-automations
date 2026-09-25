@@ -1,7 +1,47 @@
 # MultiPL-E
 
 ## What it is
-MultiPL-E is an open-source system and benchmark suite for evaluating code generation LLMs in a polyglot setting. Developed to extend single-language benchmarks (such as HumanEval and MBPP), MultiPL-E translates canonical Python programming problems into 18+ programming languages—including C++, Rust, TypeScript, Java, Go, C#, PHP, Swift, Scala, and Julia. As of early 2027, MultiPL-E is a standard benchmark used across frontier model developers (OpenAI, Anthropic, Meta, Google) to evaluate cross-language code synthesis and multi-language instruction following.
+MultiPL-E is an open-source system and benchmark suite for evaluating code generation LLMs in a polyglot setting. Developed to extend single-language benchmarks (such as HumanEval and MBPP), MultiPL-E translates canonical Python programming problems into 18+ programming languages—including C++, Rust, TypeScript, Java, Go, C#, PHP, Swift, Scala, and Julia. As of early 2027, MultiPL-E is a standard benchmark used across frontier model developers (OpenAI, Anthropic, Meta, Google, DeepSeek) to evaluate cross-language code synthesis, multi-language instruction following, and FastMCP 3.1 Task Protocol code evaluation.
+
+## Architecture & Polyglot Translation Flow
+
+```mermaid
+flowchart TD
+    subgraph Canonical ["Canonical Benchmark Datasets"]
+        HE["HumanEval (Python)"]
+        MB["MBPP (Python)"]
+    end
+
+    subgraph Translation ["MultiPL-E Translator Pipeline"]
+        AST["Python AST Parser"]
+        IR["Language-Agnostic Intermediate AST"]
+        Trans["Target Language Translators (18+ Languages)"]
+        TypeMap["Type & Idiom Mapper"]
+    end
+
+    subgraph Execution ["Containerized Execution Sandbox"]
+        RUST["Rust / Cargo Runner"]
+        CPP["C++ / GCC Runner"]
+        TS["TypeScript / Node Runner"]
+        GO["Go Compiler Engine"]
+    end
+
+    subgraph Evaluation ["Telemetry & Scoring"]
+        PassK["Pass@k Metric Calculator"]
+        Telemetry["FastMCP 3.1 Session Telemetry"]
+        Summary["Pydantic v2 Scorecard Output"]
+    end
+
+    HE --> AST
+    MB --> AST
+    AST --> IR
+    IR --> Trans
+    Trans --> TypeMap
+    TypeMap --> RUST & CPP & TS & GO
+    RUST & CPP & TS & GO --> PassK
+    PassK --> Telemetry
+    Telemetry --> Summary
+```
 
 ## What problem it solves
 Evaluating code generation capabilities using Python-only benchmarks introduces severe evaluation biases:
@@ -15,7 +55,7 @@ MultiPL-E solves these problems by providing automated, semantically-validated c
 **Category**: [Benchmarking](index.md) / Multi-Language Code Evaluation. MultiPL-E serves as an evaluation framework sitting alongside single-language datasets like [MBPP](mbpp.md) and interactive harness benchmarks like [Inspect AI](inspect-ai.md) or [SWE-bench](swe-bench.md).
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Benchmarking models (e.g., Claude 5.1, GPT-5.5, Llama 4 Code) across 18+ languages to assess polyglot coding competence.
+- **Frontier Model Evaluation**: Benchmarking models (e.g., Claude 5.6, GPT-5.6, Llama 4 Code, Gemini 4.0 Ultra, DeepSeek-V4) across 18+ languages to assess polyglot coding competence.
 - **Fine-Tuning Quality Gates**: Verifying that domain-specific fine-tuning on one language (e.g., Python) does not degrade model performance in other languages.
 - **Compiler & Code Translation Research**: Evaluating LLM effectiveness when converting algorithms between programming languages with different memory models.
 - **Leaderboard Auditing**: Generating pass@k metrics for open-weight models across low-resource programming languages.
@@ -79,12 +119,17 @@ done
 
 ## API examples
 
-The following Python script utilizes **Pydantic v2** to parse, validate, and summarize MultiPL-E polyglot evaluation result artifacts.
+### FastMCP 3.1 Integration & Pydantic v2 Polyglot Verification
+The following Python script implements a **FastMCP 3.1 Task Protocol** tool server and uses **Pydantic v2** to parse, validate, and summarize MultiPL-E polyglot evaluation result artifacts.
 
 ```python
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
 import json
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for MultiPL-E Evaluation
+mcp = FastMCP("MultiPL-E-Evaluator", version="3.1")
 
 class BenchmarkResultItem(BaseModel):
     task_id: str = Field(..., description="Canonical task ID (e.g., HumanEval_0_rs).")
@@ -99,32 +144,36 @@ class MultiPLESummary(BaseModel):
     pass_rate: float = Field(..., description="Overall pass@1 rate (0.0 to 1.0).")
     language_breakdown: Dict[str, float] = Field(..., description="Pass rate per target language.")
 
+@mcp.tool(name="summarize_polyglot_results", description="Validates and summarizes MultiPL-E polyglot evaluation results.")
 def summarize_multiple_results(results_data: List[Dict]) -> str:
     """Parses raw result items and computes summary metrics with Pydantic v2 validation."""
-    items = [BenchmarkResultItem.model_validate(item) for item in results_data]
+    try:
+        items = [BenchmarkResultItem.model_validate(item) for item in results_data]
 
-    lang_counts: Dict[str, List[bool]] = {}
-    for item in items:
-        if item.language not in lang_counts:
-            lang_counts[item.language] = []
-        lang_counts[item.language].append(item.passed)
+        lang_counts: Dict[str, List[bool]] = {}
+        for item in items:
+            if item.language not in lang_counts:
+                lang_counts[item.language] = []
+            lang_counts[item.language].append(item.passed)
 
-    breakdown = {
-        lang: sum(passes) / len(passes) if passes else 0.0
-        for lang, passes in lang_counts.items()
-    }
+        breakdown = {
+            lang: sum(passes) / len(passes) if passes else 0.0
+            for lang, passes in lang_counts.items()
+        }
 
-    total = len(items)
-    passed = sum(1 for item in items if item.passed)
+        total = len(items)
+        passed = sum(1 for item in items if item.passed)
 
-    summary = MultiPLESummary(
-        total_tasks=total,
-        passed_tasks=passed,
-        pass_rate=passed / total if total > 0 else 0.0,
-        language_breakdown=breakdown
-    )
+        summary = MultiPLESummary(
+            total_tasks=total,
+            passed_tasks=passed,
+            pass_rate=passed / total if total > 0 else 0.0,
+            language_breakdown=breakdown
+        )
 
-    return summary.model_dump_json(indent=2)
+        return summary.model_dump_json(indent=2)
+    except ValidationError as e:
+        return json.dumps({"error": "Schema validation failed", "details": e.errors()})
 
 if __name__ == "__main__":
     sample_raw = [

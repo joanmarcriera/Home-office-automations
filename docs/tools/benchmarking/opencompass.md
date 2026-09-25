@@ -3,6 +3,41 @@
 ## What it is
 OpenCompass is a comprehensive, one-stop platform designed for evaluating the capabilities of large language models (LLMs), vision-language models (VLMs), and autonomous agent frameworks. It provides a complete evaluation pipeline, including dataset preparation, distributed execution scripts, and public/private leaderboards (CompassRank). As of early January 2027, OpenCompass remains the industry benchmark standard for foundation model evaluation, featuring deep integration with the [MCP 3.1 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) and FastMCP 3.1 streaming telemetry.
 
+## Architecture & Evaluation Execution Pipeline
+
+```mermaid
+flowchart TD
+    subgraph Input ["Model & Dataset Configuration"]
+        M["Model Config (vLLM / HuggingFace / API)"]
+        D["Dataset Registry (120+ Datasets)"]
+    end
+
+    subgraph Core ["OpenCompass Distributed Runtime"]
+        Dispatch["Job Dispatcher / Accelerator"]
+        Infer["Inference Engine (vLLM / SGLang)"]
+        Judge["CompassJudger 2027 (LLM-as-a-judge)"]
+    end
+
+    subgraph FastMCP ["FastMCP 3.1 Protocol Layer"]
+        Server["FastMCP 3.1 Evaluation Server"]
+        Stream["Streaming Telemetry Engine"]
+    end
+
+    subgraph Output ["Scorecard & Leaderboards"]
+        Schema["Pydantic v2 Validated Metrics"]
+        Rank["CompassRank Leaderboard"]
+    end
+
+    M --> Dispatch
+    D --> Dispatch
+    Dispatch --> Infer
+    Infer --> Judge
+    Judge --> Server
+    Server --> Stream
+    Stream --> Schema
+    Schema --> Rank
+```
+
 ## What problem it solves
 Evaluating modern large-scale multi-modal and agentic models is complex, requiring diverse datasets and multiple evaluation paradigms (e.g., zero-shot, few-shot, Chain-of-Thought, and multi-turn agent execution). OpenCompass standardizes this process, providing a reproducible and extensible framework supporting over 120 standardized datasets. It addresses the fragmentation of evaluation criteria by providing a unified interface for cross-domain evaluation across frontier models like [Gemma 4](../ai_knowledge/local_llms.md), Qwen 3.6 VL, DeepSeek-V4, GPT-5.6, Gemini 4.0 Ultra, and Claude 5.6.
 
@@ -82,7 +117,7 @@ python GenEditEvalKit/run.py --models stable-diffusion-4 --benchmarks GEdit2027
 ```
 
 ## API examples
-OpenCompass configurations are native Python modules and can be integrated into automated training and evaluation pipelines:
+OpenCompass configurations are native Python modules and can be integrated into automated training and evaluation pipelines.
 
 ```python
 from mmengine.config import read_base
@@ -106,14 +141,18 @@ models = [
 datasets = mmlu_pro_datasets
 ```
 
-## Programmatic Integration and Validation Example
-This Python example executes a local OpenCompass evaluation job and utilizes Pydantic v2 to strictly validate evaluation metrics and schema parameters before saving them to a telemetry store.
+### FastMCP 3.1 Programmatic Integration and Validation Example
+This Python example executes a local OpenCompass evaluation job, wraps it in a **FastMCP 3.1 Task Protocol** tool, and utilizes **Pydantic v2** to strictly validate evaluation metrics before returning telemetry.
 
 ```python
 import json
 import subprocess
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for OpenCompass Evaluation
+mcp = FastMCP("OpenCompass-Evaluator", version="3.1")
 
 class DatasetMetric(BaseModel):
     metric_name: str = Field(..., alias="metric")
@@ -126,37 +165,41 @@ class CompassResult(BaseModel):
     execution_time_sec: float = Field(..., ge=0)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
-def run_opencompass_and_validate(model_abbr: str, dataset_abbr: str) -> Optional[CompassResult]:
+@mcp.tool(name="evaluate_model_opencompass", description="Runs OpenCompass evaluation benchmark and returns validated scorecard metrics.")
+def run_opencompass_and_validate(model_abbr: str, dataset_abbr: str) -> str:
     """Runs a sub-process evaluation and validates outputs using Pydantic v2."""
     cmd = [
         "python3", "run.py",
         "--models", model_abbr,
         "--datasets", dataset_abbr,
-        "--json-output-only" # Headless flag
+        "--json-output-only"
     ]
     try:
         response = subprocess.run(cmd, capture_output=True, text=True, check=True)
         raw_data = json.loads(response.stdout)
 
-        # Enforce strict Pydantic v2 validation
         validated_result = CompassResult.model_validate(raw_data)
-        return validated_result
+        return validated_result.model_dump_json(indent=2)
     except subprocess.CalledProcessError as e:
-        print(f"OpenCompass subprocess execution failed: {e.stderr}")
-        return None
+        return json.dumps({"error": f"OpenCompass subprocess execution failed: {e.stderr}"})
     except ValidationError as e:
-        print(f"OpenCompass validated schema mismatch: {e}")
-        return None
+        return json.dumps({"error": f"OpenCompass validated schema mismatch: {e.errors()}"})
     except json.JSONDecodeError as e:
-        print(f"Failed to parse OpenCompass JSON outputs: {e}")
-        return None
+        return json.dumps({"error": f"Failed to parse OpenCompass JSON outputs: {e}"})
 
 if __name__ == "__main__":
-    result = run_opencompass_and_validate("hf_gemma_4_9b", "gsm8k_gen")
-    if result:
-        print(f"Successfully validated OpenCompass metrics for model: {result.model_name}")
-        for m in result.metrics:
-            print(f"  - Dataset '{result.dataset_name}' metric '{m.metric_name}': {m.score}")
+    # Test mock evaluation payload validation
+    sample_payload = {
+        "model": "hf_gemma_4_9b",
+        "dataset": "gsm8k_gen",
+        "metrics": [{"metric": "accuracy", "score": 88.5}],
+        "execution_time_sec": 42.1
+    }
+    try:
+        validated = CompassResult.model_validate(sample_payload)
+        print(f"Successfully validated OpenCompass metrics for model: {validated.model_name}")
+    except ValidationError as ve:
+        print(f"Validation failed: {ve}")
 ```
 
 ## Related tools / concepts

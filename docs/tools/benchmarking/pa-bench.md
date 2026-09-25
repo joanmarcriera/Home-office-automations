@@ -3,6 +3,43 @@
 ## What it is
 PA-bench is a comprehensive benchmark suite designed to evaluate the performance of Personal Assistant (PA) web agents on real-world workflows. It utilizes simulated environments (e.g., mock Gmail, mock Google Calendar) to provide a safe, reproducible, and cost-effective testbed for early January 2027 agentic orchestration.
 
+## Architecture & Agentic Simulation Flow
+
+```mermaid
+flowchart TD
+    subgraph Suite ["PA-bench Task Harness"]
+        TaskDef["Task Definition (Calendar / Email / Travel)"]
+        Orchestrator["Experiment Orchestrator"]
+    end
+
+    subgraph Simulation ["Simulated Backend Enclaves"]
+        DockerSim["Docker Container: PA Simulations"]
+        MockGmail["Mock Gmail API / Web UI"]
+        MockGCal["Mock Google Calendar API / Web UI"]
+    end
+
+    subgraph AgentLoop ["Agent Execution Loop"]
+        Agent["Web Agent (Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra)"]
+        Browser["Chromium Headless (v146 Side-Panel Hooks)"]
+        FastMCP["FastMCP 3.1 Task Server"]
+    end
+
+    subgraph Scoring ["Evaluation & Verification"]
+        Verify["Deterministic State Verifier"]
+        Scorecard["Pydantic v2 Validated Trajectory Report"]
+    end
+
+    TaskDef --> Orchestrator
+    Orchestrator --> DockerSim
+    DockerSim --> MockGmail & MockGCal
+    Orchestrator --> Agent
+    Agent --> Browser
+    Browser --> FastMCP
+    FastMCP --> MockGmail & MockGCal
+    MockGmail & MockGCal --> Verify
+    Verify --> Scorecard
+```
+
 ## What problem it solves
 It addresses the lack of realistic evaluation frameworks for web-based agents by providing a set of complex, multi-step tasks that mirror actual user needs, such as booking travel, managing calendars, or conducting research across multiple websites. It is a critical tool for measuring "Agentic Session Orchestration" and risk mitigation in early 2027.
 
@@ -87,13 +124,18 @@ pa-bench report --run_id RUN_123 --format webm
 
 ## API examples
 
-### Trajectory Schema Validation & Execution (Python & Pydantic v2)
-Using Pydantic v2 and FastMCP 3.1 Task Protocol, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL).
+### Trajectory Schema Validation & FastMCP 3.1 Server Integration
+Using **Pydantic v2** and **FastMCP 3.1 Task Protocol**, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL).
 
 ```python
-from pydantic import BaseModel, Field, ValidationError
+import json
 from typing import List, Optional
 from datetime import datetime
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for PA-bench Trajectory Telemetry
+mcp = FastMCP("PA-Bench-Evaluator", version="3.1")
 
 class TrajectoryStep(BaseModel):
     step_num: int = Field(..., description="Chronological step number", ge=1)
@@ -108,33 +150,30 @@ class PAEvaluationRun(BaseModel):
     steps: List[TrajectoryStep] = Field(default_factory=list, description="Sequence of actions taken by agent")
     is_success: bool = Field(False, description="Whether final verification check succeeded")
 
-# Execute validation of evaluation run
-def validate_pa_bench_run(run_data: dict) -> Optional[PAEvaluationRun]:
+@mcp.tool(name="validate_pa_trajectory", description="Validates PA-bench trajectory execution data using strict Pydantic v2 schema.")
+def validate_pa_bench_run(run_data: dict) -> str:
     try:
-        # Strict Pydantic v2 verification
         validated = PAEvaluationRun.model_validate(run_data)
-        print(f"Validated PA-bench run '{validated.run_id}': Success = {validated.is_success}")
-        return validated
+        return validated.model_dump_json(indent=2)
     except ValidationError as e:
-        print(f"Trajectory payload verification failed: {e.errors()}")
-        return None
+        return json.dumps({"error": "Trajectory verification failed", "details": e.errors()})
 
-# Test payload with early 2027 trajectory step data
-sample_run = {
-    "run_id": "run-pa-9912",
-    "task_name": "calendar_sync_2027",
-    "is_success": True,
-    "steps": [
-        {
-            "step_num": 1,
-            "action": "navigate",
-            "url": "http://gcal.mock-env.local",
-            "screenshot_path": "./diagnostics/screenshots/step_01.png"
-        }
-    ]
-}
+if __name__ == "__main__":
+    sample_run = {
+        "run_id": "run-pa-9912",
+        "task_name": "calendar_sync_2027",
+        "is_success": True,
+        "steps": [
+            {
+                "step_num": 1,
+                "action": "navigate",
+                "url": "http://gcal.mock-env.local",
+                "screenshot_path": "./diagnostics/screenshots/step_01.png"
+            }
+        ]
+    }
 
-validated_run = validate_pa_bench_run(sample_run)
+    print(validate_pa_bench_run(sample_run))
 ```
 
 ### Orchestrating an Evaluation

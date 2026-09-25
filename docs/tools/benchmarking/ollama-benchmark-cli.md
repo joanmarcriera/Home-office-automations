@@ -3,6 +3,29 @@
 ## What it is
 Ollama Benchmark CLI is a specialized tool for measuring the local inference performance of Large Language Models (LLMs) served via [Ollama](../../services/ollama.md). It provides rigorous, low-level metrics for tokens-per-second (TPS), latency, and processing times, enabling developers to objectively compare model performance on their specific local hardware (such as Apple Silicon, multi-GPU rigs, and custom ARM64 nodes). In early January 2027, it serves as the standard for validating local "Agentic Latency"—the precise execution time of multi-step, local reasoning and FastMCP 3.1 Task Protocol tool calls.
 
+## Architecture & Benchmark Execution Loop
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Benchmark Harness
+    participant MCP as FastMCP 3.1 Task Server
+    participant Ollama as Ollama REST API
+    participant Engine as Local Inference Engine (GGUF)
+
+    Client->>MCP: Request Latency & Throughput Benchmark
+    MCP->>Ollama: POST /api/generate (Model, Prompt, Context Window)
+    activate Ollama
+    Ollama->>Engine: Load Model Weights into VRAM / RAM
+    Engine-->>Ollama: Prefill Complete (Prompt Processing)
+    Ollama-->>MCP: Stream First Token (TTFT Recorded)
+    Engine-->>Ollama: Token Generation Loop (Decoding)
+    Ollama-->>MCP: Generation Complete (Prompt Eval & Eval Durations)
+    deactivate Ollama
+    MCP->>MCP: Calculate Prefill TPS, Decoding TPS & P99 Latency
+    MCP-->>Client: Return Pydantic v2 Validated Benchmark Report
+```
+
 ## What problem it solves
 Hardware configurations for local LLMs are highly diverse and unpredictable. Running model reasoning loops locally requires finding the correct sweet spot between generation speed and comprehension. Ollama Benchmark CLI provides a standardized mechanism to benchmark "Prompt Processing Speed" (prefill) and "Token Generation Speed" (decoding). This helps builders select the optimal quantization level, model size (e.g., `gemma4:9b` vs `deepseek-v4:32b`), and context limits to support smooth, real-time agent execution without hitting memory bottlenecks.
 
@@ -72,15 +95,19 @@ ollama-benchmark --models qwen3.6-vl-instruct --prompts "Explain quantum computi
 
 ## API examples
 
-### Parsing and Validating Ollama Benchmarks with Strict Pydantic v2
-This Python script demonstrates how to query the Ollama local API and parse execution metrics using strict **Pydantic v2** validation (`BaseModel`, `Field`, `model_validate`, `ValidationError`).
+### Parsing and Validating Ollama Benchmarks with FastMCP 3.1 & Strict Pydantic v2
+This Python script demonstrates how to integrate an Ollama benchmark suite into a **FastMCP 3.1 Task Protocol** tool server and parse execution metrics using strict **Pydantic v2** validation (`BaseModel`, `Field`, `model_validate`, `ValidationError`).
 
 ```python
 import sys
 import requests
+from typing import Dict, Any
 from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
 
-# Define strict metric validation structures in Pydantic v2
+# Initialize FastMCP 3.1 Server for Ollama Benchmarking
+mcp = FastMCP("Ollama-Benchmark-Server", version="3.1")
+
 class BenchmarkOptions(BaseModel):
     num_ctx: int = Field(default=8192, description="Context window size used for test")
     temperature: float = Field(default=0.0, description="Temperature parameter")
@@ -94,7 +121,6 @@ class BenchmarkResult(BaseModel):
     generation_duration_ns: int = Field(..., alias="eval_duration", description="Time spent in token generation (ns)")
     total_duration_ns: int = Field(..., alias="total_duration", description="Total API response duration in ns")
 
-    # Property helpers to compute human-readable speeds
     @property
     def prefill_tps(self) -> float:
         if self.prefill_duration_ns > 0:
@@ -107,39 +133,31 @@ class BenchmarkResult(BaseModel):
             return self.generation_tokens / (self.generation_duration_ns / 1e9)
         return 0.0
 
-def run_local_benchmark(model_name: str, prompt: str, options: BenchmarkOptions) -> None:
-    payload = {
-        "model": model_name,
-        "prompt": prompt,
-        "stream": False,
-        "options": options.model_dump()
-    }
-
-    print(f"Running benchmark on model '{model_name}'...")
+@mcp.tool(name="run_ollama_benchmark", description="Executes local inference latency and throughput benchmark against Ollama.")
+def run_local_benchmark(model_name: str, prompt: str, options_dict: Dict[str, Any]) -> str:
     try:
+        options = BenchmarkOptions.model_validate(options_dict)
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "stream": False,
+            "options": options.model_dump()
+        }
+
         response = requests.post("http://localhost:11434/api/generate", json=payload, timeout=120)
         response.raise_for_status()
         raw_data = response.json()
 
-        # Validate with Pydantic V2 model_validate
         metrics = BenchmarkResult.model_validate(raw_data)
-
-        print("📊 Benchmark Metrics Verified:")
-        print(f"  - Model: {metrics.model}")
-        print(f"  - Prefill Speed: {metrics.prefill_tps:.2f} tokens/sec ({metrics.prompt_tokens} tokens)")
-        print(f"  - Generation Speed: {metrics.generation_tps:.2f} tokens/sec ({metrics.generation_tokens} tokens)")
-        print(f"  - Total Latency: {raw_data.get('total_duration', 0) / 1e9:.2f} seconds")
+        return metrics.model_dump_json(indent=2)
 
     except ValidationError as ve:
-        print(f"❌ Metrics validation error: {ve}", file=sys.stderr)
+        return f"Metrics validation error: {ve}"
     except requests.RequestException as re:
-        print(f"❌ HTTP request failed: {re}", file=sys.stderr)
+        return f"HTTP request failed: {re}"
 
 if __name__ == "__main__":
-    # Ensure options are validated
-    test_options = BenchmarkOptions(num_ctx=4096, temperature=0.0)
-
-    # Mock a manual metrics dictionary validation for testing when service is offline
+    # Mock offline validation check for local server testing
     mock_payload = {
         "model": "gemma4:9b",
         "prompt_eval_count": 120,
@@ -151,11 +169,11 @@ if __name__ == "__main__":
 
     try:
         validated_metrics = BenchmarkResult.model_validate(mock_payload)
-        print(f"✅ Offline validation check successful for model: {validated_metrics.model}")
+        print(f"Offline validation check successful for model: {validated_metrics.model}")
         print(f"  Prefill TPS: {validated_metrics.prefill_tps:.2f}")
         print(f"  Generation TPS: {validated_metrics.generation_tps:.2f}")
     except ValidationError as e:
-        print(f"❌ Offline validation check failed: {e}", file=sys.stderr)
+        print(f"Offline validation check failed: {e}", file=sys.stderr)
 ```
 
 ## Related tools / concepts
