@@ -14,3 +14,4 @@ htmlcov/
 .playwright-mcp/
 *.db
 *.log
+temp_lychee/
