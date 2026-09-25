@@ -1,0 +1,25 @@
+# Longhorn Helm Configuration for Homelab
+
+# Deployment via Helm:
+# helm repo add longhorn https://charts.longhorn.io
+# helm repo update
+# helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace -f longhorn-values.yaml
+
+# Pre-requisites on all nodes:
+# sudo apt install open-iscsi nfs-common
+
+persistence:
+  defaultClass: true
+  defaultClassReplicaCount: 3
+
+ingress:
+  enabled: true
+  host: longhorn.example.com # Replace with your domain
+  ingressClassName: traefik
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+
+# Configuration for Backup Target
+# defaultSettings:
+#   backupTarget: nfs://192.168.1.100:/mnt/backups/longhorn
+#   backupTargetCredentialSecret: longhorn-backup-secret

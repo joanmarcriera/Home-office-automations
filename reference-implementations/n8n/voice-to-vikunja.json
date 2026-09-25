@@ -1,0 +1,72 @@
+{
+  "name": "Voice to Vikunja",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "voice-task",
+        "options": {}
+      },
+      "name": "HA Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "ha-voice-webhook"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5-coder",
+        "prompt": "=Extract the core task and priority from this voice transcription: \"{{ $json.body.text }}\"\n\nReturn ONLY a JSON object with keys: \"title\", \"priority\" (1-5, where 5 is high), and \"due_date\" (ISO format if mentioned, otherwise null)."
+      },
+      "name": "Extract Task Info",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [
+        350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "project": "YOUR_VIKUNJA_PROJECT_ID",
+        "title": "={{ $json.title }}",
+        "priority": "={{ $json.priority }}",
+        "dueDate": "={{ $json.due_date }}"
+      },
+      "name": "Create Vikunja Task",
+      "type": "n8n-nodes-base.vikunja",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "HA Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Task Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Task Info": {
+      "main": [
+        [
+          {
+            "node": "Create Vikunja Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
