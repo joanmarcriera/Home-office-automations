@@ -22,11 +22,6 @@
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/services/it-tools.md",
-    "docs/tools/infrastructure/localai.md",
-    "docs/tools/ai_knowledge/personaplex.md",
-    "docs/tools/infrastructure/llamacpp-windows-manager.md",
-    "docs/tools/ai_knowledge/matt-pocock-skills.md",
-    "docs/tools/ai_knowledge/lobehub.md",
     "docs/tools/providers/moonshot.md",
     "docs/tools/process_understanding/cloudflare-agent-tracing.md",
     "docs/tools/development_ops/openswarm.md",

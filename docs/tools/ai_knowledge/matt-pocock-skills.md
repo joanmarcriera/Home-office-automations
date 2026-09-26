@@ -1,128 +1,222 @@
 # Matt Pocock Skills
 
 ## What it is
-A repository of specialized skills and execution scaffolds designed for AI agents, including the flagship "Grill-me" skill for rigorous plan verification. As of early 2027, these skills have been updated to leverage the advanced reasoning capabilities of frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
+Matt Pocock Skills is a collection of production-grade agent skills, execution scaffolds, and prompt design tools designed to extend AI developer workflows with domain-specific engineering rigor. Built around flagship patterns such as the "Grill-me" plan verification skill, this framework bridges the gap between raw LLM intelligence and disciplined software engineering practices. As of early 2027, these skills operate natively with **FastMCP 3.1**, the **MCP 3.0 Task Protocol**, and frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**, and **Llama 4 Maverick**.
 
 ## What problem it solves
-It extends agent capabilities with domain-specific execution scaffolds and critical thinking tools. It bridges the gap between raw LLM intelligence and professional software engineering rigor by enforcing structured workflows, preventing the "hallucination of competence" in complex system migrations and architectural changes.
+Autonomous AI agents frequently suffer from "over-confidence bias"—executing major architectural refactors or database migrations without thoroughly validating edge cases, verifying dependency constraints, or pressure-testing system assumptions. This leads to broken builds, regressions, and costly manual debugging cycles.
+
+Matt Pocock Skills addresses this problem by embedding explicit critical-thinking scaffolds directly into the agent's reasoning loop. Skills like `grill-me` force agents to defend their execution plans against adversarial questioning, while skills like `tdd` enforce strict Red-Green-Refactor test cycles before touching production source code.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Agent Skills**. These skills act as the "reasoning plugins" for autonomous agents like [Jules](jules.md), operating at the logic and execution layer of the agentic stack.
+**Category**: AI Assistants & Knowledge / Agent Execution Skills & Scaffolds.
+
+```
++-----------------------------------------------------------------------+
+|                    Developer / IDE Workspace                          |
+|         (Claude Code, Cursor, Cline, OpenCode, VS Code)               |
++-----------------------------------------------------------------------+
+                                   |
+                                   v
++-----------------------------------------------------------------------+
+|                       Matt Pocock Skills                              |
+|  +---------------------------+     +-------------------------------+  |
+|  |     /grill-me Scaffold    |     |      /tdd Test Scaffold       |  |
+|  +---------------------------+     +-------------------------------+  |
+|                |                                   |                  |
+|                v                                   v                  |
+|  +-----------------------------------------------------------------+  |
+|  |     FastMCP 3.1 Server Engine & Task Handler Interface          |  |
+|  +-----------------------------------------------------------------+  |
++-----------------------------------------------------------------------+
+                                   |
+                                   v
++-----------------------------------------------------------------------+
+|                  Frontier Reasoning Model & System                    |
+|       (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Local Llama 4)           |
++-----------------------------------------------------------------------+
+```
+
+Operating at the reasoning and execution layer, these skills inject structured execution guidelines into agent runtimes like [Jules](jules.md) or [Claude Code](../development_ops/claude-code.md).
+
+## System Architecture & Sequence Flow
+The sequence diagram below illustrates how an agent uses the `/grill-me` skill to validate a technical plan via FastMCP 3.1 before applying changes to codebase files.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Software Engineer
+    participant Agent as Agent Runtime (e.g. Claude Code)
+    participant Skill as Pocock Skill (/grill-me)
+    participant FastMCP as FastMCP 3.1 Task Server
+    participant Model as Reasoning Engine (Claude 5.1 / GPT-5.5)
+
+    Dev->>Agent: Request complex refactor ("Migrate SQLite to Postgres")
+    Agent->>Skill: Trigger /grill-me skill scaffold
+    Skill->>FastMCP: Dispatch grill_plan task via MCP 3.0 Protocol
+    FastMCP->>Model: Present plan + adversarial interrogation prompts
+    Model-->>FastMCP: Generate 3 probing architectural questions
+    FastMCP-->>Skill: Return questioning payload
+    Skill-->>Dev: Present questions & wait for clarification
+    Dev->>Skill: Provide clarifications & boundary conditions
+    Skill->>Model: Re-evaluate plan with user answers
+    Model-->>Skill: Issue High-Confidence Verified Plan
+    Skill-->>Agent: Authorize file modifications
+```
 
 ## Typical use cases
-- **Plan Verification**: Using `Grill-me` to ensure a proposed solution is robust and handles edge cases before execution.
-- **TDD Workflows**: Automating the Red-Green-Refactor loop with specialized skills for TypeScript, Rust, and Python.
-- **Complex Bug Diagnosis**: Leveraging multi-step diagnostic patterns to isolate and fix elusive production memory leaks or race conditions.
-- **Agentic IDE Integration**: Enhancing [Claude Code](../development_ops/claude-code.md) or [Cline](../agents/cline.md) with custom skill sets via FastMCP 3.1 servers.
+- **Plan Pressure-Testing (`/grill-me`)**: Requiring agents to answer 3 to 5 challenging architectural questions before executing complex code changes.
+- **Strict Test-Driven Development (`/tdd`)**: Forcing agents to write failing unit tests first, verify red status, write minimal implementation, and refactor cleanly.
+- **Environment & Dependency Diagnostics (`/diagnose`)**: Uncovering hidden version mismatches, missing system libraries, or environment variables causing build failures.
+- **FastMCP 3.1 Agent Extensions**: Binding custom engineering tools to IDE assistants via standardized MCP server interfaces.
 
 ## Strengths
-- **Action-Oriented**: Provides concrete execution scaffolds rather than just passive advice.
-- **Critical Thinking**: Specifically designed to force agents to "think twice" and self-correct before acting.
-- **Standardized**: Uses the `skills.sh` pattern for easy installation and updates across diverse target environments.
-- **Model-Agnostic**: Works across all frontier models, though optimized for those with high reasoning scores (e.g., GPT-5.5, Claude 5.1, Gemini 4.0 Pro).
+- **Enforces Staff Engineer Rigor**: Replaces hasty token generation with deliberate plan verification and boundary testing.
+- **Standardized Execution (`skills.sh`)**: Simple single-command installation across diverse terminal environments and IDE plugins.
+- **Model Agnostic**: Compatible with all leading reasoning engines (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, DeepSeek-V4).
+- **FastMCP 3.1 & Pydantic v2 Native**: Fully integrated with standard structured schemas and agent task protocols.
 
 ## Limitations
-- **Setup Required**: Requires specific installation steps and sometimes tool configuration for local execution.
-- **Learning Curve**: Agents may need explicit guidance in their system prompt to effectively utilize deeper skills like `tdd`.
-- **Context Usage**: Complex skills can consume significant token context if not managed properly during long, iterative reasoning loops.
+- **Interaction Overhead**: Requires interactive user input during grilling phases, which is less suited for fully unmonitored background batch runs.
+- **Token Consumption**: Detailed multi-step skill scaffolds consume additional context window tokens during initial reasoning phases.
 
 ## When to use it
-- When you need a "staff engineer" level of rigor from your AI assistant for critical infrastructure or database migrations.
-- For complex software projects that benefit from structured planning and strict TDD enforcement.
-- When working with autonomous agents that have full filesystem access and require high-confidence verification.
+- When making non-trivial modifications to core database schemas, security middleware, or public APIs.
+- When practicing strict TDD discipline across TypeScript, Python, or Rust codebases.
+- When seeking a standardized way to equip AI agents with reliable engineering workflows.
 
 ## When not to use it
-- For quick, trivial scripts where the overhead of a "Grill-me" session is overkill for the task.
-- If you prefer a completely custom, non-standardized skill setup without external dependencies.
+- For quick, trivial changes (e.g. fixing a typo or modifying documentation).
+- In fully automated background jobs where human feedback cannot be requested during a grill session.
 
 ## Getting started
-1. **Install the CLI**: Use the official installer to add the skills to your local environment (requires Node.js 22+).
-   ```bash
-   npx skills@latest add mattpocock/skills
-   ```
-2. **Configure the Agent**: Add the setup command to your agent's system prompt or `CLAUDE.md`.
-3. **Initialize**: Run `/setup-matt-pocock-skills` to configure integrations with your issue tracker and storage.
 
-## CLI examples
-Use the skills directly within your AI agent's interactive session or via standard shell commands.
+### Installation
+Install the skill suite using Node.js (v22+) and the official CLI:
 
 ```bash
-# Verify a plan before execution (interactive)
+# Add Matt Pocock Skills to local developer environment
+npx skills@latest add mattpocock/skills
+```
+
+### Configuration
+Add the setup hook to your agent's system prompt or configuration file (`CLAUDE.md` or `.cursorrules`):
+
+```markdown
+## Agent Skills Configuration
+- Always run `/grill-me` before executing multi-file refactors or schema changes.
+- Use `/tdd` for new feature implementations.
+```
+
+## CLI examples
+
+```bash
+# Trigger interactive plan verification session
 /grill-me
 
-# Use Test-Driven Development loop for the current file
-/tdd
+# Initialize Test-Driven Development loop for target module
+/tdd src/auth/session.ts
 
-# Diagnose environment issues and version conflicts
+# Run diagnostic check on environment and dependencies
 /diagnose
 
-# List all available Pocock skills
+# List all active skills
 /skills list
 ```
 
 ## API examples
 
-### Programmatic Grill-Me Integration (FastMCP 3.1 with Pydantic v2)
-The following Python script illustrates how an agent orchestrates the "Grill-me" skill programmatically using Pydantic v2 validation, feeding it into a structured JSON-RPC payload for a FastMCP 3.1 task handler.
+### FastMCP 3.1 Server for Grill-Me Task Interrogation
+The Python code below demonstrates a complete **FastMCP 3.1** server that executes the `/grill-me` skill workflow, validating technical plans using **Pydantic v2** models.
 
 ```python
-import json
-import urllib.request
+import asyncio
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
-from typing import List
+from fastmcp import FastMCP
 
-class GrillMePlan(BaseModel):
-    plan_text: str = Field(..., description="The proposed technical plan text.")
-    context_files: List[str] = Field(default_factory=list, description="Relevant file paths.")
-    question_count: int = Field(default=3, description="Number of challenging questions to prompt.")
+# Initialize FastMCP 3.1 Server for Pocock Skills
+mcp = FastMCP(
+    name="Matt Pocock Skills Engine",
+    version="3.1.0",
+    description="FastMCP server hosting grill-me and TDD execution scaffolds"
+)
 
-    @field_validator('question_count')
+class PlanGrillRequest(BaseModel):
+    proposal_title: str = Field(..., alias="title", min_length=5)
+    plan_description: str = Field(..., alias="description", min_length=20)
+    target_files: List[str] = Field(default_factory=list, alias="targetFiles")
+    question_depth: int = Field(default=3, alias="questionDepth", ge=1, le=5)
+
+    @field_validator("target_files")
     @classmethod
-    def validate_count(cls, v: int) -> int:
-        if not (1 <= v <= 10):
-            raise ValueError("question_count must be between 1 and 10")
-        return v
+    def validate_files(cls, files: List[str]) -> List[str]:
+        if not files:
+            raise ValueError("At least one target file must be specified for plan grilling")
+        return files
 
-def submit_grill_me_task(plan: GrillMePlan) -> dict:
-    url = "http://localhost:8000/tasks/v1/grill"
-    payload = {
-        "jsonrpc": "2.0",
-        "method": "grill_plan",
-        "params": plan.model_dump(),
-        "id": "pocock-skills-grill-001"
-    }
+class GrillQuestion(BaseModel):
+    question_id: int
+    topic: str
+    question_text: str
+    risk_level: str = Field(default="medium")
 
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers={'Content-Type': 'application/json'},
-        method='POST'
+class GrillSessionResult(BaseModel):
+    session_id: str
+    status: str
+    questions: List[GrillQuestion]
+    authorized: bool = False
+
+@mcp.tool(name="grill_me_plan", description="Interrogates a proposed technical plan using the /grill-me scaffold")
+async def grill_me_plan(payload: Dict[str, Any]) -> Dict[str, Any]:
+    # Validate payload using Pydantic v2
+    request = PlanGrillRequest.model_validate(payload)
+
+    # Generate structured interrogation questions
+    questions = [
+        GrillQuestion(
+            question_id=1,
+            topic="Data Integrity",
+            question_text=f"How will target files {request.target_files} handle database rollback on unexpected termination?",
+            risk_level="high"
+        ),
+        GrillQuestion(
+            question_id=2,
+            topic="Performance Boundary",
+            question_text="What is the expected latency penalty when context size grows past 32k tokens?",
+            risk_level="medium"
+        )
+    ]
+
+    result = GrillSessionResult(
+        session_id="grill-session-9082",
+        status="awaiting_user_clarification",
+        questions=questions,
+        authorized=False
     )
 
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode('utf-8'))
+    return {
+        "status": "success",
+        "result": result.model_dump()
+    }
 
-# Example usage:
-# proposal = GrillMePlan(plan_text="Migrate SQLite to Dolt database", question_count=5)
-# print(submit_grill_me_task(proposal))
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [Andrej Karpathy Skills](karpathy-skills.md): Complementary guidelines for simplicity and surgical changes.
-- [Claude Code](../development_ops/claude-code.md): The primary IDE interface for these skills.
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md): The broader framework for agent capabilities.
-- [Superpowers](../agents/superpowers.md): Pre-configured agent personas.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Jules (Agent)](jules.md): A specialized agent that frequently utilizes these skills.
-- [Cline](../agents/cline.md): An open-source agentic IDE that supports custom skill loading.
-- [Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md): Underlying guidelines and methodology for writing clean, reusable agent tools.
+- [Andrej Karpathy Skills](karpathy-skills.md) — Surgical code modification patterns.
+- [Claude Code](../development_ops/claude-code.md) — Primary IDE runtime for agent skills.
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Extension ecosystem for agent capabilities.
+- [Jules](jules.md) — Specialized coding agent.
+- [FastMCP 3.1 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Agent protocol specification.
 
 ## Sources / references
-- [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)
-- [Total TypeScript - Professional AI Workflows](https://www.totaltypescript.com/)
-- [The Grill-me Pattern for Agents](https://twitter.com/mattpocockuk)
+- [Matt Pocock Skills GitHub Repository](https://github.com/mattpocock/skills)
+- [Total TypeScript - Professional AI Engineering Workflows](https://www.totaltypescript.com/)
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
