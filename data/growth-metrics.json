@@ -21,13 +21,8 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/joplin.md",
-    "docs/tools/ai_knowledge/otaku.md",
-    "docs/tools/ai_knowledge/sora.md",
     "docs/tools/process_understanding/logfire.md",
-    "docs/tools/ai_knowledge/llama-4-maverick.md",
     "docs/tools/process_understanding/weights-and-biases.md",
-    "docs/tools/ai_knowledge/llama-4.md",
     "docs/tools/ai_knowledge/llama.md",
     "docs/tools/ai_knowledge/big-agi.md",
     "docs/tools/enterprise/oauth2-oidc.md",
@@ -40,7 +35,12 @@
     "docs/tools/ai_knowledge/openrouter.md",
     "docs/tools/intake_storage/khoj.md",
     "docs/tools/providers/xai-grok.md",
-    "docs/services/it-tools.md"
+    "docs/services/it-tools.md",
+    "docs/tools/ai_knowledge/holotab.md",
+    "docs/tools/frameworks/llama-factory.md",
+    "docs/tools/agents/agno.md",
+    "docs/tools/frameworks/deepspeed.md",
+    "docs/tools/providers/google-ai-studio.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
