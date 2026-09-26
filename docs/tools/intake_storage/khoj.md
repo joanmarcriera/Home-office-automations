@@ -3,6 +3,26 @@
 ## What it is
 Khoj is an open-source, personal AI assistant that serves as a "second brain" for your documents, notes, and web research. As of early January 2027, it has expanded into a full agentic ecosystem with the **Pipali v2.5** desktop coworker and **Open Paper** research workbench.
 
+## Architecture & System Flow
+Khoj combines local note ingestion engines, dense vector embedding generation, relational metadata cataloging, and agentic reasoning powered by either local LLMs (Llama 4) or frontier cloud endpoints (Claude 5.1).
+
+```mermaid
+graph TD
+    A[Data Sources: Obsidian, PDFs, GitHub, Notion] -->|File Watcher / API Ingest| B[Khoj Ingestion Engine]
+    B -->|Generate Embeddings| C[Embedding Model: BGE-Large / Local]
+    C -->|Vector & Metadata Storage| D[(PostgreSQL + pgvector)]
+    E[User Interface: Web, Desktop, Obsidian Plugin, Emacs] -->|User Query / Voice Input| F[Khoj Agent Core]
+    F -->|Semantic Similarity Search| D
+    D -->|Relevant Context Passages| F
+    F -->|Prompt Context Synthesis| G{Inference Model}
+    G -->|Local LLM| H[Llama 4 / Gemma 3]
+    G -->|Cloud LLM| I[Claude 5.1 / GPT-5.5]
+    G -->|FastMCP 3.1 Tools| J[Pipali Desktop Coworker]
+    H -->|Stream Response| E
+    I -->|Stream Response| E
+    J -->|Execute Local Action| E
+```
+
 ## What problem it solves
 It bridges the gap between disparate data sources (Markdown, PDFs, GitHub, Notion) and conversational AI. It solves the "context gap" by providing LLMs with secure, semantic access to your personal knowledge base while maintaining 100% data ownership and privacy.
 
@@ -137,6 +157,29 @@ try:
     # parsed_resp = KhojChatResponse.model_validate(response.json())
 except Exception as e:
     print(f"Schema validation failed: {e}")
+```
+
+### FastMCP 3.1 Tool Handler for Pipali Agent
+```python
+from pydantic import BaseModel, Field
+from typing import Any, Dict
+
+class PipaliToolInvocation(BaseModel):
+    tool_name: str = Field(..., description="Name of FastMCP tool")
+    arguments: Dict[str, Any] = Field(default_factory=dict, description="Execution arguments")
+    mcp_version: str = Field(default="3.1", description="FastMCP Protocol Standard")
+
+def execute_pipali_action(invocation: PipaliToolInvocation) -> str:
+    print(f"[Pipali FastMCP {invocation.mcp_version}] Executing tool '{invocation.tool_name}'")
+    return f"Success: Action '{invocation.tool_name}' executed with args {invocation.arguments}"
+
+if __name__ == "__main__":
+    action = PipaliToolInvocation(
+        tool_name="search_local_docs",
+        arguments={"query": "Kubernetes migration plan", "limit": 5}
+    )
+    result = execute_pipali_action(action)
+    print("Execution Output:", result)
 ```
 
 ## Related tools / concepts

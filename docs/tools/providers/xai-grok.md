@@ -3,6 +3,23 @@
 ## What it is
 **Grok** is a family of state-of-the-art large language models (LLMs) and visual reasoning engines developed by **xAI**. Known for its "truth-seeking" objective and direct real-time access to the **X (formerly Twitter)** data firehose, Grok represents a flagship reasoning model competing with Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL, featuring full support for the **FastMCP 3.1 Task Protocol**.
 
+## Architecture & System Flow
+Grok operates on xAI's Colossus cluster architecture, utilizing high-density GPU nodes to support hybrid Mixture-of-Experts (MoE) inference, real-time X stream ingestion, and sequential tool execution via Model Context Protocol 3.1.
+
+```mermaid
+graph TD
+    A[User Request / FastMCP 3.1 Client] -->|API Call via OpenAI SDK| B[xAI API Gateway]
+    B -->|Check Authentication & Quotas| C{Query Router}
+    C -->|Real-Time X Ingestion Pipeline| D[Live X Firehose / Social Stream]
+    C -->|Multimodal Input| E[Grok-3 Vision Kernel]
+    C -->|Deep Reasoning Task| F[Grok-3 MoE Reasoning Engine]
+    D -->|Context Ingestion| F
+    E -->|Visual Embeddings| F
+    F -->|Sequential Tool Invocation| G[FastMCP 3.1 Executor Node]
+    G -->|Result Payload| F
+    F -->|Stream Response / Thinking Tokens| A
+```
+
 ## What problem it solves
 Grok eliminates static knowledge cutoff limitations by grounding model reasoning in real-time global events, social sentiment, breaking news, and emerging technical discussions streamed from X. It solves real-time information retrieval challenges and provides unfiltered, high-throughput multimodal intelligence for research, intelligence gathering, OSINT, and multi-agent systems.
 
@@ -66,6 +83,8 @@ curl https://api.x.ai/v1/chat/completions \
 ```
 
 ## API examples
+
+### Query Grok with Pydantic v2 Validation (Python)
 Query Grok using the standard `openai` Python library with strict **Pydantic v2** output validation:
 
 ```python
@@ -107,6 +126,34 @@ def analyze_x_sentiment() -> GrokRealtimeSentiment:
     except Exception as e:
         print(f"API call failed: {e}")
         raise
+```
+
+### FastMCP 3.1 Tool Schema for Grok
+```python
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any
+
+class GrokFastMCPToolCall(BaseModel):
+    tool_name: str = Field(..., description="FastMCP tool identifier")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Tool execution arguments")
+    protocol_version: str = Field(default="3.1", description="FastMCP protocol standard")
+
+def prepare_grok_tool_payload(call: GrokFastMCPToolCall) -> Dict[str, Any]:
+    return {
+        "type": "function",
+        "function": {
+            "name": call.tool_name,
+            "parameters": call.parameters,
+            "mcp_version": call.protocol_version
+        }
+    }
+
+if __name__ == "__main__":
+    tool_call = GrokFastMCPToolCall(
+        tool_name="fetch_live_x_stream",
+        parameters={"query": "FastMCP 3.1 release", "max_results": 10}
+    )
+    print("Formatted Grok Tool Payload:", prepare_grok_tool_payload(tool_call))
 ```
 
 ## Related tools / concepts
