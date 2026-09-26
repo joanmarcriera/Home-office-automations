@@ -3,8 +3,34 @@
 ## What it is
 big-AGI is a local-first, vendor-neutral, professional AI workspace and multi-model orchestrator. Designed for power users, researchers, and engineers, it provides a high-density, low-latency web interface to query and orchestrate multiple models simultaneously. By early January 2027, big-AGI features the **Beam 2** multi-model synthesis engine, stateful code-execution sandboxes, and native **FastMCP 3.1** protocol support.
 
+```mermaid
+graph TD
+    A[User Web Browser Client] -->|React / Next.js High-Density UI| B[big-AGI Client Runtime]
+
+    subgraph "big-AGI Multi-Model Engine (Beam 2)"
+        B --> C[Model Router & Dispatcher]
+        C -->|Parallel API Query| D[Claude 5.6 Sonnet]
+        C -->|Parallel API Query| E[GPT-5.6 Turbo]
+        C -->|Parallel API Query| F[DeepSeek-V4]
+        C -->|Local Endpoint| G[Ollama / LM Studio Llama 4]
+
+        D --> H[Beam 2 Consensus & Synthesis Processor]
+        E --> H
+        F --> H
+        G --> H
+    end
+
+    H -->|FastMCP 3.1 Tools| I[Local Sandbox Execution]
+    H -->|Rendered Output| A
+```
+
 ## What problem it solves
-It overcomes the limitations and interface friction of single-model web clients. Instead of manually copying prompts across separate browser tabs to compare outputs, big-AGI queries frontier models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro) in parallel, merges their insights via customizable consensus pipelines, and executes generated code in persistent sandboxes.
+It overcomes the limitations and interface friction of single-model web clients. Instead of manually copying prompts across separate browser tabs to compare outputs, big-AGI queries frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Pro, DeepSeek-V4) in parallel, merges their insights via customizable consensus pipelines, and executes generated code in persistent sandboxes.
+
+Key operational problems solved include:
+- **Model Output Divergence & Hallucination Elimination**: Leveraging Beam 2 multi-model voting and consensus synthesis to verify answers across disparate model families.
+- **Context Fragmentation**: Centralizing chat histories, custom system prompts, and multi-modal file attachments across cloud and local model providers.
+- **Tool Access Isolation**: Connecting web-based chat workflows directly to local environment tool execution via FastMCP 3.1 protocols.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Professional AI Workspace**. It acts as a local-first control panel connecting the user's browser, remote API providers (OpenAI, Anthropic, OpenRouter), and self-hosted inference servers (Ollama, LM Studio, vLLM).
@@ -55,56 +81,81 @@ Open `http://localhost:3000` to access your self-hosted workspace.
 
 ## CLI examples
 
+### Clone and Run Dev Server
+Clone repository and start local development server:
 ```bash
-# Clone and run big-AGI locally in dev mode
 git clone https://github.com/enricoros/big-AGI.git && cd big-AGI
 npm install && npm run dev
+```
 
-# Update your Docker deployment to the latest build
+### Pull Latest Docker Build
+Update self-hosted big-AGI Docker container:
+```bash
 docker pull ghcr.io/enricoros/big-agi && docker restart big-agi
+```
 
-# Deploy to a private Vercel project
+### Deploy to Private Vercel Instance
+Deploy production big-AGI instance directly to Vercel:
+```bash
 npx vercel --prod
 ```
 
 ## API examples
-### Python: Pydantic v2 Beam 2 Configuration Validator
+
+### Python: Pydantic v2 Beam 2 Multi-Model Synthesis Configuration
+This Python script demonstrates configuring a Beam 2 multi-model consensus run for big-AGI with strict Pydantic v2 validation:
+
 ```python
 import asyncio
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
 
-class ModelWeight(BaseModel):
+class CandidateModelSpec(BaseModel):
     model_id: str = Field(..., alias="modelId", description="Target model API identifier")
     weight: float = Field(default=1.0, ge=0.0, le=1.0, description="Voting weight")
+    temperature: float = Field(default=0.2, ge=0.0, le=2.0)
+
+    @field_validator('model_id')
+    @classmethod
+    def validate_model_id(cls, v: str) -> str:
+        if not v or "/" not in v and "-" not in v:
+            raise ValueError(f"Invalid model_id format: '{v}'")
+        return v
 
 class Beam2Config(BaseModel):
-    synthesis_mode: str = Field("cot-merge", alias="synthesisMode")
-    candidate_models: List[ModelWeight] = Field(..., alias="candidateModels")
-    max_tokens: int = Field(2048, alias="maxTokens")
-    temperature: float = Field(0.3, ge=0.0, le=2.0)
+    synthesis_mode: str = Field("majority-consensus-cot", alias="synthesisMode")
+    candidate_models: List[CandidateModelSpec] = Field(..., alias="candidateModels")
+    max_tokens: int = Field(4096, alias="maxTokens")
     system_instruction: Optional[str] = Field(None, alias="systemInstruction")
+    mcp_tool_enabled: bool = Field(default=True, alias="mcpToolEnabled")
 
-async def test_beam_merge_validation():
+def execute_beam_synthesis(payload: Dict[str, Any]) -> dict:
+    validated_beam = Beam2Config.model_validate(payload)
+    print("Beam 2 Multi-Model Config Validated successfully via Pydantic v2.")
+    print(f"  Synthesis Mode: {validated_beam.synthesis_mode}")
+    print(f"  Candidate Models Active: {len(validated_beam.candidate_models)}")
+    print(f"  FastMCP 3.1 Integration: {validated_beam.mcp_tool_enabled}")
+
+    return {
+        "status": "configured",
+        "active_candidates": [m.model_id for m in validated_beam.candidate_models],
+        "synthesis_mode": validated_beam.synthesis_mode
+    }
+
+if __name__ == "__main__":
     raw_payload = {
         "synthesisMode": "majority-consensus-cot",
         "candidateModels": [
-            {"modelId": "anthropic/claude-5.1-sonnet", "weight": 1.0},
-            {"modelId": "openai/gpt-5.5", "weight": 0.8},
-            {"modelId": "google/gemini-4.0-pro", "weight": 0.7}
+            {"modelId": "anthropic/claude-5.6-sonnet", "weight": 1.0, "temperature": 0.2},
+            {"modelId": "openai/gpt-5.6-turbo", "weight": 0.8, "temperature": 0.3},
+            {"modelId": "deepseek/deepseek-v4", "weight": 0.9, "temperature": 0.1}
         ],
         "maxTokens": 4096,
-        "temperature": 0.2,
-        "systemInstruction": "Synthesize the response and verify race conditions."
+        "systemInstruction": "Synthesize response across candidate outputs and verify code safety.",
+        "mcpToolEnabled": True
     }
-
-    validated_beam = Beam2Config.model_validate(raw_payload)
-    print("Beam 2 Config Validated successfully.")
-    print(f"Mode: {validated_beam.synthesis_mode}")
-    print(f"Active Candidates: {len(validated_beam.candidate_models)}")
-
-if __name__ == "__main__":
-    asyncio.run(test_beam_merge_validation())
+    result = execute_beam_synthesis(raw_payload)
+    print("Execution output summary:", result)
 ```
 
 ## Related tools / concepts

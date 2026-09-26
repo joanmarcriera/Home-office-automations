@@ -3,10 +3,35 @@
 ## What it is
 OAuth 2.0 is an industry-standard authorization framework that enables applications to obtain limited access to user accounts on an HTTP service without exposing credentials. OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol that allows clients to verify the identity of an end-user based on authentication performed by an Authorization Server, as well as to obtain basic profile information.
 
-In enterprise AI systems and self-hosted homelab architectures, OAuth 2.0 / OIDC provides centralized identity, Single Sign-On (SSO), and token-based access control for Web applications, APIs, and AI agent workloads.
+In enterprise AI systems, FastMCP 3.1 task runners, and self-hosted homelab architectures, OAuth 2.0 / OIDC provides centralized identity, Single Sign-On (SSO), and token-based access control for Web applications, APIs, and AI agent workloads.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Agent
+    participant App as Client App / FastMCP 3.1
+    participant IdP as OIDC Provider (Authentik / Entra ID)
+    participant API as Protected Resource API
+
+    User->>App: Initiate Login / Tool Access
+    App->>IdP: Authorization Code Request (with PKCE challenge)
+    IdP->>User: Authenticate User / Prompt Consent
+    User->>IdP: Provide Credentials / MFA
+    IdP-->>App: Authorization Code Callback
+    App->>IdP: Exchange Code + PKCE Verifier for Tokens
+    IdP-->>App: Return ID Token & JWT Access Token
+    App->>API: HTTP Request + Bearer JWT Access Token
+    API->>API: Verify Token Signature & Claims
+    API-->>App: Return Protected Resource Data
+```
 
 ## What problem it solves
-Managing separate username and password credentials across dozens of self-hosted services, LLM API gateways, and internal agent tools leads to credential fatigue, poor auditability, and elevated security risk. OAuth 2.0 and OIDC solve this by delegating authentication to a centralized Identity Provider (IdP) such as Authentik, Okta, or Microsoft Entra ID, enforcing MFA and RBAC across all downstream tools.
+Managing separate username and password credentials across dozens of self-hosted services, LLM API gateways, and internal agent tools leads to credential fatigue, poor auditability, and elevated security risk. OAuth 2.0 and OIDC solve this by delegating authentication to a centralized Identity Provider (IdP) such as Authentik, Keycloak, Okta, or Microsoft Entra ID, enforcing MFA and RBAC across all downstream tools.
+
+Key operational problems solved include:
+- **Delegated Authorization**: Allowing FastMCP 3.1 tools and multi-agent frameworks to access enterprise APIs on behalf of users without exposing primary passwords or long-lived static keys.
+- **Unified Identity Federation**: Single Sign-On across heterogeneous microservices, AI playgrounds ([Open WebUI](../../services/open-webui.md)), and document management systems ([Paperless-ngx](../../services/paperless-ngx.md)).
+- **Cryptographic Auditability**: Standardized JSON Web Tokens (JWT) signed via asymmetric key pairs (RS256/ES256) enable decentralized token verification without continuous database queries.
 
 ## Where it fits in the stack
 **Enterprise AI / Security & Identity** — serves as the core authentication and token issuance protocol connecting users, microservices, and AI model endpoints.
@@ -36,6 +61,7 @@ Managing separate username and password credentials across dozens of self-hosted
 - When ultra-low latency internal microservice communication without authentication overhead is desired within a isolated private network mesh.
 
 ## Getting started
+
 ### OIDC Authentication Authorization Code Flow with PKCE
 An standard OIDC authorization request URL structure:
 
@@ -64,51 +90,90 @@ curl -X POST https://auth.example.com/application/o/token/ \
 ```
 
 ## CLI examples
-Inspecting and validating OIDC JWT access tokens using `jwt-cli` or `jq`:
 
+### Inspect JWT Access Token Claims via CLI
+Decode and format JWT access token payload without signature verification:
 ```bash
-# Decode JWT payload without signature verification (for debugging)
 echo "YOUR_JWT_ACCESS_TOKEN" | jq -R 'split(".") | .[1] | @base64d | fromjson'
+```
 
-# Verify token introspection via OIDC IdP endpoint
+### Perform Token Introspection Request
+Verify token validity against OIDC Identity Provider introspection endpoint:
+```bash
 curl -u "client_id:client_secret" \
   -X POST https://auth.example.com/application/o/introspect/ \
   -d "token=YOUR_JWT_ACCESS_TOKEN"
 ```
 
+### Request OpenID Configuration Discovery Document
+Fetch standard OpenID Connect provider configuration metadata:
+```bash
+curl -s https://auth.example.com/application/o/10/.well-known/openid-configuration | jq .
+```
+
 ## API examples
-The following Python script demonstrates verifying an OIDC JWT bearer token using PyJWT and retrieving claims.
+
+### Python OIDC JWT Bearer Token Verification with Pydantic v2
+This Python script demonstrates verifying an OIDC JWT access token and parsing validated claims into a strict Pydantic v2 data model for FastMCP 3.1 authorization context:
 
 ```python
 import jwt
-from typing import Dict, Any
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, EmailStr, field_validator
 
-def verify_oidc_token(token: str, public_key: str, audience: str, issuer: str) -> Dict[str, Any]:
-    """Decodes and validates an OIDC JWT access token against public key and claims."""
+class OIDCUserClaims(BaseModel):
+    subject_id: str = Field(..., alias="sub", description="Unique subject ID")
+    email: EmailStr = Field(..., description="Authenticated user email")
+    roles: List[str] = Field(default_factory=list, description="Assigned RBAC roles")
+    issuer: str = Field(..., alias="iss")
+    audience: str = Field(..., alias="aud")
+    expiration: int = Field(..., alias="exp")
+
+    @field_validator('roles')
+    @classmethod
+    def validate_roles(cls, v: List[str]) -> List[str]:
+        if not v:
+            print("Warning: User token has no assigned enterprise roles.")
+        return v
+
+def verify_and_parse_oidc_token(
+    token: str,
+    public_key: str,
+    expected_audience: str,
+    expected_issuer: str
+) -> OIDCUserClaims:
+    """Decodes and validates an OIDC JWT access token and validates claims via Pydantic v2."""
     try:
-        decoded_payload = jwt.decode(
+        decoded_raw = jwt.decode(
             token,
             key=public_key,
             algorithms=["RS256"],
-            audience=audience,
-            issuer=issuer
+            audience=expected_audience,
+            issuer=expected_issuer
         )
-        print("Token successfully verified for user:", decoded_payload.get("sub"))
-        return decoded_payload
+        validated_claims = OIDCUserClaims.model_validate(decoded_raw)
+        print(f"OIDC Token Verified for subject: {validated_claims.subject_id}")
+        return validated_claims
     except jwt.ExpiredSignatureError:
-        raise ValueError("OIDC token has expired")
+        raise ValueError("OIDC access token has expired.")
     except jwt.InvalidTokenError as e:
-        raise ValueError(f"Invalid OIDC token: {str(e)}")
+        raise ValueError(f"Invalid OIDC access token: {str(e)}")
 
-# Example Token Verification Claims Check
+# Simulated verification test
 if __name__ == "__main__":
-    mock_payload = {
-        "sub": "user_12345",
+    mock_decoded = {
+        "sub": "user_2027_9941",
         "email": "admin@homelab.local",
-        "iss": "https://auth.homelab.local/o",
-        "aud": "ai-workspace-app"
+        "roles": ["admin", "agent_operator"],
+        "iss": "https://auth.homelab.local/application/o/agent-app",
+        "aud": "fastmcp-3.1-gateway",
+        "exp": 1893456000
     }
-    print("OIDC Claims Schema Sample:", mock_payload)
+    claims = OIDCUserClaims.model_validate(mock_decoded)
+    print("Parsed OIDC Claims:")
+    print(f"  Subject: {claims.subject_id}")
+    print(f"  Email: {claims.email}")
+    print(f"  Roles: {claims.roles}")
 ```
 
 ## Related tools / concepts

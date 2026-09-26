@@ -1,10 +1,33 @@
 # Llama
 
 ## What it is
-**Llama** (Large Language Model Meta AI) is Meta's family of open-weights foundation models, representing the foundational lineage for open-source large language model research and deployment. Spanning generations from original Llama to Llama 2, Llama 3/3.1/3.3, and [Llama 4](llama-4.md), Llama provides the global benchmark for open model architectures.
+**Llama** (Large Language Model Meta AI) is Meta's family of open-weights foundation models, representing the foundational lineage for open-source large language model research and deployment. Spanning generations from original Llama to Llama 2, Llama 3/3.1/3.3, and [Llama 4](llama-4.md), Llama provides the global benchmark for open model architectures. In early 2027, Llama models serve as the backbone for self-hosted local inference, enterprise fine-tuning, and FastMCP 3.1 agent execution pipelines across Apple Silicon, NVIDIA Blackwell (B200/GB200), and AMD Instinct hardware.
+
+```mermaid
+graph TD
+    A[Raw Fine-Tuning Corpus / SFT Data] --> B[LLaMA Factory / Axolotl Fine-Tuner]
+    B --> C[Llama Foundation Open Weights]
+    C --> D[Quantization Engine: GGUF / AWQ / EXL2]
+
+    D --> E[Inference Runtime]
+
+    subgraph "Inference Runtimes"
+        E --> F[ollama / llama.cpp - Edge & Mac]
+        E --> G[vLLM / SGLang - Enterprise GPU Clusters]
+    end
+
+    F --> H[FastMCP 3.1 Agent Environment]
+    G --> H
+    H --> I[Agent Tool Executions & RAG Queries]
+```
 
 ## What problem it solves
 Proprietary LLM APIs present continuous operational costs, latency overhead, vendor lock-in, and data privacy concerns for sensitive enterprise and developer workflows. The Llama model ecosystem resolves this by delivering state-of-the-art open weights, allowing organizations to fine-tune, quantize, inspect, and host enterprise-grade language models on self-managed infrastructure.
+
+Key problems resolved:
+- **Data Sovereignty & Security**: Executing reasoning workloads completely within air-gapped or private cloud environments without external data egress.
+- **Cost Predictability at Scale**: Eliminating per-token billing for high-volume batch processing and continuous multi-agent tool loops.
+- **Custom Domain Adaptation**: Fine-tuning specific adapter weights (LoRA/QLoRA) for specialized legal, medical, or code generation domain knowledge.
 
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Open Foundation Models. It sits at the **Model & Foundation Layer**, serving as the bedrock open model upon which inference engines ([ollama](../../services/ollama.md), [llama.cpp](../infrastructure/llama-cpp.md), [vLLM](../infrastructure/vllm.md)) and fine-tuning frameworks ([LLaMA Factory](../frameworks/llama-factory.md), [Unsloth](../infrastructure/unsloth.md)) are built.
@@ -40,7 +63,7 @@ Proprietary LLM APIs present continuous operational costs, latency overhead, ven
 ### Installation via Hugging Face Transformers
 Install standard Python dependencies:
 ```bash
-pip install transformers torch accelerate
+pip install transformers torch accelerate pydantic
 ```
 
 ### Basic Inference with Hugging Face Transformers
@@ -66,45 +89,74 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ## CLI examples
 
 ### Running Quantized Llama via Ollama
+Spin up interactive Llama inference on local workstation:
 ```bash
 ollama run llama3.3
 ```
 
 ### High-Throughput Serving via vLLM
+Serve Llama with OpenAI-compatible endpoint on port 8000:
 ```bash
-vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
+vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000 --gpu-memory-utilization 0.90
 ```
 
 ## API examples
 
-### Python Output Validation using Pydantic v2
-The following script demonstrates querying an OpenAI-compatible Llama endpoint and validating the output structure using Pydantic v2:
+### FastMCP 3.1 Tool Invocation via Llama OpenAI-Compatible Server
+This Python example demonstrates querying a self-hosted Llama endpoint, requesting structured JSON output for FastMCP 3.1 tool execution, and validating the output using Pydantic v2:
 
 ```python
 import json
-from pydantic import BaseModel, Field
-from typing import List
+import requests
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Any, Optional
 
-class ModelFamilyInfo(BaseModel):
-    family_name: str = Field(..., description="Name of the model family")
-    developer: str = Field(..., description="Developer organization")
-    key_features: List[str] = Field(..., description="Primary architectural highlights")
-    license_type: str = Field(..., description="Distribution licensing terms")
+class MCPToolCallArguments(BaseModel):
+    query: str = Field(..., description="Search query string")
+    max_results: int = Field(default=5, ge=1, le=20)
+    search_depth: str = Field(default="deep", description="Search depth mode")
 
-def parse_llama_metadata(raw_response: str) -> ModelFamilyInfo:
-    data = json.loads(raw_response)
-    return ModelFamilyInfo.model_validate(data)
+    @field_validator('search_depth')
+    @classmethod
+    def validate_search_depth(cls, v: str) -> str:
+        allowed = {'basic', 'deep', 'academic'}
+        if v not in allowed:
+            raise ValueError(f"Search depth '{v}' invalid. Must be in {allowed}")
+        return v
+
+class LlamaAgentResponse(BaseModel):
+    reasoning_steps: List[str] = Field(..., description="Chain-of-thought steps")
+    selected_tool: str = Field(..., description="Target FastMCP tool name")
+    tool_arguments: MCPToolCallArguments
+    confidence_score: float = Field(..., ge=0.0, le=1.0)
+
+def query_llama_agent_endpoint(prompt_text: str) -> LlamaAgentResponse:
+    # Simulated OpenAI-compatible request payload to local vLLM or Ollama Llama instance
+    raw_mock_llama_json = """{
+        "reasoning_steps": [
+            "User asked for recent benchmark results of Llama 4.",
+            "Formulating search query for vector store database."
+        ],
+        "selected_tool": "vector_search",
+        "tool_arguments": {
+            "query": "Llama 4 benchmark evaluation performance 2027",
+            "max_results": 10,
+            "search_depth": "deep"
+        },
+        "confidence_score": 0.96
+    }"""
+
+    parsed_json = json.loads(raw_mock_llama_json)
+    validated_response = LlamaAgentResponse.model_validate(parsed_json)
+    return validated_response
 
 if __name__ == "__main__":
-    sample_json = """{
-        "family_name": "Meta Llama",
-        "developer": "Meta AI",
-        "key_features": ["Open-weights", "GGUF/AWQ Quantization", "Native Tool Use", "128k Context Window"],
-        "license_type": "Llama Community License"
-    }"""
-    info = parse_llama_metadata(sample_json)
-    print(f"Family: {info.family_name} by {info.developer}")
-    print(f"Features: {', '.join(info.key_features)}")
+    prompt = "Find latest evaluation scores for Llama 4 models."
+    result = query_llama_agent_endpoint(prompt)
+    print("Llama Agent Execution Validated:")
+    print(f"  Tool: {result.selected_tool}")
+    print(f"  Query: {result.tool_arguments.query}")
+    print(f"  Confidence: {result.confidence_score}")
 ```
 
 ## Related tools / concepts
@@ -120,7 +172,6 @@ if __name__ == "__main__":
 - [Hugging Face Llama Organization](https://huggingface.co/meta-llama)
 - [Meta AI Research Llama Papers](https://ai.meta.com/research/publications/)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
