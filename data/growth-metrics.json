@@ -21,11 +21,6 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/logfire.md",
-    "docs/tools/process_understanding/weights-and-biases.md",
-    "docs/tools/ai_knowledge/llama.md",
-    "docs/tools/ai_knowledge/big-agi.md",
-    "docs/tools/enterprise/oauth2-oidc.md",
     "docs/tools/infrastructure/lm-studio.md",
     "docs/tools/frameworks/pydantic.md",
     "docs/tools/infrastructure/dapr.md",
@@ -40,7 +35,12 @@
     "docs/tools/frameworks/llama-factory.md",
     "docs/tools/agents/agno.md",
     "docs/tools/frameworks/deepspeed.md",
-    "docs/tools/providers/google-ai-studio.md"
+    "docs/tools/providers/google-ai-studio.md",
+    "docs/tools/infrastructure/localai.md",
+    "docs/tools/providers/groq.md",
+    "docs/tools/ai_knowledge/personaplex.md",
+    "docs/tools/infrastructure/llamacpp-windows-manager.md",
+    "docs/tools/ai_knowledge/matt-pocock-skills.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
