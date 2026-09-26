@@ -1,39 +1,57 @@
 # Otaku
 
 ## What it is
-Otaku is an open-source, lightweight web frontend interface designed specifically for local and self-hosted Large Language Model (LLM) interaction. Built with modern web frameworks, Otaku provides an intuitive user workspace for chat sessions, model parameter configuration, context inspection, and multi-backend connection management (including Ollama, vLLM, and llama.cpp).
+Otaku is an open-source, ultra-lightweight web interface and client management environment designed specifically for local and self-hosted Large Language Model (LLM) interaction. Built with modern web frameworks and optimized for zero-latency UI reactivity, Otaku provides an intuitive workspace for real-time chat sessions, token streaming visualization, model parameter tuning, context inspection, and multi-backend connection routing across distributed homelab inference runtimes (including Ollama, vLLM, llama.cpp, SGLang, and LiteLLM).
+
+```mermaid
+graph TD
+    A[User / Web Client Browser] -->|HTTP / WebSocket UI| B[Otaku Web Frontend Gateway]
+    B -->|Local Client State| C[(Browser LocalStorage / IndexedDB)]
+    B -->|Model Parameter & Prompt Routing| D{Backend Provider Selector}
+    D -->|Ollama Native Protocol| E[Local Ollama Server :11434]
+    D -->|OpenAI-Compatible API| F[vLLM / SGLang Cluster :8000]
+    D -->|FastMCP 3.1 Bridge| G[Otaku FastMCP Management Server]
+    G -->|Control & Config Actions| B
+    E -->|Streaming Token Delta| B
+    F -->|Streaming Token Delta| B
+```
 
 ## What problem it solves
-Managing local AI models across various inference servers often requires navigating fragmented web interfaces or relying on terminal commands. Standard single-backend interfaces lack flexibility when connecting to multiple local home-lab endpoints. Otaku solves this by offering a unified, clean web front-end that connects seamlessly to multiple local inference provider endpoints while storing chat history and custom prompts locally on the user's filesystem.
+Managing multiple local AI models distributed across heterogenous hardware endpoints (such as dedicated GPU servers, Mac Studio Unified Memory nodes, or edge ARM clusters) frequently requires navigating fragmented web portals, CLI terminals, or single-backend UIs. Standard monolithic chat frontends often enforce rigid database dependencies, external telemetry, or complex multi-container orchestration. Otaku addresses these pain points by offering a client-side execution workspace that connects directly to multiple local inference provider endpoints while retaining all session history, system prompts, and configuration parameters strictly within local client storage.
 
 ## Where it fits in the stack
-**AI & Knowledge / Model Frontends & Client Interfaces**. Otaku acts as the user-facing workspace that bridges end-user interactions with local inference engines (such as Ollama, vLLM, or LiteLLM) running on home-lab infrastructure.
+**AI & Knowledge / Model Frontends & Client Interfaces**. Otaku serves as the primary user-facing workspace and interactive control plane bridging end users, autonomous agent operators, and local inference runtimes deployed within private networks and homelab environments.
 
 ## Typical use cases
-- **Self-Hosted AI Chat Desktop**: Providing a responsive, clean chat UI across desktop and mobile devices inside the local home network.
-- **Multi-Model Testing & Comparison**: Rapidly toggling between local LLM backends to compare responses, speed, and context window limits.
-- **Custom System Prompt Management**: Saving, organizing, and injecting custom system prompts for specialized tasks like coding, summarize, and data extraction.
+- **Self-Hosted AI Chat Workspace**: Providing a fast, responsive chat interface across desktop and mobile browsers within private local area networks (LAN).
+- **Multi-Backend Benchmarking & Model Evaluation**: Seamlessly switching between local inference backends (e.g., comparing Ollama Llama 3.3 vs. vLLM DeepSeek-R1) to evaluate latency, throughput, and context retention.
+- **System Prompt Library Management**: Organizing, categorizing, and injecting custom system prompts for specialized tasks such as code refactoring, technical documentation synthesis, and data translation.
+- **FastMCP 3.1 Agent UI Control**: Serving as a client interface where agentic workflows surface interactive chat state and tool execution logs.
 
 ## Strengths
-- **Privacy & Local Storage**: Chat history and prompt configurations remain strictly on the local client without remote analytics tracking.
-- **Multi-Backend Provider Support**: Connects to OpenAI-compatible endpoints, Ollama APIs, and local vLLM servers out of the box.
-- **Streamlined Lightweight UI**: Minimal resource overhead and fast initial load times compared to heavy monolithic web apps.
+- **100% Local Privacy & Zero Telemetry**: Chat histories, prompt templates, and API tokens remain stored exclusively inside client browser storage without remote tracking or telemetry.
+- **Flexible Multi-Provider Gateway**: Native support for connecting multiple concurrent backends (Ollama APIs, vLLM OpenAI-compatible endpoints, LiteLLM routers) simultaneously.
+- **Ultra-Lightweight Resource Footprint**: Negligible CPU and memory overhead compared to heavier monolithic multi-tenant web platforms.
+- **Responsive Markdown & Code Highlighting**: Rich rendering of code blocks, LaTeX mathematical expressions, and inline Markdown tables.
 
 ## Limitations
-- **Ecosystem Maturity**: Newer frontend tool compared to mature platforms like Open WebUI or LibreChat.
-- **Advanced Agent Workflow Support**: Focused primarily on direct chat and prompt interaction rather than complex multi-agent execution graphs or built-in rag ingestion pipelines.
+- **Multi-User Permission Model**: Focused primarily on single-user or family homelab environments without enterprise multi-tenant Role-Based Access Control (RBAC).
+- **Built-in Vector RAG Ingestion**: Does not package an embedded vector database pipeline; relies on external API backends or MCP servers for vector retrieval.
+- **Ecosystem Maturity**: Newer frontend tool relative to long-standing projects like Open WebUI or LibreChat.
 
 ## When to use it
-- When requiring a lightweight, clean web workspace for local LLM inference engines.
-- When seeking a simple frontend without the deployment complexity of multi-container enterprise portals.
-- When managing multiple local endpoints (Ollama, vLLM, llama.cpp) from one interface.
+- When requiring a clean, instant-loading web interface for self-hosted LLM endpoints with minimal deployment complexity.
+- When managing multiple local inference runtimes (Ollama, vLLM, llama.cpp) from a single unified UI.
+- When privacy and zero-telemetry client-side storage are paramount requirements.
 
 ## When not to use it
-- When requiring rich integrated document RAG pipelines, multi-user role-based access control, or enterprise SSO integration (use Open WebUI or LibreChat instead).
-- When looking for an embedded model runner that packages both backend model execution and UI into a single app (use LM Studio or Jan.ai instead).
+- When requiring enterprise SSO, strict multi-tenant access control, or built-in complex document indexing pipelines (consider Open WebUI or LibreChat).
+- When requiring an all-in-one desktop binary that packages local model execution and GPU management inside the application installer (consider LM Studio or Jan.ai).
 
 ## Getting started
-To set up Otaku locally or host it in Docker:
+
+### Installation & Docker Deployment
+Deploy Otaku locally using Node.js or run as a lightweight container:
 
 ```bash
 # Clone the repository
@@ -45,80 +63,103 @@ npm install
 npm run dev
 ```
 
-Or deploy using Docker:
+Deploying via Docker with environment variables pre-configured for local Ollama endpoints:
 
 ```bash
 docker run -d \
   --name otaku-ui \
   -p 3000:3000 \
   -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -e DEFAULT_MODEL=llama3.3 \
   otaku/otaku-ui:latest
 ```
 
 ## CLI examples
 
-```bash
-# Verify local Ollama API connectivity prior to linking Otaku
-curl http://localhost:11434/api/tags
+### 1. Pre-Flight Connectivity Check for Local Backends
+Verify API responsiveness of local Ollama and vLLM endpoints prior to registering in Otaku:
 
-# Launch Otaku production build with custom environment parameters
+```bash
+# Check local Ollama model inventory
+curl -s http://localhost:11434/api/tags | jq '.models[].name'
+
+# Check local vLLM OpenAI-compatible endpoint health
+curl -s http://localhost:8000/v1/models | jq .
+```
+
+### 2. Launch Otaku Production Build on Custom Port
+Run the compiled Node.js server bound to host network interfaces:
+
+```bash
 HOST=0.0.0.0 PORT=3000 NEXT_PUBLIC_API_URL=http://192.168.1.100:11434 node server.js
 ```
 
 ## API examples
 
-### 1. Pydantic v2 Schema for Otaku Client Configuration
+### Python FastMCP 3.1 & Pydantic v2 Otaku Management Integration
+The following snippet demonstrates building a FastMCP 3.1 server that manages Otaku client configurations and validates multi-provider endpoints with Pydantic v2:
+
 ```python
-from typing import Optional, List
+import json
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
-
-class OtakuEndpointConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    name: str = Field(..., description="Display name for the backend provider")
-    base_url: HttpUrl = Field(..., description="OpenAI-compatible or Ollama API URL endpoint")
-    api_key: Optional[str] = Field(default=None, description="Optional authentication token")
-    default_model: str = Field(..., description="Default model selected on connection")
-    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
-    system_prompt: Optional[str] = Field(default=None, description="Default system prompt")
-
-if __name__ == "__main__":
-    endpoint = OtakuEndpointConfig(
-        name="Local Ollama GPU",
-        base_url="http://192.168.1.50:11434",
-        default_model="llama3.1:8b",
-        temperature=0.7,
-        system_prompt="You are a helpful home lab assistant."
-    )
-    print(f"Configured Otaku endpoint '{endpoint.name}' pointing to {endpoint.base_url}")
-```
-
-### 2. FastMCP 3.1 Task Protocol Integration
-```python
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("otaku-ui-manager")
+# Define Pydantic v2 models for Otaku workspace configuration
+class ProviderEndpoint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., description="Display label for the inference provider.")
+    base_url: HttpUrl = Field(..., description="HTTP endpoint URL for Ollama or vLLM server.")
+    api_key: Optional[str] = Field(default=None, description="Optional bearer token for authenticated endpoints.")
+    provider_type: str = Field(default="ollama", description="Provider protocol type ('ollama' or 'openai').")
+
+class OtakuWorkspaceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    workspace_name: str = Field(..., description="Name of the Otaku user workspace.")
+    active_model: str = Field(..., description="Default selected model identifier.")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature.")
+    max_tokens: int = Field(default=4096, ge=128, le=32768, description="Maximum token completion limit.")
+    system_prompt: Optional[str] = Field(default=None, description="Global system prompt override.")
+    endpoints: List[ProviderEndpoint] = Field(default_factory=list, description="Configured inference backends.")
+
+class UpdateWorkspaceResponse(BaseModel):
+    status: str = Field(..., description="Operation status indicator.")
+    active_model: str = Field(..., description="Updated active model ID.")
+    endpoint_count: int = Field(..., description="Total active provider endpoints.")
+
+# Initialize FastMCP 3.1 server
+mcp = FastMCP("otaku-workspace-manager")
 
 @mcp.tool()
-def update_otaku_active_model(model_id: str, endpoint_url: str) -> dict:
-    """Updates the default active model and backend URL in Otaku workspace configuration."""
-    return {
-        "status": "success",
-        "active_model": model_id,
-        "endpoint": endpoint_url,
-        "message": "Otaku frontend connection updated."
-    }
+async def configure_otaku_workspace(config: OtakuWorkspaceConfig) -> UpdateWorkspaceResponse:
+    """Configures Otaku workspace provider endpoints and model defaults using validated Pydantic v2 schemas."""
+    # Write configuration payload to local workspace state file
+    with open("/tmp/otaku_workspace_config.json", "w") as f:
+        f.write(config.model_dump_json(indent=2))
+
+    return UpdateWorkspaceResponse(
+        status="configured",
+        active_model=config.active_model,
+        endpoint_count=len(config.endpoints)
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [Open WebUI](../../services/open-webui.md) — Comprehensive feature-rich frontend for Ollama and local LLMs.
-- [LibreChat](../ai_knowledge/librechat.md) — Enhanced open-source Web UI for AI models and assistants.
-- [Ollama](../../services/ollama.md) — Local LLM server backend commonly coupled with Otaku.
+- [Open WebUI](../../services/open-webui.md) — Feature-rich multi-tenant web interface for Ollama and local LLMs.
+- [LibreChat](../ai_knowledge/librechat.md) — Open-source web workspace supporting multimodal models and assistants.
+- [Ollama](../../services/ollama.md) — Lightweight local LLM inference runner.
+- [vLLM](../infrastructure/vllm.md) — High-throughput distributed LLM serving engine.
+- [LM Studio](../infrastructure/lm-studio.md) — Desktop application for local LLM discovery and inference.
 
 ## Sources / references
-- [Otaku Frontend Reddit Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1w85blf/otaku_an_llm_frontend/)
+- [Otaku UI GitHub Repository](https://github.com/otaku-ui/otaku)
+- [Otaku LLM Frontend Community Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1w85blf/otaku_an_llm_frontend/)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
