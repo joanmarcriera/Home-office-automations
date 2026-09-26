@@ -21,11 +21,6 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/lm-studio.md",
-    "docs/tools/frameworks/pydantic.md",
-    "docs/tools/infrastructure/dapr.md",
-    "docs/tools/ai_knowledge/teamout.md",
-    "docs/tools/intake_storage/verba.md",
     "docs/tools/infrastructure/valkey.md",
     "docs/tools/ai_knowledge/openrouter.md",
     "docs/tools/intake_storage/khoj.md",
@@ -40,7 +35,12 @@
     "docs/tools/providers/groq.md",
     "docs/tools/ai_knowledge/personaplex.md",
     "docs/tools/infrastructure/llamacpp-windows-manager.md",
-    "docs/tools/ai_knowledge/matt-pocock-skills.md"
+    "docs/tools/ai_knowledge/matt-pocock-skills.md",
+    "docs/tools/ai_knowledge/lobehub.md",
+    "docs/tools/providers/moonshot.md",
+    "docs/tools/process_understanding/cloudflare-agent-tracing.md",
+    "docs/tools/development_ops/openswarm.md",
+    "docs/tools/development_ops/tabnine.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
