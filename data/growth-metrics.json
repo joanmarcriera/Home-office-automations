@@ -21,13 +21,8 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/valkey.md",
-    "docs/tools/ai_knowledge/openrouter.md",
-    "docs/tools/intake_storage/khoj.md",
-    "docs/tools/providers/xai-grok.md",
     "docs/services/it-tools.md",
     "docs/tools/ai_knowledge/holotab.md",
-    "docs/tools/frameworks/llama-factory.md",
     "docs/tools/agents/agno.md",
     "docs/tools/frameworks/deepspeed.md",
     "docs/tools/providers/google-ai-studio.md",
@@ -40,7 +35,12 @@
     "docs/tools/providers/moonshot.md",
     "docs/tools/process_understanding/cloudflare-agent-tracing.md",
     "docs/tools/development_ops/openswarm.md",
-    "docs/tools/development_ops/tabnine.md"
+    "docs/tools/development_ops/tabnine.md",
+    "docs/tools/frameworks/langflow.md",
+    "docs/tools/process_understanding/grafana-loki.md",
+    "docs/tools/ai_knowledge/gemma.md",
+    "docs/tools/ai_knowledge/diffusiongemma.md",
+    "docs/tools/process_understanding/firecrawl.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

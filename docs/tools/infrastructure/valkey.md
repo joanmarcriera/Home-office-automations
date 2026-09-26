@@ -3,6 +3,20 @@
 ## What it is
 Valkey is an open-source, ultra-low-latency in-memory key-value datastore, cache, and message broker maintained under the Linux Foundation. Created as an open-source fork of Redis (licensed under BSD-3-Clause), Valkey serves as a primary state store, prompt cache registry, agent chat history cache, and FastMCP 3.1 pub/sub messaging bus for multi-agent systems in early 2027.
 
+## Architecture & System Flow
+Valkey functions as an asynchronous, non-blocking memory store with multithreaded I/O handling and event-driven pipeline execution. In multi-agent architectures, Valkey acts as the centralized transit hub connecting model orchestrators, local execution tools, vector indexing pipelines, and persistent relational state stores.
+
+```mermaid
+graph TD
+    A[Agent Orchestrator / FastMCP Client] -->|Sub-millisecond Session Lookup| B[Valkey Primary Memory]
+    A -->|Publish Event Channel| C[Valkey Pub/Sub Bus]
+    C -->|Broadcast Message| D[Worker Agent 1]
+    C -->|Broadcast Message| E[Worker Agent 2]
+    B -->|Eviction / TTL Expiration| F[Transient Prompt Cache Store]
+    B -->|Periodic AOF / RDB Snapshot| G[Persistent Storage Disk]
+    H[FastMCP 3.1 Tool Execution Node] -->|Push Task State| B
+```
+
 ## What problem it solves
 Autonomous multi-agent systems demand sub-millisecond state access and conversation history retrieval. Disk-bound databases introduce query latency that degrades model tool-use performance. Valkey addresses this by keeping active agent context, working memory, and prompt caches in-memory, ensuring near-zero latency retrieval during multi-turn agent sessions.
 
@@ -121,6 +135,50 @@ if __name__ == "__main__":
         print(f"  Model Routing: {retrieved.model_routing_override}")
         print(f"  Turns Loaded: {len(retrieved.conversation_history)}")
         print(f"  FastMCP Standard: {retrieved.mcp_protocol_version}")
+```
+
+### FastMCP 3.1 Async Pub/Sub Integration with Valkey
+```python
+import asyncio
+from pydantic import BaseModel, Field
+
+class FastMCPTaskEvent(BaseModel):
+    task_id: str = Field(..., description="Unique task tracker ID")
+    event_type: str = Field(..., description="Event type (e.g., 'started', 'completed', 'failed')")
+    payload: dict = Field(default_factory=dict, description="Task context data")
+
+class ValkeyFastMCPPubSub:
+    """Simulated async message bus integration for FastMCP 3.1 tools using Valkey Pub/Sub."""
+    def __init__(self, channel_name: str = "fastmcp:events"):
+        self.channel = channel_name
+        self.subscribers = []
+
+    async def publish_event(self, event: FastMCPTaskEvent):
+        json_str = event.model_dump_json()
+        print(f"[Valkey Pub/Sub -> Channel '{self.channel}'] Broadcasted: {json_str}")
+        for callback in self.subscribers:
+            await callback(json_str)
+
+    def subscribe(self, callback):
+        self.subscribers.append(callback)
+
+async def handle_worker_event(raw_json: str):
+    data = FastMCPTaskEvent.model_validate_json(raw_json)
+    print(f" -> Worker Received FastMCP Task {data.task_id} status: {data.event_type}")
+
+async def main():
+    bus = ValkeyFastMCPPubSub()
+    bus.subscribe(handle_worker_event)
+
+    evt = FastMCPTaskEvent(
+        task_id="task-9921",
+        event_type="completed",
+        payload={"result": "Document vectorized and stored in Milvus", "mcp_version": "3.1"}
+    )
+    await bus.publish_event(evt)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts

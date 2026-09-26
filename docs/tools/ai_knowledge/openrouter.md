@@ -3,6 +3,24 @@
 ## What it is
 OpenRouter is a unified API gateway and intelligent "meta-provider" for Large Language Models (LLMs) and multimodal foundation models. It offers a single, OpenAI-compatible API to access hundreds of models from providers like OpenAI, Anthropic, Google, Meta, DeepSeek, Mistral, and Qwen. By early January 2027, OpenRouter features native **FastMCP 3.1 routing**, real-time reasoning/thinking token streaming, dynamic auto-fallbacks, and unified organization analytics.
 
+## Architecture & System Flow
+OpenRouter sits as an intelligent gateway layer between local or cloud client applications and third-party model hosting endpoints. It processes incoming client requests, evaluates pricing, latency metrics, and availability, and routes traffic dynamically.
+
+```mermaid
+graph TD
+    A[Client Application / FastMCP Agent] -->|OpenAI-Compatible Request| B[OpenRouter Gateway]
+    B -->|Check Rate Limits & Credits| C{Routing Engine}
+    C -->|Primary Choice| D[Provider A: Anthropic / Claude 5.1]
+    C -->|Fallback Choice 1| E[Provider B: OpenAI / GPT-5.5]
+    C -->|Fallback Choice 2| F[Provider C: DeepSeek / DeepSeek-V4]
+    D -- API Outage / Timeout --> E
+    E -- Capacity Exceeded --> F
+    D -->|Stream Tokens| B
+    E -->|Stream Tokens| B
+    F -->|Stream Tokens| B
+    B -->|Unified Standard Response| A
+```
+
 ## What problem it solves
 It eliminates the complexity of managing multiple developer accounts, API keys, billing subscriptions, and client SDKs across different AI providers. It also mitigates API outages, rate limits, and regional restrictions through automated, zero-downtime model fallbacks and multi-region load balancing.
 
@@ -71,8 +89,8 @@ curl -s https://openrouter.ai/api/v1/models | jq '.data[] | {id, pricing}' | hea
 
 ### Python: OpenAI Client with Fallback Chain & Pydantic v2
 ```python
-from typing import List
-from pydantic import BaseModel, Field
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 import openai
 
 class RoutingBenchmark(BaseModel):
@@ -102,6 +120,45 @@ response = client.beta.chat.completions.parse(
 result: RoutingBenchmark = response.choices[0].message.parsed
 print(f"Model Chosen: {result.chosen_model}")
 print(f"Summary: {result.response_summary}")
+```
+
+### FastMCP 3.1 OpenRouter Provider Wrapper
+```python
+from pydantic import BaseModel, Field
+import json
+
+class FastMCPModelCall(BaseModel):
+    prompt: str = Field(..., description="Prompt text to dispatch")
+    fallback_models: List[str] = Field(
+        default=["anthropic/claude-5.1-sonnet", "deepseek/deepseek-r1"],
+        description="Priority ordered model list"
+    )
+    mcp_protocol_version: str = Field(default="3.1", description="FastMCP Protocol Standard")
+
+class OpenRouterMCPBridge:
+    def format_request_headers(self, call: FastMCPModelCall) -> dict:
+        return {
+            "Authorization": "Bearer YOUR_OPENROUTER_KEY",
+            "Content-Type": "application/json",
+            "X-MCP-Version": call.mcp_protocol_version
+        }
+
+    def create_payload(self, call: FastMCPModelCall) -> str:
+        model_string = ",".join(call.fallback_models)
+        payload = {
+            "model": model_string,
+            "messages": [{"role": "user", "content": call.prompt}]
+        }
+        return json.dumps(payload)
+
+if __name__ == "__main__":
+    bridge = OpenRouterMCPBridge()
+    call = FastMCPModelCall(
+        prompt="Synthesize open-source model benchmarks for Q1 2027.",
+        fallback_models=["google/gemini-2.5-flash", "meta-llama/llama-4-405b"]
+    )
+    print("Formatted OpenRouter FastMCP 3.1 Payload:")
+    print(bridge.create_payload(call))
 ```
 
 ## Related tools / concepts

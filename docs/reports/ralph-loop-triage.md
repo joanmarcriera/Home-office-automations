@@ -201,6 +201,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 725** | AI Knowledge Tools Deepening | **Verified & Closed** | Deepened joplin, otaku, sora, llama-4-maverick, and llama-4 with Mermaid architecture diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 726** | Oldest Shallow Tools Deepening | **Verified & Closed** | Resolved top 5 oldest shallow docs (`logfire.md`, `weights-and-biases.md`, `llama.md`, `big-agi.md`, `oauth2-oidc.md`), expanding each past 7,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 727** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest docs (`lm-studio.md`, `pydantic.md`, `dapr.md`, `teamout.md`, `verba.md`), expanding each past 13,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
+| **Batch 728** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest tool docs (`valkey.md`, `openrouter.md`, `khoj.md`, `xai-grok.md`, `llama-factory.md`), expanding each past 8,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

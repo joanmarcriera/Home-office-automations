@@ -3,6 +3,22 @@
 ## What it is
 LLaMA Factory is a unified, high-efficiency fine-tuning framework that supports over 100 open-source Large Language Model (LLM) architectures. It provides a standardized command-line and graphical web interface ("LLaMA Board") for fine-tuning models ranging from **Llama 4**, **Gemma 3**, and **Qwen 3.8** to specialized MoE (Mixture-of-Experts) architectures on modern NVIDIA Blackwell and Rubin GPUs.
 
+## Architecture & System Flow
+LLaMA Factory orchestrates dataset transformation, parameter-efficient adapter injection, distributed training runtimes, and post-training checkpoint validation across heterogeneous GPU clusters.
+
+```mermaid
+graph TD
+    A[Raw Training Datasets: JSONL / Alpaca / ShareGPT] -->|Dataset Format Utility| B[Standardized Dataset Registry]
+    C[Base Open Model Checkpoint: Llama 4 / Gemma 3 / Qwen 3.8] --> D[LLaMA Factory Core Engine]
+    B --> D
+    E[Hyperparameter Config: YAML / LLaMA Board UI] --> D
+    D -->|Adapter Injection| F[PEFT Layer: LoRA / QLoRA / DoRA / GaLore]
+    F -->|Distributed Backends| G[PyTorch / DeepSpeed ZeRO-3 / Unsloth]
+    G -->|Loss & Metrics Stream| H[LLaMA Board Live Monitoring Dashboard]
+    G -->|Checkpoint Export| I[Merged Model Weights / GGUF / AWQ]
+    I -->|Deployment Engine| J[vLLM / TGI / FastMCP 3.1 Tool Servers]
+```
+
 ## What problem it solves
 Fine-tuning diverse LLM families typically requires writing fragmented, custom boilerplate code across multiple distributed training and quantization libraries (such as PEFT, DeepSpeed, FlashAttention-3, and bitsandbytes). LLaMA Factory eliminates this friction by unifying supervised fine-tuning (SFT), Direct Preference Optimization (DPO), Proximal Policy Optimization (PPO), and ORPO training under a single configuration engine.
 
@@ -108,6 +124,42 @@ responses = chat_model.chat(messages)
 
 for response in responses:
     print("Agent Response:", response.response_text)
+```
+
+### Fine-Tuning Config & Training Status Verification via Pydantic v2
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import Optional, List
+
+class LLaMAFactoryTrainConfig(BaseModel):
+    model_name_or_path: str = Field(..., description="Base target foundation model path")
+    stage: str = Field(default="sft", description="Training stage ('sft', 'dpo', 'ppo')")
+    finetuning_type: str = Field(default="lora", description="Fine-tuning method ('lora', 'full')")
+    dataset: List[str] = Field(default_factory=list, description="Dataset names in registry")
+    cutoff_len: int = Field(default=4096, description="Max sequence length")
+    learning_rate: float = Field(default=2e-4, description="Training learning rate")
+    num_train_epochs: float = Field(default=3.0, description="Number of training epochs")
+    mcp_tool_tuning: bool = Field(default=True, description="Enable FastMCP 3.1 synthetic tool tuning")
+
+# Example configuration validation
+raw_yaml_dict = {
+    "model_name_or_path": "meta-llama/Llama-4-Maverick-8B-Instruct",
+    "stage": "sft",
+    "finetuning_type": "lora",
+    "dataset": ["fastmcp_3_1_tool_calls", "alpaca_en"],
+    "learning_rate": 0.0001,
+    "num_train_epochs": 2.5
+}
+
+try:
+    config = LLaMAFactoryTrainConfig.model_validate(raw_yaml_dict)
+    print("LLaMA Factory Config Validated:")
+    print(f"  Target Model: {config.model_name_or_path}")
+    print(f"  Training Stage: {config.stage} ({config.finetuning_type})")
+    print(f"  Datasets: {', '.join(config.dataset)}")
+    print(f"  FastMCP 3.1 Tuning Enabled: {config.mcp_tool_tuning}")
+except ValidationError as ve:
+    print("Config Validation Error:", ve)
 ```
 
 ## Related tools / concepts
