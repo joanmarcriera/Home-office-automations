@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-25",
+  "snapshot_date": "2026-09-26",
   "total_docs": 563,
   "tool_docs": 510,
   "service_docs": 53,
@@ -21,11 +21,6 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/vortex.md",
-    "docs/tools/providers/nebius.md",
-    "docs/tools/infrastructure/local-embeddings.md",
-    "docs/tools/infrastructure/text-generation-webui.md",
-    "docs/tools/infrastructure/ninfer.md",
     "docs/tools/ai_knowledge/joplin.md",
     "docs/tools/ai_knowledge/otaku.md",
     "docs/tools/ai_knowledge/sora.md",
@@ -40,7 +35,12 @@
     "docs/tools/frameworks/pydantic.md",
     "docs/tools/infrastructure/dapr.md",
     "docs/tools/ai_knowledge/teamout.md",
-    "docs/tools/intake_storage/verba.md"
+    "docs/tools/intake_storage/verba.md",
+    "docs/tools/infrastructure/valkey.md",
+    "docs/tools/ai_knowledge/openrouter.md",
+    "docs/tools/intake_storage/khoj.md",
+    "docs/tools/providers/xai-grok.md",
+    "docs/services/it-tools.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
