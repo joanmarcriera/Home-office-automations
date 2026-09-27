@@ -3,32 +3,48 @@
 ## What it is
 DiffusionGemma is an open-weights generative diffusion foundation model based on Google's Gemma architecture, released in August 2026. Combining Gemma's language understanding representations with a lightweight, high-performance diffusion generation back-end, DiffusionGemma enables real-time text-to-image synthesis, visual editing, and cross-modal generative reasoning on edge hardware and consumer GPUs.
 
+In early 2027, DiffusionGemma serves as a primary open-weights visual generation backbone for multi-agent creative pipelines, automated asset generation services, and privacy-preserving visual production systems.
+
 ## What problem it solves
 Traditional generative image diffusion models (e.g., Stable Diffusion XL, FLUX) rely on separate text encoder backbones (such as CLIP or T5) which can create bottlenecks in fine-grained prompt alignment and require heavy memory footprints. DiffusionGemma solves this by natively integrating Google's Gemma Transformer architecture as a unified text-and-diffusion backbone, reducing VRAM usage while enabling superior text-prompt instruction following and fast sampling iteration.
 
+When integrated into autonomous developer workflows via [FastMCP 3.1](../automation_orchestration/mcp.md), creative agents can synthesize, crop, or style-transfer visual assets locally without relying on expensive, rate-limited cloud generative image APIs.
+
 ## Where it fits in the stack
-**AI Knowledge / Generative Diffusion & Vision Models**. DiffusionGemma serves as a local, open-weights image and visual generation engine within multi-agent creative workflows, automated asset pipelines, and vision-language creation frameworks.
+**Category**: AI & Knowledge / Generative Diffusion & Vision Models. DiffusionGemma serves as a local, open-weights image and visual generation engine within multi-agent creative workflows, automated asset pipelines, and vision-language creation frameworks.
+
+```mermaid
+graph TD
+    Agent[Creative AI Agent / FastMCP Client] -->|Generation Parameters| MCP[FastMCP 3.1 Server]
+    MCP -->|Validate via Pydantic v2 Schema| Pipeline[DiffusionGemma Pipeline]
+    Pipeline -->|Encode Prompt Tensor| Gemma[Gemma Language Backbone]
+    Gemma -->|Denoise Latents| Diffusion[Lightweight Diffusion Engine]
+    Diffusion -->|Decode VAE| Output[Image File Output .png]
+    Output -->|Return Metadata & Path| Agent
+```
 
 ## Typical use cases
 - **On-Device Image Generation**: Generating high-fidelity visual assets locally on consumer GPUs and Apple Silicon workstations.
 - **Instruction-Guided Image Editing**: Modifying existing image regions using natural language instructions processed directly by the Gemma backbone.
 - **Automated Design Pipelines**: Integrating image generation tools into autonomous developer agents via [FastMCP 3.1](../automation_orchestration/mcp.md) servers.
-- **Multimodal Prototyping**: Rapidly creating visual UI mockups, thumbnails, and synthetic training imagery.
+- **Multimodal Prototyping**: Rapidly creating visual UI mockups, thumbnails, and synthetic training imagery for downstream vision tasks.
 
 ## Strengths
 - **Unified Gemma Backbone**: High alignment with complex textual prompts due to Gemma's deep language representation layer.
 - **Low VRAM & High Latency Efficiency**: Optimized for single-GPU execution (8GB-16GB VRAM) and Apple Silicon MPS acceleration.
 - **Open-Weights License**: Permissive open license allowing local commercial deployment and custom fine-tuning.
-- **Pydantic v2 Compatible Tooling**: Clean structural interfaces for programmatic generation parameters.
+- **Pydantic v2 & FastMCP 3.1 Tooling**: Native compatibility with modern structured agent protocols for automated tool calling.
 
 ## Limitations
 - **Resolution Constraints**: Native resolution generation is optimized for 1024x1024; ultra-high 4K rendering requires secondary upscaling passes.
 - **Compute Overhead**: Step-wise diffusion generation requires CUDA/MPS acceleration; unsuited for CPU-only inference.
+- **VRAM Spikes During Peak Denoising**: Concurrently running large language models alongside diffusion pipelines can exhaust mid-tier 12GB VRAM limits.
 
 ## When to use it
 - When requiring local, open-weights image generation with strong prompt adherence without cloud API dependencies.
 - When building creative multi-agent workflows that run on single consumer workstation GPUs.
-- For privacy-sensitive visual asset generation in local enterprises.
+- For privacy-sensitive visual asset generation in local enterprises and homelab setups.
+- When implementing image generation tools for FastMCP 3.1 AI agents.
 
 ## When not to use it
 - On CPU-only environments without GPU/MPS acceleration.
@@ -38,7 +54,7 @@ Traditional generative image diffusion models (e.g., Stable Diffusion XL, FLUX) 
 
 ### Installation
 ```bash
-pip install diffusers transformers torch pydantic pillow
+pip install diffusers transformers torch pydantic pillow mcp
 ```
 
 ### Python Quickstart
@@ -66,12 +82,17 @@ python -m diffusers.cli.generate \
 
 ## API examples
 
-### Python Integration with Pydantic v2 Schema
-The following script demonstrates how to define generation parameter schemas and validate execution outputs for DiffusionGemma using **Pydantic v2**:
+### Python FastMCP 3.1 Tool Server & Pydantic v2 Schema
+The following script demonstrates how to define generation parameter schemas, validate request payloads, and serve DiffusionGemma as a FastMCP 3.1 tool for AI agents using **Pydantic v2**:
 
 ```python
+import os
 from typing import Optional, List
 from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("DiffusionGemma Asset Generator")
 
 class GenerationParams(BaseModel):
     prompt: str = Field(..., min_length=3, description="Text prompt guiding image synthesis")
@@ -86,13 +107,32 @@ class GenerationResult(BaseModel):
     seed_used: int = Field(..., description="Random seed used for generation reproducibility")
     generation_time_seconds: float = Field(..., ge=0.0, description="Total generation time in seconds")
 
+@mcp.tool()
+def generate_diffusion_image(prompt: str, steps: int = 30) -> str:
+    """FastMCP 3.1 tool for generating visual assets via DiffusionGemma."""
+    payload = {
+        "prompt": prompt,
+        "num_inference_steps": steps,
+        "guidance_scale": 7.5,
+        "width": 1024,
+        "height": 1024
+    }
+    validated_params = GenerationParams.model_validate(payload)
+
+    # Simulated generation pipeline execution
+    result = GenerationResult(
+        file_path=f"./outputs/{hash(prompt)}.png",
+        seed_used=420912,
+        generation_time_seconds=2.45
+    )
+    return result.model_dump_json(indent=2)
+
 def run_diffusion_gemma(params_data: dict) -> GenerationResult:
     """Validates parameters and simulates DiffusionGemma image synthesis."""
     try:
         params = GenerationParams.model_validate(params_data)
         print(f"Executing DiffusionGemma with prompt: '{params.prompt}' ({params.num_inference_steps} steps)")
 
-        # Simulated generation response
         raw_output = {
             "file_path": "./outputs/generated_gemma_asset.png",
             "seed_used": 420912,
@@ -120,8 +160,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Gemma](local_llms.md) — Google's open-weights foundation model family.
-- [Muse Glimmer](muse-glimmer.md) — Open-weights multimodal vision model.
+- [Gemma](gemma.md) — Google's open-weights foundation model family.
 - [ComfyUI](comfyui.md) — Modular node-based generative GUI workflow engine.
 - [Luma Dream Machine](luma-dream-machine.md) — Cloud generative video engine.
 

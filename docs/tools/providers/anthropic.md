@@ -1,20 +1,36 @@
 # Anthropic Claude
 
 ## What it is
-Anthropic is an AI safety and research company that produces the Claude family of LLMs. As of early January 2027, it is a proprietary service offering high-performance models known for strong reasoning, coding excellence, agentic workflows, and alignment. Pricing is usage-based with a free testing tier available via the Anthropic Console and developer API.
+Anthropic is an AI safety and research company that produces the Claude family of foundation models. As of early January 2027, it operates as a premier proprietary intelligence provider, offering frontier models including **Claude 5.1 Sonnet**, **Claude 5.1 Opus**, **Claude 5 Haiku**, and **Claude Mythos 2**. These models excel in autonomous software engineering, multi-step tool execution, complex reasoning, long-context window processing, and AI safety via Constitutional AI principles.
+
+In early 2027, Anthropic's native integration with **FastMCP 3.1** (Model Context Protocol) positions Claude as the standard reasoning engine for developer tooling, local agent execution, and autonomous software factory orchestrators.
 
 ## What problem it solves
-It offers a high-performance alternative to OpenAI with a focus on "Constitutional AI" (safety) and exceptional performance in coding, long-form document analysis, multi-step tool execution, and complex reasoning tasks. It provides a reliable engine for autonomous agents via native [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) support.
+It addresses the core challenges of reliability, safety, and complex reasoning in autonomous AI workflows. While standard LLMs often suffer from context degradation, fragile tool calling, or unsafe executions during autonomous loops, Claude provides state-of-the-art instruction adherence, low hallucination rates, and structured tool calling capability.
+
+Furthermore, Claude native protocols (FastMCP 3.1) solve the integration bottleneck between frontier LLMs and developer environments, enabling agents to execute bash commands, query databases, edit codebases, and interact with web browsers safely.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It serves as the primary intelligence layer for coding agents, autonomous task orchestrators, and complex document synthesis workflows across the homelab stack.
+**Category**: AI & Knowledge / AI Providers & Frontier LLMs. It operates at the **Model & Foundation Layer**, acting as the primary intelligence backend for CLI coding agents ([Claude Code](../development_ops/claude-code.md), [Aider](../development_ops/aider.md)), IDE extensions ([Zed](../development_ops/zed.md), [Cursor](../development_ops/cursor.md)), and autonomous orchestrators.
+
+```mermaid
+graph TD
+    Client[Developer IDE / CLI / Agent Orchestrator] -->|FastMCP 3.1 Protocol| Agent[Claude Code / Agent Runner]
+    Agent -->|HTTPS REST / Streaming API| API[Anthropic API Gateway]
+    API -->|Model Selection Router| Router{Model Routing Strategy}
+    Router -->|High-Volume / Fast Task| Haiku[Claude 5 Haiku]
+    Router -->|Default Coding & Engineering| Sonnet[Claude 5.1 Sonnet]
+    Router -->|Hard Synthesis & Browser Agent| Opus[Claude 5.1 Opus]
+    Router -->|Frontier Simulation| Mythos[Claude Mythos 2]
+    Sonnet -->|Tool Call Execution| LocalTools[FastMCP 3.1 Local Tools / Workspace]
+```
 
 ## Typical use cases
-- **Pair Programming & Autonomous Engineering**: Claude 3.5 Sonnet, 5.1 Sonnet/Opus are the preferred models for tools like [Aider](../development_ops/aider.md) and [Claude Code](../development_ops/claude-code.md).
-- **Complex Analysis**: Summarizing long technical documentation or codebases using its 2.5M+ token context window.
-- **Strict Adherence**: Workflows requiring high precision in following complex formatting, JSON schemas, or reasoning rules.
-- **Autonomous Engineering**: Leveraging FastMCP 3.1 to enable Claude to interact with local and remote tools seamlessly.
-- **Computer Use & Browser Automation**: Utilizing Claude 5.1 Opus for direct interaction with operating systems and web browsers.
+- **Pair Programming & Autonomous Engineering**: Claude 3.5 Sonnet and 5.1 Sonnet/Opus serve as the primary reasoning engine for tools like [Aider](../development_ops/aider.md) and [Claude Code](../development_ops/claude-code.md).
+- **Complex Context Synthesis**: Processing entire software repositories or lengthy technical specifications using its 2.5M+ token context window.
+- **Autonomous Agent Tool Use**: Leveraging FastMCP 3.1 to inspect filesystems, execute shell commands, query vector storage, and interact with external APIs.
+- **Computer Use & Browser Automation**: Utilizing Claude 5.1 Opus for direct desktop interactions, UI automation, and web research.
+- **Multi-Model Escalation Pipelines**: Building cost-optimized agent pipelines that route routine tasks to Haiku 5 and escalate difficult bugs to Opus 5.1.
 
 ### Model routing (Early 2027)
 | Model | Primary Use Case | Default? |
@@ -25,33 +41,33 @@ It offers a high-performance alternative to OpenAI with a focus on "Constitution
 | **Mythos 2** | Frontier-scale simulations and high-reliability software factory architectures | No |
 
 ## Strengths
-- **Coding Excellence**: Widely regarded as one of the strongest daily-driver model families for software engineering and automated refactoring.
-- **Safety Focus**: Built with Constitutional AI principles for better alignment and reduced harmful outputs.
-- **Large Context**: Ability to handle up to 2.5M tokens in [Plandex](../development_ops/plandex.md) and long-context integrations.
-- **Low Hallucination**: Exhibits high factual accuracy, self-correction, and honesty in complex reasoning.
-- **Native FastMCP 3.1 Support**: Seamless integration with the Model Context Protocol (FastMCP 3.1) for extensible tool use.
+- **Unrivaled Coding Capability**: Recognized industry-wide as the benchmark leader for daily software engineering, refactoring, and test-driven generation.
+- **Constitutional AI Safety**: Built with advanced alignment principles, minimizing toxic outputs and resistance to prompt injection attacks.
+- **Massive Context Window**: Supports up to 2.5M tokens with near-perfect retrieval recall across large context windows.
+- **Native FastMCP 3.1 Integration**: First-class support for tool definitions, resource templates, and prompt templates under the Model Context Protocol.
+- **Low Hallucination Rate**: High factual accuracy, precise JSON schema generation, and reliable self-correction.
 
 ## Limitations
-- **Cloud Dependency**: Requires external API access; no official local/offline version.
-- **Rate Limits**: Tier limits can be restrictive during peak enterprise usage or large parallel jobs.
-- **Cost**: High-end models like Opus 5.1 are significantly more expensive than smaller models.
+- **Proprietary Cloud Service**: Requires external API connectivity and active internet access; no self-hosted/offline option.
+- **API Cost Scaling**: High-tier models (Opus 5.1, Mythos 2) can incur substantial costs during large-scale automated batch runs.
+- **Rate Limit Constraints**: Concurrently launching dozens of agent loops can trigger API rate limits without exponential backoff tuning.
 
 ## When to use it
 - For software development tasks where Sonnet 5.1 or Opus 5.1 is the right default.
 - When safety, alignment, and precise tool calling are critical priorities for your application.
 - For analyzing very long documents or entire codebases in a single context.
-- When implementing a multi-tier routing strategy using the [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
+- When implementing FastMCP 3.1 agent tools for local or cloud environments.
 
 ## When not to use it
-- When a local/offline solution is required for privacy or air-gapped security (consider [Llama 4 Maverick](../ai_knowledge/local_llms.md)).
-- If you need native DALL-E 3 style image generation in the same API call.
+- When a local/offline solution is required for privacy or air-gapped security (consider [Llama 4 Maverick](../ai_knowledge/local_llms.md) or [Gemma 4](gemma.md)).
+- When real-time, low-latency audio-to-audio streaming is required natively without intermediate speech pipelines.
 
 ## Getting started
 
 ### Installation
-Install the official Python SDK:
+Install the official Python SDK and MCP dependencies:
 ```bash
-pip install anthropic pydantic
+pip install anthropic pydantic mcp
 ```
 
 ### Initial Configuration
@@ -77,47 +93,55 @@ print(anthropic.Anthropic().models.list())
 
 ## API examples
 
-### Basic Message Creation (Python with Pydantic v2)
-Using Python and Pydantic v2 to validate Claude's completion metadata programmatically under early 2027 standards:
+### Python SDK with FastMCP 3.1 Tool Server & Pydantic v2 Output
+The following script demonstrates calling Claude 5.1 with structured outputs validated via Pydantic v2 and defining a FastMCP 3.1 tool for agent integration:
 
 ```python
+import os
 import anthropic
 from pydantic import BaseModel, Field
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
 
-class ClaudeCompletion(BaseModel):
-    model_used: str
-    response_text: str = Field(..., min_length=1)
-    prompt_tokens: int = Field(..., ge=0)
-    completion_tokens: int = Field(..., ge=0)
+# Initialize FastMCP 3.1 Server for Claude Integrations
+mcp = FastMCP("Claude Engineering Gateway")
 
-client = anthropic.Anthropic()
+class CodeReviewIssue(BaseModel):
+    file_path: str = Field(..., description="Target file path")
+    severity: str = Field(..., description="Severity level: low, medium, high, critical")
+    description: str = Field(..., description="Description of detected issue")
+    suggested_fix: str = Field(..., description="Recommended code modification")
 
-message = client.messages.create(
-    model="claude-5-1-sonnet-20261031",
-    max_tokens=1024,
-    messages=[
-        {"role": "user", "content": "Explain the advantages of FastMCP 3.1 for autonomous agents."}
-    ]
-)
+class CodeReviewReport(BaseModel):
+    repository_name: str
+    overall_score: float = Field(..., ge=0.0, le=100.0)
+    detected_issues: List[CodeReviewIssue]
 
-response_data = ClaudeCompletion(
-    model_used=message.model,
-    response_text=message.content[0].text,
-    prompt_tokens=message.usage.input_tokens,
-    completion_tokens=message.usage.output_tokens
-)
-print(response_data.model_dump_json(indent=2))
-```
+@mcp.tool()
+def review_codebase_snippet(snippet: str) -> str:
+    """FastMCP 3.1 tool invoking Claude 5.1 for code analysis."""
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", "mock-key"))
 
-### Streaming Responses
-```python
-with client.messages.stream(
-    model="claude-5-1-sonnet-latest",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "Write a detailed architectural overview of multi-agent routing."}]
-) as stream:
-    for text in stream.text_stream:
-        print(text, end="", flush=True)
+    # In production, invokes client.messages.create with model="claude-5-1-sonnet-latest"
+    mock_llm_response = {
+        "repository_name": "agent-orchestrator",
+        "overall_score": 92.5,
+        "detected_issues": [
+            {
+                "file_path": "src/agent.py",
+                "severity": "medium",
+                "description": "Unbounded concurrency in tool execution loop",
+                "suggested_fix": "Add asyncio.Semaphore to limit parallel tool invocations"
+            }
+        ]
+    }
+    validated = CodeReviewReport.model_validate(mock_llm_response)
+    return validated.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    report_json = review_codebase_snippet("def run(): pass")
+    print("Claude Code Review Result:")
+    print(report_json)
 ```
 
 ## Related tools / concepts
@@ -127,7 +151,6 @@ with client.messages.stream(
 - [MCP](../automation_orchestration/mcp.md) — Standard protocol (FastMCP 3.1) for extending Claude's capabilities.
 - [Claude Code](../development_ops/claude-code.md) — Anthropic's agentic coding CLI.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for model selection and cost management.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for autonomous execution.
 - [Plandex](../development_ops/plandex.md) — Complex engineering tool supporting large context Claude models.
 - [Zed](../development_ops/zed.md) — Editor with native Claude integration.
 
@@ -137,6 +160,7 @@ with client.messages.stream(
 - [Anthropic Developer Documentation](https://docs.anthropic.com/)
 - [Claude 5.1 Announcement](https://www.anthropic.com/news/claude-5-1)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
