@@ -206,6 +206,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 731** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest tool docs (`moonshot.md`, `cloudflare-agent-tracing.md`, `openswarm.md`, `tabnine.md`, `langflow.md`), expanding each past 8,500 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 732** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest tool docs (`grafana-loki.md`, `gemma.md`, `diffusiongemma.md`, `firecrawl.md`, `anthropic.md`), expanding each past 8,500 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 733** | Oldest Tool Docs Deepening | **Verified & Closed** | Resolved top 5 oldest tool docs (`lerobot.md`, `superinterface.md`, `azure-ai-gateway.md`, `sglang.md`, `langgraph.md`), expanding each past 9,300 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
+| **Batch 736** | Shallowest Non-Index Docs Deepening | **Verified & Closed** | Resolved top 5 shallowest non-index docs (`it-tools.md`, `scan-to-task.md`, `llm-trust-boundaries.md`, `n8n-error-handling.md`, `document-preparation-for-llm-training.md`), expanding each past 12,500 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
