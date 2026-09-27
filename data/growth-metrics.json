@@ -22,9 +22,6 @@
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/services/it-tools.md",
-    "docs/tools/frameworks/lerobot.md",
-    "docs/tools/frameworks/superinterface.md",
-    "docs/tools/infrastructure/azure-ai-gateway.md",
     "docs/tools/ai_knowledge/bettergpt-150m.md"
   ],
   "underdeveloped_categories": [],
