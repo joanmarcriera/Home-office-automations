@@ -14,7 +14,7 @@ Key capabilities include:
 Developing custom developer subagents, prompt chains, and automated code review workflows across large engineering organizations frequently leads to duplicated effort, prompt drift, inconsistent output quality, and security vulnerabilities. Without centralized asset governance, individual developers write ad-hoc prompt scripts that lack version control, test coverage, and audit logs.
 
 `aitmpl` addresses these challenges by:
-- **Standardizing Developer AI Workflows**: Ensuring every engineer utilizes reviewed, version-controlled prompt templates and tool definitions regardless of their local IDE ([Claude Code](../development_ops/claude-code.md), [Cursor](../../services/cursor.md), VS Code).
+- **Standardizing Developer AI Workflows**: Ensuring every engineer utilizes reviewed, version-controlled prompt templates and tool definitions regardless of their local IDE ([Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), VS Code).
 - **Automating Quality & Compliance Audits**: Embedding AI-driven static analysis directly into Git pre-commit hooks and CI/CD pipelines to catch vulnerabilities prior to code merge.
 - **Eliminating Integration Overhead**: Providing a single command-line interface (`npx aitmpl` / `cct`) to install subagent suites, FastMCP 3.1 tools, and workspace hooks in seconds.
 

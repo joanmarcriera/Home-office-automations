@@ -60,7 +60,7 @@ Deploying commercial generative AI introduces risks around API availability, pro
 - When securing FastMCP 3.1 agent tool execution boundaries in Azure cloud environments.
 
 ## When not to use it
-- For self-hosted or air-gapped home labs running local runtimes ([Ollama](../infrastructure/ollama.md), [llama.cpp](../infrastructure/llama-cpp.md), [LocalAI](../infrastructure/localai.md)).
+- For self-hosted or air-gapped home labs running local runtimes ([Ollama](../../services/ollama.md), [llama.cpp](../infrastructure/llama-cpp.md), [LocalAI](../infrastructure/localai.md)).
 - For single-model prototypes where API gateway management adds unnecessary configuration overhead.
 
 ## Getting started

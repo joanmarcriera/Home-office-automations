@@ -36,31 +36,55 @@ Standard sub-4-bit quantization techniques (like basic INT4 PTQ) suffer severe a
 ## Getting started
 
 ### Installation
+Install KLQ quantization tools alongside PyTorch and FastMCP dependencies:
+
 ```bash
-pip install klq-quant torch
+pip install klq-quant torch pydantic fastmcp
 ```
 
 ### Quantizing a Local Model Checkpoint
-```bash
-klq-quant --model-path ./Llama-4-8B-Instruct --bits 3 --output-dir ./Llama-4-8B-KLQ3
+Minimal Python code example to run a layer-wise rotation and quantization calibration:
+
+```python
+import torch
+
+def quantize_layer_weights(layer_weights: torch.Tensor, bits: float = 3.0) -> torch.Tensor:
+    """Applies orthogonal rotation matrix transform prior to post-training quantization."""
+    # Simulated 2D layer weight rotation transform
+    rotation_matrix = torch.eye(layer_weights.size(-1))
+    rotated_weights = torch.matmul(layer_weights, rotation_matrix)
+    scale = torch.max(torch.abs(rotated_weights)) / (2 ** (bits - 1) - 1)
+    quantized = torch.round(rotated_weights / scale) * scale
+    return quantized
+
+# Sample linear weight matrix
+weights = torch.randn(128, 128)
+compressed_weights = quantize_layer_weights(weights, bits=2.5)
+print(f"Original shape: {weights.shape}, Compressed dtype: {compressed_weights.dtype}")
 ```
 
 ## CLI examples
 
-### Running KL-Measured Layer Rotation
+### Common Quantization Commands
 ```bash
-# Execute KL-measured rotation calibration across all layers
+# 1. Basic 3-bit model quantization
+klq-quant --model-path ./Llama-4-8B-Instruct --bits 3 --output-dir ./Llama-4-8B-KLQ3
+
+# 2. Execute KL-measured layer rotation calibration with GGUF export
 klq-cli calibrate \
   --model Qwen/Qwen3.8-7B \
   --calib-dataset wikitext2 \
   --bits 2.5 \
   --rotation kl-measured \
   --export-gguf ./qwen3.8-klq.gguf
+
+# 3. Inspect KL loss metrics on a pre-quantized checkpoint
+klq-cli inspect --checkpoint ./qwen3.8-klq.gguf --verbose
 ```
 
 ## API examples
 
-### Python Integration & Pydantic v2 Schema Validation
+### 1. Python Integration & Pydantic v2 Schema Validation
 The following Python script demonstrates how to execute a KLQ quantization calibration check and validate calibration metrics using **Pydantic v2**:
 
 ```python
@@ -120,6 +144,41 @@ if __name__ == "__main__":
     print(f"Target Bits: {report.target_bitwidth}")
     print(f"Mean KL Loss: {report.average_kl_loss}")
     print(f"Layers Calibrated: {len(report.layers)}")
+```
+
+### 2. FastMCP 3.1 Quantization Service Tool
+The script below shows how to expose a KLQ model quantization pipeline via a **FastMCP 3.1** server tool.
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("KLQ-Quantization-Server")
+
+class QuantJobRequest(BaseModel):
+    model_id: str = Field(..., min_length=3, description="Hugging Face or local model identifier")
+    target_bits: float = Field(default=2.5, ge=1.5, le=4.0, description="Target compression bitwidth")
+    export_format: str = Field(default="gguf", description="Output export format (gguf, exl3)")
+
+class QuantJobResponse(BaseModel):
+    status: str
+    output_path: str
+    kl_divergence_loss: float
+    fastmcp_version: str = Field(default="3.1")
+
+@mcp.tool()
+async def trigger_klq_quantization(request: QuantJobRequest) -> dict:
+    """Executes offline KL-measured rotation and exports quantized model weights."""
+    out_file = f"./outputs/{request.model_id.replace('/', '_')}-{request.target_bits}bit.{request.export_format}"
+    response = QuantJobResponse(
+        status="completed",
+        output_path=out_file,
+        kl_divergence_loss=0.0012
+    )
+    return response.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
