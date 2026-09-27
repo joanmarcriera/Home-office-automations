@@ -38,7 +38,7 @@ sequenceDiagram
 ```
 
 ## Where it fits in the stack
-**Category**: Process Understanding / Observability & Telemetry. Operating at the **Telemetry & Observability Layer**, Logfire acts as the central nervous system connecting Python execution runtimes, FastMCP 3.1 agent nodes, web frameworks ([FastAPI](fastapi.md)), and model orchestrators ([Pydantic AI](../frameworks/pydantic-ai.md), [Instructor](../frameworks/instructor.md)) to local or enterprise cloud dashboards.
+**Category**: Process Understanding / Observability & Telemetry. Operating at the **Telemetry & Observability Layer**, Logfire acts as the central nervous system connecting Python execution runtimes, FastMCP 3.1 agent nodes, web frameworks ([FastAPI](../frameworks/fastapi.md)), and model orchestrators ([Pydantic AI](../frameworks/pydantic-ai.md), [Instructor](../frameworks/instructor.md)) to local or enterprise cloud dashboards.
 
 ## Key Features & Functional Modules
 - **Auto-Instrumentation Matrix**: One-line hook support for `fastapi`, `httpx`, `requests`, `openai`, `anthropic`, `sqlalchemy`, `psycopg`, `asyncio`, and `pydantic`.

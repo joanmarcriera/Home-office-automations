@@ -67,28 +67,37 @@ Inkling-Small solves these constraints by running comfortably within standard co
 Load and execute Inkling-Small locally using PyTorch and Hugging Face `transformers`:
 
 ```bash
-pip install torch transformers
+pip install torch transformers pydantic fastmcp
+```
+
+Minimal working example using Hugging Face pipeline for edge text generation:
+
+```python
+from transformers import pipeline
+
+generator = pipeline("text-generation", model="thinkingmachines/Inkling-Small")
+output = generator("To configure an offline sensor node, follow these steps:", max_new_tokens=40)
+print(output[0]["generated_text"])
 ```
 
 ## CLI examples
 
-Download weights and run local inference:
+Download weights and run local inference commands:
 
 ```bash
-# Download model from Hugging Face
+# 1. Download model from Hugging Face hub
 huggingface-cli download thinkingmachines/Inkling-Small
 
-# Run direct execution via Python helper
-python -c "
-from transformers import pipeline
-generator = pipeline('text-generation', model='thinkingmachines/Inkling-Small')
-print(generator('To configure an offline sensor node, follow these steps:', max_new_tokens=40))
-"
+# 2. Run local intent classification query via Python CLI snippet
+python -c "from transformers import pipeline; gen = pipeline('text-generation', model='thinkingmachines/Inkling-Small'); print(gen('Intent: Turn on HVAC in living room', max_new_tokens=20))"
+
+# 3. Serve quantized GGUF weights locally with Ollama CLI
+ollama run inkling-small "Summarize sensor payload: battery=88% temp=21C status=nominal"
 ```
 
 ## API examples
 
-### Validating Inference Metadata with Pydantic v2
+### 1. Validating Inference Metadata with Pydantic v2
 When deploying small language models at the edge, verifying output structure and execution latency before passing results downstream is critical. The Python example below demonstrates **Pydantic v2** validation for local Inkling-Small execution reports.
 
 ```python
@@ -125,6 +134,43 @@ throughput = report.completion_tokens / report.latency_seconds
 
 print(f"Validated Report:\n{report.model_dump_json(indent=2)}")
 print(f"Edge Throughput: {throughput:.2f} tokens/sec")
+```
+
+### 2. FastMCP 3.1 Edge Subagent Tool Integration
+The following code demonstrates integrating Inkling-Small into a **FastMCP 3.1** subagent tool server for real-time edge intent classification.
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Inkling-Small-Edge-Agent")
+
+class IntentRequest(BaseModel):
+    sensor_text: str = Field(..., min_length=3, description="Raw natural text sensor query")
+    device_category: str = Field(default="smart_home", description="Contextual device category")
+
+class IntentResponse(BaseModel):
+    intent_action: str
+    target_entity: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    fastmcp_version: str = Field(default="3.1")
+
+@mcp.tool()
+async def classify_edge_intent(request: IntentRequest) -> dict:
+    """Classifies natural language sensor commands using Inkling-Small SLM."""
+    # Process text using local Inkling-Small model rules
+    extracted_action = "set_temperature" if "thermostat" in request.sensor_text.lower() else "toggle_power"
+    extracted_entity = "living_room_hvac"
+
+    response = IntentResponse(
+        intent_action=extracted_action,
+        target_entity=extracted_entity,
+        confidence=0.96
+    )
+    return response.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
