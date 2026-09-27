@@ -13,6 +13,32 @@ It mitigates catastrophic operational risks and data loss caused by:
 ## Where it fits in the stack
 **Category**: Playbook / Governance. It serves as the core **data-resilience layer** across the entire repository, guaranteeing that every persistent service documented under `docs/services/` and every vector store collection has a deterministic, automated path to full recovery.
 
+## Architecture & Backup Lifecycle
+
+```mermaid
+flowchart TD
+    subgraph Active Production Stack
+        A[Relational DBs: PostgreSQL / MariaDB] -->|pg_dump / mysqldump| B[Staging Dumps: /var/backups/*.sql]
+        C[Persistent Volumes: Paperless / Immich / Nextcloud] --> D[Restic Backup Engine]
+        E[Vector DBs: Qdrant / Milvus Snapshots] --> D
+        B --> D
+    end
+
+    subgraph Zero-Trust 3-2-1 Encryption & Retention
+        D -->|AES-256 Deduplicated Snapshot| F[Local Storage Target 1: NAS / Local Disk]
+        D -->|Replicate Encrypted Repos| G[Remote Offsite Target 2: S3 / B2 Cloud Storage]
+        F --> H[Automated Integrity Drill: restic check / restore test]
+        G --> H
+    end
+
+    subgraph Disaster Recovery Execution
+        H -->|Validation Success| I[Production Healthy]
+        H -->|Data Loss Event Detected| J[Targeted Mount / Restore Pipeline]
+        J --> C
+        J --> A
+    end
+```
+
 ## Typical use cases
 - **Paperless-ngx Document Vault Snapshot**: Daily encrypted backups of scanned documents, PostgreSQL metadata, and OCR indices.
 - **Immich Media Library Backup**: Deduplicated, block-level snapshotting of multi-terabyte photo/video libraries.
