@@ -3,6 +3,23 @@
 ## What it is
 Gemma is Google DeepMind's family of lightweight, state-of-the-art open-weights foundation models, culminating in the Gemma 4 generation (including Gemma 4 12B, 27B, and multimodal variants). Built from the same research and technology used to create Gemini models, Gemma 4 is engineered for edge deployment, high-efficiency local inference, agentic reasoning, and high-performance coding tasks.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User/Agent
+    participant FastMCP as FastMCP 3.1 Server
+    participant Runtime as Local Inference (Ollama/vLLM)
+    participant Gemma as Gemma 4 Engine (GGUF/AWQ)
+
+    User/Agent->>FastMCP: Dispatch tool call with prompt & json_schema
+    FastMCP->>Runtime: Post JSON payload to /v1/chat/completions
+    Runtime->>Gemma: Load model weights into VRAM / Unified Memory
+    Gemma-->>Runtime: Stream completion tokens with structured response
+    Runtime-->>FastMCP: HTTP 200 JSON payload
+    FastMCP->>FastMCP: Validate response via Pydantic v2 schema
+    FastMCP-->>User/Agent: Return validated object
+```
+
 ## What problem it solves
 Proprietary LLM APIs introduce network latency, ongoing operational cost, and data privacy concerns for local deployments or embedded agentic workflows. Gemma 4 offers competitive reasoning, multilingual understanding, and software engineering capabilities in a compact, open-weights format that runs locally on consumer GPUs, Apple Silicon, and edge compute nodes.
 
@@ -90,30 +107,128 @@ The following script demonstrates structured output generation from a local Gemm
 import json
 import requests
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
-class ModelPerformanceMetrics(BaseModel):
-    model_name: str = Field(..., description="Name of the evaluated model")
-    parameters_billion: float = Field(..., gt=0, description="Model parameter count")
-    coding_score: float = Field(..., ge=0, le=100, description="Coding benchmark score")
-    supported_features: List[str] = Field(..., description="Key model capabilities")
+class CodeAnalysisRequest(BaseModel):
+    source_code: str = Field(..., description="Source code snippet to analyze")
+    language: str = Field("python", description="Programming language")
+    max_issues: int = Field(5, ge=1, le=20, description="Max code issues to return")
 
-def query_gemma_local(prompt: str) -> ModelPerformanceMetrics:
-    # Simulated response from local Gemma 4 vLLM or Ollama endpoint
-    mock_llm_json = {
-        "model_name": "Gemma 4 12B IT",
-        "parameters_billion": 12.0,
-        "coding_score": 85.5,
-        "supported_features": ["Open-weights", "Native GGUF", "FastMCP 3.1 Tool Calling", "Multimodal"]
+class CodeIssue(BaseModel):
+    line_number: Optional[int] = Field(None, description="Line number of defect")
+    severity: str = Field(..., description="Severity level: low, medium, high")
+    message: str = Field(..., description="Issue summary")
+    suggested_fix: str = Field(..., description="Recommended fix code")
+
+class CodeAnalysisResponse(BaseModel):
+    analyzed_language: str
+    overall_quality_score: float = Field(..., ge=0.0, le=100.0)
+    issues: List[CodeIssue]
+
+def query_gemma_code_reviewer(endpoint: str, req: CodeAnalysisRequest) -> CodeAnalysisResponse:
+    prompt = f"Analyze this {req.language} code:\n```{req.language}\n{req.source_code}\n```"
+    payload = {
+        "model": "gemma4",
+        "messages": [{"role": "user", "content": prompt}],
+        "format": "json"
     }
 
-    validated = ModelPerformanceMetrics.model_validate(mock_llm_json)
-    return validated
+    # Simulated response or request to local Ollama / vLLM endpoint
+    mock_response = {
+        "analyzed_language": req.language,
+        "overall_quality_score": 88.0,
+        "issues": [
+            {
+                "line_number": 4,
+                "severity": "medium",
+                "message": "Unused variable 'temp_buf'",
+                "suggested_fix": "Remove line 4"
+            }
+        ]
+    }
+
+    return CodeAnalysisResponse.model_validate(mock_response)
 
 if __name__ == "__main__":
-    result = query_gemma_local("Benchmark Gemma 4 12B coding performance.")
-    print(f"Validated Model: {result.model_name}")
-    print(f"Coding Score: {result.coding_score}/100")
+    req = CodeAnalysisRequest(source_code="def calc(x):\n    temp_buf = 10\n    return x * 2")
+    res = query_gemma_code_reviewer("http://localhost:11434", req)
+    print(f"Validated response for language: {res.analyzed_language}")
+    print(f"Quality score: {res.overall_quality_score}")
+```
+
+### FastMCP 3.1 Local Gemma Reasoning Tool Pattern
+This FastMCP 3.1 server exposes local Gemma 4 inference capabilities for agent workflows:
+
+```python
+from fastmcp import FastMCP
+import requests
+import json
+from typing import Dict, Any, List
+
+mcp = FastMCP("GemmaLocalInferenceProvider")
+
+OLLAMA_URL = "http://localhost:11434"
+
+@mcp.tool()
+def generate_gemma_reasoning(prompt: str, model_name: str = "gemma4:12b", temperature: float = 0.2) -> Dict[str, Any]:
+    """Execute local reasoning via Gemma 4 using Ollama.
+
+    Args:
+        prompt: User or system prompt text
+        model_name: Ollama model tag (e.g. gemma4:12b, gemma4:27b)
+        temperature: Sampling temperature
+    """
+    url = f"{OLLAMA_URL}/api/generate"
+    payload = {
+        "model": model_name,
+        "prompt": prompt,
+        "temperature": temperature,
+        "stream": False
+    }
+
+    res = requests.post(url, json=payload, timeout=60)
+    res.raise_for_status()
+    data = res.json()
+
+    return {
+        "model": data.get("model"),
+        "response": data.get("response"),
+        "done": data.get("done"),
+        "total_duration_ns": data.get("total_duration")
+    }
+
+@mcp.tool()
+def structured_gemma_extraction(input_text: str, schema_description: str) -> Dict[str, Any]:
+    """Perform local structured JSON extraction using Gemma 4.
+
+    Args:
+        input_text: Raw text or document body
+        schema_description: Description of required JSON keys and types
+    """
+    system_prompt = f"Extract structured data into JSON matching this spec: {schema_description}"
+    prompt = f"{system_prompt}\n\nInput text:\n{input_text}"
+
+    url = f"{OLLAMA_URL}/api/generate"
+    payload = {
+        "model": "gemma4:12b",
+        "prompt": prompt,
+        "format": "json",
+        "stream": False
+    }
+
+    res = requests.post(url, json=payload, timeout=60)
+    res.raise_for_status()
+    raw_json = res.json().get("response", "{}")
+
+    try:
+        parsed = json.loads(raw_json)
+    except Exception:
+        parsed = {"raw": raw_json}
+
+    return {"extracted": parsed}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

@@ -3,11 +3,36 @@
 ## What it is
 Anthropic is an AI safety and research company that produces the Claude family of LLMs. As of early January 2027, it is a proprietary service offering high-performance models known for strong reasoning, coding excellence, agentic workflows, and alignment. Pricing is usage-based with a free testing tier available via the Anthropic Console and developer API.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer/Agent
+    participant FastMCP as FastMCP 3.1 Bridge
+    participant API as Anthropic Messages API
+    participant Claude as Claude 5.1 Reasoning Engine
+    participant Tools as Executable Tool Subsystem
+
+    Developer/Agent->>FastMCP: Dispatch query with tool capabilities
+    FastMCP->>API: POST /v1/messages (system prompt + tools + extended thinking)
+    API->>Claude: Load model context & evaluate tools
+    Claude-->>API: Stream response or stop_reason="tool_use"
+    alt Tool Call Requested
+        API-->>FastMCP: Return tool invocation payload
+        FastMCP->>Tools: Execute local tool & capture result
+        Tools-->>FastMCP: Return output
+        FastMCP->>API: POST /v1/messages with role="user" tool_result
+        API->>Claude: Resume completion pass
+        Claude-->>API: Return final response
+    end
+    API-->>FastMCP: Return completion response
+    FastMCP-->>Developer/Agent: Validated Pydantic v2 response
+```
+
 ## What problem it solves
 It offers a high-performance alternative to OpenAI with a focus on "Constitutional AI" (safety) and exceptional performance in coding, long-form document analysis, multi-step tool execution, and complex reasoning tasks. It provides a reliable engine for autonomous agents via native [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) support.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It serves as the primary intelligence layer for coding agents, autonomous task orchestrators, and complex document synthesis workflows across the homelab stack.
+**Category**: Providers / LLM & Reasoning Engine. It serves as the primary intelligence layer for coding agents, autonomous task orchestrators, and complex document synthesis workflows across the homelab and enterprise stacks.
 
 ## Typical use cases
 - **Pair Programming & Autonomous Engineering**: Claude 3.5 Sonnet, 5.1 Sonnet/Opus are the preferred models for tools like [Aider](../development_ops/aider.md) and [Claude Code](../development_ops/claude-code.md).
@@ -51,7 +76,7 @@ It offers a high-performance alternative to OpenAI with a focus on "Constitution
 ### Installation
 Install the official Python SDK:
 ```bash
-pip install anthropic pydantic
+pip install anthropic pydantic fastmcp
 ```
 
 ### Initial Configuration
@@ -83,12 +108,20 @@ Using Python and Pydantic v2 to validate Claude's completion metadata programmat
 ```python
 import anthropic
 from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class ClaudeUsageMetrics(BaseModel):
+    input_tokens: int = Field(..., ge=0)
+    output_tokens: int = Field(..., ge=0)
+    cache_creation_input_tokens: Optional[int] = Field(0)
+    cache_read_input_tokens: Optional[int] = Field(0)
 
 class ClaudeCompletion(BaseModel):
+    id: str
     model_used: str
     response_text: str = Field(..., min_length=1)
-    prompt_tokens: int = Field(..., ge=0)
-    completion_tokens: int = Field(..., ge=0)
+    usage: ClaudeUsageMetrics
+    stop_reason: Optional[str] = None
 
 client = anthropic.Anthropic()
 
@@ -101,10 +134,16 @@ message = client.messages.create(
 )
 
 response_data = ClaudeCompletion(
+    id=message.id,
     model_used=message.model,
     response_text=message.content[0].text,
-    prompt_tokens=message.usage.input_tokens,
-    completion_tokens=message.usage.output_tokens
+    usage=ClaudeUsageMetrics(
+        input_tokens=message.usage.input_tokens,
+        output_tokens=message.usage.output_tokens,
+        cache_creation_input_tokens=getattr(message.usage, "cache_creation_input_tokens", 0),
+        cache_read_input_tokens=getattr(message.usage, "cache_read_input_tokens", 0)
+    ),
+    stop_reason=message.stop_reason
 )
 print(response_data.model_dump_json(indent=2))
 ```
@@ -118,6 +157,67 @@ with client.messages.stream(
 ) as stream:
     for text in stream.text_stream:
         print(text, end="", flush=True)
+```
+
+### FastMCP 3.1 Claude Bridge Tool Pattern
+This FastMCP 3.1 server exposes an Anthropic Claude message completion tool for automated multi-agent orchestrators:
+
+```python
+from fastmcp import FastMCP
+import anthropic
+import os
+from typing import Dict, Any, Optional
+
+mcp = FastMCP("AnthropicClaudeBridge")
+
+def get_anthropic_client() -> anthropic.Anthropic:
+    return anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+@mcp.tool()
+def execute_claude_reasoning(
+    prompt: str,
+    model: str = "claude-5-1-sonnet-20261031",
+    system_prompt: Optional[str] = None,
+    max_tokens: int = 2048,
+    temperature: float = 0.2
+) -> Dict[str, Any]:
+    """Execute a reasoning pass via Anthropic Claude API.
+
+    Args:
+        prompt: User message prompt
+        model: Claude model name (e.g. claude-5-1-sonnet-20261031, claude-5-1-opus)
+        system_prompt: Optional system instruction
+        max_tokens: Maximum completion output tokens
+        temperature: Sampling temperature
+    """
+    client = get_anthropic_client()
+    kwargs = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    if system_prompt:
+        kwargs["system"] = system_prompt
+
+    response = client.messages.create(**kwargs)
+
+    text_content = ""
+    for block in response.content:
+        if getattr(block, "type", "") == "text":
+            text_content += block.text
+
+    return {
+        "message_id": response.id,
+        "model": response.model,
+        "text": text_content,
+        "stop_reason": response.stop_reason,
+        "input_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -137,6 +237,7 @@ with client.messages.stream(
 - [Anthropic Developer Documentation](https://docs.anthropic.com/)
 - [Claude 5.1 Announcement](https://www.anthropic.com/news/claude-5-1)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

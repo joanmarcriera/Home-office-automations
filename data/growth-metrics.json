@@ -22,11 +22,6 @@
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/services/it-tools.md",
-    "docs/tools/process_understanding/grafana-loki.md",
-    "docs/tools/ai_knowledge/gemma.md",
-    "docs/tools/ai_knowledge/diffusiongemma.md",
-    "docs/tools/process_understanding/firecrawl.md",
-    "docs/tools/providers/anthropic.md",
     "docs/tools/frameworks/lerobot.md",
     "docs/tools/frameworks/superinterface.md",
     "docs/tools/infrastructure/azure-ai-gateway.md",
