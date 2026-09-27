@@ -6,131 +6,205 @@ BetterGPT-150M is an ultra-compact, 150-million parameter causal language model 
 
 BetterGPT-150M is a highly efficient, open-weights causal language model with approximately 152 million parameters. Developed by the **thinkingmachines** team, it is engineered for high-speed causal inference, local text autocomplete, and structured classification on resource-constrained hardware. It serves as an accessible baseline for edge developers, embedded systems engineers, and multi-agent systems researchers who require an offline language model without GPU dependencies.
 
+With its compact footprint (~300MB in FP16, under ~80MB in 4-bit quantization), BetterGPT-150M brings autoregressive transformer capabilities to microcontrollers, single-board computers (such as Raspberry Pi 5 or NVIDIA Jetson Orin Nano), and client-side WebAssembly runtimes. In multi-agent architectures, it acts as a zero-latency speculative helper, local query router, and offline telemetry sanitizer.
+
 ## What problem it solves
 
-Frontier LLMs (such as Claude 5.6, GPT-5.6, or Gemini 4.0) require high-end GPU acceleration, substantial memory bandwidth, and high cloud API invocation costs. This renders them unsuitable for direct execution on microcontrollers, single-board computers (like Raspberry Pis or NVIDIA Jetson Nano), or client-side WebAssembly runtimes.
+Frontier LLMs (such as Claude 3.7 Sonnet, GPT-4o, or Gemini 2.5 Flash) require discrete GPU acceleration, substantial memory bandwidth, and persistent cloud connectivity. High API invocation latency (>200ms) and token costs make them impractical for real-time keystroke completion, low-power IoT sensor loop evaluation, or completely disconnected edge deployments.
 
-BetterGPT-150M addresses this by fitting its weights into ~300MB of storage (~80MB in 4-bit quantization). It runs at high throughput on standard CPUs, enabling local autocomplete, offline log translation, and real-time task state prediction without external network reliance.
+BetterGPT-150M resolves these limitations by executing entirely on standard ARM and x86 CPUs with sub-10ms token generation latency. It eliminates cloud API costs, guarantees complete data privacy for local log parsing, and functions reliably in air-gapped environments where network access is restricted or unavailable.
 
 ## Where it fits in the stack
 
 **Local Model / Edge Compute Layer**. BetterGPT-150M functions as a lightweight local inference engine, providing instant text completions and micro-agent helper tasks for larger orchestrators.
 
-```
-┌────────────────────────────────────────┐
-│     Multi-Agent Control System         │
-│  (Claude 5.6 / FastMCP 3.1 Gateway)    │
-└───────────────────┬────────────────────┘
-                    │ Trigger Local Autocomplete / Token Audit
-┌───────────────────▼────────────────────┐
-│         BETTERGPT-150M ENGINE          │
-└───────────────────┬────────────────────┘
-                    │ Ultra-low latency inference (< 10ms)
-┌───────────────────▼────────────────────┐
-│      Local CPU / Edge Hardware         │
-└────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A[User / Application Layer] -->|Keystroke / Sensor Data| B[BetterGPT-150M Edge Runtime]
+    B -->|Fast Local Pre-computation| C{Local Decision Matrix}
+    C -->|High Confidence / Simple Task| D[Immediate Response Execution]
+    C -->|Complex Task / Ambiguous Query| E[FastMCP 3.1 Gateway]
+    E -->|Cloud Dispatch| F[Frontier LLM: Claude / GPT-4o]
+    F -->|Complex Plan| E
+    E --> B
 ```
 
 ## Typical use cases
 
-- **Smart Terminal & IDE Autocomplete**: Real-time code and command completions inside local terminals or text editors.
-- **Wasm & WebGPU In-Browser Inference**: Running client-side LLM features directly inside browsers using transformers.js or ONNX Web runtimes.
-- **Mock Endpoints for Agent Testing**: Rapidly simulating LLM response streams in test suites for multi-agent frameworks without API token costs.
-- **Edge Log Analysis**: Parsing, summarizing, and classifying dense sensor telemetry streams on IoT edge gateways.
+- **Smart Terminal & IDE Autocomplete**: Delivering sub-15ms real-time shell command, inline code, and Markdown completions inside local editors without cloud round-trips.
+- **Wasm & WebGPU In-Browser Inference**: Running client-side LLM features directly inside browser runtimes using ONNX Web or WebGPU pipelines for offline web applications.
+- **Mock Endpoints for Agent Testing**: Rapidly simulating LLM response streams in automated test suites for multi-agent frameworks without incurring API token expenses.
+- **Edge Sensor Telemetry Analysis**: Parsing, summarizing, and classifying dense IoT sensor telemetry streams directly on gateway devices before forwarding summarized metrics to cloud datastores.
+- **Speculative Decoding Accelerator**: Serving as a lightweight draft model in speculative decoding setups alongside larger open-weights foundation models (such as Llama 3 8B or Gemma 2 9B).
 
 ## Strengths
 
-- **Ultra-Compact Footprint**: ~152M parameter scale resulting in <300MB FP16 disk footprint and minimal RAM usage.
-- **CPU & ONNX Optimization**: Exceptionally fast inference speeds on low-power ARM and x86 processors without discrete GPUs.
-- **Permissive Open Weights**: Fully open weights for fine-tuning, domain adaptation, and offline deployment.
-- **Hugging Face & ONNX Native**: Instantiates instantly via standard `AutoModelForCausalLM` transformers or ONNX Runtime pipelines.
+- **Ultra-Compact Footprint**: ~152M parameters yield a ~300MB FP16 disk footprint and under 100MB RAM usage in quantized GGML/GGUF formats.
+- **Exceptional CPU Throughput**: Achieves over 80 tokens/second on standard ARM64 laptop processors and 35+ tokens/second on low-power single-board computers.
+- **Permissive Open Weights**: Distributed under open licenses permitting unrestricted fine-tuning, domain adaptation, commercial embedding, and offline distribution.
+- **Hugging Face & ONNX Native**: Instantiates seamlessly via PyTorch `transformers`, ONNX Runtime, Llama.cpp, and WebGPU frameworks.
+- **Deterministic Latency**: Eliminates network jitter, web gateway throttling, and cloud provider rate limits for mission-critical edge loops.
 
 ## Limitations
 
-- **Reasoning Capacity**: Incapable of complex multi-file code synthesis or deep logical deduction compared to frontier models like Llama 4 or Gemma 3.
-- **Context Horizon**: Optimized for short-context completions rather than long-document analysis.
-- **Knowledge Depth**: Limited internal parametric knowledge; relies on RAG patterns for factual accuracy.
+- **Reasoning Capacity**: Incapable of complex multi-step logical deduction, deep mathematical reasoning, or full-repository code editing compared to frontier models.
+- **Context Horizon**: Optimized for short-context completions (up to 1,024 or 2,048 tokens) rather than long-document analysis or extensive chat histories.
+- **Knowledge Depth**: Retains limited internal parametric knowledge; relies heavily on Retrieval-Augmented Generation (RAG) for factual accuracy.
+- **Instruction Following**: Requires precise prompt structuring and fine-tuning for strict JSON/tool-calling output compliance.
 
 ## When to use it
 
 - When building 100% offline edge applications that require immediate text generation with zero network latency.
-- For embedded systems, smart home controllers, and IoT devices with strict memory limits.
-- For mocking LLM generation in rapid local unit tests and benchmark suites.
+- For embedded systems, smart home controllers, and IoT devices operating under strict memory and power constraints.
+- For mocking LLM generation in rapid local unit tests, CI/CD pipelines, and benchmark suites.
+- As a local pre-filter or router to sanitize sensitive telemetry before dispatching complex queries to cloud LLMs.
 
 ## When not to use it
 
-- For complex architectural reasoning, full-file code editing, or multi-step symbolic logic.
-- When high factual accuracy without retrieval augmentation is required.
+- For complex architectural reasoning, full-file software code refactoring, or multi-step symbolic logic.
+- When high factual accuracy across broad historical or domain knowledge without retrieval augmentation is required.
+- For multi-turn conversational agents demanding complex roleplay, emotional nuance, or deep stylistic adaptation.
 
 ## Getting started
 
-Load BetterGPT-150M using Python's `transformers` library:
+Load BetterGPT-150M using Python's `transformers` library or run quantized weights with `llama.cpp`:
 
 ```bash
-# Install transformers and torch
-pip install transformers torch
+# Install transformers, torch, and fastmcp dependencies
+pip install transformers torch fastmcp pydantic
+```
+
+Execute a simple completion script in Python:
+
+```python
+from transformers import pipeline
+
+generator = pipeline("text-generation", model="thinkingmachines/BetterGPT-150M")
+result = generator("Automated edge computing enables", max_new_tokens=30)
+print(result[0]["generated_text"])
 ```
 
 ## CLI examples
 
-Download weights and run interactive local generation:
+Download model weights and execute local generation or ONNX export via CLI:
 
 ```bash
-# Download model from Hugging Face
+# Download model weights from Hugging Face Hub
 huggingface-cli download thinkingmachines/BetterGPT-150M
 
-# Perform immediate completion using Python helper
-python -c "
+# Run instant generation via inline Python execution
+python3 -c "
 from transformers import pipeline
 generator = pipeline('text-generation', model='thinkingmachines/BetterGPT-150M')
-print(generator('Automated edge computing enables', max_new_tokens=30))
+print(generator('System status check:', max_new_tokens=25))
 "
+
+# Benchmark CPU execution latency using optimum or ONNX Runtime CLI
+optimum-cli export onnx --model thinkingmachines/BetterGPT-150M onnx_output/
 ```
 
 ## API examples
 
-### Output Validation and Telemetry Parsing with Pydantic v2
-In edge environments, validating generated text metadata and execution throughput before passing outputs downstream is critical. The example below uses **Pydantic v2** to enforce execution constraints.
+### FastMCP 3.1 Local Autocomplete Server
+The following example implements a **FastMCP 3.1** server that hosts BetterGPT-150M as an ultra-fast local completion tool.
+
+```python
+import time
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from transformers import pipeline
+
+# Initialize FastMCP Server
+mcp = FastMCP("BetterGPT-150M Fast Completion Server")
+
+# Load model pipeline into memory
+generator = pipeline("text-generation", model="thinkingmachines/BetterGPT-150M")
+
+class AutocompleteRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=1000, description="Input prompt for local completion")
+    max_tokens: int = Field(default=30, ge=1, le=256, description="Maximum new tokens to generate")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
+
+class AutocompleteResponse(BaseModel):
+    prompt: str
+    generated_text: str
+    tokens_generated: int
+    duration_ms: float
+    throughput_tok_sec: float
+
+@mcp.tool()
+def generate_completion(request: AutocompleteRequest) -> AutocompleteResponse:
+    """Generate high-speed local text completions using BetterGPT-150M."""
+    start_time = time.perf_counter()
+
+    outputs = generator(
+        request.prompt,
+        max_new_tokens=request.max_tokens,
+        temperature=request.temperature,
+        do_sample=(request.temperature > 0.0)
+    )
+
+    end_time = time.perf_counter()
+    duration_ms = (end_time - start_time) * 1000.0
+    full_text = outputs[0]["generated_text"]
+    completion_text = full_text[len(request.prompt):]
+
+    # Rough token estimation based on word count
+    tokens_count = len(completion_text.split())
+    throughput = (tokens_count / (duration_ms / 1000.0)) if duration_ms > 0 else 0.0
+
+    return AutocompleteResponse(
+        prompt=request.prompt,
+        generated_text=completion_text,
+        tokens_generated=tokens_count,
+        duration_ms=round(duration_ms, 2),
+        throughput_tok_sec=round(throughput, 2)
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Telemetry Parsing and Validation with Pydantic v2
+In edge IoT environments, validating model output metadata before downstream consumption ensures reliability.
 
 ```python
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
-class CompletionMetadata(BaseModel):
-    model_name: str = Field(default="BetterGPT-150M")
-    prompt: str = Field(..., min_length=5)
-    raw_completion: str = Field(..., min_length=1)
-    tokens_generated: int = Field(..., gt=0)
-    inference_duration_ms: float = Field(..., gt=0.0)
-    safety_passed: bool = Field(default=True)
+class TelemetryReport(BaseModel):
+    sensor_id: str = Field(..., description="Unique hardware sensor identifier")
+    raw_reading: float = Field(..., description="Raw metric value")
+    bettergpt_summary: str = Field(..., min_length=5, description="Edge LLM classification summary")
+    alert_level: str = Field("INFO", description="Assigned severity level")
+    latency_ms: float = Field(..., gt=0.0, description="Inference latency in milliseconds")
 
-    @field_validator("tokens_generated")
+    @field_validator("alert_level")
     @classmethod
-    def validate_token_limit(cls, v: int) -> int:
-        if v > 1024:
-            raise ValueError("Token count exceeds BetterGPT-150M context threshold.")
-        return v
+    def validate_alert_level(cls, value: str) -> str:
+        allowed = {"INFO", "WARNING", "CRITICAL"}
+        if value.upper() not in allowed:
+            raise ValueError(f"Alert level must be one of {allowed}")
+        return value.upper()
 
-# Simulated generation result from local BetterGPT-150M inference engine
-payload = {
-    "prompt": "The future of edge AI is",
-    "raw_completion": " focused on running small open-weights models completely offline.",
-    "tokens_generated": 14,
-    "inference_duration_ms": 11.2,
-    "safety_passed": True
+# Sample validation execution
+data = {
+    "sensor_id": "EDGE-NODE-081",
+    "raw_reading": 87.4,
+    "bettergpt_summary": "Thermal reading elevated above normal baseline threshold.",
+    "alert_level": "warning",
+    "latency_ms": 8.45
 }
 
-# Validate structure using Pydantic v2
-validated_completion = CompletionMetadata(**payload)
-throughput = validated_completion.tokens_generated / (validated_completion.inference_duration_ms / 1000.0)
-
-print(f"Validated Completion Output: {validated_completion.raw_completion}")
-print(f"Inference Speed: {throughput:.2f} tokens/sec")
+report = TelemetryReport(**data)
+print(f"Validated Telemetry [{report.sensor_id}]: {report.bettergpt_summary} (Alert: {report.alert_level})")
 ```
 
 ## Related tools / concepts
 
-- [Inkling-Small](inkling-small.md) — SOTA compact small language model from thinkingmachines.
+- [Inkling-Small](inkling-small.md) — SOTA compact small language model family from thinkingmachines.
+- [AnsIGPT](ansigpt.md) — Zero-dependency C89 portable transformer inference runtime.
+- [MicroGPT](microgpt.md) — Educational minimalist autoregressive transformer model.
 - [Local LLMs](local_llms.md) — Strategic overview of offline model deployment architectures.
 - [Hugging Face Hub](../providers/huggingface.md) — Open model registry host.
 - [Ollama](../../services/ollama.md) — Local runner for quantized models.

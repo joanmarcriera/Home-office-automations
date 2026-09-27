@@ -21,8 +21,7 @@
   "docs_with_code_examples": 563,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/services/it-tools.md",
-    "docs/tools/ai_knowledge/bettergpt-150m.md"
+    "docs/services/it-tools.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
