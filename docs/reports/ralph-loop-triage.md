@@ -203,6 +203,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 727** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest docs (`lm-studio.md`, `pydantic.md`, `dapr.md`, `teamout.md`, `verba.md`), expanding each past 13,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 728** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest tool docs (`valkey.md`, `openrouter.md`, `khoj.md`, `xai-grok.md`, `llama-factory.md`), expanding each past 8,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 | **Batch 729** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest non-index docs (`holotab.md`, `agno.md`, `deepspeed.md`, `google-ai-studio.md`, `groq.md`), expanding each past 11,000 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
+| **Batch 731** | Shallowest Tools Deepening | **Verified & Closed** | Resolved top 5 shallowest tool docs (`moonshot.md`, `cloudflare-agent-tracing.md`, `openswarm.md`, `tabnine.md`, `langflow.md`), expanding each past 8,500 chars with Mermaid diagrams, FastMCP 3.1 patterns, and Pydantic v2 schemas. Verified 2027-01-07. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

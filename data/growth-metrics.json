@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-26",
+  "snapshot_date": "2026-09-27",
   "total_docs": 563,
   "tool_docs": 510,
   "service_docs": 53,
@@ -22,11 +22,6 @@
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/services/it-tools.md",
-    "docs/tools/providers/moonshot.md",
-    "docs/tools/process_understanding/cloudflare-agent-tracing.md",
-    "docs/tools/development_ops/openswarm.md",
-    "docs/tools/development_ops/tabnine.md",
-    "docs/tools/frameworks/langflow.md",
     "docs/tools/process_understanding/grafana-loki.md",
     "docs/tools/ai_knowledge/gemma.md",
     "docs/tools/ai_knowledge/diffusiongemma.md",
