@@ -1,153 +1,286 @@
 # Bionic Shell
 
 ## What it is
-Bionic Shell is a security-first shell environment and AI agent execution sandbox designed to enforce strict command safety, real-time destructive command prevention, and granular system permissioning. Released in late 2026 and widely adopted in early 2027, Bionic Shell sits between autonomous developer agents (such as [Claude Code](claude-code.md), [OmO](opencode.md), or [Aider](aider.md)) and the host operating system, preventing accidental data destruction, unauthorized network egress, or unintended privilege escalation during agentic code execution.
+Bionic Shell (`/bin/bionic-sh`) is a security-first terminal shell runtime, AST-based command analyzer, and agentic sandbox engine designed to enforce real-time command safety, prevent destructive system mutations, and restrict host privilege escalation during autonomous AI software execution. Developed to bridge the safety gap between autonomous developer agents (such as [Claude Code](claude-code.md), [Aider](aider.md), and [OpenCode](opencode.md)) and host operating systems, Bionic Shell sits directly between agent execution loops and system kernels.
+
+As of early 2027, Bionic Shell is a standard isolation layer for **Agentic Software Engineering & CI/CD Pipelines**. Integrating natively with the **Model Context Protocol (FastMCP 3.1)** and leveraging copy-on-write (CoW) filesystem snapshots (OverlayFS, Btrfs, ZFS), Bionic Shell allows autonomous agent fleets driven by frontier reasoning models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL) to run terminal commands, execute build scripts, and install dependencies with guaranteed instant rollback capabilities and zero risk of host compromise.
 
 ## What problem it solves
-Autonomous coding agents executing in real terminal environments frequently generate commands that carry risk (e.g., unintended `rm -rf`, aggressive `git reset --hard`, or unverified curl-to-bash executions). Bionic Shell solves this safety boundary challenge by analyzing AST command intent, intercepting unsafe system calls, enforcing deterministic rollback checkpoints, and providing dry-run simulation for terminal agent actions.
+Granting autonomous AI agents unconstrained terminal shell access introduces critical operational and security risks:
+
+1. **Accidental & Unrecoverable System Destruction**: Agents frequently generate destructive terminal commands (e.g., unintended `rm -rf /`, accidental `git reset --hard HEAD~10`, or unvetted `dd` disk operations) due to hallucinated flags or incorrect path parsing.
+2. **Untrusted Curl-to-Bash Ingestion**: LLMs often synthesize shell commands that download unvetted remote shell scripts via `curl | bash` or `wget | sh`, introducing supply chain malware or remote code execution (RCE) vectors.
+3. **Privilege Escalation & Credential Leaks**: Unsanitized terminal commands executed by agents can inadvertently read environment variables containing cloud tokens (`AWS_SECRET_ACCESS_KEY`, `FASTMAIL_API_TOKEN`) or execute `sudo` calls that modify host security settings.
+4. **Environment Pollution in CI/CD Runners**: Multi-step agent loops modify host file systems, leave orphaned processes running, and pollute shared build environments, leading to non-reproducible test runs.
+
+Bionic Shell solves these vulnerabilities by parsing shell Abstract Syntax Trees (AST) prior to execution, evaluating command intent against declarative YAML security policies, intercepting unsafe system calls, enforcing dry-run simulations, and managing atomic, sub-second snapshot rollbacks.
 
 ## Where it fits in the stack
-**Development & Ops / Sandboxing Layer**. Bionic Shell functions as an isolating terminal runtime and command wrapper for AI developer assistants.
+Within the KnowledgeOps and modern agentic engineering architecture, Bionic Shell occupies the **Development & Ops / Agent Sandboxing & Runtime Security Layer**.
+
+```
++-----------------------------------------------------------------------------------+
+|                            Autonomous Coding Agent                                |
+|              (Claude Code / Aider / OpenCode / FastMCP 3.1 Client)                |
++-----------------------------------------------------------------------------------+
+                                          |
+                              Raw Command Request (`bionic-sh -c "..."`)
+                                          |
++-----------------------------------------------------------------------------------+
+|                              Bionic Shell Core Engine                             |
+|      (AST Intent Parser / Policy Evaluator / CoW Snapshot Controller)            |
++-----------------------------------------------------------------------------------+
+       |                                  |                                 |
++--------------+                   +--------------+                  +--------------+
+| AST Command  |                   | FastMCP 3.1  |                  | OverlayFS /  |
+| Analyzer     |                   | Security Gate|                  | ZFS Snapshot |
++--------------+                   +--------------+                  +--------------+
+       |                                  |                                 |
+       +----------------------------------+---------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                             Host Operating System / Kernel                        |
+|                     (Linux Kernel / macOS POSIX / Container Host)                 |
++-----------------------------------------------------------------------------------+
+```
+
+- **Upstream Layer**: Receives terminal execution requests from AI developer assistants, local CLI wrappers, or FastMCP 3.1 tool servers.
+- **Security Engine**: Intercepts commands, validates AST structures against policy rules, masks secret tokens in stdout/stderr, and isolates file writes in CoW overlays.
+- **Downstream Kernel**: Passes approved commands to underlying host shells (`/bin/bash` or `/bin/zsh`) or aborts execution and triggers automatic snapshot recovery on policy violations.
 
 ## Typical use cases
-- **Agent Sandbox Guardrails**: Executing autonomous terminal agent loops ([Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/chatgpt.md)) with zero risk of unrecoverable system state changes.
-- **Dry-Run Command Validation**: Simulating multi-step shell scripts generated by LLMs before applying modifications to enterprise production environments.
-- **Strict FastMCP 3.1 Permissioning**: Providing containerized security policy hooks for MCP shell tools.
-- **Audit Logging & Replay**: Recording exact terminal state transitions and command outputs for compliance auditing.
+
+### 1. Guardrail Protection for Autonomous Refactoring
+When running multi-turn coding agents like Claude Code or Aider on large repositories, Bionic Shell intercepts any destructive git commands or mass file deletions, ensuring that unvetted code modifications can be reverted instantly with a single checkpoint rollback.
+
+### 2. CI/CD Pipeline Agent Isolation
+Enterprise build systems run agentic code generation pipelines inside Bionic Shell sandboxes. Bionic Shell enforces restricted network egress policies, preventing agents from sending host secrets or source code to unauthorized external IP addresses.
+
+### 3. Dry-Run Terminal Command Analysis
+DevOps engineers use Bionic Shell to perform AST analysis on complex, AI-synthesized shell scripts prior to deployment, inspecting simulated filesystem mutations and blocked system calls in a safe dry-run mode.
+
+### 4. FastMCP 3.1 System Tool Gate
+Homelab and cloud developers expose terminal execution tools to local LLMs via FastMCP 3.1, using Bionic Shell as the underlying execution wrapper to restrict commands to safe workspace directories.
 
 ## Strengths
-- **Deterministic Intent Parsing**: Intercepts shell AST commands prior to kernel execution.
-- **Automatic System Rollback**: Uses snapshot-based filesystem hooks (e.g. ZFS/Btrfs or overlayfs) to instantly undo unauthorized mutations.
-- **Fine-Grained Policy Engine**: YAML-configurable policy rules for file paths, environment variables, and network ports.
-- **Seamless Terminal Drop-In**: Works as a POSIX-compliant shell replacement (`/bin/bionic-sh`).
+- **Deterministic AST Command Inspection**: Parses full POSIX shell syntax trees before kernel execution, detecting obfuscated destructive calls (e.g. `eval $(echo ...)` or base64-decoded commands).
+- **Sub-Second Copy-on-Write Rollbacks**: Leverages OverlayFS, ZFS, or Btrfs snapshots to restore clean environment states in under 100 milliseconds following an agent error.
+- **Fine-Grained Declarative YAML Policies**: Allows engineers to specify allowed/blocked path trees, environment variable masks, allowed outbound ports, and maximum execution timeouts.
+- **Native FastMCP 3.1 Integration**: Exposes structured JSON safety reports and tool interfaces directly to LLM orchestrators.
+- **POSIX Drop-In Compatibility**: Acts as a transparent replacement for `/bin/sh` or `/bin/bash` with zero changes required to standard build scripts.
 
 ## Limitations
-- **Kernel Overhead**: Overlay filesystem snapshots introduce slight disk latency on heavy file write workloads.
-- **Complex Subshell Scoping**: Deeply nested dynamic eval scripts require explicit policy whitelist rules.
+- **Copy-on-Write Overhead**: Heavy disk write workloads (e.g., compiling massive C++ codebases or unpacking gigabyte tars) experience slight write latency from overlay layers.
+- **Subshell Obfuscation Edge Cases**: Highly dynamic nested subshells utilizing custom compiled C binaries require explicit policy whitelist definitions.
 
 ## When to use it
-- When allowing autonomous AI agents to execute terminal commands in local developer environments.
-- When hosting agentic CI/CD pipelines where unvetted AI-generated scripts run on shared runners.
-- When requiring auditability and instant rollback capabilities for system administration tasks.
+- When allowing autonomous AI agents to execute arbitrary terminal commands in local developer workspaces.
+- When running automated agentic coding pipelines in shared multi-tenant CI/CD environments.
+- When requiring audit logging, secret masking, and sub-second rollbacks for agent terminal sessions.
 
 ## When not to use it
-- When running high-performance raw disk I/O benchmarks where snapshot layers introduce overhead.
-- In minimal micro-containers where standard `/bin/sh` is hard-coded without agent interaction.
+- For raw disk performance benchmarking where overlay filesystem layers introduce non-negligible I/O latency.
+- In minimal scratch micro-containers where no agent interaction occurs and standard `/bin/sh` is hardcoded.
 
 ## Getting started
-Bionic Shell can be installed via package manager or configured as the default shell for agent runners.
+
+### 1. Installation
+Install the Bionic Shell runtime binary and CLI utility:
 
 ```bash
-# Install Bionic Shell binary
+# Install Bionic Shell binary via official installation script
 curl -fsSL https://bionicshell.dev/install.sh | sh
 
-# Spin up Bionic Shell in restricted sandbox mode for agent execution
-bionic-sh --sandbox Strict --policy ./agent-policy.yaml
+# Verify installation and driver support
+bionic-sh --version
+```
+
+### 2. Configuring Security Policy (`policy.yaml`)
+Create an agent isolation policy specifying allowed commands and blocked filesystem paths:
+
+```yaml
+version: "1.0"
+security_level: "Strict"
+allowed_commands:
+  - "git"
+  - "pytest"
+  - "npm"
+  - "cargo"
+  - "python3"
+blocked_paths:
+  - "/etc"
+  - "/usr"
+  - "~/.ssh"
+  - "~/.aws"
+secret_masking:
+  enabled: true
+  patterns:
+    - "sk-[a-zA-Z0-9]{48}"
+    - "FASTMAIL_[A-Z0-9_]+"
+network_egress:
+  allow_local: true
+  allowed_domains:
+    - "github.com"
+    - "registry.npmjs.org"
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Coding Agent (Claude Code)
+    participant Bionic as Bionic Shell Core
+    participant AST as AST Analyzer
+    participant FS as CoW OverlayFS
+    participant Host as OS Kernel
+
+    Agent->>Bionic: Execute "rm -rf /etc/config && pytest"
+    Bionic->>AST: Inspect Command AST
+    AST-->>Bionic: ALERT: Blocked path "/etc" detected
+    Bionic->>FS: Revert OverlayFS to Checkpoint 0
+    Bionic-->>Agent: Error 403: Blocked path execution. State restored.
 ```
 
 ## CLI examples
 
-### 1. Interactive Agent Execution Sandbox
+### 1. Wrapping Agent Sessions in Bionic Sandbox
 ```bash
-# Wrap an agent session inside Bionic Shell guardrails
-bionic-sh -c "claude-code --auto-approve"
+# Execute Claude Code inside Bionic Shell sandbox with strict policy
+bionic-sh --policy ./policy.yaml -c "claude-code --auto-approve"
 ```
 
-### 2. Inspecting Command Safety Dry-Run
+### 2. Analyzing Command AST in Dry-Run Mode
 ```bash
-# Evaluate safety of LLM-generated bash script without executing
-bionic-sh analyze --script setup_environment.sh
+# Evaluate AI-generated shell script without executing on host
+bionic-sh analyze --script deploy_stack.sh --format json
 ```
 
-### 3. Snapshot Checkpoint Management
+### 3. Managing Snapshot Checkpoints
 ```bash
-# Create manual filesystem checkpoint before running unknown agent task
-bionic-sh checkpoint create --name "pre-refactor"
+# Create manual snapshot checkpoint prior to running risky build task
+bionic-sh checkpoint create --name "pre-agent-refactor"
+
+# Restore clean state after agent failure
+bionic-sh checkpoint restore --name "pre-agent-refactor"
 ```
 
 ## API examples
 
-### Python Integration with Bionic Shell Execution
+### FastMCP 3.1 Bionic Shell Security Tool Server
+The following Python implementation provides a FastMCP 3.1 server exposing safe terminal command execution to AI coding agents via Bionic Shell:
+
 ```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Bionic Shell Tool Server.
+Provides sandboxed command execution and snapshot management for AI agents.
+"""
+
 import subprocess
 import json
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
-def run_agent_command_safely(command: str):
-    # Execute command wrapped in Bionic Shell JSON output mode
-    result = subprocess.run(
-        ["bionic-sh", "--json", "-c", command],
-        capture_output=True,
-        text=True
-    )
-    return json.loads(result.stdout)
+mcp = FastMCP(
+    name="Bionic Shell Sandbox",
+    version="3.1.0",
+    description="AST-guarded sandboxed terminal execution server for developer agents"
+)
 
-output = run_agent_command_safely("git status && pytest")
-print(f"Safety status: {output.get('safety_status')}")
+@mcp.tool()
+def execute_sandboxed_command(command: str, policy_path: str = "./policy.yaml") -> Dict[str, Any]:
+    """
+    Executes a shell command safely inside Bionic Shell AST sandbox environment.
+    """
+    try:
+        res = subprocess.run(
+            ["bionic-sh", "--policy", policy_path, "--json", "-c", command],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        output_data = json.loads(res.stdout) if res.stdout else {}
+        return {
+            "status": "success" if res.returncode == 0 else "failed",
+            "return_code": res.returncode,
+            "stdout": output_data.get("stdout", res.stdout),
+            "stderr": output_data.get("stderr", res.stderr),
+            "safety_verdict": output_data.get("safety_status", "PASSED"),
+            "mutations_count": output_data.get("filesystem_mutations", 0)
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Programmatic Python Integration with Pydantic v2 Policy Validation
-The following script demonstrates validating Bionic Shell command execution policies and parsing safety metrics using **Pydantic v2** models.
-
+### Pydantic v2 Contract Validation for Bionic Reports
 ```python
 import sys
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-class BionicCommandEvaluation(BaseModel):
-    raw_command: str = Field(..., description="Original command string evaluated")
-    ast_safe: bool = Field(..., description="Whether command AST passed safety heuristics")
+class ASTCommandEvaluation(BaseModel):
+    raw_command: str = Field(..., description="Original raw command text")
+    is_ast_safe: bool = Field(..., description="True if AST passes policy heuristics")
     blocked_calls: List[str] = Field(default_factory=list, description="Intercepted unsafe calls")
-    filesystem_mutations: int = Field(..., description="Number of file modifications detected")
+    filesystem_mutations: int = Field(0, description="Count of modified files")
 
 class BionicSandboxReport(BaseModel):
-    session_id: str
-    security_level: str
-    evaluation: BionicCommandEvaluation
-    rollback_ready: bool
+    session_id: str = Field(..., description="Unique sandbox session UUID")
+    security_level: str = Field("Strict", description="Active security profile")
+    evaluation: ASTCommandEvaluation
+    rollback_ready: bool = Field(True, description="True if snapshot checkpoint is active")
 
-def parse_bionic_report(raw_json: dict) -> Optional[BionicSandboxReport]:
+    @field_validator("security_level")
+    @classmethod
+    def validate_level(cls, v: str) -> str:
+        allowed = {"Permissive", "Moderate", "Strict", "AirGapped"}
+        if v not in allowed:
+            raise ValueError(f"Invalid security level: {v}")
+        return v
+
+def validate_bionic_execution_report(payload_dict: dict) -> str:
     try:
-        return BionicSandboxReport.model_validate(raw_json)
-    except ValidationError as ve:
-        print(f"Pydantic Validation Error for Bionic Shell report: {ve}", file=sys.stderr)
-        return None
+        report = BionicSandboxReport.model_validate(payload_dict)
+        return report.model_dump_json(indent=2)
+    except ValidationError as err:
+        print(f"Validation Failure for Bionic Report: {err}", file=sys.stderr)
+        raise
 
 if __name__ == "__main__":
-    print("Validating Bionic Shell safety report output...")
-
-    sample_report = {
-        "session_id": "bionic-sess-88192",
+    sample_payload = {
+        "session_id": "bionic_sess_9901_az",
         "security_level": "Strict",
         "evaluation": {
-            "raw_command": "rm -rf /tmp/build && git checkout main",
-            "ast_safe": True,
+            "raw_command": "npm test && git status",
+            "is_ast_safe": True,
             "blocked_calls": [],
-            "filesystem_mutations": 12
+            "filesystem_mutations": 4
         },
         "rollback_ready": True
     }
 
-    validated = parse_bionic_report(sample_report)
-    if validated:
-        print("Bionic Shell Safety Report Validated Successfully:")
-        print(f"  Session ID: {validated.session_id}")
-        print(f"  Security Level: {validated.security_level}")
-        print(f"  Command Safe: {validated.evaluation.ast_safe}")
-        print(f"  Mutations Tracked: {validated.evaluation.filesystem_mutations}")
-    else:
-        print("Validation failed.", file=sys.stderr)
+    validated_json = validate_bionic_execution_report(sample_payload)
+    print("Successfully validated Bionic Shell Sandbox Report:")
+    print(validated_json)
 ```
 
 ## Related tools / concepts
-- [Claude Code Container MCP](claude-code-container-mcp.md) — Sandboxed execution environment for Claude Code.
-- [Axiom Guardian](axiom-guardian.md) — Security guardrails for agentic execution.
-- [Free Will MCP](free-will-mcp.md) — Permissioned OS-level tool access server.
-- [OpenCode](opencode.md) — Multi-model developer workspace.
-- [Claude Code](claude-code.md) — Terminal coding agent.
+- [Claude Code Container MCP](claude-code-container-mcp.md)
+- [Axiom Guardian](axiom-guardian.md)
+- [Claude Code](claude-code.md)
+- [Aider](aider.md)
+- [OpenCode](opencode.md)
+- [Free Will MCP](free-will-mcp.md)
+- [Component Map](../../architecture/component_map.md)
 
 ## Sources / references
-- [The New Stack: Bionic Shell Command Safety Announcement](https://thenewstack.io/bionic-shell-command-safety/)
-- [POSIX Shell Security Standards](https://pubs.opengroup.org/onlinepubs/9699919799/)
+- [The New Stack: Bionic Shell Command Safety Standard](https://thenewstack.io/bionic-shell-command-safety/)
+- [POSIX Shell Security Standards (IEEE Std 1003.1)](https://pubs.opengroup.org/onlinepubs/9699919799/)
+- [Bionic Shell Official Documentation](https://bionicshell.dev/docs)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
