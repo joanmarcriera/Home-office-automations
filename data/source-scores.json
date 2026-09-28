@@ -40,6 +40,11 @@
       "integrated": 5,
       "score": 1.0
     },
+    "antigravity.google?ref=2026-09-21-audit](https:": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "antigravity.google](https:": {
       "discovered": 1,
       "integrated": 1,
@@ -76,9 +81,9 @@
       "score": 1.0
     },
     "arxiv.org": {
-      "discovered": 4,
+      "discovered": 5,
       "integrated": 4,
-      "score": 1.0
+      "score": 0.8
     },
     "assistantbench.github.io": {
       "discovered": 1,
@@ -126,8 +131,8 @@
       "score": 1.0
     },
     "bloomberg.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "braintrustdata.com": {
@@ -151,8 +156,8 @@
       "score": 1.0
     },
     "clawhub.ai": {
-      "discovered": 2,
-      "integrated": 2,
+      "discovered": 3,
+      "integrated": 3,
       "score": 1.0
     },
     "cline.bot": {
@@ -256,8 +261,8 @@
       "score": 1.0
     },
     "docs.docker.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "docs.github.com": {
@@ -296,8 +301,8 @@
       "score": 1.0
     },
     "docs.pydantic.dev": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "docs.python.org": {
@@ -331,8 +336,8 @@
       "score": 1.0
     },
     "en.wikipedia.org": {
-      "discovered": 3,
-      "integrated": 3,
+      "discovered": 4,
+      "integrated": 4,
       "score": 1.0
     },
     "exa.ai": {
@@ -416,8 +421,8 @@
       "score": 1.0
     },
     "github.com": {
-      "discovered": 327,
-      "integrated": 327,
+      "discovered": 331,
+      "integrated": 331,
       "score": 1.0
     },
     "glaive.ai": {
@@ -465,6 +470,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "hailuo.ai?ref=2026-09-21-audit](https:": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "hailuo.ai](https:": {
       "discovered": 1,
       "integrated": 1,
@@ -501,9 +511,9 @@
       "score": 1.0
     },
     "huggingface.co": {
-      "discovered": 32,
+      "discovered": 33,
       "integrated": 32,
-      "score": 1.0
+      "score": 0.97
     },
     "hydra.rightsify.com": {
       "discovered": 1,
@@ -516,8 +526,8 @@
       "score": 1.0
     },
     "ifttt.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "infoq.com": {
@@ -546,8 +556,8 @@
       "score": 1.0
     },
     "jmap.io": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "joplinapp.org": {
@@ -770,6 +780,11 @@
       "integrated": 2,
       "score": 1.0
     },
+    "nebius.com?ref=2026-09-21-audit](https:": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "nebius.com](https:": {
       "discovered": 1,
       "integrated": 1,
@@ -796,8 +811,8 @@
       "score": 1.0
     },
     "nextjs.org": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "nomic.ai": {
@@ -826,8 +841,8 @@
       "score": 1.0
     },
     "oauth.net": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "obsidian.md": {
@@ -851,9 +866,9 @@
       "score": 1.0
     },
     "openai.com": {
-      "discovered": 24,
+      "discovered": 27,
       "integrated": 24,
-      "score": 1.0
+      "score": 0.89
     },
     "openbb.co": {
       "discovered": 1,
@@ -881,8 +896,8 @@
       "score": 1.0
     },
     "optuna.org": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "os-world.github.io": {
@@ -931,8 +946,8 @@
       "score": 1.0
     },
     "podman.io": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "posthog.com": {
@@ -1026,9 +1041,9 @@
       "score": 1.0
     },
     "reddit.com": {
-      "discovered": 165,
-      "integrated": 165,
-      "score": 1.0
+      "discovered": 175,
+      "integrated": 166,
+      "score": 0.95
     },
     "render.com": {
       "discovered": 1,
@@ -1121,16 +1136,21 @@
       "score": 1.0
     },
     "squidfunk.github.io": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "stableaudio.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "stackone.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
-    "stackone.com": {
+    "stdio.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -1141,8 +1161,8 @@
       "score": 1.0
     },
     "suno.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "supabase.com": {
@@ -1161,8 +1181,8 @@
       "score": 1.0
     },
     "tailwindcss.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "tanstack.com": {
@@ -1171,8 +1191,8 @@
       "score": 1.0
     },
     "taskfile.dev": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "tasks.google.com": {
@@ -1196,9 +1216,9 @@
       "score": 1.0
     },
     "thenewstack.io": {
-      "discovered": 59,
+      "discovered": 60,
       "integrated": 59,
-      "score": 1.0
+      "score": 0.98
     },
     "todoist.com": {
       "discovered": 1,
@@ -1241,8 +1261,8 @@
       "score": 1.0
     },
     "v0.dev": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "v0.dev](https:": {
@@ -1276,8 +1296,8 @@
       "score": 1.0
     },
     "wandb.ai": {
-      "discovered": 3,
-      "integrated": 3,
+      "discovered": 4,
+      "integrated": 4,
       "score": 1.0
     },
     "weaviate.io": {
@@ -1316,10 +1336,10 @@
       "score": 1.0
     },
     "zilliz.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     }
   },
-  "updated": "2026-09-21"
+  "updated": "2026-09-28"
 }
