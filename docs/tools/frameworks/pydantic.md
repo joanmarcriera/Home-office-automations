@@ -228,8 +228,8 @@ if __name__ == "__main__":
 - [Pydantic AI](pydantic-ai.md)
 - [Instructor](instructor.md)
 - [FastAPI](fastapi.md)
-- [LangChain](langchain.md)
-- [LlamaIndex](llama-index.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
 
 ## Sources / references
 - [Pydantic Official Documentation](https://docs.pydantic.dev/)

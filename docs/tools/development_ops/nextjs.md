@@ -257,7 +257,7 @@ export async function POST(req: Request) {
 
 ## Related tools / concepts
 - [Vercel](vercel.md) — Cloud platform designed specifically for Next.js deployments.
-- [Tailwind CSS](tailwindcss.md) — Utility-first CSS framework natively supported in Next.js.
+- [Tailwind CSS](tailwind-css.md) — Utility-first CSS framework natively supported in Next.js.
 - [v0.dev](v0-dev.md) — Generative UI tool producing production Next.js React code.
 - [Claude Code](claude-code-setup.md) — Command-line agent for scaffolding Next.js applications.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting LLMs to tools.

@@ -157,7 +157,7 @@ if __name__ == "__main__":
 - [MiniMax](minimax.md) — Multi-modal foundation model provider ecosystem.
 - [Sora](../ai_knowledge/sora.md) — OpenAI generative video model.
 - [Project Genie](../ai_knowledge/project-genie.md) — Google DeepMind interactive world synthesis model.
-- [Runway ML](runway.md) — Generative video and creative media suite.
+- [Runway ML](../ai_knowledge/runwayml.md) — Generative video and creative media suite.
 
 ## Sources / references
 - [Hailuo AI Web Portal](https://hailuo.ai)

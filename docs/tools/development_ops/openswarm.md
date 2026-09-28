@@ -229,7 +229,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Claude Code](./claude-code.md) — Anthropic's CLI tool that OpenSwarm orchestrates.
 - [Anthropic](../providers/anthropic.md) — The underlying LLM provider.
-- [Multi-Agent Systems](../../knowledge_base/patterns/agent_protocols.md) — Architectural patterns for agent coordination.
+- [Multi-Agent Systems](../../knowledge_base/agent_protocols.md) — Architectural patterns for agent coordination.
 - [Plandex](./plandex.md) — For complex, multi-file engineering tasks.
 - [Aider](./aider.md) — Terminal-native pair programming.
 - [Mentat](./mentat.md) — Multi-file AI editing.

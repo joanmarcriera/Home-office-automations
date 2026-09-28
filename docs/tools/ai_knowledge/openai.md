@@ -296,8 +296,8 @@ if __name__ == "__main__":
 | **Realtime WebRTC Connection Drop** | Network NAT traversal failure or expired ephemeral session token. | Ensure TURN server configuration is active and refresh ephemeral tokens before initialization. |
 
 ## Related tools / concepts
-- [Model Context Protocol (MCP)](mcp.md) — Standard protocol for connecting OpenAI models to local tools.
-- [Whisper](../development_ops/whisper.md) — OpenAI open-weights speech recognition model.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting OpenAI models to local tools.
+- [Whisper](../../services/whisper.md) — OpenAI open-weights speech recognition model.
 - [Azure OpenAI Service](../providers/azure-ai-search.md) — Enterprise cloud hosting platform for OpenAI models.
 - [Local LLMs](local_llms.md) — Open-source alternatives (Llama 3, Gemma 3, Qwen) for local deployments.
 - [LangChain / LangGraph](../frameworks/langflow.md) — Orchestration frameworks supporting OpenAI APIs.

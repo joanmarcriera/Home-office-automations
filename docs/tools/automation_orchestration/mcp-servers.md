@@ -193,7 +193,7 @@ if __name__ == "__main__":
 - [MCP Registry](mcp-registry.md) — Central directory for open-source MCP servers.
 - [Model Context Protocol (MCP)](mcp.md) — Protocol specification and architecture overview.
 - [FastMCP 3.1](mcp.md) — SDK for building Python MCP servers.
-- [Paperless MCP](paperless-mcp.md) — Specialized MCP server for Paperless-ngx document indexing.
+- [Paperless-ngx](../../services/paperless-ngx.md) — Specialized MCP server target for Paperless-ngx document indexing.
 - [Vikunja MCP](vikunja-mcp.md) — MCP server interface for Vikunja task management.
 
 ## Sources / references
