@@ -161,7 +161,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Argo Workflows](argo-workflows.md) — Kubernetes-native workflow orchestration engine.
 - [Prefect](prefect.md) — Python data workflow orchestration platform.
-- [Dagster](../development_ops/dagster.md) — Data assets orchestration framework.
+- [Dagster](dagster.md) — Data assets orchestration framework.
 - [Kubernetes](../infrastructure/k3s.md) — Container orchestration substrate.
 
 ## Sources / references

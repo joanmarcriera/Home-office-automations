@@ -299,7 +299,7 @@ JSON-RPC payload invoked by AI agent orchestrators to retrieve Bloomberg market 
 ## Related tools / concepts
 - [Hebbia](hebbia.md) — Enterprise AI search platform for financial documents.
 - [Glean](glean.md) — AI enterprise search and knowledge discovery engine.
-- [OpenBB](../research_analysis/openbb.md) — Open-source investment research platform.
+- [OpenBB](../ai_knowledge/openbb.md) — Open-source investment research platform.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting LLMs to external tools.
 
 ## Sources / references

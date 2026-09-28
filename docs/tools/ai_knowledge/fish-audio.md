@@ -294,8 +294,8 @@ if __name__ == "__main__":
 | **CUDA Kernel Mismatch** | Incompatible PyTorch or CUDA runtime versions during local compile. | Install matching PyTorch + CUDA toolkit binaries (`pip install torch --index-url https://download.pytorch.org/whl/cu121`). |
 
 ## Related tools / concepts
-- [Whisper](../development_ops/whisper.md) — OpenAI speech recognition standard paired with Fish Audio.
-- [Model Context Protocol (MCP)](mcp.md) — Standard protocol for connecting Fish Audio voice servers to AI agents.
+- [Whisper](../../services/whisper.md) — OpenAI speech recognition standard paired with Fish Audio.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting Fish Audio voice servers to AI agents.
 - [Local LLMs](local_llms.md) — On-premise language models driving text inputs for speech generation.
 - [vLLM](../infrastructure/vllm.md) — Low-latency inference framework supporting Fish Audio backends.
 - [LiveKit](../infrastructure/livekit.md) — Real-time WebRTC framework for deploying interactive voice agents.

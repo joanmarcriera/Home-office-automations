@@ -255,7 +255,7 @@ if __name__ == "__main__":
 - [Datadog](datadog.md) — Enterprise APM and log management platform.
 - [OpenTelemetry Collector](opentelemetry-collector.md) — Standardized vendor-neutral telemetry proxy.
 - [Pydantic AI](../frameworks/pydantic-ai.md) — Production agent framework built on Pydantic v2.
-- [FastAPI](fastapi.md) — Asynchronous Python web framework.
+- [FastAPI](../frameworks/fastapi.md) — Asynchronous Python web framework.
 - [Instructor](../frameworks/instructor.md) — Structured LLM outputs library powered by Pydantic.
 - [W&B Weave](wandb-weave.md) — LLM evaluation and trace logging system.
 

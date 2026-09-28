@@ -260,7 +260,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Axolotl](axolotl.md) — Declarative LLM fine-tuning framework.
 - [Llama-Factory](llama-factory.md) — Unified LLM training dashboard and suite.
-- [Unsloth](unsloth.md) — High-performance single-GPU fine-tuning.
+- [Unsloth](../infrastructure/unsloth.md) — High-performance single-GPU fine-tuning.
 - [vLLM](../infrastructure/vllm.md) — High-throughput inference engine.
 - [SGLang](../infrastructure/sglang.md) — Structured execution engine.
 

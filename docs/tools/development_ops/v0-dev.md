@@ -370,11 +370,11 @@ export function BillingCard({
 
 ## Related tools / concepts
 - [Next.js](nextjs.md) — Enterprise React framework standard targeted by v0 exports.
-- [Tailwind CSS](tailwindcss.md) — Utility-first CSS styling framework integrated into v0 components.
+- [Tailwind CSS](tailwind-css.md) — Utility-first CSS styling framework integrated into v0 components.
 - [Vercel](vercel.md) — Cloud platform hosting v0.dev and serverless application infrastructure.
 - [Claude Code](claude-code-setup.md) — Agentic CLI tool capable of driving v0 frontend additions autonomously.
 - [Shadcn UI](https://ui.shadcn.com/) — Reusable component library primitives utilized by v0.
-- [Model Context Protocol (MCP)](mcp.md) — Standard protocol for integrating v0 generation into AI tool chains.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for integrating v0 generation into AI tool chains.
 
 ## Sources / References
 - [v0.dev Official Website](https://v0.dev/)
