@@ -50,14 +50,16 @@ To run Wan-Dancer-14B locally:
    ```
 
 ## CLI examples
-Registering a Wan-Dancer generation server via MCP:
-```bash
-mcp register "wan-dancer-api" --command "python" --args "mcp_server.py --checkpoint ./weights/wan-dancer-14b"
-```
 
-Generating a 30-second clip via CLI:
 ```bash
+# Registering a Wan-Dancer generation server via MCP
+mcp register "wan-dancer-api" --command "python" --args "mcp_server.py --checkpoint ./weights/wan-dancer-14b"
+
+# Generating a 30-second clip via CLI
 wan-dancer-cli generate --input "beat.wav" --text "ballet on ice" --output "output.mp4" --fps 30
+
+# Inspect model weights and local caching status
+wan-dancer-cli info --checkpoint ./weights/wan-dancer-14b
 ```
 
 ## API examples
@@ -117,7 +119,7 @@ if __name__ == "__main__":
 - **[ElevenLabs](elevenlabs.md)**: Industry-leading audio generation and voice synthesis API.
 - **[Fish Audio](fish-audio.md)**: High-performance open-source voice synthesis and cloning.
 
-## Sources / References
+## Sources / references
 - [Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation](https://arxiv.org/abs/2607.09581)
 - [Official GitHub Repository](https://github.com/Wan-Video/Wan-Dancer)
 - [HuggingFace: Wan-Dancer-14B](https://huggingface.co/Wan-AI/Wan-Dancer-14B)

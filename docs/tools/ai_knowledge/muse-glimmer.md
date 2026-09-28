@@ -58,13 +58,15 @@ print(processor.batch_decode(generate_ids, skip_special_tokens=True)[0])
 
 ## CLI examples
 
-### Direct Ingestion & Feature Extraction
 ```bash
-# Analyze visual input and output structured report via Hugging Face CLI
-huggingface-cli run muse-glimmer-8b \
-  --image ./document.png \
-  --prompt "Extract all text blocks and table structures into JSON" \
-  --output ./parsed_doc.json
+# Serve Muse Glimmer GGUF model locally via llama.cpp
+llama serve -hf meta-models/Muse-Glimmer-30B-GGUF
+
+# Serve Muse Glimmer with tensor parallelism across GPUs using vLLM
+vllm serve meta-models/Muse-Glimmer-30B --model-impl transformers --tensor-parallel-size 2
+
+# Inspect model repository and files on Hugging Face Hub
+huggingface-cli scan-cache --repo-id meta-models/Muse-Glimmer-30B
 ```
 
 ## API examples
