@@ -1,7 +1,7 @@
 # OpenAI Platform & Models
 
 ## What it is
-OpenAI is an artificial intelligence research deployment organization and platform provider powering frontier AI capabilities across multimodal text, vision, speech, code, and reasoning. Operating in early 2027, the platform offers model families including **GPT-5**, **GPT-5.5**, **o3**, **o3-mini**, and **o4**, alongside specialized speech models (Whisper-large-v3, tts-1-hd) and embeddings (text-embedding-3-large).
+OpenAI is an artificial intelligence research deployment organization and platform provider powering frontier AI capabilities across multimodal text, vision, speech, code, and reasoning. Operating in early 2027, the platform offers model families including **GPT-5**, **GPT-5.5**, **GPT-6 Sol**, **GPT-6 Luna**, **GPT-6 Astra**, **o3**, **o3-mini**, and **o4**, alongside specialized speech models (Whisper-large-v3, tts-1-hd) and embeddings (text-embedding-3-large).
 
 Through the OpenAI API, Enterprise endpoints, and Microsoft Azure OpenAI Service, developers access advanced features such as Structured Outputs (guaranteed JSON schema compliance), Realtime WebRTC voice streaming, automated Function Calling / Tool Use, Fine-Tuning, Batch Processing, and Assistants API primitives. OpenAI serves as a primary intelligence provider for enterprise automation, multi-agent frameworks, and FastMCP 3.1 ecosystems.
 
@@ -10,7 +10,7 @@ graph TD
     A[Client Request / Prompt] --> B[OpenAI Enterprise API Gateway]
 
     subgraph Model Intelligence Layers
-        B --> C[GPT-5 / GPT-5.5 Multimodal Frontier Models]
+        B --> C[GPT-5 / GPT-5.5 / GPT-6 Series Models]
         B --> D[o3 / o3-mini Deep Reasoning Engine]
         B --> E[Realtime Voice & WebRTC Engine]
         B --> F[text-embedding-3-large Embeddings]
@@ -280,6 +280,9 @@ if __name__ == "__main__":
 | Model | Target Workloads | Context Window | Max Output Tokens | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
 | **GPT-5 / GPT-5.5** | Multimodal reasoning, enterprise agents, complex instruction following | 256,000 tokens | 16,384 tokens | Advanced vision, audio processing, Structured Outputs, Function Calling |
+| **GPT-6 Sol** | High-efficiency enterprise LLM with alignment optimizations | 512,000 tokens | 32,768 tokens | Cost-optimized throughput, enhanced safety alignment, FastMCP 3.1 tool execution |
+| **GPT-6 Luna** | Low-latency rapid inference and Edge-to-Cloud dispatch | 256,000 tokens | 16,384 tokens | Sub-100ms time-to-first-token, streaming tool execution, lightweight footprint |
+| **GPT-6 Astra** | High-throughput parallel execution & async batch pipelines | 1,000,000 tokens | 65,536 tokens | Parallel execution, 70% time and cost reduction on batch jobs, deep multi-context window |
 | **o3** | Deep reasoning, formal logic, competitive coding, math verification | 200,000 tokens | 100,000 tokens | Search-tree reasoning tokens, multi-step problem solving |
 | **o3-mini** | Low-latency technical reasoning, fast coding, math, science | 128,000 tokens | 65,536 tokens | Cost-efficient deep reasoning, developer tool integration |
 | **Realtime API (gpt-4o-realtime)** | Speech-to-speech interactive voice agents | WebSocket / WebRTC | Streaming | Sub-300ms latency, native audio input/output, tool calling |

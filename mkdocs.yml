@@ -255,6 +255,7 @@ nav:
           - OMLab-VLX-Seek-15-10B: tools/ai_knowledge/omlab-vlx-seek.md
           - Otaku: tools/ai_knowledge/otaku.md
           - OpenAI: tools/ai_knowledge/openai.md
+          - Pirate Face: tools/ai_knowledge/pirate-face.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
           - Parlor: tools/ai_knowledge/parlor.md
@@ -322,6 +323,7 @@ nav:
           - Chatbot Arena: tools/benchmarking/chatbot-arena.md
           - DREAM Benchmark: tools/benchmarking/dream.md
           - EvalPlus: tools/benchmarking/evalplus.md
+          - EvalEval: tools/benchmarking/evaleval.md
           - GAIA (General AI Assistants): tools/benchmarking/gaia.md
           - Giskard: tools/benchmarking/giskard.md
           - Gpqa: tools/benchmarking/gpqa.md
