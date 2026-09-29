@@ -1,164 +1,318 @@
 # Junie CLI
 
 ## What it is
-Junie CLI is an AI-driven, high-speed, terminal-native codebase navigation and autonomous software engineering assistant developed under the JetBrains AI Lab initiative. As of early January 2027, the stable **v2.5+** release functions as an enterprise background daemon and CLI companion. Built with native support for the **FastMCP 3.1 Task Protocol**, it leverages state-of-the-art JetBrains models and frontier reasoning engines (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL) to deliver sub-second codebase search, tmux-native test orchestration, and semantic repository auditing.
+Junie CLI is an AI-driven, high-speed, terminal-native codebase navigation engine, semantic search indexer, and autonomous software engineering assistant developed under the JetBrains AI Lab initiative. In early 2027, the stable **v2.5+** release operates as a lightweight enterprise background daemon and CLI companion. Built with native support for the **FastMCP 3.1 Task Protocol**, Junie CLI combines JetBrains AST-based code analysis models with frontier reasoning engines (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL) to deliver sub-second repository search, tmux-native test orchestration, and automated git patch generation.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Junie CLI Daemon Architecture                           |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------+                    +--------------------------------+  |
+|  | Developer Terminal    |                    | Junie CLI Core Daemon          |  |
+|  | - Neovim / Helix / Zsh| -- FastMCP 3.1 --> |  - Rust AST Code Indexer       |  |
+|  | - Tmux Split Panes    |    (STDIO/IPC)     |  - Semantic Vector Cache       |  |
+|  +-----------------------+                    |  - FastMCP 3.1 Task Manager    |  |
+|                                               +---------------+----------------+  |
+|                                                               |                   |
+|                                                               v                   |
+|                                               +--------------------------------+  |
+|                                               | Tmux-Bridge Execution Loop     |  |
+|                                               |  - Background Test Monitoring  |  |
+|                                               |  - Buffer Capture & Parse      |  |
+|                                               +---------------+----------------+  |
+|                                                               |                   |
+|                                                               v                   |
+|                                               +--------------------------------+  |
+|                                               | JetBrains AST & Model Gateway  |  |
+|                                               |  - Local Codebase Graph DB     |  |
+|                                               |  - Claude 5.6 / GPT-5.6 APIs   |  |
+|                                               +--------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It eliminates the high-latency context switching and system resource consumption associated with heavy GUI IDEs. Remote developers working over SSH connections or inside multi-pane tmux workspaces gain real-time, repository-wide intelligence without leaving the command line. Furthermore, Junie CLI executes autonomous, multi-step agentic loops—running test suites, evaluating terminal buffer outputs, reading build failures, and applying self-correcting patches in isolated background panes.
+Developing software in complex, million-line repositories over remote SSH connections or inside multi-pane terminal multiplexers (`tmux`) often suffers from high context switching overhead and resource degradation caused by heavy graphical IDEs.
+
+Junie CLI eliminates these friction points by:
+1. **Sub-Second Codebase Navigation**: Combining high-performance Rust AST indexing with local vector embeddings to return instant semantic lookups without relying on GUI file trees.
+2. **Tmux-Bridge Autonomous Refactoring**: Spawning isolated background tmux panes to execute test suites, capture stdout/stderr build failures, and apply self-correcting code diffs autonomously.
+3. **AST-Guided Patch Accuracy**: Utilizing JetBrains code analysis trees to ensure patches strictly adhere to language grammar and type definitions before modifying files.
+4. **FastMCP 3.1 Sub-Agent Interoperability**: Exposing local repository inspection and refactoring capabilities as standardized FastMCP tools for external AI agent swarms.
 
 ## Where it fits in the stack
-**Development & Ops**. It serves as an **AI-Native Shell Companion and Orchestrator**, interfacing directly with local shells, Git repositories, search engines (like `rg` and `fd`), and FastMCP 3.1 model servers.
+**Development & Ops Layer**. Junie CLI acts as an **AI-Native Shell Companion and Code Orchestrator**. It sits directly inside the developer's terminal environment, interacting with local shells (zsh/bash), Neovim/Helix text editors, Git version control, and FastMCP model servers.
+
+## System Architecture & Technical Deep-Dive
+
+```mermaid
+graph TD
+    DeveloperCLI[Terminal Input / Neovim Keybinding] -->|1. Natural Language Task| JunieDaemon[Junie Daemon Engine]
+
+    JunieDaemon -->|2. AST Code Graph Query| RustIndexer[Rust AST & Vector Indexer]
+    RustIndexer -->|3. Relevant Context Snippets| JunieDaemon
+
+    JunieDaemon -->|4. Construct Agentic Task| ModelGateway[Frontier Model Gateway]
+    ModelGateway -->|5. Refactoring Plan & Diff| JunieDaemon
+
+    JunieDaemon -->|6. Spawn Background Split| TmuxBridge[Tmux-Bridge Executor]
+    TmuxBridge -->|7. Run Tests & Linter| TerminalPane[Isolated Background Tmux Pane]
+
+    TerminalPane -->|8. Terminal Output Buffer| TmuxBridge
+    TmuxBridge -->|9. Pass Output / Failures| JunieDaemon
+
+    JunieDaemon -->|10. Self-Correcting Iteration| ModelGateway
+    JunieDaemon -->|11. Final Validated Git Patch| DeveloperCLI
+```
+
+### 1. High-Performance Rust AST Indexer
+Junie CLI embeds a multi-threaded Rust indexing engine that parses source code files into Abstract Syntax Trees (AST) using Tree-sitter. It indexes symbols, function signatures, class inheritance hierarchies, and variable scopes, maintaining a local SQLite database for instant zero-latency queries.
+
+### 2. Tmux-Bridge Orchestrator
+To execute multi-step agentic workflows (e.g. "Fix broken unit tests in `src/auth/`"), Junie CLI uses its **Tmux-Bridge** component. It creates dedicated, non-blocking background tmux windows, runs build commands, captures terminal buffer outputs using `tmux capture-pane`, and analyzes stdout/stderr logs in real time.
+
+### 3. AST-Aware Diff Generator & Safety Gate
+When applying automated code edits, Junie CLI verifies proposed changes against the language's syntax graph. If a proposed edit introduces syntax errors or breaks imports, Junie CLI rejects the diff locally and prompts the reasoning engine for a corrected patch before altering files on disk.
+
+### 4. FastMCP 3.1 Task Protocol Integration
+Junie CLI operates as both an MCP client and an MCP server. It can consume tools from remote MCP servers (e.g. Sentry, GitHub, Jira) and expose its own repository indexing and refactoring tools over standard STDIO or HTTP/SSE transports.
 
 ## Typical use cases
-- **SSH-Based Remote Refactoring**: Running autonomous, multi-file code modifications on distant cloud servers over lightweight terminal sessions.
-- **Tmux-Bridge Test Automation**: Spawning isolated background tmux splits to execute test-run and code-fix loops, continuously monitoring build status until completion.
-- **Sub-Second Code Navigation**: Leveraging a high-performance local vector and keyword cache to map relational code dependencies instantly.
-- **Security & Compliance Auditing**: Programmatically verifying code changes against enterprise architecture rulesets before commits.
+- **Remote SSH Workspace Refactoring**: Performing complex codebase refactoring over SSH connections in lightweight terminal environments.
+- **Tmux-Native Test-Driven Development (TDD)**: Running autonomous loops that edit code, execute tests in a background tmux pane, read failure stack traces, and re-apply fixes until all tests pass.
+- **Sub-Second Code Navigation**: Querying code structure and dependency graphs via natural language (`junie ask "Where are user sessions initialized?"`).
+- **Pre-Commit Security & Ruleset Auditing**: Scanning staged git changes against enterprise architecture guidelines before pushing code.
 
 ## Strengths
-- **Tmux-Bridge Automation Matrix**: Native understanding of tmux window and pane hierarchies, enabling non-blocking background command execution and terminal buffer analysis.
-- **Native MCP 3.1 & FastMCP 3.1 Client/Server**: Programmatically streams execution contexts, tool schemas, and task resolution state across distributed agent networks.
-- **High-Performance Rust Indexer**: Sub-second indexing capability across million-line codebases with minimal memory overhead.
-- **Keyboard-First Interface**: Integrates cleanly into terminal workflows utilizing Vim, Neovim, Helix, or standard zsh/bash environments.
+- **Tmux-Native Background Automation**: Non-blocking background task execution with direct terminal buffer inspection.
+- **Sub-Second AST Indexing**: Blazing fast codebase indexing with minimal system memory footprint (<50MB RAM).
+- **JetBrains AST Code Intelligence**: Leverages deep language grammar parsing for precision code modifications.
+- **FastMCP 3.1 Protocol Client/Server**: Native support for modern agent tool schemas and sub-agent task routing.
+- **Keyboard-Driven Design**: Integrates directly with Neovim, Helix, Vim, zsh, and tmux.
 
 ## Limitations
-- **Terminal Only**: Lacks visual side-by-side GUI diff editors or mouse-driven interactive panels.
-- **UNIX & Tmux Curve**: Requires familiarity with command-line environment variables, shell pipelines, and tmux session management.
-- **API Token Bounded**: Long-horizon multi-file refactoring runs depend on access to frontier model endpoints (Claude 5.6 or GPT-5.6).
+- **Terminal Only**: Lacks visual drag-and-drop diff view UI; requires terminal-comfortable developers.
+- **Tmux Requirement for Background Loops**: Background execution features require `tmux` installed in the shell environment.
+- **API Token Dependent**: Autonomous multi-file refactoring runs require access to frontier model API keys (Claude 5.6 or GPT-5.6).
 
 ## When to use it
-- When working in keyboard-centric terminal environments (Neovim, Helix, tmux) over local or SSH connections.
-- When performing rapid code exploration, semantic indexing, or autonomous bug fixing in large codebases.
-- For integrating automated software refactoring tasks into continuous development workflows.
+- When working in keyboard-centric terminal environments (Neovim, Helix, tmux) on local or SSH remote development servers.
+- When executing complex multi-step refactoring runs that require continuous test verification.
+- When querying large million-line codebases with zero-latency semantic lookups.
 
 ## When not to use it
-- When daily development depends heavily on visual GUI layout managers, drag-and-drop debugging UI, or graphical timelines.
-- On offline or strictly air-gapped workstations without local LLM capabilities or external API access.
+- When developer workflows depend entirely on graphical mouse-driven IDEs (e.g. full JetBrains IntelliJ GUI or VS Code GUI).
+- In air-gapped environments lacking local LLM setups or external API connectivity.
 
 ## Getting started
 
 ### Installation
-Junie CLI v2.5+ is distributed as a global binary npm package or cargo crate:
+Install Junie CLI v2.5+ via Cargo or global NPM:
 
 ```bash
-# Globally install via npm
-npm install -g @jetbrains/junie-cli
-
-# Or compile from source via cargo
+# Global installation via Cargo (recommended)
 cargo install junie-cli
+
+# Or install via NPM package manager
+npm install -g @jetbrains/junie-cli
 ```
 
-### Basic Setup
-Initialize the workspace index and configure active model endpoints:
+### Initial Workspace Configuration
+Initialize the local AST vector index and configure model credentials:
+
 ```bash
-# Initialize local index db
+# Navigate to project repository root
+cd /path/to/project
+
+# Initialize AST indexer and local SQLite cache
 junie init
 
-# Set model endpoints and provider credentials
-junie configure --model claude-5.6 --provider anthropic
+# Configure frontier reasoning model provider
+junie config set model claude-5.6
+junie config set provider anthropic
 ```
 
 ## CLI examples
-The command-line interface provides fast, direct access to its agentic features.
 
-### Semantic Codebase Exploration
+### 1. Natural Language Semantic Query
+Query repository architecture and dependency relationships instantly:
+
 ```bash
-junie ask "Where are the FastMCP 3.1 session authentication contexts created and validated?"
+junie ask "How are JWT token refresh cycles handled in the FastMCP authentication pipeline?"
 ```
 
-### Tmux-Native Refactoring Run
+### 2. Tmux-Native Refactoring Run with Automated Test Verification
+Execute an autonomous refactoring loop in a background tmux pane:
+
 ```bash
-junie run "Refactor all authentication decorators in src/middleware/ to comply with FastMCP 3.1. Compile and execute npm test." --tmux-bridge
+junie run \
+  "Refactor all authentication middleware in src/auth/ to pass FastMCP 3.1 headers. Run 'cargo test' and fix any failures." \
+  --tmux-bridge \
+  --max-iterations 5
 ```
 
-### Workspace Architecture Audit
+### 3. Architecture Ruleset Compliance Audit
+Scan codebase against enterprise architectural rulesets:
+
 ```bash
-junie audit --ruleset "./rules/mcp-3.1-compliance.json" --output "./reports/audit_summary.md"
+junie audit \
+  --ruleset "./config/fastmcp-3.1-rules.json" \
+  --format markdown \
+  --output "./reports/codebase-compliance.md"
 ```
 
 ## API examples
 
-### JavaScript Custom Schema Integration
-Extend Junie CLI's daemon capabilities with custom plugin schemas loaded at runtime:
-
-```javascript
-// schema-audit-plugin.js
-export const skill = {
-  name: "schema-integrity-checker",
-  description: "Validates database schema configurations against FastMCP 3.1 rules",
-  async run(context) {
-    const schemas = await context.workspace.findFiles("**/db/schemas/*.json");
-    const violations = [];
-
-    for (const file of schemas) {
-      const parsed = JSON.parse(await file.read());
-      if (!parsed.hasOwnProperty("version") || parsed.version !== "3.1") {
-        violations.push({ file: file.path, message: "Outdated schema version. FastMCP 3.1 required." });
-      }
-    }
-
-    return {
-      status: violations.length === 0 ? "passed" : "failed",
-      violations
-    };
-  }
-};
-```
-
-### Python Programmatic Daemon Controller
-Wrap and orchestrate Junie's workspace-indexing features inside external Python workflows utilizing Pydantic v2 schemas:
+### FastMCP 3.1 Python Integration Server
+The following script exposes Junie CLI workspace refactoring capabilities as an agentic FastMCP tool server:
 
 ```python
-import subprocess
+import os
 import json
+import subprocess
+from typing import Dict, Any, Optional
+from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field
-from typing import List, Optional
 
-class JunieSearchResult(BaseModel):
-    file_path: str = Field(..., alias="file")
-    similarity_score: float = Field(..., alias="score")
-    matched_lines: List[int] = Field(..., alias="lines")
-    snippet: str
+mcp = FastMCP(
+    name="Junie Workspace Controller",
+    instructions="FastMCP 3.1 interface for executing Junie CLI codebase refactoring and semantic navigation"
+)
 
-class JunieResponse(BaseModel):
-    query: str
-    matches: List[JunieSearchResult]
-    execution_time_ms: int
+class JunieRefactorRequest(BaseModel):
+    task_description: str = Field(..., description="High-level description of refactoring task")
+    target_directory: str = Field(".", description="Relative directory path to restrict refactoring focus")
+    use_tmux_bridge: bool = Field(True, description="Execute test loops in background tmux pane")
+    max_iterations: int = Field(5, ge=1, le=10)
 
-def execute_semantic_lookup(query: str) -> Optional[JunieResponse]:
-    """Spawns the Junie CLI to execute a fast semantic lookup across the codebase."""
+class JunieRefactorResponse(BaseModel):
+    success: bool
+    applied_patches_count: int
+    iterations_used: int
+    summary: str
+
+@mcp.tool()
+
+def execute_junie_refactor(request_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Executes an autonomous refactoring task using the Junie CLI daemon.
+    """
     try:
-        res = subprocess.run(
-            ["junie", "search", query, "--format", "json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        data = json.loads(res.stdout)
-        return JunieResponse.model_validate(data)
-    except Exception as e:
-        print(f"Failed to query semantic daemon: {e}")
+        req = JunieRefactorRequest.model_validate(request_data)
+
+        cmd = [
+            "junie", "run", req.task_description,
+            "--path", req.target_directory,
+            "--max-iterations", str(req.max_iterations),
+            "--format", "json"
+        ]
+
+        if req.use_tmux_bridge:
+            cmd.append("--tmux-bridge")
+
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+
+        if res.returncode == 0:
+            parsed = json.loads(res.stdout)
+            response_obj = JunieRefactorResponse(
+                success=parsed.get("success", True),
+                applied_patches_count=parsed.get("patches_applied", 1),
+                iterations_used=parsed.get("iterations", 1),
+                summary=parsed.get("summary", "Refactoring task completed successfully")
+            )
+            return response_obj.model_dump()
+        else:
+            return {
+                "success": False,
+                "applied_patches_count": 0,
+                "iterations_used": 0,
+                "summary": f"Junie CLI returned error code {res.returncode}: {res.stderr}"
+            }
+
+    except Exception as err:
+        return {
+            "success": False,
+            "applied_patches_count": 0,
+            "iterations_used": 0,
+            "summary": f"Failed to execute Junie CLI daemon: {str(err)}"
+        }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Pydantic v2 Schema for Junie Diff Verification & Tmux Sessions
+This module demonstrates strict **Pydantic v2** validation of Junie CLI session states, semantic search results, and patch diff verification.
+
+```python
+import sys
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class JunieCodeMatch(BaseModel):
+    file_path: str = Field(..., description="Relative file path")
+    start_line: int = Field(..., ge=1)
+    end_line: int = Field(..., ge=1)
+    relevance_score: float = Field(..., ge=0.0, le=1.0)
+    code_snippet: str
+
+class JunieDiffBlock(BaseModel):
+    target_file: str
+    added_lines_count: int = Field(..., ge=0)
+    deleted_lines_count: int = Field(..., ge=0)
+    unified_diff: str
+
+class JunieTmuxSessionReport(BaseModel):
+    session_name: str
+    active_pane_id: str
+    command_executed: str
+    exit_code: int
+    stdout_buffer: str
+    diffs: List[JunieDiffBlock] = Field(default_factory=list)
+
+def validate_junie_session_output(raw_json: dict) -> Optional[JunieTmuxSessionReport]:
+    try:
+        report = JunieTmuxSessionReport.model_validate(raw_json)
+        print(f"Validated Junie Session '{report.session_name}' successfully.")
+        print(f"  Command Exit Code: {report.exit_code}")
+        print(f"  Patched Files Count: {len(report.diffs)}")
+        return report
+    except ValidationError as ve:
+        print(f"Pydantic Validation Error for Junie session: {ve}", file=sys.stderr)
         return None
 
-# Execute lookup
-response = execute_semantic_lookup("JWT token validation payload")
-if response:
-    print(f"Found {len(response.matches)} files in {response.execution_time_ms}ms")
+if __name__ == "__main__":
+    sample_json = {
+        "session_name": "junie-refactor-9912",
+        "active_pane_id": "%4",
+        "command_executed": "cargo test --package auth",
+        "exit_code": 0,
+        "stdout_buffer": "running 12 tests... test result: ok. 12 passed; 0 failed",
+        "diffs": [
+            {
+                "target_file": "src/auth/jwt.rs",
+                "added_lines_count": 14,
+                "deleted_lines_count": 3,
+                "unified_diff": "@@ -12,3 +12,14 @@ pub fn validate_token..."
+            }
+        ]
+    }
+
+    validate_junie_session_output(sample_json)
 ```
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md)
-- [ripgrep (rg)](ripgrep.md)
-- [Aider](aider.md)
-- [Melty](melty.md)
-- [Sourcegraph Cody](sourcegraph_cody.md)
-- [Terminus 2](terminus-2.md)
-- [GPT Engineer](gpt_engineer.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Claude Code](claude-code.md) — Anthropic CLI agentic tool.
+- [Aider](aider.md) — Command-line AI pair programming tool.
+- [ripgrep (rg)](ripgrep.md) — High-speed line-oriented search tool.
+- [Melty](melty.md) — Open-source AI code assistant.
+- [Sourcegraph Cody](sourcegraph_cody.md) — AI codebase assistant with search integration.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open protocol for AI tools.
 
 ## Sources / references
-- [JetBrains Junie CLI Homepage](https://junie.jetbrains.com/)
-- [JetBrains AI Lab Research and Documentation Portal](https://blog.jetbrains.com/ai/)
+- [JetBrains Junie CLI Product Homepage](https://junie.jetbrains.com/)
+- [JetBrains AI Lab Research and Development Portal](https://blog.jetbrains.com/ai/)
 - [GitHub - JetBrains Junie CLI Repository](https://github.com/jetbrains/junie)
 
 ---
