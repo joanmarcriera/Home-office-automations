@@ -654,6 +654,12 @@
       "doc_path": "docs/tools/ai_knowledge/copy-ai.md"
     },
     {
+      "id": "coreweave",
+      "name": "CoreWeave",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/coreweave.md"
+    },
+    {
       "id": "coveo",
       "name": "Coveo",
       "category": "Enterprise AI",
@@ -1800,6 +1806,12 @@
       "name": "LiveCodeBench",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/livecodebench.md"
+    },
+    {
+      "id": "livekit",
+      "name": "LiveKit",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/livekit.md"
     },
     {
       "id": "llama",

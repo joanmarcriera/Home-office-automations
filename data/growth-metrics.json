@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-09-29",
-  "total_docs": 573,
-  "tool_docs": 520,
+  "total_docs": 575,
+  "tool_docs": 522,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -12,13 +12,13 @@
     "development_ops": 74,
     "enterprise": 16,
     "frameworks": 36,
-    "infrastructure": 58,
+    "infrastructure": 60,
     "intake_storage": 10,
     "orchestration": 10,
     "process_understanding": 41,
     "providers": 38
   },
-  "docs_with_code_examples": 573,
+  "docs_with_code_examples": 575,
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/tools/development_ops/open-terminal.md",
@@ -26,7 +26,7 @@
     "docs/tools/infrastructure/deepseek-dsec.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 3,
+  "weekly_additions": 2,
   "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
