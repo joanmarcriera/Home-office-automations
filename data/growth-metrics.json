@@ -1,13 +1,13 @@
 {
   "snapshot_date": "2026-09-29",
-  "total_docs": 563,
-  "tool_docs": 510,
+  "total_docs": 565,
+  "tool_docs": 512,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
-    "ai_knowledge": 102,
+    "ai_knowledge": 103,
     "automation_orchestration": 34,
-    "benchmarking": 41,
+    "benchmarking": 42,
     "calendar_tasks": 22,
     "development_ops": 70,
     "enterprise": 16,
@@ -18,11 +18,11 @@
     "process_understanding": 41,
     "providers": 38
   },
-  "docs_with_code_examples": 563,
+  "docs_with_code_examples": 565,
   "docs_without_code_examples": 0,
   "shallow_docs": [],
   "underdeveloped_categories": [],
-  "weekly_additions": 0,
+  "weekly_additions": 2,
   "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
