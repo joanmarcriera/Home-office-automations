@@ -756,6 +756,12 @@
       "doc_path": "docs/tools/providers/deepseek.md"
     },
     {
+      "id": "deepseek-dsec",
+      "name": "DeepSeek Elastic Compute (DSec)",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/deepseek-dsec.md"
+    },
+    {
       "id": "deepseek-r1",
       "name": "DeepSeek R1",
       "category": "AI Assistants & Knowledge",
@@ -2121,6 +2127,12 @@
       "doc_path": "docs/tools/ai_knowledge/ming-image.md"
     },
     {
+      "id": "mini-agi",
+      "name": "mini-AGI",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/mini-agi.md"
+    },
+    {
       "id": "minimax",
       "name": "MiniMax",
       "category": "Providers",
@@ -2462,6 +2474,12 @@
       "name": "Open Interpreter",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/open-interpreter.md"
+    },
+    {
+      "id": "open-terminal",
+      "name": "open-terminal",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/open-terminal.md"
     },
     {
       "id": "open-webui",

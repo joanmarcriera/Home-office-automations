@@ -1,7 +1,7 @@
 # Anthropic Claude
 
 ## What it is
-Anthropic is an AI safety and research company that produces the Claude family of foundation models. As of early January 2027, it operates as a premier proprietary intelligence provider, offering frontier models including **Claude 5.1 Sonnet**, **Claude 5.1 Opus**, **Claude 5 Haiku**, and **Claude Mythos 2**. These models excel in autonomous software engineering, multi-step tool execution, complex reasoning, long-context window processing, and AI safety via Constitutional AI principles.
+Anthropic is an AI safety and research company that produces the Claude family of foundation models. As of early 2027, it operates as a premier proprietary intelligence provider, offering frontier models including **Claude Opus 5.5**, **Claude 5.1 Sonnet**, **Claude 5.1 Opus**, **Claude 5 Haiku**, and **Claude Mythos 2**. These models excel in autonomous software engineering, multi-step tool execution, complex reasoning, long-context window processing, and AI safety via Constitutional AI principles.
 
 In early 2027, Anthropic's native integration with **FastMCP 3.1** (Model Context Protocol) positions Claude as the standard reasoning engine for developer tooling, local agent execution, and autonomous software factory orchestrators.
 
@@ -21,6 +21,7 @@ graph TD
     Router -->|High-Volume / Fast Task| Haiku[Claude 5 Haiku]
     Router -->|Default Coding & Engineering| Sonnet[Claude 5.1 Sonnet]
     Router -->|Hard Synthesis & Browser Agent| Opus[Claude 5.1 Opus]
+    Router -->|Ultra-Complex Reasoning & Software Factories| Opus55[Claude Opus 5.5]
     Router -->|Frontier Simulation| Mythos[Claude Mythos 2]
     Sonnet -->|Tool Call Execution| LocalTools[FastMCP 3.1 Local Tools / Workspace]
 ```
@@ -38,6 +39,7 @@ graph TD
 | **Haiku 5** | Fast classification, extraction, rewriting, and high-volume, cost-sensitive tasks | No |
 | **Sonnet 5.1** | Default coding, planning, tool use, and daily production engineering | Yes |
 | **Opus 5.1** | Premium escalation for hard synthesis, autonomous browser execution, and complex logic | No |
+| **Opus 5.5** | Highest-end frontier reasoning, multi-repo architectural synthesis, autonomous software factory orchestration | No |
 | **Mythos 2** | Frontier-scale simulations and high-reliability software factory architectures | No |
 
 ## Strengths
