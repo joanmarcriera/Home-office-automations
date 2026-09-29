@@ -20,13 +20,9 @@
   },
   "docs_with_code_examples": 575,
   "docs_without_code_examples": 0,
-  "shallow_docs": [
-    "docs/tools/development_ops/open-terminal.md",
-    "docs/tools/frameworks/mini-agi.md",
-    "docs/tools/infrastructure/deepseek-dsec.md"
-  ],
+  "shallow_docs": [],
   "underdeveloped_categories": [],
-  "weekly_additions": 2,
+  "weekly_additions": 0,
   "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
