@@ -243,6 +243,7 @@ nav:
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Mellum2: tools/ai_knowledge/mellum2.md
           - MicroGPT: tools/ai_knowledge/microgpt.md
+          - Ming-Image-0.1-Design: tools/ai_knowledge/ming-image.md
           - Muse Glimmer: tools/ai_knowledge/muse-glimmer.md
           - Moondream: tools/ai_knowledge/moondream.md
           - Nano Banana: tools/ai_knowledge/nano-banana.md
@@ -262,6 +263,7 @@ nav:
           - Project Genie: tools/ai_knowledge/project-genie.md
           - Python: tools/ai_knowledge/python.md
           - Qwen: tools/ai_knowledge/qwen.md
+          - Qwen Image 2.1: tools/ai_knowledge/qwen-image.md
           - Roam Research: tools/ai_knowledge/roam-research.md
           - Runway ML: tools/ai_knowledge/runwayml.md
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
@@ -428,6 +430,7 @@ nav:
           - OpenCode: tools/development_ops/opencode.md
           - OpenSwarm: tools/development_ops/openswarm.md
           - Openhands: tools/development_ops/openhands.md
+          - OpenVINO: tools/development_ops/openvino.md
           - Optuna: tools/development_ops/optuna.md
           - Plandex: tools/development_ops/plandex.md
           - Playwright: tools/development_ops/playwright.md
@@ -436,10 +439,12 @@ nav:
           - Superconductor: tools/development_ops/superconductor.md
           - Sweep Dev: tools/development_ops/sweep_dev.md
           - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
+          - stuntd: tools/development_ops/stuntd.md
           - Tailwind CSS: tools/development_ops/tailwind-css.md
           - TrellisCPP: tools/development_ops/trelliscpp.md
           - Tabnine: tools/development_ops/tabnine.md
           - Terminus 2: tools/development_ops/terminus-2.md
+          - Unsloth Studio: tools/development_ops/unsloth-studio.md
           - Vercel: tools/development_ops/vercel.md
           - Vercel OSS: tools/development_ops/vercel-oss.md
           - Vercel v0 API: tools/development_ops/vercel-v0-api.md
