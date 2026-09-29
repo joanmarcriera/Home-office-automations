@@ -1,7 +1,7 @@
 # OpenAI Platform & Models
 
 ## What it is
-OpenAI is an artificial intelligence research deployment organization and platform provider powering frontier AI capabilities across multimodal text, vision, speech, code, and reasoning. Operating in early 2027, the platform offers model families including **GPT-5**, **GPT-5.5**, **o3**, **o3-mini**, and **o4**, alongside specialized speech models (Whisper-large-v3, tts-1-hd) and embeddings (text-embedding-3-large).
+OpenAI is an artificial intelligence research deployment organization and platform provider powering frontier AI capabilities across multimodal text, vision, speech, code, and reasoning. Operating in early 2027, the platform offers model families including **GPT-6 Sol**, **GPT-6 Luna**, **GPT-6 Astra**, **GPT-5**, **GPT-5.5**, **o3**, **o3-mini**, and **o4**, alongside specialized speech models (Whisper-large-v3, tts-1-hd) and embeddings (text-embedding-3-large).
 
 Through the OpenAI API, Enterprise endpoints, and Microsoft Azure OpenAI Service, developers access advanced features such as Structured Outputs (guaranteed JSON schema compliance), Realtime WebRTC voice streaming, automated Function Calling / Tool Use, Fine-Tuning, Batch Processing, and Assistants API primitives. OpenAI serves as a primary intelligence provider for enterprise automation, multi-agent frameworks, and FastMCP 3.1 ecosystems.
 
@@ -279,6 +279,9 @@ if __name__ == "__main__":
 
 | Model | Target Workloads | Context Window | Max Output Tokens | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
+| **GPT-6 Sol** | High-efficiency frontier reasoning, aligned enterprise intelligence, cost-optimized scale | 512,000 tokens | 32,768 tokens | Cost-efficient alignment, multimodal reasoning, FastMCP 3.1 & Pydantic v2 support |
+| **GPT-6 Luna** | Ultra-fast lightweight execution, sub-100ms API routing, edge & local sidecar integration | 256,000 tokens | 16,384 tokens | Low latency, highly optimized execution, efficient tool invocation |
+| **GPT-6 Astra** | Highly parallelized compute workloads, speculative execution, batch processing scale | 512,000 tokens | 65,536 tokens | Parallel execution, reduced cost & time for large-scale agentic pipelines |
 | **GPT-5 / GPT-5.5** | Multimodal reasoning, enterprise agents, complex instruction following | 256,000 tokens | 16,384 tokens | Advanced vision, audio processing, Structured Outputs, Function Calling |
 | **o3** | Deep reasoning, formal logic, competitive coding, math verification | 200,000 tokens | 100,000 tokens | Search-tree reasoning tokens, multi-step problem solving |
 | **o3-mini** | Low-latency technical reasoning, fast coding, math, science | 128,000 tokens | 65,536 tokens | Cost-efficient deep reasoning, developer tool integration |

@@ -928,6 +928,12 @@
       "doc_path": "docs/tools/ai_knowledge/endlessfrontier.md"
     },
     {
+      "id": "evaleval",
+      "name": "EvalEval",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/evaleval.md"
+    },
+    {
       "id": "evalplus",
       "name": "EvalPlus",
       "category": "Benchmarking",
@@ -2648,6 +2654,12 @@
       "name": "Pipedream",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/pipedream.md"
+    },
+    {
+      "id": "pirate-face",
+      "name": "Pirate Face",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/pirate-face.md"
     },
     {
       "id": "plandex",

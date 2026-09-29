@@ -258,6 +258,7 @@ nav:
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
           - Parlor: tools/ai_knowledge/parlor.md
+          - Pirate Face: tools/ai_knowledge/pirate-face.md
           - Project Genie: tools/ai_knowledge/project-genie.md
           - Python: tools/ai_knowledge/python.md
           - Qwen: tools/ai_knowledge/qwen.md
@@ -314,6 +315,7 @@ nav:
       - Benchmarking:
           - Overview: tools/benchmarking/index.md
           - AlpacaEval: tools/benchmarking/alpaca-eval.md
+          - EvalEval: tools/benchmarking/evaleval.md
           - ARC (AI2 Reasoning Challenge): tools/benchmarking/arc.md
           - ASDiv: tools/benchmarking/asdiv.md
           - AssistantBench: tools/benchmarking/assistant-bench.md
