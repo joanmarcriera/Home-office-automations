@@ -2115,6 +2115,12 @@
       "doc_path": "docs/tools/infrastructure/milvus.md"
     },
     {
+      "id": "ming-image",
+      "name": "Ming-Image-0.1-Design",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/ming-image.md"
+    },
+    {
       "id": "minimax",
       "name": "MiniMax",
       "category": "Providers",
@@ -2542,6 +2548,12 @@
       "doc_path": "docs/tools/process_understanding/opentelemetry-collector.md"
     },
     {
+      "id": "openvino",
+      "name": "OpenVINO",
+      "category": "Development & Operations",
+      "doc_path": "docs/tools/development_ops/openvino.md"
+    },
+    {
       "id": "optuna",
       "name": "Optuna",
       "category": "Development & Ops",
@@ -2824,6 +2836,12 @@
       "doc_path": "docs/tools/ai_knowledge/qwen.md"
     },
     {
+      "id": "qwen-image",
+      "name": "Qwen Image 2.1",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/qwen-image.md"
+    },
+    {
       "id": "radicale",
       "name": "Radicale",
       "category": "Intake & Storage",
@@ -3067,6 +3085,12 @@
       "name": "Storj Node",
       "category": "Intake & Storage",
       "doc_path": "docs/services/storj.md"
+    },
+    {
+      "id": "stuntd",
+      "name": "stuntd",
+      "category": "Development & Operations",
+      "doc_path": "docs/tools/development_ops/stuntd.md"
     },
     {
       "id": "suno",
@@ -3352,6 +3376,12 @@
       "name": "Unsloth",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/unsloth.md"
+    },
+    {
+      "id": "unsloth-studio",
+      "name": "Unsloth Studio",
+      "category": "Development & Operations",
+      "doc_path": "docs/tools/development_ops/unsloth-studio.md"
     },
     {
       "id": "unstructured",
