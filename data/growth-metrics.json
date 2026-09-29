@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-09-29",
-  "total_docs": 570,
-  "tool_docs": 517,
+  "total_docs": 573,
+  "tool_docs": 520,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
@@ -9,20 +9,24 @@
     "automation_orchestration": 34,
     "benchmarking": 42,
     "calendar_tasks": 22,
-    "development_ops": 73,
+    "development_ops": 74,
     "enterprise": 16,
-    "frameworks": 35,
-    "infrastructure": 57,
+    "frameworks": 36,
+    "infrastructure": 58,
     "intake_storage": 10,
     "orchestration": 10,
     "process_understanding": 41,
     "providers": 38
   },
-  "docs_with_code_examples": 570,
+  "docs_with_code_examples": 573,
   "docs_without_code_examples": 0,
-  "shallow_docs": [],
+  "shallow_docs": [
+    "docs/tools/development_ops/open-terminal.md",
+    "docs/tools/frameworks/mini-agi.md",
+    "docs/tools/infrastructure/deepseek-dsec.md"
+  ],
   "underdeveloped_categories": [],
-  "weekly_additions": 5,
+  "weekly_additions": 3,
   "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
