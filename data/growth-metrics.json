@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-09-28",
+  "snapshot_date": "2026-09-29",
   "total_docs": 563,
   "tool_docs": 510,
   "service_docs": 53,
@@ -23,7 +23,7 @@
   "shallow_docs": [],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
-  "intake_items_7d": 17,
+  "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }
