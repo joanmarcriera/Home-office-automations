@@ -1,145 +1,252 @@
 # Audiobookshelf
 
-Audiobookshelf is a self-hosted audiobook and podcast server.
+Audiobookshelf is a self-hosted, open-source media server specifically designed for managing, organizing, and streaming audiobooks, podcasts, and long-form spoken-word content.
 
 ## What it is
-Audiobookshelf is a specialized media server designed specifically for the unique needs of spoken-word audio. Unlike general media servers like [Plex](plex.md) or [Jellyfin](jellyfin.md), it prioritizes chapter management, narrator metadata, and progress tracking for long-form audio. As of early January 2027, it supports automated narration analysis and semantic indexing via **MCP 3.1 / FastMCP**, allowing agents like **Gemma 3**, **Qwen 3.8**, **GPT-5.5**, and **Claude 5.1** to query library content and generate summaries.
+Audiobookshelf is a specialized media streaming platform optimized for spoken-word audio structures. Unlike general-purpose music and video servers such as [Plex](plex.md) or [Jellyfin](jellyfin.md), Audiobookshelf prioritizes single-file and multi-file book layouts, chapter markers, author and narrator metadata, bookmark synchronization, and precise listening position retention across multiple clients and users.
+
+As of 2027, Audiobookshelf features native **FastMCP 3.1** and **Model Context Protocol (MCP)** integration. This enables AI agent runtimes (such as **Claude 5.1**, **GPT-5.5**, **Gemma 3**, and **Qwen 3.8**) to query library catalog metadata, inspect chapter structures, manage playlists, trigger automated transcriptions via local [Whisper](whisper.md) pipelines, and sync bookmarks programmatically.
 
 ## What problem it solves
-It solves the poor experience of managing audiobooks in music-centric applications. It handles multi-file books, detects chapters automatically from metadata or file structures, and provides a dedicated mobile interface for offline listening without losing your place.
+Managing spoken-word audio in general music or video media players presents severe usability hurdles:
+- **Position Loss & Lack of Cross-Device Sync**: Music players frequently lose track of hours-long playback positions when switching between desktop and mobile devices.
+- **Poor Metadata Organization**: Music tags (album, artist, track number) fail to accommodate author, narrator, series order, publisher, and unabridged status.
+- **Inadequate Chapter Support**: Long single-file audiobooks or multi-part MP3/M4B releases require robust embedded metadata parsing and silence-detection chapter generators.
+- **Missing Podcast Management**: Audiobookshelf unifies personal DRM-free audiobook libraries with auto-downloading private podcast feeds in a single web and mobile interface.
+
+Audiobookshelf solves these challenges by implementing dedicated data schemas for books and podcasts, multi-user progress tracking, and open REST and MCP interfaces.
+
+## System Architecture
+
+```
+                                  Audiobookshelf Ecosystem & MCP Architecture
+
+  +-----------------------+        +-----------------------------------+        +-----------------------------------+
+  | Web UI & Mobile Apps  | ---->  | Audiobookshelf Core Server        | ---->  | Audio Storage & Libraries         |
+  | - iOS / Android Apps  |        | - Node.js Express REST Engine     |        | - /audiobooks                     |
+  | - CarPlay / Auto      |        | - SQLite Metadata Database        |        | - /podcasts                       |
+  +-----------------------+        +-----------------------------------+        +-----------------------------------+
+                                                     ^                                            ^
+                                                     |                                            |
+  +-----------------------+        +-----------------------------------+        +-----------------------------------+
+  | AI Agents & LLMs      | ---->  | FastMCP 3.1 Audiobookshelf Bridge | ---->  | Whisper Transcription Service     |
+  | - Claude 5.1 / GPT-5.5|        | - JSON-RPC / SSE MCP Protocol     |        | - Local Speech-to-Text Pipeline   |
+  | - Natural Querying    |        | - Pydantic v2 Validated API Calls |        | - Chapter & Semantic Search       |
+  +-----------------------+        +-----------------------------------+        +-----------------------------------+
+```
 
 ## Where it fits in the stack
-In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits alongside tools like [Plex](plex.md) (video) and [Navidrome](navidrome.md) (music) to provide a complete self-hosted media ecosystem. It can be integrated with [Agentic Workflows](../knowledge_base/patterns/agentic-workflows.md) via its **MCP 3.1** server to automate metadata cleanup and transcript generation.
+Within a self-hosted homelab or enterprise knowledge architecture, Audiobookshelf functions as the **Spoken Word & Audio Knowledge Server**:
+1. **Media Layer**: Sits alongside [Navidrome](navidrome.md) (music) and [Jellyfin](jellyfin.md) (video) as the specialized hub for narrative audio.
+2. **Knowledge Base Ingestion**: Connects with [Knowledge Management](../knowledge_base/README.md) patterns and [n8n](n8n.md) workflows to ingest speech-to-text transcripts into vector databases (e.g., [Qdrant](qdrant.md)).
+3. **Agentic Tooling Integration**: Serves as an MCP resource provider, allowing conversational agents to inspect reading histories and recommend books based on user preferences.
 
 ## Typical use cases
-- **Personal Audiobook Library**: Hosting and streaming owned DRM-free audiobook collections.
-- **Private Podcast Aggregator**: Downloading and serving podcast feeds for private consumption.
-- **Bedtime Stories**: Setting up a child-friendly interface for audio stories with controlled access.
-- **AI-Enhanced Transcripts**: Using local [Whisper](whisper.md) instances to generate searchable transcripts for podcasts and books.
-- **Semantic Library Search**: Querying your collection via [Claude 5.1](../tools/providers/anthropic.md) to find "books about stoicism narrated by a British voice."
+- **Personal DRM-Free Library Streaming**: Hosting, organizing, and streaming personal M4B, MP3, FLAC, and AAC audiobook collections.
+- **Cross-Device Listening**: Seamlessly resuming playback across web browsers, Android, iOS, Android Auto, and Apple CarPlay.
+- **Private Podcast Aggregation**: Subscribing to public or authenticated podcast RSS feeds with automatic background episode downloads.
+- **Automated AI Summarization & Search**: Using local [Whisper](whisper.md) instances to generate timestamps, chapter transcripts, and searchable text for long-form lectures and podcasts.
+- **Multi-User Family Sharing**: Providing individual accounts with custom permissions, listening stats, and isolated progress state for household members.
 
 ## Strengths
-- **Native Mobile Apps**: Excellent Android and iOS apps with full offline support and CarPlay/Android Auto integration.
-- **Robust Metadata**: Fetches data from Audible, Open Library, Google Books, and specialized narrator databases.
-- **Multi-User Support**: Separate progress tracking for every family member with automatic token refresh.
-- **MCP 3.1 / FastMCP Support**: Native integration for autonomous agent library management, playlist creation, and structured querying.
-- **Chapter Discovery**: Automatically detects chapters even in single-file audiobooks using silence detection and metadata.
+- **Purpose-Built UI/UX**: Interfaces tailored specifically for audiobooks, featuring speed control, sleep timers, volume boost, and chapter selection.
+- **Rich Metadata Matching**: Automated metadata retrieval from Audible, Google Books, Open Library, iTunes, and Discogs.
+- **Native FastMCP 3.1 Integration**: Direct support for agentic querying, tool invocation, and automated library maintenance via Model Context Protocol.
+- **Offline Download & Sync**: Mobile applications allow full offline library sync with automatic background progress updates once reconnected.
+- **Folder and Embedded Tag Parsing**: Capable of inferring series, authors, and chapters from folder hierarchies or ID3/M4B embedded tags.
 
 ## Limitations
-- **Narrow Focus**: Not suitable for general music collections (use [Navidrome](navidrome.md)) or video.
-- **Metadata Quality**: Highly dependent on the quality of external sources for older or obscure titles.
-- **Transcoding Overhead**: High-quality transcoding for mobile devices can be CPU-intensive on older hardware.
+- **Not Suited for Music**: Lacks music-centric features like album artist grouping, lyrics support, dynamic playlists by BPM, or last.fm scrobbling (use [Navidrome](navidrome.md)).
+- **Transcoding CPU Overhead**: On-the-fly audio transcoding for low-bandwidth mobile connections can require significant CPU resources if hardware acceleration is unavailable.
+- **E-Book Viewer Limitations**: While basic EPUB/PDF reading is supported, it is primarily an audio platform rather than a dedicated e-reader server like Calibre-Web.
 
 ## When to use it
-- When you want a dedicated, high-quality experience for audiobooks that general media servers do not provide.
-- When you want to host your own private podcast feeds and manage their storage.
-- When you need reliable offline listening with dedicated mobile applications for commuting or travel.
-- To integrate your spoken-word library into [Knowledge Management](../knowledge_base/README.md) patterns.
+- When you possess an owned collection of DRM-free audiobooks or lecture series and want a polished, sync-enabled streaming experience.
+- When you want to combine audiobook streaming with custom, auto-downloaded podcast feeds.
+- When building AI workflow pipelines that require querying audio transcripts, chapters, and listening habits via MCP 3.1.
+- When requiring multi-user access with isolated listening statistics and progress boundaries.
 
 ## When not to use it
-- When you only have a few audiobooks and already use [Jellyfin](jellyfin.md) for everything else.
-- When you strictly use commercial services like Audible and do not own your audio files.
-- For high-fidelity music streaming, where [Navidrome](navidrome.md) is the superior choice.
+- When managing high-fidelity music collections (use [Navidrome](navidrome.md)).
+- When seeking a video streaming or full-featured home theater solution (use [Jellyfin](jellyfin.md) or [Plex](plex.md)).
+- When exclusively reading static EPUB or PDF e-books without audio components (use Calibre-Web or Kavita).
 
 ## Getting started
 
-### Docker Compose
-The recommended way to run Audiobookshelf (v2.16.0+, 2027 edition) for persistent configuration and easy updates:
+### Docker Compose Setup
+Deploy Audiobookshelf using Docker Compose for simple persistence, configuration, and upgrades:
 
 ```yaml
+version: "3.8"
+
 services:
   audiobookshelf:
     container_name: audiobookshelf
     image: ghcr.io/advplyr/audiobookshelf:latest
     ports:
-      - 1337:80
+      - "1337:80"
     volumes:
-      - /path/to/audiobooks:/audiobooks
-      - /path/to/podcasts:/podcasts
-      - /path/to/config:/config
-      - /path/to/metadata:/metadata
+      - /srv/audiobookshelf/audiobooks:/audiobooks
+      - /srv/audiobookshelf/podcasts:/podcasts
+      - /srv/audiobookshelf/config:/config
+      - /srv/audiobookshelf/metadata:/metadata
     environment:
       - AUDIOBOOKSHELF_UID=1000
       - AUDIOBOOKSHELF_GID=1000
+      - TZ=America/New_York
     restart: unless-stopped
 ```
 
-Access the web interface at `http://localhost:1337`.
+After launching the service (`docker compose up -d`), navigate to `http://localhost:1337` to create the initial administrator account and register media root paths.
 
 ## CLI examples
-Management is mostly web-based, but you can interact with the container for maintenance:
+
+### 1. Checking Container Logs and Health
+Inspect server startup routines and library scanner execution:
 
 ```bash
-# View server logs
-docker logs audiobookshelf
+# View real-time container logs
+docker logs -f audiobookshelf
 
-# List files in the audiobooks directory
-docker exec audiobookshelf ls /audiobooks
+# Execute internal SQLite maintenance
+docker exec -it audiobookshelf sqlite3 /config/abs.sqlite "PRAGMA integrity_check;"
+```
 
-# Restart the service
-docker restart audiobookshelf
+### 2. Manual Trigger of Library Rescan via Curl
+Trigger an automated library rescan via the REST API:
+
+```bash
+curl -X POST "http://localhost:1337/api/libraries/lib_audiobooks_01/scan" \
+  -H "Authorization: Bearer <YOUR_ABS_API_TOKEN>" \
+  -H "Content-Type: application/json"
+```
+
+### 3. Backup Server Configuration and Database
+Create a compressed archive of server settings and user progress state:
+
+```bash
+docker exec audiobookshelf tar -czf /metadata/abs_backup_$(date +%Y%m%d).tar.gz /config /metadata
 ```
 
 ## API examples
-Audiobookshelf provides a REST API and an **MCP 3.1** server for management and streaming:
 
-```bash
-# Get all libraries (requires Bearer Token)
-curl -X GET "http://localhost:1337/api/libraries" \
-  -H "Authorization: Bearer <YOUR_TOKEN>"
-```
-
-### Python API with Pydantic Validation
-Here is a Python example utilizing **Pydantic v2** to model, parse, and validate audiobook metadata payloads retrieved from the Audiobookshelf REST API or via MCP tool definitions:
+### 1. FastMCP 3.1 Server Integration for Audiobookshelf
+The following complete Python application uses **FastMCP 3.1** and **Pydantic v2** to create an MCP microservice that allows AI agents to inspect libraries, query items, and update listening positions:
 
 ```python
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+import requests
+import os
 from typing import List, Optional
 
-class AudiobookMetadataModel(BaseModel):
-    """
-    Pydantic v2 model representing Audiobook shelf library item metadata
-    synchronized or updated via API/MCP.
-    """
-    id: str = Field(..., description="Unique audiobook library item ID")
-    title: str = Field(..., min_length=1, description="Title of the book")
-    author: str = Field(..., description="Author of the book")
-    narrator: Optional[str] = Field(None, description="Narrator(s) of the audiobook")
-    duration: float = Field(..., description="Total play duration in seconds")
-    genres: List[str] = Field(default_factory=list, description="Associated genres")
-    progress: float = Field(default=0.0, ge=0.0, le=1.0, description="Listening progress ratio (0.0 to 1.0)")
+mcp = FastMCP("Audiobookshelf-Agent-Bridge")
 
-# Example API payload validation
-raw_data = {
-    "id": "book_09876",
-    "title": "Meditations",
-    "author": "Marcus Aurelius",
-    "narrator": "Richard Armitage",
-    "duration": 18230.5,
-    "genres": ["Philosophy", "Stoicism", "Classics"],
-    "progress": 0.45
+ABS_BASE_URL = os.getenv("ABS_BASE_URL", "http://localhost:1337")
+ABS_API_TOKEN = os.getenv("ABS_API_TOKEN", "your_secret_bearer_token")
+
+HEADERS = {
+    "Authorization": f"Bearer {ABS_API_TOKEN}",
+    "Content-Type": "application/json"
 }
 
-audiobook = AudiobookMetadataModel.model_validate(raw_data)
-print(f"Validated Audiobook: '{audiobook.title}' by {audiobook.author} (Narrator: {audiobook.narrator})")
-print(f"Progress: {audiobook.progress * 100:.1f}% complete ({audiobook.duration * audiobook.progress:.1f}s listened)")
+class ChapterSchema(BaseModel):
+    id: int
+    start: float
+    end: float
+    title: str
+
+class LibraryItemSchema(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(..., description="Audiobookshelf unique item identifier")
+    title: str = Field(..., description="Book title")
+    author: Optional[str] = Field("Unknown", description="Author name")
+    duration: float = Field(..., description="Total length in seconds")
+    progress: float = Field(default=0.0, description="Listening completion ratio (0.0 to 1.0)")
+    chapters: List[ChapterSchema] = Field(default_factory=list)
+
+class UpdateProgressRequest(BaseModel):
+    item_id: str = Field(..., description="Library item ID")
+    current_time_seconds: float = Field(..., description="Current playback position in seconds")
+    duration_seconds: float = Field(..., description="Total book duration in seconds")
+
+@mcp.tool()
+def search_audiobook_catalog(query: str) -> str:
+    """Search the Audiobookshelf library catalog by title or author."""
+    url = f"{ABS_BASE_URL}/api/libraries/lib_audiobooks_01/items?q={query}"
+    resp = requests.get(url, headers=HEADERS)
+    if resp.status_code != 200:
+        return f"Error querying catalog: {resp.status_code} - {resp.text}"
+
+    data = resp.json().get("results", [])
+    parsed_items = []
+    for raw in data:
+        media = raw.get("media", {})
+        metadata = media.get("metadata", {})
+        parsed_items.append(
+            LibraryItemSchema(
+                id=raw.get("id"),
+                title=metadata.get("title", "Untitled"),
+                author=metadata.get("authorName", "Unknown"),
+                duration=media.get("duration", 0.0),
+                progress=raw.get("userProgress", {}).get("progress", 0.0),
+                chapters=[
+                    ChapterSchema(
+                        id=c.get("id", 0),
+                        start=c.get("start", 0.0),
+                        end=c.get("end", 0.0),
+                        title=c.get("title", f"Chapter {idx}")
+                    ) for idx, c in enumerate(media.get("chapters", []))
+                ]
+            )
+        )
+    return f"Found {len(parsed_items)} items:\n" + "\n".join([i.model_dump_json() for i in parsed_items])
+
+@mcp.tool()
+def update_listening_progress(req: UpdateProgressRequest) -> str:
+    """Update listening progress for a specific library item via FastMCP 3.1."""
+    url = f"{ABS_BASE_URL}/api/me/progress/{req.item_id}"
+    progress_ratio = req.current_time_seconds / req.duration_seconds if req.duration_seconds > 0 else 0.0
+    payload = {
+        "currentTime": req.current_time_seconds,
+        "duration": req.duration_seconds,
+        "progress": progress_ratio,
+        "isFinished": progress_ratio >= 0.99
+    }
+    resp = requests.patch(url, headers=HEADERS, json=payload)
+    if resp.status_code in (200, 204):
+        return f"Successfully updated progress for {req.item_id} to {progress_ratio * 100:.1f}%"
+    return f"Failed to update progress: {resp.status_code} - {resp.text}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
+### 2. Audiobookshelf REST API Endpoint Reference
+
+| HTTP Method | Endpoint Path | Description | Required Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/libraries` | List all configured libraries (audiobooks & podcasts) | Bearer Token |
+| `GET` | `/api/libraries/{id}/items` | Retrieve paginated catalog items for a specific library | Bearer Token |
+| `GET` | `/api/items/{id}` | Get detailed metadata, chapters, and audio files for an item | Bearer Token |
+| `PATCH` | `/api/me/progress/{id}` | Update listening progress, duration, and completion status | Bearer Token |
+| `POST` | `/api/podcasts/feed` | Add a new podcast subscription feed URL | Bearer Token / Admin |
+
 ## Related tools / concepts
-- [Jellyfin](jellyfin.md) — Open-source media server for video and photos.
-- [Plex](plex.md) — Popular media server alternative.
-- [Navidrome](navidrome.md) — Dedicated server for music streaming.
-- [n8n](n8n.md) — For automating media ingestion and notifications.
-- [Whisper](whisper.md) — For local AI transcription of audio files.
-- [Authentik](authentik.md) — For managing multi-user SSO access.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standard for agentic library orchestration.
-- [Local LLMs](../tools/ai_knowledge/local_llms.md) — For running Gemma 3 for library analysis.
-- [Claude 5.1](../tools/providers/anthropic.md) — Frontier model for high-fidelity narration summaries.
+- [Navidrome](navidrome.md) — Dedicated Subsonic-compatible music streaming server.
+- [Jellyfin](jellyfin.md) — Open-source video, TV, and general media platform.
+- [Plex](plex.md) — Media server platform with broad client device support.
+- [Whisper](whisper.md) — Automatic speech recognition for generating audiobook transcripts.
+- [n8n](n8n.md) — Automation tool for webhook-driven ingestion and notification pipelines.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Agentic framework for exposing media tool APIs.
+- [Authentik](authentik.md) — Identity provider for single sign-on (SSO) authentication.
 
 ## Sources / references
-- [Audiobookshelf Official Site](https://www.audiobookshelf.org/)
-- [GitHub Repository](https://github.com/advplyr/audiobookshelf)
-- [Audiobookshelf MCP Server GitHub](https://github.com/advplyr/mcp-server-audiobookshelf)
+- [Audiobookshelf Official Documentation](https://www.audiobookshelf.org/docs)
+- [Audiobookshelf GitHub Repository](https://github.com/advplyr/audiobookshelf)
+- [Audiobookshelf MCP Server Repository](https://github.com/advplyr/mcp-server-audiobookshelf)
+- [Audiobookshelf REST API OpenAPI Spec](https://api.audiobookshelf.org/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
