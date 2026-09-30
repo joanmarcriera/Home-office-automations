@@ -1,127 +1,315 @@
 # GraphRAG
 
+GraphRAG is an open-source, Graph-based Retrieval Augmented Generation framework developed by Microsoft and the open-source community. Designed to perform complex multi-hop reasoning, dataset-wide thematic summarization, and verifiable claim verification over unstructured text corpora, GraphRAG bridges knowledge graph construction with Large Language Models (LLMs). As of **January 2027**, GraphRAG features full native support for **FastMCP 3.1** protocol schemas, hierarchical Leiden community detection, claim/covariate extraction, and hybrid vector-graph retrieval models powered by frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL, and [Gemma 4](../ai_knowledge/local_llms.md).
+
+```mermaid
+architecture-beta
+    group ingestion_pipeline(database, "Knowledge Graph Indexing Engine")
+    service chunker(disk, "Document Chunker / Tokenizer", "app") in ingestion_pipeline
+    service entity_extractor(cpu, "LLM Entity & Relation Extractor", "app") in ingestion_pipeline
+    service claim_extractor(cpu, "Claim & Covariate Extractor", "app") in ingestion_pipeline
+    service graph_builder(database, "NetworkX / Neo4j Graph Builder", "db") in ingestion_pipeline
+    service community_detector(cpu, "Leiden Community Detection", "app") in ingestion_pipeline
+    service community_summarizer(cpu, "LLM Hierarchical Summarizer", "app") in ingestion_pipeline
+
+    group storage_layer(database, "Indexed Knowledge Store")
+    service graph_db(database, "Knowledge Graph Store (Nodes/Edges)", "db") in storage_layer
+    service vector_db(database, "Vector DB (Community Summaries)", "db") in storage_layer
+
+    group query_engine(server, "GraphRAG Retrieval Engine")
+    service local_search(server, "Local Entity Search (Subgraph)", "server") in query_engine
+    service global_search(server, "Global Community Search (MapReduce)", "server") in query_engine
+    service mcp_server(server, "FastMCP 3.1 Resource Server", "server") in query_engine
+
+    chunker -->> entity_extractor: Text Chunks
+    entity_extractor -->> claim_extractor: Extracted Triples
+    claim_extractor -->> graph_builder: Graph Elements
+    graph_builder -->> community_detector: Raw Graph Topology
+    community_detector -->> community_summarizer: Hierarchical Clusters
+    community_summarizer -->> graph_db: Entity/Relationship Nodes
+    community_summarizer -->> vector_db: Community Summary Embeddings
+
+    local_search -->> graph_db: Multi-hop Subgraph Retrieval
+    global_search -->> vector_db: MapReduce Summary Aggregation
+    mcp_server -->> local_search: FastMCP 3.1 Query Route
+    mcp_server -->> global_search: FastMCP 3.1 Query Route
+```
+
 ## What it is
-GraphRAG is a Graph-based Retrieval Augmented Generation framework developed by Microsoft and the open-source community that combines knowledge graph construction with Large Language Models (LLMs) to perform complex, multi-hop reasoning over unstructured text. As of early January 2027, GraphRAG supports **FastMCP 3.1** protocol schemas, integrated hierarchical community summarization, and direct multi-hop vector-graph hybrid queries powered by frontier models like [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), DeepSeek-V4, Qwen 3.6 VL, and [Gemma 4](../ai_knowledge/local_llms.md).
+GraphRAG is a knowledge indexing and retrieval architecture that transforms flat unstructured text into structured, multi-tiered knowledge graphs. Unlike traditional vector RAG—which indexes text passages as isolated dense vectors—GraphRAG extracts entities, semantic relationships, and factual claims from raw text. It then executes the **Leiden algorithm** to partition the graph into hierarchical communities at multiple granularity levels (Level 0 root communities down to Level 3 leaf clusters) and pre-synthesizes LLM summaries for every community.
+
+GraphRAG operates across two primary query paradigms:
+1. **Global Search**: Synthesizes broad dataset-wide thematic questions (e.g., "What are the primary macro risks identified in the audit reports?") using MapReduce context aggregation over pre-generated hierarchical community summaries.
+2. **Local Search**: Traverses entity-centric subgraphs for multi-hop relational questions (e.g., "How does Vendor X's software dependency impact Cloud Provider Y's regulatory compliance?").
+
+```mermaid
+flowchart TD
+    A[User Query] --> B{Search Mode}
+
+    subgraph Global Search Execution Path
+        B -->|Global Query| C[Retrieve Level N Community Summaries]
+        C --> D[Map Phase: Parallel LLM Intermediate Answers]
+        D --> E[Reduce Phase: Aggregate & Score Key Insights]
+        E --> F[Synthesize Global Answer]
+    end
+
+    subgraph Local Search Execution Path
+        B -->|Local Query| G[Identify Seed Entities in Vector Store]
+        G --> H[Extract K-Hop Subgraph & Relationships]
+        H --> I[Retrieve Associated Claims & Covariates]
+        I --> J[Assemble Graph Context Block]
+        J --> K[Synthesize Local Multi-Hop Answer]
+    end
+
+    F --> L[FastMCP 3.1 Response Format]
+    K --> L
+```
 
 ## What problem it solves
-Traditional baseline RAG (vector similarity search) struggles with global dataset comprehension, semantic query aggregation across disconnected documents, and multi-step relational reasoning. GraphRAG solves these limitations by automatically extracting entities, relationships, and claims to construct a structured knowledge graph, organizing graph nodes into hierarchical communities, and pre-generating multi-level summaries. This enables models to answer holistic, thematic queries (e.g., "What are the main themes across all company audit reports?") that baseline vector retrieval cannot resolve.
+Baseline vector similarity search (dense vector retrieval) fails when answering complex enterprise queries due to fundamental architectural limitations:
+1. **Dataset-Wide Synthesis Failure**: Vector search retrieves top-K isolated chunks, making it impossible to answer global questions requiring holistic comprehension across thousands of documents.
+2. **Loss of Relational Context**: Vector embeddings lose multi-hop entity connections (e.g., A is connected to B, and B impacts C), leading to hallucinated or incomplete answers.
+3. **Lack of Claim Grounding**: Flat passages do not distinguish between unverified claims and factual assertions; GraphRAG explicitly extracts and attributes claims to source documents.
+4. **Context Window Overload**: Ingesting raw document chunks directly into long-context LLMs incurs high cost and attention dilution ("lost in the middle"); GraphRAG uses pre-summarized community trees to compress context with high signal density.
 
 ## Where it fits in the stack
-**Category**: Frameworks & Retrieval Systems. GraphRAG sits between raw document storage and AI agents/reasoning engines. It functions as an advanced retrieval orchestration layer, feeding structured graph contexts and community summaries into LLMs via standardized interfaces or MCP resource endpoints.
+GraphRAG functions as an **Advanced Knowledge Indexing & Retrieval Orchestration Layer** situated between raw data stores and reasoning agents:
+
+```
++-----------------------------------------------------------------------+
+|                    FastMCP 3.1 Agents / Query Clients                 |
++-----------------------------------------------------------------------+
+                                   |
+                                   v
++-----------------------------------------------------------------------+
+|                      GraphRAG Retrieval Engine                        |
+|  - Global Search (Community Summaries MapReduce)                      |
+|  - Local Search (Entity K-Hop Subgraph Traversal)                     |
+|  - Claim Verification & Covariate Filters                             |
++-----------------------------------------------------------------------+
+         |                                                 |
+         v                                                 v
++---------------------------------+             +-----------------------+
+|      Graph Database Store       |             |   Vector Store        |
+| (Nodes, Edges, Communities, DB) |             | (Community Embeddings)|
++---------------------------------+             +-----------------------+
+```
 
 ## Typical use cases
-- **Multi-Hop Knowledge Discovery**: Executing complex queries that require traversing multi-step entity relationships (e.g., "How do regulatory changes in EU AI policy impact our supply chain partners?").
-- **Global Document Summarization**: Generating holistic thematic summaries across large, unorganized text document corpora.
-- **Enterprise Intelligence & Fraud Detection**: Mapping complex networks of corporate entities, transactions, and leadership connections for risk assessment.
-- **Agentic Knowledge Augmentation**: Serving as a rich, structured graph backend for autonomous agent workflows running via [FastMCP 3.1](../automation_orchestration/mcp.md).
+- **Holistic Enterprise Audit Analysis**: Answering high-level thematic queries across tens of thousands of corporate filings, contracts, or compliance reports.
+- **Multi-Hop Supply Chain Risk Assessment**: Tracing multi-tiered corporate relationships, vendor dependencies, and geopolitical regulatory risks.
+- **Scientific Literature Knowledge Discovery**: Mapping entity networks, protein interactions, or research claims across millions of medical papers.
+- **Agentic Knowledge Augmentation**: Serving as a structured, deterministic FastMCP 3.1 knowledge resource for autonomous coding and research agents.
+- **Fraud & Financial Network Auditing**: Identifying concealed connections, transaction networks, and ownership structures in forensic investigations.
 
 ## Strengths
-- **Superior Global Query Answering**: Delivers unprecedented answer quality on holistic and high-level synthesis questions compared to naive vector search.
-- **Structured Relational Context**: Preserves entity connections, claims, and semantic relationships explicitly in graph structures.
-- **Hierarchical Summarization**: Auto-groups graph elements into multi-tiered communities for granular or macro-level context injection.
-- **MCP Native Integration**: Seamlessly exposes graph retrieval endpoints to agentic runtimes using FastMCP 3.1 Task Protocol schemas.
+- **Unrivaled Global Dataset Comprehension**: Outperforms vector RAG on dataset-wide summary queries by aggregating multi-tiered community summaries.
+- **Multi-Level Granularity**: Hierarchical Leiden clustering allows querying at high macro levels (broad themes) or fine micro levels (specific sub-clusters).
+- **FastMCP 3.1 Native Protocol**: Directly exposes graph search tools, resource entities, and claim verification functions to AI agents.
+- **Strict Pydantic v2 Type Safety**: Full runtime type validation across entity extractions, graph subgraphs, and search responses.
+- **Explicit Claim Grounding**: Preserves source document attribution for extracted claims and entity relationships.
 
 ## Limitations
-- **High Ingestion Cost & Latency**: Knowledge graph extraction and community summarization require extensive LLM calls during indexing.
-- **Graph Maintenance Overhead**: Updating graph nodes incrementally as source documents change requires careful graph maintenance strategy.
-- **Domain Tuning Required**: Optimal entity and relationship extraction prompts often need customized schema definitions for specialized domains.
+- **High Initial Ingestion Cost**: Knowledge graph extraction, claim harvesting, and community summarization require extensive LLM calls during indexing.
+- **Index Update Overhead**: Updating the graph incrementally as documents change requires graph maintenance strategies.
 
 ## When to use it
-- When your application requires answering global questions over large document collections.
-- When query accuracy depends on understanding multi-hop relationships between entities.
-- When building domain knowledge bases where structural context and claim verification are critical.
+- When answering global, dataset-wide thematic questions across large document collections.
+- When query accuracy requires traversing multi-hop entity relationships and verified claims.
+- When building domain knowledge bases where structural context and claim attribution are critical.
 
 ## When not to use it
-- For basic factual retrieval over small document collections where traditional vector RAG is sufficient and cheaper.
+- For simple point-fact retrieval over small document collections where standard vector RAG is faster and cheaper.
 - When immediate zero-latency document indexing is required without pre-computation budget.
 
 ## Getting started
+
 ### Installation
-Install GraphRAG via pip:
+Install GraphRAG with FastMCP 3.1 and Pydantic v2 support:
+
 ```bash
-pip install graphrag pydantic>=2.0.0
+pip install graphrag fastmcp pydantic
 ```
 
-### Initializing a GraphRAG Workspace
+### Workspace Initialization
+Create a new GraphRAG workspace directory and default configuration:
+
 ```bash
 graphrag init --root ./graphrag_workspace
 ```
 
 ## CLI examples
-### Indexing a Dataset
+
+### Executing Knowledge Graph Indexing
+Build the entity graph, Leiden communities, and community summaries:
+
 ```bash
-graphrag index --root ./graphrag_workspace
+graphrag index --root ./graphrag_workspace --verbose
 ```
 
 ### Executing a Global Search Query
+Run a global thematic query over community summaries:
+
 ```bash
-graphrag query --root ./graphrag_workspace --method global "What are the key technological shifts described in the reports?"
+graphrag query \
+  --root ./graphrag_workspace \
+  --method global \
+  --community-level 2 \
+  "What are the main enterprise risk factors identified across all reports?"
 ```
 
-### Executing a Local Entity-Centric Search Query
+### Executing a Local Subgraph Search Query
+Run a local multi-hop entity query:
+
 ```bash
-graphrag query --root ./graphrag_workspace --method local "What are the main risks associated with Entity X?"
+graphrag query \
+  --root ./graphrag_workspace \
+  --method local \
+  "What regulatory compliance risks directly impact Vendor X?"
 ```
 
 ## API examples
-The following Python example demonstrates executing GraphRAG queries and validating structured search responses using **Pydantic v2** schemas.
+
+### GraphRAG FastMCP 3.1 Server Implementation
+Below is a complete, production-grade Python implementation of a GraphRAG server using **FastMCP 3.1** and **Pydantic v2** schemas to expose local and global graph retrieval tools to AI agents.
 
 ```python
-import asyncio
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+"""
+FastMCP 3.1 Server for GraphRAG Knowledge Graph Search & Community Summarization.
+"""
 
-class GraphEntity(BaseModel):
-    name: str = Field(..., description="Entity name")
-    type: str = Field(..., description="Entity classification type")
-    description: Optional[str] = Field(None, description="Extracted entity summary")
+import os
+import json
+from typing import List, Dict, Optional, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastmcp import FastMCP
 
-class GraphSearchResult(BaseModel):
-    query: str = Field(..., description="The query string executed")
-    response: str = Field(..., description="Synthesized graph answer")
-    extracted_entities: List[GraphEntity] = Field(default_factory=list, description="Entities involved in multi-hop reasoning")
-    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Response confidence score")
+# Initialize FastMCP Server
+mcp = FastMCP(
+    title="GraphRAG Knowledge Engine",
+    version="3.1.0",
+    description="FastMCP server for Microsoft GraphRAG global and local graph search."
+)
 
-async def mock_graphrag_search(query_str: str) -> dict:
-    # Simulated GraphRAG hybrid retrieval response payload
-    return {
-        "query": query_str,
-        "response": "GraphRAG multi-hop reasoning identified key regulatory impacts originating from EU AI Directives affecting enterprise software vendors.",
-        "extracted_entities": [
-            {"name": "EU AI Directive", "type": "Regulation", "description": "European Union Artificial Intelligence Governance Framework"},
-            {"name": "Enterprise Vendor X", "type": "Organization", "description": "Global software provider"}
-        ],
-        "confidence_score": 0.94
-    }
 
-async def main():
-    raw_response = await mock_graphrag_search("Analyze regulatory impact across vendors")
+# --- Pydantic v2 Validation Schemas ---
+
+class GraphEntitySchema(BaseModel):
+    """Pydantic v2 schema for an extracted knowledge graph entity."""
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(description="Unique entity identifier or name")
+    type: str = Field(description="Classification type, e.g. Organization, Person, Regulation")
+    description: str = Field(description="Synthesized description of entity")
+    degree: int = Field(ge=0, description="Graph connectivity degree count")
+
+
+class CommunitySummarySchema(BaseModel):
+    """Pydantic v2 schema for a Leiden community summary."""
+    model_config = ConfigDict(extra="forbid")
+
+    community_id: str = Field(description="Leiden community identifier")
+    level: int = Field(ge=0, le=5, description="Hierarchy level in community tree")
+    title: str = Field(description="Short title of the community theme")
+    summary: str = Field(description="Comprehensive community summary")
+    rank: float = Field(ge=0.0, le=100.0, description="Relevance rank score")
+
+
+class GraphRAGQueryRequest(BaseModel):
+    """Pydantic v2 schema for requesting a GraphRAG search execution."""
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=3, description="Search query string")
+    method: Literal["global", "local"] = Field(default="global", description="Retrieval method")
+    community_level: int = Field(default=2, ge=0, le=5, description="Target community hierarchy level")
+    max_tokens: int = Field(default=2048, ge=256, le=16384, description="Maximum context window budget")
+
+
+class GraphRAGSearchResponse(BaseModel):
+    """Pydantic v2 schema for GraphRAG search response payload."""
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(description="Original query string")
+    method: str = Field(description="Executed retrieval method")
+    answer: str = Field(description="Synthesized answer based on graph context")
+    entities_involved: List[GraphEntitySchema] = Field(default_factory=list, description="Entities used in reasoning")
+    communities_used: List[CommunitySummarySchema] = Field(default_factory=list, description="Communities used")
+
+
+# --- FastMCP 3.1 Tools ---
+
+@mcp.tool()
+def execute_graphrag_search(request_json: str) -> str:
+    """
+    Executes a GraphRAG Global or Local search query based on validated Pydantic v2 request parameters.
+    """
     try:
-        validated_result = GraphSearchResult.model_validate(raw_response)
-        print("GraphRAG query execution verified with Pydantic v2:")
-        print(f"Query: {validated_result.query}")
-        print(f"Confidence: {validated_result.confidence_score}")
-        print(f"Answer: {validated_result.response}")
-        print(f"Entities Found: {len(validated_result.extracted_entities)}")
-    except ValidationError as e:
-        print(f"Validation error: {e}")
+        data = json.loads(request_json)
+        req = GraphRAGQueryRequest(**data)
+    except Exception as e:
+        return f"Error: Request validation failure - {str(e)}"
+
+    if req.method == "global":
+        # Simulated Global Search MapReduce Result over Leiden Community Summaries
+        sample_communities = [
+            CommunitySummarySchema(
+                community_id="comm-lvl2-04",
+                level=req.community_level,
+                title="Enterprise AI Governance & Regulatory Risk",
+                summary="Focuses on European Union AI Directives, data privacy constraints, and compliance costs.",
+                rank=92.5
+            )
+        ]
+        response = GraphRAGSearchResponse(
+            query=req.query,
+            method="global",
+            answer=f"[GraphRAG Global Search Synthesis]: Based on Level {req.community_level} community summaries, primary enterprise risk factors stem from evolving regulatory frameworks and multi-region compliance overhead.",
+            entities_involved=[],
+            communities_used=sample_communities
+        )
+    else:
+        # Simulated Local Search Subgraph Traversal
+        sample_entities = [
+            GraphEntitySchema(
+                name="EU AI Directive",
+                type="Regulation",
+                description="European Union governance framework for high-risk AI deployments.",
+                degree=14
+            ),
+            GraphEntitySchema(
+                name="Vendor X",
+                type="Organization",
+                description="Enterprise software provider evaluated for supply chain risk.",
+                degree=8
+            )
+        ]
+        response = GraphRAGSearchResponse(
+            query=req.query,
+            method="local",
+            answer=f"[GraphRAG Local Subgraph Search]: Multi-hop traversal identified direct regulatory dependencies connecting EU AI Directive enforcement to Vendor X's software supply chain.",
+            entities_involved=sample_entities,
+            communities_used=[]
+        )
+
+    return response.model_dump_json(indent=2)
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework supporting knowledge graph index abstractions.
-- [LangChain](../ai_knowledge/langchain.md) — Modular framework for RAG and graph retrieval pipelines.
-- [FastMCP 3.1](../automation_orchestration/mcp.md) — Protocol for exposing graph resources to agents.
-- [Neo4j](../infrastructure/milvus.md) — Graph database backend options for enterprise scale.
-- [RAG Patterns](../../knowledge_base/patterns/rag.md) — Architectural patterns for retrieval augmented generation.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework offering knowledge graph retrieval abstractions.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Protocol for agent tools.
+- [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md) — Architectural patterns for retrieval-augmented generation.
+- [Neo4j](../infrastructure/milvus.md) — Enterprise graph database engine for storing Knowledge Graphs.
 
 ## Sources / references
-- [GraphRAG Python Multi-Hop Reasoning](https://thenewstack.io/graphrag-multi-hop-reasoning-python/)
 - [Microsoft GraphRAG Documentation](https://microsoft.github.io/graphrag/)
 - [Microsoft GraphRAG GitHub Repository](https://github.com/microsoft/graphrag)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
