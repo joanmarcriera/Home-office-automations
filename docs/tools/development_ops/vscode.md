@@ -11,9 +11,45 @@ It provides a highly extensible "middle ground" between a simple text editor and
 
 ## Typical use cases
 - **General-Purpose Coding**: Supporting almost any language via extensions.
-- **AI-Enhanced Development**: Running multiple AI assistants simultaneously powered by **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0 Pro**.
+- **AI-Enhanced Development**: Running multiple AI assistants simultaneously powered by **Claude 5.1**, **Claude 5.6**, **GPT-5.5**, **GPT-5.6**, and **Gemini 4.0 Pro**.
 - **Remote Development**: Connecting to remote servers, containers, or WSL via the Remote Development extension pack.
 - **Cloud-Native Dev**: Integrating with Kubernetes, Docker, and various cloud providers (AWS, Azure, GCP).
+
+## Key Features & Capabilities
+- **Unrivaled Extension Ecosystem**: Access to tens of thousands of extensions across themes, debuggers, formatters, and AI agents.
+- **Native FastMCP 3.1 Host Architecture**: Directly host and orchestrate Model Context Protocol tools, tasks, and resource providers inside the extension runtime.
+- **Remote Development Suite (SSH, Containers, WSL)**: Edit code directly on remote cloud servers, inside Docker containers, or in WSL environments seamlessly.
+- **Integrated Terminal & Debugging**: Powerful multi-tabbed terminal host with inline debugging, breakpoint hooks, and call stack inspection.
+- **Source Control Integration**: Built-in Git/GitHub integration with visual diff views, staging management, and merge conflict resolution.
+
+## Architecture & Internal Mechanics
+
+VS Code is built on Electron, Node.js, and Monaco Editor, enforcing strict process isolation between the core UI renderer and the extension host thread to ensure performance responsiveness.
+
+```mermaid
+graph TD
+    subgraph VS Code Core Process Architecture
+        A[Electron Main Process] --> B[Monaco Editor UI Renderer]
+        A --> C[Extension Host Process]
+    end
+
+    subgraph AI Extension Runtime
+        C --> D[GitHub Copilot Extension]
+        C --> E[Continue.dev Extension]
+        C --> F[FastMCP 3.1 Client Plugin]
+    end
+
+    subgraph Agentic Tooling & Context Layer
+        F <-->|JSON-RPC via stdio / SSE| G[FastMCP Server Daemon]
+        G <--> H[Enterprise Vector Store / DB]
+        E <--> I[Local Ollama / Remote Model APIs]
+    end
+```
+
+### Extension Isolation & IPC
+1. **Renderer Isolation**: The Monaco Editor UI runs on a dedicated Chromium renderer process, ensuring UI responsiveness never freezes during high-compute background tasks.
+2. **Extension Host Execution**: Extensions (including Copilot, Continue, and MCP bridges) run in a separate Node.js process, communicating with the UI via binary IPC streams.
+3. **MCP Tool Bridge**: FastMCP 3.1 extensions establish stdio or HTTP/SSE streams to local or remote tool daemons, injecting real-time context back into the editor window.
 
 ## Strengths
 - **Extensibility**: Unmatched library of plugins and themes.
@@ -59,7 +95,7 @@ code hello_world.py
 ```
 
 ### Key Extensions for AI (Early 2027)
-- **GitHub Copilot**: The standard AI completion and agent workspace engine (now with **Claude 5.1** and **Gemini 4.0 Pro** support).
+- **GitHub Copilot**: The standard AI completion and agent workspace engine (now with **Claude 5.6** and **Gemini 4.0 Pro** support).
 - **Continue**: Open-source autopilot that allows using any LLM (optimized for local Ollama and remote frontier APIs).
 - **Codeium / Windsurf**: Fast AI autocomplete and agentic chat extension.
 - **FastMCP Extension**: Native support for Model Context Protocol (FastMCP 3.1) servers.
@@ -77,6 +113,12 @@ code --install-extension github.copilot
 
 # 3. Open a side-by-side diff comparing two files
 code --diff file1.txt file2.txt
+
+# 4. Disable all extensions for performance troubleshooting
+code . --disable-extensions
+
+# 5. Output installed extensions with versions
+code --list-extensions --show-versions
 ```
 
 ## API examples
@@ -107,32 +149,60 @@ module.exports = {
 };
 ```
 
+### FastMCP 3.1 VS Code Bridge Implementation (Python)
+Expose custom editor diagnostics or environment context to an AI agent via FastMCP 3.1:
+
+```python
+import os
+import json
+from fastmcp import FastMCP, Context
+
+mcp = FastMCP("vscode-workspace-bridge", version="3.1.0")
+
+@mcp.tool(description="Inspect active VS Code settings and extension status for agentic setup")
+async def inspect_vscode_environment(workspace_path: str, ctx: Context) -> dict:
+    """Reads .vscode/settings.json to return current workspace configurations."""
+    settings_file = os.path.join(workspace_path, ".vscode", "settings.json")
+    if not os.path.exists(settings_file):
+        return {"status": "missing", "settings": {}}
+
+    with open(settings_file, "r") as f:
+        content = json.load(f)
+
+    ctx.info(f"Loaded VS Code settings from {settings_file}")
+    return {"status": "found", "settings": content}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Programmatic VS Code Configuration Manager (Pydantic v2)
 Ensure VS Code setting definitions and FastMCP server configurations strictly conform to early 2027 schemas:
 
 ```python
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class MCPServerConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     command: str = Field(..., description="Executable command to run the FastMCP server")
     args: List[str] = Field(default_factory=list, description="Arguments for the executable")
     env: Dict[str, str] = Field(default_factory=dict, description="Environment variables")
 
 class VSCodeAISettings(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
     inline_suggest_enabled: bool = Field(default=True, alias="editor.inlineSuggest.enabled")
     format_on_save: bool = Field(default=True, alias="editor.formatOnSave")
-    copilot_chat_model: str = Field(default="claude-5.1-opus", alias="github.copilot.advanced.model")
+    copilot_chat_model: str = Field(default="claude-5.6-opus", alias="github.copilot.advanced.model")
     mcp_servers: Dict[str, MCPServerConfig] = Field(default_factory=dict, alias="mcp.servers")
-
-    class Config:
-        populate_by_name = True
 
 # Validate VS Code AI Configuration
 raw_config = {
     "editor.inlineSuggest.enabled": True,
     "editor.formatOnSave": True,
-    "github.copilot.advanced.model": "claude-5.1-opus",
+    "github.copilot.advanced.model": "claude-5.6-opus",
     "mcp.servers": {
         "context7": {
             "command": "npx",
@@ -146,6 +216,12 @@ settings = VSCodeAISettings.model_validate(raw_config)
 print(f"Validated Copilot model: {settings.copilot_chat_model}")
 print(f"Registered FastMCP servers: {list(settings.mcp_servers.keys())}")
 ```
+
+## Production & Workspace Best Practices
+- **Workspace Settings Checking**: Commit a sanitized `.vscode/settings.json` and `.vscode/extensions.json` to source repositories to guarantee consistent editor setups, linter settings, and recommended AI plugins across development teams.
+- **FastMCP Daemon Isolation**: Run MCP tool servers in containerized processes or isolated virtual environments rather than directly on the developer host to prevent arbitrary command execution vulnerabilities.
+- **Extension Profiling**: Periodically execute `Developer: Startup Performance` from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) to identify extensions causing high latency during startup or host process loops.
+- **Secure Key Management**: Avoid storing cloud API keys directly in `.vscode/settings.json`. Leverage environment variable expansion or system keychains via extensions.
 
 ## Related tools / concepts
 - [Windsurf](windsurf.md): AI-powered IDE from Codeium.
