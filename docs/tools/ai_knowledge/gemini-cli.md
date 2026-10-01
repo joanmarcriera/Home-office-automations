@@ -1,177 +1,327 @@
 # Google Gemini CLI
 
 ## What it is
-**Google Gemini CLI** is a high-performance terminal interface and agentic toolkit that brings the Gemini model family directly into developer workflows. It acts as both a standalone CLI assistant for local development and a suite of GitHub Actions for automated repository management. As of early **January 2027**, it natively supports **Gemini 4.0 Ultra/Flash/Pro**, Gemini Spark 2.5 (autonomous agents), and native multi-modal inputs via the command line with integration for Model Context Protocol (MCP 3.1 / FastMCP 3.1).
+**Google Gemini CLI** is a high-performance terminal interface, agentic developer environment, and GitHub Actions toolkit that brings Google's frontier model family directly into local developer environments and CI/CD pipelines. As of early 2027, it natively supports **Gemini 4.0 Ultra/Flash/Pro**, Gemini Spark 2.5 (autonomous subagent planning), and native multi-modal inputs via command-line flags. Integration with **FastMCP 3.1** protocol schemas enables the CLI to dynamically connect to local tools, web scrapers, and enterprise data sources.
+
+By leveraging Google's massive 2M+ token context window, Gemini CLI acts as a full-repository pair programmer that can digest entire source trees, execute multi-step refactoring plans, and perform automated code reviews.
+
+```
++-----------------------------------------------------------------------------------+
+|                            DEVELOPER TERMINAL / ENVIRONMENT                       |
+|                 (Terminal / CI/CD Pipelines / GitHub Actions Workflows)           |
++------------------------------------------+----------------------------------------+
+                                           |
+                                 stdin / CLI Arguments
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                                GOOGLE GEMINI CLI                                  |
+|  +-----------------------+   +------------------------+   +--------------------+  |
+|  | Context Builder       |   | Gemini Spark 2.5       |   | FastMCP 3.1 Tool   |  |
+|  | (2M+ Token Packer)    |   | Autonomous Subagents   |   | Dispatcher         |  |
+|  +-----------+-----------+   +-----------+------------+   +---------+----------+  |
++-------------|---------------------------|---------------------------|-------------+
+              |                           |                           |
+              v                           v                           v
++-----------------------------------------------------------------------------------+
+|                           GOOGLE VERTEX AI / AI STUDIO                            |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
+|  | Gemini 4.0 Pro     |  | Gemini 4.0 Flash   |  | Grounding via Google Search |  |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It eliminates the "context switching" penalty by allowing developers to access state-of-the-art AI for code generation, explanation, and refactoring without leaving the terminal. In CI/CD, it automates high-volume maintenance tasks like issue triaging, PR reviews, and changelog generation using Google's frontier context windows (2M+ tokens).
+Developer efficiency is frequently degraded by context switching between terminal codebases, browser-based AI chats, and separate documentation portals. Common friction points include:
+- **Context Truncation**: Standard LLM APIs hit token limits when attempting to process large repositories, requiring tedious manual code chunking.
+- **CI/CD Review Bottlenecks**: High-volume pull requests overload human engineering leads, slowing down deployment velocity.
+- **Multimodal Debugging Barriers**: Debugging visual layout regressions, UI wireframe specs, or complex terminal output requires manual transcription into text prompts.
+- **Disconnected Scripting**: Shell automation scripts struggle to integrate AI reasoning without custom API wrapper glue.
+
+Google Gemini CLI eliminates these barriers by providing direct CLI-native bindings to 2M+ token models, multimodal asset processing, and structured JSON output schemas.
 
 ## Where it fits in the stack
-**Category**: Developer Experience (DX) / Agentic Tooling. It serves as a bridge between the local terminal environment and Google's Vertex AI or AI Studio infrastructure, often used alongside tools like `gh` (GitHub CLI) and `git`.
+Google Gemini CLI operates in the **Developer Experience (DX) / Agentic CLI Tooling** layer. It bridges local developer environments and automated CI/CD runners with Google Cloud's Vertex AI and AI Studio infrastructure.
+
+```
++-----------------------------------------------------------------------------------+
+|                              DEVELOPER WORKFLOW / CI RUNNER                       |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                             GEMINI CLI RUNTIME ENGINE                             |
+|          (Pydantic v2 Schema Enforcement & FastMCP 3.1 Server Bindings)           |
++------------------------------------------+----------------------------------------+
+                                           |
+                                HTTPS REST / gRPC
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                           GOOGLE VERTEX AI / STUDIO CLOUD                         |
+|           (Gemini 4.0 Pro / Flash, Code Execution, Search Grounding)              |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Terminal Engineering Assistant**: Asking "Explain why this Docker build is failing" by piping logs directly into the CLI.
-- **Automated PR Reviewer**: Using the `gemini-review` action to identify logic flaws and style violations in new code submissions.
-- **Interactive Refactoring**: Using the agentic mode to "Upgrade all React components in this folder to use the new useFormStatus hook."
-- **Knowledge Synthesis**: Summarizing long documentation threads or technical specs into actionable TODO lists.
-- **Multimodal Debugging**: Passing screenshots of UI bugs directly to the CLI for CSS/layout remediation.
+
+### 1. Full-Repository Code Explanation & Auditing
+Piping an entire repository structure or multi-file diff into Gemini CLI to get architectural reviews and identify hidden dependency conflicts across millions of lines of code.
+
+### 2. Autonomous Refactoring with Gemini Spark 2.5
+Spawning an autonomous subagent session to refactor legacy code (e.g., "Migrate all React class components in `src/ui/` to functional hooks with TypeScript interfaces").
+
+### 3. Automated Pull Request Review in GitHub Actions
+Running the `google-github-actions/run-gemini-cli` action in CI/CD pipelines to automatically inspect new PRs for security flaws, performance regressions, and style violations.
+
+### 4. Multimodal Error Analysis
+Passing visual UI bugs, terminal screenshots, or architecture diagrams alongside code files to analyze layout bugs and CSS discrepancies.
 
 ## Strengths
-- **Massive Context**: Leverages Gemini's 2M+ token context window for full-project analysis.
-- **Multimodal Native**: Supports image, video, and audio inputs directly via CLI flags.
-- **Google Ecosystem Integration**: First-class support for ground-truth search, code execution, and Vertex AI safety filters.
-- **Speed**: Extremely low latency when utilizing the 'Gemini 4.0 Flash' model family.
-- **Free Tier**: Generous free-tier access via Google AI Studio for individual developers.
-- **Autonomy via Gemini Spark 2.5**: Supports autonomous, multi-step agent planning with built-in sandbox validation.
+- **Massive Context Capacity**: Processes up to 2 million tokens per request, enabling full-repository analysis without manual file chunking.
+- **Native Multimodal Support**: Directly accepts image, PDF, audio, and video paths via command-line flags.
+- **Google Search Grounding**: Integrates Google Search grounding flags for up-to-the-minute web retrieval and library documentation.
+- **FastMCP 3.1 Compatibility**: Binds to Model Context Protocol servers to execute local tool calls safely.
+- **High Speed**: Gemini 4.0 Flash provides sub-second inference speeds ideal for real-time terminal interactions.
 
 ## Limitations
-- **Internet Requirement**: Requires an active connection to Google's cloud APIs; no offline mode.
-- **Privacy Trade-offs**: Standard AI Studio usage may involve data logging unless using Enterprise Vertex AI.
-- **Rate Limits**: Subject to RPM (Requests Per Minute) limits which can be hit during high-volume CI/CD tasks.
+- **Cloud Dependency**: Requires active network access to Vertex AI or Google AI Studio APIs; offline local model execution is not supported.
+- **Rate Limit Thresholds**: Free-tier Google AI Studio API keys may experience rate limits during intensive multi-file agentic loops.
+- **Data Privacy Controls**: Enterprise customers must configure Vertex AI endpoint routing to guarantee no prompt data logging.
 
 ## When to use it
-- To automate high-volume repository maintenance on GitHub.
-- For a lightweight, CLI-native alternative to heavy AI IDEs like Cursor or Windsurf.
-- When working with very large files or projects that exceed the context limits of other agents (e.g., Claude or GPT-5.6).
+- When working with extensive codebases that exceed the context windows of competing agents.
+- To implement zero-maintenance, automated PR review bots in GitHub Actions pipelines.
+- When multimodal inputs (e.g., wireframe images, UI screenshots, terminal recordings) are critical for bug analysis.
 
 ## When not to use it
-- In air-gapped or high-security environments where outbound cloud traffic is prohibited.
-- For tasks requiring local-only inference (use [llama.cpp](../infrastructure/llama-cpp.md) or [Ollama](../../services/ollama.md)).
-- If your organization mandates the use of a different cloud provider (e.g., AWS or Azure).
+- For offline or air-gapped terminal environments where cloud API traffic is disallowed (use [llama.cpp](../infrastructure/llama-cpp.md) or [Ollama](../../services/ollama.md)).
+- If your enterprise is bound exclusively to AWS Bedrock or Azure OpenAI clouds without Vertex AI authorization.
 
 ## Getting started
 
 ### Installation
-Google Gemini CLI requires Node.js 24+ and an API key from Google AI Studio.
+Gemini CLI requires Node.js 24+ and an API key from Google AI Studio or Vertex AI:
 
 ```bash
-# Install via npm
+# Install globally via npm
 npm install -g @google/gemini-cli
 
-# Set your API Key
-export GEMINI_API_KEY="your_key_here"
+# Export Google AI Studio API Key
+export GEMINI_API_KEY="AIzaSy...your_key"
 ```
 
-### Configuration
-You can configure default models and safety settings in a `.geminirc` file in your home directory:
+### Initial Configuration
+Create a `.geminirc` file in your home directory or project root to configure model defaults:
 
 ```json
 {
   "model": "gemini-4.0-pro",
   "temperature": 0.2,
-  "safety": "none"
+  "system_instruction": "You are a senior staff software engineer. Respond with concise, production-ready code.",
+  "safety_settings": [
+    {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "BLOCK_LOW_AND_ABOVE"
+    }
+  ]
 }
 ```
 
 ## CLI examples
 
-### Basic Coding Questions
-```bash
-# Ask a general question
-gemini "How do I implement a rate-limiter in Go?"
+### 1. Full-Repository Code Analysis
+Pass an entire directory tree and specific source files to explain architectural dependencies:
 
-# Analyze a local file
-gemini --file app.py "Refactor this to use the repository pattern"
+```bash
+gemini --file src/main.py --file src/utils/ "Explain the data flow between main module and utility functions"
 ```
 
-### Agentic Mode (Subagents)
-Spawn an autonomous subagent via Gemini Spark 2.5 to handle a multi-step task:
+### 2. Autonomous Agent Refactoring
+Execute multi-step code refactoring via Gemini Spark 2.5:
+
 ```bash
-gemini "Find all deprecated API calls in /src and create a migration plan" --agentic
+gemini "Refactor all REST endpoints in /api to use FastMCP 3.1 tool decorators" --agentic --sandbox
 ```
 
-### Multimodal Input
-Analyze a screenshot of a terminal error:
+### 3. Multimodal Analysis of UI Screenshots
+Pass a screenshot of a broken web application UI to generate CSS fixes:
+
 ```bash
-gemini --image error_screenshot.png "What is causing this stack trace?"
+gemini --image ./docs/screenshots/flexbox_bug.png "Identify the CSS layout issue causing element overlap in this image"
+```
+
+### 4. Search-Grounded Library Queries
+Query Gemini with live Google Search grounding enabled:
+
+```bash
+gemini --grounded "What are the latest breaking changes in Pydantic v2.10?"
 ```
 
 ## API examples
 
-### Node.js Integration
-You can use the Gemini CLI's underlying library in custom scripts:
-
-```javascript
-import { GeminiAgent } from '@google/gemini-cli';
-
-const agent = new GeminiAgent({
-  apiKey: process.env.GEMINI_API_KEY,
-  model: 'gemini-4.0-flash'
-});
-
-const result = await agent.execute('Summarize this directory', { path: './src' });
-console.log(result.summary);
-```
-
-### GitHub Actions Workflow
-Automate PR reviews in `.github/workflows/ai-review.yml`:
-
-```yaml
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Gemini Review
-        uses: google-github-actions/run-gemini-cli@v1
-        with:
-          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
-          prompt: "Review this PR for security vulnerabilities."
-```
-
-### Python (Configuration & Output Schema Validation)
-Using **Pydantic v2** to programmatically validate the schema of structured JSON outputs generated by the Gemini CLI tool:
+### Python FastMCP 3.1 Server Binding Gemini CLI
+Below is a complete Python FastMCP 3.1 server that bridges local tool execution with Gemini CLI workflows:
 
 ```python
+import os
+import subprocess
+import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, confloat
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
 
-class SubagentAction(BaseModel):
-    tool_name: str = Field(..., description="The name of the tool to invoke")
-    arguments: dict = Field(default_factory=dict, description="Arguments to pass to the tool")
+# Initialize FastMCP Server
+mcp = FastMCP(
+    "Gemini CLI FastMCP Bridge",
+    version="3.1.0",
+    description="Bridge providing programmatic access to Gemini CLI executions"
+)
 
-class GeminiAgentPlan(BaseModel):
-    task: str = Field(..., description="The high-level goal of the agent")
-    steps: List[str] = Field(..., description="Ordered list of steps to execute")
-    confidence_score: confloat(ge=0.0, le=1.0) = Field(..., description="Confidence score of the generated plan")
-    subagent_calls: Optional[List[SubagentAction]] = Field(None, description="Optional list of downstream tool or subagent invocations")
+class GeminiQueryRequest(BaseModel):
+    prompt: str = Field(..., description="Prompt string to execute via Gemini CLI")
+    model: str = Field(default="gemini-4.0-flash", description="Target Gemini model variant")
+    file_paths: Optional[List[str]] = Field(default=None, description="List of target file paths")
 
-# Example validation of a JSON output received from `gemini --json`
-raw_json_output = """
-{
-  "task": "Refactor app.py and validate unit tests",
-  "steps": [
-    "Locate old endpoints in app.py",
-    "Replace legacy decorators with FastMCP routing",
-    "Execute pytest to verify regression-free state"
-  ],
-  "confidence_score": 0.95,
-  "subagent_calls": [
-    {
-      "tool_name": "pytest_runner",
-      "arguments": {"test_path": "tests/"}
-    }
-  ]
-}
-"""
+    @field_validator("prompt")
+    @classmethod
+    def validate_prompt(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Prompt must not be empty.")
+        return v.strip()
 
-validated_plan = GeminiAgentPlan.model_validate_json(raw_json_output)
-print(f"Validated task: {validated_plan.task} (Score: {validated_plan.confidence_score})")
+class GeminiQueryResponse(BaseModel):
+    response_text: str
+    model_used: str
+    exit_code: int
+
+@mcp.tool()
+async def run_gemini_cli_query(req: GeminiQueryRequest) -> GeminiQueryResponse:
+    """Invokes the local Gemini CLI tool and returns validated output."""
+    cmd = ["gemini", req.prompt, "--model", req.model, "--json"]
+
+    if req.file_paths:
+        for path in req.file_paths:
+            cmd.extend(["--file", path])
+
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return GeminiQueryResponse(
+            response_text=proc.stdout,
+            model_used=req.model,
+            exit_code=0
+        )
+    except subprocess.CalledProcessError as e:
+        return GeminiQueryResponse(
+            response_text=e.stderr or str(e),
+            model_used=req.model,
+            exit_code=e.returncode
+        )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Automated GitHub Actions Workflow Configuration
+Integrate Gemini CLI into `.github/workflows/gemini-audit.yml`:
+
+```yaml
+name: Gemini Automated Code Audit
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+
+      - name: Run Gemini PR Audit
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          git diff origin/main...HEAD > pr_diff.patch
+          gemini --file pr_diff.patch "Audit this PR diff for security issues and output findings as Markdown." > audit_summary.md
+
+      - name: Comment PR Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('audit_summary.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "### 🤖 Gemini Code Review\n\n" + summary
+            });
+```
+
+## Model Matrix & Context Performance
+
+| Model Variant | Max Token Window | Primary Optimization | Ideal Use Case |
+| :--- | :--- | :--- | :--- |
+| **Gemini 4.0 Pro** | 2,000,000+ Tokens | Complex reasoning & refactoring | Deep architectural code reviews |
+| **Gemini 4.0 Flash** | 1,000,000 Tokens | Ultra-low latency & cost efficiency | Interactive CLI autocomplete & rapid QA |
+| **Gemini Spark 2.5** | 1,000,000 Tokens | Multi-step agent planning | Autonomous codebase migration |
+| **Gemini 4.0 Ultra** | 2,000,000+ Tokens | Maximum multi-modal accuracy | Complex vision + code analysis |
+
+## Configuration Reference & Environment Variables
+
+| Variable Name | Description | Default Value |
+| :--- | :--- | :--- |
+| `GEMINI_API_KEY` | Google AI Studio authentication key | None (Required) |
+| `GEMINI_MODEL` | Default model variant to execute | `gemini-4.0-flash` |
+| `GEMINI_TEMPERATURE` | Generation sampling randomness | `0.2` |
+| `VERTEXAI_PROJECT` | Google Cloud Vertex AI Project ID | None (Optional) |
+| `VERTEXAI_LOCATION` | Vertex AI deployment region | `us-central1` |
+
+## Troubleshooting & Common Failure Modes
+
+### 1. Exceeded Context Size or File Quotas
+If passing huge binary or build directories causes errors, utilize `.geminiignore` to exclude unwanted paths:
+
+```gitignore
+# .geminiignore
+node_modules/
+dist/
+*.png
+*.zip
+```
+
+### 2. Handling Rate Limit Failures (`429 Quota Exceeded`)
+Retry with exponential backoff or switch to `gemini-4.0-flash` for high-volume automated scripts:
+
+```bash
+gemini "Run quick syntax check" --model gemini-4.0-flash --retry 3
 ```
 
 ## Related tools / concepts
-- [Gemini](gemini.md) — Underlying model family.
-- [Google Search](google-search.md) — Direct web-search context injection tool.
-- [AnsiGPT](ansigpt.md) — Lightweight terminal styling and command assistants.
-- [Aider](../development_ops/aider.md) — Multi-file interactive coding agent for the terminal.
-- [Claude Code](../development_ops/claude-code.md) — Anthropic's terminal-based autonomous engineering assistant.
+- [Gemini](gemini.md) — Google's underlying frontier model family.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's terminal-based autonomous pair programmer.
+- [Aider](../development_ops/aider.md) — Git-integrated terminal pair programmer.
+- [Google Search](google-search.md) — Direct web search context injection tool.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Standard protocol for connecting models to local environments.
 
 ## Sources / references
 - [Vertex AI Developer Documentation](https://docs.cloud.google.com/vertex-ai/docs)
 - [Official Gemini CLI GitHub Repository](https://github.com/google-gemini/gemini-cli)
 - [Google AI Studio Console](https://aistudio.google.com/)
 - [Model Context Protocol (MCP 3.1) Gemini Connectors](https://modelcontextprotocol.io/connectors/gemini)
-- [Google Developers Blog: Agentic Ecosystem and Spark Launch](https://developers.googleblog.com/en/gemini-cli-agentic-updates/)
+- [Google Developers Blog: Agentic Ecosystem Updates](https://developers.googleblog.com/en/gemini-cli-agentic-updates/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

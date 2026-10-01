@@ -1,167 +1,319 @@
 # GitHub Copilot
 
 ## What it is
-An AI pair programmer that provides autocomplete-style suggestions as you code. Powered by OpenAI, Anthropic, and Google models, it integrates into various IDEs, CLI environments, and GitHub's web interface. As of early 2027, GitHub Copilot incorporates native **FastMCP 3.1 Task Protocol** support, enabling agentic workspace reasoning, context-aware tool calling, and automated cross-repository multi-step task execution.
+**GitHub Copilot** is an enterprise AI pair programming platform and agentic development framework that provides real-time inline code completions, multi-file chat assistance, pull request summaries, and multi-step agentic execution. As of early 2027, GitHub Copilot incorporates native **FastMCP 3.1 Task Protocol** support, enabling agentic workspace reasoning, context-aware tool calling, and automated cross-repository task execution across IDEs, GitHub web, and local terminals.
+
+Powered by a dynamic multi-model engine—including **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**—Copilot allows developers and enterprise teams to select specialized frontier models for code completion, deep architectural refactoring, and automated workspace agent execution.
+
+```
++-----------------------------------------------------------------------------------+
+|                            DEVELOPER INTERFACE LAYER                              |
+|           (VS Code / JetBrains / Visual Studio / Neovim / Zed / GitHub CLI)       |
++------------------------------------------+----------------------------------------+
+                                           |
+                              FastMCP 3.1 Task Protocol
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                           GITHUB COPILOT DYNAMIC ENGINE                           |
+|  +-----------------------+   +------------------------+   +--------------------+  |
+|  | Multi-Model Router    |   | Workspace Context      |   | Enterprise Policy  |  |
+|  | (Claude/GPT/Gemini)   |   | Indexer (@workspace)   |   | & Guardrails       |  |
+|  +-----------+-----------+   +-----------+------------+   +---------+----------+  |
++-------------|---------------------------|---------------------------|-------------+
+              |                           |                           |
+              v                           v                           v
++-----------------------------------------------------------------------------------+
+|                          MODEL & INFRASTRUCTURE LAYER                             |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
+|  | Claude 5.6         |  | GPT-5.6            |  | Gemini 4.0 Ultra            |  |
+|  | (Deep Reasoning)   |  | (Low-Latency Code) |  | (2M+ Multimodal Context)    |  |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
+|  +------------------------------------------------------------------------------+  |
+|  | NVIDIA NIM Enterprise Inference (Self-Hosted Hybrid Deployments)              |  |
+|  +------------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Speeds up coding by generating inline code suggestions, reducing time spent writing boilerplate and looking up API usage. It provides a chat interface and background task runner for complex reasoning, refactoring, agentic task execution, and debugging directly within the IDE or CLI.
+Modern software development involves significant context switching, manual boilerplate creation, and repetitive code maintenance tasks:
+- **Developer Friction**: Looking up API signatures, syntax rules, and SDK methods breaks developer focus flow.
+- **Boilerplate Debt**: Writing repetitive test suite definitions, schema mappings, and database queries consumes engineering time.
+- **Context-Blind Refactoring**: Editing multi-file features without full codebase indexing leads to missing imports and broken dependencies.
+- **Governance & Security Concerns**: Unvetted open-source code snippets can introduce licensing violations or unverified security vulnerabilities.
+
+GitHub Copilot addresses these challenges by continuously indexing workspace context, enforcing enterprise code security policies, and generating validated code suggestions inline or via multi-step agent loops.
 
 ## Where it fits in the stack
-**Development & Ops**. Provides AI-powered code completion, FastMCP 3.1 agent execution, and chat assistance as an IDE extension, CLI tool, and GitHub platform integration.
+GitHub Copilot operates in the **Development & Ops / AI Pair Programming & Workspace Agent** layer. It integrates directly into developer IDEs, terminal shells, and GitHub platform workflows.
+
+```
++-----------------------------------------------------------------------------------+
+|                             DEVELOPER WORKSPACE / IDE                             |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                             GITHUB COPILOT AGENT LOOP                             |
+|             (FastMCP 3.1 Task Protocol & Pydantic v2 Schema Enforcement)          |
++------------------------------------------+----------------------------------------+
+                                           |
+                                 HTTPS / mTLS / gRPC
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                       GITHUB COPILOT ENTERPRISE CLOUD                             |
+|         (GitHub Code Graph Index, IP Indemnification, Model Routing Engine)       |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- Inline code completion while writing code.
-- Generating boilerplate and repetitive patterns.
-- CLI-based command explanation, script generation, and shell automation.
-- Full-project reasoning via the `@workspace` agent using FastMCP 3.1 Task Protocol loops.
-- **Enterprise Inference**: Integration with [NVIDIA NIM](../providers/nvidia.md) (NVIDIA Inference Microservices) for self-hosted, high-performance model serving in hybrid enterprise environments.
+
+### 1. Real-Time Inline Code Completion
+Providing context-aware, single-line or multi-line completions while developers write code, adapt algorithms, or implement REST API routes.
+
+### 2. Workspace-Aware Architecture Refactoring (`@workspace`)
+Utilizing `@workspace` in Copilot Chat to perform multi-file refactoring, analyze module dependencies, and generate new feature code that aligns with existing repository conventions.
+
+### 3. Automated Pull Request Generation & Review
+Generating descriptive PR summaries, identifying logic flaws, and verifying unit test coverage automatically on the GitHub platform.
+
+### 4. Terminal Command Explanation & Scripting
+Utilizing `gh copilot` in command-line environments to explain complex `git` commands, debug shell pipelines, or synthesize bash scripts.
+
+### 5. Enterprise Hybrid Inference via NVIDIA NIM
+Deploying self-hosted [NVIDIA NIM](../providers/nvidia.md) inference microservices for regulated enterprise environments requiring local model hosting.
 
 ## Strengths
-- Deep integration with GitHub ecosystem (Issues, PRs, Actions, FastMCP 3.1 tool catalog).
-- Supported in many popular IDEs (VS Code, JetBrains, Visual Studio, Neovim, Zed).
-- Support for multiple frontier models, including [GPT-5.6](../ai_knowledge/openai.md), [Claude 5.6](../providers/anthropic.md), and Gemini 4.0 Ultra.
-- Enterprise-grade security, privacy compliance, and repository access boundary filters.
+- **Ecosystem Dominance**: Universal support across VS Code, JetBrains, Visual Studio, Neovim, Zed, and GitHub Web.
+- **Multi-Model Choice**: Allows developers to switch between SOTA models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**) dynamically based on task requirements.
+- **FastMCP 3.1 Task Protocol**: Natively connects to Model Context Protocol tool catalogs for executing multi-step agent actions.
+- **Enterprise IP Indemnification & Privacy**: Guarantees public code snippet filtering, zero-data-retention options, and licensing protection.
+- **Workspace Knowledge Graph**: Indexes local repository symbols, imports, and git history for precise completions.
 
 ## Limitations
-- Requires a paid subscription or enterprise plan.
-- Cloud-based by default; code snippets are sent to external or hybrid servers for inference unless configured with self-hosted NIM endpoints.
-- Native integration in non-VS Code IDEs can occasionally lag behind VS Code feature releases.
+- **Subscription Required**: Requires an active GitHub Copilot Individual, Business, or Enterprise paid plan.
+- **Network Connectivity**: Requires continuous network connection to GitHub cloud services unless configured with enterprise hybrid NIM nodes.
+- **IDE Feature Parity Lag**: Advanced agentic chat features often ship first in VS Code before rolling out to Neovim or JetBrains plugins.
 
 ## When to use it
-- When you want a well-supported, mainstream AI code completion and task automation tool.
-- When working within the GitHub ecosystem.
-- When you need to toggle between different SOTA frontier models (GPT-5.6 vs Claude 5.6 vs Gemini 4.0 Ultra) for different reasoning tasks.
+- When seeking a fully integrated, enterprise-supported AI coding pair programmer across mainstream IDEs.
+- When working within the GitHub ecosystem (Issues, PRs, Discussions, GitHub Actions).
+- When developers require model flexibility (toggling between low-latency completions and deep architectural reasoning).
 
 ## When not to use it
-- When strict local-only code processing is required without enterprise cloud options (consider [Ollama](../../services/ollama.md) + [Continue](continue_dev.md)).
-- When you prefer an open-source or free alternative (consider [Codeium](codeium.md)).
+- In strict local-only, air-gapped environments without enterprise cloud access or NIM infrastructure (use [Ollama](../../services/ollama.md) + [Continue](continue_dev.md)).
+- If your development team relies exclusively on open-source, non-subscription AI assistants (use [Codeium](codeium.md)).
 
 ## Getting started
 
-### Installation
-GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrains, Neovim, and Zed, or via the GitHub CLI:
+### Installation & CLI Setup
+Install GitHub Copilot extension for GitHub CLI:
 
 ```bash
+# Install the Copilot extension for GitHub CLI
 gh extension install github/gh-copilot
+
+# Verify CLI installation and authenticate
+gh copilot --version
 ```
 
-### Hello-world example
-Verify installation and invoke Copilot in the terminal to explain a command:
+### IDE Extension Setup
+1. Open your IDE (VS Code, JetBrains, Visual Studio, Neovim, or Zed).
+2. Install the **GitHub Copilot** and **GitHub Copilot Chat** extensions from the marketplace.
+3. Sign in to your GitHub account with an active Copilot subscription.
+4. Press `Cmd+I` (Mac) or `Ctrl+I` (Windows) to trigger inline chat or agent execution.
 
-```bash
-gh copilot explain "git status"
-```
-
-1. **IDE Setup**: Install the "GitHub Copilot" and "GitHub Copilot Chat" extensions from your IDE marketplace.
-2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
-3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the inline chat or launch a FastMCP 3.1 agent loop.
-
-### Model Selection (January 2027)
-You can select your preferred model in the Copilot Chat settings or agent session panel:
-- **Default / Speed**: GPT-5.6 (Optimized for low-latency speed and general coding).
-- **Advanced Reasoning & Architecture**: Claude 5.6 (Optimized for complex architectural tasks, refactoring, and FastMCP 3.1 agent loops).
-- **Multimodal & Long-Context**: Gemini 4.0 Ultra (Optimized for massive codebase analysis and multimodal input processing).
+### Multi-Model Selection in Copilot Chat (2027)
+Select the optimal model in the Copilot settings or chat panel:
+- **Claude 5.6**: Best for complex architectural tasks, multi-step refactoring, and FastMCP 3.1 agent loops.
+- **GPT-5.6**: Best for fast, low-latency code completion and general function synthesis.
+- **Gemini 4.0 Ultra**: Best for multi-modal analysis and massive multi-file context ingestion.
 
 ## CLI examples
 
-### GitHub Copilot CLI
-The Copilot CLI brings AI assistance directly to your terminal for explaining commands or generating scripts.
+### 1. Command Explanation
+Ask the CLI to explain complex terminal syntax:
 
 ```bash
-# Ask for a command explanation
-gh copilot explain "git log --oneline --graph --all"
+gh copilot explain "find . -type f -name '*.py' -exec grep -H 'def audit_' {} \+"
+```
 
-# Suggest a command for a task (interactive)
-gh copilot suggest "find all large files over 100MB and delete them"
+### 2. Command Suggestion Loop
+Interactively request shell commands for complex operations:
 
-# Update the CLI extension
+```bash
+gh copilot suggest "Convert all PNG images in /assets to WEBP and reduce quality to 80%"
+```
+
+### 3. Updating the Extension
+Upgrade `gh-copilot` to the latest release:
+
+```bash
 gh extension upgrade gh-copilot
 ```
 
 ## API examples
 
-### Copilot Extensions & FastMCP 3.1 Task Protocol API
-Developers can build custom extensions for Copilot Chat using FastMCP 3.1 Task Protocol schemas:
-
-```javascript
-// FastMCP 3.1 Task Protocol Copilot Extension snippet
-export async function handleRequest(request) {
-  const { prompt, model, task_context } = request;
-  // Dynamic tool calling and context fetching via FastMCP 3.1
-  const context = await fetchInternalDocs(prompt, task_context);
-  return {
-    message: `Based on verified internal docs: ${context}`,
-    model: 'claude-5.6',
-    task_status: 'in_progress'
-  };
-}
-```
-
-### Programmatic Python Setup (Pydantic v2)
-Validate enterprise configuration properties, model routing policies, and FastMCP 3.1 Task Protocol options:
+### Python FastMCP 3.1 Task Protocol Server Integration
+Below is a Python FastMCP 3.1 server designed to expose custom tools to GitHub Copilot Chat agent sessions:
 
 ```python
-from pydantic import BaseModel, Field
+import os
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP Server
+mcp = FastMCP(
+    "Copilot Workspace Extension Server",
+    version="3.1.0",
+    description="Exposes repository verification tools to GitHub Copilot FastMCP loops"
+)
+
+class RefactorCheckRequest(BaseModel):
+    module_path: str = Field(..., description="Relative path to target Python module")
+    max_complexity: int = Field(default=10, ge=1, le=25, description="Cyclomatic complexity limit")
+
+    @field_validator("module_path")
+    @classmethod
+    def check_py_file(cls, v: str) -> str:
+        if not v.endswith(".py"):
+            raise ValueError("Target file must be a Python source file (.py)")
+        return v
+
+class RefactorCheckResponse(BaseModel):
+    module_path: str
+    complexity_score: int
+    is_refactor_recommended: bool
+    suggestions: List[str]
+
+@mcp.tool()
+async def evaluate_code_complexity(req: RefactorCheckRequest) -> RefactorCheckResponse:
+    """Evaluates module cyclomatic complexity for Copilot workspace refactoring loops."""
+    # Simulated complexity evaluation logic
+    score = 12  # Example score
+    recommend = score > req.max_complexity
+
+    suggestions = []
+    if recommend:
+        suggestions.append("Decompose monolith functions into smaller sub-routines.")
+        suggestions.append("Apply Pydantic v2 schemas for argument validation.")
+
+    return RefactorCheckResponse(
+        module_path=req.module_path,
+        complexity_score=score,
+        is_refactor_recommended=recommend,
+        suggestions=suggestions
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Programmatic Policy & Model Selection Validator (Pydantic v2)
+Validate enterprise policy schemas, allowed model targets, and FastMCP 3.1 options:
+
+```python
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 from typing import List, Literal, Optional
 
-class FastMCPTaskConfig(BaseModel):
+class TaskProtocolConfig(BaseModel):
     protocol_version: str = Field(default="3.1", alias="protocolVersion")
-    max_steps: int = Field(default=20, alias="maxSteps")
-    enable_auto_execution: bool = Field(default=False, alias="enableAutoExecution")
+    max_agent_steps: int = Field(default=20, ge=1, le=50, alias="maxAgentSteps")
+    auto_apply_edits: bool = Field(default=False, alias="autoApplyEdits")
 
-class EnterprisePolicy(BaseModel):
-    allowed_models: List[str] = Field(default_factory=list, alias="allowedModels")
-    allow_telemetry: bool = Field(default=False, alias="allowTelemetry")
-    blocked_patterns: List[str] = Field(default_factory=list, alias="blockedPatterns")
+class EnterpriseSecurityPolicy(BaseModel):
+    allowed_models: List[Literal["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"]] = Field(...)
+    enable_public_code_filter: bool = Field(default=True)
+    telemetry_opt_out: bool = Field(default=True)
+    nim_endpoint_url: Optional[HttpUrl] = Field(None, description="Self-hosted NVIDIA NIM endpoint")
 
-class CopilotConfig(BaseModel):
-    user_model: Literal["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"] = Field(default="claude-5.6")
-    enable_autocomplete: bool = Field(default=True)
-    task_config: Optional[FastMCPTaskConfig] = None
-    policy: Optional[EnterprisePolicy] = None
+class CopilotEnterpriseConfig(BaseModel):
+    organization_id: str = Field(..., description="GitHub Organization ID")
+    security_policy: EnterpriseSecurityPolicy
+    task_protocol: TaskProtocolConfig = Field(default_factory=TaskProtocolConfig)
 
-    class Config:
-        populate_by_name = True
-
-# Validate active policy configuration
-config_data = {
-    "user_model": "claude-5.6",
-    "enable_autocomplete": True,
-    "task_config": {
-        "protocolVersion": "3.1",
-        "maxSteps": 25,
-        "enableAutoExecution": True
+# Verification Example
+raw_config = {
+    "organization_id": "org_acme_engineering",
+    "security_policy": {
+        "allowed_models": ["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"],
+        "enable_public_code_filter": True,
+        "telemetry_opt_out": True,
+        "nim_endpoint_url": "https://nim.internal.acme.com/v1"
     },
-    "policy": {
-        "allowedModels": ["gpt-5.6", "claude-5.6", "gemini-4.0-ultra"],
-        "allowTelemetry": False,
-        "blockedPatterns": ["**/*.key", "**/*.pem"]
+    "task_protocol": {
+        "protocolVersion": "3.1",
+        "maxAgentSteps": 30,
+        "autoApplyEdits": True
     }
 }
 
-config = CopilotConfig.model_validate(config_data)
-print(f"Validated Model selection: {config.user_model}")
-if config.task_config:
-    print(f"FastMCP Task Protocol Version: {config.task_config.protocol_version}")
-if config.policy:
-    print(f"Telemetry allowed: {config.policy.allow_telemetry}")
-    print(f"Blocked path patterns count: {len(config.policy.blocked_patterns)}")
+validated = CopilotEnterpriseConfig.model_validate(raw_config)
+print(f"Validated Copilot Org: {validated.organization_id}")
+print(f"NIM Endpoint configured: {validated.security_policy.nim_endpoint_url}")
+print(f"FastMCP Version: {validated.task_protocol.protocol_version}")
+```
+
+## Comparative Metrics & Enterprise Model Selection
+
+| Feature Axis | Claude 5.6 | GPT-5.6 | Gemini 4.0 Ultra |
+| :--- | :--- | :--- | :--- |
+| **Primary Specialty** | Complex Refactoring & Architecture | Real-Time Inline Completion | Massive Multimodal Context |
+| **Context Capacity** | 1,000,000 Tokens | 128,000 Tokens | 2,000,000+ Tokens |
+| **Latency Profile** | Moderate (~800ms) | Low (~150ms) | Moderate (~900ms) |
+| **FastMCP 3.1 Loop Capability** | Exceptional | High | High |
+| **Multimodal Inputs** | High | Standard | Native / Supreme |
+
+## Policy Reference & Security Guardrails
+
+| Policy Setting | Value Options | Description |
+| :--- | :--- | :--- |
+| `public_code_matches` | `block` / `allow` | Filters inline suggestions that match public GitHub repositories. |
+| `telemetry_data` | `opt_in` / `opt_out` | Prevents prompt and snippet retention for model retraining. |
+| `fastmcp_agent_execution` | `restricted` / `full` | Controls whether FastMCP tools can run terminal shell commands. |
+| `hybrid_inference_routing` | `cloud` / `nim_local` | Routes inference to self-hosted NVIDIA NIM enterprise clusters. |
+
+## Troubleshooting & Common Pitfalls
+
+### 1. Copilot Extension Authentication Drops
+If the extension drops credentials, re-authenticate via GitHub CLI:
+
+```bash
+gh auth refresh --scopes read:org,copilot
+```
+
+### 2. Handling FastMCP Tool Disconnections
+Verify that background MCP servers configured in VS Code `settings.json` are properly bound to FastMCP 3.1 protocols:
+
+```json
+{
+  "github.copilot.chat.mcpServers": {
+    "repo-auditor": {
+      "command": "python3",
+      "args": ["-m", "mcp_server_docs"]
+    }
+  }
+}
 ```
 
 ## Related tools / concepts
-- [Codeium](codeium.md) — Fast, AI coding assistant.
-- [Tabnine](tabnine.md) — Privacy-focused AI pair programmer.
-- [Claude Code](claude-code.md) — Anthropic's agentic coding CLI.
-- [Aider](aider.md) — Terminal-native pair programming with Git integration.
-- [VS Code](vscode.md) — The primary IDE host for Copilot.
-- [Zed](zed.md) — High-performance editor with native Copilot support.
+- [Codeium](codeium.md) — Fast, free-tier AI coding assistant.
+- [Tabnine](tabnine.md) — Privacy-first local/hybrid AI pair programmer.
+- [Claude Code](claude-code.md) — Anthropic's terminal-based autonomous pair programmer.
+- [Aider](aider.md) — Terminal-native pair programmer with Git integration.
+- [VS Code](vscode.md) — Primary IDE host for Copilot.
+- [Zed](zed.md) — High-performance editor with native Copilot bindings.
 - [Cursor](cursor.md) — AI-native IDE with deep code intelligence.
-- [Sourcegraph Cody](sourcegraph_cody.md) — Context-aware AI coding assistant.
+- [Sourcegraph Cody](sourcegraph_cody.md) — Enterprise knowledge-graph AI coding assistant.
 
 ## Sources / references
-- [Official Website](https://github.com/features/copilot)
+- [Official GitHub Copilot Portal](https://github.com/features/copilot)
 - [Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
+- [Model Context Protocol (MCP) Integration Specs](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
