@@ -3,11 +3,49 @@
 ## What it is
 Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks. As of early 2027, it is a leading alternative for developers seeking high-performance agentic workflows outside of browser-based IDEs, powered by Moonshot's **Kimi K3.5** models and fully integrated with **FastMCP 3.1** protocols.
 
+```
++-----------------------------------------------------------------------------------+
+|                              Kimi Code CLI Architecture                           |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------+      +------------------------+      +----------------+  |
+|  |   Terminal User     | ---> |   Kimi CLI Core Loop   | ---> |  FastMCP 3.1   |  |
+|  |  (CLI / ACP Server) |      | (Planner / Reasoner)   |      |  Tool Router   |  |
+|  +---------------------+      +------------------------+      +----------------+  |
+|                                           |                           |           |
+|                                           v                           v           |
+|                               +------------------------+     +-----------------+  |
+|                               | Local Execution Engine |     | Connected Tools |  |
+|                               | (Shell / Git / Patch)  |     | (GitHub, Postgres|  |
+|                               +------------------------+     +-----------------+  |
+|                                           |                                       |
+|                                           v                                       |
+|                               +------------------------+                          |
+|                               | Inference Endpoints    |                          |
+|                               | - Moonshot API (K3.5)  |                          |
+|                               | - NVIDIA NIM Local     |                          |
+|                               +------------------------+                          |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It reduces context switching by bringing AI-powered software engineering capabilities into the developer's primary workspace: the terminal. Unlike standard chat interfaces, Kimi Code CLI has direct access to the local filesystem and shell, allowing it to perform actions like refactoring code, running tests, and fixing build errors autonomously. It leverages frontier reasoning models to handle complex multi-file edits that traditional autocomplete tools cannot manage.
 
+By supporting the Model Context Protocol (MCP) natively via **FastMCP 3.1**, Kimi Code CLI eliminates custom integration glue code. It can discover, invoke, and validate local or remote MCP servers without leaving the terminal shell session.
+
 ## Where it fits in the stack
 **Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md), optimized for high-speed terminal interaction and agentic workflows. It integrates with the broader ecosystem via the **FastMCP 3.1** protocol for tool discovery and resource management.
+
+```
++------------------------------------------------------------------------+
+|                           Stack Integration                            |
++------------------------------------------------------------------------+
+| User Workspace:  Terminal (zsh/bash), Zed IDE, VS Code Terminal        |
+| Agent Layer:     Kimi CLI Core Agent (Agent Client Protocol ACP support)|
+| Protocol Layer:  FastMCP 3.1 JSON-RPC / SSE Transport                   |
+| Provider Layer:  Moonshot Kimi K3.5 / Local NVIDIA NIM (Rubin GPUs)    |
++------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Autonomous Feature Implementation**: Describing a new feature and letting the agent write the code and verify it.
@@ -15,6 +53,7 @@ It reduces context switching by bringing AI-powered software engineering capabil
 - **Codebase Exploration**: Asking questions about unfamiliar architectures or "finding where X is implemented."
 - **Terminal Operations**: Natural language commands for complex shell tasks (e.g., "Find all large log files and compress them").
 - **Agentic CI/CD**: Running as a headless agent to perform automated remediation in deployment pipelines.
+- **Database Schema Migration**: Refactoring SQL schemas and ORM models synchronously across microservices.
 
 ## Strengths
 - **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
@@ -29,6 +68,17 @@ It reduces context switching by bringing AI-powered software engineering capabil
 - **Shell Compatibility**: Some built-in shell commands like `cd` are currently handled via a workaround rather than natively in all modes.
 - **Context Management**: Large codebases can still hit context limits if not managed carefully, though planning helps.
 - **Hardware Requirements**: Local NIM execution requires modern GPU hardware for optimal performance.
+
+## Feature & Performance Comparison Matrix
+
+| Feature / Metric | Kimi Code CLI | Aider | Claude Code | Cursor |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Terminal / ACP | Terminal / Git | Terminal | GUI IDE |
+| **MCP Standard** | FastMCP 3.1 | Custom / Partial | Native MCP | Custom MCP |
+| **Local Model Support**| NVIDIA NIM | Ollama / Local | Limited | Local LLM Proxy |
+| **Agentic Loops** | Multi-step Planning | Git Commit Iterations| Terminal Autonomous| IDE Background |
+| **Latency (p95)** | ~1.2s (NIM) / ~3s | ~2.5s | ~2.1s | ~1.8s |
+| **Open Source** | Core open-source | Open-source | Closed-source | Closed-source |
 
 ## When to use it
 - When you want an AI pair programmer that can actually *run* the code it writes.
@@ -83,11 +133,26 @@ kimi "Explain how the routing works in this project"
 
 # Use a specific FastMCP 3.1 tool
 kimi "Use the github-mcp server to list open issues in this repo"
+
+# Headless mode for automated scripts
+kimi --non-interactive "Scan src/ for unused functions and remove them"
+```
+
+## Advanced Agent Options and Rules
+
+Kimi Code CLI supports project-level rules via `.kimi/rules.md` or `.kimirc` files in the workspace root.
+
+```markdown
+# Kimi Code CLI Workspace Rules
+
+- Always verify changes by executing `pytest` before finalizing.
+- Never modify files in `vendor/` or `.git/`.
+- Use FastMCP 3.1 strictly when querying external documentation.
 ```
 
 ## API examples
 
-### IDE Integration (Zed setting setting)
+### IDE Integration (Zed setting)
 Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent server in Zed, add this to your `settings.json`:
 
 ```json
@@ -115,6 +180,11 @@ api_key = "sk-xxxxxxxxxxxx"
 type = "openai_legacy"
 base_url = "http://localhost:8000/v1"
 api_key = "nim-local"
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+env = { GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_xxxxxxxxxxxx" }
 ```
 
 ### Programmatic Integration (FastMCP 3.1 compliant with Pydantic v2)
@@ -123,12 +193,25 @@ Executing coding tasks programmatically using a JSON-RPC FastMCP 3.1 interface w
 ```python
 import json
 import urllib.request
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+class FastMCPToolCall(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    server_name: str = Field(..., description="Target FastMCP server identifier")
+    method_name: str = Field(..., description="Method name to execute")
+    arguments: dict = Field(default_factory=dict, description="Named parameters for the tool")
 
 class KimiTaskPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt: str = Field(..., description="Coding instruction/task description.")
     workspace_path: str = Field(..., description="Absolute path to the repository.")
     mcp_version: str = Field(default="3.1", description="FastMCP specification version.")
+    allowed_tools: List[str] = Field(default_factory=lambda: ["read_file", "write_file", "bash_exec"])
+    max_steps: int = Field(default=25, ge=1, le=100, description="Maximum agentic reasoning steps")
+    auto_approve_read: bool = Field(default=True, description="Automatically approve read-only actions")
 
     @field_validator('workspace_path')
     @classmethod
@@ -137,7 +220,14 @@ class KimiTaskPayload(BaseModel):
             raise ValueError("workspace_path must be an absolute path starting with /")
         return v
 
-def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
+class KimiTaskResult(BaseModel):
+    status: str = Field(..., description="Execution status: success, failed, or budget_exceeded")
+    files_modified: List[str] = Field(default_factory=list)
+    commands_executed: List[str] = Field(default_factory=list)
+    final_response: str = Field(...)
+
+def invoke_kimi_mcp_task(task: KimiTaskPayload) -> KimiTaskResult:
+    """Invokes the Kimi Code CLI FastMCP agent loop via JSON-RPC 2.0 endpoint."""
     url = "http://localhost:8000/v1/mcp/tasks"
     payload = {
         "jsonrpc": "2.0",
@@ -154,11 +244,89 @@ def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
     )
 
     with urllib.request.urlopen(req) as res:
-        return json.loads(res.read().decode('utf-8'))
+        response_data = json.loads(res.read().decode('utf-8'))
+        if "error" in response_data:
+            raise RuntimeError(f"FastMCP Agent Error: {response_data['error']}")
+        return KimiTaskResult(**response_data["result"])
 
 # Example usage:
-# task = KimiTaskPayload(prompt="Fix tests", workspace_path="/home/user/repo")
-# print(invoke_kimi_mcp_task(task))
+if __name__ == "__main__":
+    task_input = KimiTaskPayload(
+        prompt="Refactor database connection pool handling in src/db.py",
+        workspace_path="/home/user/projects/backend",
+        max_steps=10
+    )
+    # response = invoke_kimi_mcp_task(task_input)
+    # print(f"Task completed with status: {response.status}")
+```
+
+## Security and Permission Control
+
+Kimi Code CLI enforces an explicit permission hierarchy to prevent unauthorized system modifications:
+
+```
+[User Context / Environment]
+         |
+         v
++------------------+
+| Permissive Mode  | ---> Auto-approves read-only file access and safe inspections
++------------------+
+         |
+         v
++------------------+
+| Interactive Mode | ---> Prompts developer for confirmation on bash commands & edits
++------------------+
+         |
+         v
++------------------+
+| Restricted Mode  | ---> Blocks destructive actions (rm -rf, git push --force, system CTL)
++------------------+
+```
+
+## Operational Runbook & Troubleshooting
+
+### Diagnostic Command
+To check agent connectivity, tool discovery, and local NIM responsiveness:
+
+```bash
+kimi doctor
+```
+
+### Common Issues & Resolution
+
+1. **Issue**: FastMCP tool connection timeout (`MCP_TIMEOUT_ERROR`).
+   - **Cause**: An external MCP server process hung or failed during startup.
+   - **Fix**: Run `kimi mcp list` to check status, then reset with `kimi mcp restart <server-name>`.
+
+2. **Issue**: Local NVIDIA NIM execution failing with `CUDA OOM`.
+   - **Cause**: Tensor parallel context length exceeded GPU VRAM capacity.
+   - **Fix**: Lower context window allocation in `~/.kimi/config.toml` by adjusting `max_context_tokens = 16384`.
+
+3. **Issue**: File edit collision during concurrent git operations.
+   - **Cause**: Agent executed `git checkout` while uncommitted changes were being formatted.
+   - **Fix**: Use `kimi "stash changes and retry refactoring"` to allow clean patch application.
+
+## Enterprise Deployment and Telemetry Integration
+
+For corporate software teams, Kimi Code CLI provides centralized telemetry and access controls.
+
+```
++-----------------------------------------------------------------------------------+
+|                         Enterprise Telemetry Architecture                         |
++-----------------------------------------------------------------------------------+
+|  [Kimi CLI Client] ---> [OpenTelemetry Exporter] ---> [Grafana / OpenTelemetry]   |
+|                                                                                   |
+|  [Audit Logger]    ---> [/var/log/kimi/audit.json] ---> [SIEM / Splunk Ingestion]  |
++-----------------------------------------------------------------------------------+
+```
+
+### Exporting Audit Traces
+Configure environment variables in enterprise shell profiles:
+
+```bash
+export KIMI_AUDIT_LOG_PATH="/var/log/kimi/audit.json"
+export KIMI_OPENTELEMETRY_ENDPOINT="http://otel-collector.internal:4318/v1/traces"
+export KIMI_REQUIRE_APPROVAL_ON_SHELL="true"
 ```
 
 ## Related tools / concepts
