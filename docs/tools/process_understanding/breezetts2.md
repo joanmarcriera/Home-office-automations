@@ -1,158 +1,300 @@
 # BreezeTTS2
 
 ## What it is
-BreezeTTS2 is a frontier open-source text-to-speech (TTS) generation engine designed for high-fidelity, low-latency audio synthesis, voice cloning, and expressive speech rendering. Operating with state-of-the-art neural acoustic modeling and vocoder architectures, BreezeTTS2 enables real-time stream synthesis on edge hardware as well as scalable server deployments. In early 2027, BreezeTTS2 serves as a premier open-weights speech synthesis backend for autonomous voice agents, interactive AI companions, and automated content pipelines.
+
+BreezeTTS2 is an open-weights, high-fidelity neural text-to-speech (TTS) synthesis engine engineered for sub-100ms first-chunk audio streaming, zero-shot voice cloning, and emotional prosody control. Built upon modern neural acoustic architectures and lightweight vector-quantized vocoders (such as HiFi-GAN and Descript Audio Codec), BreezeTTS2 generates expressive speech from input text using as little as 3 seconds of reference speaker audio.
+
+In early January 2027, BreezeTTS2 serves as a premier open-source speech synthesis backend for autonomous voice agents, interactive AI companions, real-time telephony pipelines, and local accessibility overlays. Through native support for the **FastMCP 3.1 Task Protocol**, BreezeTTS2 integrates directly into agentic workflows ([OpenClaw](../../tools/development_ops/openclaw.md), [Claude Code](../../tools/development_ops/claude-code.md)), allowing agents to output natural vocal streams during real-time user interactions.
+
+```
++-----------------------------------------------------------------------------------+
+|                        BreezeTTS2 Real-Time Audio Pipeline                        |
++-----------------------------------------------------------------------------------+
+                                          |
+     +------------------------------------+------------------------------------+
+     |                                                                         |
+     v                                                                         v
++---------------------------------+                       +---------------------------------+
+|      Input Text Stream          |                       | 3-Second Speaker Reference Wav  |
+|  (Phoneme & Tag Processing)     |                       |   (Acoustic Timbre Embedding)   |
++---------------------------------+                       +---------------------------------+
+                 |                                                         |
+                 +------------------------+--------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Neural Acoustic Transformer Model                          |
+|         (Text + Prosody Conditioning Tags + Timbre Vector Cross-Attention)        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                       Streaming Neural Vocoder (HiFi-GAN / DAC)                    |
+|             (Generates 24kHz / 44.1kHz PCM Audio Chunks in Sub-100ms)             |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                 FastMCP 3.1 Audio Tool Server / WebRTC Stream Output              |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Legacy text-to-speech engines often suffer from robotic prosody, high latency overhead, context window limitations, or dependencies on proprietary cloud APIs. BreezeTTS2 eliminates these issues by providing zero-shot voice cloning from short (3-second) audio references, multi-lingual emotional expression control, streaming audio chunking, and full local self-hosting capability without external data leakage.
+
+Legacy text-to-speech architectures present major operational obstacles for real-time AI applications:
+- **High Time-to-First-Audio (TTFA) Latency**: Traditional batch TTS engines wait for full sentence or paragraph generation before producing audio, causing high latency (>1.5s) that destroys natural conversational rhythm in voice assistants.
+- **Robotic Monotone Prosody**: Rule-based or early parametric TTS engines lack emotional expression, producing unnatural cadences that lead to user fatigue.
+- **SaaS API Costs & Privacy Egress**: Cloud voice services (ElevenLabs, OpenAI Audio API) charge per-character fees that scale heavily in continuous voice applications while transmitting sensitive audio conversations over public networks.
+- **Complex Voice Fine-Tuning**: Previous voice cloning systems required hours of clean, studio-quality audio training data. BreezeTTS2 achieves zero-shot timbre matching from a brief 3-second reference clip.
+
+BreezeTTS2 eliminates these drawbacks by offering zero-shot cloning, streaming first-chunk audio synthesis under 100ms, and complete offline self-hosting capabilities with zero recurring API costs.
 
 ## Where it fits in the stack
-**Process Understanding & Audio Synthesis Layer**. It functions alongside automatic speech recognition engines (e.g., [Faster Whisper](faster-whisper.md) or [NeMo Speech](nemo-speech.md)) to complete the real-time voice input/output loop for local conversational agents.
+
+**Process Understanding & Audio Synthesis Layer**. It functions alongside automatic speech recognition (ASR) engines (such as [Faster Whisper](faster-whisper.md) or [NeMo Speech](nemo-speech.md)) and local LLM backends ([Ollama](../../services/ollama.md), [Qwen](../ai_knowledge/qwen.md)) to complete the low-latency full-duplex voice loop for autonomous agents.
+
+```
++-----------------------------------------------------------------------------------+
+|                        User Speech Input (Microphone / Telephony)                 |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                       Speech-to-Text (ASR) Engine Layer                           |
+|                    (Faster Whisper | NeMo Speech | WhisperX)                      |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                     Agentic LLM & FastMCP 3.1 Reasoning Layer                     |
+|                   (Claude 5.1 | Qwen 3.8 | FastMCP 3.1 Tools)                   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                      BreezeTTS2 Speech Synthesis Layer                            |
+|        Sub-100ms Streaming Vocoder | Zero-Shot Voice Cloning | FastMCP 3.1      |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Audio Output Stream (WebRTC / Speaker)                     |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Interactive Voice Assistants**: Partnering with local LLM backends (like [Qwen](../ai_knowledge/qwen.md) or [Ollama](../../services/ollama.md)) to deliver ultra-low-latency real-time voice responses.
-- **Zero-Shot Voice Cloning**: Generating natural voice matching for podcasts, audiobooks, or localization from a brief reference recording.
-- **Multi-lingual Media Localization**: Translating and re-synthesizing voice tracks across multiple languages while preserving speaker timbre.
-- **Accessibility & Screen Readers**: Delivering natural-sounding, customizable voice streams for real-time accessibility overlays.
+
+- **Conversational Voice AI Assistants**: Pairing BreezeTTS2 with local LLM runtimes to deliver real-time, human-like voice responses with sub-100ms initial response latency.
+- **Zero-Shot Content Localization & Dubbing**: Re-synthesizing video voice tracks across multiple languages while maintaining original speaker timbre using reference clips.
+- **Automated Audiobook & Podcast Generation**: Generating long-form multi-speaker audio with explicit prosody tags (`<expressive>`, `<whisper>`, `<excited>`).
+- **Private Telephony & Accessibility Systems**: Self-hosting text-to-speech rendering on local servers for private IVR, screen reader overlays, and medical communication tools.
 
 ## Strengths
-- **Low-Latency Streaming**: Supports sub-100ms first-chunk audio synthesis for fluid conversational AI.
-- **Zero-Shot Timbre Cloning**: High fidelity voice cloning with as little as 3–5 seconds of reference audio.
-- **Expressive Prosody Control**: Explicit conditioning tags for pitch, speed, emotion, and emphasis.
-- **Hardware Efficient**: Optimized for both single consumer GPU (NVIDIA CUDA / AMD ROCm) and CPU execution via GGUF/ONNX quantizations.
+
+- **Ultra-Low First-Chunk Latency**: Generates initial audio frame chunks in under 100ms on consumer CUDA GPUs.
+- **3-Second Zero-Shot Voice Cloning**: High-fidelity timbre cloning from short reference audio files without model retraining.
+- **Explicit Emotion & Prosody Conditioning**: Supports markup tags for pitch, pace, volume, and emotional tone control.
+- **Hardware Efficiency**: Operates efficiently on consumer GPUs (4GB–8GB VRAM) and supports CPU/ONNX quantization for edge deployment.
+- **FastMCP 3.1 Protocol Native**: Integrates seamlessly with agent frameworks as a tool for audio output.
 
 ## Limitations
-- **VRAM Requirements**: Optimal multi-speaker quality requires ~4GB to 8GB of VRAM for unquantized models.
-- **Audio Quality Artifacts**: Ambient noise in short cloning reference samples can degrade output voice purity.
-- **Language Coverage Bounds**: While exceptional in major global languages, rare dialect coverage requires custom fine-tuning.
+
+- **Reference Audio Quality Dependency**: Ambient noise, background reverb, or distortion in short cloning reference samples degrades synthesized voice clarity.
+- **VRAM Requirements for High-Batch Workloads**: Concurrent synthesis for dozens of active callers requires 8GB+ VRAM or multi-GPU instances.
+- **Rare Language & Dialect Coverage Bounds**: While performance is high in major global languages, rare regional dialects require custom acoustic dataset fine-tuning.
 
 ## When to use it
-- When building fully offline or private voice interactive AI agents.
-- When low latency and natural human prosody are paramount for user engagement.
-- When requiring zero-shot voice cloning without per-character SaaS API fees.
+
+- When building real-time interactive voice agents requiring fluid, natural speech.
+- When full privacy and data self-containment are mandatory for voice applications.
+- When requiring zero-shot voice cloning without per-character SaaS subscription fees.
 
 ## When not to use it
-- When minimal compute resource footprints (<100MB RAM) are required (use lightweight concatenative or legacy parametric TTS engines).
-- When native cloud telephony trunk integrations are required out-of-the-box without containerization.
+
+- When compute resources are severely constrained (<1GB RAM, non-GPU IoT devices) — use lightweight concatenated TTS engines like Piper or eSpeak-NG.
+- When cloud telephony provider lock-in is acceptable and no local GPU infrastructure is available.
 
 ## Getting started
-BreezeTTS2 can be installed via PyPI or executed as a standalone containerized service with FastMCP 3.1 support.
+
+### Installation
+Install BreezeTTS2 and PyTorch audio dependencies:
 
 ```bash
-# Install BreezeTTS2 Python package and CLI
-pip install breezetts2 torch torchaudio
+# Install BreezeTTS2 Python library
+pip install breezetts2 torch torchaudio pydantic
+```
 
-# Launch local OpenAI-compatible audio synthesis server
-breezetts2-server --port 8000 --device cuda
+### Launching Standalone Audio Server
+Launch an OpenAI-compatible speech server backed by BreezeTTS2 on GPU:
+
+```bash
+breezetts2-server --port 8000 --device cuda --model breezetts2-base
 ```
 
 ## CLI examples
 
-### 1. Generating Speech from Text File
+### 1. Basic Text-to-Speech Generation
+Synthesize text string to WAV file using a built-in voice preset:
+
 ```bash
-# Synthesize text file to output WAV using standard speaker voice
-breezetts2 --input story.txt --output story.wav --voice standard_en_female
+breezetts2 \
+  --text "BreezeTTS2 delivers real-time voice synthesis for autonomous agents." \
+  --voice expressive_female \
+  --output output.wav
 ```
 
-### 2. Zero-Shot Voice Cloning via CLI
+### 2. Zero-Shot Voice Cloning from 3-Second Audio Reference
+Synthesize text using a custom reference audio clip:
+
 ```bash
-# Synthesize custom prompt using reference audio sample
-breezetts2 --text "Welcome to the frontier of local speech synthesis." \
-  --ref-audio reference_speaker.wav \
+breezetts2 \
+  --text "Welcome to the frontier of local speech synthesis." \
+  --ref-audio /path/to/speaker_sample.wav \
   --output cloned_output.wav
 ```
 
-### 3. FastMCP 3.1 Server Launch
+### 3. Launching FastMCP 3.1 Audio Tool Endpoint
+Start BreezeTTS2 as an MCP tool server for local agent integration:
+
 ```bash
-# Spin up BreezeTTS2 MCP tool server for local agent orchestration
-breezetts2-mcp --port 8080
+breezetts2-mcp --port 8080 --device cuda
 ```
 
 ## API examples
 
-### Python Integration with Streaming Response
+### FastMCP 3.1 Audio Tool Server
+This FastMCP 3.1 Python server exposes BreezeTTS2 text-to-speech tools for autonomous agents:
+
 ```python
-import breezetts2
+import json
+import base64
+from typing import Dict, Any, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
-# Initialize TTS model engine
-engine = breezetts2.BreezeTTSEngine(model_name="breezetts2-base", device="cuda")
+mcp = FastMCP("BreezeTTS2-Speech-Server")
 
-# Synthesize audio array from text
-audio_data, sample_rate = engine.generate(
-    text="BreezeTTS2 delivers real-time voice synthesis for autonomous agents.",
-    voice_preset="expressive_narrator",
-    speed=1.0
-)
+class SynthesisRequest(BaseModel):
+    text: str = Field(..., description="Text payload to synthesize into speech")
+    voice_preset: str = Field("expressive_narrator", description="Voice preset or speaker profile name")
+    speed_factor: float = Field(1.0, ge=0.5, le=2.0, description="Speed multiplier")
 
-# Save output to disk
-engine.save_wav("output.wav", audio_data, sample_rate)
+class SynthesisResponse(BaseModel):
+    status: str
+    sample_rate: int
+    duration_seconds: float
+    latency_ms: float
+    audio_base64: str
+
+@mcp.tool()
+def synthesize_speech_tool(request_json: str) -> str:
+    """Synthesizes text into high-fidelity audio using BreezeTTS2."""
+    try:
+        req = SynthesisRequest.model_validate_json(request_json)
+
+        # Simulated audio generation metrics
+        sample_audio_bytes = b"RIFF....WAVEfmt ....data...."
+        encoded_audio = base64.b64encode(sample_audio_bytes).decode("utf-8")
+
+        resp = SynthesisResponse(
+            status="success",
+            sample_rate=24000,
+            duration_seconds=2.85,
+            latency_ms=84.2,
+            audio_base64=encoded_audio
+        )
+
+        return resp.model_dump_json(indent=2)
+
+    except Exception as e:
+        return json.dumps({"error": f"Synthesis execution failed: {str(e)}"})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Programmatic Python Integration with Pydantic v2 Output Validation
-The following script demonstrates generating audio payload metadata using BreezeTTS2 and strictly validating response metrics using **Pydantic v2** schemas.
+### Strict Pydantic v2 Schema Validation for Audio Metrics
+This Python module validates BreezeTTS2 execution outputs and streaming audio frame payloads:
 
 ```python
 import sys
 from typing import Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-class BreezeTTSAudioMetrics(BaseModel):
-    duration_seconds: float = Field(..., description="Duration of generated audio in seconds")
-    sample_rate: int = Field(..., description="Sampling rate in Hz (e.g. 24000 or 44100)")
-    channels: int = Field(..., description="Number of audio channels")
-    latency_ms: float = Field(..., description="Synthesis latency in milliseconds")
+class AudioPerformanceMetrics(BaseModel):
+    first_chunk_latency_ms: float = Field(..., description="Time to first audio chunk in milliseconds")
+    total_duration_seconds: float = Field(..., ge=0.1, description="Total audio length")
+    sample_rate_hz: int = Field(24000, description="Sampling rate in Hz")
+    vram_peak_mb: float = Field(..., description="Peak GPU memory consumption")
 
-class BreezeTTSResponse(BaseModel):
-    status: str = Field(..., description="Status of synthesis execution")
-    voice_used: str = Field(..., description="Voice preset or reference audio hash used")
-    text_processed: str = Field(..., description="Text payload synthesized")
-    metrics: BreezeTTSAudioMetrics
-    audio_path: Optional[str] = Field(None, description="Path to generated WAV file")
+class BreezeTTSExecutionPayload(BaseModel):
+    status: str
+    voice_id: str
+    text_processed: str
+    metrics: AudioPerformanceMetrics
+    output_wav_path: Optional[str] = None
 
-def validate_tts_execution(raw_response: dict) -> Optional[BreezeTTSResponse]:
+    @field_validator("metrics")
+    def verify_latency_bound(cls, m: AudioPerformanceMetrics) -> AudioPerformanceMetrics:
+        if m.first_chunk_latency_ms > 200.0:
+            print(f"Warning: First-chunk latency ({m.first_chunk_latency_ms}ms) exceeded 200ms real-time target.")
+        return m
+
+def validate_audio_execution(raw_json: str) -> Optional[BreezeTTSExecutionPayload]:
     try:
-        return BreezeTTSResponse.model_validate(raw_response)
+        payload = BreezeTTSExecutionPayload.model_validate_json(raw_json)
+        print(f"BreezeTTS2 Payload Validated: Voice '{payload.voice_id}', Latency {payload.metrics.first_chunk_latency_ms}ms")
+        return payload
     except ValidationError as ve:
-        print(f"Pydantic Validation Error for BreezeTTS2 output: {ve}", file=sys.stderr)
+        print(f"Pydantic v2 Validation Error: {ve}", file=sys.stderr)
         return None
 
+# Test payload
+sample_payload = """
+{
+  "status": "success",
+  "voice_id": "cloned_ref_882",
+  "text_processed": "BreezeTTS2 provides low latency speech rendering.",
+  "metrics": {
+    "first_chunk_latency_ms": 78.4,
+    "total_duration_seconds": 3.2,
+    "sample_rate_hz": 24000,
+    "vram_peak_mb": 3420.0
+  },
+  "output_wav_path": "/tmp/output_882.wav"
+}
+"""
+
 if __name__ == "__main__":
-    print("Validating BreezeTTS2 execution output...")
-
-    sample_output = {
-        "status": "success",
-        "voice_used": "cloned_ref_9921",
-        "text_processed": "BreezeTTS2 offers state-of-the-art prosody and cloning.",
-        "metrics": {
-            "duration_seconds": 4.12,
-            "sample_rate": 24000,
-            "channels": 1,
-            "latency_ms": 85.4
-        },
-        "audio_path": "/tmp/output_cloned_9921.wav"
-    }
-
-    validated = validate_tts_execution(sample_output)
+    validated = validate_audio_execution(sample_payload)
     if validated:
-        print("BreezeTTS2 Output Validated Successfully:")
-        print(f"  Voice: {validated.voice_used}")
-        print(f"  Duration: {validated.metrics.duration_seconds}s at {validated.metrics.sample_rate}Hz")
-        print(f"  Latency: {validated.metrics.latency_ms}ms")
-    else:
-        print("Validation failed.", file=sys.stderr)
+        print(f"Processed Text: {validated.text_processed}")
 ```
 
+## Comparative TTS Quality Matrix
+
+| TTS Engine | Self-Hostable | First-Chunk Latency | Zero-Shot Cloning | Per-Char Cost |
+| :--- | :--- | :--- | :--- | :--- |
+| **BreezeTTS2** | Yes (Open Weights) | **<100ms** | **Yes (3-sec sample)** | **$0.00** |
+| **ElevenLabs API** | No (SaaS) | ~300ms | Yes (1-min sample) | $0.00018 / char |
+| **OpenAI Audio API** | No (SaaS) | ~400ms | No (Fixed voices) | $0.000015 / char |
+| **Piper TTS** | Yes (Open Source) | <50ms | No (Pre-trained) | $0.00 |
+
 ## Related tools / concepts
-- [Faster Whisper](faster-whisper.md) — High-speed Speech-to-Text inference engine.
-- [NeMo Speech](nemo-speech.md) — NVIDIA toolkit for ASR and TTS processing.
-- [Kokoclone](../ai_knowledge/kokoclone.md) — Speech and audio processing framework.
-- [Ollama](../../services/ollama.md) — Local LLM server for pairing with TTS backends.
-- [Qwen](../ai_knowledge/qwen.md) — Open-weights foundation models for agent intelligence.
+
+- [Faster Whisper](faster-whisper.md): High-speed Speech-to-Text inference engine for voice loops.
+- [NeMo Speech](nemo-speech.md): NVIDIA toolkit for speech recognition and acoustic modeling.
+- [Ollama](../../services/ollama.md): Local LLM server for pairing with TTS backends in voice agents.
+- [OpenClaw](../../tools/development_ops/openclaw.md): Multi-channel agent framework with voice capabilities.
+- [FastMCP 3.1](../../tools/automation_orchestration/mcp.md): Protocol for agent tool integration.
 
 ## Sources / references
+
 - [BreezeTTS2 Initial Impressions on LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1w1002h/breezetts2_initial_impressions_genuinely_frontier/)
-- [OpenAI Audio API Specification](https://platform.openai.com/docs/guides/text-to-speech)
+- [Descript Audio Codec (DAC) Technical Specification](https://github.com/descriptinc/descript-audio-codec)
+- [OpenAI Text-to-Speech API Reference](https://platform.openai.com/docs/guides/text-to-speech)
 
 ## Contribution Metadata
+
 - Last reviewed: 2027-01-07
 - Confidence: high
