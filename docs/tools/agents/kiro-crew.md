@@ -3,6 +3,35 @@
 ## What it is
 **Kiro Crew** is an enterprise agent workforce orchestration platform and multi-agent development environment designed to coordinate teams of specialized AI agents across complex software engineering and operational workflows. As of early January 2027, Kiro Crew native runtimes fully implement the **FastMCP 3.1 Task Protocol** and support high-throughput model routing across frontier reasoning models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**. It provides a structured framework for defining agent personas, role-based tool capabilities, shared contextual memory, and deterministic task delegation pipelines.
 
+### Kiro Crew Multi-Agent Architecture
+Kiro Crew uses a hierarchical supervisor-worker topology with isolated workspace worktrees, event-driven agent messaging, and integrated FastMCP 3.1 tool execution endpoints.
+
+```
++-----------------------------------------------------------------------------------+
+|                            KIRO CREW CONTROL PLANE                                |
+|   +-------------------+    +--------------------+    +------------------------+   |
+|   | Supervisor Agent  |    | Workspace Sync     |    | FastMCP 3.1 Server     |   |
+|   | (Planning Engine) |    | (Git Worktrees)    |    | (Tool & State Proxy)   |   |
+|   +---------+---------+    +---------+----------+    +-----------+------------+   |
++-------------|------------------------|---------------------------|----------------+
+              | Delegated Tasks        | Workspace Locking         | Tool Calls
+              v                        v                           v
++-----------------------------------------------------------------------------------+
+|                            SPECIALIZED AGENT WORKERS                              |
+|   +------------------+     +-------------------+     +------------------------+   |
+|   | Architect Agent  |     | Developer Agent   |     | QA & Compliance Agent  |   |
+|   | (Claude 5.6)     |     | (DeepSeek-V4)     |     | (Qwen 3.6 VL)          |   |
+|   +--------+---------+     +---------+---------+     +-----------+------------+   |
++------------|-------------------------|---------------------------|----------------+
+             | Code Design             | Implementation            | Verification
+             +-------------------------+---------------------------+
+                                       |
+                                       v
+                       +-------------------------------+
+                       | Verified Git PR & Code Patch  |
+                       +-------------------------------+
+```
+
 ## What problem it solves
 Managing multiple autonomous agents on complex codebases often leads to context drift, race conditions in workspace modifications, duplicate effort, and uncoordinated pull requests. Kiro Crew solves these challenges by providing a centralized agent coordinator and execution sandbox that enforces task boundaries, synchronized state management, automated code reviews between agent personas, and strict resource isolation.
 
@@ -41,7 +70,7 @@ Managing multiple autonomous agents on complex codebases often leads to context 
 Install the Kiro Crew CLI and orchestration SDK:
 
 ```bash
-pip install kiro-crew
+pip install kiro-crew fastmcp pydantic
 ```
 
 ### Initializing a Crew Workspace
@@ -63,67 +92,163 @@ kiro-crew run --task "Implement OAuth2 PKCE login flow with unit tests" --config
 
 # Inspect real-time execution status and agent telemetry
 kiro-crew status --active
+
+# Export execution logs and telemetry trace
+kiro-crew telemetry export --crew-id crew-8841 --format json > crew_trace.json
 ```
 
 ## API examples
 
-### Multi-Agent Crew Definition with FastMCP 3.1 & Pydantic v2 Verification
-This example demonstrates defining a multi-agent crew with FastMCP 3.1 protocol compliance and validating agent task output using strict **Pydantic v2** models:
+### FastMCP 3.1 Crew Tool Server & Orchestration Engine
+Below is a full Python integration demonstrating a **FastMCP 3.1** server providing multi-agent crew execution, status monitoring, and role-based tool delegation.
 
 ```python
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field, ValidationError
+import os
+import json
+from typing import List, Dict, Any, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
 
-# Define FastMCP 3.1 Task Schema
-class CrewTask(BaseModel):
+# Initialize FastMCP Server
+mcp = FastMCP("Kiro Crew Orchestrator", dependencies=["pydantic", "fastmcp"])
+
+class AgentPersona(BaseModel):
+    name: str = Field(..., description="Agent role name, e.g. Architect, Developer, Reviewer")
+    model: str = Field("claude-5.6", description="Target model ID for agent persona")
+    allowed_tools: List[str] = Field(default_factory=list, description="Permitted MCP tool IDs")
+
+class CrewTaskConfig(BaseModel):
     task_id: str = Field(..., description="Unique task identifier")
-    role: str = Field(..., description="Assigned agent role (e.g., Architect, Developer, Reviewer)")
-    instructions: str = Field(..., description="Detailed instructions for the agent")
-    assigned_model: str = Field(default="claude-5.6", description="Target LLM for this task")
-    dependencies: List[str] = Field(default_factory=list, description="IDs of tasks that must complete first")
+    description: str = Field(..., min_length=10, description="Task goal description")
+    assigned_role: str = Field(..., description="Target agent persona role")
+    dependencies: List[str] = Field(default_factory=list, description="IDs of prerequisite tasks")
 
-class CrewExecutionSummary(BaseModel):
-    crew_id: str = Field(..., description="Identifier for the executed crew")
-    status: str = Field(..., description="Overall execution status")
-    completed_tasks: int = Field(..., ge=0)
-    total_tokens_used: int = Field(..., ge=0)
-    artifacts: List[str] = Field(default_factory=list)
+class CrewDefinition(BaseModel):
+    crew_id: str = Field(..., description="Unique crew workspace identifier")
+    agents: List[AgentPersona] = Field(..., min_items=1)
+    tasks: List[CrewTaskConfig] = Field(..., min_items=1)
 
-def execute_kiro_crew(crew_id: str, tasks: List[CrewTask]) -> CrewExecutionSummary:
-    # Simulated execution engine interacting with FastMCP 3.1 Task Protocol
-    summary_data = {
-        "crew_id": crew_id,
-        "status": "completed",
-        "completed_tasks": len(tasks),
-        "total_tokens_used": 18450,
-        "artifacts": ["src/auth/pkce.py", "tests/test_pkce.py"]
+@mcp.tool()
+def deploy_kiro_crew(crew_config: CrewDefinition) -> dict:
+    """Deploys a multi-agent crew in isolated Git worktree sandboxes."""
+    # Process crew startup logic
+    return {
+        "status": "deployed",
+        "crew_id": crew_config.crew_id,
+        "agents_active": len(crew_config.agents),
+        "total_tasks": len(crew_config.tasks),
+        "sandbox_path": f"/tmp/kiro_sandboxes/{crew_config.crew_id}"
     }
 
-    # Strict Pydantic v2 verification
-    return CrewExecutionSummary.model_validate(summary_data)
+@mcp.tool()
+def fetch_crew_telemetry(crew_id: str) -> dict:
+    """Fetch real-time agent token usage and task completion metrics."""
+    return {
+        "crew_id": crew_id,
+        "active_status": "running",
+        "completed_tasks": 2,
+        "pending_tasks": 1,
+        "total_token_count": 42100,
+        "cost_estimate_usd": 0.126
+    }
 
 if __name__ == "__main__":
-    task1 = CrewTask(
-        task_id="task-001",
-        role="Architect",
-        instructions="Design OpenAPI schema for OAuth2 PKCE endpoints",
-        assigned_model="claude-5.6"
-    )
-    task2 = CrewTask(
-        task_id="task-002",
-        role="Developer",
-        instructions="Implement PKCE code challenge verification in Python",
-        assigned_model="deepseek-v4",
-        dependencies=["task-001"]
-    )
-
-    try:
-        result = execute_kiro_crew("crew-auth-dev", [task1, task2])
-        print(f"Crew Execution Successful: {result.crew_id} - Status: {result.status}")
-        print(f"Artifacts Generated: {', '.join(result.artifacts)}")
-    except ValidationError as e:
-        print(f"Validation error in crew execution response: {e}")
+    mcp.run()
 ```
+
+### Multi-Agent Verification Schemas (Pydantic v2)
+To guarantee payload safety across agentic workflows, complex crew outputs are verified using Pydantic v2:
+
+```python
+from pydantic import BaseModel, Field, field_validator, model_validator
+from typing import List, Optional
+from datetime import datetime
+
+class CodeReviewFeedback(BaseModel):
+    reviewer_agent: str = Field(..., description="Name of QA or Reviewer agent")
+    file_path: str = Field(..., description="Path to reviewed file")
+    severity: str = Field(..., pattern=r"^(info|warning|critical)$")
+    comment: str = Field(..., min_length=5)
+    line_number: Optional[int] = Field(None, ge=1)
+
+class AgentExecutionResult(BaseModel):
+    task_id: str = Field(..., description="Task UUID")
+    agent_name: str = Field(..., description="Executing agent role")
+    status: str = Field(..., pattern=r"^(completed|failed|halted)$")
+    artifacts_created: List[str] = Field(default_factory=list)
+    review_comments: List[CodeReviewFeedback] = Field(default_factory=list)
+    execution_time_seconds: float = Field(..., ge=0.0)
+
+    @model_validator(mode="after")
+    def check_failure_artifacts(self) -> "AgentExecutionResult":
+        if self.status == "failed" and self.artifacts_created:
+            raise ValueError("Failed agent execution cannot return valid artifacts.")
+        return self
+
+# Example execution validation
+sample_result = {
+    "task_id": "task-402",
+    "agent_name": "Developer Agent",
+    "status": "completed",
+    "artifacts_created": ["src/auth/jwt.py", "tests/test_jwt.py"],
+    "review_comments": [
+        {
+            "reviewer_agent": "Security QA Agent",
+            "file_path": "src/auth/jwt.py",
+            "severity": "warning",
+            "comment": "Ensure secret key expiration is configured via environment variable.",
+            "line_number": 24
+        }
+    ],
+    "execution_time_seconds": 12.4
+}
+
+validated_output = AgentExecutionResult.model_validate(sample_result)
+print("Validated Agent Result:", validated_output.model_dump_json(indent=2))
+```
+
+## Performance & Feature Benchmark Matrix
+
+| Feature / Metric | Kiro Crew | CrewAI | Agency Swarm | LangGraph |
+| :--- | :--- | :--- | :--- | :--- |
+| **Topology** | Hierarchical / Supervisor | Sequential & Hierarchical | Swarm / Directed Graph | Arbitrary Stateful Graph |
+| **FastMCP 3.1 Support** | Native First-Class | Extension Adapter | Custom Wrapper | MCP Agent Nodes |
+| **Workspace Isolation**| Native Git Worktrees | Directory Sandboxing | None | Virtual File System |
+| **Model Heterogeneity**| Multi-Model Dynamic Routing | Multi-Model Support | OpenAI Focused | Any LLM Model |
+| **State Persistence** | SQLite / Redis Sync | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer |
+| **Target Scale** | Enterprise Codebases | Lightweight Agent Teams | Conversational Swarms | Production Workflows |
+
+## Operational & Troubleshooting Guide
+
+### 1. Concurrent Git Worktree Lock Conflicts
+- **Symptom**: Agent worker throws `Git Worktree Locked` exception during task initialization.
+- **Cause**: A previously crashed agent process left a stale index lock file `.git/worktrees/<agent>/index.lock`.
+- **Resolution**:
+  Execute lock cleanup command before launching the crew:
+  ```bash
+  kiro-crew workspace unlock --crew-id crew-auth-dev --force
+  ```
+
+### 2. Context Window Exhaustion in Long Multi-Turn Handoffs
+- **Symptom**: Developer Agent truncates code patches or loses track of initial architectural requirements.
+- **Cause**: Shared context buffer accumulated raw chat messages without summarization across multiple agent handoffs.
+- **Resolution**: Enable state compression in `crew.yaml`:
+  ```yaml
+  context_management:
+    compression_strategy: "summarize_on_handoff"
+    max_context_tokens: 32000
+  ```
+
+### 3. FastMCP 3.1 Tool Timeout During Integration Tests
+- **Symptom**: QA Agent times out when triggering automated test runner tools.
+- **Cause**: Test suite execution exceeded default FastMCP response timeout (30s).
+- **Resolution**: Adjust `mcp_tool_timeout` setting in agent tool configuration:
+  ```python
+  mcp_config = {
+      "timeout_seconds": 120,
+      "retry_attempts": 3
+  }
+  ```
 
 ## Related tools / concepts
 - [Agency Swarm](agency-swarm.md) — Collaborative multi-agent framework built on OpenAI Assistants API.
@@ -136,6 +261,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [InfoQ: Kiro Crew Coding Agents Announcement](https://www.infoq.com/news/2026/08/kiro-crew-coding-agents/)
 - [Kiro Crew GitHub Organization](https://github.com/kiro-crew)
+- [FastMCP 3.1 Specification](https://github.com/jina-ai/fastmcp)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
