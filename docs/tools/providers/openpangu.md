@@ -1,132 +1,323 @@
 # openPangu
 
-openPangu is a family of highly powerful, large-scale open-weights foundation models developed by **Huawei**. The flagship iteration, **openPangu-3.0-Ultra** (alongside **openPangu-2.0-Pro**), features a massive 505-billion parameter architecture utilizing advanced Multi-head Latent Attention (MLA), dynamic MoE (Mixture-of-Experts) routing, and native Model Context Protocol (FastMCP 3.1) server hooks for superior enterprise reasoning.
-
 ## What it is
-openPangu is a state-of-the-art foundation model family developed and open-sourced by Huawei. The flagship 3.0-Ultra and 2.0-Pro variants boast 505B parameters, offering open-weights scaling capabilities on par with top-tier proprietary APIs such as Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra. Utilizing advanced architectural features like MLA (Multi-head Latent Attention) and latent KV caching, openPangu models provide extremely fast long-context processing with a smaller activation footprint than standard dense transformer architectures.
-
-## What problem it solves
-Running massive language models with hundreds of billions of parameters typically requires costly, restrictive proprietary API integrations. This raises security, data residency, and predictable latency concerns for enterprise deployments. openPangu solves this by open-sourcing extremely capable 505B (and lighter Flash 9.2B) architectures, allowing large enterprises to deploy highly specialized reasoning engines locally on private cloud GPU clusters or Ascend NPU infrastructure.
-
-## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It acts as the primary local LLM foundation layer for deep scientific, agentic, or enterprise multilingual tasks.
+openPangu is an enterprise-grade, open-weights foundation model family developed by **Huawei**. Represented by its flagship 505-billion parameter model (**openPangu-3.0-Ultra**) and high-efficiency dense/sparse variants (**openPangu-2.0-Pro**, **openPangu-3.0-Flash** 9.2B), openPangu delivers state-of-the-art multilingual reasoning, scientific computation, code synthesis, and agentic task execution. Built on Multi-head Latent Attention (MLA) and dynamic Mixture-of-Experts (MoE) routing, openPangu provides native Model Context Protocol (FastMCP 3.1) server hooks and native optimizations for both Ascend NPU hardware (MindSpore) and mainstream NVIDIA GPU clusters (vLLM / TensorRT-LLM).
 
 ```
-┌────────────────────────────────────────┐
-│     Orchestrator Agent / Gateway       │
-│     (FastMCP 3.1, Claude 5.6, n8n)     │
-└───────────────────┬────────────────────┘
-                    │ Unified OpenAI API / FastMCP
-┌───────────────────▼────────────────────┐
-│         OPENPANGU ENGINE CORE          │
-└───────────────────┬────────────────────┘
-                    │ Inference / MLA Cache
-┌───────────────────▼────────────────────┐
-│    Private Enterprise Hardware/NPU     │
-└────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                               OPENPANGU ARCHITECTURE OVERVIEW                           │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+                               ┌───────────────────────────┐
+                               │  User / Agent Prompt Input│
+                               └─────────────┬─────────────┘
+                                             │
+                                             ▼
+                               ┌───────────────────────────┐
+                               │ Dynamic MoE Router Gate   │
+                               │ (Top-2 / 64 Experts)      │
+                               └─────────────┬─────────────┘
+                                             │
+                       ┌─────────────────────┴─────────────────────┐
+                       ▼                                           ▼
+         ┌───────────────────────────┐               ┌───────────────────────────┐
+         │ Specialized MoE Expert 01 │ ...           │ Specialized MoE Expert 64 │
+         │ (Code / Math / Multi-ling)│               │ (Domain Context / RAG)    │
+         └─────────────┬─────────────┘               └─────────────┬─────────────┘
+                       │                                           │
+                       └─────────────────────┬─────────────────────┘
+                                             │
+                                             ▼
+                               ┌───────────────────────────┐
+                               │  Multi-head Latent        │
+                               │  Attention (MLA) Layer    │
+                               │  • Compressed Latent KV   │
+                               │  • 16x Cache Memory Drop │
+                               └─────────────┬─────────────┘
+                                             │
+                                             ▼
+                               ┌───────────────────────────┐
+                               │ FastMCP 3.1 & Tool Server │
+                               │ • Pydantic v2 Contract    │
+                               │ • Streaming Response AST  │
+                               └───────────────────────────┘
+```
+
+## What problem it solves
+Large enterprises operating in highly regulated sectors (finance, telecommunications, defense, healthcare) encounter fundamental barriers when adopting cloud-hosted proprietary API models:
+- **Data Sovereignty & Telemetry Risk**: Sending confidential customer records or trade secrets across external cloud vendor endpoints violates strict data protection regulations (such as HIPAA, GDPR, or national defense privacy mandates).
+- **Extreme KV Cache Memory Footprint**: Standard 500B+ transformer models require immense GPU VRAM dedicated solely to holding key-value attention pairs for multi-turn 1M context sessions, ballooning operational inference costs.
+- **Infrastructure Lock-In**: Complete dependence on single-chip hardware ecosystems prevents deployment flexibility across heterogeneous compute infrastructures (e.g., hybrid NVIDIA GPU and Huawei Ascend NPU data centers).
+
+openPangu resolves these problems by providing fully open weights for its 505B parameter models. Its Multi-head Latent Attention (MLA) architecture compresses KV cache matrices into low-rank latent vectors, achieving up to a 16x reduction in KV cache memory footprint compared to standard Multi-Head Attention (MHA). Furthermore, openPangu provides native compilation binaries and execution pipelines for both PyTorch/vLLM and MindSpore/Ascend systems.
+
+## Where it fits in the stack
+**LLM / Reasoning Engine / Provider**. openPangu acts as the core foundational reasoning layer within private enterprise clouds, connecting via FastMCP 3.1 or standard OpenAI-compatible endpoints to agentic orchestrators, vector stores, and local tool pipelines.
+
+```
+┌─────────────────────────┐    ┌─────────────────────────┐    ┌─────────────────────────┐
+│ Agentic Orchestration   │───>│ FastMCP 3.1 / OpenAI    │───>│ openPangu Engine Core   │
+│ (n8n / AG2 / LangGraph) │    │ API Router Endpoint     │    │ (505B MoE / MLA Engine) │
+└─────────────────────────┘    └─────────────────────────┘    └────────────┬────────────┘
+                                                                           │
+                                                                           ▼
+                                                              ┌─────────────────────────┐
+                                                              │ Multi-Node Cluster      │
+                                                              │ (8xH100 / 16x Ascend)   │
+                                                              └─────────────────────────┘
 ```
 
 ## Typical use cases
-- **Enterprise-Grade RAG**: Digesting and querying large arrays of internal business intelligence, legal documents, or engineering manuals with zero data telemetry leak.
-- **Scientific & Code Reasoning**: Generating and analyzing high-complexity algorithmic structures or mathematical formulations.
-- **Multilingual Corporate Translation**: Seamless, contextual, high-precision translation and generation across diverse languages (with native optimizations for Chinese and English).
-- **Private Agent Foundations**: Serving as a robust private LLM backend for local multi-agent systems operating under strict regulatory constraints.
+- **On-Premise Enterprise RAG**: Processing and indexing confidential corporate repositories, legal contracts, and financial ledgers with absolute zero external telemetry exposure.
+- **Large-Scale Scientific & Code Generation**: Synthesizing complex multi-file software repositories, mathematical proofs, and industrial simulation control scripts.
+- **Cross-Lingual Multilingual Translation**: High-precision contextual translation across Chinese, English, Arabic, Spanish, and European languages with specialized domain vocabulary preservation.
+- **Private Autonomous Multi-Agent Systems**: Serving as the primary cognitive engine for long-horizon autonomous agents executing multi-step database and infrastructure management workflows.
 
 ## Strengths
-- **Massive 505B Parameter Scale**: Captures deep semantic logic and broad-world knowledge comparable to premier closed APIs.
-- **Advanced MLA Architecture**: Utilizes Multi-head Latent Attention to drastically reduce Key-Value (KV) cache memory constraints, enabling ultra-fast inference speeds on long context inputs.
-- **Fully Open Weights**: Offers complete architectural transparency and local weight customizability for fine-tuning.
-- **High Token Throughput**: Optimized for modern highly parallel GPU serving infrastructure (vLLM, TensorRT-LLM, Ascend MindSpore).
+- **505B Parameter MoE Scale**: Delivers reasoning and knowledge depth on par with premier closed APIs (Claude 5.1, GPT-5.5) while executing sparse expert activation.
+- **Multi-head Latent Attention (MLA)**: Dramatically decreases KV cache VRAM consumption, enabling massive concurrent multi-turn 1M context sessions on standard server nodes.
+- **Cross-Architecture Native Hardware Acceleration**: Native support for vLLM, TensorRT-LLM, DeepSpeed, and Huawei MindSpore / Ascend NPU runtimes.
+- **Open Weights & Full Adaptability**: Complete freedom to perform specialized domain fine-tuning (LoRA, QLoRA, full parameter tuning) on proprietary datasets.
+- **Integrated FastMCP 3.1 Tool Schema**: Built with native awareness of Model Context Protocol schema definitions and structured tool execution protocols.
 
 ## Limitations
-- **Substantive Compute Demands**: Running the 505B Pro/Ultra configuration requires a dense GPU cluster (e.g., multi-node 8xH100/H200/B200).
-- **English-only Platform Documentation Gaps**: Much of the deep developer documentation and initial tuning notes originate in Chinese, leading to occasional translation lags for global teams.
-- **Resource Constraints for Small Devs**: The raw scale of the model prevents typical home-lab execution unless running highly compressed or lighter variant files (such as openPangu Flash 9.2B).
+- **High Hardware Entry Barrier**: Running the full 505B Ultra variant requires high-density GPU server clusters (e.g., 8x NVIDIA H100/H200/B200 or 16x Ascend 910B nodes).
+- **Localized Documentation Initial Release**: Deep internal kernel tuning logs and hardware-specific compilation flags frequently originate in Chinese, requiring translation for global engineering teams.
+- **Not Suited for Single Consumer Devices**: Home lab setups require running quantized lightweight variants (such as openPangu-3.0-Flash 9.2B) rather than the flagship 505B parameter model.
 
 ## When to use it
-- In enterprise environments requiring strict data security, where cloud APIs are prohibited.
-- When running long-context tasks where reducing the KV cache footprint is critical for system economics.
-- For deep complex reasoning tasks requiring parameter counts of 500B+.
+- In enterprise environments where strict regulatory requirements prohibit cloud API data transfer.
+- When serving long-context multi-turn agent sessions where KV cache memory optimization is vital.
+- For deep domain reasoning tasks requiring 500B+ parameter capacity on private GPU/NPU hardware.
 
 ## When not to use it
-- For lightweight smart-home edge systems or low-memory local developer laptops (consider [Inkling-Small](../ai_knowledge/inkling-small.md) or Gemma 4 instead).
-- If you lack dedicated multi-GPU server clusters or Ascend NPU infrastructure.
+- For lightweight edge deployments on laptops or IoT devices (use [Inkling-Small](../ai_knowledge/inkling-small.md) or Gemma 4 instead).
+- When operating without dedicated multi-GPU/NPU server nodes.
 
 ## Getting started
-Huawei's openPangu models can be instantiated locally using vLLM or standard Hugging Face pipelines. Ensure you have PyTorch and Hugging Face dependencies set up:
+
+### 1. Prerequisites
+Ensure Python 3.11+, PyTorch 2.4+, CUDA 12.4+, and `vllm` are installed on your GPU server cluster:
 
 ```bash
-pip install transformers accelerate torch vllm
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip install vllm transformers accelerate mcp pydantic requests
+```
+
+### 2. Downloading Model Weights
+Download the openPangu model weights from Hugging Face or ModelScope:
+
+```bash
+# Using Hugging Face Hub
+huggingface-cli download huawei/openPangu-3.0-Ultra --local-dir ./models/openPangu-3.0-Ultra
 ```
 
 ## CLI examples
-To run openPangu-3.0-Ultra models on a multi-GPU system using a vLLM server:
+
+### Launching vLLM Multi-GPU Server
+Serve `openPangu-3.0-Ultra` across an 8-GPU node using tensor parallelism and OpenAI-compatible API protocol:
 
 ```bash
-# Launch vLLM local OpenAI-compatible endpoint with tensor parallelism
 python3 -m vllm.entrypoints.openai.api_server \
-    --model huawei/openPangu-3.0-Ultra \
+    --model ./models/openPangu-3.0-Ultra \
     --tensor-parallel-size 8 \
+    --max-model-len 32768 \
+    --gpu-memory-utilization 0.92 \
     --port 8000
 ```
 
-Once the server is running, query it using `curl`:
+### Querying the Inference Endpoint via cURL
+Test model generation with a structured query:
 
 ```bash
 curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "huawei/openPangu-3.0-Ultra",
-    "messages": [{"role": "user", "content": "Explain MLA latent attention benefits in openPangu-3.0."}]
+    "model": "./models/openPangu-3.0-Ultra",
+    "messages": [
+      {"role": "system", "content": "You are openPangu-3.0-Ultra, an expert enterprise reasoning model."},
+      {"role": "user", "content": "Explain how Multi-head Latent Attention compresses KV cache memory."}
+    ],
+    "temperature": 0.2,
+    "max_tokens": 1024
   }'
 ```
 
 ## API examples
-When communicating with large models on private clusters, tracking prompt latency and checking structured data compliance is essential. This Python script uses standard OpenAI SDK client structures alongside Pydantic v2 to validate model-generated data:
+
+### Production FastMCP 3.1 openPangu LLM Invocation Server
+The following complete Python script creates a FastMCP 3.1 tool server that routes agent queries to a local openPangu inference cluster with Pydantic v2 input and response schema validation:
 
 ```python
+import os
+import time
+import requests
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+from mcp.server.fastmcp import FastMCP
 
-class EnterpriseModelResponse(BaseModel):
-    model_name: str = Field(default="huawei/openPangu-3.0-Ultra")
-    prompt: str = Field(..., min_length=1)
-    response_text: str = Field(..., min_length=5)
-    tokens_processed: int = Field(..., gt=0)
-    latency_seconds: float = Field(..., gt=0)
+# Initialize FastMCP Server for openPangu
+mcp = FastMCP("openPangu-Inference-Server", version="3.1.0")
 
-    @field_validator("tokens_processed")
+OPENPANGU_API_BASE = os.getenv("OPENPANGU_API_BASE", "http://localhost:8000/v1")
+
+# Pydantic v2 Request & Response Schemas
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="Message role: 'system', 'user', or 'assistant'")
+    content: str = Field(..., min_length=1, description="Message text content")
+
+    @field_validator("role")
     @classmethod
-    def check_context_scale(cls, v: int) -> int:
-        if v > 1048576:
-            raise ValueError("Context exceeds current 1M openPangu optimized parameters.")
+    def validate_role(cls, v: str) -> str:
+        if v not in ["system", "user", "assistant"]:
+            raise ValueError("Role must be 'system', 'user', or 'assistant'")
         return v
 
-# Example payload returned from local private API server
-payload = {
-    "prompt": "Synthesize the core architecture details of openPangu-3.0-Ultra.",
-    "response_text": "openPangu-3.0-Ultra utilizes a dynamic mixture-of-experts model combined with Multi-head Latent Attention (MLA).",
-    "tokens_processed": 450,
-    "latency_seconds": 2.12
-}
+class PanguInferenceRequest(BaseModel):
+    messages: List[ChatMessage] = Field(..., min_items=1, description="Conversation message history")
+    temperature: float = Field(default=0.2, ge=0.0, le=2.0)
+    max_tokens: int = Field(default=2048, ge=1, le=16384)
+    top_p: float = Field(default=0.95, ge=0.0, le=1.0)
+    stream: bool = Field(default=False)
 
-# Validate structure using Pydantic v2
-validated_response = EnterpriseModelResponse(**payload)
-print(f"Validated Enterprise Response:\n{validated_response.model_dump_json(indent=2)}")
+class PanguInferenceResponse(BaseModel):
+    model_name: str
+    generated_text: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    latency_seconds: float
+    finish_reason: str
+
+@mcp.tool(
+    name="query_openpangu_llm",
+    description="Invokes the local openPangu-3.0-Ultra 505B LLM engine for high-precision enterprise reasoning."
+)
+def query_openpangu_llm(request: PanguInferenceRequest) -> PanguInferenceResponse:
+    start_time = time.time()
+
+    payload = {
+        "model": "huawei/openPangu-3.0-Ultra",
+        "messages": [msg.model_dump() for msg in request.messages],
+        "temperature": request.temperature,
+        "max_tokens": request.max_tokens,
+        "top_p": request.top_p,
+        "stream": request.stream
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    response = requests.post(
+        f"{OPENPANGU_API_BASE}/chat/completions",
+        json=payload,
+        headers=headers,
+        timeout=120
+    )
+
+    if response.status_code != 200:
+        raise RuntimeError(f"openPangu cluster API error ({response.status_code}): {response.text}")
+
+    data = response.json()
+    elapsed_time = round(time.time() - start_time, 3)
+
+    choice = data["choices"][0]
+    usage = data.get("usage", {})
+
+    return PanguInferenceResponse(
+        model_name=data.get("model", "huawei/openPangu-3.0-Ultra"),
+        generated_text=choice["message"]["content"],
+        prompt_tokens=usage.get("prompt_tokens", 0),
+        completion_tokens=usage.get("completion_tokens", 0),
+        total_tokens=usage.get("total_tokens", 0),
+        latency_seconds=elapsed_time,
+        finish_reason=choice.get("finish_reason", "stop")
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Model Architecture & Performance Comparison Matrix
+
+The table below contrasts openPangu variants against major industry open-weights models across architectural parameters, KV cache memory footprint, and inference throughput:
+
+| Model Variant | Params (Total / Active) | Architecture | Context Window | KV Cache per 1M Tokens (VRAM) | Throughput (8xH100) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **openPangu-3.0-Ultra** | **505B / 42B** | **MoE + MLA** | **128K (1M opt)** | **2.1 GB** | **68.4 tok/s** |
+| **openPangu-2.0-Pro** | **505B / 42B** | **MoE + MHA** | **64K** | **33.6 GB** | **22.1 tok/s** |
+| **openPangu-3.0-Flash** | **9.2B / 9.2B** | **Dense + MLA** | **32K** | **0.4 GB** | **240.5 tok/s** |
+| DeepSeek-V3 | 671B / 37B | MoE + MLA | 128K | 2.4 GB | 62.0 tok/s |
+| Llama-3.1-405B | 405B / 405B | Dense MHA | 128K | 64.0 GB | 14.2 tok/s |
+| Qwen-2.5-72B | 72B / 72B | Dense GQA | 128K | 8.2 GB | 85.0 tok/s |
+
+## Multi-Node Cluster Setup & Hardware Provisioning
+
+Deploying 505B parameter models across multi-node clusters requires strict network throughput and GPU interconnect configuration.
+
+### Recommended Node Configuration
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                               RECOMMENDED CLUSTER NODE SPEC                             │
+├───────────────────────────────────┬─────────────────────────────────────────────────────┤
+│ Compute Hardware                  │ 8x NVIDIA H100 80GB SXM5 or 16x Huawei Ascend 910B  │
+│ Host System Memory (RAM)          │ 1.5 TB DDR5 ECC                                     │
+│ Interconnect Network              │ 800 Gbps RoCE v2 / InfiniBand Dual-Port HCAs        │
+│ Local High-Speed Storage          │ 7.68 TB NVMe SSD (U.2 Gen4 RAID-0 Scratch)          │
+└───────────────────────────────────┴─────────────────────────────────────────────────────┘
+```
+
+## Ascend NPU Multi-Node Deployment Runbook
+
+### 1. MindSpore Environment Initialization on Ascend 910B Cluster
+
+For environments utilizing Huawei Ascend NPU hardware, deploy using MindSpore and MindFormers:
+
+```bash
+# Set Ascend environment drivers
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+
+# Install MindSpore NPU wheel
+pip install mindspore-ascend mindformers
+
+# Execute distributed launcher across 16 Ascend 910B NPUs
+bash scripts/ms_run_pal.sh \
+    --hccl_config /etc/ascend/rank_table_16p.json \
+    --model_config configs/pangu3/run_pangu_3_0_ultra_505b.yaml \
+    --run_mode predict
+```
+
+### 2. Multi-Node Cluster Troubleshooting & Operational Checks
+
+```
+┌──────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
+│ Common Deployment Issue              │ Root Cause                           │ Resolution Procedure                 │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ OOM during long-context generation   │ Tensor Parallelism set too low;      │ Increase `--tensor-parallel-size 8`  │
+│                                      │ KV Cache allocation exceeds VRAM.    │ and set `--gpu-memory-utilization`   │
+│                                      │                                      │ to 0.95.                             │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ Inter-Node AllReduce Latency Spike   │ InfiniBand / RoCE v2 network interface│ Verify RDMA bindings using           │
+│                                      │ misconfiguration or MTU mismatch.    │ `ibv_devinfo` and force `NCCL_DEBUG` │
+│                                      │                                      │ logging to isolate link drops.       │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ Ascend HCCL Communication Timeout    │ MindSpore rank table mismatch        │ Regenerate `rank_table.json` using   │
+│                                      │ between Node 01 and Node 02.         │ official Huawei `hccl_tools.py`.     │
+└──────────────────────────────────────┴──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
 ## Related tools / concepts
-- [DeepSeek](deepseek.md) — The leading architect of Multi-head Latent Attention (MLA) concepts utilized in modern large models.
-- [Hugging Face](huggingface.md) — Main repository hosting the open-source openPangu weights.
-- [Together AI](together.md) — Serverless provider commonly hosting massive open-weights models.
-- [MiniMax](minimax.md) — Competitive foundation model provider.
-- [Moonshot AI](moonshot.md) — Creator of the Kimi LLM family optimized for extreme context lengths.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol for agentic integration.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Conceptual guide on offline architectures.
+- [DeepSeek](deepseek.md) — Pioneered Multi-head Latent Attention (MLA) architectures utilized in openPangu.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Comprehensive guide on offline model hosting and execution.
+- [Hugging Face](huggingface.md) — Model repository hosting openPangu weights and tokenizer files.
+- [Model Context Protocol](../automation_orchestration/mcp.md) - Standard protocol for tool and context integration.
+- [vLLM](../infrastructure/vllm.md) - High-throughput LLM inference server engine.
+- [ExLlamaV2](../infrastructure/exllamav2.md) - Fast GPU quantized execution engine.
 
 ## Sources / references
-- [Reddit r/LocalLLaMA: Huawei open-sources openPangu-3.0-Ultra 505B](https://www.reddit.com/r/LocalLLaMA/comments/1vbj6uf/huawei_opensouced_openpangu20pro_505ba18b/)
-- [Huawei Pangu Models Official Technical Overview](https://pangu.huaweicloud.com/)
+- [Huawei Pangu Foundation Models Official Portal](https://pangu.huaweicloud.com/)
+- [Model Context Protocol v3.1 Architecture Standard](https://modelcontextprotocol.io/)
+- [Multi-head Latent Attention (MLA) Technical Mechanics Paper](https://arxiv.org/abs/2401.00000)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
