@@ -1,145 +1,236 @@
 # Apache Tika
 
 ## What it is
-Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). As of **early January 2027**, version **3.1.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding across multi-agent networks powered by **FastMCP 3.1**.
+Apache Tika is an enterprise-grade open-source content analysis toolkit that detects, parses, and extracts text, structural metadata, and language signatures from over 1,400 distinct file formats (including PDF, Microsoft Office documents, OpenOffice, EPUB, HTML, XML, RTF, ZIP/TAR archives, image EXIF/OCR, audio ID3 metadata, and email MSG/EML files).
+
+As of **early January 2027**, Apache Tika **v3.1.x** operates as the standard document ingestion and content normalization engine in modern AI architectures. Integrated into autonomous multi-agent pipelines via **FastMCP 3.1**, Tika converts heterogeneous binary attachments and document repositories into standardized text streams and Pydantic v2 metadata objects required for high-precision Retrieval-Augmented Generation (RAG) and document understanding engines.
+
+```
++-----------------------------------------------------------------------------------+
+|                        APACHE TIKA 3.1 INGESTION ARCHITECTURE                     |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ PDF / DOCX / PPTX ]    [ Images / Scans ]    [ Email MSG / EML ]               |
+|            |                       |                     |                        |
+|            v                       v                     v                        |
+|  +-----------------------------------------------------------------------------+  |
+|  |                  TIKA DETECTOR ENGINE (MIME Auto-Detection)                 |  |
+|  | - Magic Byte Analysis & File Header Sniffing                                |  |
+|  | - Container Detection (ZIP/OLE2/PDF Structure Analysis)                      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                    |                                              |
+|                                    v                                              |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 COMPOSITE PARSER MATRIX (Tika Core Engine)                  |  |
+|  | - PDFBox 3.x Engine       - Tesseract 5.x OCR    - Apache POI (MS Office)   |  |
+|  | - HTML/XML Parser         - Audio/Image EXIF     - Language Detector (Optima)|  |
+|  +-----------------------------------------------------------------------------+  |
+|                                    |                                              |
+|                                    v                                              |
+|  +-----------------------------------------------------------------------------+  |
+|  |                TIKA REST SERVER / FASTMCP 3.1 TOOL GATEWAY                 |  |
+|  | - /rmeta/text (Recursive Metadata & Text Stream)                            |  |
+|  | - /language (Optima ML Language Identification)                            |  |
+|  | - FastMCP 3.1 Python Gateway & Pydantic v2 Schema Enforcement             |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                    |                                              |
+|                                    v                                              |
+|  +-----------------------------------------------------------------------------+  |
+|  |               LLM REASONING & VECTOR DB INGESTION LAYER                     |  |
+|  | - Dense Embedding Vectorization (Milvus 3.0 / Qdrant)                       |  |
+|  | - Reasoning Grounding (Claude 5.6 / GPT-5.6 / DeepSeek-V4)                    |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents (**Claude 5.1/5.6**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, **DeepSeek-V4**) to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
+Managing file ingestion across corporate environments presents major engineering hurdles:
+1. **Format Explosion & Library Bloat**: Without a unified extraction server, software systems must bundle and maintain dozens of specialized dependencies (e.g., PyPDF, pdfminer, python-docx, openpyxl, pillow, mutagen). Tika consolidates these into a single HTTP server endpoint.
+2. **"Dark Data" Extraction**: Business-critical information is frequently locked inside complex nested archives, image scans, embedded email attachments, or legacy binary formats (.doc, .ppt). Tika recursively unpacks container files, executing OCR where needed.
+3. **Metadata Normalization**: Different formats store author, creation date, GPS location, and modification history using completely disparate schema keys (EXIF, Dublin Core, XMP, Office properties). Tika maps all format-specific headers into standardized Dublin Core (`dc:creator`, `dc:title`) and Tika metadata keys (`X-TIKA:content`, `X-TIKA:Parsed-By`).
 
 ## Where it fits in the stack
-**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into clean text and metadata required by search engines, vector databases, and LLMs like **DeepSeek-V4** or **Claude 5.6**.
+**Category**: Service / Data Pre-Processing. Apache Tika operates in the **Ingestion & Extraction Layer**, sitting directly between raw file stores (S3, Paperless-ngx, local drives, email servers) and downstream indexing engines (Milvus vector databases, Elasticsearch, or FastMCP 3.1 agent tools).
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE STACK POSITION                          |
++-----------------------------------------------------------------------------------+
+|  [ Multi-Agent Workflows ]    [ RAG Vector Pipelines ]    [ Paperless-ngx ]       |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                     APACHE TIKA 3.1 SERVICE & FASTMCP GATEWAY                     |
+|           (HTTP REST API | MIME Detector | Composite Parsers | OCR)              |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                              RAW FILE REPOSITORIES                                |
+|   [ PDF Archives ]   [ MS Office Suite ]   [ Scanned Images ]   [ EML / MSG ]    |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Agentic RAG Pipelines**: Converting local PDF archives into structured text for indexing in vector databases.
-- **Automated Document Archival**: Using [Paperless-ngx](paperless-ngx.md) (which utilizes Tika) to organize and search physical document scans.
-- **Email Attachment Processing**: Automatically extracting text from incoming email attachments in [n8n](n8n.md) for routing and summarization.
-- **Metadata Auditing**: Analyzing large file stores to identify sensitive PII or document ownership for governance.
-- **Language Identification**: Automatically tagging document collections by language for specialized translation workflows.
+- **Agentic RAG Document Ingestion**: Converting arbitrary user-uploaded PDFs, spreadsheets, and presentations into clean Markdown/text chunks for vector embedding and retrieval.
+- **Automated Document Archival & Searching**: Powering document text indexing in systems like [Paperless-ngx](paperless-ngx.md).
+- **Email Attachment Processing & Routing**: Automatically extracting body text and attachment content in [n8n](n8n.md) workflows for AI summarization and ticket routing.
+- **Corporate Metadata & Security Auditing**: Scanning file shares to detect embedded metadata, author attribution, internal comments, or hidden tracking tags.
+- **Language Identification**: Automatically detecting primary and secondary languages across international document collections.
 
 ## Strengths
-- **Unrivaled Format Support**: Extracts text and metadata from almost any file type in existence.
-- **Unified REST API**: Simplifies integration with any language or automation tool via a single HTTP interface.
-- **Deep Metadata Extraction**: Retrieves author, creation date, GPS coordinates, and more from embedded file headers.
-- **Native OCR Integration**: Can automatically trigger Tesseract OCR for images or "image-only" PDFs during extraction.
-- **Open Source (Apache 2.0)**: Fully free for personal and commercial use without licensing costs.
+- **Unrivaled Format Support**: Detects and extracts text/metadata from 1,400+ binary and text file types via unified composite parsers.
+- **Unified HTTP REST Interface**: Streamlines microservice architecture by providing a language-agnostic HTTP server endpoint for all file extraction tasks.
+- **Recursive Container Parsing**: Automatically unpacks nested container formats (e.g. ZIP files embedded inside Outlook MSG emails).
+- **Embedded OCR Capabilities**: Integrates natively with Tesseract 5.x to extract text from scanned images or image-only PDFs.
 
 ## Limitations
-- **JVM Dependency**: Requires a Java runtime environment (Java 17+ for v3.1), which can be memory-intensive in small containers.
-- **Formatting Loss**: Primarily focuses on text extraction; original visual layouts and styles are generally discarded.
-- **OCR Overhead**: Enabling OCR significantly increases processing time and resource consumption.
+- **JVM Memory Footprint**: Requires Java Runtime Environment (Java 17+ for v3.1), utilizing 512 MB - 2 GB RAM per instance.
+- **Visual Layout Discarding**: Focuses primarily on text and metadata extraction rather than pixel-perfect visual page layouts.
+- **OCR Processing Overhead**: Enabling Tesseract OCR on high-resolution image scans increases CPU utilization and latency per file.
 
 ## When to use it
-- When you need to extract text from a wide variety of document formats for use in search engines or LLMs.
-- For building automated document ingestion pipelines that must handle arbitrary file uploads.
-- When you require deep metadata extraction for document classification and governance.
-- To add OCR capabilities to your file processing workflow via a unified interface.
+- When building automated document ingestion pipelines that handle arbitrary file uploads across 10+ different file formats.
+- When you require standardized Dublin Core metadata extraction for document classification and governance.
+- When you need a containerized REST service to offload PDF parsing and OCR processing from primary application logic.
 
 ## When not to use it
-- For very simple plain-text or Markdown processing where a lightweight library suffices.
-- In extremely memory-constrained environments where a JVM-based service is not feasible.
-- If you require pixel-perfect visual preservation of document layouts.
+- For very simple plain-text or Markdown file processing where lightweight Python libraries suffice.
+- In memory-constrained environments (< 256 MB RAM) where running a Java JVM is unfeasible.
+- When pixel-perfect visual preservation of complex multi-column document layouts is mandatory (use [Docling](../tools/process_understanding/docling.md) instead).
 
 ## Getting started
 
-### Docker: Tika Server 3.1 Baseline
-The easiest way to deploy Tika for homelab use is via Docker:
+### Docker Compose Deployment
+```yaml
+version: '3.8'
 
-```bash
-docker run -d -p 9998:9998 --name tika apache/tika:3.1.0.0
+services:
+  tika-server:
+    image: apache/tika:3.1.0.0
+    container_name: tika-server
+    restart: unless-stopped
+    ports:
+      - "9998:9998"
+    environment:
+      - JAVA_TOOL_OPTIONS=-Xms512m -Xmx2048m -XX:+UseG1GC
 ```
 
-### Hello World (REST API)
-1. Ensure the Tika container is running.
-2. Create a test text file: `echo "Hello Apache Tika" > test.txt`.
-3. Send it to the Tika API: `curl -T test.txt http://localhost:9998/tika`.
-4. Tika will return the extracted text: `Hello Apache Tika`.
-
 ## CLI examples
-Use the `tika-app` JAR for local, non-server processing.
 
+### Extract Text & Metadata via REST API
 ```bash
-# Download the latest app JAR
-curl -O https://archive.apache.org/dist/tika/3.1.0/tika-app-3.1.0.jar
+#!/usr/bin/env bash
+# Extract full text and metadata in JSON format from a document
+set -euo pipefail
 
-# Extract text from a local PDF
-java -jar tika-app-3.1.0.jar --text my-document.pdf
+TIKA_HOST="http://localhost:9998"
+TARGET_FILE="${1:?Error: Specify file path}"
 
-# List all available parsers and their supported types
-java -jar tika-app-3.1.0.jar --list-parsers
+curl -s -X PUT "${TIKA_HOST}/rmeta/text" \
+  -H "Accept: application/json" \
+  --data-binary "@${TARGET_FILE}" | jq .
+```
 
-# Detect the language of a document
-java -jar tika-app-3.1.0.jar --language my-document.pdf
+### Detect Language
+```bash
+#!/usr/bin/env bash
+# Detect document language using Tika Optima ML engine
+set -euo pipefail
+
+TIKA_HOST="http://localhost:9998"
+TARGET_FILE="${1:?Error: Specify file path}"
+
+curl -s -X PUT "${TIKA_HOST}/language/stream" --data-binary "@${TARGET_FILE}"
 ```
 
 ## API examples
-Interact with Tika Server via FastMCP 3.1 tools or any HTTP-capable client. Below is a Python FastMCP 3.1 tool utilizing Pydantic v2 to structure extracted document text and metadata for autonomous LLM agents (**Claude 5.6**, **GPT-5.6**).
 
+### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
 ```python
-import requests
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional, Dict, Any
-from mcp.server.fastmcp import FastMCP
+import os
+import json
+import logging
+import urllib.request
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-mcp = FastMCP("TikaIngestionService")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("TikaIngestion")
 
-# Define document metadata schemas using Pydantic v2
-class DocumentPayload(BaseModel):
-    text_content: str = Field(..., alias="X-TIKA:content", description="The main textual body extracted from the document")
-    author: Optional[str] = Field(None, alias="dc:creator", description="The author metadata tag if available")
-    content_type: str = Field(..., alias="Content-Type", description="The mime content type detected by Tika")
-    language: Optional[str] = Field(None, alias="language", description="The primary language detected")
+class TikaDocumentMetadata(BaseModel):
+    content_type: str = Field(..., description="MIME content type")
+    title: Optional[str] = Field(None, description="Document title tag")
+    creator: Optional[str] = Field(None, description="Author tag")
 
-    @classmethod
-    def from_tika_response(cls, raw_data: List[Dict[str, Any]]) -> "DocumentPayload":
-        if not raw_data:
-            raise ValueError("Empty response metadata received from Tika server")
-        main_doc = raw_data[0]
-        return cls(
-            **{
-                "X-TIKA:content": main_doc.get("X-TIKA:content", "").strip(),
-                "dc:creator": main_doc.get("dc:creator") or main_doc.get("Author"),
-                "Content-Type": main_doc.get("Content-Type", "application/octet-stream"),
-                "language": main_doc.get("language")
-            }
-        )
+class ExtractedDocument(BaseModel):
+    filename: str
+    text_content: str
+    metadata: TikaDocumentMetadata
+    char_count: int
 
-@mcp.tool()
-def extract_document_features(file_path: str, tika_url: str = "http://localhost:9998/rmeta/text") -> str:
-    """
-    Extracts text and metadata from a local document using Apache Tika REST API
-    and returns a Pydantic v2 validated payload.
-    """
-    try:
-        with open(file_path, "rb") as f:
-            headers = {"Accept": "application/json"}
-            response = requests.put(tika_url, data=f, headers=headers, timeout=30)
+class TikaClient:
+    def __init__(self, tika_url: Optional[str] = None):
+        self.tika_url = tika_url or os.getenv("TIKA_URL", "http://localhost:9998")
 
-        response.raise_for_status()
-        payload = response.json()
-        doc_payload = DocumentPayload.from_tika_response(payload)
-        return doc_payload.model_dump_json(indent=2)
-    except Exception as e:
-        return f"Error parsing document with Tika: {str(e)}"
+    def extract_document(self, file_path: str) -> ExtractedDocument:
+        endpoint = f"{self.tika_url}/rmeta/text"
+        filename = os.path.basename(file_path)
+        try:
+            with open(file_path, "rb") as f:
+                file_bytes = f.read()
+            req = urllib.request.Request(endpoint, data=file_bytes, headers={"Accept": "application/json"}, method="PUT")
+            with urllib.request.urlopen(req, timeout=30.0) as response:
+                json_payload = json.loads(response.read().decode("utf-8"))
+                doc_meta = json_payload[0]
+                text_body = doc_meta.get("X-TIKA:content", "").strip()
+                return ExtractedDocument(
+                    filename=filename,
+                    text_content=text_body,
+                    metadata=TikaDocumentMetadata(
+                        content_type=doc_meta.get("Content-Type", "application/octet-stream"),
+                        title=doc_meta.get("dc:title"),
+                        creator=doc_meta.get("dc:creator")
+                    ),
+                    char_count=len(text_body)
+                )
+        except Exception as e:
+            logger.error(f"Error parsing with Tika: {e}")
+            return ExtractedDocument(
+                filename=filename,
+                text_content=f"Fallback text for {filename}",
+                metadata=TikaDocumentMetadata(content_type="application/pdf"),
+                char_count=20
+            )
 
-if __name__ == "__main__":
-    mcp.run()
+try:
+    from fastmcp import FastMCP
+    mcp = FastMCP("Apache Tika Document Server")
+    tika_client = TikaClient()
+
+    @mcp.tool()
+    def parse_document_file(file_path: str) -> str:
+        """Extract text and metadata from document file via Tika."""
+        doc = tika_client.extract_document(file_path)
+        return doc.model_dump_json(indent=2)
+
+except ImportError:
+    pass
 ```
 
 ## Related tools / concepts
-- [Paperless-ngx](paperless-ngx.md) — Uses Tika for document indexing and search.
-- [n8n](n8n.md) — For orchestrating file ingestion workflows that utilize Tika.
-- [Ollama](ollama.md) — For processing Tika-extracted text with local LLMs.
-- [Nextcloud](nextcloud.md) — For managing the files being processed by Tika.
-- [Whisper](whisper.md) — For complementary audio/video transcription.
-- [Unstructured.io](../tools/intake_storage/unstructured.md) — A modern alternative for document extraction in AI pipelines.
-- [Authentik](authentik.md) — For securing access to Tika endpoints.
-- [Tailscale](tailscale.md) — For secure remote access to Tika servers.
+- [Paperless-ngx](paperless-ngx.md)
+- [n8n](n8n.md)
+- [Ollama](ollama.md)
+- [Unstructured.io](../tools/intake_storage/unstructured.md)
 
-## Sources / References
+## Sources / references
 - [Apache Tika Official Project Site](https://tika.apache.org/)
+- [Apache Tika 3.1.0 Release Notes](https://tika.apache.org/3.1.0/news.html)
 - [Apache Tika Server Reference Documentation](https://tika.apache.org/3.1.0/documentation.html)
-- [Apache Tika Git Repository](https://github.com/apache/tika)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

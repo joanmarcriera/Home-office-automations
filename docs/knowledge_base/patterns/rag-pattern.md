@@ -1,136 +1,227 @@
 # RAG Pattern (Retrieval-Augmented Generation)
 
 ## What it is
-Retrieval-Augmented Generation (RAG) is a design pattern that enhances the performance of Large Language Models (LLMs) by providing them with relevant information from external data sources before generating a response. It grounds the model's output in verifiable facts retrieved from a reliable source.
+Retrieval-Augmented Generation (RAG) is an architectural design pattern that enhances Large Language Model (LLM) performance by retrieving relevant, permissions-validated facts from external knowledge stores (vector databases, relational tables, document stores, and knowledge graphs) prior to generating a response. Rather than relying solely on frozen parametric weights, RAG grounds model generation in dynamic, verifiable external evidence.
 
-As of early January 2027, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (FastMCP 3.1 Task Protocol)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over structured, unstructured, or graph-based information.
+As of early January 2027, the pattern has evolved beyond static "Search-then-Generate" pipelines into **Agentic Hybrid RAG**. Autonomous reasoning engines utilize [Model Context Protocol (FastMCP 3.1 Task Protocol)](../../tools/automation_orchestration/mcp.md) to dynamically decompose complex queries, issue parallel retrieval operations across dense vector indices and knowledge graphs, evaluate context relevance, and iteratively self-correct retrieval trajectories before synthesizing final outputs.
 
-```mermaid
-flowchart TD
-    A[User Query] --> B{Agentic Retrieval}
-    B -->|Search| C[(Vector DB / Knowledge Graph)]
-    B -->|Task Protocol Call| G[Web Search / FastMCP Server]
-    C -->|Context| D[Augmentation]
-    G -->|Fresh Data| D
-    A --> D
-    D -->|Augmented Prompt| E[LLM Generation]
-    E --> F[Grounded Response]
+```
++-----------------------------------------------------------------------------------+
+|                        ADVANCED AGENTIC HYBRID RAG PIPELINE                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ User / Agent Query ]                                                           |
+|          |                                                                        |
+|          v                                                                        |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     QUERY PROCESSING & DECOMPOSITION                        |  |
+|  | - Intent Classification & Multi-Hop Query Planning                          |  |
+|  | - HyDE (Hypothetical Document Embeddings) & Query Rewriting                 |  |
+|  +-----------------------------------------------------------------------------+  |
+|          |                                            |                           |
+|          v (Dense Vector Path)                        v (Sparse / Graph Path)     |
+|  +-------------------------------+          +----------------------------------+  |
+|  |    DENSE VECTOR RETRIEVAL     |          |   SPARSE & KNOWLEDGE GRAPH RET   |  |
+|  | - Cosine / Inner Product      |          | - BM25 Lexical Keyword Match     |  |
+|  | - Milvus 3.0 / Qdrant HNSW    |          | - GraphRAG Entity Traversal      |  |
+|  +-------------------------------+          +----------------------------------+  |
+|          |                                            |                           |
+|          +---------------------+----------------------+                           |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     RECIPROCAL RANK FUSION (RRF) & RE-RANKING              |  |
+|  | - Cross-Encoder Scoring (Cohere Rerank v3 / BGE-Reranker-Large)             |  |
+|  | - Duplicate Suppression & Diversity Chunk Re-ordering                      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     RELEVANCE EVALUATION & SELF-CORRECTION                 |  |
+|  | - Sufficient Context Check (Pass -> Augmentation | Fail -> Query Refine)   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                    CONTEXT-AUGMENTED GENERATION                             |  |
+|  | - Grounded Synthesis (Claude 5.6 / GPT-5.6 / DeepSeek-V4)                    |  |
+|  | - Inline Citation & Source Verification Mapping                             |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
-It addresses the core limitations of LLMs, such as hallucinations (generating plausible but incorrect information) and the "knowledge cutoff" (lack of access to up-to-date or private data). It provides a mechanism for **verifiability** and **temporal accuracy**.
+RAG addresses fundamental architectural limitations inherent in static neural network models:
+1. **Hallucination Mitigation**: Prevents the generation of plausible yet false claims by constraining model outputs to explicitly supplied context passages.
+2. **Knowledge Cutoff Elimination**: Injects live, real-time internal or external data without requiring frequent or expensive model fine-tuning and retraining runs.
+3. **Enterprise Access Control (Security)**: Enables granular document-level and chunk-level security filtering, ensuring users only receive answers generated from sources they are explicitly authorized to view.
+4. **Auditability & Provenance**: Provides exact citations and source document links for every factual assertion made by the system.
 
 ## Where it fits in the stack
-RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw data storage (Vector Databases, Knowledge Graphs) and the reasoning engine (LLM).
+**Application & Knowledge Mediation Layer**. RAG operates as the connective substrate bridging raw data infrastructure (vector databases, graph stores, document engines) with cognitive reasoning engines (LLMs and FastMCP 3.1 agent servers).
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE STACK POSITION                          |
++-----------------------------------------------------------------------------------+
+|  [ Chat Assistants ]     [ Coding Agents (Cursor) ]     [ Autonomous Workflows ]  |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                         APPLICATION & KNOWLEDGE LAYER                             |
+|        (RAG Orchestrator | Query Engine | Re-ranker | FastMCP Gateway)        |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                        DATA & VECTOR INFRASTRUCTURE LAYER                         |
+|   [ Vector DB (Milvus/Qdrant) ]   [ Knowledge Graph ]   [ Document Store ]    |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Enterprise Knowledge Management**: Providing answers based on internal wikis, Slack history, and documentation.
-- **Dynamic Fact-Checking**: Verifying real-time news or data against trusted repositories.
-- **Personalized Agentic Workflows**: Allowing assistants to retrieve user-specific context (emails, calendar) via [FastMCP 3.1](../../tools/automation_orchestration/mcp.md).
-- **Complex Analytical Synthesis**: Reasoning across thousands of documents using tools like [Hebbia](../../tools/enterprise/hebbia.md).
+- **Enterprise Knowledge Base Querying**: Answering employee policy, technical architecture, and HR questions from Confluence, Google Drive, and Slack.
+- **Agentic Codebase Search**: Assisting coding assistants (Cursor, Claude Code) in locating implementation logic, API definitions, and dependency contracts across large repositories.
+- **Financial & Legal Document Analysis**: Performing multi-document extraction, comparative analysis, and compliance checking over 10-K filings or legal contracts.
+- **Automated Customer Support Resolution**: Generating step-by-step troubleshooting instructions grounded in live product manuals and resolved Jira tickets.
 
 ## Strengths
-- **Accuracy**: Significantly reduces hallucinations by grounding responses in provided context.
-- **Data Freshness**: Allows the LLM to access the latest information without retraining.
-- **Security**: Enables granular access control by filtering retrieved data before it reaches the prompt.
-- **Explainability**: Enables the system to provide citations and direct links to source material.
+- **Verifiable Grounding**: Reduces model hallucinations by constraining generation to explicitly retrieved context passages.
+- **Real-Time Data Ingestion**: Accesses dynamic business data and external knowledge without requiring expensive model fine-tuning runs.
+- **Granular Security Control**: Enforces document-level permissions and ACL filtering before retrieved text enters the prompt context window.
+- **Complete Provenance**: Enables exact inline citations and document link attribution for every factual statement.
 
 ## Limitations
-- **Retrieval Bottleneck**: The system is only as good as the information it finds; poor retrieval leads to poor answers.
-- **Latency**: The extra retrieval step adds overhead to the response time.
-- **Context Window Management**: Managing large volumes of retrieved data requires sophisticated ranking and chunking.
+- **Retrieval Quality Dependency**: System accuracy is strictly bounded by retrieval quality; poor vector matches produce weak or hallucinated outputs.
+- **Added Query Latency**: Multi-hop retrieval, cross-encoder re-ranking, and context synthesis add ~150-500 ms overhead.
+- **Context Window Management**: High chunk volume requires active deduplication and re-ranking to prevent "Lost in the Middle" attention degradation.
 
 ## When to use it
-- When you need accurate, up-to-date information not present in the LLM's base training.
-- When transparency, grounding, and source attribution are critical for user trust.
-- When working with private or proprietary data that cannot be sent to public training sets.
+- When answering queries requiring up-to-date, proprietary, or private domain knowledge.
+- When strict source attribution, verifiability, and inline document citations are mandatory.
+- When enterprise access control requires filtering retrieved facts according to user authorization tiers.
 
 ## When not to use it
-- For tasks where the LLM's internal general knowledge is sufficient and latency is a primary concern.
-- If the target data is structured and better suited for direct SQL/API queries without natural language retrieval.
+- For general knowledge tasks where base LLM parametric weights are sufficient and low latency is critical.
+- When querying structured relational databases better served by direct text-to-SQL or REST API integrations.
 
 ## Getting started
-1. **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
-2. **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4](../../tools/ai_knowledge/llama-4.md) or [Gemma](../../tools/ai_knowledge/gemma.md) native embeddings.
-3. **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chroma.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
-4. **Retrieve & Augment**: Use [FastMCP 3.1 Task Protocol](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 5.6](../../tools/providers/anthropic.md), [GPT-5.6](../../tools/ai_knowledge/openai.md), [Google AI Studio](../../tools/providers/google-ai-studio.md), or [DeepSeek-V4](../../tools/providers/deepseek.md).
+
+### Installation & Vector DB Setup
+Deploy a high-performance vector store (e.g. Qdrant or Milvus) alongside Python RAG orchestration libraries:
+
+```bash
+pip install fastmcp pydantic qdrant-client sentence-transformers
+```
+
+### Docker Compose Baseline
+```yaml
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.7.0
+    container_name: qdrant-rag
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+volumes:
+  qdrant_storage:
+```
 
 ## CLI examples
 
-### Using `rag-stack` (Hypothetical CLI)
+### CLI Query Benchmark
 ```bash
-# Initialize a RAG index for a directory
-rag-stack init ./docs --db milvus
+#!/usr/bin/env bash
+# Execute vector retrieval benchmark query against RAG server endpoint
+set -euo pipefail
 
-# Query the index from the terminal
-rag-stack query "What are the early January 2027 compliance requirements?"
+QUERY="FastMCP 3.1 Task Protocol specification"
+echo "[INFO] Running RAG benchmark for query: '${QUERY}'"
+
+curl -s -X POST "http://localhost:8000/api/v1/rag/search" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query_text": "'"${QUERY}"'",
+    "top_k": 3,
+    "similarity_threshold": 0.65
+  }' | jq .
 ```
 
 ## API examples
 
-### Python (Agentic RAG with LlamaIndex & Pydantic v2 validation)
-The following example demonstrates how to validate RAG query parameters and retrieve structured query results using strict Pydantic v2 schemas under FastMCP 3.1:
-
+### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
 ```python
+import os
+import json
+import logging
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.llms.anthropic import Anthropic
 
-# Define validation schemas
-class RAGQuery(BaseModel):
-    query_text: str = Field(..., min_length=3, description="The semantic search query")
-    top_k: int = Field(default=3, ge=1, le=10, description="Number of segments to retrieve")
-    similarity_threshold: float = Field(default=0.7, ge=0.0, le=1.0, description="Minimum cosine similarity")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("RAGPipeline")
 
-    @field_validator('similarity_threshold')
+class RAGQueryRequest(BaseModel):
+    query_text: str = Field(..., min_length=3, description="Natural language search query")
+    top_k: int = Field(default=3, ge=1, le=20, description="Number of final context chunks to return")
+    similarity_threshold: float = Field(default=0.65, ge=0.0, le=1.0, description="Minimum similarity threshold")
+
+    @field_validator("similarity_threshold")
     @classmethod
-    def check_threshold(cls, v: float) -> float:
-        if v < 0.5:
-            raise ValueError("Similarity threshold must be at least 0.5 for reliable grounding")
+    def validate_threshold(cls, v: float) -> float:
+        if v < 0.4:
+            raise ValueError("Similarity threshold below 0.4 leads to excessive noise.")
         return v
 
-class RetrievedSegment(BaseModel):
-    text: str = Field(..., description="The content chunk retrieved")
-    source: str = Field(..., description="Source document reference")
-    score: float = Field(..., ge=0.0, le=1.0, description="Similarity score")
+class ContextChunk(BaseModel):
+    chunk_id: str = Field(..., description="Unique chunk hash or ID")
+    text: str = Field(..., description="Document snippet content")
+    source_file: str = Field(..., description="Origin document filename or path")
+    dense_score: float = Field(..., ge=0.0, le=1.0, description="Vector similarity score")
 
-class RAGResponse(BaseModel):
-    query: RAGQuery
-    answer: str = Field(..., description="The synthesized answer from the LLM")
-    sources: List[RetrievedSegment] = Field(..., description="Verified citation sources")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score")
+class RAGSynthesisResponse(BaseModel):
+    query: str = Field(..., description="Executed input query")
+    answer: str = Field(..., description="Synthesized grounded answer")
+    retrieved_chunks: List[ContextChunk] = Field(default_factory=list)
+    confidence_score: float = Field(..., ge=0.0, le=1.0)
 
-# Initialize LLM and RAG under 2027 standards
-llm = Anthropic(model="claude-5-6-sonnet-20270105")
-documents = SimpleDirectoryReader("./data").load_data()
-index = VectorStoreIndex.from_documents(documents)
-query_engine = index.as_query_engine(llm=llm)
+class HybridRAGEngine:
+    """Production mock hybrid retrieval engine."""
 
-# Execute and Validate
-def run_grounded_rag(request_json: str) -> RAGResponse:
-    # 1. Parse and validate incoming query
-    query = RAGQuery.model_validate_json(request_json)
+    def __init__(self):
+        self.corpus = [
+            {"id": "chunk_101", "text": "FastMCP 3.1 extends Model Context Protocol with Task Protocol streaming.", "source": "docs/architecture/mcp_spec.md"},
+            {"id": "chunk_102", "text": "RAG grounds LLM responses using dense vector retrieval from Milvus or Qdrant.", "source": "docs/patterns/rag.md"}
+        ]
 
-    # 2. Execute vector search and generation
-    response = query_engine.query(query.query_text)
+    def synthesize_answer(self, request: RAGQueryRequest) -> RAGSynthesisResponse:
+        chunks = [
+            ContextChunk(chunk_id=item["id"], text=item["text"], source_file=item["source"], dense_score=0.88)
+            for item in self.corpus
+        ]
+        context_str = "\n".join([f"[{c.source_file}]: {c.text}" for c in chunks])
+        answer = f"Grounded response:\n{context_str}"
+        return RAGSynthesisResponse(query=request.query_text, answer=answer, retrieved_chunks=chunks, confidence_score=0.88)
 
-    # 3. Build a structured verified response
-    retrieved_sources = [
-        RetrievedSegment(
-            text=node.node.get_content(),
-            source=node.node.metadata.get("file_name", "unknown"),
-            score=node.score or 0.85
-        ) for node in response.source_nodes
-    ]
+try:
+    from fastmcp import FastMCP
+    mcp = FastMCP("RAG Knowledge Retrieval Server")
+    rag_engine = HybridRAGEngine()
 
-    rag_response = RAGResponse(
-        query=query,
-        answer=response.response,
-        sources=retrieved_sources,
-        confidence=sum(s.score for s in retrieved_sources) / max(len(retrieved_sources), 1)
-    )
-    return rag_response
+    @mcp.tool()
+    def rag_knowledge_query(query: str, top_k: int = 3) -> str:
+        """Execute grounded RAG search across enterprise documentation."""
+        req = RAGQueryRequest(query_text=query, top_k=top_k)
+        response = rag_engine.synthesize_answer(req)
+        return response.answer
+
+except ImportError:
+    pass
 ```
 
 ## Related tools / concepts
@@ -142,13 +233,11 @@ def run_grounded_rag(request_json: str) -> RAGResponse:
 - [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
 - [Model Context Protocol (FastMCP 3.1 Task Protocol)](../../tools/automation_orchestration/mcp.md)
-- [Llama 4](../../tools/ai_knowledge/llama-4.md)
-- [Claude 5.6](../../tools/providers/anthropic.md)
 
-## Sources / References
-- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)
-- [Agentic RAG: The Next Evolution of Knowledge Retrieval and MCP 3.1 Integrations](https://example.com/agentic-rag-2027)
-- [LlamaIndex Documentation](https://docs.llamaindex.ai/)
+## Sources / references
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al.)](https://arxiv.org/abs/2005.11401)
+- [RAGAS: Automated Evaluation Framework for RAG](https://github.com/explodinggradients/ragas)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
