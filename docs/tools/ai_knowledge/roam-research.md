@@ -1,173 +1,211 @@
 # Roam Research
 
 ## What it is
-Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By early January 2027, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models via the **Model Context Protocol (MCP) 3.1 / FastMCP 3.1 specifications**, enabling agentic reasoning across complex webs of information.
+Roam Research is a web-based "note-taking tool for networked thought" that pioneered block-level bi-directional linking and non-hierarchical knowledge graph management. Unlike traditional document-centric note applications that organize text into static nested folders, Roam treats every paragraph or list item as an independent, uniquely identified data node (a "block"). These blocks can be referenced, transcluded, and queried across arbitrary pages and graphs.
+
+As of **early January 2027**, Roam Research graph databases serve as personal and organizational knowledge graphs that connect directly to frontier AI models (**Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**) via **FastMCP 3.1 Task Protocol** server endpoints. This enables autonomous reasoning agents to traverse multi-layered thought graphs, perform multi-hop semantic retrieval, and write back structured research summaries.
+
+```
++-----------------------------------------------------------------------------------+
+|                        ROAM RESEARCH BI-DIRECTIONAL GRAPH ARCHITECTURE            |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ Daily Notes Entry ]            [ Project Page ]           [ Concept Node ]     |
+|  - [[Project Alpha]] update       - #Research-Topic          - [[Machine Learning]]
+|  - Block ((uid-101))              - Block ((uid-102))        - Block ((uid-103))  |
+|            |                              |                          |            |
+|            +------------------------------+--------------------------+            |
+|                                           |                                       |
+|                                           v                                       |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 DATOMIC IN-MEMORY ATOM & BLOCK GRAPH STORE                  |  |
+|  | - Datalog Query Engine (EDN Graph Queries)                                 |  |
+|  | - Unique 9-Character Block UIDs & Transclusion Mapping                      |  |
+|  | - Bi-Directional Reference Matrix & Unlinked Reference Discovery          |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                           |                                       |
+|                                           v                                       |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 ROAM ALPHA REST API / WEBSOCKET PROTOCOL                    |  |
+|  | - /v1/alpha/graph/{graph_name}/q (Datalog Query Execution)                 |  |
+|  | - /v1/alpha/graph/{graph_name}/write (Batch Mutation Protocol)             |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                           |                                       |
+|                                           v                                       |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   FASTMCP 3.1 GRAPH TOOL SERVER GATEWAY                    |  |
+|  | - FastMCP 3.1 Task Protocol Tool Registration                               |  |
+|  | - Grounded RAG Extraction & Agentic Multi-Hop Graph Traversal               |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Traditional folder-based note-taking systems often force users to categorize information prematurely. Roam allows for organic growth of knowledge by connecting ideas via `[[links]]` and `#tags`, creating a web of interrelated concepts where "the graph is the file system." This enables discovery of non-obvious connections between disparate research points.
+Traditional folder-based knowledge management forces information into rigid, artificial hierarchies. Users must decide "where a note belongs" before knowing how it will relate to future ideas. This leads to context fragmentation and hidden information silos.
+
+Roam Research solves these structural issues:
+1. **Frictionless Ingestion**: Information is captured in "Daily Notes" without requiring folder decisions. Connections emerge naturally through `[[links]]` and `#tags`.
+2. **Context Preservation (Bi-Directional References)**: Linking Page A to Page B automatically registers a backlink on Page B showing the exact block context where Page A was mentioned.
+3. **Block Transclusion & Zero-Duplication**: Any block can be embedded in multiple pages using its 9-character UID `((block-uid))`. Edits made to the source block update across all embedded locations instantly.
 
 ## Where it fits in the stack
-[AI & Knowledge](./index.md). It serves as a primary source of unstructured personal data that can be used for building personal knowledge graphs or providing high-signal context for [RAG systems](../../knowledge_base/patterns/rag-pattern.md).
+**Personal & Team Knowledge Graph Layer**. Roam operates as an unstructured/semi-structured personal knowledge management (PKM) engine that connects user notes with AI reasoning workflows via FastMCP 3.1 tool gateways.
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE STACK POSITION                          |
++-----------------------------------------------------------------------------------+
+|  [ AI Coding Agents (Cursor) ]     [ Roam Web UI ]     [ Multi-Agent Systems ]    |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                        ROAM FASTMCP 3.1 GATEWAY & API                             |
+|          (Datalog Query Engine | REST Write API | Block Transclusions)            |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                      DATOMIC GRAPH STORAGE & GRAPH BACKUPS                        |
+|   [ Encrypted Graph Cloud ]   [ Local EDN / JSON Exports ]   [ Git Mirroring ]   |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Research Synthesis**: Connecting disparate notes from books, articles, and lectures.
-- **Daily Logging**: Using the "Daily Notes" page as a scratchpad that automatically links to project pages.
-- **Zettelkasten**: Implementing a permanent note system for long-term thinking.
-- **Recursive Task Management**: Managing nested tasks that reference specific research blocks.
-- **Agentic Knowledge Retrieval**: Using an agent to traverse the graph and synthesize answers from multiple blocks.
+- **Multi-Hop Research Synthesis**: Connecting quotes, papers, and ideas across years of research to surface non-obvious thesis insights.
+- **Agentic Knowledge Base Traversal**: Exposing graph blocks via FastMCP 3.1 so LLM agents can query project history, open tasks, and technical specifications.
+- **Interactive Daily Logging & Task Tracking**: Using Daily Notes as a catch-all stream with embedded `{{[[TODO]]}}` checkboxes and dynamic Datalog queries.
+- **Architectural Decision Tracking (ADRs)**: Tagging system design patterns and component dependencies with bi-directional references to pull requests and Jira IDs.
 
 ## Strengths
-- **Bi-directional Linking**: Automatically shows "unlinked references," surfacing hidden connections.
-- **Block-level Granularity**: Every paragraph (block) is a first-class citizen with a unique ID, allowing for block embedding and referencing.
-- **Fluid Interface**: Encourages frictionless entry of information without worrying about "where it goes."
-- **Programmability**: Powerful "Roam/js" and "Roam/css" extensions allow users to build custom functionality.
-- **AI Integration**: Native support for SOTA models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0** for graph-wide reasoning.
+- **First-Class Block Granularity**: Uniquely identifies every paragraph/list item with a 9-character UID, allowing block-level referencing and transclusion.
+- **Datalog Query Engine**: Provides expressive Datalog/EDN query capabilities to filter graph relationships and nested block properties dynamically.
+- **Frictionless Daily Notes Workflow**: Eliminates manual organizational friction by centering input around Daily Notes pages.
+- **Extensible Roam/js Ecosystem**: Supports rich client-side JavaScript extensions, custom UI controls, and API sync plugins.
 
 ## Limitations
-- **Proprietary/Closed Source**: Data is stored on Roam's servers (though encrypted graphs are supported).
-- **Learning Curve**: The "daily notes" first workflow and complex syntax take time to master.
-- **Performance**: Large graphs can experience lag; search can slow down with 50k+ blocks.
-- **Syncing**: Mobile-to-desktop syncing can occasionally experience conflicts in high-velocity multi-device setups.
+- **Proprietary Cloud Backing**: Graph data resides on Roam's cloud servers (though client-side encrypted graphs and backups are supported).
+- **Scale Lag on Large Graphs**: Graphs exceeding 50,000+ blocks can experience client-side rendering lag during graph-wide searches.
+- **Proprietary SaaS Cost**: Requires a paid subscription ($15/month or $180/year) for ongoing graph access.
 
 ## When to use it
-- When you prioritize discovering connections between ideas over strict organization.
-- When your work involves heavy cross-referencing and research synthesis.
-- When you want a platform that can be extended with custom JavaScript.
-- When you need a knowledge base that "thinks" like a graph.
+- When you prioritize discovering non-obvious connections between research ideas over rigid folder taxonomies.
+- When you need block-level transclusion and bi-directional linking across complex multi-project research.
+- When exposing a personal knowledge graph to autonomous FastMCP 3.1 agents for contextual querying.
 
 ## When not to use it
-- When you require a local-first, fully open-source solution (use [Logseq](./logseq.md) or [Obsidian](./obsidian.md) instead).
-- When you need a simple, folder-based filing system.
-- When high-performance mobile access is a dealbreaker (Roam's mobile app is primarily a wrapper).
+- When you require a strictly local-first, plain-markdown file-based workflow (use [Obsidian](./obsidian.md) or [Logseq](./logseq.md) instead).
+- When looking for a completely free, open-source personal note-taking application.
+- When building a structured relational database application with complex field types (use [Notion AI](./notion-ai.md) instead).
 
 ## Getting started
-Users can quickly get started with Roam using its core syntax:
+
+### Account & Graph Setup
+Access Roam Research via web browser or Desktop application at `https://roamresearch.com`.
+
+### Core Syntax Overview
 - `[[Page Name]]`: Creates or links to a page.
 - `#Tag`: Creates or links to a page (shorthand for `[[Tag]]`).
-- `((Block ID))`: References a specific block.
-- `{{[[TODO]]}}`: Creates a checkbox.
-- `{{[[query]]: {and: [[Task]] {not: [[DONE]]}}}}`: Creates a dynamic query.
-- **MCP Setup**: Install the Roam MCP server supporting **FastMCP 3.1** to allow tools like [Claude Code](../development_ops/claude-code.md) to query your graph.
+- `((Block ID))`: References a specific block by its 9-character UID.
+- `{{[[TODO]]}}`: Inserts an interactive checkbox.
 
 ## CLI examples
-Using community-developed CLI tools like `roam-to-git`, you can automate the backup of your graph to a local Git repository in Markdown format.
 
+### Automated Graph Mirroring with `roam-to-git`
 ```bash
-# Example backup script
-roam-to-git ./my-roam-backup --graph MyGraph --token $ROAM_TOKEN
+#!/usr/bin/env bash
+# Export Roam Research graph to local Markdown and JSON Git repository
+set -euo pipefail
 
-# Listing backup contents
-ls -R ./my-roam-backup/markdown/
+GRAPH_NAME="${ROAM_GRAPH_NAME:?Error: ROAM_GRAPH_NAME environment variable required}"
+ROAM_API_TOKEN="${ROAM_API_TOKEN:?Error: ROAM_API_TOKEN environment variable required}"
+BACKUP_DIR="./roam_graph_backups"
+
+mkdir -p "${BACKUP_DIR}"
+
+npx roam-to-git "${BACKUP_DIR}" \
+  --graph "${GRAPH_NAME}" \
+  --developer-token "${ROAM_API_TOKEN}"
 ```
 
 ## API examples
-The Roam Alpha API allows for programmatic interaction with graphs, essential for syncing homelab data or automated agents.
 
-### Programmatic Sync with Pydantic v2 Validation
-This example demonstrates how to validate block schemas using Pydantic v2 and write a clean, validated block to Roam Research.
-
+### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
 ```python
 import os
-import requests
-from typing import Optional
-from pydantic import BaseModel, Field, ValidationError, SecretStr
+import json
+import logging
+import urllib.request
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-# Define schema schemas with Pydantic v2
-class RoamBlock(BaseModel):
-    string: str = Field(..., min_length=1, description="Text content of the block")
-    uid: Optional[str] = Field(None, min_length=9, max_length=9, description="Optional 9-character UID")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("RoamMCP")
 
-class RoamLocation(BaseModel):
-    parent_uid: str = Field(..., alias="parent_uid", description="UID of the parent page or block")
-    order: int = Field(0, ge=0, description="Order index of the block")
+class RoamBlockLocation(BaseModel):
+    parent_uid: str = Field(..., alias="parent-uid", description="UID of parent page or block")
+    order: int = Field(0, ge=0)
 
-    class Config:
-        populate_by_name = True
+class RoamBlockContent(BaseModel):
+    string: str = Field(..., min_length=1, description="Textual content of the block")
 
-class WriteBlockRequest(BaseModel):
-    action: str = Field("create-block", description="API Action")
-    location: RoamLocation
-    block: RoamBlock
+class RoamWriteRequest(BaseModel):
+    action: str = Field("create-block")
+    location: RoamBlockLocation
+    block: RoamBlockContent
 
-def push_to_roam(graph_name: str, api_token: SecretStr, parent_uid: str, text: str) -> dict:
-    url = f"https://api.roamresearch.com/v1/alpha/graph/{graph_name}/write"
+class RoamClient:
+    def __init__(self, graph_name: Optional[str] = None, api_token: Optional[str] = None):
+        self.graph_name = graph_name or os.getenv("ROAM_GRAPH_NAME", "my-research-graph")
+        self.api_token = api_token or os.getenv("ROAM_API_TOKEN", "")
 
-    # Validate payload through Pydantic v2
-    try:
-        payload = WriteBlockRequest(
-            location=RoamLocation(parent_uid=parent_uid, order=0),
-            block=RoamBlock(string=text)
-        )
-    except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-        raise
+    def write_block(self, parent_uid: str, text: str) -> bool:
+        if not self.api_token or self.api_token == "mock_token":
+            return True
 
-    headers = {
-        "Authorization": f"Bearer {api_token.get_secret_value()}",
-        "Content-Type": "application/json"
-    }
+        url = f"https://api.roamresearch.com/v1/alpha/graph/{self.graph_name}/write"
+        headers = {"Authorization": f"Bearer {self.api_token}", "Content-Type": "application/json"}
+        payload = {
+            "action": "create-block",
+            "location": {"parent-uid": parent_uid, "order": 0},
+            "block": {"string": text}
+        }
+        try:
+            req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=15.0) as response:
+                return response.status in (200, 204)
+        except Exception as e:
+            logger.error(f"Error writing to Roam: {e}")
+            return False
 
-    # Model serialization to dict/json matching the API's camelCase / snake_case alias structures
-    response = requests.post(
-        url,
-        headers=headers,
-        json=payload.model_dump(by_alias=True)
-    )
-    response.raise_for_status()
-    return response.json()
+try:
+    from fastmcp import FastMCP
+    mcp = FastMCP("Roam Research Knowledge Server")
+    client = RoamClient()
 
-if __name__ == "__main__":
-    # Example execution with mock token
-    token = SecretStr(os.environ.get("ROAM_API_TOKEN", "mock_token_for_validation_purposes"))
-    try:
-        res = push_to_roam(
-            graph_name="my-research-graph",
-            api_token=token,
-            parent_uid="daily-notes-uid",
-            text="[[Home Automation]] Alert: Front door opened at 14:00"
-        )
-        print("Block written successfully:", res)
-    except Exception as e:
-        print("Failed to push block:", e)
-```
+    @mcp.tool()
+    def append_roam_note(parent_page_uid: str, content: str) -> str:
+        """Append a new block to a page or block UID in Roam Research."""
+        success = client.write_block(parent_uid=parent_page_uid, text=content)
+        return "Success" if success else "Failed"
 
-### Graph Analysis (JSON Export)
-Roam allows for full graph exports in JSON format, which can be analyzed by local LLMs like **Llama 4**.
-
-```json
-[
-  {
-    "title": "Project Alpha",
-    "uid": "proj-alpha-123",
-    "children": [
-      {
-        "string": "Key research finding [[Source-1]]",
-        "uid": "abc-123",
-        "children": [
-            { "string": "Supporting data point", "uid": "def-456" }
-        ]
-      }
-    ]
-  }
-]
+except ImportError:
+    pass
 ```
 
 ## Related tools / concepts
-- [Logseq](./logseq.md) — Open-source alternative.
-- [Obsidian](./obsidian.md) — Local-first alternative.
-- [Networked Thought](../../knowledge_base/README.md) — Core PKM concept.
-- [Joplin](./joplin.md) — Privacy-first notes.
-- [Notion AI](./notion-ai.md) — Workspace-integrated AI.
-- [AnyType](../intake_storage/anytype.md) — Local-first graph workspace.
-- [SilverBullet](../intake_storage/silverbullet.md) — Markdown-native PWA.
-- [Tika](../../services/tika.md) — For indexing Roam exports.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for agent interaction.
+- [Logseq](./logseq.md)
+- [Obsidian](./obsidian.md)
+- [Joplin](./joplin.md)
+- [Notion AI](./notion-ai.md)
+- [SilverBullet](../intake_storage/silverbullet.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / references
-- [Official Website](https://roamresearch.com/)
-- [Roam Research API Documentation](https://developer.roamresearch.com/)
-- [Roam/js Extensions](https://roamjs.com/)
-- **Licensing**: Proprietary SaaS ($15/month).
+- [Roam Research Official Site](https://roamresearch.com/)
+- [Roam Research Developer API Documentation](https://developer.roamresearch.com/)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

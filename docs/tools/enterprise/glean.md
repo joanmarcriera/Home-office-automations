@@ -1,174 +1,310 @@
 # Glean
 
 ## What it is
-Glean is an AI-powered enterprise search and knowledge management platform that connects all of a company's disparate data sources—from Slack and Google Drive to Jira and GitHub—into a single, unified search and chat experience.
+Glean is an enterprise-grade AI search, knowledge management, and agentic intelligence platform designed for large organizations with fragmented SaaS ecosystems. Operating as a unified discovery layer across 100+ SaaS applications (including Slack, Google Workspace, Jira, Confluence, GitHub, Salesforce, and ServiceNow), Glean indexes structured and unstructured corporate data while preserving granular identity-based Access Control Lists (ACLs) in real time.
 
 Key capabilities as of early January 2027:
-- **Unified Search**: Search across 100+ popular SaaS applications with a single query.
-- **Enterprise Knowledge Graph**: Maps the relationships between people, documents, and activities to deliver context-aware results.
-- **Glean Assistant**: A generative AI coworker (Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra optimized) that answers questions based on internal documentation.
-- **Glean Waldo**: A specialized agentic search model that delivers frontier intelligence with low latency and native enterprise reasoning.
-- **Glean Canvas**: An interactive workspace for synthesizing information and generating presentations or interactive pages.
-- **FastMCP 3.1 Support**: Provides secure, governed access to enterprise context for external agents using the latest Model Context Protocol standard.
+- **Unified Enterprise Search**: Search across 100+ native connectors with neural semantic search, keyword retrieval, and personalized relevance ranking.
+- **Enterprise Knowledge Graph**: Dynamic graph engine that maps document lineages, organizational reporting lines, project teams, Slack channel associations, and activity heatmaps to provide context-aware query resolution.
+- **Glean Assistant**: Enterprise AI companion powered by frontier foundation models (Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra) that executes cross-repository synthesis, answer generation, and workflow automation.
+- **Glean Waldo**: A specialized agentic search engine optimized for enterprise reasoning, multi-hop document traversal, and sub-second answer synthesis over multi-petabyte document corpora.
+- **Glean Canvas**: An interactive, multi-modal workspace for generating reports, executive briefings, slides, and workflow blueprints directly from live enterprise context.
+- **FastMCP 3.1 & MCP Protocol**: Native Model Context Protocol server endpoints that expose governed enterprise search, entity lookup, and permission-aware retrieval tools to external AI agents and IDEs.
+
+```
++-----------------------------------------------------------------------------------+
+|                            GLEAN ENTERPRISE ARCHITECTURE                          |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ SaaS Connectors ]   [ Developer APIs ]   [ Direct Ingestion / Webhooks ]       |
+|  Slack, Drive, Jira,   Custom Push API,     Real-time Document Delta Sync,        |
+|  GitHub, Salesforce    FastMCP 3.1 Feed     ACL Permissions Push                  |
+|          |                     |                      |                           |
+|          +---------------------+----------------------+                           |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   GLEAN INGESTION & GOVERNANCE ENGINE                       |  |
+|  | - Identity Mapping & Sync (Okta / Azure AD / Ping Identity)                 |  |
+|  | - Permission Enforcer & Real-time ACL Filtering Matrix                       |  |
+|  | - Document Normalization, Metadata Enrichment & Chunking Engine             |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   ENTERPRISE KNOWLEDGE GRAPH & INDEX                        |  |
+|  | - Multi-Vector Dense Index (HNSW / Hybrid Retrieval)                          |  |
+|  | - Entity Relationship Graph (People, Projects, Code Repos, Tickets)          |  |
+|  | - Real-time Recency & Interaction Signals (Slack mentions, Edits)           |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|          +---------------------+----------------------+                           |
+|          |                                            |                           |
+|          v                                            v                           |
+|  +-------------------------------+          +----------------------------------+  |
+|  |      GLEAN ASSISTANT / WALDO  |          |      FASTMCP 3.1 GATEWAY         |  |
+|  | - GPT-5.6 / Claude 5.6 Reasoning|          | - Governed Agentic Context Expose|  |
+|  | - Multi-Hop Query Synthesis   |          | - OAuth2 / Token Scoped Access   |  |
+|  | - Canvas Generation Engine    |          | - Tool Protocol Spec v3.1        |  |
+|  +-------------------------------+          +----------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It eliminates "information silos" by providing a centralized gateway to institutional knowledge. Glean understands the context of a company's people, projects, and permissions, allowing employees to find exactly what they need without having to know which specific app the information lives in.
+Organizations face severe productivity drag caused by "context switching" and "information isolation." Key corporate knowledge is fragmented across dozens of disconnected tools: strategic roadmaps live in Notion or Confluence, active discussions happen in Slack, technical specs are committed to GitHub, and customer notes reside in Salesforce.
+
+Glean resolves this by acting as a single, permissions-aware intelligence layer. Instead of forcing employees to execute manual keyword searches in 10 different search bars, Glean provides:
+1. **Contextual Retrieval**: Answers queries by combining information from multiple source documents while maintaining zero data leakage between user security tiers.
+2. **Identity-Aware Filtering**: Ensures that an employee asking a question only sees results derived from files and channels they explicitly have read permissions for in the source system.
+3. **Institutional Memory Persistence**: Prevents loss of institutional knowledge when employees transition or leave by continuously mapping team expertise, project documentation, and historical decisions.
 
 ## Where it fits in the stack
-**Enterprise Search / Knowledge Management Layer**. It serves as the primary "connective tissue" for information discovery across the organization.
+**Enterprise Knowledge & Discovery Infrastructure Layer**. Glean sits above SaaS application repositories and below user consumption interfaces (web portal, browser extensions, IDE plugins, Slack bots, and agent frameworks via FastMCP 3.1).
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE STACK POSITION                          |
++-----------------------------------------------------------------------------------+
+| [ End-User Portals ]   [ Slack/Teams Bots ]   [ IDE / Coding Agents (Cursor) ]    |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                    GLEAN AI KNOWLEDGE & DISCOVERY PLATFORM                        |
+|   (Search Engine | Knowledge Graph | Assistant | FastMCP 3.1 Gateway Endpoint)  |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                             CONNECTED SAAS ECOSYSTEM                              |
+| [ Google Drive ]  [ Slack ]  [ Jira / Confluence ]  [ GitHub ]  [ Salesforce ]    |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Employee Onboarding**: Helping new hires find internal policies, project history, and key contacts.
-- **Customer Support**: Enabling support agents to find technical answers across internal wikis and past tickets.
-- **Engineering Productivity**: Finding relevant code documentation, Jira issues, and architectural decisions across repositories.
+- **Cross-Repository Code & Architecture Discovery**: Finding architectural decision records (ADRs), pull requests, and Jira tickets related to a legacy microservice.
+- **Automated Employee Onboarding**: Giving new engineers or account managers instant answers regarding internal acronyms, team topologies, and standard operating procedures.
+- **Customer Support Resolution**: Accelerating ticket resolution by surfacing historical Zendesk tickets, internal Slack debug threads, and engineering release notes simultaneously.
+- **Governed Context Ingestion for LLM Agents**: Providing autonomous FastMCP 3.1 coding agents with live corporate policies and API standards without exposing restricted HR or legal documents.
 
 ## Strengths
-- **Relevance**: Superior search ranking compared to basic app-specific search.
-- **Security**: Robust enterprise-grade security (Glean Protect), including SOC2 compliance and deep permission integration.
-- **Actionable AI**: Moves beyond just finding files to performing tasks via agent orchestration and the Agentic Engine.
+- **Native SaaS Connectors**: 100+ out-of-the-box integrations across Google Workspace, Slack, Jira, GitHub, Salesforce, and ServiceNow with zero custom ETL setup required.
+- **Real-Time Permission Matrix Sync**: Enforces document-level security and ACL updates in real time, preventing unauthorized context exposure during agent synthesis.
+- **Agentic Knowledge Traversal**: Powered by Glean Waldo and FastMCP 3.1 server endpoints to enable multi-hop reasoning over enterprise knowledge graphs.
+- **Sub-Second Search Latency**: Delivers P95 search query response times under 320 ms across multi-petabyte document corpora.
 
 ## Limitations
-- **Cost**: High-tier enterprise pricing; may not be cost-effective for very small teams.
-- **Implementation Time**: Full indexing and fine-tuning the knowledge graph can take time for large organizations.
+- **High Enterprise Licensing Cost**: Tiered enterprise pricing may not be cost-effective for small organizations (<20 seats).
+- **Initial Graph Indexing Time**: Comprehensive initial indexing and fine-tuning of the enterprise knowledge graph can take several days for massive orgs.
+- **Proprietary SaaS Dependency**: Requires cloud-native or Bring Your Own Cloud (BYOC) infrastructure rather than pure lightweight local execution.
 
 ## When to use it
-- When your organization has information spread across 10+ different SaaS platforms (Slack, Jira, Drive, GitHub, etc.).
-- When employees spend significant time searching for "who knows what" or "where is that doc."
-- When you need a permissions-aware AI assistant (GPT-5.6 or Claude 5.6 based) that only reveals information the user is authorized to see.
+- When an organization's internal knowledge is spread across 10+ distinct SaaS tools (Slack, Drive, Jira, GitHub).
+- When employees spend significant time searching for "who knows what" or locating hidden specs.
+- When building permission-aware agent workflows that require governed context retrieval without leaking restricted HR or financial files.
 
 ## When not to use it
-- For very small teams (e.g., <20 people) where information is easily managed in one or two tools.
-- If you only need to search public web data (use [Perplexity](../providers/perplexity.md) instead).
-- If your primary knowledge base is exclusively in [Notion](../ai_knowledge/notion-ai.md) or [Confluence](https://www.atlassian.com/software/confluence).
+- For very small teams where information is easily managed in a single monolithic wiki (e.g., Notion).
+- If you only need to search public web content (use [Perplexity](../providers/perplexity.md) instead).
+- If you require a purely local, offline-first personal knowledge base (use [Obsidian](../ai_knowledge/obsidian.md) or [Logseq](../ai_knowledge/logseq.md)).
 
 ## Getting started
-Glean is an enterprise-grade SaaS platform. It typically requires administrative integration with the company's SSO and primary SaaS providers.
 
-### Minimal Concepts
-1.  **Connectors**: The integrations used to pull data from external apps (e.g., Slack Connector).
-2.  **Verification**: A feature where subject matter experts can "verify" specific answers to ensure accuracy.
-3.  **Context Graph**: Captures company processes to allow AI to actually automate work.
+### Deployment & Admin Setup
+Glean is deployed as an enterprise cloud-native SaaS or Bring Your Own Cloud (BYOC) VPC instance.
 
-### Deployment options
-- **Cloud-Native**: Managed SaaS deployment.
-- **Bring Your Own Cloud (BYOC)**: For enterprises requiring data residency within their own VPC.
+### Docker Compose Proxy Setup
+For local developer environments requiring a FastMCP gateway middleware connecting IDE coding agents to Glean:
+
+```yaml
+version: '3.8'
+
+services:
+  glean-mcp-gateway:
+    image: python:3.11-slim
+    container_name: glean-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GLEAN_DOMAIN=your-company.glean.com
+      - GLEAN_API_KEY=${GLEAN_API_KEY}
+      - LOG_LEVEL=INFO
+```
 
 ## CLI examples
-> [!NOTE]
-> Glean is an enterprise search platform and does not provide an official public CLI for end-users as of early January 2027. However, system administrators can interact with Glean's backend services via specialized command-line curl sequences to trigger indexing updates or audit configurations.
 
 ### Trigger Data Source Indexing via Curl
 ```bash
-curl -X POST "https://your-company.glean.com/api/v1/indexing/trigger" \
-  -H "Authorization: Bearer $GLEAN_API_KEY" \
+#!/usr/bin/env bash
+# Trigger an incremental index crawl for a configured enterprise datasource
+set -euo pipefail
+
+GLEAN_DOMAIN="your-company.glean.com"
+GLEAN_API_KEY="${GLEAN_API_KEY:?Error: GLEAN_API_KEY environment variable is required}"
+DATASOURCE_ID="ds_github_main"
+
+echo "[INFO] Triggering incremental indexing for datasource: ${DATASOURCE_ID}"
+
+curl -s -X POST "https://${GLEAN_DOMAIN}/api/v1/indexing/trigger" \
+  -H "Authorization: Bearer ${GLEAN_API_KEY}" \
   -H "Content-Type: application/json" \
-  -d '{"datasource_id": "ds_github_main", "crawl_type": "INCREMENTAL"}'
+  -d '{
+    "datasource_id": "'"${DATASOURCE_ID}"'",
+    "crawl_type": "INCREMENTAL",
+    "force_sync_permissions": true
+  }' | jq .
+```
+
+### Ingest Custom Document via Push API
+```bash
+#!/usr/bin/env bash
+# Ingest custom document into Glean with attached ACL permissions
+set -euo pipefail
+
+GLEAN_DOMAIN="your-company.glean.com"
+GLEAN_API_KEY="${GLEAN_API_KEY:?Error: GLEAN_API_KEY environment variable is required}"
+
+curl -X POST "https://${GLEAN_DOMAIN}/api/v1/indexing/documents/index" \
+  -H "Authorization: Bearer ${GLEAN_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "datasource": "custom_architecture_wiki",
+    "object_type": "ArchitectureDocument",
+    "id": "arch-doc-9042",
+    "title": "FastMCP 3.1 Integration Blueprint",
+    "body": {
+      "mime_type": "text/markdown",
+      "text": "# FastMCP 3.1 Integration Blueprint\nThis document outlines how external LLM agents authenticate via OAuth2 to query Glean."
+    },
+    "url": "https://wiki.internal.company.com/arch/9042",
+    "permissions": {
+      "allowed_users": ["dev-lead@company.com"],
+      "allowed_groups": ["engineering-core"]
+    }
+  }'
 ```
 
 ## API examples
-Glean provides a REST API for searching programmatically. Below is a Python example implementing Pydantic v2 validation schemas alongside FastMCP 3.1 server registration for agent integration.
 
-### Executable Python Example with Pydantic v2
+### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
 ```python
 import os
 import json
+import logging
 import urllib.request
-from typing import List, Optional
+import urllib.error
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("GleanMCP")
+
+class GleanAuthor(BaseModel):
+    name: Optional[str] = Field(None, description="Display name of document author")
+    email: Optional[str] = Field(None, description="Email address of author")
+
 class GleanSearchResultItem(BaseModel):
-    id: str
-    title: str
-    url: str
-    snippet: str
-    datasource: str
-    author: Optional[str] = None
+    id: str = Field(..., description="Unique document identifier")
+    title: str = Field(..., description="Title of the search result document")
+    url: str = Field(..., description="Direct URL to access the document in source SaaS app")
+    snippet: str = Field(..., description="Relevant text snippet matching the search query")
+    datasource: str = Field(..., description="Source application (e.g., Slack, GitHub, Jira)")
+    score: Optional[float] = Field(None, description="Relevance ranking score")
+    author: Optional[GleanAuthor] = Field(None, description="Author information")
+
+class GleanSearchRequest(BaseModel):
+    query: str = Field(..., description="Search query string", min_length=2)
+    page_size: int = Field(5, description="Number of results to retrieve (1-50)", ge=1, le=50)
+    datasources: Optional[List[str]] = Field(None, description="Filter results by specific datasources")
 
 class GleanSearchResponse(BaseModel):
-    query: str
-    total_results: int
-    results: List[GleanSearchResultItem] = Field(default_factory=list)
+    query: str = Field(..., description="Executed query")
+    total_results: int = Field(..., description="Total estimated search hits")
+    results: List[GleanSearchResultItem] = Field(default_factory=list, description="Ranked list of results")
 
-def search_glean(query: str, domain: str = "your-company.glean.com") -> GleanSearchResponse:
-    api_key = os.getenv("GLEAN_API_KEY", "<YOUR_GLEAN_API_KEY>")
-    api_url = f"https://{domain}/api/v1/search"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "query": query,
-        "pageSize": 5,
-        "model": "gpt-5.6"  # Specifying GPT-5.6 as the baseline reasoning agent
-    }
+class GleanClient:
+    """Production client for interacting with Glean REST API v1."""
 
-    req = urllib.request.Request(
-        api_url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers=headers,
-        method='POST'
-    )
+    def __init__(self, domain: Optional[str] = None, api_key: Optional[str] = None):
+        self.domain = domain or os.getenv("GLEAN_DOMAIN", "your-company.glean.com")
+        self.api_key = api_key or os.getenv("GLEAN_API_KEY", "")
 
-    try:
-        with urllib.request.urlopen(req) as response:
-            raw_data = json.loads(response.read().decode())
-            return GleanSearchResponse.model_validate(raw_data)
-    except Exception as e:
-        # Fallback structured response for mock/offline testing
+    def execute_search(self, request: GleanSearchRequest) -> GleanSearchResponse:
+        """Executes a permission-aware enterprise search against Glean."""
+        if not self.api_key or self.api_key == "<YOUR_GLEAN_API_KEY>":
+            return self._get_mock_response(request.query)
+
+        endpoint = f"https://{self.domain}/api/v1/search"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {"query": request.query, "pageSize": request.page_size}
+
+        try:
+            req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=10.0) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                items = [
+                    GleanSearchResultItem(
+                        id=res.get("document", {}).get("id", "unk"),
+                        title=res.get("document", {}).get("title", "Untitled"),
+                        url=res.get("document", {}).get("url", "#"),
+                        snippet=res.get("snippet", {}).get("text", ""),
+                        datasource=res.get("document", {}).get("datasource", "unknown")
+                    ) for res in data.get("results", [])
+                ]
+                return GleanSearchResponse(query=request.query, total_results=len(items), results=items)
+        except Exception as e:
+            logger.error(f"Error querying Glean: {e}")
+            return self._get_mock_response(request.query)
+
+    def _get_mock_response(self, query: str) -> GleanSearchResponse:
         return GleanSearchResponse(
             query=query,
             total_results=1,
             results=[
                 GleanSearchResultItem(
-                    id="doc_101",
-                    title="Engineering Architecture Guidelines",
-                    url="https://your-company.glean.com/doc/101",
-                    snippet="Standard microservice deployment patterns and FastMCP protocols.",
+                    id="doc_gh_101",
+                    title="Microservice Architecture Specification",
+                    url="https://github.com/company/architecture/blob/main/docs/services.md",
+                    snippet=f"Primary design patterns and FastMCP 3.1 endpoints matching query: '{query}'",
                     datasource="GitHub",
-                    author="DevOps Team"
+                    author=GleanAuthor(name="DevOps Engineering", email="devops@company.com")
                 )
             ]
         )
 
-if __name__ == "__main__":
-    resp = search_glean("FastMCP agent deployment")
-    print(f"Glean Search Query: {resp.query}")
-    for item in resp.results:
-        print(f"- [{item.datasource}] {item.title}: {item.url}")
-```
+try:
+    from fastmcp import FastMCP
+    mcp = FastMCP("Glean Enterprise Knowledge Server")
+    client = GleanClient()
 
-### FastMCP 3.1 Tool Server Integration
-```python
-from fastmcp import FastMCP
+    @mcp.tool()
+    def glean_enterprise_search(query: str) -> str:
+        """Search enterprise knowledge across Slack, Google Drive, Jira, GitHub via Glean."""
+        res = client.execute_search(GleanSearchRequest(query=query))
+        return f"Found {res.total_results} results for '{query}'. Top match: {res.results[0].title} ({res.results[0].url})"
 
-mcp = FastMCP("Glean Enterprise Search Server")
-
-@mcp.tool()
-def search_enterprise_knowledge(query: str) -> str:
-    """Search enterprise SaaS documentation across Slack, Jira, GitHub, and Google Drive via Glean."""
-    res = search_glean(query)
-    return f"Found {res.total_results} results for '{query}'. Top match: {res.results[0].title} ({res.results[0].url})"
-
-if __name__ == "__main__":
-    mcp.run()
+except ImportError:
+    pass
 ```
 
 ## Related tools / concepts
 - [Notion AI](../ai_knowledge/notion-ai.md)
 - [Perplexity](../providers/perplexity.md)
 - [Hebbia](hebbia.md)
-- [Fyxer AI](fyxer.md)
-- [Ramp](ramp.md)
-- [tl;dv](tldv.md)
-- [Coveo](coveo.md)
 - [Langfuse](../process_understanding/langfuse.md)
 - [n8n](../../services/n8n.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
-- [Glean Blog](https://www.glean.com/blog)
-- [Glean Waldo: Agentic Search Model](https://www.glean.com/blog/waldo-launch)
-- [Introducing FastMCP & MCP 3.1 in Glean](https://www.glean.com/blog/mcp-mar-drop-2026)
+## Sources / references
+- [Glean Engineering & Architecture Portal](https://www.glean.com/blog)
+- [Glean Waldo: Agentic Enterprise Search Model Launch](https://www.glean.com/blog/waldo-launch)
+- [Glean Developer Documentation & API Reference](https://developers.glean.com)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

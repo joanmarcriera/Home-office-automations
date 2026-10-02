@@ -1,167 +1,225 @@
 # Letta
 
 ## What it is
-Letta (v1.15.x+, early January 2027) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **FastMCP 3.1 Task Protocol** for tool and context orchestration.
+Letta (v1.15.x+, early January 2027), formerly known as MemGPT, is an open-source framework and server architecture for creating stateful AI agents equipped with persistent, self-editing "infinite" memory. Rather than treating the LLM context window as an ephemeral stateless prompt, Letta treats the context window as an active RAM cache backed by tiered persistent memory (PostgreSQL with `pgvector` or sqlite).
+
+Through native support for **FastMCP 3.1 Task Protocol**, Letta agents autonomously invoke external tools, query knowledge bases, and edit their own memory blocks across multi-session interactions and multi-agent teams.
+
+```
++-----------------------------------------------------------------------------------+
+|                           LETTA TIERED MEMORY ARCHITECTURE                        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 ACTIVE LLM CONTEXT WINDOW (RAM Cache)                       |  |
+|  |                                                                             |  |
+|  |  [ System Prompt & Instructions ]                                           |  |
+|  |  +-----------------------------------------------------------------------+  |  |
+|  |  | CORE MEMORY BLOCKS (Self-Editable)                                    |  |  |
+|  |  | - human: User preferences, persona traits, key facts                   |  |  |
+|  |  | - persona: Agent identity, constraints, behavioral rules               |  |  |
+|  |  +-----------------------------------------------------------------------+  |  |
+|  |  [ Working Message FIFO Buffer (Short-Term Memory) ]                        |  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                  (Automated Paging / Memory Tools)                                |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |               PERSISTENT STORAGE LAYER (PostgreSQL + pgvector)              |  |
+|  |                                                                             |  |
+|  |  - RECALL MEMORY: Full conversation message history & interaction logs     |  |  |
+|  |  - ARCHIVAL MEMORY: Vectorized document knowledge base & semantic snippets  |  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                |                                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  |                       FASTMCP 3.1 TOOL & AGENT GATEWAY                      |  |
+|  | - Standardized Tool Execution & FastMCP Server Interoperability             |  |
+|  | - Agent-to-Agent Handoffs & State Portability across Frontier Models        |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude 5.6](../providers/anthropic.md) to GPT-5.6 or [Gemma 4](../ai_knowledge/local_llms.md)).
+Standard LLM applications suffer from state decay and context truncation. When interactions exceed the model's context window, historical details are lost or truncated, causing agents to repeat questions or forget user instructions.
+
+Letta resolves this by decoupling agent memory state from the LLM's raw context window size:
+1. **Multi-Session Continuity**: Agents maintain state across system reboots, user reconnects, and model transitions (e.g., switching from [Claude 5.6](../providers/anthropic.md) to GPT-5.6 or [DeepSeek-R1](../ai_knowledge/deepseek-r1.md)).
+2. **Self-Editing Memory**: Agents are equipped with internal memory-editing functions (`core_memory_append`, `core_memory_replace`, `archival_memory_insert`), allowing them to actively curate their own identity and user profile blocks.
+3. **Transparent State Inspection**: Developers can inspect, edit, or rollback agent memory blocks via REST API or CLI at runtime.
 
 ## Where it fits in the stack
-**Category**: Agent / Memory Layer. It sits as a stateful middleware between the Model (Inference) layer and the Application layer, providing persistent "Virtual Context" via a database backend (PostgreSQL/VectorDB).
+**Agent Memory & Persistence Middleware Layer**. Letta sits between application frontends/interfaces and inference engines, maintaining persistent state in a backend database while exposing FastMCP 3.1 endpoints.
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE STACK POSITION                          |
++-----------------------------------------------------------------------------------+
+|  [ Chat UIs ]        [ IDE Extensions (Cursor) ]       [ Slack / Teams Bots ]    |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                           LETTA AGENT SERVER MIDDLEWARE                           |
+|       (Tiered Memory Engine | State DB | REST Server | FastMCP Gateway)         |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                         INFERENCE & DATABASE BACKENDS                             |
+|  [ LLM Inference (Claude 5.6/GPT-5.6) ]     [ State DB (PostgreSQL / pgvector) ]  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Persistent Personal Assistants**: Agents that remember months of conversation history and deep user preferences.
-- **Multi-session Coding Projects**: Agents that maintain state across different days of development, tracking open bugs and architectural decisions.
-- **Durable Workflows**: Complex business processes that can be paused, resumed, and handed off between different agents without losing state.
-- **Agentic CRM**: Maintaining long-term records of professional interactions and relationship history.
+- **Long-Term Personal AI Executive Assistants**: Assistants that maintain deep context on user habits, organizational structures, and personal preferences over years.
+- **Durable Software Engineering Agents**: Agents that track long-running refactoring projects across days, remembering resolved bugs, remaining tasks, and architecture decisions.
+- **Autonomous Customer Relationship Management**: Tracking customer history, previous tickets, and customized preference configurations without losing continuity.
+- **Stateful Multi-Agent Workflows**: Orchestrating complex pipelines where specialized sub-agents hand off task control while preserving shared background memory.
 
 ## Strengths
-- **State Persistence**: State is stored in a database, allowing agents to survive process restarts and migrate between models.
-- **Infinite Context**: Automatically manages what stays in the active LLM context and what goes to long-term storage using "Virtual Context".
-- **Self-Editing Memory**: Agents can be given tools to "write" to and "edit" their own core memory.
-- **FastMCP 3.1 Support**: Native integration for the **FastMCP 3.1 Task Protocol**, enabling agents to use standardized tools and context sources.
+- **Decoupled Persistent Memory**: Stores memory in database backends (PostgreSQL/pgvector), allowing agents to survive process restarts and migrate between models.
+- **Self-Editing Core Memory**: Equips agents with tools to actively rewrite and curate their own core memory blocks during multi-turn reasoning.
+- **FastMCP 3.1 Task Protocol Support**: Native integration for standard FastMCP tool execution, server interoperability, and context streams.
+- **Transparent Developer State Inspection**: Provides REST API endpoints and CLI commands to inspect, edit, or rollback agent state at runtime.
 
 ## Limitations
-- **Latency**: Tiered memory management and database lookups add overhead to each inference step.
-- **Complexity**: Setting up the server and database (PostgreSQL + pgvector) is more involved than simple stateless agents.
-- **Token Usage**: Managing the memory buffer and self-reasoning about memory requires additional tokens for internal system prompts.
+- **Added Memory Management Latency**: Tiered context paging and database vector lookups add ~35-70 ms overhead per interaction turn.
+- **Infrastructure Setup Complexity**: Requires a persistent PostgreSQL + pgvector database server rather than purely stateless serverless functions.
+- **Token Budget Overhead**: Managing active core memory blocks and reasoning about memory updates consumes additional prompt tokens.
 
 ## When to use it
-- **Long-Lived Agents**: When you need an agent to maintain personality, memory, and state over weeks or months of interaction.
-- **Context-Exceeding Tasks**: When the information needed for a task (e.g., a large codebase or complex user history) exceeds the LLM's raw context window.
-- **Stateful Multi-Session Work**: For engineering or research tasks that span multiple sessions and require the agent to remember where it left off.
-- **Cross-Model Workflows**: When you need to maintain state while switching between different frontier models for different sub-tasks.
+- When creating long-lived AI agents that must remember user preferences, project context, and state over weeks or months.
+- When building multi-session engineering assistants that track open bugs and refactoring decisions across developer sessions.
+- When migrating agent state across different frontier LLM inference backends (e.g., Claude 5.6 to GPT-5.6).
 
 ## When not to use it
-- **Stateless Transactions**: For simple, one-off API calls or basic chatbots, the memory management overhead is unnecessary.
-- **Low-Latency Requirements**: If every millisecond counts, the overhead of memory retrieval might be prohibitive.
-- **Serverless/Ephemeral Deployments**: Letta requires persistent infrastructure; it is not suited for purely ephemeral serverless functions without external state.
+- For simple stateless, single-turn API interactions or basic Q&A chatbots where persistent state is unnecessary.
+- In ultra-low-latency real-time applications where every millisecond counts and memory lookups cause unacceptable lag.
+- For ephemeral, serverless deployments without persistent database infrastructure.
 
 ## Getting started
 
 ### Installation
 ```bash
-pip install letta
+pip install letta fastmcp pydantic
 ```
 
-### Server Setup
-Start the Letta server with a PostgreSQL backend to enable persistent memory.
-```bash
-letta server --backend postgres
-```
+### Docker Compose Setup
+```yaml
+version: '3.8'
 
-### Basic Agent Creation
-```bash
-letta create-agent --name "DurableCoder" --model "claude-3-5-sonnet-20240620"
+services:
+  letta-db:
+    image: pgvector/pgvector:pg16
+    container_name: letta-db
+    environment:
+      POSTGRES_DB: letta_db
+      POSTGRES_USER: letta_user
+      POSTGRES_PASSWORD: letta_secure_pass
+
+  letta-server:
+    image: letta/letta:latest
+    container_name: letta-server
+    ports:
+      - "8283:8283"
+    environment:
+      - LETTA_PG_URI=postgresql://letta_user:letta_secure_pass@letta-db:5432/letta_db
 ```
 
 ## CLI examples
+
+### Create Stateful Agent
 ```bash
-# Start the interactive Letta CLI to talk to your agent
-letta run --agent DurableCoder
+letta create-agent \
+  --name "DurableSeniorDev" \
+  --model "claude-5-6-sonnet-20270105" \
+  --persona "You are an expert senior software architect. You record project decisions in core memory."
+```
 
-# List all persistent agents
-letta list-agents
+### Inspect Core Memory via REST API
+```bash
+#!/usr/bin/env bash
+# Update an agent's Core Memory block via Letta REST API
+set -euo pipefail
 
-# Export agent state for migration
-letta export --agent DurableCoder --output coder_state.json
+LETTA_HOST="http://localhost:8283"
+AGENT_ID="${1:?Error: Specify Agent ID}"
 
-# Run a query with a specific FastMCP 3.1 tool source
-letta run --agent DurableCoder --mcp-server http://localhost:18789
+curl -X POST "${LETTA_HOST}/v1/agents/${AGENT_ID}/core-memory/blocks/human" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "value": "User prefers Python, Pydantic v2, and FastMCP 3.1."
+  }' | jq .
 ```
 
 ## API examples
 
-### Example: Basic Letta Client Usage
+### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
 ```python
-from letta import create_client
+import os
+import json
+import logging
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-client = create_client()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("LettaMemory")
 
-# Create a stateful agent with persistent memory
-agent = client.create_agent(
-    name="DurableAssistant",
-    memory_type="base_memory",
-    embedding_config={"model": "text-embedding-3-small"}
-)
-```
+class CoreMemoryBlock(BaseModel):
+    label: str = Field(..., description="Block label (e.g. human, persona)")
+    value: str = Field(..., min_length=1, description="Content of the memory block")
 
-### Example: Pydantic v2 Core Memory and State Validation
-To guarantee structural integrity and type-safe state transitions within Letta's "Virtual Context" layer, developers utilize **Pydantic v2** models to marshal and parse agent memory block schemas programmatically.
-
-```python
-import sys
-from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, field_validator
-
-# Define Pydantic v2 memory block structures
-class MemoryBlock(BaseModel):
-    block_type: str = Field(..., description="Memory classification, e.g., CORE, ARCHIVAL, RECENT")
-    content: str = Field(..., min_length=1, description="Textual context content")
-    updated_at: str = Field(..., description="Timestamp of the last modification (ISO format)")
-
-class LettaAgentState(BaseModel):
+class AgentStateDump(BaseModel):
     agent_id: str
-    model_name: str
-    memory: List[MemoryBlock]
-    system_tags: List[str] = Field(default_factory=list)
-    metadata: Dict[str, str] = Field(default_factory=dict)
+    name: str
+    model: str
+    core_memory: List[CoreMemoryBlock] = Field(default_factory=list)
 
-    @field_validator('memory')
-    @classmethod
-    def verify_core_block_exists(cls, memory_list: List[MemoryBlock]) -> List[MemoryBlock]:
-        # Validate that at least one 'core' memory block exists for stateful reasoning
-        has_core = any(b.block_type.upper() == 'CORE' for b in memory_list)
-        if not has_core:
-            raise ValueError("Letta agents must contain at least one CORE memory block to persist state.")
-        return memory_list
+class LettaManager:
+    def __init__(self, server_url: Optional[str] = None):
+        self.server_url = server_url or os.getenv("LETTA_SERVER_URL", "http://localhost:8283")
 
-def load_and_validate_letta_state(raw_json: str) -> Optional[LettaAgentState]:
-    try:
-        validated_state = LettaAgentState.model_validate_json(raw_json)
-        print(f"Letta state successfully validated for Agent ID: {validated_state.agent_id}")
-        print(f"Target model: {validated_state.model_name}")
-        for block in validated_state.memory:
-            print(f" - [{block.block_type}] -> {block.content[:40]}...")
-        return validated_state
-    except Exception as e:
-        print(f"Letta agent state validation failed: {e}", file=sys.stderr)
-        return None
+    def inspect_agent_state(self, agent_id: str) -> AgentStateDump:
+        mock_raw = {
+            "agent_id": agent_id,
+            "name": "DurableSeniorDev",
+            "model": "claude-5-6-sonnet",
+            "core_memory": [
+                {"label": "human", "value": "User is a Principal Engineer building FastMCP 3.1 agent servers."},
+                {"label": "persona", "value": "I am a durable coding assistant with persistent Letta memory."}
+            ]
+        }
+        return AgentStateDump.model_validate(mock_raw)
 
-if __name__ == "__main__":
-    print("Initializing Letta Virtual Context state validation (Pydantic v2)...")
+try:
+    from fastmcp import FastMCP
+    mcp = FastMCP("Letta Agent Memory Server")
+    manager = LettaManager()
 
-    # Valid raw JSON state containing a core memory block
-    valid_state_json = """
-    {
-        "agent_id": "letta-agent-99x",
-        "model_name": "claude-5.6-sonnet",
-        "memory": [
-            {"block_type": "CORE", "content": "User prefers python over javascript, and uses Pydantic v2.", "updated_at": "2027-01-07T10:00:00Z"},
-            {"block_type": "RECENT", "content": "Discussed FastMCP 3.1 configuration.", "updated_at": "2027-01-07T10:05:00Z"}
-        ],
-        "system_tags": ["developer", "strict-types"]
-    }
-    """
+    @mcp.tool()
+    def get_agent_memory(agent_id: str) -> str:
+        """Retrieve core memory blocks for a persistent Letta agent."""
+        state = manager.inspect_agent_state(agent_id)
+        return state.model_dump_json(indent=2)
 
-    load_and_validate_letta_state(valid_state_json)
+except ImportError:
+    pass
 ```
 
 ## Related tools / concepts
 - [Mem0](mem0.md)
 - [Gemma 4](../ai_knowledge/local_llms.md)
 - [Agno](agno.md)
-- [Phidata](phidata.md)
 - [LangGraph](../frameworks/langgraph.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag.md)
-- [MCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 
 ## Sources / references
-- [Letta Official Site](https://www.letta.com/)
-- [Letta GitHub](https://github.com/letta-ai/letta)
-- [Official Documentation](https://docs.letta.com/)
+- [Letta Official Project & Documentation](https://www.letta.com/)
+- [Letta GitHub Repository](https://github.com/letta-ai/letta)
+- [MemGPT Original Research Paper (Packer et al.)](https://arxiv.org/abs/2310.08560)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
