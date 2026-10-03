@@ -8,10 +8,14 @@ inactive repos, a lane keeps erroring). Nothing surfaced that before: you had
 to browse the Actions tab. This watchdog:
 
   1. Discovers every scheduled workflow by scanning .github/workflows/*.yml
-     for cron triggers (new lanes are covered automatically).
+     for cron triggers (new lanes are covered automatically). Most lanes are
+     jobs of odd-day-pipeline.yml (the single cron entry point), so a failed
+     lane surfaces as a failed pipeline run, with the failing jobs named.
   2. Checks each lane's latest completed run and the age of its last success,
-     with a stall threshold derived from the lane's own cadence
-     (daily -> 2 days, weekly -> 9 days, monthly -> 35 days).
+     with a stall threshold derived from the lane's own cadence: the largest
+     gap between scheduled days of the month (daily -> 2 days,
+     odd-days-only -> 4 days, ~weekly -> 9 days, monthly -> 35 days), so the
+     deliberately idle even days never count as a stall.
   3. Flags workflows GitHub has disabled (manual or 60-day inactivity).
   4. Auto-reruns a failed run's failed jobs ONCE (attempt 1, <24h old) so
      transient failures self-heal without waiting a full schedule cycle.
@@ -67,19 +71,70 @@ def run_gh(args: list[str], check: bool = True) -> str:
     return result.stdout
 
 
+def dom_days(field: str) -> set[int] | None:
+    """Expand a cron day-of-month field ("1-31/2", "1,7,13", "*/3") to days.
+
+    Returns None when the field cannot be parsed, so callers can fall back to
+    the strictest cadence instead of missing a stall.
+    """
+    days: set[int] = set()
+    for part in field.split(","):
+        rng, _, step_s = part.partition("/")
+        try:
+            step = int(step_s) if step_s else 1
+            if rng == "*":
+                lo, hi = 1, 31
+            elif "-" in rng:
+                lo, hi = (int(x) for x in rng.split("-", 1))
+            else:
+                lo = int(rng)
+                hi = 31 if step_s else lo  # "5/7" means 5,12,19,26
+        except ValueError:
+            return None
+        if step < 1 or not 1 <= lo <= hi <= 31:
+            return None
+        days.update(range(lo, hi + 1, step))
+    return days or None
+
+
+def max_dom_gap(days: set[int]) -> int:
+    """Largest gap in days between consecutive scheduled days, across month ends.
+
+    Checked for every month length, since e.g. "1-31/2" runs on the 31st and
+    the 1st (gap 1) in long months but 29th -> 1st (gap 2) in 30-day months.
+    """
+    worst = 0
+    for month_len in (28, 29, 30, 31):
+        active = sorted(d for d in days if d <= month_len)
+        if not active:
+            return 31
+        gaps = [b - a for a, b in zip(active, active[1:])]
+        gaps.append(month_len - active[-1] + active[0])  # wrap into next month
+        worst = max(worst, *gaps)
+    return worst
+
+
 def cadence_of(cron: str) -> str:
-    """Classify a cron expression as daily/weekly/monthly by its date fields."""
+    """Classify a cron expression by the largest gap between its run days."""
     fields = cron.split()
     if len(fields) != 5:
         return "daily"  # be strict rather than miss a stall
     _minute, _hour, dom, _month, dow = fields
-    if "/2" in dom:
+    if dom == "*":
+        return "daily" if dow == "*" else "weekly"
+    days = dom_days(dom)
+    if days is None:
+        return "daily"
+    gap = max_dom_gap(days)
+    # A restricted DOW is OR'd with the DOM list by cron, which only adds runs,
+    # so the DOM gap is still a safe upper bound in that case.
+    if gap <= 1:
+        return "daily"
+    if gap == 2:
         return "alternate-day"
-    if dom != "*":
-        return "monthly"
-    if dow != "*":
+    if gap <= 8:
         return "weekly"
-    return "daily"
+    return "monthly"
 
 
 def discover_scheduled_workflows() -> list[dict]:
@@ -125,6 +180,16 @@ def recent_runs(workflow_file: str) -> list[dict]:
     return json.loads(out) if out.strip() else []
 
 
+def failed_jobs(run_id: int) -> list[str]:
+    """Names of the jobs that failed in one run (best effort; [] on API error)."""
+    out = run_gh(["run", "view", str(run_id), "--json", "jobs"], check=False)
+    try:
+        jobs = json.loads(out).get("jobs", []) if out.strip() else []
+    except json.JSONDecodeError:
+        return []
+    return [j["name"] for j in jobs if j.get("conclusion") in FAILING_CONCLUSIONS]
+
+
 def parse_ts(ts: str) -> datetime:
     return datetime.fromisoformat(ts.replace("Z", "+00:00"))
 
@@ -164,6 +229,11 @@ def assess_lane(lane: dict, state: str | None, runs: list[dict],
     if latest["conclusion"] in FAILING_CONCLUSIONS:
         result["status"] = "problem"
         result["notes"].append(f"latest run concluded `{latest['conclusion']}`")
+        failed = failed_jobs(latest["databaseId"])
+        if failed:
+            # For odd-day-pipeline.yml each job is a chained lane, so this names
+            # the lane(s) that actually broke.
+            result["notes"].append("failed job(s): " + ", ".join(failed))
         run_age = now - parse_ts(latest["createdAt"])
         running = any(r["status"] != "completed" for r in runs)
         if (latest["attempt"] == 1

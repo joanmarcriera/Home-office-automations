@@ -1,9 +1,12 @@
 name: Daily Jules Maintenance
 
 on:
-  schedule:
-    - cron: '20 7 1-31/2 * *'  # 07:20 UTC odd days — after digest-to-intake bridge completes
-    - cron: '0 19 1-31/2 * *'  # 19:00 UTC odd days — afternoon maintenance pass
+  # Scheduled runs come from odd-day-pipeline.yml, after the digest-to-intake
+  # bridge. One pass per odd day: the old 19:00 second pass could only act
+  # once the morning "Daily Maintenance Run - <date>" issue was resolved, and
+  # that is exactly when jules-pipeline-trigger.yml re-dispatches this lane
+  # (on every Jules PR merge), so a second clock-driven pass is redundant.
+  workflow_call:
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:

@@ -1,7 +1,10 @@
 name: Scheduled Jules Maintenance
 on:
-  schedule:
-    - cron: '0 0,8,16 1-31/2 * *' # 00:00/08:00/16:00 UTC on odd days only (alternate-day cadence, 2026-09-25)
+  # Scheduled runs come from odd-day-pipeline.yml (one pass per odd day, before
+  # Process Jules Backlog so newly labelled issues are counted). The watcher is
+  # idempotent (it skips issues already labelled `jules`), so the former
+  # 00:00/08:00/16:00 triple pass only re-scanned the same issues.
+  workflow_call:
   workflow_dispatch:
 
 concurrency:

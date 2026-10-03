@@ -1,8 +1,9 @@
 name: Weekly Growth Planner
 
 on:
-  schedule:
-    - cron: "0 2 * * 1"  # Monday 02:00 UTC — single weekly run
+  # Scheduled runs come from odd-day-pipeline.yml on days 1,7,13,19,25 of the
+  # month (roughly weekly, odd days only), after the digest lanes.
+  workflow_call:
   workflow_dispatch:
 
 concurrency:

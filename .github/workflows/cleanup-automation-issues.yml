@@ -1,8 +1,9 @@
 name: Cleanup Stale Automation Issues
 
 on:
-  schedule:
-    - cron: "20 1 1-31/2 * *" # 01:20 UTC on odd days only
+  # Scheduled runs come from odd-day-pipeline.yml: stale control issues are
+  # closed before the issue-opening lanes check for existing ones.
+  workflow_call:
   workflow_dispatch:
 
 concurrency:

@@ -6,7 +6,8 @@ Reads data/growth-metrics.json and creates targeted GitHub issues for Jules:
 1. A deepening issue: add code examples to the 5 shallowest docs
 2. A gap-filling issue: discover tools for the most underdeveloped category
 
-Runs Monday 02:00 UTC via weekly-planner.yml.
+Runs on days 1,7,13,19,25 of the month via weekly-planner.yml, chained from
+odd-day-pipeline.yml.
 """
 
 from __future__ import annotations

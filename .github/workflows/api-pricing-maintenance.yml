@@ -1,8 +1,9 @@
 name: API Pricing Maintenance
 
 on:
-  schedule:
-    - cron: "30 8 * * 1" # Monday 08:30 UTC
+  # Scheduled runs come from odd-day-pipeline.yml on days 1,7,13,19,25 of the
+  # month, chained directly after the Weekly Growth Planner.
+  workflow_call:
   workflow_dispatch:
 
 permissions:
