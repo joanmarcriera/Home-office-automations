@@ -3,8 +3,8 @@ name: Jules Issue Hygiene
 on:
   issue_comment:
     types: [created, edited]
-  schedule:
-    - cron: "15 1 1-31/2 * *" # 01:15 UTC on odd days only (alternate-day cadence, 2026-09-25)
+  # Scheduled sweep comes from odd-day-pipeline.yml (after PR hygiene).
+  workflow_call:
   workflow_dispatch:
 
 permissions:

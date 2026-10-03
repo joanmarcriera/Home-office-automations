@@ -16,8 +16,9 @@ name: PR Hygiene (close orphaned bot PRs)
 # bot heuristics, never human PRs.
 
 on:
-  schedule:
-    - cron: "10 1 1-31/2 * *" # 01:10 UTC odd days, before cleanup-automation-issues (01:20)
+  # Scheduled runs come from odd-day-pipeline.yml: first lane, so orphaned PRs
+  # are closed before the throttle-checking issue openers count live PRs.
+  workflow_call:
   workflow_dispatch:
     inputs:
       dry_run:

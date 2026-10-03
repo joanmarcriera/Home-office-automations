@@ -1,8 +1,8 @@
 name: Daily Jules Knowledge Expansion
 
 on:
-  schedule:
-    - cron: '0 9 1-31/2 * *'  # 09:00 UTC on odd days only (was 3x daily; alternate-day cadence, 2026-09-25)
+  # Scheduled runs come from odd-day-pipeline.yml (odd days only).
+  workflow_call:
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:
