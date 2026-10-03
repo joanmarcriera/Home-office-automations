@@ -90,6 +90,7 @@ Repository mapping:
 - **Jules PRs / weekly rollup PR**: Jules bot PRs plus `automation/weekly-rollup`
 - **Quality gates**: docs, catalog, intake, link, and generated-content workflows
 - **Weekly backlog / deepening loops**: `.github/workflows/process-jules-backlog.yml`, `.github/workflows/daily-jules-knowledge.yml`, `.github/workflows/weekly-planner.yml`, `.github/workflows/weekly-automation-rollup-merge.yml`
+- **Schedule**: `.github/workflows/odd-day-pipeline.yml` is the single scheduled entry point (00:30 UTC, odd days of the month only); it runs the lanes above as one chain, so even days have no scheduled jobs
 
 Supporting docs:
 
