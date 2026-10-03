@@ -1,127 +1,229 @@
 # Skills in Chrome
 
 ## What it is
-Skills in Chrome is a native browser feature (v145+) that transforms AI prompts into one-click, reusable tools directly integrated into the Google Chrome interface. Powered by **Gemini 4.0 Ultra** and **Gemini 4.0 Nano** (local on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu. In early January 2027, Skills in Chrome deeply integrates with **FastMCP 3.1** protocol and multi-agent systems involving **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4**.
+Skills in Chrome is a native browser feature (v145+) that transforms natural language prompts into one-click, reusable agentic tools directly integrated into the Google Chrome interface. Powered by **Gemini 4.0 Ultra** (cloud) and **Gemini 4.0 Nano** (local on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu. As of early **January 2027**, Skills in Chrome deeply integrates with the **FastMCP 3.1** protocol and multi-agent frameworks involving **Claude 5.6**, **GPT-5.6**, and **DeepSeek-V4**.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Skills in Chrome Architecture                           |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ User Trigger: Omnibox / Shortcut / Context Menu / Agentic Hook ]              |
+|                                     |                                             |
+|                                     v                                             |
+|  +-----------------------------------------------------------------------------+  |
+|  | Google Chrome Engine (v145+) AI Sidecar Sandbox                           |  |
+|  |                                                                             |  |
+|  |  +---------------------------+       +------------------------------------+  |  |
+|  |  | Active Tab DOM Parser     |       | Agentic Hook Rule Evaluator        |  |  |
+|  |  | (Chrome CDP / Tree Walker)|       | (URL Pattern & Context Trigger)    |  |  |
+|  |  +---------------------------+       +------------------------------------+  |  |
+|  |                \                                   /                        |  |
+|  |                 v                                 v                         |  |
+|  |  +-----------------------------------------------------------------------+  |  |
+|  |  | Model Execution Router                                                |  |  |
+|  |  |                                                                       |  |  |
+|  |  |  [ Local On-Device: Gemini 4.0 Nano ] <-> [ Cloud: Gemini 4.0 Ultra ]   |  |  |
+|  |  +-----------------------------------------------------------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                     |                                             |
+|                                     v                                             |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Tool Gateway & External Agent Integration                      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                     |                                             |
+|                                     v                                             |
+|  [ Structured UI Output / Clipboard / Side Panel / Web Page Injections ]          |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It eliminates "prompt fatigue" and the friction of repetitive typing for recurring AI tasks. By bridging the gap between static LLM chats and actionable browser workflows, it enables users to treat AI as a set of specialized, context-aware browser extensions without needing to write code.
+It eliminates "prompt fatigue" and the repetitive friction of manually copying and pasting web content into external LLM interface windows. By bridging the gap between static conversational AI and actionable browser workflows, it enables power users, developers, and researchers to treat AI as a set of specialized, context-aware browser extensions without writing complex extension manifest code or managing local API server infrastructure.
+
+In enterprise and compliance scenarios, copying page content into external chat portals frequently leads to unmonitored data loss. Skills in Chrome enforces "Identity-Aware Tool Routing" within Chrome's process isolation boundaries, ensuring web context processing complies with organizational DLP (Data Loss Prevention) policies.
 
 ## Where it fits in the stack
-**AI Knowledge / Browser Agentic Layer**. It sits at the edge of the user's interaction with the web, providing a "Sidecar Agent" capability that can observe page DOM, summarize content, and interact with web elements as part of an integrated agentic ecosystem using [Gemma 3](../ai_knowledge/local_llms.md) and [Gemini 4.0 Ultra](gemini.md) for local and hybrid processing.
+**AI Knowledge / Browser Agentic Layer**. It sits at the primary human-computer interaction edge of the web stack, providing a "Sidecar Agent" capability that can inspect active page DOM nodes, summarize multi-tab research content, perform automated form interactions, and dispatch structured tool payloads to local or remote FastMCP 3.1 endpoints using [Gemma 3](../ai_knowledge/local_llms.md) and [Gemini 4.0 Ultra](gemini.md).
 
 ## Typical use cases
-- **Automated Research**: One-click "TL;DR" and key takeaway extraction for long technical documents or research papers.
-- **Data Structuring**: Extracting product specifications, pricing, or ingredients from a webpage directly into a structured clipboard format.
-- **Workflow Automation**: Generating contextual email replies or PR descriptions based on the active tab's content.
-- **Multi-Tab Synthesis**: Using the "Agentic Search" capability to synthesize information across several open tabs into a single comparison table.
+- **Automated Research Curation**: One-click extraction of key findings, methodology, and limitations from dense technical papers or news articles into structured Markdown tables.
+- **Data Structuring & Scraping**: Extracting product specifications, pricing data, or contact directories directly into JSON or CSV clipboard formats.
+- **Developer Workflow Automation**: Generating contextual pull request code reviews or drafting bug reports based on open GitHub issues or console log outputs in active browser tabs.
+- **Multi-Tab Information Synthesis**: Utilizing "Agentic Search" to compare vendor pricing, documentation, or product features across multiple active browser tabs into a single consolidated matrix.
+- **FastMCP 3.1 Local Service Invocation**: Triggering local home automation, calendar entries, or database queries directly from web content triggers.
+- **Form Automation & Data Entry**: Intelligently filling repetitive web forms using context extracted from reference spreadsheets or CRM tabs.
+- **Accessibility & Translation Assistance**: Converting complex jargon or technical documentation into simplified summaries with voice playback.
+- **Enterprise Policy Enforcement**: Automatically checking viewed vendor documentation against internal security compliance rules.
 
 ## Strengths
-- **Zero-Latency Context**: Native integration allows the AI to access the current tab's context without manual copy-pasting.
-- **Agentic Hooks**: Supports automated triggering based on specific URL patterns (e.g., automatically offer to "Compare Prices" when on an e-commerce site).
-- **Security & Privacy**: Operates within the browser's sandbox, utilizing Google's "Identity-Aware Tool Routing" for secure data handling.
-- **Cross-Device Sync**: Saved skills are synchronized across desktop (Windows, Mac, Linux) and mobile (Android) via the user's Google account.
-- **FastMCP 3.1 Support**: Direct tool-calling integration with Model Context Protocol servers.
+- **Zero-Latency Context Access**: Native browser integration allows the AI sidecar to access the active DOM, selected text, or media elements without manual copying.
+- **Agentic Hooks**: Supports automated background triggers based on specific URL patterns (e.g., automatically offering to "Analyze Pull Request" when navigating to `github.com/*/pull/*`).
+- **Security & Privacy Sandbox**: Operates within Chrome's isolated process sandbox, utilizing Google's "Identity-Aware Tool Routing" for secure permission checks.
+- **Cross-Device Sync**: Configured skills and agentic hooks synchronize across desktop (Windows, macOS, Linux) and mobile (Android) via Google account sync.
+- **FastMCP 3.1 Tool Native**: Directly exposes tool definitions to Model Context Protocol clients and servers.
+- **On-Device Offline Fallback**: Generates summaries and text formatting via Gemini 4.0 Nano on-device even when internet access is disabled.
+- **Declarative Manifest Model**: Allows developers to share browser skills as simple JSON manifests.
+- **Zero Code Required**: Non-developers can create complex agentic skills through plain-language prompts in the sidepanel.
 
 ## Limitations
-- **Ecosystem Lock-in**: Exclusively available for Google Chrome and Chromium-based browsers that adopt the Gemini API.
-- **Context Window**: While Gemini 4.0 offers massive context windows, extremely large web documents or multi-media pages may still face truncation.
-- **Sandbox Constraints**: Cannot interact with local filesystems or system-level processes outside the browser without specialized extensions.
+- **Ecosystem Lock-in**: Exclusively available on Google Chrome and Chromium-based browsers that adopt the `chrome.ai` extension API specifications.
+- **DOM Context Truncation**: Extremely large web documents or multi-megabyte pages may exceed active model context limits, requiring chunking.
+- **Sandbox Boundary Constraints**: Cannot execute raw shell commands or interact directly with the local OS filesystem without an external FastMCP local server bridge.
 
 ## When to use it
-- For high-frequency, low-complexity AI tasks performed during active browsing sessions.
-- When you need immediate AI assistance that is aware of the specific "here and now" context of a webpage.
-- If you want to build simple "agentic workflows" without setting up complex orchestration tools like [n8n](../../services/n8n.md).
+- For high-frequency, repetitive AI tasks performed during active web browsing sessions.
+- When you need immediate AI assistance that is aware of the specific "here and now" DOM context of an active web page.
+- When building simple agentic browser workflows without wanting to set up external workflow automation engines like [n8n](../../services/n8n.md).
+- When operating on local network web interfaces (e.g., router portals, Grafana dashboards) that require quick AI explanation.
+- For non-technical team members who benefit from one-click AI shortcuts built into their daily web tools.
 
 ## When not to use it
-- For heavy coding tasks or repository-wide analysis (use [Claude Code](everything-claude-code.md) or [Cursor](../development_ops/cursor.md)).
-- When working with highly sensitive data that requires local-only inference (use [Ollama](../../services/ollama.md) or [Local LLMs](local_llms.md)).
-- For complex, multi-step agentic workflows that require external tool access beyond the browser's reach.
+- For heavy repository-wide code edits or terminal command execution (use [Claude Code](everything-claude-code.md) or [Cursor](../development_ops/cursor.md)).
+- When working with strict air-gapped sensitive data that prohibits cloud telemetry (use [Ollama](../../services/ollama.md) or [Local LLMs](local_llms.md) with local web scrapers).
+- For complex headless web automation jobs requiring unattended background execution (use [Playwright](../development_ops/playwright.md) or [Browser Use](../automation_orchestration/browser-use.md)).
 
 ## Getting started
 > [!IMPORTANT]
-> Requires Google Chrome v145+ and a Google Account with Gemini features enabled.
+> Requires Google Chrome v145+ with Gemini features enabled in settings.
 
-### Local Setup
+### Local Setup & Skill Creation
 1. **Enable AI Features**: Navigate to `chrome://settings/ai` and ensure "Gemini Side Panel" and "Agentic Hooks" are toggled ON.
-2. **Open the Side Panel**: Click the Gemini icon in the top-right corner of the browser or press `Cmd+K` (Mac) / `Ctrl+K` (Windows).
+2. **Open the AI Side Panel**: Click the Gemini icon in the top-right corner of Chrome or press `Cmd+K` (macOS) / `Ctrl+K` (Windows).
 3. **Create Your First Skill**:
-   - Type a prompt in the Gemini chat (e.g., "Extract all dates and events from this page into a markdown list").
-   - After the response, click the **Save as Skill** button.
-   - Name the skill (e.g., `Event Extractor`) and assign a shortcut (e.g., `/events`).
+   - Enter a prompt in the sidepanel chat (e.g., "Extract all technical specifications into a markdown table").
+   - Click **Save as Skill**.
+   - Assign a name (`Spec Extractor`), shortcut (`/specs`), and target URL trigger (`https://*/*`).
 
 ## CLI examples
-While Skills in Chrome is primarily a UI-driven feature, developers can interact with the underlying agentic engine via the Chrome DevTools Protocol (CDP).
+Developers can query and trigger saved skills or configure agentic hooks via the Chrome DevTools Protocol (CDP):
 
 ```bash
-# Example: Triggering a Chrome Skill via CDP (Headless)
-# Note: Requires a debug-enabled Chrome instance
+# Example: Triggering a Chrome Skill via CDP (Headless Debug Instance)
 curl -X POST http://localhost:9222/json/rpc \
+  -H "Content-Type: application/json" \
   -d '{
     "id": 1,
     "method": "AI.executeSkill",
-    "params": { "skillId": "event-extractor", "tabId": 123 }
+    "params": { "skillId": "spec-extractor", "tabId": 101 }
   }'
 
-# List available AI skills via CDP
+# List available installed AI skills via CDP
 curl -X POST http://localhost:9222/json/rpc \
+  -H "Content-Type: application/json" \
   -d '{ "id": 2, "method": "AI.listSkills" }'
 
 # Set an agentic hook for specific URL pattern
 curl -X POST http://localhost:9222/json/rpc \
-  -d '{ "id": 3, "method": "AI.setHook", "params": { "pattern": "github.com/*", "skillId": "pr-review" } }'
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 3,
+    "method": "AI.setHook",
+    "params": { "pattern": "https://github.com/*/pull/*", "skillId": "pr-review" }
+  }'
+
+# Query active Gemini 4.0 Nano local model status
+curl -X POST http://localhost:9222/json/rpc \
+  -H "Content-Type: application/json" \
+  -d '{ "id": 4, "method": "AI.getOnDeviceModelStatus" }'
+
+# Export configured skills manifest to local file
+curl -X POST http://localhost:9222/json/rpc \
+  -H "Content-Type: application/json" \
+  -d '{ "id": 5, "method": "AI.exportSkillsManifest" }' > skills_backup.json
 ```
 
 ## API examples
-Extensions can call saved skills or define new ones using the experimental `chrome.ai` API, integrated with [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md). Below is a Python script that parses and validates browser-use agentic skills and manifest configurations strictly using **Pydantic v2**.
+
+### FastMCP 3.1 Skill Manifest Validator (Pydantic v2)
+Extensions and FastMCP bridge servers can parse and validate Chrome skill manifests using **Pydantic v2**:
 
 ```python
-from pydantic import BaseModel, Field
-from typing import Literal
+import json
+from typing import Literal, Optional, List
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
 
-# Define Pydantic v2 schemas for strict browser-use agent skill validation
+# Define Pydantic v2 schemas for Chrome Skill manifests
+class AgenticHookTrigger(BaseModel):
+    url_pattern: str = Field(..., description="Glob or regex matching target web URLs")
+    trigger_event: Literal["page_load", "selection", "manual_shortcut"] = Field("manual_shortcut")
+
 class ChromeSkillManifest(BaseModel):
     skill_id: str = Field(..., pattern=r"^[a-z0-9\-]+$")
-    name: str = Field(..., min_length=3, max_length=50)
-    trigger_shortcut: str = Field(..., pattern=r"^/[a-zA-Z0-9]+$")
-    context_type: Literal["active_tab", "selection", "all_tabs"] = "active_tab"
-    target_url_pattern: str = Field("*", min_length=1)
-    prompt_template: str = Field(..., min_length=15)
+    name: str = Field(..., min_length=3, max_length=60)
+    shortcut: str = Field(..., pattern=r"^/[a-zA-Z0-9]+$")
+    context_mode: Literal["active_tab_dom", "selected_text", "all_open_tabs"] = "active_tab_dom"
+    target_hook: AgenticHookTrigger
+    prompt_template: str = Field(..., min_length=20)
+    output_format: Literal["markdown", "json", "plain_text"] = "markdown"
 
-def validate_chrome_skill():
-    raw_manifest = {
-        "skill_id": "event-extractor",
-        "name": "Event Extractor",
-        "trigger_shortcut": "/events",
-        "context_type": "active_tab",
-        "target_url_pattern": "https://github.com/*",
-        "prompt_template": "Extract all dates, timelines, and milestones from this page and compile them into a valid markdown checklist."
-    }
+    @field_validator("prompt_template")
+    @classmethod
+    def validate_prompt_variables(cls, v: str) -> str:
+        if "{{page_content}}" not in v and "{{selection}}" not in v:
+            raise ValueError("Prompt template must include at least one context placeholder: {{page_content}} or {{selection}}")
+        return v
 
-    # Strictly validate Chrome skill using Pydantic v2
-    validated_manifest = ChromeSkillManifest(**raw_manifest)
-    print(f"Skill '{validated_manifest.name}' validated successfully!")
-    print(f"Trigger: {validated_manifest.trigger_shortcut} on context: {validated_manifest.context_type}")
+# FastMCP 3.1 Server for Chrome Skill Management
+mcp = FastMCP("chrome-skills-bridge")
+
+@mcp.tool()
+async def register_chrome_skill(manifest_json: str) -> str:
+    """Validates and registers a new Chrome agentic skill manifest."""
+    manifest = ChromeSkillManifest.model_validate_json(manifest_json)
+
+    # Process manifest registration logic
+    return json.dumps({
+        "status": "registered",
+        "skill_id": manifest.skill_id,
+        "shortcut": manifest.shortcut,
+        "hook_pattern": manifest.target_hook.url_pattern
+    })
 
 if __name__ == "__main__":
-    validate_chrome_skill()
+    # Test manifest validation
+    sample_manifest = {
+        "skill_id": "pr-code-reviewer",
+        "name": "GitHub PR Code Auditor",
+        "shortcut": "/prreview",
+        "context_mode": "active_tab_dom",
+        "target_hook": {
+            "url_pattern": "https://github.com/*/pull/*",
+            "trigger_event": "page_load"
+        },
+        "prompt_template": "Audit the code diff in {{page_content}} for security vulnerabilities.",
+        "output_format": "markdown"
+    }
+
+    validated = ChromeSkillManifest.model_validate(sample_manifest)
+    print(f"Validated skill: {validated.name} (Shortcut: {validated.shortcut})")
+    mcp.run()
 ```
 
-## Related tools / concepts
-- [Google Search](google-search.md) — The underlying "Agentic Search" platform.
-- [Gemini](gemini.md) — The frontier model powering the skills.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Google's latest open-weights model family.
-- [Nano Banana](nano-banana.md) — On-device small language model integration in Chrome.
-- [HoloTab](holotab.md) — Advanced browser-based AI visualization.
-- [Browser Use](../automation_orchestration/browser-use.md) — Playwright-based agentic browser control.
-- [Stagehand](../automation_orchestration/stagehand.md) — AI-first browser automation framework.
-- [Claude Desktop](claude-desktop.md) — Alternative desktop-sidecar agent.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for agent-tool communication.
-- [n8n](../../services/n8n.md) — Workflow automation for complex agentic pipelines.
+## Troubleshooting & Best Practices
 
-## Sources / References
-- [Google I/O 2026: Powering the Agentic Web](https://developer.chrome.com/blog/chrome-at-io26)
-- [Turn AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
-- [Chrome Developer: The AI-Powered Browser](https://developer.chrome.com/docs/ai/)
+### Agentic Hooks Failing to Trigger
+- **Cause**: Target URL glob pattern incorrectly formatted or missing wildcard scheme prefix (e.g., `github.com/*` instead of `https://github.com/*`).
+- **Solution**: Always include explicit scheme matching (`https://` or `http://`) in skill manifest URL pattern triggers.
+
+### On-Device Model Memory Pressure
+- **Cause**: Chrome tab open count exceeding system RAM threshold causing Gemini 4.0 Nano model unload.
+- **Solution**: Ensure Chrome's Memory Saver feature is active or configure fallback to cloud Gemini 4.0 Ultra execution.
+
+## Related tools / concepts
+- [Google Search](google-search.md) — Grounding platform for web search capabilities.
+- [Gemini](gemini.md) — The frontier multimodal model powering Skills in Chrome.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Open-weights local language model family.
+- [Browser Use](../automation_orchestration/browser-use.md) — Agentic browser automation framework.
+- [Stagehand](../automation_orchestration/stagehand.md) — AI-first web scraping and interaction engine.
+- [FastMCP](../automation_orchestration/mcp.md) — Model Context Protocol tool discovery framework.
+- [n8n](../../services/n8n.md) — Self-hosted workflow automation platform.
+
+## Sources / references
+- [Google I/O: Powering the Agentic Web in Chrome](https://developer.chrome.com/blog/chrome-at-io26)
+- [Turn AI Prompts into One-Click Tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
+- [Chrome Developer AI Documentation](https://developer.chrome.com/docs/ai/)
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
