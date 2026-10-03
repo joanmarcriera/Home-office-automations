@@ -1,5 +1,71 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-03
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **OpenAI DevDay 2026**: OpenAI has unveiled the **GPT-6 family**, including **GPT-6.1 Sol**, alongside a new **Decisions API** and computer use capabilities for the Agents API.
+* 🚀 **Agentic Infrastructure**: A massive shift toward "Agentic Era" infrastructure is appearing, with **DigitalOcean**, **Docker**, and **Cloudflare** launching managed runtimes, sandbox specifications, and monetization gateways for AI agents.
+* 🛠️ **Local LLM Breakthroughs**: The community is pushing boundaries with **Qwen 3.8** variants and experimental hardware setups, including using iPhones as secondary GPUs for MacBooks.
+* 🏢 **Enterprise Adoption**: Major companies like **Uber Eats**, **Airbnb**, and **Albertsons** are redesigning core search pipelines and guest experiences around AI agents.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier Models
+* 📌 **GPT-6 Family** ([OpenAI](https://openai.com/index/practical-guide-building-gpt-6)): OpenAI released a practical guide for startups on choosing GPT-6 models, tuning reasoning effort, and preparing production workflows.
+* **GPT-6.1 Sol** ([InfoQ](https://www.infoq.com/news/2026/10/openai-devday-2026/)): Announced during DevDay 2026 as part of a broader suite of developer updates.
+* **AWS Strands Decider 2B** ([The New Stack](https://thenewstack.io/aws-strands-decider-model/)): A new local "decision model" designed to compete with TypeSafe's Jev.
+
+### Open Source & Local LLMs
+* **Qwen 3.8 Series** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1wvxl4n/qwen3827bhumanlikechat_20_texts_like_a_human_now/)): New "Humanlike-Chat 2.0" LoRA for the 27B model, focusing on natural conversation and better tool calling.
+* **Microsoft FrogNano-4B** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1ww40o2/microsoftfrognano4b2609_hugging_face/)): An agentic model derived from Qwen 3.5-4B, optimized for "the GPU poor."
+* **LiquidAI LFM2.5-Encoder** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1wwgns1/liquidailfm25encoder_250m350m/)): Multilingual bidirectional encoders (250M/350M) designed for efficient on-device retrieval and classification.
+* **Unitree UnifoLM-WLA-1.0** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1ww91uw/unitree_just_dropped_unifolmwla10_a_single_6b/)): A 6B foundation model capable of 64 whole-body and tabletop tasks for humanoid robots.
+
+---
+
+## 🛠️ Tools & Agents
+
+### Infrastructure & Runtimes
+* **DigitalOcean Managed Agents** ([InfoQ](https://www.infoq.com/news/2026/10/digitalocean-managed-agents/)): Public preview of managed cloud infrastructure for agents, featuring isolated microVM runtimes.
+* **Docker Sandbox Kit** ([InfoQ](https://www.infoq.com/news/2026/10/docker-sandbox-ai-agent/)): A new specification brought to the CNCF to make AI agent permissions portable via OCI images.
+* **Cloudflare Monetization Gateway** ([The New Stack](https://thenewstack.io/cloudflare-x402-agent-spending/)): A beta tool allowing domain owners to charge AI agents for access to MCP tools.
+* **GitHub Copilot Computer Use** ([The New Stack](https://thenewstack.io/github-copilot-computer-use-desktop/)): Public preview of the ability for Copilot CLI and desktop apps to operate the computer directly.
+
+### Developer Tools
+* **llama.cpp Updates** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1wvv6im/new_in_llamacpp_decision_models/)): Now supports "Decision Models" and includes VRAM optimizations for Qwen Flash Next.
+* **mlsubgen** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1wwds6i/mlsubgen_subtitles_in_45_languages_for_your/)): A local tool for generating subtitles in 45 languages entirely on-device.
+* **AstaBrief** ([Hugging Face](https://huggingface.co/blog/allenai/astabrief)): Open-sourcing of a fast report-generation model.
+
+---
+
+## 🔬 Research & Analysis
+
+### Architectures & Methods
+* **Percepta "Spotlight"** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1ww09ab/new_architecture_from_percepta_spotlight/)): A new architecture that separates intelligence from memory, allowing models to grow capabilities without changing weights.
+* **Graph RAG vs. Vector RAG** ([The New Stack](https://thenewstack.io/when-to-use-graph-rag/), [n8n](https://blog.n8n.io/llm-knowledge-graph/)): Analysis on when to use knowledge graphs for relationship-heavy evidence versus standard vector retrieval.
+* **AutoSynthData** ([Hugging Face](https://huggingface.co/blog/ServiceNow-AI/autosynthdata)): New methods for generating high-quality training data specifically for enterprise agents.
+
+---
+
+## 🏢 Industry News
+
+### Enterprise Implementations
+* **Uber Eats** ([InfoQ](https://www.infoq.com/news/2026/10/uber-eats-search-latency/)): Rebuilt search pipeline to cut end-to-end latency by 50% using agentic coding workflows.
+* **Airbnb** ([Latent Space](https://www.latent.space/p/airbnb)): Ahmad Al-Dahle (ex-Meta Llama) is leading a transformation of the guest experience using AI.
+* **Albertsons** ([OpenAI](https://openai.com/index/albertsons-reimagining-retail)): Utilizing ChatGPT Enterprise and APIs to reimagine retail operations and customer shopping.
+
+### Hardware & Security
+* **RTX 5090 Restrictions** ([r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1ww4hne/buying_rtx_5090_at_micro_center_reportedly_now/)): Reports that Micro Center now requires "No-Export Declarations" for 5090 purchases.
+* **AI Security Leaks** ([The New Stack](https://thenewstack.io/coding-agents-leaked-screenshots/)): A report on how AI coding agents accidentally leaked 13,000 internal screenshots due to tool limitations.
+* **The "Extinction" Debate** ([Fortune](https://fortune.com/2026/10/01/ai-godfather-yann-lecun-has-zero-concerns-about-human-extinction-says-anthropic-ceo-dario-amodei-is-deuded/)): Yann LeCun dismisses concerns about human extinction, calling Anthropic CEO Dario Amodei "deluded."
+
+---
+
+
 ## 📅 Digest for 2026-10-01
 
 ## Digest fallback for 2026-10-01
