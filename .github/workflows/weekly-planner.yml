@@ -79,11 +79,6 @@ jobs:
       - name: Update source scores
         run: python scripts/update_source_scores.py
 
-      - name: Create weekly issues
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/weekly_planner.py
-
       - name: Create pull request for weekly metrics
         # Never on a branch test or a dry run: this pushes the shared rollup branch.
         if: github.ref_name == 'main' && env.DRY_RUN != 'true'
@@ -123,3 +118,12 @@ jobs:
             --ref "$PR_BRANCH" \
             --base-sha "$BASE_SHA" \
             --head-sha "$HEAD_SHA"
+
+      - name: Create weekly issues
+        # Last on purpose: exit 2 means the open-issue dedupe lookup failed and
+        # nothing was created (fail closed). The step then fails the lane AFTER
+        # the metrics PR above has been produced, so the watchdog sees it and
+        # reruns it once, without blocking the rest of the pipeline.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/weekly_planner.py

@@ -181,13 +181,24 @@ def build_report(frontier: list[dict], thin: list[dict], dangling: list[dict]) -
 
 
 def create_issue(report: str, frontier: list[dict]) -> bool:
-    # Throttle: don't stack coverage-gap issues.
+    # Throttle: don't stack coverage-gap issues. Only issues opened by this
+    # lane's own bot identity count (an outsider's look-alike issue must not
+    # suppress the lane), and a failed lookup fails CLOSED: skip, don't create.
     existing = subprocess.run(
-        ["gh", "issue", "list", "--state", "open", "--search",
-         "Coverage gap fill in:title", "--json", "number"],
+        ["gh", "issue", "list", "--state", "open", "--author", "app/github-actions",
+         "--search", "Coverage gap fill in:title", "--json", "title"],
         capture_output=True, text=True,
     )
-    if existing.returncode == 0 and existing.stdout.strip() not in ("", "[]"):
+    if existing.returncode != 0:
+        print(f"::warning::Open-issue lookup failed ({existing.stderr.strip()[:200]}); "
+              "skipping issue creation to avoid duplicates.")
+        return False
+    try:
+        titles = [i["title"] for i in json.loads(existing.stdout)]
+    except (json.JSONDecodeError, TypeError, KeyError):
+        print("::warning::Unparsable open-issue lookup; skipping issue creation.")
+        return False
+    if any(t.startswith("Coverage gap fill") for t in titles):
         print("An open 'Coverage gap fill' issue already exists. Skipping (throttled).")
         return False
 
