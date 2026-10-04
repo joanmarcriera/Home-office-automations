@@ -152,7 +152,7 @@ if __name__ == "__main__":
 - [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md)
 - [Ralph-loop Protocol](../../architecture/automated_contributions.md)
 - [KnowledgeOps Standards](../../standards.md)
-- [scripts/check_docs_contract.py](../../scripts/check_docs_contract.py)
+- [scripts/check_docs_contract.py](../../../scripts/check_docs_contract.py)
 - [Claude 5.6](../../tools/ai_knowledge/claude.md)
 - [GPT-5.6](../../tools/ai_knowledge/openai.md)
 - [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md)

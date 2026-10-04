@@ -310,7 +310,7 @@ The table below highlights typical data transfer volumes and execution times ass
 - [Tailscale](tailscale.md) — Measuring performance of private mesh tunnels.
 - [Home Assistant](home-assistant.md) — Displaying speedtest metrics on a home dashboard.
 - [Authentik](authentik.md) — Securing the Speedtest Tracker dashboard.
-- [Ollama](../infrastructure/ollama.md) — Running agents that analyze network logs.
+- [Ollama](ollama.md) — Running agents that analyze network logs.
 
 ## Sources / references
 - [Speedtest.net Official CLI](https://www.speedtest.net/apps/cli)

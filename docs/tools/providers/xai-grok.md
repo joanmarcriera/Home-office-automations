@@ -81,7 +81,7 @@ Grok-3 models support large context windows (1M+ tokens) and multi-modal inputs,
 - For live social sentiment monitoring and OSINT research workflows.
 
 ## When not to use it
-- In air-gapped, offline, or strictly on-premise environments where cloud APIs are prohibited (use [Ollama](../infrastructure/ollama.md) or [Local LLMs](../ai_knowledge/local_llms.md)).
+- In air-gapped, offline, or strictly on-premise environments where cloud APIs are prohibited (use [Ollama](../../services/ollama.md) or [Local LLMs](../ai_knowledge/local_llms.md)).
 - If your system relies exclusively on open-weights models with full local weight fine-tuning rights (use [DeepSeek](../ai_knowledge/deepseek-r1.md) or [Gemma](../ai_knowledge/local_llms.md)).
 
 ## Getting started

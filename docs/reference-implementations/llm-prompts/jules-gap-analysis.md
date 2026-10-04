@@ -9,7 +9,7 @@ As of early January 2027, this prompt is the standard tool for the [Ralph-loop](
 Automation stacks often suffer from "silent decay" where small API changes, network timeouts, or unhandled data edge cases lead to recurring but non-critical failures. This prompt automates the root cause analysis and suggests specific fixes, ensuring the system remains resilient and well-documented without requiring constant manual monitoring.
 
 ## Where it fits in the stack
-This prompt is part of the **Maintenance & Governance Layer**. It consumes data from the [n8n Log Aggregator](../../scripts/n8n_log_aggregator.py) and generates actionable PRs for the **DevOps** ([Jules](../../tools/ai_knowledge/jules.md)) layer.
+This prompt is part of the **Maintenance & Governance Layer**. It consumes data from the [n8n Log Aggregator](../../../scripts/n8n_log_aggregator.py) and generates actionable PRs for the **DevOps** ([Jules](../../tools/ai_knowledge/jules.md)) layer.
 
 ## Typical use cases
 - **Weekly Reliability Review**: Running the analysis every Sunday to identify top bottlenecks and regressions.
@@ -139,7 +139,7 @@ def run_mcp_gap_analysis(logs_data: str) -> AnalysisResponse:
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md): The automation platform being monitored.
-- [n8n Log Aggregator](../../scripts/n8n_log_aggregator.py): The primary data source for this prompt.
+- [n8n Log Aggregator](../../../scripts/n8n_log_aggregator.py): The primary data source for this prompt.
 - [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md): The output format for improvements.
 - [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The broader framework for repository-driven automation maintenance.
 - [Error Handling Patterns](../../services/n8n.md#3-error-handling): The foundational n8n patterns this analysis helps enforce.

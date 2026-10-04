@@ -208,7 +208,7 @@ except ValidationError as e:
 - [Local LLMs](../ai_knowledge/local_llms.md) — Comprehensive guide to running local language models.
 - [MicroGPT](../ai_knowledge/microgpt.md) — Ultra-compact local language models.
 - [Gemma](../ai_knowledge/gemma.md) — Lightweight open model series from Google.
-- [Ollama](../services/ollama.md) — Local runner for open language models.
+- [Ollama](../../services/ollama.md) — Local runner for open language models.
 - [llama.cpp](../infrastructure/llama-cpp.md) — C/C++ port for low-resource LLM inference.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Fast Python framework for Model Context Protocol.
 

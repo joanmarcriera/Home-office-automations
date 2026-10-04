@@ -256,10 +256,10 @@ except ValidationError as e:
 ```
 
 ## Related tools / concepts
-- [AWS Bedrock](../providers/aws.md) — Managed AWS foundation model and agent service platform.
+- [AWS Bedrock](../providers/aws-bedrock.md) — Managed AWS foundation model and agent service platform.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — High-performance tool server standard for agent ecosystems.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Universal standard for connecting models to data sources.
-- [LangChain](../frameworks/langchain.md) — Popular framework for developing applications powered by language models.
+- [LangChain](langchain.md) — Popular framework for developing applications powered by language models.
 - [AutoGen](../frameworks/autogen.md) — Multi-agent conversation framework from Microsoft.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Deploying open-weights models locally via vLLM or Ollama.
 

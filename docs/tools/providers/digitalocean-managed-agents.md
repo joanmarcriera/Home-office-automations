@@ -220,7 +220,7 @@ except ValidationError as e:
 ```
 
 ## Related tools / concepts
-- [DigitalOcean Provider](../providers/digitalocean.md) — DigitalOcean cloud provider overview.
+- DigitalOcean Provider — DigitalOcean cloud provider overview.
 - [Cloudflare Pages](../development_ops/cloudflare-pages.md) — Serverless hosting for web frontends and workers.
 - [Vercel](../development_ops/vercel.md) — Frontend and serverless cloud deployment platform.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Framework for Model Context Protocol servers.

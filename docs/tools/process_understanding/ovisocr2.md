@@ -14,7 +14,7 @@ Legacy document parsing architectures rely on fragmented, multi-stage pipelines 
 4. **Ensures Air-Gapped Privacy & Regulatory Compliance:** Organizations handling confidential legal contracts, medical records (HIPAA), or sensitive financial ledgers can process documents completely on-premises without streaming raw page images to third-party cloud vision APIs.
 
 ## Where it fits in the stack
-**Layer 5: Process & Understanding / Vision-Language Document Intelligence.** OvisOCR2 functions as the primary visual ingestion engine in document processing pipelines. It consumes raw image binaries (PNG, JPEG, WebP) or converted PDF pages, extracts layout hierarchy, formulas, and tabular structures, and feeds sanitized Markdown/JSON artifacts into downstream indexing engines, vector databases (Qdrant, ChromaDB), or agentic reasoning orchestrators powered by [Claude 5.1](../providers/anthropic.md), [Gemma 4](../ai_knowledge/local_llms.md), or [OpenAI GPT-5.5](openai.md).
+**Layer 5: Process & Understanding / Vision-Language Document Intelligence.** OvisOCR2 functions as the primary visual ingestion engine in document processing pipelines. It consumes raw image binaries (PNG, JPEG, WebP) or converted PDF pages, extracts layout hierarchy, formulas, and tabular structures, and feeds sanitized Markdown/JSON artifacts into downstream indexing engines, vector databases (Qdrant, ChromaDB), or agentic reasoning orchestrators powered by [Claude 5.1](../providers/anthropic.md), [Gemma 4](../ai_knowledge/local_llms.md), or [OpenAI GPT-5.5](../ai_knowledge/openai.md).
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
@@ -74,7 +74,7 @@ Legacy document parsing architectures rely on fragmented, multi-stage pipelines 
 - As a lightweight, high-performance alternative to heavier multi-stage document processors like [Docling](docling.md) or [Unstructured](../intake_storage/unstructured.md).
 
 ## When not to use it
-- For general-purpose visual dialogue, object detection, or natural image description — use [Moondream](../ai_knowledge/moondream.md) or [Qwen-VL](qwen-vl.md).
+- For general-purpose visual dialogue, object detection, or natural image description — use [Moondream](../ai_knowledge/moondream.md) or [Qwen-VL](../ai_knowledge/qwen.md).
 - When your application requires direct output to proprietary binary formats like Microsoft Word (.docx) or Excel (.xlsx) — use [Docling](docling.md).
 
 ## Getting started

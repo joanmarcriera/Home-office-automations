@@ -262,13 +262,13 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Open WebUI](../../services/open-webui.md)
-- [Ollama](../../services/ollama.md)
-- [Paperless-ngx](../../services/paperless-ngx.md)
-- [Docling MCP](../process_understanding/docling-mcp.md)
-- [Home Admin Agent Architecture](../home-admin-agent-architecture.md)
-- [RAG Pattern](rag-pattern.md)
-- [Component Map](../../architecture/component_map.md)
+- [Open WebUI](../services/open-webui.md)
+- [Ollama](../services/ollama.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [Docling MCP](../tools/process_understanding/docling-mcp.md)
+- [Home Admin Agent Architecture](home-admin-agent-architecture.md)
+- [RAG Pattern](patterns/rag-pattern.md)
+- [Component Map](../architecture/component_map.md)
 
 ## Sources / references
 - [Open WebUI Integration Guide](https://docs.openwebui.com/)

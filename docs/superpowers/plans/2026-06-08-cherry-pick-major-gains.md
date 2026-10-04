@@ -141,7 +141,7 @@ if __name__ == "__main__":
 - [Cherry-Pick Design Spec](../specs/2026-06-08-cherry-pick-major-gains-design.md)
 - [Ralph-loop Protocol](../../architecture/automated_contributions.md)
 - [KnowledgeOps Standards](../../standards.md)
-- [find_oldest_issues.py](../../find_oldest_issues.py)
+- [find_oldest_issues.py](../../../find_oldest_issues.py)
 - [Claude 5.6](../../tools/ai_knowledge/claude.md)
 - [GPT-5.6](../../tools/ai_knowledge/openai.md)
 - [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md)

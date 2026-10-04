@@ -347,7 +347,7 @@ Actual Budget's client-side WASM engine and lightweight sync server yield high p
 - [n8n](n8n.md) — Workflow automation hub for triggering budget alerts and custom bank CSV transformations.
 - [Home Assistant](home-assistant.md) — Smart home automation platform for displaying budget status metrics.
 - [Authentik](authentik.md) — OpenID Connect identity provider for multi-user Actual server SSO.
-- [FastMCP](../automation_orchestration/mcp.md) — High-performance Python framework for Model Context Protocol 3.1.
+- [FastMCP](../tools/automation_orchestration/mcp.md) — High-performance Python framework for Model Context Protocol 3.1.
 - [Agentic Workflows](../knowledge_base/patterns/agentic-workflows.md) — Architectural patterns for autonomous financial agent orchestration.
 
 ## Sources / references

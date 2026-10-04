@@ -33,7 +33,7 @@ Trilium Notes is a hierarchical, highly customizable note-taking application des
 ```
 
 ## What it is
-Trilium Notes (TriliumNext) is a local-first, hierarchical knowledge engine that models information as a directed forest graph rather than flat text files. Notes in Trilium can possess multiple parents (cloning), run embedded JavaScript scripts to reactively modify metadata, embed live spreadsheets, store encrypted code snippets, and perform automated OCR on attached images and PDFs. In early 2027, Trilium serves as an ideal persistent knowledge backend for autonomous agent workflows powered by [Claude 5.6](../providers/anthropic.md), GPT-5.6, and [Gemma 4](../ai_knowledge/local_llms.md).
+Trilium Notes (TriliumNext) is a local-first, hierarchical knowledge engine that models information as a directed forest graph rather than flat text files. Notes in Trilium can possess multiple parents (cloning), run embedded JavaScript scripts to reactively modify metadata, embed live spreadsheets, store encrypted code snippets, and perform automated OCR on attached images and PDFs. In early 2027, Trilium serves as an ideal persistent knowledge backend for autonomous agent workflows powered by [Claude 5.6](../tools/providers/anthropic.md), GPT-5.6, and [Gemma 4](../tools/ai_knowledge/local_llms.md).
 
 ## What problem it solves
 Standard note-taking applications enforce either strict single-folder hierarchies or flat tag lists, causing information fragmentation and "knowledge decay" in large repositories (>10,000 pages).
@@ -357,7 +357,7 @@ if __name__ == "__main__":
 - [SilverBullet](../tools/intake_storage/silverbullet.md) — Hackable markdown-native knowledge base.
 - [n8n](n8n.md) — Workflow automation tool for pushing data to Trilium.
 - [Paperless-ngx](paperless-ngx.md) — Document archiving service integrated with Trilium.
-- [Claude 5.6](../providers/anthropic.md) — Reasoning model for multi-note synthesis.
+- [Claude 5.6](../tools/providers/anthropic.md) — Reasoning model for multi-note synthesis.
 
 ## Sources / references
 - [TriliumNext GitHub Repository](https://github.com/TriliumNext/TriliumNext)

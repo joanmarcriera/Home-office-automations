@@ -278,7 +278,7 @@ if __name__ == "__main__":
 - [NanoClaw](nanoclaw.md) — Containerized personal assistant framework.
 - [OpenClaw](openclaw.md) — Gateway for agentic workflows and tool safety.
 - [Playwright MCP](../automation_orchestration/playwright-mcp.md) — Visual testing and browser automation extension for FastMCP.
-- [Docker MCP](../automation_orchestration/docker-mcp.md) — Containerized testing environments for agent execution loops.
+- Docker MCP — Containerized testing environments for agent execution loops.
 
 ## Sources / References
 - [Windsurf Official Documentation](https://docs.windsurf.com/)
