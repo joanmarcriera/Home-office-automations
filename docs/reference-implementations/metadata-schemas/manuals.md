@@ -363,7 +363,7 @@ if __name__ == "__main__":
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Vector retrieval design patterns.
 - [Tag Taxonomy](../paperless/tag-taxonomy.md) — Comprehensive tag hierarchy rules.
 - [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) — Model Context Protocol tool runtime.
-- [Manual Processor Script](../../scripts/process_manuals.py) — PDF processing reference script.
+- [Manual Processor Script](../../../scripts/process_manuals.py) — PDF processing reference script.
 
 ## Sources / References
 - [Paperless-ngx Custom Fields Documentation](https://docs.paperless-ngx.com/usage/#custom-fields)

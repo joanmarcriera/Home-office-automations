@@ -6,7 +6,7 @@ This document defines the structured metadata schema for personal audio transcri
 As of early January 2027, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling frontier agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra/Flash**, **DeepSeek-V4**, and **Qwen 3.6 VL** to reason over spoken content with high temporal precision under **FastMCP 3.1**.
 
 ## What problem it solves
-Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
+Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
 
 ## Where it fits in the stack
 This schema belongs to the **Data Contract and Metadata Layer**. It bridges the gap between the **AI Service Layer** (Whisper/Ollama) and the **Knowledge Retrieval Layer** (Vector DBs), ensuring that transcribed audio becomes a first-class citizen in the homelab knowledge base.
@@ -63,7 +63,7 @@ python3 scripts/unified_search.py --query "Where did we discuss the budget?" --f
 ```
 
 ## API examples
-The schema is implemented using Pydantic in [transcribe_audio.py](../../scripts/transcribe_audio.py).
+The schema is implemented using Pydantic in [transcribe_audio.py](../../../scripts/transcribe_audio.py).
 
 ### Pydantic Schema Definition (Pydantic v2 Compliant)
 ```python
@@ -155,7 +155,7 @@ print(f"Validated transcription of title: {metadata.title} (duration: {metadata.
 - [Fish Audio](../../tools/ai_knowledge/fish-audio.md) — Alternative models for voice synthesis and transcription.
 - [Manuals Schema](manuals.md) — Similar metadata structure for physical document archival.
 - [Paperless Tag Taxonomy](../paperless/tag-taxonomy.md) — How transcribed audio is tagged within the broader homelab.
-- [Transcription Script](../../scripts/transcribe_audio.py) — The reference implementation for generating this schema.
+- [Transcription Script](../../../scripts/transcribe_audio.py) — The reference implementation for generating this schema.
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — For serving structured audio metadata to agents under FastMCP 3.1.
 
 ## Sources / references
