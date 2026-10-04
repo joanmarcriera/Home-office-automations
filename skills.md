@@ -64,8 +64,13 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    exists *only* on a feature branch is NOT triggerable until it lands on the
    default branch).
 5. **Bot-PR detection has ONE definition: `scripts/ci/trusted_actor.py`.** Every
-   "is there an open bot PR / control issue?" lookup pipes its `gh ... --json`
-   listing through it (`prs --bot-heuristic [--exclude-rollup]` or `issues`).
+   "is there an open bot PR / control issue?" lookup goes through
+   `trusted_actor.py list prs|issues ...` (or `list_trusted()` from Python), which
+   queries GitHub once per trusted author (`--author`), so outsiders' items never
+   enter the result window: they cannot push a real control issue off the page
+   or inflate a count. Never fail closed on a count that includes untrusted
+   items. Query bots as `github-actions[bot]` — `app/github-actions` silently
+   matches nothing in `gh issue list --author` without `--search`/`--label`.
    Identity decides first — author is the repo owner or a known bot
    (`github-actions`, `google-labs-jules`, only in the app forms GitHub sets) and,
    for PRs, `isCrossRepository == false` (not a fork) — then the title/body/
