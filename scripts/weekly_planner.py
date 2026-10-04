@@ -39,7 +39,11 @@ CATEGORY_HINTS = {
 # count for dedupe: titles and labels of issues opened by anyone else are not
 # trusted, otherwise an outsider could open "Weekly deepening: ..." and
 # suppress the lane.
-TRUSTED_AUTHOR = "app/github-actions"
+TRUSTED_AUTHOR = "app/github-actions"  # login as gh prints it in --json output
+# Login as `gh issue list --author` must receive it: without --search/--label,
+# gh filters with GraphQL createdBy, where "app/github-actions" silently matches
+# NOTHING (so dedupe never fired); "github-actions[bot]" works on every path.
+TRUSTED_AUTHOR_QUERY = "github-actions[bot]"
 LOOKUP_LIMIT = 200
 
 # Exit code when the dedupe lookup failed and issue creation was skipped. The
@@ -60,7 +64,7 @@ def open_bot_issue_titles() -> list[str]:
     "unknown" must never be read as "nothing open, go ahead and create".
     """
     result = subprocess.run(
-        ["gh", "issue", "list", "--state", "open", "--author", TRUSTED_AUTHOR,
+        ["gh", "issue", "list", "--state", "open", "--author", TRUSTED_AUTHOR_QUERY,
          "--limit", str(LOOKUP_LIMIT), "--json", "title,author"],
         capture_output=True, text=True,
     )

@@ -50,7 +50,7 @@ jobs:
             --repo "$REPO" \
             --state open \
             --label jules \
-            --author "app/github-actions" \
+            --author "github-actions[bot]" \
             --limit 200 \
             --json number,title,createdAt \
             --jq '
@@ -100,7 +100,7 @@ jobs:
             --repo "$REPO" \
             --state open \
             --label jules \
-            --author "app/github-actions" \
+            --author "github-actions[bot]" \
             --limit 200 \
             --json number,title,createdAt \
             --jq '[.[]

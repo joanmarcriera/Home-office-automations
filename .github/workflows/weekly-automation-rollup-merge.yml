@@ -59,12 +59,12 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          PR_NUMBER=$(gh pr list \
-            --repo "$REPO" \
-            --state open \
-            --head automation/weekly-rollup \
-            --json number \
-            --jq '.[0].number // ""')
+          # `--head` matches the branch NAME only, so a fork PR whose branch is
+          # also called automation/weekly-rollup would match — and get
+          # auto-merge armed. Keep only a trusted, same-repo PR
+          # (scripts/ci/trusted_actor.py); a lookup error fails the step.
+          PR_NUMBER=$(python3 scripts/ci/trusted_actor.py list prs --state open --head automation/weekly-rollup \
+            | jq -r '.[0].number // ""')
 
           echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 

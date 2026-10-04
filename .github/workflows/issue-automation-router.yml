@@ -18,6 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.pull_request == null)
     steps:
+      # Default branch only (issues events run on it): provides the shared
+      # trusted-identity filter, scripts/ci/trusted_actor.py.
+      - name: Checkout trusted helper
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/ci
+
       - name: Ensure labels exist
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +80,16 @@ jobs:
           # Skip if already routed.
           if [[ "$HAS_JULES" == "true" ]] || [[ "$HAS_AUTOFIX" == "true" ]]; then
             echo "Issue already has an automation label."
+            exit 0
+          fi
+
+          # Only the owner's / automation bots' issues are auto-routed: an
+          # outsider's issue must not become work for an agent with write
+          # access. The owner can still route it by adding a label by hand.
+          TRUSTED=$(echo "$ISSUE_JSON" | jq -c --argjson n "$ISSUE_NUMBER" '[. + {number: $n}]' \
+            | python3 scripts/ci/trusted_actor.py filter issues | jq 'length')
+          if [[ "$TRUSTED" == "0" ]]; then
+            echo "Issue #$ISSUE_NUMBER is not from a trusted actor; left for manual triage."
             exit 0
           fi
 

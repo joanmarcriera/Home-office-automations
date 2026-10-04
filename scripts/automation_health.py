@@ -41,6 +41,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "ci"))
+import trusted_actor  # noqa: E402  (shared trusted-identity filter)
+
 HEALTH_LABEL = "automation-health"
 ISSUE_MARKER = "<!-- automation-health-report -->"
 FAILING_CONCLUSIONS = {"failure", "timed_out", "startup_failure"}
@@ -287,9 +290,15 @@ def check_rollup_flow(now: datetime) -> dict:
             "cadence": "weekly", "crons": [],
             "threshold": STALL_THRESHOLDS["weekly"]}
     result = {"lane": lane, "status": "ok", "notes": [], "rerun": None}
-    out = run_gh(["pr", "list", "--head", ROLLUP_BRANCH, "--state", "closed",
-                  "--limit", "15", "--json", "number,closedAt,mergedAt"])
-    prs = json.loads(out) if out.strip() else []
+    # `--head` matches the branch name only: a fork PR named like the rollup
+    # branch, opened and closed by anyone, must not raise a false alarm (nor
+    # push the real ones out of the window) — so list trusted authors only.
+    repo = (os.environ.get("REPO") or os.environ.get("GITHUB_REPOSITORY")
+            or run_gh(["repo", "view", "--json", "nameWithOwner",
+                       "--jq", ".nameWithOwner"]).strip())
+    prs = trusted_actor.list_trusted(
+        "prs", repo, state="closed", head=ROLLUP_BRANCH,
+        fields=["closedAt", "mergedAt"], limit=15, allow_truncated=True)
     cutoff = now - timedelta(days=8)
     discarded = [p for p in prs
                  if not p.get("mergedAt") and p.get("closedAt")
