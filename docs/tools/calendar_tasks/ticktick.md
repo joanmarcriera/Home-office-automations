@@ -296,7 +296,7 @@ print("Validated Pomodoro Session:", validated_pomo.model_dump_json(indent=2))
 - [Akiflow](akiflow.md) — Time-blocking and task consolidation engine.
 - [Amie](amie.md) — Aesthetic calendar-first workspace.
 - [Vikunja](../../services/vikunja.md) — Open-source, self-hostable task engine.
-- [Motion](../automation_orchestration/motion.md) — Automated AI calendar scheduling.
+- [Motion](motion.md) — Automated AI calendar scheduling.
 - [Habitica](../../services/habitica.md) — Gamified task tracking alternative.
 - [n8n](../../services/n8n.md) — Workflow automation connector for TickTick.
 
