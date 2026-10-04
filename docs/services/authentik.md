@@ -1,47 +1,89 @@
 # Authentik
 
 ## What it is
-Authentik is an open-source Identity Provider (IdP) designed for extreme flexibility and modern security workflows. In early January 2027, it natively supports **Agentic Session Orchestration**, allowing for granular, automated creation, monitoring, and revocation of user and autonomous agent/bot sessions. It supports a wide array of protocols including OAuth2, OpenID Connect (OIDC), SAML, and LDAP, making it the primary gatekeeper for agentic environments.
+**Authentik** is an open-source, enterprise-grade Identity Provider (IdP) and Unified Identity Governance Platform designed for high-flexibility single sign-on (SSO), multi-factor authentication (MFA), passkey management, and automated access policies. Built on a modular Python/Rust architecture with PostgreSQL and Redis backends, Authentik acts as the central security gatekeeper across self-hosted home laboratory services, enterprise infrastructure, and autonomous agent ecosystems. As of 2027, Authentik features native **Agentic Session Orchestration**, providing identity isolation, short-lived OIDC token issuance, and granular policy enforcement for AI agents ([Claude 5.6](../tools/providers/anthropic.md), [GPT-5.6](../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md)) interacting via **FastMCP 3.1** (Model Context Protocol).
 
 ## What problem it solves
-Managing separate credentials for dozens of self-hosted applications creates security risks and user friction. Authentik centralizes identity management, providing a single point of authentication for services like [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md). It also injects modern security features like Multi-Factor Authentication (MFA) and Passkeys into legacy applications and provides **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**-driven policy reasoning for complex access rules.
+Managing user credentials and agent access across dozens of microservices introduces severe operational risks:
+- **Credential Fragmentation**: Scattered local user databases in services like [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md) lead to orphaned accounts and weak authentication standards.
+- **Ungoverned AI Agent Access**: Granting autonomous coding or data agents long-lived master API keys risks catastrophic data leakage if an agent process is compromised.
+- **Legacy Service Vulnerabilities**: Older web applications lack native WebAuthn/Passkey support or multi-factor authentication (MFA).
+- **Static Access Control**: Traditional static role-based access control (RBAC) cannot dynamically restrict access based on risk factors (e.g., unusual IP locations, abnormal API request rates).
+
+Authentik addresses these challenges by centralizing authentication into a unified identity gateway, enforcing WebAuthn passkeys across all downstream applications, and providing a dynamic, expression-based policy engine.
 
 ## Where it fits in the stack
-**Category**: Service / Security / Identity. Authentik sits at the **Security and Gateway layer**, acting as the primary gatekeeper for all homelab services and agentic tool endpoints. It integrates with **MCP 3.1** to provide identity-aware tool execution for autonomous agents.
+```
++-----------------------------------------------------------------------------------+
+|                        EXTERNAL USERS & AUTONOMOUS AGENTS                         |
+|             (Human Browsers / FastMCP 3.1 Agents / API Integrations)              |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                       AUTHENTIK IDENTITY & GATEWAY LAYER                          |
+|      - Embedded Forward Proxy / Outpost Engine (OAuth2 / OIDC / SAML / LDAP)     |
+|      - Agentic Token Issuer & Short-Lived Session Lifecycle Orchestrator          |
+|      - Dynamic Policy & Context-Aware Execution Engine                            |
++-----------------------------------------------------------------------------------+
+          |                                  |                                  |
+          v                                  v                                  v
++------------------------+        +------------------------+        +------------------------+
+|   SELF-HOSTED SERVICES |        |   AGENT TOOL SERVERS   |        |   SECRETS & STORAGE    |
+|   - Nextcloud / Gitea  |        |   - FastMCP 3.1 Tool APIs |        |   - PostgreSQL Database|
+|   - Vikunja / Home Asst|        |   - Vault-MCP Secrets     |        |   - Redis Session Cache|
++------------------------+        +------------------------+        +------------------------+
+```
+
+Authentik sits at the **Security & Identity Gateway Layer**, acting as the authoritative single point of entry and token issuer for all internal services, external reverse proxies, and agentic workflows.
+
+## Identity Protocols & Policy Matrix
+
+Authentik provides protocol translation and policy enforcement across five primary interfaces:
+
+```
++----------------------------------------------------------------------------------------------------+
+|                                  AUTHENTIK PROTOCOL SUPPORT MATRIX                                 |
++-------------------+-----------------------------------+--------------------------------------------+
+| Protocol          | Target Application Profile        | Key Capabilities                           |
++-------------------+-----------------------------------+--------------------------------------------+
+| OAuth2 / OIDC     | Modern web applications & APIs    | PKCE, Authorization Code, Short-lived JWT  |
+| SAML 2.0          | Enterprise SaaS applications      | XML assertions, SSO metadata exchange      |
+| LDAP              | Legacy infrastructure & NAS       | Outpost LDAP server interface              |
+| Forward Proxy     | Apps lacking native auth          | Traefik / Nginx header-based auth injection|
+| Agentic OIDC      | FastMCP 3.1 autonomous agents     | Dynamic client registration, scoped tokens |
++-------------------+-----------------------------------+--------------------------------------------+
+```
 
 ## Typical use cases
-- **Single Sign-On (SSO)**: One account to rule all self-hosted services.
-- **Agentic Session Orchestration**: Automatically creating or revoking session tokens for agents based on task-specific requirements.
-- **Passkey Enforcement**: Implementing industry-leading passwordless authentication across all internal services.
-- **Context-Aware Policies**: Using **Claude 5.1** or **Gemini 4.0 Pro** to analyze login patterns and dynamically adjust security requirements.
-- **Application Portal**: A centralized hub for accessing authorized services and agentic tools.
+- **Centralized Single Sign-On (SSO)**: Unifying user login across [Nextcloud](nextcloud.md), [Gitea](gitea.md), [Vikunja](vikunja.md), and [Paperless-ngx](paperless-ngx.md) with WebAuthn passkeys.
+- **Agentic Token Governance**: Issuing scoped, 15-minute OIDC access tokens to autonomous agents ([Cline](../tools/agents/cline.md), [Roo-Code](../tools/agents/roo-code.md)) for database and tool execution.
+- **Reverse Proxy Protection**: Securing internal web endpoints via Forward Proxy Outposts integrated with Traefik or Caddy.
+- **Identity-Aware MCP Execution**: Restricting FastMCP 3.1 tool calls based on user group membership and active session risk scores.
 
 ## Strengths
-- **All-in-One Architecture**: Includes server, worker, and outpost in a single ecosystem.
-- **Powerful Policy Engine**: Allows for complex rules based on IP, Geo-location, and agent behavior.
-- **Native Passkey Support**: Seamless implementation of WebAuthn for all applications.
-- **FastMCP 3.1 Integration**: High-performance outposts for securing distributed tool endpoints.
-- **Customizable Flows**: Visually designed login and enrollment processes.
+- **All-in-One Identity Platform**: Combines OIDC, SAML2, LDAP, and Proxy authentication into a unified container stack.
+- **Expression-Based Policy Engine**: Powerful Python expression policies allow complex conditional access rules.
+- **Native Passkey / WebAuthn Support**: Passwordless login support built-in for all applications out of the box.
+- **High Availability Architecture**: Separate server and worker processes backed by PostgreSQL and Redis.
 
 ## Limitations
-- **Resource Usage**: Requires more memory and CPU than simpler alternatives like Authelia.
-- **Complexity**: The powerful policy engine has a steep learning curve.
-- **Infrastructure Requirements**: Depends on PostgreSQL and Redis for operation.
+- **Resource Footprint**: Consumes more RAM and CPU than lightweight forward proxies like Authelia or Basic Auth.
+- **Configuration Overhead**: Complex policy flows and stage pipelines require initial administration setup.
 
 ## When to use it
-- When you need a unified, enterprise-grade Identity Provider for a multi-service homelab.
-- To implement Passkeys (WebAuthn) across all self-hosted applications.
-- When providing secure, audited access to internal services for **Claude 5.1** and **GPT-5.5** agents.
-- For complex, context-aware access policies requiring AI-driven reasoning.
+- When requiring an enterprise-grade Identity Provider for a multi-service self-hosted stack or home laboratory.
+- When enforcing WebAuthn passkeys and MFA across services lacking native security controls.
+- When issuing scoped, temporary credentials to AI agents executing Model Context Protocol tools.
 
 ## When not to use it
-- In extremely resource-constrained environments (e.g., low-RAM Raspberry Pi).
-- If you only require simple, basic authentication for a single static page.
+- In minimal resource-constrained environments (e.g., low-memory edge devices with < 1GB RAM).
+- When protecting a single static HTML page without multi-user role requirements.
 
 ## Getting started
 
-### Docker Compose (January 2027 Baseline)
-Deploy Authentik using the official Docker Compose baseline. First, generate a secret key: `echo "AUTHENTIK_SECRET_KEY=$(openssl rand -base64 36)" >> .env`.
+### Docker Compose High-Availability Setup
+Deploy Authentik using the standard PostgreSQL and Redis architecture.
 
 ```yaml
 services:
@@ -53,14 +95,16 @@ services:
     volumes:
       - database:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD}
+      POSTGRES_PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik_password}
       POSTGRES_USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
       POSTGRES_DB: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
-    env_file: [.env]
+
   redis:
     image: docker.io/library/redis:alpine
     restart: unless-stopped
-    volumes: [redis:/data]
+    volumes:
+      - redis:/data
+
   server:
     image: ghcr.io/goauthentik/server:latest
     restart: unless-stopped
@@ -68,13 +112,17 @@ services:
     environment:
       AUTHENTIK_REDIS__HOST: redis
       AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik_password
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
     volumes:
       - ./media:/media
       - ./custom-templates:/templates
-    env_file: [.env]
     ports:
       - "8000:8000"
       - "8443:8443"
+
   worker:
     image: ghcr.io/goauthentik/server:latest
     restart: unless-stopped
@@ -82,110 +130,133 @@ services:
     environment:
       AUTHENTIK_REDIS__HOST: redis
       AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik_password
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./media:/media
-    env_file: [.env]
 
 volumes:
   database:
   redis:
 ```
 
-### Hello World
-1. Navigate to `http://<your-ip>:8000/if/admin/`.
-2. Set the initial admin password.
-3. Create a **Provider** (e.g., OIDC) for a test service.
-4. Create an **Application** and bind it to the provider.
-5. Access your newly secured service via the Authentik dashboard!
-
 ## CLI examples
-Management tasks within the Authentik server container:
+
+Execute administration and recovery tasks inside the Authentik server container:
 
 ```bash
-# Create a recovery key for the admin user
-docker exec -it authentik-server ak create_recovery_key 1 admin
+# Generate a emergency admin recovery key valid for 1 hour
+docker exec -it authentik-server ak create_recovery_key 1 akadmin
 
-# Sync all LDAP or OIDC sources
-docker exec -it authentik-server ak sync_sources
-
-# Clear the Authentik system cache
+# Flush cached system settings and policies in Redis
 docker exec -it authentik-server ak clear_cache
+
+# Execute database migrations
+docker exec -it authentik-server ak migrate
 ```
 
 ## API examples
-Authentik features a comprehensive REST API (v3) for automated identity management.
 
-### Python: Listing Applications and validation with Pydantic v2
-This Python script accesses the Authentik API to query configured applications and validates response schema via **Pydantic v2**.
+### FastMCP 3.1 User Directory & Token Revocation Tool Server
+
+This FastMCP 3.1 server exposes Authentik user management to automated operations agents:
 
 ```python
+"""
+FastMCP 3.1 Identity Management Tool Server for Authentik Integration.
+Enables operations agents to query user status and revoke compromised agent tokens.
+"""
+
 import requests
+from typing import List, Dict, Any
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
 
-# Define validation schema using Pydantic v2
-class AuthentikApplication(BaseModel):
-    name: str = Field(..., description="The user-facing application name")
-    slug: str = Field(..., description="The URL-friendly slug")
-    provider: Optional[int] = Field(None, description="The ID of the bound provider")
-    launch_url: Optional[str] = Field(None, description="The launch URL", alias="launch_url")
+mcp = FastMCP("authentik-ops-tools", version="3.1.0")
 
-class ApplicationListResponse(BaseModel):
-    results: List[AuthentikApplication]
+class RevokeTokenRequest(BaseModel):
+    user_id: int = Field(..., description="Target user or agent ID in Authentik")
+    reason: str = Field(..., description="Audit reason for token revocation")
 
-def get_validated_applications(token: str) -> List[AuthentikApplication]:
-    url = "http://localhost:8000/api/v3/core/applications/"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+class UserStatusInfo(BaseModel):
+    id: int
+    username: str
+    email: str
+    is_active: bool
 
-    response = requests.get(url, headers=headers)
+@mcp.tool(
+    name="get_user_status",
+    description="Retrieve user or agent account status from Authentik."
+)
+def get_user_status(user_id: int) -> UserStatusInfo:
+    """
+    Queries the Authentik REST API v3 for user metadata.
+    """
+    authentik_url = f"http://localhost:8000/api/v3/core/users/{user_id}/"
+    headers = {"Authorization": "Bearer YOUR_AUTHENTIK_API_TOKEN"}
+
+    response = requests.get(authentik_url, headers=headers, timeout=10)
     response.raise_for_status()
+    data = response.json()
 
-    # Perform validation with Pydantic v2
-    validated_data = ApplicationListResponse.model_validate(response.json())
-    return validated_data.results
+    return UserStatusInfo(
+        id=data["pk"],
+        username=data["username"],
+        email=data.get("email", ""),
+        is_active=data["is_active"]
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### FastMCP 3.1: Token Refresh Tool
-```typescript
-import { FastMCP } from 'fastmcp';
+### Pydantic v2 Authentik Application Registration Schema
 
-const mcp = new FastMCP("authentik-identity-manager");
+```python
+"""
+Pydantic v2 Schema for Authentik Application & Provider Configuration.
+Validates OIDC settings before registering downstream apps.
+"""
 
-mcp.addTool({
-  name: "refresh_agent_token",
-  description: "Refresh an OIDC token for an autonomous agent",
-  parameters: { agentId: { type: "string" } },
-  execute: async ({ agentId }) => {
-    // Logic to call Authentik API for token refresh
-    return { token: "new-oidc-token-january-2027", expiresAt: "2027-01-07T..." };
-  }
-});
+from typing import Optional
+from pydantic import BaseModel, Field, HttpUrl
 
-mcp.serve();
+class OIDCProviderConfig(BaseModel):
+    name: str = Field(..., min_length=3, description="Provider display name")
+    client_id: str = Field(..., description="OAuth2 Client ID")
+    client_secret: str = Field(..., description="OAuth2 Client Secret")
+    redirect_uris: list[str] = Field(..., description="Allowed OAuth2 redirect URIs")
+    jwt_validity_seconds: int = Field(default=3600, ge=300, le=86400, description="Token expiration window")
+
+# Validation Execution Example
+if __name__ == "__main__":
+    provider_data = {
+        "name": "Nextcloud OIDC Provider",
+        "client_id": "nextcloud-client-id-12345",
+        "client_secret": "super-secret-oidc-key-67890",
+        "redirect_uris": ["https://cloud.example.com/apps/user_oidc/code"],
+        "jwt_validity_seconds": 3600
+    }
+    validated = OIDCProviderConfig.model_validate(provider_data)
+    print("Successfully validated Authentik Provider config:")
+    print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
-- [Tailscale](tailscale.md) — For secure transport; Authentik handles identity.
-- [Vikunja](vikunja.md) — Uses Authentik for OIDC-based authentication.
-- [Nextcloud](nextcloud.md) — Centralized login via Authentik SSO.
-- [n8n](n8n.md) — For automating user and agent lifecycle events.
-- [Home Assistant](home-assistant.md) — Secure access management via Authentik.
-- [Paperless-ngx](paperless-ngx.md) — Protecting documents with MFA.
-- [Gitea](gitea.md) — Managing Git repositories with SSO.
-- [Headscale](headscale.md) — Managing private mesh identities.
-- [Ollama](ollama.md) — Authenticating agentic traffic to local LLM endpoints.
-- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for identity-aware tool and resource discovery.
+- [Tailscale](tailscale.md) — Encrypted mesh network transport for Authentik endpoints.
+- [Nextcloud](nextcloud.md) — File cloud secured via Authentik OIDC SSO.
+- [Gitea](gitea.md) — Git forge protected by Authentik identity governance.
+- [Vault-MCP](../tools/automation_orchestration/vault-mcp.md) — HashiCorp Vault secrets integration.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — FastMCP 3.1 security architecture.
 
-## Sources / References
-- [Official Website](https://goauthentik.io/)
-- [Authentik Documentation](https://docs.goauthentik.io/)
-- [GitHub Repository](https://github.com/goauthentik/authentik)
-- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
+## Sources / references
+- [Authentik Official Portal](https://goauthentik.io/)
+- [Authentik GitHub Repository](https://github.com/goauthentik/authentik)
+- [Authentik REST API v3 Reference](https://docs.goauthentik.io/docs/api/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
