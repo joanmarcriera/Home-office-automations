@@ -79,7 +79,8 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    auto-merger. Users: `jules-auto-merge`, `pr-hygiene`, `weekly-automation-rollup-merge`,
    the three throttle lanes, `api-pricing-maintenance`, `issue-automation-router`
    and `jules_issue_watcher.py` (outsiders' issues are no longer auto-queued for
-   Jules — label them by hand), `automation_health.py` (rollup flow). Change the
+   Jules — label them by hand; outsiders' comments neither trigger queuing nor
+   count as instructions, and issue text is never echoed to the log), `automation_health.py` (rollup flow). Change the
    heuristic or the bot list there, never inline; tests in
    `scripts/ci/test_trusted_actor.py`.
 6. **Throttles must ignore CONFLICTING PRs.** Counting an un-mergeable orphan
@@ -125,7 +126,8 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    nothing and exit non-zero (`weekly_planner.py` and `trusted_actor.py` exit 2)
    rather than assume "nothing open" — the failed lane is what the watchdog
    reports and reruns. Unit tests: `scripts/test_weekly_planner.py`,
-   `scripts/test_prune_stale_branches.py`, `scripts/ci/test_trusted_actor.py`
+   `scripts/test_prune_stale_branches.py`, `scripts/ci/test_trusted_actor.py`,
+   `scripts/test_jules_issue_watcher.py`
    (run by `automation-script-tests.yml`).
 13. **Credential hygiene.** Never execute code from a non-main branch in a job
    holding a write token: check out with `persist-credentials: false`, merge

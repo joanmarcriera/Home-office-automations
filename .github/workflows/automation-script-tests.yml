@@ -1,9 +1,9 @@
 name: Automation Script Tests
 
 # Unit tests for the safety gates of the unattended pipeline (branch pruning,
-# planner dedupe, trusted-actor filter) and a smoke test of the dry-run gh
-# shim. Offline: gh is mocked in the Python tests; the shim test only checks
-# interception.
+# planner dedupe, trusted-actor filter, Jules watcher trust boundary) and a
+# smoke test of the dry-run gh shim. Offline: gh is mocked in the Python tests;
+# the shim test only checks interception.
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ jobs:
       - name: Python unit tests
         run: |
           set -euo pipefail
-          for t in test_prune_stale_branches.py test_weekly_planner.py; do
+          for t in test_prune_stale_branches.py test_weekly_planner.py test_jules_issue_watcher.py; do
             python3 -m unittest discover -s scripts -p "$t" -v
           done
           # Trusted-identity filter used by every bot-PR / control-issue lookup.
