@@ -61,7 +61,7 @@ graph TD
 - When implementing FastMCP 3.1 agent tools for local or cloud environments.
 
 ## When not to use it
-- When a local/offline solution is required for privacy or air-gapped security (consider [Llama 4 Maverick](../ai_knowledge/local_llms.md) or [Gemma 4](gemma.md)).
+- When a local/offline solution is required for privacy or air-gapped security (consider [Llama 4 Maverick](../ai_knowledge/local_llms.md) or [Gemma 4](../ai_knowledge/gemma.md)).
 - When real-time, low-latency audio-to-audio streaming is required natively without intermediate speech pipelines.
 
 ## Getting started

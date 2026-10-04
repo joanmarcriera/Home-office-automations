@@ -1,15 +1,22 @@
 name: Process Jules Backlog
 
 on:
-  schedule:
-    - cron: '30 0 1-31/2 * *'  # 00:30 UTC on odd days only
+  # Scheduled runs come from odd-day-pipeline.yml (after the hygiene lanes and
+  # the Jules issue watcher, so the backlog count is current).
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   issues:
     types: [opened, reopened, labeled]
-  workflow_dispatch: # allow manual trigger
-
-concurrency:
-  group: process-jules-backlog
-  cancel-in-progress: false
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 jobs:
   open-backlog-issue:
@@ -22,13 +29,28 @@ jobs:
           (github.event.action == 'labeled' && (github.event.label.name == 'jules' || github.event.label.name == 'jules-blocked'))
         )
       )
+    # Job-level (not workflow-level) concurrency: a workflow-level group is
+    # joined by EVERY triggered run, including the many event runs whose job is
+    # skipped by the `if:` above, and GitHub keeps only one pending run per
+    # group — a burst of skipped event runs could cancel the pipeline's queued
+    # sweep. A job-level group is only entered by runs that actually execute.
+    concurrency:
+      group: process-jules-backlog
+      cancel-in-progress: false
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     permissions:
+      contents: read # checkout
       issues: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Ensure jules label exists
         env:
@@ -145,7 +167,8 @@ jobs:
           TODAY: ${{ steps.check.outputs.today }}
         run: |
           set -euo pipefail
-          cp .github/issue-templates/process-jules-backlog.md issue_body.md
+          # Render (not cp): expands $TODAY and pins the run date for the agent.
+          python3 scripts/render_issue_template.py .github/issue-templates/process-jules-backlog.md issue_body.md --date "$TODAY"
           
           gh issue create \
             --repo "$REPO" \

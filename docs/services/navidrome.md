@@ -234,7 +234,7 @@ if __name__ == "__main__":
 - [Audiobookshelf](audiobookshelf.md) — Dedicated server for spoken-word audiobooks and podcasts.
 - [Jellyfin](jellyfin.md) — Open-source video, TV, and general media platform.
 - [Plex](plex.md) — Commercial media server platform with wide device support.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized agentic tool protocol for library control.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized agentic tool protocol for library control.
 - [n8n](n8n.md) — Workflow automation for webhook triggers and notification services.
 - [Authentik](authentik.md) — SSO authentication provider for homelab services.
 

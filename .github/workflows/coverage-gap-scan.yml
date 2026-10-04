@@ -12,14 +12,20 @@ name: Coverage Gap Scan
 # scanner self-throttles: it will not open a second issue while one is still open.
 
 on:
-  schedule:
-    - cron: "0 4 * * 2" # Tuesday 04:00 UTC (offset from other weekly lanes)
+  # Scheduled runs come from odd-day-pipeline.yml on days 3,9,15,21,27 of the
+  # month (offset from the other weekly lanes).
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Set to "true" to report only, not open an issue'
-        required: false
-        default: 'false'
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

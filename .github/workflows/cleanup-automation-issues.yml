@@ -1,9 +1,20 @@
 name: Cleanup Stale Automation Issues
 
 on:
-  schedule:
-    - cron: "20 1 1-31/2 * *" # 01:20 UTC on odd days only
+  # Scheduled runs come from odd-day-pipeline.yml: stale control issues are
+  # closed before the issue-opening lanes check for existing ones.
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 concurrency:
   group: cleanup-automation-issues
@@ -12,10 +23,22 @@ concurrency:
 jobs:
   close-stale-control-issues:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     permissions:
+      contents: read # checkout
       issues: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
+
       - name: Close stale auto-generated control issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,6 @@
 # Automated Contribution System (Google Jules)
 
-The Automated Contribution System is a multi-tier, event-driven automation framework that enables the repository to self-assess, self-correct, and continuously deepen its knowledge base. As of early 2027, the pipeline is natively integrated with **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** and operates across frontier AI agents (such as Google Jules, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, and Llama 4).
+The Automated Contribution System is a multi-tier, event-driven automation framework that enables the repository to self-assess, self-correct, and continuously deepen its knowledge base. As of early 2027, the pipeline is natively integrated with **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** and operates across frontier AI agents (such as Google Jules, [Claude](../tools/ai_knowledge/claude.md) 5.1/5.6, GPT-5.5/5.6, [Gemini](../tools/ai_knowledge/gemini.md) 4.0 Pro/Ultra, [DeepSeek](../tools/providers/deepseek.md)-V4, and [Llama 4](../tools/ai_knowledge/llama-4.md)).
 
 The system automates the ingestion of raw tool feeds, freshness audits, broken link fixes, schema validation, and pull request generation with zero human intervention required for standard KnowledgeOps routines.
 

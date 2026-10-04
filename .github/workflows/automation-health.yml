@@ -7,14 +7,27 @@ name: Automation Health Watchdog
 # lanes fail or stall, closed automatically when everything is green.
 
 on:
+  # Chained, not clocked: runs as soon as the odd-day pipeline finishes, so it
+  # judges the settled pipeline (odd days only) and can rerun that run's failed
+  # jobs straight away. The rerun completing triggers one more scan, which
+  # reports "already rerun once" instead of rerunning again — no loop.
+  # workflow_run only fires from the default branch.
+  workflow_run:
+    workflows: ["Odd-Day Automation Pipeline"]
+    types: [completed]
+    branches: [main]
+  # Dead-man's switch: workflow_run only fires if the pipeline runs at all. If
+  # its schedule stops (disabled workflow, broken YAML, GitHub pausing crons),
+  # nothing would ever report it — so also scan on a slow clock of its own
+  # (odd days, ~weekly, midday so it never races the 00:30 pipeline).
   schedule:
-    - cron: "40 5 * * *" # Daily 05:40 UTC, after the overnight lanes settle
+    - cron: "45 12 3,11,19,27 * *"
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Set to "true" to report only (no reruns, no issue writes)'
-        required: false
-        default: 'false'
+        description: Report only (no reruns, no issue writes)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -32,7 +45,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -386,7 +386,7 @@ Follow this runbook when experiencing agent execution timeouts or search failure
 - [Sourcegraph Cody](../development_ops/sourcegraph_cody.md) — Primary code intelligence AI assistant.
 - [Claude Code](../development_ops/claude-code.md) — Terminal-based agentic coding tool.
 - [Aider](../development_ops/aider.md) — Open-source CLI pair-programming tool.
-- [OpenHands](openhands.md) — Autonomous software engineering framework.
+- [OpenHands](../development_ops/openhands.md) — Autonomous software engineering framework.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool execution protocol.
 - [Glean](glean.md) — Enterprise search and knowledge platform.
 - [Fyxer AI](fyxer.md) — Executive automation agent platform.

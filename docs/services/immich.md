@@ -383,8 +383,8 @@ Immich exhibits high performance across typical media ingestion and vector searc
 - [Navidrome](navidrome.md) — High-performance self-hosted music server.
 - [Nextcloud](nextcloud.md) — Enterprise productivity and cloud storage suite.
 - [Authentik](authentik.md) — OpenID Connect identity provider for multi-user single sign-on.
-- [FastMCP](../automation_orchestration/mcp.md) — High-performance Python framework for Model Context Protocol 3.1.
-- [Ollama](../tools/providers/ollama.md) — Local LLM server for multimodal vision model execution.
+- [FastMCP](../tools/automation_orchestration/mcp.md) — High-performance Python framework for Model Context Protocol 3.1.
+- [Ollama](ollama.md) — Local LLM server for multimodal vision model execution.
 
 ## Sources / references
 - [Immich Official Site](https://immich.app/)

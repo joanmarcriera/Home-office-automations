@@ -82,7 +82,7 @@ IT-Tools occupies the **Client-Side Utility Service Layer** within a self-hosted
 ## When not to use it
 - For batch CLI data transformations at scale (use standard Linux CLI tools like `jq`, `openssl`, or `awk` instead).
 - When persistent database storage or team collaborative sharing is required (use [Nextcloud](nextcloud.md) or [Gitea](gitea.md)).
-- When real-time system monitoring or log aggregation is needed (use [Grafana Loki](grafana-loki.md) or [Logfire](logfire.md)).
+- When real-time system monitoring or log aggregation is needed (use [Grafana Loki](../tools/process_understanding/grafana-loki.md) or [Logfire](../tools/process_understanding/logfire.md)).
 
 ## Getting started
 

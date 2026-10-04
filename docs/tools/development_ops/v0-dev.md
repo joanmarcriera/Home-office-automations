@@ -1,7 +1,7 @@
 # v0.dev (Vercel v0)
 
 ## What it is
-v0.dev (by Vercel) is an enterprise-grade Generative User Interface (Generative UI) platform, AI copilot, and design system compiler. Operating in early 2027, v0 transforms complex natural language prompts, wireframes, hand-drawn sketches, or Figma component URLs into production-grade React, [Next.js](nextjs.md), and [Tailwind CSS](tailwindcss.md) code. Deeply integrated with Shadcn UI, Radix UI primitives, Lucide icons, and modern state management libraries, v0 empowers frontend developers, UI/UX engineers, and AI agent frameworks to rapidly prototype, iterate, and deploy responsive, accessible Web applications.
+v0.dev (by Vercel) is an enterprise-grade Generative User Interface (Generative UI) platform, AI copilot, and design system compiler. Operating in early 2027, v0 transforms complex natural language prompts, wireframes, hand-drawn sketches, or Figma component URLs into production-grade React, [Next.js](nextjs.md), and [Tailwind CSS](tailwind-css.md) code. Deeply integrated with Shadcn UI, Radix UI primitives, Lucide icons, and modern state management libraries, v0 empowers frontend developers, UI/UX engineers, and AI agent frameworks to rapidly prototype, iterate, and deploy responsive, accessible Web applications.
 
 Through its dual ecosystem—a interactive web workspace and programmatic CLI/API endpoints—v0 bridges design-to-code execution gaps. It generates semantic JSX/TypeScript code that adheres to strict ARIA accessibility standards and Tailwind CSS utility conventions, making it a foundational tool for contemporary frontend workflows and automated AI agent UI composition.
 

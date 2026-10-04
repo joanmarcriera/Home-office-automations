@@ -82,7 +82,7 @@ SavvyCal emits webhooks for critical lifecycle events (`event.created`, `event.u
 
 ## When not to use it
 - For basic internal scheduling where native Google Calendar or Outlook invites are sufficient.
-- If your organization mandates 100% open-source, on-premise calendar infrastructure (use [Radicale](../../services/radicale.md) or [CalDAV](caldav.md)).
+- If your organization mandates 100% open-source, on-premise calendar infrastructure (use [Radicale](../../services/radicale.md) or [CalDAV](../intake_storage/caldav.md)).
 - If you require a zero-cost, permanent free tool for casual scheduling.
 
 ## Getting started

@@ -1,0 +1,281 @@
+name: Odd-Day Automation Pipeline
+
+# THE single scheduled entry point for the unattended pipeline.
+#
+# Every maintenance lane used to carry its own clock-spaced cron (00:00, 00:30,
+# 01:10, 01:15, 01:20, 06:00, 07:00, 07:20, 08:00, 09:00, 16:00, 19:00 plus
+# weekday-pinned weekly lanes). They now expose `workflow_call` and run here as
+# ONE chain, in dependency order, on odd days of the month only — so every even
+# day is free of scheduled work. (Month ends give two consecutive active days,
+# 31st -> 1st; accepted.)
+#
+# Why reusable workflows and not `workflow_run`: GitHub stops `workflow_run`
+# chains after three levels, and this chain is 13 lanes long. `needs:` has no
+# depth limit, keeps the order explicit in one file, and creates no "skipped"
+# placeholder runs when a lane is triggered by its other events.
+#
+# Chain semantics:
+#   - Every lane runs even if an earlier lane failed (`!cancelled()`): the
+#     order expresses "after", not "only if upstream succeeded". The only real
+#     data dependency (digest -> intake bridge) tolerates a failed digest: the
+#     bridge then simply re-reads the previous digest and dedupes.
+#   - Each lane keeps its own workflow-level concurrency group, so a chained
+#     rollup producer still queues behind a manual/event run of another
+#     producer on `automation-rollup-producer`, and keeps its "Preserve pending
+#     rollup work" merge step.
+#   - Weekly lanes run on fixed odd days of the month (never a day-of-week:
+#     cron ORs DOM and DOW when both are restricted), decided by the `plan` job.
+#   - Lanes keep `workflow_dispatch` for manual runs; their event triggers
+#     (issues, issue_comment, pull_request) are unchanged.
+#   - The health watchdog (automation-health.yml) runs via `workflow_run` when
+#     this pipeline completes, so it judges the settled pipeline and can rerun
+#     this run's failed jobs within minutes.
+
+on:
+  schedule:
+    - cron: "30 0 1-31/2 * *" # 00:30 UTC on odd days only — the only daily cron
+  workflow_dispatch:
+    inputs:
+      weekly_lanes:
+        description: 'Weekly lanes: "auto" (by day of month), "all", or "none"'
+        required: false
+        default: auto
+        type: choice
+        options: [auto, all, none]
+      dry_run:
+        description: Dry run — every lane reads and reports but writes nothing (no issues, PRs, pushes, deletions, deploys)
+        type: boolean
+        default: false
+
+permissions: {} # each job grants exactly what its lane needs
+
+concurrency:
+  group: odd-day-pipeline
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan weekly lanes
+    runs-on: ubuntu-latest
+    outputs:
+      growth: ${{ steps.slot.outputs.growth }}
+      coverage: ${{ steps.slot.outputs.coverage }}
+      links: ${{ steps.slot.outputs.links }}
+    steps:
+      - name: Pick the weekly lanes due today
+        id: slot
+        env:
+          MODE: ${{ inputs.weekly_lanes || 'auto' }}
+          # Odd days only, ~6 days apart, staggered so the weekly lanes do not
+          # pile onto the same run. Keep in sync with the lane files' comments.
+          GROWTH_DAYS: "1,7,13,19,25"    # weekly-planner + api-pricing-maintenance
+          COVERAGE_DAYS: "3,9,15,21,27"  # coverage-gap-scan
+          LINKS_DAYS: "5,11,17,23,29"    # docs-link-health
+        run: |
+          set -euo pipefail
+          dom=$((10#$(date -u +%d)))
+          due() {
+            case "$MODE" in
+              all) echo true ;;
+              none) echo false ;;
+              *) case ",$1," in *",$dom,"*) echo true ;; *) echo false ;; esac ;;
+            esac
+          }
+          {
+            echo "growth=$(due "$GROWTH_DAYS")"
+            echo "coverage=$(due "$COVERAGE_DAYS")"
+            echo "links=$(due "$LINKS_DAYS")"
+          } | tee -a "$GITHUB_OUTPUT"
+          echo "Day of month: $dom (mode: $MODE)"
+
+  # --- 1. Hygiene: clear orphans/stale control issues before anything counts them.
+  pr-hygiene:
+    name: PR hygiene
+    needs: [plan]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/pr-hygiene.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: write
+
+  jules-issue-hygiene:
+    name: Jules issue hygiene
+    needs: [pr-hygiene]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/jules-issue-hygiene.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  cleanup-automation-issues:
+    name: Cleanup stale automation issues
+    needs: [jules-issue-hygiene]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/cleanup-automation-issues.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  branch-cleanup:
+    name: Branch cleanup
+    # After PR hygiene has closed orphaned PRs, whose branches become eligible.
+    needs: [cleanup-automation-issues]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/branch-cleanup.yml
+    with:
+      # Report-only until Marc opts in by setting the repo variable
+      # BRANCH_CLEANUP_LIVE=true (and never during a pipeline dry run).
+      dry_run: ${{ inputs.dry_run == true || vars.BRANCH_CLEANUP_LIVE != 'true' }}
+      max_deletions: ${{ fromJSON(vars.BRANCH_CLEANUP_MAX || '50') }}
+    secrets: inherit
+    permissions:
+      contents: write
+
+  # --- 2. Jules backlog: label new "jules" mentions, then count the backlog.
+  scheduled-jules:
+    name: Jules issue watcher
+    needs: [branch-cleanup]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/scheduled-jules.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  process-jules-backlog:
+    name: Process Jules backlog
+    needs: [scheduled-jules]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/process-jules-backlog.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  # --- 3. Rollup producers (shared automation/weekly-rollup branch, run serially).
+  daily-digest:
+    name: Daily AI digest
+    needs: [process-jules-backlog]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/daily-digest.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+
+  digest-to-intake:
+    name: Digest to intake bridge
+    needs: [daily-digest]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/digest-to-intake.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+
+  weekly-planner:
+    name: Weekly growth planner
+    needs: [plan, digest-to-intake]
+    if: ${{ !cancelled() && needs.plan.outputs.growth == 'true' }}
+    uses: ./.github/workflows/weekly-planner.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+      pull-requests: write
+
+  api-pricing-maintenance:
+    name: API pricing maintenance
+    needs: [plan, weekly-planner]
+    if: ${{ !cancelled() && needs.plan.outputs.growth == 'true' }}
+    uses: ./.github/workflows/api-pricing-maintenance.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+      pull-requests: write
+
+  # --- 4. Work generators: open throttled Jules issues once the data is fresh.
+  coverage-gap-scan:
+    name: Coverage gap scan
+    needs: [plan, api-pricing-maintenance]
+    if: ${{ !cancelled() && needs.plan.outputs.coverage == 'true' }}
+    uses: ./.github/workflows/coverage-gap-scan.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  daily-jules-maintenance:
+    name: Daily Jules maintenance
+    needs: [coverage-gap-scan]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/daily-jules-maintenance.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  daily-jules-knowledge:
+    name: Daily Jules knowledge expansion
+    needs: [daily-jules-maintenance]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/daily-jules-knowledge.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: read
+      issues: write
+
+  # --- 5. Read-only weekly check.
+  docs-link-health:
+    name: Docs link health
+    needs: [plan, daily-jules-knowledge]
+    if: ${{ !cancelled() && needs.plan.outputs.links == 'true' }}
+    uses: ./.github/workflows/docs-link-health.yml # read-only: no dry_run needed
+    secrets: inherit
+    permissions:
+      contents: read
+
+  # --- 6. Publish: GITHUB_TOKEN merges (Jules auto-merge, rollup auto-merge)
+  # never trigger deploy-docs on push, so publish main once per active day.
+  deploy-docs:
+    name: Deploy documentation
+    needs: [docs-link-health]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/deploy-docs.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: write

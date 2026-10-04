@@ -1,27 +1,56 @@
 name: Weekly Automation Rollup Merge
 
+# Syncs the shared automation/weekly-rollup PR with main, dispatches its
+# required checks (workflow_dispatch runs on the PR branch report the same
+# knowledgeops-contract / link-check check runs the ruleset requires), and arms
+# auto-merge, which lands once those checks pass.
+#
+# Credential hygiene: the job only ever EXECUTES code from the trusted checkout
+# of the triggering ref (main on schedule). The rollup branch is merged in a
+# separate worktree that is never executed, the checkout does not persist a
+# token in .git/config, and the push gets the token only for that one git
+# command, through gh's credential helper (no token in argv, URLs or logs).
+
 on:
   schedule:
-    - cron: "15 18-23 * * 0" # Sunday 18:15-23:15 UTC — keep retrying until the weekly rollup PR merges
+    # Hourly 18:15-23:15 UTC on days 1,7,13,19,25 (odd days only, ~weekly) —
+    # the evening after odd-day-pipeline.yml ran the growth/pricing producers.
+    # Kept as its own cron rather than a chained job: the retries need
+    # wall-clock spacing for the rollup checks to finish and auto-merge to land.
+    - cron: "15 18-23 1,7,13,19,25 * *"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no push to the rollup branch, no dispatches, no auto-merge
+        type: boolean
+        default: false
 
 concurrency:
   group: automation-rollup-merge
   cancel-in-progress: false
 
-permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+permissions: {} # granted per job below
 
 jobs:
   merge-rollup:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: write # dispatch the PR gate workflows
+      contents: write # push the sync merge to automation/weekly-rollup
+      pull-requests: write # arm auto-merge
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Find open rollup PR
         id: pr
@@ -49,22 +78,33 @@ jobs:
         if: steps.pr.outputs.number != ''
         id: sync
         env:
+          # Used only by gh's git credential helper for the fetch/push below.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Per-command credential helper: the token stays in this step's env.
+          auth=(-c credential.helper= -c 'credential.helper=!gh auth git-credential')
+          ROLLUP_DIR="$RUNNER_TEMP/rollup"
 
-          git fetch origin main automation/weekly-rollup
+          git "${auth[@]}" fetch origin main automation/weekly-rollup
           BASE_SHA=$(git rev-parse origin/main)
 
-          git checkout -B automation/weekly-rollup origin/automation/weekly-rollup
-          git merge --no-edit origin/main
-          git push origin HEAD:automation/weekly-rollup
+          # Merge in a separate worktree: nothing from the rollup branch is
+          # ever executed; later steps run scripts from the main checkout.
+          git worktree add --force -B automation/weekly-rollup "$ROLLUP_DIR" origin/automation/weekly-rollup
+          git -C "$ROLLUP_DIR" config user.name "github-actions[bot]"
+          git -C "$ROLLUP_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$ROLLUP_DIR" merge --no-edit origin/main
+          HEAD_SHA=$(git -C "$ROLLUP_DIR" rev-parse HEAD)
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[dry-run] would push ${HEAD_SHA:0:8} to automation/weekly-rollup"
+          else
+            git -C "$ROLLUP_DIR" "${auth[@]}" push origin HEAD:automation/weekly-rollup
+          fi
 
           echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
-          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Trigger required checks for rollup PR
         if: steps.pr.outputs.number != ''

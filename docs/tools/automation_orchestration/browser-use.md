@@ -54,7 +54,7 @@ Browser Use resolves these issues by embedding multi-modal LLM reasoning directl
 **Category**: Automation & Orchestration / Web Automation & Computer Use. Browser Use operates in the execution layer, translating high-level agent directives into DOM events.
 
 Browser Use typically integrates with:
-- **Upstream Multi-Agent Frameworks**: [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), [Autogen](../frameworks/autogen.md), and [LlamaIndex](../frameworks/llamaindex.md).
+- **Upstream Multi-Agent Frameworks**: [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), [Autogen](../frameworks/autogen.md), and [LlamaIndex](../ai_knowledge/llamaindex.md).
 - **Core Automation Engine**: [Playwright](../development_ops/playwright.md) for low-level browser process execution and CDP (Chrome DevTools Protocol) communication.
 - **Protocol Standards**: [FastMCP 3.1](../automation_orchestration/mcp.md) servers, exposing browser actions as standard tools to Claude Desktop, VS Code, or custom AI workbenches.
 - **Vision Foundation Models**: Claude 5.1/5.6, GPT-5.5/5.6, Gemma 3, or Gemini 4.0 Pro for visual spatial reasoning.

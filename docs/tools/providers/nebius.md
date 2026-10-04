@@ -228,7 +228,7 @@ async def query_tavily_agent_search(
 - [vLLM](../infrastructure/vllm.md)
 - [DeepSpeed](../frameworks/deepspeed.md)
 - [Axolotl](../frameworks/axolotl.md)
-- [CoreWeave](coreweave.md)
+- [CoreWeave](../infrastructure/coreweave.md)
 
 ## Sources / references
 - [Nebius Official Website](https://nebius.com)

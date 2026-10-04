@@ -90,6 +90,11 @@ Repository mapping:
 - **Jules PRs / weekly rollup PR**: Jules bot PRs plus `automation/weekly-rollup`
 - **Quality gates**: docs, catalog, intake, link, and generated-content workflows
 - **Weekly backlog / deepening loops**: `.github/workflows/process-jules-backlog.yml`, `.github/workflows/daily-jules-knowledge.yml`, `.github/workflows/weekly-planner.yml`, `.github/workflows/weekly-automation-rollup-merge.yml`
+- **Schedule**: `.github/workflows/odd-day-pipeline.yml` is the single scheduled entry point (00:30 UTC, odd days of the month only); it runs the lanes above as one chain, so even days have no scheduled jobs
+- **Hygiene lanes** (first in the chain): `pr-hygiene.yml` closes orphaned bot PRs, `jules-issue-hygiene.yml` and `cleanup-automation-issues.yml` retire failed or superseded control issues, and `branch-cleanup.yml` reports (or, once enabled with the `BRANCH_CLEANUP_LIVE` repo variable, deletes up to 50 per run) branches that are fully merged or whose PR is closed — never `main`, `gh-pages`, `automation/*` or open-PR branches
+- **Publishing**: `deploy-docs.yml` runs as the last lane, because merges made by the Actions token never trigger the push-based deploy
+- **Dry run**: dispatching the pipeline with `dry_run: true` (and `weekly_lanes: all`) exercises every lane's real queries while writing nothing — no issues, PRs, pushes, branch deletions or deploys
+- **Watchdog**: `automation-health.yml` follows every pipeline run (plus a slow dead-man schedule), reruns failed lanes once and keeps a single `automation-health` issue open while anything is red
 
 Supporting docs:
 
@@ -117,5 +122,5 @@ Supporting docs:
 ---
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-04
 - Confidence: high

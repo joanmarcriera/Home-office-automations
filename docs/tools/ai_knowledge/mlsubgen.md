@@ -223,7 +223,7 @@ except ValidationError as ex:
 - [Faster-Whisper](../ai_knowledge/local_llms.md) — High-performance CTranslate2 implementation of OpenAI Whisper.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Standard tool server framework for agent integration.
 - [BreezeTTS2](../process_understanding/breezetts2.md) — Local speech synthesis and audio generation engine.
-- [Paperless-AI](../services/paperless-ai.md) — AI document indexing and metadata extraction platform.
+- [Paperless-AI](../../services/paperless-ai.md) — AI document indexing and metadata extraction platform.
 
 ## Sources / references
 - [MLSubGen Local Subtitle Generation Release](https://www.reddit.com/r/LocalLLaMA/comments/1wwds6i/mlsubgen_subtitles_in_45_languages_for_your/)

@@ -6,7 +6,8 @@ Reads data/growth-metrics.json and creates targeted GitHub issues for Jules:
 1. A deepening issue: add code examples to the 5 shallowest docs
 2. A gap-filling issue: discover tools for the most underdeveloped category
 
-Runs Monday 02:00 UTC via weekly-planner.yml.
+Runs on days 1,7,13,19,25 of the month via weekly-planner.yml, chained from
+odd-day-pipeline.yml.
 """
 
 from __future__ import annotations
@@ -16,6 +17,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+from render_issue_template import run_date_banner, utc_today
 
 METRICS_PATH = Path("data/growth-metrics.json")
 
@@ -32,8 +35,62 @@ CATEGORY_HINTS = {
 }
 
 
+# Identity this lane creates its issues with (GITHUB_TOKEN). Only issues from it
+# count for dedupe: titles and labels of issues opened by anyone else are not
+# trusted, otherwise an outsider could open "Weekly deepening: ..." and
+# suppress the lane.
+TRUSTED_AUTHOR = "app/github-actions"
+LOOKUP_LIMIT = 200
+
+# Exit code when the dedupe lookup failed and issue creation was skipped. The
+# lane step fails (so the watchdog sees and reruns it) after the rollup PR step
+# has already run — non-fatal for the rest of the pipeline.
+EXIT_LOOKUP_FAILED = 2
+
+
+class LookupFailed(RuntimeError):
+    """The open-issue lookup could not be trusted; do not create anything."""
+
+
+def open_bot_issue_titles() -> list[str]:
+    """Titles of open issues created by this lane's own bot identity.
+
+    Fails CLOSED: any API error, unparsable or unexpected output, or a
+    possibly-truncated result raises LookupFailed instead of returning [] —
+    "unknown" must never be read as "nothing open, go ahead and create".
+    """
+    result = subprocess.run(
+        ["gh", "issue", "list", "--state", "open", "--author", TRUSTED_AUTHOR,
+         "--limit", str(LOOKUP_LIMIT), "--json", "title,author"],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        raise LookupFailed(f"gh issue list failed: {result.stderr.strip()[:300]}")
+    try:
+        issues = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise LookupFailed(f"unparsable gh output: {exc}") from exc
+    if not isinstance(issues, list):
+        raise LookupFailed("unexpected gh output (not a list)")
+    if len(issues) >= LOOKUP_LIMIT:
+        raise LookupFailed(f"{len(issues)} open bot issues — result may be truncated")
+    titles = []
+    for issue in issues:
+        if not isinstance(issue, dict) or not isinstance(issue.get("title"), str):
+            raise LookupFailed("unexpected issue record in gh output")
+        # Defence in depth: keep only records really authored by the bot.
+        if (issue.get("author") or {}).get("login") == TRUSTED_AUTHOR:
+            titles.append(issue["title"])
+    return titles
+
+
+def already_open(titles: list[str], title_prefix: str) -> bool:
+    return any(t.startswith(title_prefix) for t in titles)
+
+
 def create_issue(title: str, body: str, labels: list[str]) -> bool:
-    """Create a GitHub issue using gh CLI."""
+    """Create a GitHub issue using gh CLI (body gets the run-date banner)."""
+    body = run_date_banner(utc_today()) + "\n" + body
     cmd = ["gh", "issue", "create", "--title", title, "--body", body]
     for label in labels:
         cmd.extend(["--label", label])
@@ -119,17 +176,28 @@ def main() -> int:
     underdeveloped = metrics.get("underdeveloped_categories", [])
     by_category = metrics.get("by_category", {})
 
+    try:
+        open_titles = open_bot_issue_titles()
+    except LookupFailed as exc:
+        print(f"::warning::Weekly planner skipped issue creation: open-issue lookup "
+              f"failed ({exc}). Not creating anything to avoid duplicates.")
+        return EXIT_LOOKUP_FAILED
+
     created = 0
 
     # Issue 1: Deepen shallow docs
-    if shallow_docs:
+    if shallow_docs and already_open(open_titles, "Weekly deepening:"):
+        print("An open 'Weekly deepening:' issue already exists. Skipping.")
+    elif shallow_docs:
         body = build_deepening_body(shallow_docs)
         title = f"Weekly deepening: add code examples to {min(5, len(shallow_docs))} docs"
         if create_issue(title, body, ["jules"]):
             created += 1
 
     # Issue 2: Fill the most underdeveloped category
-    if underdeveloped:
+    if underdeveloped and already_open(open_titles, "Category gap fill:"):
+        print("An open 'Category gap fill:' issue already exists. Skipping.")
+    elif underdeveloped:
         # Pick the category with fewest docs
         worst = min(underdeveloped, key=lambda c: by_category.get(c, 0))
         count = by_category.get(worst, 0)
@@ -143,7 +211,9 @@ def main() -> int:
     from cross_link_report import load_tool_pages, scan_for_unlinked, create_issue as create_crosslink_issue
 
     tools = load_tool_pages()
-    if tools:
+    if already_open(open_titles, "Weekly cross-link fix:"):
+        print("An open 'Weekly cross-link fix:' issue already exists. Skipping.")
+    elif tools:
         mentions = scan_for_unlinked(tools)
         if mentions:
             if create_crosslink_issue(mentions):

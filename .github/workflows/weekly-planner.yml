@@ -1,9 +1,20 @@
 name: Weekly Growth Planner
 
 on:
-  schedule:
-    - cron: "0 2 * * 1"  # Monday 02:00 UTC — single weekly run
+  # Scheduled runs come from odd-day-pipeline.yml on days 1,7,13,19,25 of the
+  # month (roughly weekly, odd days only), after the digest lanes.
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 concurrency:
   # Shared queue because multiple scheduled lanes update the same weekly rollup PR branch.
@@ -19,11 +30,17 @@ permissions:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history so the pending-rollup merge below has a base
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Preserve pending rollup work
         # Producers share the automation/weekly-rollup branch, but
@@ -62,13 +79,9 @@ jobs:
       - name: Update source scores
         run: python scripts/update_source_scores.py
 
-      - name: Create weekly issues
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/weekly_planner.py
-
       - name: Create pull request for weekly metrics
-        if: github.ref_name == 'main'
+        # Never on a branch test or a dry run: this pushes the shared rollup branch.
+        if: github.ref_name == 'main' && env.DRY_RUN != 'true'
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
@@ -105,3 +118,12 @@ jobs:
             --ref "$PR_BRANCH" \
             --base-sha "$BASE_SHA" \
             --head-sha "$HEAD_SHA"
+
+      - name: Create weekly issues
+        # Last on purpose: exit 2 means the open-issue dedupe lookup failed and
+        # nothing was created (fail closed). The step then fails the lane AFTER
+        # the metrics PR above has been produced, so the watchdog sees it and
+        # reruns it once, without blocking the rest of the pipeline.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/weekly_planner.py

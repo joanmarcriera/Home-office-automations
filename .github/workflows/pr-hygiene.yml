@@ -16,14 +16,20 @@ name: PR Hygiene (close orphaned bot PRs)
 # bot heuristics, never human PRs.
 
 on:
-  schedule:
-    - cron: "10 1 1-31/2 * *" # 01:10 UTC odd days, before cleanup-automation-issues (01:20)
+  # Scheduled runs come from odd-day-pipeline.yml: first lane, so orphaned PRs
+  # are closed before the throttle-checking issue openers count live PRs.
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Set to "true" to only report, not close'
-        required: false
-        default: 'false'
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,7 +45,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
       CONFLICT_GRACE_HOURS: '12'   # give a fresh conflict time to be rebased
       STALE_DAYS: '7'              # close bot PRs idle this long regardless of state
     steps:

@@ -1,17 +1,58 @@
 name: Deploy Documentation
+
+# Builds the MkDocs site and publishes it to gh-pages (ai.riera.co.uk).
+#
+# `push` alone is not enough: most changes land on main through PRs merged by
+# the GITHUB_TOKEN (jules-auto-merge.yml, rollup auto-merge), and GitHub never
+# starts workflows from GITHUB_TOKEN pushes — so the live site silently lagged
+# main by days. The odd-day pipeline therefore calls this as its last lane, and
+# jules-auto-merge.yml dispatches it after merging (workflow_dispatch is exempt
+# from that recursion guard).
+
 on:
   push:
     branches:
       - main
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Build only — do not publish to gh-pages
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build only — do not publish to gh-pages
+        type: boolean
+        default: false
+
 permissions:
   contents: write
+
+concurrency:
+  # One publish at a time; a newer queued deploy supersedes an older queued one
+  # (both publish main, so nothing is lost).
+  group: deploy-docs
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Always publish main, even when dispatched from another ref.
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
       - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      - name: Build site
+        if: env.DRY_RUN == 'true'
+        run: mkdocs build
+      - name: Publish to gh-pages
+        if: env.DRY_RUN != 'true'
+        run: mkdocs gh-deploy --force

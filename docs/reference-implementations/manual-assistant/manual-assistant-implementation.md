@@ -178,7 +178,7 @@ def lookup_manual(input_data: ManualQueryInput) -> str:
 
 ## Related tools / concepts
 - [ChromaDB](../../knowledge_base/vector-db-comparison.md)
-- [scripts/process_manuals.py](../../scripts/process_manuals.py)
+- [scripts/process_manuals.py](../../../scripts/process_manuals.py)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Ollama](../../services/ollama.md)
 - [FastAPI](../../tools/frameworks/fastapi.md)

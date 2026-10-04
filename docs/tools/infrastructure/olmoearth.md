@@ -320,7 +320,7 @@ During severe regional flood events, cloud cover frequently blinds optical satel
 - [Kubernetes (K3s)](../infrastructure/k3s.md) — Lightweight Kubernetes orchestrator used for managing distributed GIS worker nodes.
 - [Docker](../infrastructure/docker.md) — Container runtime standard used to bundle OLMoEarth task dependencies.
 - [MinIO](../intake_storage/minio.md) — High-throughput S3-compatible object store for caching multi-gigabyte Cloud-Optimized GeoTIFFs (COGs).
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Protocol for exposing OLMoEarth tool endpoints to AI agents.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for exposing OLMoEarth tool endpoints to AI agents.
 
 ## Sources / references
 

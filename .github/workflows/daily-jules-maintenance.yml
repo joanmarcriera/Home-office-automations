@@ -1,10 +1,23 @@
 name: Daily Jules Maintenance
 
 on:
-  schedule:
-    - cron: '20 7 1-31/2 * *'  # 07:20 UTC odd days — after digest-to-intake bridge completes
-    - cron: '0 19 1-31/2 * *'  # 19:00 UTC odd days — afternoon maintenance pass
-  workflow_dispatch: # allow manual trigger for testing
+  # Scheduled runs come from odd-day-pipeline.yml, after the digest-to-intake
+  # bridge. One pass per odd day: the old 19:00 second pass could only act
+  # once the morning "Daily Maintenance Run - <date>" issue was resolved, and
+  # that is exactly when jules-pipeline-trigger.yml re-dispatches this lane
+  # (on every Jules PR merge), so a second clock-driven pass is redundant.
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-jules-maintenance
@@ -13,12 +26,19 @@ concurrency:
 jobs:
   open-maintenance-issue:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     permissions:
+      contents: read # checkout
       issues: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Ensure jules label exists
         env:
@@ -103,7 +123,8 @@ jobs:
           TODAY: ${{ steps.check.outputs.today }}
         run: |
           set -euo pipefail
-          cp .github/issue-templates/daily-jules-maintenance.md issue_body.md
+          # Render (not cp): expands $TODAY and pins the run date for the agent.
+          python3 scripts/render_issue_template.py .github/issue-templates/daily-jules-maintenance.md issue_body.md --date "$TODAY"
 
           gh issue create \
             --repo "$REPO" \

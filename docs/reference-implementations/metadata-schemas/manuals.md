@@ -3,7 +3,7 @@
 ## What it is
 The Scanned Manuals Metadata Schema is an enterprise-grade YAML/JSON data contract designed for indexing, tagging, and retrieving complex physical and digital appliance documentation. Scanned manuals—ranging from HVAC installation guides and commercial kitchen appliance manuals to automobile repair documentation—frequently suffer from poor OCR quality, lack of structural navigation, and bloated PDF page counts.
 
-As of early 2027, this metadata schema operates natively with **FastMCP 3.1** protocol endpoints, enabling multi-agent orchestration frameworks and vision-language models (VLMs) such as [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), DeepSeek-V4, and Qwen 3.6 VL to navigate physical documents via "Section-Aware" metadata anchors and precise page coordinate bounds.
+As of early 2027, this metadata schema operates natively with **FastMCP 3.1** protocol endpoints, enabling multi-agent orchestration frameworks and vision-language models (VLMs) such as [Claude 5.6](../../tools/ai_knowledge/claude.md), [GPT-5.6](../../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md), DeepSeek-V4, and Qwen 3.6 VL to navigate physical documents via "Section-Aware" metadata anchors and precise page coordinate bounds.
 
 ## Architecture & System Design
 
@@ -363,7 +363,7 @@ if __name__ == "__main__":
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Vector retrieval design patterns.
 - [Tag Taxonomy](../paperless/tag-taxonomy.md) — Comprehensive tag hierarchy rules.
 - [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) — Model Context Protocol tool runtime.
-- [Manual Processor Script](../../scripts/process_manuals.py) — PDF processing reference script.
+- [Manual Processor Script](../../../scripts/process_manuals.py) — PDF processing reference script.
 
 ## Sources / References
 - [Paperless-ngx Custom Fields Documentation](https://docs.paperless-ngx.com/usage/#custom-fields)

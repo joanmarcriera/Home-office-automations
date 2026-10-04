@@ -3,7 +3,7 @@
 ## What it is
 MinIO is a high-performance, Kubernetes-native, S3-compatible object storage server designed for large-scale AI/ML data infrastructure, high-concurrency workloads, and private-cloud storage. Implemented entirely in Go with SIMD-accelerated assembly routines for AES encryption and erasure coding, MinIO provides a 100% Amazon S3 API-compatible storage layer.
 
-As of early 2027, MinIO serves as the primary open-source object storage engine for self-hosted AI data lakes, local vector database snapshotting, and agentic dataset management. Featuring native support for the **Model Context Protocol (MCP)** 3.1 and FastMCP 3.1 transport standards, MinIO allows autonomous AI agents running frontier reasoning models like [Claude 5.1](../providers/anthropic.md), [GPT-5.5](openai.md), and [DeepSeek-V4](deepseek-v4.md) to inspect buckets, generate presigned upload URLs, enforce lifecycle retention policies, and stream dataset chunks directly into fine-tuning pipelines with sub-millisecond overhead.
+As of early 2027, MinIO serves as the primary open-source object storage engine for self-hosted AI data lakes, local vector database snapshotting, and agentic dataset management. Featuring native support for the **Model Context Protocol (MCP)** 3.1 and FastMCP 3.1 transport standards, MinIO allows autonomous AI agents running frontier reasoning models like [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), and [DeepSeek-V4](../providers/deepseek.md) to inspect buckets, generate presigned upload URLs, enforce lifecycle retention policies, and stream dataset chunks directly into fine-tuning pipelines with sub-millisecond overhead.
 
 ## What problem it solves
 Managing large-scale unstructured datasets (petabytes of images, audio, model checkpoints, vector indices, and parquet files) across hybrid or on-premises infrastructure introduces severe operational hurdles:
@@ -14,7 +14,7 @@ Managing large-scale unstructured datasets (petabytes of images, audio, model ch
 4. **Protects Against Hardware Loss & Silent Data Corruption:** MinIO implements Reed-Solomon Erasure Coding and bitrot protection at the object layer, allowing multi-drive or multi-node failures without data loss or downtime.
 
 ## Where it fits in the stack
-**Layer 2: Intake & Storage / High-Performance Private S3 Storage.** MinIO sits directly above physical NVMe/SSD storage pools and below AI application, indexing, and processing services. It acts as the primary data lake repository for raw document ingest ([Unstructured](unstructured.md), [Docling](../process_understanding/docling.md)), database backups ([Postgres](../../services/postgresql.md)), vector store snapshots (Qdrant, ChromaDB), and Git LFS artifacts ([Gitea](../../services/gitea.md)). Autonomous agents interact with MinIO via FastMCP 3.1 tool wrappers to manage object lifecycles.
+**Layer 2: Intake & Storage / High-Performance Private S3 Storage.** MinIO sits directly above physical NVMe/SSD storage pools and below AI application, indexing, and processing services. It acts as the primary data lake repository for raw document ingest ([Unstructured](unstructured.md), [Docling](../process_understanding/docling.md)), database backups (Postgres), vector store snapshots (Qdrant, ChromaDB), and Git LFS artifacts ([Gitea](../../services/gitea.md)). Autonomous agents interact with MinIO via FastMCP 3.1 tool wrappers to manage object lifecycles.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
@@ -76,7 +76,7 @@ Managing large-scale unstructured datasets (petabytes of images, audio, model ch
 
 ## When not to use it
 - For basic end-user file sharing and document collaboration UI — use [Nextcloud](../../services/nextcloud.md).
-- For hosting small relational databases or low-latency key-value stores — use [PostgreSQL](../../services/postgresql.md) or [Redis](../../services/redis.md).
+- For hosting small relational databases or low-latency key-value stores — use PostgreSQL or Redis.
 - If you only require a few gigabytes of managed cloud storage and do not want to maintain local storage drives — use managed S3 or Backblaze B2.
 
 ## Getting started
