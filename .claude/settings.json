@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import sys,json; p=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); (print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'ask','permissionDecisionReason':'Workflow file edits require explicit user confirmation: '+p}})) if '.github/workflows/' in p else None)\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-workflows.py\""
           }
         ]
       }
