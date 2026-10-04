@@ -70,17 +70,16 @@ jobs:
           # orphan can never merge, so counting it would stall this lane forever —
           # the pipeline would silently stop producing work. pr-hygiene.yml closes
           # such orphans separately.
+          # Trusted identity first (owner/known bots, not a fork) — a look-alike
+          # PR from anyone else must not throttle this lane. See
+          # scripts/ci/trusted_actor.py; a lookup error fails the step.
           CANDIDATES=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,body,labels,headRefName,author \
-            --jq '[.[] | select(
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
-              ((.body // "") | test("PR created automatically by Jules"; "i")) or
-              (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
-              (.author.login == "google-labs-jules[bot]")
-            ) | .number]')
+            --limit 200 \
+            --json number,title,body,labels,headRefName,author,isCrossRepository \
+            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic \
+            | jq -c 'map(.number)')
 
           OPEN_PRS=0
           for PR in $(echo "$CANDIDATES" | jq -r '.[]'); do
@@ -104,14 +103,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
           TODAY=$(date +%Y-%m-%d)
+          # Only today's control issue opened by a trusted actor counts. A
+          # lookup error now fails the step (watchdog reports it) instead of
+          # leaving `existing` empty and skipping silently.
           EXISTING=$(gh issue list \
             --repo "$REPO" \
             --label jules \
             --state open \
             --search "Daily Maintenance Run" \
-            --json title \
-            --jq "[.[] | select(.title | contains(\"$TODAY\"))] | length")
+            --json number,title,author \
+            | python3 scripts/ci/trusted_actor.py issues \
+            | jq --arg today "$TODAY" '[.[] | select((.title | startswith("Daily Maintenance Run - ")) and (.title | contains($today)))] | length')
           echo "existing=$EXISTING" >> "$GITHUB_OUTPUT"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
 

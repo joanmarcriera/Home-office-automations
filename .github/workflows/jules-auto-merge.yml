@@ -47,6 +47,7 @@ jobs:
   auto-merge:
     if: >-
       github.event_name != 'pull_request' || (
+        github.event.pull_request.head.repo.full_name == github.repository && (
         contains(github.event.pull_request.title, 'daily maintenance') ||
         contains(github.event.pull_request.title, 'daily knowledge') ||
         contains(github.event.pull_request.title, 'jules sprint') ||
@@ -56,9 +57,19 @@ jobs:
         contains(github.event.pull_request.title, 'automated resolution') ||
         contains(github.event.pull_request.body || '', 'PR created automatically by Jules') ||
         github.event.pull_request.user.login == 'google-labs-jules[bot]'
-      )
+      ))
     runs-on: ubuntu-latest
     steps:
+      # Only for the trust filter script. On PR-scoped events check out the
+      # default branch, never the PR's merge ref, so a PR cannot alter the
+      # filter that decides whether it gets merged.
+      - name: Checkout trusted helper
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event_name == 'pull_request' || github.event_name == 'pull_request_review') && github.event.repository.default_branch || '' }}
+          persist-credentials: false
+          sparse-checkout: scripts/ci
+
       - name: Find mergeable Jules PRs
         id: find
         env:
@@ -74,19 +85,17 @@ jobs:
             exit 0
           fi
 
-          # Find open PRs created by Jules (title/body marker, branch pattern, label, or author)
+          # Open bot PRs from a TRUSTED identity only — repo owner or known
+          # automation bot, head branch in this repo (never a fork) — that also
+          # match the bot heuristic. Title/branch alone is forgeable by anyone;
+          # see scripts/ci/trusted_actor.py. A lookup error fails the step.
           JULES_PRS=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,body,labels,headRefName,author \
-            --jq '[.[] | select(
-              (.headRefName != "automation/weekly-rollup") and (
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
-              ((.body // "") | test("PR created automatically by Jules"; "i")) or
-              (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
-              (.author.login == "google-labs-jules[bot]")
-            ))] | map(.number) | join(",")')
+            --limit 200 \
+            --json number,title,body,labels,headRefName,author,isCrossRepository \
+            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic --exclude-rollup \
+            | jq -r 'map(.number) | join(",")')
 
           if [ -z "$JULES_PRS" ]; then
             echo "No open Jules PRs found."

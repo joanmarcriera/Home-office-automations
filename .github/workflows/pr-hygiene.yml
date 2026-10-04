@@ -12,8 +12,11 @@ name: PR Hygiene (close orphaned bot PRs)
 #   1. CONFLICTING (dirty merge state) AND older than CONFLICT_GRACE_HOURS, or
 #   2. stale beyond STALE_DAYS with no successful checks / no recent activity.
 #
-# It is conservative: it only ever touches PRs that match the Jules/ralph-loop
-# bot heuristics, never human PRs.
+# It is conservative: it only ever touches PRs opened by a trusted actor (repo
+# owner / known automation bots, head branch in this repo — never a fork) that
+# also match the Jules/ralph-loop bot heuristics. Both live in
+# scripts/ci/trusted_actor.py. Outsiders' look-alike PRs are left for a human:
+# they no longer pause any lane, so there is nothing to clean up.
 
 on:
   # Scheduled runs come from odd-day-pipeline.yml: first lane, so orphaned PRs
@@ -49,29 +52,26 @@ jobs:
       CONFLICT_GRACE_HOURS: '12'   # give a fresh conflict time to be rebased
       STALE_DAYS: '7'              # close bot PRs idle this long regardless of state
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Identify and close orphaned bot PRs
         run: |
           set -euo pipefail
-
-          # Bot-PR heuristic, kept in sync with jules-auto-merge.yml / process-jules-backlog.yml.
-          BOT_FILTER='select(
-            (.headRefName != "automation/weekly-rollup") and (
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit|freshness audits"; "i")) or
-              ((.body // "") | test("PR created automatically by Jules"; "i")) or
-              (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
-              (.author.login == "google-labs-jules[bot]")
-            )
-          )'
 
           NOW=$(date -u +%s)
           CONFLICT_GRACE=$(( CONFLICT_GRACE_HOURS * 3600 ))
           STALE_SECS=$(( STALE_DAYS * 86400 ))
 
           # mergeable/mergeStateStatus aren't available from `gh pr list`; fetch per-PR below.
+          # Trusted bot PRs only (identity + heuristic: scripts/ci/trusted_actor.py);
+          # a lookup error fails the step rather than closing on a bad listing.
           CANDIDATES=$(gh pr list --repo "$REPO" --state open --limit 200 \
-            --json number,title,body,labels,headRefName,author,updatedAt \
-            --jq "[.[] | $BOT_FILTER | {number, title, updatedAt}]")
+            --json number,title,body,labels,headRefName,author,isCrossRepository,updatedAt \
+            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic --exclude-rollup \
+            | jq -c 'map({number, title, updatedAt})')
 
           COUNT=$(echo "$CANDIDATES" | jq 'length')
           echo "Found $COUNT candidate bot PR(s)."

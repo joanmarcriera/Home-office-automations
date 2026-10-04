@@ -82,17 +82,16 @@ jobs:
           # from the throttle count. A conflicting orphan can never merge, so
           # counting it would jam the pipeline forever (the bug that produced the
           # June 2026 21-PR pileup). pr-hygiene.yml closes those separately.
+          # Trusted identity first (owner/known bots, not a fork) — a look-alike
+          # PR from anyone else must not throttle this lane. See
+          # scripts/ci/trusted_actor.py; a lookup error fails the step.
           CANDIDATES=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,body,labels,headRefName,author \
-            --jq '[.[] | select(
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
-              ((.body // "") | test("PR created automatically by Jules"; "i")) or
-              (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
-              (.author.login == "google-labs-jules[bot]")
-            ) | .number]')
+            --limit 200 \
+            --json number,title,body,labels,headRefName,author,isCrossRepository \
+            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic \
+            | jq -c 'map(.number)')
 
           OPEN_PRS=0
           for PR in $(echo "$CANDIDATES" | jq -r '.[]'); do
@@ -137,12 +136,15 @@ jobs:
             --state open \
             --json number,title \
             --jq "$NON_CONTROL_FILTER")
+          # Only a control issue opened by a trusted actor counts: an outsider's
+          # look-alike title must not suppress the backlog issue.
           OPEN_BACKLOG=$(gh issue list \
             --repo "$REPO" \
             --state open \
             --search "Process Jules Backlog -" \
-            --json number,title \
-            --jq "[.[] | select(.title | startswith(\"Process Jules Backlog - \"))] | length")
+            --json number,title,author \
+            | python3 scripts/ci/trusted_actor.py issues \
+            | jq '[.[] | select(.title | startswith("Process Jules Backlog - "))] | length')
 
           OPEN_WORK=$((OPEN_JULES + OPEN_BLOCKED))
 

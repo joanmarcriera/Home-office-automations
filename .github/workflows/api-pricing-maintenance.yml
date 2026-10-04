@@ -129,12 +129,15 @@ jobs:
               --description "Issues queued for Jules automation"
           fi
 
+          # Only an alert opened by a trusted actor counts: an outsider's
+          # look-alike must not suppress it (scripts/ci/trusted_actor.py).
           EXISTING=$(gh issue list \
             --repo "$REPO" \
             --state open \
             --search "Pricing Matrix Freshness" \
-            --json number \
-            --jq 'length')
+            --json number,title,author \
+            | python3 scripts/ci/trusted_actor.py issues \
+            | jq '[.[] | select(.title | startswith("Pricing Matrix Freshness"))] | length')
 
           if [ "$EXISTING" != "0" ]; then
             echo "Freshness issue already open."
