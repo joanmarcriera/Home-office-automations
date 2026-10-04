@@ -74,7 +74,7 @@ jobs:
             --state open \
             --limit 200 \
             --json number,title,body,labels,headRefName,author,isCrossRepository \
-            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic \
+            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic \
             | jq -c 'map(.number)')
 
           OPEN_PRS=0
@@ -111,8 +111,9 @@ jobs:
             --label jules \
             --state open \
             --search "Daily Knowledge Expansion -" \
+            --limit 200 \
             --json number,title,author \
-            | python3 scripts/ci/trusted_actor.py issues \
+            | python3 scripts/ci/trusted_actor.py issues --limit 200 \
             | jq '[.[] | select(.title | startswith("Daily Knowledge Expansion - "))] | length')
 
           echo "open_knowledge=$OPEN_KNOWLEDGE" >> "$GITHUB_OUTPUT"

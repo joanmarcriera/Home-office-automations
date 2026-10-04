@@ -114,6 +114,12 @@ class FilterTests(unittest.TestCase):
                  {"number": 3, "title": "t", "author": OWNER}]
         self.assertEqual(self.kept(items, kind="issues"), [1, 3])
 
+    def test_possibly_truncated_listing_raises(self):
+        items = [{"number": i, "author": OUTSIDER} for i in range(3)]
+        with self.assertRaises(ta.InputError):
+            ta.filter_items(items, "issues", "o", limit=3)
+        self.assertEqual(ta.filter_items(items, "issues", "o", limit=4), [])
+
     def test_missing_fields_raise(self):
         with self.assertRaises(ta.InputError):
             ta.filter_items([{"number": 1, "author": OWNER}], "prs", "o")
@@ -137,6 +143,12 @@ class CliTests(unittest.TestCase):
         self.assertIn("::notice::", err)
         self.assertIn("#2", err)
         self.assertIn("#3", err)
+
+    def test_cli_limit_guard(self):
+        code, out, err = run_cli(["issues", "--limit", "1"],
+                                 json.dumps([{"number": 1, "author": OWNER}]))
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("truncated", err)
 
     def test_empty_array_is_fine(self):
         code, out, _ = run_cli(["issues"], "[]")

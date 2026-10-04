@@ -135,8 +135,9 @@ jobs:
             --repo "$REPO" \
             --state open \
             --search "Pricing Matrix Freshness" \
+            --limit 200 \
             --json number,title,author \
-            | python3 scripts/ci/trusted_actor.py issues \
+            | python3 scripts/ci/trusted_actor.py issues --limit 200 \
             | jq '[.[] | select(.title | startswith("Pricing Matrix Freshness"))] | length')
 
           if [ "$EXISTING" != "0" ]; then

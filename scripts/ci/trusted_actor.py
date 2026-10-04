@@ -23,10 +23,10 @@ trusted subset, same objects, same order):
 
   gh pr list --repo "$REPO" --state open --limit 200 \
       --json number,title,body,labels,headRefName,author,isCrossRepository \
-    | python3 scripts/ci/trusted_actor.py prs --bot-heuristic [--exclude-rollup]
+    | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic [--exclude-rollup]
 
-  gh issue list --repo "$REPO" --state open --json number,title,author \
-    | python3 scripts/ci/trusted_actor.py issues
+  gh issue list --repo "$REPO" --state open --limit 200 --json number,title,author \
+    | python3 scripts/ci/trusted_actor.py issues --limit 200
 
   prs              requires fields: author, isCrossRepository
   --bot-heuristic  also keep only PRs that look like automation PRs (title /
@@ -35,6 +35,11 @@ trusted subset, same objects, same order):
                    This is THE single definition of "bot PR" for the lanes.
   --exclude-rollup drop the shared automation/weekly-rollup PR (it has its own
                    merge lane).
+  --limit N        the --limit given to gh. A listing of N or more records may
+                   be truncated — e.g. by an outsider filing many look-alikes
+                   to push the real control issue off the page, which would
+                   cause a duplicate — so it is treated as an error. Always
+                   pass the same N to gh and here.
   issues           requires field: author
 
 The repository ("owner/name") comes from --repo, else $REPO, else
@@ -128,10 +133,15 @@ def looks_like_bot_pr(pr: dict) -> bool:
 
 
 def filter_items(items: object, kind: str, owner: str, *, bot_heuristic=False,
-                 exclude_rollup=False, notice=lambda msg: None) -> list[dict]:
-    """Return the trusted subset of a gh listing. Raises InputError if malformed."""
+                 exclude_rollup=False, limit: int | None = None,
+                 notice=lambda msg: None) -> list[dict]:
+    """Return the trusted subset of a gh listing. Raises InputError if malformed
+    or (with `limit`) possibly truncated."""
     if not isinstance(items, list):
         raise InputError("gh output is not a JSON array")
+    if limit is not None and len(items) >= limit:
+        raise InputError(f"gh returned {len(items)} records with --limit {limit}; "
+                         "the listing may be truncated")
     fields: tuple[str, ...] = ("author",)
     if kind == "prs":
         fields += ("isCrossRepository",)
@@ -174,6 +184,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo", default=os.environ.get("REPO") or os.environ.get("GITHUB_REPOSITORY"))
     parser.add_argument("--bot-heuristic", action="store_true")
     parser.add_argument("--exclude-rollup", action="store_true")
+    parser.add_argument("--limit", type=int, default=None)
     args = parser.parse_args(argv)
 
     def notice(msg: str) -> None:
@@ -189,7 +200,8 @@ def main(argv: list[str] | None = None) -> int:
         except json.JSONDecodeError as exc:
             raise InputError(f"unparsable gh output: {exc}") from exc
         kept = filter_items(items, args.kind, owner, bot_heuristic=args.bot_heuristic,
-                            exclude_rollup=args.exclude_rollup, notice=notice)
+                            exclude_rollup=args.exclude_rollup, limit=args.limit,
+                            notice=notice)
     except InputError as exc:
         print(f"::error::trusted_actor: {exc}. Refusing to decide on an unverified "
               "listing (no issue created, lane not paused) — failing so the "

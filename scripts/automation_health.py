@@ -291,7 +291,7 @@ def check_rollup_flow(now: datetime) -> dict:
             "threshold": STALL_THRESHOLDS["weekly"]}
     result = {"lane": lane, "status": "ok", "notes": [], "rerun": None}
     out = run_gh(["pr", "list", "--head", ROLLUP_BRANCH, "--state", "closed",
-                  "--limit", "15",
+                  "--limit", "50",
                   "--json", "number,closedAt,mergedAt,author,isCrossRepository"])
     prs = json.loads(out) if out.strip() else []
     # `--head` matches the branch name only: a fork PR named like the rollup

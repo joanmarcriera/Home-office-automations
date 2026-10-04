@@ -90,7 +90,7 @@ jobs:
             --state open \
             --limit 200 \
             --json number,title,body,labels,headRefName,author,isCrossRepository \
-            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic \
+            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic \
             | jq -c 'map(.number)')
 
           OPEN_PRS=0
@@ -142,8 +142,9 @@ jobs:
             --repo "$REPO" \
             --state open \
             --search "Process Jules Backlog -" \
+            --limit 200 \
             --json number,title,author \
-            | python3 scripts/ci/trusted_actor.py issues \
+            | python3 scripts/ci/trusted_actor.py issues --limit 200 \
             | jq '[.[] | select(.title | startswith("Process Jules Backlog - "))] | length')
 
           OPEN_WORK=$((OPEN_JULES + OPEN_BLOCKED))

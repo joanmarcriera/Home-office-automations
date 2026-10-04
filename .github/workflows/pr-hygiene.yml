@@ -70,7 +70,7 @@ jobs:
           # a lookup error fails the step rather than closing on a bad listing.
           CANDIDATES=$(gh pr list --repo "$REPO" --state open --limit 200 \
             --json number,title,body,labels,headRefName,author,isCrossRepository,updatedAt \
-            | python3 scripts/ci/trusted_actor.py prs --bot-heuristic --exclude-rollup \
+            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic --exclude-rollup \
             | jq -c 'map({number, title, updatedAt})')
 
           COUNT=$(echo "$CANDIDATES" | jq 'length')

@@ -67,8 +67,9 @@ jobs:
             --repo "$REPO" \
             --state open \
             --head automation/weekly-rollup \
+            --limit 100 \
             --json number,headRefName,author,isCrossRepository \
-            | python3 scripts/ci/trusted_actor.py prs \
+            | python3 scripts/ci/trusted_actor.py prs --limit 100 \
             | jq -r '.[0].number // ""')
 
           echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
