@@ -81,7 +81,7 @@ Copy.ai includes centralized governance features that enforce corporate style gu
 
 ## When not to use it
 - For ad-hoc interactive chat or quick code generation where direct access to [Claude](../development_ops/claude-hooks.md) or [ChatGPT](chatgpt.md) is faster and cheaper.
-- When strict regulatory mandates require 100% on-premise model execution (use [Local LLMs](local_llms.md) or [Ollama](../infrastructure/ollama.md)).
+- When strict regulatory mandates require 100% on-premise model execution (use [Local LLMs](local_llms.md) or [Ollama](../../services/ollama.md)).
 - For low-level software engineering task automation (use [Claude Code](../development_ops/claude-code.md) or [Plandex](../development_ops/plandex.md)).
 
 ## Getting started

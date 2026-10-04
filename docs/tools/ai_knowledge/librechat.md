@@ -358,7 +358,7 @@ The following benchmarks demonstrate LibreChat performance metrics across typica
 - [Dify](dify.md) — Visual development platform for AI agents and workflows.
 - [Jan.ai](../infrastructure/jan-ai.md) — Desktop client for offline local LLMs.
 - [LobeHub](lobehub.md) — Modern multi-agent web interface workspace.
-- [Ollama](../infrastructure/ollama.md) — Local model serving engine frequently used with LibreChat.
+- [Ollama](../../services/ollama.md) — Local model serving engine frequently used with LibreChat.
 - [vLLM](../infrastructure/vllm.md) — High-throughput local inference engine for enterprise deployments.
 
 ## Sources / references

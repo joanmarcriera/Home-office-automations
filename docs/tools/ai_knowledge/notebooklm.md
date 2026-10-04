@@ -71,7 +71,7 @@ NotebookLM supports FastMCP 3.1 connections, allowing enterprises to expose secu
 
 ## Limitations
 - **Ecosystem Lock-in**: Deep integration with Google Workspace and Cloud can make exporting complex RAG graphs to open-source systems difficult.
-- **Fixed Retrieval Config**: Advanced developers cannot adjust vector indexing algorithms, chunk overlaps, or similarity metrics as they can in [LlamaIndex](llamaindex.md) or [LangChain](../frameworks/langchain.md).
+- **Fixed Retrieval Config**: Advanced developers cannot adjust vector indexing algorithms, chunk overlaps, or similarity metrics as they can in [LlamaIndex](llamaindex.md) or [LangChain](langchain.md).
 - **Source Size Limits**: Large enterprise datasets spanning millions of files still require dedicated data lake pipelines rather than manual notebook uploads.
 
 ## When to use it
@@ -82,7 +82,7 @@ NotebookLM supports FastMCP 3.1 connections, allowing enterprises to expose secu
 
 ## When not to use it
 - When building custom autonomous multi-agent code execution systems (use [LangGraph](../frameworks/langgraph.md) or [Claude Code](../development_ops/claude-code.md)).
-- If strict data sovereignty or offline operational requirements prohibit cloud SaaS usage (use [AnythingLLM](anythingllm.md) or [Ollama](../infrastructure/ollama.md)).
+- If strict data sovereignty or offline operational requirements prohibit cloud SaaS usage (use [AnythingLLM](anythingllm.md) or [Ollama](../../services/ollama.md)).
 - For high-volume programmatic batch inference pipelines where direct API calls to [Gemini API](gemini.md) or [OpenAI API](openai.md) are more cost-effective.
 
 ## Getting started
