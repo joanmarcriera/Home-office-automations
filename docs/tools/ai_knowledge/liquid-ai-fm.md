@@ -221,7 +221,7 @@ except ValidationError as e:
 - [LFM-2.5 Encoders](../providers/lfm-encoders.md) — Deep dive into Liquid AI encoder model specs.
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md) — Comparison of vector database indexers for RAG.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — High-speed Model Context Protocol implementation.
-- [Ollama](../services/ollama.md) — Local open model execution runner.
+- [Ollama](../../services/ollama.md) — Local open model execution runner.
 
 ## Sources / references
 - [Liquid AI LFM-2.5 Encoder Release Thread on Reddit / LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1wwgns1/liquidailfm25encoder_250m350m/)

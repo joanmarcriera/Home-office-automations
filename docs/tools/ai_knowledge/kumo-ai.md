@@ -120,7 +120,7 @@ sequenceDiagram
 ## When not to use it
 
 - For simple single-table datasets where standard XGBoost or Scikit-Learn models are sufficient.
-- For unstructured vector similarity search over text embeddings (use [Qdrant](qdrant.md), [ChromaDB](../vector-db-comparison.md), or [ColQwen](colqwen.md)).
+- For unstructured vector similarity search over text embeddings (use [Qdrant](../infrastructure/qdrant.md), [ChromaDB](../../knowledge_base/vector-db-comparison.md), or [ColQwen](colqwen.md)).
 - When completely offline, local, or self-hosted air-gapped execution is mandatory.
 
 ## Getting started
