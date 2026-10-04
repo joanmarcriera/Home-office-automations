@@ -10,18 +10,26 @@ ONLY when every safety rule holds:
   Never touched:
     - the default branch, `gh-pages`, anything under `automation/`, and any
       branch matching --keep (regex, repeatable) or a classic protection rule
-    - the head OR base branch of any OPEN pull request (deleting a base branch
-      would close the PRs stacked on it)
+    - the base of any open PR (deleting it would close the PRs stacked on it)
+      and the head of any open PR whose head repository is THIS repository
     - branches whose tip commit is younger than --min-age-days (an agent may
       have just pushed and not opened its PR yet)
 
   Deleted only if one of:
     - merged: every commit on the branch is already in the default branch
       (GraphQL compare: behindBy == 0), or
-    - closed-PR: its most recent PR is MERGED or CLOSED and the branch tip is
-      still exactly that PR's head commit (nothing pushed after it closed).
-      Commits stay reachable through the PR (refs/pull/N/head) and the branch
-      can be restored from the PR page.
+    - closed-PR: its most recent PR *from this repository and this exact ref*
+      is MERGED or CLOSED and the branch tip is still that PR's head commit
+      (nothing pushed after it closed). Commits stay reachable through the PR
+      (refs/pull/N/head) and the branch can be restored from the PR page.
+
+  PR matching is always by (head repository, head ref name) — never by name
+  alone — so a fork PR whose head branch happens to share a name with a branch
+  here can neither protect it nor make it look "closed".
+
+  Deletion is a compare-and-swap (GraphQL updateRefs with beforeOid = the tip
+  that was evaluated): if anyone pushed to the branch since the scan, GitHub
+  rejects the delete. The open-PR set is also re-read right before deleting.
 
 At most --max-deletions branches are deleted per run (oldest first), so a bad
 rule can never mass-delete. Without --apply nothing is written.
@@ -32,6 +40,7 @@ Usage:
   REPO=owner/name python3 scripts/prune_stale_branches.py --json
 
 Needs `gh` authenticated with contents:write (delete) / read (dry run).
+Tests: python3 -m unittest scripts/test_prune_stale_branches.py
 """
 
 from __future__ import annotations
@@ -45,6 +54,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 ALWAYS_KEEP = [r"^gh-pages$", r"^automation/"]
+ZERO_OID = "0" * 40
 
 REFS_QUERY = """
 query($owner: String!, $name: String!, $cursor: String, $base: String!) {
@@ -56,8 +66,8 @@ query($owner: String!, $name: String!, $cursor: String, $base: String!) {
         branchProtectionRule { id }
         target { ... on Commit { oid committedDate } }
         compare(headRef: $base) { behindBy }
-        associatedPullRequests(first: 5, orderBy: {field: UPDATED_AT, direction: DESC}) {
-          nodes { number state headRefOid }
+        associatedPullRequests(first: 10, orderBy: {field: UPDATED_AT, direction: DESC}) {
+          nodes { number state headRefName headRefOid headRepository { nameWithOwner } }
         }
       }
     }
@@ -75,6 +85,15 @@ query($owner: String!, $name: String!, $cursor: String) {
   }
 }
 """
+
+# Atomic compare-and-swap delete: rejected unless the ref still points at $before.
+DELETE_MUTATION = """
+mutation($repo: ID!, $ref: GitRefname!, $before: GitObjectID!) {
+  updateRefs(input: {repositoryId: $repo, refUpdates: [
+    {name: $ref, beforeOid: $before, afterOid: "%s", force: false}
+  ]}) { clientMutationId }
+}
+""" % ZERO_OID
 
 
 def gh(args: list[str]) -> str:
@@ -106,8 +125,34 @@ def paged(query: str, path: str, **variables: str) -> list[dict]:
         cursor = data["pageInfo"]["endCursor"]
 
 
+def head_repo(pr: dict) -> str | None:
+    return (pr.get("headRepository") or {}).get("nameWithOwner")
+
+
+def open_pr_refs(prs: list[dict], repo: str) -> set[str]:
+    """Branch names in `repo` that an open PR depends on.
+
+    Base branches always live in `repo`. A head branch only counts when the
+    PR's head repository is `repo` itself: a fork PR's head is a branch in the
+    fork, even if it shares a name with one here.
+    """
+    refs: set[str] = set()
+    for pr in prs:
+        refs.add(pr["baseRefName"])
+        if head_repo(pr) == repo:
+            refs.add(pr["headRefName"])
+    return refs
+
+
+def own_prs(ref: dict, repo: str) -> list[dict]:
+    """The ref's PRs whose head is exactly (repo, ref name), newest first."""
+    prs = (ref.get("associatedPullRequests") or {}).get("nodes") or []
+    return [pr for pr in prs
+            if head_repo(pr) == repo and pr.get("headRefName") == ref["name"]]
+
+
 def classify(ref: dict, default: str, keep: list[re.Pattern], open_refs: set[str],
-             cutoff: datetime) -> tuple[str, str]:
+             cutoff: datetime, repo: str) -> tuple[str, str]:
     """Return (verdict, reason); verdict is 'delete' or 'keep'."""
     name = ref["name"]
     if name == default:
@@ -119,12 +164,12 @@ def classify(ref: dict, default: str, keep: list[re.Pattern], open_refs: set[str
     if name in open_refs:
         return "keep", "head/base of an open PR"
     target = ref.get("target") or {}
-    if not target.get("committedDate"):
+    if not target.get("committedDate") or not target.get("oid"):
         return "keep", "tip is not a commit"
     tip_date = datetime.fromisoformat(target["committedDate"].replace("Z", "+00:00"))
     if tip_date > cutoff:
         return "keep", "tip too recent"
-    prs = (ref.get("associatedPullRequests") or {}).get("nodes") or []
+    prs = own_prs(ref, repo)
     if any(pr["state"] == "OPEN" for pr in prs):
         return "keep", "open PR"
     compare = ref.get("compare") or {}
@@ -133,6 +178,11 @@ def classify(ref: dict, default: str, keep: list[re.Pattern], open_refs: set[str
     if prs and prs[0]["state"] in ("MERGED", "CLOSED") and prs[0]["headRefOid"] == target["oid"]:
         return "delete", f"PR #{prs[0]['number']} {prs[0]['state'].lower()}, tip unchanged since"
     return "keep", "unmerged commits without a closed PR"
+
+
+def delete_if_unchanged(repo_id: str, branch: str, oid: str) -> None:
+    """Delete refs/heads/<branch> only if it still points at `oid` (atomic CAS)."""
+    graphql(DELETE_MUTATION, repo=repo_id, ref=f"refs/heads/{branch}", before=oid)
 
 
 def main() -> int:
@@ -148,23 +198,20 @@ def main() -> int:
     if not repo:
         repo = gh(["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"]).strip()
     owner, name = repo.split("/", 1)
-    default = gh(["api", f"repos/{repo}", "--jq", ".default_branch"]).strip()
+    meta = json.loads(gh(["api", f"repos/{repo}"]))
+    default, repo_id = meta["default_branch"], meta["node_id"]
 
     keep = [re.compile(p) for p in ALWAYS_KEEP + args.keep]
-    open_refs: set[str] = set()
-    for pr in paged(OPEN_PRS_QUERY, "pullRequests", owner=owner, name=name):
-        open_refs.add(pr["baseRefName"])
-        if (pr.get("headRepository") or {}).get("nameWithOwner") == repo:
-            open_refs.add(pr["headRefName"])
-
+    open_refs = open_pr_refs(paged(OPEN_PRS_QUERY, "pullRequests", owner=owner, name=name), repo)
     refs = paged(REFS_QUERY, "refs", owner=owner, name=name, base=default)
     cutoff = datetime.now(timezone.utc) - timedelta(days=args.min_age_days)
 
     candidates, kept = [], {}
     for ref in refs:
-        verdict, reason = classify(ref, default, keep, open_refs, cutoff)
+        verdict, reason = classify(ref, default, keep, open_refs, cutoff, repo)
         if verdict == "delete":
-            candidates.append((ref["target"]["committedDate"], ref["name"], reason))
+            candidates.append((ref["target"]["committedDate"], ref["name"],
+                               ref["target"]["oid"], reason))
         else:
             kept[reason] = kept.get(reason, 0) + 1
     candidates.sort()  # oldest tip first
@@ -175,23 +222,32 @@ def main() -> int:
     for reason, count in sorted(kept.items(), key=lambda kv: -kv[1]):
         print(f"  kept {count:4d}: {reason}")
 
-    deleted, failed = [], []
-    for tip, branch, reason in candidates[: max(args.max_deletions, 0)]:
+    batch = candidates[: max(args.max_deletions, 0)]
+    if args.apply and batch:
+        # Re-read just before writing: a PR opened since the scan protects its branches.
+        open_refs = open_pr_refs(paged(OPEN_PRS_QUERY, "pullRequests", owner=owner, name=name), repo)
+
+    deleted, failed, skipped = [], [], []
+    for tip, branch, oid, reason in batch:
         if not args.apply:
-            print(f"  would delete {branch}  ({reason}; tip {tip[:10]})")
+            print(f"  would delete {branch} @ {oid[:8]}  ({reason}; tip {tip[:10]})")
+            continue
+        if branch in open_refs:
+            skipped.append(branch)
+            print(f"  skipped {branch}: an open PR now uses it")
             continue
         try:
-            gh(["api", "-X", "DELETE", f"repos/{repo}/git/refs/heads/{branch}"])
+            delete_if_unchanged(repo_id, branch, oid)
             deleted.append(branch)
-            print(f"  deleted {branch}  ({reason}; tip {tip[:10]})")
-        except RuntimeError as exc:  # e.g. already gone; keep going
+            print(f"  deleted {branch} @ {oid[:8]}  ({reason}; tip {tip[:10]})")
+        except RuntimeError as exc:  # moved since the scan, or already gone
             failed.append(branch)
-            print(f"  WARNING: could not delete {branch}: {exc}")
+            print(f"  WARNING: not deleted {branch}: {exc}")
     remaining = max(len(candidates) - args.max_deletions, 0)
     if remaining:
         print(f"{remaining} more deletable branch(es) left for later runs (cap reached).")
     print(f"Summary: candidates={len(candidates)} deleted={len(deleted)} failed={len(failed)} "
-          f"mode={mode}")
+          f"skipped={len(skipped)} mode={mode}")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
             fh.write(f"### Branch cleanup ({mode})\n\n- scanned: {len(refs)}\n"
@@ -199,7 +255,8 @@ def main() -> int:
                      f"- failed: {len(failed)}\n- per-run cap: {args.max_deletions}\n")
     if args.json:
         print(json.dumps({"scanned": len(refs), "candidates": len(candidates),
-                          "deleted": deleted, "failed": failed, "kept": kept}))
+                          "deleted": deleted, "failed": failed, "skipped": skipped,
+                          "kept": kept}))
     return 0
 
 
