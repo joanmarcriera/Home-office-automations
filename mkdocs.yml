@@ -173,6 +173,10 @@ nav:
       - Overview: tools/README.md
       - AI & Knowledge:
           - Overview: tools/ai_knowledge/index.md
+          - UniFolm-WLA10: tools/ai_knowledge/unifolm-wla10.md
+          - Liquid AI FM: tools/ai_knowledge/liquid-ai-fm.md
+          - FrogNano 4B: tools/ai_knowledge/frognano-4b.md
+          - AWS Strands Decider Model: tools/ai_knowledge/aws-strands-decider-model.md
           - PrivateGPT: tools/ai_knowledge/privategpt.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
@@ -533,6 +537,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - DigitalOcean Managed Agents: tools/providers/digitalocean-managed-agents.md
           - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
           - Poolside AI: tools/providers/poolside.md
