@@ -438,7 +438,7 @@ if __name__ == "__main__":
 - [Home Assistant](home-assistant.md) — Home automation platform consuming CalDAV events.
 - [n8n](n8n.md) — Workflow automation engine for processing calendar reminders.
 - [Caddy](../services/caddy.md) — Modern reverse proxy for TLS termination in front of Radicale.
-- [Fastmail](fastmail.md) — Hosted alternative supporting CalDAV and JMAP protocols.
+- [Fastmail](../tools/calendar_tasks/fastmail.md) — Hosted alternative supporting CalDAV and JMAP protocols.
 
 ## Sources / references
 - [Official Radicale Project Website](https://radicale.org/)

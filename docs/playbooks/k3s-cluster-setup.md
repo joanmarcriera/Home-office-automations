@@ -73,8 +73,8 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 ## Typical use cases
 
 - **Resilient Homelab Core Services**: Hosting critical daily-driver services (Nextcloud, Home Assistant, Authentik, Vaultwarden) with guaranteed uptime during routine node updates or kernel reboots.
-- **Agentic KnowledgeOps Hosting**: Providing a zero-downtime execution environment for autonomous agents ([OpenClaw](../development_ops/openclaw.md), [FastMCP 3.1 Servers](../automation_orchestration/mcp.md)) executing long-running asynchronous workflows.
-- **Local AI Inference Orchestration**: Dynamically scheduling and scaling GPU/NPU workloads ([Ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md), [BreezeTTS2](../process_understanding/breezetts2.md)) across heterogeneous worker nodes with strict affinity rules.
+- **Agentic KnowledgeOps Hosting**: Providing a zero-downtime execution environment for autonomous agents ([OpenClaw](../tools/development_ops/openclaw.md), [FastMCP 3.1 Servers](../tools/automation_orchestration/mcp.md)) executing long-running asynchronous workflows.
+- **Local AI Inference Orchestration**: Dynamically scheduling and scaling GPU/NPU workloads ([Ollama](../services/ollama.md), [vLLM](../tools/infrastructure/vllm.md), [BreezeTTS2](../tools/process_understanding/breezetts2.md)) across heterogeneous worker nodes with strict affinity rules.
 - **Multi-Cloud / Hybrid Edge Nodes**: Connecting offsite VPS instances (Hetzner, AWS) to local bare-metal clusters using Cilium WireGuard mesh networking and Headscale VPN overlays.
 
 ## Strengths
@@ -500,7 +500,7 @@ if __name__ == "__main__":
 - [Authentik](../services/authentik.md): Single Sign-On and OIDC authentication deployed on K3s.
 - [Headscale](../services/headscale.md): Private mesh overlay networking for multi-site K3s node interconnects.
 - [Longhorn](../architecture/infrastructure.md): Distributed block storage for Kubernetes workloads.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md): FastMCP 3.1 protocol for agentic cluster management tools.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md): FastMCP 3.1 protocol for agentic cluster management tools.
 
 ## Sources / references
 

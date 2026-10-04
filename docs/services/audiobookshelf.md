@@ -38,7 +38,7 @@ Audiobookshelf solves these challenges by implementing dedicated data schemas fo
 ## Where it fits in the stack
 Within a self-hosted homelab or enterprise knowledge architecture, Audiobookshelf functions as the **Spoken Word & Audio Knowledge Server**:
 1. **Media Layer**: Sits alongside [Navidrome](navidrome.md) (music) and [Jellyfin](jellyfin.md) (video) as the specialized hub for narrative audio.
-2. **Knowledge Base Ingestion**: Connects with [Knowledge Management](../knowledge_base/README.md) patterns and [n8n](n8n.md) workflows to ingest speech-to-text transcripts into vector databases (e.g., [Qdrant](qdrant.md)).
+2. **Knowledge Base Ingestion**: Connects with [Knowledge Management](../knowledge_base/README.md) patterns and [n8n](n8n.md) workflows to ingest speech-to-text transcripts into vector databases (e.g., [Qdrant](../tools/infrastructure/qdrant.md)).
 3. **Agentic Tooling Integration**: Serves as an MCP resource provider, allowing conversational agents to inspect reading histories and recommend books based on user preferences.
 
 ## Typical use cases
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 - [Plex](plex.md) — Media server platform with broad client device support.
 - [Whisper](whisper.md) — Automatic speech recognition for generating audiobook transcripts.
 - [n8n](n8n.md) — Automation tool for webhook-driven ingestion and notification pipelines.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Agentic framework for exposing media tool APIs.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Agentic framework for exposing media tool APIs.
 - [Authentik](authentik.md) — Identity provider for single sign-on (SSO) authentication.
 
 ## Sources / references
