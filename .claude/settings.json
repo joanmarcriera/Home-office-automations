@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys, json; inp = json.load(sys.stdin); path = inp.get('file_path',''); exit(0) if 'mkdocs.yml' not in path else None\" 2>/dev/null || python3 -c \"import yaml; yaml.safe_load(open('mkdocs.yml')); print('mkdocs.yml: OK')\" 2>&1 || echo 'ERROR: mkdocs.yml syntax invalid — check nav and indentation'"
+            "command": "python3 -c \"import sys,json; p=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); sys.exit(0) if not p.endswith('mkdocs.yml') else None; import yaml; yaml.safe_load(open(p)); print('mkdocs.yml: OK')\" 2>&1 || echo 'ERROR: mkdocs.yml syntax invalid or PyYAML missing'"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"\nimport sys, json\ninp = json.load(sys.stdin)\npath = inp.get('file_path', '')\nif '.github/workflows/' in path:\n    print(f'BLOCKED: Editing workflow files requires explicit user confirmation. File: {path}')\n    sys.exit(2)\n\" 2>/dev/null"
+            "command": "python3 -c \"import sys,json; p=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); (print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'ask','permissionDecisionReason':'Workflow file edits require explicit user confirmation: '+p}})) if '.github/workflows/' in p else None)\""
           }
         ]
       }
