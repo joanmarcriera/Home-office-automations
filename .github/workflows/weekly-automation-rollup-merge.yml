@@ -2,7 +2,11 @@ name: Weekly Automation Rollup Merge
 
 on:
   schedule:
-    - cron: "15 18-23 * * 0" # Sunday 18:15-23:15 UTC — keep retrying until the weekly rollup PR merges
+    # Hourly 18:15-23:15 UTC on days 1,7,13,19,25 (odd days only, ~weekly) —
+    # the evening after odd-day-pipeline.yml ran the growth/pricing producers.
+    # Kept as its own cron rather than a chained job: the retries need
+    # wall-clock spacing for the rollup checks to finish and auto-merge to land.
+    - cron: "15 18-23 1,7,13,19,25 * *"
   workflow_dispatch:
 
 concurrency:

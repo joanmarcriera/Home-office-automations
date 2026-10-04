@@ -1,8 +1,9 @@
 name: Digest to Intake Bridge
 
 on:
-  schedule:
-    - cron: "0 7 1-31/2 * *"  # 07:00 UTC odd days — 1 hour after the digest
+  # Scheduled runs come from odd-day-pipeline.yml, directly after the Daily AI
+  # Digest (it reads the digest committed to the rollup branch).
+  workflow_call:
   workflow_dispatch:
 
 concurrency:

@@ -7,8 +7,15 @@ name: Automation Health Watchdog
 # lanes fail or stall, closed automatically when everything is green.
 
 on:
-  schedule:
-    - cron: "40 5 * * *" # Daily 05:40 UTC, after the overnight lanes settle
+  # Chained, not clocked: runs as soon as the odd-day pipeline finishes, so it
+  # judges the settled pipeline (odd days only) and can rerun that run's failed
+  # jobs straight away. The rerun completing triggers one more scan, which
+  # reports "already rerun once" instead of rerunning again — no loop.
+  # workflow_run only fires from the default branch.
+  workflow_run:
+    workflows: ["Odd-Day Automation Pipeline"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       dry_run:

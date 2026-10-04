@@ -2,8 +2,9 @@ name: Docs Link Health
 
 on:
   pull_request:
-  schedule:
-    - cron: "0 3 * * 0" # Sunday 03:00 UTC
+  # Scheduled runs come from odd-day-pipeline.yml on days 5,11,17,23,29 of the
+  # month (offset from the other weekly lanes).
+  workflow_call:
   workflow_dispatch:
 
 permissions:

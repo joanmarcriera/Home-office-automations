@@ -80,6 +80,13 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 8. PRs opened by the default `GITHUB_TOKEN` do NOT trigger `on: pull_request`
    checks. For `peter-evans/create-pull-request`, pass
    `token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}`.
+9. **No new crons.** Scheduled work runs on odd days of the month only, from ONE
+   entry point: `odd-day-pipeline.yml`. A new lane gets `on: workflow_call` (plus
+   `workflow_dispatch`) and a job in the pipeline with `needs: [<previous lane>]`
+   and `if: ${{ !cancelled() }}`, plus a `permissions:` block covering what the
+   lane needs. Weekly lanes go in the `plan` job's odd day-of-month lists. Never
+   restrict both day-of-month and day-of-week (cron ORs them), and do not chain
+   lanes with `workflow_run`, which GitHub stops after three levels.
 
 ### 5) Issue-to-PR Resolver
 
@@ -151,8 +158,9 @@ Use to make the bots EXPAND coverage toward the industry frontier, not just re-a
 
 ### 12) Automation Health Triage
 
-The watchdog (`automation-health.yml`, daily 05:40 UTC) scans every scheduled
-lane, auto-reruns a failed run's failed jobs once, and maintains ONE
+The watchdog (`automation-health.yml`, chained via `workflow_run` after
+`odd-day-pipeline.yml` completes, so odd days only) scans every scheduled
+lane (a failed pipeline run names the failed lane jobs), auto-reruns a failed run's failed jobs once, and maintains ONE
 `automation-health`-labelled issue (updated in place, auto-closed when green).
 
 1. Read the open `Automation health:` issue — it lists which lanes fail/stall and why.
