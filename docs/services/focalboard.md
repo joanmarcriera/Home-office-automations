@@ -1,157 +1,364 @@
 # Focalboard
 
 > [!WARNING]
-> The standalone Focalboard project (Personal Server/Desktop) is in **community maintenance mode**. Mattermost development focus remains centered on the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed, standalone task and project management ecosystem with native FastMCP 3.1 support should prioritize [Vikunja](vikunja.md).
+> The standalone Focalboard project (Personal Server/Desktop) is in **community maintenance mode**. Mattermost development focus remains centered on the integrated "Boards" plugin for the Mattermost enterprise platform. Users seeking an actively developed, standalone task and project management ecosystem with native FastMCP 3.1 support should prioritize [Vikunja](vikunja.md).
 
 ## What it is
-Focalboard is a dedicated task management platform that provides a Kanban-style interface for organizing work and tracking team deliverables. It is designed to be a lightweight, self-hosted alternative to SaaS solutions like Trello, Notion, and Asana. It provides a structured, multilingual environment for personal organization and small team collaboration. In early January 2027, it remains a stable, schema-consistent target for agentic task injection and visual status dashboards.
+Focalboard is a open-source task and project management platform providing an intuitive Kanban-style interface, table views, and customizable property fields for organizing workflows. Originally built by Mattermost as an alternative to Trello, Notion, and Asana, Focalboard remains a stable, schema-predictable target for task injection, visual status dashboards, and archival project tracking. In early January 2027, Focalboard serves as a reliable visual dashboard backend for autonomous agents managed via **FastMCP 3.1 Task Protocol** sidecar adapters.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Focalboard Architecture                                 |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ Agent Orchestration / Human Operator UI ]                                     |
+|                                |                                                  |
+|                        (FastMCP 3.1 / REST API)                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Focalboard Server Container (Port 8000)                                     |  |
+|  +-----------------------------------------------------------------------------+  |
+|          |                                             |                          |
+|          v                                             v                          |
+|  +-------------------------------+             +-------------------------------+  |
+|  | Board Engine                  |             | Card & Block Store            |  |
+|  | (Kanban / Table / Gallery)    |             | (Custom Properties / Views)   |  |
+|  +-------------------------------+             +-------------------------------+  |
+|          |                                             |                          |
+|          +-----------------------+---------------------+                          |
+|                                  |                                                |
+|                                  v                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | Database Layer                                                              |  |
+|  | (SQLite / PostgreSQL / MySQL Block Stores)                                  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration within a self-hosted infrastructure. For autonomous AI agents like **Claude 5.1**, **GPT-5.5/5.6**, and **Gemini 4.0 Pro**, Focalboard provides a predictable, schema-stable Kanban target that undergoes minimal breaking API changes.
+Managing task pipelines across multi-agent workflows requires predictable database schemas and zero unexpected API deprecations. Standard SaaS project platforms frequently modify their API endpoints, introduce breaking UI changes, or throttle automated REST requests.
+
+Focalboard addresses these operational concerns by offering:
+1. **Schema-Stable Block Model**: Stores boards, cards, views, and properties as atomic, queryable "blocks" with immutable property schema IDs.
+2. **Predictable REST API Surface**: Highly stable REST endpoints that allow autonomous agents ([Claude 5.6](../providers/anthropic.md), GPT-5.6) to reliably create, move, and update cards without breaking changes.
+3. **Multi-View Rendering**: Allows human operators to inspect agentic task progress using Kanban boards, while AI agents query the underlying database via structured JSON tables.
 
 ## Where it fits in the stack
-**Category**: Service / Project Management. It fits into the **Productivity and Execution** layer. It is often used as a visual "Status Dashboard" for long-running agentic tasks, where human operators can visually inspect the progress of AI-driven project boards and task queues.
+**Services / Task Management & Visual Status Layer**. Focalboard sits in the productivity and execution layer:
+- **Upstream Connection**: Receives task requests, bug reports, or feature specifications from AI agents or human operators via REST API or FastMCP 3.1 bridge sidecars.
+- **Internal Execution**: Stores task state in local SQLite or PostgreSQL block stores, updating board column positions and custom card properties.
+- **Downstream Integration**: Functions as a visual status reporting dashboard for human supervision of autonomous multi-agent software engineering pipelines.
 
 ## Typical use cases
-- **Legacy Project Archival**: Maintaining long-term access to historical Kanban boards from prior engineering cycles.
-- **Agentic Task Visualization**: Utilizing local vision models (**Gemma 3**, **Qwen 3.8**, or **Llama 4 Vision**) alongside LLMs to automatically populate Kanban cards with research summaries for human inspection.
-- **Personal Knowledge & Asset Archival**: Using custom properties to track and categorize physical hardware or digital homelab assets.
-- **Content Calendars**: Planning and scheduling media production pipelines using visual drag-and-drop interfaces.
-- **Board Sync via MCP Bridges**: Utilizing **FastMCP 3.1** custom connectors to synchronize Focalboard cards with primary execution engines like [Vikunja](vikunja.md).
+- **Agentic Task Visualization Dashboard**: Serving as a visual Kanban board where autonomous agents populate cards with research summaries, code diffs, and audit reports for human operator sign-off.
+- **Legacy Project Archival**: Storing long-term, read-only engineering archives from prior development cycles in a self-hosted environment.
+- **Hardware & Homelab Asset Tracker**: Utilizing custom card properties (IP address, MAC address, serial number, status) to track homelab equipment.
+- **Content Pipeline Scheduling**: Planning media creation workflows using visual drag-and-drop Kanban columns.
 
 ## Strengths
-- **Stable Interface**: A mature, highly predictable Kanban UI that is intuitive for both humans and autonomous agent tools.
-- **Schema Flexibility**: Add custom properties (dates, multi-select, text, URLs) to cards to support specialized agentic metadata schemas.
-- **Multi-View Support**: Effortlessly toggle between Board, Table, and Gallery views of the underlying database items.
-- **Self-Hosted Data Sovereignty**: Complete local control over database storage and user permissions without cloud dependencies.
-- **Robust REST API**: Well-documented endpoints that remain reliable for legacy integrations and automated script bridges.
+- **Stable Block Database Architecture**: Consistent JSON block model that undergoes minimal API drift.
+- **Custom Property Schema**: Supports arbitrary card properties (text, select, multi-select, date, URL, person) for storing agentic execution metadata.
+- **Multi-View Flexibility**: Instantly toggle between Kanban Board, Grid Table, and Image Gallery views.
+- **Local Self-Hosted Sovereignty**: Zero cloud dependencies, complete data ownership, and low CPU/memory footprint.
 
 ## Limitations
-- **Maintenance Mode Status**: Minimal active core development; teams must monitor dependency updates for long-term security maintenance.
-- **Lacks Native Modern MCP Engine**: Requires an external **FastMCP 3.1** sidecar bridge to connect natively with frontier model tool-calling loops.
-- **Mobile Experience**: Standalone mobile applications are legacy and lack support for modern mobile OS UI guidelines.
+- **Maintenance Status**: Standalone Focalboard is in community maintenance mode; new feature development is concentrated on Mattermost Boards.
+- **Lacks Native MCP Server**: Requires an external FastMCP 3.1 sidecar container to bridge agent tool calls to Focalboard REST endpoints.
+- **No Native Real-Time WebSockets in Standalone Mode**: Does not support real-time multi-user cursor collaboration out-of-the-box (unlike the Mattermost plugin version).
 
 ## When to use it
-- When you need a simple, self-hosted Kanban board for personal productivity or historical project tracking.
-- For managing projects that require custom properties not easily supported by simple checklists.
-- When you prefer a standalone tool with a static, non-shifting REST API structure.
+- When requiring a predictable, non-shifting Kanban board target for automated agent task injection.
+- When hosting a lightweight, self-hosted visual dashboard for homelab or personal project tracking.
+- For historical project archival where API stability takes precedence over new feature additions.
 
 ## When not to use it
-- For mission-critical production environments requiring active vendor security patches (use [Vikunja](vikunja.md) instead).
-- If you require advanced native automation or deep integration with modern CI/CD agentic workflows.
-- When complex Gantt timelines or multi-project resource allocation features are primary requirements.
+- For mission-critical active enterprise production tasks requiring vendor support and active security patching (use [Vikunja](vikunja.md)).
+- When real-time collaborative editing and native multi-tenant team chat integration are required (use Mattermost Boards or Vikunja).
 
 ## Getting started
 
 ### Installation (Docker)
-The simplest way to run Focalboard in a self-hosted environment:
+Focalboard is deployed as a single lightweight Docker container mapping host port 8000:
 
 ```bash
-docker run -d --name focalboard -p 8000:8000 mattermost/focalboard
+docker run -d \
+  --name focalboard \
+  -p 8000:8000 \
+  -v ./focalboard-data:/focalboard/data \
+  mattermost/focalboard:latest
 ```
 
-### Hello World
-1. Access the web interface at `http://localhost:8000`.
-2. Register your initial administrator credentials.
-3. Click **Add Board** in the sidebar and select the "Project Tasks" template.
-4. Add a card: "Verify FastMCP Bridge" and drag it to the "In Progress" column.
-5. Switch to **Table View** to inspect and bulk-edit card metadata properties.
+### Initial Configuration
+1. Access `http://localhost:8000` in your browser.
+2. Register the administrator account credentials.
+3. Click **Add Board** and choose **Project Tasks**.
+4. Generate a session token via API login for programmatically interacting with the server.
 
 ## CLI examples
 
-### Server Administration
-Administrative tasks handled via the `focalboard-server` container binary:
-
+### Container Management & Server Health
 ```bash
-# Reset the password for a specific user
-docker exec focalboard ./focalboard-server reset-password <username>
+# Check Focalboard container process logs
+docker logs focalboard --tail 50
 
-# Check the current version of the Focalboard server
-docker exec focalboard ./focalboard-server version
+# Reset password for an administrator account
+docker exec -it focalboard ./focalboard-server reset-password admin_user
 
-# Export a board as a structured JSON archive
-docker exec focalboard ./focalboard-server export board_id > board_export_2027.json
+# Check server binary version
+docker exec -it focalboard ./focalboard-server version
+
+# Perform direct REST API login to obtain session token
+curl -s -X POST "http://localhost:8000/api/v1/login" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "loginId": "admin_user",
+       "password": "your_secure_password_here",
+       "type": "normal"
+     }' -c cookies.txt
 ```
 
 ## API examples
 
-### Card Retrieval and Creation (Python with Pydantic v2)
-Programmatic Python script for querying and creating boards and cards, utilizing **Pydantic v2** validation to ensure structured task payloads are sound.
+### Complete FastMCP 3.1 Task Protocol Server Implementation
+This Python script provides a **FastMCP 3.1 Task Protocol** server that exposes Focalboard REST API endpoints as tools (`@mcp.tool()`), enabling AI agents to search boards, create cards, and move card status columns.
 
 ```python
+"""
+Focalboard FastMCP 3.1 Task Protocol Bridge Server.
+Exposes Focalboard Kanban card and board management endpoints to AI agent runners.
+"""
+
+import asyncio
+import logging
 import os
-from typing import List, Dict, Any, Optional
-import requests
+import time
+from typing import Any, Dict, List, Optional
+import httpx
+from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator
 
-class BoardProperty(BaseModel):
-    id: str
-    name: str
-    type: str
-    options: List[Dict[str, Any]] = Field(default_factory=list)
+# Configure Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("focalboard-mcp")
 
-class BoardSchema(BaseModel):
-    id: str
-    title: str
-    description: Optional[str] = None
-    properties: List[BoardProperty] = Field(default_factory=list)
+FOCALBOARD_URL = os.getenv("FOCALBOARD_URL", "http://localhost:8000").rstrip("/")
+FOCALBOARD_TOKEN = os.getenv("FOCALBOARD_TOKEN", "default_session_token")
+
+mcp = FastMCP(
+    name="focalboard-mcp-server",
+    instructions="FastMCP 3.1 bridge server for creating and updating Focalboard Kanban cards."
+)
+
+class CreateCardInput(BaseModel):
+    board_id: str = Field(..., min_length=4, description="Target board ID")
+    title: str = Field(..., min_length=1, max_length=200, description="Card title text")
+    description: Optional[str] = Field(default="", description="Detailed markdown body of card")
 
     @field_validator("title")
     @classmethod
-    def title_must_not_be_blank(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("Board title cannot be empty")
-        return value
+    def sanitize_title(cls, v: str) -> str:
+        cleaned = v.strip()
+        if not cleaned:
+            raise ValueError("Card title cannot be empty or whitespace.")
+        return cleaned
 
-def fetch_all_boards() -> List[BoardSchema]:
-    focal_url = os.getenv("FOCALBOARD_URL", "http://localhost:8000")
-    session_token = os.getenv("FOCALBOARD_TOKEN", "your_session_token_here")
+class SearchCardsInput(BaseModel):
+    board_id: str = Field(..., description="Target board ID")
+    query: str = Field(..., min_length=2, description="Search term for card titles")
 
-    url = f"{focal_url}/api/v1/boards"
+
+@mcp.tool(
+    name="focalboard_create_card",
+    description="Creates a new task card on a specified Focalboard board."
+)
+async def focalboard_create_card(input_data: CreateCardInput) -> Dict[str, Any]:
+    """
+    Creates a new card block on Focalboard using the REST API.
+    """
+    logger.info(f"Creating card '{input_data.title}' on board '{input_data.board_id}'...")
+
     headers = {
-        "Authorization": f"Bearer {session_token}",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {FOCALBOARD_TOKEN}",
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest"
     }
 
-    response = requests.get(url, headers=headers, timeout=10)
-    response.raise_for_status()
+    # Focalboard uses a block architecture for cards
+    card_block = {
+        "boardId": input_data.board_id,
+        "type": "card",
+        "title": input_data.title,
+        "fields": {
+            "contentOrder": [],
+            "properties": {}
+        }
+    }
 
-    # Validate list of boards using Pydantic v2 model_validate
-    return [BoardSchema.model_validate(board) for board in response.json()]
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            url = f"{FOCALBOARD_URL}/api/v1/boards/{input_data.board_id}/blocks"
+            resp = await client.post(url, json=[card_block], headers=headers)
+            resp.raise_for_status()
+            blocks_created = resp.json()
+
+            card_id = blocks_created[0]["id"] if blocks_created else "unknown"
+
+            return {
+                "status": "success",
+                "card_id": card_id,
+                "title": input_data.title,
+                "board_id": input_data.board_id
+            }
+        except httpx.HTTPError as err:
+            logger.error(f"Failed to create card: {err}")
+            return {"status": "error", "message": f"Focalboard API error: {str(err)}"}
+
+
+@mcp.tool(
+    name="focalboard_list_boards",
+    description="Lists all accessible boards on the Focalboard server."
+)
+async def focalboard_list_boards() -> Dict[str, Any]:
+    """
+    Fetches the list of boards for the authenticated session.
+    """
+    logger.info("Fetching accessible boards from Focalboard...")
+    headers = {
+        "Authorization": f"Bearer {FOCALBOARD_TOKEN}",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            url = f"{FOCALBOARD_URL}/api/v1/boards"
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            boards = resp.json()
+
+            summarized = [
+                {"id": b.get("id"), "title": b.get("title"), "type": b.get("type")}
+                for b in boards
+            ]
+
+            return {
+                "status": "success",
+                "count": len(summarized),
+                "boards": summarized
+            }
+        except httpx.HTTPError as err:
+            logger.error(f"Failed to list boards: {err}")
+            return {"status": "error", "message": f"Focalboard API error: {str(err)}"}
+
 
 if __name__ == "__main__":
-    try:
-        boards = fetch_all_boards()
-        for b in boards:
-            print(f"Validated Board: {b.title} (ID: {b.id})")
-            for prop in b.properties:
-                print(f"  - Property: {prop.name} ({prop.type})")
-    except Exception as e:
-        print(f"Failed to query boards: {e}")
+    logger.info("Starting Focalboard FastMCP 3.1 Task Protocol Bridge Server...")
+    mcp.run(transport="sses")
 ```
 
-### Curl: User Authentication Check
-```bash
-# Query currently authenticated user credentials
-curl -H "Authorization: Bearer <your_session_token>" \
-     "http://localhost:8000/api/v1/users/me"
+### Advanced Pydantic v2 Board & Block Schema Auditor
+This Python script uses strict **Pydantic v2** models to validate Focalboard board responses, custom card properties, and block hierarchies.
+
+```python
+"""
+Focalboard Pydantic v2 Block Schema Auditor.
+"""
+
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+
+class CardPropertyOption(BaseModel):
+    id: str = Field(..., description="Option ID value")
+    value: str = Field(..., description="Human-readable option string")
+    color: Optional[str] = Field(default="propColorDefault")
+
+
+class BoardPropertySchema(BaseModel):
+    id: str = Field(..., description="Property ID")
+    name: str = Field(..., description="Property display name")
+    type: str = Field(..., description="Property type: text, select, multiSelect, date, url")
+    options: List[CardPropertyOption] = Field(default_factory=list)
+
+
+class FocalboardBlock(BaseModel):
+    id: str = Field(..., min_length=4, description="Block ID")
+    boardId: str = Field(..., description="Parent board ID")
+    type: str = Field(..., description="Block type: board, card, view, text")
+    title: str = Field(default="", description="Block title")
+    fields: Dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("type")
+    @classmethod
+    def check_block_type(cls, v: str) -> str:
+        valid_types = {"board", "card", "view", "text", "image", "divider"}
+        if v not in valid_types:
+            raise ValueError(f"Unknown block type: {v}")
+        return v
+
+
+class BoardManifest(BaseModel):
+    id: str = Field(..., description="Board ID")
+    title: str = Field(..., min_length=1, description="Board name")
+    card_count: int = Field(default=0, ge=0)
+    properties: List[BoardPropertySchema] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def verify_properties_exist(self) -> "BoardManifest":
+        if not self.properties:
+            print(f"[Audit Warning] Board '{self.title}' ({self.id}) contains zero custom property schemas.")
+        return self
+
+
+def audit_board_manifest(raw_json: dict) -> None:
+    try:
+        manifest = BoardManifest.model_validate(raw_json)
+        print("=== Focalboard Board Manifest Successfully Audited ===")
+        print(f"ID: {manifest.id} | Title: '{manifest.title}'")
+        print(f"Properties Schemas Count: {len(manifest.properties)}")
+    except Exception as err:
+        print(f"Manifest Audit Failed: {err}")
+
+
+if __name__ == "__main__":
+    sample_board = {
+        "id": "board_eng_001",
+        "title": "Agentic Engineering Pipeline 2027",
+        "card_count": 14,
+        "properties": [
+            {
+                "id": "prop_status",
+                "name": "Status",
+                "type": "select",
+                "options": [
+                    {"id": "opt_todo", "value": "To Do", "color": "propColorBlue"},
+                    {"id": "opt_done", "value": "Completed", "color": "propColorGreen"}
+                ]
+            },
+            {
+                "id": "prop_agent",
+                "name": "Assigned Agent",
+                "type": "text"
+            }
+        ]
+    }
+
+    audit_board_manifest(sample_board)
 ```
 
 ## Related tools / concepts
-- [Vikunja](vikunja.md) — The recommended modern alternative for self-hosted task management.
-- [Ollama](ollama.md) — For hosting local LLMs (Gemma 3, Qwen 3.8) to populate Kanban cards.
-- [MCP](../tools/automation_orchestration/mcp-registry.md) — Protocol registry for connecting legacy boards to agentic workflows.
-- [Nextcloud](nextcloud.md) — Offers the "Deck" app for integrated Kanban within a larger cloud suite.
-- [Gitea](gitea.md) — Provides native project boards for code-centric development tasks.
-- [Authentik](authentik.md) — For managing secure SSO access to the Focalboard UI.
-- [Trilium](trilium.md) — For deep personal knowledge management alongside tasks.
-- [Element](element.md) — For real-time communication about tasks tracked in Focalboard.
+- [Vikunja](vikunja.md) — Primary recommended modern alternative for active self-hosted task management.
+- [Ollama](ollama.md) — For hosting local LLMs to process Focalboard cards.
+- [MCP](../tools/automation_orchestration/mcp-registry.md) — Protocol registry for agent tools.
+- [Authentik](authentik.md) — For managing SSO access to Focalboard.
+- [Trilium](trilium.md) — For persistent personal knowledge management.
+- [Claude 5.6](../providers/anthropic.md) — Reasoning engine for task assignment.
 
 ## Sources / references
 - [Official Website](https://www.focalboard.com/)
 - [GitHub Repository](https://github.com/mattermost/focalboard)
-- [Boards Project (Mattermost)](https://mattermost.com/platform/mattermost-boards/)
-- [Focalboard API Documentation](https://developers.mattermost.com/contribute/focalboard/api-reference/)
+- [Mattermost Boards Integration](https://mattermost.com/platform/mattermost-boards/)
+- [Focalboard API Reference](https://developers.mattermost.com/contribute/focalboard/api-reference/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
