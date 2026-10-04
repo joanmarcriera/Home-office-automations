@@ -56,7 +56,7 @@ Tavily solves these challenges by providing a managed, agent-first search layer 
 Tavily typically integrates with:
 - **Agent Orchestrators**: [DeerFlow](../agents/deerflow.md), [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), and [AutoGPT](../agents/autogpt.md).
 - **Protocol Clients**: [FastMCP 3.1](../automation_orchestration/mcp.md) servers, enabling Claude Desktop, VS Code, and open-source agent workbenches to search the web as a native tool.
-- **RAG & Vector Frameworks**: [LlamaIndex](../frameworks/llamaindex.md) and [LangChain](../frameworks/langchain.md) for web-augmented context ingestion.
+- **RAG & Vector Frameworks**: [LlamaIndex](../ai_knowledge/llamaindex.md) and [LangChain](../ai_knowledge/langchain.md) for web-augmented context ingestion.
 - **AI Cloud Infrastructure**: Deeply hosted and scaled within the Nebius AI cloud platform.
 
 ## Typical use cases

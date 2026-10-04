@@ -1,7 +1,7 @@
 # CoreWeave
 
 ## What it is
-CoreWeave is a specialized cloud hyper-scaler purpose-built for high-performance computing (HPC), AI/ML model training, large-scale inference, and GPU-accelerated rendering workflows. As of early 2027, CoreWeave operates expansive ultra-low latency compute clusters powered by NVIDIA H100, H200, B200, and GB200 NVL72 architectures connected via NVIDIA Quantum-2 InfiniBand networking. CoreWeave provides bare-metal and Kubernetes-native GPU infrastructure optimized for distributed training frameworks (e.g., Megatron-LM, DeepSpeed, Ray), high-throughput inference backends like [vLLM](./vllm.md) and [Triton Inference Server](../development_ops/triton.md), and automated FastMCP 3.1 agent execution workloads.
+CoreWeave is a specialized cloud hyper-scaler purpose-built for high-performance computing (HPC), AI/ML model training, large-scale inference, and GPU-accelerated rendering workflows. As of early 2027, CoreWeave operates expansive ultra-low latency compute clusters powered by NVIDIA H100, H200, B200, and GB200 NVL72 architectures connected via NVIDIA Quantum-2 InfiniBand networking. CoreWeave provides bare-metal and Kubernetes-native GPU infrastructure optimized for distributed training frameworks (e.g., Megatron-LM, DeepSpeed, Ray), high-throughput inference backends like [vLLM](./vllm.md) and [Triton Inference Server](triton.md), and automated FastMCP 3.1 agent execution workloads.
 
 ## What problem it solves
 Traditional legacy cloud providers (e.g., AWS, GCP, Azure) often suffer from GPU availability constraints, high virtualization overhead, slow cross-node communication interconnects, and expensive egress fees. CoreWeave solves these critical issues by delivering bare-metal Kubernetes GPU clusters equipped with up to 3.2 Tbps InfiniBand fabrics per node, non-blocking network topologies, fast object storage, and dedicated vLLM / TensorRT-LLM serverless inference endpoints. This allows AI engineering teams to train frontier models and deploy sub-50ms latency agent clusters with lower infrastructure cost and maximum hardware utilization.
@@ -164,10 +164,10 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [vLLM](./vllm.md) — High-throughput LLM serving engine frequently deployed on CoreWeave.
-- [Nebius](./nebius.md) — Alternative AI-dedicated GPU cloud provider.
+- [Nebius](../providers/nebius.md) — Alternative AI-dedicated GPU cloud provider.
 - [Docker](./docker.md) — Container runtime utilized in CoreWeave Kubernetes pods.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Protocol for agent interaction over CoreWeave hosted endpoints.
-- [Triton Inference Server](../development_ops/triton.md) — Enterprise inference serving software.
+- [Triton Inference Server](triton.md) — Enterprise inference serving software.
 
 ## Sources / references
 - [CoreWeave Official Website](https://www.coreweave.com)

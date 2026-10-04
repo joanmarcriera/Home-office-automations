@@ -219,7 +219,7 @@ except ValidationError as ex:
 ## Related tools / concepts
 - [GraphRAG](../frameworks/graphrag.md) — Knowledge graph-based retrieval augmented generation engine.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Universal protocol for agent tool integrations.
-- [Paperless-AI](../services/paperless-ai.md) — Local AI document management and indexing platform.
+- [Paperless-AI](../../services/paperless-ai.md) — Local AI document management and indexing platform.
 - [Smolagents](../frameworks/smolagents.md) — Lightweight agent framework developed by Hugging Face.
 
 ## Sources / references
