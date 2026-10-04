@@ -9,6 +9,7 @@ do not automatically emit pull_request-triggered workflow runs.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import PurePosixPath
@@ -122,7 +123,9 @@ def main() -> int:
             head_sha=args.head_sha,
             inputs=workflow.get("inputs", ()),
         )
-        print(f"Triggered {workflow['file']} on {args.ref}.")
+        # Under the CI dry-run gh shim the dispatch above is only logged.
+        verb = "Would trigger" if os.environ.get("DRY_RUN") == "true" else "Triggered"
+        print(f"{verb} {workflow['file']} on {args.ref}.")
         dispatched += 1
 
     print(f"Triggered {dispatched} workflow(s).")

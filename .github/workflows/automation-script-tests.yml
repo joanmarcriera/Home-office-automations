@@ -1,0 +1,53 @@
+name: Automation Script Tests
+
+# Unit tests for the safety gates of the unattended pipeline (branch pruning,
+# planner dedupe) and a smoke test of the dry-run gh shim. Offline: gh is
+# mocked in the Python tests; the shim test only checks interception.
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - ".github/workflows/automation-script-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python unit tests
+        run: |
+          set -euo pipefail
+          for t in test_prune_stale_branches.py test_weekly_planner.py; do
+            python3 -m unittest discover -s scripts -p "$t" -v
+          done
+
+      - name: Dry-run gh shim intercepts writes
+        run: |
+          set -euo pipefail
+          bash scripts/ci/install_gh_dry_run_shim.sh
+          shim="$RUNNER_TEMP/gh-dry-run-shim/gh"
+          expect_intercept() {
+            out=$("$shim" "$@" 2>&1) || { echo "shim failed for: $*"; exit 1; }
+            case "$out" in *"[dry-run] would run: gh"*) ;; *) echo "NOT intercepted: $*"; exit 1 ;; esac
+          }
+          expect_intercept issue create --title t --body b
+          expect_intercept pr merge 1 --auto
+          expect_intercept workflow run x.yml
+          expect_intercept api -X DELETE repos/o/r/git/refs/heads/x
+          expect_intercept api repos/o/r/labels -f name=x
+          expect_intercept api graphql -f 'query=mutation { x }'
+          expect_intercept api graphql --input body.json
+          echo "All mutating calls intercepted."

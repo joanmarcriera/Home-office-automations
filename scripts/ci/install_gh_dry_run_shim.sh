@@ -63,8 +63,10 @@ if [ "${1:-}" = "api" ]; then
   done
   method="$(printf '%s' "$method" | tr '[:lower:]' '[:upper:]')"
   # A GraphQL query with fields is a read unless it is a mutation.
+  # A body passed with --input cannot be inspected here, so it counts as a write.
   if [ "${2:-}" = "graphql" ]; then
-    if printf '%s\n' "$@" | grep -qiE '(^|[^a-z])mutation([^a-z]|$)'; then
+    if printf '%s\n' "$@" | grep -qE '^--input' ||
+       printf '%s\n' "$@" | grep -qiE '(^|[^a-z])mutation([^a-z]|$)'; then
       say "$@"; echo '{}'; exit 0
     fi
     exec "$REAL_GH" "$@"
