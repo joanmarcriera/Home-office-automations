@@ -323,7 +323,7 @@ Follow this runbook when setting up ASDiv evaluation pipelines in automated CI/C
 - [EvalPlus](evalplus.md) — Automated LLM code generation evaluation harness.
 - [BigCodeBench](bigcodebench.md) — Benchmark for evaluating complex code generation capabilities.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol standard for tool execution and context injection.
-- [FastMCP](../../knowledge_base/patterns/mcp-fastmcp-architecture.md) — High-performance Python framework for building MCP servers.
+- FastMCP — High-performance Python framework for building MCP servers.
 - [ZSE Engine](../infrastructure/zse.md) — Low-latency scale-to-zero inference runner for local evaluation loops.
 
 ## Sources / references

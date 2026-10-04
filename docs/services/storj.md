@@ -389,7 +389,7 @@ Follow this operational checklist when troubleshooting latency spikes or upload 
 - [Paperless-ngx](paperless-ngx.md) — Secure document archive backed by Storj S3.
 - [Jellyfin](jellyfin.md) — Media server utilizing S3 object storage for video libraries.
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized protocol for AI tool integration.
-- [FastMCP](../../knowledge_base/patterns/mcp-fastmcp-architecture.md) — Framework for building typed MCP tool servers.
+- FastMCP — Framework for building typed MCP tool servers.
 - [Authentik](authentik.md) — Identity provider securing S3 gateway access.
 
 ## Sources / references

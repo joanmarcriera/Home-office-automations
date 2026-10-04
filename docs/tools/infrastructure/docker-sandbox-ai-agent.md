@@ -277,7 +277,7 @@ except ValidationError as err:
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Standard framework for building high-performance MCP servers.
 - [Open-Interpreter](../automation_orchestration/open-interpreter.md) — Natural language interface for executing local computer code.
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) — Containerized MCP environment designed for Claude agentic execution.
-- [gVisor](../infrastructure/gvisor.md) — Application kernel providing sandbox isolation for containers.
+- gVisor — Application kernel providing sandbox isolation for containers.
 
 ## Sources / references
 - [Docker Security for AI Workloads](https://www.infoq.com/news/2026/10/docker-sandbox-ai-agent/)

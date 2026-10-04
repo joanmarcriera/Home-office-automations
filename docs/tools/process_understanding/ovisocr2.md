@@ -74,7 +74,7 @@ Legacy document parsing architectures rely on fragmented, multi-stage pipelines 
 - As a lightweight, high-performance alternative to heavier multi-stage document processors like [Docling](docling.md) or [Unstructured](../intake_storage/unstructured.md).
 
 ## When not to use it
-- For general-purpose visual dialogue, object detection, or natural image description — use [Moondream](../ai_knowledge/moondream.md) or [Qwen-VL](qwen-vl.md).
+- For general-purpose visual dialogue, object detection, or natural image description — use [Moondream](../ai_knowledge/moondream.md) or [Qwen-VL](../ai_knowledge/qwen.md).
 - When your application requires direct output to proprietary binary formats like Microsoft Word (.docx) or Excel (.xlsx) — use [Docling](docling.md).
 
 ## Getting started
