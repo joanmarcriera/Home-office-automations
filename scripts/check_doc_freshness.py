@@ -70,7 +70,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    today = dt.date.today()
+    today = dt.datetime.now(dt.timezone.utc).date()
     stale_any = False
     report_lines: list[str] = []
 
@@ -88,7 +88,17 @@ def main() -> int:
             continue
 
         age_days = (today - reviewed).days
-        if age_days > args.max_days:
+        if age_days < -1:
+            # A review date in the future (beyond timezone slack) cannot be
+            # true: it came from an agent sandbox with a skewed clock, and left
+            # alone it would read as "fresh" until that date arrives. Treat it
+            # as stale so the doc gets re-verified and re-stamped.
+            report_lines.append(
+                f"{raw}: FUTURE-DATED (last reviewed {reviewed.isoformat()} is "
+                f"{-age_days} days ahead of today; treat as unreviewed)"
+            )
+            stale_any = True
+        elif age_days > args.max_days:
             report_lines.append(
                 f"{raw}: STALE ({age_days} days old, last reviewed {reviewed.isoformat()})"
             )

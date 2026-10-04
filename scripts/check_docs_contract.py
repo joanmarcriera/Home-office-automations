@@ -65,6 +65,12 @@ def extract_section_body(text: str, header_match: re.Match[str]) -> str:
     return remainder[: next_heading.start()]
 
 
+def warn_if_future(value: str) -> bool:
+    """True if an ISO date lies more than a day after today (UTC)."""
+    today = dt.datetime.now(dt.timezone.utc).date()
+    return dt.date.fromisoformat(value) > today + dt.timedelta(days=1)
+
+
 def validate_file(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
     errors: list[str] = []
@@ -84,6 +90,12 @@ def validate_file(path: Path) -> list[str]:
         date_value = last_reviewed_match.group(1)
         if not validate_date(date_value):
             errors.append("`Last reviewed` must be a valid ISO date (YYYY-MM-DD).")
+        elif warn_if_future(date_value):
+            # Warning, not error: ~800 docs already carry agent-clock dates from
+            # 2027, and failing every PR that touches one would stall the
+            # pipeline. The annotation makes new ones visible in the PR.
+            print(f"::warning file={path}::`Last reviewed: {date_value}` is in the future "
+                  "(agent sandbox clock skew?) — use the real review date.")
 
     if not CONFIDENCE_RE.search(text):
         errors.append("Missing `- Confidence: high|medium|low` metadata line.")
