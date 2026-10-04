@@ -282,6 +282,12 @@
       "doc_path": "docs/tools/frameworks/aws-kiro.md"
     },
     {
+      "id": "aws-strands-decider-model",
+      "name": "AWS Strands Decider Model",
+      "category": "AI Knowledge Base",
+      "doc_path": "docs/tools/ai_knowledge/aws-strands-decider-model.md"
+    },
+    {
       "id": "axiom-guardian",
       "name": "Axiom Guardian",
       "category": "Development & Ops",
@@ -832,6 +838,12 @@
       "doc_path": "docs/tools/ai_knowledge/dify.md"
     },
     {
+      "id": "digitalocean-managed-agents",
+      "name": "DigitalOcean Managed Agents",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/digitalocean-managed-agents.md"
+    },
+    {
       "id": "diskover",
       "name": "Diskover",
       "category": "Intake & Storage",
@@ -1093,6 +1105,12 @@
       "name": "Free Will MCP",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/free-will-mcp.md"
+    },
+    {
+      "id": "frognano-4b",
+      "name": "FrogNano 4B",
+      "category": "AI Knowledge Base",
+      "doc_path": "docs/tools/ai_knowledge/frognano-4b.md"
     },
     {
       "id": "fully-offline-assistant",
@@ -1794,6 +1812,12 @@
       "name": "Liquid AI",
       "category": "Model Providers & API Services",
       "doc_path": "docs/tools/providers/liquid-ai.md"
+    },
+    {
+      "id": "liquid-ai-fm",
+      "name": "Liquid AI FM",
+      "category": "AI Knowledge Base",
+      "doc_path": "docs/tools/ai_knowledge/liquid-ai-fm.md"
     },
     {
       "id": "litellm",
@@ -3400,6 +3424,12 @@
       "name": "Udio",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/udio.md"
+    },
+    {
+      "id": "unifolm-wla10",
+      "name": "UniFolm-WLA10",
+      "category": "AI Knowledge Base",
+      "doc_path": "docs/tools/ai_knowledge/unifolm-wla10.md"
     },
     {
       "id": "unsloth",
