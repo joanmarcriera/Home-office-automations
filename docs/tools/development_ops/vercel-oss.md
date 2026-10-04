@@ -339,7 +339,7 @@ Generative UI in Vercel OSS bridges LLM structured outputs directly with client-
 - [Claude 5.1](../ai_knowledge/claude.md) — Anthropic frontier model integrated with AI SDK streaming.
 - [GPT-5.5](../ai_knowledge/chatgpt.md) — Multi-modal OpenAI model supported across AI SDK tools.
 - [Supabase](../infrastructure/supabase.md) — Open-source Postgres and vector database pair for Vercel applications.
-- [FastMCP 3.1](../../knowledge_base/patterns/mcp-fastmcp-architecture.md) — Protocol framework for tool-calling integration.
+- FastMCP 3.1 — Protocol framework for tool-calling integration.
 
 ## Sources / references
 - [Vercel Open Source Portal](https://vercel.com/oss)

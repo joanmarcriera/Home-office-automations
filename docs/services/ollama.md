@@ -286,7 +286,7 @@ print("\n")
 - [Docker](../tools/infrastructure/docker.md) — Primary container engine for hosting Ollama instances.
 - [Portracker](portracker.md) — Homelab utility for tracking reserved local networking ports like 11434.
 - [Nextcloud](nextcloud.md) — Self-hosted productivity suite with native local AI integration via Ollama.
-- [FastMCP 3.1](../automation_orchestration/mcp.md) — Model Context Protocol framework for agentic tool integration.
+- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — Model Context Protocol framework for agentic tool integration.
 
 ## Sources / references
 - [Ollama Official Website](https://ollama.com/)

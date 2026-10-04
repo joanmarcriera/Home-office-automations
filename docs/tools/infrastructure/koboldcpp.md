@@ -307,7 +307,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 
-- [Ollama](ollama.md) — High-level containerized local model manager.
+- [Ollama](../../services/ollama.md) — High-level containerized local model manager.
 - [Open WebUI](../../services/open-webui.md) — Feature-rich web frontend compatible with KoboldCPP.
 - [vLLM](../infrastructure/vllm.md) — High-throughput enterprise serving engine for unquantized models.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting AI agents to local model tools.

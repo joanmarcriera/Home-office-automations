@@ -41,7 +41,7 @@ Managing task pipelines across multi-agent workflows requires predictable databa
 
 Focalboard addresses these operational concerns by offering:
 1. **Schema-Stable Block Model**: Stores boards, cards, views, and properties as atomic, queryable "blocks" with immutable property schema IDs.
-2. **Predictable REST API Surface**: Highly stable REST endpoints that allow autonomous agents ([Claude 5.6](../providers/anthropic.md), GPT-5.6) to reliably create, move, and update cards without breaking changes.
+2. **Predictable REST API Surface**: Highly stable REST endpoints that allow autonomous agents ([Claude 5.6](../tools/providers/anthropic.md), GPT-5.6) to reliably create, move, and update cards without breaking changes.
 3. **Multi-View Rendering**: Allows human operators to inspect agentic task progress using Kanban boards, while AI agents query the underlying database via structured JSON tables.
 
 ## Where it fits in the stack
@@ -352,7 +352,7 @@ if __name__ == "__main__":
 - [MCP](../tools/automation_orchestration/mcp-registry.md) — Protocol registry for agent tools.
 - [Authentik](authentik.md) — For managing SSO access to Focalboard.
 - [Trilium](trilium.md) — For persistent personal knowledge management.
-- [Claude 5.6](../providers/anthropic.md) — Reasoning engine for task assignment.
+- [Claude 5.6](../tools/providers/anthropic.md) — Reasoning engine for task assignment.
 
 ## Sources / references
 - [Official Website](https://www.focalboard.com/)

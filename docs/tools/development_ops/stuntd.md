@@ -223,7 +223,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Unsloth Studio](unsloth-studio.md) — Interactive fine-tuning studio.
 - [OpenVINO](openvino.md) — Cross-platform AI inference optimization toolkit.
-- [Sentry](../../knowledge_base/process_understanding/sentry.md) — Error tracking and monitoring framework.
+- [Sentry](../process_understanding/sentry.md) — Error tracking and monitoring framework.
 - [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agent tool integration.
 
 ## Sources / References

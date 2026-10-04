@@ -70,7 +70,7 @@ ZSE operates within the **Execution Plane / Inference Infrastructure** layer of 
 ## When not to use it
 - For high-throughput enterprise SaaS backends serving thousands of sustained concurrent queries per second (use [vLLM](vllm.md) or [SGLang](sglang.md)).
 - When you require a simple end-user desktop chat application with built-in GUI (use [Ollama](../../services/ollama.md) or [LM Studio](../ai_knowledge/local_llms.md)).
-- For specialized multi-GPU cluster training or fine-tuning workloads (use [DeepSpeed](../infrastructure/deepspeed.md) or [TRT-LLM](trt-llm.md)).
+- For specialized multi-GPU cluster training or fine-tuning workloads (use [DeepSpeed](../frameworks/deepspeed.md) or TRT-LLM).
 
 ## Getting started
 

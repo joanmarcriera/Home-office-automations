@@ -15,7 +15,7 @@ HeyGen eliminates these bottlenecks by enabling code-driven, zero-latency video 
 - **Digital Twin Maintenance**: Allowing executives, educators, and creators to record high-fidelity digital avatars once and generate infinite content on demand.
 
 ## Where it fits in the stack
-**Category**: [AI Assistants & Knowledge](../index.md) / Generative Media & Visual Interaction Layer.
+**Category**: [AI Assistants & Knowledge](index.md) / Generative Media & Visual Interaction Layer.
 
 HeyGen operates as the **Visual Interaction Gateway** in modern multi-agent systems. Positioned between backend orchestration frameworks (e.g., LangGraph, Agno, FastMCP 3.1 servers) and end-user client surfaces (web applications, mobile apps, digital kiosks), HeyGen converts raw text or structured agent outputs into live video streams or downloadable MP4 assets.
 

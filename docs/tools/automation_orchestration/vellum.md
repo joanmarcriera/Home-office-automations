@@ -84,7 +84,7 @@ Vellum operates as a multi-tiered desktop runtime composed of five primary subsy
 - When requiring strong privacy controls where operational memory must not leave the local filesystem.
 
 ## When not to use it
-- When deploying headless automation scripts on Linux servers or containerized K8s clusters (use [Prefect](prefect.md) or [Temporal](../development_ops/temporal.md)).
+- When deploying headless automation scripts on Linux servers or containerized K8s clusters (use [Prefect](../orchestration/prefect.md) or [Temporal](../orchestration/temporal.md)).
 - When requiring a pure web-browser automation stack across headless Linux instances (use [Playwright MCP](playwright-mcp.md) or [Puppeteer](puppeteer.md)).
 - When building multi-platform open-source agent applications targeting Windows and Linux desktops (use [Open Interpreter](open-interpreter.md) or [Aider](../development_ops/aider.md)).
 

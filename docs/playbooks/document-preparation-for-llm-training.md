@@ -248,7 +248,7 @@ print("Generated JSON-L Row:", jsonl_row[:120], "...")
 - [Paperless-ngx](../services/paperless-ngx.md) — Self-hosted document storage system.
 - [Apache Tika](../services/tika.md) — Content detection and extraction framework.
 - [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — Model Context Protocol specification.
-- [RAG Pattern](rag-pattern.md) — Retrieval-Augmented Generation architectural patterns.
+- [RAG Pattern](../knowledge_base/patterns/rag-pattern.md) — Retrieval-Augmented Generation architectural patterns.
 
 ## Sources / References
 - [Docling Project Repository](https://github.com/docling-project/docling)

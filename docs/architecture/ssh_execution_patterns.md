@@ -347,7 +347,7 @@ TrustedUserCAKeys /etc/ssh/ca_user_key.pub
 - [Aider](../tools/development_ops/aider.md) - Automated coding agent execution.
 - [Claude Code](../tools/development_ops/claude-code.md) - Terminal agent developer tool.
 - [Tailscale](../services/tailscale.md) - WireGuard-based overlay mesh network for secure SSH routing.
-- [Model Context Protocol](../automation_orchestration/mcp.md) - Standard protocol for agentic tool servers.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) - Standard protocol for agentic tool servers.
 - [Custom Agents](../tools/development_ops/custom_agents.md) - Custom agent development practices.
 
 ## Sources / references

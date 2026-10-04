@@ -37,7 +37,7 @@ DSPy solves these issues by separating the program's logic (Signatures and Modul
 
 ## Where it fits in the stack
 In modern agentic architectures, DSPy functions as the **Declarative Agent Logic & Compilation Layer**:
-1. **Model Framework Layer**: Sits above raw provider APIs (Anthropic, OpenAI, Ollama) and alongside frameworks like [LangChain](langchain.md) or [CrewAI](crewai.md).
+1. **Model Framework Layer**: Sits above raw provider APIs (Anthropic, OpenAI, Ollama) and alongside frameworks like [LangChain](../ai_knowledge/langchain.md) or [CrewAI](crewai.md).
 2. **FastMCP Integration**: Compiles multi-step agent workflows that invoke FastMCP 3.1 tools, ensuring reliable tool argument generation.
 3. **Continuous Optimization Layer**: Automates re-compilation of agent prompts when benchmark scores drop or dataset distributions shift.
 
@@ -229,7 +229,7 @@ print("Compiled Output:", res.answer)
 ```
 
 ## Related tools / concepts
-- [LangChain](langchain.md) — Framework for building application chains and agent tooling.
+- [LangChain](../ai_knowledge/langchain.md) — Framework for building application chains and agent tooling.
 - [CrewAI](crewai.md) — Multi-agent orchestration framework.
 - [Pydantic AI](pydantic-ai.md) — Agent framework built around Pydantic v2 schema validation.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for extending model tool capabilities.

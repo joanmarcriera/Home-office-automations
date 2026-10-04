@@ -311,7 +311,7 @@ if __name__ == "__main__":
 - [Grocy](grocy.md) — ERP system tailored for household groceries and consumable expiration tracking.
 - [Paperless-ngx](paperless-ngx.md) — Document archival platform for storing digital receipts linked to Homebox items.
 - [Immich](immich.md) — Self-hosted photo management system for asset photography.
-- [NetBox](netbox.md) — IPAM and DCIM infrastructure tool for digital server rack mapping.
+- NetBox — IPAM and DCIM infrastructure tool for digital server rack mapping.
 - [Tailscale](tailscale.md) — Secure, encrypted mesh network access to Homebox from mobile devices.
 - [Authentik](authentik.md) — Single sign-on and identity provider integration.
 

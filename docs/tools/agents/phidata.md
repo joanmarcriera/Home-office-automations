@@ -70,7 +70,7 @@ Agno (Phidata) operates at the **Agentic Orchestration & Application Layer**:
 
 ## Limitations
 - **Namespace Migration (`phi` to `agno`)**: Legacy codebases using `import phi` must be updated to `import agno` following the v3.0 rebranding.
-- **Python-Exclusive Ecosystem**: Agno is strictly a Python framework; TypeScript/Node.js teams should use [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md) or [LangChain.JS](langchain.md).
+- **Python-Exclusive Ecosystem**: Agno is strictly a Python framework; TypeScript/Node.js teams should use [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md) or [LangChain.JS](../ai_knowledge/langchain.md).
 - **Multi-Agent Scale Limits**: Extremely large swarms (>100 concurrent sub-agents) require custom message brokers (RabbitMQ/Kafka) rather than in-memory orchestration.
 
 ## When to use it
@@ -82,7 +82,7 @@ Agno (Phidata) operates at the **Agentic Orchestration & Application Layer**:
 ## When not to use it
 - In non-Python engineering environments (Node.js, Rust, Go) — use [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md).
 - For simple, single-turn LLM completions where direct SDK usage (`openai.OpenAI()`) is sufficient.
-- When building low-level custom neural network training or fine-tuning pipelines — use [Deepspeed](../frameworks/deepspeed.md) or [Unsloth](../frameworks/unsloth.md).
+- When building low-level custom neural network training or fine-tuning pipelines — use [Deepspeed](../frameworks/deepspeed.md) or [Unsloth](../infrastructure/unsloth.md).
 
 ## Getting started
 

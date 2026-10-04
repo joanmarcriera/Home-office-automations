@@ -39,7 +39,7 @@ Centralized commercial calendar and contact services (such as Google Calendar, M
 Radicale solves these privacy and ownership concerns by providing a self-hosted, lightweight server that strictly enforces standard IETF specifications (RFC 4791 CalDAV, RFC 6352 CardDAV, RFC 4918 WebDAV). Users retain total control over their data in standard `.ics` and `.vcf` files on disk, ensuring compatibility with virtually every major desktop, mobile, and agentic productivity application.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Personal Information Management (PIM). Radicale resides in the local or private cloud infrastructure layer of a homelab or enterprise sovereign environment. It acts as the core source of truth for personal and team schedules, address books, and todo lists, interfacing with reverse proxies ([Caddy](../services/caddy.md), [Nginx](../services/nginx.md)), authentication providers ([Authentik](authentik.md)), and AI memory layers via FastMCP 3.1 connectors.
+**Category**: Intake & Storage / Personal Information Management (PIM). Radicale resides in the local or private cloud infrastructure layer of a homelab or enterprise sovereign environment. It acts as the core source of truth for personal and team schedules, address books, and todo lists, interfacing with reverse proxies (Caddy, Nginx), authentication providers ([Authentik](authentik.md)), and AI memory layers via FastMCP 3.1 connectors.
 
 ## Typical use cases
 - **Sovereign Calendar & Contact Syncing**: Syncing personal, family, and team calendars and address books across Linux, macOS, Windows, Android, and iOS devices.
@@ -437,8 +437,8 @@ if __name__ == "__main__":
 - [Tailscale](tailscale.md) — Zero-trust mesh network for secure remote CalDAV sync.
 - [Home Assistant](home-assistant.md) — Home automation platform consuming CalDAV events.
 - [n8n](n8n.md) — Workflow automation engine for processing calendar reminders.
-- [Caddy](../services/caddy.md) — Modern reverse proxy for TLS termination in front of Radicale.
-- [Fastmail](fastmail.md) — Hosted alternative supporting CalDAV and JMAP protocols.
+- Caddy — Modern reverse proxy for TLS termination in front of Radicale.
+- [Fastmail](../tools/calendar_tasks/fastmail.md) — Hosted alternative supporting CalDAV and JMAP protocols.
 
 ## Sources / references
 - [Official Radicale Project Website](https://radicale.org/)

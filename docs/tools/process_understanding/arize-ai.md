@@ -52,7 +52,7 @@ Arize AI resolves these challenges by converting qualitative LLM behaviors into 
 
 Arize AI typically integrates with:
 - **AI Gateways & Routers**: [LiteLLM](../../services/litellm.md) and Cloudflare AI Gateway for transparent OpenTelemetry trace span collection.
-- **Agent Frameworks**: [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), [CrewAI](../agents/crewai.md), and [LlamaIndex](../frameworks/llamaindex.md) via OpenInference instrumentation.
+- **Agent Frameworks**: [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), [CrewAI](../frameworks/crewai.md), and [LlamaIndex](../ai_knowledge/llamaindex.md) via OpenInference instrumentation.
 - **Protocol Ecosystems**: [FastMCP 3.1](../automation_orchestration/mcp.md) servers, capturing tool execution inputs, outputs, and sub-span latencies.
 - **Vector Engines**: [Weaviate](../infrastructure/weaviate.md), Qdrant, and Milvus for embedding space inspection and retrieval quality evaluation.
 
