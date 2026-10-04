@@ -68,9 +68,8 @@ jobs:
           # mergeable/mergeStateStatus aren't available from `gh pr list`; fetch per-PR below.
           # Trusted bot PRs only (identity + heuristic: scripts/ci/trusted_actor.py);
           # a lookup error fails the step rather than closing on a bad listing.
-          CANDIDATES=$(gh pr list --repo "$REPO" --state open --limit 200 \
-            --json number,title,body,labels,headRefName,author,isCrossRepository,updatedAt \
-            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic --exclude-rollup \
+          CANDIDATES=$(python3 scripts/ci/trusted_actor.py list prs --state open \
+            --bot-heuristic --exclude-rollup --fields updatedAt \
             | jq -c 'map({number, title, updatedAt})')
 
           COUNT=$(echo "$CANDIDATES" | jq 'length')

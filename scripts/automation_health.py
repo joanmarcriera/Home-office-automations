@@ -290,16 +290,15 @@ def check_rollup_flow(now: datetime) -> dict:
             "cadence": "weekly", "crons": [],
             "threshold": STALL_THRESHOLDS["weekly"]}
     result = {"lane": lane, "status": "ok", "notes": [], "rerun": None}
-    out = run_gh(["pr", "list", "--head", ROLLUP_BRANCH, "--state", "closed",
-                  "--limit", "50",
-                  "--json", "number,closedAt,mergedAt,author,isCrossRepository"])
-    prs = json.loads(out) if out.strip() else []
     # `--head` matches the branch name only: a fork PR named like the rollup
-    # branch, opened and closed by anyone, must not raise a false alarm.
+    # branch, opened and closed by anyone, must not raise a false alarm (nor
+    # push the real ones out of the window) — so list trusted authors only.
     repo = (os.environ.get("REPO") or os.environ.get("GITHUB_REPOSITORY")
             or run_gh(["repo", "view", "--json", "nameWithOwner",
                        "--jq", ".nameWithOwner"]).strip())
-    prs = trusted_actor.filter_items(prs, "prs", trusted_actor.repo_owner(repo))
+    prs = trusted_actor.list_trusted(
+        "prs", repo, state="closed", head=ROLLUP_BRANCH,
+        fields=["closedAt", "mergedAt"], limit=15, allow_truncated=True)
     cutoff = now - timedelta(days=8)
     discarded = [p for p in prs
                  if not p.get("mergedAt") and p.get("closedAt")

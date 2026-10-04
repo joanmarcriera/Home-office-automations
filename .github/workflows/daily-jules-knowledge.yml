@@ -69,12 +69,7 @@ jobs:
           # Trusted identity first (owner/known bots, not a fork) — a look-alike
           # PR from anyone else must not throttle this lane. See
           # scripts/ci/trusted_actor.py; a lookup error fails the step.
-          CANDIDATES=$(gh pr list \
-            --repo "$REPO" \
-            --state open \
-            --limit 200 \
-            --json number,title,body,labels,headRefName,author,isCrossRepository \
-            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic \
+          CANDIDATES=$(python3 scripts/ci/trusted_actor.py list prs --state open --bot-heuristic \
             | jq -c 'map(.number)')
 
           OPEN_PRS=0
@@ -106,14 +101,7 @@ jobs:
           # Existing daily knowledge automation issues (any date), opened by a
           # trusted actor — an outsider's look-alike must not pause this lane.
           # A lookup error fails the step (watchdog reports it).
-          OPEN_KNOWLEDGE=$(gh issue list \
-            --repo "$REPO" \
-            --label jules \
-            --state open \
-            --search "Daily Knowledge Expansion -" \
-            --limit 200 \
-            --json number,title,author \
-            | python3 scripts/ci/trusted_actor.py issues --limit 200 \
+          OPEN_KNOWLEDGE=$(python3 scripts/ci/trusted_actor.py list issues --label jules --state open --search 'Daily Knowledge Expansion -' --fields title \
             | jq '[.[] | select(.title | startswith("Daily Knowledge Expansion - "))] | length')
 
           echo "open_knowledge=$OPEN_KNOWLEDGE" >> "$GITHUB_OUTPUT"

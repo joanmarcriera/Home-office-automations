@@ -87,7 +87,7 @@ jobs:
           # outsider's issue must not become work for an agent with write
           # access. The owner can still route it by adding a label by hand.
           TRUSTED=$(echo "$ISSUE_JSON" | jq -c --argjson n "$ISSUE_NUMBER" '[. + {number: $n}]' \
-            | python3 scripts/ci/trusted_actor.py issues | jq 'length')
+            | python3 scripts/ci/trusted_actor.py filter issues | jq 'length')
           if [[ "$TRUSTED" == "0" ]]; then
             echo "Issue #$ISSUE_NUMBER is not from a trusted actor; left for manual triage."
             exit 0

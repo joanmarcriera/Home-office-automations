@@ -89,12 +89,7 @@ jobs:
           # automation bot, head branch in this repo (never a fork) — that also
           # match the bot heuristic. Title/branch alone is forgeable by anyone;
           # see scripts/ci/trusted_actor.py. A lookup error fails the step.
-          JULES_PRS=$(gh pr list \
-            --repo "$REPO" \
-            --state open \
-            --limit 200 \
-            --json number,title,body,labels,headRefName,author,isCrossRepository \
-            | python3 scripts/ci/trusted_actor.py prs --limit 200 --bot-heuristic --exclude-rollup \
+          JULES_PRS=$(python3 scripts/ci/trusted_actor.py list prs --state open --bot-heuristic --exclude-rollup \
             | jq -r 'map(.number) | join(",")')
 
           if [ -z "$JULES_PRS" ]; then

@@ -23,7 +23,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / "ci"))
 import trusted_actor  # noqa: E402
 
-LOOKUP_LIMIT = 200  # a fuller page than this may be truncated: fail loudly
 
 def run_gh_command(args):
     """Runs a gh command and returns the output."""
@@ -69,23 +68,13 @@ def main():
     search_query = "jules -label:jules is:open"
 
     print(f"Searching for issues with query: {search_query}")
-    issues_json = run_gh_command(['issue', 'list', '--search', search_query, '--limit', str(LOOKUP_LIMIT),
-                                  '--json', 'number,title,body,author'])
-
-    if issues_json is None:
-        sys.exit(1)
-
+    # Trusted authors only, queried server-side: outsiders' issues never
+    # enter the window (see scripts/ci/trusted_actor.py).
     try:
-        issues = json.loads(issues_json)
-    except json.JSONDecodeError:
-        print("Failed to decode JSON from gh output.")
-        sys.exit(1)
-
-    try:
-        repo = os.environ.get("REPO") or os.environ.get("GITHUB_REPOSITORY")
-        issues = trusted_actor.filter_items(
-            issues, "issues", trusted_actor.repo_owner(repo), limit=LOOKUP_LIMIT,
-            notice=lambda msg: print(f"::notice::{msg} (not auto-queued for Jules)"))
+        issues = trusted_actor.list_trusted(
+            "issues", os.environ.get("REPO") or os.environ.get("GITHUB_REPOSITORY"),
+            state="open", search=search_query, fields=["title", "body"],
+            notice=lambda msg: print(f"::notice::{msg}"))
     except trusted_actor.InputError as exc:
         print(f"::error::trusted_actor: {exc}")
         sys.exit(1)

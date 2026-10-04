@@ -1,4 +1,4 @@
-"""Unit tests for scripts/ci/trusted_actor.py (offline; no gh calls).
+"""Unit tests for scripts/ci/trusted_actor.py (offline: gh is faked).
 
 Run: python3 -m unittest discover -s scripts/ci -p 'test_trusted_actor.py' -v
 """
@@ -12,6 +12,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -30,7 +31,37 @@ def pr(number, *, author=OWNER, cross=False, title="docs: daily knowledge expans
             "isCrossRepository": cross}
 
 
-def run_cli(args, stdin):
+def issue(number, author, title="Daily Knowledge Expansion - 2026-10-04"):
+    return {"number": number, "title": title, "author": author}
+
+
+class FakeGh:
+    """Plays GitHub: holds ALL records and answers `gh <x> list --author A
+    --limit N` server-side like the real API (author filter, then page cut)."""
+
+    def __init__(self, records, fail_for=None, raw=None):
+        self.records, self.fail_for, self.raw, self.calls = records, fail_for, raw, []
+
+    @staticmethod
+    def _login_matches(author, wanted):
+        login = author.get("login", "")
+        if wanted.endswith("[bot]"):
+            return login in (wanted, "app/" + wanted[:-5])
+        return login == wanted and not author.get("is_bot")
+
+    def __call__(self, cmd, **_kw):
+        self.calls.append(cmd)
+        wanted = cmd[cmd.index("--author") + 1]
+        limit = int(cmd[cmd.index("--limit") + 1])
+        if wanted == self.fail_for:
+            return subprocess.CompletedProcess(cmd, 1, "", "HTTP 502: Bad Gateway")
+        if self.raw is not None:
+            return subprocess.CompletedProcess(cmd, 0, self.raw, "")
+        page = [r for r in self.records if self._login_matches(r["author"], wanted)][:limit]
+        return subprocess.CompletedProcess(cmd, 0, json.dumps(page), "")
+
+
+def run_cli(args, stdin=""):
     out, err = io.StringIO(), io.StringIO()
     old_stdin = sys.stdin
     sys.stdin = io.StringIO(stdin)
@@ -70,6 +101,11 @@ class TrustedAuthorTests(unittest.TestCase):
         self.assertFalse(ta.is_trusted_author(OUTSIDER, "joanmarcriera"))
         self.assertFalse(ta.is_trusted_author(None, "joanmarcriera"))
 
+    def test_search_logins_use_bot_suffix_form(self):
+        # `app/<slug>` silently matches nothing in `gh issue list --author`.
+        self.assertEqual(ta.trusted_search_logins("joanmarcriera"),
+                         ["joanmarcriera", "github-actions[bot]", "google-labs-jules[bot]"])
+
 
 class FilterTests(unittest.TestCase):
     def kept(self, items, kind="prs", **kw):
@@ -98,86 +134,109 @@ class FilterTests(unittest.TestCase):
         self.assertEqual(self.kept(items, bot_heuristic=True, exclude_rollup=True), [2])
         self.assertEqual(self.kept(items, bot_heuristic=True), [1, 2])
 
-    def test_prs_without_heuristic_only_check_identity(self):
-        items = [pr(1, title="anything", branch="automation/weekly-rollup"),
-                 pr(2, author=OUTSIDER, branch="automation/weekly-rollup")]
-        self.assertEqual(self.kept(items), [1])
-
     def test_cross_repository_must_be_strictly_false(self):
         item = pr(1)
         item["isCrossRepository"] = None
         self.assertEqual(self.kept([item]), [])
 
-    def test_issues(self):
-        items = [{"number": 1, "title": "Daily Knowledge Expansion - x", "author": ACTIONS},
-                 {"number": 2, "title": "Daily Knowledge Expansion - x", "author": OUTSIDER},
-                 {"number": 3, "title": "t", "author": OWNER}]
-        self.assertEqual(self.kept(items, kind="issues"), [1, 3])
+    def test_many_untrusted_items_are_simply_dropped(self):
+        items = [issue(n, OUTSIDER) for n in range(1, 5001)] + [issue(9999, ACTIONS)]
+        self.assertEqual(self.kept(items, kind="issues"), [9999])
 
-    def test_possibly_truncated_listing_raises(self):
-        items = [{"number": i, "author": OUTSIDER} for i in range(3)]
-        with self.assertRaises(ta.InputError):
-            ta.filter_items(items, "issues", "o", limit=3)
-        self.assertEqual(ta.filter_items(items, "issues", "o", limit=4), [])
+    def test_malformed_input_raises(self):
+        for items, kind, kw in (([{"number": 1, "author": OWNER}], "prs", {}),
+                                ([{"number": 1, "author": OWNER, "isCrossRepository": False}],
+                                 "prs", {"bot_heuristic": True}),
+                                ([{"number": 1}], "issues", {}),
+                                ({"not": "a list"}, "issues", {}),
+                                (["str"], "issues", {})):
+            with self.subTest(items=items), self.assertRaises(ta.InputError):
+                ta.filter_items(items, kind, "o", **kw)
 
-    def test_missing_fields_raise(self):
+
+class ListTrustedTests(unittest.TestCase):
+    def test_queries_only_trusted_authors_server_side(self):
+        gh = FakeGh([issue(1, ACTIONS), issue(2, OUTSIDER)])
+        got = ta.list_trusted("issues", REPO, fields=["title"], label="jules",
+                              search="Daily Knowledge Expansion -", runner=gh)
+        self.assertEqual([i["number"] for i in got], [1])
+        self.assertEqual([c[c.index("--author") + 1] for c in gh.calls],
+                         ["joanmarcriera", "github-actions[bot]", "google-labs-jules[bot]"])
+        for c in gh.calls:
+            self.assertIn("--label", c)
+            self.assertIn("--search", c)
+            self.assertIn("number,author,title", c)
+
+    def test_outsider_flood_cannot_hide_trusted_item_or_trip_failure(self):
+        # 5000 look-alikes (more than any page) must neither push the genuine
+        # control issue out of the window nor make the lookup fail.
+        flood = [issue(n, OUTSIDER) for n in range(10, 5010)]
+        gh = FakeGh(flood + [issue(3, ACTIONS)])
+        got = ta.list_trusted("issues", REPO, runner=gh, limit=100)
+        self.assertEqual([i["number"] for i in got], [3])
+
+    def test_fork_prs_by_trusted_login_still_dropped(self):
+        gh = FakeGh([pr(1), pr(2, cross=True), pr(3, author=OUTSIDER)])
+        got = ta.list_trusted("prs", REPO, bot_heuristic=True, runner=gh)
+        self.assertEqual([p["number"] for p in got], [1])
+
+    def test_merges_and_sorts_newest_first(self):
+        gh = FakeGh([pr(5), pr(7, author=ACTIONS), pr(6)])
+        got = ta.list_trusted("prs", REPO, runner=gh)
+        self.assertEqual([p["number"] for p in got], [7, 6, 5])
+
+    def test_trusted_page_full_is_an_error_unless_allowed(self):
+        gh = FakeGh([issue(n, ACTIONS) for n in range(1, 4)])
         with self.assertRaises(ta.InputError):
-            ta.filter_items([{"number": 1, "author": OWNER}], "prs", "o")
+            ta.list_trusted("issues", REPO, runner=gh, limit=3)
+        got = ta.list_trusted("issues", REPO, runner=gh, limit=3, allow_truncated=True)
+        self.assertEqual(len(got), 3)
+
+    def test_lookup_error_raises(self):
         with self.assertRaises(ta.InputError):
-            ta.filter_items([{"number": 1, "author": OWNER, "isCrossRepository": False}],
-                            "prs", "o", bot_heuristic=True)
+            ta.list_trusted("issues", REPO, runner=FakeGh([], fail_for="github-actions[bot]"))
+        for raw in ("", "not json", '{"a": 1}', '[{"title": "no number"}]'):
+            with self.subTest(raw=raw), self.assertRaises(ta.InputError):
+                ta.list_trusted("issues", REPO, runner=FakeGh([], raw=raw))
+
+    def test_missing_repo_raises(self):
         with self.assertRaises(ta.InputError):
-            ta.filter_items([{"number": 1}], "issues", "o")
-        with self.assertRaises(ta.InputError):
-            ta.filter_items({"not": "a list"}, "issues", "o")
-        with self.assertRaises(ta.InputError):
-            ta.filter_items(["str"], "issues", "o")
+            ta.list_trusted("issues", None, runner=FakeGh([]))
 
 
 class CliTests(unittest.TestCase):
-    def test_filters_and_emits_json(self):
-        code, out, err = run_cli(["prs", "--bot-heuristic"],
+    def test_list_emits_json(self):
+        gh = FakeGh([issue(1, ACTIONS), issue(2, OUTSIDER)])
+        with mock.patch.object(ta.subprocess, "run", gh):
+            code, out, _ = run_cli(["list", "issues", "--fields", "title"])
+        self.assertEqual((code, [i["number"] for i in json.loads(out)]), (0, [1]))
+
+    def test_list_lookup_error_exits_2(self):
+        with mock.patch.object(ta.subprocess, "run", FakeGh([], fail_for="joanmarcriera")):
+            code, out, err = run_cli(["list", "prs", "--bot-heuristic"])
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("::error::", err)
+
+    def test_filter_mode(self):
+        code, out, err = run_cli(["filter", "prs", "--bot-heuristic"],
                                  json.dumps([pr(1), pr(2, author=OUTSIDER), pr(3, cross=True)]))
         self.assertEqual(code, 0)
         self.assertEqual([i["number"] for i in json.loads(out)], [1])
-        self.assertIn("::notice::", err)
         self.assertIn("#2", err)
         self.assertIn("#3", err)
 
-    def test_cli_limit_guard(self):
-        code, out, err = run_cli(["issues", "--limit", "1"],
-                                 json.dumps([{"number": 1, "author": OWNER}]))
-        self.assertEqual((code, out), (2, ""))
-        self.assertIn("truncated", err)
-
-    def test_empty_array_is_fine(self):
-        code, out, _ = run_cli(["issues"], "[]")
-        self.assertEqual((code, json.loads(out)), (0, []))
-
-    def test_fail_safe_on_bad_input(self):
+    def test_filter_fail_safe_on_bad_input(self):
         for stdin in ("", "   \n", "not json", '{"a": 1}', '[{"number": 1}]'):
             with self.subTest(stdin=stdin):
-                code, out, err = run_cli(["issues"], stdin)
-                self.assertEqual(code, 2)
-                self.assertEqual(out, "")
+                code, out, err = run_cli(["filter", "issues"], stdin)
+                self.assertEqual((code, out), (2, ""))
                 self.assertIn("::error::", err)
 
-    def test_missing_repo_is_an_error(self):
-        out, err = io.StringIO(), io.StringIO()
-        sys.stdin, old = io.StringIO("[]"), sys.stdin
-        try:
-            with redirect_stdout(out), redirect_stderr(err):
-                code = ta.main(["issues", "--repo", ""])
-        finally:
-            sys.stdin = old
-        self.assertEqual(code, 2)
-        self.assertIn("repository unknown", err.getvalue())
-
     def test_pipefail_propagates_in_bash(self):
-        # The workflows rely on `set -o pipefail`: a failing filter must fail
-        # the whole `gh ... | trusted_actor.py ... | jq` pipeline.
+        # Workflows rely on `set -euo pipefail`: a failing lookup must fail the
+        # whole `trusted_actor.py ... | jq` pipeline.
         script = (f"set -euo pipefail; echo garbage | {sys.executable} "
-                  f"{HERE / 'trusted_actor.py'} issues --repo {REPO} | jq length")
+                  f"{HERE / 'trusted_actor.py'} filter issues --repo {REPO} | jq length")
         res = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
         self.assertNotEqual(res.returncode, 0)
         self.assertIn("::error::", res.stderr)
