@@ -1,175 +1,403 @@
 # xAI Grok
 
 ## What it is
-**Grok** is a family of state-of-the-art large language models (LLMs) and visual reasoning engines developed by **xAI**. Known for its "truth-seeking" objective and direct real-time access to the **X (formerly Twitter)** data firehose, Grok represents a flagship reasoning model competing with Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6 VL, featuring full support for the **FastMCP 3.1 Task Protocol**.
+**Grok** is a family of state-of-the-art large language models (LLMs) and visual reasoning engines developed by **xAI**. Operating on xAI's Colossus GPU supercomputing cluster, Grok models (including Grok-3, Grok-3 Reasoning, and Grok-3 Vision) are engineered for high-throughput reasoning, complex multi-step tool execution, code synthesis, and direct real-time access to the **X (formerly Twitter)** data firehose.
 
-## Architecture & System Flow
-Grok operates on xAI's Colossus cluster architecture, utilizing high-density GPU nodes to support hybrid Mixture-of-Experts (MoE) inference, real-time X stream ingestion, and sequential tool execution via Model Context Protocol 3.1.
+In early 2027, Grok is integrated with the **FastMCP 3.1** protocol suite, allowing enterprise developers and autonomous agents to leverage Grok's real-time social context and multi-modal visual understanding alongside custom internal tool systems.
 
-```mermaid
-graph TD
-    A[User Request / FastMCP 3.1 Client] -->|API Call via OpenAI SDK| B[xAI API Gateway]
-    B -->|Check Authentication & Quotas| C{Query Router}
-    C -->|Real-Time X Ingestion Pipeline| D[Live X Firehose / Social Stream]
-    C -->|Multimodal Input| E[Grok-3 Vision Kernel]
-    C -->|Deep Reasoning Task| F[Grok-3 MoE Reasoning Engine]
-    D -->|Context Ingestion| F
-    E -->|Visual Embeddings| F
-    F -->|Sequential Tool Invocation| G[FastMCP 3.1 Executor Node]
-    G -->|Result Payload| F
-    F -->|Stream Response / Thinking Tokens| A
+```
++-----------------------------------------------------------------------------------+
+|                              xAI Grok Platform Architecture                        |
++-----------------------------------------------------------------------------------+
+                                         |
+     +-----------------------------------+-----------------------------------+
+     |                                   |                                   |
+     v                                   v                                   v
++------------------------+   +------------------------+   +------------------------+
+| Real-Time Ingestion    |   | Colossus MoE Engine    |   | Agentic FastMCP 3.1    |
+| - Live X Stream        |   | - Hybrid MoE Router    |   | - Sequential Tool Call |
+| - Web Search Crawler   |   | - Grok-3 Vision        |   | - OpenAI API Spec Drop |
+| - Multimodal Images    |   | - Extended Context 1M+ |   | - FastMCP Task Protocol|
+| - Technical PDFs & Code|   | - Extended Reasoning   |   | - Structural Tool Spec |
++------------------------+   +------------------------+   +------------------------+
+     |                                   |                                   |
+     +-----------------------------------+-----------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            Client & Application Ecosystem                         |
+|  - Real-Time Market & Breaking News Sentiment Intelligence                        |
+|  - FastMCP 3.1 Autonomous Agent Swarms & Orchestration Platforms                   |
+|  - OpenRouter / LiteLLM Proxy Gateway Infrastructure                              |
+|  - Enterprise Multi-Modal Document & Codebase Analysis Pipelines                   |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
-Grok eliminates static knowledge cutoff limitations by grounding model reasoning in real-time global events, social sentiment, breaking news, and emerging technical discussions streamed from X. It solves real-time information retrieval challenges and provides unfiltered, high-throughput multimodal intelligence for research, intelligence gathering, OSINT, and multi-agent systems.
+Static pre-trained LLMs suffer from strict training cutoffs, rendering them incapable of reasoning over breaking news, real-time developer discussions, or market-moving events without complex external search infrastructure. Standard web scraping approaches often lag behind live conversational streams.
+
+Grok solves this cutoff limitation by embedding live stream ingestion capabilities into its core inference architecture. By tapping directly into X's global data stream, Grok enables real-time event tracking, social sentiment analysis, breaking news synthesis, and OSINT (Open Source Intelligence) research with zero latency penalty.
 
 ## Where it fits in the stack
-**Tool / Provider / Intelligence Layer**. Serves as a primary reasoning engine for real-time data synthesis, agentic web grounding, visual analysis, and automated decision-making pipelines requiring low-latency tool calling via FastMCP 3.1.
+**Category**: Providers / Intelligence & Foundation Models. Grok serves as a primary foundation model provider in the AI architecture. It offers an OpenAI-compatible REST API, making it a drop-in replacement for `gpt-4o` or `gpt-5.6` in existing SDKs, routing proxies like [LiteLLM](../../services/litellm.md), or gateway aggregators like [OpenRouter](../ai_knowledge/openrouter.md).
 
 ## Typical use cases
-- **Real-time Event & Sentiment Analysis**: Monitoring global news, financial market reactions, and social sentiment trends live on X.
-- **Agentic Live Grounding**: Powering autonomous agents that need to cross-reference static databases with live X firehose events.
-- **Complex Multimodal Reasoning**: Utilizing Grok-Vision for analyzing architectural diagrams, technical charts, code screenshots, and video frames.
-- **High-Performance Code Generation**: Performing software engineering and complex mathematical proofs via flagship Grok-3 models.
+- **Real-Time Financial & Market Intelligence**: Monitoring live market reactions, earnings sentiment, and breaking macroeconomic news directly on X.
+- **FastMCP 3.1 Real-Time Grounded Agents**: Powering autonomous agents that require real-time social groundings alongside custom microservice tool execution.
+- **Visual Diagram & Document Reasoning**: Using `grok-3-vision` to analyze architecture diagrams, UI mockups, engineering schematics, and code screenshots.
+- **High-Throughput Code Generation**: Accelerating software development with Grok's deep mathematical reasoning and code synthesis capabilities.
+- **OSINT & Threat Intelligence**: Tracking live cyber incident reports, vulnerability disclosures, and breaking security events in real-time.
+
+## Key Features & Architecture
+
+### Live X Firehose Grounding
+Grok connects to X's real-time streaming pipeline. When queried about recent events or emerging technical releases, Grok synthesizes live posts, community notes, and linked media into coherent executive summaries.
+
+### OpenAI-Compatible API Standard
+xAI exposes Grok through an API endpoint (`https://api.x.ai/v1`) that implements the OpenAI API spec. Developers can swap existing `openai` client libraries to point to xAI simply by updating the base URL and API key.
+
+### FastMCP 3.1 Integration
+Grok supports native tool execution using FastMCP 3.1 protocol schemas. Models can execute sequential tool calls, inspect resource URIs, and handle structured JSON inputs with strict schema adherence.
+
+### Extended Context & Multimodality
+Grok-3 models support large context windows (1M+ tokens) and multi-modal inputs, allowing developers to pass entire code repositories, high-resolution visual diagrams, and dense technical whitepapers in a single completion request.
 
 ## Strengths
-- **Live X Data Stream Access**: Unmatched real-time access to global social media conversations and breaking news.
-- **Large Context Capabilities**: Multi-hundred-thousand to 1M+ token context windows for long document and thread analysis.
-- **Native Multimodality**: Advanced image and visual reasoning capabilities (Grok-3 Vision).
-- **OpenAI-Compatible API**: Seamless drop-in replacement into OpenAI Python/TS SDK applications.
-- **FastMCP 3.1 Integration**: Full support for FastMCP 3.1 task protocol schemas and sequential tool execution.
+- **Live Social Stream Ingestion**: Direct access to real-time breaking news and global conversation data on X.
+- **OpenAI Client Compatibility**: Zero code modification needed when migrating from standard OpenAI SDK codebases.
+- **High-Performance MoE Architecture**: Delivers low latency and high token throughput on xAI's Colossus cluster.
+- **Native Vision Capabilities**: Strong optical character recognition (OCR) and technical diagram parsing.
+- **FastMCP 3.1 Native Protocol Support**: Full compatibility with standard Model Context Protocol tool calling.
 
 ## Limitations
-- **Platform Specificity**: Real-time social groundings are primarily tied to the X platform ecosystem.
-- **API Token Pricing**: High-tier flagship models carry premium pricing for high-volume token operations.
-- **Tone Customization**: Witty persona settings ("Fun Mode") require explicit system prompt override in formal enterprise settings.
+- **Ecosystem Data Dependence**: Real-time social groundings depend on the X platform data pipeline.
+- **API Cost Considerations**: High-capacity flagship reasoning models incur higher per-token costs during long context operations.
+- **Tone Customization**: "Fun Mode" or witty persona responses require explicit system prompt overrides when deploying in formal corporate applications.
 
 ## When to use it
-- When your application demands **real-time live context** and breaking news groundings.
-- For **social sentiment tracking** and market intelligence workflows.
-- When building **FastMCP 3.1 agents** requiring an OpenAI-compatible flagship reasoning engine.
+- When your application requires real-time knowledge of breaking global events, tech releases, or financial news.
+- When building agents via [FastMCP 3.1](../automation_orchestration/mcp.md) using an OpenAI-compatible API interface.
+- For multi-modal tasks requiring simultaneous analysis of code, text, and visual architectural diagrams.
+- For live social sentiment monitoring and OSINT research workflows.
 
 ## When not to use it
-- For strictly offline or air-gapped enterprise environments where cloud API access is prohibited.
-- If your system requires fully open-source local inference (where models like DeepSeek-V4, Gemma 4, or Llama 4 are better suited).
+- In air-gapped, offline, or strictly on-premise environments where cloud APIs are prohibited (use [Ollama](../infrastructure/ollama.md) or [Local LLMs](../ai_knowledge/local_llms.md)).
+- If your system relies exclusively on open-weights models with full local weight fine-tuning rights (use [DeepSeek](../ai_knowledge/deepseek-r1.md) or [Gemma](../ai_knowledge/local_llms.md)).
 
 ## Getting started
-Access Grok via the xAI Console API using the standard OpenAI client SDK.
 
-### API Access
-1. Create an account at the [xAI Console](https://console.x.ai/).
-2. Generate an API Key.
-3. Configure your application or local proxy (e.g., [LiteLLM](../../services/litellm.md)).
+### Account Provisioning & API Key Setup
+1. Register for developer access at the [xAI Console](https://console.x.ai/).
+2. Create an API key under **API Keys**.
+3. Export the key into your local terminal environment:
+   ```bash
+   export XAI_API_KEY="xai-live-998877665544332211"
+   ```
 
-### Local Testing with Docker
-Route Grok API requests through LiteLLM in Docker:
+### Quick Verification via LiteLLM Proxy
+To test Grok through a local proxy in Docker:
 ```bash
-docker run -p 4000:4000 ghcr.io/berriai/litellm:main-latest \
-  --model grok-3-latest \
-  --api_key "your-xai-api-key"
+docker run -d -p 4000:4000 \
+  -e XAI_API_KEY=$XAI_API_KEY \
+  ghcr.io/berriai/litellm:main-latest \
+  --model xai/grok-3-latest
 ```
 
 ## CLI examples
-Query the xAI completion endpoint directly via cURL:
 
+Query the xAI API directly using `curl` or standard CLI HTTP clients.
+
+### 1. Basic Chat Completion Query
 ```bash
-curl https://api.x.ai/v1/chat/completions \
+curl -s -X POST https://api.x.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -d '{
     "model": "grok-3-latest",
-    "messages": [{"role": "user", "content": "Summarize key real-time developments in AI agent protocols."}]
-  }'
+    "messages": [
+      {"role": "system", "content": "You are Grok, an expert technical assistant."},
+      {"role": "user", "content": "Explain the key architectural advantages of FastMCP 3.1 over MCP 1.0."}
+    ],
+    "temperature": 0.2
+  }' | jq '.choices[0].message.content'
+```
+
+### 2. Multi-Modal Vision Analysis Query
+```bash
+curl -s -X POST https://api.x.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $XAI_API_KEY" \
+  -d '{
+    "model": "grok-3-vision",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {"type": "text", "text": "Describe this system architecture diagram in detail."},
+          {
+            "type": "image_url",
+            "image_url": {"url": "https://example.com/architecture-diagram.png"}
+          }
+        ]
+      }
+    ]
+  }' | jq .
+```
+
+### 3. Listing Available Grok Models
+```bash
+curl -s -X GET https://api.x.ai/v1/models \
+  -H "Authorization: Bearer $XAI_API_KEY" | jq '.data[] | {id: .id, created: .created}'
+```
+
+## FastMCP 3.1 Integration Server
+
+The following complete Python script implements a production-grade **FastMCP 3.1** server that uses Grok as its underlying reasoning engine to query real-time market sentiment and technical discussions.
+
+```python
+"""
+FastMCP 3.1 Server wrapping xAI Grok for Real-Time Market & Tech Sentiment.
+Exposes real-time X streaming search tools to external agentic clients.
+"""
+
+import asyncio
+import logging
+import os
+import aiohttp
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP Server
+mcp = FastMCP("xAI Grok Sentiment Server", version="3.1.0")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Grok-FastMCP")
+
+XAI_API_BASE = "https://api.x.ai/v1"
+XAI_API_KEY = os.getenv("XAI_API_KEY", "mock-xai-key-for-dev")
+
+
+# --- Input / Output Schemas ---
+
+class RealTimeSearchRequest(BaseModel):
+    query: str = Field(..., min_length=2, description="Target search term or topic to analyze on X")
+    max_results: int = Field(default=10, ge=1, le=50, description="Maximum number of relevant posts to synthesize")
+    include_sentiment: bool = Field(default=True, description="Whether to include sentiment breakdown score")
+
+
+class SentimentBreakdown(BaseModel):
+    positive_percentage: float
+    neutral_percentage: float
+    negative_percentage: float
+
+
+class RealTimeSearchResponse(BaseModel):
+    topic: str
+    summary: str
+    trending: bool
+    sentiment: Optional[SentimentBreakdown] = None
+
+
+# --- FastMCP Tool Definitions ---
+
+@mcp.tool()
+async def analyze_realtime_topic(request: RealTimeSearchRequest) -> RealTimeSearchResponse:
+    """
+    Leverages Grok-3 to execute a real-time sentiment analysis across live X streams.
+    """
+    logger.info(f"Executing Grok real-time topic analysis for query: '{request.query}'")
+
+    if XAI_API_KEY == "mock-xai-key-for-dev":
+        # Return mock payload for dev sandbox
+        return RealTimeSearchResponse(
+            topic=request.query,
+            summary=f"Recent conversations on X regarding '{request.query}' show strong adoption of FastMCP 3.1 protocols.",
+            trending=True,
+            sentiment=SentimentBreakdown(
+                positive_percentage=78.5,
+                neutral_percentage=16.0,
+                negative_percentage=5.5
+            )
+        )
+
+    headers = {
+        "Authorization": f"Bearer {XAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    prompt = f"""
+You are Grok, connected to the real-time X stream. Analyze recent discussion on the topic: '{request.query}'.
+Summarize key developments and estimate percentage sentiment breakdown (positive, neutral, negative).
+Return valid JSON matching this schema:
+{{
+  "topic": "{request.query}",
+  "summary": "...",
+  "trending": true/false,
+  "sentiment": {{
+    "positive_percentage": 75.0,
+    "neutral_percentage": 20.0,
+    "negative_percentage": 5.0
+  }}
+}}
+"""
+    payload = {
+        "model": "grok-3-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.1
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{XAI_API_BASE}/chat/completions", json=payload, headers=headers) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise RuntimeError(f"xAI API Error ({resp.status}): {text}")
+            data = await resp.json()
+            content = data["choices"][0]["message"]["content"]
+
+            # Parse JSON output from Grok
+            import json
+            parsed = json.loads(content)
+            return RealTimeSearchResponse.model_validate(parsed)
+
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
 
-### Query Grok with Pydantic v2 Validation (Python)
-Query Grok using the standard `openai` Python library with strict **Pydantic v2** output validation:
+### Python: Structured Output Validation with Pydantic v2 and OpenAI Client
+This Python script demonstrates calling the Grok API using the official `openai` Python SDK and validating responses with **Pydantic v2**.
 
 ```python
-from openai import OpenAI
-from pydantic import BaseModel, Field, ValidationError
 import os
+import json
+import logging
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from openai import OpenAI
 
-class GrokRealtimeSentiment(BaseModel):
-    sentiment_summary: str = Field(description="Synthesized sentiment summary from live X stream")
-    is_trending: bool = Field(description="Whether the topic is currently trending on X")
-    timestamp_iso: str = Field(description="ISO-8601 timestamp of analysis")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Grok-API")
 
-client = OpenAI(
-    api_key=os.environ.get("XAI_API_KEY", "mock-key"),
-    base_url="https://api.x.ai/v1",
-)
 
-def analyze_x_sentiment() -> GrokRealtimeSentiment:
+# --- Pydantic v2 Validation Schemas ---
+
+class KeyInsight(BaseModel):
+    insight_id: int = Field(..., ge=1)
+    description: str = Field(..., min_length=10)
+    source_confidence: float = Field(..., ge=0.0, le=1.0)
+
+
+class GrokAnalysisReport(BaseModel):
+    topic: str
+    model_used: str
+    insights: List[KeyInsight]
+    overall_recommendation: str
+
+    @field_validator("insights")
+    @classmethod
+    def validate_insights_non_empty(cls, v: List[KeyInsight]) -> List[KeyInsight]:
+        if not v:
+            raise ValueError("Report must contain at least one key insight")
+        return v
+
+
+# --- API Service Execution ---
+
+def generate_grok_report(topic: str) -> Optional[GrokAnalysisReport]:
+    """
+    Queries xAI Grok and parses structured response using Pydantic v2.
+    """
+    api_key = os.getenv("XAI_API_KEY", "mock-xai-key")
+
+    # Configure OpenAI Client pointing to xAI API base
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.x.ai/v1"
+    )
+
+    logger.info(f"Generating Grok analysis report for topic: '{topic}'")
+
+    if api_key == "mock-xai-key":
+        # Mock response for testing
+        mock_data = {
+            "topic": topic,
+            "model_used": "grok-3-latest",
+            "insights": [
+                {
+                    "insight_id": 1,
+                    "description": "FastMCP 3.1 reduces tool registration latency by 45% compared to legacy schemas.",
+                    "source_confidence": 0.98
+                },
+                {
+                    "insight_id": 2,
+                    "description": "Grok's OpenAI-compatible endpoint allows drop-in deployment with zero code refactoring.",
+                    "source_confidence": 0.95
+                }
+            ],
+            "overall_recommendation": "Adopt Grok-3 for real-time sentiment and agentic tool invocation pipelines."
+        }
+        return GrokAnalysisReport.model_validate(mock_data)
+
+    prompt = f"""
+Analyze the technical architecture topic: '{topic}'.
+Respond ONLY in JSON format adhering strictly to this schema:
+{{
+  "topic": "{topic}",
+  "model_used": "grok-3-latest",
+  "insights": [
+    {{
+      "insight_id": 1,
+      "description": "Detailed insight description...",
+      "source_confidence": 0.95
+    }}
+  ],
+  "overall_recommendation": "Summary recommendation..."
+}}
+"""
+
     try:
         completion = client.chat.completions.create(
             model="grok-3-latest",
-            messages=[
-                {"role": "system", "content": "You are Grok, an AI with access to real-time X platform data."},
-                {"role": "user", "content": "Analyze recent sentiment on FastMCP 3.1 protocol adoption."}
-            ]
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1
         )
         content = completion.choices[0].message.content or ""
+        parsed_json = json.loads(content)
+        return GrokAnalysisReport.model_validate(parsed_json)
 
-        payload = {
-            "sentiment_summary": content,
-            "is_trending": "trending" in content.lower(),
-            "timestamp_iso": "2027-01-07T00:00:00Z"
-        }
-
-        return GrokRealtimeSentiment.model_validate(payload)
-    except ValidationError as ve:
-        print(f"Pydantic validation failed: {ve}")
-        raise
+    except ValidationError as e:
+        logger.error(f"Response validation error: {e.json()}")
+        return None
     except Exception as e:
-        print(f"API call failed: {e}")
-        raise
-```
+        logger.error(f"Grok API call error: {e}")
+        return None
 
-### FastMCP 3.1 Tool Schema for Grok
-```python
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any
-
-class GrokFastMCPToolCall(BaseModel):
-    tool_name: str = Field(..., description="FastMCP tool identifier")
-    parameters: Dict[str, Any] = Field(default_factory=dict, description="Tool execution arguments")
-    protocol_version: str = Field(default="3.1", description="FastMCP protocol standard")
-
-def prepare_grok_tool_payload(call: GrokFastMCPToolCall) -> Dict[str, Any]:
-    return {
-        "type": "function",
-        "function": {
-            "name": call.tool_name,
-            "parameters": call.parameters,
-            "mcp_version": call.protocol_version
-        }
-    }
 
 if __name__ == "__main__":
-    tool_call = GrokFastMCPToolCall(
-        tool_name="fetch_live_x_stream",
-        parameters={"query": "FastMCP 3.1 release", "max_results": 10}
-    )
-    print("Formatted Grok Tool Payload:", prepare_grok_tool_payload(tool_call))
+    report = generate_grok_report("FastMCP 3.1 vs Agent Protocols")
+    if report:
+        print("\n--- Validated Grok Report ---")
+        print(json.dumps(report.model_dump(mode="json"), indent=2))
 ```
 
 ## Related tools / concepts
-- [OpenAI](../ai_knowledge/openai.md) — Direct competitor and API standard.
-- [Perplexity](../providers/perplexity.md) — Real-time conversational search provider.
+- [OpenAI](../ai_knowledge/openai.md) — Creator of the OpenAI API standard supported by Grok.
+- [Perplexity](../providers/perplexity.md) — Real-time conversational search and web retrieval provider.
 - [Anthropic](anthropic.md) — Claude model suite developer.
-- [Gemini](../ai_knowledge/gemini.md) — Google multimodal AI ecosystem.
+- [Gemini](../ai_knowledge/gemini.md) — Google multi-modal foundation model ecosystem.
 - [DeepSeek](deepseek.md) — SOTA open-weights reasoning model family.
-- [OpenRouter](../ai_knowledge/openrouter.md) — Multi-provider API gateway.
-- [LiteLLM](../../services/litellm.md) — Open-source LLM proxy.
-- [FastMCP](../automation_orchestration/mcp.md) — High-performance Python framework for Model Context Protocol 3.1.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Multi-provider API routing gateway.
+- [LiteLLM](../../services/litellm.md) — Lightweight LLM proxy for unified API routing.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — FastMCP 3.1 standard protocol.
 
 ## Sources / references
 - [xAI Official Site](https://x.ai/)
-- [xAI API Documentation](https://docs.x.ai/)
-- [Model Context Protocol FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.1)
+- [xAI Developer Documentation](https://docs.x.ai/)
+- [xAI Console Dashboard](https://console.x.ai/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
