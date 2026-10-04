@@ -77,9 +77,18 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    string (command substitution → step fails under `set -euo pipefail`; single-quote
    it). A `while read` loop after a pipe runs in a subshell, so counters don't
    survive — use process substitution `done < <(...)`.
-8. PRs opened by the default `GITHUB_TOKEN` do NOT trigger `on: pull_request`
-   checks. For `peter-evans/create-pull-request`, pass
-   `token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}`.
+8. Pushes/PRs made with the default `GITHUB_TOKEN` start NO `on: push` /
+   `on: pull_request` workflows (newer GitHub creates them as `action_required`
+   runs needing approval). Required checks on bot PRs are satisfied by
+   dispatching the gate workflows on the PR branch
+   (`scripts/dispatch_pr_gate_workflows.py`): the `workflow_dispatch` check runs
+   report `knowledgeops-contract` / `link-check` on the head commit, which is what
+   the ruleset requires. `daily-digest` and `weekly-planner` open the PR with
+   `AUTOMATION_PAT || GITHUB_TOKEN` (see `.github/automation-token-setup.md`);
+   don't spread that PAT further, approve runs by API, or use `--admin` to get
+   past the approval gate — the dispatched gate runs are the mechanism. Likewise a bot merge never triggers
+   `deploy-docs.yml` on push — the pipeline's last lane deploys, and
+   `jules-auto-merge.yml` dispatches a deploy after merging.
 9. **No new crons.** Scheduled work runs on odd days of the month only, from ONE
    entry point: `odd-day-pipeline.yml`. A new lane gets `on: workflow_call` (plus
    `workflow_dispatch`) and a job in the pipeline with `needs: [<previous lane>]`
@@ -87,6 +96,27 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    lane needs. Weekly lanes go in the `plan` job's odd day-of-month lists. Never
    restrict both day-of-month and day-of-week (cron ORs them), and do not chain
    lanes with `workflow_run`, which GitHub stops after three levels.
+10. **Every lane supports dry run.** Lanes take a boolean `dry_run` input on both
+   `workflow_call` and `workflow_dispatch`; set `DRY_RUN: ${{ inputs.dry_run &&
+   'true' || 'false' }}` on the job, run `bash scripts/ci/install_gh_dry_run_shim.sh`
+   after checkout when it is true (it turns every mutating `gh` call into a log
+   line), and guard git pushes / `create-pull-request` with `env.DRY_RUN != 'true'`.
+   Test changes end to end with
+   `gh workflow run odd-day-pipeline.yml --ref <branch> -f weekly_lanes=all -f dry_run=true`.
+11. **Event lanes use JOB-level concurrency.** A workflow-level group is joined by
+   every triggered run, including the many `skipped` `issue_comment`/`issues`
+   runs, and GitHub keeps only one pending run per group — a burst can cancel the
+   pipeline's queued call. Put the group on the job, below its `if:`.
+12. **Gates read trusted state only and fail closed.** Dedupe/throttle checks
+   count only issues authored by `app/github-actions` (outsiders can open
+   look-alike titles) and, if the lookup errors or looks truncated, create
+   nothing and exit non-zero (`weekly_planner.py` exits 2) rather than assume
+   "nothing open". Unit tests: `scripts/test_weekly_planner.py`,
+   `scripts/test_prune_stale_branches.py` (run by `automation-script-tests.yml`).
+13. **Credential hygiene.** Never execute code from a non-main branch in a job
+   holding a write token: check out with `persist-credentials: false`, merge
+   other branches in a separate worktree, and give git the token per command
+   (`git -c 'credential.helper=!gh auth git-credential' push ...`).
 
 ### 5) Issue-to-PR Resolver
 
@@ -97,8 +127,17 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 
 ### 6) Branch Janitor
 
-1. Confirm no open PR depends on target branches.
-2. Delete merged remote branches except protected deployment branches.
+Remote branches are pruned by the `branch-cleanup.yml` lane of the odd-day
+pipeline (`scripts/prune_stale_branches.py`). It is REPORT-ONLY until the repo
+variable `BRANCH_CLEANUP_LIVE` is `true` (cap per run: `BRANCH_CLEANUP_MAX`,
+default 50). It deletes only branches fully merged into `main` or whose own PR
+(same head repo + ref) is merged/closed with the tip unchanged, never `main`,
+`gh-pages`, `automation/*`, open-PR heads/bases or tips younger than 3 days,
+and deletes by compare-and-swap on the evaluated SHA.
+
+1. Read the lane's "Branch cleanup" step summary for the candidate count.
+2. Manual one-off: `python3 scripts/prune_stale_branches.py` (dry run) — add
+   `--apply` only with the owner's go-ahead; bulk deletion is destructive.
 3. Prune local refs and verify clean state.
 
 ### 7) Staff Reviewer Pattern (Meta-Skill)
@@ -159,7 +198,8 @@ Use to make the bots EXPAND coverage toward the industry frontier, not just re-a
 ### 12) Automation Health Triage
 
 The watchdog (`automation-health.yml`, chained via `workflow_run` after
-`odd-day-pipeline.yml` completes, so odd days only) scans every scheduled
+`odd-day-pipeline.yml` completes, plus a dead-man cron at 12:45 UTC on days
+3,11,19,27 in case the pipeline itself stops) scans every scheduled
 lane (a failed pipeline run names the failed lane jobs), auto-reruns a failed run's failed jobs once, and maintains ONE
 `automation-health`-labelled issue (updated in place, auto-closed when green).
 
@@ -172,6 +212,9 @@ lane (a failed pipeline run names the failed lane jobs), auto-reruns a failed ru
    (the router skips it by label and title).
 5. Verify a fix with `python3 scripts/automation_health.py --dry-run`, then let the next
    scheduled scan close the issue itself.
+6. It only judges runs on `main` from `schedule` / `workflow_dispatch` /
+   `workflow_run`, ignoring `skipped` placeholders, so branch test dispatches and
+   event noise never raise (or auto-rerun) anything.
 
 Lesson learned (2026-07): `jules-sprint-workers.yml` hit its hardcoded
 `SPRINT_END` (2026-06-07) and silently no-oped every 4 hours for five weeks —

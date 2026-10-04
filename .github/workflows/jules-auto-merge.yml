@@ -34,6 +34,7 @@ on:
         required: true
 
 permissions:
+  actions: write # dispatch Deploy Documentation after a merge
   contents: write
   pull-requests: write
   issues: write
@@ -158,6 +159,10 @@ jobs:
                 --delete-branch \
                 --body "Auto-merged by Jules pipeline after all quality gates passed."
               echo "Merged PR #$PR successfully."
+              # A GITHUB_TOKEN merge starts no push workflows, so publish the
+              # site explicitly (workflow_dispatch is exempt from that guard).
+              gh workflow run deploy-docs.yml --repo "$REPO" --ref main \
+                || echo "::warning::Could not dispatch Deploy Documentation; the odd-day pipeline will deploy."
             else
               echo "ℹ️ PR #$PR is still waiting on merge requirements — arming auto-merge."
               gh pr merge "$PR" \

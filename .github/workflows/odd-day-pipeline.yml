@@ -42,6 +42,10 @@ on:
         default: auto
         type: choice
         options: [auto, all, none]
+      dry_run:
+        description: Dry run — every lane reads and reports but writes nothing (no issues, PRs, pushes, deletions, deploys)
+        type: boolean
+        default: false
 
 permissions: {} # each job grants exactly what its lane needs
 
@@ -90,6 +94,8 @@ jobs:
     needs: [plan]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/pr-hygiene.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -100,6 +106,8 @@ jobs:
     needs: [pr-hygiene]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/jules-issue-hygiene.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -110,16 +118,36 @@ jobs:
     needs: [jules-issue-hygiene]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/cleanup-automation-issues.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
+      contents: read
       issues: write
+
+  branch-cleanup:
+    name: Branch cleanup
+    # After PR hygiene has closed orphaned PRs, whose branches become eligible.
+    needs: [cleanup-automation-issues]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/branch-cleanup.yml
+    with:
+      # Report-only until Marc opts in by setting the repo variable
+      # BRANCH_CLEANUP_LIVE=true (and never during a pipeline dry run).
+      dry_run: ${{ inputs.dry_run == true || vars.BRANCH_CLEANUP_LIVE != 'true' }}
+      max_deletions: ${{ fromJSON(vars.BRANCH_CLEANUP_MAX || '50') }}
+    secrets: inherit
+    permissions:
+      contents: write
 
   # --- 2. Jules backlog: label new "jules" mentions, then count the backlog.
   scheduled-jules:
     name: Jules issue watcher
-    needs: [cleanup-automation-issues]
+    needs: [branch-cleanup]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/scheduled-jules.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -130,6 +158,8 @@ jobs:
     needs: [scheduled-jules]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/process-jules-backlog.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -141,6 +171,8 @@ jobs:
     needs: [process-jules-backlog]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/daily-digest.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       actions: write
@@ -152,6 +184,8 @@ jobs:
     needs: [daily-digest]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/digest-to-intake.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       actions: write
@@ -163,6 +197,8 @@ jobs:
     needs: [plan, digest-to-intake]
     if: ${{ !cancelled() && needs.plan.outputs.growth == 'true' }}
     uses: ./.github/workflows/weekly-planner.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       actions: write
@@ -175,6 +211,8 @@ jobs:
     needs: [plan, weekly-planner]
     if: ${{ !cancelled() && needs.plan.outputs.growth == 'true' }}
     uses: ./.github/workflows/api-pricing-maintenance.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       actions: write
@@ -188,6 +226,8 @@ jobs:
     needs: [plan, api-pricing-maintenance]
     if: ${{ !cancelled() && needs.plan.outputs.coverage == 'true' }}
     uses: ./.github/workflows/coverage-gap-scan.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -198,6 +238,8 @@ jobs:
     needs: [coverage-gap-scan]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/daily-jules-maintenance.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -208,6 +250,8 @@ jobs:
     needs: [daily-jules-maintenance]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/daily-jules-knowledge.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
     secrets: inherit
     permissions:
       contents: read
@@ -218,7 +262,20 @@ jobs:
     name: Docs link health
     needs: [plan, daily-jules-knowledge]
     if: ${{ !cancelled() && needs.plan.outputs.links == 'true' }}
-    uses: ./.github/workflows/docs-link-health.yml
+    uses: ./.github/workflows/docs-link-health.yml # read-only: no dry_run needed
     secrets: inherit
     permissions:
       contents: read
+
+  # --- 6. Publish: GITHUB_TOKEN merges (Jules auto-merge, rollup auto-merge)
+  # never trigger deploy-docs on push, so publish main once per active day.
+  deploy-docs:
+    name: Deploy documentation
+    needs: [docs-link-health]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/deploy-docs.yml
+    with:
+      dry_run: ${{ inputs.dry_run == true }}
+    secrets: inherit
+    permissions:
+      contents: write

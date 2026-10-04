@@ -174,10 +174,28 @@ def workflow_states() -> dict[str, str]:
     return states
 
 
-def recent_runs(workflow_file: str) -> list[dict]:
-    out = run_gh(["run", "list", "--workflow", workflow_file, "--limit", "20",
-                  "--json", "databaseId,conclusion,status,createdAt,attempt"])
-    return json.loads(out) if out.strip() else []
+# Only these events express a lane's own schedule. Event-triggered runs of the
+# same workflow file (issue_comment, pull_request, ...) are mostly `skipped`
+# placeholders and would otherwise crowd real runs out of the window.
+LANE_EVENTS = {"schedule", "workflow_dispatch", "workflow_run"}
+RUN_WINDOW = 20
+
+
+def recent_runs(workflow_file: str, branch: str = "main") -> list[dict]:
+    """The lane's last RUN_WINDOW meaningful runs on the default branch, newest first.
+
+    Filters out (a) runs on other branches — a workflow_dispatch test on a
+    feature branch must neither raise an alert nor be auto-rerun — and (b)
+    `skipped` runs and runs from other trigger events, which carry no signal
+    about the lane's health.
+    """
+    out = run_gh(["run", "list", "--workflow", workflow_file, "--branch", branch,
+                  "--limit", "100",
+                  "--json", "databaseId,conclusion,status,createdAt,attempt,event"])
+    runs = json.loads(out) if out.strip() else []
+    meaningful = [r for r in runs
+                  if r.get("event") in LANE_EVENTS and r.get("conclusion") != "skipped"]
+    return meaningful[:RUN_WINDOW]
 
 
 def failed_jobs(run_id: int) -> list[str]:
@@ -218,7 +236,7 @@ def assess_lane(lane: dict, state: str | None, runs: list[dict],
 
     if last_success is None:
         result["status"] = "problem"
-        result["notes"].append("no successful run in the last 20 runs")
+        result["notes"].append(f"no successful run in the last {RUN_WINDOW} runs")
     else:
         age = now - parse_ts(last_success["createdAt"])
         if age > lane["threshold"]:

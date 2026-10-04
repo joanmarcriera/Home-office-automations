@@ -1,0 +1,67 @@
+name: Branch Cleanup
+
+# Deletes stale remote branches left behind by bot PRs — only branches that are
+# fully merged into main, or whose PR is merged/closed with the tip unchanged
+# since. Never main, gh-pages, automation/*, open-PR heads/bases, or tips
+# younger than 3 days. Capped per run. Rules: scripts/prune_stale_branches.py.
+#
+# DRY RUN BY DEFAULT. The odd-day pipeline only deletes for real when the repo
+# variable BRANCH_CLEANUP_LIVE is "true" (Settings -> Secrets and variables ->
+# Actions -> Variables); until then every run just reports the candidates.
+
+on:
+  # Scheduled runs come from odd-day-pipeline.yml (after PR hygiene, which
+  # closes the orphaned PRs whose branches this lane then sweeps).
+  workflow_call:
+    inputs:
+      dry_run:
+        description: Report candidates only (no deletions)
+        type: boolean
+        default: true
+      max_deletions:
+        description: Per-run deletion cap
+        type: number
+        default: 50
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report candidates only (no deletions)
+        type: boolean
+        default: true
+      max_deletions:
+        description: Per-run deletion cap
+        type: number
+        default: 50
+
+permissions:
+  contents: write # delete refs (only used when dry_run is false)
+
+concurrency:
+  group: branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      # Anything but an explicit false is a dry run (schedule/event runs have
+      # no inputs and must never delete by accident).
+      DRY_RUN: ${{ inputs.dry_run == false && 'false' || 'true' }}
+      MAX_DELETIONS: ${{ inputs.max_deletions || 50 }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prune stale branches
+        run: |
+          set -euo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            python3 scripts/prune_stale_branches.py --max-deletions "$MAX_DELETIONS"
+          else
+            python3 scripts/prune_stale_branches.py --apply --max-deletions "$MAX_DELETIONS"
+          fi

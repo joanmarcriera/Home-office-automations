@@ -4,7 +4,17 @@ on:
   # Scheduled runs come from odd-day-pipeline.yml on days 1,7,13,19,25 of the
   # month, chained directly after the Weekly Growth Planner.
   workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 permissions:
   actions: write
@@ -20,11 +30,17 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history so the pending-rollup merge below has a base
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Preserve pending rollup work
         # See weekly-planner.yml for the rationale: without this merge, a lane
@@ -67,7 +83,8 @@ jobs:
           python3 scripts/check_catalog_consistency.py
 
       - name: Create pull request for generated updates
-        if: github.ref_name == 'main'
+        # Never on a branch test or a dry run: this pushes the shared rollup branch.
+        if: github.ref_name == 'main' && env.DRY_RUN != 'true'
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:

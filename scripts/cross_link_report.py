@@ -124,9 +124,10 @@ def create_issue(mentions: list[dict]) -> bool:
     else:
         body = f"## Weekly Cross-Link Fix\n\n{mention_list}"
 
-    from datetime import datetime, timezone
+    from render_issue_template import run_date_banner, utc_today
 
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = utc_today()
+    body = run_date_banner(today) + "\n" + body
     title = f"Weekly cross-link fix: {len(mentions)} unlinked tool mentions ({today})"
 
     cmd = [
