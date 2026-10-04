@@ -180,24 +180,25 @@ def build_report(frontier: list[dict], thin: list[dict], dangling: list[dict]) -
     return "\n".join(lines)
 
 
-def create_issue(report: str, frontier: list[dict]) -> bool:
+def create_issue(report: str, frontier: list[dict]) -> bool | None:
     # Throttle: don't stack coverage-gap issues. Only issues opened by this
     # lane's own bot identity count (an outsider's look-alike issue must not
-    # suppress the lane), and a failed lookup fails CLOSED: skip, don't create.
+    # suppress the lane), and a failed lookup fails CLOSED: skip, don't create,
+    # and return None so main() exits non-zero for the watchdog.
     existing = subprocess.run(
-        ["gh", "issue", "list", "--state", "open", "--author", "app/github-actions",
+        ["gh", "issue", "list", "--state", "open", "--author", "github-actions[bot]",
          "--search", "Coverage gap fill in:title", "--json", "title"],
         capture_output=True, text=True,
     )
     if existing.returncode != 0:
-        print(f"::warning::Open-issue lookup failed ({existing.stderr.strip()[:200]}); "
+        print(f"::error::Open-issue lookup failed ({existing.stderr.strip()[:200]}); "
               "skipping issue creation to avoid duplicates.")
-        return False
+        return None
     try:
         titles = [i["title"] for i in json.loads(existing.stdout)]
     except (json.JSONDecodeError, TypeError, KeyError):
-        print("::warning::Unparsable open-issue lookup; skipping issue creation.")
-        return False
+        print("::error::Unparsable open-issue lookup; skipping issue creation.")
+        return None
     if any(t.startswith("Coverage gap fill") for t in titles):
         print("An open 'Coverage gap fill' issue already exists. Skipping (throttled).")
         return False
@@ -255,7 +256,10 @@ def main() -> int:
         print(build_report(frontier, thin, dangling))
 
     if args.create_issue:
-        create_issue(build_report(frontier, thin, dangling), frontier)
+        # None = the dedupe lookup failed: nothing was created, and the lane
+        # fails so the automation-health watchdog sees it (not a silent skip).
+        if create_issue(build_report(frontier, thin, dangling), frontier) is None:
+            return 2
 
     return 0
 

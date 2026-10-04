@@ -78,7 +78,7 @@ class PlannerTests(unittest.TestCase):
         fake = FakeGh(completed("[]"))
         self.run_main(fake)
         (cmd,) = fake.list_calls
-        self.assertEqual(cmd[cmd.index("--author") + 1], "app/github-actions")
+        self.assertEqual(cmd[cmd.index("--author") + 1], "github-actions[bot]")
 
     def test_existing_bot_issues_suppress_duplicates(self):
         fake = FakeGh(completed(json.dumps([bot("Weekly deepening: x"),
@@ -139,17 +139,17 @@ class CoverageGapThrottleTests(unittest.TestCase):
 
     def test_lookup_error_fails_closed(self):
         made, fake = self.call(completed(returncode=1, stderr="boom"))
-        self.assertEqual((made, fake.created), (False, []))
+        self.assertEqual((made, fake.created), (None, []))
 
     def test_unparsable_fails_closed(self):
         made, fake = self.call(completed("not json"))
-        self.assertEqual((made, fake.created), (False, []))
+        self.assertEqual((made, fake.created), (None, []))
 
     def test_lookup_is_bot_author_only(self):
         made, fake = self.call(completed("[]"))
         self.assertTrue(made)
         (cmd,) = fake.list_calls
-        self.assertEqual(cmd[cmd.index("--author") + 1], "app/github-actions")
+        self.assertEqual(cmd[cmd.index("--author") + 1], "github-actions[bot]")
 
     def test_existing_issue_throttles(self):
         made, fake = self.call(completed(json.dumps([{"title": "Coverage gap fill: x"}])))
