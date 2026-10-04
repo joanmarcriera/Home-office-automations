@@ -1,7 +1,7 @@
 # Contributing to the AI Hub
 
 ## What it is
-The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.6](tools/providers/anthropic.md), GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework in early January 2027.
+The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Claude 5.6](tools/providers/anthropic.md), GPT-5.6, [Gemini](tools/ai_knowledge/gemini.md) 4.0 Pro/Ultra, [DeepSeek](tools/providers/deepseek.md)-V4, [Llama 4](tools/ai_knowledge/llama-4.md), [Gemma](tools/ai_knowledge/gemma.md) 3, and Qwen 3.8) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework in early January 2027.
 
 ## What problem it solves
 It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" early January 2027 State-of-the-Art standard.
