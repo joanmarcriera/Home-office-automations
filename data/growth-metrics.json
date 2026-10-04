@@ -1,11 +1,11 @@
 {
-  "snapshot_date": "2026-10-03",
-  "total_docs": 575,
-  "tool_docs": 522,
+  "snapshot_date": "2026-10-04",
+  "total_docs": 580,
+  "tool_docs": 527,
   "service_docs": 53,
   "by_category": {
     "agents": 34,
-    "ai_knowledge": 105,
+    "ai_knowledge": 109,
     "automation_orchestration": 34,
     "benchmarking": 42,
     "calendar_tasks": 22,
@@ -16,14 +16,14 @@
     "intake_storage": 10,
     "orchestration": 10,
     "process_understanding": 41,
-    "providers": 38
+    "providers": 39
   },
-  "docs_with_code_examples": 575,
+  "docs_with_code_examples": 580,
   "docs_without_code_examples": 0,
   "shallow_docs": [],
   "underdeveloped_categories": [],
-  "weekly_additions": 0,
-  "intake_items_7d": 4,
+  "weekly_additions": 5,
+  "intake_items_7d": 16,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }
