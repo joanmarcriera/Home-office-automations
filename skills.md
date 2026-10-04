@@ -63,13 +63,20 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    `gh workflow run "<name>" --ref <branch>` (a `workflow_dispatch` workflow that
    exists *only* on a feature branch is NOT triggerable until it lands on the
    default branch).
-5. **Bot-PR detection must have ONE definition.** The "is this a Jules/automation
-   PR" heuristic (title/body/label/branch-regex) is duplicated across
-   `jules-auto-merge`, `pr-hygiene`, and the three throttle lanes
-   (`process-jules-backlog`, `daily-jules-knowledge`, `daily-jules-maintenance`,
-   `jules-sprint-workers`). If you change one, change ALL of them — drift means
-   PRs get throttle-counted but never auto-merged (a silent pileup). Current token
-   set includes `jules|...|ralph-loop|freshness-audit|audit-batch|batch-`.
+5. **Bot-PR detection has ONE definition: `scripts/ci/trusted_actor.py`.** Every
+   "is there an open bot PR / control issue?" lookup pipes its `gh ... --json`
+   listing through it (`prs --bot-heuristic [--exclude-rollup]` or `issues`).
+   Identity decides first — author is the repo owner or a known bot
+   (`github-actions`, `google-labs-jules`, only in the app forms GitHub sets) and,
+   for PRs, `isCrossRepository == false` (not a fork) — then the title/body/
+   label/branch heuristic classifies what is left. Title or branch name alone is
+   forgeable by anyone and used to let outsiders pause lanes or reach the
+   auto-merger. Users: `jules-auto-merge`, `pr-hygiene`, `weekly-automation-rollup-merge`,
+   the three throttle lanes, `api-pricing-maintenance`, `issue-automation-router`
+   and `jules_issue_watcher.py` (outsiders' issues are no longer auto-queued for
+   Jules — label them by hand), `automation_health.py` (rollup flow). Change the
+   heuristic or the bot list there, never inline; tests in
+   `scripts/ci/test_trusted_actor.py`.
 6. **Throttles must ignore CONFLICTING PRs.** Counting an un-mergeable orphan
    stalls the lane forever. Count only live PRs (fetch `mergeable` per-PR; skip
    `CONFLICTING`). `pr-hygiene.yml` closes the orphans in parallel.
@@ -108,11 +115,13 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
    runs, and GitHub keeps only one pending run per group — a burst can cancel the
    pipeline's queued call. Put the group on the job, below its `if:`.
 12. **Gates read trusted state only and fail closed.** Dedupe/throttle checks
-   count only issues authored by `app/github-actions` (outsiders can open
+   count only PRs/issues from trusted actors (see 5; outsiders can open
    look-alike titles) and, if the lookup errors or looks truncated, create
-   nothing and exit non-zero (`weekly_planner.py` exits 2) rather than assume
-   "nothing open". Unit tests: `scripts/test_weekly_planner.py`,
-   `scripts/test_prune_stale_branches.py` (run by `automation-script-tests.yml`).
+   nothing and exit non-zero (`weekly_planner.py` and `trusted_actor.py` exit 2)
+   rather than assume "nothing open" — the failed lane is what the watchdog
+   reports and reruns. Unit tests: `scripts/test_weekly_planner.py`,
+   `scripts/test_prune_stale_branches.py`, `scripts/ci/test_trusted_actor.py`
+   (run by `automation-script-tests.yml`).
 13. **Credential hygiene.** Never execute code from a non-main branch in a job
    holding a write token: check out with `persist-credentials: false`, merge
    other branches in a separate worktree, and give git the token per command
