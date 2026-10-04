@@ -222,6 +222,12 @@
       "doc_path": "docs/tools/benchmarking/assistant-bench.md"
     },
     {
+      "id": "asta",
+      "name": "ASTA",
+      "category": "frameworks",
+      "doc_path": "docs/tools/frameworks/asta.md"
+    },
+    {
       "id": "atlassian-jira-mcp-implementations",
       "name": "Atlassian Jira MCP Implementations",
       "category": "Automation & Orchestration",
@@ -868,6 +874,12 @@
       "doc_path": "docs/tools/infrastructure/docker-compose.md"
     },
     {
+      "id": "docker-sandbox-ai-agent",
+      "name": "Docker Sandbox for AI Agents",
+      "category": "infrastructure",
+      "doc_path": "docs/tools/infrastructure/docker-sandbox-ai-agent.md"
+    },
+    {
       "id": "docling",
       "name": "Docling",
       "category": "Process & Understanding",
@@ -1225,6 +1237,12 @@
       "name": "GitHub Copilot CLI",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/github-copilot-cli.md"
+    },
+    {
+      "id": "github-copilot-computer-use",
+      "name": "GitHub Copilot Computer Use",
+      "category": "development_ops",
+      "doc_path": "docs/tools/development_ops/github-copilot-computer-use.md"
     },
     {
       "id": "github-pages",
@@ -2211,6 +2229,12 @@
       "doc_path": "docs/tools/development_ops/mkdocs-material.md"
     },
     {
+      "id": "mlsubgen",
+      "name": "MLSubGen",
+      "category": "ai_knowledge",
+      "doc_path": "docs/tools/ai_knowledge/mlsubgen.md"
+    },
+    {
       "id": "mlx",
       "name": "MLX",
       "category": "Infrastructure",
@@ -3121,6 +3145,12 @@
       "name": "Speedtest Tracker",
       "category": "Process & Understanding",
       "doc_path": "docs/services/speedtest.md"
+    },
+    {
+      "id": "spotlight",
+      "name": "Spotlight",
+      "category": "frameworks",
+      "doc_path": "docs/tools/frameworks/spotlight.md"
     },
     {
       "id": "stable-audio",
