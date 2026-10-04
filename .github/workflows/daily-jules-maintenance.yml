@@ -7,7 +7,17 @@ on:
   # that is exactly when jules-pipeline-trigger.yml re-dispatches this lane
   # (on every Jules PR merge), so a second clock-driven pass is redundant.
   workflow_call:
-  workflow_dispatch: # allow manual trigger for testing
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-jules-maintenance
@@ -16,12 +26,19 @@ concurrency:
 jobs:
   open-maintenance-issue:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     permissions:
+      contents: read # checkout
       issues: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Ensure jules label exists
         env:
@@ -106,7 +123,8 @@ jobs:
           TODAY: ${{ steps.check.outputs.today }}
         run: |
           set -euo pipefail
-          cp .github/issue-templates/daily-jules-maintenance.md issue_body.md
+          # Render (not cp): expands $TODAY and pins the run date for the agent.
+          python3 scripts/render_issue_template.py .github/issue-templates/daily-jules-maintenance.md issue_body.md --date "$TODAY"
 
           gh issue create \
             --repo "$REPO" \

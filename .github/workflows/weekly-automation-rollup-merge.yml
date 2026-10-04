@@ -8,6 +8,11 @@ on:
     # wall-clock spacing for the rollup checks to finish and auto-merge to land.
     - cron: "15 18-23 1,7,13,19,25 * *"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no push to the rollup branch, no dispatches, no auto-merge
+        type: boolean
+        default: false
 
 concurrency:
   group: automation-rollup-merge
@@ -21,11 +26,22 @@ permissions:
 jobs:
   merge-rollup:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Push the sync merge with the same real-identity token the producers
+          # use, so the PR's pull_request checks start normally instead of
+          # sitting at action_required (GITHUB_TOKEN pushes need approval).
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Find open rollup PR
         id: pr
@@ -65,7 +81,11 @@ jobs:
 
           git checkout -B automation/weekly-rollup origin/automation/weekly-rollup
           git merge --no-edit origin/main
-          git push origin HEAD:automation/weekly-rollup
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[dry-run] would push $(git rev-parse --short HEAD) to automation/weekly-rollup"
+          else
+            git push origin HEAD:automation/weekly-rollup
+          fi
 
           echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"

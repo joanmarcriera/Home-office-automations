@@ -5,7 +5,17 @@ on:
   # idempotent (it skips issues already labelled `jules`), so the former
   # 00:00/08:00/16:00 triple pass only re-scanned the same issues.
   workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 concurrency:
   group: scheduled-jules-maintenance
@@ -14,12 +24,18 @@ concurrency:
 jobs:
   jules-watch:
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     permissions:
       issues: write
       contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Setup Python
         uses: actions/setup-python@v5

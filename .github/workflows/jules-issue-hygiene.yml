@@ -5,14 +5,21 @@ on:
     types: [created, edited]
   # Scheduled sweep comes from odd-day-pipeline.yml (after PR hygiene).
   workflow_call:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report only — no issues, PRs, labels or comments are written
+        type: boolean
+        default: false
 
 permissions:
+  contents: read # checkout
   issues: write
-
-concurrency:
-  group: jules-issue-hygiene
-  cancel-in-progress: false
 
 jobs:
   quarantine-failed-jules-issues:
@@ -22,10 +29,24 @@ jobs:
         github.event.comment.user.login == 'google-labs-jules' &&
         contains(github.event.comment.body, 'failed to create a task')
       )
+    # Job-level (not workflow-level) concurrency: a workflow-level group is
+    # joined by EVERY triggered run, including the many event runs whose job is
+    # skipped by the `if:` above, and GitHub keeps only one pending run per
+    # group — a burst of skipped event runs could cancel the pipeline's queued
+    # sweep. A job-level group is only entered by runs that actually execute.
+    concurrency:
+      group: jules-issue-hygiene
+      cancel-in-progress: false
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Dry-run guard (intercept mutating gh calls)
+        if: env.DRY_RUN == 'true'
+        run: bash scripts/ci/install_gh_dry_run_shim.sh
 
       - name: Quarantine failed Jules issues
         env:
