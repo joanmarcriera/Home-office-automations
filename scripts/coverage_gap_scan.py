@@ -197,8 +197,12 @@ def create_issue(report: str, frontier: list[dict]) -> bool:
 
     top = ", ".join(e.get("name", "?") for e in frontier[:5])
     title = f"Coverage gap fill: {top}"
+    from render_issue_template import run_date_banner, utc_today
+
     body = (
-        report
+        run_date_banner(utc_today())
+        + "\n"
+        + report
         + "\n\n---\n\n"
         + "**For the agent:** create canonical pages for the highest-priority frontier "
         + "gaps above, following `docs/standards.md` (correct taxonomy directory + all "

@@ -18,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from render_issue_template import run_date_banner, utc_today
+
 METRICS_PATH = Path("data/growth-metrics.json")
 
 # Category display names and search hints for gap-filling
@@ -33,8 +35,29 @@ CATEGORY_HINTS = {
 }
 
 
+def open_issue_exists(title_prefix: str) -> bool:
+    """True if an open issue whose title starts with title_prefix already exists.
+
+    Keeps the weekly lane idempotent: a re-run (manual dispatch, watchdog
+    rerun) must not stack a second copy of an issue Jules has not finished.
+    """
+    result = subprocess.run(
+        ["gh", "issue", "list", "--state", "open", "--limit", "100",
+         "--search", f'"{title_prefix}" in:title', "--json", "title"],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        return False  # fail open: the cleanup lane closes duplicates anyway
+    try:
+        titles = [i["title"] for i in json.loads(result.stdout or "[]")]
+    except json.JSONDecodeError:
+        return False
+    return any(t.startswith(title_prefix) for t in titles)
+
+
 def create_issue(title: str, body: str, labels: list[str]) -> bool:
-    """Create a GitHub issue using gh CLI."""
+    """Create a GitHub issue using gh CLI (body gets the run-date banner)."""
+    body = run_date_banner(utc_today()) + "\n" + body
     cmd = ["gh", "issue", "create", "--title", title, "--body", body]
     for label in labels:
         cmd.extend(["--label", label])
@@ -123,14 +146,18 @@ def main() -> int:
     created = 0
 
     # Issue 1: Deepen shallow docs
-    if shallow_docs:
+    if shallow_docs and open_issue_exists("Weekly deepening:"):
+        print("An open 'Weekly deepening:' issue already exists. Skipping.")
+    elif shallow_docs:
         body = build_deepening_body(shallow_docs)
         title = f"Weekly deepening: add code examples to {min(5, len(shallow_docs))} docs"
         if create_issue(title, body, ["jules"]):
             created += 1
 
     # Issue 2: Fill the most underdeveloped category
-    if underdeveloped:
+    if underdeveloped and open_issue_exists("Category gap fill:"):
+        print("An open 'Category gap fill:' issue already exists. Skipping.")
+    elif underdeveloped:
         # Pick the category with fewest docs
         worst = min(underdeveloped, key=lambda c: by_category.get(c, 0))
         count = by_category.get(worst, 0)
