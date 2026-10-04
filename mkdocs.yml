@@ -173,6 +173,10 @@ nav:
       - Overview: tools/README.md
       - AI & Knowledge:
           - Overview: tools/ai_knowledge/index.md
+          - UniFolm-WLA10: tools/ai_knowledge/unifolm-wla10.md
+          - Liquid AI FM: tools/ai_knowledge/liquid-ai-fm.md
+          - FrogNano 4B: tools/ai_knowledge/frognano-4b.md
+          - AWS Strands Decider Model: tools/ai_knowledge/aws-strands-decider-model.md
           - PrivateGPT: tools/ai_knowledge/privategpt.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
@@ -243,6 +247,7 @@ nav:
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Mellum2: tools/ai_knowledge/mellum2.md
           - MicroGPT: tools/ai_knowledge/microgpt.md
+          - MLSubGen: tools/ai_knowledge/mlsubgen.md
           - Ming-Image-0.1-Design: tools/ai_knowledge/ming-image.md
           - Muse Glimmer: tools/ai_knowledge/muse-glimmer.md
           - Moondream: tools/ai_knowledge/moondream.md
@@ -411,6 +416,7 @@ nav:
           - Free Will MCP: tools/development_ops/free-will-mcp.md
           - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
           - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
+          - GitHub Copilot Computer Use: tools/development_ops/github-copilot-computer-use.md
           - GitHub Pages: tools/development_ops/github-pages.md
           - MkDocs: tools/development_ops/mkdocs.md
           - Material for MkDocs: tools/development_ops/mkdocs-material.md
@@ -468,6 +474,7 @@ nav:
           - Verba: tools/intake_storage/verba.md
       - Frameworks:
           - AG2: tools/frameworks/ag2.md
+          - ASTA: tools/frameworks/asta.md
           - Agent Development Kit (ADK): tools/frameworks/google-adk.md
           - AWS Kiro: tools/frameworks/aws-kiro.md
           - AutoGen: tools/frameworks/autogen.md
@@ -501,6 +508,7 @@ nav:
           - Rivet: tools/frameworks/rivet.md
           - Semantic Kernel: tools/frameworks/semantic-kernel.md
           - Smolagents: tools/frameworks/smolagents.md
+          - Spotlight: tools/frameworks/spotlight.md
           - Superinterface: tools/frameworks/superinterface.md
           - Tritium: tools/frameworks/tritium.md
       - Providers:
@@ -533,6 +541,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - DigitalOcean Managed Agents: tools/providers/digitalocean-managed-agents.md
           - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
           - Poolside AI: tools/providers/poolside.md
@@ -615,6 +624,7 @@ nav:
           - Diagrid Catalyst: tools/infrastructure/diagrid-catalyst.md
           - Docker: tools/infrastructure/docker.md
           - Docker Compose: tools/infrastructure/docker-compose.md
+          - Docker Sandbox for AI Agents: tools/infrastructure/docker-sandbox-ai-agent.md
           - Podman: tools/infrastructure/podman.md
           - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md

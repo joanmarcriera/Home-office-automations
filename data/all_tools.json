@@ -222,6 +222,12 @@
       "doc_path": "docs/tools/benchmarking/assistant-bench.md"
     },
     {
+      "id": "asta",
+      "name": "ASTA",
+      "category": "frameworks",
+      "doc_path": "docs/tools/frameworks/asta.md"
+    },
+    {
       "id": "atlassian-jira-mcp-implementations",
       "name": "Atlassian Jira MCP Implementations",
       "category": "Automation & Orchestration",
@@ -280,6 +286,12 @@
       "name": "AWS Kiro",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/aws-kiro.md"
+    },
+    {
+      "id": "aws-strands-decider-model",
+      "name": "AWS Strands Decider Model",
+      "category": "AI Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/aws-strands-decider-model.md"
     },
     {
       "id": "axiom-guardian",
@@ -832,6 +844,12 @@
       "doc_path": "docs/tools/ai_knowledge/dify.md"
     },
     {
+      "id": "digitalocean-managed-agents",
+      "name": "DigitalOcean Managed Agents",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/digitalocean-managed-agents.md"
+    },
+    {
       "id": "diskover",
       "name": "Diskover",
       "category": "Intake & Storage",
@@ -854,6 +872,12 @@
       "name": "Docker Compose",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/docker-compose.md"
+    },
+    {
+      "id": "docker-sandbox-ai-agent",
+      "name": "Docker Sandbox for AI Agents",
+      "category": "infrastructure",
+      "doc_path": "docs/tools/infrastructure/docker-sandbox-ai-agent.md"
     },
     {
       "id": "docling",
@@ -1095,6 +1119,12 @@
       "doc_path": "docs/tools/development_ops/free-will-mcp.md"
     },
     {
+      "id": "frognano-4b",
+      "name": "FrogNano 4B",
+      "category": "AI Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/frognano-4b.md"
+    },
+    {
       "id": "fully-offline-assistant",
       "name": "Fully Offline Assistant",
       "category": "Playbooks",
@@ -1207,6 +1237,12 @@
       "name": "GitHub Copilot CLI",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/github-copilot-cli.md"
+    },
+    {
+      "id": "github-copilot-computer-use",
+      "name": "GitHub Copilot Computer Use",
+      "category": "development_ops",
+      "doc_path": "docs/tools/development_ops/github-copilot-computer-use.md"
     },
     {
       "id": "github-pages",
@@ -1796,6 +1832,12 @@
       "doc_path": "docs/tools/providers/liquid-ai.md"
     },
     {
+      "id": "liquid-ai-fm",
+      "name": "Liquid AI FM",
+      "category": "AI Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/liquid-ai-fm.md"
+    },
+    {
       "id": "litellm",
       "name": "LiteLLM",
       "category": "Process & Understanding",
@@ -2185,6 +2227,12 @@
       "name": "Material for MkDocs",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/mkdocs-material.md"
+    },
+    {
+      "id": "mlsubgen",
+      "name": "MLSubGen",
+      "category": "ai_knowledge",
+      "doc_path": "docs/tools/ai_knowledge/mlsubgen.md"
     },
     {
       "id": "mlx",
@@ -3099,6 +3147,12 @@
       "doc_path": "docs/services/speedtest.md"
     },
     {
+      "id": "spotlight",
+      "name": "Spotlight",
+      "category": "frameworks",
+      "doc_path": "docs/tools/frameworks/spotlight.md"
+    },
+    {
       "id": "stable-audio",
       "name": "Stable Audio",
       "category": "AI Assistants & Knowledge",
@@ -3400,6 +3454,12 @@
       "name": "Udio",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/udio.md"
+    },
+    {
+      "id": "unifolm-wla10",
+      "name": "UniFolm-WLA10",
+      "category": "AI Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/unifolm-wla10.md"
     },
     {
       "id": "unsloth",

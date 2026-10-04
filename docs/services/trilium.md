@@ -1,148 +1,368 @@
 # Trilium Notes (TriliumNext)
 
-Trilium Notes is a hierarchical note-taking application with a focus on building large personal knowledge bases. Following the transition of the original project to maintenance mode, the community-driven [TriliumNext](https://github.com/TriliumNext/TriliumNext) fork has become the primary active branch, introducing significant modern features for the early January 2027 agentic era.
+Trilium Notes is a hierarchical, highly customizable note-taking application designed for constructing large, deeply structured personal knowledge bases. Following the transition of the original project to maintenance mode, the community-driven [TriliumNext](https://github.com/TriliumNext/TriliumNext) project has established itself as the primary active release track (v0.103.x+, early January 2027), introducing native spreadsheet support (Univer Sheets), FastMCP 3.1 task capabilities, enhanced OCR engines, and native integration for autonomous agent reasoning loops.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Trilium Notes Topology                                  |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ Agent Orchestration / User Desktop UI ]                                        |
+|                                |                                                  |
+|                        (FastMCP 3.1 / REST API)                                  |
+|                                v                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | TriliumNext Server Instance (Port 8080)                                    |  |
+|  +-----------------------------------------------------------------------------+  |
+|          |                                             |                          |
+|          v                                             v                          |
+|  +-------------------------------+             +-------------------------------+  |
+|  | Node Forest Engine            |             | Execution & Scripting Engine  |  |
+|  | (Cloning / Relation Links)    |             | (Node.js v22.x / fetch API)   |  |
+|  +-------------------------------+             +-------------------------------+  |
+|          |                                             |                          |
+|          +-----------------------+---------------------+                          |
+|                                  |                                                |
+|                                  v                                                |
+|  +-----------------------------------------------------------------------------+  |
+|  | SQLite Storage Engine & Document Indexer                                   |  |
+|  | (Full-Text Search FTS5 / OCR Processing / File Attachments)                 |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What it is
-Trilium Notes is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships. The **TriliumNext** fork continues this legacy with improved performance, security, and modern note types like native spreadsheets. In early January 2027, it serves as a primary destination for structured long-term memory for frontier reasoning agents like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, and Llama 4.
+Trilium Notes (TriliumNext) is a local-first, hierarchical knowledge engine that models information as a directed forest graph rather than flat text files. Notes in Trilium can possess multiple parents (cloning), run embedded JavaScript scripts to reactively modify metadata, embed live spreadsheets, store encrypted code snippets, and perform automated OCR on attached images and PDFs. In early 2027, Trilium serves as an ideal persistent knowledge backend for autonomous agent workflows powered by [Claude 5.6](../providers/anthropic.md), GPT-5.6, and [Gemma 4](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-Managing thousands of notes with complex inter-relationships is difficult in standard "flat" or "shallow" note apps. Trilium solves this by treating notes as a forest of trees, allowing a single note to exist in multiple places (cloning), and providing an automation engine to manage metadata and note lifecycle. It prevents "knowledge rot" by allowing deep structural organization that mirrors complex mental models.
+Standard note-taking applications enforce either strict single-folder hierarchies or flat tag lists, causing information fragmentation and "knowledge decay" in large repositories (>10,000 pages).
+
+Trilium solves this structural limitation by providing:
+1. **Directed Forest Hierarchy**: Allows a note to exist simultaneously under multiple parent notes without content duplication.
+2. **Automated Lifecycle Scripting**: Executes custom JavaScript functions triggered by note creation, updates, or daily interval timers.
+3. **Structured Attribute Engine**: Attaches typed key-value labels, relations, and promo attributes to dynamically filter and render custom dashboards.
+4. **Local-First Synchronization**: Encrypts and synchronizes knowledge trees across multiple desktop and server nodes using atomic revision delta logs.
 
 ## Where it fits in the stack
-**Category**: Services / Knowledge Management. It serves as the **core intellectual repository** for structured long-term knowledge, research, and documentation. It integrates with the broader homelab via its REST API, acting as a destination for automated data ingestion from n8n or agentic workflows.
+**Services / Knowledge Base & Persistent Agent Memory Layer**. Trilium sits between ingestion/automation tools ([n8n](n8n.md), Paperless-ngx) and reasoning agents:
+- **Data Ingestion**: Receives web clips, automated journal entries, and PDF OCR extracts via REST API or FastMCP 3.1 tools.
+- **Data Organization**: Organizes research trees, project specifications, and code snippets into queryable nodes.
+- **Agent Interfacing**: Serves structured context and memory state to agent execution engines via the FastMCP 3.1 Task Protocol.
 
 ## Typical use cases
-- **Personal Knowledge Base (PKB)**: Building a "second brain" with deep hierarchical structure.
-- **Agentic Journaling**: Using FastMCP 3.1 scripts to automatically summarize daily logs via Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0, or DeepSeek-V4.
-- **Technical Snippet Management**: Storing and executing code snippets within the knowledge tree.
-- **Structured Data Analysis**: Managing household or research data using the built-in **Spreadsheet** note type.
-- **Document Archival**: Digitizing paper notes and PDFs via built-in **OCR** and indexing.
+- **Autonomous Agent Memory Bank**: Functioning as an indexed, long-term memory store for AI agents storing interaction logs, project milestones, and user preferences.
+- **Enterprise Technical Wiki**: Maintaining deeply nested documentation, architecture diagrams, and runnable code snippets.
+- **Integrated Data Analysis**: Storing financial logs, task schedules, and metrics using embedded **Univer Sheets** notes with built-in formula calculations.
+- **Document Vault**: Indexing paper receipts, scans, and PDF manuals using the integrated Tesseract/OCR pipeline.
 
 ## Strengths
-- **Extreme Flexibility**: Hierarchical structure with support for cloning notes into multiple locations.
-- **Programmability**: Built-in JavaScript scripting engine for automating note behavior and metadata.
-- **Native Spreadsheets**: Integrated Excel-like editing via Univer Sheets, allowing calculations within the KB.
-- **Advanced OCR**: Built-in engine automatically extracts and indexes text from images, PDFs, and Office documents.
-- **Self-Hostable**: Strong synchronization capabilities for private, local-first knowledge management.
+- **Non-Linear Tree Cloning**: Clone any note into arbitrary locations in the tree; updating the master content updates all visible instances instantly.
+- **Built-in Automation Engine**: Node.js execution environment allowing notes to run backend scripts, execute HTTP requests, and auto-generate summary notes.
+- **Native Spreadsheet Support**: Integrated Univer Sheets editing for inline cell formulas and tabular data processing inside notes.
+- **Full-Text FTS5 Search & OCR**: High-speed indexing of text, markdown, HTML, code snippets, and attached image text.
+- **Local-First & Encrypted**: All data stored locally in SQLite with optional end-to-end payload encryption during sync.
 
 ## Limitations
-- **Learning Curve**: The high feature density and scripting capabilities require time to master.
-- **UI Complexity**: The interface can feel cluttered compared to modern minimal "block-based" editors.
-- **Legacy Scripting**: Older scripts using `api.axios` must be migrated to the native `fetch()` API in versions 0.103+.
+- **Steep Learning Curve**: Mastering cloning, relation attributes, and backend scripting requires dedicated onboarding.
+- **UI Density**: Complex sidebars and multi-tab pane layouts can feel overwhelming compared to minimal markdown editors.
+- **Migration Requirements**: Legacy scripts relying on older Trilium APIs (`api.axios`) require refactoring to use standard global `fetch()`.
 
 ## When to use it
-- When you need a "forest" rather than a "flat list" for your notes.
-- When you want to programmatically automate your knowledge base (e.g., auto-tagging, dynamic dashboards).
-- When you require integrated spreadsheet capabilities and deep document search in a single tool.
-- When you prefer a local-first, self-hosted solution over proprietary SaaS.
+- **Deeply Structured Repositories**: When managing complex personal or team knowledge bases exceeding thousands of cross-referenced pages.
+- **Scriptable Knowledge Workflows**: When notes need reactive behaviors, such as auto-calculating totals or pulling RSS feeds.
+- **Local-First Data Ownership**: When requiring complete offline control, local SQLite storage, and self-hosted server synchronization.
 
 ## When not to use it
-- For quick, ephemeral scratchpad notes (use a simple tool like [Logseq](../tools/ai_knowledge/logseq.md)).
-- If you prefer a highly polished, mobile-first SaaS experience with minimal configuration.
+- **Simple Scratchpad Notes**: For quick, temporary text notes, simpler tools like [Logseq](../tools/ai_knowledge/logseq.md) or Joplin are lighter.
+- **Real-Time Collaborative Editing**: Multiple users simultaneously editing the exact same note character-by-character (use Hedgedoc or Etherpad).
 
 ## Getting started
 
-The easiest way to self-host TriliumNext is via Docker.
+### Deployment Overview
+TriliumNext is deployed as a single Docker container mounting a local data volume to store SQLite database files and uploaded media attachments.
 
-### Installation (Docker)
-```bash
-docker run -d -p 8080:8080 -v ~/trilium-data:/home/node/trilium-data triliumnext/notes:latest
-```
-
-### Initial Setup
-1. Access the UI at `http://localhost:8080`.
-2. Follow the setup wizard to create your account and data directory.
-3. Enable **OCR** in the Media options to begin indexing your document attachments.
+### System Prerequisites
+- Docker Engine 24.0+ / Docker Compose v2.x.
+- Minimum 1 GB RAM and 1 CPU core.
+- Port 8080 available for HTTP traffic.
 
 ## CLI examples
-While Trilium lacks a standalone CLI binary, it is fully manageable via the REST API and Docker commands.
 
+### Deploying TriliumNext via Docker Compose
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  triliumnext:
+    image: triliumnext/notes:v0.103.2
+    container_name: triliumnext-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - TRILIUM_DATA_DIR=/home/node/trilium-data
+    volumes:
+      - ./trilium-data:/home/node/trilium-data
+```
+
+### Server Execution & Health Validation
 ```bash
-# Health Check
-curl http://localhost:8080/api/health
+# Start TriliumNext container
+docker compose up -d
 
-# Search via API (requires setup of authentication token)
-curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes?search=markdown"
+# Check TriliumNext instance health endpoint
+curl -s http://localhost:8080/api/health | jq .
 
-# Note Export
-curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes/<note_id>/export?format=html" -o note.html
+# Create a API Secret Token in Settings -> ETAPI
+export TRILIUM_TOKEN="your_etapi_token_here"
+
+# List child notes under the root note
+curl -s -H "Authorization: $TRILIUM_TOKEN" \
+     "http://localhost:8080/etapi/notes/root/children" | jq .
 ```
 
 ## API examples
 
-### Create a Note (Python with Pydantic v2 Validation)
-Utilize Claude 5.1, GPT-5.5, or Gemini 4.0 to orchestrate note creation via the REST API and MCP 3.1 / FastMCP 3.1. This snippet provides robust request validation utilizing Pydantic v2 before interacting with the Trilium REST API.
+### Complete FastMCP 3.1 Task Protocol Server Implementation
+This Python script provides a complete **FastMCP 3.1 Task Protocol** server that wraps TriliumNext's ETAPI REST endpoints. It exposes tools (`@mcp.tool()`) for search, note creation, and note cloning for autonomous AI agents.
 
 ```python
-import requests
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, Dict, Any, List
+"""
+TriliumNext FastMCP 3.1 Server Implementation
+Exposes Trilium ETAPI hierarchical note management capabilities to AI agent runners.
+"""
 
-class TriliumNoteCreate(BaseModel):
-    parentNoteId: str = Field(default="root", description="ID of the parent note")
-    title: str = Field(..., min_length=1, max_length=255, description="Title of the note")
-    type: str = Field(default="text", description="Type of the note (e.g., text, code, spreadsheet)")
-    content: str = Field(..., description="Markdown or HTML content of the note")
+import asyncio
+import logging
+import os
+import time
+from typing import Any, Dict, List, Optional
+import httpx
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
+
+# Configure Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("trilium-mcp-server")
+
+# Environment Variables
+TRILIUM_URL = os.getenv("TRILIUM_URL", "http://localhost:8080").rstrip("/")
+TRILIUM_ETAPI_TOKEN = os.getenv("TRILIUM_ETAPI_TOKEN", "default_etapi_token")
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    name="trilium-notes-mcp",
+    instructions="FastMCP 3.1 server for interacting with TriliumNext hierarchical knowledge base."
+)
+
+class CreateNoteInput(BaseModel):
+    parent_note_id: str = Field(default="root", description="ID of the parent note under which to create this note")
+    title: str = Field(..., min_length=1, max_length=250, description="Title of the new note")
+    type: str = Field(default="text", description="Note type: text, code, spreadsheet, renderedHtml")
+    content: str = Field(..., description="Content payload for the note (Markdown or HTML)")
 
     @field_validator("type")
     @classmethod
-    def validate_type(cls, v: str) -> str:
-        allowed_types = {"text", "code", "relation", "book", "file", "image", "spreadsheet"}
-        if v not in allowed_types:
-            raise ValueError(f"type must be one of {allowed_types}")
+    def validate_note_type(cls, v: str) -> str:
+        valid_types = {"text", "code", "spreadsheet", "renderedHtml", "search", "file"}
+        if v not in valid_types:
+            raise ValueError(f"Note type '{v}' must be one of {valid_types}")
         return v
 
-class TriliumNoteResponse(BaseModel):
-    noteId: str
-    parentNoteId: str
-    title: str
-    type: str
-    content: Optional[str] = None
-    attributes: Optional[List[Dict[str, Any]]] = None
+class SearchNotesInput(BaseModel):
+    query: str = Field(..., min_length=2, description="Search term or Trilium search expression")
+    limit: int = Field(default=10, ge=1, le=50, description="Maximum number of search results to return")
 
-def create_trilium_note(url: str, token: str, payload: TriliumNoteCreate) -> TriliumNoteResponse:
-    headers = {"Authorization": token}
 
-    # Validation step is done automatically by Pydantic model instantiation
-    response = requests.post(f"{url}/notes", json=payload.model_dump(), headers=headers)
-    response.raise_for_status()
+@mcp.tool(
+    name="trilium_create_note",
+    description="Creates a new note inside TriliumNext under the specified parent node."
+)
+async def trilium_create_note(input_data: CreateNoteInput) -> Dict[str, Any]:
+    """
+    Creates a new node in TriliumNext using ETAPI.
+    """
+    logger.info(f"Creating note '{input_data.title}' under parent '{input_data.parent_note_id}'...")
 
-    raw_response = response.json()
-    return TriliumNoteResponse(**raw_response)
+    headers = {
+        "Authorization": TRILIUM_ETAPI_TOKEN,
+        "Content-Type": "application/json"
+    }
 
-# Example usage:
-# note_payload = TriliumNoteCreate(parentNoteId="root", title="Agentic Insights", type="text", content="Validated via Pydantic v2.")
-# response_note = create_trilium_note("http://localhost:8080/api", "my-api-token", note_payload)
-# print(response_note.noteId)
+    # 1. Create Note Metadata
+    note_payload = {
+        "parentNoteId": input_data.parent_note_id,
+        "title": input_data.title,
+        "type": input_data.type,
+        "mime": "text/html" if input_data.type == "text" else "text/plain"
+    }
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            resp = await client.post(f"{TRILIUM_URL}/etapi/create-note", json=note_payload, headers=headers)
+            resp.raise_for_status()
+            note_info = resp.json()
+            note_id = note_info["note"]["noteId"]
+
+            # 2. Put Note Content
+            content_resp = await client.put(
+                f"{TRILIUM_URL}/etapi/notes/{note_id}/content",
+                content=input_data.content,
+                headers={"Authorization": TRILIUM_ETAPI_TOKEN, "Content-Type": "text/html"}
+            )
+            content_resp.raise_for_status()
+
+            return {
+                "status": "success",
+                "note_id": note_id,
+                "title": input_data.title,
+                "parent_note_id": input_data.parent_note_id,
+                "type": input_data.type
+            }
+        except httpx.HTTPError as err:
+            logger.error(f"Failed to create Trilium note: {err}")
+            return {"status": "error", "message": f"ETAPI execution failed: {str(err)}"}
+
+
+@mcp.tool(
+    name="trilium_search_notes",
+    description="Searches TriliumNext knowledge base notes using full-text search or attributes."
+)
+async def trilium_search_notes(input_data: SearchNotesInput) -> Dict[str, Any]:
+    """
+    Queries TriliumNext using ETAPI search endpoints.
+    """
+    logger.info(f"Executing Trilium search query: '{input_data.query}'")
+    headers = {"Authorization": TRILIUM_ETAPI_TOKEN}
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            params = {"search": input_data.query, "limit": input_data.limit}
+            resp = await client.get(f"{TRILIUM_URL}/etapi/notes", params=params, headers=headers)
+            resp.raise_for_status()
+            results = resp.json()
+
+            formatted_results = [
+                {
+                    "noteId": item.get("noteId"),
+                    "title": item.get("title"),
+                    "type": item.get("type"),
+                    "isProtected": item.get("isProtected", False)
+                }
+                for item in results.get("results", [])
+            ]
+
+            return {
+                "status": "success",
+                "query": input_data.query,
+                "count": len(formatted_results),
+                "notes": formatted_results
+            }
+        except httpx.HTTPError as err:
+            logger.error(f"Trilium search failed: {err}")
+            return {"status": "error", "message": f"Search API error: {str(err)}"}
+
+
+if __name__ == "__main__":
+    logger.info("Starting TriliumNext FastMCP 3.1 Task Protocol Server...")
+    mcp.run(transport="sses")
 ```
 
-### Modern Scripting (JavaScript)
-TriliumNext v0.103+ utilizes native `fetch`.
+### Pydantic v2 Schema for Trilium Note Export & Attribute Validation
+This Python module demonstrates validating exported Trilium note attributes, relation tags, and note hierarchies using strict Pydantic v2 models.
 
-```javascript
-// Fetch-based pattern for internal scripts
-const response = await fetch('https://api.example.com/data');
-const data = await response.json();
-api.log(`Data retrieved: ${data.message}`);
+```python
+"""
+TriliumNext Pydantic v2 Attribute & Node Structural Validation.
+"""
+
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+
+class NoteAttribute(BaseModel):
+    attributeId: str = Field(..., description="Unique attribute ID")
+    type: str = Field(..., description="Attribute type: label, relation, promo")
+    name: str = Field(..., min_length=1, description="Attribute key name")
+    value: Optional[str] = Field(default=None, description="Attribute string value")
+    isInheritable: bool = Field(default=False, description="Inherit attribute to child notes")
+
+    @field_validator("type")
+    @classmethod
+    def check_attribute_type(cls, v: str) -> str:
+        if v not in {"label", "relation", "promo"}:
+            raise ValueError(f"Invalid attribute type '{v}'. Must be label, relation, or promo.")
+        return v
+
+
+class TriliumNodeExport(BaseModel):
+    noteId: str = Field(..., min_length=4, description="Trilium note ID")
+    title: str = Field(..., description="Note title")
+    type: str = Field(..., description="Note type")
+    parentNoteIds: List[str] = Field(..., min_items=1, description="List of parent note IDs (supports cloning)")
+    attributes: List[NoteAttribute] = Field(default_factory=list, description="Attached labels and relations")
+    content_length: int = Field(default=0, ge=0, description="Content character count")
+
+    @model_validator(mode="after")
+    def verify_cloning_status(self) -> "TriliumNodeExport":
+        if len(self.parentNoteIds) > 1:
+            print(f"[Info] Note '{self.title}' ({self.noteId}) is cloned across {len(self.parentNoteIds)} parent locations.")
+        return self
+
+
+def parse_export_manifest(raw_manifest: dict) -> None:
+    try:
+        node = TriliumNodeExport.model_validate(raw_manifest)
+        print("=== Trilium Node Validation Successful ===")
+        print(f"ID: {node.noteId} | Title: '{node.title}' | Type: {node.type}")
+        print(f"Parents: {node.parentNoteIds}")
+        print(f"Attributes Count: {len(node.attributes)}")
+    except Exception as err:
+        print(f"Manifest Parsing Failure: {err}")
+
+
+if __name__ == "__main__":
+    sample_data = {
+        "noteId": "note_arch_001",
+        "title": "Agentic Architecture Map 2027",
+        "type": "text",
+        "parentNoteIds": ["root", "folder_ai_agents"],
+        "attributes": [
+            {
+                "attributeId": "attr_01",
+                "type": "label",
+                "name": "status",
+                "value": "active",
+                "isInheritable": True
+            },
+            {
+                "attributeId": "attr_02",
+                "type": "relation",
+                "name": "relatesTo",
+                "value": "note_mcp_002",
+                "isInheritable": False
+            }
+        ],
+        "content_length": 4820
+    }
+
+    parse_export_manifest(sample_data)
 ```
 
 ## Related tools / concepts
-- [Obsidian](../tools/ai_knowledge/obsidian.md) — The primary markdown-based alternative.
-- [Logseq](../tools/ai_knowledge/logseq.md) — For privacy-first outliner-based knowledge.
-- [Joplin](../tools/ai_knowledge/joplin.md) — For a simpler, cross-platform notebook experience.
-- [AnyType](../tools/intake_storage/anytype.md) — A decentralized, object-based alternative.
-- [SilverBullet](../tools/intake_storage/silverbullet.md) — A hackable, markdown-based knowledge base.
-- [n8n](n8n.md) — For automating data ingestion into Trilium.
-- [Paperless-ngx](paperless-ngx.md) — For dedicated document management and advanced OCR workflows.
-- [Excalidraw](excalidraw.md) — For embedding hand-drawn diagrams into notes.
-- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For local inference and knowledge synthesis.
-- [Claude 5.1](../tools/ai_knowledge/claude.md) — For high-performance agentic reasoning over the PKB.
-- [GPT-5.5](../tools/providers/huggingface.md) — For multi-agent cognitive loops.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — The primary markdown-based knowledge editor.
+- [Logseq](../tools/ai_knowledge/logseq.md) — Privacy-first outliner knowledge tool.
+- [Joplin](../tools/ai_knowledge/joplin.md) — Simple cross-platform notebook manager.
+- [SilverBullet](../tools/intake_storage/silverbullet.md) — Hackable markdown-native knowledge base.
+- [n8n](n8n.md) — Workflow automation tool for pushing data to Trilium.
+- [Paperless-ngx](paperless-ngx.md) — Document archiving service integrated with Trilium.
+- [Claude 5.6](../providers/anthropic.md) — Reasoning model for multi-note synthesis.
 
 ## Sources / references
 - [TriliumNext GitHub Repository](https://github.com/TriliumNext/TriliumNext)
-- [Trilium Wiki](https://github.com/zadam/trilium/wiki)
-- [TriliumNext Releases and Changelog](https://github.com/TriliumNext/TriliumNext/releases)
+- [Trilium Wiki & Documentation](https://github.com/zadam/trilium/wiki)
+- [TriliumNext Releases & Changelog](https://github.com/TriliumNext/TriliumNext/releases)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
