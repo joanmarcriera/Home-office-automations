@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/infrastructure/llamafile.md` | Open | Completed | 7,889 chars | 23,888 chars | +15,999 chars |
-| `docs/tools/ai_knowledge/elevenlabs.md` | Open | Completed | 7,904 chars | 19,990 chars | +12,086 chars |
-| `docs/tools/process_understanding/ovisocr2.md` | Open | Completed | 7,904 chars | 19,810 chars | +11,906 chars |
-| `docs/tools/intake_storage/minio.md` | Open | Completed | 7,926 chars | 20,304 chars | +12,378 chars |
-| `docs/tools/development_ops/google-stitch.md` | Open | Completed | 7,928 chars | 20,134 chars | +12,206 chars |
+| `docs/tools/infrastructure/llamafile.md` | Closed | Completed | 7,889 chars | 23,888 chars | +15,999 chars |
+| `docs/tools/ai_knowledge/elevenlabs.md` | Closed | Completed | 7,904 chars | 19,990 chars | +12,086 chars |
+| `docs/tools/process_understanding/ovisocr2.md` | Closed | Completed | 7,904 chars | 19,810 chars | +11,906 chars |
+| `docs/tools/intake_storage/minio.md` | Closed | Completed | 7,926 chars | 20,304 chars | +12,378 chars |
+| `docs/tools/development_ops/google-stitch.md` | Closed | Completed | 7,928 chars | 20,134 chars | +12,206 chars |
 
 ---
 

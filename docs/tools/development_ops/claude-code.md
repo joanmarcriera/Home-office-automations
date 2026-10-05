@@ -37,6 +37,23 @@ Claude Code is Anthropic's premier terminal-native developer agent and command-l
 +-----------------------------------------------------------------------------------+
 ```
 
+```
+|                           Claude Code Terminal Agent Architecture                 |
+|                                                                                   |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|  | CLI Terminal Shell | --> | Agent Loop & Context| --> | FastMCP 3.1 Tool     |  |
+|  | (Interactive User) |     | Manager (Claude 5)  |     | Server Integration   |  |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|                                                                    |              |
++--------------------------------------------------------------------|--------------+
+                                                                     v
++--------------------------+                               +------------------------+
+| Local Git Sandbox        |                               | Compiler & Test Runner |
+| - Workspace Verification | ----------------------------> | - Auto-fixing Loop     |
+| - Diff Verification      |                               | - SWE-bench Execution  |
++--------------------------+                               +------------------------+
+```
+
 ## What problem it solves
 Traditional software engineering involves continuous context-switching between code editors, web search engines, terminal logs, and chat windows. Claude Code bridges this "Execution Gap" by embedding a frontier-tier agent directly inside the terminal. It solves:
 - **Brittle Automation Loops**: Rather than simple text generation, it conducts autonomous file editing, runtime debugging, and verification loops.
@@ -45,6 +62,29 @@ Traditional software engineering involves continuous context-switching between c
 
 ## Where it fits in the stack
 **Category**: Agent / [Development & Ops](index.md). It acts as the primary orchestrator of local repository changes, working in tandem with static analysis tools, CI runners, and local execution runtimes (like Ollama and Docker).
+
+```
++-----------------------------------------------------------------------------------+
+| User Terminal / IDE Integration                                                   |
+| - Interactive Shell Session / Autonomous One-Shot CLI Tasks                        |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+| Developer Agent Engine: Claude Code                                                |
+| - Workspace Context Discovery (`/compact`, `CLAUDE.md`, `AGENTS.md`)               |
+| - FastMCP 3.1 Tool Calling Protocols (File I/O, Bash Execution, AST Search)       |
+| - Pydantic v2 Configuration & Schema Enforcement                                  |
++-----------------------------------------------------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                            |                            |
+            v                            v                            v
++------------------------+  +------------------------+  +------------------------+
+| Git Repository         |  | FastMCP Tool Server    |  | Test Runner & Compiler |
+| Staging & Diffs        |  | (Docker / Local Services)|  | (Jest/PyTest/Cargo)   |
++------------------------+  +------------------------+  +------------------------+
+```
 
 ## Typical use cases
 - **Autonomous Feature Sprints**: Describing requirements and letting the agent write the implementation, craft tests, and verify success autonomously.
@@ -262,6 +302,76 @@ async def trigger_automated_refactor(request: RefactorRequest) -> RefactorResult
     )
 
 if __name__ == "__main__":
+    mcp.run()
+```
+
+### Tool Registry Server with Pydantic v2 Config Model
+The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation and serve them via a **FastMCP 3.1** server for terminal-agent consumption.
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+import json
+
+mcp = FastMCP("ClaudeCodeToolRegistry")
+
+# Define the FastMCP 3.1 compatible schema for an agentic tool registration
+class MCPToolDefinition(BaseModel):
+    name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]{1,64}$", description="Tool function identifier")
+    description: str = Field(..., min_length=10, description="Detailed explanation of tool operation")
+    input_schema: dict = Field(..., description="Valid JSON Schema representation of inputs")
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
+            "example": {
+                "name": "verify_test_suite",
+                "description": "Runs a target test suite using jest or pytest.",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "test_file": {"type": "string"},
+                        "verbose": {"type": "boolean", "default": True}
+                    },
+                    "required": ["test_file"]
+                }
+            }
+        }
+    }
+
+class ClaudeCodeConfig(BaseModel):
+    model_version: str = Field(default="claude-5.6")
+    max_token_budget: int = Field(default=100000, gt=0)
+    enable_fastmcp: bool = Field(default=True)
+    allowed_commands: List[str] = Field(default_factory=lambda: ["git", "pytest", "npm", "cargo"])
+
+@mcp.tool()
+async def register_agent_tool(tool_data: dict) -> str:
+    """Validate and register a custom tool for Claude Code via FastMCP 3.1."""
+    try:
+        validated_tool = MCPToolDefinition.model_validate(tool_data)
+        return json.dumps({
+            "status": "success",
+            "registered_tool": validated_tool.model_dump()
+        }, indent=2)
+    except ValidationError as ve:
+        return json.dumps({
+            "status": "error",
+            "validation_errors": str(ve)
+        }, indent=2)
+
+if __name__ == "__main__":
+    tool_payload = {
+        "name": "run_cargo_audit",
+        "description": "Executes a cargo security audit on the local crate structure.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "ignore_warnings": {"type": "boolean", "default": False}
+            }
+        }
+    }
     mcp.run()
 ```
 

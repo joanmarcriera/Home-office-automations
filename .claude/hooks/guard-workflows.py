@@ -14,6 +14,7 @@ Limit: edits made through Bash (sed -i, tee, ...) are not visible to this hook.
 import json
 import os
 import sys
+import unicodedata
 
 
 def ask(reason):
@@ -33,13 +34,31 @@ def protected(parts):
     return False
 
 
+def variants(path):
+    """Every plausible resolution of `path`, so the guard and the editing tool cannot
+    disagree: raw/expanded/NFC/NFD forms, resolved against both the hook's cwd and
+    $CLAUDE_PROJECT_DIR, with and without symlink resolution."""
+    bases = {os.getcwd(), os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()}
+    for form in {path, path.strip(), os.path.expanduser(path)}:
+        for norm in ("NFC", "NFD"):
+            f = unicodedata.normalize(norm, form)
+            for base in bases:
+                joined = os.path.join(base, f)
+                yield os.path.normpath(joined)
+                yield os.path.realpath(joined)
+
+
 try:
     tool_input = json.load(sys.stdin).get("tool_input", {})
-    paths = [str(tool_input[k]) for k in ("file_path", "notebook_path", "path") if tool_input.get(k)]
-    for path in paths:
-        parts = [x.lower() for x in os.path.realpath(os.path.join(os.getcwd(), path)).split(os.sep)]
-        if protected(parts):
-            ask("Edit of a protected path requires explicit user confirmation: " + path)
+    paths = [str(v) for k, v in tool_input.items()
+             if k in ("file_path", "notebook_path", "path") or k.endswith("_path")]
+    paths += [str(e.get("file_path", "")) for e in tool_input.get("edits", []) if isinstance(e, dict)]
+    for path in filter(None, paths):
+        if "\x00" in path:
+            ask("Path contains a NUL byte; confirm this edit: " + repr(path))
+        for v in variants(path):
+            if protected([x.lower() for x in v.split(os.sep)]):
+                ask("Edit of a protected path requires explicit user confirmation: " + path)
 except SystemExit:
     raise
 except Exception as exc:  # fail closed

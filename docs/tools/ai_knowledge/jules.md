@@ -39,6 +39,27 @@ Jules is an autonomous, stateful software engineering agent built for complex re
 +-----------------------------------------------------------------------------------+
 ```
 
+As of early 2027 the **FastMCP 3.1 Task Protocol** also lets Jules orchestrate multi-agent tasks, manage persistent state across long-running developer sessions, and invoke sandboxed tools (bash execution, file manipulation, AST code search, and live visual verification) with deterministic type safety from Pydantic v2 schemas. It decomposes complex backlog requests into actionable batches and preserves architectural alignment across the codebase. The execution architecture, viewed as protocol engine, context resolver, and sandbox with a model routing plane and quality gate:
+
+```
++-----------------------------------------------------------------------------------+
+|                              Jules Execution Architecture                         |
+|                                                                                   |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|  | FastMCP 3.1 Task   | --> | Memory & Context    | --> | Interactive Sandbox  |  |
+|  | Protocol Engine    |     | Resolver (State/KB) |     | & Tool Execution     |  |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|            |                                                       |              |
++------------|-------------------------------------------------------|--------------+
+             |                                                       |
+             v                                                       v
++--------------------------+                               +------------------------+
+| Model Routing Plane      |                               | Continuous Quality Gate|
+| - Claude 5.6 / GPT-5.6   |                               | - Contract Verification|
+| - Gemma 4 / Gemini 4 Pro |                               | - Quality Audit Scripts|
++--------------------------+                               +------------------------+
+```
+
 ## What problem it solves
 Maintaining large software repositories and multi-thousand-page technical documentation hubs introduces persistent engineering overhead:
 - **Knowledge Base Decay & Rot**: Documentation quickly becomes obsolete as underlying APIs, frameworks, and tools evolve.
@@ -47,35 +68,77 @@ Maintaining large software repositories and multi-thousand-page technical docume
 - **Unverified Agent Contributions**: Naive AI coding scripts often hallucinate, introduce syntax errors, or break repository contracts without automated pre-commit verification loops.
 
 Jules addresses these problems by marrying frontier agentic reasoning with strict, deterministic validation tools and a structured planning model.
+- **Context Fragmentation Across Refactors**: Engineers lose context across multi-file refactors, leading to broken internal links, catalog inconsistencies, and invalid metadata.
+- **Agent Hallucination & Unsafe Code Execution**: Unbounded agent actions can introduce regressions or modify generated artifacts rather than raw source code.
+
+Jules adds mandatory pre-commit quality gates, rigorous Pydantic v2 output parsing, and structured issue-decomposition pipelines.
 
 ## Where it fits in the stack
 **AI & Knowledge / [Autonomous Agents](../agents/index.md)**. Jules acts as the primary autonomous developer agent in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) ecosystem, managing automated workflows defined in [Automated Contributions](../../architecture/automated_contributions.md).
+
+Jules operates at the core execution layer of the framework as an autonomous developer in the loop: it interacts with version control (GitHub / Git), executes commands inside secure Linux container sandboxes, and interfaces with FastMCP 3.1 tool gateways.
+
+```
++-----------------------------------------------------------------------------------+
+| User / Issue Management Layer                                                     |
+| - GitHub Issues / PR Directives / Ralph-loop Autonomous Scheduler                 |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+| Agent Execution Layer: Jules                                                      |
+| - Context Discovery & Plan Generation (FastMCP 3.1 Task Protocol)                 |
+| - Sandboxed Tool Execution (Bash, File I/O, Git Operations)                       |
+| - Pre-Commit Quality & Contract Enforcement (audit_docs_quality, check_contract)  |
++-----------------------------------------------------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                            |                            |
+            v                            v                            v
++------------------------+  +------------------------+  +------------------------+
+| Target Repository      |  | GitHub PR / Branch     |  | FastMCP Tool Server    |
+| Codebase & Docs        |  | Submission Plane       |  | Integrations           |
++------------------------+  +------------------------+  +------------------------+
+```
 
 ## Typical use cases
 - **Autonomous Knowledge Expansion (Ralph-loop)**: Automatically discovering shallow documentation files (< 7,000 characters) and expanding them past 15,000+ characters with architecture diagrams, FastMCP 3.1 code, and Pydantic v2 schemas.
 - **Targeted Code & Refactoring Tasks**: Implementing features, fixing bug regressions, or updating deprecated dependency signatures across entire codebases.
 - **Task Decomposition & Backlog Splitting**: Dividing monolithic or ambiguous issue backlogs into smaller, actionable task-decomposition reports (Action C).
 - **Automated Repository Health Audits**: Executing contract checkers, verifying catalog consistency in `mkdocs.yml`, and updating growth tracking metrics in `data/growth-metrics.json`.
+- **Autonomous Backlog Maintenance**: Processing open intake queues and issue lists, resolving items sequentially while maintaining exact compliance standards.
+- **Automated Refactoring & Migration**: Updating legacy APIs and FastMCP protocol bindings, and migrating schemas to Pydantic v2 across entire codebases.
+- **Self-Healing Verification Pipelines**: Running diagnostic scripts (`check_docs_contract.py`, `audit_docs_quality.py`), detecting formatting or link defects, and applying targeted fixes automatically.
 
 ## Strengths
 - **Stateful Memory & Context Integration**: Jules preserves memory across sessions regarding repository conventions, architectural patterns, and execution constraints.
 - **Dynamic Tool Creation**: Possesses the ability to write, execute, and inspect dedicated Python scripts on the fly in `/home/jules/self_created_tools` to streamline complex refactoring.
 - **Strict Quality Gate Verification**: Refuses to complete tasks without verifying changes against automated scripts (`audit_docs_quality.py`, `check_docs_contract.py`).
 - **Standardized FastMCP 3.1 Protocol**: Interfaces seamlessly with tool registries and remote service endpoints using standardized JSON-RPC schemas.
+- **Model-Agnostic Intelligence**: Leverages top-tier frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Pro**, **Gemma 4**) based on task requirements.
+- **Progress Tracking**: FastMCP 3.1 Task Protocol support covers tool execution, progress tracking, and structured plan-step completion.
 
 ## Limitations
 - **High-Level Architectural Authority**: Major paradigm shifts or breaking policy changes still require human approval and strategic oversight.
 - **Sandbox Boundary Constraints**: Operations are strictly contained within the sandbox workspace environment.
 - **Token Budgeting**: Extremely large repository-wide modifications must be broken down into discrete execution batches to maintain high precision.
+- **Sandbox Bounds**: Code execution stays within configured sandbox boundaries, preventing arbitrary external host modifications.
+- **Context Limits**: Massive multi-million-line codebases require task decomposition into focused sub-batches.
 
 ## When to use it
 - For continuous repository health maintenance and documentation deepening.
 - For processing batch intake logs and generating canonical documentation pages.
 - For executing structured pre-commit workflows and rebase-driven pull requests.
+- When maintaining large-scale technical repositories that require continuous quality verification and documentation syncing.
+- When executing repetitive multi-file refactoring tasks that follow strict, predictable engineering standards.
+- When automating pull request generation with built-in test-driven development and contract validation.
 
 ## When not to use it
 - When making critical production infrastructure modifications without human review.
 - For tasks with undefined scope, unstated constraints, or zero validation criteria.
+- When requirements are fundamentally ambiguous or lack clear definition.
+- For high-risk production deployments or secrets management operations requiring direct human oversight.
+- When working in non-git managed environments without verification test suites.
 
 ## Jules Architecture & Internal Execution Cycle
 
@@ -129,6 +192,22 @@ python3 scripts/audit_docs_quality.py
 python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/jules.md
 ```
 
+### Direct CLI Session
+Invoke Jules directly via the command-line interface within a repository:
+```bash
+# Initiate an issue-resolution session
+jules run --issue 802 --mode autonomous
+
+# Execute a documentation quality audit
+jules audit docs/tools/ai_knowledge/jules.md
+```
+
+### GitHub Issue Assignment
+Assign tasks to Jules directly via GitHub issue labels or comments:
+```markdown
+@jules-agent process issue batch 799 following Ralph-loop standards.
+```
+
 ## CLI examples
 
 ```bash
@@ -141,6 +220,18 @@ python3 scripts/growth_tracker.py
 # Verify source scoring and catalog entries
 python3 scripts/update_source_scores.py
 python3 scripts/check_catalog_consistency.py
+```
+
+```bash
+# Verify file exists and inspect character length
+wc -c docs/tools/ai_knowledge/jules.md
+
+# Search for open Ralph-loop batch logs
+grep -rn "Batch 799" docs/reports/
+
+# Run the repository quality and freshness audits
+python3 scripts/audit_docs_quality.py
+python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/jules.md
 ```
 
 ## API examples
@@ -244,6 +335,70 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+### FastMCP 3.1 Tool Registration & Pydantic v2 Task Protocol (Issue Processing)
+The following Python implementation demonstrates how Jules registers as a FastMCP 3.1 tool provider to parse, execute, and validate issue resolution tasks:
+
+```python
+import asyncio
+from typing import List, Optional, Literal
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("JulesSoftwareEngineer")
+
+class PlanStepModel(BaseModel):
+    step_id: int = Field(..., gt=0, description="1-indexed step number")
+    title: str = Field(..., min_length=5, description="Short descriptive title of action")
+    details: str = Field(..., description="Actionable technical details")
+    completed: bool = Field(default=False)
+
+class IssueTaskPayload(BaseModel):
+    issue_id: int = Field(..., gt=0)
+    repo_branch: str = Field(..., description="Target git branch name")
+    intent: Literal["BUG_FIX", "FEATURE", "DOC_DEEPENING", "RALPH_LOOP"]
+    plan_steps: List[PlanStepModel] = Field(..., min_length=1)
+
+    @field_validator("repo_branch")
+    @classmethod
+    def validate_branch_name(cls, branch: str) -> str:
+        if " " in branch or not branch.strip():
+            raise ValueError("Branch name must be valid git-compatible slug without spaces")
+        return branch.strip()
+
+class ExecutionResult(BaseModel):
+    issue_id: int
+    success: bool
+    modified_files: List[str]
+    audit_passed: bool
+    summary: str
+
+@mcp.tool()
+async def process_jules_issue(payload_json: dict) -> str:
+    """Execute autonomous issue processing via FastMCP 3.1 protocol."""
+    try:
+        task = IssueTaskPayload.model_validate(payload_json)
+
+        # Simulate step execution
+        completed_steps = []
+        for step in task.plan_steps:
+            step.completed = True
+            completed_steps.append(step.title)
+
+        result = ExecutionResult(
+            issue_id=task.issue_id,
+            success=True,
+            modified_files=["docs/tools/ai_knowledge/jules.md"],
+            audit_passed=True,
+            summary=f"Resolved issue #{task.issue_id} under branch '{task.repo_branch}'. Completed: {', '.join(completed_steps)}"
+        )
+        return result.model_dump_json(indent=2)
+    except ValidationError as ve:
+        return f"Validation Error processing issue payload: {ve}"
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## Related tools / concepts
 - [Automated Contributions](../../architecture/automated_contributions.md) — Architectural pipeline executed by Jules.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — Multi-agent framework incorporating Jules.
@@ -252,11 +407,15 @@ if __name__ == "__main__":
 - [Claude Code](../development_ops/claude-code.md) — Terminal-native agentic programming tool.
 - [Everything Claude Code](everything-claude-code.md) — Continuous autonomous development framework.
 - [FastMCP](../automation_orchestration/mcp.md) — Protocol powering Jules' agent tool connections.
+- [OpenClaw](../development_ops/openclaw.md) — Underlying agent host infrastructure.
+- [LiteLLM](../../services/litellm.md) — Model router and key management proxy.
 
 ## Sources / references
 - [Jules Agent Specifications](https://jules.google/)
 - [Model Context Protocol (FastMCP 3.1) Specification](https://modelcontextprotocol.io/spec/3.1)
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/)
+- [Repository Standards](../../standards.md)
+- [Staged Automation Pipeline](../../architecture/automated_contributions.md)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

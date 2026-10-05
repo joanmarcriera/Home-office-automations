@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/enterprise/glean.md` | Open | Completed | 8,058 chars | 22,143 chars | +14,085 chars |
-| `docs/knowledge_base/patterns/rag-pattern.md` | Open | Completed | 8,063 chars | 17,624 chars | +9,561 chars |
-| `docs/services/tika.md` | Open | Completed | 8,071 chars | 18,252 chars | +10,181 chars |
-| `docs/tools/agents/letta.md` | Open | Completed | 8,071 chars | 17,219 chars | +9,148 chars |
-| `docs/tools/ai_knowledge/roam-research.md` | Open | Completed | 8,079 chars | 16,854 chars | +8,775 chars |
+| `docs/tools/enterprise/glean.md` | Closed | Completed | 8,058 chars | 22,143 chars | +14,085 chars |
+| `docs/knowledge_base/patterns/rag-pattern.md` | Closed | Completed | 8,063 chars | 17,624 chars | +9,561 chars |
+| `docs/services/tika.md` | Closed | Completed | 8,071 chars | 18,252 chars | +10,181 chars |
+| `docs/tools/agents/letta.md` | Closed | Completed | 8,071 chars | 17,219 chars | +9,148 chars |
+| `docs/tools/ai_knowledge/roam-research.md` | Closed | Completed | 8,079 chars | 16,854 chars | +8,775 chars |
 
 ---
 

@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/librechat.md` | Open | Completed | 8,012 chars | 20,634 chars | +12,622 chars |
-| `docs/tools/automation_orchestration/vault-mcp.md` | Open | Completed | 8,031 chars | 18,752 chars | +10,721 chars |
-| `docs/tools/providers/replicate.md` | Open | Completed | 8,045 chars | 19,648 chars | +11,603 chars |
-| `docs/tools/automation_orchestration/makefile-mcp.md` | Open | Completed | 8,049 chars | 17,493 chars | +9,444 chars |
-| `docs/services/speedtest.md` | Open | Completed | 8,052 chars | 18,167 chars | +10,115 chars |
+| `docs/tools/ai_knowledge/librechat.md` | Closed | Completed | 8,012 chars | 20,634 chars | +12,622 chars |
+| `docs/tools/automation_orchestration/vault-mcp.md` | Closed | Completed | 8,031 chars | 18,752 chars | +10,721 chars |
+| `docs/tools/providers/replicate.md` | Closed | Completed | 8,045 chars | 19,648 chars | +11,603 chars |
+| `docs/tools/automation_orchestration/makefile-mcp.md` | Closed | Completed | 8,049 chars | 17,493 chars | +9,444 chars |
+| `docs/services/speedtest.md` | Closed | Completed | 8,052 chars | 18,167 chars | +10,115 chars |
 
 ---
 

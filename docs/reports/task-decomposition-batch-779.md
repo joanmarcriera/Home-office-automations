@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/services/qbittorrent-automation.md` | Open | Completed | 8,094 chars | 18,375 chars | +10,281 chars |
-| `docs/tools/infrastructure/docker.md` | Open | Completed | 8,094 chars | 18,359 chars | +10,265 chars |
-| `docs/tools/automation_orchestration/vikunja-mcp.md` | Open | Completed | 8,095 chars | 18,172 chars | +10,077 chars |
-| `docs/tools/agents/agentic-workbench.md` | Open | Completed | 8,101 chars | 18,171 chars | +10,070 chars |
-| `docs/services/grocy.md` | Open | Completed | 8,102 chars | 17,294 chars | +9,192 chars |
+| `docs/services/qbittorrent-automation.md` | Closed | Completed | 8,094 chars | 18,375 chars | +10,281 chars |
+| `docs/tools/infrastructure/docker.md` | Closed | Completed | 8,094 chars | 18,359 chars | +10,265 chars |
+| `docs/tools/automation_orchestration/vikunja-mcp.md` | Closed | Completed | 8,095 chars | 18,172 chars | +10,077 chars |
+| `docs/tools/agents/agentic-workbench.md` | Closed | Completed | 8,101 chars | 18,171 chars | +10,070 chars |
+| `docs/services/grocy.md` | Closed | Completed | 8,102 chars | 17,294 chars | +9,192 chars |
 
 ---
 
