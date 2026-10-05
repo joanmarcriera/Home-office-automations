@@ -238,7 +238,7 @@ if __name__ == "__main__":
 - [nInfer](ninfer.md) — Ultra-long context FP4 inference engine.
 - [vLLM](vllm.md) — High-throughput enterprise inference server.
 - [ExLlamaV2](exllamav2.md) — Fast EXL2 model loader.
-- [Ollama](ollama.md) — User-friendly local model manager.
+- [Ollama](../../services/ollama.md) — User-friendly local model manager.
 
 ## Sources / references
 - [Ninfer 4080 LocalLLaMA Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wwv0fj/i_built_ninfer_4080_for_16gb_class_gpus/)

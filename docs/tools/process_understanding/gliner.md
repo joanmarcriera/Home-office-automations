@@ -246,9 +246,10 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [spaCy](../process_understanding/spacy.md) — Industrial-strength NLP library.
-- [OpenOCR / Tika](../../services/tika.md) — Document parsing and text extraction services.
+- [OpenDataLoader-PDF](opendataloader-pdf.md) — Open-source document parsing engine.
+- [Crawl4AI](crawl4ai.md) — Open-source LLM-friendly web crawler and scraper.
+- [Tika](../../services/tika.md) — Apache Tika document text extraction service.
 - [Weaviate](../infrastructure/weaviate.md) — Vector database utilizing metadata filtering.
-- [Unstructured](../intake_storage/unstructured.md) — ETL engine for unstructured document processing.
 
 ## Sources / references
 - [GLiNER Distilled Bi-Encoder Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wxgccy/i_distilled_an_llm_into_two_287m_encoders_gliner/)
