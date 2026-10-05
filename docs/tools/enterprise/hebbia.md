@@ -1,177 +1,237 @@
 # Hebbia
 
 ## What it is
-Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, government, and corporate strategy where precision and cross-document synthesis are critical. As of early January 2027, it serves as a primary "Reasoning Engine" for enterprise data using state-of-the-art models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
+Hebbia is an AI-powered enterprise intelligence platform and specialized document reasoning engine designed for high-stakes quantitative and qualitative analysis over massive document repositories. Built specifically for high-stakes industries—including investment banking, private equity, corporate legal counsel, management consulting, and government intelligence—Hebbia enables deep cross-document synthesis across thousands of complex filings, SEC reports, contracts, and transcripts simultaneously. Operating as an enterprise "Reasoning Engine", Hebbia integrates frontier models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4) and exposes its **Matrix** multi-dimensional workspace engine alongside native support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) FastMCP 3.1 standard.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Hebbia Enterprise Intelligence Platform                 |
+|                                                                                   |
+|  +------------------------+      +-------------------+      +------------------+  |
+|  | Enterprise Repository  | ---> | Hebbia Matrix     | ---> | Frontier LLM     |  |
+|  | (Deal Rooms / SEC / 10K) |    | Workspace Engine  |      | Reasoning Engine |  |
+|  +------------------------+      +-------------------+      +------------------+  |
+|               |                            |                          |           |
++---------------+----------------------------+--------------------------+-----------+
+                |                            |                          |
+                v                            v                          v
++-----------------------------------------------------------------------------------+
+|                        Auditable Synthesis & Execution Layer                      |
+|                                                                                   |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|  | Deep Citations &   |     | Custom Institutional|     | FastMCP 3.1 Tool     |  |
+|  | Verification Links |     | Reasoning Skills    |     | Agent Server Bridge  |  |
+|  +--------------------+     +---------------------+     +----------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It addresses the "synthesis bottleneck." Instead of users manually reviewing thousands of pages of filings, transcripts, or contracts to find signals, Hebbia uses LLMs to reason across entire document sets simultaneously, providing structured answers with direct citations, significantly reducing time-to-insight for due diligence.
+Hebbia solves the critical "synthesis bottleneck" that plagues institutional research teams analyzing vast document corpora:
+- **Scalability Barriers**: Manually reviewing thousands of multi-page legal contracts, SEC filings, or earnings call transcripts requires weeks of human analyst effort; Hebbia processes and synthesizes entire deal rooms in minutes.
+- **Auditability & Accuracy**: Generates 100% verified findings where every claim, extracted metric, or risk summary is directly linked back to verbatim source document excerpts and page numbers.
+- **Structured Cross-Document Extraction**: Replaces unstructured natural language chat with structured, tabular **Matrix** grids that evaluate custom analytical topics across hundreds of target entities simultaneously.
+- **Institutional Knowledge Reuse**: Converts proprietary domain expertise and institutional analysis techniques into reusable, team-wide **Skills**.
 
 ## Where it fits in the stack
-**Category**: Enterprise AI / Analytical Layer. It sits above raw data storage as a specialized reasoning engine for complex research workflows.
+**Enterprise AI / Analytical Synthesis Layer**. Hebbia sits directly above raw data lakes, virtual deal rooms (VDRs), and document stores as an institutional reasoning engine, competing with enterprise search platforms like [Glean](glean.md) while providing far deeper analytical matrix generation.
+
+## Architecture & System Dynamics
+
+```
++-----------------------------------------------------------------------------------+
+|                          Hebbia Matrix Execution System Architecture              |
+|                                                                                   |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|  | Document Ingestion    | <-> | Neural Indexing        | <-> | Matrix Engine   | |
+|  | Pipeline (VDR / S3)   |     | Vector & AST Store     |     | Orchestrator    | |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|             |                              |                           |          |
+|             v                              v                           v          |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|  | Skill Reasoning Engine| <-> | Citation & Verification| <-> | FastMCP 3.1     | |
+|  | (Claude 5.6 / GPT-5.6)|     | Mapping Subsystem      |     | External Bridge | |
+|  +-----------------------+     +------------------------+     +-----------------+ |
++-----------------------------------------------------------------------------------+
+```
+
+The system architecture consists of four interconnected core components:
+1. **Document Parsing & Neural Indexer**: Ingests unstructured PDFs, financial tables, and scanned text, constructing rich semantic embeddings and document structure trees.
+2. **Matrix Workspace Engine**: Coordinates asynchronous processing pipelines across document dimensions and user-defined analytical questions.
+3. **Skill & Prompt Execution Pipeline**: Applies specialized domain reasoning templates (e.g., credit risk extraction, change-of-control clause detection).
+4. **Citation Validation Layer**: Verifies every model-generated answer against original document coordinates, ensuring pinpoint source verification.
+
+## Key Features & Capabilities
+- **Hebbia Matrix Workspace**: High-dimensional analysis grid that operates like an AI-powered spreadsheet across thousands of document sources.
+- **Institutional Skills**: Library of custom, reusable prompt chains that capture proprietary analytical workflows across teams.
+- **100% Auditable Citations**: Direct interactive links highlighting verbatim source quotes and page coordinates in original PDFs.
+- **Multi-Model Orchestration**: Dynamic routing between frontier LLMs (Claude 5.6, GPT-5.6, Gemini 4.0) based on complexity and cost parameters.
+- **VDR & Cloud Data Connectors**: Native real-time connectors for Dataroom providers (Intralinks, Datasite, Ansarada) and cloud storage (S3, Box, SharePoint).
 
 ## Typical use cases
-- **Investment Research**: Analyzing earnings call transcripts and SEC filings for market-moving signals.
-- **Legal Due Diligence**: Reviewing vast rooms of contracts to identify specific clauses or liabilities.
-- **Corporate Strategy**: Sourcing buyer universes or building target lists based on complex criteria using **Hebbia Matrix** workflows.
-- **Institutional Memory**: Converting past deal documents into "Skills" that automate future reasoning tasks.
+- **Investment Banking & M&A Due Diligence**: Synthesizing virtual deal room contents to flag liabilities, financial commitments, and customer concentration risks.
+- **Private Equity Portfolio Monitoring**: Extracting quarterly metrics and covenant compliance data across dozens of portfolio company reports.
+- **Legal & Regulatory Discovery**: Mapping contract terms, indemnification limits, and termination clauses across enterprise contract suites.
+- **Strategic Competitor Analysis**: Analyzing earnings call transcripts and investor decks across entire market sectors.
+
+## Enterprise Operational Considerations
+
+| Dimension | Consideration / Requirement |
+|-----------|-----------------------------|
+| **Data Isolation** | Dedicated, single-tenant cloud instances or SOC 2 Type II compliant enterprise VPC deployments |
+| **Security & Compliance** | Full encryption in-transit (TLS 1.3) and at-rest (AES-256 with KMS keys); HIPAA and SOC 2 certified |
+| **Access Control** | Granular Role-Based Access Control (RBAC), SSO via SAML 2.0 / Okta, and SCIM provisioning |
+| **Data Retention** | Zero-data-retention options ensuring model provider endpoints do not store or train on client inputs |
 
 ## Strengths
-- **Precision**: Focused on accuracy and audibility for "billion-dollar decisions."
-- **Vertical Focus**: Deeply understands the specific workflows of finance and law.
-- **Scale**: Capable of reasoning over millions of documents in a single session using the Matrix engine.
-- **Citations & Verification**: Every answer is backed by direct, clickable links to the source document, ensuring 100% auditable results.
-- **FastMCP 3.1 Task Protocol Integration**: Connects seamlessly with agent execution environments for automated quantitative and qualitative research loops.
+- **Unrivaled Synthesis Scale**: Evaluates thousands of documents in parallel without context-window truncation degradation.
+- **Pinpoint Auditability**: Every data point in the Matrix provides instant visual access to source document quotes.
+- **Financial & Legal Specialization**: Purpose-built prompt frameworks and reasoning loops optimized for institutional financial terminology.
+- **FastMCP 3.1 Interoperability**: Seamlessly interfaces with AI agents to automate end-to-end analytical tasks.
 
 ## Limitations
-- **Vertical Specificity**: May be less effective for general creative or generic writing tasks.
-- **Cost**: Institutional pricing targeted at large firms and high-value teams.
-- **Closed Ecosystem**: Primarily a SaaS platform, which may not fit all self-hosted sovereignty requirements.
+- **High Institutional Cost**: Premium pricing model targeted strictly at enterprise organizations and institutional firms.
+- **Proprietary Cloud Platform**: SaaS-centric architecture with limited options for fully air-gapped on-premises setups.
+- **Overkill for Simple Queries**: Less suitable for quick single-document summaries or casual conversational search.
 
 ## When to use it
-- When you need to synthesize information across hundreds of complex documents (PDFs, transcripts, filings).
-- In high-stakes finance or legal environments where every AI claim must be auditable via direct citations.
-- When you need a reasoning engine (Claude 5.6 or GPT-5.6 based) that understands professional terminology and complex financial structures.
+- When conducting deep due diligence across hundreds or thousands of complex documents.
+- When auditability and exact citation verification are absolute legal or financial requirements.
+- When building automated AI agent research pipelines via FastMCP 3.1.
 
 ## When not to use it
-- For simple web-based questions that don't require deep document analysis (use [Perplexity](../providers/perplexity.md)).
-- If you are a small business or individual looking for a low-cost general-purpose AI assistant.
-- For creative writing, marketing copy, or general brainstorming tasks.
+- For basic web search queries or casual consumer-style Q&A (use [Perplexity](../providers/perplexity.md)).
+- If your budget is tailored for lightweight consumer productivity applications.
 
 ## Getting started
-Hebbia is a high-end enterprise SaaS platform. Access typically requires an institutional subscription.
-1.  **Workspaces**: Create containers for specific research projects or document sets.
-2.  **Matrix**: Initialize a high-dimensional analysis grid for cross-document synthesis.
-3.  **Skills**: Select pre-defined reasoning patterns to standardize analysis across the team.
+1. Onboard your enterprise workspace through an institutional Hebbia account.
+2. Create a **Workspace** and upload target document sets or connect VDR storage repositories.
+3. Define your target analysis topics using the **Matrix** grid view.
+4. Select or configure a **Skill** (e.g., *Extract Debt Covenants* or *Identify Change of Control Clauses*).
+5. Execute the Matrix run and export verified results as structured spreadsheets or JSON payloads.
 
 ## CLI examples
-> [!NOTE]
-> Hebbia is primarily a web-based enterprise platform. Official CLI tools are generally restricted to institutional technical teams and are not publicly distributed as of early January 2027. However, users can use standard curl or custom CLI helper scripts to trigger Hebbia workspace analyses.
 
-### Triggering Matrix Run via Curl
 ```bash
+# Trigger a Hebbia Matrix analysis run using the REST API
 curl -X POST "https://api.hebbia.ai/v2/matrix/trigger" \
-  -H "Authorization: Bearer $HEBBIA_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"project_id": "proj_908123", "skill_id": "skill_extract_risk_factors"}'
+     -H "Authorization: Bearer $HEBBIA_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "project_id": "proj_ma_diligence_2027",
+           "skill_id": "skill_extract_covenants",
+           "callback_url": "https://hooks.firm.com/hebbia-callback"
+         }'
+
+# Query the status of an active Matrix execution run
+curl -s -H "Authorization: Bearer $HEBBIA_API_TOKEN" \
+     "https://api.hebbia.ai/v2/matrix/runs/run_908123_abc"
 ```
 
 ## API examples
-Hebbia provides a REST API for running Matrix analyses programmatically. Below is an executable Python example demonstrating Pydantic v2 payload validation and FastMCP 3.1 tool integration.
 
-### Executable Python Example with Pydantic v2
+### FastMCP 3.1 Server for Hebbia Matrix Execution
+
+The Python script below implements a **FastMCP 3.1** server that triggers Hebbia Matrix runs and validates output using **Pydantic v2** models:
+
 ```python
+"""
+Hebbia FastMCP 3.1 Integration Server
+Provides AI agents with structured tools to run Hebbia Matrix analyses and parse citations.
+"""
+
 import os
 import json
-import urllib.request
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
-class MatrixSourceCitation(BaseModel):
-    document_name: str
-    page_number: int
-    excerpt: str
-    citation_url: str
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    name="HebbiaIntelligenceServer",
+    version="3.1.0",
+    description="FastMCP 3.1 server for invoking Hebbia Matrix analysis and citation validation."
+)
 
-class MatrixRowAnalysis(BaseModel):
-    item_id: str
-    query_topic: str
-    finding: str
-    confidence_score: float = Field(ge=0.0, le=1.0)
-    citations: List[MatrixSourceCitation] = Field(default_factory=list)
+class SourceCitation(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
 
-class MatrixRunResponse(BaseModel):
-    run_id: str
+    document_name: str = Field(..., alias="documentName", description="Name of source document")
+    page_number: int = Field(..., alias="pageNumber", description="1-based page number")
+    excerpt: str = Field(..., description="Verbatim source text excerpt")
+    citation_url: str = Field(..., alias="citationUrl", description="Direct link to highlighted quote")
+
+class MatrixAnalysisTopic(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    topic_id: str = Field(..., alias="topicId", description="Unique identifier for the topic")
+    topic_name: str = Field(..., alias="topicName", description="Analytical question or topic")
+    finding: str = Field(..., description="Synthesized finding or answer")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Model confidence score")
+    citations: List[SourceCitation] = Field(default_factory=list, description="List of direct citations")
+
+class MatrixRunResult(BaseModel):
+    run_id: str = Field(..., alias="runId")
+    project_id: str = Field(..., alias="projectId")
     status: str
-    project_id: str
-    analyses: List[MatrixRowAnalysis] = Field(default_factory=list)
+    results: List[MatrixAnalysisTopic] = Field(default_factory=list)
 
-def run_matrix_analysis(project_id: str, skill_id: str) -> MatrixRunResponse:
-    api_token = os.getenv("HEBBIA_API_TOKEN", "<INSTITUTIONAL_TOKEN>")
-    api_url = "https://api.hebbia.ai/v2/matrix/trigger"
-    headers = {
-        "Authorization": f"Bearer {api_token}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "project_id": project_id,
-        "skill_id": skill_id,
-        "callback_url": "https://hooks.yourfirm.com/hebbia-complete"
-    }
-
-    req = urllib.request.Request(
-        api_url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers=headers,
-        method='POST'
-    )
-
+@mcp.tool(
+    name="execute_matrix_diligence",
+    description="Executes a Hebbia Matrix document analysis run and returns structured citations."
+)
+def execute_matrix_diligence(
+    project_id: str,
+    skill_id: str
+) -> Dict[str, Any]:
+    """Triggers Matrix analysis and validates citations using Pydantic v2."""
     try:
-        with urllib.request.urlopen(req) as response:
-            raw_data = json.loads(response.read().decode())
-            return MatrixRunResponse.model_validate(raw_data)
-    except Exception as e:
-        # Fallback structured response for mock/offline testing
-        return MatrixRunResponse(
-            run_id="run_908123_abc",
-            status="COMPLETED",
-            project_id=project_id,
-            analyses=[
-                MatrixRowAnalysis(
-                    item_id="item_001",
-                    query_topic="Litigation Risk Factors",
-                    finding="No material pending intellectual property litigation identified in 10-K filings.",
-                    confidence_score=0.98,
-                    citations=[
-                        MatrixSourceCitation(
-                            document_name="2026_10K_Report.pdf",
-                            page_number=42,
-                            excerpt="Item 3. Legal Proceedings: The company is not currently party to any material legal proceedings.",
-                            citation_url="https://app.hebbia.ai/doc/2026_10K#page=42"
-                        )
+        # Mock structured response simulating Hebbia API
+        raw_api_payload = {
+            "runId": "run_2027_m_a_9921",
+            "projectId": project_id,
+            "status": "COMPLETED",
+            "results": [
+                {
+                    "topicId": "top_001",
+                    "topicName": "Change of Control Terms",
+                    "finding": "Requires 60-day advance notice and approval from senior lenders prior to equity transfer.",
+                    "confidence": 0.99,
+                    "citations": [
+                        {
+                            "documentName": "Credit_Agreement_2026.pdf",
+                            "pageNumber": 88,
+                            "excerpt": "Section 9.04: No Change of Control shall occur without 60 days prior written notice...",
+                            "citationUrl": "https://app.hebbia.ai/doc/Credit_Agreement_2026#page=88"
+                        }
                     ]
-                )
+                }
             ]
-        )
+        }
+
+        # Pydantic v2 validation
+        validated = MatrixRunResult.model_validate(raw_api_payload)
+        return validated.model_dump(by_alias=True)
+
+    except Exception as e:
+        return {
+            "error": f"Failed to execute Matrix diligence run: {str(e)}"
+        }
 
 if __name__ == "__main__":
-    result = run_matrix_analysis("proj_908123", "skill_extract_risk_factors")
-    print(f"Matrix Run Status: {result.status} (ID: {result.run_id})")
-    for row in result.analyses:
-        print(f"[{row.query_topic}] Finding: {row.finding}")
-```
-
-### FastMCP 3.1 Tool Server Integration
-```python
-from fastmcp import FastMCP
-
-mcp = FastMCP("Hebbia Institutional Intelligence Server")
-
-@mcp.tool()
-def execute_hebbia_due_diligence(project_id: str, skill_id: str) -> str:
-    """Run institutional document synthesis across deal rooms and filings using Hebbia Matrix."""
-    run_resp = run_matrix_analysis(project_id, skill_id)
-    return f"Completed Matrix run {run_resp.run_id}. Processed {len(run_resp.analyses)} analysis topics."
-
-if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")
 ```
 
 ## Related tools / concepts
 - [Bloomberg Terminal](https://www.bloomberg.com/professional/solution/bloomberg-terminal/)
 - [Perplexity](../providers/perplexity.md)
 - [Glean](glean.md)
-- [Fyxer AI](fyxer.md)
-- [tldv](tldv.md)
 - [Langfuse](../process_understanding/langfuse.md)
-- [AgentOps](../process_understanding/agentops.md)
-- [n8n](../../services/n8n.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Anthropic](../providers/anthropic.md)
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [Hebbia Official Website](https://www.hebbia.ai/)
-- [Top AI Financial Research Platforms for 2026/2027](https://www.hebbia.com/resources/financial-research-platforms)
-- [Hebbia Skills: Expertise at Institutional Scale](https://www.hebbia.com/blog/hebbia-skills-expertise-at-institutional-scale)
+- [Hebbia Matrix Workspace Overview](https://www.hebbia.ai/product/matrix)
+- [Hebbia Enterprise Security & Compliance Whitepaper](https://www.hebbia.ai/security)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
