@@ -1796,6 +1796,12 @@
       "doc_path": "docs/tools/agents/letta.md"
     },
     {
+      "id": "kolibri-1",
+      "name": "Kolibri-1",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/kolibri-1.md"
+    },
+    {
       "id": "lfm-encoders",
       "name": "LFM-2.5 Encoders",
       "category": "Providers",

@@ -530,6 +530,7 @@ nav:
           - Hugging Face: tools/providers/huggingface.md
           - InternLM: tools/providers/internlm.md
           - KatCoderAir: tools/providers/katcoderair.md
+          - Kolibri-1: tools/providers/kolibri-1.md
           - LFM-2.5 Encoders: tools/providers/lfm-encoders.md
           - Liquid AI: tools/providers/liquid-ai.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
