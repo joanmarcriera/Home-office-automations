@@ -1,83 +1,140 @@
 # Standards and Conventions
 
 ## What it is
-This document defines the technical standards and operational conventions for the homelab automation stack. It ensures interoperability between diverse tools, maintains documentation quality, and provides a clear protocol for autonomous agents and human contributors.
+This document defines the technical standards, operational contracts, and governance conventions for the KnowledgeOps homelab automation stack. It establishes structural consistency across all documentation, guarantees inter-tool compatibility, and defines the operating protocols for autonomous engineering agents (such as Jules and Claude Code) and human maintainers alike.
 
-Key updates for the early January 2027 ecosystem include:
-- **Foundational LLM Standards**: Multi-agent alignment across frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL, and FastMCP 3.1).
-- **Enforced Schema Validation**: Standardization of all API integration scripts using strict Pydantic v2 schemas.
-- **Model Context Protocol (MCP 3.1) Task Protocol**: Full alignment with the MCP 3.1 Task Protocol JSON schema for multi-agent execution pipelines and structured tool tracking.
-- **Agentic Task Decomposition**: Standardized protocols for breaking complex maintenance tasks into smaller, deterministic batches with JSON execution traces.
+Key standards updated for early 2027 include:
+- **Multi-Model Engineering Alignment**: Unified taxonomy and contract alignment across frontier model architectures (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**).
+- **Schema & Type Enforcement**: Mandatory validation of all Python automation scripts, FastMCP servers, and metadata scrapers using **Pydantic v2**.
+- **Model Context Protocol (FastMCP 3.1) Task Protocol**: Standardization of multi-agent execution pipelines, task tracking, tool parameters, and schema definitions on **FastMCP 3.1**.
+- **Agentic Task Decomposition**: Protocol guidelines for decomposing large issues into predictable, auto-verifiable batches backed by JSON execution metrics.
+
+```
++-----------------------------------------------------------------------------------+
+|                         KnowledgeOps Governance Topology                          |
+|                                                                                   |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|  | KnowledgeOps       | --> | Continuous Audit &  | --> | FastMCP 3.1 Schema   |  |
+|  | Standard (13 Secs) |     | Contract Validator  |     | & Pydantic v2 Gate   |  |
+|  +--------------------+     +---------------------+     +----------------------+  |
+|            |                                                       |              |
++------------|-------------------------------------------------------|--------------+
+             |                                                       |
+             v                                                       v
++--------------------------+                               +------------------------+
+| Autonomous Agent Fleet   |                               | Version Control        |
+| - Jules (Ralph-loop)     | ----------------------------> | - Clean PR Submissions |
+| - Claude Code / OpenClaw |                               | - MkDocs Static Site   |
++--------------------------+                               +------------------------+
+```
 
 ## What problem it solves
-In a complex, multi-tool environment with frequent contributions from AI agents, fragmentation and inconsistency are high risks. These standards eliminate ambiguity in naming, document structure, metadata, and cross-tool communication, ensuring the repository remains a reliable source of truth.
+In a rapidly expanding repository containing hundreds of technical tool specifications, architectural guides, and automated workflows, inconsistent formats and missing context create significant operational hazards:
+- **Documentation Drift**: Spec pages missing mandatory technical details or containing hallucinated model capabilities.
+- **Agent Execution Failure**: Unstructured issue specs causing autonomous agents to fail pre-commit tests or generate invalid Git PR diffs.
+- **Broken Navigation Links**: Divergent link paths breaking site builds and internal search indexers.
+- **Unvalidated API Calls**: Lack of typing leading to runtime errors during automated intake syncs.
+
+Establishing explicit, script-enforced standards resolves these failure modes by turning documentation quality into a testable invariant.
 
 ## Where it fits in the stack
-**Governance Layer** — acts as the foundational contract for all activities within the repository, from documentation updates to new service deployments.
+**Governance & Contract Layer**.
+This document sits at the root of the repository's rules hierarchy. It governs all documentation files in `docs/`, automation scripts in `scripts/`, and defines the exact verification checks executed by continuous integration pipelines.
+
+```
++-----------------------------------------------------------------------------------+
+| Governance Layer: standards.md & AGENTS.md                                        |
+| - 13-Section Contract Rules / Taxonomy Map / Pydantic v2 Specifications           |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+| Programmatic Enforcement Layer                                                    |
+| - audit_docs_quality.py / check_docs_contract.py / check_catalog_consistency.py  |
++-----------------------------------------------------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                            |                            |
+            v                            v                            v
++------------------------+  +------------------------+  +------------------------+
+| Documentation Pages    |  | FastMCP Tool Servers   |  | Agent Fleet Workflows  |
+| (680+ Canonical Specs) |  | (Python / TypeScript)  |  | (Jules, Claude Code)   |
++------------------------+  +------------------------+  +------------------------+
+```
 
 ## Typical use cases
-- **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
-- **Agent Onboarding**: Giving new AI agents (e.g., Claude 5.6) the "rules of the road" for how to contribute safely and effectively.
-- **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
-- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.6, DeepSeek-V4, and Qwen 3.6 VL for self-correction.
+- **Continuous Quality Audits**: Guiding the rules enforced by `audit_docs_quality.py` and `check_docs_contract.py`.
+- **Autonomous Agent Planning**: Serving as the system prompt context for agent planning, file expansion, and PR creation.
+- **Intake File Processing**: Ensuring newly discovered AI tools log complete metadata and proper canonical link paths in `docs/new-sources/`.
+- **FastMCP Tool Design**: Providing standard schemas and parameter typing for Model Context Protocol servers.
 
 ## Strengths
-- **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
-- **Automation-Friendly**: Standards are defined with programmatic verification in mind (using Python scripts).
-- **Interoperability**: Standardized data formats (JSON) and date types (ISO8601) simplify tool integration.
+- **Programmatic Verifiability**: Every structural rule is paired with an automated diagnostic script that returns binary pass/fail results.
+- **Agent-Friendly Contracts**: Clear, deterministic formatting rules enable autonomous agents to self-correct without human intervention.
+- **Deep Interoperability**: Enforces uniform JSON logging, ISO8601 date conventions, and relative path structures across the entire stack.
 
 ## Limitations
-- **Overhead**: Requires contributors to follow specific steps (registry updates, metadata additions) which can be slower for manual edits.
-- **Enforcement Gap**: While many standards are script-verified, some (like "one canonical page") still require human or advanced AI judgment.
+- **Maintenance Overhead**: Adding new mandatory sections requires backfilling existing documentation pages via automated batch runs.
+- **Strict Ordering**: Section headers must strictly match expected strings without unauthorized suffix modifications.
 
 ## When to use it
-- Whenever creating a new tool page or reference implementation.
-- When designing a new n8n workflow or drafting a system prompt.
-- Before submitting a Pull Request to ensure all quality gates pass.
+- When authoring or expanding any canonical documentation page in `docs/tools/`, `docs/services/`, or `docs/knowledge_base/`.
+- When writing Python automation scripts or FastMCP 3.1 servers to ensure correct Pydantic v2 model validation.
+- Before submitting any Pull Request to guarantee all quality gates pass without warnings.
 
 ## When not to use it
-- For temporary, local-only notes that will not be merged into the repository.
-- During rapid prototyping where speed is prioritized over documentation (though standards should be retrofitted before merge).
+- For scratchpad files or temporary local test outputs that will not be committed to Git.
+- When working on external third-party repositories with non-KnowledgeOps conventions.
 
 ## Getting started
-### Repository Setup
-1. Clone the repository and install dependencies using Poetry or native package tools.
-2. Ensure you have the latest Python version (3.11+) and `mkdocs` installed.
-3. Run `python3 find_oldest_issues.py` to identify pending tasks.
 
-### Multi-Agent Interaction
-Agents must adhere to the `AGENTS.md` operating contract, which takes precedence in cases of conflict regarding agentic behavior.
-
-## CLI examples
-Standards can be verified using the following CLI tools.
-
+### 1. Repository Setup
 ```bash
-# Verify the KnowledgeOps contract for a specific file
-python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/claude.md
+# Clone repository and verify environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-# Run a full quality audit across the repository
+### 2. Verify Standards Compliance Locally
+```bash
+# Audit all documentation files against standards
 python3 scripts/audit_docs_quality.py
 
-# Find documentation pages that are stale or missing metadata
-python3 scripts/check_doc_freshness.py docs --max-days 30
+# Verify catalog consistency across mkdocs.yml and navigation
+python3 scripts/check_catalog_consistency.py
+```
 
-# Track repository growth metrics and underdeveloped categories
+## CLI examples
+
+```bash
+# Verify the KnowledgeOps contract for a target document
+python3 scripts/check_docs_contract.py docs/tools/providers/vercel-ai-gateway.md
+
+# Inspect document character lengths to identify shallow pages
+python3 -c "import os; print([(f, len(open(os.path.join(r, f)).read())) for r, d, fs in os.walk('docs') for f in fs if f.endswith('.md') and 'README' not in f][:5])"
+
+# Update repository metrics and track shallow doc progress
 python3 scripts/growth_tracker.py
 ```
 
 ## API examples
-The following Python script demonstrates programmatic validation of document metadata using Pydantic v2 schemas and mock MCP 3.1 task integration.
+
+The following Python script demonstrates how standard document metadata and FastMCP 3.1 tool definitions are validated using **Pydantic v2**:
 
 ```python
 import re
 from datetime import date
-from typing import Literal
-from pydantic import BaseModel, Field, field_validator
+from typing import Literal, List, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
 
-class DocMetadata(BaseModel):
-    filepath: str = Field(..., description="Relative path of the document")
-    last_reviewed: date = Field(..., description="ISO 8601 format review date")
-    confidence: Literal["high", "medium", "low"] = Field(..., description="Confidence level")
+mcp = FastMCP("StandardsVerificationServer")
+
+class ContributionMetadata(BaseModel):
+    filepath: str = Field(..., description="Relative path to target document")
+    last_reviewed: date = Field(..., description="ISO 8601 date format (YYYY-MM-DD)")
+    confidence: Literal["high", "medium", "low"] = Field(..., description="Assessment confidence level")
 
     @field_validator("last_reviewed")
     @classmethod
@@ -86,34 +143,51 @@ class DocMetadata(BaseModel):
             raise ValueError("Review date must be within or after 2026")
         return v
 
-def extract_and_validate_metadata(filepath: str, content: str) -> DocMetadata:
-    """Parses and validates document metadata using Pydantic v2."""
+class DocumentAuditReport(BaseModel):
+    filepath: str
+    is_compliant: bool
+    missing_sections: List[str]
+    character_count: int = Field(..., ge=0)
+    metadata: Optional[ContributionMetadata] = None
+
+@mcp.tool()
+async def audit_document_contract(filepath: str, content: str) -> str:
+    """FastMCP 3.1 tool to validate a markdown file against the KnowledgeOps contract."""
+    required_sections = [
+        "What it is", "What problem it solves", "Where it fits in the stack",
+        "Typical use cases", "Strengths", "Limitations", "When to use it",
+        "When not to use it", "Getting started", "CLI examples", "API examples",
+        "Related tools / concepts", "Sources / references"
+    ]
+
+    missing = [sec for sec in required_sections if f"## {sec}" not in content]
+
+    # Extract metadata
     date_match = re.search(r"Last reviewed:\s*(\d{4}-\d{2}-\d{2})", content)
     conf_match = re.search(r"Confidence:\s*(high|medium|low)", content, re.IGNORECASE)
 
-    if not date_match or not conf_match:
-        raise ValueError("Missing required contribution metadata fields")
+    meta_obj = None
+    if date_match and conf_match:
+        try:
+            meta_obj = ContributionMetadata(
+                filepath=filepath,
+                last_reviewed=date_match.group(1),
+                confidence=conf_match.group(1).lower()
+            )
+        except ValidationError:
+            pass
 
-    return DocMetadata(
+    report = DocumentAuditReport(
         filepath=filepath,
-        last_reviewed=date_match.group(1),
-        confidence=conf_match.group(1).lower()
+        is_compliant=len(missing) == 0 and meta_obj is not None,
+        missing_sections=missing,
+        character_count=len(content),
+        metadata=meta_obj
     )
+    return report.model_dump_json(indent=2)
 
-# Example Verification Usage:
 if __name__ == "__main__":
-    sample_content = """
-    # Sample Page
-    ## Contribution Metadata
-    - Last reviewed: 2027-01-07
-    - Confidence: high
-    """
-
-    try:
-        metadata = extract_and_validate_metadata("docs/sample.md", sample_content)
-        print("Validation Succeeded:", metadata.model_dump_json(indent=2))
-    except Exception as e:
-        print("Validation Failed:", str(e))
+    mcp.run()
 ```
 
 ## Core Taxonomy & Contracts
@@ -156,19 +230,18 @@ Every knowledge page must include this section at the bottom:
 - `Confidence`: `high`, `medium`, or `low`
 
 ## Related tools / concepts
-- [AGENTS.md](../AGENTS.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md)
-- [n8n Service](services/n8n.md)
-- [Paperless-ngx](services/paperless-ngx.md)
-- [Audit Docs Quality Script](../scripts/audit_docs_quality.py)
-- [Check Docs Contract Script](../scripts/check_docs_contract.py)
-- [Claude Code](tools/development_ops/claude-code.md)
-- [Model Context Protocol (MCP)](tools/automation_orchestration/mcp.md)
+- [AGENTS.md](../AGENTS.md) — Operating guidelines for AI agent interactions.
+- [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md) — Architectural framework for multi-agent workflows.
+- [Audit Docs Quality Script](../scripts/audit_docs_quality.py) — Repository audit utility.
+- [Check Docs Contract Script](../scripts/check_docs_contract.py) — Per-file contract validator script.
+- [Claude Code](tools/development_ops/claude-code.md) — Terminal-native agentic development CLI.
+- [Jules Agent](tools/ai_knowledge/jules.md) — Autonomous repository maintenance agent.
+- [FastMCP 3.1](tools/automation_orchestration/mcp.md) — Framework for Model Context Protocol 3.1.
 
 ## Sources / references
-- [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow)
-- [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
+- [GitHub Flow Guide](https://docs.github.com/en/get-started/quickstart/github-flow)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/spec/3.1)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
