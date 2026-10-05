@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/notebooklm.md` | Open | Completed | 8,334 chars | 19,743 chars | +11,409 chars |
-| `docs/tools/ai_knowledge/copy-ai.md` | Open | Completed | 8,353 chars | 19,684 chars | +11,331 chars |
-| `docs/tools/calendar_tasks/savvycal.md` | Open | Completed | 8,354 chars | 19,233 chars | +10,879 chars |
-| `docs/tools/providers/xai-grok.md` | Open | Completed | 8,354 chars | 17,710 chars | +9,356 chars |
-| `docs/services/radicale.md` | Open | Completed | 8,359 chars | 20,177 chars | +11,818 chars |
+| `docs/tools/ai_knowledge/notebooklm.md` | Closed | Completed | 8,334 chars | 19,743 chars | +11,409 chars |
+| `docs/tools/ai_knowledge/copy-ai.md` | Closed | Completed | 8,353 chars | 19,684 chars | +11,331 chars |
+| `docs/tools/calendar_tasks/savvycal.md` | Closed | Completed | 8,354 chars | 19,233 chars | +10,879 chars |
+| `docs/tools/providers/xai-grok.md` | Closed | Completed | 8,354 chars | 17,710 chars | +9,356 chars |
+| `docs/services/radicale.md` | Closed | Completed | 8,359 chars | 20,177 chars | +11,818 chars |
 
 ---
 

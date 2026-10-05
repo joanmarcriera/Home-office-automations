@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/knowledge_base/ai_builder_index.md` | Open | Completed | 8,302 chars | 18,348 chars | +10,046 chars |
-| `docs/tools/agents/roo-code.md` | Open | Completed | 8,313 chars | 15,321 chars | +7,008 chars |
-| `docs/tools/agents/cline.md` | Open | Completed | 8,315 chars | 15,224 chars | +6,909 chars |
-| `docs/tools/infrastructure/tgi.md` | Open | Completed | 8,318 chars | 15,312 chars | +6,994 chars |
-| `docs/services/authentik.md` | Open | Completed | 8,329 chars | 15,198 chars | +6,869 chars |
+| `docs/knowledge_base/ai_builder_index.md` | Closed | Completed | 8,302 chars | 18,348 chars | +10,046 chars |
+| `docs/tools/agents/roo-code.md` | Closed | Completed | 8,313 chars | 15,321 chars | +7,008 chars |
+| `docs/tools/agents/cline.md` | Closed | Completed | 8,315 chars | 15,224 chars | +6,909 chars |
+| `docs/tools/infrastructure/tgi.md` | Closed | Completed | 8,318 chars | 15,312 chars | +6,994 chars |
+| `docs/services/authentik.md` | Closed | Completed | 8,329 chars | 15,198 chars | +6,869 chars |
 
 ---
 

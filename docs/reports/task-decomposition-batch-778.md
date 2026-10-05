@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/infrastructure/zse.md` | Open | Completed | 8,073 chars | 20,194 chars | +12,121 chars |
-| `docs/tools/benchmarking/asdiv.md` | Open | Completed | 8,075 chars | 18,947 chars | +10,872 chars |
-| `docs/services/storj.md` | Open | Completed | 8,085 chars | 19,409 chars | +11,324 chars |
-| `docs/tools/development_ops/openclaw.md` | Open | Completed | 8,087 chars | 17,863 chars | +9,776 chars |
-| `docs/tools/enterprise/ampcode.md` | Open | Completed | 8,093 chars | 19,428 chars | +11,335 chars |
+| `docs/tools/infrastructure/zse.md` | Closed | Completed | 8,073 chars | 20,194 chars | +12,121 chars |
+| `docs/tools/benchmarking/asdiv.md` | Closed | Completed | 8,075 chars | 18,947 chars | +10,872 chars |
+| `docs/services/storj.md` | Closed | Completed | 8,085 chars | 19,409 chars | +11,324 chars |
+| `docs/tools/development_ops/openclaw.md` | Closed | Completed | 8,087 chars | 17,863 chars | +9,776 chars |
+| `docs/tools/enterprise/ampcode.md` | Closed | Completed | 8,093 chars | 19,428 chars | +11,335 chars |
 
 ---
 

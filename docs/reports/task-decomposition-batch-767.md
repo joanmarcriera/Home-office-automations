@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/playbooks/k3s-cluster-setup.md` | Open | Completed | 7,814 chars | 24,935 chars | +17,121 chars |
-| `docs/tools/benchmarking/bigcodebench.md` | Open | Completed | 7,833 chars | 18,591 chars | +10,758 chars |
-| `docs/knowledge_base/patterns/skills-best-practices.md` | Open | Completed | 7,836 chars | 16,731 chars | +8,895 chars |
-| `docs/tools/infrastructure/gpt4all.md` | Open | Completed | 7,838 chars | 15,473 chars | +7,635 chars |
-| `docs/tools/process_understanding/breezetts2.md` | Open | Completed | 7,840 chars | 15,467 chars | +7,627 chars |
+| `docs/playbooks/k3s-cluster-setup.md` | Closed | Completed | 7,814 chars | 24,935 chars | +17,121 chars |
+| `docs/tools/benchmarking/bigcodebench.md` | Closed | Completed | 7,833 chars | 18,591 chars | +10,758 chars |
+| `docs/knowledge_base/patterns/skills-best-practices.md` | Closed | Completed | 7,836 chars | 16,731 chars | +8,895 chars |
+| `docs/tools/infrastructure/gpt4all.md` | Closed | Completed | 7,838 chars | 15,473 chars | +7,635 chars |
+| `docs/tools/process_understanding/breezetts2.md` | Closed | Completed | 7,840 chars | 15,467 chars | +7,627 chars |
 
 ---
 
