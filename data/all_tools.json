@@ -390,6 +390,12 @@
       "doc_path": "docs/tools/process_understanding/braintrust.md"
     },
     {
+      "id": "breeze",
+      "name": "Breeze",
+      "category": "AI Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/breeze.md"
+    },
+    {
       "id": "browser-use",
       "name": "Browser Use",
       "category": "Automation & Orchestration",
@@ -1263,6 +1269,12 @@
       "doc_path": "docs/tools/enterprise/glean.md"
     },
     {
+      "id": "gliner",
+      "name": "GLiNER",
+      "category": "Process Understanding",
+      "doc_path": "docs/tools/process_understanding/gliner.md"
+    },
+    {
       "id": "glm",
       "name": "GLM",
       "category": "Providers",
@@ -1550,6 +1562,12 @@
       "doc_path": "docs/services/immich.md"
     },
     {
+      "id": "index-translate",
+      "name": "Index-Translate",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/index-translate.md"
+    },
+    {
       "id": "inkling-small",
       "name": "Inkling-Small",
       "category": "AI Assistants & Knowledge",
@@ -1718,6 +1736,12 @@
       "doc_path": "docs/tools/ai_knowledge/kokoclone.md"
     },
     {
+      "id": "kolibri-1",
+      "name": "Kolibri-1",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/kolibri-1.md"
+    },
+    {
       "id": "kumo-ai",
       "name": "Kumo AI",
       "category": "AI Assistants & Knowledge",
@@ -1794,12 +1818,6 @@
       "name": "Letta",
       "category": "Agents",
       "doc_path": "docs/tools/agents/letta.md"
-    },
-    {
-      "id": "kolibri-1",
-      "name": "Kolibri-1",
-      "category": "Providers",
-      "doc_path": "docs/tools/providers/kolibri-1.md"
     },
     {
       "id": "lfm-encoders",
@@ -2428,6 +2446,12 @@
       "doc_path": "docs/tools/infrastructure/ninfer.md"
     },
     {
+      "id": "ninfer-4080",
+      "name": "Ninfer 4080",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/ninfer-4080.md"
+    },
+    {
       "id": "notebooklm",
       "name": "NotebookLM",
       "category": "AI Assistants & Knowledge",
@@ -2530,12 +2554,6 @@
       "doc_path": "docs/services/omni-tools.md"
     },
     {
-      "id": "openappa",
-      "name": "OpenAPPA",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/openappa.md"
-    },
-    {
       "id": "open-agents",
       "name": "Open Agents",
       "category": "Agents",
@@ -2576,6 +2594,12 @@
       "name": "OpenAI Agents SDK",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/openai-agents-sdk.md"
+    },
+    {
+      "id": "openappa",
+      "name": "OpenAPPA",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/openappa.md"
     },
     {
       "id": "openbb",
@@ -2734,12 +2758,6 @@
       "doc_path": "docs/tools/ai_knowledge/personaplex.md"
     },
     {
-      "id": "pizza-bot",
-      "name": "Pizza Bot",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/pizza-bot.md"
-    },
-    {
       "id": "phidata",
       "name": "Phidata",
       "category": "Agents",
@@ -2768,6 +2786,12 @@
       "name": "Pirate Face",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/pirate-face.md"
+    },
+    {
+      "id": "pizza-bot",
+      "name": "Pizza Bot",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/pizza-bot.md"
     },
     {
       "id": "plandex",
