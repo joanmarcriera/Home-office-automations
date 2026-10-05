@@ -239,7 +239,7 @@ if __name__ == "__main__":
 - [vLLM](../infrastructure/vllm.md) — High-throughput inference server for MoE models.
 - [DeepSeek-R1](../ai_knowledge/deepseek-r1.md) — Open MoE reasoning model family.
 - [Index-Translate](index-translate.md) — Multilingual translation model family.
-- [Ollama](../infrastructure/ollama.md) — Local model runner.
+- [Ollama](../../services/ollama.md) — Local model runner.
 
 ## Sources / references
 - [Kolibri-1 Aleph Alpha Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wwl7y6/alephalphakolibri1_hugging_face_78b_parameters/)

@@ -248,8 +248,8 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [ElevenLabs](../ai_knowledge/elevenlabs.md) — Cloud speech synthesis platform.
-- [Whisper](../ai_knowledge/whisper.md) — Local speech recognition model by OpenAI.
-- [Ollama](../infrastructure/ollama.md) — Local LLM runner for voice agent backends.
+- [Whisper](../../services/whisper.md) — Local speech recognition model by OpenAI.
+- [Ollama](../../services/ollama.md) — Local LLM runner for voice agent backends.
 - [Magpie-TTS](../ai_knowledge/magpie-tts.md) — High-fidelity expressive TTS engine.
 
 ## Sources / references

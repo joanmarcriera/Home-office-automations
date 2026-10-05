@@ -242,8 +242,10 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Ollama](../infrastructure/ollama.md) — Local LLM runner capable of serving Qwen models.
+- [Ollama](../../services/ollama.md) — Local LLM runner capable of serving Qwen models.
 - [vLLM](../infrastructure/vllm.md) — High-performance inference engine for local LLMs.
+- [GLiNER](../process_understanding/gliner.md) — Generalist Named Entity Recognition model for text extraction.
+- [Breeze](../ai_knowledge/breeze.md) — Local text-to-speech and audio synthesis engine.
 - [DeepL](../providers/deepl.md) — Commercial cloud translation service.
 - [Argos Translate](../tools/argos-translate.md) — Offline open-source NMT framework.
 

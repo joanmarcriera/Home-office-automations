@@ -259,7 +259,7 @@ if __name__ == "__main__":
 - [vLLM](vllm.md) — High-throughput local inference engine.
 - [ExLlamaV2](exllamav2.md) — Fast EXL2 quantization loader.
 - [llama.cpp](llama-cpp.md) — C++ inference engine supporting GGUF.
-- [Ollama](ollama.md) — User-friendly local LLM manager.
+- [Ollama](../../services/ollama.md) — User-friendly local LLM manager.
 
 ## Sources / references
 - [nInfer LocalLLaMA Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1w8f8fa/ninfer_fork_555k_contextfp4_for_5090_with_yarn/)
