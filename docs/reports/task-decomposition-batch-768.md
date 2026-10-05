@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/calendar_tasks/ticktick.md` | Open | Completed | 7,819 chars | 15,224 chars | +7,405 chars |
-| `docs/tools/agents/kiro-crew.md` | Open | Completed | 7,835 chars | 15,188 chars | +7,353 chars |
-| `docs/tools/ai_knowledge/notion-ai.md` | Open | Completed | 7,838 chars | 15,379 chars | +7,541 chars |
-| `docs/tools/frameworks/autogen.md` | Open | Completed | 7,844 chars | 15,283 chars | +7,439 chars |
-| `docs/tools/ai_knowledge/everything-claude-code.md` | Open | Completed | 7,847 chars | 15,361 chars | +7,514 chars |
+| `docs/tools/calendar_tasks/ticktick.md` | Closed | Completed | 7,819 chars | 15,224 chars | +7,405 chars |
+| `docs/tools/agents/kiro-crew.md` | Closed | Completed | 7,835 chars | 15,188 chars | +7,353 chars |
+| `docs/tools/ai_knowledge/notion-ai.md` | Closed | Completed | 7,838 chars | 15,379 chars | +7,541 chars |
+| `docs/tools/frameworks/autogen.md` | Closed | Completed | 7,844 chars | 15,283 chars | +7,439 chars |
+| `docs/tools/ai_knowledge/everything-claude-code.md` | Closed | Completed | 7,847 chars | 15,361 chars | +7,514 chars |
 
 ---
 

@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/process_understanding/opendataloader-pdf.md` | Open | Completed | 7,939 chars | 19,052 chars | +11,113 chars |
-| `docs/tools/providers/openpangu.md` | Open | Completed | 7,944 chars | 18,232 chars | +10,288 chars |
-| `docs/architecture/ssh_execution_patterns.md` | Open | Completed | 7,945 chars | 18,085 chars | +10,140 chars |
-| `docs/tools/benchmarking/evalplus.md` | Open | Completed | 7,949 chars | 18,565 chars | +10,616 chars |
-| `docs/tools/frameworks/ag2.md` | Open | Completed | 7,957 chars | 18,222 chars | +10,265 chars |
+| `docs/tools/process_understanding/opendataloader-pdf.md` | Closed | Completed | 7,939 chars | 19,052 chars | +11,113 chars |
+| `docs/tools/providers/openpangu.md` | Closed | Completed | 7,944 chars | 18,232 chars | +10,288 chars |
+| `docs/architecture/ssh_execution_patterns.md` | Closed | Completed | 7,945 chars | 18,085 chars | +10,140 chars |
+| `docs/tools/benchmarking/evalplus.md` | Closed | Completed | 7,949 chars | 18,565 chars | +10,616 chars |
+| `docs/tools/frameworks/ag2.md` | Closed | Completed | 7,957 chars | 18,222 chars | +10,265 chars |
 
 ---
 

@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/intake_storage/silverbullet.md` | Open | Completed | 7,993 chars | 22,565 chars | +14,572 chars |
-| `docs/knowledge_base/patterns/prompt_requests.md` | Open | Completed | 8,005 chars | 20,847 chars | +12,842 chars |
-| `docs/tools/development_ops/claude-code-container-mcp.md` | Open | Completed | 8,013 chars | 19,317 chars | +11,304 chars |
-| `docs/tools/ai_knowledge/google-opal.md` | Open | Completed | 8,017 chars | 19,053 chars | +11,036 chars |
-| `docs/tools/infrastructure/weaviate.md` | Open | Completed | 8,021 chars | 20,467 chars | +12,446 chars |
+| `docs/tools/intake_storage/silverbullet.md` | Closed | Completed | 7,993 chars | 22,565 chars | +14,572 chars |
+| `docs/knowledge_base/patterns/prompt_requests.md` | Closed | Completed | 8,005 chars | 20,847 chars | +12,842 chars |
+| `docs/tools/development_ops/claude-code-container-mcp.md` | Closed | Completed | 8,013 chars | 19,317 chars | +11,304 chars |
+| `docs/tools/ai_knowledge/google-opal.md` | Closed | Completed | 8,017 chars | 19,053 chars | +11,036 chars |
+| `docs/tools/infrastructure/weaviate.md` | Closed | Completed | 8,021 chars | 20,467 chars | +12,446 chars |
 
 ---
 

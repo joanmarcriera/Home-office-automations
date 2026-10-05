@@ -9,11 +9,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/process_understanding/crawl4ai.md` | Open | Completed | 8,424 chars | 16,517 chars | +8,093 chars |
-| `docs/tools/ai_knowledge/moondream.md` | Open | Completed | 8,432 chars | 15,522 chars | +7,090 chars |
-| `docs/tools/ai_knowledge/claude-mythos.md` | Open | Completed | 8,439 chars | 14,048 chars | +5,609 chars |
-| `docs/tools/intake_storage/khoj.md` | Open | Completed | 8,439 chars | 12,559 chars | +4,120 chars |
-| `docs/services/syncthing.md` | Open | Completed | 8,442 chars | 14,828 chars | +6,386 chars |
+| `docs/tools/process_understanding/crawl4ai.md` | Closed | Completed | 8,424 chars | 16,517 chars | +8,093 chars |
+| `docs/tools/ai_knowledge/moondream.md` | Closed | Completed | 8,432 chars | 15,522 chars | +7,090 chars |
+| `docs/tools/ai_knowledge/claude-mythos.md` | Closed | Completed | 8,439 chars | 14,048 chars | +5,609 chars |
+| `docs/tools/intake_storage/khoj.md` | Closed | Completed | 8,439 chars | 12,559 chars | +4,120 chars |
+| `docs/services/syncthing.md` | Closed | Completed | 8,442 chars | 14,828 chars | +6,386 chars |
 
 ## Task Execution Tracking Checklist
 

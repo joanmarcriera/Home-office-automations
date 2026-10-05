@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/services/prowlarr.md` | Open | Completed | 7,776 chars | 21,816 chars | +14,040 chars |
-| `docs/tools/development_ops/plandex.md` | Open | Completed | 7,776 chars | 20,680 chars | +12,904 chars |
-| `docs/tools/development_ops/nanoclaw.md` | Open | Completed | 7,780 chars | 17,866 chars | +10,086 chars |
-| `docs/tools/ai_knowledge/glaive.md` | Open | Completed | 7,784 chars | 20,691 chars | +12,907 chars |
-| `docs/tools/automation_orchestration/mcp-registry.md` | Open | Completed | 7,787 chars | 19,500 chars | +11,713 chars |
+| `docs/services/prowlarr.md` | Closed | Completed | 7,776 chars | 21,816 chars | +14,040 chars |
+| `docs/tools/development_ops/plandex.md` | Closed | Completed | 7,776 chars | 20,680 chars | +12,904 chars |
+| `docs/tools/development_ops/nanoclaw.md` | Closed | Completed | 7,780 chars | 17,866 chars | +10,086 chars |
+| `docs/tools/ai_knowledge/glaive.md` | Closed | Completed | 7,784 chars | 20,691 chars | +12,907 chars |
+| `docs/tools/automation_orchestration/mcp-registry.md` | Closed | Completed | 7,787 chars | 19,500 chars | +11,713 chars |
 
 ---
 

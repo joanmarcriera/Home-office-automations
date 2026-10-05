@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/kimi-cli.md` | Open | Completed | 7,887 chars | 16,183 chars | +8,296 chars |
-| `docs/tools/ai_knowledge/endlessfrontier.md` | Open | Completed | 7,889 chars | 16,045 chars | +8,156 chars |
-| `docs/tools/automation_orchestration/open-interpreter.md` | Open | Completed | 7,898 chars | 16,587 chars | +8,689 chars |
-| `docs/tools/benchmarking/chatbot-arena.md` | Open | Completed | 7,899 chars | 16,012 chars | +8,113 chars |
-| `docs/tools/ai_knowledge/mellum2.md` | Open | Completed | 7,911 chars | 15,794 chars | +7,883 chars |
+| `docs/tools/ai_knowledge/kimi-cli.md` | Closed | Completed | 7,887 chars | 16,183 chars | +8,296 chars |
+| `docs/tools/ai_knowledge/endlessfrontier.md` | Closed | Completed | 7,889 chars | 16,045 chars | +8,156 chars |
+| `docs/tools/automation_orchestration/open-interpreter.md` | Closed | Completed | 7,898 chars | 16,587 chars | +8,689 chars |
+| `docs/tools/benchmarking/chatbot-arena.md` | Closed | Completed | 7,899 chars | 16,012 chars | +8,113 chars |
+| `docs/tools/ai_knowledge/mellum2.md` | Closed | Completed | 7,911 chars | 15,794 chars | +7,883 chars |
 
 ---
 

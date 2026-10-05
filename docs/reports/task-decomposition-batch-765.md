@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/valyu.md` | Open | Completed | 7,789 chars | 18,258 chars | +10,469 chars |
-| `docs/tools/development_ops/claude-plugins.md` | Open | Completed | 7,795 chars | 18,407 chars | +10,612 chars |
-| `docs/tools/ai_knowledge/gemini-cli.md` | Open | Completed | 7,797 chars | 14,909 chars | +7,112 chars |
-| `docs/tools/development_ops/github_copilot.md` | Open | Completed | 7,809 chars | 14,928 chars | +7,119 chars |
-| `docs/tools/development_ops/playwright.md` | Open | Completed | 7,813 chars | 15,194 chars | +7,381 chars |
+| `docs/tools/ai_knowledge/valyu.md` | Closed | Completed | 7,789 chars | 18,258 chars | +10,469 chars |
+| `docs/tools/development_ops/claude-plugins.md` | Closed | Completed | 7,795 chars | 18,407 chars | +10,612 chars |
+| `docs/tools/ai_knowledge/gemini-cli.md` | Closed | Completed | 7,797 chars | 14,909 chars | +7,112 chars |
+| `docs/tools/development_ops/github_copilot.md` | Closed | Completed | 7,809 chars | 14,928 chars | +7,119 chars |
+| `docs/tools/development_ops/playwright.md` | Closed | Completed | 7,813 chars | 15,194 chars | +7,381 chars |
 
 ---
 

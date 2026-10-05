@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/flowise.md` | Open | Completed | 7,962 chars | 22,472 chars | +14,510 chars |
-| `docs/services/actual-budget.md` | Open | Completed | 7,970 chars | 21,866 chars | +13,896 chars |
-| `docs/tools/calendar_tasks/any-do.md` | Open | Completed | 7,978 chars | 19,026 chars | +11,048 chars |
-| `docs/services/immich.md` | Open | Completed | 7,986 chars | 21,532 chars | +13,546 chars |
-| `docs/tools/development_ops/claude-context-mode.md` | Open | Completed | 7,992 chars | 19,948 chars | +11,956 chars |
+| `docs/tools/ai_knowledge/flowise.md` | Closed | Completed | 7,962 chars | 22,472 chars | +14,510 chars |
+| `docs/services/actual-budget.md` | Closed | Completed | 7,970 chars | 21,866 chars | +13,896 chars |
+| `docs/tools/calendar_tasks/any-do.md` | Closed | Completed | 7,978 chars | 19,026 chars | +11,048 chars |
+| `docs/services/immich.md` | Closed | Completed | 7,986 chars | 21,532 chars | +13,546 chars |
+| `docs/tools/development_ops/claude-context-mode.md` | Closed | Completed | 7,992 chars | 19,948 chars | +11,956 chars |
 
 ---
 

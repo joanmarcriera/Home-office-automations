@@ -11,11 +11,11 @@
 
 | File Path | Initial Status | Final Status | Original Size | Final Size | Growth Delta |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `docs/tools/ai_knowledge/flint.md` | Open | Completed | 7,848 chars | 15,836 chars | +7,988 chars |
-| `docs/tools/process_understanding/langfuse.md` | Open | Completed | 7,848 chars | 17,357 chars | +9,509 chars |
-| `docs/tools/ai_knowledge/nemotron-lightning.md` | Open | Completed | 7,851 chars | 16,085 chars | +8,234 chars |
-| `docs/tools/agents/symphony.md` | Open | Completed | 7,859 chars | 16,279 chars | +8,420 chars |
-| `docs/services/rclone-automation.md` | Open | Completed | 7,872 chars | 15,339 chars | +7,467 chars |
+| `docs/tools/ai_knowledge/flint.md` | Closed | Completed | 7,848 chars | 15,836 chars | +7,988 chars |
+| `docs/tools/process_understanding/langfuse.md` | Closed | Completed | 7,848 chars | 17,357 chars | +9,509 chars |
+| `docs/tools/ai_knowledge/nemotron-lightning.md` | Closed | Completed | 7,851 chars | 16,085 chars | +8,234 chars |
+| `docs/tools/agents/symphony.md` | Closed | Completed | 7,859 chars | 16,279 chars | +8,420 chars |
+| `docs/services/rclone-automation.md` | Closed | Completed | 7,872 chars | 15,339 chars | +7,467 chars |
 
 ---
 
