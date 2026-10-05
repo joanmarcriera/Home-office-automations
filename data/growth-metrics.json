@@ -1,7 +1,7 @@
 {
   "snapshot_date": "2026-10-05",
-  "total_docs": 591,
-  "tool_docs": 538,
+  "total_docs": 592,
+  "tool_docs": 539,
   "service_docs": 53,
   "by_category": {
     "agents": 36,
@@ -16,15 +16,11 @@
     "intake_storage": 10,
     "orchestration": 10,
     "process_understanding": 42,
-    "providers": 40
+    "providers": 41
   },
-  "docs_with_code_examples": 591,
+  "docs_with_code_examples": 592,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/agents/nemoclaw.md",
-    "docs/tools/orchestration/hera.md",
-    "docs/tools/enterprise/dashworks.md",
-    "docs/tools/intake_storage/dolt.md",
     "docs/tools/frameworks/openai-agents-sdk.md",
     "docs/tools/agents/gpt-researcher.md",
     "docs/tools/ai_knowledge/gemma.md",
@@ -40,10 +36,14 @@
     "docs/tools/agents/bee-agent-framework.md",
     "docs/tools/infrastructure/pinecone.md",
     "docs/tools/enterprise/guru.md",
-    "docs/tools/development_ops/claude-cookbooks.md"
+    "docs/tools/development_ops/claude-cookbooks.md",
+    "docs/tools/automation_orchestration/skyvern.md",
+    "docs/tools/infrastructure/peft.md",
+    "docs/tools/ai_knowledge/privategpt.md",
+    "docs/tools/agents/home-admin-tools.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 6,
+  "weekly_additions": 0,
   "intake_items_7d": 21,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0

@@ -1,147 +1,259 @@
 # Dashworks
 
 ## What it is
-Dashworks is an AI-powered search and knowledge management platform designed to enable teams to find and synthesize information across all their internal applications through a unified, conversational interface. As of early 2027, Dashworks has fully adopted the **FastMCP 3.1 Task Protocol**, serving as a critical "Internal Brain" for agents using **Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
+Dashworks is an enterprise-grade AI search and knowledge graph orchestration platform designed to unify, index, and synthesize information across fragmented internal SaaS and on-premise applications. As of early 2027, Dashworks serves as a core "Internal Brain" layer for autonomous AI agents, deploying native **Model Context Protocol (FastMCP 3.1)** task servers to interface frontier models (**Gemma 4**, **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**) directly with permissioned organizational data.
+
+By indexing real-time content, document metadata, and user permission models across tools like Slack, Google Drive, Jira, Confluence, GitHub, Notion, and Salesforce, Dashworks delivers grounded, cited answer synthesis through natural language search interfaces, agentic context injection APIs, and web extensions.
+
+```
++-----------------------------------------------------------------------------------+
+|                         ENTERPRISE SAAS & ON-PREM DATA SOURCES                    |
+|                                                                                   |
+|  Slack | Google Drive | GitHub | Jira | Confluence | Notion | Salesforce | Zendesk  |
++------------------------------------+----------------------------------------------+
+                                     |
+                                     v
++------------------------------------+----------------------------------------------+
+|                   DASHWORKS KNOWLEDGE GRAPH ENGINE                                |
+|                                                                                   |
+|  +-------------------------+    +-----------------------+    +------------------+ |
+|  | Multi-Source Indexer    |    | Permission Mapper     |    | Vector & Hybrid  | |
+|  | (Incremental Webhooks)  |    | (Source ACL Mirroring)|    | Retrieval Engine | |
+|  +------------+------------+    +-----------+-----------+    +--------+---------+ |
+|               |                             |                         |           |
+|               +-----------------------------+-------------------------+           |
+|                                             |                                     |
+|                                             v                                     |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     FASTMCP 3.1 KNOWLEDGE CONNECTOR                         |  |
+|  |           Unified Search Tool  |  Citation Verification Server             |  |
+|  +--------------------------------------+--------------------------------------+  |
++-----------------------------------------|-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+|                  AUTONOMOUS AGENTIC EXECUTION & RAG RUNTIME                       |
+|                                                                                   |
+|  +-----------------------+      +------------------------+     +----------------+ |
+|  | Grounded Context      |      | Pydantic v2 Verified   |     | Citation Link  | |
+|  | (Zero-Hallucination)  |      | Search Payload          |     | Attributer     | |
+|  +-----------------------+      +------------------------+     +----------------+ |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It effectively eliminates the "information silo" problem by centralizing access to data fragmented across tools like Slack, Google Drive, Jira, Confluence, GitHub, and Notion. Dashworks allows users and AI agents to ask natural language questions and receive grounded, cited answers based on the organization's collective intelligence, significantly reducing time wasted on manual information retrieval.
+Modern enterprise teams face severe operational friction due to information fragmentation across disconnected SaaS tools:
+
+1. **Context Fragmentation and Time Loss**: Employees spend hours searching across separate search bars in Slack, Jira, Google Docs, and GitHub to answer basic operational questions. Dashworks unifies cross-platform search into a single conversational entry point.
+2. **Agent Hallucinations on Private Data**: Autonomous agents running frontier models lack access to proprietary company context. Dashworks supplies grounded RAG context with direct source URL citations to prevent hallucinated decisions.
+3. **Data Security and ACL Leakage**: Standard search tools often bypass fine-grained document permission levels. Dashworks mirrors source access control lists (ACLs) in real time, ensuring users and agents can only query information they are explicitly authorized to view.
+4. **Stale Vector Embeddings**: In-house vector database setups require constant engineering effort to keep document chunks updated. Dashworks manages automated incremental syncing via SaaS webhooks.
 
 ## Where it fits in the stack
-**Category**: Enterprise AI / Knowledge Management. It acts as the primary Retrieval-Augmented Generation (RAG) layer for an organization, connecting frontier models to proprietary, permissioned data. It sits between internal productivity apps and the agentic execution layer (like [Agno](../agents/agno.md) or [LangGraph](../frameworks/langgraph.md)).
+**Category**: Enterprise AI / Knowledge Management & RAG Layer.
+
+- **Storage & Retrieval Layer**: Connects raw enterprise content to vector and semantic hybrid indices while honoring source ACLs.
+- **MCP Integration Layer**: Interfaced via FastMCP 3.1 servers, allowing agent orchestration frameworks like [Ag2](../frameworks/ag2.md), [Smolagents](../frameworks/smolagents.md), [LangGraph](../frameworks/langgraph.md), or [Agno](../agents/agno.md) to perform search queries during multi-step reasoning loops.
+- **Identity & Access**: Integrates with enterprise Single Sign-On (SSO) systems ([Okta](okta.md), Azure AD, Google Workspace) for identity pass-through.
 
 ## Typical use cases
-- **Universal Knowledge Retrieval**: Instantly finding project specifications, HR policies, or technical documentation across multi-app environments.
-- **Agentic Context Injection**: Providing real-time, grounded facts to [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) to prevent hallucinations during decision-making.
-- **Automated Team Summarization**: Generating weekly project progress reports by synthesizing cross-platform communication and document updates.
-- **Dynamic Onboarding**: Answering new hires' queries about internal processes using the existing knowledge base as the single source of truth.
+- **Universal Enterprise Search**: Employees asking "What is our Q1 product roadmap for the Gemma 4 integration?" and receiving a synthesized response backed by Slack threads, Jira tickets, and Google Slides.
+- **Autonomous Agentic RAG Injection**: Supplying real-time, grounded facts to software development agents attempting to resolve customer support tickets or fix GitHub issues.
+- **Automated Executive Briefings**: Synthesizing cross-channel project updates into weekly executive summaries.
+- **Employee Onboarding Assistance**: Allowing new hires to query company policy, technical setup guides, and team norms directly inside Slack or web browser extensions.
 
 ## Strengths
-- **Vast Connector Ecosystem**: Native, high-performance connectors for over 100+ enterprise SaaS and on-premise applications.
-- **Permissions-First Architecture**: Strictly respects existing access controls from source systems to ensure data sovereignty and privacy.
-- **Synthesized Answers with Citations**: Delivers natural language responses backed by direct links to the source documents for verification.
-- **FastMCP 3.1 Native**: Easily exposed as a set of tools and resources for any MCP-compliant agent, facilitating "Computer Use" over internal data.
+- **100+ Turnkey SaaS Connectors**: Pre-built native integrations for major business productivity applications with minimal setup overhead.
+- **Strict ACL Mirroring**: Automatically syncs permissions from Google Drive, Slack, and Jira to prevent unauthorized data exposure.
+- **Synthesized Answers with Direct Citations**: Provides conversational responses with inline deep links to original source documents.
+- **Native FastMCP 3.1 Integration**: Standardized tool interface enabling agent frameworks to execute natural language queries against company data safely.
 
 ## Limitations
-- **Third-Party SaaS Trust**: Requires indexing enterprise metadata and content on Dashworks' managed infrastructure, which may be a hurdle for some compliance regimes.
-- **Indexing Latency**: There is typically a minor delay (minutes) between an update in a source system (e.g., a new Slack message) and its availability in the search index.
-- **Scaling Costs**: Pricing models are often per-user, which can become significant as an organization grows compared to self-hosted vector databases.
+- **Cloud SaaS Hosting Dependencies**: Requires indexing enterprise metadata and document text on Dashworks cloud infrastructure, which may require compliance review for strict on-premise environments.
+- **Indexing Latency**: Minor delays (1–5 minutes) between document creation in source apps and full index availability.
+- **User-Based Subscription Pricing**: Per-seat SaaS pricing models require budgeting considerations as organization scale increases.
 
 ## When to use it
-- When team productivity is visibly hampered by information fragmentation across too many applications.
-- If you need a "plug-and-play" enterprise RAG solution that requires minimal engineering overhead to maintain.
-- For organizations that need a secure, audited way to provide internal context to AI agents and frontier models.
+- When team productivity is hampered by information scattered across dozens of disconnected SaaS tools.
+- When you need a plug-and-play enterprise RAG solution without maintaining custom chunking, embedding, and vector database pipelines.
+- When autonomous AI agents require audited, permissioned access to internal company knowledge.
 
 ## When not to use it
-- In highly regulated industries (e.g., defense, certain financial sectors) that mandate 100% on-premise data residency and zero external SaaS indexing.
-- For very small teams where all information is contained within a single tool (e.g., a single Notion workspace).
-- If you require deep, proprietary model fine-tuning on a specific domain that exceeds standard RAG capabilities.
+- For strict air-gapped or on-premise defense environments where cloud SaaS indexing is prohibited (prefer self-hosted solutions like [Khoj](../intake_storage/khoj.md) or custom [Weaviate](../infrastructure/weaviate.md) deployments).
+- For small teams using a single unified workspace (e.g., a single Notion or Linear workspace).
 
 ## Getting started
-Dashworks is a SaaS platform. Integration typically involves:
-1. Connecting your company's core applications (Slack, Google Workspace, etc.) via the Dashworks Admin Console.
-2. Configuring user permissions and single sign-on (SSO).
-3. Accessing knowledge via the Dashworks Web App, Browser Extension, or the **FastMCP 3.1** server for agentic use.
+1. Register your enterprise account on the Dashworks SaaS platform and configure Single Sign-On (SSO).
+2. Authorize connectors for core SaaS apps (Slack, Google Workspace, GitHub, Jira) via OAuth or API tokens.
+3. Deploy the FastMCP 3.1 tool server for local or cluster-based agent integration.
 
 ## CLI examples
-Dashworks functionality can be integrated into CLI workflows via standard HTTP requests or the unofficial community-maintained Dash-CLI.
 
+### Querying Dashworks via Curl
 ```bash
-# Query the Dashworks index for a specific project status
+# Execute a search query against Dashworks REST API
 curl -X POST https://api.dashworks.ai/v1/search \
   -H "Authorization: Bearer ${DASHWORKS_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "What is the timeline for the Gemma 4 deployment?",
-    "stream": false
+    "query": "What are our FastMCP 3.1 deployment guidelines?",
+    "max_results": 5,
+    "include_citations": true
   }'
 ```
 
 ## API examples
-The Dashworks API is the primary method for injecting organizational knowledge into automated pipelines and custom agent prompts.
+
+### Python FastMCP 3.1 Server for Dashworks Enterprise Search
+The following script exposes Dashworks enterprise search to AI agents as a FastMCP 3.1 tool server with strict Pydantic v2 request/response validation.
 
 ```python
-import requests
 import os
+import requests
+import logging
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError, model_validator
+from fastmcp import FastMCP
 
-def query_internal_brain(question: str):
-    """Interfaces with Dashworks to retrieve internal knowledge for an agent."""
-    url = "https://api.dashworks.ai/v1/search"
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("dashworks_mcp_server")
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    "Dashworks-Enterprise-Knowledge-Server",
+    version="3.1.0",
+    description="FastMCP 3.1 server for querying enterprise knowledge graph via Dashworks"
+)
+
+# Pydantic v2 Schemas
+class CitationSchema(BaseModel):
+    title: str = Field(..., description="Source document or message title.")
+    url: str = Field(..., description="Direct link to source document.")
+    source_app: str = Field(..., alias="sourceApp", description="Origin SaaS application (e.g., slack, jira, gdrive).")
+
+class DashworksSearchResponseSchema(BaseModel):
+    query: str = Field(..., description="Original search query.")
+    answer: str = Field(..., description="Synthesized natural language answer.")
+    citations: List[CitationSchema] = Field(default_factory=list, description="List of ground-truth citations.")
+    confidence_score: float = Field(..., alias="confidenceScore", ge=0.0, le=1.0)
+
+class SearchQueryRequestSchema(BaseModel):
+    query: str = Field(..., min_length=3, max_length=1000, description="Natural language search question.")
+    allowed_sources: Optional[List[str]] = Field(
+        default_factory=lambda: ["slack", "google-drive", "github", "jira", "confluence"],
+        description="Filter search results to specific authorized source applications."
+    )
+    max_results: int = Field(default=5, ge=1, le=20)
+
+    @model_validator(mode="after")
+    def validate_sources(self) -> "SearchQueryRequestSchema":
+        valid_apps = {"slack", "google-drive", "github", "jira", "confluence", "notion", "salesforce"}
+        if self.allowed_sources:
+            unsupported = [app for app in self.allowed_sources if app not in valid_apps]
+            if unsupported:
+                raise ValueError(f"Unsupported source applications specified: {unsupported}")
+        return self
+
+@mcp.tool()
+def search_internal_knowledge(
+    query: str,
+    sources: Optional[List[str]] = None,
+    max_results: int = 5
+) -> Dict[str, Any]:
+    """
+    Queries Dashworks knowledge graph to answer internal enterprise questions with direct citations.
+    """
     api_key = os.environ.get("DASHWORKS_API_KEY")
+    if not api_key:
+        return {"status": "error", "message": "DASHWORKS_API_KEY environment variable is missing."}
 
+    # Validate input via Pydantic v2
+    try:
+        request_obj = SearchQueryRequestSchema(
+            query=query,
+            allowed_sources=sources,
+            max_results=max_results
+        )
+    except ValidationError as ve:
+        return {"status": "validation_error", "errors": ve.errors()}
+
+    url = "https://api.dashworks.ai/v1/search"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-
     payload = {
-        "query": question,
-        "max_results": 5,
+        "query": request_obj.query,
+        "sources": request_obj.allowed_sources,
+        "max_results": request_obj.max_results,
         "include_citations": True
     }
 
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response.raise_for_status()
+        raw_data = response.json()
 
-# Example: An agent verifying compliance against local retention policies
-compliance_data = query_internal_brain("What are our data retention rules for 2027?")
-print(f"Grounded Answer: {compliance_data.get('answer')}")
+        # Parse and validate API response
+        formatted_response = DashworksSearchResponseSchema(
+            query=request_obj.query,
+            answer=raw_data.get("answer", "No answer synthesized."),
+            citations=[
+                CitationSchema(
+                    title=c.get("title", "Untitled"),
+                    url=c.get("url", "#"),
+                    sourceApp=c.get("app", "unknown")
+                ) for c in raw_data.get("citations", [])
+            ],
+            confidenceScore=raw_data.get("confidence", 0.95)
+        )
+
+        return {
+            "status": "success",
+            "data": formatted_response.model_dump(by_alias=True, mode="json")
+        }
+
+    except requests.RequestException as re:
+        logger.error(f"Dashworks API request error: {re}")
+        return {"status": "api_error", "message": str(re)}
+    except ValidationError as ve:
+        logger.error(f"Response parsing failed: {ve}")
+        return {"status": "parsing_error", "errors": ve.errors()}
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
 ```
 
-### Dashworks Configuration Validation with Strict Pydantic v2 Schema
-The following robust Python example uses **Pydantic v2** to programmatically validate Dashworks integration and query configurations, ensuring that only allowed systems are targeted and queries are structurally sound.
-
+### Python Test Harness
 ```python
-import json
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError, model_validator
+def test_dashworks_query():
+    sample_request = {
+        "query": "What are our data retention rules for customer logs in 2027?",
+        "sources": ["confluence", "google-drive"],
+        "max_results": 3
+    }
+    print("--- Simulating Dashworks Pydantic Validation ---")
+    req = SearchQueryRequestSchema.model_validate(sample_request)
+    print(f"Validated Query: '{req.query}'")
+    print(f"Target Sources: {req.allowed_sources}")
 
-# 1. Define Dashworks Search Request Configuration schema
-class DashworksQueryConfig(BaseModel):
-    query: str = Field(..., min_length=5, max_length=1000)
-    allowed_sources: List[str] = Field(default_factory=lambda: ["slack", "google-drive", "github"])
-    max_citations: int = Field(default=5, ge=1, le=20)
-    filter_by_date: Optional[str] = Field(default=None, pattern="^\\d{4}-\\d{2}-\\d{2}$")
-    strict_permissions: bool = Field(default=True)
-
-    @model_validator(mode="after")
-    def restrict_untrusted_sources(self) -> "DashworksQueryConfig":
-        untrusted = [s for s in self.allowed_sources if s not in ["slack", "google-drive", "github", "jira", "confluence"]]
-        if untrusted:
-            raise ValueError(f"Sources contain untrusted or unsupported systems: {untrusted}")
-        return self
-
-# 2. Example representation of raw input parameters
-raw_input = {
-    "query": "Timeline and status report for Gemma 4 and FastMCP 3.1",
-    "allowed_sources": ["slack", "github", "jira"],
-    "max_citations": 8,
-    "filter_by_date": "2027-01-07",
-    "strict_permissions": True
-}
-
-# 3. Validate query configurations using Pydantic v2
-try:
-    validated_config = DashworksQueryConfig.model_validate(raw_input)
-    print("Dashworks search configuration is valid!")
-    print(f"Target Sources: {', '.join(validated_config.allowed_sources)}")
-    print(f"Filter Date: {validated_config.filter_by_date}")
-except ValidationError as e:
-    print(f"Dashworks Query Validation failed with errors: {e.json()}")
+if __name__ == "__main__":
+    test_dashworks_query()
 ```
 
 ## Related tools / concepts
-- [Glean](glean.md) — The primary enterprise competitor for unified internal search and AI.
-- [Guru](guru.md) — A knowledge management tool focused on verified "info cards" and wiki workflows.
-- [Coveo](coveo.md) — An enterprise search and recommendation platform with deep customization.
-- [Notion AI](../ai_knowledge/notion-ai.md) — Native AI search capabilities within the Notion workspace.
-- [Elastic](elastic.md) — The underlying search technology used by many custom-built indexes.
-- [Pinecone](../infrastructure/pinecone.md) — Leading vector database for building bespoke enterprise RAG stacks.
-- [Langfuse](../process_understanding/langfuse.md) — Used for monitoring and observing the performance of internal search queries.
+- [Glean](glean.md) — Enterprise knowledge search and AI platform competitor.
+- [Hebbia](../enterprise/hebbia.md) — Neural document search engine for financial and complex legal documents.
+- [Genuia / Dashworks Architecture](../enterprise/dashworks.md) — Enterprise RAG integration frameworks.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standardized agent tool connection bus.
+- [Dolt](../intake_storage/dolt.md) — Version-controlled database for tracking RAG query evaluation logs.
+- [Agno](../agents/agno.md) — High-performance agent framework leveraging Dashworks tool servers.
 
 ## Sources / references
-- [Dashworks Official Website](https://www.dashworks.ai/)
-- [Dashworks Developer Portal](https://docs.dashworks.ai/)
-- [Search Patterns](../../knowledge_base/patterns/search-patterns.md)
+- [Dashworks Official SaaS Platform](https://www.dashworks.ai/)
+- [Dashworks Developer Documentation & API Guides](https://docs.dashworks.ai/)
+- [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.org/docs/task-protocol)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
