@@ -596,8 +596,10 @@ nav:
           - Nvidia NemoClaw: tools/agents/nemoclaw.md
           - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
           - Open Agents: tools/agents/open-agents.md
+          - OpenAPPA: tools/agents/openappa.md
           - Perplexity Agent API: tools/agents/perplexity-agent-api.md
           - Phidata: tools/agents/phidata.md
+          - Pizza Bot: tools/agents/pizza-bot.md
           - Replit Agent: tools/agents/replit-agent.md
           - Roo Code: tools/agents/roo-code.md
           - Superpowers: tools/agents/superpowers.md
