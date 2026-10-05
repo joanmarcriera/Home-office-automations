@@ -173,6 +173,7 @@ nav:
       - Overview: tools/README.md
       - AI & Knowledge:
           - Overview: tools/ai_knowledge/index.md
+          - Breeze: tools/ai_knowledge/breeze.md
           - UniFolm-WLA10: tools/ai_knowledge/unifolm-wla10.md
           - Liquid AI FM: tools/ai_knowledge/liquid-ai-fm.md
           - FrogNano 4B: tools/ai_knowledge/frognano-4b.md
@@ -542,6 +543,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - Index-Translate: tools/providers/index-translate.md
           - DigitalOcean Managed Agents: tools/providers/digitalocean-managed-agents.md
           - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
@@ -632,6 +634,7 @@ nav:
           - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
+          - Ninfer 4080: tools/infrastructure/ninfer-4080.md
           - LanceDB: tools/infrastructure/lancedb.md
           - LiveKit: tools/infrastructure/livekit.md
           - Local Embedding Models: tools/infrastructure/local-embeddings.md
@@ -683,6 +686,7 @@ nav:
           - ZSE: tools/infrastructure/zse.md
       - Process & Understanding:
           - Overview: tools/process_understanding/index.md
+          - GLiNER: tools/process_understanding/gliner.md
           - AgentOps: tools/process_understanding/agentops.md
           - AI Auditing Tools: tools/process_understanding/ai-auditing-tools.md
           - Arize AI: tools/process_understanding/arize-ai.md
