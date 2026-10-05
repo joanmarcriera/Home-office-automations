@@ -1796,6 +1796,12 @@
       "doc_path": "docs/tools/agents/letta.md"
     },
     {
+      "id": "kolibri-1",
+      "name": "Kolibri-1",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/kolibri-1.md"
+    },
+    {
       "id": "lfm-encoders",
       "name": "LFM-2.5 Encoders",
       "category": "Providers",
@@ -2524,6 +2530,12 @@
       "doc_path": "docs/services/omni-tools.md"
     },
     {
+      "id": "openappa",
+      "name": "OpenAPPA",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/openappa.md"
+    },
+    {
       "id": "open-agents",
       "name": "Open Agents",
       "category": "Agents",
@@ -2720,6 +2732,12 @@
       "name": "NVIDIA PersonaPlex",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/personaplex.md"
+    },
+    {
+      "id": "pizza-bot",
+      "name": "Pizza Bot",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/pizza-bot.md"
     },
     {
       "id": "phidata",

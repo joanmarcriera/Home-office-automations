@@ -45,10 +45,12 @@ Modern agentic systems in early 2027 rely on structured multi-agent coordination
 | [MultiOn](multion.md) | Web-browsing autonomous agent API for real-world web actions |
 | [NeMo Retriever](nemo-retriever.md) | NVIDIA enterprise agentic retrieval and context amplification microservices |
 | [NemoClaw](nemoclaw.md) | High-speed local agent runtime with GPU-accelerated tool calling |
+| [OpenAPPA](openappa.md) | Preview open-source engine enforcing deterministic information-flow security rules outside the agent loop |
 | [Open-Agents](open-agents.md) | Modular open-source agent framework for task planning and tool execution |
 | [OpenHands](../development_ops/openhands.md) | Autonomous software development agent platform |
 | [Perplexity Agent API](perplexity-agent-api.md) | Agentic web search and live web execution API |
 | [Phidata](phidata.md) | Python framework for building multimodal AI assistants with memory |
+| [Pizza Bot](pizza-bot.md) | Apache-2.0 self-hosted inbox UI for background, scheduled and approval-gated AI agents |
 | [Replit Agent](replit-agent.md) | Autonomous end-to-end full-stack app builder in Replit |
 | [Roo Code](roo-code.md) | AI coding assistant extension supporting MCP tools and customized prompts |
 | [Superpowers](superpowers.md) | Agent development workflow and skills framework |

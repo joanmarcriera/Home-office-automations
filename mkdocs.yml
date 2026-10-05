@@ -530,6 +530,7 @@ nav:
           - Hugging Face: tools/providers/huggingface.md
           - InternLM: tools/providers/internlm.md
           - KatCoderAir: tools/providers/katcoderair.md
+          - Kolibri-1: tools/providers/kolibri-1.md
           - LFM-2.5 Encoders: tools/providers/lfm-encoders.md
           - Liquid AI: tools/providers/liquid-ai.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
@@ -596,8 +597,10 @@ nav:
           - Nvidia NemoClaw: tools/agents/nemoclaw.md
           - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
           - Open Agents: tools/agents/open-agents.md
+          - OpenAPPA: tools/agents/openappa.md
           - Perplexity Agent API: tools/agents/perplexity-agent-api.md
           - Phidata: tools/agents/phidata.md
+          - Pizza Bot: tools/agents/pizza-bot.md
           - Replit Agent: tools/agents/replit-agent.md
           - Roo Code: tools/agents/roo-code.md
           - Superpowers: tools/agents/superpowers.md
