@@ -25,11 +25,22 @@ def ask(reason):
     sys.exit(0)
 
 
+def canon(component):
+    """Fold a path component the way a case/normalisation-insensitive filesystem would:
+    drop invisible format chars (zero-width etc.), strip trailing dots/spaces, then
+    casefold under every Unicode normalisation form. Returns the set of folded forms."""
+    comp = "".join(ch for ch in component if unicodedata.category(ch) != "Cf").rstrip(". ")
+    return {unicodedata.normalize(f, comp).casefold() for f in ("NFC", "NFD", "NFKC", "NFKD")}
+
+
 def protected(parts):
-    for i in range(len(parts) - 1):
-        if parts[i:i + 2] in ([".github", "workflows"], [".claude", "hooks"]):
+    folded = [canon(x) for x in parts]
+    for i in range(len(folded) - 1):
+        if ".github" in folded[i] and "workflows" in folded[i + 1]:
             return True
-        if parts[i] == ".claude" and parts[i + 1].startswith("settings") and parts[i + 1].endswith(".json"):
+        if ".claude" in folded[i] and "hooks" in folded[i + 1]:
+            return True
+        if ".claude" in folded[i] and any(f.startswith("settings") and f.endswith(".json") for f in folded[i + 1]):
             return True
     return False
 
@@ -57,7 +68,7 @@ try:
         if "\x00" in path:
             ask("Path contains a NUL byte; confirm this edit: " + repr(path))
         for v in variants(path):
-            if protected([x.lower() for x in v.split(os.sep)]):
+            if protected(v.split(os.sep)):
                 ask("Edit of a protected path requires explicit user confirmation: " + path)
 except SystemExit:
     raise
