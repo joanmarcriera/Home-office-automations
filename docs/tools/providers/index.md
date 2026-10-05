@@ -26,6 +26,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Hugging Face](huggingface.md) | The primary central hub for open models, datasets, space demos, and inference endpoints |
 | [InternLM](internlm.md) | Open-source multilingual foundation model family developed by Shanghai AI Laboratory |
 | [Kat Coder Air](katcoderair.md) | Specialized low-latency coding model optimized for real-time completion |
+| [Kolibri-1](kolibri-1.md) | Aleph Alpha's Apache-2.0 78B mixture-of-experts German/English reasoning model |
 | [LFM Encoders](lfm-encoders.md) | Liquid AI's non-transformer dynamical architecture encoders for sequence modeling |
 | Ling3.0 | [Ling3.0 Release](https://www.reddit.com/r/LocalLLaMA/comments/1vtpsqf/ling30_released_all_6_base_checkpoints_2_sizes_3/) | Open-weights base checkpoints family across 2 sizes and 3 architectural variants |
 | [Microsoft Graph API](microsoft-graph.md) | Unified enterprise API gateway for Microsoft 365 data and services |

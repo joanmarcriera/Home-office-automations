@@ -6,7 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-10-04 | [2026-10-04](/new-sources/2026-10-04/) | 5 | 2 | Bridge auto-discovery; Pizza Bot and OpenAPPA integrated, Reddit rows pending (source not fetchable) |
+| 2026-10-04 | [2026-10-04](/new-sources/2026-10-04/) | 4 | 3 | Bridge auto-discovery; Pizza Bot, OpenAPPA and Kolibri-1 integrated, remaining Reddit rows pending (source not fetchable) |
 | 2026-10-03 | [2026-10-03](/new-sources/2026-10-03/) | 0 | 0 | Bridge auto-discovery |
 | 2026-09-28 | [2026-09-28](/new-sources/2026-09-28/) | 2 | 0 | Logged missing tools referenced in Related sections |
 | 2026-09-23 | [2026-09-23](/new-sources/2026-09-23/) | 0 | 0 | Bridge auto-discovery |
