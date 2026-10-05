@@ -5,6 +5,39 @@ Claude Code is Anthropic's premier terminal-native developer agent and command-l
 
 ```
 +-----------------------------------------------------------------------------------+
+|                        Developer / Shell Environment                              |
+|                       "claude 'Fix bug in auth service'"                          |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                            Claude Code Agent Core                                 |
+|  +-----------------------+  +------------------------+  +-----------------------+ |
+|  | Context Management    |  | Reasoning & Planning   |  | Tool Dispatcher       | |
+|  | (/compact, CLAUDE.md) |  | (Claude 5.6 / GPT-5.6) |  | (MCP 3.1 / FastMCP)   | |
+|  +-----------------------+  +------------------------+  +-----------------------+ |
++-----------------------------------------------------------------------------------+
+                                          |
+                        +-----------------+-----------------+
+                        |                                   |
+           Local Workspace Operations              FastMCP 3.1 Tools
+                        |                                   |
+                        v                                   v
++---------------------------------------+   +---------------------------------------+
+|  File System & Terminal Execution     |   |  External Server Integrations         |
+|  - Reads/Writes workspace files       |   |  - Database connections               |
+|  - Executes test suites & linters     |   |  - Docker & K8s sandboxes             |
+|  - Analyzes compiler error streams    |   |  - Web scraping & API drivers         |
++---------------------------------------+   +---------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Git Version Control & Verification                         |
+|   - Inspects diffs, verifies tests pass, generates descriptive commit messages   |
++-----------------------------------------------------------------------------------+
+```
+
+```
 |                           Claude Code Terminal Agent Architecture                 |
 |                                                                                   |
 |  +--------------------+     +---------------------+     +----------------------+  |
@@ -83,6 +116,38 @@ Traditional software engineering involves continuous context-switching between c
 - For simple, one-line code completions where inline IDE autocomplete extensions (like GitHub Copilot or Codeium) offer lower latency.
 - In fully air-gapped environments that do not permit secure outbound API access to Anthropic or partner endpoints.
 
+## Architecture & Tool Calling Engine
+
+### Claude Code Tool Execution Loop
+Claude Code relies on a deterministic tool execution loop that safely executes operations and reports results back to the LLM backend:
+
+```
++-----------------------------------------------------------------------------------+
+| 1. Request Analysis & Tool Selection                                              |
+|    - Evaluates terminal command, file inspection, or FastMCP tool requirements.   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| 2. Input Schema Validation (Pydantic v2 / FastMCP 3.1)                            |
+|    - Validates tool arguments against strict JSON schema.                        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| 3. Execution & Safety Verification                                                |
+|    - Checks operation against permission rules and workspace sandbox policies.    |
+|    - Executes file edit, bash command, or gRPC/SSE FastMCP call.                  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| 4. Outcome Observation & Feedback Analysis                                        |
+|    - Captures stdout, stderr, exit status, and compilation results.              |
+|    - If execution fails -> Triggers internal self-correction reasoning step.     |
++-----------------------------------------------------------------------------------+
+```
+
 ## Getting started
 
 ### Installation
@@ -123,6 +188,124 @@ Within the Claude Code interactive prompt, the following slash commands are full
 
 ## API examples
 
+### Pydantic v2 FastMCP Tool Definition
+The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation to ensure correct schema format before registering them with a **FastMCP 3.1** server.
+
+```python
+import json
+import sys
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
+
+class FastMCPToolParameter(BaseModel):
+    name: str = Field(..., description="Parameter identifier")
+    param_type: str = Field(..., description="JSON Schema type (string, integer, boolean)")
+    description: str = Field(..., description="Explanation of parameter behavior")
+    is_required: bool = Field(default=True)
+
+class ClaudeCodeToolSchema(BaseModel):
+    tool_name: str = Field(..., description="Identifier for Claude Code tool")
+    description: str = Field(..., min_length=15, description="Tool purpose summary")
+    parameters: List[FastMCPToolParameter] = Field(default_factory=list)
+    timeout_seconds: int = Field(default=30, ge=1, le=300)
+
+    @field_validator("tool_name")
+    @classmethod
+    def validate_tool_name(cls, v: str) -> str:
+        if not v.isidentifier():
+            raise ValueError("tool_name must be a valid Python identifier")
+        return v
+
+def generate_fastmcp_registration(tool_def: Dict[str, Any]) -> str:
+    """Validates tool schema with Pydantic v2 and returns FastMCP 3.1 registration JSON."""
+    try:
+        validated = ClaudeCodeToolSchema.model_validate(tool_def)
+
+        # Build FastMCP 3.1 compliant payload
+        properties = {}
+        required = []
+        for param in validated.parameters:
+            properties[param.name] = {
+                "type": param.param_type,
+                "description": param.description
+            }
+            if param.is_required:
+                required.append(param.name)
+
+        fastmcp_payload = {
+            "name": validated.tool_name,
+            "description": validated.description,
+            "inputSchema": {
+                "type": "object",
+                "properties": properties,
+                "required": required
+            }
+        }
+        return json.dumps(fastmcp_payload, indent=2)
+
+    except ValidationError as ve:
+        print(f"Pydantic Validation Error: {ve}", file=sys.stderr)
+        raise
+
+if __name__ == "__main__":
+    sample_tool = {
+        "tool_name": "execute_pytest_suite",
+        "description": "Runs targeted unit tests using pytest with coverage reporting.",
+        "parameters": [
+            {
+                "name": "test_path",
+                "param_type": "string",
+                "description": "Path to test file or directory",
+                "is_required": True
+            },
+            {
+                "name": "fail_fast",
+                "param_type": "boolean",
+                "description": "Stop execution on first failed test",
+                "is_required": False
+            }
+        ],
+        "timeout_seconds": 60
+    }
+
+    print(generate_fastmcp_registration(sample_tool))
+```
+
+### FastMCP 3.1 Server Integration
+This snippet shows a FastMCP 3.1 Python server that exposes custom tool capabilities directly to Claude Code:
+
+```python
+import asyncio
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("ClaudeCodeIntegrationServer")
+
+class RefactorRequest(BaseModel):
+    filepath: str = Field(description="Target source code file")
+    refactor_instructions: str = Field(description="Instructions for restructuring")
+
+class RefactorResult(BaseModel):
+    filepath: str
+    status: str
+    changes_made: int
+
+@mcp.tool()
+async def trigger_automated_refactor(request: RefactorRequest) -> RefactorResult:
+    """Triggers an automated code refactoring task for Claude Code."""
+    await asyncio.sleep(0.05)  # Simulate execution
+
+    return RefactorResult(
+        filepath=request.filepath,
+        status="COMPLETED",
+        changes_made=14
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Tool Registry Server with Pydantic v2 Config Model
 The following Python example demonstrates how a developer can programmatically validate Claude Code's tool definitions using **Pydantic v2** validation and serve them via a **FastMCP 3.1** server for terminal-agent consumption.
 
 ```python
@@ -200,8 +383,9 @@ if __name__ == "__main__":
 - [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) — The lightweight framework used to build secure extension backends.
 
 ## Sources / references
-- [Anthropic Claude Code Docs](https://code.claude.com/)
+- [Anthropic Claude Code Official Documentation](https://code.claude.com/)
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io/spec)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
