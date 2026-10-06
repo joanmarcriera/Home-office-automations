@@ -1,21 +1,113 @@
 # Jules Weekly Gap Analysis Prompt
 
 ## What it is
-The "Jules Weekly Gap Analysis" is a structured LLM prompt and automated workflow pattern used to analyze failure patterns in [n8n](../../services/n8n.md) automation logs and propose concrete improvements to the repository's documentation or workflows. It leverages deep reasoning models to identify the underlying "why" behind recurring issues.
+The "Jules Weekly Gap Analysis" is a structured LLM prompt and automated workflow pattern used to analyze failure patterns in [n8n](../../services/n8n.md) automation logs and propose concrete improvements to the repository's documentation or workflows. It leverages deep reasoning models (such as Claude 5.6, GPT-5.6, and DeepSeek-V4) to identify the underlying "why" behind recurring issues.
 
-As of early January 2027, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md#orchestration-patterns-the-ralph-loop) to maintain system health and robustness across multi-agent environments.
+As of early January 2027, this prompt is the standard tool for the [Ralph-loop](../../tools/ai_knowledge/jules.md#orchestration-patterns-the-ralph-loop) to maintain system health, error classification, and documentation synchronization across multi-agent environment pipelines.
+
+```
++-----------------------------------------------------------------------------------+
+|                        JULES GAP ANALYSIS SYSTEM ARCHITECTURE                     |
++-----------------------------------------------------------------------------------+
+
+  +------------------+         +--------------------------+
+  |  n8n Workflows   | ------> |   n8n Log Aggregator     |
+  |  Execution Logs  |         | (scripts/n8n_log_agg.py) |
+  +------------------+         +--------------------------+
+                                            |
+                                            v
+                               +--------------------------+
+                               | Raw Error Log Summary    |
+                               | (JSON / Structured Text) |
+                               +--------------------------+
+                                            |
+                                            v
+  +-------------------------------------------------------------------------------+ |
+  |                         FAST MCP 3.1 ORCHESTRATOR ENGINES                     | |
+  |                                                                               | |
+  |   +---------------------+   +---------------------+   +---------------------+ | |
+  |   | Request Validation  |   |  Prompt Injector    |   | Context Window      | | |
+  |   | (Pydantic v2 Schema)|   |  (System Rules)     |   | Optimization        | | |
+  |   +---------------------+   +---------------------+   +---------------------+ | |
+  +-------------------------------------------------------------------------------+ |
+                                            |
+                                            v
+                               +--------------------------+
+                               | Reasoning Model Engine   |
+                               | (Claude 5.6 / GPT-5.6)   |
+                               +--------------------------+
+                                            |
+                                            v
+                               +--------------------------+
+                               | Gap Analysis Report      |
+                               | & Action Item Breakdown  |
+                               +--------------------------+
+                                            |
+                                            v
+  +-------------------------------------------------------------------------------+ |
+  |                         AUTOMATED REMEDIATION PIPELINE                        | |
+  |                                                                               | |
+  |   +---------------------+   +---------------------+   +---------------------+ | |
+  |   | Action A: Code/Doc  |   | Action C: Decompose |   | GitHub PR Generator | | |
+  |   | Auto-Fix Injection  |   | Sub-Task Creation   |   | (Auto-PR Creation)  | | |
+  |   +---------------------+   +---------------------+   +---------------------+ | |
+  +-------------------------------------------------------------------------------+ |
+```
 
 ## What problem it solves
 Automation stacks often suffer from "silent decay" where small API changes, network timeouts, or unhandled data edge cases lead to recurring but non-critical failures. This prompt automates the root cause analysis and suggests specific fixes, ensuring the system remains resilient and well-documented without requiring constant manual monitoring.
 
+- **Silent Degraded State Mitigation**: Eliminates recurring unmonitored node retries by bubbling up underlying schema shifts.
+- **Documentation Drift**: Automatically maps log failure stack traces back to missing operational documentation or obsolete step guides.
+- **Multi-Agent Alignment**: Ensures that autonomous agents operating across the infrastructure share a unified model of active failure modes.
+
 ## Where it fits in the stack
 This prompt is part of the **Maintenance & Governance Layer**. It consumes data from the [n8n Log Aggregator](../../../scripts/n8n_log_aggregator.py) and generates actionable PRs for the **DevOps** ([Jules](../../tools/ai_knowledge/jules.md)) layer.
+
+```
++-----------------------------------------------------------------------------------+
+|                            STACK INTEGRATION MATRIX                               |
++-----------------------------------------------------------------------------------+
+  Data Collection Layer   : n8n Execution Nodes -> n8n_log_aggregator.py
+  Analysis Layer          : FastMCP 3.1 Tool Gateway -> Reasoning LLM (Claude 5.6)
+  Governance & Action     : Jules Gap Analysis Prompt -> Git PR / Documentation Patch
+  Execution Runtime       : Ralph-Loop Autonomous Agent Loop
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Weekly Reliability Review**: Running the analysis every Sunday to identify top bottlenecks and regressions.
 - **Post-Migration Audit**: Analyzing logs after a major service update (e.g., migrating to [Prowlarr](../../services/prowlarr.md)) to catch integration gaps.
 - **Documentation Backfill**: Identifying when a "401 Unauthorized" or "404 Not Found" error indicates a gap in the setup instructions for a specific service.
 - **Tool-Use Optimization**: Identifying nodes that could be replaced by **Model Context Protocol (MCP)** servers for better reliability.
+
+## Key Features & Operational Capabilities
+
+### 1. Multi-Tier Error Categorization
+The analysis prompt divides incoming errors into four distinct tiers:
+1. **Transient Infrastructure Faults**: Socket timeouts, HTTP 502/503 responses, transient DNS resolution drops.
+2. **Credential & Authentication Drifts**: Expired JWT tokens, missing OAuth scope grants, rotated API keys.
+3. **Payload & Schema Mismatches**: Upstream API changes, missing mandatory JSON properties, type casting errors.
+4. **Logical Workflow Degraded State**: Circular execution loops, unhandled node exceptions, state persistence drops.
+
+### 2. Actionable Action Code Synthesis
+Outputs are categorized directly into actionable remediation routines:
+- **Action A (Direct Execution)**: Simple fixes like updating a string in documentation or adding a retry node parameter.
+- **Action C (Task Decomposition)**: Complex refactoring requiring multi-step agent decomposition reports.
+
+## System Architecture & Analysis Lifecycle
+
+```
++-----------------------------------------------------------------------------------+
+|                        GAP ANALYSIS EXECUTION TIMELINE                            |
++-----------------------------------------------------------------------------------+
+  Phase 1: Log Extraction   --> Fetch execution history (0h - 168h window)
+  Phase 2: Normalization    --> Strip sensitive tokens & deduplicate redundant errors
+  Phase 3: Prompt Assembly  --> Bind system context, log payloads, & rule definitions
+  Phase 4: Deep Reasoning   --> Infer root causes via CoT chain evaluation
+  Phase 5: Task Dispatch    --> Emit Pydantic v2 validated action plans to Ralph-loop
++-----------------------------------------------------------------------------------+
+```
 
 ## Strengths
 - **Data-Driven**: Improvements are based on actual execution logs, not just theoretical gaps or anecdotal evidence.
@@ -51,6 +143,114 @@ Feed the contents of `logs_summary.txt` into this prompt using a reasoning-capab
 
 ### 3. Implementation
 Review the proposed fixes and execute them using the [Automation PR Template](../../../.github/PULL_REQUEST_TEMPLATE/automation_improvement.md).
+
+## Detailed Code Example: Complete Production Setup
+
+The following Python script illustrates a complete end-to-end integration combining FastMCP 3.1 server setup, log payload sanitation, Pydantic v2 contract enforcement, and analysis execution.
+
+```python
+import json
+import logging
+import re
+import urllib.request
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("JulesGapAnalysis")
+
+# --- Pydantic v2 Models ---
+
+class LogEntry(BaseModel):
+    workflow_id: str = Field(..., description="Unique ID of the n8n workflow")
+    node_name: str = Field(..., description="Name of the node where error occurred")
+    error_message: str = Field(..., description="Raw or sanitized error log string")
+    timestamp: str = Field(..., description="ISO timestamp of execution")
+
+    @field_validator("error_message")
+    @classmethod
+    def sanitize_sensitive_data(cls, v: str) -> str:
+        # Redact potential API keys or tokens from raw log entries
+        v = re.sub(r'Bearer\s+[A-Za-z0-9\-_\.=]+', 'Bearer [REDACTED]', v)
+        v = re.sub(r'api_key=[A-Za-z0-9\-_]+', 'api_key=[REDACTED]', v)
+        return v
+
+class GapAnalysisRequest(BaseModel):
+    model_name: str = Field(default="claude-5.6", description="Target reasoning LLM")
+    analysis_window_hours: int = Field(default=168, ge=1, le=720)
+    logs: List[LogEntry] = Field(..., description="List of sanitized log entries")
+    include_doc_mapping: bool = Field(default=True, description="Map errors to docs files")
+
+class ActionItem(BaseModel):
+    action_type: str = Field(..., description="Action A (Direct Fix) or Action C (Decompose)")
+    description: str = Field(..., description="Detailed remediation instructions")
+    target_file: Optional[str] = Field(None, description="Path to affected document or code file")
+
+class FailurePattern(BaseModel):
+    pattern_id: int = Field(..., description="Index of detected pattern")
+    category: str = Field(..., description="Transient, Auth, Schema, or Logical")
+    root_cause: str = Field(..., description="Chain-of-thought analysis summary")
+    action_items: List[ActionItem] = Field(..., description="Remediation actions")
+
+class GapAnalysisReport(BaseModel):
+    report_id: str = Field(..., description="Unique analysis execution ID")
+    total_logs_analyzed: int = Field(..., description="Total count of input logs")
+    patterns_detected: List[FailurePattern] = Field(..., description="Detected error patterns")
+    meta_recommendation: str = Field(..., description="General recommendation for stack health")
+
+# --- Analysis Orchestrator ---
+
+class JulesGapAnalyzer:
+    def __init__(self, mcp_endpoint: str = "http://localhost:8000/tools/v1/jules-gap-analysis"):
+        self.mcp_endpoint = mcp_endpoint
+
+    def prepare_payload(self, raw_logs_json: str) -> GapAnalysisRequest:
+        parsed_raw = json.loads(raw_logs_json)
+        validated_entries = [LogEntry(**item) for item in parsed_raw]
+        return GapAnalysisRequest(logs=validated_entries)
+
+    def execute_analysis(self, request: GapAnalysisRequest) -> GapAnalysisReport:
+        logger.info(f"Dispatching {len(request.logs)} logs to MCP analysis server at {self.mcp_endpoint}")
+
+        headers = {"Content-Type": "application/json"}
+        req_bytes = request.model_dump_json().encode("utf-8")
+
+        req = urllib.request.Request(self.mcp_endpoint, data=req_bytes, headers=headers, method="POST")
+
+        try:
+            with urllib.request.urlopen(req) as resp:
+                raw_resp = resp.read().decode("utf-8")
+                resp_json = json.loads(raw_resp)
+                report = GapAnalysisReport(**resp_json)
+                logger.info(f"Analysis completed successfully. Report ID: {report.report_id}")
+                return report
+        except Exception as e:
+            logger.error(f"Failed to execute gap analysis via FastMCP endpoint: {e}")
+            raise
+
+if __name__ == "__main__":
+    sample_logs = json.dumps([
+        {
+            "workflow_id": "wf_prowlarr_01",
+            "node_name": "HTTP Request",
+            "error_message": "Error: 401 Unauthorized at Bearer eyJhbGci...",
+            "timestamp": "2027-01-07T10:15:00Z"
+        },
+        {
+            "workflow_id": "wf_paperless_sync",
+            "node_name": "Parse JSON",
+            "error_message": "KeyError: 'document_type' missing in payload",
+            "timestamp": "2027-01-07T11:20:00Z"
+        }
+    ])
+
+    analyzer = JulesGapAnalyzer()
+    # Mocking execution demonstration
+    validated_req = analyzer.prepare_payload(sample_logs)
+    print("Validated Request Payload:")
+    print(validated_req.model_dump_json(indent=2))
+```
 
 ## CLI examples
 The analysis process is managed via the command line and LLM interfaces.
