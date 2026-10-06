@@ -302,5 +302,5 @@ Transfer throughput and CPU benchmarks across 1GbE and 10GbE local network links
 - [Self-Hosting Guide: Decentralized Sync](https://selfhosted.show/syncthing-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-06
 - Confidence: high

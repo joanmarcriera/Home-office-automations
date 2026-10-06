@@ -507,5 +507,5 @@ Every page must conclude with this metadata block:
 - [GitHub Flow Guide](https://docs.github.com/en/get-started/quickstart/github-flow)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-06
 - Confidence: high

@@ -241,5 +241,5 @@ if __name__ == "__main__":
 - [DigitalOcean Documentation & API Reference](https://docs.digitalocean.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-06
 - Confidence: high
