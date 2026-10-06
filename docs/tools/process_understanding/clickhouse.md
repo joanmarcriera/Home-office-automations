@@ -160,6 +160,16 @@ clickhouse-client --query="
 "
 ```
 
+## API examples
+
+```python
+import clickhouse_connect
+
+client = clickhouse_connect.get_client(host='localhost', port=8123, username='admin', password='')
+result = client.query("SELECT model, count() FROM ai_telemetry.llm_traces GROUP BY model")
+print("Model usage counts:", result.result_rows)
+```
+
 ## FastMCP 3.1 Tool Implementation & Pydantic v2 Integration
 
 The following Python script defines a complete FastMCP 3.1 tool server providing an analytical interface to ClickHouse for AI agents, backed by strict Pydantic v2 schemas:

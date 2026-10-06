@@ -107,6 +107,20 @@ Pipe a Python script to Codestral for automated type annotation and refactoring:
 cat main.py | ollama run codestral "Add strict type hints and docstrings to all functions in this code:"
 ```
 
+## API examples
+
+```python
+from mistralai.client import MistralClient
+
+client = MistralClient(api_key="YOUR_API_KEY")
+response = client.completion(
+    model="codestral-latest",
+    prompt="def fibonacci(n):",
+    suffix="return b"
+)
+print("FIM Completion:", response.choices[0].message.content)
+```
+
 ## FastMCP 3.1 Tool Implementation & Pydantic v2 Schemas
 
 The following Python script implements a complete FastMCP 3.1 server exposing Codestral code generation and FIM completion tools wrapped with strict Pydantic v2 validation models:

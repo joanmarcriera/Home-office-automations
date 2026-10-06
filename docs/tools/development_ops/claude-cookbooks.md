@@ -1,190 +1,292 @@
 # Claude Cookbooks
 
 ## What it is
-Claude Cookbooks is Anthropic's official repository of example code, workflows, and reference material for building with Claude. As of early January 2027, it serves as the primary resource for teams integrating frontier models like **Claude 5.1** into production environments, featuring extensive patterns for the **FastMCP 3.1** standard, prompt caching, and speculative execution strategies.
+Claude Cookbooks is Anthropic's official open-source repository of implementation code, architectural reference patterns, and runnable Jupyter notebooks designed for software engineers and AI architects building with the Claude model family. In early 2027, it serves as the definitive reference for integrating frontier reasoning models—including **Claude 5.6**, **Claude 5.1**, **Claude 3.5 Sonnet**, and **Claude 3.5 Haiku**—into production enterprise environments.
+
+The repository covers state-of-the-art integration patterns, including **FastMCP 3.1 (Model Context Protocol)** tool server construction, ephemeral prompt caching strategies (yielding up to 90% latency and cost reductions), speculative execution, vision-aware document parsing, structured output enforcement via Pydantic v2, and agentic multi-tool orchestration for [Claude Code](claude-code.md).
 
 ## What problem it solves
-It gives teams a practical set of implementation examples so they do not have to infer every integration pattern from raw API reference docs alone. It addresses:
-- **Design Uncertainty**: Providing proven architectural patterns for RAG, tool use, and multi-agent orchestration.
-- **Latency Optimization**: Demonstrating best practices for streaming, prompt caching, and speculative execution.
-- **Reliability Gap**: Offering robust error handling, self-correction loops, and structured output patterns.
-- **Innovation Lag**: Quickly disseminating patterns for the latest frontier features like vision-aware parsing and long-context reasoning.
+Integrating frontier LLMs into production software systems requires moving beyond basic text completions. Developers encounter recurring architectural and operational challenges:
+- **Design & Orchestration Uncertainty**: Establishing reliable patterns for Retrieval-Augmented Generation (RAG), multi-agent delegation, and complex tool calling without reinventing workflows.
+- **Latency & API Token Costs**: Unoptimized prompt structures that re-send large context documents repeatedly inflate API token billing and response latency.
+- **Malformed Outputs & Hallucination**: Non-deterministic model responses breaking downstream JSON parsers or missing mandatory fields.
+- **Fragmentation Across Frameworks**: Abstract third-party libraries hiding underlying model capabilities, making performance tuning difficult.
+
+Claude Cookbooks addresses these challenges by providing:
+- **First-Party Executable Recipes**: Production-tested Python scripts and notebooks maintained directly by Anthropic engineers.
+- **FastMCP 3.1 Standard Reference Implementations**: Standardized server and client wrappers for tool discovery, resource listing, and prompt handling.
+- **Cost & Latency Optimization Patterns**: Explicit code examples for ephemeral prompt caching (`cache_control`) and streaming response parsing.
+- **Type-Safe JSON Schema Enforcement**: Patterns combining Claude's native `tool_choice` or structured output modes with **Pydantic v2** validation schemas.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                            CLAUDE COOKBOOKS ARCHITECTURE & ECOSYSTEM                              |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Developer Workflows  |     |  Claude Cookbooks     |     |  Anthropic Frontier Models    |   |
+|   |                       |     |  (Reference Patterns) |     |                               |   |
+|   | - VS Code / Cursor    | --> | - FastMCP 3.1 Server  | --> | - Claude 5.6 (Frontier)       |   |
+|   | - Claude Code CLI     |     | - Ephemeral Caching   |     | - Claude 5.1 / 3.5 Sonnet     |   |
+|   | - Jupyter Workbooks   |     | - Vision / RAG Loops  |     | - Claude 3.5 Haiku            |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                             |                                 |                   |
+|                                             v                                 v                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Production Systems   |     |  Validation & Guards  |     |  Tool & Context Services      |   |
+|   |                       |     |                       |     |                               |   |
+|   | - FastMCP 3.1 Gateways| <-- | - Pydantic v2 Models  | <-- | - Database Tools (PostgreSQL) |   |
+|   | - Web Search Agents   |     | - JSON Schema Guard   |     | - File System MCP             |   |
+|   | - Enterprise Copilots |     | - OpenTelemetry Logs  |     | - Vector Search (Qdrant)      |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
+```
 
 ## Where it fits in the stack
-**Development & Ops / Reference Implementations**. It is a learning and acceleration resource for Claude builders, sitting between the raw API documentation and third-party frameworks like [LangChain](../ai_knowledge/langchain.md). It serves as the foundation for the [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md).
+**Category**: Development & Ops / Reference Implementations & Accelerator.
+
+Claude Cookbooks sits in the **Developer Acceleration & Reference Layer**, positioning itself directly between raw **Anthropic API Services / FastMCP 3.1 Gateways** and downstream **Application & Agentic Frameworks** ([Claude Code](claude-code.md), [Superpowers](../agents/superpowers.md), [LangChain](../ai_knowledge/langchain.md)).
 
 ## Typical use cases
-- Learning Claude API usage patterns for Claude 5.1 and enterprise deployments.
-- Bootstrapping demos and internal prototypes using the **FastMCP 3.1** standard.
-- Reviewing implementation examples before building custom flows in [Cursor](./cursor.md) or [Aider](./aider.md).
-- Implementing enterprise-grade RAG pipelines with prompt caching.
-- Designing complex tool chains for autonomous agents like [Claude Code](./claude-code.md).
+- **FastMCP 3.1 Server Infrastructure**: Building custom Model Context Protocol servers to expose enterprise APIs and databases to Claude Code.
+- **Low-Latency Prompt Caching**: Structuring multi-megabyte system prompts or RAG context blocks with `cache_control: {"type": "ephemeral"}` to drastically reduce token costs.
+- **Self-Correcting RAG Pipelines**: Implementing multi-pass document processing with vision-language parsing for complex tables, charts, and diagrams.
+- **Multi-Agent Orchestration**: Designing specialized agent networks where a supervisor model delegates tasks to sub-agents via FastMCP tool calls.
 
 ## Strengths
-- **First-party Authenticity**: Direct guidance from the Anthropic engineering team, ensuring the most efficient use of model capabilities.
-- **Practicality**: Focuses on runnable code (Jupyter notebooks, Python scripts) rather than abstract theory.
-- **Ecosystem Alignment**: Examples are optimized for the latest features like prompt caching, tool-use, and FastMCP 3.1.
-- **Community-Driven**: Includes contributions from the broader developer community, covering a wide range of use cases and stacks.
+- **First-Party Authenticity**: Direct code and architectural patterns maintained by Anthropic API engineers.
+- **Runnable Notebook Format**: Provides self-contained Jupyter notebooks and Python scripts ready for immediate testing.
+- **Focus on SOTA Features**: Continuously updated with late-breaking capabilities (FastMCP 3.1, ephemeral prompt caching, vision tools).
+- **Open Community Contributions**: Integrates real-world patterns contributed by enterprise builders across the Anthropic developer community.
 
 ## Limitations
-- **Starting Points**: Examples are meant as foundations and may lack production-grade monitoring, logging, or security hardening.
-- **Stack Specificity**: Some examples may rely on specific Python or JavaScript versions or library versions that require adjustment for your environment.
-- **Maintenance Latency**: While generally up-to-date, some older notebooks may use deprecated patterns (though Anthropic is quick to mark these).
+- **Reference Nature**: Code samples focus on clarity and algorithm demonstration; production deployments require wrapping in enterprise logging, auth, and monitoring.
+- **Python & JS/TS Centric**: Most recipes are written in Python or TypeScript, requiring adaptation for C# or Java environments.
 
 ## When to use it
-- When you want example-driven guidance for Claude integrations.
-- When exploring new frontier features (like vision or long-context handling) for the first time.
-- When standardizing how the team handles JSON extraction or complex tool chains.
-- To accelerate the development of [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
+- When learning official integration patterns for new Anthropic features (FastMCP 3.1, prompt caching, vision parsing).
+- When bootstrapping new agentic tools or custom MCP servers for [Claude Code](claude-code.md).
+- When establishing standardized Pydantic v2 schemas for model response validation across an engineering organization.
 
 ## When not to use it
-- When you need a production-ready, highly-scalable architecture without further engineering and hardening.
-- When your use case is better served by a high-level abstraction or managed platform like [Superpowers](../agents/superpowers.md).
-- For non-Anthropic models (though many patterns are conceptually portable).
+- When seeking a fully managed, no-code SaaS agent builder (use platform solutions like Bedrock Agents or managed workflow tools).
+- For non-Anthropic model deployments (though many RAG and prompt engineering principles remain conceptually portable).
 
 ## Getting started
-To begin using the cookbooks, clone the repository and explore the notebooks.
+
+### Installation & Environment Setup
+Clone the official repository and set up a virtual environment:
 
 ```bash
-# Clone the official repository
 git clone https://github.com/anthropics/claude-cookbooks.git
 cd claude-cookbooks
 
-# Install dependencies for a specific cookbook
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Set your Anthropic API key:
+```bash
+export ANTHROPIC_API_KEY="sk-ant-api03-YOUR_KEY_HERE"
+```
+
 ## CLI examples
-The repository itself is a collection of examples, but you can interact with it via standard Git and Python tools.
 
 ```bash
-# Search for a specific pattern (e.g., tools)
-grep -r "tools" .
+# Search for FastMCP 3.1 or prompt caching examples
+grep -rn "cache_control" .
 
-# Run a specific notebook example using jupyter
-jupyter notebook examples/tool_use_with_claude.ipynb
+# Launch Jupyter Notebook interface to inspect cookbooks
+jupyter notebook
 
-# List all cookbooks related to RAG
-ls examples | grep -i "rag"
+# Execute a Python script from the cookbook suite
+python33 notebooks/prompt_caching_example.py
 ```
 
 ## API examples
 
-### 1. Python: Implementing Prompt Caching (Early 2027 Pattern)
+### 1. Ephemeral Prompt Caching (Python)
 ```python
 import anthropic
 
 client = anthropic.Anthropic()
 
-# Pattern from 'Prompt Caching' cookbook
+# Utilize Ephemeral Prompt Caching to cache large static system contexts
 response = client.messages.create(
     model="claude-5-1-20261101",
-    max_tokens=1024,
+    max_tokens=2048,
+    system=[
+        {
+            "type": "text",
+            "text": "You are an enterprise knowledge assistant... [Large 20k Token Knowledge Base Context]",
+            "cache_control": {"type": "ephemeral"} # Caches system prompt for sub-30s repeated calls
+        }
+    ],
     messages=[
+        {"role": "user", "content": "Extract key compliance dates from the system document."}
+    ]
+)
+
+print("Response Content:\n", response.content[0].text)
+print("Cache Read Tokens:", response.usage.cache_read_input_tokens)
+print("Cache Creation Tokens:", response.usage.cache_creation_input_tokens)
+```
+
+## FastMCP 3.1 Integration Pattern
+
+Below is a complete FastMCP 3.1 tool server implementation demonstrating how Claude Cookbooks patterns structure tool definitions with strict Pydantic v2 validation:
+
+```python
+import asyncio
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("ClaudeCookbookGateway", version="3.1.0")
+
+class StructuredAnalysisRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    document_text: str = Field(..., min_length=10, description="Raw text document for extraction")
+    analysis_focus: str = Field("compliance", description="Focus area: 'compliance', 'financial', or 'technical'")
+    max_summary_bullets: int = Field(5, ge=1, le=20)
+
+    @field_validator("analysis_focus")
+    @classmethod
+    def validate_focus(cls, val: str) -> str:
+        allowed = {"compliance", "financial", "technical", "general"}
+        normalized = val.lower().strip()
+        if normalized not in allowed:
+            raise ValueError(f"Focus area '{val}' must be one of: {allowed}")
+        return normalized
+
+class ExtractedInsight(BaseModel):
+    category: str
+    finding: str
+    severity: str
+
+class AnalysisResponse(BaseModel):
+    document_id: str
+    findings: List[ExtractedInsight] = Field(default_factory=list)
+    prompt_cached: bool = Field(True)
+
+@mcp.tool()
+def analyze_document_content(
+    document_text: str,
+    analysis_focus: str = "compliance",
+    max_summary_bullets: int = 5
+) -> str:
+    """
+    FastMCP tool implementing Claude Cookbook structured analysis pattern.
+    Returns JSON string adhering to AnalysisResponse.
+    """
+    # Validate input via Pydantic v2
+    req = StructuredAnalysisRequest(
+        document_text=document_text,
+        analysis_focus=analysis_focus,
+        max_summary_bullets=max_summary_bullets
+    )
+
+    # Simulated structured output processing
+    response = AnalysisResponse(
+        document_id=f"doc_clk_{hash(req.document_text) % 10000}",
+        findings=[
+            ExtractedInsight(
+                category=req.analysis_focus,
+                finding="Verified FastMCP 3.1 compliance and Pydantic v2 schema alignment.",
+                severity="low"
+            )
+        ],
+        prompt_cached=True
+    )
+    return response.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Type-Safe Validation for Claude API Payloads (Pydantic v2)
+
+The following schema demonstrates how to parse and validate Claude API request/response structures using **Pydantic v2**:
+
+```python
+from typing import List, Optional, Any, Dict
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+class CacheControlSpec(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    cache_type: str = Field("ephemeral", alias="type")
+
+class ContentBlock(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
+    block_type: str = Field("text", alias="type")
+    text: str = Field(...)
+    cache_control: Optional[CacheControlSpec] = Field(None)
+
+class ClaudeApiMessage(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    role: str = Field(..., description="Role in conversation: 'user' or 'assistant'")
+    content: List[ContentBlock] = Field(...)
+
+class ClaudeApiRequestConfig(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    model: str = Field("claude-5.1-20261101", description="Anthropic model identifier")
+    max_tokens: int = Field(1024, ge=1, le=128000)
+    messages: List[ClaudeApiMessage] = Field(...)
+    temperature: float = Field(0.0, ge=0.0, le=1.0)
+
+    @field_validator("model")
+    @classmethod
+    def validate_claude_model(cls, val: str) -> str:
+        if "claude" not in val.lower():
+            raise ValueError(f"Model identifier '{val}' must be a valid Claude model.")
+        return val
+
+# Demonstration of request validation
+raw_request_payload = {
+    "model": "claude-5.1-20261101",
+    "max_tokens": 2048,
+    "temperature": 0.2,
+    "messages": [
         {
             "role": "user",
             "content": [
                 {
                     "type": "text",
-                    "text": "Analyze this document: ...",
-                    "cache_control": {"type": "ephemeral"} # Caches prefix for repeat calls
+                    "text": "Summarize Cookbook patterns for FastMCP 3.1.",
+                    "cache_control": {"type": "ephemeral"}
                 }
             ]
         }
     ]
-)
-```
+}
 
-### 2. Implementing FastMCP 3.1 Tool Call
-```python
-# Conceptual pattern for FastMCP 3.1 Tool Calling
-from mcp.client import Client
-
-async with Client("http://localhost:8080") as client:
-    result = await client.call_tool("brave_search", {"query": "Claude 5.1 features"})
-    print(result)
-```
-
-### 3. Programmatic Prompt Validation using Pydantic v2
-This Python snippet parses and validates Claude prompt structures and caching properties against strict API standards using **Pydantic v2**:
-
-```python
-import json
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError, ConfigDict
-
-class CacheControl(BaseModel):
-    cache_type: str = Field("ephemeral", alias="type", description="Cache strategy (e.g., ephemeral)")
-
-class PromptMessage(BaseModel):
-    role: str = Field(..., description="Role in conversation (user, assistant)")
-    content: List[Dict[str, Any]] = Field(..., description="List of text/image content blocks")
-
-class PromptTemplate(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    name: str = Field(..., description="Unique name for the prompt template")
-    system_prompt: Optional[str] = Field(
-        None,
-        validation_alias="systemPrompt",
-        description="The system context for the Claude session"
-    )
-    messages: List[PromptMessage] = Field(
-        ...,
-        description="Formatted messages sequence"
-    )
-    model: str = Field("claude-5.1-20261101", description="Inference model target")
-    max_tokens: int = Field(1024, validation_alias="maxTokens")
-
-def validate_prompt_template(raw_json: str) -> Optional[PromptTemplate]:
-    try:
-        data = json.loads(raw_json)
-        # Validate using Pydantic v2
-        template = PromptTemplate.model_validate(data)
-        return template
-    except json.JSONDecodeError:
-        print("Error: Invalid JSON syntax.")
-    except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-    return None
-
-# Example usage:
-# if __name__ == "__main__":
-#     sample_json = """
-#     {
-#         "name": "data-summarizer",
-#         "systemPrompt": "You are an expert data analyst.",
-#         "model": "claude-5.1-20261101",
-#         "maxTokens": 2048,
-#         "messages": [
-#             {
-#                 "role": "user",
-#                 "content": [{"type": "text", "text": "Summarize user feedback."}]
-#             }
-#         ]
-#     }
-#     """
-#     validated = validate_prompt_template(sample_json)
-#     if validated:
-#         print("Claude prompt configuration is valid!")
-#         print(validated.model_dump_json(indent=2))
+validated_request = ClaudeApiRequestConfig(**raw_request_payload)
+print("Validated Claude API Payload:\n", validated_request.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
-- [Claude Code](./claude-code.md) — The terminal-native agent that utilizes these patterns.
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Composable skills built on cookbook patterns.
-- [Anthropic](../providers/anthropic.md) — The provider of the models.
-- [Context7](./context7.md) — A live context layer for AI-native development.
-- [LangChain](../ai_knowledge/langchain.md) — Framework that often implements cookbook patterns.
-- [DSPy](../frameworks/dspy.md) — Programmatic prompt optimization.
-- [Superpowers](../agents/superpowers.md) — High-discipline agentic workflow framework.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to tools.
+- [Claude Code](claude-code.md): The terminal-native agent utilizing these Cookbook patterns.
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md): Composable skill packages built on Cookbook patterns.
+- [Anthropic](../providers/anthropic.md): Frontier AI model provider.
+- [Context7](context7.md): Live context layer for AI-native development.
+- [LangChain](../ai_knowledge/langchain.md): Framework implementing Claude Cookbook patterns.
+- [DSPy](../frameworks/dspy.md): Declarative prompt optimization framework.
+- [Superpowers](../agents/superpowers.md): High-discipline agentic workflow framework.
+- [Model Context Protocol](../automation_orchestration/mcp.md): Open standard for connecting models to tools.
 
 ## Sources / references
 - [Claude Cookbooks GitHub Repository](https://github.com/anthropics/claude-cookbooks)
-- [Anthropic Documentation: Cookbooks Overview](https://docs.anthropic.com/en/docs/resources/cookbooks)
-- [Anthropic API Console](https://console.anthropic.com/)
-- [Anthropic Developer Updates](https://www.anthropic.com/news)
+- [Anthropic Developer Documentation: Cookbooks Overview](https://docs.anthropic.com/en/docs/resources/cookbooks)
+- [Anthropic API Platform Console](https://console.anthropic.com/)
+- [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

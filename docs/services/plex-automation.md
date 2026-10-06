@@ -111,6 +111,21 @@ docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --s
 docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --list
 ```
 
+## API examples
+
+```python
+import asyncio
+from plex_automation import PlexAutomationServer
+
+async def main():
+    server = PlexAutomationServer(plex_token="YOUR_PLEX_TOKEN")
+    result = await server.refresh_section(section_id="1")
+    print("Refresh trigger result:", result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ## FastMCP 3.1 Tool Implementation & Pydantic v2 Schemas
 
 Below is a complete FastMCP 3.1 server implementation exposing Plex management tools to autonomous agents, complete with Pydantic v2 validation models:
