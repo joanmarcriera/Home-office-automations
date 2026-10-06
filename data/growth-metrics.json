@@ -21,12 +21,8 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/intake_storage/unstructured.md",
-    "docs/tools/process_understanding/tempo.md",
-    "docs/tools/agents/composio.md",
     "docs/tools/process_understanding/clickhouse.md",
     "docs/tools/providers/codestral.md",
-    "docs/tools/calendar_tasks/calendly.md",
     "docs/services/plex-automation.md",
     "docs/tools/frameworks/semantic-kernel.md",
     "docs/tools/agents/bee-agent-framework.md",
@@ -40,10 +36,14 @@
     "docs/tools/orchestration/apache-hamilton.md",
     "docs/tools/process_understanding/docling.md",
     "docs/tools/automation_orchestration/lightpanda.md",
-    "docs/tools/process_understanding/pageindex.md"
+    "docs/tools/process_understanding/pageindex.md",
+    "docs/tools/providers/nvidia.md",
+    "docs/tools/automation_orchestration/hashicorp-vault.md",
+    "docs/services/qbittorrent.md",
+    "docs/tools/agents/replit-agent.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 1,
+  "weekly_additions": 0,
   "intake_items_7d": 29,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0

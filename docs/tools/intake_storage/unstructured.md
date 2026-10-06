@@ -1,79 +1,102 @@
 # Unstructured.io
 
 ## What it is
-An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs, PowerPoint) into AI-ready formats. As of early January 2027, it is a foundational ETL tool for building high-quality RAG pipelines and autonomous agent context ingestion.
+Unstructured.io is an open-source data pre-processing platform and Python library engineered to transform messy, un-structured enterprise documents (PDFs, PPTX, DOCX, HTML, EPUB, scanned images) into clean, LLM-ready structured text, JSON, and Markdown. In early 2027, Unstructured serves as a critical document intake engine for autonomous agent frameworks, Retrieval-Augmented Generation (RAG) vector stores, and enterprise knowledge indexing pipelines.
 
 ## What problem it solves
-It automates the ingestion of diverse document types, handling complex layouts and extracting clean text, tables, and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that frontier LLMs like **Claude 5.1** and **GPT-5.5** receive structured, high-signal context.
+Raw enterprise documents suffer from inconsistent formatting, complex visual elements, embedded multi-column tables, scanned OCR artifacts, and ambiguous structural headers. Traditional plain-text extractors lose layout context, scramble tabular structures, and obscure parent-child document hierarchies. Unstructured eliminates this "garbage-in, garbage-out" problem by partitioning raw binary files using multi-modal layout detection, semantic vision models, and table structure inference—ensuring frontier LLMs like **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra** receive clean, contextually intact chunks.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases or agent frameworks.
+**Category**: Intake & Storage / Data Processing. It operates as the "ETL for LLMs and Agents," sitting directly between multi-modal raw document stores (S3, MinIO, Google Drive, SharePoint) and downstream vector databases ([Weaviate](../infrastructure/weaviate.md), [Qdrant](../infrastructure/qdrant.md), [Pinecone](../infrastructure/pinecone.md)) or agent memory layers ([mem0](../agents/mem0.md)).
+
+## Architecture Diagram
+```
++-----------------------------------------------------------------------------------+
+|                            Unstructured.io Processing Engine                      |
+|                                                                                   |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|  | Raw Document Input |===>| Document Partition   |===>| Strategy Selector     |  |
+|  | (PDF, DOCX, PPTX)  |    | (Auto-Detection Engine|    | (Fast, Hi-Res, VLM)   |  |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|                                                                   ||              |
+|                                                                   \/              |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|  | Vector Store / RAG |<===| Chunking & Element   |<===| Vision / OCR / Layout |  |
+|  | Ingestion Engine   |    | Metadata Annotation  |    | Inference Model       |  |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 FastMCP 3.1 Tool Server Interface (UNS-MCP)                 |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **RAG Pipelines**: Extracting text and metadata from varied document sets for ingestion into [Weaviate](../infrastructure/weaviate.md) or [Pinecone](../infrastructure/pinecone.md).
-- **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
-- **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
-- **Agentic Workflows**: Using the [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) to give autonomous agents real-time document parsing capabilities.
+- **Enterprise RAG Ingestion**: Partitioning thousands of complex technical PDFs with multi-column layouts and embedded diagrams into structured vector embeddings.
+- **Data Lake Normalization**: Continuous batch intake converting heterogeneous file stores into unified Markdown/JSON schemas.
+- **Knowledge Graph Extraction**: Extracting structural headers, sub-sections, and inline table matrices to seed graph database nodes.
+- **Agentic Document Analysis**: Providing autonomous agents with real-time, on-demand document parsing via the FastMCP 3.1 protocol (`UNS-MCP`).
 
 ## Strengths
-- **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, PowerPoint, and EPUB.
-- **Open-Source & Local**: Can be run fully offline without sensitive data leaving your infrastructure.
-- **Layout Awareness**: Understands complex structural headers, lists, and multi-column tables.
-- **Early 2027 Optimized**: Fully supports **Llama 4** tokenization and native [FastMCP 3.1](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
+- **Broad Format Coverage**: Native partition support for over 20 document formats (PDF, DOCX, PPTX, HTML, MSG, EML, EPUB, XLSX, TXT).
+- **Strategy Flexibility**: Tailored execution modes ranging from high-speed rule-based string parsing (`fast`) to deep Vision Language Model layout understanding (`vlm`).
+- **Rich Metadata Extraction**: Enriches parsed elements with section titles, page numbers, coordinates, parent sub-headers, and file tags.
+- **FastMCP 3.1 & Agent Native**: Direct integration with agentic tool protocol servers (`UNS-MCP`), allowing LLM agents to execute document partitioning tool calls.
 
 ## Limitations
-- **Resource Intensive**: Complex partitioning (especially with vision models / VLM strategies) requires significant CPU/GPU.
-- **Dependency Heavy**: The full installation package is large and requires proper system libraries (Poppler, Tesseract).
-- **Performance Variability**: Extraction quality and execution time vary based on the partitioning strategy chosen (fast vs. hi-res).
+- **High Resource Requirements for Hi-Res Mode**: Processing scanned documents or complex PDFs using layout vision models requires substantial GPU/CPU resources.
+- **Heavy System Dependencies**: Native execution requires low-level system binaries (Poppler, Tesseract OCR, Libmagic) for full multi-file support.
+- **Latency Trade-Offs**: Complex vision-based partitioning strategies introduce processing latency that requires batch processing or background execution.
 
 ## When to use it
-- When you have a high volume of diverse, messy document types requiring extraction.
-- When data privacy requires local, on-premises processing of sensitive enterprise documents.
-- When you need more than raw text (e.g., preserving document section hierarchy, headers, and table structures).
+- When ingestion sources contain mixed, unstructured formats (scanned documents, corporate decks, complex financial spreadsheets).
+- When document structure, tables, and section hierarchies must be preserved for accurate semantic chunking.
+- When giving autonomous agents real-time tool access to inspect and digest external file attachments.
 
 ## When not to use it
-- For very simple text files or clean Markdown where native readers suffice.
-- If you need sub-millisecond, low-latency parsing (it is optimized for thorough batch and agentic document processing).
+- For plain, uniform markdown or clean JSON where basic text string splits are sufficient.
+- When sub-millisecond document parsing is strictly required without background queuing.
 
 ## Getting started
 
 ### Installation
 ```bash
-pip install "unstructured[all-docs]" pydantic
+pip install "unstructured[all-docs]" pydantic fastmcp
 ```
 
-### Basic usage
+### Basic Usage
 ```python
 from unstructured.partition.auto import partition
 
-elements = partition(filename="example.pdf")
+# Partition file using automatic format detection
+elements = partition(filename="quarterly_report.pdf")
 
 for element in elements:
-    print(element)
+    print(f"[{element.category}] {element.text[:100]}...")
 ```
 
-### Python S3 Ingestion Example
+### Advanced Ingestion Pipeline with S3 Connector
 ```python
 import os
 from unstructured.ingest.connector.s3 import S3AccessConfig, SimpleS3Config
 from unstructured.ingest.interfaces import ProcessorConfig, ReadConfig
 from unstructured.ingest.runner import S3Runner
 
-# Set credentials via env vars or S3AccessConfig
-os.environ["AWS_ACCESS_KEY_ID"] = "YOUR_KEY"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "YOUR_SECRET"
-
+# Configure S3 connector for automated document intake
 runner = S3Runner(
     processor_config=ProcessorConfig(
         verbose=True,
-        output_dir="s3-output",
-        num_processes=2,
-        reprocess=False # Skip files already processed
+        output_dir="s3-unstructured-output",
+        num_processes=4,
+        reprocess=False
     ),
     read_config=ReadConfig(),
     connector_config=SimpleS3Config(
-        access_config=S3AccessConfig(),
-        remote_url="s3://my-bucket/documents/",
+        access_config=S3AccessConfig(
+            key=os.getenv("AWS_ACCESS_KEY_ID"),
+            secret=os.getenv("AWS_SECRET_ACCESS_KEY")
+        ),
+        remote_url="s3://enterprise-documents/2027/q1/",
         recursive=True
     ),
 )
@@ -81,120 +104,147 @@ runner = S3Runner(
 runner.run()
 ```
 
-### Advanced Pipeline: Chunking for RAG
-```python
-from unstructured.partition.pdf import partition_pdf
-from unstructured.chunking.title import chunk_by_title
-
-elements = partition_pdf(
-    filename="research_paper.pdf",
-    strategy="hi_res",
-    extract_images_in_pdf=False,
-    infer_table_structure=True,
-    chunking_strategy="by_title",
-    max_characters=1000,
-    combine_text_under_n_chars=200
-)
-
-# Access clean, structured chunks
-for chunk in elements:
-    print(f"Type: {chunk.category}")
-    print(f"Content: {chunk.text[:50]}...")
-```
-
-### Partitioning Strategies
-The Unstructured library offers several strategies for preprocessing documents, specified via the `strategy` parameter.
-
+### Partitioning Strategies Matrix
 | Strategy | Type | Best For | Trade-offs |
 | :--- | :--- | :--- | :--- |
-| `auto` | Hybrid | Most documents | Default; balances speed and accuracy automatically. |
-| `fast` | Rule-based | Plain text / clean PDFs | 100x faster than model-based; fails on tables/images. |
-| `hi_res` | Model-based | Complex layouts / Tables | Highest accuracy for structural elements; slower. |
-| `ocr_only` | Model-based | Scanned docs / Images | Pure OCR approach; ignores non-image text paths. |
-| `vlm` | Vision-model | Challenging/Handwritten | Uses Vision Language Models for maximum semantic recovery. |
+| `auto` | Hybrid | Mixed file types | Balances speed and accuracy automatically. |
+| `fast` | Rule-based | Clean digital PDFs & text | 100x faster than model-based; bypasses visual layout/tables. |
+| `hi_res` | Layout Model | Complex multi-column PDFs | High layout accuracy; higher CPU/GPU overhead. |
+| `ocr_only` | OCR Engine | Scanned PDFs & image files | Recovers text from rasterized pixels; requires Tesseract/Paddle. |
+| `vlm` | Vision LLM | Complex diagrams & tables | Maximum semantic recovery; relies on vision inference calls. |
 
 ## CLI examples
 ```bash
-# Process a local directory and output JSON
+# Ingest local directory with multi-process processing
 unstructured-ingest local \
-  --input-path example-docs \
-  --output-dir unstructured-output \
-  --num-processes 2 \
+  --input-path ./raw-documents \
+  --output-dir ./parsed-output \
+  --num-processes 4 \
   --recursive \
   --verbose
 
-# Process from S3 (requires [s3] extra)
-unstructured-ingest s3 \
-  --remote-url s3://my-bucket/documents/ \
-  --output-dir s3-output \
-  --anonymous \
-  --recursive
-
-# Start the UNS-MCP server (FastMCP 3.1 Standard)
+# Run FastMCP 3.1 server for agentic document processing
 uvx uns_mcp --mcp-version 3.1
 ```
 
 ## API examples
-The Unstructured REST API provides scalable document processing. Python integrations in early 2027 utilize robust **Pydantic v2** validation to model API parameters and parsed results.
+The following complete code snippet demonstrates running an Unstructured FastMCP 3.1 tool server integration alongside Pydantic v2 validation models for enterprise document partitioning requests:
 
-### Unstructured API Payload Validation (Python)
 ```python
-import requests
-from pydantic import BaseModel, Field
-from typing import Optional, List
+import os
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
 
-# Define a robust Pydantic v2 model for the API requests
-class UnstructuredAPIRequest(BaseModel):
-    strategy: str = Field(default="hi_res", pattern="^(hi_res|fast|auto|ocr_only|vlm)$")
-    coordinates: bool = Field(default=False)
-    output_format: str = Field(default="application/json")
-    extract_image_block_types: Optional[List[str]] = Field(default=None)
-    languages: Optional[List[str]] = Field(default=None)
+# 1. Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    name="unstructured-ingestion-server",
+    version="3.1"
+)
 
-# Sample parameters
-raw_params = {
-    "strategy": "hi_res",
-    "coordinates": True,
-    "languages": ["eng"]
-}
+# 2. Define Pydantic v2 Partitioning Request Model
+class PartitionRequestSchema(BaseModel):
+    file_path: str = Field(..., description="Absolute path to the file to process")
+    strategy: str = Field(default="auto", description="Partitioning strategy: auto, fast, hi_res, ocr_only, vlm")
+    chunk_by_title: bool = Field(default=True, description="Whether to chunk elements by document titles")
+    max_characters: int = Field(default=1500, ge=100, le=8000, description="Maximum characters per chunk")
 
-try:
-    # Validate payload under Pydantic v2 guidelines
-    validated_payload = UnstructuredAPIRequest.model_validate(raw_params)
-    print(f"Successfully validated API request parameters: {validated_payload.model_dump()}")
+    @field_validator("strategy")
+    @classmethod
+    def validate_strategy(cls, v: str) -> str:
+        allowed = {"auto", "fast", "hi_res", "ocr_only", "vlm"}
+        if v not in allowed:
+            raise ValueError(f"Strategy must be one of {allowed}")
+        return v
 
-    url = "https://api.unstructured.io/general/v0/general"
-    headers = {
-        "Accept": "application/json",
-        "unstructured-api-key": "YOUR_API_KEY"
-    }
+# 3. Define Pydantic v2 Output Response Model
+class DocumentElementSchema(BaseModel):
+    element_id: str = Field(..., description="Unique element identifier")
+    category: str = Field(..., description="Element category (e.g. Title, NarrativeText, Table)")
+    text: str = Field(..., description="Extracted text string")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Extracted element metadata")
 
-    # Send the validated payload alongside files
-    files = {"files": ("example.pdf", open("example.pdf", "rb"))}
-    data = validated_payload.model_dump(mode="json")
+class PartitionResponseSchema(BaseModel):
+    success: bool
+    total_elements: int
+    elements: List[DocumentElementSchema]
+    error_message: Optional[str] = None
 
-    # response = requests.post(url, headers=headers, files=files, data=data)
-except Exception as e:
-    print(f"Validation failed: {e}")
+# 4. Expose FastMCP 3.1 Tool
+@mcp.tool(name="partition_document", description="Partition a document into structured elements and chunks")
+def partition_document(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """FastMCP 3.1 tool endpoint for document partitioning."""
+    try:
+        # Validate input with Pydantic v2
+        request = PartitionRequestSchema.model_validate(payload)
+
+        if not os.path.exists(request.file_path):
+            return PartitionResponseSchema(
+                success=False,
+                total_elements=0,
+                elements=[],
+                error_message=f"File not found: {request.file_path}"
+            ).model_dump()
+
+        from unstructured.partition.auto import partition
+        from unstructured.chunking.title import chunk_by_title
+
+        raw_elements = partition(
+            filename=request.file_path,
+            strategy=request.strategy
+        )
+
+        if request.chunk_by_title:
+            processed_elements = chunk_by_title(
+                raw_elements,
+                max_characters=request.max_characters
+            )
+        else:
+            processed_elements = raw_elements
+
+        parsed_items = []
+        for idx, el in enumerate(processed_elements):
+            parsed_items.append(
+                DocumentElementSchema(
+                    element_id=getattr(el, "id", f"el-{idx}"),
+                    category=getattr(el, "category", "Uncategorized"),
+                    text=str(el),
+                    metadata=getattr(el, "metadata", {}).to_dict() if hasattr(getattr(el, "metadata", None), "to_dict") else {}
+                )
+            )
+
+        return PartitionResponseSchema(
+            success=True,
+            total_elements=len(parsed_items),
+            elements=parsed_items
+        ).model_dump()
+
+    except Exception as e:
+        return PartitionResponseSchema(
+            success=False,
+            total_elements=0,
+            elements=[],
+            error_message=str(e)
+        ).model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
 - [LlamaParse](llamaparse.md) — Document parsing platform from LlamaIndex.
-- [Paperless-ngx](../../services/paperless-ngx.md) — Self-hosted document management.
 - [Docling](../process_understanding/docling.md) — IBM document parsing framework.
+- [Paperless-ngx](../../services/paperless-ngx.md) — Self-hosted document management system.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture for document augmentation.
-- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Open protocol for agentic tools.
-- [Claude 5.1](../providers/anthropic.md) — Frontier LLM for reasoning and synthesis.
-- [GPT-5.5](../ai_knowledge/openai.md) — OpenAI frontier reasoning model.
-- [Llama 4](../ai_knowledge/local_llms.md) — Open-weights local model family.
+- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Standardized agent tool protocol.
 - [Weaviate](../infrastructure/weaviate.md) — Vector database for structured ingestion.
 - [Khoj](khoj.md) — Personal AI knowledge search engine.
 
 ## Sources / references
-- [Unstructured.io Website](https://unstructured.io/)
+- [Unstructured.io Official Site](https://unstructured.io/)
 - [Unstructured Ingest Documentation](https://unstructured-io.github.io/unstructured/ingest/overview.html)
-- [Chunking Strategies](https://unstructured-io.github.io/unstructured/core/chunking.html)
-- [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
+- [Chunking Strategies Reference](https://unstructured-io.github.io/unstructured/core/chunking.html)
+- [Unstructured UNS-MCP GitHub Repository](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
