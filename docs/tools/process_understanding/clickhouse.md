@@ -1,161 +1,301 @@
 # ClickHouse
 
 ## What it is
-ClickHouse is an open-source, ultra-high-performance, column-oriented SQL database management system (DBMS) engineered for Online Analytical Processing (OLAP). Designed to handle massive multi-terabyte datasets and return query results in real-time, it serves as a premier analytical store for high-volume telemetry, event ingestion, agent trace logs, and vector evaluation in modern AI ecosystems in early 2027.
+ClickHouse is an open-source, ultra-high-performance, column-oriented SQL database management system (DBMS) engineered specifically for Online Analytical Processing (OLAP). Designed to store and query multi-terabyte to petabyte-scale datasets with sub-second query latency, it serves as a premier analytical store for high-volume telemetry, event logs, agent execution traces, vector evaluations, and real-time observability in modern AI and software engineering ecosystems in early 2027.
+
+Unlike traditional row-oriented transactional databases (e.g. PostgreSQL, MySQL) that process records row-by-row, ClickHouse stores data sequentially by column. This layout allows for extreme data compression, massive vectorized query execution, and high-throughput streaming ingestion capable of handling millions of insert events per second per node.
 
 ## What problem it solves
-Traditional row-oriented transactional databases (like PostgreSQL or MySQL) struggle with storage bloat and latency spikes when aggregating millions of deeply nested trace records, LLM prompt histories, or tool execution logs. ClickHouse solves this through:
-- **Ultra-Fast Query Speed**: Columnar storage layout and vectorized execution engines process scans and aggregations at multi-gigabyte-per-second throughput per CPU core.
-- **Aggressive Data Compression**: Specialized compression codecs (LZ4, ZSTD, Gorilla, DoubleDelta) achieve up to 10x storage savings on structured log data.
-- **High-Concurrency Ingestion**: Seamlessly ingests millions of insert events per second, facilitating real-time trace logging for high-throughput autonomous agent fleets powered by **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
-- **Sub-Second Analytics**: Executes analytical queries across billions of rows in milliseconds, powering real-time observability dashboards.
+Modern autonomous agent fleets, multi-agent frameworks ([Autogen](../../tools/frameworks/autogen.md), [LangGraph](../../tools/frameworks/langgraph.md)), and API gateways ([OpenRouter](../ai_knowledge/openrouter.md), [LiteLLM](../../services/litellm.md)) generate vast amounts of structured telemetry data—including prompt histories, tool invocation parameters, token usage counts, latency metrics, and reasoning chain logs. Attempting to ingest and query these high-velocity streams in standard relational databases leads to storage bloat, I/O bottlenecks, and unacceptably slow analytical query performance.
 
-## Where it fits in the stack
-**Data Storage and Analytics**. ClickHouse acts as the high-performance analytical engine for LLM telemetry, agent prompt logs, token cost tracking, and latency metrics in the AI Observability layer. Integrated via **FastMCP 3.1 / Model Context Protocol**, it is frequently used as a structured corporate memory repository from which autonomous agents query real-time analytical context.
+ClickHouse solves these challenges through:
+- **Columnar Storage & Vectorized Query Execution**: Scans and aggregations operate directly on continuous memory blocks using SIMD CPU instruction sets, achieving multi-gigabyte-per-second processing per CPU core.
+- **Aggressive Compression Algorithms**: Specialized per-column compression codecs (LZ4, ZSTD, Gorilla, DoubleDelta, Delta) yield 5x to 12x storage reduction on structured text and log payloads.
+- **Sub-Second Analytics at Scale**: Executes complex GROUP BY aggregations, percentiles, and filtering across billions of rows in milliseconds without requiring pre-aggregated summary tables.
+- **High-Velocity Native Ingestion**: Supports streaming ingestion from Kafka, Vector, OpenTelemetry collectors, or HTTP/gRPC pipelines with zero query lockup.
 
-## Typical use cases
-- **AI Agent Telemetry Storage**: Archiving complete request, response, thought chain, and tool invocation traces from models like **Claude 5.1**, **GPT-5.5**, and **Qwen 3.8**.
-- **Observability Backend Storage**: Serving as the analytical database backend for open-source AI telemetry tools like [Langfuse](langfuse.md) or [Helicone](helicone.md).
-- **AI Cost & Budget Auditing**: Executing distributed aggregations across telemetry logs to track real-time token spend and cost allocation across departments or models.
-- **Vector and Hybrid Search**: Storing low-dimensional vector embeddings alongside rich structured metadata for fast hybrid analytical filtering.
-
-## Strengths
-- **Analytical Optimizations**: Highly optimized vectorized functions for real-time aggregation functions like `avg()`, `quantile()`, `sum()`, and `count()`.
-- **Horizontal Scalability**: Master-to-master replication and automatic sharding configurations support petabyte-scale analytical clusters.
-- **OpenTelemetry Standard Ingestion**: Direct native schema compatibility with collectors like [OpenTelemetry Collector](opentelemetry-collector.md).
-- **Dynamic JSON Handling**: Native, high-performance JSON data types handle dynamic nested LLM payloads directly without requiring complex schema migrations.
-
-## Limitations
-- **Not Suited for OLTP**: ClickHouse is not designed for frequent point updates, single-row deletes, or complex transactional ACID constraints.
-- **Operational Complexity**: Configuring sharding keys, partition schemes, and replication topologies requires specialized database engineering.
-- **Sorting-Key Dependency**: Query execution speed is heavily bound to primary sorting key definitions; poorly indexed query patterns degrade performance.
-
-## When to use it
-- When your AI infrastructure generates millions of daily model traces and requires live, sub-second interactive analytics.
-- When building internal AI billing, governance, or security audit gateways where standard relational databases encounter latency bottlenecks.
-- When long-term log retention costs must be minimized through column-oriented compression.
-- When logging raw data streams directly from [OpenRouter](../ai_knowledge/openrouter.md) or [LiteLLM](../../services/litellm.md) for offline model distillation.
-
-## When not to use it
-- For core application databases dominated by frequent point reads and transactional CRUD operations (use PostgreSQL or MySQL).
-- For small-scale projects (under a few gigabytes of logging monthly) where PostgreSQL or SQLite is sufficient.
-- When a fully-managed SaaS telemetry platform eliminates the need for self-hosted database infrastructure.
-
-## Getting started
-
-### Installation (via Docker)
-Deploy a ClickHouse server instance locally for testing or self-hosting:
-
-```bash
-docker run -d \
-    --name clickhouse-server \
-    -p 8123:8123 \
-    -p 9000:9000 \
-    -v clickhouse_data:/var/lib/clickhouse \
-    clickhouse/clickhouse-server:latest
+```
++---------------------------------------------------------------------------------------------------+
+|                              CLICKHOUSE OLAP TELEMETRY ARCHITECTURE                               |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Telemetry Ingestion  |     |  ClickHouse Node      |     |  Storage Engine (MergeTree)   |   |
+|   |                       |     |                       |     |                               |   |
+|   | - LiteLLM / OpenRouter| --> | - Vectorized Engine   | --> | - Columnar Compression (ZSTD) |   |
+|   | - OTel Collector      |     | - Primary Index / MinMax|   | - Primary Sort Key Index      |   |
+|   | - FastMCP 3.1 Trace   |     | - JSON Materialized Path|   | - Partitions by Date / Month  |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                                                               |                   |
+|                                                                               v                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Analytics & MCP      |     |  Query Processing     |     |  Data Access Layer            |   |
+|   |                       |     |                       |     |                               |   |
+|   | - Langfuse / Helicone | <-- | - FastMCP 3.1 Tool    | <-- | - Sub-Second Aggregations     |   |
+|   | - Grafana / Dashboards|     | - Pydantic v2 Schema  |     | - SIMD Vectorized Scans       |   |
+|   | - AI Cost Auditing    |     | - Token Spend Metrics |     | - Distributed Shard Query     |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
 ```
 
-### LLM Telemetry Trace Schema
-The following table schema is optimized for storing stream records from gateways like OpenRouter or LiteLLM:
+## Where it fits in the stack
+**Data Storage and Analytics / AI Observability**. ClickHouse acts as the high-performance analytical storage foundation for AI telemetry, model evaluation benchmarks, LLM token billing, and agent execution tracking. Integrated via **FastMCP 3.1 / Model Context Protocol**, ClickHouse provides agents with high-speed SQL access to query real-time operational context, long-term memory logs, and system performance metrics.
 
+## Typical use cases
+- **AI Agent Telemetry & Log Archiving**: Archiving complete LLM requests, completions, prompt tokens, completion tokens, latency, and tool invocation parameters for models like **Claude 5.6**, **GPT-5.6**, and **Qwen 3.8**.
+- **Observability Backend Store**: Serving as the primary data store for open-source AI engineering suites such as [Langfuse](langfuse.md), [Helicone](helicone.md), or SigNoz.
+- **Real-Time AI Token Cost & Budget Auditing**: Executing live aggregations across billions of trace logs to analyze model token spend, cost per user, and department budget allocations.
+- **Vector & Hybrid Analytical Search**: Storing embedding vectors alongside rich structured metadata for filtered similarity search and real-time hybrid retrieval.
+
+## Strengths
+- **Unrivaled Analytical Throughput**: Native support for vectorized execution engines and SIMD instructions makes ClickHouse one of the fastest open-source DBMSs for aggregations.
+- **High Compression Ratios**: Column-specific encoding codecs significantly reduce cloud storage footprints and disk I/O demands.
+- **Dynamic Structural JSON Support**: Modern JSON data types dynamically parse and index nested LLM payload objects without schema migration locks.
+- **OpenTelemetry Standard Alignment**: Direct schema compatibility with OpenTelemetry collectors allows seamless drop-in deployment into standard enterprise observability stacks.
+
+## Limitations
+- **Not Suitable for OLTP**: ClickHouse is explicitly not designed for point lookups, single-row updates, transactional ACID guarantees, or high-frequency row deletes.
+- **Primary Sorting Key Sensitivity**: Query performance is tightly bound to table primary sorting key ordering; non-indexed query access patterns require full table scans.
+- **Operational Complexity**: Managing distributed sharding tables, ZooKeeper/Keeper consensus clusters, and replication topologies requires specialized database administrative knowledge.
+
+## When to use it
+- When your AI infrastructure processes millions of daily model invocations and requires live sub-second analytical reporting.
+- When building self-hosted AI billing gateways, token analytics platforms, or agent observability stacks.
+- When long-term log retention costs must be minimized through columnar compression algorithms.
+
+## When not to use it
+- As a transactional application database for user accounts, state management, or order processing (use PostgreSQL or MySQL).
+- For small-scale projects (< 5 GB total log volume per month) where SQLite or PostgreSQL is simpler to maintain.
+- When workload requirements demand complex multi-table ACID transactions across multiple records.
+
+## Getting Started
+
+### Deploying via Docker Compose
+Run a ClickHouse server with persistent storage and HTTP/Native client ports enabled:
+
+```yaml
+version: '3.8'
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8-alpine
+    container_name: clickhouse-server
+    ports:
+      - "8123:8123" # HTTP REST Interface
+      - "9000:9000" # Native TCP Client
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+    environment:
+      CLICKHOUSE_DB: ai_telemetry
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    restart: unless-stopped
+
+volumes:
+  clickhouse_data:
+  clickhouse_logs:
+```
+
+### Enterprise Telemetry Table Schema (MergeTree Engine)
 ```sql
-CREATE TABLE IF NOT EXISTS OPENROUTER_TRACES (
-    timestamp DateTime64(3, 'UTC'),
-    trace_id String,
+CREATE DATABASE IF NOT EXISTS ai_telemetry;
+
+CREATE TABLE IF NOT EXISTS ai_telemetry.llm_traces (
+    timestamp DateTime64(3, 'UTC') DEFAULT now64(3),
+    trace_id UUID DEFAULT generateUUIDv4(),
     model String,
-    app_id Nullable(String),
-    user_id Nullable(String),
+    provider String,
+    user_id String,
     prompt_tokens UInt32,
     completion_tokens UInt32,
     total_tokens UInt32,
-    total_cost Float64,
-    latency_ms Float64,
-    status String,
-    request String,
-    response String,
-    INDEX idx_model model TYPE minmax GRANULARITY 3
+    cost_usd Float64,
+    latency_ms UInt32,
+    status_code UInt16,
+    request_payload String,
+    response_payload String,
+    metadata JSON,
+    INDEX idx_model model TYPE set(100) GRANULARITY 2,
+    INDEX idx_user user_id TYPE bloom_filter(0.01) GRANULARITY 1
 ) ENGINE = MergeTree()
-ORDER BY (timestamp, model);
+PARTITION BY toYYYYMM(timestamp)
+ORDER BY (timestamp, provider, model, user_id)
+TTL timestamp + INTERVAL 180 DAY DELETE;
 ```
 
-## CLI examples
+## CLI Examples
 
-### Basic DB Connection and Querying
-Query total recorded traces using the native ClickHouse client:
+### Native Client Querying
+Query average latency and total token consumption grouped by model using the `clickhouse-client`:
+
 ```bash
-clickhouse-client --query "SELECT count() FROM OPENROUTER_TRACES"
+clickhouse-client --database="ai_telemetry" --query="
+    SELECT
+        model,
+        count() as total_requests,
+        round(avg(latency_ms), 2) as avg_latency_ms,
+        sum(total_tokens) as aggregate_tokens,
+        round(sum(cost_usd), 4) as aggregate_cost_usd
+    FROM llm_traces
+    WHERE timestamp >= now() - INTERVAL 7 DAY
+    GROUP BY model
+    ORDER BY aggregate_tokens DESC;
+"
 ```
 
-### Check Storage Efficiency and Size
-Examine compressed byte footprint versus uncompressed storage size:
+### Inspecting Storage Compression Ratios
+Evaluate disk compression efficiency across database tables:
+
 ```bash
-clickhouse-client --query "SELECT table, formatReadableSize(sum(data_compressed_bytes)) AS compressed_size, formatReadableSize(sum(data_uncompressed_bytes)) AS raw_size FROM system.parts WHERE table = 'OPENROUTER_TRACES' GROUP BY table"
+clickhouse-client --query="
+    SELECT
+        table,
+        formatReadableSize(sum(data_compressed_bytes)) AS compressed,
+        formatReadableSize(sum(data_uncompressed_bytes)) AS uncompressed,
+        round(sum(data_uncompressed_bytes) / sum(data_compressed_bytes), 2) AS ratio
+    FROM system.parts
+    WHERE active AND database = 'ai_telemetry'
+    GROUP BY table;
+"
 ```
 
-### Direct JSON Lines Ingestion
-Stream JSON lines directly into ClickHouse tables:
-```bash
-cat traces.jsonl | clickhouse-client --query "INSERT INTO OPENROUTER_TRACES FORMAT JSONEachRow"
-```
+## FastMCP 3.1 Tool Implementation & Pydantic v2 Integration
 
-## API examples
-
-### Python (clickhouse-connect) with Pydantic v2
-Connect to ClickHouse and compute model latency and token metrics across **GPT-5.5** versus **Claude 5.1**:
+The following Python script defines a complete FastMCP 3.1 tool server providing an analytical interface to ClickHouse for AI agents, backed by strict Pydantic v2 schemas:
 
 ```python
 import clickhouse_connect
-from pydantic import BaseModel, Field
+from datetime import datetime
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-class ModelLatencyMetric(BaseModel):
-    model: str = Field(description="Name of the evaluated model")
-    avg_latency_ms: float = Field(description="Average latency in milliseconds")
-    total_tokens: int = Field(description="Sum of all processed tokens")
-    request_count: int = Field(description="Total request count")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("ClickHouseAnalyticsServer", version="3.1.0")
 
-# Establish client connection
-client = clickhouse_connect.get_client(host='localhost', port=8123)
+class ModelUsageSummary(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-# Analytical query comparing model performance
-query = """
-    SELECT
-        model,
-        avg(latency_ms) as avg_latency,
-        sum(total_tokens) as tokens_sum,
-        count() as request_count
-    FROM OPENROUTER_TRACES
-    GROUP BY model
-    HAVING request_count > 10
-    ORDER BY avg_latency DESC
-    LIMIT 5
-"""
+    model: str = Field(..., description="Name of the evaluated AI model")
+    provider: str = Field(..., description="LLM hosting provider (e.g. Anthropic, OpenAI)")
+    total_requests: int = Field(..., ge=0, description="Total number of completed requests")
+    avg_latency_ms: float = Field(..., ge=0.0, description="Average response latency in milliseconds")
+    p95_latency_ms: float = Field(..., ge=0.0, description="95th percentile response latency in milliseconds")
+    total_tokens: int = Field(..., ge=0, description="Sum of prompt and completion tokens")
+    total_cost_usd: float = Field(..., ge=0.0, description="Total computed cost in USD")
 
-result = client.query(query)
+class AnalyticsQueryRequest(BaseModel):
+    days_back: int = Field(7, ge=1, le=90, description="Number of past days to aggregate")
+    min_requests: int = Field(1, ge=1, description="Minimum request threshold to filter results")
 
-# Parse and validate using Pydantic v2
-for row in result.result_rows:
-    metric = ModelLatencyMetric(
-        model=row[0],
-        avg_latency_ms=row[1],
-        total_tokens=row[2],
-        request_count=row[3]
+class QueryResultWrapper(BaseModel):
+    query_timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    record_count: int = Field(..., ge=0)
+    results: List[ModelUsageSummary] = Field(default_factory=list)
+
+@mcp.tool()
+def query_llm_cost_analytics(days_back: int = 7, min_requests: int = 1) -> str:
+    """
+    FastMCP tool that queries ClickHouse for aggregate LLM token usage, cost, and latency metrics.
+    Returns JSON formatted array of ModelUsageSummary objects.
+    """
+    client = clickhouse_connect.get_client(
+        host="localhost",
+        port=8123,
+        username="admin",
+        password=""
     )
-    print(f"Model: {metric.model} | Avg Latency: {metric.avg_latency_ms:.1f}ms | Tokens: {metric.total_tokens} | Requests: {metric.request_count}")
+
+    query = f"""
+        SELECT
+            model,
+            provider,
+            count() as total_requests,
+            round(avg(latency_ms), 2) as avg_latency,
+            round(quantile(0.95)(latency_ms), 2) as p95_latency,
+            sum(total_tokens) as total_tokens,
+            round(sum(cost_usd), 4) as total_cost
+        FROM ai_telemetry.llm_traces
+        WHERE timestamp >= now() - INTERVAL {days_back} DAY
+        GROUP BY model, provider
+        HAVING total_requests >= {min_requests}
+        ORDER BY total_cost DESC
+    """
+
+    result = client.query(query)
+
+    summaries: List[ModelUsageSummary] = []
+    for row in result.result_rows:
+        summary = ModelUsageSummary(
+            model=row[0],
+            provider=row[1],
+            total_requests=row[2],
+            avg_latency_ms=row[3],
+            p95_latency_ms=row[4],
+            total_tokens=row[5],
+            total_cost_usd=row[6]
+        )
+        summaries.append(summary)
+
+    wrapper = QueryResultWrapper(record_count=len(summaries), results=summaries)
+    return wrapper.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Advanced Performance & Sharding Optimization
+
+### 1. Partitioning Strategies for High-Velocity Logs
+ClickHouse performance relies heavily on effective partition key design. For high-volume AI trace tables:
+- **Partition Key**: `PARTITION BY toYYYYMM(timestamp)` balances part file counts while maintaining fast date-range pruning.
+- **Primary Sorting Key**: `ORDER BY (timestamp, provider, model, user_id)` aligns with the most common query filtering patterns, minimizing disk seeks.
+- **Data TTL**: Expire or move historical log data to lower-cost S3 / object storage tiers automatically using table lifecycle expressions:
+  ```sql
+  ALTER TABLE ai_telemetry.llm_traces
+  MODIFY TTL timestamp + INTERVAL 30 DAY TO VOLUME 's3_cold_storage',
+             timestamp + INTERVAL 365 DAY DELETE;
+  ```
+
+### 2. Materialized Views for Real-Time Pre-Aggregation
+To serve sub-millisecond analytics dashboards without re-scanning raw trace tables:
+```sql
+CREATE TABLE IF NOT EXISTS ai_telemetry.daily_model_stats (
+    date Date,
+    model String,
+    provider String,
+    request_count SimpleAggregateFunction(sum, UInt64),
+    tokens_sum SimpleAggregateFunction(sum, UInt64),
+    cost_sum SimpleAggregateFunction(sum, Float64)
+) ENGINE = AggregatingMergeTree()
+ORDER BY (date, provider, model);
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS ai_telemetry.mv_daily_model_stats
+TO ai_telemetry.daily_model_stats AS
+SELECT
+    toDate(timestamp) AS date,
+    model,
+    provider,
+    count() AS request_count,
+    sum(total_tokens) AS tokens_sum,
+    sum(cost_usd) AS cost_sum
+FROM ai_telemetry.llm_traces
+GROUP BY date, model, provider;
 ```
 
 ## Related tools / concepts
-- [OpenRouter](../ai_knowledge/openrouter.md) - Unified model routing gateway.
-- [Langfuse](langfuse.md) - Open-source AI engineering and observability suite using ClickHouse.
-- [Snowflake](snowflake.md) - Cloud data warehouse and analytics platform.
-- [OpenTelemetry Collector](opentelemetry-collector.md) - High-throughput telemetry pipeline.
-- [Helicone](helicone.md) - AI LLM gateway and observability dashboard.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Protocol for connecting agents to data/tools.
-- [Claude](../ai_knowledge/claude.md) - Frontier language model suite.
+- [OpenRouter](../ai_knowledge/openrouter.md): Unified AI model gateway providing high-throughput streaming events.
+- [Langfuse](langfuse.md): Open-source LLM observability platform using ClickHouse as its analytical storage backend.
+- [LiteLLM](../../services/litellm.md): Multi-provider proxy router logging directly into ClickHouse engines.
+- [OpenTelemetry Collector](opentelemetry-collector.md): Standardized telemetry ingestion pipeline component.
+- [Helicone](helicone.md): Enterprise AI LLM gateway and telemetry platform.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md): Protocol connecting autonomous agents to analytical data stores.
 
 ## Sources / references
 - [ClickHouse Official Documentation](https://clickhouse.com/docs/en/intro)
-- [ClickHouse Observability Integration Guide](https://clickhouse.com/docs/en/use-cases/observability)
-- [OpenRouter ClickHouse Logging Guide](https://openrouter.ai/docs/guides/features/broadcast/clickhouse)
+- [ClickHouse Architecture and Storage Engines](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree)
+- [Langfuse ClickHouse Integration Design](https://langfuse.com/docs/analytics)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
