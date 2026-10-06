@@ -21,11 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/orchestration/apache-hamilton.md",
-    "docs/tools/process_understanding/docling.md",
-    "docs/tools/automation_orchestration/lightpanda.md",
     "docs/tools/process_understanding/pageindex.md",
-    "docs/tools/providers/nvidia.md",
     "docs/tools/automation_orchestration/hashicorp-vault.md",
     "docs/services/qbittorrent.md",
     "docs/tools/agents/replit-agent.md",
@@ -40,7 +36,11 @@
     "docs/tools/frameworks/distilabel.md",
     "docs/tools/benchmarking/judgegpt.md",
     "docs/tools/agents/goose.md",
-    "docs/services/mealie.md"
+    "docs/services/mealie.md",
+    "docs/tools/ai_knowledge/diffusiongemma.md",
+    "docs/services/cloudflare-mesh.md",
+    "docs/services/excalidraw.md",
+    "docs/tools/agents/anthropic-agent-skills.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
