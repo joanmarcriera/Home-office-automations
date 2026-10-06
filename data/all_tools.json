@@ -868,6 +868,12 @@
       "doc_path": "docs/tools/providers/digitalocean-managed-agents.md"
     },
     {
+      "id": "digitalocean-provider",
+      "name": "DigitalOcean Provider",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/digitalocean-provider.md"
+    },
+    {
       "id": "diskover",
       "name": "Diskover",
       "category": "Intake & Storage",
