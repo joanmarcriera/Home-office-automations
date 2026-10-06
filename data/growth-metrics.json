@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/clickhouse.md",
-    "docs/tools/providers/codestral.md",
-    "docs/services/plex-automation.md",
     "docs/tools/frameworks/semantic-kernel.md",
     "docs/tools/agents/bee-agent-framework.md",
     "docs/tools/infrastructure/pinecone.md",
@@ -40,7 +37,10 @@
     "docs/tools/providers/nvidia.md",
     "docs/tools/automation_orchestration/hashicorp-vault.md",
     "docs/services/qbittorrent.md",
-    "docs/tools/agents/replit-agent.md"
+    "docs/tools/agents/replit-agent.md",
+    "docs/tools/ai_knowledge/openrouter.md",
+    "docs/tools/providers/baseten.md",
+    "docs/tools/ai_knowledge/colqwen.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
