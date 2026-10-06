@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/pinecone.md",
-    "docs/tools/automation_orchestration/skyvern.md",
-    "docs/tools/infrastructure/peft.md",
-    "docs/tools/ai_knowledge/privategpt.md",
-    "docs/tools/agents/home-admin-tools.md",
     "docs/tools/orchestration/apache-hamilton.md",
     "docs/tools/process_understanding/docling.md",
     "docs/tools/automation_orchestration/lightpanda.md",
@@ -40,7 +35,12 @@
     "docs/tools/process_understanding/ragas.md",
     "docs/services/paperless-ngx.md",
     "docs/tools/agents/open-agents.md",
-    "docs/tools/frameworks/axolotl.md"
+    "docs/tools/frameworks/axolotl.md",
+    "docs/tools/providers/monolith.md",
+    "docs/tools/frameworks/distilabel.md",
+    "docs/tools/benchmarking/judgegpt.md",
+    "docs/tools/agents/goose.md",
+    "docs/services/mealie.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
