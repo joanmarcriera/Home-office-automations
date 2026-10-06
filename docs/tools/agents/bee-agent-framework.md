@@ -1,71 +1,106 @@
 # Bee Agent Framework
 
 ## What it is
-The Bee Agent Framework (v1.6+, early January 2027) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.1) and [MCP 3.1 / FastMCP 3.1 Task Protocol](../../knowledge_base/agent_protocols.md) support.
+The Bee Agent Framework (v1.6+, early 2027) is an open-source, enterprise-grade orchestration framework developed by IBM Research and hosted under the Linux Foundation. Built explicitly to eliminate the "Reliability Gap" in autonomous agentic workflows, the Bee Agent Framework delivers complete architectural feature parity between **TypeScript** (Node.js/Bun/Browser) and **Python** (3.10–3.12+). It combines deterministic workflow controls, declarative constraint templates, OpenTelemetry-native execution tracing, and native support for **FastMCP 3.1 (Model Context Protocol)** and the **MCP 3.1 Task Protocol**.
+
+Optimized for both cloud frontier reasoning models (GPT-5.6, Claude 5.6, Gemini 4.0 Ultra, DeepSeek-V4) and local open-weights MoE models (Gemma 4 26B, Qwen 3.6, Llama 4), the Bee Agent Framework introduces "Requirement Agents"—specialized runtime guardrail agents that evaluate model output against policy constraints before executing tool calls or returning finalized responses.
 
 ## What problem it solves
-It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready. It is specifically optimized for [Gemma 4](../ai_knowledge/local_llms.md), [Qwen 3.6](../ai_knowledge/local_llms.md), and frontier models like [GPT-5.6](../ai_knowledge/openai.md), [Claude 5.6](../providers/anthropic.md), and [Gemini 4.0 Ultra](../ai_knowledge/gemini.md).
+Autonomous agents operating in production environments frequently suffer from non-deterministic failures:
+- **Agent Drift & Infinite Loops**: Autonomous models can get trapped in repetitive tool-invocation loops or lose sight of original system prompt goals.
+- **Unverified Tool Execution**: Executing database write operations or external API calls without runtime policy checks creates severe security and data integrity risks.
+- **Black-Box Traceability**: Complex multi-step reasoning chains are difficult to debug or audit without standardized OpenTelemetry traces.
+- **Language Stack Fragmentation**: Engineering organizations using TypeScript for frontend/edge applications and Python for backend/data pipelines struggle to share agent logic across teams.
+
+The Bee Agent Framework addresses these issues through:
+- **Observability-by-Design**: Generates granular, OpenTelemetry-compliant execution traces capturing every prompt state, tool parameter, and token metric.
+- **Requirement Agents & Runtime Policy Enforcement**: Intercepts tool calls to validate permissions, parameter boundaries, and compliance rules in real-time.
+- **Cross-Language Code Parity**: Shared object schemas and event-driven memory models across TypeScript and Python runtimes.
+- **Native FastMCP 3.1 & Task Protocol Support**: Connects seamlessly to remote FastMCP 3.1 servers for dynamic tool discovery and agentic task delegation.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                              BEE AGENT FRAMEWORK ARCHITECTURE                                     |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Multi-Language App   |     |  Bee Core Orchestrator|     |  Inference Layer (10+ Drivers)|   |
+|   |                       |     |                       |     |                               |   |
+|   | - TypeScript / Node   | --> | - BeeAgent Runtime    | --> | - IBM Watsonx.ai              |   |
+|   | - Python Data Service |     | - Event System & State|     | - OpenAI (GPT-5.6)            |   |
+|   | - Next.js Edge Client |     | - Sliding Memory Window|    | - Local Ollama (Gemma 4)      |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                             |                                 |                   |
+|                                             v                                 v                   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|   |  Policy & Audit Layer |     |  Requirement Guardrails|    |  FastMCP 3.1 Tool Gateway     |   |
+|   |                       |     |                       |     |                               |   |
+|   | - OpenTelemetry Trace | <-- | - Policy Enforcement  | <-- | - Database Tools              |   |
+|   | - JSON Audit Logger   |     | - Input Sanitization  |     | - Search & Web Scraping       |   |
+|   | - SLA Alert Hooks     |     | - Pydantic v2 Guard   |     | - Enterprise ERP Adapters     |   |
+|   +-----------------------+     +-----------------------+     +-------------------------------+   |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
+```
 
 ## Where it fits in the stack
-**Category**: Agent Orchestration Framework. It sits between the Model/Inference layer (supporting 10+ providers like Watsonx, Ollama, and OpenAI) and the Tool/Infrastructure layer, managing state, memory, and tool execution.
+**Category**: Agent Orchestration Framework.
+
+The Bee Agent Framework operates at the **Orchestration & Governance Layer**, positioning itself between **Inference Models** (Watsonx, OpenAI, Anthropic, Ollama) and **Tooling/Infrastructure Services** (FastMCP 3.1 servers, databases, search APIs, enterprise ERPs).
 
 ## Typical use cases
-- **Enterprise Automation**: Workflows requiring strict governance, policy enforcement, and audit trails.
-- **Multi-Agent Orchestration**: Systems where specialized agents (Planner, Executor, Reviewer) must collaborate on complex tasks.
-- **Cross-Platform Development**: Projects that require shared agent logic between TypeScript (web/frontend) and Python (data/backend) environments.
-- **Hybrid Cloud Agents**: Deploying agents that bridge local [Gemma 4](../ai_knowledge/local_llms.md) instances with enterprise Watsonx.ai models.
+- **Enterprise Automation Pipelines**: Multi-step administrative workflows requiring strict RBAC policy enforcement, input validation, and audit trails.
+- **Multi-Agent Collaboration Networks**: Coordinating specialized sub-agents (e.g. Planning Agent, Execution Agent, Verification Agent) to resolve complex user requests.
+- **Polyglot Monorepo Deployments**: Sharing identical agent execution trees between Next.js React frontend applications and Python FastAPI microservices.
+- **Hybrid Cloud / Local LLM Networks**: Routing routine background sub-tasks to local Gemma 4 instances while delegating complex reasoning steps to Claude 5.6 or GPT-5.6.
 
 ## Strengths
-- **Reliability**: Built-in safeguards and policy enforcement agents to minimize agent drift and failure.
-- **Observability**: Industry-leading execution tracing and OpenTelemetry integration.
-- **Language Parity**: Simultaneous support for TypeScript and Python with identical architectural patterns.
-- **Protocol Native**: Full, first-class support for MCP 3.1 and the Agentic Session Orchestration pattern.
-- **Governance**: Hosted by the Linux Foundation under open governance for long-term stability.
+- **Enterprise-Grade Reliability**: Built-in Requirement Agents and policy guardrails minimize hallucinated tool calls.
+- **Strict Open Governance**: Hosted by the Linux Foundation (LF AI & Data), protecting against single-vendor lock-in.
+- **Full TypeScript & Python Parity**: Identical framework classes and patterns across both primary language stacks.
+- **Built-In OpenTelemetry Tracing**: First-class support for OTel exporters (Jaeger, Prometheus, ClickHouse, Grafana Tempo).
+- **FastMCP 3.1 & Task Protocol Compliant**: Standardized tool calling and task delegation protocols out-of-the-box.
 
 ## Limitations
-- **Learning Curve**: The focus on enterprise reliability introduces more abstractions (Workflows, Templates, Providers) than minimal frameworks like Agno.
-- **Overhead**: The comprehensive feature set may introduce more latency and resource usage than lightweight alternatives for simple tasks.
-- **Maturity**: While robust, the ecosystem of community-contributed tools is still growing compared to LangChain.
+- **Slightly Higher Boilerplate**: Focusing on enterprise reliability introduces more abstractions (Workflows, Providers, Guardrails) than minimal scripting frameworks.
+- **Ecosystem Growth Phase**: While backed by IBM and Linux Foundation, community tool repositories are actively growing compared to older frameworks like LangChain.
 
 ## When to use it
-- **Production AI Systems**: When you need a framework designed for scale, security, and enterprise-grade reliability.
-- **Deep Observability Requirements**: If your use case requires detailed tracing to debug or audit complex agent decisions.
-- **Multi-Language Teams**: When your organization utilizes both TS and Python and wants a unified agent architecture.
-- **Linux Foundation Alignment**: If your project requires an open-governance framework with no vendor lock-in.
+- When building production AI systems that demand strict governance, policy enforcement, and audit-ready execution traces.
+- When working in a polyglot environment requiring shared agent logic across TypeScript and Python codebases.
+- When integrating with FastMCP 3.1 tool servers and enterprise Watsonx or cloud LLM infrastructures.
 
 ## When not to use it
-- **Rapid Prototyping**: For simple, one-off scripts, lightweight SDKs like LiteLLM or raw provider APIs are faster.
-- **Minimal Resource Environments**: If running on extremely constrained hardware where framework overhead must be minimized.
-- **Single-Agent Chatbots**: For basic conversational UI without complex tool use or state management, Bee might be overkill.
+- For quick, single-script AI prototypes where lightweight wrappers (LiteLLM, Agno) are faster to write.
+- When running on resource-constrained micro-controllers or embedded edge hardware with strict memory constraints.
 
 ## Getting started
 
 ### Installation
 === "TypeScript"
     ```bash
-    npm install @beeai/framework
+    npm install @beeai/framework pydantic-mcp
     ```
 === "Python"
     ```bash
-    pip install beeai-framework pydantic
+    pip install beeai-framework pydantic mcp
     ```
 
-### Basic Agent Setup
-Initialize a Bee agent with a provider (e.g., Watsonx or OpenAI) and a set of tools. Bee also supports local execution with [Gemma 4](../ai_knowledge/local_llms.md) via [Ollama](../../services/ollama.md).
-
 ## CLI examples
+
 ```bash
-# Initialize a new Bee project template
+# Initialize a new Bee Agent project template
 beeai init my-enterprise-agent --template multi-agent
 
-# Start the Bee development server with live-reloading
+# Launch the development server with hot-reloading enabled
 beeai dev --port 18788 --verbose
 
-# Validate MCP server connectivity using Task Protocol and FastMCP 3.1
+# Verify FastMCP 3.1 server connectivity using Task Protocol
 beeai mcp verify http://localhost:18790 --protocol task-v3.1
 ```
 
 ## API examples
+
 === "TypeScript"
     ```typescript
     import { BeeAgent } from "@beeai/framework/agents/bee/agent";
@@ -79,38 +114,107 @@ beeai mcp verify http://localhost:18790 --protocol task-v3.1
             memory: []
         });
 
-        const response = await agent.run({ prompt: "Synthesize a report on BeeAI framework updates." });
-        console.log(response.result.text);
+        const response = await agent.run({ prompt: "Synthesize key architectural benefits of BeeAI Framework." });
+        console.log("Agent Result:\n", response.result.text);
     }
     main();
     ```
+
 === "Python"
     ```python
+    import asyncio
     from beeai_framework.agents.bee.agent import BeeAgent
     from beeai_framework.backend.chat import ChatModel
     from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
 
-    agent = BeeAgent(
-        llm=ChatModel.from_name("openai:gpt-5.6"),
-        tools=[DuckDuckGoSearchTool()],
-        memory=[]
-    )
+    async def main():
+        agent = BeeAgent(
+            llm=ChatModel.from_name("openai:gpt-5.6"),
+            tools=[DuckDuckGoSearchTool()],
+            memory=[]
+        )
 
-    response = agent.run(prompt="Analyze the benefits of multi-language agent frameworks.")
-    print(response.result.text)
+        response = await agent.run(prompt="Analyze the benefits of cross-language agent frameworks.")
+        print("Agent Output:\n", response.result.text)
+
+    if __name__ == "__main__":
+        asyncio.run(main())
     ```
 
-### Strict Schema Trace Verification (Python & Pydantic v2)
-To enforce strict reliability, enterprise deployments use Pydantic v2 to validate execution trace schemas and token usage parameters generated by the Bee Agent:
+## FastMCP 3.1 Integration Pattern
+
+Below is a complete FastMCP 3.1 tool server demonstrating how Bee Agent Framework instances can query remote tools and validate execution payloads:
 
 ```python
+import asyncio
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
-from datetime import datetime
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-class ToolInvocationSchema(BaseModel):
-    tool_name: str = Field(..., description="The name of the invoked MCP or native tool.")
-    arguments: dict = Field(default_factory=dict, description="Input arguments passed to the tool.")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("BeeFrameworkToolGateway", version="3.1.0")
+
+class AgentTaskExecutionRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    agent_id: str = Field(..., description="Unique Bee Agent identifier")
+    task_prompt: str = Field(..., min_length=5, description="Prompt assigned to agent")
+    model_provider: str = Field("openai:gpt-5.6", description="Active LLM provider identifier")
+    allowed_tools: List[str] = Field(default_factory=list, description="Permitted tool set")
+
+class AgentTaskExecutionResponse(BaseModel):
+    task_id: str
+    status: str
+    steps_completed: int
+    output_summary: str
+    telemetry_trace_id: str
+
+@mcp.tool()
+def execute_bee_agent_task(
+    agent_id: str,
+    task_prompt: str,
+    model_provider: str = "openai:gpt-5.6"
+) -> str:
+    """
+    FastMCP tool wrapper executing a managed Bee Agent task step.
+    Returns JSON string fulfilling AgentTaskExecutionResponse schema.
+    """
+    # Validate payload
+    req = AgentTaskExecutionRequest(
+        agent_id=agent_id,
+        task_prompt=task_prompt,
+        model_provider=model_provider,
+        allowed_tools=["DuckDuckGoSearchTool", "CalculatorTool"]
+    )
+
+    # Simulated Bee Agent execution
+    response = AgentTaskExecutionResponse(
+        task_id=f"tsk_bee_{int(asyncio.get_event_loop().time())}",
+        status="completed",
+        steps_completed=3,
+        output_summary=f"Bee Agent '{req.agent_id}' successfully executed task: '{req.task_prompt[:40]}...'",
+        telemetry_trace_id="tr_bee_99120_otel"
+    )
+    return response.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Type-Safe Observability & Trace Verification (Pydantic v2)
+
+To enforce enterprise auditability, telemetry traces generated by Bee Agents are validated using **Pydantic v2**:
+
+```python
+from datetime import datetime
+from typing import List, Optional, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+class ToolInvocationRecord(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    tool_name: str = Field(..., description="Name of executed tool")
+    arguments: dict = Field(default_factory=dict)
     execution_time_ms: float = Field(..., ge=0.0)
     success: bool = Field(True)
 
@@ -120,25 +224,26 @@ class TokenTelemetry(BaseModel):
     total_tokens: int = Field(..., ge=0)
 
 class BeeAgentTrace(BaseModel):
-    trace_id: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    model_name: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    trace_id: str = Field(..., description="Unique OpenTelemetry trace ID")
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    model_name: str = Field(...)
     steps_count: int = Field(..., ge=1)
     confidence_score: float = Field(..., ge=0.0, le=1.0)
-    tool_calls: List[ToolInvocationSchema] = Field(default_factory=list)
+    tool_calls: List[ToolInvocationRecord] = Field(default_factory=list)
     telemetry: TokenTelemetry
-    status: str = Field("success")
+    status: Literal["success", "failed", "policy_violated", "halted"] = Field("success")
 
-    @field_validator("status")
+    @field_validator("model_name")
     @classmethod
-    def validate_status(cls, val: str) -> str:
-        allowed = {"success", "failed", "policy_violated", "halted"}
-        if val not in allowed:
-            raise ValueError(f"Status must be one of {allowed}")
+    def validate_model_name(cls, val: str) -> str:
+        if not val or len(val) < 3:
+            raise ValueError("Invalid model_name identifier in trace.")
         return val
 
-# Example parsing and verifying a trace generated by the agentic run
-sample_trace_data = {
+# Demonstration of trace validation
+sample_trace_payload = {
     "trace_id": "bee-trace-99120-2027",
     "model_name": "gpt-5.6",
     "steps_count": 3,
@@ -159,22 +264,20 @@ sample_trace_data = {
     "status": "success"
 }
 
-validated_trace = BeeAgentTrace(**sample_trace_data)
-print(f"Verified Trace ID: {validated_trace.trace_id} with Status: {validated_trace.status}")
+validated_trace = BeeAgentTrace(**sample_trace_payload)
+print("Validated Bee Agent Trace:\n", validated_trace.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
-- [MCP 3.1 / FastMCP 3.1](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [LangGraph](../frameworks/langgraph.md)
-- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
-- [Phidata](phidata.md)
-- [Superpowers](superpowers.md)
-- [Agno](agno.md)
-- [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
-- [Local LLMs (Gemma 4, Qwen 3.6)](../ai_knowledge/local_llms.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md): Standardized tool and task protocol definitions.
+- [LangGraph](../frameworks/langgraph.md): Graph-based agent orchestration framework.
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md): Modular skill packages for Claude Code.
+- [Phidata](phidata.md): Framework for building autonomous assistant systems.
+- [Agno](agno.md): Lightweight agent framework.
+- [DeepSeek R1](../ai_knowledge/deepseek-r1.md): Open reasoning model family.
+- [Local LLMs (Gemma 4, Qwen 3.6)](../ai_knowledge/local_llms.md): Open-weights model execution.
 
-## Sources / References
+## Sources / references
 - [BeeAI Framework GitHub Repository](https://github.com/i-am-bee/beeai-framework)
 - [Official BeeAI Documentation](https://i-am-bee.github.io/beeai-framework/)
 - [IBM Research: AI Agent Reliability with BeeAI](https://research.ibm.com/blog/ai-agent-reliability-beeai)

@@ -21,11 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/frameworks/semantic-kernel.md",
-    "docs/tools/agents/bee-agent-framework.md",
     "docs/tools/infrastructure/pinecone.md",
-    "docs/tools/enterprise/guru.md",
-    "docs/tools/development_ops/claude-cookbooks.md",
     "docs/tools/automation_orchestration/skyvern.md",
     "docs/tools/infrastructure/peft.md",
     "docs/tools/ai_knowledge/privategpt.md",
@@ -40,7 +36,11 @@
     "docs/tools/agents/replit-agent.md",
     "docs/tools/ai_knowledge/openrouter.md",
     "docs/tools/providers/baseten.md",
-    "docs/tools/ai_knowledge/colqwen.md"
+    "docs/tools/ai_knowledge/colqwen.md",
+    "docs/tools/process_understanding/ragas.md",
+    "docs/services/paperless-ngx.md",
+    "docs/tools/agents/open-agents.md",
+    "docs/tools/frameworks/axolotl.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

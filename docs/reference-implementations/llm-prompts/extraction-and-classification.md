@@ -69,6 +69,14 @@ This reference implementation forms the core logic of the **Intelligent Processi
 - When processing air-gapped or restricted documents if local LLM inference engines (Ollama / vLLM) are unavailable.
 - For high-rate real-time telemetry where sub-millisecond regex or keyword parsing is required.
 
+## Getting started
+
+To deploy extraction and classification prompt pipelines:
+1. Initialize a FastMCP 3.1 server hosting prompt execution tools.
+2. Configure OCR text ingestion from Paperless-ngx or email MIME readers.
+3. Validate output payloads using Pydantic v2 schemas (`TaskExtractionResult` and `DocumentClassificationResult`).
+4. Dispatch structured task items directly to Vikunja or secondary task queues.
+
 ## Prompt Engineering Specifications
 
 ### 1. Task Extraction System Prompt
@@ -119,6 +127,23 @@ Perform document classification using a local Gemma 4 or Llama 4 model:
 ```bash
 cat /tmp/ocr_scan_104.txt | ollama run gemma-4 \
   "Classify this document into [FINANCE, MEDICAL, EDUCATION, LEGAL, ADMINISTRATIVE]. Output JSON only: {\"category\": \"...\", \"confidence\": 0.95}"
+```
+
+## API examples
+
+```python
+import asyncio
+from extraction_and_classification import extract_tasks_from_ocr, classify_document_ocr
+
+async def main():
+    doc_text = "PROPERTY TAX INVOICE: $1,200 due on 2027-01-31. Pay online at city.gov."
+    task_json = extract_tasks_from_ocr("doc_101", doc_text)
+    class_json = classify_document_ocr("doc_101", doc_text)
+    print("Tasks:", task_json)
+    print("Classification:", class_json)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## FastMCP 3.1 Tool Implementation & Pydantic v2 Schemas

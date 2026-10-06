@@ -130,6 +130,24 @@ mcp tool call chronos-mcp list_events \
     --end_date "2027-01-22T23:59:59Z"
 ```
 
+## API examples
+
+```python
+import asyncio
+from email_to_calendar import EmailCalendarPipeline
+
+async def main():
+    pipeline = EmailCalendarPipeline(confidence_threshold=0.85)
+    result = await pipeline.process_email_bytes(
+        email_bytes=b"Subject: Team Sync...",
+        calendar_id="primary"
+    )
+    print(f"Synced event ID: {result.event_id}, Status: {result.status}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ## FastMCP 3.1 Integration Pattern
 
 Below is a complete FastMCP 3.1 server implementation demonstrating the tools and schema validation used to extract and schedule calendar events from raw email bodies:
