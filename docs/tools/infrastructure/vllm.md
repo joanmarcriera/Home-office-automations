@@ -1,251 +1,331 @@
 # vLLM
 
+**vLLM** is an open-source, high-throughput, and memory-efficient inference engine designed for serving Large Language Models (LLMs) and Multi-Modal Models (VLM). Developed at UC Berkeley and supported by an active global open-source community, vLLM introduces **PagedAttention**, an algorithm that manages Attention Key-Value (KV) cache memory in non-contiguous physical memory blocks—analogous to how virtual memory and paging operate in standard computer operating systems.
+
+As of early January 2027, vLLM serves as a foundational open-source inference layer for private cloud infrastructure, self-hosted enterprise model deployments, and **FastMCP 3.1 Task Protocol-based tool agents** powered by open-weights models (such as Llama 4, Gemma 4, Qwen 3.8, and DeepSeek-V4).
+
+---
+
 ## What it is
-vLLM is a high-throughput and memory-efficient inference and serving engine for LLMs. It is powered by **PagedAttention**, an attention algorithm that manages attention keys and values (KV cache) more efficiently, similar to how virtual memory works in operating systems.
+vLLM is an inference serving system that maximizes token generation throughput while minimizing memory waste. Traditional LLM serving frameworks store KV cache memory for a sequence in contiguous VRAM memory blocks. Because sequence lengths are unpredictable, previous engines pre-allocated memory for the maximum possible context length (e.g., 8k or 32k tokens), causing severe memory fragmentation and wasting up to 60%–80% of GPU VRAM.
+
+vLLM's **PagedAttention** partitions the KV cache into fixed-size physical memory pages, allowing pages to be allocated on-demand and stored non-contiguously.
+
+```
++-----------------------------------------------------------------------------------+
+|                            CLIENT / AGENT / API GATEWAY                           |
+|                 (FastMCP 3.1 / OpenAI SDK / LangChain / AutoGen)                  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | OpenAI-Compatible API (HTTP / gRPC)
+                                          v
++-----------------------------------------------------------------------------------+
+|                                vLLM SERVING ENGINE                                |
+|                                                                                   |
+|  +---------------------------+  +--------------------------+  +----------------+  |
+|  | OpenAI API Server Entry   |  | Continuous Batcher       |  | PagedAttention |  |
+|  | (Prefix Caching / LoRA)   |  | (Dynamic Request Queue)  |  | KV-Cache Manager| |
+|  +---------------------------+  +--------------------------+  +----------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        PHYSICAL GPU ACCELERATION BACKEND                          |
+|                  (NVIDIA Rubin / Blackwell / Hopper / Ampere / ROCm)              |
++-----------------------------------------------------------------------------------+
+```
+
+---
 
 ## What problem it solves
-LLM serving is often bottlenecked by KV cache memory management. Traditional systems suffer from significant memory fragmentation and over-reservation. vLLM's PagedAttention allows KV cache memory to be stored in non-contiguous memory spaces, reducing waste to near-zero and enabling much higher batch sizes and overall throughput, making it a critical infrastructure component for matching the performance of frontier models like Claude 5.1 and GPT-5.5 in self-hosted environments.
+Legacy LLM serving runtimes suffer from three fundamental bottlenecks:
+1. **Severe Memory Waste**: Contiguous KV-cache allocation causes high fragmentation and artificial memory exhaustion long before GPU compute capacity is saturated.
+2. **Low Batching Concurrency**: Fixed batching schemes leave GPU Tensor Cores idle while waiting for long generation sequences to finish.
+3. **High Latency for Long Contexts**: Repeated prompt processing without prefix caching slows down multi-turn agentic workflows.
+
+vLLM solves these issues by achieving near-zero memory waste through PagedAttention, enabling **continuous iteration-level batching**, and incorporating **automatic prefix caching** to eliminate redundant prompt evaluation overhead.
+
+---
 
 ## Where it fits in the stack
-**Infrastructure / Model Serving**. It provides the high-performance inference layer for serving open-weights models and specialized fine-tuned adapters.
+vLLM operates in the **Infrastructure & Model Serving layer** of the enterprise AI architecture.
+
+```
++-----------------------------------------------------------------------+
+|                    AGENT & APPLICATION ORCHESTRATION                  |
+|               (Claude Code / FastMCP 3.1 / Agency Swarm)              |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                     API GATEWAY & LOAD BALANCING                      |
+|                  (Vercel AI Gateway / LiteLLM Proxy)                  |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                    HIGH-THROUGHPUT INFERENCE LAYER                    |
+|                               (vLLM)                                  |
+|                                                                       |
+|  +-----------------------+  +--------------------+  +--------------+  |
+|  | PagedAttention KV     |  | Continuous Batcher |  | LoRA Engine  |  |
+|  +-----------------------+  +--------------------+  +--------------+  |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                       HARDWARE EXECUTION LAYER                        |
+|             (NVIDIA Rubin R100 / B200 / H100 / AMD Instinct)          |
++-----------------------------------------------------------------------+
+```
+
+---
 
 ## Typical use cases
-- **High-Concurrency Serving**: Powering production LLM endpoints for thousands of simultaneous users.
-- **Self-Hosted API Gateways**: Building OpenAI-compatible API endpoints for internal model deployments.
-- **Batch Inference**: Processing massive datasets with maximum throughput for offline tasks.
-- **Multi-Tenant Adapters**: Serving multiple fine-tuned models (LoRA) efficiently on a single base model.
+- **Production OpenAI-Compatible API Endpoints**: Serving private open-weights models (Llama 4, Gemma 4, Qwen 3.8) for internal corporate teams and agents.
+- **High-Concurrency Agentic FastMCP 3.1 Tool Backends**: Providing low-latency inference endpoints for multi-agent frameworks requiring high request parallelism.
+- **Multi-Tenant LoRA Serving**: Serving hundreds of fine-tuned domain adapters (LoRA modules) concurrently on top of a single base model without duplicating VRAM footprint.
+- **Long-Context RAG Ingestion & Summarization**: Leveraging prefix caching to rapidly evaluate long document contexts across multiple user queries.
+- **Speculative Decoding Acceleration**: Deploying speculative decoding (draft model + target model) to dramatically reduce Time-To-First-Token (TTFT) latency for real-time streaming applications.
+
+---
 
 ## Strengths
-- **State-of-the-Art Throughput**: Significantly outperforms traditional serving engines in high-concurrency scenarios.
-- **Efficient Memory Usage**: PagedAttention minimizes KV cache fragmentation, allowing for larger context windows.
-- **Continuous Batching & FastMCP 3.1 Integration**: Minimizes idle time and integrates natively with FastMCP 3.1 JSON-RPC servers.
-- **Broad Ecosystem Support**: Native support for Llama 4, Gemma 3, Qwen 3.8, Claude 5.1 / GPT-5.5 proxy endpoints, and deep integration with [SGLang](../infrastructure/sglang.md).
+- **State-of-the-Art Concurrency & Throughput**: Delivers up to 2x–4x higher throughput compared to legacy PyTorch or naive Hugging Face Transformers pipelines under heavy concurrent request loads.
+- **Near-Zero Memory Waste**: PagedAttention reduces KV cache memory fragmentation to less than 4%.
+- **Automatic Prefix Caching**: Automatically reuses KV cache computation across requests with identical prompt prefixes (e.g., shared system instructions or massive document context blocks).
+- **Turnkey OpenAI API Compatibility**: Exposes ready-to-use HTTP endpoints matching the OpenAI REST specification (`/v1/chat/completions`, `/v1/completions`, `/v1/embeddings`).
+- **Broad Model & Quantization Support**: Native execution for FP16, BF16, FP8, AWQ, GPTQ, and SqueezeLLM quantization schemes.
+
+---
 
 ## Limitations
-- **Hardware Specificity**: Primarily optimized for NVIDIA GPUs (Ampere, Ada Lovelace, Blackwell, and Rubin); support for AMD and TPUs is secondary.
-- **Resource Intensive**: Requires significant VRAM for large models unless aggressive quantization (AWQ/FP8) is used.
-- **Complexity**: Tuning configurations like `--gpu-memory-utilization` and `--max-model-len` for specific hardware can be non-trivial.
-- **NVIDIA GPU Required (CUDA)**: fp16 (default) exceeds 8 GB for 7B+ models; use AWQ 4-bit or fp8 quantization on the RTX 4060. vLLM does not support Apple Silicon — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
+- **Hardware Platform Requirements**: Primarily optimized for CUDA architecture on NVIDIA GPUs (Ampere, Ada Lovelace, Blackwell, Rubin); AMD ROCm support is functional but requires careful driver alignment.
+- **Not Designed for Apple Silicon**: Does not support native Metal acceleration on macOS—use [MLX](mlx.md) or [Ollama](../../services/ollama.md) for Apple Silicon setups.
+- **Resource Intensity on Low VRAM**: Running 7B+ parameter unquantized FP16 models requires >16GB VRAM; smaller GPUs require AWQ 4-bit or FP8 quantization.
+
+---
 
 ## When to use it
-- When you need to serve LLMs with maximum possible throughput on NVIDIA hardware.
-- When you require a robust, OpenAI-compatible API for your local or private cloud deployment.
-- When using advanced features like speculative decoding or prefix caching to reduce latency for long-context reasoning.
-- When integrating with NVIDIA NIM (General Availability) for enterprise-grade inference microservices.
+- When self-hosting LLMs or VLMs on dedicated GPU servers or cloud instances for production workloads.
+- When high concurrency (dozens or hundreds of simultaneous request streams) is required.
+- When building FastMCP 3.1 agent systems that invoke local models repeatedly with shared prompt templates.
+- When serving multiple LoRA adapters on top of a shared base model.
+
+---
 
 ## When not to use it
-- For low-resource environments (e.g., consumer laptops without high-end NVIDIA GPUs) — use [llama.cpp](llama-cpp.md) or [Ollama](../../services/ollama.md).
-- When deploying on Apple Silicon — vLLM is not natively optimized for Metal; use [MLX](mlx.md) instead.
-- For extremely simple, low-volume scripts where the overhead of a dedicated server is unnecessary.
+- For local consumer laptop execution on Apple Silicon macOS hardware (use [MLX](mlx.md) or [Ollama](../../services/ollama.md)).
+- For lightweight embedded or CPU-only devices without dedicated high-bandwidth GPU VRAM (use [llama.cpp](llama-cpp.md)).
+- For ultra-simple single-user desktop testing where an all-in-one GUI application is preferred over a server daemon.
 
-## Hardware plugins and extensions
-- **vLLM-Kunlun**: A community-maintained hardware plugin designed to seamlessly run vLLM on the Baidu Kunlun3 XPU (specifically the P800 series). It adheres to vLLM's pluggable hardware backend RFC, decoupling hardware-specific code and allowing popular Mixture-of-Experts, Transformer, and multimodal models to execute on Kunlun processors.
+---
 
 ## Getting started
 
 ### Installation
 ```bash
-pip install vllm
+pip install vllm pydantic>=2.0 fastmcp>=3.1.0 requests
 ```
 
-### Hello-World Example
+### Basic Native Python Usage
 ```python
 from vllm import LLM, SamplingParams
 
-prompts = ["Explain PagedAttention in one sentence."]
-sampling_params = SamplingParams(temperature=0.7, top_p=0.9)
+prompts = [
+    "Explain PagedAttention in three bullet points.",
+    "Compare vLLM with llama.cpp for GPU serving."
+]
 
-# Initialize with a small model for testing
-llm = LLM(model="facebook/opt-125m")
+sampling_params = SamplingParams(temperature=0.3, top_p=0.9, max_tokens=200)
+llm = LLM(model="Qwen/Qwen2.5-7B-Instruct")
+
 outputs = llm.generate(prompts, sampling_params)
-
 for output in outputs:
-    print(f"Generated text: {output.outputs[0].text}")
+    print("Prompt:", output.prompt)
+    print("Generated Text:", output.outputs[0].text)
+    print("-" * 40)
 ```
 
-### Hardware requirements
-| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
-|---|---|---|---|---|
-| 7-8B | fp16 | 14-16 GB | ❌ Not viable | Exceeds 8 GB |
-| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
-| 7-8B | fp8 (W8A8) | 7-8 GB | ⚠️ Tight | Requires Ampere/Ada (RTX 30/40xx) |
-| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Near ceiling |
-| 30B+ | AWQ 4-bit | 16 GB+ | ❌ Not viable | Multi-GPU required |
+---
+
+## Hardware and VRAM Sizing Reference
+| Model Parameter Count | Quantization | Recommended Min VRAM | Compatible GPU Hardware |
+|---|---|---|---|
+| 7B – 8B | FP16 / BF16 | 16 GB VRAM | RTX 4090 / A10G / L4 |
+| 7B – 8B | AWQ 4-bit / FP8 | 8 GB VRAM | RTX 3080 / RTX 4070 |
+| 13B – 14B | AWQ 4-bit / FP8 | 12 GB VRAM | RTX 4080 / A10G |
+| 32B – 35B | AWQ 4-bit / FP8 | 24 GB VRAM | RTX 4090 / A100 40GB |
+| 70B+ | AWQ 4-bit / FP8 | 48 GB VRAM (Tensor Parallel 2) | 2x A100 / 2x H100 / B200 |
+
+---
 
 ## CLI examples
 
-### Start an OpenAI-compatible API Server
+### Starting an OpenAI-Compatible API Server
 ```bash
+# Serve Llama 4 Maverick with tensor parallelism across 2 GPUs with prefix caching
 python -m vllm.entrypoints.openai.api_server \
-    --model /path/to/llama-4-70b \
-    --tensor-parallel-size 4 \
-    --enable-prefix-caching
+    --model meta-llama/Llama-4-8B-Instruct \
+    --tensor-parallel-size 2 \
+    --enable-prefix-caching \
+    --port 8000
 ```
 
-### Serving with LoRA Adapters
+### Serving LoRA Multi-Adapters
 ```bash
 python -m vllm.entrypoints.openai.api_server \
-    --model /path/to/base_model \
+    --model mistralai/Mistral-7B-Instruct-v0.3 \
     --enable-lora \
-    --lora-modules sql-lora=/path/to/sql-adapter chat-lora=/path/to/chat-adapter
+    --lora-modules sql-adapter=/path/to/sql-lora summary-adapter=/path/to/summary-lora
 ```
 
-### Speculative Decoding for Latency Optimization
-```bash
-python -m vllm.entrypoints.openai.api_server \
-    --model /path/to/llama-70b \
-    --speculative-model /path/to/llama-7b \
-    --num-speculative-tokens 5
-```
+---
 
 ## API examples
 
-### Request using OpenAI SDK (Python)
+### FastMCP 3.1 Integration & Pydantic v2 Schema Patterns
+
+Below is a complete FastMCP 3.1 tool server written in Python that monitors vLLM server health, queries metrics, and executes validated completions against a local vLLM instance using **Pydantic v2** schemas.
+
+```python
+import time
+import requests
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("vLLM-Inference-Provider", version="3.1.0")
+
+# ------------------------------------------------------------------
+# 1. Pydantic v2 Validation Schemas
+# ------------------------------------------------------------------
+class VllmCompletionRequest(BaseModel):
+    server_url: str = Field(default="http://localhost:8000/v1", description="Base OpenAI-compatible API URL")
+    model_name: str = Field(..., description="Target model identifier served by vLLM")
+    prompt: str = Field(..., min_length=1, description="Input user prompt string")
+    temperature: float = Field(default=0.2, ge=0.0, le=2.0)
+    max_tokens: int = Field(default=256, ge=1, le=4096)
+
+    @field_validator("server_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("server_url must start with http:// or https://")
+        return v.rstrip("/")
+
+class VllmCompletionResponse(BaseModel):
+    model_used: str
+    generated_text: str
+    latency_ms: float = Field(..., ge=0.0)
+    prompt_tokens: int = Field(..., ge=0)
+    completion_tokens: int = Field(..., ge=0)
+
+# ------------------------------------------------------------------
+# 2. FastMCP 3.1 Tools
+# ------------------------------------------------------------------
+@mcp.tool()
+async def check_vllm_health(server_url: str = "http://localhost:8000") -> str:
+    """Queries the native health endpoint of a vLLM server instance."""
+    clean_url = server_url.rstrip("/")
+    health_endpoint = f"{clean_url}/health"
+    try:
+        res = requests.get(health_endpoint, timeout=5.0)
+        if res.status_code == 200:
+            return f"vLLM Health Check SUCCESS: Server at '{clean_url}' is ready."
+        return f"vLLM Health Check FAILED: HTTP Status {res.status_code}"
+    except Exception as e:
+        return f"vLLM Health Check Error: Unable to connect to '{clean_url}' - {str(e)}"
+
+@mcp.tool()
+async def generate_vllm_text(
+    model_name: str,
+    prompt: str,
+    server_url: str = "http://localhost:8000/v1",
+    temperature: float = 0.2,
+    max_tokens: int = 256
+) -> str:
+    """Executes a text generation request against a local or remote vLLM server instance."""
+    req_config = VllmCompletionRequest(
+        server_url=server_url,
+        model_name=model_name,
+        prompt=prompt,
+        temperature=temperature,
+        max_tokens=max_tokens
+    )
+
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "model": req_config.model_name,
+        "messages": [{"role": "user", "content": req_config.prompt}],
+        "temperature": req_config.temperature,
+        "max_tokens": req_config.max_tokens
+    }
+
+    try:
+        start_time = time.time()
+        endpoint = f"{req_config.server_url}/chat/completions"
+        res = requests.post(endpoint, json=payload, headers=headers, timeout=30.0)
+        latency = (time.time() - start_time) * 1000.0
+
+        if res.status_code == 200:
+            data = res.json()
+            completion_text = data["choices"][0]["message"]["content"]
+            usage = data.get("usage", {})
+
+            validated_response = VllmCompletionResponse(
+                model_used=data.get("model", req_config.model_name),
+                generated_text=completion_text,
+                latency_ms=latency,
+                prompt_tokens=usage.get("prompt_tokens", 0),
+                completion_tokens=usage.get("completion_tokens", 0)
+            )
+
+            return validated_response.model_dump_json(indent=2)
+        else:
+            return f"vLLM Generation Error: Received HTTP {res.status_code} - {res.text}"
+    except Exception as e:
+        return f"vLLM Exception: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Python Request Using OpenAI SDK
 ```python
 from openai import OpenAI
 
 client = OpenAI(base_url="http://localhost:8000/v1", api_key="token-unused")
 
 response = client.chat.completions.create(
-    model="sql-lora",
-    messages=[{"role": "user", "content": "Write a SQL query for finding active users."}]
+    model="meta-llama/Llama-4-8B-Instruct",
+    messages=[{"role": "user", "content": "Write a python function to query vLLM over REST."}]
 )
 
-print(response.choices[0].message.content)
+print("Generated Output:", response.choices[0].message.content)
 ```
 
-### Multi-Prompt Batching (vLLM Native)
-```python
-from vllm import LLM, SamplingParams
-
-llm = LLM(model="mistralai/Mistral-7B-v0.1")
-prompts = ["Translate this to French: 'Hello world'", "Translate this to German: 'Good morning'"]
-outputs = llm.generate(prompts, SamplingParams(max_tokens=50))
-
-for output in outputs:
-    print(output.outputs[0].text)
-```
-
-### Programmatic Server Health & Validation Loop
-A robust Python validation script using Pydantic v2 schemas to programmatically query and monitor a local vLLM endpoint, supporting FastMCP 3.1 tooling context.
-
-```python
-import sys
-import json
-import time
-import requests
-from pydantic import BaseModel, Field, field_validator
-
-class VLLMHealthRequest(BaseModel):
-    endpoint_url: str = Field(default="http://localhost:8000/v1", description="vLLM OpenAI-compatible base URL")
-    model_name: str = Field(default="meta-llama/Llama-4-8B-Instruct", description="Target model identifier")
-    timeout_seconds: float = Field(default=15.0, ge=1.0, le=60.0)
-
-    @field_validator("endpoint_url")
-    @classmethod
-    def validate_url(cls, v: str) -> str:
-        if not v.startswith("http://") and not v.startswith("https://"):
-            raise ValueError("endpoint_url must start with http:// or https://")
-        return v.rstrip("/")
-
-class VLLMValidationResult(BaseModel):
-    status: str = Field(..., description="Success or failure status indicator")
-    latency_seconds: float = Field(..., ge=0.0)
-    completion_text: str = Field(...)
-    model_used: str = Field(...)
-
-def verify_vllm_service(config: VLLMHealthRequest) -> VLLMValidationResult:
-    health_url = f"{config.endpoint_url.replace('/v1', '')}/health"
-    try:
-        response = requests.get(health_url, timeout=5)
-        if response.status_code != 200:
-            return VLLMValidationResult(
-                status="FAILED",
-                latency_seconds=0.0,
-                completion_text=f"Health check failed with HTTP {response.status_code}",
-                model_used=config.model_name
-            )
-    except requests.exceptions.RequestException as re:
-        return VLLMValidationResult(
-            status="FAILED",
-            latency_seconds=0.0,
-            completion_text=f"Connection error: {re}",
-            model_used=config.model_name
-        )
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer token-unused"
-    }
-
-    payload = {
-        "model": config.model_name,
-        "messages": [
-            {"role": "system", "content": "You are a validation bot for Claude 5.1 & FastMCP 3.1. Speak concisely."},
-            {"role": "user", "content": "Verify connection and output 'Success'."}
-        ],
-        "temperature": 0.1,
-        "max_tokens": 10
-    }
-
-    try:
-        start_time = time.time()
-        res = requests.post(f"{config.endpoint_url}/chat/completions", json=payload, headers=headers, timeout=config.timeout_seconds)
-        latency = time.time() - start_time
-
-        if res.status_code == 200:
-            data = res.json()
-            completion_text = data["choices"][0]["message"]["content"].strip()
-            return VLLMValidationResult(
-                status="SUCCESS",
-                latency_seconds=latency,
-                completion_text=completion_text,
-                model_used=config.model_name
-            )
-        else:
-            return VLLMValidationResult(
-                status="FAILED",
-                latency_seconds=latency,
-                completion_text=f"vLLM Query failed: {res.status_code} - {res.text}",
-                model_used=config.model_name
-            )
-    except Exception as e:
-        return VLLMValidationResult(
-            status="FAILED",
-            latency_seconds=0.0,
-            completion_text=f"Execution error: {e}",
-            model_used=config.model_name
-        )
-
-if __name__ == "__main__":
-    print("Initiating vLLM Service validation sequence...")
-    req = VLLMHealthRequest(model_name="Qwen/Qwen3.8-27B-Instruct")
-    result = verify_vllm_service(req)
-    print("Result Payload (Pydantic v2 dump):", result.model_dump())
-    if result.status == "SUCCESS":
-        print("vLLM integration test PASSED.")
-    else:
-        print(f"Note: vLLM server offline/failed: {result.completion_text}")
-    sys.exit(0)
-```
+---
 
 ## Related tools / concepts
-- [Text Generation Inference (TGI)](tgi.md) — Alternative production inference server.
-- [SGLang](sglang.md) — Fast backend optimized for complex LLM programs.
-- [llama.cpp](llama-cpp.md) — Portable, CPU-focused inference engine.
-- [Ollama](../../services/ollama.md) — Desktop-friendly wrapper for local LLMs.
-- [Aphrodite Engine](aphrodite-engine.md) — High-performance vLLM fork with specialized features.
-- [NVIDIA NIM](../providers/nvidia.md) — Enterprise inference microservices.
-- [SGLang RadixAttention](./sglang.md) — Efficient prefix sharing concept.
-- [TGI Quantization Patterns](./tgi.md) — Comparison for model compression.
+- [Text Generation Inference (TGI)](tgi.md) — Production inference engine by Hugging Face.
+- [SGLang](sglang.md) — High-performance execution engine with RadixAttention.
+- [llama.cpp](llama-cpp.md) — CPU/GPU edge engine optimized for local desktop execution.
+- [Ollama](../../services/ollama.md) — Desktop manager wrapping llama.cpp for easy local models.
+- [Aphrodite Engine](aphrodite-engine.md) — High-throughput vLLM derivative.
+- [NVIDIA NIM](../providers/nvidia.md) — Enterprise containerized inference microservices.
+- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Schema validation standard for inference outputs.
+
+---
 
 ## Sources / references
 - [vLLM Official Website](https://vllm.ai/)
 - [vLLM GitHub Repository](https://github.com/vllm-project/vllm)
-- [vLLM Documentation](https://docs.vllm.ai/)
-- [PagedAttention: High-Throughput LLM Serving with vLLM](https://arxiv.org/abs/2309.06180)
-- [DKV: Open-Source KV-Cache Compression Framework](https://www.reddit.com/r/LocalLLaMA/comments/1v5wviz/dkv_opensource_kvcache_compression_framework_for/) — Open-source KV-cache compression and management framework for large context serving optimization.
-- [vLLM-Kunlun hardware plugin - Baidu](https://github.com/baidu/vLLM-Kunlun)
+- [vLLM Official Documentation](https://docs.vllm.ai/)
+- [PagedAttention Research Paper (SOSP 2023)](https://arxiv.org/abs/2309.06180)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

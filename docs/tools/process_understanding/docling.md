@@ -1,39 +1,230 @@
 # Docling
 
+**Docling** is an open-source document parsing, layout analysis, and structure extraction engine developed by IBM Research. Designed to convert multi-format enterprise documents—including PDFs, DOCX, PPTX, HTML, and raster image files—into high-fidelity structured formats (Markdown, JSON, and Knowledge Graph triples), Docling preserves complex document visual structure, reading order, nested tables, and multi-column layouts.
+
+As of early January 2027 (v2.20.x+), Docling serves as a foundational intake layer for **Retrieval-Augmented Generation (RAG)** pipelines, vector database indexing, and autonomous agent systems powered by **FastMCP 3.1** and frontier models such as **Gemma 4**, **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
+
+---
+
 ## What it is
-Docling is an open-source Python library and CLI tool developed by IBM Research that simplifies document processing by parsing diverse formats into structured, machine-readable data. In early January 2027 (v2.20.x+), it excels at layout analysis, table recognition, and multi-modal document understanding for [Gemma 4](../ai_knowledge/local_llms.md) and other frontier models.
+Docling is a specialized multi-modal parsing framework that replaces traditional plain-text OCR or naive PDF text extraction with specialized computer vision and layout understanding models (such as **GraniteDocling v2** and LayoutAnalysis models). It parses visual document hierarchies into an intermediate unified document object model (`DoclingDocument`), enabling loss-free conversion into Markdown, JSON, HTML, or graph databases.
+
+```
++-----------------------------------------------------------------------------------+
+|                                 INPUT DOCUMENTS                                   |
+|               (PDF / DOCX / PPTX / HTML / Scanned Images / Charts)                |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                              DOCLING PARSING ENGINE                               |
+|                                                                                   |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | Visual Layout Analysis   |  | Table Structure Model    |  | Reading Order   |  |
+|  | (GraniteDocling VLM)     |  | (TableFormer / Docling)  |  | Optimization    |  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           UNIFIED `DoclingDocument` DOM                           |
++-----------------------------------------------------------------------------------+
+                                          |
+                +-------------------------+-------------------------+
+                |                                                   |
+                v                                                   v
++-------------------------------+                   +-------------------------------+
+|     STRUCTURED EXPORTS        |                   |    AGENT & RAG INTEGRATION    |
+| (Markdown / JSON / Cypher Graph)|                 | (FastMCP 3.1 / Vector DBs)     |
++-------------------------------+                   +-------------------------------+
+```
+
+---
 
 ## What problem it solves
-Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) workflows using **Gemma 4**, **GPT-5.6**, **Claude 5.6**, and **Gemini 4.0 Ultra**.
+Legacy text extraction tools (such as naive PDF reader libraries) suffer from severe limitations when processing complex real-world documents:
+1. **Loss of Layout and Hierarchy**: Headers, sub-headers, sidebars, and multi-column text blocks are flattened into a single stream of text, destroying reading order.
+2. **Table Structural Breakdown**: Multi-line cells, borderless tables, merged headers, and numerical alignment are lost, causing downstream RAG systems to retrieve garbage tabular data.
+3. **Visual Context Blindness**: Embedded charts, figures, and diagrams are ignored or converted to raw unlabelled image references.
+4. **Format Fragmentation**: Ingestion pipelines historically required separate parsers for Word documents, PowerPoint presentations, web HTML, and PDF files.
+
+Docling provides a unified parsing API that preserves structural semantic context across all supported input formats.
+
+---
 
 ## Where it fits in the stack
-**Category**: [Process & Understanding](index.md). It acts as the core parsing engine for ingestion pipelines, [Docling MCP](docling-mcp.md), and Knowledge Graph construction via native graph export features.
+Docling resides in the **Intake & Process Understanding layer** of the enterprise AI infrastructure.
+
+```
++-----------------------------------------------------------------------+
+|                       UNSTRUCTURED INPUT DATA                         |
+|             (PDFs, Financial Reports, Slides, Web Pages)              |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                    PROCESS & UNDERSTANDING LAYER                      |
+|                             (Docling)                                 |
+|                                                                       |
+|  +-----------------------+  +--------------------+  +--------------+  |
+|  | Layout & Table Parser |  | GraniteDocling VLM |  | Object DOM   |  |
+|  +-----------------------+  +--------------------+  +--------------+  |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                   KNOWLEDGE INGESTION & STORAGE                       |
+|           (Vector DBs / Knowledge Graphs / FastMCP 3.1 Tools)         |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                      AGENTIC CONSUMPTION LAYER                        |
+|            (Claude 5.6 / Gemma 4 / GPT-5.6 / Gemini 4.0)             |
++-----------------------------------------------------------------------+
+```
+
+---
 
 ## Typical use cases
-- **Multi-format Conversion**: Converting PDFs, DOCX, PPTX, HTML, and more into structured Markdown or JSON.
-- **VLM-powered Extraction**: Using vision-language models (VLMs) like GraniteDocling v2 to understand charts, diagrams, and complex visual layouts.
-- **RAG Ingestion**: Powering the document preparation phase of RAG systems with high-fidelity structure preservation.
-- **Knowledge Graph Generation**: Transforming unstructured documents into validated knowledge graphs with precise semantic relationships.
+- **Enterprise RAG Document Preparation**: Ingesting financial filings, technical manuals, and medical documentation into vector databases with preserved header-chunk relationships.
+- **VLM-Assisted Diagram & Chart Interpretation**: Utilizing GraniteDocling v2 visual-language models to extract quantitative data points directly from embedded charts and figures.
+- **Automated Knowledge Graph Generation**: Transforming unstructured PDF libraries directly into property graphs (e.g., Neo4j Cypher triples via `docling-graph`).
+- **FastMCP 3.1 Agent Tool Ingestion**: Providing autonomous agents with real-time tool interfaces to read, parse, and summarize uploaded user documents.
+- **Contract and Form Extraction**: Converting complex non-standard forms and nested tables into validated, typed **Pydantic v2** models for automated compliance review.
+
+---
 
 ## Strengths
-- **Superior Table Recognition**: Handles nested, borderless, and complex tables with high accuracy.
-- **Native VLM Support**: Integrated support for GraniteDocling v2 and other VLMs for visual document understanding (v2.80+ and v2.20+).
-- **Local & Hybrid Execution**: Runs entirely on local hardware (CPU/GPU) or integrates with local LLMs ([vLLM](../infrastructure/vllm.md), [Ollama](../../services/ollama.md)) and APIs.
-- **Extensive Integration**: Seamlessly works with LangChain, LlamaIndex, FastMCP 3.1, and [CrewAI](../frameworks/crewai.md).
+- **Superior Table Extraction**: Advanced deep learning model (TableFormer architecture) accurate even on borderless, multi-header, and merged cell tables.
+- **Native Vision-Language Model (VLM) Integration**: Native support for IBM GraniteDocling v2 and open VLMs for multimodal visual layout reasoning.
+- **Flexible Execution Modes**: Runs 100% locally on CPU/GPU hardware or connects to local inference backends ([vLLM](../infrastructure/vllm.md), [Ollama](../../services/ollama.md)).
+- **Unified Object Model**: Exposes a rich Python document object model (`DoclingDocument`) with precise bounding box coordinates, section tags, and element metadata.
+- **Extensive Framework Ecosystem**: Native connectors for LangChain, LlamaIndex, FastMCP 3.1, CrewAI, and Haystack.
+
+---
 
 ## Limitations
-- **Python 3.10+ Requirement**: Support for Python 3.9 was dropped in early 2026.
-- **Resource Intensive**: High-fidelity VLM parsing requires significant VRAM or powerful CPUs for local execution.
-- **Learning Curve**: Advanced pipeline customization (e.g., custom chunking, hybrid strategies) requires understanding the internal object model.
+- **Python 3.10+ Environment Constraint**: Python 3.9 and older runtimes are unsupported in post-v2 release streams.
+- **Resource Intensity for VLM Processing**: High-fidelity VLM page analysis requires dedicated GPU VRAM (e.g., 8GB+ VRAM for local execution) or multi-core CPU allocations.
+- **Complex API for Custom Pipelines**: Deep customization of pipeline stages (e.g., overriding specific OCR engines or layout matchers) requires familiarity with Docling's internal object model.
+
+---
 
 ## When to use it
-- When you need to preserve the logical and visual layout of complex documents for AI ingestion.
-- For high-fidelity RAG where header-paragraph relationships and table data are critical.
-- When transforming technical document collections into structured knowledge formats for [Gemma 4](../ai_knowledge/local_llms.md).
+- When document structure, section headers, and tabular integrity are critical to RAG accuracy.
+- When building FastMCP 3.1 document parsing tools for AI agents.
+- When generating Knowledge Graphs directly from multi-page PDF documents.
+- When operating in privacy-sensitive or offline environments requiring local GPU/CPU execution.
+
+---
 
 ## When not to use it
-- For simple plain-text extraction where speed and resource efficiency are prioritized over structure.
-- If you are restricted to Python 3.9 or older environments.
+- For plain, unstructured text files (e.g., `.txt`, simple logs) where basic string reads suffice.
+- In legacy environments constrained to Python 3.9 or lower.
+- When ultra-low sub-millisecond document parsing speed is required at the expense of structural accuracy.
+
+---
+
+## FastMCP 3.1 Integration & Pydantic v2 Schema Patterns
+
+Docling can be wrapped as a FastMCP 3.1 server, offering autonomous agents structured tools to parse and analyze documents on demand.
+
+```python
+import os
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Docling-Parsing-Provider", version="3.1.0")
+
+# ------------------------------------------------------------------
+# 1. Pydantic v2 Data Validation Schemas
+# ------------------------------------------------------------------
+class TableDataCell(BaseModel):
+    row_index: int = Field(..., ge=0)
+    col_index: int = Field(..., ge=0)
+    text: str = Field(...)
+
+class ExtractedTable(BaseModel):
+    table_id: str = Field(..., pattern=r"^tbl_\d+$")
+    num_rows: int = Field(..., ge=1)
+    num_cols: int = Field(..., ge=1)
+    headers: List[str]
+    grid: List[List[str]]
+
+class ParsedDocumentMetadata(BaseModel):
+    file_path: str
+    page_count: int = Field(..., ge=1)
+    elements_extracted: int = Field(..., ge=0)
+    tables: List[ExtractedTable]
+    markdown_content: str
+
+    @field_validator("file_path")
+    @classmethod
+    def validate_file_exists(cls, v: str) -> str:
+        if not os.path.exists(v) and not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError(f"Target document path or URL '{v}' is unreachable.")
+        return v
+
+# ------------------------------------------------------------------
+# 2. FastMCP 3.1 Tool Registration
+# ------------------------------------------------------------------
+@mcp.tool()
+async def parse_document_to_markdown(
+    file_uri: str,
+    enable_ocr: bool = True,
+    extract_tables: bool = True
+) -> str:
+    """Parses a local PDF/office document or URL using Docling and returns structured metadata & markdown."""
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = enable_ocr
+    pipeline_options.do_table_structure = extract_tables
+
+    doc_converter = DocumentConverter(
+        format_options={
+            "pdf": PdfFormatOption(pipeline_options=pipeline_options)
+        }
+    )
+
+    conv_result = doc_converter.convert(file_uri)
+    doc = conv_result.document
+
+    # Build Pydantic v2 output models
+    extracted_tables: List[ExtractedTable] = []
+    for idx, table in enumerate(doc.tables):
+        # Convert table to grid representation
+        header_list = [col.text for col in table.header.cells] if table.header else []
+        grid_data = [[cell.text for cell in row.cells] for row in table.body.rows]
+
+        extracted_tables.append(
+            ExtractedTable(
+                table_id=f"tbl_{idx + 1}",
+                num_rows=len(grid_data),
+                num_cols=len(header_list) if header_list else (len(grid_data[0]) if grid_data else 0),
+                headers=header_list,
+                grid=grid_data
+            )
+        )
+
+    parsed_meta = ParsedDocumentMetadata(
+        file_path=file_uri,
+        page_count=len(doc.pages),
+        elements_extracted=len(doc.texts) + len(doc.tables),
+        tables=extracted_tables,
+        markdown_content=doc.export_to_markdown()
+    )
+
+    return parsed_meta.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+---
 
 ## Getting started
 
@@ -41,168 +232,94 @@ Traditional document extraction often loses structural information (headers, tab
 Docling requires Python >= 3.10.
 
 ```bash
-# Install the core library
-pip install docling pydantic>=2.0
+# Install core package
+pip install docling pydantic>=2.0 fastmcp>=3.1.0
 
-# Install with graph support for Knowledge Graph workflows
+# Install with Knowledge Graph conversion support
 pip install docling-graph
 ```
 
-### Quickstart (Python)
+### Basic Python Usage
 ```python
 from docling.document_converter import DocumentConverter
 
-source = "https://arxiv.org/pdf/2408.09869"  # URL or local path
+source_pdf = "https://arxiv.org/pdf/2408.09869"
 converter = DocumentConverter()
-result = converter.convert(source)
-print(result.document.export_to_markdown())
+result = converter.convert(source_pdf)
+
+# Export parsed document structure directly to Markdown
+markdown_text = result.document.export_to_markdown()
+print(markdown_text[:500])
 ```
+
+---
 
 ## CLI examples
 
-### Basic Conversion
+### Standard Batch Conversions
 ```bash
-# Convert a local PDF to Markdown
+# Convert a local PDF file to Markdown
 docling report.pdf
 
-# Convert a URL and output to JSON
-docling https://arxiv.org/pdf/2206.01062 --to json
+# Convert a web document and export as structured JSON
+docling https://arxiv.org/pdf/2206.01062 --to json --output ./parsed_output
+
+# Batch process a directory of DOCX and PDF documents
+docling ./input_docs/ --to md --output ./markdown_output
 ```
 
-### Advanced Parsing
+### Advanced VLM and Graph Processing
 ```bash
-# Use a specific VLM for enhanced layout understanding
-docling report.pdf --model-id GraniteDocling
+# Force GraniteDocling VLM usage for enhanced visual chart extraction
+docling financial_report.pdf --model-id GraniteDocling
 
-# Export as a structured Knowledge Graph (requires docling-graph)
-docling-graph convert technical_spec.pdf --output-format cypher
+# Export document as Cypher graph triples for Neo4j loading (requires docling-graph)
+docling-graph convert technical_spec.pdf --output-format cypher --output ./graph_output
 ```
+
+---
 
 ## API examples
 
-### Multi-modal Extraction
+### Direct Chunking and RAG Integration
+Docling includes built-in hierarchical chunking tools that maintain header-section relationships:
+
 ```python
 from docling.document_converter import DocumentConverter
-from docling.datamodel.base_models import InputFormat
+from docling.chunking import HybridChunker
 
-# Initialize with VLM support for charts and diagrams
-converter = DocumentConverter(allowed_formats=[InputFormat.PDF, InputFormat.IMAGE])
-result = converter.convert("chart_diagram.png")
-# Extract data points from a chart
-print(result.document.export_to_dict())
+converter = DocumentConverter()
+result = converter.convert("complex_document.pdf")
+
+# Apply hybrid chunking that respects document header boundaries
+chunker = HybridChunker(max_tokens=512)
+chunks = list(chunker.chunk(result.document))
+
+print(f"Generated {len(chunks)} structural chunks.")
+print(f"Chunk 1 text: {chunks[0].text}")
+print(f"Chunk 1 metadata: {chunks[0].meta}")
 ```
 
-### Programmatic Extraction Verification with Strict Pydantic v2 Validation
-This example showcases a production conversion harness that validates the schema of parsed document elements, layout chunks, and extracted table objects using Pydantic v2.
-
-```python
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
-
-# 1. Define strict Pydantic v2 models for Docling document structures
-class DoclingTable(BaseModel):
-    table_id: str = Field(..., pattern=r"^tbl_\d+$")
-    rows: int = Field(..., ge=1)
-    columns: int = Field(..., ge=1)
-    header_row: List[str]
-    content: List[List[str]]
-
-class DoclingElement(BaseModel):
-    element_type: str = Field(..., pattern=r"^(heading|paragraph|table|list_item|chart)$")
-    text_content: str
-    page_number: int = Field(..., ge=1)
-    confidence: float = Field(1.0, ge=0.0, le=1.0)
-    table_data: Optional[DoclingTable] = None
-
-    @field_validator("table_data")
-    @classmethod
-    def validate_table_if_table_type(cls, v: Optional[DoclingTable], info) -> Optional[DoclingTable]:
-        element_type = info.data.get("element_type")
-        if element_type == "table" and v is None:
-            raise ValueError("table_data must be provided when element_type is 'table'")
-        return v
-
-class ParsedDocPayload(BaseModel):
-    filename: str
-    num_pages: int = Field(..., ge=1)
-    elements: List[DoclingElement]
-
-# 2. Strict run conversion and validation
-def validate_docling_parsing(raw_payload: dict) -> Optional[ParsedDocPayload]:
-    try:
-        doc = ParsedDocPayload.model_validate(raw_payload)
-        return doc
-    except Exception as e:
-        print(f"Docling output payload validation failed: {e}")
-        return None
-
-if __name__ == "__main__":
-    sample_docling_payload = {
-        "filename": "annual_earnings_summary.pdf",
-        "num_pages": 4,
-        "elements": [
-            {
-                "element_type": "heading",
-                "text_content": "Section 1: Revenue Breakdown",
-                "page_number": 1,
-                "confidence": 0.99
-            },
-            {
-                "element_type": "table",
-                "text_content": "[Parsed Table Element]",
-                "page_number": 2,
-                "confidence": 0.97,
-                "table_data": {
-                    "table_id": "tbl_201",
-                    "rows": 2,
-                    "columns": 2,
-                    "header_row": ["Quarter", "Revenue (B$)"],
-                    "content": [["Q1 2026", "4.2"], ["Q2 2026", "4.8"]]
-                }
-            }
-        ]
-    }
-
-    parsed_doc = validate_docling_parsing(sample_docling_payload)
-    if parsed_doc:
-        print(f"Docling conversion verified for: {parsed_doc.filename}")
-        print(f"Total elements analyzed: {len(parsed_doc.elements)}")
-        table_el = parsed_doc.elements[1]
-        if table_el.table_data:
-            print(f"Found Table ID {table_el.table_data.table_id} with headers: {table_el.table_data.header_row}")
-```
-
-### FastMCP 3.1 Integration
-Docling can be exposed as an MCP tool for agentic document parsing using FastMCP 3.1:
-
-```json
-{
-  "mcpServers": {
-    "docling": {
-      "command": "npx",
-      "args": ["-y", "@docling/mcp-server"]
-    }
-  }
-}
-```
+---
 
 ## Related tools / concepts
-- [Docling MCP](docling-mcp.md)
-- [Unstructured](../intake_storage/unstructured.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
-- [Crawl4AI](crawl4ai.md)
-- [Firecrawl](firecrawl.md)
-- [vLLM](../infrastructure/vllm.md)
-- [Ollama](../../services/ollama.md)
-- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
-- [Local LLMs (Gemma 4)](../ai_knowledge/local_llms.md)
+- [Docling MCP](docling-mcp.md) — Dedicated MCP server implementation for Docling.
+- [Unstructured](../intake_storage/unstructured.md) — Alternative document partitioning library.
+- [LlamaParse](../intake_storage/llamaparse.md) — Cloud-based document parsing service.
+- [Crawl4AI](crawl4ai.md) — Open-source web crawling and scraping library.
+- [Firecrawl](firecrawl.md) — Web scraping API optimized for LLMs.
+- [vLLM](../infrastructure/vllm.md) — High-performance local inference engine for VLM backends.
+- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Standard schema framework for validating Docling outputs.
 
-## Sources / References
-- [Official Website (GitHub)](https://github.com/docling-project/docling)
-- [Docling Documentation](https://docling-project.github.io/docling/)
-- [Docling-Graph Repository](https://github.com/docling-project/docling-graph)
-- [IBM Research AI Blogs: Docling IBM Granite Document Parsing](https://research.ibm.com/blog/docling-ibm-granite-document-parsing)
+---
+
+## Sources / references
+- [Docling GitHub Repository](https://github.com/docling-project/docling)
+- [Docling Official Documentation](https://docling-project.github.io/docling/)
+- [Docling Graph Extension](https://github.com/docling-project/docling-graph)
+- [IBM Research: Granite Document Processing](https://research.ibm.com/blog/docling-ibm-granite-document-parsing)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

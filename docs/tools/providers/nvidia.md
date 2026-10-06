@@ -1,55 +1,218 @@
 # NVIDIA
 
+**NVIDIA** is a computing hardware and enterprise software provider powering modern artificial intelligence, high-performance computing (HPC), and LLM inference infrastructure. From GPU microarchitectures (including the **Rubin**, **Blackwell**, and **Hopper** families) to software acceleration stacks (CUDA, TensorRT-LLM, NeMo, and Triton Inference Server), NVIDIA delivers end-to-end acceleration for AI model training, fine-tuning, and inference.
+
+As of early January 2027, NVIDIA's primary enterprise distribution mechanism for LLM inference is **NVIDIA Inference Microservices (NIM)**, operating in General Availability (GA) across all major hyperscalers, hybrid clouds, and on-premises environments. NIM microservices integrate natively with **FastMCP 3.1 Task Protocol-based tool agents** and frontier open-weights models (such as Llama 4, Qwen 3.8, Nemotron-4, and DeepSeek-V4).
+
+---
+
 ## What it is
-NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of early January 2027, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are in General Availability (GA) across all major cloud, enterprise, and on-premises platforms.
+NVIDIA provides both physical GPU hardware infrastructure and a comprehensive software stack designed to maximize compute efficiency at every tier of the AI ecosystem. Through **NVIDIA NIM**, pre-optimized containers bundle model weights, TensorRT-LLM engines, and OpenAI-compatible API servers, enabling high-throughput inference deployment with low latency and optimal GPU VRAM utilization.
+
+```
++-----------------------------------------------------------------------------------+
+|                            ENTERPRISE APPLICATION / AGENT                         |
+|                    (FastMCP 3.1 / LangChain / LlamaIndex / AutoGen)                |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | OpenAI-Compatible API (HTTP / gRPC)
+                                          v
++-----------------------------------------------------------------------------------+
+|                        NVIDIA INFERENCE MICROSERVICES (NIM)                       |
+|                                                                                   |
+|  +---------------------------+  +--------------------------+  +----------------+  |
+|  | OpenAI API Gateway        |  | Triton Inference Server  |  | TensorRT-LLM   |  |
+|  | (Rate Limiting / Auth)    |  | (Dynamic Batching)       |  | Engine         |  |
+|  +---------------------------+  +--------------------------+  +----------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        NVIDIA HARDWARE ACCELERATION LAYER                         |
+|                 (Rubin R100 / Blackwell B200 / Hopper H100 GPUs)                  |
++-----------------------------------------------------------------------------------+
+```
+
+---
 
 ## What problem it solves
-NVIDIA provides the high-performance compute infrastructure necessary for modern AI. Through the NVIDIA API Catalog and NVIDIA NIM, it offers optimized, scalable inference for a wide range of open and proprietary models, drastically reducing latency and "time to first token" for real-time agentic applications and FastMCP 3.1 tool execution.
+Deploying large language models and multi-modal models at scale presents significant infrastructure challenges:
+1. **Inference Latency Bottlenecks**: Naive model execution on raw PyTorch runtimes suffers from unoptimized memory access patterns and low Time-To-First-Token (TTFT) performance.
+2. **Hardware Optimization Overhead**: Tuning FP8/FP4 quantization, tensor parallelism, and KV-cache PagedAttention manually across diverse GPU architectures requires extensive low-level CUDA engineering.
+3. **Deployment Complexity**: Containerizing models with custom inference servers, dependency management, and cluster scaling logic introduces maintainability risk.
+
+NVIDIA NIM microservices solve these problems by packaging hardware-optimized model execution engines into standardized, scalable containers with turnkey SLAs.
+
+---
 
 ## Where it fits in the stack
-**Compute Infrastructure / Model Provider / Inference Engine**. NVIDIA provides both the hardware (Blackwell/Rubin GPUs) and the software stack (CUDA, TensorRT-LLM, NIM) that powers the majority of the AI ecosystem.
+NVIDIA provides the foundational **Compute Infrastructure, Acceleration Software, and Model Serving layer**.
+
+```
++-----------------------------------------------------------------------+
+|                    AGENT & APPLICATION ORCHESTRATION                  |
+|                 (Claude Code / FastMCP 3.1 / Agency Swarm)            |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                    MODEL PROVIDER & INFERENCE LAYER                   |
+|                        (NVIDIA NIM / API Catalog)                     |
+|                                                                       |
+|  +-----------------------+  +--------------------+  +--------------+  |
+|  | OpenAI-Compatible API |  | Triton Server      |  | TensorRT-LLM |  |
+|  +-----------------------+  +--------------------+  +--------------+  |
++-----------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------+
+|                      GPU HARDWARE INFRASTRUCTURE                      |
+|                (Rubin R100 / Blackwell B200 / Hopper H100)            |
++-----------------------------------------------------------------------+
+```
+
+---
 
 ## Typical use cases
-- **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of open-weights models like Llama 4, Qwen 3.8, and Nemotron.
-- **Agentic RAG Pipelines**: Utilizing NVIDIA NeMo Retriever for high-fidelity retrieval and multi-agent reasoning.
-- **CUDA MCP Agent Acceleration**: Leveraging NVIDIA-hosted CUDA MCP servers to grant autonomous agents direct access to GPU memory management, kernel profiling, and compute dispatch.
-- **Local AI Acceleration**: Running models locally with TensorRT-LLM for maximum performance on workstation GPUs.
-- **Omniverse Simulation**: Integrating AI agents into 3D physics simulations for robotics and industrial automation.
+- **Enterprise Model Deployment via NIM**: Deploying pre-optimized containers for frontier open-weights models (Llama 4, Qwen 3.8, Nemotron-4) on enterprise Kubernetes clusters.
+- **CUDA MCP Agent Hardware Acceleration**: Leveraging CUDA MCP servers to grant autonomous AI agents direct programmatic access to GPU memory management, kernel profiling, and compute dispatch.
+- **Agentic RAG Infrastructure**: Operating NVIDIA NeMo Retriever for high-throughput semantic search, document parsing, and reranking.
+- **Local Workstation Acceleration**: Serving quantized models on workstation GPUs (e.g., RTX 4090 / RTX 5090) using TensorRT-LLM for local developer testing.
+- **Omniverse Spatial Simulation**: Simulating physical environments and robotics workflows with AI agents connected via real-time USD (Universal Scene Description) pipelines.
+
+---
 
 ## Strengths
-- **Performance**: Industry-leading inference speeds through hardware-software co-optimization (Rubin/Blackwell architectures).
-- **Ecosystem**: Optimized NIM containers available for almost all popular open-weights models (Llama, Qwen, Mistral, DeepSeek).
-- **Enterprise-Ready**: Focus on security, manageability, and 24/7 SLA support through NVIDIA AI Enterprise.
-- **Scale**: Seamless transition from local RTX workstations to multi-node H100/B200/R100 clusters.
+- **Industry-Leading Performance**: Hardware-software co-optimization (TensorRT-LLM on Rubin/Blackwell architecture) yields maximum token throughput and minimum TTFT latency.
+- **Turnkey Containerized Deployment**: NIM microservices standardize model execution across local workstations, enterprise data centers, and multi-cloud environments.
+- **Comprehensive API Compatibility**: Implements standard OpenAI API endpoints (`/v1/chat/completions`, `/v1/embeddings`), ensuring zero-friction integration with existing SDKs.
+- **Enterprise SLA & Support**: NVIDIA AI Enterprise provides enterprise security patching, guaranteed SLAs, and compliance certifications.
+
+---
 
 ## Limitations
-- **Hardware Lock-in**: Many software optimizations (TensorRT) are specific to NVIDIA GPU architectures.
-- **Complexity**: The full enterprise stack can be complex to manage compared to simpler API-only providers.
-- **Cost**: High-end enterprise GPUs and licensing represent significant capital or operational expenditure.
+- **Proprietary Hardware Lock-In**: Advanced optimization stacks (TensorRT-LLM) require NVIDIA GPU hardware and CUDA runtime environments.
+- **Licensing Cost for Production**: Enterprise deployment of NIM containers in commercial environments requires NVIDIA AI Enterprise software licensing.
+- **VRAM Requirements**: High-parameter models require substantial VRAM investments (e.g., multi-node GPU clusters for unquantized 70B+ models).
+
+---
 
 ## When to use it
-- When you need the absolute highest performance and lowest latency for model inference.
-- When deploying AI models in an enterprise environment requiring secure, containerized NIMs.
-- For local acceleration on NVIDIA RTX hardware in a homelab or engineering workstation.
-- When building multi-modal agents that require tight integration with vision, audio, or spatial simulation.
+- When low latency and high token throughput are required for enterprise LLM workloads.
+- When deploying open-weights models (Llama 4, Qwen 3.8, DeepSeek) in secure, on-premises or private cloud environments via NIM containers.
+- When building multi-agent systems requiring CUDA kernel profiling or hardware-accelerated RAG primitives.
+- When scaling AI workloads from local RTX engineering workstations to multi-node B200/R100 GPU clusters.
+
+---
 
 ## When not to use it
-- If you are committed to non-NVIDIA hardware (AMD, Apple Silicon, or cloud-specific chips like AWS Trainium / Google TPU).
-- For simple, low-volume projects where a basic serverless API provider (like Groq or Together) is sufficient.
-- When strict open-source software requirements preclude the use of proprietary drivers or stacks.
+- When deploying on non-NVIDIA silicon hardware (AMD ROCm, Apple Silicon Metal, Google TPU, or AWS Trainium).
+- For simple, low-volume projects where third-party serverless API providers (Groq, Together, Cerebras) eliminate infrastructure management overhead.
+- When strict open-source software mandates prohibit proprietary CUDA runtime drivers or enterprise software licenses.
+
+---
+
+## Architecture and Microservice Ecosystem
+
+NVIDIA's software stack connects hardware layers directly to application runtimes through specialized abstraction modules:
+
+1. **TensorRT-LLM Engine**: A C++ acceleration library that compiles model computational graphs for target GPU microarchitectures, applying FP8/FP4 quantization, kernel fusion, and in-flight batching.
+2. **Triton Inference Server**: An enterprise multi-model serving engine that manages concurrent model instances, request dynamic batch queues, and GPU VRAM scheduling.
+3. **NeMo Framework**: An end-to-end cloud-native enterprise suite for building, custom fine-tuning, and guardrailing multi-modal AI models.
+
+---
+
+## FastMCP 3.1 Integration & Pydantic v2 Schema Patterns
+
+Below is a complete FastMCP 3.1 tool server written in Python that exposes CUDA kernel profiling and NIM microservice status checks, validated with strict **Pydantic v2** schemas.
+
+```python
+import os
+import requests
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("NVIDIA-CUDA-NIM-Provider", version="3.1.0")
+
+# ------------------------------------------------------------------
+# 1. Pydantic v2 Validation Schemas
+# ------------------------------------------------------------------
+class NimHealthRequest(BaseModel):
+    nim_endpoint: str = Field(default="http://localhost:8000/v1", description="NIM OpenAI-compatible base URL")
+    model_name: str = Field(..., description="Target model identifier (e.g. meta/llama-4-maverick-70b)")
+    timeout_seconds: float = Field(default=10.0, ge=1.0, le=60.0)
+
+    @field_validator("nim_endpoint")
+    @classmethod
+    def validate_endpoint(cls, v: str) -> str:
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("Endpoint must start with http:// or https://")
+        return v.rstrip("/")
+
+class CudaKernelProfileResult(BaseModel):
+    kernel_name: str
+    target_device: str = Field(default="NVIDIA Rubin R100")
+    sm_occupancy_pct: float = Field(..., ge=0.0, le=100.0)
+    vram_allocated_mb: float = Field(..., ge=0.0)
+    execution_time_us: float = Field(..., ge=0.0)
+
+# ------------------------------------------------------------------
+# 2. FastMCP 3.1 Tools
+# ------------------------------------------------------------------
+@mcp.tool()
+async def verify_nim_status(nim_endpoint: str, model_name: str) -> str:
+    """Queries a deployed NVIDIA Inference Microservice (NIM) to verify operational health and responsiveness."""
+    config = NimHealthRequest(nim_endpoint=nim_endpoint, model_name=model_name)
+    health_url = f"{config.nim_endpoint.replace('/v1', '')}/v1/models"
+
+    try:
+        response = requests.get(health_url, timeout=config.timeout_seconds)
+        if response.status_code == 200:
+            return f"NIM Status OK: Endpoint '{config.nim_endpoint}' serving model '{config.model_name}' is online."
+        else:
+            return f"NIM Status Error: Endpoint returned HTTP {response.status_code}"
+    except Exception as e:
+        return f"NIM Health Check Failed: {str(e)}"
+
+@mcp.tool()
+async def profile_cuda_kernel_execution(kernel_name: str, device_id: int = 0) -> str:
+    """Profiles a simulated CUDA kernel on a target NVIDIA GPU device."""
+    profile = CudaKernelProfileResult(
+        kernel_name=kernel_name,
+        target_device=f"NVIDIA GPU Device {device_id} (Rubin Architecture)",
+        sm_occupancy_pct=92.5,
+        vram_allocated_mb=2048.0,
+        execution_time_us=142.8
+    )
+    return profile.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+---
 
 ## Getting started
 
-NVIDIA offers a hosted API catalog for developers to test models before deploying them on-premises.
+### Quickstart via NVIDIA Hosted API Catalog
+NVIDIA provides hosted developer endpoints to evaluate models prior to local NIM deployment.
 
 1. Visit [build.nvidia.com](https://build.nvidia.com/).
-2. Generate an API key for the API Catalog.
-3. Choose a model (e.g., Llama-4-Maverick-70B) and select the "API" tab for integration details.
+2. Obtain an API Key (`nvapi-...`).
+3. Select an open-weights model (e.g., `meta/llama-4-maverick-70b` or `nvidia/nemotron-4-340b`).
+
+```bash
+export NVIDIA_API_KEY="nvapi-YOUR_KEY_HERE"
+```
+
+---
 
 ## CLI examples
 
 ### 1. Querying NVIDIA API Catalog via Curl
-A standard OpenAI-compatible call to test a hosted model:
+Execute an OpenAI-compatible completion call:
 
 ```bash
 curl -X POST "https://integrate.api.nvidia.com/v1/chat/completions" \
@@ -57,14 +220,14 @@ curl -X POST "https://integrate.api.nvidia.com/v1/chat/completions" \
      -H "Content-Type: application/json" \
      -d '{
        "model": "meta/llama-4-maverick-70b",
-       "messages": [{"role": "user", "content": "Optimize this CUDA kernel."}],
+       "messages": [{"role": "user", "content": "Explain PagedAttention in low-level CUDA terms."}],
        "temperature": 0.2,
-       "max_tokens": 1024
+       "max_tokens": 512
      }'
 ```
 
-### 2. Running a Local NIM with Docker
-Deploy a pre-optimized model microservice on your local GPU (Rubin/Blackwell optimized):
+### 2. Running a Local NIM Container with Docker
+Deploy an optimized NIM microservice on local GPU hardware:
 
 ```bash
 docker run -it --rm --runtime=nvidia --gpus all \
@@ -74,119 +237,62 @@ docker run -it --rm --runtime=nvidia --gpus all \
     nvcr.io/nim/meta/llama-4-maverick-70b:latest
 ```
 
-### 3. Benchmarking with TensorRT-LLM
-Compile a model for maximum local performance:
-```bash
-python3 scripts/build_engine.py --model_dir ./llama-4 --output_dir ./engine --tp_size 1
-```
+---
 
 ## API examples
 
-### 1. Python: OpenAI-Compatible Client with Pydantic Verification
-Integrate NVIDIA-hosted models into your application and structure response metadata via Pydantic v2 validation:
-
+### Python Integration with OpenAI SDK & Pydantic Validation
 ```python
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
-class NIMMetadata(BaseModel):
-    model_name: str
-    tokens_generated: int = Field(..., ge=1)
-    prompt_used: str
+class NIMCompletionResponse(BaseModel):
+    model: str
+    content: str
+    prompt_tokens: int = Field(..., ge=0)
+    completion_tokens: int = Field(..., ge=0)
 
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
-    api_key="$NVIDIA_API_KEY"
+    api_key=os.environ.get("NVIDIA_API_KEY", "nvapi-placeholder")
 )
 
 completion = client.chat.completions.create(
     model="nvidia/nemotron-4-340b-instruct",
-    messages=[{"role": "user", "content": "Generate a synthetic dataset for RAG."}],
+    messages=[{"role": "user", "content": "Outline the architecture of NVIDIA Rubin GPUs."}],
     temperature=0.2
 )
 
-meta = NIMMetadata(
-    model_name=completion.model,
-    tokens_generated=completion.usage.completion_tokens,
-    prompt_used="Generate a synthetic dataset for RAG."
+response_data = NIMCompletionResponse(
+    model=completion.model,
+    content=completion.choices[0].message.content,
+    prompt_tokens=completion.usage.prompt_tokens,
+    completion_tokens=completion.usage.completion_tokens
 )
-print(meta.model_dump_json(indent=2))
-print(completion.choices[0].message.content)
+
+print(response_data.model_dump_json(indent=2))
 ```
 
-### 2. CUDA MCP FastMCP 3.1 Server Integration
-Granting an AI agent direct CUDA kernel profiling and GPU memory allocation capabilities via Model Context Protocol (FastMCP 3.1) and Pydantic v2 schemas:
-
-```python
-from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("NVIDIA-CUDA-MCP", version="3.1.0")
-
-class CudaKernelProfile(BaseModel):
-    kernel_name: str = Field(..., description="Target CUDA kernel identifier")
-    gpu_device: str = Field(default="NVIDIA Rubin R100")
-    sm_occupancy: float = Field(..., ge=0.0, le=100.0, description="Streaming Multiprocessor occupancy percentage")
-    allocated_vram_mb: float = Field(..., description="VRAM footprint in Megabytes")
-
-@mcp.tool()
-async def profile_cuda_kernel(kernel_name: str, device_id: int = 0) -> str:
-    """Profiles a CUDA kernel execution and returns device memory and SM utilization metrics."""
-    result = CudaKernelProfile(
-        kernel_name=kernel_name,
-        gpu_device=f"NVIDIA Rubin R100 (Device {device_id})",
-        sm_occupancy=94.2,
-        allocated_vram_mb=1024.0
-    )
-    return result.model_dump_json(indent=2)
-
-if __name__ == "__main__":
-    mcp.run()
-```
-
-### 3. Using LangChain with NVIDIA NIM
-Connect to a self-hosted NIM instance:
-
-```python
-from langchain_nvidia_ai_endpoints import ChatNVIDIA
-
-# Connect to a local NIM instance
-llm = ChatNVIDIA(base_url="http://localhost:8000/v1", model="llama-4-maverick-70b")
-response = llm.invoke("Explain the Rubin architecture.")
-print(response.content)
-```
-
-### 3. Multi-modal API call
-Querying a Vision NIM for image analysis:
-```python
-response = client.chat.completions.create(
-    model="nvidia/neva-22b",
-    messages=[{
-        "role": "user",
-        "content": [
-            {"type": "text", "text": "What is in this image?"},
-            {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,..."}}
-        ]
-    }]
-)
-```
+---
 
 ## Related tools / concepts
-- [NVIDIA Nemotron-3 Super](../ai_knowledge/nemotron.md) — Enterprise LLM family.
-- [NVIDIA NeMo Retriever](../agents/nemo-retriever.md) — Specialized enterprise retrieval models.
+- [vLLM](../infrastructure/vllm.md) — High-throughput open-source inference engine often compared with TensorRT-LLM.
+- [Text Generation Inference (TGI)](../infrastructure/tgi.md) — Open-source LLM serving engine.
 - [Groq](groq.md) — Specialized LPU hardware alternative.
-- [Together AI](together.md) — Distributed inference platform.
-- [TGI (Text Generation Inference)](../infrastructure/tgi.md) — Open-source LLM serving stack.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Guide to self-hosting models.
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Open-weights frontier model.
-- [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Protocol for agentic tool access.
-- [Google Axion](../../knowledge_base/google_axion.md) — Cloud ARM silicon ecosystem.
+- [Together AI](together.md) — Distributed cloud inference provider.
+- [NVIDIA Nemotron](../ai_knowledge/nemotron.md) — Enterprise LLM model family developed by NVIDIA.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool integration standard for agent workflows.
+- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Validation standard for API responses.
+
+---
 
 ## Sources / references
-- [NVIDIA Official Website](https://www.nvidia.com/)
+- [NVIDIA Official Site](https://www.nvidia.com/)
 - [NVIDIA API Catalog](https://build.nvidia.com/)
 - [NVIDIA NIM Documentation](https://docs.nvidia.com/nim/)
-- [NVIDIA Rubin Architecture Overview](https://www.nvidia.com/en-us/data-center/rubin-architecture/)
+- [NVIDIA TensorRT-LLM GitHub Repository](https://github.com/NVIDIA/TensorRT-LLM)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
