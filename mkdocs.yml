@@ -547,6 +547,7 @@ nav:
           - Overview: tools/providers/index.md
           - Index-Translate: tools/providers/index-translate.md
           - DigitalOcean Managed Agents: tools/providers/digitalocean-managed-agents.md
+          - DigitalOcean Provider: tools/providers/digitalocean-provider.md
           - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
           - Poolside AI: tools/providers/poolside.md

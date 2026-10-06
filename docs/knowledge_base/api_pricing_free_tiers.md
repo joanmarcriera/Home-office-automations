@@ -247,5 +247,5 @@ print(f"Validated billing configuration for: {validated_billing.model_name}")
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-01
+- Last reviewed: 2027-01-07
 - Confidence: high
