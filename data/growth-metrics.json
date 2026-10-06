@@ -1,7 +1,7 @@
 {
-  "snapshot_date": "2026-10-05",
-  "total_docs": 592,
-  "tool_docs": 539,
+  "snapshot_date": "2026-10-06",
+  "total_docs": 597,
+  "tool_docs": 544,
   "service_docs": 53,
   "by_category": {
     "agents": 36,
@@ -10,15 +10,15 @@
     "benchmarking": 42,
     "calendar_tasks": 22,
     "development_ops": 75,
-    "enterprise": 16,
+    "enterprise": 17,
     "frameworks": 38,
-    "infrastructure": 62,
+    "infrastructure": 63,
     "intake_storage": 10,
     "orchestration": 10,
-    "process_understanding": 42,
-    "providers": 41
+    "process_understanding": 43,
+    "providers": 43
   },
-  "docs_with_code_examples": 592,
+  "docs_with_code_examples": 597,
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/tools/frameworks/openai-agents-sdk.md",
@@ -43,8 +43,8 @@
     "docs/tools/agents/home-admin-tools.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 0,
-  "intake_items_7d": 21,
+  "weekly_additions": 5,
+  "intake_items_7d": 29,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }

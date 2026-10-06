@@ -204,6 +204,12 @@
       "doc_path": "docs/tools/orchestration/argo-workflows.md"
     },
     {
+      "id": "argos-translate",
+      "name": "Argos Translate",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/argos-translate.md"
+    },
+    {
       "id": "arize-ai",
       "name": "Arize AI",
       "category": "Process & Understanding",
@@ -772,6 +778,12 @@
       "name": "Datadog",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/datadog.md"
+    },
+    {
+      "id": "deepl",
+      "name": "DeepL",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/deepl.md"
     },
     {
       "id": "deepseek",
@@ -1430,6 +1442,12 @@
       "doc_path": "docs/tools/enterprise/guru.md"
     },
     {
+      "id": "gvisor",
+      "name": "gVisor",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/gvisor.md"
+    },
+    {
       "id": "habitica",
       "name": "Habitica",
       "category": "Intake & Storage",
@@ -1698,6 +1716,12 @@
       "name": "Kestra",
       "category": "Orchestration",
       "doc_path": "docs/tools/orchestration/kestra.md"
+    },
+    {
+      "id": "keycloak",
+      "name": "Keycloak",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/keycloak.md"
     },
     {
       "id": "khoj",
@@ -3181,6 +3205,12 @@
       "name": "Sourcegraph Cody",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/sourcegraph_cody.md"
+    },
+    {
+      "id": "spacy",
+      "name": "spaCy",
+      "category": "Process Understanding",
+      "doc_path": "docs/tools/process_understanding/spacy.md"
     },
     {
       "id": "speedtest",

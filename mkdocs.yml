@@ -513,6 +513,7 @@ nav:
           - Superinterface: tools/frameworks/superinterface.md
           - Tritium: tools/frameworks/tritium.md
       - Providers:
+          - Argos Translate: tools/providers/argos-translate.md
           - AWS Bedrock: tools/providers/aws-bedrock.md
           - Baseten: tools/providers/baseten.md
           - Anthropic: tools/providers/anthropic.md
@@ -521,6 +522,7 @@ nav:
           - BigSwitch: tools/providers/bigswitch.md
           - Codestral: tools/providers/codestral.md
           - Cohere: tools/providers/cohere.md
+          - DeepL: tools/providers/deepl.md
           - DeepSeek: tools/providers/deepseek.md
           - EXAONE: tools/providers/exaone.md
           - Exa AI: tools/providers/exa_ai.md
@@ -566,6 +568,7 @@ nav:
           - Glean: tools/enterprise/glean.md
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
+          - Keycloak: tools/enterprise/keycloak.md
           - Microsoft Entra ID: tools/enterprise/microsoft-entra-id.md
           - OAuth 2.0 / OIDC: tools/enterprise/oauth2-oidc.md
           - Okta: tools/enterprise/okta.md
@@ -648,6 +651,7 @@ nav:
           - ExLlamaV3: tools/infrastructure/exllamav3.md
           - Flash-MSA: tools/infrastructure/flash-msa.md
           - GPT4All: tools/infrastructure/gpt4all.md
+          - gVisor: tools/infrastructure/gvisor.md
           - Jan.ai: tools/infrastructure/jan-ai.md
           - KLQ (Measured Rotation Quantization): tools/infrastructure/klq.md
           - Koboldcpp: tools/infrastructure/koboldcpp.md
@@ -724,6 +728,7 @@ nav:
           - Snowflake: tools/process_understanding/snowflake.md
           - Tesseract CLI: tools/process_understanding/tesseract.md
           - Tempo: tools/process_understanding/tempo.md
+          - spaCy: tools/process_understanding/spacy.md
           - W&B Weave: tools/process_understanding/wandb-weave.md
           - Weights & Biases (Core): tools/process_understanding/weights-and-biases.md
           - Webhook: tools/process_understanding/webhook.md
