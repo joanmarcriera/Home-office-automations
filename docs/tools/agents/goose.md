@@ -1,117 +1,176 @@
 # Goose
 
+Goose is an open-source, fully autonomous, extensible AI developer agent designed to execute, edit, test, debug, and verify software engineering tasks directly in local shells or remote containerized environments.
+
 ## What it is
-Goose is an open-source, extensible AI agent designed to go beyond simple code suggestions. It is built to install, execute, edit, and test code autonomously or with human supervision, using any LLM that supports tool-calling. Hosted by the Agentic AI Foundation (AAIF), it serves as a robust platform for building and deploying specialized developer agents. As of early January 2027, it fully integrates the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** Task Protocol and is optimized for frontier reasoning models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
+
+Goose is hosted by the Agentic AI Foundation (AAIF) as an open-source developer platform that goes beyond inline code completion or passive chat assistance. It acts as an autonomous agent equipped with direct filesystem, shell, and network capabilities, running multi-step feedback loops to verify code changes before presenting solutions to developers.
+
+By early 2027, Goose features native implementation of the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) Task Protocol. This allows Goose to act both as a consumer of external MCP tool servers and as an agentic service provider that can be controlled remotely by frontier models—including [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [DeepSeek-V4](../ai_knowledge/claude.md), and local [Qwen 3.6 VL](../ai_knowledge/qwen.md).
+
+```
++-------------------------------------------------------------------------------------------------------------------+
+|                                            GOOSE AGENT ARCHITECTURE                                               |
++-------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                   |
+|   +--------------------------+      +---------------------------+      +--------------------------+               |
+|   | Goose CLI Interactive    |      | FastMCP 3.1 Client / Agent|      | GitHub Actions / CI Loop |               |
+|   | Session (`goose session`)|      | (`goose run` Automation) |      | Automated PR Remediation |               |
+|   +------------+-------------+      +-------------+-------------+      +------------+-------------+               |
+|                |                                  |                                 |                             |
+|                +----------------------------------+---------------------------------+                             |
+|                                                   |                                                               |
+|                                                   v                                                               |
+|                                 +-----------------------------------+                                             |
+|                                 |    Goose Core Agentic Runtime     |                                             |
+|                                 |   (Session & Context Manager)     |                                             |
+|                                 +-----------------+-----------------+                                             |
+|                                                   | Protocol / API Calls                                          |
+|                                                   v                                                               |
+|       +-------------------------------------------+-------------------------------------------+                   |
+|       |                                           |                                           |                   |
+|       v                                           v                                           v                   |
+| +---------------------------+             +---------------------------+             +---------------------------+ |
+| | External Toolkits         |             | LLM Inference Provider    |             | Environment Sandbox       | |
+| | (FastMCP 3.1 / Plugins)   |             | (Claude 5.6, LiteLLM)     |             | (Docker / Host Shell)     | |
+| +---------------------------+             +---------------------------+             +---------------------------+ |
+|                                                                                                                   |
++-------------------------------------------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It bridges the gap between static code completion and full-loop agentic software engineering. Goose can manage its own environment, install dependencies, and run scripts to verify its work, reducing the manual "context switching" developers often face when integrating AI-generated code. It solves the "execution gap" by running the code it writes to ensure correctness (and automatically fixing errors via traceback loops) before presenting it to the user.
+
+Conventional LLM coding assistants suffer from the "execution gap": they generate code suggestions without inspecting real-time runtime environments, running unit test suites, or checking dependency compatibility. When generated code contains bugs or missing imports, developers must manually copy errors back into the prompt, leading to high context-switching overhead.
+
+Goose eliminates this gap by operating in an autonomous "write-run-debug-verify" loop. It writes code directly to files, executes tests in the host terminal, reads traceback errors, applies corrections, and iterates until all verification criteria pass.
 
 ## Where it fits in the stack
-**Automation & Orchestration / Agents**. It is an agentic layer that sits on top of LLMs (like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or local models) and interacts with the filesystem and shell. It is a direct open-source alternative to tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md).
+
+**Category**: Development Ops / Autonomous Software Agents.
+
+Goose operates at the **execution and developer automation layer**:
+1. **Foundation Models**: Interfaces with [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), or local models via [LiteLLM](../../services/litellm.md) or [Ollama](../../services/ollama.md).
+2. **Tool Infrastructure**: [MCP 3.1 / FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) toolkits.
+3. **Execution Runtime**: Host OS shell, Docker containers, or Kubernetes dev pods.
+4. **Peer Alternatives**: Direct open-source alternative to [Aider](../development_ops/aider.md), [OpenHands](../development_ops/openhands.md), and [Claude Code](../development_ops/claude-code.md).
 
 ## Typical use cases
-- **Automated Bug Fixing**: Providing an issue description and letting Goose find, fix, and verify the solution with unit tests.
-- **Environment Setup**: Asking Goose to "set up a new React project with Tailwind and Vitest" and letting it handle all shell commands, config, and tests.
-- **Large-Scale Refactoring**: Executing systematic code changes across hundreds of files with automated verification loops.
-- **Agentic CI/CD Remediation**: Integrating Goose into pipeline scripts to automatically attempt remediation for common build or dependency failures.
+
+- **Automated Test-Driven Bug Remediation**: Feeding pytest/vitest tracebacks into Goose and letting it locate relevant modules, write regression tests, and implement code fixes autonomously.
+- **Large-Scale Repo Migrations**: Executing structural updates across hundreds of files (e.g., updating Pydantic v1 codebases to Pydantic v2 schemas).
+- **Environment Bootstrapping**: Generating full project scaffolding, configuring CI/CD workflows, installing dependencies, and verifying build success.
+- **Headless CI/CD Self-Healing**: Running Goose as a step in GitHub Actions pipelines to automatically analyze failed test runs, construct bug-fix commits, and open pull requests.
 
 ## Strengths
-- **Extensible Toolkit**: Users can easily add new "Toolkits" (e.g., specific DB connectors, proprietary API clients, or FastMCP 3.1 servers) to Goose.
-- **AAIF Governance**: Community-driven development ensures neutrality, vendor independence, and long-term stability.
-- **Model Agnostic**: Seamlessly switches between Anthropic, OpenAI, Google, and local models via [Ollama](../../services/ollama.md) or [LiteLLM](../../services/litellm.md).
-- **Session Management**: Supports durable, stateful sessions, allowing users to pause, resume, and audit complex multi-step agentic missions.
-- **MCP 3.1 / FastMCP 3.1 Task Protocol**: Allows external agents to delegate background execution tasks directly to Goose over the network with complete state verification.
+
+- **AAIF Vendor Neutrality**: Governance under the Agentic AI Foundation ensures long-term open-source freedom without proprietary lock-in.
+- **Model Agnostic**: Native integration with LiteLLM allows instant switching across Anthropic, OpenAI, Google, DeepSeek, and local hardware backends.
+- **Extensible FastMCP 3.1 Architecture**: Effortlessly connects to custom FastMCP 3.1 servers for specialized database or infrastructure tools.
+- **Persistent Session State**: Maintains full session history, enabling long-running agent missions with pause, resume, and audit capabilities.
 
 ## Limitations
-- **Security Responsibility**: Giving an agent shell and filesystem access requires the user to manage trust boundaries and sandboxing (e.g., running in Docker/VMs).
-- **Token Efficiency**: Complex tasks can involve many iterations, leading to high token consumption if the model loops on difficult problems.
-- **Rapid Evolution**: Frequent core updates can lead to breaking changes in experimental toolkits.
+
+- **Sandboxing Requirements**: Direct shell and filesystem access mandates execution within isolated environments (e.g., Docker, DevContainers, or disposable VMs) when running untrusted prompts.
+- **Token Expenditure**: Autonomous iteration loops on complex codebases can consume substantial token quotas if not constrained by turn limits.
 
 ## When to use it
-- When you need a full-loop agentic software engineer that can fix bugs and run tests autonomously.
-- When you want a neutral, open-source platform for building your own specialized coding agents.
-- When you need to automate repetitive system administration or development tasks that require both shell execution and code editing.
+
+- When you require an autonomous software engineering agent that can execute terminal commands and run test suites.
+- When creating customized developer agents connected to internal enterprise toolkits via FastMCP 3.1.
+- When automating multi-file refactoring or dependency upgrades across large repositories.
 
 ## When not to use it
-- For simple, single-file code completion where a lightweight tool like standard Copilot is faster.
-- In highly restricted environments where giving an AI agent shell/filesystem access is strictly prohibited.
-- If you prefer a purely GUI-based tool (Goose is optimized for CLI and agentic API usage).
+
+- For simple inline code completions (where lightweight Copilot/Codeium extensions are faster).
+- In lock-down security environments that strictly prohibit automated code execution on local filesystems.
 
 ## Getting started
 
-### Installation
-Goose can be installed via its official installer or as a Python package.
+### Installation & System Setup
 
 ```bash
-# Recommended installer
+# Official installer script
 curl -fsSL https://goose.run/install.sh | sh
+
+# Verify installation and view version
+goose --version
 ```
 
-### Basic Usage
+### Basic Interactive Session
+
 ```bash
-# Start an interactive Goose session
+# Launch interactive agent session
 goose session
 
-# Execute a one-off mission
-goose run "Audit the current directory for security vulnerabilities in package.json and fix them."
+# Launch session with custom model and max turn constraints
+goose session --model claude-5-6-sonnet --max-turns 20
+```
+
+### Agentic Loop Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer / CI
+    participant Goose as Goose Core Engine
+    participant Model as Claude 5.6 / LLM
+    participant Shell as Terminal / Host OS
+    participant MCP as FastMCP 3.1 Server
+
+    Developer / CI->>Goose: Submit Task ("Fix failing test_user_auth.py")
+    Goose->>Shell: Run `pytest tests/test_user_auth.py`
+    Shell-->>Goose: Return Failure Stack Trace
+    Goose->>Model: Send Query + Error Trace + Source Files
+    Model-->>Goose: Propose Code Diff & File Modifications
+    Goose->>Shell: Apply Changes to Source Files
+    Goose->>Shell: Re-run `pytest tests/test_user_auth.py`
+    Shell-->>Goose: All Tests Passed (Success)
+    Goose->>MCP: Log Execution Summary to Audit Server
+    Goose-->>Developer / CI: Present Verified Solution & Diffs
 ```
 
 ## CLI examples
 
-### Mission Execution
+### 1. Autonomous One-Off Mission
 ```bash
-# Run a specific mission with a defined model
-goose run "Refactor all exported functions in src/utils to use arrow syntax" --model claude-5-6-sonnet
-
-# Run an autonomous verification loop
-goose run "Run pytest and fix any failures found in the test suite" --max-turns 15
-
-# List active sessions
-goose session list
+goose run "Audit the codebase for unused imports using ruff, fix them, and run pytest" \
+          --model claude-5-6-sonnet \
+          --max-turns 10
 ```
 
-### Toolkit and FastMCP 3.1 Management
+### 2. Launch Session with Specific FastMCP Tool Server
 ```bash
-# List available toolkits
-goose tools list
+goose session --mcp-server http://localhost:8000/mcp --toolkit developer
+```
 
-# Enable a specific toolkit for a session
-goose session --toolkit developer
+### 3. Session Auditing
+```bash
+# List active agent sessions
+goose session list
 
-# Connect Goose directly to an external FastMCP 3.1 server
-goose session --mcp-server http://localhost:8080/mcp
+# Export session logs for security audit
+goose session export --session-id "s_9841ab2" --output /tmp/goose_audit.json
 ```
 
 ## API examples
 
-### Python Agentic API
-Goose can be used as a library to build custom agent applications under early January 2027 SOTA specs:
+Below is a complete Python implementation demonstrating custom toolkit definition using Goose and Pydantic v2 schemas:
+
 ```python
-from goose.agent import GooseAgent
-from goose.config import AgentConfig
+"""
+Goose Agent Custom Toolkit Implementation with Pydantic v2 Validation
+"""
 
-# Initialize with advanced token limits and prompt templates
-config = AgentConfig(
-    model="gpt-5.6-turbo",
-    temperature=0.2,
-    max_tokens_per_turn=4096,
-    protocol_version="FastMCP 3.1"
-)
-
-agent = GooseAgent(config=config)
-response = agent.execute("Create a summary report of the current git status and stage modified files.")
-print(response.content)
-```
-
-### Custom FastMCP 3.1-Compatible Toolkit Definition with Strict Pydantic v2
-This example demonstrates custom toolkit validation utilizing strict Pydantic v2 schemas, complete with input filtering, custom validation rules, and configuration constraints.
-```python
+import subprocess
 import re
-from goose.toolkit import Toolkit, tool
+from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
+from goose.toolkit import Toolkit, tool
 
-class NetworkQuery(BaseModel):
-    # Strict validation configurations in Pydantic v2
+class NetworkDiagnosticQuery(BaseModel):
+    """
+    Pydantic v2 Schema for Network Diagnostic Inputs with Strict Validation
+    """
     model_config = ConfigDict(
         extra="forbid",
         str_strip_whitespace=True,
@@ -120,56 +179,121 @@ class NetworkQuery(BaseModel):
 
     hostname: str = Field(
         ...,
-        description="The host to run diagnostics on, matching domain/IP standards"
+        description="Target hostname or IPv4/IPv6 address for diagnostics"
+    )
+    count: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Number of ping packets to send"
     )
 
     @field_validator("hostname")
     @classmethod
     def validate_hostname(cls, value: str) -> str:
-        # Prevent shell injection attacks or invalid domain characters
         sanitized = value.strip().lower()
+        # Prevent shell command injection
         if not re.match(r"^[a-zA-Z0-9.-]+$", sanitized):
-            raise ValueError("Hostname contains invalid characters. Only alphanumeric, '.' and '-' are allowed.")
+            raise ValueError("Invalid hostname: contains unauthorized characters")
         if len(sanitized) > 253:
-            raise ValueError("Hostname is too long.")
+            raise ValueError("Hostname exceeds maximum allowable length")
         return sanitized
 
-class DiagnosticsToolkit(Toolkit):
+class NetworkDiagnosticsToolkit(Toolkit):
+    """
+    Custom Goose Toolkit providing safe network diagnostic commands
+    """
+
     @tool
-    def ping_host(self, query: NetworkQuery) -> str:
-        """Runs a ping check against the validated hostname and returns a diagnostic summary."""
-        import subprocess
+    def execute_ping(self, query: NetworkDiagnosticQuery) -> Dict[str, Any]:
+        """
+        Executes a controlled system ping against the verified target hostname.
+        """
+        cmd = ["ping", "-c", str(query.count), query.hostname]
         try:
-            # Safe execution using list arguments, avoiding shell=True
-            res = subprocess.run(
-                ["ping", "-c", "3", query.hostname],
+            result = subprocess.run(
+                cmd,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=10
             )
-            return res.stdout if res.returncode == 0 else f"Ping completed with non-zero code:\n{res.stderr}"
+            return {
+                "success": result.returncode == 0,
+                "hostname": query.hostname,
+                "stdout": result.stdout,
+                "stderr": result.stderr
+            }
         except subprocess.TimeoutExpired:
-            return f"Error: Diagnostic ping timed out after 5 seconds against {query.hostname}."
-        except Exception as e:
-            return f"Ping failed during invocation: {str(e)}"
+            return {
+                "success": False,
+                "error": f"Ping operation timed out after 10 seconds for {query.hostname}"
+            }
+        except Exception as err:
+            return {
+                "success": False,
+                "error": str(err)
+            }
+```
+
+### FastMCP 3.1 Server Integration
+
+Connecting Goose to an external FastMCP server for automated database schema inspection:
+
+```python
+"""
+FastMCP 3.1 Server for Goose Agent Database Diagnostics
+"""
+
+from typing import Dict, Any
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("GooseDatabaseInspector")
+
+class SchemaInspectionInput(BaseModel):
+    table_name: str = Field(..., description="Name of the database table to inspect")
+
+@mcp.tool()
+def inspect_table_schema(input_data: SchemaInspectionInput) -> Dict[str, Any]:
+    """
+    Returns column metadata and indexes for a target database table.
+    """
+    # Mock database schema reflection for Goose inspection
+    mock_schemas = {
+        "users": {
+            "columns": ["id (UUID)", "email (VARCHAR)", "created_at (TIMESTAMP)"],
+            "indexes": ["idx_users_email"]
+        },
+        "orders": {
+            "columns": ["id (UUID)", "user_id (UUID)", "total_amount (NUMERIC)"],
+            "indexes": ["idx_orders_user_id"]
+        }
+    }
+
+    table = input_data.table_name.lower()
+    if table in mock_schemas:
+        return {"success": True, "table": table, "schema": mock_schemas[table]}
+    return {"success": False, "error": f"Table '{table}' not found in database metadata"}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [Aider](../development_ops/aider.md) — CLI tool for pair programming.
-- [OpenHands](../development_ops/openhands.md) — platform for autonomous software development.
-- [Claude Code](../development_ops/claude-code.md) — Anthropic's terminal-based agent.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — protocol used by many agentic tools.
-- [ServiceNow MCP Server](../automation_orchestration/servicenow-mcp.md) — example of a specialized toolset.
-- [LiteLLM](../../services/litellm.md) — used for universal model access.
-- [Ollama](../../services/ollama.md) — for running local models with Goose.
-- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — framework for managing agentic knowledge.
+
+- [Aider](../development_ops/aider.md): Pair-programming CLI tool.
+- [OpenHands](../development_ops/openhands.md): Autonomous software agent platform.
+- [Claude Code](../development_ops/claude-code.md): Terminal developer assistant.
+- [FastMCP 3.1 Pattern](../../knowledge_base/patterns/tool-calling-and-mcp.md): Protocol for agent tool execution.
+- [LiteLLM](../../services/litellm.md): Universal LLM proxy for multi-provider routing.
 
 ## Sources / references
+
+- [Goose Official Site](https://goose.run)
 - [Goose GitHub Repository](https://github.com/aaif-goose/goose)
-- [Goose Official Website](https://goose.run)
-- [AAIF Announcement on Developer Tooling](https://agentic-ai-foundation.org/news/goose-joins-aaif)
-- [Goose Documentation](https://goose.run/docs)
+- [Agentic AI Foundation (AAIF) Website](https://agentic-ai-foundation.org)
 
 ## Contribution Metadata
+
 - Last reviewed: 2027-01-07
 - Confidence: high
