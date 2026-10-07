@@ -3,11 +3,40 @@
 ## What it is
 Gumloop is a visual AI automation and orchestration platform designed for building, testing, and scaling complex agentic workflows through a visual canvas. It provides a drag-and-drop interface to connect foundation models, SaaS APIs, databases, and custom tools into automated "flows." As of early 2027, Gumloop fully integrates with the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling seamless tool orchestration across diverse agent execution environments using models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
+## Architecture & Workflow Execution Pipeline
+Gumloop executes visual flows by parsing workflow node graphs into async task execution queues. In FastMCP 3.1 environments, Gumloop functions as an orchestration orchestrator, coordinating requests across external FastMCP tool servers and cloud foundation models.
+
+```mermaid
+graph TD
+    A[Trigger Event: Webhook / Schedule / FastMCP Call] -->|Payload Ingestion| B[Gumloop Pipeline Executor]
+    B -->|Graph Traversal| C{Node Type Check}
+    C -->|LLM Node| D[Frontier LLM Provider - Claude / GPT / Gemini]
+    C -->|FastMCP Node| E[External FastMCP 3.1 Server]
+    C -->|Code Node| F[Sandboxed Python / JS Executor]
+    D -->|Structured Output| G[Validation & Response Formatter]
+    E -->|Tool Result| G
+    F -->|Transformed Data| G
+    G -->|Human-in-the-Loop Checkpoint?| H{Approval Required?}
+    H -- Yes -->|Pending Approval Gate| I[User Approval / Review Webhook]
+    I -- Approved --> J[Downstream API / Webhook Action]
+    H -- No --> J
+```
+
 ## What problem it solves
 Gumloop bridges the gap between sophisticated LLM capabilities and production-ready business automation. It eliminates the need for managing custom cloud infrastructure, complex Python pipelines, manual retry logic, or custom webhooks. It simplifies multi-step agentic reasoning, enabling teams to move from a prompt or workflow design to a deployed, scalable AI pipeline—such as automated PDF data extraction followed by structured synthesis—in minutes rather than weeks.
 
 ## Where it fits in the stack
 **Automation & Orchestration / No-code & Low-code AI**. It serves as the visual orchestration layer connecting frontier foundation models with enterprise SaaS tools and the [Model Context Protocol (MCP)](mcp.md) ecosystem.
+
+## Feature Matrix & Platform Comparison
+
+| Feature | Gumloop | n8n | Dify | Langflow |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Visual AI Agent Workflows | General Workflow Automation | LLM App Builder | RAG & Agent Graph Prototyping |
+| **FastMCP 3.1 Support** | Native Task Protocol | Custom MCP Nodes | Community Plugin | FastMCP SDK Integration |
+| **Hosting Model** | Cloud SaaS (Managed) | Self-Hosted & Cloud | Self-Hosted & Cloud | Self-Hosted & Local |
+| **Human-in-Loop** | Native Pause & Approve | Wait / Webhook Nodes | Form Input Nodes | Manual Intervention |
+| **Code Node Sandbox** | Isolated Cloud Python | Node.js / Python Runtime | Python Execution Engine | Local Python Virtualenv |
 
 ## Typical use cases
 - **Automated Lead Enrichment & Qualification**: Extracting, summarizing, and qualifying leads from multi-source web inputs into CRM systems.
@@ -15,6 +44,13 @@ Gumloop bridges the gap between sophisticated LLM capabilities and production-re
 - **Intelligent Document Processing (IDP)**: Bulk extraction and verification of data from unstructured invoices, receipts, and legal contracts.
 - **Autonomous Support & Operations Agents**: Building specialized operational workers for customer ticket triage, bug report categorization, or daily briefing synthesis.
 - **Enterprise RAG Workflows**: Implementing multi-stage Retrieval-Augmented Generation flows featuring human-in-the-loop validation steps.
+
+## Operational Patterns & Enterprise Deployment
+1. **Flow Versioning & Branching**: Maintain production and development variants of visual flows, using environment variables for API endpoints and model routing.
+2. **Rate Limit & Concurrency Budgeting**: Configure explicit concurrency caps on high-frequency triggers to prevent downstream API rate-limiting on frontier model endpoints.
+3. **Structured Payload Logging**: Route output execution states into central telemetry stores (e.g. Datadog, OpenTelemetry) for latency monitoring and token cost tracking.
+4. **Fallback Model Chains**: Configure multi-provider model routing rules (e.g. failover from Claude 5.6 to GPT-5.6 or DeepSeek-V4 during provider outages).
+5. **Secure Credential Injection**: Encrypt external SaaS credentials and API tokens in Gumloop Vault before referencing them inside visual node graphs.
 
 ## Strengths
 - **Visual Canvas & Flow Builder**: An intuitive visual canvas for constructing complex branching logic, parallel loops, and conditional agent execution.
@@ -45,7 +81,7 @@ Gumloop bridges the gap between sophisticated LLM capabilities and production-re
 Integrate with the Gumloop ecosystem using the official Python SDK:
 
 ```bash
-pip install gumloop pydantic
+pip install gumloop pydantic mcp
 ```
 
 ### Setup
@@ -76,6 +112,46 @@ curl -X GET "https://api.gumloop.com/api/v1/runs/RUN_ID?user_id=your_user_id" \
 
 ## API examples
 
+### FastMCP 3.1 Tool Registration for Gumloop
+The following Python script illustrates how to construct a FastMCP 3.1 tool endpoint specifically designed to be called by Gumloop workflow nodes:
+
+```python
+import mcp.server.fastmcp as fastmcp
+from pydantic import BaseModel, Field
+from typing import Dict, Any
+
+mcp_server = fastmcp.FastMCP("Gumloop FastMCP Bridge", version="3.1")
+
+class DocumentProcessInput(BaseModel):
+    document_url: str = Field(..., description="Public or presigned URL of document")
+    extract_tables: bool = Field(default=True, description="Extract tabular data")
+    target_language: str = Field(default="en", description="ISO language code")
+
+@mcp_server.tool()
+def process_gumloop_document(payload: DocumentProcessInput) -> Dict[str, Any]:
+    """FastMCP 3.1 tool invoked during Gumloop visual flow execution."""
+    return {
+        "status": "success",
+        "processed_url": payload.document_url,
+        "tables_found": 3,
+        "language": payload.target_language,
+        "mcp_version": "3.1"
+    }
+
+@mcp_server.tool()
+def format_gumloop_output(summary_text: str, categories: list[str]) -> Dict[str, Any]:
+    """Formats raw model output for downstream Gumloop webhook targets."""
+    return {
+        "status": "formatted",
+        "summary": summary_text.strip(),
+        "tags": [c.lower() for c in categories],
+        "protocol": "3.1"
+    }
+
+if __name__ == "__main__":
+    mcp_server.run()
+```
+
 ### Executing a Flow and Validating Response with Python
 In early 2027 production applications, invoking external workflows via Gumloop requires strict data validations. This ensures that the execution response matches the expected schema. Here, we use **Pydantic v2** to enforce the response format of the Gumloop flow execution.
 
@@ -89,11 +165,13 @@ class GumloopFlowOutput(BaseModel):
     summary: str = Field(description="A brief text summary returned from the flow execution")
     token_usage: int = Field(default=0, description="The total number of tokens consumed during flow execution")
     generated_links: List[str] = Field(default_factory=list, description="Links or resources generated by the flow")
+    execution_time_seconds: float = Field(default=0.0, description="Total execution duration")
 
 class GumloopRunResult(BaseModel):
     run_id: str = Field(description="The unique identifier for this flow execution")
     status: str = Field(description="The state of the run, e.g. 'completed', 'failed'")
     outputs: GumloopFlowOutput = Field(description="Structured dictionary of flow outputs")
+    protocol_version: str = Field(default="3.1", description="FastMCP protocol standard")
 
 def execute_and_verify_flow(flow_id: str, document_path: str) -> Optional[GumloopRunResult]:
     # Initialize client conforming to early 2027 standards
@@ -147,5 +225,5 @@ if __name__ == "__main__":
 - [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high
