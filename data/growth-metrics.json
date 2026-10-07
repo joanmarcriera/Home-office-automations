@@ -21,12 +21,8 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/diffusiongemma.md",
-    "docs/services/excalidraw.md",
-    "docs/tools/agents/anthropic-agent-skills.md",
     "docs/tools/infrastructure/llama-app.md",
     "docs/tools/enterprise/coveo.md",
-    "docs/tools/intake_storage/s3-storage.md",
     "docs/tools/providers/portkey.md",
     "docs/tools/development_ops/github-copilot-cli.md",
     "docs/tools/development_ops/custom_agents.md",
@@ -40,7 +36,11 @@
     "docs/tools/ai_knowledge/dex.md",
     "docs/tools/ai_knowledge/chatgpt.md",
     "docs/tools/infrastructure/ramalama.md",
-    "docs/tools/frameworks/firebase-genkit.md"
+    "docs/tools/frameworks/firebase-genkit.md",
+    "docs/tools/frameworks/microsoft-agent-framework.md",
+    "docs/tools/calendar_tasks/apple-calendar.md",
+    "docs/tools/automation_orchestration/codegraphcontext.md",
+    "docs/services/plex.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
