@@ -1,197 +1,282 @@
 # GitHub Copilot CLI
 
 ## What it is
-GitHub Copilot CLI is the terminal interface for Copilot-assisted development workflows, primarily distributed as the `gh-copilot` extension for the GitHub CLI (`gh`). As of early January 2027, it integrates frontier reasoning from models like Claude 5.1 (`claude-5-1-20261101`), GPT-5.5, Gemini 4.0 Pro, and Llama 4 into shell environments, offering specialized "Shell Agent" capabilities via the **FastMCP 3.1** protocol and native workspace context extensions.
+GitHub Copilot CLI is the official terminal extension for the GitHub CLI (`gh`), distributed as `gh-copilot`. As of early 2027, it serves as an intelligent terminal sidekick and command-line assistant, bringing frontier reasoning models (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Pro**, and **Llama 4**) directly into Bash, Zsh, and PowerShell environments.
+
+Integrating native support for the **FastMCP 3.1 Task Protocol**, `gh-copilot` bridges IDE-centric developer assistance with command-line operations, allowing developers and autonomous software agents to explain complex shell pipelines, generate context-aware git/gh operations, automate repository workflows, and execute system commands safely with interactive step-by-step verification.
+
+```
++-----------------------------------------------------------------------------------+
+|                            GitHub Copilot CLI (gh-copilot)                        |
+|                                                                                   |
+|  +-------------------------------------+   +-----------------------------------+  |
+|  | Interactive Shell Agent (??, git?)  |   | FastMCP 3.1 Task Protocol Agent   |  |
+|  | - Natural Language -> Shell Commands|   | - Structured Command Generation   |  |
+|  | - Direct Pipeline Explanation       |   | - Non-Interactive Scripting Mode  |  |
+|  +------------------+------------------+   +-----------------+-----------------+  |
+|                     |                                        |                    |
+|                     v                                        v                    |
+|  +-----------------------------------------------------------------------------+  |
+|  |            GitHub CLI Auth & Local Repository Context Resolver              |  |
+|  |  - Active Workspace Branch & Commit State Inspection                        |  |
+|  |  - GitHub Enterprise SSO & Organization Policy Verification                  |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
++-----------------------------------------|-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                         GitHub Copilot API / Cloud Runtime                        |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Multi-Model Inference (Claude 5.6 / GPT-5.6 / Gemini 4.0 Pro / Llama 4)      |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It bridges the gap between IDE-centric AI assistance and the terminal. It allows developers and autonomous agents to request command suggestions, explanations, and automation scripts without leaving the shell, maintaining flow in command-heavy workflows. It specifically addresses:
-- **Command Obfuscation**: Explaining cryptic, nested, or legacy shell commands and complex pipelines.
-- **Workflow Interruption**: Eliminating context-switching to browser windows for command syntax reference.
-- **Agentic Orchestration**: Providing a programmable interface for autonomous agents (such as Claude Code) to perform system-level tasks via FastMCP 3.1.
-- **Verification Trust**: Minimizing execution risks for generated scripts in production or staging environments.
+Terminal productivity frequently suffers from command obfuscation, syntax friction, and the risk of destructive command execution (`rm -rf`, `git reset --hard`, complex `find`/`awk`/`sed` pipelines). Switching away from the terminal to a web browser or IDE to look up CLI flags breaks developer flow and introduces context-switching fatigue.
+
+GitHub Copilot CLI resolves these friction points by providing:
+- **In-Terminal Command Synthesis**: Translates plain-English descriptions into valid, shell-specific commands (`gh copilot suggest`).
+- **Safety Explanations**: Decodes cryptic one-liners and flags before execution (`gh copilot explain`).
+- **Interactive Shell Aliases**: Short-hand commands (`??`, `git?`, `gh?`) for rapid command generation without breaking terminal context.
+- **FastMCP 3.1 Programmability**: Allows autonomous terminal agents (such as Claude Code, OpenClaw, and Roo Code) to query command suggestions programmatically.
 
 ## Where it fits in the stack
-**Development & Ops Tool**. It extends the Copilot ecosystem from the editor into the terminal, acting as a "Shell Agent" for both interactive use and CI/CD automation. It is a direct terminal-native alternative to tools like [Aider](./aider.md) and [Claude Code](./claude-code.md).
+**Category**: Development & Ops / Shell Agents. GitHub Copilot CLI sits inside the developer's local shell runtime, communicating with the GitHub CLI (`gh`), local workspace files, and GitHub Copilot Cloud APIs.
+
+```
++-----------------------------------------------------------------------------------+
+|                            Developer Terminal Session                             |
+|                                                                                   |
+|   +-----------------------+   +-----------------------+   +--------------------+  |
+|   | Interactive User Shell|   | FastMCP 3.1 Agent     |   | CI/CD Runner       |  |
+|   +-----------+-----------+   +-----------+-----------+   +---------+----------+  |
+|               |                           |                         |             |
+|               +---------------------------+-------------------------+             |
+|                                           |                                       |
+|                                           v                                       |
+|                              gh copilot (GitHub CLI Extension)                    |
++-------------------------------------------+---------------------------------------+
+                                            |
+                                            v
++-----------------------------------------------------------------------------------+
+|                          GitHub CLI Auth & Local Workspace                        |
+|                                                                                   |
+|   +---------------------------------------------------------------------------+   |
+|   | Git Repository Context, Active Shell Type (Bash/Zsh), OS Kernel           |   |
+|   +---------------------------------------+-----------------------------------+   |
++-------------------------------------------|---------------------------------------+
+                                            |
+                                            v
++-----------------------------------------------------------------------------------+
+|                         GitHub Copilot Cloud Inference                            |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Terminal-native coding assistance**: Quickly generate complex shell commands from natural language.
-- **Agent workflows**: Use Copilot within automated scripts for intelligent repository analysis.
-- **Interactive Scaffolding**: Generate initial project structures, directory layouts, or boilerplate directly from a CLI prompt.
-- **CI/CD Automation**: Integrate with GitHub Actions for automated issue triage, git commit analysis, or automated code summaries.
-- **Cross-Platform Translation**: Converting commands between Bash, PowerShell, and Zsh.
+- **Command Synthesis from Intent**: Converting complex goals ("find all PDF files modified in the last 7 days and copy them to /backup") into executable shell commands.
+- **Git & GitHub Workflow Automation**: Generating intricate `git` rebase commands or `gh` CLI pull request / release creation scripts.
+- **Script Review & Explanations**: Analyzing unknown or legacy shell scripts to understand flag parameters before execution.
+- **Automated CI/CD Triage**: Running `gh copilot` inside GitHub Actions to parse build failure logs and generate pull request summaries.
+
+## Key technical features & FastMCP 3.1 integration
+- **FastMCP 3.1 Protocol Support**: Non-interactive command generation and verification outputting structured JSON schemas.
+- **Shell Alias Bindings**: Integrates directly with Zsh, Bash, and PowerShell via `eval "$(gh copilot alias -- bash)"`.
+- **Context-Aware Recommendations**: Inspects local operating system, active shell binary, and target CLI tools (`git`, `gh`, `docker`, `kubectl`).
+- **Safety Prompting**: Interactively prompts user confirmation (Copy, Revise, Execute, Exit) before any command is executed locally.
 
 ## Strengths
-- **Native Ecosystem Integration**: Seamlessly shares authentication, organization policies, and repository context with other GitHub tools (`gh`, GitHub Actions).
-- **Explainability**: High-quality explanations for complex, obfuscated, or potentially dangerous shell commands.
-- **Ergonomics**: Supports custom aliases (`??`, `git?`, `gh?`) for high-speed terminal interaction.
-- **Agent-Ready**: Fully compatible with FastMCP 3.1 server definitions for autonomous tool execution.
-- **Frontier Model Support**: Leverages early 2027's most capable reasoning models (Claude 5.1, GPT-5.5, Gemini 4.0 Pro) for syntax generation.
+- **Native Ecosystem Integration**: Uses existing GitHub authentication (`gh auth login`) and GitHub Enterprise license permissions.
+- **High Ergonomics**: Instant interactive shell aliases (`??`, `git?`) eliminate typing overhead.
+- **Frontier Model Backing**: Backed by early 2027's top reasoning models (Claude 5.6, GPT-5.6) for accurate syntax generation.
+- **Cross-Shell Compatibility**: Fully supports Bash, Zsh, PowerShell, and Fish shell environments.
 
 ## Limitations
-- **Account Dependency**: Requires an active GitHub Copilot subscription.
-- **CLI UX Constraints**: Lacks the rich, multi-file workspace context of IDE-based Copilot (e.g., Cursor or VS Code).
-- **Network Required**: Model-backed operations require persistent, secure internet connectivity to GitHub APIs.
-- **Sandboxing**: Unlike [Symbolic MCP](./symbolic-mcp.md), it does not provide formal verification of generated commands before execution, requiring manual review.
+- **GitHub Account Requirement**: Requires an active GitHub Copilot subscription and `gh` CLI installation.
+- **Cloud Dependency**: Requires active internet connectivity to GitHub API endpoints.
 
 ## When to use it
-- When you are working heavily in the terminal and need quick, contextual shell syntax recommendations.
-- For teams already standardized on the GitHub/Copilot enterprise stack.
+- When working heavily in the terminal and requiring quick, contextual shell syntax recommendations.
+- For engineering teams already standardized on the GitHub Enterprise and Copilot ecosystem.
 - When building shell-based automation pipelines that require real-time, intelligent command suggestions.
-- To analyze and refactor legacy shell scripts or complex CI pipelines.
+- To analyze and explain legacy shell scripts or complex CI/CD pipeline commands.
 
 ## When not to use it
-- When offline or local-only coding assistants are required (see [Aider](./aider.md) or [Ollama](../../services/ollama.md)).
-- When deep, multi-file repository refactoring is the primary goal (better suited for IDE extensions).
-- For high-stakes system administration where 100% deterministic command verification is required.
+- When offline or local-only coding assistants are required (see Aider or Ollama).
+- When deep, multi-file repository refactoring is the primary goal (better suited for IDE extensions or Claude Code).
+- For high-stakes system administration where 100% deterministic, non-probabilistic command verification is required.
+
+## Comparison Matrix
+
+| Feature / Metric | GitHub Copilot CLI | Claude Code | Aider | Continue.dev |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Terminal Shell Commands | Full-Repo Terminal Agent | Multi-File Code Editor | IDE Extension (VS Code/Zed) |
+| **Execution Surface** | Shell Terminal (`gh`) | Terminal CLI / MCP | Terminal / Git Workspace | IDE Window |
+| **Command Synthesis** | Native (`??`, `suggest`) | Full Bash Agent Loop | Git Commit & Diff Agent | Chat Sidebar |
+| **FastMCP 3.1 Support** | Native Protocol Binding | Native MCP Engine | Extension Adapter | Native MCP Client |
+| **Authentication** | GitHub Account / PAT | Anthropic / API Key | API Key (OpenAI/Anthropic) | API Key / Local Model |
+| **Offline Capability** | No (Cloud API required) | No | Yes (via local Ollama) | Yes (via local Ollama) |
 
 ## Getting started
 
-### 1. Installation
-Install via the GitHub CLI extension manager:
+### 1. Install Extension
 ```bash
 gh extension install github/gh-copilot
 ```
 
-### 2. Authentication
-Log in with your GitHub account:
+### 2. Authenticate
 ```bash
 gh auth login
 ```
 
-### 3. Configuration
-Set your preferred shell and default tool context:
+### 3. Configure Shell Aliases
+Add the following line to your `~/.zshrc` or `~/.bashrc`:
 ```bash
-gh copilot config
+eval "$(gh copilot alias -- zsh)"
 ```
 
-### 4. Hello World
-Ask for a basic command suggestion:
+### 4. Interactive Usage
 ```bash
-gh copilot suggest "list all markdown files modified in the last 2 days"
+?? "find all port 8080 processes and terminate them"
 ```
 
 ## CLI examples
 
-### 1. Explaining a Complex Pipe
-Understand what a dangerous-looking command does before running it:
 ```bash
-gh copilot explain "find . -name '*.log' -delete"
-```
+# Suggest a command for git repository cleanup
+gh copilot suggest "remove all merged local git branches except main"
 
-### 2. Shell Aliases
-Add ergonomics to your `.zshrc` or `.bashrc`:
-```bash
-eval "$(gh copilot alias -- bash)"
-# Now use short syntax:
-?? "how do i revert my last commit?"
-```
+# Explain a complex find and xargs pipeline
+gh copilot explain "find . -type f -name '*.tmp' -print0 | xargs -0 rm -f"
 
-### 3. Targeted Suggestion
-Get help specific to a tool ecosystem:
-```bash
-gh copilot suggest "create a new release" --tool gh
+# Non-interactive command generation for shell scripting
+CMD=$(gh copilot suggest "list listening TCP ports on macOS" --no-ask-user)
+echo "Generated Command: $CMD"
 ```
 
 ## API examples
 
-### 1. GitHub Actions Integration
-Use Copilot CLI programmatically within a workflow to generate automated repository digests:
+### 1. GitHub Actions Workflow Integration
 ```yaml
-- name: Generate Repo Digest
-  env:
-    GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
-  run: |
-    gh copilot suggest "Summarize the changes in this repository" --no-ask-user > digest.md
+name: Copilot CLI Repository Inspector
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install GitHub CLI & Copilot Extension
+        run: |
+          type -p gh || sudo apt install gh -y
+          gh extension install github/gh-copilot
+
+      - name: Generate Workflow Digest
+        env:
+          GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        run: |
+          gh copilot suggest "Summarize all open issues and generate a summary report" --no-ask-user > summary.txt
+          cat summary.txt
 ```
 
-### 2. Non-Interactive Command Generation and Validation
-Generate commands for further processing without interactive prompts and validate them using Python:
-```bash
-# Capture the suggested command in a variable
-CMD=$(gh copilot suggest "extract all emails from data.txt" --no-ask-user)
-echo "Generated command: $CMD"
-```
-
-### 3. Programmatic Suggestion Validation using Pydantic v2
-This Python snippet parses and validates shell suggestions generated by the Copilot CLI using **Pydantic v2** structures, ensuring command safety and compatibility before execution:
-
+### 2. FastMCP 3.1 Shell Tool Server
 ```python
 import json
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError, ConfigDict
+import subprocess
+from typing import Dict, Any
+from mcp.server.fastmcp import FastMCP
 
-class CommandExplanation(BaseModel):
-    command: str = Field(..., description="The exact shell command being explained")
-    explanation: str = Field(..., description="Detailed explanation of what the command does")
-    is_safe: bool = Field(default=True, description="Safety evaluation flag for local execution")
+mcp = FastMCP("github-copilot-cli-mcp")
 
-class SuggestionPayload(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    query: str = Field(..., description="The user prompt or query requesting suggestions")
-    suggested_commands: List[str] = Field(
-        ...,
-        validation_alias="suggestedCommands",
-        description="List of generated shell command suggestions"
-    )
-    explanation: Optional[CommandExplanation] = Field(
-        None,
-        description="Explanation of the primary suggested command"
-    )
-    target_shell: str = Field(
-        "bash",
-        validation_alias="targetShell",
-        description="Active shell type (bash, zsh, powershell)"
-    )
-
-def validate_copilot_suggestion(raw_json: str) -> Optional[SuggestionPayload]:
+@mcp.tool()
+def suggest_shell_command(natural_language_prompt: str, shell_type: str = "bash") -> Dict[str, Any]:
+    """Generates a shell command recommendation using GitHub Copilot CLI via FastMCP 3.1."""
+    cmd = [
+        "gh", "copilot", "suggest",
+        natural_language_prompt,
+        "--no-ask-user",
+        "--target-shell", shell_type
+    ]
     try:
-        data = json.loads(raw_json)
-        # Validate using Pydantic v2
-        payload = SuggestionPayload.model_validate(data)
-        return payload
-    except json.JSONDecodeError:
-        print("Error: Input is not valid JSON")
-    except ValidationError as e:
-        print(f"Validation failed: {e.errors()}")
-    return None
-
-# Example usage:
-if __name__ == "__main__":
-    sample_data = """
-    {
-        "query": "find markdown files",
-        "suggestedCommands": ["find . -name '*.md'"],
-        "targetShell": "zsh",
-        "explanation": {
-            "command": "find . -name '*.md'",
-            "explanation": "Search the current directory recursively for files ending in .md",
-            "is_safe": true
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return {
+            "status": "success",
+            "prompt": natural_language_prompt,
+            "suggested_command": result.stdout.strip()
         }
-    }
-    """
-    validated = validate_copilot_suggestion(sample_data)
-    if validated:
-        print("Copilot CLI suggestion successfully verified!")
-        print(validated.model_dump_json(indent=2))
+    except subprocess.CalledProcessError as err:
+        return {
+            "status": "error",
+            "error_output": err.stderr.strip()
+        }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### 3. Strict Pydantic v2 Command Schema Validation
+```python
+from typing import List, Optional, Literal
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+class CopilotCliExplanation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    command: str = Field(..., description="Target shell command")
+    explanation: str = Field(..., description="Plain-English explanation of flags")
+    risk_level: Literal["low", "medium", "high", "critical"] = Field("low")
+
+class CopilotCliSuggestionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., min_length=3, description="Natural language prompt")
+    suggested_commands: List[str] = Field(..., min_length=1, description="Generated command list")
+    explanation: Optional[CopilotCliExplanation] = Field(None)
+    shell_environment: Literal["bash", "zsh", "powershell", "fish"] = Field("bash")
+
+    @field_validator("suggested_commands")
+    @classmethod
+    def validate_non_empty_commands(cls, cmds: List[str]) -> List[str]:
+        cleaned = [c.strip() for c in cmds if c.strip()]
+        if not cleaned:
+            raise ValueError("Suggested commands list cannot be empty")
+        return cleaned
+
+# Example Usage
+try:
+    payload = CopilotCliSuggestionPayload(
+        query="find and remove all .DS_Store files recursively",
+        suggested_commands=["find . -name '.DS_Store' -type f -delete"],
+        explanation=CopilotCliExplanation(
+            command="find . -name '.DS_Store' -type f -delete",
+            explanation="Recursively searches current directory for .DS_Store files and deletes them.",
+            risk_level="medium"
+        ),
+        shell_environment="zsh"
+    )
+    print("Validated Copilot CLI Payload JSON:")
+    print(payload.model_dump_json(indent=2))
+except Exception as err:
+    print(f"Validation error: {err}")
 ```
 
 ## Related tools / concepts
-- [GitHub Copilot](github_copilot.md)
-- [Aider](aider.md)
-- [Claude Code](claude-code.md)
-- [MCP](../automation_orchestration/mcp.md)
-- [Continue.dev](continue_dev.md)
-- [Mentat](mentat.md)
-- [Zed](zed.md)
-- [Ollama](../../services/ollama.md)
+- **[Claude Code](claude-code.md)**: Agentic terminal tool for code refactoring and execution.
+- **[Aider](aider.md)**: AI pair programming terminal tool.
+- **[GitHub Copilot](github_copilot.md)**: AI developer platform and editor completion engine.
+- **[FastMCP 3.1 Protocol](../automation_orchestration/mcp.md)**: Protocol standard for agentic task execution.
 
 ## Sources / references
-- [GitHub Copilot CLI GA Announcement](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
-- [GitHub Docs: Automate with Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions)
-- [Claude 5.1 & Copilot Integration Patterns (January 2027)](https://github.blog/2026-10-24-frontier-models-in-gh-cli)
-- [Official GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/github-copilot-in-the-cli)
+- [GitHub Copilot CLI General Availability Announcement](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
+- [GitHub Official Copilot CLI Documentation](https://docs.github.com/en/copilot/github-copilot-in-the-cli)
+- [GitHub Extension Repository](https://github.com/github/gh-copilot)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high

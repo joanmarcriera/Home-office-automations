@@ -3,17 +3,52 @@
 ## What it is
 A **Custom Agent** is a lightweight Python script or visual workflow automation (e.g., n8n) that implements a basic autonomous control loop: Prompt LLM -> Receive Command -> Execute via SSH/Shell -> Return Output/Telemetry to LLM. Under early January 2027 SOTA standards, these agents have evolved into standard-compliant Micro-Agents that natively support the **Model Context Protocol (MCP 3.1 / FastMCP 3.1 Task Protocol)**. This enables them to be exposed directly to modern frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL** as secure, sandboxed system administration tools.
 
+## Architecture & System Flow
+Custom Agents operate as a tightly bounded execution loop between model reasoning engines and host infrastructure, enforcing security allowlists, SSH session persistence, and human-in-the-loop validation checkpoints.
+
+```mermaid
+graph TD
+    A[Frontier LLM / FastMCP Client] -->|MCP 3.1 Tool Call Request| B[Custom Agent FastMCP Server]
+    B -->|Command Validation & Allowlist Check| C{Allowed?}
+    C -- No -->|Security Block Response| A
+    C -- Yes --> D{Requires Approval?}
+    D -- Yes -->|Prompt Engineer / Admin| E[Human Approval Checkpoint]
+    E -- Rejected -->|Audit Log & Abort| A
+    E -- Approved --> F[SSH Client / Paramiko]
+    D -- No --> F
+    F -->|Secure Key-Based SSH Tunnel| G[Target Host / Node]
+    G -->|Execute Command in Shell| H[Output / Telemetry Output]
+    H -->|Return Stderr / Stdout| B
+    B -->|Return Tool Execution Result| A
+```
+
 ## What problem it solves
 Full enterprise agent platforms often bring heavy framework dependencies, complex configuration overhead, and opaque internal execution loops. Custom Agents provide a minimal, fully inspectable control plane tailored specifically for target infrastructure tasks. They address the "Reasoning vs. Execution" gap in remote host management by pairing high-level LLM reasoning with secure SSH tunneling, explicit command allowlists, and human-in-the-loop verification checkpoints.
 
 ## Where it fits in the stack
 **Category**: [Development & Ops](index.md) / Agent Execution & Orchestration. It functions as a custom tool-calling micro-agent layer that bridges LLM reasoning engines to host systems over SSH or local command environments.
 
+## Feature Matrix & Framework Comparison
+
+| Feature | Custom Agent (SSH + FastMCP) | Aider | Claude Code | Ansible / SaltStack |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Remote Admin & Shell Execution | Code Base Editing | Interactive Dev CLI | Deterministic Config Sync |
+| **Protocol Standard** | FastMCP 3.1 Task Protocol | Custom CLI | Anthropic MCP | Procedural YAML / Python |
+| **Agent Autonomy** | Bounded (Allowlists + Interactive) | Interactive Agentic | Autonomous Task Loops | Deterministic Procedural |
+| **Dependencies** | Standard Python (`paramiko`, `mcp`) | Python / Git | Node.js Runtime | Python / Agent Runtime |
+| **Human-in-Loop** | Built-in Gateways | Git Stage / Approve | Interactive Confirmation | Pre-flight Dry Run |
+
 ## Typical use cases
 - **Automated Infrastructure Auditing**: "Check disk utilization across all k3s nodes and prune dangling Docker images if usage exceeds 85%."
 - **Incident Response & Diagnostics**: Gathering system logs, inspecting active systemd services, and summarizing root causes for on-call engineers.
 - **Controlled System Upgrades**: Executing rolling security patches across server clusters with automated pre- and post-flight health checks.
 - **Custom FastMCP 3.1 Tools**: Exposing legacy command-line tools and shell utilities as FastMCP 3.1 endpoints.
+
+## Operational Workflows & Best Practices
+1. **Strict Command Allowlisting**: Always enforce prefix or exact regex allowlisting for executed shell commands to prevent arbitrary command injection.
+2. **Ephemeral Identity & Restricted SSH Keys**: Use dedicated SSH key pairs restricted via `authorized_keys` options (e.g. `command="..."`, `no-port-forwarding`, `no-pty`).
+3. **Audit Logging & Telemetry**: Record every model input, parsed shell command, user approval event, and execution response in structured JSON lines for compliance auditing.
+4. **Session Timeout & Resource Capping**: Set strict socket connect and execution timeouts (e.g. 15s) to prevent runaway processes on target nodes.
 
 ## Strengths
 - **Complete Control & Transparency**: Audit every line of execution logic, prompt template, and tool definition without black-box framework abstraction.
@@ -67,28 +102,66 @@ The following Python script demonstrates how to implement a custom SSH administr
 ```python
 import mcp.server.fastmcp as fastmcp
 import paramiko
+from typing import Optional, Dict, Any
 
 mcp_server = fastmcp.FastMCP("SSH Host MicroAgent", version="3.1")
 
 @mcp_server.tool()
-def execute_host_command(host: str, command: str) -> str:
-    """Executes an allowed command on a target host via SSH."""
-    allowed_prefixes = ["systemctl status", "df -h", "docker ps", "uptime"]
+def execute_host_command(host: str, command: str, require_sudo: bool = False) -> Dict[str, Any]:
+    """Executes an allowed command on a target host via SSH using FastMCP 3.1 protocol."""
+    allowed_prefixes = ["systemctl status", "df -h", "docker ps", "uptime", "free -m", "journalctl"]
     if not any(command.startswith(prefix) for prefix in allowed_prefixes):
-        return f"Error: Command '{command}' is not in the allowed command list."
+        return {
+            "status": "error",
+            "message": f"Command '{command}' is not in the allowed command list.",
+            "protocol_version": "3.1"
+        }
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
         ssh.connect(host, username='admin', timeout=10)
-        stdin, stdout, stderr = ssh.exec_command(command)
+        full_command = f"sudo {command}" if require_sudo else command
+        stdin, stdout, stderr = ssh.exec_command(full_command)
         out = stdout.read().decode()
         err = stderr.read().decode()
-        return out if out else f"Stderr: {err}"
+        return {
+            "status": "success",
+            "host": host,
+            "stdout": out,
+            "stderr": err,
+            "exit_code": stdout.channel.recv_exit_status(),
+            "protocol_version": "3.1"
+        }
     except Exception as e:
-        return f"SSH Connection Failed: {str(e)}"
+        return {
+            "status": "error",
+            "message": f"SSH Connection Failed: {str(e)}",
+            "protocol_version": "3.1"
+        }
     finally:
         ssh.close()
+
+@mcp_server.tool()
+def audit_host_health(host: str) -> Dict[str, Any]:
+    """Runs a multi-step host health diagnostic sweep via SSH."""
+    commands = {
+        "disk_space": "df -h /",
+        "memory": "free -m",
+        "uptime": "uptime",
+        "containers": "docker ps --format '{{.Names}}\t{{.Status}}'"
+    }
+    results = {}
+    for key, cmd in commands.items():
+        res = execute_host_command(host, cmd)
+        results[key] = res.get("stdout", res.get("message", "N/A")).strip()
+
+    return {
+        "status": "success",
+        "host": host,
+        "diagnostics": results,
+        "mcp_standard": "3.1"
+    }
 
 if __name__ == "__main__":
     mcp_server.run()
@@ -98,23 +171,31 @@ if __name__ == "__main__":
 The following Python module demonstrates modeling and programmatically validating a Custom Agent configuration profile under early January 2027 SOTA standards:
 
 ```python
-from pydantic import BaseModel, Field
-from typing import List
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional
 import json
 
 class SSHNodeProfile(BaseModel):
-    host: str = Field(..., pattern=r"^([a-zA-Z0-9.-]+|[0-9.]+)$")
-    port: int = Field(default=22, ge=1, le=65535)
-    username: str = Field(default="admin", min_length=1)
-    key_path: str = Field(..., pattern=r"^/.*$")
-    timeout_seconds: int = Field(default=15, ge=1, le=120)
+    host: str = Field(..., pattern=r"^([a-zA-Z0-9.-]+|[0-9.]+)$", description="IP address or hostname")
+    port: int = Field(default=22, ge=1, le=65535, description="SSH port")
+    username: str = Field(default="admin", min_length=1, description="SSH login user")
+    key_path: str = Field(..., pattern=r"^/.*$", description="Absolute filesystem path to SSH private key")
+    timeout_seconds: int = Field(default=15, ge=1, le=120, description="Connection timeout")
+
+    @field_validator("key_path")
+    @classmethod
+    def validate_key_path(cls, v: str) -> str:
+        if ".." in v:
+            raise ValueError("Directory traversal paths ('..') are strictly prohibited in key_path")
+        return v
 
 class CustomAgentConfig(BaseModel):
-    agent_id: str = Field(..., min_length=2)
-    target_nodes: List[SSHNodeProfile] = Field(..., min_length=1)
-    allowed_commands: List[str] = Field(..., min_length=1)
-    mcp_version: str = Field(default="3.1", pattern=r"^3\.1$")
-    require_human_approval: bool = Field(default=True)
+    agent_id: str = Field(..., min_length=2, description="Unique identifier for micro-agent")
+    target_nodes: List[SSHNodeProfile] = Field(..., min_length=1, description="List of manageable nodes")
+    allowed_commands: List[str] = Field(..., min_length=1, description="Allowlist command prefixes")
+    mcp_version: str = Field(default="3.1", pattern=r"^3\.1$", description="FastMCP standard compliance")
+    require_human_approval: bool = Field(default=True, description="Enforce interactive approval gate")
+    max_parallel_nodes: int = Field(default=5, ge=1, le=50, description="Concurrency limit")
 
     model_config = {
         "populate_by_name": True,
@@ -132,7 +213,8 @@ class CustomAgentConfig(BaseModel):
                 ],
                 "allowed_commands": ["systemctl status", "df -h", "docker ps"],
                 "mcp_version": "3.1",
-                "require_human_approval": True
+                "require_human_approval": True,
+                "max_parallel_nodes": 5
             }
         }
     }
@@ -165,7 +247,8 @@ if __name__ == "__main__":
         ],
         "allowed_commands": ["systemctl status", "df -h", "docker ps", "uptime"],
         "mcp_version": "3.1",
-        "require_human_approval": True
+        "require_human_approval": True,
+        "max_parallel_nodes": 5
     }
     print(validate_custom_agent_config(test_payload))
 ```
@@ -183,5 +266,5 @@ if __name__ == "__main__":
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high

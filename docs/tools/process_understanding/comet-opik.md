@@ -1,154 +1,268 @@
 # Comet Opik
 
-Comet Opik is an open-source platform designed for evaluating, testing, and monitoring LLM applications and autonomous multi-agent networks. In early 2027, Opik serves as a cornerstone of the "Evaluation-Driven Development" (EDD) workflow, providing software engineers with a highly performant, self-hostable alternative to proprietary observability suites for frontier models like **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro/Ultra**, **DeepSeek-V4**, and **Gemma 3**.
-
 ## What it is
-Opik is a purpose-built LLM observability tool focusing on distributed tracing, automated prompt evaluation, and evaluation dataset management. It allows developers to capture the detailed semantic behavior of their agents, score outputs using specialized LLM-as-a-judge patterns, and manage production logging datasets for continuous iteration. It operates as an independent, lightweight, self-contained library for LLM-centric systems with full **FastMCP 3.1 Protocol** and OpenTelemetry integration.
+Comet Opik is an open-source, enterprise-grade LLM observability, prompt engineering, tracing, and evaluation platform. Designed for evaluating, testing, and monitoring AI applications and autonomous multi-agent networks, Opik serves as a foundational component for "Evaluation-Driven Development" (EDD).
+
+As of early 2027, Opik features native support for the **FastMCP 3.1 Task Protocol** and OpenTelemetry standards, delivering self-hostable, low-latency execution tracing and LLM-as-a-judge scoring across frontier models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Gemma 4**.
+
+```
++-----------------------------------------------------------------------------------+
+|                               Comet Opik Core Platform                            |
+|                                                                                   |
+|  +-------------------------------------+   +-----------------------------------+  |
+|  | OpenTelemetry Distributed Tracing   |   | FastMCP 3.1 Protocol Collector    |  |
+|  | - Agentic Session & Span Tracking   |   | - Tool Call Execution Telemetry   |  |
+|  | - Token Cost & Latency Collector    |   | - MCP Task Lifecycle Spans        |  |
+|  +------------------+------------------+   +-----------------+-----------------+  |
+|                     |                                        |                    |
+|                     v                                        v                    |
+|  +-----------------------------------------------------------------------------+  |
+|  |             Evaluation Engine & Golden Dataset Benchmarking                 |  |
+|  |  - Built-in Evaluators (Hallucination, Moderation, Answer Relevance)        |  |
+|  |  - LLM-as-a-Judge Automation & Regression Testing                           |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
++-----------------------------------------|-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                         High-Throughput Storage & UI Layer                        |
+|                                                                                   |
+|  +-----------------------------------+     +-----------------------------------+  |
+|  | ClickHouse Trace Column Store     |     | PostgreSQL Project Metadata       |  |
+|  +-----------------------------------+     +-----------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-Opik bridges the gap between a prompt working once in a sandbox playground and it working reliably and safely at scale in production. It provides the core tracing infrastructure to catch regressions, quantify performance improvements across model upgrades (e.g., transitioning from Claude 4.8 to Claude 5.1 or DeepSeek-V3 to V4), and debug nested agentic reasoning steps by visualizing the exact data flow between an agent and its tools via Agentic Session Orchestration.
+Developing multi-agent systems and agentic RAG workflows without observability leads to hidden failures: silent model hallucinations, agent looping, prompt regressions between model versions (e.g. migrating from GPT-5 to GPT-5.6 or Claude 5.1 to Claude 5.6), and untracked API cost inflation.
+
+Comet Opik addresses these production challenges by providing:
+- **Full-Stack Execution Tracing**: Captures nested agentic reasoning steps, tool calls, raw prompts, and model responses in a visual execution tree.
+- **Evaluation-Driven Development (EDD)**: Programmatically evaluates agent outputs against "Golden Datasets" using pre-built and custom LLM-as-a-judge scoring metrics.
+- **Zero-Data-Leakage Self-Hosting**: Operates on-premise or in private cloud Kubernetes clusters using ClickHouse and PostgreSQL, eliminating third-party data privacy risks.
+- **FastMCP 3.1 Telemetry Sync**: Automatically captures MCP tool inputs, outputs, and execution latencies across agent networks.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Observability
-Opik acts as the "Flight Recorder" for generative AI applications. It sits alongside agent runtimes (such as LangChain, AutoGen, or CrewAI) and publishes structured telemetry spans to either a local self-hosted instance or the Comet cloud, leveraging FastMCP 3.1 for low-latency tool discovery and high-throughput logging.
+**Category**: Process & Understanding / Observability & Evaluation. Comet Opik sits beside agent frameworks (LangChain, AutoGen, CrewAI, FastMCP 3.1) and model gateways (Portkey, LiteLLM), logging execution telemetry into ClickHouse storage.
+
+```
++-----------------------------------------------------------------------------------+
+|                       Agentic Applications & Workflows                            |
+|                                                                                   |
+|   +-----------------------+   +-----------------------+   +--------------------+  |
+|   | FastMCP 3.1 Agent     |   | CrewAI Multi-Agent    |   | LangChain Pipeline |  |
+|   +-----------+-----------+   +-----------+-----------+   +---------+----------+  |
+|               |                           |                         |             |
+|               +---------------------------+-------------------------+             |
+|                                           |                                       |
+|                                           v                                       |
+|                    OpenTelemetry / Opik SDK Tracing Middleware                    |
++-------------------------------------------+---------------------------------------+
+                                            |
+                                            v
++-----------------------------------------------------------------------------------+
+|                            Comet Opik Observability Server                        |
+|                                                                                   |
+|   +---------------------------------------------------------------------------+   |
+|   | Distributed Span Ingestion, Evaluation Engine & Dataset Registry          |   |
+|   +---------------------------------------+-----------------------------------+   |
++-------------------------------------------|---------------------------------------+
+                                            |
+                                            v
++-----------------------------------------------------------------------------------+
+|                     ClickHouse DB / PostgreSQL / Web Dashboard                    |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
-- **Unit Testing for Prompts**: Running "Golden Sets" of evaluation datasets through system prompts and scoring them automatically in CI pipelines.
-- **Production Flight Recording**: Capturing every interaction with Claude 5.1, GPT-5.5, DeepSeek-V4, or Gemini 4.0 to identify failure modes and outlier inputs.
-- **Experiment and Iteration Tracking**: Comparing multiple retrieval-augmented generation (RAG) strategies to determine which indexing method yields superior factual grounding.
-- **Robustness Red-Teaming**: Managing datasets of adversarial prompts and evaluating model safety/toxicity compliance.
+- **Multi-Agent Execution Tracing**: Debugging complex tool invocation chains and nested agent loops in production.
+- **Automated CI/CD Prompt Regression Testing**: Running evaluation suites against candidate prompts during pull request checks.
+- **RAG Grounding & Hallucination Auditing**: Scoring retrieval faithfulness and answer relevance using automated evaluators.
+- **LLM Token Cost & Latency Optimization**: Tracking expenditure across different model providers (Claude 5.6, GPT-5.6, DeepSeek-V4).
+
+## Key technical features & FastMCP 3.1 integration
+- **FastMCP 3.1 Protocol Collector**: Native instrumentation decorators (`@track`) capturing tool parameters, execution duration, and tool outputs.
+- **ClickHouse Columnar Storage**: Engineered for sub-second query performance over tens of millions of trace spans.
+- **Built-in Metric Evaluators**: Pre-packaged evaluators for Answer Relevance, Hallucination, Toxicity, Moderation, and Context Precision.
+- **OpenTelemetry Standard**: Built on native OTEL trace span specifications for seamless integration with existing enterprise APM tools.
 
 ## Strengths
-- **Fully Self-Hostable**: Can be run entirely on-premise or within private clouds via Docker/Kubernetes, ensuring 100% data privacy for enterprise workloads.
-- **FastMCP 3.1 Protocol Support**: Dynamic tool registration and low-latency tracing optimized for autonomous agent workflows.
-- **Pre-Built Scorers**: Out-of-the-box evaluators for common metrics such as answer relevance, faithfulness, factual correctness, hallucination, and toxicity.
-- **Comet Ecosystem Syncing**: Seamless integration with Comet ML's traditional machine learning experiment tracker for a comprehensive AI lifecycle overview.
-- **Standardized Task Protocol**: Adherence to the FastMCP 3.1 Task Protocol for automated benchmarking and execution.
+- **100% Open-Source & Self-Hostable**: Complete control over data storage with Docker and Kubernetes helm charts.
+- **High-Throughput Analytics**: ClickHouse backend easily handles high-frequency agentic logging streams.
+- **Native Evaluation Integration**: Unifies trace monitoring with offline dataset benchmarking in a single interface.
+- **Developer-Centric SDK**: Simple Python decorator (`@track`) integration requiring zero boilerplate code changes.
 
 ## Limitations
-- **Storage Management Overhead**: When self-hosting, the engineering team is fully responsible for configuring and scaling the underlying databases (PostgreSQL/ClickHouse) for high-frequency logs.
-- **Sampling Overhead**: High-frequency real-time tracing of O5 reasoning series steps requires aggressive sampling configuration to limit ClickHouse storage growth.
+- **Database Maintenance**: Self-hosted deployments require managing ClickHouse and PostgreSQL clusters.
+- **Storage Growth**: High-frequency real-time logging requires active sampling and log retention policy management.
 
 ## When to use it
-- When you require a developer-centric, open-source LLM observability and tracing engine that can be run on local machines or private servers.
-- When building multi-agent pipelines requiring high-fidelity nested execution visualization and debugging.
-- When you want a single, unified workflow that handles both early developer experimentation and production monitoring.
+- When requiring a developer-centric, open-source LLM observability and tracing engine deployable on local machines or private cloud infrastructure.
+- When building multi-agent pipelines requiring high-fidelity nested execution visualization and tool call debugging.
+- When wanting a single, unified workflow that handles both early developer experimentation and production monitoring.
 
 ## When not to use it
 - For basic or small scale scripts where raw console print statements are sufficient for tracking model behavior.
-- If you require a fully managed SaaS and do not want to use the Comet cloud platform or maintain self-hosted infrastructure.
+- If requiring a fully managed SaaS solution without using the Comet cloud platform or maintaining self-hosted ClickHouse infrastructure.
+
+## Comparison Matrix
+
+| Feature / Metric | Comet Opik | Langfuse | Arize Phoenix | Braintrust |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Open-Source Observability & EDD | Open-Source LLM Analytics | Enterprise Model Performance | AI Developer Platform |
+| **Deployment Model** | Self-Hosted / Managed Cloud | Self-Hosted / Managed Cloud | Self-Hosted / Managed Cloud | Cloud SaaS / Enterprise |
+| **Storage Engine** | ClickHouse + PostgreSQL | PostgreSQL | ClickHouse / DuckDB | Hosted Cloud Engine |
+| **FastMCP 3.1 Support** | Native Protocol Collector | Extension Adapter | Custom Integration | Native Client SDK |
+| **Evaluation Engine** | Built-in LLM-as-a-Judge | Built-in Scoring | Phoenix Evals | Custom Python Evals |
+| **OpenTelemetry Native** | Yes | Yes | Yes | Partial |
 
 ## Getting started
 
-Install the Opik SDK client and Pydantic v2:
+### Self-Hosted Setup (Docker Compose)
+```bash
+git clone https://github.com/comet-ml/opik.git
+cd opik/deployment/docker-compose
+docker-compose up -d
+```
 
+### Python SDK Installation
 ```bash
 pip install opik pydantic>=2.0.0
 ```
 
-Configure your environment connection:
-
+### Configure CLI Client
 ```bash
-opik configure
+opik configure --api-key LOCAL_OPIK_KEY --url http://localhost:5173/api
 ```
 
 ## CLI examples
 
-### opik harbor run
-Executes an evaluation benchmark suite against an active agent using the FastMCP 3.1 Task Protocol:
 ```bash
-opik harbor run -d reasoning-bench -a my-gemma-agent
-```
+# Run Opik harbor evaluation suite against local agent
+opik harbor run --dataset golden-qa-v1 --agent fastmcp-agent-v3
 
-### opik configure
-Initializes the SDK defaults, API keys, and server project mappings:
-```bash
-opik configure --api-key YOUR_COMET_OPIK_API_KEY --project support-agent-evaluation
-```
+# Check Opik server connection status
+opik status
 
-### docker-compose up
-Starts the local Opik server, including database storage containers:
-```bash
-docker-compose -f opik-docker-compose.yml up -d
+# Export evaluation dataset to local JSON
+opik dataset export --name customer-support-golden --output ./dataset.json
 ```
 
 ## API examples
 
-### Python (Evaluation Scoring with Pydantic v2 & FastMCP 3.1)
-This example shows how to track and score model responses programmatically using Opik while enforcing strict type validation through Pydantic v2:
-
+### 1. Tracing FastMCP 3.1 Tool Invocation
 ```python
-import asyncio
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError
 from opik import track
+from typing import Dict, Any
 
-# Define structured telemetry and evaluation schemas using Pydantic v2
-class EvaluationResult(BaseModel):
-    test_case_id: str = Field(..., description="The ID of the tested evaluation case.")
-    prompt_version: str = Field(..., description="Commit hash or version identifier of the prompt.")
-    faithfulness_score: float = Field(..., ge=0.0, le=1.0, description="Evaluated factual grounding score.")
-    model_name: str = Field(default="claude-5.1-sonnet", description="Model evaluated.")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata matching FastMCP 3.1 context.")
+@track(name="fastmcp_database_lookup")
+def execute_mcp_db_tool(query_str: str, max_records: int = 5) -> Dict[str, Any]:
+    """Instrumented tool call execution recorded automatically in Opik."""
+    # Simulate DB query
+    records = [{"id": 101, "status": "active", "query": query_str}]
+    return {"status": "success", "count": len(records), "records": records}
 
-class AgentSpan(BaseModel):
-    span_id: str = Field(..., description="Unique trace identifier.")
-    tool_calls: List[str] = Field(default_factory=list, description="List of tool names invoked.")
-    status: str = Field(default="success")
+@track(name="agent_reasoning_step")
+def run_agent_loop(user_prompt: str) -> str:
+    db_result = execute_mcp_db_tool(user_prompt, max_records=3)
+    return f"Processed query '{user_prompt}' with result: {db_result}"
 
-# Use track decorator to instrument traces programmatically
-@track
-def execute_agent_tool(tool_name: str, args: Dict[str, Any]) -> str:
-    # Simulates a FastMCP 3.1 tool call
-    print(f"Executing tool {tool_name} with arguments: {args}")
-    return f"Result of {tool_name}"
+if __name__ == "__main__":
+    response = run_agent_loop("Find active customer contracts")
+    print(response)
+```
 
-@track
-async def run_evaluated_agent(task_query: str, eval_config: Dict[str, Any]) -> str:
-    # Auto-validate incoming configuration utilizing Pydantic v2 model_validate
-    validated_eval = EvaluationResult.model_validate(eval_config)
+### 2. FastMCP 3.1 Protocol Server with Opik Tracing
+```python
+import json
+from typing import Dict, Any
+from opik import track
+from mcp.server.fastmcp import FastMCP
 
-    # Nested trace spans are automatically handled by Opik's @track decorator
-    search_output = execute_agent_tool(
-        tool_name="web_search",
-        args={"query": task_query, "mcp_version": "3.1"}
-    )
+mcp = FastMCP("opik-monitored-agent")
 
-    response = f"Answer to query: {search_output}"
-    print(f"Agent finished evaluating. Model: {validated_eval.model_name}")
-    return response
-
-# Execution Simulation
-mock_eval_config = {
-    "test_case_id": "tc_0182_grounding",
-    "prompt_version": "v5.1.2-beta",
-    "faithfulness_score": 0.98,
-    "model_name": "claude-5.1-sonnet",
-    "metadata": {
-        "fastmcp_active": True,
-        "environment": "ci-pipeline"
+@mcp.tool()
+@track(name="coveo_search_tool")
+def search_knowledge_base(query: str, user_role: str = "engineer") -> Dict[str, Any]:
+    """FastMCP 3.1 tool call tracked in Comet Opik trace timeline."""
+    # Simulated search execution
+    results = [
+        {"title": "K8s Failover Guide", "relevance": 0.95},
+        {"title": "Database Recovery Plan", "relevance": 0.88}
+    ]
+    return {
+        "status": "success",
+        "query": query,
+        "user_role": user_role,
+        "results": results
     }
-}
 
-asyncio.run(run_evaluated_agent("What are the core updates in FastMCP 3.1?", mock_eval_config))
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### 3. Strict Pydantic v2 Evaluation Result Schema
+```python
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+class OpikSpanMetric(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., description="Metric identifier e.g. hallucination")
+    score: float = Field(..., ge=0.0, le=1.0, description="Normalized score 0-1")
+    reason: Optional[str] = Field(None, description="LLM-as-a-judge reasoning summary")
+
+class OpikTracePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    trace_id: str = Field(..., min_length=8, description="Unique trace identifier")
+    project_name: str = Field("default", description="Opik target project")
+    input_prompt: str = Field(..., description="User input prompt")
+    output_response: str = Field(..., description="Agent generated response")
+    metrics: List[OpikSpanMetric] = Field(default_factory=list)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("trace_id")
+    @classmethod
+    def validate_trace_id(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("trace_id cannot be blank")
+        return v.strip()
+
+# Example Validation
+try:
+    trace = OpikTracePayload(
+        trace_id="tr_908234_opik",
+        project_name="Customer-Support-Evaluation",
+        input_prompt="What is the refund policy for hardware products?",
+        output_response="Hardware refunds are allowed within 30 days of delivery.",
+        metrics=[
+            OpikSpanMetric(name="answer_relevance", score=0.98, reason="Directly answers user question."),
+            OpikSpanMetric(name="hallucination", score=0.02, reason="Fully grounded in policy doc.")
+        ],
+        metadata={"fastmcp_version": "3.1", "environment": "production"}
+    )
+    print("Validated Opik Trace Payload:")
+    print(trace.model_dump_json(indent=2))
+except Exception as err:
+    print(f"Validation error: {err}")
 ```
 
 ## Related tools / concepts
-- [Arize AI](./arize-ai.md) — Enterprise-grade model performance management (MPM) and Arize Phoenix.
-- [Braintrust](./braintrust.md) — Evaluation-driven LLM developer platform and trace logs.
-- [Langfuse](./langfuse.md) — Open-source LLM analytics and tracing framework.
-- [LangSmith](../benchmarking/langsmith.md) — Industry-standard evaluation framework for LangChain-built systems.
-- [PostHog](./posthog.md) — General product analytics platform containing specialized LLM tracing tools.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Universal protocol for agent capabilities (FastMCP 3.1).
-- [LiteLLM](../../services/litellm.md) — Unified inference gateway often providing Opik's stream logging.
-- [ClickHouse](./clickhouse.md) — High-throughput relational database used to store local Opik traces.
+- **[Arize AI](arize-ai.md)**: Enterprise model performance management and Arize Phoenix.
+- **[Langfuse](langfuse.md)**: Open-source LLM observability and analytics platform.
+- **[Braintrust](braintrust.md)**: Enterprise AI evaluation platform and tracing suite.
+- **[ClickHouse](clickhouse.md)**: Columnar analytical database powering Opik trace storage.
+- **[FastMCP 3.1 Protocol](../automation_orchestration/mcp.md)**: Standardized protocol for agentic tool execution.
 
 ## Sources / references
-- [Comet Opik Official Documentation Portal](https://www.comet.com/docs/opik/)
-- [Comet Opik Official GitHub Repository](https://github.com/comet-ml/opik)
-- [Open-Source LLM Observability & Testing Best Practices](https://www.comet.com/site/blog/opik-open-source-llm-observability/)
-- [FastMCP 3.1 Specification & Task Guidelines](https://modelcontextprotocol.io/specification)
+- [Comet Opik Official Portal](https://www.comet.com/docs/opik/)
+- [Comet Opik GitHub Repository](https://github.com/comet-ml/opik)
+- [Open-Source LLM Observability Best Practices](https://www.comet.com/site/blog/)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high
