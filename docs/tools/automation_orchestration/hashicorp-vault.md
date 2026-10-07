@@ -1,66 +1,134 @@
 # HashiCorp Vault
 
 ## What it is
-HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of early 2027, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like **Gemma 4**, **DeepSeek-V4**, **Qwen 3.6 VL**, **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** via standardized **Vault MCP** and **FastMCP 3.1** integrations.
+HashiCorp Vault is an enterprise-grade identity-based secret management, data encryption, and privileged credential management engine. Designed to secure sensitive credentials—including API tokens, database connection strings, TLS certificates, SSH keys, and cloud access keys—Vault provides centralized control, auditing, dynamic leasing, and real-time encryption in transit and at rest. As of early 2027, Vault functions as the core security foundation for agentic workflows and automated homelab/enterprise infrastructure. It bridges identity providers (such as [Authentik](../../services/authentik.md), Keycloak, and OIDC) with AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**) through standardized **Vault MCP** and **FastMCP 3.1** protocol integrations.
 
 ## What problem it solves
-Managing secrets in plain text, environment variables, or unprotected configuration files creates significant security vulnerabilities. Vault provides a single, secure source of truth with strict access control, automated secret rotation, and granular auditing. It eliminates "secret sprawl" by centralizing credential management and ensuring that only authorized agents and services can access specific sensitive information.
+Hardcoding API tokens, database passwords, or private encryption keys in codebases, configuration files (`.env`), or CI/CD environment variables creates severe security vulnerabilities:
+
+1. **Secret Sprawl & Credential Leakage**: Microservices and autonomous agents proliferation leads to unmonitored copies of sensitive keys stored across repository histories and container image layers.
+2. **Static Credentials**: Long-lived static tokens remain valid indefinitely after exposure, expanding the window of opportunity for unauthorized exploitation.
+3. **Lack of Auditing**: Standard environment variables do not log access events, making it impossible to determine which agent or service retrieved a specific credential during a security incident.
+4. **Agentic Tool Over-Privileging**: Autonomous AI agents given static full-access API keys risk accidentally exposing or misusing administrative privileges.
+
+Vault solves these challenges by implementing a Zero Trust security architecture based on dynamic secret leasing, dynamic credential generation, centralized secret rotation, cryptographic transit encryption, and explicit FastMCP 3.1 permission policies.
+
+```
++-----------------------------------------------------------------------------------+
+|                            HASHICORP VAULT ARCHITECTURE                           |
++-----------------------------------------------------------------------------------+
+
+[ Agentic Workbenches / AI Models ] ────> [ Vault MCP / FastMCP 3.1 Protocol ]
+                                                      │
+                                                      ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Vault Server Engine (AES-256-GCM Encrypted Barrier / Locked Memory)              |
+|                                                                                  |
+| ┌────────────────────────┐  ┌────────────────────────┐  ┌──────────────────────┐ |
+| │ Auth Methods           │  │ Secret Engines         │  │ Audit Storage        │ |
+| │ - AppRole / Token      │  │ - KV v2 (Key-Value)    │  │ - Syslog / File      │ |
+| │ - Kubernetes / OIDC    │  │ - Dynamic Postgres/AWS │  │ - Tamper-Proof Log   │ |
+| │ - Authentik / TLS Cert │  │ - Transit Encryption   │  │   Stream             │ |
+| └────────────────────────┘  └────────────────────────┘  └──────────────────────┘ |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                                                      │
+                                                      ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Integrated Storage Layer (Raft / Encrypted Storage Backend)                      |
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Where it fits in the stack
-**Infrastructure / Security Layer**. It is the primary security engine for both homelab and enterprise environments, protecting credentials used by [n8n](../../services/n8n.md), [Home Assistant](../../services/home-assistant.md), and [Aider](../development_ops/aider.md). It integrates deeply with the [Model Context Protocol (MCP)](mcp.md) ecosystem via [Vault MCP](vault-mcp.md) to provide AI agents with secure, time-limited access to tools.
+**Infrastructure / Security Layer**. Vault serves as the centralized identity and secrets coordinator across homelab and cloud deployments. It injects dynamic API credentials into automation platforms like [n8n](../../services/n8n.md), self-hosted containers ([Home Assistant](../../services/home-assistant.md), [Paperless-ngx](../../services/paperless-ngx.md)), and developer IDE agents ([Claude Code](../development_ops/claude-code-setup.md), [Aider](../development_ops/aider.md)).
+
+### Key Capabilities & Technical Features
+
+#### 1. Key-Value Version 2 (KV v2) Engine
+Provides versioned secret storage with soft-delete capabilities, metadata tracking, and automatic historical revision management. It allows rollback to prior secret values if a newly generated key fails.
+
+#### 2. Dynamic Secret Generation
+Vault generates short-lived, on-demand credentials for external systems (e.g., PostgreSQL databases, AWS IAM, Google Cloud, RabbitMQ). Credentials automatically expire at the end of their lease unless explicitly renewed by the requesting process.
+
+#### 3. Encryption as a Service (Transit Engine)
+Vault encrypts data in transit without storing the underlying plaintext. Applications pass raw payloads to Vault's `/transit/encrypt` endpoint, receiving ciphertext encrypted using modern keys managed and rotated entirely by Vault.
+
+#### 4. FastMCP 3.1 & Vault MCP Integration
+Vault MCP exposes Vault's REST API through the Model Context Protocol (FastMCP 3.1). AI agents can request temporary API keys or decrypt payloads within narrow policy boundaries without ever accessing Vault's root token or underlying master keys.
+
+#### 5. Fine-Grained Policy Engine (HCL)
+Access control policies defined in HashiCorp Configuration Language (HCL) specify exact paths, capabilities (`create`, `read`, `update`, `delete`, `list`), and parameter restrictions for every token and identity.
 
 ## Typical use cases
-- **Centralized Secret Management**: Securely storing and managing API keys for providers like [Fireworks AI](../providers/fireworks.md) and [Cohere](../providers/cohere.md).
-- **Dynamic Credentials**: On-demand generation of temporary credentials for AWS, Postgres, or Google Cloud that expire automatically after use.
-- **Encryption as a Service**: Offloading data encryption tasks to Vault to ensure that encryption keys never leave the secure environment.
-- **Agentic Secret Injection**: Securely injecting credentials into autonomous agent environments at runtime via [Vault MCP](vault-mcp.md).
-- **Identity-Based Access**: Leveraging [Authentik](../../services/authentik.md) or OIDC for secure, role-based access to infrastructure secrets.
+- **Agentic API Key Delivery**: Injecting short-lived API keys for [Fireworks AI](../providers/fireworks.md), [Together AI](../providers/together.md), or [OpenRouter](../ai_knowledge/openrouter.md) into agent runtimes at startup.
+- **Automated Database Credential Leasing**: Generating temporary, unique PostgreSQL user credentials for ephemeral CI/CD pipelines and n8n workflows.
+- **Self-Hosted Infrastructure PKI**: Automatically issuing and renewing TLS certificates for local domain services managed by Nginx Proxy Manager or Traefik.
+- **Homelab Secret Centralization**: Eliminating plain-text passwords from `docker-compose.yml` files by passing secrets directly to containers via Vault agent sidecars.
 
 ## Strengths
-- **Hardened Security**: Data is encrypted at rest and in transit using industry-standard algorithms (AES-256-GCM); memory is locked to prevent swapping.
-- **Detailed Audit Logs**: Every interaction—successful or denied—is logged, providing a complete audit trail for compliance and security forensics.
-- **Ephemeral Secrets**: Minimizes the risk of credential theft by using short-lived, dynamically generated secrets that are automatically revoked.
-- **Multi-Cloud Native**: Robust support for secret management across AWS, Azure, GCP, Kubernetes, and on-premise infrastructure.
+- **Cryptographic Security**: Master key constructed using Shamir's Secret Sharing algorithm; RAM is locked via `mlock` to prevent memory swapping.
+- **Comprehensive Audit Trail**: Every token creation, secret access, policy update, and unseal operation is logged in JSON format with source IP and user identity tags.
+- **Dynamic Lease Revocation**: Instantly revoke an entire tree of dynamic credentials or compromise tokens with a single CLI command or API call.
+- **Multi-Cloud Identity Binding**: Native authentication adapters for AWS IAM, GCP Service Accounts, Kubernetes ServiceAccounts, and OIDC/OAuth2.
 
 ## Limitations
-- **Operational Overhead**: Requires careful management of initialization, unsealing processes, and complex HCL policy design.
-- **Single Point of Failure**: If the Vault instance is unavailable or sealed, all downstream services depending on it for secrets will fail.
-- **Resource Intensity**: High-availability production deployments require significant planning and infrastructure resources compared to simpler secret managers.
+- **Unsealing Operational Requirement**: When a Vault server restarts, it starts in a "Sealed" state and cannot read data until unsealed using a quorum of unseal keys (or Auto-Unseal HSM/KMS).
+- **HCL Policy Complexity**: Writing precise, least-privilege path policies requires careful planning to prevent accidental over-permissioning or service lockouts.
+- **Resource Footprint**: High-availability Raft clusters require dedicated node resources and network monitoring compared to simple key-value stores.
 
 ## When to use it
-- In complex environments where multiple AI agents and automated services require secure, auditable access to sensitive credentials.
-- When moving towards a "Zero Trust" architecture for agentic infrastructure.
-- When you need to provide AI assistants (e.g., [Claude Code](../development_ops/claude-code-setup.md)) with restricted, temporary access to privileged system APIs.
+- In zero-trust environments where multiple AI agents, CI/CD runners, and microservices require auditable, short-lived secret access.
+- When regulatory compliance or security standards require strict audit logging and automated credential rotation.
+- When deploying FastMCP 3.1 agentic tools that need secure credential access without persistent static key storage.
 
 ## When not to use it
-- For very simple, single-server projects where basic `.env` files or native platform secret management (e.g., GitHub Secrets) is sufficient.
-- In resource-constrained environments where the operational cost of managing a dedicated security service outweighs the security benefits.
+- For single-server, static personal projects where basic environment variables or Docker secrets provide sufficient protection.
+- In resource-constrained micro-edge devices (e.g., Raspberry Pi Zero) where running a full Vault server daemon introduces unacceptable memory overhead.
 
 ## Getting started
 
-### 1. Installation
-Deploy Vault via Docker for rapid setup in a development environment:
+### 1. Docker Compose Deployment (Dev / Homelab Mode)
 
-```bash
-# Start Vault in development mode with a fixed root token
-docker run --cap-add=IPC_LOCK -e 'VAULT_DEV_ROOT_TOKEN_ID=myroot' -p 8200:8200 hashicorp/vault
+```yaml
+version: "3.8"
+
+services:
+  vault:
+    image: hashicorp/vault:1.16.0
+    container_name: vault-server
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root-dev-token-2027"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault/data:/vault/file
+      - ./vault/config:/vault/config
 ```
 
-### 2. Initializing and Unsealing
-For production-like environments, Vault must be initialized and unsealed:
+### 2. Production Initialization and Unsealing
+For non-dev production deployments using Raft integrated storage:
 
 ```bash
-# Initialize to generate unseal keys and the initial root token
-vault operator init
+# Export Vault server address
+export VAULT_ADDR="http://127.0.0.1:8200"
 
-# Unseal Vault (requires a quorum of keys, typically 3 out of 5)
-vault operator unseal <unseal-key-1>
-vault operator unseal <unseal-key-2>
-vault operator unseal <unseal-key-3>
+# Initialize Vault to generate 5 key shares with a threshold of 3
+vault operator init -key-shares=5 -key-threshold=3 > cluster-keys.txt
+
+# Inspect key output (Keep cluster-keys.txt secure!)
+cat cluster-keys.txt
+
+# Unseal Vault using 3 of the 5 generated key shares
+vault operator unseal <Unseal-Key-1>
+vault operator unseal <Unseal-Key-2>
+vault operator unseal <Unseal-Key-3>
+
+# Login with the root token
+vault login <Initial-Root-Token>
 ```
-
-### 3. Configure Agent Access
-Set up [Vault MCP](vault-mcp.md) to bridge your Vault instance with your AI agents using FastMCP 3.1 Task Protocol.
 
 ## CLI examples
 
@@ -71,92 +139,133 @@ vault login <token>
 
 # Enable the Key-Value (KV) version 2 secrets engine
 vault secrets enable -path=secret kv-v2
+
+# Write a secret key-value entry for an agent worker
+vault kv put secret/agents/anthropic \
+  provider="anthropic" \
+  api_key="sk-ant-api03-prod-key-sample-2027" \
+  environment="production" \
+  lease_duration=3600
+
+# Read secret metadata and current version value
+vault kv get secret/agents/anthropic
 ```
 
-### Managing Secrets
+### Managing Dynamic Credentials & Policies
 ```bash
-# Write a secret for an agentic workflow
-vault kv put secret/agents/config api_key="sk_prod_54321"
+# Apply HCL policy
+vault policy write agent-read-policy agent-policy.hcl
 
-# Retrieve the secret
-vault kv get secret/agents/config
-
-# List available secrets in a specific path
-vault kv list secret/agents/
+# Enable database engine & generate dynamic postgres creds
+vault secrets enable database
+vault read database/creds/agent-read-role
 ```
 
 ## API examples
 
-### Reading Secrets via REST API
-Agents can interact with Vault using standard HTTP requests:
-
-```bash
-curl --header "X-Vault-Token: <token>" \
-     --request GET \
-     http://127.0.0.1:8200/v1/secret/data/agents/config
-```
-
-### Python Integration with hvac & Pydantic v2 Validation (FastMCP 3.1 Context)
-To maintain compliance with early 2027 security and KnowledgeOps contract checks, secret payloads retrieved from Vault must undergo validation using Pydantic v2 before downstream model ingestion.
+### Reading Secrets & FastMCP 3.1 Pydantic Validation
+The following production script demonstrates an AI agent interacting with Vault via a FastMCP 3.1 server, retrieving secrets from KV v2, and executing strict Pydantic v2 validation.
 
 ```python
 import hvac
-from pydantic import BaseModel, Field, SecretStr, ValidationError
-from typing import Optional
+from pydantic import BaseModel, Field, SecretStr, field_validator
+from typing import Optional, Dict, Any
+from mcp.server.fastmcp import FastMCP
 
-# 1. Define a strict validation schema using Pydantic v2
-class ProviderCredentials(BaseModel):
-    provider_name: str = Field(..., pattern="^(anthropic|openai|google|cohere|deepseek)$")
-    api_key: SecretStr = Field(..., min_length=16, description="Vault-stored provider API key.")
-    task_id: Optional[str] = Field(None, alias="taskId", description="FastMCP 3.1 Task Protocol execution ID")
-    api_url: Optional[str] = Field(None, description="Optional custom base URL.")
+# Define strict Pydantic v2 validation schemas for secrets
+class APIKeyPayload(BaseModel):
+    provider: str = Field(..., description="Target model provider (e.g., anthropic, openai)")
+    api_key: SecretStr = Field(..., min_length=20, description="Encrypted API token")
+    environment: str = Field("production", description="Deployment stage")
+    lease_duration_sec: int = Field(3600, ge=60, le=86400)
 
-# 2. Programmatic secret retrieval from KV v2 with Pydantic validation
-def fetch_and_validate_credentials(path: str) -> ProviderCredentials:
-    # Initialize the client with early 2027 security standards
-    client = hvac.Client(url='http://127.0.0.1:8200', token='myroot')
+    @field_validator('provider')
+    @classmethod
+    def validate_provider(cls, v: str) -> str:
+        allowed = {"anthropic", "openai", "openrouter", "google", "deepseek"}
+        if v.lower() not in allowed:
+            raise ValueError(f"Provider '{v}' not recognized.")
+        return v.lower()
 
+class TransitEncryptRequest(BaseModel):
+    key_name: str = Field(..., description="Vault transit key name")
+    plaintext_data: str = Field(..., min_length=1)
+
+class TransitEncryptResponse(BaseModel):
+    ciphertext: str = Field(..., description="Vault transit ciphertext (vault:v1:...)")
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Vault-Secret-Manager-MCP", version="3.1.0")
+
+# Vault HVAC Client Setup
+vault_client = hvac.Client(url="http://127.0.0.1:8200", token="root-dev-token-2027")
+
+@mcp.tool()
+async def fetch_validated_agent_secret(secret_path: str) -> str:
+    """Fetch and validate an API credential payload from Vault KV v2."""
     try:
-        # Programmatic secret retrieval from KV v2
-        response = client.secrets.kv.v2.read_secret_version(path=path)
-        secret_payload = response['data']['data']
+        response = vault_client.secrets.kv.v2.read_secret_version(
+            path=secret_path,
+            mount_point="secret"
+        )
+        data = response["data"]["data"]
 
-        # Strict validation of input using Pydantic v2
-        credentials = ProviderCredentials.model_validate(secret_payload)
-        return credentials
-    except ValidationError as e:
-        print(f"Data contract validation failed for secret '{path}': {e}")
-        raise
+        # Validate with Pydantic v2
+        payload = APIKeyPayload(
+            provider=data.get("provider", "anthropic"),
+            api_key=SecretStr(data.get("api_key", "")),
+            environment=data.get("environment", "production"),
+            lease_duration_sec=int(data.get("lease_duration", 3600))
+        )
+
+        return f"Successfully validated key for provider '{payload.provider}' (Lease: {payload.lease_duration_sec}s)."
     except Exception as e:
-        print(f"Failed to access Vault: {e}")
-        raise
+        return f"Vault Secret Retrieval Failed: {str(e)}"
+
+@mcp.tool()
+async def encrypt_payload_transit(key_name: str, plaintext: str) -> str:
+    """Encrypt sensitive string payload using Vault's Transit Encryption engine."""
+    try:
+        import base64
+        encoded_text = base64.b64encode(plaintext.encode("utf-8")).decode("utf-8")
+
+        response = vault_client.secrets.transit.encrypt_data(
+            name=key_name,
+            plaintext=encoded_text
+        )
+
+        result = TransitEncryptResponse(ciphertext=response["data"]["ciphertext"])
+        return result.model_dump_json()
+    except Exception as e:
+        return f"Transit Encryption Failed: {str(e)}"
 
 if __name__ == "__main__":
-    # Example invocation
-    try:
-        creds = fetch_and_validate_credentials(path='agents/anthropic')
-        print(f"Successfully retrieved and validated credentials for {creds.provider_name}.")
-    except Exception:
-        pass
+    mcp.run()
 ```
 
+### Configuration & Troubleshooting Matrix
+
+| Parameter / Failure Mode | Default / Cause | Description / Resolution |
+| :--- | :--- | :--- |
+| `storage.raft.path` | `"/vault/file"` | Path for Raft integrated storage backend. |
+| `listener.tcp.address` | `"127.0.0.1:8200"` | IP and port binding for Vault HTTP API server. |
+| **Error 503 Sealed** | Vault process restarted. | Run `vault operator unseal <key>` threshold times. |
+| **Error 403 Permission Denied** | Missing token capabilities. | Inspect capabilities with `vault token lookup`. |
+
 ## Related tools / concepts
-- [Vault MCP](vault-mcp.md) — The Model Context Protocol interface for HashiCorp Vault.
-- [Model Context Protocol (MCP)](mcp.md) — The standardized protocol for agent-tool communication (FastMCP 3.1).
-- [Authentik](../../services/authentik.md) — Identity provider for managing Vault access.
-- [Aider](../development_ops/aider.md) — Agentic IDE that can leverage Vault-stored credentials.
-- [n8n](../../services/n8n.md) — Automation platform that often requires secure secret management.
-- [Gemma 4](../ai_knowledge/local_llms.md) — Frontier model used for orchestrating secure workflows.
-- [Axiom Guardian](../development_ops/axiom-guardian.md) — For validating requests and managing security boundaries.
-- [Docker](../infrastructure/docker.md) — The preferred method for containerized Vault deployment.
+- [Vault MCP](vault-mcp.md) — Model Context Protocol bridge for Vault.
+- [Authentik](../../services/authentik.md) — Self-hosted OIDC identity provider for Vault auth.
+- [n8n](../../services/n8n.md) — Automation tool that consumes Vault dynamic credentials.
+- [Docker](../infrastructure/docker.md) — Preferred runtime container platform for Vault.
+- [FastMCP 3.1 Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Tool calling protocol specification.
+- [Aider](../development_ops/aider.md) — Agentic coding assistant using Vault-secured tokens.
 
 ## Sources / references
-- [HashiCorp Vault Official Site](https://www.vaultproject.io/)
-- [Vault Documentation Portal](https://developer.hashicorp.com/vault/docs)
-- [hvac Python Client Library](https://hvac.readthedocs.io/)
-- [Official MCP Specification](https://modelcontextprotocol.io/)
-- [Vault MCP Repository](https://github.com/democratize-technology/vault-mcp)
+- [HashiCorp Vault Official Project Site](https://www.vaultproject.io/)
+- [HashiCorp Vault Documentation Portal](https://developer.hashicorp.com/vault/docs)
+- [hvac Python Vault Client Documentation](https://hvac.readthedocs.io/)
+- [Vault MCP Source Code Repository](https://github.com/democratize-technology/vault-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high

@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-06",
+  "snapshot_date": "2026-10-07",
   "total_docs": 598,
   "tool_docs": 545,
   "service_docs": 53,
@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/pageindex.md",
-    "docs/tools/automation_orchestration/hashicorp-vault.md",
-    "docs/services/qbittorrent.md",
-    "docs/tools/agents/replit-agent.md",
-    "docs/tools/ai_knowledge/openrouter.md",
     "docs/tools/providers/baseten.md",
     "docs/tools/ai_knowledge/colqwen.md",
     "docs/tools/process_understanding/ragas.md",
@@ -40,7 +35,12 @@
     "docs/tools/ai_knowledge/diffusiongemma.md",
     "docs/services/cloudflare-mesh.md",
     "docs/services/excalidraw.md",
-    "docs/tools/agents/anthropic-agent-skills.md"
+    "docs/tools/agents/anthropic-agent-skills.md",
+    "docs/tools/infrastructure/llama-app.md",
+    "docs/tools/enterprise/coveo.md",
+    "docs/tools/intake_storage/s3-storage.md",
+    "docs/tools/providers/portkey.md",
+    "docs/tools/development_ops/github-copilot-cli.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
