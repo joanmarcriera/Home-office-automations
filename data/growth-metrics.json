@@ -25,10 +25,7 @@
     "docs/tools/providers/monolith.md",
     "docs/tools/frameworks/distilabel.md",
     "docs/tools/benchmarking/judgegpt.md",
-    "docs/tools/agents/goose.md",
-    "docs/services/mealie.md",
     "docs/tools/ai_knowledge/diffusiongemma.md",
-    "docs/services/cloudflare-mesh.md",
     "docs/services/excalidraw.md",
     "docs/tools/agents/anthropic-agent-skills.md",
     "docs/tools/infrastructure/llama-app.md",
@@ -40,7 +37,10 @@
     "docs/tools/process_understanding/comet-opik.md",
     "docs/tools/automation_orchestration/gumloop.md",
     "docs/tools/ai_knowledge/antigravity-agent.md",
-    "docs/tools/infrastructure/valkey.md"
+    "docs/tools/infrastructure/valkey.md",
+    "docs/tools/process_understanding/ragflow.md",
+    "docs/services/linkwarden.md",
+    "docs/tools/development_ops/ripgrep.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
