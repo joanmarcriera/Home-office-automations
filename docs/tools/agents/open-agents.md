@@ -9,6 +9,26 @@ It bridges the gap between static LLM text generation and interactive web-based 
 ## Where it fits in the stack
 **Agent / Web Automation / Serverless Platform**. It functions as an orchestration layer that combines the Vercel AI SDK with headless browser controllers ([Playwright](../development_ops/playwright.md)) and isolated Vercel Sandbox execution environments.
 
+```
++-----------------------------------------------------------------------------------+
+|                              User / FastMCP 3.1 Client                             |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                              Open Agents Orchestrator                             |
+|    +------------------------+  +------------------------+  +-------------------+  |
+|    | Vercel AI SDK 5.0 Core |  | Session State Manager  |  | FastMCP Tool Reg  |  |
+|    +------------------------+  +------------------------+  +-------------------+  |
++-----------------------------------------------------------------------------------+
+        |                                     |                                   |
+        v                                     v                                   v
++-----------------------+           +--------------------+              +--------------------+
+| Frontier LLM Provider |           | Playwright Engine  |              | Vercel Sandbox VM  |
+| (Claude 5.1 / GPT-5.6) |           | (Headless Browser) |              | (Isolated Code)    |
++-----------------------+           +--------------------+              +--------------------+
+```
+
 ## Typical use cases
 - **Automated Web Intelligence Gathering**: Synthesizing data from multiple authenticated web applications into structured analytical reports.
 - **SaaS Platform Administration**: Executing routine administrative and configuration workflows across platforms like HubSpot, Jira, Salesforce, or cloud consoles.
@@ -54,7 +74,35 @@ npm install
 2. Configure your Vercel Sandbox token if isolated shell execution is required.
 3. Start the local development server: `npm run dev`.
 
+## Advanced Setup and Configuration
+
+Open Agents supports both single-tenant serverless deployments and multi-tenant agent execution clusters.
+
+### Environment Variable Reference
+
+```env
+# Primary Frontier LLM Providers
+ANTHROPIC_API_KEY=sk-ant-api03-...
+OPENAI_API_KEY=sk-proj-...
+DEEPSEEK_API_KEY=sk-ds-...
+
+# Playwright Browser Sandbox Configuration
+BROWSER_HEADLESS=true
+BROWSER_VIEWPORT_WIDTH=1280
+BROWSER_VIEWPORT_HEIGHT=800
+BROWSER_TIMEOUT_MS=30000
+
+# FastMCP 3.1 Server Settings
+FASTMCP_SERVER_NAME="OpenAgentsWebWorker"
+FASTMCP_PORT=8080
+FASTMCP_LOG_LEVEL="info"
+
+# Vercel Isolated Sandbox Token (Optional for Code Execution)
+VERCEL_SANDBOX_TOKEN="vsb_live_..."
+```
+
 ## CLI examples
+
 ```bash
 # Clone and set up the open agents workspace
 git clone https://github.com/vercel-labs/open-agents
@@ -68,10 +116,88 @@ npm test -- --headless
 
 # Execute an agent task locally via the CLI test runner
 npm run start-agent -- --task "Verify status of production deployments on Vercel Dashboard"
+
+# Launch FastMCP 3.1 Open Agents Bridge Server
+npm run start-mcp-server -- --port 8080
 ```
 
 ## API examples
-Open Agents utilizes the Vercel AI SDK `generateText` or `streamText` functions paired with custom FastMCP tools. Example using the browser tool skill:
+
+### FastMCP 3.1 Web Agent Server Example
+
+Open Agents exposes web manipulation and sandboxed computer-use actions via FastMCP 3.1 tools. The following example demonstrates implementing a FastMCP server in Python that coordinates with the Open Agents runner:
+
+```python
+import asyncio
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+# Define Pydantic v2 schemas for agent input/output payloads
+class ActionTarget(BaseModel):
+    selector: Optional[str] = Field(None, description="CSS or XPath DOM selector")
+    coordinates: Optional[List[int]] = Field(None, description="[x, y] screen coordinates")
+    text_content: Optional[str] = Field(None, description="Expected target text")
+
+class AgentBrowserAction(BaseModel):
+    step_number: int = Field(..., description="Action index")
+    action_type: str = Field(..., description="Action type: navigate, click, fill, screenshot, evaluate")
+    target: Optional[ActionTarget] = None
+    value: Optional[str] = Field(None, description="Input string value for fill actions")
+    wait_time_ms: int = Field(1000, description="Post-action delay in milliseconds")
+
+class BrowserExecutionReport(BaseModel):
+    session_id: str = Field(..., description="Unique browser session token")
+    target_url: HttpUrl = Field(..., description="Destination URL")
+    actions_executed: List[AgentBrowserAction] = Field(default_factory=list)
+    success: bool = Field(..., description="True if objective was achieved")
+    final_dom_snapshot: Optional[str] = Field(None, description="Base64 screenshot or text summary")
+    telemetry: Dict[str, Any] = Field(default_factory=dict)
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Open-Agents-Web-Worker", version="3.1.0")
+
+@mcp.tool()
+async def execute_web_task(
+    session_id: str,
+    target_url: str,
+    action_plan_json: str
+) -> str:
+    """Execute a multi-step web interaction plan inside an Open Agents Playwright sandbox."""
+    try:
+        raw_actions = json.loads(action_plan_json)
+        actions = [AgentBrowserAction.model_validate(a) for a in raw_actions]
+    except (json.JSONDecodeError, ValidationError) as e:
+        return f"Error: Invalid action plan payload. {str(e)}"
+
+    # Simulated Playwright execution loop inside Open Agents
+    executed_actions = []
+    for action in actions:
+        # Simulate browser action execution
+        executed_actions.append(action)
+        await asyncio.sleep(action.wait_time_ms / 1000.0)
+
+    report = BrowserExecutionReport(
+        session_id=session_id,
+        target_url=HttpUrl(target_url),
+        actions_executed=executed_actions,
+        success=True,
+        final_dom_snapshot="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
+        telemetry={
+            "duration_ms": sum(a.wait_time_ms for a in actions) + 450,
+            "browser_engine": "Playwright/Chromium 122.0",
+            "tokens_consumed": 1240
+        }
+    )
+
+    return report.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Vercel AI SDK 5.0 Browser Interaction Script
 
 ```typescript
 import { generateText, tool } from 'ai';
@@ -89,9 +215,18 @@ const result = await generateText({
         return { screenshot: 'data:image/png;base64,...', pageContent: '...' };
       },
     }),
+    browser_click: tool({
+      description: 'Click on an element using CSS selector',
+      parameters: z.object({ selector: z.string() }),
+      execute: async ({ selector }) => {
+        return { status: 'clicked', targetSelector: selector };
+      },
+    }),
   },
   prompt: 'Go to the Vercel status page and check for any active incident reports.',
 });
+
+console.log('Agent Response:', result.text);
 ```
 
 ### Validation of Agent Action Sequences with Pydantic v2
@@ -127,6 +262,17 @@ def validate_agent_session(raw_json: str) -> Optional[OpenAgentSession]:
         print("Error: Invalid JSON payload.")
         return None
 ```
+
+## Matrix Comparison with Alternative Web Agents
+
+| Feature | Open Agents | Stagehand | Browser Use | Claude Computer Use |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Platform** | Vercel Next.js / Serverless | Node.js / Playwright | Python / Asyncio | Anthropic API / OS VM |
+| **FastMCP 3.1 Support** | Native Built-in | Wrapper required | Native | Custom harness |
+| **Execution Sandbox** | Vercel Isolated Sandboxes | Local / Cloud Browser | Local / Docker | Isolated Desktop VM |
+| **Supported Models** | Claude 5.1, GPT-5.6, DeepSeek-V4 | GPT-4o, Claude 3.5 | Any LLM via LangChain | Claude 3.5 / 5.1 |
+| **DOM Alignment Method** | Visual + Playwright Selectors | Natural Language Act | Accessibility Tree | Screen Coordinate Screenshots |
+| **Multi-Tenant Ready** | Yes | Needs Custom Wrapper | Custom Deployment | Docker VM Required |
 
 ## Related tools / concepts
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Core agent integration SDK.

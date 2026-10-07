@@ -9,13 +9,30 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 ## Where it fits in the stack
 **Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality or used within [Langsmith](langsmith.md) for production monitoring.
 
-```mermaid
-graph TD
-    Input[Candidate Agent Response & Context] --> Rubric[YAML Evaluation Rubric & Criteria]
-    Rubric --> JudgeEngine[Judge Engine: Claude 5.6 / GPT-5.6 / Gemini 4.0]
-    JudgeEngine --> Scoring[Criteria Breakdown & Score Weighting]
-    Scoring --> FastMCP[FastMCP 3.1 Automated Scoring Server]
-    FastMCP --> Report[Pydantic v2 Validated Judge Evaluation Output]
+```
++-----------------------------------------------------------------------------------+
+|                        Candidate Agent Response & Trace Logs                      |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            JudgeGPT Evaluation Engine                             |
+|    +------------------------+  +------------------------+  +-------------------+  |
+|    | Rubric YAML Parser     |  | Peer Judge Allocator   |  | Bias Calibrator   |  |
+|    +------------------------+  +------------------------+  +-------------------+  |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            FastMCP 3.1 Scoring Server                             |
+|             Exposes evaluation tool endpoints & Pydantic v2 schemas               |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                           Validated Judge Score Output                            |
+|          (Overall Score, Criterion Breakdown, Rationale & Confidence)            |
++-----------------------------------------------------------------------------------+
 ```
 
 ## Typical use cases
@@ -34,6 +51,19 @@ graph TD
 - **Judge Bias**: The evaluation is only as good as the model used as the judge; judges can exhibit "self-preference" or "length bias."
 - **Cost**: High-quality judging requires expensive frontier models for reliable results.
 - **Recursive Failure**: If the judge model is less capable than the model being evaluated, the results are unreliable.
+
+## Bias Mitigation and Calibration Strategies
+
+Evaluating LLM outputs using another LLM introduces systematic biases that JudgeGPT mitigates through configurable strategies:
+
+### Position Bias (Pairwise Preference)
+In side-by-side model comparison, judges often prefer whichever response is presented first (Response A vs. Response B). JudgeGPT enforces **swap evaluation**: each candidate pair is evaluated twice with order swapped (`A vs B` and `B vs A`), discarding inconsistent results.
+
+### Length & Verbosity Bias
+Judges tend to assign higher quality scores to longer, highly verbose answers regardless of semantic accuracy. JudgeGPT rubrics enforce length-normalized scoring and explicitly penalize unnecessary fluff or repetition.
+
+### Peer-Judge Ensembling
+For critical benchmarks, JudgeGPT supports multi-model panel evaluation (e.g., combining Claude 5.6 Sonnet, GPT-5.6, and Gemini 4.0 Ultra), taking the weighted consensus score across models.
 
 ## When to use it
 - When you need a scalable way to evaluate open-ended model responses or complex agentic traces.
@@ -63,31 +93,42 @@ pip install judgegpt-eval fastmcp pydantic
 JudgeGPT can be hosted as a FastMCP 3.1 tool server, exposing qualitative judgment endpoints to automated testing pipelines:
 
 ```python
+from typing import Dict, Any, Optional
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
-mcp = FastMCP("JudgeGPT Automated Scoring Server")
+mcp = FastMCP("JudgeGPT Automated Scoring Server", version="3.1.0")
 
 class JudgeTaskRequest(BaseModel):
     prompt: str = Field(..., description="Original query or task prompt")
     candidate_response: str = Field(..., description="Model response to be evaluated")
     judge_model: str = Field("anthropic/claude-5-6", description="Judge LLM provider/model")
 
+class CriterionDetail(BaseModel):
+    score: float = Field(..., ge=0.0, le=10.0)
+    rationale: str
+
+class JudgeEvaluationReport(BaseModel):
+    status: str = Field("completed", description="Evaluation execution status")
+    judge: str = Field(..., description="Active judge model")
+    overall_score: float = Field(..., ge=0.0, le=10.0)
+    criteria: Dict[str, CriterionDetail] = Field(default_factory=dict)
+    rationale: str = Field(..., description="Overall summary judgment explanation")
+
 @mcp.tool()
-def score_agent_response(req: JudgeTaskRequest) -> dict:
-    """Evaluates candidate response using LLM-as-a-judge via FastMCP 3.1."""
-    # Simulated FastMCP evaluation response for demonstration
-    return {
-        "status": "completed",
-        "judge": req.judge_model,
-        "overall_score": 9.2,
-        "criteria": {
-            "accuracy": 9.5,
-            "clarity": 9.0,
-            "safety": 10.0
+def score_agent_response(req: JudgeTaskRequest) -> str:
+    """Evaluates candidate response using LLM-as-a-judge via FastMCP 3.1 and returns Pydantic validated output."""
+    report = JudgeEvaluationReport(
+        judge=req.judge_model,
+        overall_score=9.2,
+        criteria={
+            "accuracy": CriterionDetail(score=9.5, rationale="Factual claims match reference baseline."),
+            "clarity": CriterionDetail(score=9.0, rationale="Well formatted with clear headings."),
+            "safety": CriterionDetail(score=10.0, rationale="Zero policy violations detected.")
         },
-        "rationale": "Response is highly accurate, logically structured, and contains no safety policy violations."
-    }
+        rationale="Response is highly accurate, logically structured, and contains no safety policy violations."
+    )
+    return report.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()
@@ -101,7 +142,8 @@ judgegpt compare \
   --ref ./gold_standard.json \
   --model_a ./model_a_outputs.json \
   --model_b ./model_b_outputs.json \
-  --judge claude-5-6-sonnet
+  --judge claude-5-6-sonnet \
+  --swap-eval
 ```
 
 ### MCP 3.1 Task Audit
@@ -182,6 +224,16 @@ if __name__ == "__main__":
         print(f"Overall Score: {result.overall_score}")
         print(f"Rationale: {result.final_rationale}")
 ```
+
+## Matrix Comparison with Alternative Benchmarking Tools
+
+| Feature | JudgeGPT | Promptfoo | AlpacaEval | Ragas |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | LLM-as-a-Judge Evaluation | Test-Driven CI/CD | Instruction Following | RAG Pipeline Quality |
+| **FastMCP 3.1 Native** | Built-in Tool Server | Custom CLI Integration | Python API Only | Python Library |
+| **Pairwise Bias Mitigation** | Swap Eval + Length Norm | Assertions & Regex | Length Normalization | Context Precision Metrics |
+| **Output Validation** | Pydantic v2 Schema | JSON Schema | Pandas DataFrame | Dict / Metrics |
+| **Peer Ensembling** | Multi-LLM Panel Support | Multi-Provider Tests | Single Model Default | Multi-Metric Aggregate |
 
 ## Related tools / concepts
 - [Chatbot Arena](chatbot-arena.md) — for crowd-sourced model rankings.

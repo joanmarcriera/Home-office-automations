@@ -9,6 +9,33 @@ Transformer architectures often face quadratic computational scaling and high me
 ## Where it fits in the stack
 **AI Model & Edge Multimodal Provider Layer**. Liquid AI operates as both an API provider and an open/edge model family, sitting alongside frontier model providers (e.g., Anthropic Claude 5.1, OpenAI GPT-5.5, Google Gemini 4.0 Pro) while serving as the primary intelligence backend for local edge devices, robotics, and high-throughput vision pipelines.
 
+```
++-----------------------------------------------------------------------------------+
+|                        Continuous Multimodal Input Stream                         |
+|         [ High-FPS Video Feed ]     [ Sensor Telemetry ]     [ Audio Stream ]     |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                               Liquid AI Model Core                                |
+|    +------------------------+  +------------------------+  +-------------------+  |
+|    | Continuous-Time ODEs   |  | Adaptive State Tracker |  | Spatial Encoder   |  |
+|    +------------------------+  +------------------------+  +-------------------+  |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            FastMCP 3.1 Edge Service                               |
+|        Exposes tool endpoints, visual bounding boxes, & Pydantic schemas         |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            Downstream Edge Action Nodes                           |
+|       (Robotic Controllers, Industrial Gateways, Local FastMCP Agents)            |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Real-Time Edge Visual Inspection**: Deploying LFM-2.5-VL-3B on industrial edge gateways for zero-latency product defect detection.
 - **Distributed Edge Compute via LFM-2.5 dSpark**: Accelerating long-context sequence modeling across decentralized heterogeneous clusters.
@@ -40,17 +67,22 @@ Transformer architectures often face quadratic computational scaling and high me
 ## Architectural overview
 Liquid AI models replace standard multi-head self-attention mechanisms with adaptive, continuous-time differential equations. In **LFM-2.5-VL-3B**, visual inputs pass through a high-efficiency spatial encoder before entering the liquid dynamical layers. This architecture adjusts its internal state dynamically based on input changes, providing adaptive compute per token and exceptional stability across time-series sequences.
 
-```
-[ Visual / Video Frame ] ──> ┌───────────────────┐
-                            │ Spatial Encoder   │
-                            └─────────┬─────────┘
-                                      │
-[ Text / System Prompt ]  ──> ┌───────┴─────────┐
-                            │ Liquid AI Model   │ (Continuous-Time LNN Core)
-                            └─────────┬─────────┘
-                                      │
-                                      ▼
-                        [ Structured Pydantic Output ]
+## Hardware NPU & Edge Acceleration Setup
+
+Liquid AI provides optimized execution runtimes across a variety of silicon backends:
+
+### Supported Hardware Backends
+- **NVIDIA Jetson Orin / Thor**: Native TensorRT-Liquid integration supporting FP16 and INT8 quantization.
+- **Apple Silicon (M2/M3/M4/M5)**: CoreML and Metal Performance Shaders (MPS) kernels for real-time video processing.
+- **Qualcomm Snapdragon X Elite / NPU**: Hexagon NPU runtime for mobile edge vision models.
+- **Intel NPU / x86 Workstations**: OpenVINO acceleration for continuous sensor telemetry.
+
+```bash
+# Check device compatibility and print detected Liquid NPU runtimes
+liquid hardware status --verbose
+
+# Compile LFM-2.5-VL-3B model weights for NVIDIA Jetson Orin NPU
+liquid compile --model lfm-2.5-vl-3b --target tensorrt-npu --precision int8 --output ./models/lfm-2.5-vl-3b-orin.engine
 ```
 
 ## Getting started
@@ -58,7 +90,7 @@ Liquid AI models replace standard multi-head self-attention mechanisms with adap
 ### Installation
 Install the Liquid AI SDK:
 ```bash
-pip install liquidai pydantic mcp
+pip install liquidai pydantic mcp fastmcp
 ```
 
 ### Initializing the Liquid AI Client
@@ -77,6 +109,9 @@ liquid vision analyze --model lfm-2.5-vl-3b --image sample.jpg --prompt "Identif
 
 # Check NPU Device Compatibility
 liquid hardware status
+
+# Stream Video Feed to Liquid Edge Inference Engine
+liquid stream --source /dev/video0 --model lfm-2.5-vl-3b --output-mcp 8090
 ```
 
 ## API examples
@@ -85,7 +120,7 @@ The following example demonstrates invoking Liquid AI's LFM-2.5-VL-3B vision-lan
 
 ```python
 import base64
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 
@@ -101,9 +136,16 @@ class DetectedObject(BaseModel):
     confidence: float = Field(..., description="Confidence score between 0 and 1")
     box: BoundingBox
 
+class ContinuousTelemetrySample(BaseModel):
+    timestamp_ms: int = Field(..., description="Sample timestamp in milliseconds")
+    sensor_id: str = Field(..., description="Source sensor node identifier")
+    temperature_celsius: float = Field(..., description="Measured temperature")
+    vibration_amplitude: float = Field(..., description="Vibration RMS level")
+
 class EdgeVisionInspectionReport(BaseModel):
     device_id: str = Field(..., description="Identifier of the edge inspection device")
     detected_objects: List[DetectedObject] = Field(default_factory=list)
+    telemetry_summary: Optional[ContinuousTelemetrySample] = None
     has_anomaly: bool = Field(default=False, description="True if anomaly or defect is detected")
     recommendation: str = Field(..., description="Actionable recommendation for edge controller")
 
@@ -111,8 +153,19 @@ class EdgeVisionInspectionReport(BaseModel):
 mcp = FastMCP("Liquid-AI-Edge-Vision", version="3.1.0")
 
 @mcp.tool()
-async def inspect_edge_frame(device_id: str, image_b64: str) -> str:
-    """Process an edge camera frame using Liquid AI LFM-2.5-VL-3B and return structured inspection output."""
+async def inspect_edge_frame(
+    device_id: str,
+    image_b64: str,
+    telemetry_json: Optional[str] = None
+) -> str:
+    """Process an edge camera frame and telemetry sample using Liquid AI LFM-2.5-VL-3B and return structured inspection output."""
+    telemetry_sample = None
+    if telemetry_json:
+        try:
+            telemetry_sample = ContinuousTelemetrySample.model_validate_json(telemetry_json)
+        except Exception:
+            pass
+
     report = EdgeVisionInspectionReport(
         device_id=device_id,
         detected_objects=[
@@ -122,6 +175,7 @@ async def inspect_edge_frame(device_id: str, image_b64: str) -> str:
                 box=BoundingBox(xmin=0.12, ymin=0.34, xmax=0.25, ymax=0.48)
             )
         ],
+        telemetry_summary=telemetry_sample,
         has_anomaly=True,
         recommendation="Route component to manual quality audit line."
     )
@@ -142,10 +196,11 @@ if __name__ == "__main__":
 | **Protocol Support** | FastMCP 3.1 Native | Custom wrappers | Cloud REST / gRPC / MCP |
 
 ## Related tools / concepts
-- [LFM-2.5 Encoders](lfm-encoders.md) — Liquid Foundation Model tokenization and encoder utilities.
 - [vLLM](../infrastructure/vllm.md) — Local LLM serving engine.
-- [Ollama](../infrastructure/beellama-cpp.md) — Local model orchestration platform.
+- [Ollama](../../services/ollama.md) — Local model orchestration platform.
 - [FastMCP](../automation_orchestration/mcp.md) — Protocol for agent-tool connectivity.
+- [Crawl4AI](../process_understanding/crawl4ai.md) — Web visual extraction framework.
+- [Open Agents](../agents/open-agents.md) — Computer-use agent execution platform.
 
 ## Sources / references
 - [Liquid AI LFM-2.5-VL-3B Announcement](https://huggingface.co/blog/LiquidAI/lfm2-5-vl-3b)
