@@ -21,10 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/agents/goose.md",
-    "docs/services/mealie.md",
     "docs/tools/ai_knowledge/diffusiongemma.md",
-    "docs/services/cloudflare-mesh.md",
     "docs/services/excalidraw.md",
     "docs/tools/agents/anthropic-agent-skills.md",
     "docs/tools/infrastructure/llama-app.md",
@@ -40,7 +37,10 @@
     "docs/tools/process_understanding/ragflow.md",
     "docs/services/linkwarden.md",
     "docs/tools/development_ops/ripgrep.md",
-    "docs/tools/ai_knowledge/dex.md"
+    "docs/tools/ai_knowledge/dex.md",
+    "docs/tools/ai_knowledge/chatgpt.md",
+    "docs/tools/infrastructure/ramalama.md",
+    "docs/tools/frameworks/firebase-genkit.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

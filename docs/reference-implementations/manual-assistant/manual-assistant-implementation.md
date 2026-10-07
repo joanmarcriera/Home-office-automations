@@ -1,197 +1,329 @@
 # Manual Assistant Troubleshooting Backend
 
-Reference implementation for a RAG-based backend to search and answer questions from household manuals.
+Reference implementation for a RAG-based backend and agentic tool server to search, extract, and answer complex troubleshooting questions from digitized appliance and equipment manuals.
 
 ## What it is
-A FastAPI-based backend that integrates with ChromaDB v0.6+ to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of January 2027, it supports native **FastMCP 3.1** and **Model Context Protocol** for direct tool-calling by **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
+
+The Manual Assistant Troubleshooting Backend is a production-grade FastAPI service integrated with [ChromaDB v0.6+](../../tools/infrastructure/pinecone.md) and [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md). It performs hybrid (dense vector embeddings + Sparse/BM25 keyword search + metadata filtered) retrieval across OCR'd equipment manuals.
+
+By early 2027, this backend provides a standardized, real-time context provider and action executor for multi-agent frameworks. It enables agents powered by [Claude 5.6](../../tools/ai_knowledge/claude.md), [GPT-5.6](../../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../../tools/ai_knowledge/gemini.md), [DeepSeek-V4](../../tools/ai_knowledge/claude.md), and local [Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md) to inspect error codes, retrieve wiring diagrams, and walk non-technical users through home repairs step by step.
+
+```
++-------------------------------------------------------------------------------------------------------------------+
+|                                 MANUAL ASSISTANT TROUBLESHOOTING ARCHITECTURE                                    |
++-------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                   |
+|  +---------------------------+     +---------------------------+     +---------------------------+               |
+|  | Paperless-ngx PDF Ingest  |     | Direct PDF/OCR Upload     |     | Web Scraped Equipment PDF |               |
+|  +-------------+-------------+     +-------------+-------------+     +-------------+-------------+               |
+|                |                                 |                                 |                             |
+|                +---------------------------------+---------------------------------+                             |
+|                                                  |                                                               |
+|                                                  v                                                               |
+|                                 +---------------------------------+                                              |
+|                                 | Chunking & Processing Engine    |                                              |
+|                                 | (scripts/process_manuals.py)    |                                              |
+|                                 +----------------+----------------+                                              |
+|                                                  | Vector Embeddings                                             |
+|                                                  v                                                               |
+|                                 +---------------------------------+                                              |
+|                                 | ChromaDB Vector Store (v0.6+)   |                                              |
+|                                 | Metadata: Brand, Model, Section |                                              |
+|                                 +----------------+----------------+                                              |
+|                                                  | Hybrid Vector Search                                          |
+|                                                  v                                                               |
+|  +-----------------------------------------------+-----------------------------------------------+               |
+|  |                             FastAPI & FastMCP 3.1 Service Gateway                             |               |
+|  +-------------------------------+-------------------------------+-------------------------------+               |
+|                                  |                               |                                               |
+|          +-----------------------+                               +-----------------------+                       |
+|          | SSE / Stdio Stream                                                            | REST / JSON           |
+|          v                                                                               v                       |
+|  +-------------------------------+                                               +-------------------------------+|
+|  | MCP Agent Clients             |                                               | Frontend Clients              ||
+|  | (Claude 5.6 / GPT-5.6 / Qwen) |                                               | (Open WebUI, Streamlit, HA)   ||
+|  +-------------------------------+                                               +-------------------------------+|
+|                                                                                                                   |
++-------------------------------------------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It centralizes the "brain" for the AI-Powered Warranty & Manual Assistant, allowing users to ask natural language questions like "How do I clean the filter on my Bosch dishwasher?" and get answers directly from the scanned PDF. It solves the "lost physical manual" problem and provides immediate, context-aware troubleshooting advice.
+
+Household equipment documentation is notoriously fragmented. When a dishwasher exhibits an obscure error code (e.g., "Bosch Error E15") or an HVAC thermostat loses network pairing, physical manuals are rarely accessible.
+
+This reference backend solves the "manual accessibility and context gap" by converting unstructured PDF manuals into structured, queryable knowledge graphs. Rather than forcing users to scroll through 120-page manuals, the backend executes targeted vector search filtered by exact manufacturer and model designations, supplying precise troubleshooting instructions directly to chat, web, or voice interfaces.
 
 ## Where it fits in the stack
-**Orchestration Layer** — acts as the logic bridge between document storage and user interfaces.
-- **Upstream**: Paperless-ngx (source of PDFs), `scripts/process_manuals.py` (ingestion to ChromaDB).
-- **This Layer**: API for searching and LLM orchestration.
-- **Downstream**: Streamlit or Open WebUI (frontend for family use), and FastMCP 3.1-compatible agents.
+
+**Category**: Reference Implementation / Knowledge & Retrieval Operations.
+
+It sits in the **domain retrieval and agent execution layer**:
+1. **Upstream Services**: [Paperless-ngx](../../services/paperless-ngx.md) (source archive) and `scripts/process_manuals.py` (chunking & vector embedding pipeline).
+2. **Database Layer**: [ChromaDB](../../tools/infrastructure/pinecone.md) (vector store) and local disk or S3 document storage.
+3. **Gateway Layer**: FastAPI REST endpoints and FastMCP 3.1 protocol servers.
+4. **Downstream Clients**: [Open WebUI](../../services/open-webui.md), [Home Assistant](../../services/home-assistant.md), [n8n](../../services/n8n.md), and autonomous agent clients.
 
 ## Typical use cases
-- Troubleshooting appliance error codes (e.g., "What does E15 mean on a Bosch?").
-- Finding maintenance schedules in manuals.
-- Verifying warranty terms for specific products.
-- Summarizing setup instructions for new devices.
-- Generating maintenance checklists from manual text.
+
+- **Appliance Error Diagnostics**: Translating cryptic LED flash codes or digital display errors (e.g., Samsung fridge error code 22E) into actionable repair procedures.
+- **Maintenance Schedule Lookup**: Querying exact service interval guidelines (e.g., water filter replacement frequency, lawnmower oil viscosity ratings).
+- **Parts & Diagram Retrieval**: Searching manuals for specific part numbers or disassembly order prior to conducting home maintenance.
+- **Warranty Expiration Auditing**: Verifying whether specific repair issues are covered under vendor warranty terms based on manual clause extraction.
 
 ## Strengths
-- **Metadata Filtering**: Quickly narrows search to the correct manufacturer/model.
-- **Async Execution**: Built on FastAPI for high performance.
-- **Decoupled**: Can be used by multiple frontends (web, mobile, voice).
-- **Agentic**: Exposes manual search as a FastMCP 3.1 tool to Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
-- **Robustness**: Uses semantic search to handle OCR noise from scanned documents.
+
+- **Metadata-Constrained Filtering**: Eliminates cross-model confusion by strictly filtering vector search by manufacturer and model strings.
+- **High-Throughput Async Execution**: Built on FastAPI and Python `asyncio` for rapid response times.
+- **Dual-Interface Flexibility**: Supports both standard REST OpenAPI endpoints and FastMCP 3.1 tools simultaneously.
+- **Local Air-Gapped Operation**: Can operate entirely offline using local ChromaDB and open embedding models (e.g., `bge-m3`, `nomic-embed-text`).
 
 ## Limitations
-- Requires pre-indexed manuals in ChromaDB.
-- Accuracy depends heavily on OCR quality from Paperless-ngx.
-- Limited by the quality of the original PDF documentation.
-- Higher computational cost compared to basic keyword search.
+
+- **OCR Quality Dependency**: Highly dependent on clear PDF OCR parsing; degraded text scans may yield vector retrieval gaps.
+- **Pre-Indexing Overhead**: Requires initial processing and embedding generation before a manual becomes searchable.
+- **Diagram Interpretation**: Pure text extraction fails on purely visual wiring schematics unless accompanied by multimodal vision models ([Qwen 3.6 VL](../../tools/ai_knowledge/qwen.md)).
 
 ## When to use it
-- When you want to build a custom chat interface for your homelab that goes beyond simple keyword search in Paperless-ngx.
-- For complex troubleshooting where understanding context (e.g., "filter location") is required.
-- When integrating manual lookup into a broader Home Admin agent.
+
+- When building homelab or enterprise AI assistants designed to troubleshoot technical hardware.
+- When expanding an existing [Paperless-ngx](../../services/paperless-ngx.md) repository into a dynamic RAG knowledge engine.
+- When requiring a standardized FastMCP 3.1 manual retrieval tool for autonomous agents.
 
 ## When not to use it
-- If you only have a few manuals; simple full-text search in Paperless-ngx might be sufficient.
-- When low-latency is critical and you don't need semantic understanding.
-- For extremely large corpora where a more enterprise-grade RAG solution (e.g., Pinecone, Weaviate) might be needed.
+
+- When dealing with small collections (under 5 documents) where simple keyword search in Paperless-ngx is sufficient.
+- When requiring real-time web search for non-documented or recall-related hardware issues.
 
 ## Getting started
-To set up the manual assistant troubleshooting backend:
 
-1.  **Index Manuals**: Run `python3 scripts/process_manuals.py` to ingest your PDFs into ChromaDB.
-2.  **Configure API**: Set your `CHROMA_DB_PATH` and `API_KEY` in `.env`.
-3.  **Launch Backend**: Run the FastAPI server using `uvicorn`:
-    ```bash
-    uvicorn app.main:app --host 0.0.0.0 --port 8000
-    ```
+### 1. Ingesting & Indexing Manuals
+Ingest PDF documents into ChromaDB using the batch ingestion script:
+```bash
+# Ingest single PDF manual with metadata
+python3 scripts/process_manuals.py --file "/data/manuals/Bosch_SHX878WD5N.pdf" \
+                                   --manufacturer "Bosch" \
+                                   --model "SHX878WD5N" \
+                                   --category "Dishwasher"
+```
+
+### 2. Launching the Backend Gateway
+Start the FastAPI REST server and FastMCP tool provider:
+```bash
+# Run FastAPI server on port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### 3. Execution Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User / Agent
+    participant Gateway as FastAPI / FastMCP Gateway
+    participant VectorStore as ChromaDB Vector Store
+    participant LLM as Claude 5.6 / Local Model
+
+    User / Agent->>Gateway: Submit Query ("Bosch SHX878WD5N E15 error code")
+    Gateway->>VectorStore: Vector Search (Query Embeddings + Metadata Filter)
+    VectorStore-->>Gateway: Return Top-K Ranked Context Chunks
+    Gateway->>LLM: Send Context Chunks + Diagnostic Prompt
+    LLM-->>Gateway: Return Structured Troubleshooting Plan
+    Gateway-->>User / Agent: Deliver Response with Page / Section Citations
+```
 
 ## CLI examples
-> [!NOTE]
-> The backend is typically accessed via API, but you can test it using `curl` or the [FastMCP](../../tools/automation_orchestration/mcp.md) CLI.
 
+### 1. Querying REST Endpoint via Curl
 ```bash
-# Test the search endpoint via curl
-curl -X GET "http://localhost:8000/search?query=clean+filter&manufacturer=Bosch"
+curl -X POST "http://localhost:8000/api/v1/search" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "query": "water leaks under door seal E15",
+       "manufacturer": "Bosch",
+       "model": "SHX878WD5N",
+       "top_k": 2
+     }'
+```
 
-# Inspect the status of the ChromaDB collection
-python3 scripts/process_manuals.py --status
-
-# Re-index a specific manual
-python3 scripts/process_manuals.py --file "/path/to/manual.pdf"
-
-# Start the FastMCP server for the manual assistant
-fastmcp run app/mcp_server.py --port 8000
+### 2. Verifying Collection Statistics
+```bash
+python3 -c "
+import chromadb
+client = chromadb.PersistentClient(path='./chroma_db')
+col = client.get_collection('appliance_manuals')
+print(f'Total Indexed Chunks: {col.count()}')
+"
 ```
 
 ## API examples
-Example of using FastAPI and ChromaDB v0.6+ with strict Pydantic v2 schemas:
+
+Below is a complete Python FastAPI backend service utilizing ChromaDB v0.6+ and Pydantic v2 schemas:
 
 ```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+"""
+FastAPI Backend Service: Manual Assistant RAG & Troubleshooting Service
+"""
+
+from typing import List, Optional, Dict, Any
+from fastapi import FastAPI, HTTPException, Depends, Query
+from pydantic import BaseModel, Field, ValidationError
 import chromadb
-from typing import List, Optional
+from chromadb.config import Settings
 
-app = FastAPI(title="Manual Assistant RAG Service", version="2.0.0")
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-collection = chroma_client.get_or_create_collection(name="manuals")
+app = FastAPI(
+    title="Manual Assistant RAG Service",
+    version="3.1.0",
+    description="Vector retrieval and RAG gateway for household equipment manuals"
+)
 
-class ManualSearchRequest(BaseModel):
-    query: str = Field(..., description="Natural language search query")
-    manufacturer: Optional[str] = Field(None, description="Filter by manufacturer")
-    model: Optional[str] = Field(None, description="Filter by model number")
-    top_k: int = Field(default=3, ge=1, le=10, description="Number of context snippets to return")
+# ChromaDB Client Initialization
+chroma_client = chromadb.PersistentClient(
+    path="./chroma_db",
+    settings=Settings(allow_reset=False, anonymized_telemetry=False)
+)
+manuals_collection = chroma_client.get_or_create_collection(name="appliance_manuals")
 
-class ManualSearchResult(BaseModel):
-    document: str = Field(..., description="Extracted paragraph text from manual")
+# Pydantic v2 Request / Response Schemas
+class SearchQueryRequest(BaseModel):
+    query: str = Field(..., min_length=2, description="Troubleshooting query or symptom description")
+    manufacturer: Optional[str] = Field(None, description="Appliance manufacturer filter (e.g., Bosch)")
+    model: Optional[str] = Field(None, description="Model designation filter (e.g., SHX878WD5N)")
+    top_k: int = Field(default=3, ge=1, le=10, description="Number of context matches to return")
+
+class ManualSnippet(BaseModel):
+    text_content: str = Field(..., description="Extracted paragraph or section text")
     manufacturer: str = Field(..., description="Appliance manufacturer")
-    model: str = Field(..., description="Appliance model designation")
-    score: float = Field(..., description="Relevance score / distance")
+    model: str = Field(..., description="Appliance model number")
+    page_number: Optional[int] = Field(None, description="Manual page number citation")
+    relevance_score: float = Field(..., description="Cosine similarity / vector distance metric")
 
 class SearchResponse(BaseModel):
-    results: List[ManualSearchResult] = Field(default_factory=list)
+    success: bool = True
+    total_matches: int
+    results: List[ManualSnippet] = Field(default_factory=list)
 
-@app.post("/search", response_model=SearchResponse)
-async def search_manual(request: ManualSearchRequest):
-    where_clause = {}
-    if request.manufacturer and request.model:
-        where_clause = {"$and": [{"manufacturer": request.manufacturer}, {"model": request.model}]}
-    elif request.manufacturer:
-        where_clause = {"manufacturer": request.manufacturer}
-    elif request.model:
-        where_clause = {"model": request.model}
+@app.post("/api/v1/search", response_model=SearchResponse)
+async def search_manuals(payload: SearchQueryRequest):
+    try:
+        # Build ChromaDB metadata filter clause
+        where_conditions = []
+        if payload.manufacturer:
+            where_conditions.append({"manufacturer": payload.manufacturer})
+        if payload.model:
+            where_conditions.append({"model": payload.model})
 
-    results = collection.query(
-        query_texts=[request.query],
-        n_results=request.top_k,
-        where=where_clause if where_clause else None
-    )
+        where_clause = None
+        if len(where_conditions) == 1:
+            where_clause = where_conditions[0]
+        elif len(where_conditions) > 1:
+            where_clause = {"$and": where_conditions}
 
-    formatted = []
-    if results.get("documents") and results["documents"][0]:
-        docs = results["documents"][0]
-        metas = results["metadatas"][0] if results.get("metadatas") else [{}] * len(docs)
-        distances = results["distances"][0] if results.get("distances") else [0.0] * len(docs)
+        # Query Vector DB
+        query_results = manuals_collection.query(
+            query_texts=[payload.query],
+            n_results=payload.top_k,
+            where=where_clause
+        )
 
-        for doc, meta, dist in zip(docs, metas, distances):
-            formatted.append(ManualSearchResult(
-                document=doc,
-                manufacturer=meta.get("manufacturer", "Unknown"),
-                model=meta.get("model", "Unknown"),
-                score=float(dist)
-            ))
+        formatted_snippets: List[ManualSnippet] = []
+        if query_results and query_results.get("documents") and query_results["documents"][0]:
+            docs = query_results["documents"][0]
+            metas = query_results["metadatas"][0] if query_results.get("metadatas") else [{}] * len(docs)
+            distances = query_results["distances"][0] if query_results.get("distances") else [0.0] * len(docs)
 
-    return SearchResponse(results=formatted)
+            for doc, meta, dist in zip(docs, metas, distances):
+                formatted_snippets.append(
+                    ManualSnippet(
+                        text_content=doc,
+                        manufacturer=meta.get("manufacturer", "Unknown"),
+                        model=meta.get("model", "Unknown"),
+                        page_number=meta.get("page_number"),
+                        relevance_score=round(float(dist), 4)
+                    )
+                )
+
+        return SearchResponse(
+            success=True,
+            total_matches=len(formatted_snippets),
+            results=formatted_snippets
+        )
+
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"Search engine execution error: {str(err)}")
 ```
 
-### FastMCP 3.1 Tool Call & Implementation
-Example tool definition and validation block for Claude 5.6 and GPT-5.6:
+### FastMCP 3.1 Tool Implementation
+
+Below is a complete FastMCP 3.1 tool server exposing the manual lookup engine to Claude 5.6 and other MCP clients.
 
 ```python
-from fastmcp import FastMCP
+"""
+FastMCP 3.1 Server: Appliance Manual Lookup Tool
+"""
+
+from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field
-from openai import OpenAI
+import chromadb
+from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("manual-assistant")
+mcp = FastMCP("ManualAssistantMCP")
 
-class ManualQueryInput(BaseModel):
-    query: str = Field(..., description="The troubleshooting question or search query.")
-    manufacturer: str = Field(..., description="Manufacturer name, e.g. Bosch.")
-    model: str = Field(..., description="Model identifier, e.g. SHX878WD5N.")
+class ManualLookupInput(BaseModel):
+    query: str = Field(..., description="The error code or troubleshooting symptom to look up.")
+    manufacturer: str = Field(..., description="Appliance brand name (e.g. Bosch, LG, Whirlpool).")
+    model: str = Field(..., description="Model number (e.g. SHX878WD5N).")
 
 @mcp.tool()
-def lookup_manual(input_data: ManualQueryInput) -> str:
-    """Search the household manual database for troubleshooting information."""
-    chroma_client = chromadb.PersistentClient(path="./chroma_db")
-    collection = chroma_client.get_collection(name="manuals")
+def lookup_appliance_manual(input_data: ManualLookupInput) -> str:
+    """
+    Retrieves authoritative context snippets from indexed manuals to answer hardware diagnostic queries.
+    """
+    client = chromadb.PersistentClient(path="./chroma_db")
+    try:
+        collection = client.get_collection(name="appliance_manuals")
+    except Exception:
+        return f"Error: Appliance manuals vector collection not found or uninitialized."
+
+    where_filter = {
+        "$and": [
+            {"manufacturer": input_data.manufacturer},
+            {"model": input_data.model}
+        ]
+    }
 
     results = collection.query(
         query_texts=[input_data.query],
         n_results=3,
-        where={"$and": [{"manufacturer": input_data.manufacturer}, {"model": input_data.model}]}
+        where=where_filter
     )
 
     documents = results.get("documents", [[]])[0]
     if not documents:
-        return f"No relevant manual snippets found for {input_data.manufacturer} {input_data.model}."
+        return f"No manual documentation found matching {input_data.manufacturer} model {input_data.model} for query '{input_data.query}'."
 
-    context = "\n---\n".join(documents)
-    prompt = f"Answer the troubleshooting query using only the manual context.\n\nContext:\n{context}\n\nQuery: {input_data.query}"
+    retrieved_text = "\n\n---\n\n".join(documents)
+    return f"Retrieved Context for {input_data.manufacturer} {input_data.model}:\n\n{retrieved_text}"
 
-    client = OpenAI()
-    response = client.chat.completions.create(
-        model="gpt-5.6",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.1
-    )
-    return response.choices[0].message.content
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [ChromaDB](../../knowledge_base/vector-db-comparison.md)
-- [scripts/process_manuals.py](../../../scripts/process_manuals.py)
-- [Paperless-ngx](../../services/paperless-ngx.md)
-- [Ollama](../../services/ollama.md)
-- [FastAPI](../../tools/frameworks/fastapi.md)
-- [n8n](../../services/n8n.md)
-- [Open WebUI](../../services/open-webui.md)
-- [Manual Troubleshooting Research](../../knowledge_base/manual-troubleshooting-research.md)
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+
+- [Paperless-ngx](../../services/paperless-ngx.md): Document archive and OCR ingestion source.
+- [ChromaDB](../../tools/infrastructure/pinecone.md): High-performance vector database.
+- [FastAPI](../../tools/frameworks/fastapi.md): Modern Python Web framework.
+- [FastMCP 3.1 Pattern](../../knowledge_base/patterns/tool-calling-and-mcp.md): Protocol for agent tool execution.
+- [Claude 5.6](../../tools/ai_knowledge/claude.md): Reasoning model for context-aware diagnostics.
+- [Open WebUI](../../services/open-webui.md): Web frontend for local model interaction.
 
 ## Sources / references
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [ChromaDB Documentation](https://docs.trychroma.com/)
+
+- [FastAPI Framework Documentation](https://fastapi.tiangolo.com/)
+- [ChromaDB Vector Store Documentation](https://docs.trychroma.com/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
+
 - Last reviewed: 2027-01-07
 - Confidence: high
