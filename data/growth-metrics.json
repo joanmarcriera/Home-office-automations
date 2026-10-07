@@ -21,12 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/providers/baseten.md",
-    "docs/tools/ai_knowledge/colqwen.md",
-    "docs/tools/process_understanding/ragas.md",
-    "docs/services/paperless-ngx.md",
     "docs/tools/agents/open-agents.md",
-    "docs/tools/frameworks/axolotl.md",
     "docs/tools/providers/monolith.md",
     "docs/tools/frameworks/distilabel.md",
     "docs/tools/benchmarking/judgegpt.md",
@@ -40,7 +35,12 @@
     "docs/tools/enterprise/coveo.md",
     "docs/tools/intake_storage/s3-storage.md",
     "docs/tools/providers/portkey.md",
-    "docs/tools/development_ops/github-copilot-cli.md"
+    "docs/tools/development_ops/github-copilot-cli.md",
+    "docs/tools/development_ops/custom_agents.md",
+    "docs/tools/process_understanding/comet-opik.md",
+    "docs/tools/automation_orchestration/gumloop.md",
+    "docs/tools/ai_knowledge/antigravity-agent.md",
+    "docs/tools/infrastructure/valkey.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
