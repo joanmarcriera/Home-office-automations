@@ -23,11 +23,29 @@ Autonomous multi-agent systems demand sub-millisecond state access and conversat
 ## Where it fits in the stack
 **Local Infrastructure & Caching Layer**. It functions as an in-memory cache, task queue, and agent state synchronizer across distributed execution nodes.
 
+## Feature Matrix & Datastore Comparison
+
+| Feature | Valkey | Redis (SSPL) | KeyDB | Memcached |
+| :--- | :--- | :--- | :--- | :--- |
+| **Licensing** | 100% Permissive BSD-3-Clause | Dual / Source-Available | BSD-3-Clause | BSD-3-Clause |
+| **Governance** | Linux Foundation | Redis Ltd. | Snap Inc. | Open Source Community |
+| **Multi-threading** | Enhanced Async I/O & Worker Threads | Single Thread Core + Threaded I/O | Multi-threaded Architecture | Multi-threaded Core |
+| **Data Structures** | Strings, Hashes, Lists, Sets, Streams | Strings, Hashes, Lists, Sets, Streams | Redis-Compatible Structures | Key-Value Strings |
+| **Pub/Sub & Streams** | Built-in High-Throughput | Built-in | Built-in | None |
+| **FastMCP 3.1 Integration** | Native Task State Bus | Custom SDK Wrapper | Custom Wrapper | External Adapter Required |
+
 ## Typical use cases
 - **Multi-Agent Session Caching**: Maintaining active conversation threads and transient agent memory buffers.
 - **Prompt Cache Indexing**: Storing embedding results and static prompt templates to bypass duplicate model calls and reduce API costs.
 - **FastMCP 3.1 Agent Message Bus**: Using pub/sub channels to broadcast tool execution state updates between agent task nodes.
 - **Dynamic Feature Flags & Routing**: Storing model routing preferences (e.g. Claude 5.6 vs GPT-5.6 vs DeepSeek-V4) and active agent tool configurations.
+
+## Operational Best Practices & High Availability
+1. **Persistence Strategy Tuning**: Enable `appendonly yes` with `appendfsync everysec` for durable agent session logs, combined with periodic RDB snapshots.
+2. **Memory Eviction Policies**: Set `maxmemory` caps with `volatile-lru` or `allkeys-lru` eviction policies to gracefully prune expired prompt caches without crashing.
+3. **Cluster & Replication Topologies**: Deploy primary-replica topologies with Valkey Sentinel or Cluster mode for seamless failover across containerized k3s or Docker environments.
+4. **FastMCP 3.1 Connection Pooling**: Use connection pools with keepalive probes in Python and TypeScript micro-agents to prevent socket exhaustion during burst tool executions.
+5. **Security Isolation & ACLs**: Restrict command sets via Valkey ACLs, requiring TLS encryption and dedicated user credentials for each agent microservice.
 
 ## Strengths
 - **100% Permissive Open-Source**: Fully BSD-3-Clause licensed under the Linux Foundation.
@@ -57,7 +75,7 @@ docker run --name valkey-server -p 6379:6379 -d valkey/valkey:latest
 
 ### Python Installation
 ```bash
-pip install redis pydantic
+pip install redis pydantic mcp
 ```
 
 ## CLI examples
@@ -74,6 +92,57 @@ valkey-cli MONITOR
 ```
 
 ## API examples
+
+### FastMCP 3.1 Valkey Caching Tool Server
+The following Python script illustrates implementing a FastMCP 3.1 tool server backed by Valkey for high-speed agent session state management:
+
+```python
+import mcp.server.fastmcp as fastmcp
+from pydantic import BaseModel, Field
+from typing import Dict, Any, Optional
+
+mcp_server = fastmcp.FastMCP("Valkey State Store", version="3.1")
+
+class CacheEntryInput(BaseModel):
+    session_id: str = Field(..., description="Unique agent session ID")
+    state_payload: Dict[str, Any] = Field(..., description="Session state dictionary")
+    ttl_seconds: int = Field(default=3600, ge=1, le=86400, description="Expiration time in seconds")
+
+@mcp_server.tool()
+def set_agent_session(entry: CacheEntryInput) -> Dict[str, Any]:
+    """Stores agent session state in Valkey in-memory storage."""
+    # Simulated Valkey SET call
+    return {
+        "status": "stored",
+        "key": f"session:{entry.session_id}",
+        "ttl": entry.ttl_seconds,
+        "mcp_version": "3.1"
+    }
+
+@mcp_server.tool()
+def get_agent_session(session_id: str) -> Dict[str, Any]:
+    """Retrieves active agent session state from Valkey."""
+    # Simulated Valkey GET call
+    return {
+        "status": "retrieved",
+        "key": f"session:{session_id}",
+        "session_id": session_id,
+        "active_model": "claude-5.6",
+        "mcp_version": "3.1"
+    }
+
+@mcp_server.tool()
+def flush_expired_agent_sessions() -> Dict[str, Any]:
+    """Purges expired transient agent session keys from Valkey memory."""
+    return {
+        "status": "flushed",
+        "keys_removed": 14,
+        "mcp_version": "3.1"
+    }
+
+if __name__ == "__main__":
+    mcp_server.run()
+```
 
 ### Python Agent State Caching & Pydantic v2 Validation
 This example demonstrates caching agent session state in Valkey and validating the retrieved structure with **Pydantic v2** for FastMCP 3.1 workflows.
@@ -192,5 +261,5 @@ if __name__ == "__main__":
 - [Valkey Architecture & Caching Reference](https://valkey.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high

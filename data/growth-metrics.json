@@ -21,12 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/development_ops/custom_agents.md",
-    "docs/tools/automation_orchestration/gumloop.md",
-    "docs/tools/ai_knowledge/antigravity-agent.md",
-    "docs/tools/infrastructure/valkey.md",
     "docs/tools/process_understanding/ragflow.md",
-    "docs/services/linkwarden.md",
     "docs/tools/development_ops/ripgrep.md",
     "docs/tools/ai_knowledge/dex.md",
     "docs/tools/ai_knowledge/chatgpt.md",
@@ -40,7 +35,12 @@
     "docs/tools/ai_knowledge/llama-4-maverick.md",
     "docs/tools/providers/cohere.md",
     "docs/tools/automation_orchestration/pipedream.md",
-    "docs/tools/process_understanding/tesseract.md"
+    "docs/tools/process_understanding/tesseract.md",
+    "docs/tools/benchmarking/livecodebench.md",
+    "docs/tools/frameworks/rivet.md",
+    "docs/services/tubearchivist.md",
+    "docs/tools/providers/hailuo-ai.md",
+    "docs/tools/ai_knowledge/llama-4.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

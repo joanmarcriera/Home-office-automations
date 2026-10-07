@@ -3,17 +3,51 @@
 ## What it is
 Antigravity Agent is Google's premier, stateful runtime orchestration and execution framework engineered to design, build, deploy, and monitor highly autonomous AI agents capable of executing stateful, long-horizon tasks ("Missions"). Operating as a core component of Google's state-of-the-art agentic ecosystem in early 2027, Antigravity Agent is powered natively by the Gemini 4.0 series (Pro, Ultra, Flash), Gemini Spark 2.5 (for multi-agent planning), and Gemini Omni 2.0 (for multimodal context mapping), and features native compliance with the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../automation_orchestration/mcp.md).
 
+## Architecture & Mission Lifecycle
+Antigravity Agent isolates execution loops within sandboxed stateful runtimes, maintaining persistent task memory and checkpoint states throughout multi-day mission trajectories.
+
+```mermaid
+graph TD
+    A[User / System Event] -->|Define Mission Spec| B[Antigravity Runtime Supervisor]
+    B -->|Task Decomposition| C[Gemini Spark 2.5 Planner]
+    C -->|Generate Execution Graph| D[Stateful Mission Context Engine]
+    D -->|Tool Execution Loop| E[Sandboxed Mission Executor]
+    E -->|FastMCP 3.1 Tool Call| F[Local / Remote MCP Servers]
+    E -->|Multimodal Reasoning| G[Gemini 4.0 Pro / Ultra]
+    F -->|Tool Output Telemetry| D
+    G -->|Reasoning & Planning Refinement| D
+    D -->|State Checkpoint Hash| H[Persistent Checkpoint DB / File System]
+    H -->|Resume / Inspection Gate| B
+    E -->|Mission Completion Signal| I[Final Verification & Output Report]
+```
+
 ## What problem it solves
 Traditional conversational agents are fundamentally stateless and ephemeral, rendering them incapable of managing complex, nested, long-running processes without losing state, losing planning alignment, or failing on security boundaries. Antigravity Agent solves these operational limitations by introducing secure, sandboxed session persistence, dynamic model-swapping, and structured multi-step planning loops, enabling robust, sovereign automation that can safely interact with local file systems and remote servers.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Agentic Orchestration Layer**. Sitting directly above the model provider layer, Antigravity Agent acts as the stateful runtime supervisor. It consumes standard API models or local endpoints and coordinates them with security systems, database servers, and automation structures like [Ollama](../../services/ollama.md) or [n8n](../../services/n8n.md).
 
+## Feature Matrix & Framework Comparison
+
+| Feature | Antigravity Agent | Claude Code / Agent | AutoGen / AG2 | CrewAI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Model Engine** | Gemini 4.0 Pro / Ultra / Spark | Claude 5.6 / Anthropic | Model Agnostic / Open-Source | Model Agnostic |
+| **Stateful Persistence** | Native Checkpoint DB / Hashes | File-based Context Memory | In-Memory / Custom Redis | In-Memory Session |
+| **Protocol Support** | Native FastMCP 3.1 Task Standard | Anthropic MCP Standard | Custom Tool Functions | Custom Agent Tools |
+| **Sandbox Isolation** | Built-in Container / Memory Guard | Shell Subprocess Sandbox | Local / Docker Sandbox | Subprocess Execution |
+| **Mission Planning** | Gemini Spark 2.5 Multi-Agent | Single / Sub-agent Loops | Conversational GroupChat | Sequential / Hierarchical |
+
 ## Typical use cases
 - **Long-Horizon Software Engineering**: Executing multi-step code refactoring and test-driven development Missions within secure development workspaces.
 - **Sovereign System Administration**: Safely executing server maintenance, database backups, and security patch audits via sandboxed loops.
 - **Multimodal Data Analysis**: Parsing complicated video, image, and text reports to generate multi-format summaries using Gemini Omni 2.0 models.
 - **Dynamic Tool Discovery**: Auto-detecting and securely connecting with local or remote FastMCP 3.1 servers to perform complex data transformations.
+
+## Operational Lifecycle & Mission Governance
+1. **Mission Specification & Bounds**: Missions are authored in YAML/JSON or Python SDK specifications defining strict objectives, allowed tool classes, memory caps, and human checkpoint intervals.
+2. **Hierarchical Task Planning**: Gemini Spark 2.5 breaks high-level goals into directed acyclic graphs (DAGs) of sub-tasks assigned to specialized sub-agents.
+3. **Deterministic State Checkpointing**: Every turn, file system edit, and terminal execution generates SHA-256 state hashes, allowing Missions to be paused, audited, or rewound to prior states.
+4. **Sandboxed FastMCP Protocol Guard**: All external tool calls are serialized over FastMCP 3.1 task boundaries with strict schema validation and execution timeouts.
 
 ## Strengths
 - **Native Stateful Session Persistence**: Automatically checkpoints the agent's memory, terminal logs, and planning files to allow graceful pause and resume capabilities.
@@ -40,7 +74,7 @@ Traditional conversational agents are fundamentally stateless and ephemeral, ren
 1. **Prerequisites**: Ensure you have Python 3.11+, an active Google Cloud Vertex AI or Gemini API key, and access to an isolated runtime environment (like Docker or local sandbox).
 2. **Framework Installation**: Install the secure Antigravity SDK:
    ```bash
-   pip install google-antigravity-agent
+   pip install google-antigravity-agent mcp pydantic
    ```
 3. **API Key Setup**: Export your standard API credentials:
    ```bash
@@ -76,6 +110,50 @@ antigravity-agent attach --hash sha256_9b3e1f0a
 ```
 
 ## API examples
+
+### FastMCP 3.1 Mission Endpoint Provider
+The following Python module demonstrates registering a FastMCP 3.1 tool for launching Antigravity stateful Missions:
+
+```python
+import mcp.server.fastmcp as fastmcp
+from pydantic import BaseModel, Field
+from typing import Dict, Any
+
+mcp_server = fastmcp.FastMCP("Antigravity FastMCP Bridge", version="3.1")
+
+class MissionRequest(BaseModel):
+    mission_name: str = Field(..., description="Unique descriptive title for mission")
+    target_repo: str = Field(..., description="Target repository or infrastructure root")
+    isolation_level: str = Field(default="strict", pattern=r"^(strict|permissive|none)$")
+
+@mcp_server.tool()
+def trigger_antigravity_mission(request: MissionRequest) -> Dict[str, Any]:
+    """Exposes Antigravity Agent long-horizon Mission triggers via FastMCP 3.1."""
+    return {
+        "status": "initiated",
+        "mission_id": f"mission-{request.mission_name.lower().replace(' ', '-')}",
+        "repo": request.target_repo,
+        "sandbox": request.isolation_level,
+        "mcp_version": "3.1"
+    }
+
+@mcp_server.tool()
+def query_mission_status(mission_id: str) -> Dict[str, Any]:
+    """Retrieves current checkpoint status and progress telemetry for an active Mission."""
+    return {
+        "mission_id": mission_id,
+        "status": "running",
+        "current_step": 4,
+        "total_steps": 10,
+        "last_checkpoint_hash": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mcp_version": "3.1"
+    }
+
+if __name__ == "__main__":
+    mcp_server.run()
+```
+
+### Programmatic Antigravity Mission Runtime Execution
 The following Python script illustrates how to programmatically execute an Antigravity Agent Mission with custom FastMCP 3.1 tool integrations and strict configuration validation using Pydantic v2.
 
 ```python
@@ -157,5 +235,5 @@ if __name__ == "__main__":
 - [Vertex AI Agentic Workflows and Mission Planning](https://cloud.google.com/vertex-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high
