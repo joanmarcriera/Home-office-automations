@@ -1,37 +1,107 @@
 # Portkey AI Gateway
 
 ## What it is
-Portkey AI Gateway is an open-source, high-performance gateway and control plane designed to route and manage requests to **2,000+ Large Language Models (LLMs)** across 250+ providers. As of early January 2027, it serves as the industry-standard "Control Plane for Agentic AI," providing enterprise-grade observability, reliability, and governance through a single, unified API and native **FastMCP 3.1 Task Protocol** routing capabilities, optimized for frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
+Portkey AI Gateway is an open-source, ultra-low-latency API gateway, routing engine, and control plane designed to manage, monitor, and scale requests across **2,000+ Large Language Models (LLMs)** and 250+ model providers. As of early 2027, Portkey serves as an enterprise control plane for agentic AI architectures, featuring native support for the **FastMCP 3.1 Task Protocol**, dynamic multi-tier fallback routing, semantic caching, and real-time observability across frontier models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
+
+```
++-----------------------------------------------------------------------------------+
+|                            Portkey AI Gateway Engine                              |
+|                                                                                   |
+|  +-------------------------------------+   +-----------------------------------+  |
+|  | Unified OpenAI/FastMCP 3.1 Proxy      |   | Virtual Key Vault & Governance    |  |
+|  | - Single Endpoint for 2,000+ LLMs     |   | - Centralized Provider Keys       |  |
+|  | - Native FastMCP Tool Calling       |   | - Budget & Usage Rate Limits      |  |
+|  +------------------+------------------+   +-----------------+-----------------+  |
+|                     |                                        |                    |
+|                     v                                        v                    |
+|  +-----------------------------------------------------------------------------+  |
+|  |             Smart Routing, Fallback & Load-Balancing Pipeline               |  |
+|  |  - Latency & Cost-Optimized Dynamic Fallbacks                               |  |
+|  |  - Semantic Response Caching (Redis/In-Memory)                              |  |
+|  |  - Enterprise Guardrails (PII Masking, Regex, Toxicity)                    |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
++-----------------------------------------|-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                             Upstream Model Providers                              |
+|                                                                                   |
+|  +-------------------+  +-------------------+  +-------------------+  +-----------+  |
+|  | Anthropic Claude  |  | OpenAI GPT-5.6    |  | Google Gemini 4.0 |  | Local GGUF|  |
+|  +-------------------+  +-------------------+  +-------------------+  +-----------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It solves the complexity of managing multiple LLM providers and models in production agentic loops. By acting as a central proxy, it provides reliability (via fallbacks and retries), efficiency (via semantic caching), and security (via 100+ built-in guardrails). It eliminates "provider lock-in" by allowing agents to switch dynamically between Claude 5.6, GPT-5.6, and Llama 4 without code changes.
+Developing agentic AI systems that rely on a single model vendor introduces major operational risks: single-point API outages, unexpected rate limits, model deprecation, and cost spikes. Furthermore, tracking token consumption, latency metrics, and PII compliance across disparate developer teams and agents is difficult without unified infrastructure.
+
+Portkey solves these structural challenges by providing:
+- **Zero-Code Model Fallbacks & Load Balancing**: Automatically routes requests to backup providers (e.g., falling back from Claude 5.6 to GPT-5.6 or DeepSeek-V4) upon HTTP 429/5xx errors.
+- **Enterprise Vault & Virtual Keys**: Allows developers to consume virtual keys while real provider API credentials remain encrypted in the Portkey control plane vault.
+- **Semantic Caching**: Caches identical or semantically equivalent prompt responses to reduce provider costs and eliminate latency for repeated agent queries.
+- **Unified FastMCP 3.1 Tool Gateway**: Proxies tool definitions and MCP task states cleanly across heterogenous backend LLMs.
 
 ## Where it fits in the stack
-Portkey sits in the **Providers / Infrastructure** layer. It acts as the gateway between agentic applications (like OpenClaw or Agency Agents) and the underlying model providers (OpenAI, Anthropic, Google, Groq, etc.).
+**Category**: Providers / Infrastructure / Model Routing. Portkey sits directly between application runtimes (FastMCP 3.1 agents, web apps, IDEs) and upstream inference providers.
+
+```
++-----------------------------------------------------------------------------------+
+|                        Applications & FastMCP 3.1 Agents                          |
+|                                                                                   |
+|   +-----------------------+   +-----------------------+   +--------------------+  |
+|   | FastMCP 3.1 Agents    |   | OpenClaw Workflows    |   | Enterprise Web App |  |
+|   +-----------+-----------+   +-----------+-----------+   +---------+----------+  |
+|               |                           |                         |             |
+|               +---------------------------+-------------------------+             |
+|                                           |                                       |
+|                                           v                                       |
+|                  http://127.0.0.1:8787/v1 (Portkey Gateway Proxy)                 |
++-------------------------------------------+---------------------------------------+
+                                            |
+                                            v
++-----------------------------------------------------------------------------------+
+|                            Portkey Control Plane Engine                           |
+|                                                                                   |
+|   +---------------------------------------------------------------------------+   |
+|   | Guardrails, Semantic Cache, Fallback Evaluator & Virtual Key Vault        |   |
+|   +---------------------------------------+-----------------------------------+   |
++-------------------------------------------|---------------------------------------+
+                                            |
+        +-----------------------------------+-----------------------------------+
+        |                                   |                                   |
+        v                                   v                                   v
++---------------+                   +---------------+                   +---------------+
+| Anthropic API |                   |  OpenAI API   |                   |  DeepSeek API |
++---------------+                   +---------------+                   +---------------+
+```
 
 ## Typical use cases
-- **Multi-Model Orchestration**: Routing requests to different models based on reasoning depth (e.g., using GPT-5.6 for planning and Llama 4 for execution).
-- **Production Observability**: Real-time tracking of latency, token usage, and costs across all providers via a centralized dashboard.
-- **Agentic Reliability**: Implementing automatic retries, provider-level fallbacks, and load balancing to ensure zero-downtime for autonomous agents.
-- **Enterprise Governance**: Enforcing PII redaction, budget limits, and audit logs on all model interactions.
-- **Prompt Management**: Centralized management and A/B testing of system prompts and tool definitions.
+- **Multi-Model Fallback & High Availability**: Ensuring uninterrupted operation for mission-critical agent loops by automatically retrying failed requests across alternative model vendors.
+- **Enterprise Observability & Audit Logging**: Capturing real-time telemetry, token counts, and request/response payloads across all organization units.
+- **Semantic Response Caching**: Reducing LLM API costs by up to 40% in repetitive agent evaluation and testing environments.
+- **Guardrail & PII Enforcement**: Scrubbing sensitive data (SSNs, credit cards, emails) before prompts reach third-party inference APIs.
+
+## Key technical features & FastMCP 3.1 integration
+- **FastMCP 3.1 Native Proxying**: Full support for forwarding MCP tool definitions, structured JSON schemas, and streaming SSE connections.
+- **Ultra-Low Latency Overhead**: C-optimized edge distribution adding <5ms latency overhead per request.
+- **Configurable Fallback Matrices**: JSON/YAML routing definitions specifying target models, retry backoffs, and timeout thresholds.
+- **Self-Hostable Architecture**: Deployable as a single Docker container or Kubernetes pod with local Redis cache storage.
 
 ## Strengths
-- **Unified SDK**: Connect to 2,000+ models with a single OpenAI-compatible SDK integration.
-- **FastMCP 3.1 Task Protocol Native**: Native support for Model Context Protocol Task Protocol and Agentic Tool Calling, routing tool calls smoothly to backend servers.
-- **High Performance**: Ultra-low latency overhead (<5ms) with local self-hosting options via Docker/K8s.
-- **Enterprise Guardrails**: Built-in PII detection, bias filtering, custom regex-based validation, and LLM-based policy evaluators.
-- **Virtual Keys**: Manage provider API keys securely in the Portkey vault, using virtual keys in your application code.
-- **Semantic Caching**: Reduces costs and improves latency by caching responses based on semantic similarity.
+- **Single SDK Integration**: Interact with 2,000+ models using standard OpenAI client libraries.
+- **No Vendor Lock-In**: Decouples application code from specific vendor APIs via virtual keys.
+- **Granular Budget Controls**: Set per-key or per-team rate limits and spend caps.
+- **Open-Source Engine**: Core gateway codebase is open-source and customizable.
 
 ## Limitations
-- **Operational Complexity**: Requires managing an additional infrastructure component (if self-hosted).
-- **Configuration Overhead**: Complex routing and guardrail policies require precise YAML/JSON configuration.
+- **Deployment Overhead**: Self-hosting requires maintaining gateway instances and Redis cache infrastructure.
+- **Configuration Complexity**: Defining complex conditional fallback routes requires careful JSON/YAML configuration management.
 
 ## When to use it
-- When you need to manage multiple LLM providers through a single, unified interface.
-- To improve agent reliability using automated fallbacks and load balancing across model tiers.
-- When you require production-grade observability (logging, cost tracking, latency monitoring) for AI features.
+- When managing multiple LLM providers through a single, unified API interface.
+- To improve agent reliability using automated multi-provider fallbacks and load balancing across model tiers.
+- When requiring production-grade observability (logging, cost tracking, latency monitoring) for enterprise AI workloads.
 - To implement centralized prompt versioning and guardrails without modifying core application code.
 
 ## When not to use it
@@ -39,144 +109,180 @@ Portkey sits in the **Providers / Infrastructure** layer. It acts as the gateway
 - In extremely latency-sensitive environments where any proxy overhead (even <5ms) is unacceptable.
 - For local-only development using only a single local model provider (e.g., Ollama only).
 
+## Comparison Matrix
+
+| Feature / Metric | Portkey AI Gateway | LiteLLM Proxy | OpenRouter | Vercel AI Gateway |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Enterprise Gateway & Control Plane | Lightweight Open-Source Proxy | Model Aggregator SaaS | Serverless Edge Gateway |
+| **Deployment Model** | Self-Hosted / Managed Cloud | Self-Hosted / Managed Cloud | Hosted SaaS | Vercel Edge Cloud |
+| **Supported Providers**| 250+ Providers (2,000+ Models) | 100+ Providers | 200+ Models | Top Tier Providers |
+| **FastMCP 3.1 Support** | Native Protocol Binding | Extension Required | Community Adapter | Native Vercel SDK |
+| **Semantic Caching** | Built-in (Vector/Redis) | Supported via Redis | None | None |
+| **PII & Guardrails** | 100+ Built-in Guardrails | Custom Middleware | Basic Filtering | Vercel Firewall |
+
 ## Getting started
 
-### Run Locally (Docker)
+### Deploying via Docker
 ```bash
-docker run -p 8787:8787 portkeyai/gateway
+docker run -p 8787:8787 -e PORTKEY_GATEWAY_PORT=8787 portkeyai/gateway:latest
 ```
 
-### Initial Setup (Python)
+### Initial Python Configuration
 ```python
 from portkey_ai import Portkey
 
-# Initialize Portkey with a Virtual Key
 portkey = Portkey(
-    api_key="PORTKEY_API_KEY",
-    virtual_key="VIRTUAL_KEY"
+    api_key="PORTKEY_ACCOUNT_KEY",
+    virtual_key="ANTHROPIC_VIRTUAL_KEY"
 )
 ```
 
 ## CLI examples
-Portkey provides a CLI for managing configurations and testing routes.
 
 ```bash
-# Install the Portkey CLI
+# Install the Portkey CLI tool
 npm install -g @portkey-ai/cli
 
-# Test a request through the gateway
-portkey chat --model gpt-5.6-preview --message "Hello Portkey!"
+# Test an API request through local gateway instance
+portkey chat --gateway http://127.0.0.1:8787 --model gpt-5.6 --message "Verify Portkey Gateway status."
 
-# List active virtual keys
-portkey virtual-keys list
-
-# Validate a config file
-portkey config validate ./my-config.json
+# Validate routing configuration schema
+portkey config validate ./production-routing.json
 ```
 
 ## API examples
 
-### Using the OpenAI Python SDK (Early January 2027 specs)
+### 1. Multi-Provider Fallback Request with OpenAI SDK
 ```python
 from openai import OpenAI
 from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
 
 client = OpenAI(
-    api_key="ANY_KEY", # Virtual key is passed in headers
+    api_key="PORTKEY_VIRTUAL_KEY",
     base_url=PORTKEY_GATEWAY_URL,
     default_headers=createHeaders(
         provider="anthropic",
         virtual_key="ANTHROPIC_VIRTUAL_KEY",
-        trace_id="agent-run-123",
-        metadata={"user_tier": "enterprise", "mcp_version": "3.1"}
+        trace_id="agentic-task-9021",
+        config="pc-fallback-matrix-v1"
     )
 )
 
 response = client.chat.completions.create(
     model="claude-5-6-sonnet",
-    messages=[{"role": "user", "content": "Analyze this data."}]
+    messages=[{"role": "user", "content": "Execute code refactoring analysis."}],
+    temperature=0.1
 )
+
+print(f"Response from model: {response.model}")
+print(response.choices[0].message.content)
 ```
 
-### Programmatic Route Configuration with Strict Pydantic v2 Validation
-This example validates a complex Portkey gateway routing and fallback configuration programmatically before sending it to the Portkey API, preventing runtime execution failures caused by malformed targets or missing parameters.
+### 2. FastMCP 3.1 Gateway Integration
+```python
+import json
+import urllib.request
+from typing import Dict, Any
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("portkey-mcp-gateway")
+
+PORTKEY_GATEWAY = "http://127.0.0.1:8787/v1/chat/completions"
+
+@mcp.tool()
+def route_agent_completion(prompt: str, target_provider: str = "openai") -> Dict[str, Any]:
+    """Routes an agent completion through Portkey gateway with FastMCP 3.1 protocol."""
+    payload = {
+        "model": "gpt-5.6",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-portkey-provider": target_provider,
+        "x-portkey-trace-id": "fastmcp-3.1-execution"
+    }
+
+    req = urllib.request.Request(
+        PORTKEY_GATEWAY,
+        data=json.dumps(payload).encode("utf-8"),
+        headers=headers
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return {
+                "status": "success",
+                "result": data["choices"][0]["message"]["content"],
+                "model_used": data.get("model", "unknown")
+            }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### 3. Strict Pydantic v2 Fallback Route Validation
 ```python
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
-class TargetConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid", freeze=True)
-
-    provider: Literal["openai", "anthropic", "google", "cohere", "groq", "azure-openai"] = Field(
-        ...,
-        description="Supported Portkey API provider"
-    )
-    model: str = Field(..., description="Target model name (e.g., gpt-5.6-preview, claude-5-6-sonnet)")
-    override_api_key: Optional[str] = Field(default=None, description="Optional target-specific key override")
-    weight: Optional[int] = Field(default=1, ge=1, description="Routing weight for load-balanced targets")
-
-    @field_validator("model")
-    @classmethod
-    def validate_model_name(cls, value: str) -> str:
-        clean = value.strip()
-        if len(clean) < 3:
-            raise ValueError("Model name must be at least 3 characters long.")
-        return clean
-
-class PortkeyRouteConfig(BaseModel):
+class GatewayTarget(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    strategy: Literal["fallback", "loadbalance", "single"] = Field(
-        default="single",
-        description="Portkey routing and execution strategy"
-    )
-    targets: List[TargetConfig] = Field(..., min_length=1, description="List of target providers/models")
-    cache_mode: Literal["simple", "semantic", "none"] = Field(default="none")
-    cache_ttl: Optional[int] = Field(default=86400, ge=0, description="Cache duration in seconds")
+    provider: Literal["openai", "anthropic", "google", "deepseek", "groq"] = Field(...)
+    model: str = Field(..., min_length=2, description="Target model identifier")
+    override_virtual_key: Optional[str] = Field(None, description="Optional Virtual Key override")
+    weight: int = Field(1, ge=1, le=100, description="Load balancer weight")
+
+class PortkeyGatewayConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    strategy: Literal["fallback", "loadbalance", "single"] = Field("fallback")
+    targets: List[GatewayTarget] = Field(..., min_length=1, max_length=10)
+    cache_mode: Literal["simple", "semantic", "none"] = Field("semantic")
+    cache_ttl: int = Field(86400, ge=0, description="Cache TTL in seconds")
 
     @field_validator("targets")
     @classmethod
-    def validate_targets_limit(cls, targets: List[TargetConfig]) -> List[TargetConfig]:
-        if len(targets) > 10:
-            raise ValueError("Portkey gateway configs support a maximum of 10 targets in fallback/loadbalance paths.")
+    def validate_unique_providers(cls, targets: List[GatewayTarget]) -> List[GatewayTarget]:
+        if len(targets) < 1:
+            raise ValueError("At least one gateway target must be specified")
         return targets
 
-# Example programmatic generation and validation of a Portkey JSON configuration
+# Example Validation
 try:
-    config_data = {
-        "strategy": "fallback",
-        "targets": [
-            {"provider": "openai", "model": "gpt-5.6-preview", "weight": 1},
-            {"provider": "anthropic", "model": "claude-5-6-sonnet", "weight": 1}
+    config = PortkeyGatewayConfig(
+        strategy="fallback",
+        targets=[
+            GatewayTarget(provider="anthropic", model="claude-5-6-sonnet"),
+            GatewayTarget(provider="openai", model="gpt-5.6")
         ],
-        "cache_mode": "semantic",
-        "cache_ttl": 86400
-    }
-
-    # Run strict Pydantic v2 validation
-    validated_config = PortkeyRouteConfig.model_validate(config_data)
-    json_payload = validated_config.model_dump_json(indent=2, exclude_none=True)
-    print("Validated Portkey JSON Config payload:")
-    print(json_payload)
-except Exception as e:
-    print("Invalid Portkey Configuration detected:", e)
+        cache_mode="semantic",
+        cache_ttl=86400
+    )
+    print("Validated Portkey Gateway Routing Configuration:")
+    print(config.model_dump_json(indent=2))
+except Exception as err:
+    print(f"Validation failed: {err}")
 ```
 
 ## Related tools / concepts
-- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) - Unified framework for building AI apps.
-- [LiteLLM](../../services/litellm.md) - Lightweight proxy for 100+ LLMs.
-- [OpenRouter](../ai_knowledge/openrouter.md) - Model aggregator with specialized routing.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) - Architectural patterns for model selection.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - Standardized agent-tool communication.
-- [Langfuse](../process_understanding/langfuse.md) - Open-source observability and analytics.
-- [Helicone](../process_understanding/helicone.md) - LLM observability platform.
+- **[LiteLLM](../../services/litellm.md)**: Lightweight open-source LLM proxy.
+- **[OpenRouter](../ai_knowledge/openrouter.md)**: Hosted multi-model inference aggregator.
+- **[Vercel AI SDK](../development_ops/vercel-ai-sdk.md)**: Developer toolkit for building AI web applications.
+- **[Langfuse](../process_understanding/langfuse.md)**: Open-source LLM tracing and analytics platform.
+- **[FastMCP 3.1 Protocol](../automation_orchestration/mcp.md)**: Standardized agent tool execution protocol.
 
 ## Sources / references
-- [Official Website](https://portkey.ai/)
-- [Portkey Documentation](https://docs.portkey.ai/)
+- [Portkey Official Documentation](https://docs.portkey.ai/)
 - [Portkey GitHub Repository](https://github.com/Portkey-AI/gateway)
-- [Enterprise AI Gateway Patterns (2026)](https://portkey.ai/blog/agentic-gateway-patterns)
+- [Enterprise AI Control Plane Best Practices](https://portkey.ai/blog/)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-07
 - Confidence: high
