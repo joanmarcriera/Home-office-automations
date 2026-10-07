@@ -1,34 +1,91 @@
 # Excalidraw
 
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the early January 2027 agentic ecosystem.
-
 ## What it is
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of early January 2027, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
+Excalidraw is an open-source, lightweight virtual whiteboard and sketching ecosystem optimized for hand-drawn aesthetics, real-time collaboration, and structured visual reasoning in multi-agent AI networks. In modern developer environments, Excalidraw serves as both a human sketching tool and a machine-readable canvas where autonomous agents (e.g., [Claude Code](../tools/development_ops/claude-code.md), [Home Admin Agent](home-admin-tools.md)) externalize architectural ideas, sequence diagrams, and task dependency graphs.
+
+Because Excalidraw scenes are stored as deterministic JSON documents containing precise coordinate, shape, arrow, and text bindings, AI models can inspect, generate, and edit visual layouts programmatically via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers.
+
+```
++--------------------------------------------------------------------------------------------------------------------+
+|                                         EXCALIDRAW VISUAL REASONING STACK                                          |
++--------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                    |
+|  +--------------------------------+      +---------------------------------+      +-----------------------------+  |
+|  |   Human Whiteboard User        |      |   FastMCP 3.1 Tool Server       |      | Autonomous AI Agent         |  |
+|  |   (Browser / Obsidian Canvas)  |      |   (Pydantic v2 Schema Engine)   |      | (Claude Code / Llama 4)     |  |
+|  +---------------+----------------+      +----------------+----------------+      +--------------+--------------+  |
+|                  |                                        |                                      |                 |
+|                  +-------------------+--------------------+--------------------------------------+                 |
+|                                      |                                                                             |
+|                                      v                                                                             |
+|                       +------------------------------+                                                             |
+|                       |   Excalidraw JSON Data       |                                                             |
+|                       |  (Elements, Bindings, x/y)   |                                                             |
+|                       +--------------+---------------+                                                             |
+|                                      |                                                                             |
+|                                      v                                                                             |
+|                       +------------------------------+                                                             |
+|                       |  Self-Hosted Excalidraw App  |                                                             |
+|                       |  (Docker Container / Node.js)|                                                             |
+|                       +--------------+---------------+                                                             |
+|                                      |                                                                             |
+|                                      v                                                                             |
+|                       +------------------------------+                                                             |
+|                       | Exported SVG / PNG Artifacts |                                                             |
+|                       | (Paperless / Git / Obsidian) |                                                             |
+|                       +------------------------------+                                                             |
+|                                                                                                                    |
++--------------------------------------------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction. It provides a structured JSON format that is easily parseable by LLMs, facilitating seamless human-AI co-creation.
+Formal diagramming suites (such as Visio or complex CAD applications) suffer from steep learning curves, rigid layout constraints, and proprietary binary formats that hinder automated LLM generation. Excalidraw solves these issues by offering:
+
+1. **Human-Approachable Aesthetic**: Hand-drawn sketchy styling reduces "polish anxiety" during early-stage brainstorming.
+2. **Structured Machine-Readable JSON**: Every rectangle, arrow, text block, and connector is represented as a structured object, allowing LLMs to manipulate elements with mathematical precision.
+3. **E2EE Real-Time Collaboration**: End-to-end encrypted WebSocket relays enable concurrent live editing between human engineers and automated agent bots.
+4. **Deep Knowledge Base Integration**: Integrates directly into [Obsidian](../tools/ai_knowledge/obsidian.md) for visual bi-directional linking.
 
 ## Where it fits in the stack
-Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs and internal wikis, and serves as a visual playground for agents (e.g., GPT-5.5, Claude 5.1, Gemini 4.0, Llama 4) to "draw" their reasoning or architecture proposals using **MCP 3.1 visual design patterns**.
+**Category**: Services / Visual Communication & Brainstorming.
+
+```
++---------------------------------------------------------------------------------------+
+|                                    EXCALIDRAW STACK                                    |
++---------------------------------------------------------------------------------------+
+| Ingestion & Protocol: FastMCP 3.1, WebSocket E2EE Sync Engine                          |
+| Rendering Layer     : React Web App, Canvas Engine, Export to SVG/PNG                 |
+| Schema & Storage    : Pydantic v2 JSON Spec, Local Disk, Git, Obsidian Plugin          |
+| Security & Auth     : Authentik SSO, Reverse Proxy (Cloudflare / Caddy)              |
++---------------------------------------------------------------------------------------+
+```
+
+## Technical Comparison Matrix
+
+| Feature / Dimension | Excalidraw | Draw.io | Mermaid.js |
+| :--- | :--- | :--- | :--- |
+| **Visual Style** | **Hand-drawn / Sketchy** | Formal / Enterprise | Code-rendered SVG |
+| **Agentic Manipulability** | **High (Direct JSON Element Manipulation)** | Moderate (XML parsing) | High (Markdown text syntax) |
+| **Real-time Co-Editing** | **Native E2EE WebSocket** | Cloud plugin dependent | None (Static render) |
+| **Local Self-Hosting** | **Single Docker Container** | Complex web server | NPM library / CLI |
+| **FastMCP 3.1 Native** | **Yes (JSON element tools)** | No | Yes (Markdown tool wrappers) |
 
 ## Typical use cases
-- **AI-Native Visual Reasoning**: Agents generating and modifying diagrams to explain multi-step planning.
-- **UI/UX Wireframing**: Quickly sketching interface ideas for new agent-driven apps.
-- **Process Brainstorming**: Mapping out high-level agentic workflows or [n8n](n8n.md) logic.
-- **Visual Documentation**: Creating explanatory diagrams for software architecture in a "whiteboard" style.
-- **MCP 3.1 Task Visualization**: Representing complex tool-calling sequences and task graphs visually.
+- **Multi-Agent Architecture Whiteboarding**: Autonomous agents plotting multi-service integration diagrams for human approval.
+- **UI/UX Wireframing**: Programmatically generating low-fidelity UI mockups for mobile and web applications.
+- **Obsidian Visual Knowledge Mapping**: Connecting ideas and notes via spatial visual graphs using the Obsidian Excalidraw plugin.
+- **System Sequence Mapping**: Translating complex execution traces into visual flowcharts during incident post-mortems.
 
 ## Strengths
-- **Simplicity**: Extremely intuitive interface with no learning curve.
-- **Aesthetic**: Hand-drawn look makes diagrams feel approachable and "work-in-progress".
-- **Portable**: Diagrams are stored as JSON and can be easily embedded or shared.
-- **E2EE Collaboration**: Live sessions are end-to-end encrypted.
-- **AI-Powered**: Native support for AI-assisted diagram generation, including "Diagram to Code" and "Sketch to Architecture" workflows.
+- **Instant Usability**: Zero setup required for web sketching with intuitive keyboard shortcuts.
+- **Bi-directional AI Co-creation**: Agents read Excalidraw JSON, make edits or add annotations, and output updated canvas files.
+- **Zero Lock-in**: Raw JSON schema is open source and easy to convert into SVG, PNG, or Markdown.
+- **Lightweight Footprint**: Consumes minimal system resources when running in self-hosted Docker environments.
 
 ## Limitations
-- **No Formal Notation**: Not suitable for strict UML, ERD, or complex technical specifications requiring precise alignment.
-- **Manual Layout**: Lacks the auto-layout capabilities found in tools like [Draw.io](drawio.md) or Mermaid.
-- **Versioning**: Native version control for diagrams is limited compared to Git-based Mermaid.
+- **Lacks Auto-Layout Engine**: Nodes and connectors require explicit x/y coordinates; no built-in auto-graph layouter like Graphviz or Mermaid.
+- **Scale Bottlenecks**: Large canvases with tens of thousands of individual elements can suffer performance degradation in browser DOMs.
+- **No Native Database Schemas**: Not designed for automated relational database schema generation without custom script adapters.
 
 ## When to use it
 - When you need to quickly sketch a diagram during a meeting or brainstorming session.
@@ -38,143 +95,182 @@ Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is
 
 ## When not to use it
 - For professional engineering diagrams that require strict adherence to industry standards (UML, SysML).
-- When you need automatic layout of nodes and edges (use Mermaid or [Gumloop](../tools/automation_orchestration/gumloop.md) visual flows).
+- When you need automatic layout of nodes and edges (use Mermaid or visual flows).
 - If you require a deep hierarchy of objects or complex multi-page document management.
+
+## FastMCP 3.1 Integration Pattern
+
+The Python code below provides a FastMCP 3.1 tool server capable of constructing and modifying Excalidraw scenes using strict Pydantic v2 validation:
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Tool Server for Excalidraw Diagram Generation
+Enables AI agents to build hand-drawn canvas diagrams programmatically.
+"""
+
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("excalidraw-canvas-server")
+
+class ExcalidrawElement(BaseModel):
+    id: str = Field(..., description="Unique element string identifier")
+    type: str = Field(..., description="Shape type (rectangle, ellipse, arrow, text)")
+    x: float = Field(..., description="X-axis coordinate on canvas")
+    y: float = Field(..., description="Y-axis coordinate on canvas")
+    width: float = Field(..., description="Width of the element box")
+    height: float = Field(..., description="Height of the element box")
+    strokeColor: str = Field("#1e1e1e", description="Border/line color hex")
+    backgroundColor: str = Field("transparent", description="Fill color hex")
+    fillStyle: str = Field("hachure", description="Texture (hachure, cross-hatch, solid)")
+    strokeWidth: int = Field(1, ge=1, le=5, description="Line stroke thickness")
+    roughness: int = Field(1, ge=0, le=3, description="Hand-drawn roughness index")
+    opacity: int = Field(100, ge=0, le=100, description="Opacity percentage")
+    text: Optional[str] = Field(None, description="Text string content if type == 'text'")
+
+class ExcalidrawScene(BaseModel):
+    type: str = Field("excalidraw", description="File type specifier")
+    version: int = Field(2, description="Schema version")
+    source: str = Field("https://excalidraw.com", description="App generator signature")
+    elements: List[ExcalidrawElement] = Field(default_factory=list)
+
+@mcp.tool()
+async def create_architecture_box(
+    label: str,
+    x: float,
+    y: float,
+    width: float = 180.0,
+    height: float = 70.0
+) -> str:
+    """
+    Constructs a styled Excalidraw rectangle element with attached text label.
+    """
+    rect_id = f"rect_{hash(label) & 0xffffff}"
+    text_id = f"text_{hash(label) & 0xffffff}"
+
+    rect_element = ExcalidrawElement(
+        id=rect_id,
+        type="rectangle",
+        x=x,
+        y=y,
+        width=width,
+        height=height,
+        strokeColor="#2b6cb0",
+        backgroundColor="#ebf8ff",
+        fillStyle="solid"
+    )
+
+    text_element = ExcalidrawElement(
+        id=text_id,
+        type="text",
+        x=x + 15,
+        y=y + 20,
+        width=width - 30,
+        height=30,
+        strokeColor="#2d3748",
+        text=label
+    )
+
+    scene = ExcalidrawScene(elements=[rect_element, text_element])
+    return scene.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ## Getting started
 
-### Docker installation
-To run Excalidraw locally using Docker Compose:
+### Self-Hosting via Docker Compose
+To host an isolated Excalidraw instance locally:
 
 ```yaml
+version: "3.8"
 services:
   excalidraw:
     image: excalidraw/excalidraw:latest
+    container_name: excalidraw-app
     ports:
       - "3000:80"
-    restart: on-failure
+    restart: unless-stopped
 ```
 
-Alternatively, run it using a single Docker command:
-
+Deploy using Docker Compose:
 ```bash
-docker run -d --name excalidraw -p 3000:80 excalidraw/excalidraw:latest
+docker compose up -d
 ```
 
-### Usage
-1. Navigate to `http://localhost:3000` in your browser.
-2. Start sketching using the tools provided in the top toolbar.
-3. To share your drawing, use the "Live collaboration" feature or export your work via the "Export" button.
+Access the UI at `http://localhost:3000`.
 
 ## CLI examples
-While Excalidraw is primarily a browser-based tool, you can use the `@excalidraw/utils` package for programmatic manipulation.
 
+### Validating Diagram JSON Files
 ```bash
-# Example: Using a custom script to convert Excalidraw JSON to SVG (Node.js)
-node convert_to_svg.js my_diagram.excalidraw
+# Validate an Excalidraw file structure using Python Pydantic CLI wrapper
+python3 -c "
+import json, sys
+from pydantic import BaseModel
 
-# Docker management
-docker logs excalidraw
-docker restart excalidraw
+class ExcalidrawCheck(BaseModel):
+    type: str
+    version: int
+    elements: list
+
+with open('diagram.excalidraw', 'r') as f:
+    ExcalidrawCheck.model_validate(json.load(f))
+print('Diagram structure valid!')
+"
+```
+
+### Inspecting Docker Logs
+```bash
+docker logs -f excalidraw-app
 ```
 
 ## API examples
 
-### Python: Programmatic Element List Validation with Pydantic v2
-Because Excalidraw diagrams are stored as structured JSON, agents can programmatically generate, parse, and manipulate elements. The following example validates the structure of Excalidraw elements using Pydantic v2.
-
+### Pydantic v2 Diagram Validation Handler
 ```python
-from typing import List, Optional
-from pydantic import BaseModel, Field
+import json
+from pydantic import BaseModel, Field, ValidationError
 
-# Define Pydantic v2 schemas for Excalidraw JSON structures
-class ExcalidrawElement(BaseModel):
-    id: str = Field(..., description="Unique element identifier")
-    type: str = Field(..., description="Type of element (e.g., rectangle, ellipse, arrow, text)")
-    x: float = Field(..., description="The x-coordinate position")
-    y: float = Field(..., description="The y-coordinate position")
-    width: float = Field(..., description="Width of the element")
-    height: float = Field(..., description="Height of the element")
-    backgroundColor: str = Field("transparent", description="Fill color")
-    strokeColor: str = Field("#000000", description="Line/outline color")
-    strokeWidth: int = Field(1, description="Outline thickness")
-    fillStyle: str = Field("hachure", description="Fill texture style")
-    opacity: int = Field(100, description="Opacity percentage")
-    isDeleted: bool = Field(False, description="Whether the element has been deleted")
+class DiagramHeader(BaseModel):
+    version: int = Field(..., ge=1)
+    type: str = Field("excalidraw")
+    elements_count: int = Field(..., ge=0)
 
-class ExcalidrawDiagram(BaseModel):
-    type: str = Field("excalidraw", description="Canvas file type")
-    version: int = Field(2, description="Excalidraw schema version")
-    source: Optional[str] = Field(None, description="Source generator")
-    elements: List[ExcalidrawElement] = Field(default_factory=list, description="List of visual elements")
+def audit_excalidraw_file(file_path: str) -> None:
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            raw_data = json.load(f)
 
-# Example validation logic
-def validate_and_parse_diagram(json_data: dict) -> ExcalidrawDiagram:
-    # Uses model_validate in Pydantic v2
-    return ExcalidrawDiagram.model_validate(json_data)
-
-# Test execution
-sample_json = {
-    "type": "excalidraw",
-    "version": 2,
-    "source": "https://excalidraw.com",
-    "elements": [
-        {
-            "id": "rect-1",
-            "type": "rectangle",
-            "x": 100,
-            "y": 150,
-            "width": 200,
-            "height": 80,
-            "strokeColor": "#ff0000",
-            "strokeWidth": 2,
-            "fillStyle": "solid"
+        summary = {
+            "version": raw_data.get("version", 0),
+            "type": raw_data.get("type", ""),
+            "elements_count": len(raw_data.get("elements", []))
         }
-    ]
-}
 
-parsed = validate_and_parse_diagram(sample_json)
-print(f"Validated diagram with {len(parsed.elements)} elements under MCP 3.1.")
+        header = DiagramHeader.model_validate(summary)
+        print(f"Valid Excalidraw file: {header.elements_count} elements found.")
+    except ValidationError as err:
+        print(f"Invalid Excalidraw structure: {err.json()}")
+    except FileNotFoundError:
+        print("Diagram file not found on disk.")
 ```
-
-### React Integration
-```javascript
-import { Excalidraw } from "@excalidraw/excalidraw";
-
-function App() {
-  return (
-    <div style={{ height: "500px" }}>
-      <Excalidraw onChange={(elements, state) => console.log("Elements changed", elements)} />
-    </div>
-  );
-}
-```
-
-### Obsidian Integration
-Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) via the community plugin.
-
-1.  In Obsidian, go to **Settings** > **Community plugins** > **Browse**.
-2.  Search for "Excalidraw" and click **Install**, then **Enable**.
-3.  Use `[[Note Name]]` to link elements to other notes.
-4.  The plugin can perform local OCR on hand-written text within drawings.
 
 ## Related tools / concepts
-- [Draw.io](drawio.md) — For professional-grade, formal technical diagrams.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized protocol for agent-tool interaction, including visual reasoning (MCP 3.1 compatibility).
-- [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
-- [Gumloop](../tools/automation_orchestration/gumloop.md) — Visual AI automation platform.
-- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Used for local AI-assisted sketching.
-- [Nextcloud](nextcloud.md) — Can be used to store and sync `.excalidraw` files.
-- [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram assets.
-- [Authentik](authentik.md) — For securing the local Excalidraw instance.
-- [N8N](n8n.md) — For automating the archival of Excalidraw JSON files to Git.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent visual canvas integration via community plugin.
+- [Draw.io](drawio.md) — Enterprise diagramming solution for strict UML/ERD specs.
+- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — Standardized tool execution framework.
+- [Paperless-ngx](paperless-ngx.md) — Document repository for exported diagram assets.
 
 ## Sources / References
-- [Official Website](https://excalidraw.com/)
-- [GitHub Repository](https://github.com/excalidraw/excalidraw)
-- [Excalidraw+ Changelog](https://plus.excalidraw.com/changelog)
-- [Obsidian Excalidraw Documentation](https://github.com/zsviczian/obsidian-excalidraw-plugin)
+- [Excalidraw Official Web Application](https://excalidraw.com/)
+- [Excalidraw GitHub Repository](https://github.com/excalidraw/excalidraw)
+- [Obsidian Excalidraw Plugin Manual](https://github.com/zsviczian/obsidian-excalidraw-plugin)
 
 ## Contribution Metadata
-- Confidence: high
 - Last reviewed: 2027-01-07
+- Confidence: high
