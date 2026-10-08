@@ -9,6 +9,40 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 ## Where it fits in the stack
 [Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — specifically as a **Planning & Design Framework** that precedes and guides implementation. It acts as the blueprint for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
+```
+ ┌──────────────────────────────────────────────────────────────────────────┐
+ │                     Agentic Automation Canvas (AAC)                      │
+ │ ┌───────────────────┐ ┌───────────────────┐ ┌──────────────────────────┐ │
+ │ │  Scope & Intent   │ │ User Expectations │ │    Feasibility & ROI     │ │
+ │ └─────────┬─────────┘ └─────────┬─────────┘ └────────────┬─────────────┘ │
+ └───────────┼─────────────────────┼────────────────────────┼───────────────┘
+             │                     │                        │
+             ▼                     ▼                        ▼
+ ┌──────────────────────────────────────────────────────────────────────────┐
+ │                        Visual Project Contract                           │
+ │ ┌───────────────────┐ ┌───────────────────┐ ┌──────────────────────────┐ │
+ │ │   Data & Privacy  │ │ MCP 3.1 Tool Graph│ │  Governance & Oversight  │ │
+ │ └───────────────────┘ └───────────────────┘ └──────────────────────────┘ │
+ └─────────────────────────────────┬────────────────────────────────────────┘
+                                   │
+              ┌────────────────────┴────────────────────┐
+              ▼                                         ▼
+ ┌──────────────────────────┐              ┌──────────────────────────┐
+ │        AGENTS.md         │              │    RO-Crate JSON-LD      │
+ │ (AI Assistant Directives)│              │  (W3C Interoperability)  │
+ └──────────────────────────┘              └──────────────────────────┘
+```
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Agentic Automation Canvas (AAC) | Traditional PRD / Spec | LangSmith / PromptFlow |
+| :--- | :--- | :--- | :--- |
+| **Primary Focus** | Prospective Design & ROI Quantification | System Requirements & Scope | Runtime Execution & Telemetry |
+| **Verification Overhead Model**| Explicitly Quantified (RO-Crate) | Qualitative / Unmeasured | Post-hoc Latency / Cost Logs |
+| **MCP 3.1 Visual Mapping** | Native Visual Nodes | Static Architecture Diagrams | Dynamic Trace Call Graphs |
+| **Machine Interoperability** | `AGENTS.md` & W3C RO-Crate | Freeform Markdown / Confluence | API Traces & Datasets |
+| **Execution Phase** | Pre-Implementation Design | Pre-Implementation Design | Runtime Observability |
+
 ## Typical use cases
 - **Full Project Planning**: Designing end-to-end agentic workflows, including complex components like **deterministic schedulers**, **speculative decoding routers**, and **LLM routers**.
 - **Governance & Compliance**: Documenting data access, sensitivity, and staging for institutional or clinical AI deployments.
@@ -59,6 +93,68 @@ npm install && npm run dev
 ```
 
 ## API examples
+
+### FastMCP 3.1 AAC Canvas Project Audit Server
+The following Python script defines a **FastMCP 3.1** tool server that accepts an AAC canvas project payload, validates its parameters using **Pydantic v2**, and computes the prospective ROI audit score:
+
+```python
+import json
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
+
+mcp = FastMCP("AAC Canvas Governance Server")
+
+class AACCanvasPayload(BaseModel):
+    project_id: str = Field(description="Unique canvas identifier")
+    title: str = Field(description="Name of the agentic workflow")
+    target_models: List[str] = Field(description="Models planned for execution, e.g., Claude 5.6")
+    expected_speedup_pct: float = Field(description="Estimated task completion speedup percentage")
+    human_verification_hrs_per_week: float = Field(description="Estimated manual audit time required")
+    mcp_tools_connected: List[str] = Field(description="List of FastMCP 3.1 tool URLs mapped")
+
+    @field_validator("expected_speedup_pct")
+    @classmethod
+    def validate_speedup(cls, v: float) -> float:
+        if v < 0 or v > 1000:
+            raise ValueError("Expected speedup must be realistic (0-1000%).")
+        return v
+
+class AACAuditReport(BaseModel):
+    project_id: str
+    net_roi_score: float
+    status: str
+    recommendation: str
+
+@mcp.tool()
+def audit_canvas_contract(canvas_json: str) -> str:
+    """Validate an AAC project payload and evaluate prospective ROI vs verification overhead."""
+    try:
+        data = json.loads(canvas_json)
+        payload = AACCanvasPayload.model_validate(data)
+
+        # Simplified prospective ROI calculation: speedup minus manual audit drag
+        net_score = payload.expected_speedup_pct - (payload.human_verification_hrs_per_week * 2.5)
+        status = "APPROVED" if net_score > 15.0 else "REVISION_REQUIRED"
+        recommendation = (
+            "Project has positive projected ROI with manageable verification overhead."
+            if status == "APPROVED"
+            else "High manual verification overhead reduces overall productivity gains. Automate checks."
+        )
+
+        report = AACAuditReport(
+            project_id=payload.project_id,
+            net_roi_score=round(net_score, 2),
+            status=status,
+            recommendation=recommendation
+        )
+        return report.model_dump_json(indent=2)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Schema of the RO-Crate Project Contract
 The visual nodes and core schema exported by the Agentic Automation Canvas are validated via a machine-readable JSON-LD structure conforming to the following profile.
@@ -129,6 +225,11 @@ print(f"Validated Contract: '{contract.canvas_title}' under Schema v{contract.sc
 print(f"Primary Target: {contract.target_models[0]}")
 print(f"Net expected gain: {contract.expected_speedup - contract.verification_overhead}%")
 ```
+
+## Production Operational Best Practices
+- **Version-Controlled AGENTS.md**: Keep the generated `AGENTS.md` in the root of your repository and re-export it whenever the AAC canvas architecture changes to ensure AI coding agents maintain an up-to-date project context.
+- **Continuous ROI Auditing**: Record actual human verification hours spent during production rollouts and feed them back into the AAC project contract to refine future feasibility estimates.
+- **Modular Sub-Canvases**: For complex enterprise workflows involving multiple agent swarms, break down the canvas into nested sub-canvases linked via RO-Crate metadata references.
 
 ## Related tools / concepts
 - [AGENTS.md Pattern](../../knowledge_base/patterns/index.md)
