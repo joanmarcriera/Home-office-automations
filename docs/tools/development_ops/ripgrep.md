@@ -3,6 +3,25 @@
 ## What it is
 ripgrep (rg) is an ultra-fast, line-oriented command-line search utility that recursively queries directories for regular expression patterns while strictly adhering to workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of early January 2027, **v14.3+** represents the production standard across high-throughput software development and agentic tool pipelines. Native support for SIMD AVX-512 accelerations and structured JSON streaming makes it the foundational low-latency discovery engine powering terminal agents, IDE extensions, and Model Context Protocol (FastMCP 3.1) servers.
 
+### High-Throughput Parallel Search Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                        RIPGREP SIMD SEARCH ARCHITECTURE                           |
++-----------------------------------------------------------------------------------+
+                                          |
+  +-----------------------+     +-----------------------+     +---------------------+
+  | REGEX QUERY & TARGET  | --> | DIRECTORY TRAVERSAL   | --> | EXCLUSION FILTER    |
+  | PATH SPECIFICATION    |     | THREAD POOL (Rust)    |     | (.gitignore/.rgignore)
+  +-----------------------+     +-----------------------+     +---------------------+
+                                                                         |
+                                                                         v
+  +-----------------------+     +-----------------------+     +---------------------+
+  | FASTMCP 3.1 SEARCH    | <-- | MEMORY-MAPPED BUFFER  | <-- | AVX-512 SIMD PATTERN|
+  | EVENT STREAM (JSON)   |     | MATCH EMISSION        |     | SCANNING ENGINE     |
+  +-----------------------+     +-----------------------+     +---------------------+
+```
+
 ## What problem it solves
 It resolves the high-latency search bottleneck in massive, multi-gigabyte code repositories. Traditional grep implementations or heavy vector indexing systems are either too slow for immediate real-time lookups or require significant pre-computation overhead. ripgrep delivers immediate search results in milliseconds by utilizing advanced finite automata, AVX-512 SIMD hardware optimizations, multi-threaded directory traversal, and memory-mapped buffers.
 
@@ -14,6 +33,21 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 - **Dynamic Context Harvesting**: Automatically finding and feeding relevant code blocks or configuration parameters into LLM prompt contexts for models like Claude 5.6, GPT-5.6, or DeepSeek-V4.
 - **JSON Stream Pipeline Parsing**: Spawning ripgrep with the `--json` flag to feed line-by-line matches directly into AST parsers or multi-agent memory frameworks.
 - **Strict File-Pattern Isolation**: Isolating searches to specific file patterns (e.g., `-g '*.ts'`) while honoring git exclusion files.
+
+## Command-Line Search Tool Comparison Matrix
+
+| Search Tool | Engine Language | SIMD Acceleration | `.gitignore` Support | Output Streaming Format |
+| :--- | :--- | :--- | :--- | :--- |
+| **ripgrep (rg)** | Rust | AVX-512 / Neon | Native (Hierarchical) | Line-oriented JSON events |
+| **git grep** | C | Limited | Native (Git index) | Plain text / NULL-terminated |
+| **silver searcher (ag)** | C | SSE4.2 | Native | Plain text / Ack style |
+| **ack** | Perl | None | Basic | Plain text |
+
+## Operational Best Practices & High-Throughput Tuning
+- **Thread Count Capping**: Set `--threads N` (where N is equal to available physical CPU cores, omitting hyperthreads) when running inside containerized agent runners to avoid CPU throttling.
+- **JSON Stream Buffering**: Implement line-buffered readline interfaces in wrapper processes (TypeScript/Python) to handle high-frequency match token streams without dropping memory frames.
+- **Pattern Escaping**: Always pass literal strings with `-F` (`--fixed-strings`) when searching for fixed variable names or paths to bypass regular expression compilation overhead.
+- **Ignore File Cascading**: Place repo-specific exclusion rules in `.rgignore` to prevent agentic searches from walking build artifacts or heavy test fixtures without modifying shared `.gitignore` rules.
 
 ## Strengths
 - **AVX-512 SIMD Acceleration**: Leverages modern CPU instruction sets for SOTA raw pattern-matching throughput.
@@ -84,6 +118,68 @@ rg -U -P "@Service\(\)\nclass\s+\w+Impl" src/
 
 ## API examples
 
+### FastMCP 3.1 Search Tool Integration (Python)
+Exposes ripgrep searches as a FastMCP 3.1 tool for agentic context harvesting:
+
+```python
+import subprocess
+import json
+import os
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("RipgrepSearchServer")
+
+class Submatch(BaseModel):
+    match_text: str = Field(..., alias="match")
+
+    class Config:
+        populate_by_name = True
+
+class MatchData(BaseModel):
+    path: str
+    line_number: int
+    submatches: List[Dict]
+
+class RipgrepMatchEvent(BaseModel):
+    type: str
+    data: Optional[MatchData] = None
+
+@mcp.tool()
+def search_repository(pattern: str, search_dir: str = ".") -> str:
+    """
+    FastMCP 3.1 tool for high-performance code pattern searching using ripgrep JSON event streams.
+    """
+    if not os.path.exists(search_dir):
+        return json.dumps({"error": f"Directory '{search_dir}' does not exist."})
+
+    cmd = ["rg", "--json", pattern, search_dir]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        matched_results = []
+
+        for line in proc.stdout.strip().split("\n"):
+            if not line:
+                continue
+            try:
+                event = RipgrepMatchEvent.model_validate_json(line)
+                if event.type == "match" and event.data:
+                    matched_results.append({
+                        "file": event.data.path,
+                        "line": event.data.line_number,
+                        "context": [s.get("match") for s in event.data.submatches if "match" in s]
+                    })
+            except Exception:
+                continue
+        return json.dumps({"query": pattern, "results": matched_results}, indent=2)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Node.js Event-Stream Receiver (TypeScript)
 Spawn ripgrep and parse raw structured JSON match tokens:
 
@@ -134,65 +230,6 @@ export function streamWorkspaceSearch(pattern: string, targetPath: string): Prom
 }
 ```
 
-### Python Programmatic Search & Pydantic v2 Event Validation
-Spawns ripgrep, reads its JSON streaming output, and maps each match using Pydantic v2 schemas:
-
-```python
-import subprocess
-import json
-import os
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
-
-class Submatch(BaseModel):
-    match_text: str = Field(..., alias="match")
-
-    class Config:
-        populate_by_name = True
-
-class MatchData(BaseModel):
-    path: str
-    line_number: int
-    submatches: List[Dict]
-
-class RipgrepMatchEvent(BaseModel):
-    type: str
-    data: Optional[MatchData] = None
-
-def run_agentic_grep(pattern: str, search_dir: str) -> List[Dict]:
-    """Runs high-performance ripgrep with JSON streaming and parses matching nodes."""
-    if not os.path.exists(search_dir):
-        return []
-
-    cmd = ["rg", "--json", pattern, search_dir]
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
-        matched_results = []
-
-        for line in proc.stdout.strip().split("\n"):
-            if not line:
-                continue
-            try:
-                # Strictly validate streaming chunk via Pydantic v2
-                event = RipgrepMatchEvent.model_validate_json(line)
-                if event.type == "match" and event.data:
-                    matched_results.append({
-                        "file": event.data.path,
-                        "line": event.data.line_number,
-                        "context": event.data.submatches
-                    })
-            except Exception:
-                continue
-        return matched_results
-    except Exception as e:
-        print(f"Error running search pipeline: {e}")
-        return []
-
-if __name__ == "__main__":
-    results = run_agentic_grep("Last reviewed:", "docs/")
-    print(f"Discovered {len(results)} matches.")
-```
-
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
 - [Junie CLI](junie-cli.md)
@@ -210,5 +247,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-08
 - Confidence: high
