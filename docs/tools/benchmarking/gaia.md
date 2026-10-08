@@ -3,18 +3,46 @@
 ## What it is
 GAIA (General AI Assistants) is a benchmark designed to evaluate General AI Assistants on non-trivial, multi-modal tasks. It consists of 450 carefully designed, high-fidelity questions that are conceptually simple for humans but extremely challenging for the most advanced AI systems. As of early 2027, it is the gold standard for measuring 'System 2' reasoning, tool use, FastMCP 3.1 Task Protocol interactions, and long-horizon planning in autonomous agents.
 
+## Evaluation Pipeline Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                        GAIA Benchmark Execution Pipeline                          |
+|                                                                                   |
+|   +--------------------------+       +----------------------------------------+   |
+|   |  GAIA Question & Assets  |       |  Isolated Sandbox Execution Layer      |   |
+|   |  (PDF / Audio / XLSX)    |       |                                        |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Inspect AI Benchmark Runner    |   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | FastMCP 3.1 Task Protocol|<======|===================>                    |   |
+|   | Agent Execution Bridge   |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Agent Planning & VLM Core      |   |   |
+|                |                     |   | (Claude 5.6 / GPT-5.6 / Gemma 4)   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | Pydantic v2 Task & Score |       |                   v                    |   |
+|   | Ground-Truth Validator   |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Web Browser / Python / Bash    |   |   |
+|                |                     |   +--------------------------------+   |   |
+|                v                     +----------------------------------------+   |
+|   +---------------------------------------------------------------------------+   |
+|   | Leaderboard Accuracy Metric Output (Level 1 / Level 2 / Level 3 Split)    |   |
+|   +---------------------------------------------------------------------------+   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Existing benchmarks often focus on synthetic reasoning, code syntax, or closed-book trivia. GAIA targets real-world, open-ended tasks that require fundamental human-like abilities: complex reasoning, multi-modality handling (text, spreadsheets, images, PDFs, audio), web browsing, and programmatic tool execution. It exposes the 'reasoning gap' in frontier models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), serving as a reliable metric of actual operational utility.
 
-```mermaid
-graph TD
-    GAIATask[GAIA Multimodal Question & Assets] -->|Load Task & Files| InspectEngine[Inspect AI Benchmark Runner]
-    InspectEngine -->|Prompt & File Context| Agent[General AI Assistant / VLM]
-    Agent -->|Execute Action | FastMCPTools[FastMCP 3.1 Tools: Web Browser, Python, Shell]
-    FastMCPTools -->|Tool Outputs / Execution Results| Agent
-    Agent -->|Final Submitted Answer| InspectEngine
-    InspectEngine -->|Strict Ground Truth Verification| Score[Level 1-3 Success / Accuracy Score]
-```
+## Difficulty Level Matrix & Benchmark Profile
+
+| Level | Tasks Count | Human Accuracy | Typical AI Success Rate | Core Requirements |
+| :--- | :--- | :--- | :--- | :--- |
+| **Level 1** | ~160 tasks | 92% | ~65-80% | Short web search, single file parsing, single tool execution call |
+| **Level 2** | ~200 tasks | 92% | ~35-55% | Multi-step reasoning, combination of 2+ tools (Python + OCR), intermediate state persistence |
+| **Level 3** | ~90 tasks | 92% | ~15-30% | Long-horizon multi-modal planning, complex spreadsheet calculations, error recovery loops |
 
 ## Where it fits in the stack
 **Eval / Benchmarking**. It provides a high-signal evaluation standard for testing autonomous agents, VLMs, and multi-agent workflows. It is used to validate the 'Agentic Core' of systems built on frontier LLMs such as Claude 5.6 and GPT-5.6.
@@ -52,7 +80,7 @@ GAIA evaluations are typically orchestrated using the `inspect-ai` evaluation fr
 ### 1. Installation
 Install the `inspect-ai` framework along with the standardized `inspect-evals` package:
 ```bash
-pip install inspect-ai inspect-evals
+pip install inspect-ai inspect-evals mcp pydantic
 ```
 
 ### 2. Configure Environment
@@ -87,13 +115,12 @@ inspect eval inspect_evals/gaia_level2 --limit 5 --model meta-llama/llama-4-70b-
 ```
 
 ## API examples
-You can execute and custom-parse GAIA evaluations programmatically using the Inspect Python API.
 
 ### Custom Evaluator Pipeline with Pydantic v2 Validation
 To parse, validate, and serialize the evaluation outputs securely, the following example uses strict **Pydantic v2** validation schemas:
 
 ```python
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field, ValidationError
 from inspect_ai import eval
 from inspect_evals.gaia import gaia
@@ -120,7 +147,6 @@ results = eval(
 validated_results = []
 for task in results:
     try:
-        # Construct task data payload
         task_data = {
             "sample_id": str(task.sample_id),
             "status": str(task.status),
@@ -130,7 +156,6 @@ for task in results:
             }
         }
 
-        # Parse and validate with Pydantic v2
         validated_task = GaiaTaskResult.model_validate(task_data)
         validated_results.append(validated_task)
 
@@ -142,6 +167,50 @@ for task in results:
     except ValidationError as e:
         print(f"Validation error for Task {getattr(task, 'sample_id', 'unknown')}: {e}")
 ```
+
+### FastMCP 3.1 GAIA Evaluation Server
+Expose a FastMCP 3.1 server to manage and trigger sandboxed GAIA benchmark evaluations:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+mcp = FastMCP("GaiaBenchmarkServer")
+
+class GaiaEvalRequest(BaseModel):
+    level: str = Field("level1", description="GAIA level to run: 'level1', 'level2', 'level3', or 'all'")
+    model_name: str = Field("anthropic/claude-5.6", description="Frontier model target identifier")
+    sample_limit: int = Field(5, ge=1, le=50, description="Max number of benchmark samples to evaluate")
+
+class GaiaEvalSummary(BaseModel):
+    evaluated_samples: int = Field(..., description="Number of evaluated samples")
+    accuracy_percentage: float = Field(..., description="Ground truth accuracy percentage")
+    status: str = Field("SUCCESS", description="Execution status")
+
+@mcp.tool()
+def trigger_gaia_evaluation(request: GaiaEvalRequest) -> str:
+    """Triggers an inspect-ai GAIA evaluation run under FastMCP 3.1 task protocol rules."""
+    # Simulated execution response matching Pydantic v2 schema
+    summary = GaiaEvalSummary(
+        evaluated_samples=request.sample_limit,
+        accuracy_percentage=80.0 if request.level == "level1" else 40.0,
+        status="COMPLETED"
+    )
+    return summary.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Evaluation Hardening
+
+1. **Deterministic Sandboxing**:
+   - Always run Python code tools inside ephemeral Docker containers (`--network none` when offline calculation is sufficient) to avoid benchmark environment corruption.
+2. **Web Browser Caching & Replay**:
+   - For Level 2 and Level 3 web-browsing tasks, utilize Playwright trace recordings or mock replay proxies to maintain reproducible evaluation runs over time.
+3. **Token Usage Monitoring**:
+   - Set maximum token bounds per task sample (e.g., max 30,000 tokens per Level 3 question) to prevent agent loops from consuming unexpected budget.
 
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web navigation benchmark.

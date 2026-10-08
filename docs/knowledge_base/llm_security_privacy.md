@@ -2,6 +2,36 @@
 
 Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of early January 2027.
 
+## Security Architecture & Perimeter Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                        Agent Security Boundary & Trust Perimeter                  |
+|                                                                                   |
+|   +--------------------------+       +----------------------------------------+   |
+|   | Untrusted Input          |       |  Isolated Execution Sandbox            |   |
+|   | (Web Scraping / Email)   |       |                                        |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Prompt Guard / Delimiter       |   |   |
+|                v                     |   | Validation Filter              |   |   |
+|   +--------------------------+       |   +---------------+----------------+   |   |
+|   | FastMCP 3.1 Task Server  |<======|===================>                    |   |
+|   | (Capability Checker)     |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Lethal Trifecta Evaluator      |   |   |
+|                |                     |   | (Data + Web + FS Write Check)  |   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | Pydantic v2 Session      |       |                   v                    |   |
+|   | Context & Policy Engine  |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Secure Tool Calling Execution  |   |   |
+|                |                     |   +--------------------------------+   |   |
+|                v                     +----------------------------------------+   |
+|   +---------------------------------------------------------------------------+   |
+|   | Audit Logs / Authentik Identity Session / Black Box Recorder               |   |
+|   +---------------------------------------------------------------------------+   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What it is
 A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by local models like Gemma 3, Qwen 3.8, or frontier models like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, and DeepSeek-V4) have access to sensitive toolsets and private knowledge bases via the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
@@ -10,6 +40,16 @@ It mitigates the risk of "Agentic Compromise," where an autonomous system is coe
 
 ## Where it fits in the stack
 This document resides in the **Governance and Security Layer** of the [Home-Office Architecture](../architecture/README.md). It informs the configuration of [Authentik](../services/authentik.md) for identity management and defines the trust boundaries for [Ollama](../services/ollama.md) and [n8n](../services/n8n.md) workflows.
+
+## Threat Model & Risk Matrix
+
+| Risk Vector | Attack Vector | Mitigation / Control | Impact Severity |
+| :--- | :--- | :--- | :--- |
+| **Indirect Prompt Injection** | Web page or document payload overrides system instructions | Strict input sanitization, XML delimiters, read-only untrusted agents | Critical |
+| **Lethal Trifecta Alignment** | Agent combines local data read, web access, and FS write capabilities | FastMCP capability partitioning; no single agent gets all 3 legs | Critical |
+| **PII / Memory Exfiltration** | Agent logs or memory stores indexed by unauthenticated RAG | Vector collection ACLs, Pydantic v2 schema sanitization, Authentik IAM | High |
+| **Credential Harvesting** | Agent reads `.env` or system environment variables directly | Managed Identities, Vault rotation, dynamic OAuth2 token exchange | High |
+| **Model Jailbreaking** | Adversarial prompt suffixes bypass guardrail classifiers | Multi-stage guardrail agents (Llama Guard / Pydantic validators) | Medium |
 
 ## Typical use cases
 - **Privacy Auditing**: Ensuring local LLM instances (Ollama) are not leaking context across multi-user environments.
@@ -140,25 +180,74 @@ except ValidationError as e:
     print(f"Validation failed: {e.json()}")
 ```
 
-### Tool Calling with Trust Boundaries
-Example of a secure tool-call using [MCP 3.1](./patterns/tool-calling-and-mcp.md).
+### FastMCP 3.1 Capability Firewall Server
+Expose a security evaluation tool to intercept and sanitize tool execution requests under the FastMCP 3.1 Task Protocol:
 
-```json
-{
-  "mcp_version": "3.1",
-  "method": "tools/call",
-  "params": {
-    "name": "safe_write",
-    "arguments": {
-      "path": "/tmp/agent_output.txt",
-      "content": "..."
-    }
-  },
-  "meta": {
-    "security_context": "isolated_sandbox_v2"
-  }
-}
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+mcp = FastMCP("SecurityFirewallServer")
+
+class SecurityEvaluationRequest(BaseModel):
+    agent_id: str = Field(..., description="Agent session identifier")
+    has_private_data_access: bool = Field(..., description="Does the agent hold private file/database read access?")
+    has_untrusted_input_access: bool = Field(..., description="Does the agent process raw web/email input?")
+    has_external_network_access: bool = Field(..., description="Does the agent hold outbound network write access?")
+
+class PolicyDecision(BaseModel):
+    allowed: bool = Field(..., description="Whether execution is permitted")
+    risk_level: str = Field(..., description="Risk tier: CRITICAL, HIGH, MEDIUM, LOW")
+    violation_reason: Optional[str] = Field(None, description="Detailed explanation of boundary violation")
+
+@mcp.tool()
+def evaluate_lethal_trifecta(req: SecurityEvaluationRequest) -> str:
+    """Evaluates agent security posture against the Lethal Trifecta rule set."""
+    legs_active = sum([
+        req.has_private_data_access,
+        req.has_untrusted_input_access,
+        req.has_external_network_access
+    ])
+
+    if legs_active == 3:
+        decision = PolicyDecision(
+            allowed=False,
+            risk_level="CRITICAL",
+            violation_reason="Lethal Trifecta Violation: Agent holds Private Data + Untrusted Input + External Network Access simultaneously."
+        )
+    elif legs_active == 2 and req.has_untrusted_input_access and req.has_external_network_access:
+        decision = PolicyDecision(
+            allowed=False,
+            risk_level="HIGH",
+            violation_reason="Exfiltration Hazard: Agent processes untrusted web input with active external network egress."
+        )
+    else:
+        decision = PolicyDecision(
+            allowed=True,
+            risk_level="LOW" if legs_active <= 1 else "MEDIUM",
+            violation_reason=None
+        )
+
+    return decision.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Operational Guidelines & Isolation Controls
+
+1. **Strict Container Sandboxing**:
+   - Run untrusted agents in rootless Docker containers with `--read-only` root filesystems and explicit `--cap-drop=ALL`.
+   - Mount temporary workspaces as non-executable `tmpfs` volumes.
+
+2. **Network Perimeter Segmentation**:
+   - Assign agents to separate VLANs or Tailscale ACL groups.
+   - Force outbound HTTP/HTTPS connections through an inspection proxy (e.g., Squid or mitmproxy) with strict domain allowlists.
+
+3. **Auditing & Telemetry**:
+   - Stream all FastMCP tool execution events to a centralized SIEM or ClickHouse logging cluster.
+   - Implement real-time anomaly alerts for sudden spikes in tool invocation frequency or token usage.
 
 ## Related tools / concepts
 - [Authentik](../services/authentik.md) — Identity and session orchestration.
