@@ -3,6 +3,42 @@
 ## What it is
 ripgrep (rg) is an ultra-fast, line-oriented command-line search utility that recursively queries directories for regular expression patterns while strictly adhering to workspace exclusion rules (such as `.gitignore`, `.ignore`, and `.rgignore`). As of early January 2027, **v14.3+** represents the production standard across high-throughput software development and agentic tool pipelines. Native support for SIMD AVX-512 accelerations and structured JSON streaming makes it the foundational low-latency discovery engine powering terminal agents, IDE extensions, and Model Context Protocol (FastMCP 3.1) servers.
 
+## Architecture & System Overview
+ripgrep achieves its performance by pairing a Rust-based, highly concurrent multithreaded directory walker with SIMD-accelerated regex string matching routines.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                            RIPGREP (RG) ARCHITECTURE                             │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+   Target Path / Working Directory
+                │
+                ▼
+  ┌───────────────────────────┐
+  │ Parallel Directory Walker │ ──> Reads .gitignore / .ignore / .rgignore
+  └───────────────────────────┘
+                │ (Pipes file descriptors)
+                ▼
+  ┌───────────────────────────┐
+  │ Thread Pool (Rust Rayon)  │
+  └───────────────────────────┘
+        │               │
+        ▼               ▼
+  ┌───────────┐   ┌───────────┐
+  │ Worker 1  │   │ Worker 2  │ ──> Memory Mapped Buffers (mmap)
+  └───────────┘   └───────────┘
+        │               │
+        ▼               ▼
+  ┌───────────────────────────┐
+  │  AVX-512 SIMD Regex Match │ ──> SOTA Automata / Teddy String Matcher
+  └───────────────────────────┘
+                │
+                ▼
+  ┌───────────────────────────┐
+  │  JSON Stream Event Engine │ ──> Programmatic Output (begin, match, end)
+  └───────────────────────────┘
+```
+
 ## What problem it solves
 It resolves the high-latency search bottleneck in massive, multi-gigabyte code repositories. Traditional grep implementations or heavy vector indexing systems are either too slow for immediate real-time lookups or require significant pre-computation overhead. ripgrep delivers immediate search results in milliseconds by utilizing advanced finite automata, AVX-512 SIMD hardware optimizations, multi-threaded directory traversal, and memory-mapped buffers.
 
@@ -14,6 +50,17 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 - **Dynamic Context Harvesting**: Automatically finding and feeding relevant code blocks or configuration parameters into LLM prompt contexts for models like Claude 5.6, GPT-5.6, or DeepSeek-V4.
 - **JSON Stream Pipeline Parsing**: Spawning ripgrep with the `--json` flag to feed line-by-line matches directly into AST parsers or multi-agent memory frameworks.
 - **Strict File-Pattern Isolation**: Isolating searches to specific file patterns (e.g., `-g '*.ts'`) while honoring git exclusion files.
+
+## Comparison Matrix
+
+| Feature | ripgrep (rg) | grep (GNU) | git grep | fd / find |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Line-oriented code search | General text search | Git repository search | File path & name search |
+| **Indexing Required** | None (On-the-fly) | None | None | None |
+| **Concurrency Model** | Multi-threaded Lock-free | Single-threaded | Multi-threaded | Multi-threaded |
+| **Gitignore Support** | Native & Automatic | No | Native (within repo) | Native & Automatic |
+| **JSON Event Stream** | Native (`--json`) | No | No | No |
+| **Hardware Accel** | SIMD (AVX-512/Neon) | Basic libc | Basic libc | File system walker |
 
 ## Strengths
 - **AVX-512 SIMD Acceleration**: Leverages modern CPU instruction sets for SOTA raw pattern-matching throughput.
@@ -141,21 +188,21 @@ Spawns ripgrep, reads its JSON streaming output, and maps each match using Pydan
 import subprocess
 import json
 import os
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Dict, Optional, Any
 
 class Submatch(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     match_text: str = Field(..., alias="match")
 
-    class Config:
-        populate_by_name = True
-
 class MatchData(BaseModel):
-    path: str
+    model_config = ConfigDict(extra="ignore")
+    path: Dict[str, str]
     line_number: int
-    submatches: List[Dict]
+    submatches: List[Dict[str, Any]]
 
 class RipgrepMatchEvent(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     type: str
     data: Optional[MatchData] = None
 
@@ -176,8 +223,9 @@ def run_agentic_grep(pattern: str, search_dir: str) -> List[Dict]:
                 # Strictly validate streaming chunk via Pydantic v2
                 event = RipgrepMatchEvent.model_validate_json(line)
                 if event.type == "match" and event.data:
+                    file_path = event.data.path.get("text", "")
                     matched_results.append({
-                        "file": event.data.path,
+                        "file": file_path,
                         "line": event.data.line_number,
                         "context": event.data.submatches
                     })
@@ -192,6 +240,66 @@ if __name__ == "__main__":
     results = run_agentic_grep("Last reviewed:", "docs/")
     print(f"Discovered {len(results)} matches.")
 ```
+
+### FastMCP 3.1 Integration Code Pattern
+Exposes ripgrep high-performance searching directly to agentic environments as a FastMCP 3.1 tool.
+
+```python
+import subprocess
+import json
+import os
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "ripgrep-code-search",
+    instructions="Provides ultra-fast, line-oriented regular expression search across source repositories."
+)
+
+class SearchInput(BaseModel):
+    pattern: str = Field(..., description="Regex pattern or literal string to search for.")
+    path: str = Field(".", description="Root directory or file path to query.")
+    file_glob: Optional[str] = Field(None, description="Optional file glob pattern (e.g. '*.py' or '!*test*').")
+    max_results: int = Field(50, ge=1, le=500, description="Max results to return.")
+
+@mcp.tool()
+async def execute_ripgrep_search(input_data: SearchInput) -> List[Dict[str, Any]]:
+    """Executes ripgrep search and returns structured match metadata."""
+    cmd = ["rg", "--json", input_data.pattern, input_data.path]
+    if input_data.file_glob:
+        cmd.extend(["-g", input_data.file_glob])
+
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    matches = []
+
+    for line in proc.stdout.splitlines():
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+            if payload.get("type") == "match":
+                data = payload.get("data", {})
+                matches.append({
+                    "file": data.get("path", {}).get("text"),
+                    "line": data.get("line_number"),
+                    "matched_text": data.get("lines", {}).get("text", "").strip()
+                })
+                if len(matches) >= input_data.max_results:
+                    break
+        except json.JSONDecodeError:
+            continue
+
+    return matches
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Troubleshooting
+- **Input Sanitization**: When invoking ripgrep as a subprocess in production agents, pass commands as an array of string arguments (`execFile`/`subprocess.run`) rather than concatenating shell strings to prevent shell-injection exploits.
+- **Large Binary Exclusion**: Pass `--no-ignore-vcs` sparingly. Use `--binary-files=without-match` to prevent non-text files from polluting token contexts.
+- **Worker Thread Allocation**: In containerized agent runtime environments (Docker/K8s), constrain `--threads` to match container CPU quotas and avoid thread starvation.
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)

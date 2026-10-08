@@ -12,6 +12,34 @@ All AI-authored documentation and repository updates must satisfy this contract:
 5. **Verified with KnowledgeOps Tools**: All changes must pass programmatic checks via `check_docs_contract.py` and `audit_docs_quality.py`.
 6. **MCP 3.1 Task Protocol Compliance**: Agents must utilize the standardized Model Context Protocol v3.1 Task Protocol for automated benchmarking and execution.
 
+## Architecture & System Overview
+KnowledgeOps coordinates multiple agent lanes operating over a shared repository, backed by FastMCP 3.1 tool gateways and CI quality gates.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      FEDERATED KNOWLEDGE-OPS ARCHITECTURE                        │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+   Agent Worker Lanes               FastMCP 3.1 Governance           Shared Knowledge
+ ┌─────────────────────┐          ┌──────────────────────────┐      ┌────────────────────┐
+ │ - Intake Agent      │─────────>│ - Duplication Check Tool │─────>│ - docs/new-sources │
+ │ - Curation Agent    │          │ - Metadata Validation    │      │ - docs/tools/      │
+ │ - Stale-Audit Agent │          │ - Section Contract Check │      │ - docs/services/   │
+ └─────────────────────┘          └──────────────────────────┘      └────────────────────┘
+            │                                  │                               │
+            │                                  ▼                               │
+            │                     ┌──────────────────────────┐                 │
+            └────────────────────>│  Git Branch & PR Sync    │<────────────────┘
+                                  └──────────────────────────┘
+                                               │
+                                               ▼
+                                  ┌──────────────────────────┐
+                                  │   CI Quality Gate Check  │
+                                  │ - audit_docs_quality.py  │
+                                  │ - check_docs_contract.py │
+                                  └──────────────────────────┘
+```
+
 ## What problem it solves
 The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid, uncontrolled accumulation of low-quality, duplicate, or conflicting technical information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay, ensuring the repository adheres to a "High Confidence" standard.
 
@@ -23,6 +51,16 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 - **Federated Knowledge Ingestion**: Employing specialized agents to monitor different developer streams (GitHub, Arxiv, vendor changelogs) and ingest them into a central repository.
 - **Autonomous Quality Auditing**: Background cron agents continuously identifying stale content or broken links using the `audit_docs_quality.py` suite.
 - **Agentic Session Orchestration**: Coordinating complex, multi-day documentation sprints across multiple frontier models using unified state tracing.
+
+## Comparison Matrix
+
+| Governance Dimension | Manual Curation | Naive Multi-Agent | KnowledgeOps (FastMCP 3.1) |
+| :--- | :--- | :--- | :--- |
+| **Throughput** | Low (Human bottleneck) | High (Uncontrolled) | Extremely High (Controlled) |
+| **Duplicate Prevention** | Manual search | High Risk of Duplication | Programmatic FastMCP Guardrails |
+| **Quality Compliance** | Variable | Low (Hallucinations & Drift) | 100% Contract Enforcement |
+| **Source Traceability** | Medium | Low | Full Metadata Audit Trail |
+| **Freshness Management**| Reactive | None | Automated Stale Scan Cron |
 
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
@@ -92,23 +130,98 @@ python3 scripts/check_catalog_consistency.py
 ```
 
 ## API examples
+
+### Programmatic Validation via Python & Pydantic v2
 The KnowledgeOps framework can be integrated into multi-agent workflows via Python:
 
 ```python
-from scripts.check_docs_contract import validate_file
 from pathlib import Path
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import List, Optional
 
-# Programmatic metadata validation
-target_file = Path("docs/architecture/multi_agent_knowledgeops.md")
-errors = validate_file(target_file)
+class ContributionMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-if errors:
-    print(f"Contract violation in {target_file}:")
-    for error in errors:
-        print(f"  - {error}")
-else:
-    print("Document is contract-compliant.")
+    last_reviewed: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    confidence: str = Field(..., pattern=r"^(high|medium|low)$")
+
+class DocValidationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    filepath: str
+    is_compliant: bool
+    errors: List[str] = Field(default_factory=list)
+    metadata: Optional[ContributionMetadata] = None
+
+def audit_document_contract(path: Path) -> DocValidationReport:
+    """Audits a documentation file against KnowledgeOps standards."""
+    if not path.exists():
+        return DocValidationReport(filepath=str(path), is_compliant=False, errors=["File not found"])
+
+    content = path.read_text(encoding="utf-8")
+    errors = []
+
+    # Required Section Checks
+    required_sections = ["## What it is", "## What problem it solves", "## Contribution Metadata"]
+    for sec in required_sections:
+        if sec not in content:
+            errors.append(f"Missing required section header: '{sec}'")
+
+    return DocValidationReport(
+        filepath=str(path),
+        is_compliant=len(errors) == 0,
+        errors=errors
+    )
+
+if __name__ == "__main__":
+    report = audit_document_contract(Path("docs/architecture/multi_agent_knowledgeops.md"))
+    print(f"Compliance: {report.is_compliant}")
 ```
+
+### FastMCP 3.1 Governance Tool Pattern
+Exposes repository contract verification dynamically to agents via FastMCP 3.1 tool calls.
+
+```python
+from pathlib import Path
+from typing import Dict, Any, List
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "knowledgeops-governance",
+    instructions="Provides programmatic documentation contract auditing for KnowledgeOps repositories."
+)
+
+class ContractAuditInput(BaseModel):
+    filepath: str = Field(..., description="Relative path to markdown file in docs/ directory.")
+
+@mcp.tool()
+async def check_doc_contract(input_data: ContractAuditInput) -> Dict[str, Any]:
+    """Runs KnowledgeOps contract verification against target document."""
+    file_path = Path(input_data.filepath)
+    if not file_path.exists():
+        return {"status": "error", "message": f"Path '{input_data.filepath}' does not exist."}
+
+    content = file_path.read_text(encoding="utf-8")
+    missing_sections = []
+    for section in ["## What it is", "## What problem it solves", "## Contribution Metadata"]:
+        if section not in content:
+            missing_sections.append(section)
+
+    return {
+        "filepath": input_data.filepath,
+        "is_valid": len(missing_sections) == 0,
+        "missing_sections": missing_sections
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Troubleshooting
+- **Branch Isolation**: Never allow multiple agents to modify the same canonical document on the same branch simultaneously.
+- **Clock Drift Prevention**: Set CI environments to strictly validate `Last reviewed` metadata against the actual system date to prevent future-dated entries.
+- **FastMCP Cache Invalidation**: Flush FastMCP tool catalog caches whenever scripts in `scripts/` undergo structural modifications.
 
 ## Related tools / concepts
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for KnowledgeOps.

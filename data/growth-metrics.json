@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-07",
+  "snapshot_date": "2026-10-08",
   "total_docs": 598,
   "tool_docs": 545,
   "service_docs": 53,
@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/ragflow.md",
-    "docs/tools/development_ops/ripgrep.md",
-    "docs/tools/ai_knowledge/dex.md",
     "docs/tools/ai_knowledge/chatgpt.md",
     "docs/tools/infrastructure/ramalama.md",
     "docs/tools/frameworks/firebase-genkit.md",
@@ -40,7 +37,10 @@
     "docs/tools/frameworks/rivet.md",
     "docs/services/tubearchivist.md",
     "docs/tools/providers/hailuo-ai.md",
-    "docs/tools/ai_knowledge/llama-4.md"
+    "docs/tools/ai_knowledge/llama-4.md",
+    "docs/services/changedetection.md",
+    "docs/tools/automation_orchestration/google-workspace-cli.md",
+    "docs/services/litellm.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

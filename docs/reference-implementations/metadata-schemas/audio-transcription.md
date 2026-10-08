@@ -5,6 +5,31 @@ This document defines the structured metadata schema for personal audio transcri
 
 As of early January 2027, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling frontier agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra/Flash**, **DeepSeek-V4**, and **Qwen 3.6 VL** to reason over spoken content with high temporal precision under **FastMCP 3.1**.
 
+## Architecture & System Overview
+The audio transcription metadata pipeline transforms raw acoustic waveforms into structured, multi-speaker JSON schemas indexed for semantic search and agentic retrieval.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      AUDIO TRANSCRIPTION PIPELINE ARCHITECTURE                   │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+   Raw Audio Ingestion             AI Ingest & Diarization          Structured Knowledge
+ ┌─────────────────────┐          ┌──────────────────────────┐      ┌────────────────────┐
+ │ - MP3 / WAV / FLAC  │─────────>│ - Whisper / Gemini Flash │─────>│ - Pydantic v2 JSON │
+ │ - Podcasts / Memos  │          │ - PyAnnote Diarization   │      │ - Vector DB Index  │
+ └─────────────────────┘          └──────────────────────────┘      └────────────────────┘
+                                               │                              │
+                                               ▼                              ▼
+                                  ┌──────────────────────────┐      ┌────────────────────┐
+                                  │ Chaptering (GPT-5.6 / Qwen)     │ FastMCP 3.1 Server │
+                                  └──────────────────────────┘      └────────────────────┘
+                                                                              │
+                                                                              ▼
+                                                                    ┌────────────────────┐
+                                                                    │ Agentic Search Tool│
+                                                                    └────────────────────┘
+```
+
 ## What problem it solves
 Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
 
@@ -16,6 +41,16 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 - **Archiving Meetings**: Storing personal voice memos or recorded calls with high-precision timestamps for quick playback of specific segments.
 - **Audiobook Enrichment**: Creating a searchable index of local audiobooks, allowing for keyword search across hundreds of hours of audio.
 - **Agentic Search**: An agent can use a FastMCP tool to query the audio transcription database using natural language, retrieving specific segments based on meaning.
+
+## Comparison Matrix
+
+| Dimension | Raw Whisper Output | PyAnnote Output | Audio Transcription Metadata Schema |
+| :--- | :--- | :--- | :--- |
+| **Speaker Diarization** | Basic / Single Speaker | Speaker BBoxes Only | Integrated Multi-Speaker Attribution |
+| **Temporal Alignment** | Word/Segment Timestamps | Time Ranges | Precise Segment & Chapter Alignment |
+| **Agentic Accessibility** | Text Block | Raw Matrix | FastMCP 3.1 Native Query Tool |
+| **Schema Validation** | None | Custom JSON | Pydantic v2 Strict Model Enforced |
+| **Vector DB Indexing** | Text Chunks | No Text | Multi-modal Metadata Aware Chunks |
 
 ## Strengths
 - **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files (e.g., `#t=300`).
@@ -69,10 +104,12 @@ The schema is implemented using Pydantic in [transcribe_audio.py](../../../scrip
 ```python
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class TranscriptionSegment(BaseModel):
     """A single segment of transcribed text with timing under FastMCP 3.1 schemas."""
+    model_config = ConfigDict(extra="forbid")
+
     start: float = Field(..., description="Start time in seconds")
     end: float = Field(..., description="End time in seconds")
     text: str = Field(..., description="Transcribed text for this segment")
@@ -88,6 +125,8 @@ class TranscriptionSegment(BaseModel):
 
 class ChapterMarker(BaseModel):
     """Identified chapter or logical section in the audio."""
+    model_config = ConfigDict(extra="forbid")
+
     start: float
     end: float
     title: str
@@ -95,6 +134,8 @@ class ChapterMarker(BaseModel):
 
 class AudioTranscriptionMetadata(BaseModel):
     """Top-level metadata for an audio transcription file."""
+    model_config = ConfigDict(extra="forbid")
+
     file_id: str = Field(..., description="Unique identifier for the source audio file")
     title: str
     author_artist: Optional[str] = None
@@ -112,7 +153,6 @@ class AudioTranscriptionMetadata(BaseModel):
 ```python
 import json
 
-# Sample payload representing Whisper output enriched with metadata
 sample_payload = """
 {
   "file_id": "aud-10928a",
@@ -147,6 +187,51 @@ sample_payload = """
 metadata = AudioTranscriptionMetadata.model_validate_json(sample_payload)
 print(f"Validated transcription of title: {metadata.title} (duration: {metadata.duration_seconds}s)")
 ```
+
+### FastMCP 3.1 Server Audio Search Tool
+Exposes the Audio Transcription Schema via FastMCP 3.1 to enable agents to query spoken content with high temporal accuracy.
+
+```python
+import json
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "audio-transcription-search",
+    instructions="Provides semantic and timestamped search across indexed audio recordings."
+)
+
+class AudioQueryInput(BaseModel):
+    query: str = Field(..., description="Natural language search term or topic.")
+    speaker_id: Optional[str] = Field(None, description="Optional speaker ID filter (e.g., 'SPEAKER_00').")
+    min_confidence: float = Field(0.8, ge=0.0, le=1.0, description="Minimum segment probability threshold.")
+
+@mcp.tool()
+async def search_audio_transcripts(input_data: AudioQueryInput) -> List[Dict[str, Any]]:
+    """Searches transcribed audio files and returns matching segments with timestamps."""
+    # Simulated search engine execution over schema-compliant audio metadata
+    matching_segments = [
+        {
+            "file_id": "aud-10928a",
+            "title": "Homelab Sprint Planning January 2027",
+            "speaker_id": "SPEAKER_00",
+            "start_time": 0.0,
+            "end_time": 12.4,
+            "matched_text": "Today we are starting Ralph-loop Batch 545 audits.",
+            "timestamp_link": "file:///media/audio/aud-10928a.mp3#t=0"
+        }
+    ]
+    return matching_segments
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Troubleshooting
+- **Speaker Diarization Alignment**: Ensure audio sampling rates match PyAnnote requirements (16kHz mono recommended) before running speaker separation pipelines.
+- **Large Metadata Payload Optimization**: For audio files longer than 2 hours, store individual segment lists in compressed JSON blobs or vector DB payloads to avoid bloating client memory during metadata queries.
+- **Timestamp Precision**: Always store timestamps as floating-point seconds relative to the audio start (`0.0`) to allow straightforward playback link generation.
 
 ## Related tools / concepts
 - [Audio Transcription Research](../../knowledge_base/audio-transcription-research.md) — Baseline research on Whisper and speaker diarization.
