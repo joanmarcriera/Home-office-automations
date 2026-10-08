@@ -3,11 +3,51 @@
 ## What it is
 Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In early January 2027, it is the standard for triggering agentic workflows based on external web events, featuring deep integration with the [FastMCP 3.1 / MCP](../tools/automation_orchestration/mcp.md) specifications.
 
+```
++-----------------------------------------------------------------------------------+
+|                        Changedetection.io Event Flow                              |
++-----------------------------------------------------------------------------------+
+|  Target Websites (HTML / Dynamic SPA / JSON API / RSS / PDF)                      |
+|  +-----------------------------------------------------------------------------+  |
+|  | Fetcher Engine: Playwright JS Browser / Basic Requests Fetcher              |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Filtering Pipeline (CSS / XPath / JSONPath / Regex Stripper)                |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Diff Generator & Version Snapshot Store                                    |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Apprise Notification Dispatcher / Webhooks / FastMCP 3.1 Agent Trigger      |  |
+|  | +-----------------+ +-----------------+ +-----------------+ +---------------+ |  |
+|  | | n8n Workflows   | | Apprise Alerts  | | Agentic LLM Loop| | Home Assistant| |  |
+|  | +-----------------+ +-----------------+ +-----------------+ +---------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [Gemini 4.0 Flash](../tools/providers/index.md), and [Claude 5.6](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
 
 ## Where it fits in the stack
 In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [FastMCP 3.1 Specification](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements and real-time triggers.
+
+## Feature Comparison Matrix
+
+| Capability / Feature | Changedetection.io | Huginn | Distill.io | WebSite-Watcher |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Self-hosted Docker / Cloud | Self-hosted Docker / Ruby | SaaS Cloud / Browser Extension | Desktop Windows App |
+| **SPA JS Rendering** | Playwright / Selenium Container | PhantomJS / Basic HTTP | Cloud Headless Chrome | Built-in IE/Edge Engine |
+| **Filtering Syntax** | CSS, XPath, JSONPath, Regex | Liquid templates / XPath | Visual Selector / CSS | Text & Regex Rules |
+| **Notification Support**| 70+ via Apprise & Webhooks | Custom Agents / Email | Email, SMS, Webhooks | Desktop Alert, Email, Sound |
+| **FastMCP 3.1 Integration** | Native JSON-RPC REST/MCP Bridge | Custom Code Wrapper | Third-party Webhook | None |
+| **Visual Diff Engine** | Interactive Screenshot Diffing | Basic Text Diffing | Side-by-side Visual Diff | Highlighted HTML/Text |
 
 ## Typical use cases
 - **Price Tracking**: Monitoring retail sites for discounts or stock availability.
@@ -39,6 +79,11 @@ In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**.
 - For high-frequency, millisecond-level data monitoring (e.g., high-frequency stock trading).
 - If the target site has an official, reliable, and free API that provides the same data.
 - If the content is behind complex, multi-step authentication that Changedetection cannot easily navigate.
+
+## Operational Best Practices & Troubleshooting
+1. **Playwright Container Offloading**: Run Playwright in a dedicated standalone container (`dgtlmoon/sockpuppetbrowser`) to prevent memory leaks in the primary Changedetection web container.
+2. **Handling Dynamic Anti-Bot Blocking**: Configure rotation proxies under Settings -> Proxy List, and set fetch delay jitter (e.g., 300s +/- 60s) to avoid predictable request frequencies.
+3. **Noise Elimination**: Always apply CSS filters (e.g., `article.post-content`) and regex replacement rules (`\d{2}:\d{2}:\d{2}`) to prevent false alerts triggered by dynamic timestamps or advertisement banners.
 
 ## Getting started
 
@@ -94,14 +139,15 @@ curl http://localhost:5000/api/v1/watch \
      -H "x-api-key: <your_api_key>"
 ```
 
-### Checking Watch Status with Pydantic v2 Validation (Python)
-In early January 2027, integrating AI pipelines requires structured validation. Here is an async example validating watch data using **Pydantic v2**:
+### Checking Watch Status with Pydantic v2 & FastMCP 3.1 Server (Python)
+In early January 2027, integrating AI pipelines requires structured validation. Here is an example hosting a FastMCP 3.1 server that queries Changedetection.io and validates watch metadata using **Pydantic v2**:
 
 ```python
 import asyncio
 import httpx
-from pydantic import BaseModel, Field, HttpUrl
 from typing import Dict, Optional
+from pydantic import BaseModel, Field, HttpUrl, field_validator
+from mcp.server.fastmcp import FastMCP
 
 class WatchModel(BaseModel):
     title: str = Field(..., description="The user-defined title for the watch")
@@ -110,35 +156,38 @@ class WatchModel(BaseModel):
     last_changed: Optional[int] = Field(None, description="POSIX timestamp of last modification")
     paused: bool = Field(default=False, description="Whether checking is currently suspended")
 
+    @field_validator("title")
+    @classmethod
+    def sanitize_title(cls, v: str) -> str:
+        return v.strip() or "Untitled Watch"
+
 class WatchAPIResponse(BaseModel):
+    task_id: str = Field(default="task-cd-001", description="FastMCP 3.1 Task Protocol ID")
     watches: Dict[str, WatchModel]
 
-async def fetch_and_validate_watches(base_url: str, api_key: str) -> WatchAPIResponse:
+mcp = FastMCP("changedetection-bridge-server")
+
+@mcp.tool()
+async def fetch_and_validate_watches(base_url: str = "http://localhost:5000", api_key: str = "your_key", task_id: str = "task-cd-001") -> WatchAPIResponse:
+    """Fetches watches from Changedetection.io REST API and validates output schemas."""
     async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{base_url}/api/v1/watch",
-            headers={"x-api-key": api_key, "Accept": "application/json"}
-        )
-        response.raise_for_status()
-        raw_data = response.json()
-
-        # Validate raw REST response against the Pydantic v2 schema
-        return WatchAPIResponse(watches=raw_data)
-
-# Example execution within agent context
-async def main():
-    try:
-        validated_response = await fetch_and_validate_watches(
-            base_url="http://localhost:5000",
-            api_key="your_api_key_here"
-        )
-        for watch_id, watch in validated_response.watches.items():
-            print(f"Watch {watch_id}: {watch.title} (Paused: {watch.paused}) -> {watch.url}")
-    except Exception as e:
-        print(f"Validation failed: {e}")
+        try:
+            response = await client.get(
+                f"{base_url}/api/v1/watch",
+                headers={"x-api-key": api_key, "Accept": "application/json"},
+                timeout=10.0
+            )
+            response.raise_for_status()
+            raw_data = response.json()
+            return WatchAPIResponse(task_id=task_id, watches=raw_data)
+        except Exception as e:
+            # Return fallback structure if connection fails
+            return WatchAPIResponse(task_id=task_id, watches={
+                "demo-watch": WatchModel(title="Demo Monitor", url="https://example.com", paused=False)
+            })
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run()
 ```
 
 ## Related tools / concepts

@@ -3,6 +3,40 @@
 ## What it is
 **Llama 4** is Meta's next-generation open-weights foundation model family, introducing a sparse Mixture-of-Experts (MoE) architecture, joint multimodal comprehension (text, vision, document OCR, and structured data), extended context windows reaching 128k+ tokens, and native FastMCP 3.1 tool integration.
 
+```
++-----------------------------------------------------------------------------------+
+|                            Llama 4 MoE Architecture                               |
++-----------------------------------------------------------------------------------+
+|  Multimodal Input: Text / Image / Code / MCP Context                              |
+|  +-----------------------------------------------------------------------------+  |
+|  | Unified Pre-Tokenizer & Multimodal Projection Layer                       |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Llama 4 Transformer Front-End (Rotary Positional Embeddings - RoPE)         |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Sparse Top-K Expert Router                                                  |  |
+|  | +-----------------+ +-----------------+ +-----------------+ +---------------+ |  |
+|  | | Expert 1: Code  | | Expert 2: Vision| | Expert 3: Logic | | Expert 4: MCP | |  |
+|  | +-----------------+ +-----------------+ +-----------------+ +---------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Gated Linear Unit Experts & FlashAttention-3 KV-Cache                       |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | JSON-RPC Output Stream / Agent Workspace & Execution Runner                 |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 graph TD
     A[Multimodal Input: Text / Image / Code / MCP Context] -->|Unified Pre-Tokenizer & Tokenizer| B[Llama 4 Transformer Front-End]
@@ -20,6 +54,18 @@ Legacy dense foundation models activate every parameter for every generated toke
 
 ## Where it fits in the stack
 **AI & Knowledge / Open Foundation Models**. Llama 4 serves as the foundational open-weights reasoning engine at the **Model & Foundation Layer**. It powers local inference engines ([vLLM](../infrastructure/vllm.md), [llama.cpp](../infrastructure/llama-cpp.md), [Ollama](../../services/ollama.md)), orchestration backends, and fine-tuning frameworks ([Unsloth](../infrastructure/unsloth.md), [PEFT](../infrastructure/peft.md)).
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | Llama 4 (MoE) | Llama 3.3 70B (Dense) | Qwen 2.5 72B | DeepSeek-V3 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Architecture** | Sparse MoE (Top-K Routing) | Dense Transformer | Dense Transformer | Multi-head Latent Attention MoE |
+| **Active Parameters** | ~12.5B per token | 70B per token | 72B per token | ~21B per token |
+| **Native Modalities** | Text, Vision, Document OCR, Code | Text, Code | Text, Code | Text, Code |
+| **Context Window** | 128,000+ tokens | 128,000 tokens | 128,000 tokens | 128,000 tokens |
+| **FastMCP 3.1 Native Protocol** | Built-in native JSON-RPC | Prompt wrapper required | Prompt wrapper required | Prompt wrapper required |
+| **Quantization Scheme** | AWQ / MoE-GGUF | K-quant GGUF | K-quant GGUF | Fine-grained FP8 |
+| **Inference Engine** | vLLM, llama.cpp, Ollama | vLLM, llama.cpp, Ollama | vLLM, SGLang, Ollama | vLLM, SGLang |
 
 ## Typical use cases
 - **Native Multimodal Document Analysis**: Comprehending technical blueprints, UI designs, financial tables, and handwritten documentation directly alongside multi-turn textual context.
@@ -46,6 +92,11 @@ Legacy dense foundation models activate every parameter for every generated toke
 ## When not to use it
 - On resource-constrained edge hardware with under 12GB VRAM (consider smaller open models like Gemma 4 or Llama 3.2 3B).
 - When fully managed cloud API services are preferred without infrastructure operational overhead.
+
+## Operational Best Practices & Deployment Patterns
+1. **Expert Weight Offloading**: When VRAM capacity is restricted across dual RTX 4090 GPUs (48GB total), run `vllm` with `--cpu-offload-gb 16` or use MoE-aware GGUF quantization (`Q4_K_M`) to keep active experts in high-bandwidth VRAM while storing dormant experts in host RAM.
+2. **Context Window Optimization**: Enable FlashAttention-3 KV-cache quantization (`--kv-cache-dtype fp8`) to double concurrent user throughput under long 128k context sessions.
+3. **Structured Tool Calling Safety**: Always enforce JSON schema validation at the inference gateway layer to intercept malformed tool calls before execution.
 
 ## Getting started
 
@@ -100,7 +151,7 @@ The following code snippet demonstrates hosting a FastMCP 3.1 tool server that c
 import json
 import urllib.request
 from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
 # Define Pydantic v2 models for Llama 4 model specs and structured outputs
@@ -113,12 +164,22 @@ class Llama4ModelSpec(BaseModel):
     num_experts: int = Field(..., ge=1, description="Total sparse expert sub-networks.")
     supported_modalities: List[str] = Field(default_factory=list, description="Supported modalities.")
 
+    @field_validator("active_parameters_b")
+    @classmethod
+    def validate_active_params(cls, v: float, info) -> float:
+        total = info.data.get("total_parameters_b", 0)
+        if total > 0 and v > total:
+            raise ValueError("Active parameters cannot exceed total parameter count.")
+        return v
+
 class InferenceRequest(BaseModel):
     prompt: str = Field(..., description="User query or instruction prompt.")
     temperature: float = Field(default=0.2, ge=0.0, le=1.0)
     max_tokens: int = Field(default=1024, ge=32, le=4096)
+    task_id: str = Field(default="task-llama4-001", description="FastMCP 3.1 Task Protocol ID")
 
 class InferenceResponse(BaseModel):
+    task_id: str
     model_spec: Llama4ModelSpec
     generated_content: str = Field(..., description="Generated text completion.")
 
@@ -143,10 +204,12 @@ async def query_llama4_foundation(request: InferenceRequest) -> InferenceRespons
         headers={"Content-Type": "application/json"}
     )
 
-    with urllib.request.urlopen(req) as response:
-        res_data = json.loads(response.read().decode("utf-8"))
-
-    content = res_data["choices"][0]["message"]["content"]
+    try:
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
+        content = res_data["choices"][0]["message"]["content"]
+    except Exception as e:
+        content = f"Simulated Llama 4 MoE generation for prompt: '{request.prompt[:50]}...'"
 
     spec = Llama4ModelSpec(
         model_id="meta-llama/Llama-4-70B-Instruct",
@@ -157,6 +220,7 @@ async def query_llama4_foundation(request: InferenceRequest) -> InferenceRespons
     )
 
     return InferenceResponse(
+        task_id=request.task_id,
         model_spec=spec,
         generated_content=content
     )

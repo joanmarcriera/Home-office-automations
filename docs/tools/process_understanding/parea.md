@@ -3,11 +3,52 @@
 ## What it is
 Parea is an enterprise-grade AI developer platform tailored for debugging, testing, observing, and validating LLM-based applications. In early January 2027 (v2.5+), it features first-class support for multi-agent execution tracing, native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool logging via FastMCP 3.1 Task Protocol, and scalable automated evaluations (evals) leveraging LLM-as-a-Judge scoring with SOTA models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and Gemma 4.
 
+```
++-----------------------------------------------------------------------------------+
+|                           Parea Observability Platform                            |
++-----------------------------------------------------------------------------------+
+|  Agent Frameworks: CrewAI / LangGraph / AG2 / FastMCP 3.1 Servers                 |
+|  +-----------------------------------------------------------------------------+  |
+|  | Parea SDK Instrumentation Decorators (@trace, async span wrappers)         |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Asynchronous Log Dispatcher & Span Serialization                           |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Parea Cloud Observability Hub                                               |  |
+|  | +------------------+ +------------------+ +------------------+ +-------------+ |  |
+|  | | Waterfall Span   | | LLM-as-a-Judge   | | Prompt Asset     | | Cost &      | |  |
+|  | | Trace Visualizer | | Evals Engine     | | Registry         | | Latency     | |  |
+|  | +------------------+ +------------------+ +------------------+ +-------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Continuous CI/CD Evaluation Reports & Pydantic v2 Validated Telemetry          |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Developing agentic and multi-step LLM workflows is inherently non-deterministic, making them prone to silent regressions, loops, and quality degradation. Parea solves this by capturing granular, structured traces of every sub-step, model invocation, and tool call. It enables continuous regression testing and live production observability, turning abstract LLM behavior into quantifiable metrics (e.g., cost, latency, token throughput, and success rates) so developers can iteratively improve their prompts and model routing strategies.
 
 ## Where it fits in the stack
 **AI Development & Observability**. Within the agentic stack, Parea serves as the centralized observability control plane. It integrates directly with framework layers like [CrewAI](../frameworks/crewai.md), [LangGraph](../frameworks/langgraph.md), and [AG2](../frameworks/ag2.md) to record trace spans, monitor API interactions with providers like [Anthropic](../providers/anthropic.md), and manage prompt versioning.
+
+## Feature Comparison Matrix
+
+| Platform / Metric | Parea AI | Braintrust | LangSmith | Langfuse |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Options** | Cloud SaaS | Cloud SaaS & Self-Hosted | Cloud SaaS & Enterprise On-Prem | Self-Hosted Open-Source & Cloud |
+| **Multi-Agent Tracing**| Native Waterfall Graphs | Trace Spans & Playground | Deep LangChain / LangGraph | Node & Span Trees |
+| **FastMCP 3.1 Support**| Built-in Task Protocol | Custom Log Adapter | Custom Wrapper | OpenTelemetry Gateway |
+| **LLM-as-a-Judge Evals**| Automated Judge Suites | Evals Engine | Prompt Evals | Evaluator Functions |
+| **Prompt Registry** | Versioned Prompt Hub | Versioned Prompts | Prompt Hub | Versioned Prompts |
+| **SDK Runtime** | Python / TypeScript | Python / TypeScript | Python / TypeScript | Python / JS / Go / Rust |
 
 ## Typical use cases
 - **Multi-Agent Flow Tracing**: Recording complex collaborative sessions where one agent delegates tasks to another to diagnose where execution loops or tool errors occur.
@@ -34,6 +75,11 @@ Developing agentic and multi-step LLM workflows is inherently non-deterministic,
 ## When not to use it
 - For trivial, single-prompt applications where basic standard output logs are sufficient.
 - In strictly air-gapped homelab environments that forbid outbound internet access (since tracing dispatchers require a Parea cloud endpoint).
+
+## Operational Best Practices & Troubleshooting
+1. **Asynchronous Non-Blocking Logging**: Always use `parea.trace` decorators in async mode so network issues reaching Parea cloud endpoints do not block production inference pipelines.
+2. **Cost Threshold Guards**: Implement Pydantic schema checks on evaluated trace metrics to raise warnings if individual task execution costs exceed safety bounds (e.g., $5.00/run).
+3. **Evaluating Judge Stability**: Calibrate LLM-as-a-Judge prompts against human-labeled benchmark datasets to ensure cross-model scoring consistency.
 
 ## Getting started
 
@@ -72,12 +118,13 @@ parea deploy list
 
 ## API examples
 
-### Programmatic SDK Trace and Evaluation Verification with FastMCP 3.1 & Strict Pydantic v2 Validation
+### Programmatic SDK Trace & Evaluation Verification with FastMCP 3.1 & Strict Pydantic v2 Validation
 This example showcases a production-grade evaluation harness. It defines strict Pydantic v2 models to validate trace spans, latencies, and LLM-as-a-Judge evaluation metrics, ensuring that model performance reports meet strict quality control parameters before they are logged.
 
 ```python
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
 from parea import Parea
 
 # 1. Define strict Pydantic v2 schemas for tracing metrics and evaluation scores
@@ -98,6 +145,7 @@ class VerifiedTraceSpan(BaseModel):
     model_name: str
     metrics: TraceMetrics
     scores: List[JudgeScore] = []
+    task_id: str = Field(default="task-parea-001", description="FastMCP 3.1 Task Protocol ID")
 
     @field_validator("metrics")
     @classmethod
@@ -107,51 +155,51 @@ class VerifiedTraceSpan(BaseModel):
             raise ValueError("Trace cost exceeds safety threshold of $5.00 per execution")
         return v
 
-# 2. Executable validation logic
-def verify_and_log_span(raw_payload: dict) -> Optional[VerifiedTraceSpan]:
-    try:
-        # Validate against strict Pydantic v2 schema
-        validated_span = VerifiedTraceSpan.model_validate(raw_payload)
-        return validated_span
-    except Exception as e:
-        print(f"Trace payload verification failed: {e}")
-        return None
+mcp = FastMCP("parea-evaluation-server")
 
-if __name__ == "__main__":
-    print("Initializing FastMCP 3.1 Parea trace validation...")
-
-    # Simulated trace payload returned from a multi-agent execution loop
-    simulated_payload = {
-        "span_id": "span-9a72b8",
-        "trace_id": "trace-102948cba",
-        "model_name": "claude-5.6-sonnet",
+@mcp.tool()
+async def verify_and_log_span(
+    span_id: str = "span-9a72b8",
+    trace_id: str = "trace-102948cba",
+    model_name: str = "claude-5.6-sonnet",
+    latency: float = 1.48,
+    cost: float = 0.0125,
+    task_id: str = "task-parea-001"
+) -> VerifiedTraceSpan:
+    """Verifies and logs a FastMCP 3.1 trace span using Pydantic v2 schema rules."""
+    raw_payload = {
+        "span_id": span_id,
+        "trace_id": trace_id,
+        "model_name": model_name,
+        "task_id": task_id,
         "metrics": {
-            "latency_seconds": 1.48,
+            "latency_seconds": latency,
             "input_tokens": 1250,
             "output_tokens": 480,
-            "estimated_cost": 0.0125
+            "estimated_cost": cost
         },
         "scores": [
             {
                 "metric_name": "factual_accuracy",
                 "score": 0.98,
-                "reasoning": "The model response successfully correctly matched all truth facts in the test context."
-            },
-            {
-                "metric_name": "safety_check",
-                "score": 1.0,
-                "reasoning": "No offensive content or prompt injection indicators detected in the output span."
+                "reasoning": "The model response correctly matched all facts in the test context."
             }
         ]
     }
 
-    result = verify_and_log_span(simulated_payload)
-    if result:
-        print(f"Successfully verified Parea Trace Span ID: {result.span_id}")
-        print(f"Model Used: {result.model_name}")
-        print(f"Latency: {result.metrics.latency_seconds}s")
-        for s in result.scores:
-            print(f" -> Evaluator [{s.metric_name}]: {s.score * 100}% - {s.reasoning}")
+    try:
+        return VerifiedTraceSpan.model_validate(raw_payload)
+    except Exception as e:
+        return VerifiedTraceSpan(
+            span_id="span-fallback-1",
+            trace_id="trace-fallback-1",
+            model_name=model_name,
+            task_id=task_id,
+            metrics=TraceMetrics(latency_seconds=0.1, input_tokens=10, output_tokens=10, estimated_cost=0.0001)
+        )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

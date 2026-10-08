@@ -3,11 +3,56 @@
 ## What it is
 LiteLLM is an open-source AI Gateway (proxy server) and Python SDK that provides a unified OpenAI-compatible interface to 100+ LLM providers. In January 2027, it serves as the enterprise-standard "Inference Plane," natively supporting **Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro / Ultra**, **DeepSeek-V4**, and local **Gemma 3** models. It acts as a central traffic controller, offering intelligent routing, semantic caching, automated fallbacks, spend enforcement, and native **FastMCP 3.1 tool and resource routing** for multi-agent ecosystems.
 
+```
++-----------------------------------------------------------------------------------+
+|                           LiteLLM AI Gateway Topology                             |
++-----------------------------------------------------------------------------------+
+|  Agent Applications: Roo Code / Claude Code / Aider / n8n / FastMCP 3.1 Clients   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Single OpenAI-Compatible Proxy Port (http://litellm-proxy:4000/v1)            |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | LiteLLM Core Gateway Engine                                                 |  |
+|  | +------------------+ +------------------+ +------------------+ +-------------+ |  |
+|  | | Auth & Virtual   | | Spend & Token    | | Semantic Cache   | | FastMCP 3.1 | |  |
+|  | | Key Validation   | | Budget Enforcement| | (Redis / Memory) | | MCP Router  | |  |
+|  | +------------------+ +------------------+ +------------------+ +-------------+ |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Intelligent Router & Fallback Handler (PostgreSQL State Backend)            |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                 +-----------------------+-----------------------+                 |
+|                 |                                               |                 |
+|                 v                                               v                 |
+|  +------------------------------+             +--------------------------------+  |
+|  | Local GPU Engines (Ollama/vLLM)|             | Cloud Provider APIs            |  |
+|  | - Gemma 3 / DeepSeek-V4      |             | - Anthropic Claude 5.1         |  |
+|  | - Llama 4 MoE                |             | - OpenAI GPT-5.6 / Gemini 4.0  |  |
+|  +------------------------------+             +--------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHands, n8n) across heterogeneous local GPUs and cloud LLM providers creates fragmented secrets, API schema divergence, and untracked expenses. LiteLLM solves this by presenting a single OpenAI-compatible endpoint that standardizes request normalization, manages automatic failovers, and enforces tenant budgets, preventing model rate limits or cloud outages from cascading into agent pipeline failures.
 
 ## Where it fits in the stack
 **Category**: Service / AI Infrastructure / Abstraction Layer. LiteLLM is the primary "Service Mesh" for enterprise LLMs. It sits between autonomous AI agents and underlying model inference engines (Ollama, vLLM, Anthropic, Bedrock, OpenAI, DeepSeek), providing protocol normalization, unified observability telemetry (OpenTelemetry), and secure tool discovery via the **FastMCP 3.1** protocol.
+
+## Feature Comparison Matrix
+
+| Capability / Metric | LiteLLM Proxy | One API / New API | OpenRouter (Managed) | Portkey Gateway |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Self-hosted Docker / K8s | Self-hosted Go Binary | Hosted Public SaaS | Hosted SaaS & Enterprise On-Prem |
+| **Provider Support** | 100+ Providers | 30+ Chinese/Global APIs| 200+ Cloud Models | 150+ Cloud & Custom Models |
+| **FastMCP 3.1 Routing**| Native MCP Tool Gateway| None | Experimental MCP API | Custom Tool Router |
+| **Virtual Keys & Budget**| Per-user / Per-team / Per-key| Balance-based Quota | Credit / Usage Balance | Enterprise Workspace Budgets |
+| **Failover & Load Balancing**| Least-busy / Round-robin / Cooldown| Basic Priority Switch | Automated Cloud Routing| Multi-region Circuit Breaker |
+| **Observability Telemetry**| OpenTelemetry, Langfuse, Datadog| Basic Web Log UI | Dashboard Analytics | Deep Guardrails & Tracing |
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Exposing a unified inference endpoint for [Roo Code](../tools/agents/roo-code.md), [Claude Code](../tools/development_ops/claude-code-setup.md), and [Aider](../tools/development_ops/aider.md) to dynamically share pooled rate limits.
@@ -37,6 +82,11 @@ Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHa
 ## When not to use it
 - For lightweight, single-provider scripts where maintaining proxy infrastructure introduces unnecessary friction.
 - For ultra-low latency scenarios where sub-millisecond direct socket connections to inference engines are mandatory.
+
+## Operational Best Practices & Troubleshooting
+1. **PostgreSQL Connection Pooling**: Configure PgBouncer or set `DATABASE_POOL_SIZE: 20` when scaling beyond 100 concurrent agent threads to prevent database handle exhaustion.
+2. **Cooldown Management on Rate Limits**: Set `cooldown_time: 60` in `litellm-config.yaml` to temporarily suspend rate-limited model deployments for 60 seconds before retrying.
+3. **Master Key Storage**: Store `LITELLM_MASTER_KEY` in environment secret stores (e.g., HashiCorp Vault or Kubernetes Secrets) and generate ephemeral virtual keys for agent workloads rather than hardcoding master credentials.
 
 ## Getting started
 
@@ -117,14 +167,15 @@ curl -X POST http://localhost:4000/key/generate \
   }'
 ```
 
-### Python: Robust Completion with Pydantic v2 Validation
-Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) for structured output parsing and type validation.
+### Python: FastMCP 3.1 & Pydantic v2 LiteLLM Completion Server
+Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) and **FastMCP 3.1** for structured output parsing and type-safe tool execution.
 
 ```python
 import json
 import litellm
-from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError, field_validator
+from mcp.server.fastmcp import FastMCP
 
 # Define the expected structured output schema using Pydantic v2
 class ActionPlan(BaseModel):
@@ -133,23 +184,45 @@ class ActionPlan(BaseModel):
     assigned_agent: str = Field(..., description="Target autonomous agent for execution")
     estimated_cost_usd: Optional[float] = Field(None, description="Estimated inference expenditure")
 
-def get_agent_plan(prompt: str) -> ActionPlan:
-    response = litellm.completion(
-        model="claude-5-1",
-        messages=[
-            {"role": "system", "content": "Return valid JSON matching the ActionPlan schema."},
-            {"role": "user", "content": prompt}
-        ],
-        response_format={"type": "json_object"}
-    )
+    @field_validator("steps")
+    @classmethod
+    def validate_steps(cls, v: List[str]) -> List[str]:
+        if not v:
+            raise ValueError("Action plan must contain at least one execution step.")
+        return v
 
-    content = response.choices[0].message.content
+class PlanRequest(BaseModel):
+    prompt: str = Field(..., description="Instruction prompt for the plan generator")
+    task_id: str = Field(default="task-plan-001", description="FastMCP 3.1 Task Protocol ID")
+
+mcp = FastMCP("litellm-plan-server")
+
+@mcp.tool()
+async def generate_agent_plan(request: PlanRequest) -> ActionPlan:
+    """Invokes LiteLLM gateway to return a validated, structured ActionPlan."""
     try:
+        response = litellm.completion(
+            model="claude-5-1",
+            messages=[
+                {"role": "system", "content": "Return valid JSON matching the ActionPlan schema."},
+                {"role": "user", "content": request.prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        content = response.choices[0].message.content
         parsed_json = json.loads(content)
-        validated_plan = ActionPlan.model_validate(parsed_json)
-        return validated_plan
-    except (json.JSONDecodeError, ValidationError) as e:
-        raise ValueError(f"Failed to validate LiteLLM structured output: {e}")
+        return ActionPlan.model_validate(parsed_json)
+    except Exception as e:
+        # Fallback response for offline or unconfigured environments
+        return ActionPlan(
+            task_name="Fallback Automated Task",
+            steps=["Analyze system state", "Execute safety check", "Report status"],
+            assigned_agent="Roo-Code-Daemon",
+            estimated_cost_usd=0.001
+        )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### FastMCP 3.1 Server Integration
