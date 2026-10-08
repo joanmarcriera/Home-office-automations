@@ -8,6 +8,45 @@ Tube Archivist is an open-source media management system designed specifically f
 ## What problem it solves
 YouTube videos can be deleted, made private, or censored without notice. Tube Archivist provides a way to build a permanent, offline, and searchable library of your favorite content, ensuring long-term access to tutorials, documentaries, and educational material while eliminating dependency on third-party platform availability and advertising.
 
+## Architecture and Data Ingestion Pipeline
+
+Tube Archivist uses an asynchronous, task-queued architecture connecting a Django backend, Redis queue worker, Elasticsearch/OpenSearch indexer, and `yt-dlp` / Deno extraction engine.
+
+```
++-----------------------------------------------------------------------------------+
+|                     Tube Archivist Architecture & Data Flow                       |
++-----------------------------------------------------------------------------------+
+                                          |
+ 1. Trigger / Automation                  |
+ +-------------------------------+       |
+ | Web UI / FastMCP 3.1 Agent    |       |
+ +---------------+---------------+       |
+                 |                       |
+                 v                       v
+ 2. Task Queue Dispatcher (Redis)        |
+ +-----------------------------------------------+
+ |  Asynchronous Task Ingestion Queue            |
+ |  - Download / Metadata / Rescan Workers       |
+ +---------------+-------------------------------+
+                 |
+                 v
+ 3. Extraction Engine (yt-dlp / Deno Runtime)
+ +-----------------------------------------------+
+ |  YouTube Scraping & Cookie Handling           |
+ |  - Video Files, Subtitles, Thumbnails, NFOs   |
+ +---------------+-------------------------------+
+                 |
+                 +-----------------------------------+
+                 |                                   |
+                 v                                   v
+ 4. Primary Media Storage                    5. Indexing Engine
+ +-------------------------------+           +-------------------------------+
+ |  Organized Local Disk Volume  |           |  Elasticsearch / OpenSearch   |
+ |  - /youtube/<channel>/<video> |---------->|  - Full-Text Search Index     |
+ |  - Embedded NFO / Subtitles   |           |  - Comments / Subtitle Search |
+ +-------------------------------+           +-------------------------------+
+```
+
 ## Where it fits in the stack
 It serves as a **content preservation layer** within the media management stack. It sits alongside general-purpose media servers like [Jellyfin](jellyfin.md) or [Plex](plex.md), but provides deep specialization for YouTube-specific metadata (comments, descriptions, subtitles) and automated channel monitoring for agentic workflows powered by **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **DeepSeek-V4**.
 
@@ -29,6 +68,17 @@ It serves as a **content preservation layer** within the media management stack.
 - **Storage Intensive**: Storing high-resolution video archives can consume terabytes of storage rapidly.
 - **Resource Usage**: Requires secondary containers for Redis and Elasticsearch, which can be memory-intensive.
 - **Maintenance**: Ongoing site layout changes on YouTube require frequent `yt-dlp` updates within the container.
+
+## Self-Hosted Media Archival Comparison Matrix
+
+| Feature / Dimension | Tube Archivist | Mealie / Plex / Jellyfin | Raw `yt-dlp` Scripts | Changedetection.io |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Dedicated YouTube Archival | Streaming Media Playback | Ad-hoc CLI Download | Web Page & Diff Monitoring |
+| **Metadata Ingest** | Full (Comments, Subs, NFO) | Basic NFO / Movie DB | Manual CLI flags | Visual text snapshots |
+| **Search Capabilities** | Elasticsearch Full-Text | Title & Tag Database | File System Grep | Diff Text Search |
+| **API & Agent Integration** | REST + FastMCP 3.1 Tools | Webhooks / REST API | None (Scripted execution) | Webhooks / REST API |
+| **Multi-Container Stack** | High (Django, ES, Redis) | Low-Medium (Single DB) | None (CLI binary) | Low (Python/Redis) |
+| **Channel Auto-Sync** | Built-in Scheduled Rescan | Plugins required | Cron-based scripts | Native page check |
 
 ## When to use it
 - When you want to ensure permanent, offline access to specific YouTube content.
@@ -100,17 +150,16 @@ docker exec tubearchivist python manage.py ta_index_channel_tabs
 ```
 
 ## API examples
-Integrate Tube Archivist metadata parsing and download triggers into Python scripts or FastMCP 3.1 servers.
 
-### Python: FastMCP 3.1 Server for Automated Download and Video Validation
+### FastMCP 3.1 Tube Archivist Ingestion Tool
 This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger video ingestion and validate download responses. It allows frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra** to dynamically archive requested YouTube tutorials and extract descriptions.
 
 ```python
 import requests
 from pydantic import BaseModel, Field, HttpUrl
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+from typing import Dict, Any, Optional
 
-# Initialize FastMCP Server
 mcp = FastMCP("TubeArchivistManager")
 
 TA_URL = "http://localhost:8000/api"
@@ -126,7 +175,7 @@ class ArchivalResponse(BaseModel):
     task_id: str = Field(default="", description="The unique ID of the triggered download task")
 
 @mcp.tool()
-def trigger_youtube_download(request_data: ArchivalRequest) -> str:
+def trigger_youtube_download(request_data: ArchivalRequest) -> Dict[str, Any]:
     """
     Submits a download request to the local Tube Archivist instance, validates input,
     and returns a Pydantic v2 validated status object.
@@ -152,15 +201,58 @@ def trigger_youtube_download(request_data: ArchivalRequest) -> str:
                 message=f"Failed to queue video. API responded with status {response.status_code}: {response.text}"
             )
 
-        return result.model_dump_json(indent=2)
+        return result.model_dump()
     except requests.RequestException as e:
         return ArchivalResponse(
             success=False,
             message=f"Network exception when connecting to Tube Archivist API: {str(e)}"
-        ).model_dump_json(indent=2)
+        ).model_dump()
 
 if __name__ == "__main__":
     mcp.run()
+```
+
+### Pydantic v2 Video Metadata Schema
+Validate archived YouTube video metadata payloads ingested into Elastic/OpenSearch indices:
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
+from datetime import datetime
+
+class VideoMetadata(BaseModel):
+    youtube_id: str = Field(..., alias="youtubeId")
+    title: str
+    channel_name: str = Field(..., alias="channelName")
+    published_at: datetime = Field(..., alias="publishedAt")
+    duration_seconds: int = Field(..., alias="durationSeconds", ge=0)
+    view_count: int = Field(default=0, alias="viewCount")
+    tags: List[str] = Field(default_factory=list)
+    description: Optional[str] = None
+
+    @field_validator("youtube_id")
+    @classmethod
+    def validate_yt_id(cls, v: str) -> str:
+        if len(v) != 11:
+            raise ValueError("YouTube video ID must be exactly 11 characters")
+        return v
+
+    class Config:
+        populate_by_name = True
+
+# Sample validation
+raw_meta = {
+    "youtubeId": "dQw4w9WgXcQ",
+    "title": "Sample Educational Video",
+    "channelName": "Tech Academy",
+    "publishedAt": "2026-11-10T08:00:00Z",
+    "durationSeconds": 620,
+    "viewCount": 152000,
+    "tags": ["AI", "Education", "Self-Hosted"]
+}
+
+meta = VideoMetadata.model_validate(raw_meta)
+print(f"Validated Video Metadata: {meta.title} by {meta.channel_name}")
 ```
 
 ## Related tools / concepts

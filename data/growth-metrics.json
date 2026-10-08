@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/benchmarking/livecodebench.md",
-    "docs/tools/frameworks/rivet.md",
-    "docs/services/tubearchivist.md",
-    "docs/tools/providers/hailuo-ai.md",
     "docs/tools/ai_knowledge/llama-4.md",
     "docs/services/changedetection.md",
     "docs/tools/automation_orchestration/google-workspace-cli.md",
@@ -40,7 +36,11 @@
     "docs/tools/process_understanding/helicone.md",
     "docs/tools/infrastructure/coreweave.md",
     "docs/tools/development_ops/codex.md",
-    "docs/tools/frameworks/instructor.md"
+    "docs/tools/frameworks/instructor.md",
+    "docs/tools/benchmarking/longcli-bench.md",
+    "docs/tools/frameworks/llama-factory.md",
+    "docs/tools/ai_knowledge/heretic-ara.md",
+    "docs/tools/infrastructure/vortex.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
