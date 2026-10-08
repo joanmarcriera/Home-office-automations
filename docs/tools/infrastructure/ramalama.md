@@ -5,6 +5,48 @@ Ramalama is an open-source, container-native tool for running, serving, and mana
 
 By pairing container runtimes with hardware acceleration drivers (CUDA, ROCm, Metal, OneAPI), Ramalama enables reproducible, isolated model execution across Linux workstations, macOS devices, edge nodes, and Kubernetes clusters.
 
+## Architecture & Container Orchestration Flow
+Ramalama encapsulates local model execution into unprivileged OCI container instances, handling GPU driver passthrough and exposing standard REST interfaces.
+
+```
++---------------------------------------------------------------------------------+
+|                       Ramalama CLI / FastMCP 3.1 Tool                           |
+|  - ramalama run granite-3.1-dense                                              |
+|  - ramalama serve -p 8080 granite-3.1-dense                                     |
++----------------------------------------+----------------------------------------+
+                                         |
+                                         v
++---------------------------------------------------------------------------------+
+|                         Container Engine (Podman / Docker)                      |
+|  +---------------------------------------------------------------------------+  |
+|  | OCI Engine Daemonless / Rootless Worker                                   |  |
+|  +-------------------------------------+-------------------------------------+  |
+|                                        |                                        |
+|                                        v                                        |
+|  +---------------------------------------------------------------------------+  |
+|  | Ramalama OCI Image Container Layer                                        |  |
+|  |  +---------------------------+   +-------------------------------------+  |  |
+|  |  | llama.cpp / vLLM Runtime  |   | Cached GGUF / Safetensors Weights   |  |  |
+|  |  +---------------------------+   +-------------------------------------+  |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+                                         v
++---------------------------------------------------------------------------------+
+|                          Hardware Acceleration Driver                           |
+|  +--------------------+   +-------------------+   +--------------------------+  |
+|  | NVIDIA CUDA Driver |   | AMD ROCm Driver   |   | Apple Metal / OneAPI     |  |
+|  +--------------------+   +-------------------+   +--------------------------+  |
++----------------------------------------+----------------------------------------+
+                                         |
+                                         v
++---------------------------------------------------------------------------------+
+|                          Standardized REST API Endpoint                         |
+|  - /v1/chat/completions (OpenAI Compatible)                                    |
+|  - FastMCP 3.1 Agent Integration Gateway                                        |
++---------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Managing local AI model binaries, dependencies, Python virtual environments, CUDA/ROCm driver incompatibilities, and runtime versions manually creates environment drift, security vulnerabilities, and deployment friction across home-lab nodes and edge hardware. Different models often require conflicting C++ library versions or distinct backend execution engines.
 
@@ -13,19 +55,22 @@ Ramalama solves this problem by packaging local model execution into standard OC
 ## Where it fits in the stack
 **Infrastructure / Model Runners**. Ramalama serves as a container-native model orchestration runtime, acting as a bridge between OCI container engines (Podman, Docker) and local inference engines (vLLM, llama.cpp, Ollama).
 
-```mermaid
-graph TD
-    CLI[Ramalama CLI / FastMCP Tool] -->|OCI Container Commands| Podman[Podman / Docker Engine]
+## Feature Matrix & Model Runner Comparison
 
-    subgraph Containerized Runtime
-        Podman --> Container[Ramalama OCI Container]
-        Container --> Runtime[llama.cpp / vLLM Server]
-        Container --> Model[Cached GGUF / Safetensors Weights]
-    end
+| Feature | Ramalama | Ollama | vLLM | Llama.cpp CLI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Model** | Containerized OCI Workload | Host Daemon / Service | High-Throughput Server | Bare-Metal Binary |
+| **Container Engines** | Podman (Rootless), Docker | Embedded Executable | Docker Container | Custom Dockerfile |
+| **Rootless Security** | First-Class Podman Support | System Service | System Daemon | Manual Linux Setup |
+| **GPU Acceleration** | CUDA, ROCm, Metal, OneAPI | CUDA, ROCm, Metal | CUDA, ROCm | CUDA, ROCm, Metal |
+| **Kubernetes / K3s Native** | Native OCI Pod Specs | Custom Helm Charts | Native K8s Operator | Static Pod Spec |
+| **FastMCP 3.1 Integration** | Native FastMCP Tooling | Community Adapters | Python Client Wrappers | Shell Script Gateway |
 
-    Container -->|Driver Passthrough| HostGPU[NVIDIA CUDA / AMD ROCm / Metal]
-    Runtime -->|REST API| Client[OpenAI API Clients / Agents]
-```
+## Operational Best Practices & Container Management
+1. **Rootless Podman Configuration**: Run Ramalama under unprivileged user namespaces with Podman to prevent potential container breakout vulnerabilities during untrusted model execution.
+2. **GPU Driver Passthrough Verification**: Validate host GPU drivers (`nvidia-smi` or `rocminfo`) before launching Ramalama containers to ensure hardware acceleration is active.
+3. **OCI Storage Volume Maintenance**: Monitor container storage volumes (`/var/lib/containers` or `~/.local/share/containers`) to prune legacy model layers using `ramalama list` and `ramalama rm`.
+4. **K3s Air-Gapped Deployment**: Pre-pull Ramalama OCI images into local container registries for deterministic, offline deployment in home-lab Kubernetes clusters.
 
 ## Typical use cases
 - **Containerized Air-Gapped Model Serving**: Spawning rootless Podman/Docker containers to serve local GGUF or Safetensors models in air-gapped home-lab networks.
@@ -124,7 +169,7 @@ from mcp.server.fastmcp import FastMCP
 import subprocess
 import json
 
-mcp = FastMCP("ramalama-container-manager")
+mcp = FastMCP("ramalama-container-manager", version="3.1.0")
 
 @mcp.tool()
 def serve_ramalama_model(model_tag: str, port: int = 8080) -> Dict[str, Any]:
