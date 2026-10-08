@@ -1,13 +1,79 @@
 # Pipedream
 
 ## What it is
-Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of early 2027, it features native **FastMCP 3.1 Task Protocol** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
+Pipedream is a low-code integration platform for developers that allows you to connect APIs, databases, and AI services to build complex workflows. It provides a unique blend of no-code triggers and actions with the ability to write custom code (Node.js, Python, Go, or Bash) at any step. As of early 2027, it features native **FastMCP 3.1 Task Protocol** integration and a built-in "Agentic Workflow Builder" powered by Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra. Designed for rapid cloud deployment, Pipedream bridges event-driven webhooks with serverless compute and autonomous tool calling.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                                  PIPEDREAM EVENT ROUTING & MCP PIPELINE                           |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|  +---------------------------+       +---------------------------------------------------------+  |
+|  | Webhook / Event Source    | ----> | Pipedream Trigger Engine                                |  |
+|  | (Stripe, GitHub, Custom)    |       | (Managed Auth, OAuth Refresh, Event Ingest Queue)       |  |
+|  +---------------------------+       +---------------------------------------------------------+  |
+|                                                                  |                                |
+|                                                                  v                                |
+|                                      +---------------------------------------------------------+  |
+|                                      | Pipedream Workflow Execution Pipeline                   |  |
+|                                      +---------------------------------------------------------+  |
+|                                         /                      |                      \           |
+|                                        v                       v                       v          |
+|                       +------------------+    +------------------+    +------------------+        |
+|                       | Step 1: Code     |    | Step 2: AI Core  |    | Step 3: MCP Tool |        |
+|                       | Python / Node.js |    | Claude / GPT-5.6 |    | FastMCP 3.1 Task |        |
+|                       +------------------+    +------------------+    +------------------+        |
+|                                        \                       |                      /           |
+|                                         +----------------------+---------------------+            |
+|                                                                |                                  |
+|                                                                v                                  |
+|                                      +---------------------------------------------------------+  |
+|                                      | Stateful Storage & Data Stores                          |  |
+|                                      | (Key-Value Store / Global State Sync)                   |  |
+|                                      +---------------------------------------------------------+  |
+|                                                                |                                  |
+|                                                                v                                  |
+|  +---------------------------+       +---------------------------------------------------------+  |
+|  | FastMCP 3.1 Tool Host /   | <---- | Webhook / API Action Emitter                            |  |
+|  | Downstream SaaS Targets   |       | (Slack, Discord, PostgreSQL, Custom REST Endpoints)     |  |
+|  +---------------------------+       +---------------------------------------------------------+  |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
 It simplifies the process of connecting disparate services by handling authentication (OAuth), event sourcing, and serverless execution infrastructure. It allows developers to focus on the logic of their integrations—and the orchestration of AI agents—rather than the boilerplate code required to talk to various APIs or manage persistent state.
 
+Furthermore, traditional automation platforms limit developers to fixed rigid blocks without true code customization or agentic tool calling. Pipedream bridges this gap by combining 5,000+ pre-built SaaS app integrations with full Node.js/Python execution environments, allowing agents to manipulate data inline, invoke FastMCP 3.1 tasks, and persist state securely without managing cloud infrastructure.
+
 ## Where it fits in the stack
 Pipedream sits in the **Automation & Orchestration** layer. It acts as the "connective tissue" for agentic systems, providing stable, managed tool-calling interfaces to thousands of SaaS applications and local services through its gateway.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                                 PIPEDREAM AUTOMATION POSITIONING                                  |
++---------------------------------------------------------------------------------------------------+
+|  Agent Control Layer   |  Claude 5.6 / GPT-5.6 / Pydantic AI / FastMCP 3.1 Task Protocol          |
++------------------------+--------------------------------------------------------------------------+
+|  Integration Engine    |  PIPEDREAM SERVERLESS PLATFORM (5,000+ Apps, Custom Python/Node Steps)    |
++------------------------+--------------------------------------------------------------------------+
+|  Persistence Layer     |  Pipedream Data Stores (Key-Value) / Supabase / PostgreSQL / Vector DBs   |
++------------------------+--------------------------------------------------------------------------+
+|  Target SaaS Apps      |  Slack / GitHub / Discord / Stripe / Notion / Jira / HubSpot              |
++---------------------------------------------------------------------------------------------------+
+```
+
+### Feature & Performance Comparison
+The table below compares Pipedream with other automation platforms:
+
+| Feature / Metric | Pipedream | n8n | Make (Integromat) | Zapier |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Model** | Code + Visual Hybrid | Visual + JS/Python | Visual First | Visual No-Code |
+| **Custom Code Depth** | Full Node.js/Python (`pip`/`npm`) | JavaScript / Python Code Nodes | Basic Formula / JS | Limited Code Blocks |
+| **FastMCP 3.1 Native** | Native Task Protocol Host | Via Community Nodes | N/A | Proprietary AI Actions |
+| **Self-Hosting Option** | Cloud Only | Full Self-Hosting (Docker) | Cloud Only | Cloud Only |
+| **Built-in Key-Value Store**| Native Managed KV Store | Requires External DB | Variable Data Store | Zapier Storage |
+| **Pricing Model** | Credit / Invocation Based | Self-Hosted Free / Cloud Tier | Operations Based | Task Based |
 
 ## Typical use cases
 - **AI Agents and Chatbots**: Connecting frontier models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra) to real-time data sources and execution tools (Slack, GitHub, Discord).
@@ -40,6 +106,25 @@ Pipedream sits in the **Automation & Orchestration** layer. It acts as the "conn
 - For very simple, non-technical "if this then that" tasks where [Zapier](zapier.md) might be faster.
 - For extremely high-throughput, low-latency data processing where the serverless cold-start or proxy overhead is prohibitive.
 
+### Failure Modes & Mitigation Strategies
+
+#### 1. Webhook Signature Validation Failures
+- **Symptom**: Incoming webhook payloads rejected due to mismatched SHA256 HMAC headers under payload transformation.
+- **Mitigation**: Access `pd.steps["trigger"]["event"]["headers"]` directly and validate signatures using raw unparsed request body bytes before parsing JSON.
+
+#### 2. Cold Start Overhead on Custom Python Imports
+- **Symptom**: Step execution time spiking above 2,000ms when importing heavy third-party packages (e.g., `pandas` or `numpy`).
+- **Mitigation**: Keep step dependency trees lightweight; utilize built-in standard library utilities or modular light packages where possible.
+
+#### 3. Asynchronous Task Race Conditions in Data Store
+- **Symptom**: Key-Value data store overwrites occurring when multiple concurrent webhooks update state simultaneously.
+- **Mitigation**: Implement optimistic locking tags or pass sequential execution tokens through workflow queue triggers.
+
+### Operational Best Practices
+- **Use Pipedream Data Stores for Agent State**: Store session IDs and conversation history in `pd.inputs["data_store"]` rather than relying on global memory variables across serverless warm re-invocations.
+- **Secure API Tokens in Vault**: Always map sensitive keys (e.g., `OPENAI_API_KEY`, `FASTMCP_SECRET`) using Environment Variables in Pipedream Settings rather than hardcoding in scripts.
+- **Enable Error Handlers**: Configure workflow error steps to automatically alert On-Call systems via Slack or PagerDuty when custom Python steps throw unhandled exceptions.
+
 ## Getting started
 
 ### Account Setup
@@ -68,14 +153,19 @@ pd logs <workflow_id>
 pd deploy my_workflow.js
 ```
 
+### Inspecting Workflow Component Health
+```bash
+pd test my_component.js --event payload.json
+```
+
 ## API examples
 
 ### Python Webhook & State Validation (Pydantic v2)
-In modern serverless integrations, validating the dynamic state and external webhooks is critical to prevent cascading agent failures. This Python example runs inside a Pipedream step, executing strict **Pydantic v2** validation on incoming event objects and stateful data stores.
+In modern serverless integrations, validating dynamic state and external webhooks is critical to prevent cascading agent failures. This Python example runs inside a Pipedream step, executing strict **Pydantic v2** validation on incoming event objects and stateful data stores.
 
 ```python
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
 # Define the incoming event validation schema
 class WebhookTriggerEvent(BaseModel):
@@ -83,6 +173,14 @@ class WebhookTriggerEvent(BaseModel):
     source: str = Field(..., description="Name of the source service (e.g., github, stripe)")
     payload: Dict[str, Any] = Field(..., description="Dynamic payload content dict")
     timestamp: int = Field(..., description="Unix timestamp of the event initiation")
+
+    @field_validator("source")
+    @classmethod
+    def validate_source_name(cls, v: str) -> str:
+        allowed = {"github", "stripe", "slack", "custom_mcp"}
+        if v.lower() not in allowed:
+            raise ValueError(f"Source '{v}' is not in approved list: {allowed}")
+        return v.lower()
 
 # Define state structure for Key-Value Data Store
 class StatefulWorkflowContext(BaseModel):
@@ -169,4 +267,4 @@ export default defineComponent({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-08
