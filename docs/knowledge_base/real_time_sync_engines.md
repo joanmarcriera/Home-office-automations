@@ -6,6 +6,51 @@ Real-time sync engines are specialized software components that enable multiplay
 ## What problem it solves
 Developing collaborative applications (like Google Docs, Figma, or interactive agentic dashboards) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging. They eliminate the "loading spinner" and "network error" friction in high-interactivity apps.
 
+## Architecture & Synchronization Data Flow
+
+Real-time sync engines rely on a reactive, event-driven topology where local client edits are saved optimistically to an embedded client database and replicated via Change Data Capture (CDC) or WebSocket/WebRTC sync channels.
+
+```
++-----------------------------------------------------------------------------------+
+|                  Local-First Real-time Sync Engine Topology                       |
++-----------------------------------------------------------------------------------+
+                                          |
+ 1. Local Application / Agent Mutation    |
+ +-------------------------------+       |
+ | Human Operator UI / AI Agent  |       |
+ +---------------+---------------+       |
+                 |                       |
+                 v                       v
+ 2. Embedded Client Store (Optimistic Write)
+ +-----------------------------------------------+
+ |  Local PGlite / SQLite / In-Memory Store      |
+ |  - Sub-1ms local read/write                   |
+ |  - Offline pending mutation queue             |
+ +---------------+-------------------------------+
+                 |
+                 v
+ 3. Sync Client SDK & Protocol Layer (FastMCP 3.1 Bridge)
+ +-----------------------------------------------+
+ |  CRDT / CDC Change Generation                 |
+ |  - Vector clocks & LWW / Yjs document state   |
+ +---------------+-------------------------------+
+                 |
+                 | (WebSocket / WebRTC Streaming)
+                 v
+ 4. Backend Sync Cache & Replication Server
+ +-----------------------------------------------+
+ |  Sync Server (Zero Cache / ElectricSQL Engine)|
+ |  - Shape filtering & auth validation          |
+ |  - Conflict resolution & WAL ordering         |
+ +---------------+-------------------------------+
+                 |
+                 v
+ 5. Server-side Primary Storage
+ +-----------------------------------------------+
+ |  PostgreSQL Primary (Logical Replication WAL) |
+ +-----------------------------------------------+
+```
+
 ## Where it fits in the stack
 Sync engines sit between the **Application** layer and the **Data/Database** layer. They replace traditional REST/GraphQL APIs with a reactive synchronization protocol that keeps a client-side database (like SQLite, PGlite, or an in-memory store) in sync with a server-side source of truth (typically PostgreSQL with logical replication enabled).
 
@@ -27,6 +72,16 @@ Sync engines sit between the **Application** layer and the **Data/Database** lay
 - **Large Dataset Handling**: Syncing millions of rows is impractical; requires "Sync Shapes" or sophisticated partial replication.
 - **Migration Complexity**: Syncing across schema changes (DML) requires coordinated engine updates.
 - **Initial Sync Latency**: The first time a user opens the app, there may be a delay while the initial "Shape" is downloaded.
+
+## Real-Time Sync Engine Comparison Matrix
+
+| Engine | Primary Paradigm | Client Database | Backend Primary DB | FastMCP 3.1 Support | Best Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Zero (Rocicorp)** | Zero-Query / Sync Shapes | Custom reactive store | PostgreSQL (WAL) | Native MCP Bridge | Ultra-fast optimistic web applications |
+| **ElectricSQL** | CDC Partial Replication | PGlite (Wasm Postgres) / SQLite | PostgreSQL (Logical) | Integrated | Multi-device local-first AI apps |
+| **InstantDB** | Reactive Graph Sync | In-memory graph cache | Instant Hosted / Postgres | MCP API Wrappers | Rapid prototyping & relational multiplayer |
+| **Jazz** | CoValues / Local-First Mesh | Local Storage / IndexedDB | Jazz Cloud / Local Node | FastMCP Client | Peer-to-peer collaborative state |
+| **Yjs / Automerge** | CRDT Document Trees | In-memory / IndexedDB | Any KV Store / WebSocket | MCP Tool Sync | Rich text & granular multiplayer canvas |
 
 ## When to use it
 - When responsiveness is the primary competitive advantage (aiming for "vibe coding" speed).
@@ -91,31 +146,77 @@ function TaskList() {
 }
 ```
 
-### Optimistic Mutation
-```javascript
-export const mutators = {
-  toggleTodo: async (tx, { id, completed }) => {
-    // This runs immediately on the client and eventually on the server
-    await tx.set(`todo/${id}`, { completed, updatedAt: Date.now() });
-  }
-};
+### FastMCP 3.1 Sync Protocol Engine Bridge
+FastMCP 3.1 server exposing real-time synchronization mutation triggers and state inspection as structured agentic tools:
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List, Optional
+import time
+
+mcp = FastMCP("RealtimeSyncEngine-Bridge")
+
+class MutationPayload(BaseModel):
+    shape_id: str = Field(..., description="Target sync shape identifier")
+    entity_id: str = Field(..., description="Unique record/entity ID")
+    mutations: Dict[str, Any] = Field(..., description="Field update mapping")
+    client_clock: int = Field(default_factory=lambda: int(time.time() * 1000))
+
+class SyncStateResponse(BaseModel):
+    shape_id: str
+    status: str
+    active_peers: int
+    pending_mutations_count: int
+
+@mcp.tool()
+def apply_optimistic_mutation(payload: MutationPayload) -> Dict[str, Any]:
+    """
+    Applies an optimistic mutation into the FastMCP sync engine bridge for propagation across connected agents.
+    """
+    # Simulated execution: dispatching mutation to Local DB / CDC stream
+    processed_at = time.time()
+    return {
+        "success": True,
+        "shape_id": payload.shape_id,
+        "entity_id": payload.entity_id,
+        "applied_clock": payload.client_clock,
+        "server_timestamp": processed_at
+    }
+
+@mcp.tool()
+def inspect_sync_shape_status(shape_id: str) -> Dict[str, Any]:
+    """
+    Retrieves current synchronization state, replication lag, and active peer agents for a given shape.
+    """
+    status = SyncStateResponse(
+        shape_id=shape_id,
+        status="synced",
+        active_peers=4,
+        pending_mutations_count=0
+    )
+    return status.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Pydantic v2 CRDT Operation Validation
+### Pydantic v2 CRDT Operation & Conflict Resolution Validation
 Using **Pydantic v2** to programmatically validate and verify collaborative changesets and replication sync payload operations before they are merged into the local or remote DB state:
 
 ```python
 from pydantic import BaseModel, Field, field_validator
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 class CRDTReplicationEdit(BaseModel):
     """Pydantic model representing a collaborative real-time state change or edit."""
-    client_id: str = Field(..., description="Unique client identifier")
+    client_id: str = Field(..., description="Unique client or agent identifier")
     sequence_number: int = Field(..., ge=0, description="Monotonically increasing sequence number")
     document_id: str = Field(..., description="Target document/shape ID")
     operation: str = Field(..., pattern="^(insert|update|delete|merge)$")
     changeset: Dict[str, Any] = Field(..., description="Key-value pair changes")
+    vector_clock: Dict[str, int] = Field(default_factory=dict, description="Logical vector clock for causality tracking")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     @field_validator("changeset")
@@ -132,10 +233,12 @@ payload = {
     "sequence_number": 42,
     "document_id": "doc-shape-workspace-11",
     "operation": "update",
-    "changeset": {"status": "completed", "progress": 100}
+    "changeset": {"status": "completed", "progress": 100},
+    "vector_clock": {"agent-007": 42, "human-user-1": 15}
 }
 validated_edit = CRDTReplicationEdit(**payload)
 print(f"Validated operation '{validated_edit.operation}' for client {validated_edit.client_id}.")
+print(f"Vector clock causality: {validated_edit.vector_clock}")
 ```
 
 ## Related tools / concepts

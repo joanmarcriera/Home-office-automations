@@ -6,6 +6,47 @@ LiveCodeBench is a holistic, contamination-free benchmark for evaluating Large L
 ## What problem it solves
 Traditional coding benchmarks such as HumanEval and MBPP suffer from severe data contamination, as their problem definitions and test suites are widely indexed in pre-training corpora. LiveCodeBench provides a dynamic, time-indexed evaluation framework that assesses a model's true generalization, algorithmic reasoning, and real-time problem-solving abilities rather than its capacity for memory recall.
 
+## Architecture and Execution Pipeline
+
+LiveCodeBench operates through a decoupled architecture that ingests real-time contest data, slices problem sets temporally, and dispatches evaluation runs across secure sandboxed environments using FastMCP 3.1 tools.
+
+```
++-----------------------------------------------------------------------------------+
+|                        LiveCodeBench Architecture & Pipeline                      |
++-----------------------------------------------------------------------------------+
+                                          |
+ 1. Contest Problem Ingestion            |
+ +-------------------------------+       |
+ | LeetCode / AtCoder / Codeforces|       |
+ +---------------+---------------+       |
+                 |                       |
+                 v                       v
+ 2. Dataset Slicing & Storage            |
+ +-----------------------------------------------+
+ |  Time-Indexed JSON Data Stores                |
+ |  - Metadata, Prompts, Hidden Test Cases       |
+ +---------------+-------------------------------+
+                 |
+                 v
+ 3. Evaluation Orchestrator (FastMCP 3.1 Server)
+ +-----------------------------------------------+
+ |  Scenario Dispatcher                          |
+ |  - Code Generation Scenario                   |
+ |  - Execution Reasoning (Output Prediction)    |
+ |  - Self-Repair / Debugging Loop               |
+ +---------------+-------------------------------+
+                 |
+                 +-----------------------------------+
+                 |                                   |
+                 v                                   v
+ 4. Execution Sandbox (Isolated)             5. Evaluation Engine
+ +-------------------------------+           +-------------------------------+
+ |  FastMCP 3.1 Sandboxed Docker |           |  Automated Metric Scoring     |
+ |  - PyPy / C++ / Rust Runtime  |---------->|  - Pass@k Accuracy            |
+ |  - Resource Limits (CPU/Mem)  |           |  - Contamination Diagnostic   |
+ +-------------------------------+           +-------------------------------+
+```
+
 ## Where it fits in the stack
 **Eval / Benchmarking**. It serves as a critical, high-signal evaluation layer for validating newly trained foundational models, model alignment strategies, and autonomous coding agents. It integrates directly with execution frameworks to evaluate model performance across distinct temporal slices.
 
@@ -38,15 +79,28 @@ graph TD
 - **Python-First Bias**: While the source platforms support diverse languages, the standardized evaluation pipeline is primarily optimized for Python execution.
 - **Extremely High Difficulty**: Many problems are tuned for human competitive programmers, which can lead to low floor-level scores for non-frontier or base models.
 
+## Detailed Framework Comparison Matrix
+
+| Feature / Dimension | LiveCodeBench | SWE-bench | HumanEval / MBPP | EvalPlus | Terminal-Bench |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Scope** | Algorithmic & Contest Coding | Repo-Level Issue Resolution | Basic Python Snippets | Enhanced Test-Suite Eval | Shell & CLI Interaction |
+| **Data Contamination Prevention** | Time-indexed dynamic ingest | Fixed GitHub PR snapshots | High risk (Static 2021) | High risk (Static base) | Moderate (Environment scripts) |
+| **Scenarios Supported** | Gen, Exec Reasoning, Repair | Patch Generation & Validation | Code Generation | Code Generation | Multi-step Shell Agents |
+| **Execution Sandbox** | FastMCP 3.1 Docker / Podman | Docker Container / Repo Environment | Local Subprocess | Local Subprocess | Dockerized Terminal Shell |
+| **Agentic Debug Support** | Built-in multi-turn loop | Multi-file agent loop | Single-turn prompt | Single-turn prompt | Multi-turn bash execution |
+| **Evaluation Speed** | Fast (~seconds per problem) | Slow (~minutes/hours per issue) | Very Fast (~seconds) | Fast (~seconds) | Moderate (~minutes) |
+
 ## When to use it
 - When measuring the "true" algorithmic code generation capability of newly launched instruction-tuned models.
 - When evaluating a model's program-tracing and dry-run execution reasoning capabilities.
 - To audit the performance of local, fine-tuned, or quantized open-weight code models over time.
+- When testing agentic code debugging and multi-turn error correction pipelines.
 
 ## When not to use it
 - For testing base foundation models that have not undergone instruction tuning or coding alignment.
 - When the primary goal is to evaluate repository-wide, multi-file software engineering tasks (use [SWE-bench](swe-bench.md) instead).
 - For benchmarking simple API interactions or basic web-application boilerplate code.
+- When evaluating system administration or command-line terminal interactions (use [Terminal-Bench](./terminal-bench.md) instead).
 
 ## Getting started
 LiveCodeBench can be utilized via its public leaderboard or run locally by cloning the evaluation runner and preparing your execution environment.
@@ -64,6 +118,7 @@ Set up credentials and configure API keys for your preferred LLM providers in a 
 ```bash
 export ANTHROPIC_API_KEY="your-key"
 export OPENAI_API_KEY="your-key"
+export DEEPSEEK_API_KEY="your-key"
 ```
 
 ## CLI examples
@@ -97,43 +152,110 @@ python -m lcb_runner.evaluation.main \
     --difficulty "Hard"
 ```
 
-## API examples
-
-### Schema of a LiveCodeBench Problem Instance
-A typical problem instance returned by the LCB dataset loader contains comprehensive metadata:
-```json
-{
-    "question_id": "lcb-2026-12-45",
-    "title": "Subarray Sum Queries",
-    "platform": "Codeforces",
-    "release_date": "2026-12-15T14:30:00",
-    "difficulty": "Hard",
-    "question_content": "Implement a dynamic range query...",
-    "test_cases": {
-        "inputs": ["[[1, 2], [3, 4]]"],
-        "outputs": ["[7]"]
-    }
-}
+### Evaluating Multi-Turn Debugging Scenarios
+Run self-repair evaluations where models receive stderr output and must fix failing test cases iteratively:
+```bash
+python -m lcb_runner.evaluation.main \
+    --model "meta/llama-4-code" \
+    --scenario "selfrepair" \
+    --max_turns 3 \
+    --use_docker
 ```
 
-### Programmatic Ingestion and Run Hook
-Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows using strict **Pydantic v2** validation models:
+## API examples
+
+### FastMCP 3.1 LiveCodeBench Execution Tool Pattern
+Below is a full **FastMCP 3.1** server implementation that exposes LiveCodeBench problem evaluation and sandboxed execution as an agentic tool:
+
 ```python
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field
+from typing import List, Dict, Optional, Any
+import subprocess
+import json
+
+mcp = FastMCP("LiveCodeBench-Evaluator")
+
+class SandboxResult(BaseModel):
+    passed: bool
+    passed_count: int
+    total_count: int
+    execution_time_ms: float
+    stdout: str
+    stderr: str
+
+class ProblemEvaluationRequest(BaseModel):
+    question_id: str = Field(..., description="LiveCodeBench problem ID, e.g., lcb-2026-12-45")
+    candidate_code: str = Field(..., description="LLM-generated code snippet to evaluate")
+    timeout_seconds: int = Field(10, ge=1, le=60)
+
+@mcp.tool()
+def evaluate_candidate_solution(request: ProblemEvaluationRequest) -> Dict[str, Any]:
+    """
+    Evaluates candidate solution code against hidden test cases in a sandboxed FastMCP container.
+    """
+    # Programmatic sandboxed runner execution
+    cmd = [
+        "python", "-m", "lcb_runner.sandbox.exec",
+        "--question_id", request.question_id,
+        "--code", request.candidate_code,
+        "--timeout", str(request.timeout_seconds)
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=request.timeout_seconds + 2)
+        result_data = json.loads(proc.stdout) if proc.returncode == 0 else {"passed": False, "stderr": proc.stderr}
+
+        result = SandboxResult(
+            passed=result_data.get("passed", False),
+            passed_count=result_data.get("passed_count", 0),
+            total_count=result_data.get("total_count", 0),
+            execution_time_ms=result_data.get("execution_time_ms", 0.0),
+            stdout=result_data.get("stdout", ""),
+            stderr=result_data.get("stderr", "")
+        )
+        return result.model_dump()
+    except subprocess.TimeoutExpired:
+        return SandboxResult(
+            passed=False, passed_count=0, total_count=0, execution_time_ms=request.timeout_seconds * 1000.0,
+            stdout="", stderr="Execution timed out in sandbox"
+        ).model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Pydantic v2 Problem Instance and Submission Validation
+Load and filter LiveCodeBench datasets programmatically within custom evaluation workflows using strict **Pydantic v2** validation models:
+
+```python
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Optional
+from datetime import datetime
 
 class FastMCPExecOptions(BaseModel):
     sandbox_mode: str = Field("docker", pattern=r"^(docker|podman|mcp_server)$")
     timeout_seconds: int = Field(30, gt=0)
+    memory_limit_mb: int = Field(512, ge=128)
 
 class TestSuite(BaseModel):
     inputs: List[str] = Field(default_factory=list)
     outputs: List[str] = Field(default_factory=list)
 
+    @field_validator("outputs")
+    @classmethod
+    def check_input_output_match(cls, v: List[str], info) -> List[str]:
+        inputs = info.data.get("inputs", [])
+        if len(inputs) != len(v):
+            raise ValueError(f"Inputs count ({len(inputs)}) does not match outputs count ({len(v)})")
+        return v
+
 class LCBProblem(BaseModel):
     question_id: str = Field(..., alias="questionId")
     title: str
-    difficulty: str
+    platform: str = Field(..., pattern=r"^(LeetCode|AtCoder|Codeforces)$")
+    release_date: datetime = Field(..., alias="releaseDate")
+    difficulty: str = Field(..., pattern=r"^(Easy|Medium|Hard)$")
+    question_content: str = Field(..., alias="questionContent")
     test_cases: TestSuite = Field(..., alias="testCases")
     mcp_exec: Optional[FastMCPExecOptions] = None
 
@@ -144,19 +266,23 @@ class LCBProblem(BaseModel):
 raw_problem = {
     "questionId": "lcb-2026-12-45",
     "title": "Subarray Sum Queries",
+    "platform": "Codeforces",
+    "releaseDate": "2026-12-15T14:30:00",
     "difficulty": "Hard",
+    "questionContent": "Implement a dynamic range query algorithm...",
     "testCases": {
         "inputs": ["[[1, 2], [3, 4]]"],
         "outputs": ["[7]"]
     },
     "mcp_exec": {
         "sandbox_mode": "docker",
-        "timeout_seconds": 30
+        "timeout_seconds": 30,
+        "memory_limit_mb": 512
     }
 }
 
 problem = LCBProblem.model_validate(raw_problem)
-print(f"Validated LCB Problem: {problem.title} ({problem.difficulty})")
+print(f"Validated LCB Problem: {problem.title} ({problem.difficulty}) from {problem.platform}")
 print(f"Number of test inputs: {len(problem.test_cases.inputs)}")
 ```
 
