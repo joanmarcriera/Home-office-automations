@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/llama-4.md",
-    "docs/services/changedetection.md",
-    "docs/tools/automation_orchestration/google-workspace-cli.md",
-    "docs/services/litellm.md",
-    "docs/tools/process_understanding/parea.md",
     "docs/tools/providers/azure-openai.md",
     "docs/tools/benchmarking/gaia.md",
     "docs/tools/agents/multi-agent-systems.md",
@@ -40,7 +35,12 @@
     "docs/tools/benchmarking/longcli-bench.md",
     "docs/tools/frameworks/llama-factory.md",
     "docs/tools/ai_knowledge/heretic-ara.md",
-    "docs/tools/infrastructure/vortex.md"
+    "docs/tools/infrastructure/vortex.md",
+    "docs/tools/ai_knowledge/parlor.md",
+    "docs/tools/enterprise/curiosity.md",
+    "docs/tools/providers/poolside.md",
+    "docs/tools/process_understanding/agentops.md",
+    "docs/tools/calendar_tasks/todoist.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
