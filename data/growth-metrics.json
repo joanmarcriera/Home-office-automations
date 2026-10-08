@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/providers/azure-openai.md",
-    "docs/tools/benchmarking/gaia.md",
-    "docs/tools/agents/multi-agent-systems.md",
     "docs/tools/development_ops/claude-code-router.md",
     "docs/tools/process_understanding/firecrawl.md",
     "docs/tools/agents/agentic-automation-canvas.md",
@@ -40,7 +37,10 @@
     "docs/tools/enterprise/curiosity.md",
     "docs/tools/providers/poolside.md",
     "docs/tools/process_understanding/agentops.md",
-    "docs/tools/calendar_tasks/todoist.md"
+    "docs/tools/calendar_tasks/todoist.md",
+    "docs/services/searXNG.md",
+    "docs/tools/agents/documentation-writer.md",
+    "docs/tools/process_understanding/ocrmypdf.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

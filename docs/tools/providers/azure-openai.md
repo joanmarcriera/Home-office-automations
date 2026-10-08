@@ -1,13 +1,52 @@
 # Azure OpenAI Service
 
 ## What it is
-Azure OpenAI Service provides REST API access to OpenAI's powerful language models including GPT-4o, GPT-4o-mini, and the frontier **GPT-5.6 series** (released early 2027), with the enterprise capabilities of Microsoft Azure. As of early January 2027, it includes native support for the **Model Context Protocol (MCP) / FastMCP 3.1 Task Protocol**, enabling seamless integration with autonomous agentic workflows.
+Azure OpenAI Service provides REST API access to OpenAI's powerful language models including GPT-4o, GPT-4o-mini, and the frontier **GPT-5.6 series** (released early 2027), with the enterprise capabilities of Microsoft Azure. As of early January 2027, it includes native support for the **Model Context Protocol (MCP) / FastMCP 3.1 Task Protocol**, enabling seamless integration with autonomous agentic workflows and private enterprise data boundary compliance.
+
+## Architecture & Integration Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                            Enterprise Azure Tenant Boundaries                     |
+|                                                                                   |
+|   +--------------------------+       +----------------------------------------+   |
+|   |  Microsoft Entra ID      |       |  Virtual Network (VNet / Subnet)       |   |
+|   |  (RBAC / Managed Identity|       |                                        |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Private Endpoint (Private Link)|   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | FastMCP 3.1 Agent Server |       |                   v                    |   |
+|   | (Token Exchange / Task   |<======|===================>                    |   |
+|   |  State Management)       |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Azure OpenAI Regional Instance |   |   |
+|                |                     |   | (GPT-5.6 / GPT-4o / Embeddings) |   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | Pydantic v2 Structured   |       |                   v                    |   |
+|   | Validation Engine        |       |   +--------------------------------+   |   |
+|   +--------------------------+       |   | Azure AI Search Vector Store   |   |   |
+|                                      |   +--------------------------------+   |   |
+|                                      +----------------------------------------+   |
++-----------------------------------------------------------------------------------+
+```
 
 ## What problem it solves
-It allows enterprise organizations to use advanced LLMs with improved security, compliance, and data residency guarantees. It enables the use of existing Entra ID (formerly Azure AD) infrastructure for fine-grained access control and provides a "private" instance of OpenAI's models that does not use customer data for training.
+It allows enterprise organizations to use advanced LLMs with improved security, compliance, and data residency guarantees. It enables the use of existing Entra ID (formerly Azure AD) infrastructure for fine-grained access control and provides a "private" instance of OpenAI's models that does not use customer data for training or model fine-tuning.
 
 ## Where it fits in the stack
 **Model Provider / Infrastructure Layer**. It serves as the primary endpoint for LLM capabilities in enterprise or hybrid-cloud environments, often sitting behind an [Orchestration Layer](vercel-ai-gateway.md) or integrated directly into [Agent Frameworks](../frameworks/microsoft-agent-framework.md).
+
+## Technical & Provider Comparison Matrix
+
+| Feature / Metric | Azure OpenAI Service | Direct OpenAI API | AWS Bedrock | Self-Hosted (vLLM / Ollama) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Authentication** | Entra ID (OAuth2/Managed Identity) | API Keys | AWS IAM Roles | Custom Bearer / None |
+| **Network Isolation** | VNet Private Link & IP Filtering | Public HTTPS | VPC Endpoints | Custom Overlay / Headscale |
+| **SLA Guarantee** | 99.9% Financial-Backed SLA | Best Effort / Standard SLA | 99.9% SLA | Self-Managed |
+| **Compliance Certs** | HIPAA, FedRAMP High, ISO 27001 | SOC2 Type II, ISO 27001 | HIPAA, FedRAMP, SOC | Self-Assessed |
+| **MCP Integration** | FastMCP 3.1 Task Protocol Native | Direct Tool Calling API | Bedrock Agent Specs | Custom Protocol Bridges |
+| **Fine-Tuning** | Isolated Azure Compute | OpenAI Managed Infra | AWS SageMaker Pipelines | Full LoRA/PEFT Control |
 
 ## Typical use cases
 - **Enterprise RAG**: Securely querying private data indexed in Azure AI Search using GPT-5.6.
@@ -22,9 +61,9 @@ It allows enterprise organizations to use advanced LLMs with improved security, 
 - **MCP Native**: Native support for Task Protocol / FastMCP 3.1 simplifies tool-calling and long-running agent tasks.
 
 ## Limitations
-- **Latency**: Regional routing can occasionally add latency compared to direct OpenAI endpoints.
-- **Complexity**: Managing Azure resources, quotas, and deployments adds operational overhead.
-- **Rollout Delay**: Newest model features may take several weeks to propagate across all global regions.
+- **Latency**: Regional routing and enterprise proxy overhead can occasionally add latency compared to direct OpenAI endpoints.
+- **Complexity**: Managing Azure resources, quotas, provisioned throughput units (PTUs), and deployments adds operational overhead.
+- **Rollout Delay**: Newest experimental model features may take several weeks to propagate across all global regions.
 
 ## When to use it
 - When you require enterprise-grade security, data privacy, and compliance certifications.
@@ -41,7 +80,7 @@ It allows enterprise organizations to use advanced LLMs with improved security, 
 ### 1. Installation
 Install the official Azure OpenAI, identity, and Pydantic libraries:
 ```bash
-pip install openai azure-identity pydantic
+pip install openai azure-identity pydantic mcp
 ```
 
 ### 2. Resource Creation
@@ -159,23 +198,79 @@ for finding in report.findings:
     print(f"[{finding.risk_level}] {finding.category}: {finding.description}")
 ```
 
-### FastMCP Tool Definition
-Expose an Azure OpenAI-powered tool to an agent via [FastMCP 3.1](../automation_orchestration/mcp.md):
-```python
-from mcp.server.fastmcp import FastMCP
-import os
+### Advanced FastMCP 3.1 Task Protocol Server
+Expose an Azure OpenAI-powered enterprise agent tool via [FastMCP 3.1](../automation_orchestration/mcp.md) with task state tracking and strict schema verification:
 
-mcp = FastMCP("AzureAssistant")
+```python
+import os
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+from openai import AzureOpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+mcp = FastMCP("EnterpriseAzureAgent")
+
+class EnterpriseTaskQuery(BaseModel):
+    query: str = Field(..., description="The high-level user query or task instruction")
+    data_context: str = Field(..., description="Data context or domain parameters for processing")
+    confidence_threshold: float = Field(0.85, ge=0.0, le=1.0, description="Minimum confidence score required")
+
+class EnterpriseTaskResult(BaseModel):
+    task_id: str = Field(..., description="Unique task identifier")
+    status: str = Field(..., description="Execution status (COMPLETED, FAILED, REVIEW_REQUIRED)")
+    summary: str = Field(..., description="Executive summary of task output")
+    recommended_actions: List[str] = Field(default_factory=list, description="Next step recommendations")
 
 @mcp.tool()
-async def analyze_document(doc_path: str) -> str:
-    """Analyze a local document using Azure OpenAI GPT-5.6."""
-    # Logic to read file and call Azure OpenAI
-    return "Analysis complete."
+async def execute_azure_task(request: EnterpriseTaskQuery) -> str:
+    """Execute an agentic workflow task against Azure OpenAI GPT-5.6 using Entra ID token auth."""
+    endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://my-resource.openai.azure.com/")
+
+    token_provider = get_bearer_token_provider(
+        DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+    )
+
+    client = AzureOpenAI(
+        azure_ad_token_provider=token_provider,
+        api_version="2026-05-01-preview",
+        azure_endpoint=endpoint
+    )
+
+    completion = client.beta.chat.completions.parse(
+        model="gpt56-prod",
+        response_format=EnterpriseTaskResult,
+        messages=[
+            {"role": "system", "content": "You are an enterprise AI agent executing tasks under FastMCP 3.1 specifications."},
+            {"role": "user", "content": f"Task: {request.query}\nContext: {request.data_context}"}
+        ]
+    )
+
+    result: EnterpriseTaskResult = completion.choices[0].message.parsed
+    return result.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & Governance
+
+1. **Provisioned Throughput Units (PTU)**:
+   - Use Standard Pay-As-You-Go deployments for unpredictable development workloads.
+   - Upgrade to PTU deployments for mission-critical production pipelines to guarantee latency and token throughput without rate-limiting (`429 Too Many Requests`).
+
+2. **Network Perimeter Hardening**:
+   - Disable public network access on the Azure OpenAI resource.
+   - Configure VNet Private Endpoints and route agent connections through designated internal gateways.
+
+3. **Keyless Entra ID RBAC**:
+   - Avoid long-lived API keys in environment variables or secret vaults.
+   - Assign the `Cognitive Services OpenAI User` role to Azure Managed Identities (User-Assigned or System-Assigned) attached to agent containers or VMs.
+
+4. **Monitoring & Cost Control**:
+   - Enable Azure Monitor diagnostic settings to stream token usage, latency (TTFT / time-to-first-token), and request volume to Log Analytics workspaces.
+   - Implement Azure Cost Management budgets with alert triggers at 80% and 100% threshold consumption.
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The underlying model developer.

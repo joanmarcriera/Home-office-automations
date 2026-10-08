@@ -3,6 +3,36 @@
 ## What it is
 Multi-Agent Systems (MAS) represent an architectural pattern and execution paradigm where multiple autonomous AI agents—each possessing distinct roles, tools, and context windows—collaborate, negotiate, and coordinate to solve complex, multi-step problems. As of early 2027, Multi-Agent Systems form the foundation of frontier autonomous software engineering, enterprise workflow automation, and distributed agentic task execution using protocols such as Model Context Protocol (MCP) and FastMCP 3.1.
 
+## Architecture & Communication Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                     Multi-Agent System (MAS) Orchestration Mesh                   |
+|                                                                                   |
+|   +--------------------------+       +----------------------------------------+   |
+|   |  User Goal / Input       |       |  Isolated Worker Context Sandboxes     |   |
+|   |  (GitHub PR / Spec)      |       |                                        |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Architect Agent                |   |   |
+|                v                     |   | (Design / Spec Parser)         |   |   |
+|   +--------------------------+       |   +---------------+----------------+   |   |
+|   | Orchestrator / Planner   |<======|===================>                    |   |
+|   | (Task Decomposition Engine)      |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Developer Agent (Coder)        |   |   |
+|                |                     |   | (FastMCP 3.1 Tools: FS/Git)    |   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | FastMCP 3.1 Event Bus /  |       |                   v                    |   |
+|   | State Router             |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Reviewer / Security QA Agent   |   |   |
+|                |                     |   +--------------------------------+   |   |
+|                v                     +----------------------------------------+   |
+|   +---------------------------------------------------------------------------+   |
+|   | Consolidated Output / Pull Request / Pydantic v2 Validated Artifact       |   |
+|   +---------------------------------------------------------------------------+   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Monolithic single-agent LLM executions suffer from severe constraints when confronted with enterprise-scale complexity:
 - **Context Window Degeneration**: Monolithic prompts loaded with entire codebases, database schemas, and long interaction histories suffer from degraded instruction-following and attention saturation.
@@ -11,40 +41,22 @@ Monolithic single-agent LLM executions suffer from severe constraints when confr
 
 Multi-Agent Systems solve these problems by enforcing strict role separation, isolated context spaces, and structured peer-review loops across specialized agent nodes.
 
+## Topology & Collaboration Pattern Comparison
+
+| Topology Pattern | Control Model | Latency Profile | Best Use Case | Risk / Drawbacks |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hierarchical (Orchestrator-Worker)** | Centralized planner breaks down & routes tasks | Medium (2-4 turns) | Complex coding tasks, PR refactoring | Orchestrator single point of failure |
+| **Peer-to-Peer Mesh (Swarm)** | Decentralized direct agent negotiation | High (Variable turns) | Autonomous red/blue security simulations | Infinite loop risk without turn limits |
+| **Sequential Pipeline** | Deterministic output-to-input chain | Low-Medium (Fixed turns) | Data ingestion, transcription & extraction | Cascading errors if early step fails |
+
 ## Where it fits in the stack
-**Category**: [Agents](../agents/index.md) / Architecture & Orchestration Pattern. Multi-Agent Systems sit between the high-level application orchestration layer and low-level LLM foundation models (such as Claude 5.1, GPT-5.5, and Gemini 4.0), organizing inter-agent message passing, task routing, and tool invocation.
+**Category**: [Agents](../agents/index.md) / Architecture & Orchestration Pattern. Multi-Agent Systems sit between the high-level application orchestration layer and low-level LLM foundation models (such as Claude 5.1/5.6, GPT-5.5/5.6, and Gemini 4.0), organizing inter-agent message passing, task routing, and tool invocation.
 
 ## Typical use cases
 - **Autonomous Software Development**: Teams of specialized agents (Architect, Coder, Tester, Reviewer) operating collaboratively on GitHub pull requests.
 - **Complex Information Extraction & Synthesis**: Coordinating web scraping agents, document parsing agents, and schema validation agents for large-scale data ingestion pipelines.
 - **Security & Vulnerability Auditing**: Red team attacker agents paired with blue team defender agents to automatically identify, exploit, and patch software vulnerabilities.
 - **Enterprise Operations & Support**: Multi-department support agents routing queries across finance, IT, and legal domains with human-in-the-loop checkpoints.
-
-## Topologies & Communication Patterns
-
-```
-                 +-------------------+
-                 | Orchestrator /    |
-                 | Planner Agent     |
-                 +---------+---------+
-                           |
-       +-------------------+-------------------+
-       |                   |                   |
-+------v------+     +------v------+     +------v------+
-| Coder Agent |     | Tester Agent|     | Review Agent|
-+------+------+     +------+------+     +------+------+
-       |                   |                   |
-       +-------------------+-------------------+
-                           |
-                 +---------v---------+
-                 | FastMCP / MCP     |
-                 | Tool Bus          |
-                 +-------------------+
-```
-
-1. **Hierarchical (Orchestrator-Worker)**: A central planner breaks down tasks and delegates them to worker agents, aggregating the results upon completion.
-2. **Peer-to-Peer (Swarm / Mesh)**: Decentralized agents communicate directly with peers to negotiate task completion and resolve dependencies dynamically.
-3. **Pipeline (Sequential Assembly)**: Output from one specialized agent serves directly as structured input for the next agent in the sequence.
 
 ## Strengths
 - **Modular Design & Separation of Concerns**: Each agent operates with a focused prompt, specialized tools, and minimal necessary context.
@@ -92,6 +104,7 @@ openswarm run --config agents.yaml --task "Refactor authentication module to Pyd
 
 ## API examples
 
+### Pydantic v2 Task Delegation Engine
 The following Python script utilizes **Pydantic v2** to define a structured multi-agent message routing and task delegation schema.
 
 ```python
@@ -137,6 +150,49 @@ if __name__ == "__main__":
     )
     print(dispatch_multi_agent_workflow(initial_task))
 ```
+
+### FastMCP 3.1 Multi-Agent Task Router Server
+Expose a FastMCP 3.1 server to route task events and manage state pass-through across specialized agent nodes:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+
+mcp = FastMCP("MultiAgentTaskRouter")
+
+class DispatchRequest(BaseModel):
+    workflow_id: str = Field(..., description="Unique workflow run ID")
+    target_role: str = Field(..., description="Role of the target worker agent")
+    payload: Dict[str, Any] = Field(default_factory=dict, description="Context payload passed to worker")
+
+class DispatchStatus(BaseModel):
+    workflow_id: str = Field(..., description="Workflow ID")
+    acknowledged: bool = Field(True, description="Receipt status")
+    assigned_worker_id: str = Field(..., description="ID of worker container handling task")
+
+@mcp.tool()
+def route_agent_task(request: DispatchRequest) -> str:
+    """Routes an agent task to a specialized worker node via FastMCP 3.1 task protocol."""
+    status = DispatchStatus(
+        workflow_id=request.workflow_id,
+        acknowledged=True,
+        assigned_worker_id=f"worker-{request.target_role}-01"
+    )
+    return status.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Governance
+
+1. **Strict Context Isolation**:
+   - Never pass full conversation histories or full repository states between agents. Filter inputs to contain only the necessary sub-problem context.
+2. **Infinite Loop & Recursion Guardrails**:
+   - Set maximum recursion limits (`max_turns = 5`) on inter-agent communication channels to prevent looping agent-to-agent critique cycles.
+3. **Audit Trails & Telemetry**:
+   - Log all inter-agent messages and FastMCP tool invocations with trace correlation IDs to simplify debugging and security audits.
 
 ## Related tools / concepts
 - [Agency Agents](agency-agents.md) — Multi-agent orchestrator for developer operations and task execution.

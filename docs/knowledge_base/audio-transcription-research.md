@@ -1,7 +1,37 @@
 # Audio Transcription Research: Whisper Variants for Long-Form Audio
 
 ## What it is
-This research document compares optimized versions of OpenAI's Whisper model and architectures like **SenseVoice**, focusing on engines designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab.
+This research document compares optimized versions of OpenAI's Whisper model and architectures like **SenseVoice**, focusing on engines designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab environment.
+
+## Audio Ingestion Architecture & Pipeline Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                        Homelab Audio Ingestion Engine                             |
+|                                                                                   |
+|   +--------------------------+       +----------------------------------------+   |
+|   |  Audio Source File       |       |  Acoustic Pre-Processing Boundary      |   |
+|   |  (MP3 / WAV / M4A)       |       |                                        |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Silero-VAD V6 Silence / Hum    |   |   |
+|                v                     |   | Rejection Engine               |   |   |
+|   +--------------------------+       |   +---------------+----------------+   |   |
+|   | FastMCP 3.1 Task Server  |<======|===================>                    |   |
+|   | (Queue / Chunking Engine)|       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | Quantized Inference Engine     |   |   |
+|                |                     |   | (Faster-Whisper FP8 / MLX)     |   |   |
+|                v                     |   +---------------+----------------+   |   |
+|   +--------------------------+       |                   |                    |   |
+|   | Pydantic v2 Transcript   |       |                   v                    |   |
+|   | Validation & Schema      |       |   +--------------------------------+   |   |
+|   +------------+-------------+       |   | SenseVoice Diarization / Intent|   |   |
+|                |                     |   +--------------------------------+   |   |
+|                v                     +----------------------------------------+   |
+|   +---------------------------------------------------------------------------+   |
+|   | Destination Knowledge Stores (Obsidian / Paperless-ngx / Audiobookshelf)   |   |
+|   +---------------------------------------------------------------------------+   |
++-----------------------------------------------------------------------------------+
+```
 
 ### Key Findings (Early January 2027)
 - **SenseVoice Integration**: Multi-speaker diarization and acoustic emotion/intent detection at inference time.
@@ -79,6 +109,7 @@ The following Python script can be used to benchmark `faster-whisper` performanc
 ```python
 import os
 import time
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 from faster_whisper import WhisperModel
@@ -90,6 +121,12 @@ class IngestionRequest(BaseModel):
     model_size: str = Field(default="large-v3-turbo", description="Model name to run (e.g. 'large-v3-turbo', 'medium')")
     enable_vad: bool = Field(default=True, description="Enable Silero-VAD filtering")
 
+class SpeakerSegment(BaseModel):
+    speaker_id: str = Field(..., description="Speaker identifier tag (e.g. 'SPEAKER_00')")
+    start_sec: float = Field(..., description="Segment start timestamp in seconds")
+    end_sec: float = Field(..., description="Segment end timestamp in seconds")
+    text: str = Field(..., description="Transcribed spoken segment text")
+
 class AudioMetadata(BaseModel):
     duration_sec: float = Field(description="Audio duration in seconds")
     language_code: str = Field(description="Detected or enforced language code")
@@ -98,6 +135,7 @@ class AudioMetadata(BaseModel):
 
 class IngestionResult(BaseModel):
     text: str = Field(description="Fully consolidated transcription text")
+    segments: List[SpeakerSegment] = Field(default_factory=list, description="Diarized speaker segments")
     metadata: AudioMetadata = Field(description="Performance and file metrics validated via Pydantic v2")
 
 @mcp.tool()
@@ -126,14 +164,26 @@ def transcribe_and_benchmark(request: IngestionRequest) -> str:
     )
 
     # Exhaust generator
-    text_parts = [segment.text for segment in segments]
-    full_text = "".join(text_parts).strip()
+    parsed_segments = []
+    text_parts = []
+    for segment in segments:
+        text_parts.append(segment.text)
+        parsed_segments.append(
+            SpeakerSegment(
+                speaker_id=getattr(segment, "speaker", "SPEAKER_00"),
+                start_sec=segment.start,
+                end_sec=segment.end,
+                text=segment.text.strip()
+            )
+        )
 
+    full_text = "".join(text_parts).strip()
     processing_time = time.time() - start_time
     realtime_factor = info.duration / processing_time if processing_time > 0 else 0.0
 
     result = IngestionResult(
         text=full_text,
+        segments=parsed_segments,
         metadata=AudioMetadata(
             duration_sec=info.duration,
             language_code=info.language,
@@ -146,6 +196,19 @@ def transcribe_and_benchmark(request: IngestionRequest) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Guidelines & Performance Tuning
+
+1. **VAD Parameter Calibration**:
+   - Set `threshold=0.35` for room microphone recordings with active background noise (HVAC, computer fans).
+   - Increase `min_silence_duration_ms` to `300ms` for long-form podcasts to prevent chopping sentences in multi-speaker banter.
+
+2. **Hardware Acceleration Best Practices**:
+   - On NVIDIA RTX 40/50 series GPUs, run `faster-whisper` with `--compute_type int8_float16` or `--compute_type float8` to double batch processing speed while retaining full WER accuracy.
+   - On Apple Silicon nodes (M2/M3/M4/M5 Pro/Max), allocate at least 16GB Unified Memory for `mlx-whisper` to maintain zero swap overhead during parallel batch ingestion.
+
+3. **Hallucination Prevention**:
+   - Set `no_speech_threshold=0.6` and `logprob_threshold=-1.0` in Whisper options to abort endless repetition loops on low-volume background tracks or music interludes.
 
 ## Related tools / concepts
 - [Whisper](../services/whisper.md) — The base model and service.
