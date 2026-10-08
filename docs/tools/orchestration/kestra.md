@@ -11,6 +11,34 @@ Kestra bridges the gap between infrastructure automation and data orchestration.
 ## Where it fits in the stack
 **Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In early January 2027, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.6](../ai_knowledge/claude-mythos.md), [GPT-5.6](../ai_knowledge/chatgpt.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini-macos.md), [Gemma 4](../ai_knowledge/gemma.md), [DeepSeek-V4](../ai_knowledge/llama.md), or [Qwen 3.6 VL](../ai_knowledge/qwen.md) to be integrated into structured, declarative processes via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
+```
+                     ┌─────────────────────────────────────────┐
+                     │          Kestra Control Plane           │
+                     │       (YAML Declarative Engine)         │
+                     └────────────────────┬────────────────────┘
+                                          │
+                                          ▼
+                     ┌─────────────────────────────────────────┐
+                     │          FastMCP 3.1 Task Router        │
+                     └──────┬───────────────────────────┬──────┘
+                            │                           │
+                            ▼                           ▼
+             ┌─────────────────────────────┐ ┌─────────────────────────────┐
+             │    Docker / K8s Script Task │ │  Agentic LLM Inference Task │
+             │  (Python, Bash, Terraform)  │ │ (Claude 5.6, GPT-5.6, Qwen) │
+             └─────────────────────────────┘ └─────────────────────────────┘
+```
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Kestra | Apache Airflow | Prefect |
+| :--- | :--- | :--- | :--- |
+| **Workflow Definition** | Declarative YAML | Code (Python DAGs) | Code (Python Decorators) |
+| **Agentic FastMCP 3.1**| First-Class Native Plugin | Custom Operators | Custom Tasks |
+| **UI Control Plane** | Embedded Real-time Web UI | Webserver Dashboard | Prefect Cloud / Server |
+| **Event Triggers** | Built-in Multi-Source | Sensor Operators | Automation Triggers |
+| **Script Execution** | Embedded Docker / Process | Worker Pods / Celery | Agent Infrastructure |
+
 ## Typical use cases
 - **AI Model Retraining**: Triggering a training pipeline when new data arrives, followed by evaluation and notification.
 - **Infrastructure Provisioning**: Coordinating Terraform or Ansible runs with post-deployment health checks.
@@ -87,6 +115,49 @@ kestra flow list dev
 
 ## API examples
 Kestra provides a REST API for programmatic interaction.
+
+### FastMCP 3.1 Kestra Flow Orchestrator Tool Server
+The Python snippet below implements a **FastMCP 3.1** tool server that exposes Kestra flow execution and status tracking endpoints directly to AI agents:
+
+```python
+import os
+import json
+import httpx
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Kestra Workflow Orchestrator")
+
+KESTRA_API_URL = os.getenv("KESTRA_API_URL", "http://127.0.0.1:8080/api/v1")
+
+class ExecutionRequest(BaseModel):
+    namespace: str = Field("dev", description="Target Kestra namespace")
+    flow_id: str = Field(description="Target flow identifier")
+    inputs: dict = Field(default_factory=dict, description="Execution input parameters")
+
+@mcp.tool()
+async def trigger_kestra_workflow(namespace: str, flow_id: str, payload_json: str = "{}") -> str:
+    """Trigger a Kestra declarative flow execution programmatically."""
+    inputs = json.loads(payload_json)
+    url = f"{KESTRA_API_URL}/executions/{namespace}/{flow_id}"
+
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(url, json=inputs, timeout=5.0)
+            if resp.status_code in (200, 201):
+                data = resp.json()
+                return json.dumps({
+                    "execution_id": data.get("id"),
+                    "state": data.get("state", {}).get("current"),
+                    "status": "SUCCESS"
+                })
+            return json.dumps({"status": "FAILED", "code": resp.status_code, "text": resp.text})
+        except Exception as e:
+            return json.dumps({"status": "ERROR", "error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ```bash
 # Trigger a flow via curl
@@ -174,6 +245,11 @@ except ValidationError as e:
 - [Gemma 3](../ai_knowledge/gemma.md) — Lightweight model for task logic.
 - [Qwen 3.6](../ai_knowledge/qwen.md) — Standard open reasoning model.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — SOTA communication protocol.
+
+## Production Operational Best Practices
+- **GitOps Flow Management**: Store all YAML flow definitions in a Git repository and use Kestra's CI/CD GitHub Action or CLI `kestra flow create` commands to deploy updates automatically upon pull request approval.
+- **Resource Limits**: Enforce strict CPU and memory resource bounds on Docker and Kubernetes task runners to prevent runaway Python scripts from overwhelming the control plane.
+- **Secrets Management**: Integrate Kestra with HashiCorp Vault or AWS Secrets Manager rather than embedding API keys directly in YAML task environment parameters.
 
 ## Sources / references
 - [Kestra Official Documentation](https://kestra.io/docs)

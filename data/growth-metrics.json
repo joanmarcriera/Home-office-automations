@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/development_ops/claude-code-router.md",
-    "docs/tools/process_understanding/firecrawl.md",
-    "docs/tools/agents/agentic-automation-canvas.md",
-    "docs/tools/orchestration/kestra.md",
-    "docs/tools/process_understanding/helicone.md",
     "docs/tools/infrastructure/coreweave.md",
     "docs/tools/development_ops/codex.md",
     "docs/tools/frameworks/instructor.md",
@@ -40,7 +35,12 @@
     "docs/tools/calendar_tasks/todoist.md",
     "docs/services/searXNG.md",
     "docs/tools/agents/documentation-writer.md",
-    "docs/tools/process_understanding/ocrmypdf.md"
+    "docs/tools/process_understanding/ocrmypdf.md",
+    "docs/tools/infrastructure/triton.md",
+    "docs/tools/enterprise/tldv.md",
+    "docs/services/searXNG-automation.md",
+    "docs/tools/infrastructure/llama-swap.md",
+    "docs/tools/ai_knowledge/otaku.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

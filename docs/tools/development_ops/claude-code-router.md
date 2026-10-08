@@ -13,6 +13,39 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 ## Where it fits in the stack
 **Router / Gateway**. It sits between the agent ([Claude Code](./claude-code.md)) and the upstream inference provider, acting as a programmable middleware. It is frequently deployed alongside [LiteLLM](../../services/litellm.md) for enterprise-grade load balancing and token rate-limit management.
 
+```
+                    ┌─────────────────────────────────────────┐
+                    │               Claude Code               │
+                    │         (CLI / FastMCP 3.1)             │
+                    └────────────────────┬────────────────────┘
+                                         │
+                                         ▼
+                    ┌─────────────────────────────────────────┐
+                    │            Claude Code Router           │
+                    │        (Port 3456 / Local Proxy)        │
+                    │  ┌───────────────────────────────────┐  │
+                    │  │ Rule Engine & Payload Transformer │  │
+                    │  └────────────────┬──────────────────┘  │
+                    └───────────────────┼─────────────────────┘
+                                        │
+           ┌────────────────────────────┼────────────────────────────┐
+           ▼                            ▼                            ▼
+┌────────────────────┐       ┌────────────────────┐       ┌────────────────────┐
+│   Anthropic API    │       │     DeepSeek       │       │ OpenRouter / Local │
+│ (Claude 5.1/Opus)  │       │   (DeepSeek-V4)    │       │   (Gemini/Ollama)  │
+└────────────────────┘       └────────────────────┘       └────────────────────┘
+```
+
+## Feature Comparison Matrix
+
+| Feature / Capability | Native Claude Code | Claude Code Router (CCR) | LiteLLM Proxy |
+| :--- | :--- | :--- | :--- |
+| **Model Scope** | Anthropic Models Only | Multi-Provider (DeepSeek, Gemini, Ollama) | Universal API Translation |
+| **Dynamic Model Switching** | Static (`/model`) | Instant `/model` command swapping | Config / Header driven |
+| **Tool Parameter Transformer**| Built-in (Anthropic format)| Dynamic Payload AST Transformer | Basic OpenAI Schema Mapping |
+| **FastMCP 3.1 Integration** | Native | Native Proxy Pass-through | Generic Proxy Pass-through |
+| **Deployment Footprint** | Direct CLI Client | Lightweight Local Daemon | Docker / Microservice |
+
 ## Typical use cases
 - **DeepSeek Integration**: Directing complex code generation and reasoning tasks to `DeepSeek-V4` at a fraction of the token cost of Claude 5.1.
 - **Local Dev Loop**: Routing lightweight background queries to a local [Ollama instance](../../services/ollama.md) (e.g., `qwen3.8-coder`) to eliminate external API reliance and maintain privacy.
@@ -79,6 +112,63 @@ ccr health
 ```
 
 ## API examples
+
+### FastMCP 3.1 Task Protocol Router Integration Server
+
+The Python implementation below demonstrates how Claude Code Router integrates into a **FastMCP 3.1** task protocol server to dynamically expose proxy status, health checks, and route adjustments to connected agents:
+
+```python
+import os
+import json
+import httpx
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Claude Code Router Gateway")
+
+CCR_DAEMON_URL = os.getenv("CCR_DAEMON_URL", "http://127.0.0.1:3456")
+
+class RouteStatus(BaseModel):
+    active_route: str = Field(description="Current active model target route")
+    healthy_upstreams: List[str] = Field(description="List of verified available model backends")
+    avg_latency_ms: float = Field(description="Average response latency across active proxy routes")
+
+@mcp.tool()
+async def check_router_health() -> str:
+    """Fetch real-time health, latency, and upstream status from Claude Code Router."""
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f"{CCR_DAEMON_URL}/health", timeout=3.0)
+            if resp.status_code == 200:
+                data = resp.json()
+                status = RouteStatus(
+                    active_route=data.get("active_model", "anthropic/claude-5-1"),
+                    healthy_upstreams=data.get("upstreams", ["deepseek", "openrouter"]),
+                    avg_latency_ms=data.get("latency_ms", 42.5)
+                )
+                return status.model_dump_json(indent=2)
+        except Exception as e:
+            return json.dumps({"status": "unreachable", "error": str(e)})
+    return json.dumps({"status": "unknown"})
+
+@mcp.tool()
+async def set_active_model_route(target_model: str) -> str:
+    """Dynamically switch the active target model route in CCR daemon."""
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(
+                f"{CCR_DAEMON_URL}/model",
+                json={"model": target_model},
+                timeout=3.0
+            )
+            return json.dumps({"success": resp.status_code == 200, "target": target_model})
+        except Exception as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Advanced Routing Patterns (YAML)
 CCR supports advanced declarative routing rules defined in `rules.yaml` that trigger on prompt regex patterns or tool capabilities:
@@ -178,6 +268,11 @@ if __name__ == "__main__":
 - [Ollama](../../services/ollama.md)
 - [DeepSeek](../providers/deepseek.md)
 - [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md)
+
+## Production Operational Best Practices
+- **Process Supervision**: Run the CCR proxy daemon under a system supervisor like `systemd` or `supervisord` on port 3456 to ensure automatic resurrection after transient network failures.
+- **Failover Chain Configuration**: Always define a fallback policy in `rules.yaml` that includes at least one local or cloud fallback model (e.g., `anthropic/claude-5-1` -> `deepseek/deepseek-chat` -> `ollama/qwen3.8-coder`).
+- **Telemetry & Monitoring**: Enable JSON-formatted logging in CCR (`CCR_LOG_FORMAT=json`) and stream stdout to standard log collectors (Datadog, Grafana Loki) to monitor token consumption rates and latency per model route.
 
 ## Sources / references
 - [Official GitHub](https://github.com/musistudio/claude-code-router)

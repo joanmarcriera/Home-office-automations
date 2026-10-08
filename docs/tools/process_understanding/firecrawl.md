@@ -23,11 +23,46 @@ graph TD
     Server -->|Token-Optimized Output| Agent
 ```
 
+## Operational Architecture & Ingestion Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Autonomous Agent / Client                        │
+│                     (Claude Code / FastMCP 3.1)                         │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Firecrawl Scraping Engine                        │
+│ ┌──────────────────────┐ ┌──────────────────────┐ ┌───────────────────┐ │
+│ │ Stealth Browser Fleet│ │ Anti-Bot Bypass Mesh │ │  DOM Sanitizer &  │ │
+│ │  (Playwright Pool)   │ │ (Cloudflare/Akamai)  │ │ Markdown Engine   │ │
+│ └──────────────────────┘ └──────────────────────┘ └───────────────────┘ │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                 ┌───────────────────┼───────────────────┐
+                 ▼                   ▼                   ▼
+      ┌────────────────────┐┌──────────────────┐┌──────────────────┐
+      │   Target Web Page  ││  Site Map Crawler││ Pydantic v2 JSON │
+      │   (Dynamic SPA)    ││  (URL Discovery) ││ Extraction Engine│
+      └────────────────────┘└──────────────────┘└──────────────────┘
+```
+
 ## Typical use cases
 - **Real-Time Agent Search**: Enabling FastMCP-compatible agents to instantly crawl and extract live technical documentation, research papers, or news.
 - **RAG Pipeline Ingestion**: Orchestrating scheduled batch crawls across web domains to continuously update vector database indices.
 - **Structured Schema Extraction**: Converting unstructured product pages, financial reports, or job postings into validated, structured JSON formats using Pydantic v2 schemas.
 - **Site Mapping & URL Discovery**: Performing rapid site mapping across domain hierarchies without triggering unnecessary full-page downloads.
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Firecrawl | Crawl4AI | BeautifulSoup / Scrapy |
+| :--- | :--- | :--- | :--- |
+| **Output Format** | Clean Markdown / Pydantic JSON | Markdown / Raw HTML | Raw HTML DOM Nodes |
+| **Anti-Bot Bypass** | Automatic (Cloudflare / Datadome) | Browser Context Rotation | Manual Proxy Management |
+| **FastMCP 3.1 Server** | Native Built-in | Community Server | Custom Implementation |
+| **JS Rendering Engine** | Dynamic Headless Fleet | Local Playwright | Async HTTP / Optional Playwright |
+| **Deployment Mode** | Cloud SaaS & Self-Hosted | Open-Source Self-Hosted | Python Library |
 
 ## Strengths
 - **Clean Markdown Native**: Output is specifically cleansed to minimize token consumption while preserving table layouts, headers, and code snippets.
@@ -156,6 +191,11 @@ if __name__ == "__main__":
     validated = PricingSchema.model_validate(mock_response)
     print(f"Validated Product: {validated.product_name} ({len(validated.tiers)} tiers)")
 ```
+
+## Production Operational Best Practices
+- **Webhook Integration**: For batch jobs or continuous monitoring, utilize asynchronous crawl jobs (`app.crawl_url_async`) combined with webhook callbacks to handle high-volume scraping without blocking agent execution loops.
+- **Credit Optimization**: Set strict `maxDepth` and domain whitelist filters during full site crawls to prevent credit exhaustion on irrelevant external links.
+- **Cache Reuse**: Enable response caching for static documentation sites to accelerate agent reasoning loops during multi-step development sessions.
 
 ## Related tools / concepts
 - [Crawl4AI](crawl4ai.md) - High-performance local-first open-source web scraper.
