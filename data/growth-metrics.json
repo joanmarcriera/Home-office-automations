@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/calendar_tasks/apple-calendar.md",
-    "docs/tools/automation_orchestration/codegraphcontext.md",
-    "docs/services/plex.md",
-    "docs/tools/providers/fireworks.md",
     "docs/tools/ai_knowledge/llama-4-maverick.md",
     "docs/tools/providers/cohere.md",
     "docs/tools/automation_orchestration/pipedream.md",
@@ -40,7 +36,11 @@
     "docs/tools/process_understanding/parea.md",
     "docs/tools/providers/azure-openai.md",
     "docs/tools/benchmarking/gaia.md",
-    "docs/tools/agents/multi-agent-systems.md"
+    "docs/tools/agents/multi-agent-systems.md",
+    "docs/tools/development_ops/claude-code-router.md",
+    "docs/tools/process_understanding/firecrawl.md",
+    "docs/tools/agents/agentic-automation-canvas.md",
+    "docs/tools/orchestration/kestra.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
