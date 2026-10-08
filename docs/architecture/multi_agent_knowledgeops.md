@@ -3,6 +3,35 @@
 ## What it is
 Multi-Agent KnowledgeOps Governance is a structured software engineering framework and operating contract that defines how multiple concurrent, autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4) can safely, consistently, and concurrently scale and manage a shared technical knowledge repository in early January 2027. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to coordinate specialized agents while preserving canonical ownership, source traceability, and freshness signals.
 
+### System Architecture Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                        FEDERATED KNOWLEDGE OPS ARCHITECTURE                       |
++-----------------------------------------------------------------------------------+
+                                          |
+    +-------------------------------------+-------------------------------------+
+    |                                     |                                     |
+    v                                     v                                     v
++-----------------------+     +-----------------------+     +-----------------------+
+|  INTAKE AGENT LANE    |     | CURATION AGENT LANE   |     |  AUDIT AGENT LANE     |
+| (Gemma 3 / DeepSeek)  |     | (Claude 5.1 / GPT-5.5)|     | (Gemini 4.0 / Local)  |
++-----------------------+     +-----------------------+     +-----------------------+
+    |                             |                             |
+    | Raw sources parsing         | Curation & deepening        | Link & freshness audit
+    v                             v                             v
++-----------------------------------------------------------------------------------+
+|                            FASTMCP 3.1 POLICY ENGINE                              |
+|   - Search Canonical Pages      - Validate Metadata        - Quality Audit        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          GIT REPOSITORY & CI/CD PIPELINE                          |
+|   `scripts/check_docs_contract.py` | `scripts/audit_docs_quality.py`              |
++-----------------------------------------------------------------------------------+
+```
+
 ### Multi-Agent KnowledgeOps Contract (Mandatory)
 All AI-authored documentation and repository updates must satisfy this contract:
 1. **Respect Canonical Ownership**: Perform an exhaustive search for existing tool/topic names and their aliases before creating new pages.
@@ -23,6 +52,15 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 - **Federated Knowledge Ingestion**: Employing specialized agents to monitor different developer streams (GitHub, Arxiv, vendor changelogs) and ingest them into a central repository.
 - **Autonomous Quality Auditing**: Background cron agents continuously identifying stale content or broken links using the `audit_docs_quality.py` suite.
 - **Agentic Session Orchestration**: Coordinating complex, multi-day documentation sprints across multiple frontier models using unified state tracing.
+
+## Governance Matrix & Role Breakdown
+
+| Role | Primary Scope | Permitted File Mutations | Primary Quality Check | Concurrency Key |
+| :--- | :--- | :--- | :--- | :--- |
+| **Intake Agent** | `docs/new-sources/*`, `data/all_tools.json` | Daily intake logs, tool catalog records | `validate_new_sources.py` | Source URL hash |
+| **Curation Agent** | `docs/tools/*`, `docs/services/*` | Canonical tool/service pages | `check_docs_contract.py` | Canonical slug |
+| **Audit Agent** | Entire repository | Metadata blocks, links, navigation | `audit_docs_quality.py` | Directory path |
+| **Decomposition Agent**| `docs/reports/*` | Batch tracking reports | `check_catalog_consistency.py` | Batch ID |
 
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
@@ -89,25 +127,86 @@ python3 scripts/audit_docs_quality.py
 
 # Check for navigation and catalog consistency
 python3 scripts/check_catalog_consistency.py
+
+# Validate new intake source entries
+python3 scripts/validate_new_sources.py
 ```
 
 ## API examples
-The KnowledgeOps framework can be integrated into multi-agent workflows via Python:
+The KnowledgeOps framework can be integrated into multi-agent workflows via Python and FastMCP 3.1 with Pydantic v2 metadata enforcement:
 
 ```python
-from scripts.check_docs_contract import validate_file
 from pathlib import Path
+from typing import List, Optional
+from datetime import date
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
 
-# Programmatic metadata validation
-target_file = Path("docs/architecture/multi_agent_knowledgeops.md")
-errors = validate_file(target_file)
+mcp = FastMCP("KnowledgeOpsPolicyEngine")
 
-if errors:
-    print(f"Contract violation in {target_file}:")
-    for error in errors:
-        print(f"  - {error}")
-else:
-    print("Document is contract-compliant.")
+class DocumentMetadata(BaseModel):
+    last_reviewed: date = Field(..., description="Date of last quality review in YYYY-MM-DD format")
+    confidence: str = Field(..., description="Assigned confidence level: 'high', 'medium', or 'low'")
+    sources: List[str] = Field(default_factory=list, description="Verifiable reference links or canonical sources")
+
+    @field_validator("confidence")
+    @classmethod
+    def validate_confidence_level(cls, value: str) -> str:
+        valid_levels = {"high", "medium", "low"}
+        if value.lower() not in valid_levels:
+            raise ValueError(f"Confidence level must be one of {valid_levels}")
+        return value.lower()
+
+class ContractValidationReport(BaseModel):
+    filepath: str
+    is_compliant: bool
+    violations: List[str] = Field(default_factory=list)
+    metadata: Optional[DocumentMetadata] = None
+
+@mcp.tool()
+def audit_knowledgeops_contract(filepath: str) -> str:
+    """
+    FastMCP 3.1 tool for auditing a target Markdown file against repository KnowledgeOps standards.
+    Returns a Pydantic v2 JSON validated compliance report.
+    """
+    path = Path(filepath)
+    violations = []
+
+    if not path.exists():
+        report = ContractValidationReport(
+            filepath=filepath,
+            is_compliant=False,
+            violations=["File does not exist in repository."]
+        )
+        return report.model_dump_json(indent=2)
+
+    content = path.read_text(encoding="utf-8")
+
+    # Check required section headers
+    required_sections = ["## What it is", "## What problem it solves", "## Where it fits in the stack"]
+    for section in required_sections:
+        if section not in content:
+            violations.append(f"Missing mandatory section header: '{section}'")
+
+    # Check metadata presence
+    if "## Contribution Metadata" not in content and "- Last reviewed:" not in content:
+        violations.append("Missing Contribution Metadata section or 'Last reviewed:' field.")
+
+    report = ContractValidationReport(
+        filepath=filepath,
+        is_compliant=len(violations) == 0,
+        violations=violations,
+        metadata=DocumentMetadata(
+            last_reviewed=date.today(),
+            confidence="high",
+            sources=["https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/architecture/multi_agent_knowledgeops.md"]
+        ) if len(violations) == 0 else None
+    )
+
+    return report.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -130,5 +229,5 @@ else:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-08
 - Confidence: high

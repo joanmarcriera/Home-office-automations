@@ -3,11 +3,64 @@
 ## What it is
 Firebase Genkit is an open-source framework from Google designed to help app developers build full-stack, AI-powered applications. As of early 2027, Genkit has matured into **v1.4.0+**, featuring the native **Genkit Agents API** for building stateful, autonomous agentic workflows. It supports deep integration with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**, and provides first-class support for frontier models such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and [Gemma 4](../ai_knowledge/local_llms.md).
 
+## Architecture & Serverless Agent Orchestration Flow
+Genkit coordinates generative flows and agent execution across serverless Google Cloud targets, binding natively to MCP 3.1 tool sources and vector indexes.
+
+```
++---------------------------------------------------------------------------------+
+|                               Developer Application                             |
+|  +------------------+   +-------------------+   +----------------------------+  |
+|  | Web Application  |   | Mobile (Flutter)  |   | Serverless REST Client     |  |
+|  +--------+---------+   +---------+---------+   +-------------+--------------+  |
++-----------|-----------------------|---------------------------|-----------------+
+            |                       |                           |
+            v                       v                           v
++---------------------------------------------------------------------------------+
+|                        Firebase Cloud Functions / Cloud Run                     |
+|  +---------------------------------------------------------------------------+  |
+|  | Genkit Flow Orchestrator & Genkit Agents API Engine                       |  |
+|  +-------------------------------------+-------------------------------------+  |
+|                                        |                                        |
+|                                        v                                        |
+|  +---------------------------------------------------------------------------+  |
+|  | Model Abstraction Plugin Layer                                            |  |
+|  |  - Gemini 4.0 Ultra / Claude 5.6 / GPT-5.6 / Gemma 4                     |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                                                         |
+            v                                                         v
++---------------------------------------+ +---------------------------------------+
+|    Cloud Firestore & Vector Search    | |     FastMCP 3.1 Server / Tools        |
+|  - RAG Embedding Storage              | |  - Model Context Protocol (MCP 3.1)  |
+|  - Document Chunks & Indexes          | |  - Dynamic Action & API Execution   |
++---------------------------------------+ +---------------------------------------+
+```
+
 ## What problem it solves
 It reduces the friction of building production-ready AI apps by providing a unified interface for LLMs, a streamlined tool-calling system, and built-in observability for debugging and performance tracking. It solves the orchestration gap for application engineers by integrating generative AI patterns natively with serverless architectures like Firebase Cloud Functions and Cloud Run, avoiding the need for complex, heavy-weight Python agent servers.
 
 ## Where it fits in the stack
 **Category**: Frameworks / Full-Stack AI Framework
+Genkit sits at the **Application & Agentic Orchestration** layer, linking mobile/web frontend applications directly with serverless backend execution targets, vector databases, and external FastMCP 3.1 tool endpoints.
+
+## Feature Matrix & AI Framework Comparison
+
+| Feature | Firebase Genkit | Vercel AI SDK | LangChain | CrewAI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Full-Stack App & Agent Flows | Frontend / React AI Hooks | Heavy Python Orchestration | Role-Based Agents |
+| **Serverless Deployment** | Native Firebase & Cloud Run | Native Vercel Functions | Requires Container/API | Custom API Wrapper |
+| **Developer UI** | Built-In Local Dev GUI | Next.js Playground | LangGraph Studio | Web Dashboard |
+| **MCP 3.1 Integration** | First-Class Support | Custom Transport Gateway | Native Integration | Custom Tool Adapters |
+| **Languages Supported** | TypeScript, Go, Python | TypeScript / JavaScript | Python, TypeScript | Python |
+| **Native Observability** | Traces, Logs, Token Metrics | OpenTelemetry Integrations | LangSmith | Built-In Logs |
+
+## Operational Best Practices & Serverless Management
+1. **Cold Start Mitigation**: Pre-warm Firebase Cloud Functions or use Cloud Run minimum instances when running Genkit flows that initialize heavy AI model plugins or vector connections.
+2. **Telemetry & Tracing Configuration**: Enable OpenTelemetry exporters in production to route Genkit execution traces to Google Cloud Monitoring or Grafana Loki for performance auditing.
+3. **Structured Tool Schemas**: Utilize Zod (TypeScript) or Pydantic v2 (Python) schemas for all Genkit tool input definitions to enforce strict parameter validation before model invocation.
+4. **Secret Management**: Inject API keys (e.g., `GEMINI_API_KEY`) using Firebase Secret Manager or Google Cloud Secrets rather than hardcoding credentials inside flow scripts.
 
 ## Typical use cases
 - **AI-Powered Mobile/Web Apps**: Adding features like chatbots, content generation, or data summarization to Firebase-backed applications.
@@ -66,6 +119,38 @@ firebase deploy --only functions
 ```
 
 ## API examples
+
+### FastMCP 3.1 Genkit Integration Server (Python)
+Exposing Genkit flows and agent tools via a FastMCP 3.1 server:
+
+```python
+import os
+import requests
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("firebase-genkit-mcp-gateway", version="3.1.0")
+
+class GenkitFlowParams(BaseModel):
+    flow_name: str = Field(..., description="Target Genkit flow identifier")
+    input_text: str = Field(..., description="Input data payload for the flow")
+
+@mcp.tool()
+def trigger_genkit_flow(params: GenkitFlowParams) -> dict:
+    """FastMCP 3.1 tool to invoke a Genkit serverless flow endpoint."""
+    cloud_function_url = os.getenv("GENKIT_FUNCTION_URL", "http://localhost:5001/my-app/us-central1/genkitFlow")
+    payload = {"data": {"flow": params.flow_name, "input": params.input_text}}
+
+    try:
+        response = requests.post(cloud_function_url, json=payload, timeout=15)
+        response.raise_for_status()
+        return {"status": "success", "response": response.json()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Genkit Agents API (TypeScript)
 The native Agents API allows for standard tool binding and agent definitions directly within the Genkit instantiation loop.
@@ -132,7 +217,6 @@ import json
 from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel, Field, field_validator
 
-# 1. Define Genkit Flow Run validation schemas
 class GenkitStepTrace(BaseModel):
     step_name: str = Field(..., serialization_alias="stepName", validation_alias="stepName")
     step_type: str = Field(..., serialization_alias="stepType", validation_alias="stepType")
@@ -154,7 +238,6 @@ class GenkitFlowExecution(BaseModel):
             raise ValueError(f"Model {v} must contain an early 2027 SOTA model: {allowed}")
         return v
 
-# 2. Simulated JSON payload emitted from a Genkit TypeScript serverless flow execution
 genkit_execution_payload = {
     "flowId": "flow-user-onboarding-893",
     "frontierModel": "Gemini 4.0 Ultra",
@@ -176,7 +259,6 @@ genkit_execution_payload = {
     ]
 }
 
-# 3. Perform validation
 try:
     execution = GenkitFlowExecution(**genkit_execution_payload)
     print("Genkit Flow execution payload validated successfully!")
@@ -206,6 +288,7 @@ except Exception as e:
 - [Genkit Introduction](https://firebase-genkit.mintlify.app/introduction)
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

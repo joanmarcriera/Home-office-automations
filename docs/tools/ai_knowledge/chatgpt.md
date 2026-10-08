@@ -3,11 +3,64 @@
 ## What it is
 ChatGPT is a premier AI-powered conversational platform developed by OpenAI. As of early January 2027, it is powered by the **GPT-5.5** and **GPT-5.6** model families, offering state-of-the-art multimodal reasoning, autonomous Deep Research workflows, continuous real-time voice interactions via **GPT-Live**, and native cross-platform availability including **ChatGPT Desktop for Linux**. It serves as both a consumer assistant and an enterprise developer platform, with native support for the **FastMCP 3.1** protocol for standardized tool discovery and secure resource execution.
 
+## Architecture & Multimodal Reasoning Flow
+ChatGPT routes user inputs across text, voice, vision, and tool-calling interfaces into unified transformer reasoning engines, connecting securely to enterprise networks via FastMCP 3.1.
+
+```
++---------------------------------------------------------------------------------+
+|                              Client Interfaces                                  |
+|  +------------------+   +-------------------+   +----------------------------+  |
+|  | Web (chatgpt.com)|   | Desktop (Linux)   |   | Mobile / GPT-Live Voice    |  |
+|  +--------+---------+   +---------+---------+   +-------------+--------------+  |
++-----------|-----------------------|---------------------------|-----------------+
+            |                       |                           |
+            v                       v                           v
++---------------------------------------------------------------------------------+
+|                            OpenAI Platform & Gateway                            |
+|  +---------------------------------------------------------------------------+  |
+|  | Input Preprocessing, Safety Moderation & Context Caching Layer            |  |
+|  +-------------------------------------+-------------------------------------+  |
+|                                        |                                        |
+|                                        v                                        |
+|  +---------------------------------------------------------------------------+  |
+|  | Core Reasoning Engine: GPT-5.5 / GPT-5.6 Frontier Models                  |  |
+|  |  - Deep Research Planning Module                                          |  |
+|  |  - Multimodal Vision & Audio Real-Time Processing (GPT-Live)              |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                                                         |
+            v                                                         v
++---------------------------------------+ +---------------------------------------+
+|    Autonomous Deep Research Engine    | |      FastMCP 3.1 Server Gateway      |
+|  - Web Crawling & Multi-Source Synthesis| |  - Dynamic Tool Discovery (MCP 3.1)  |
+|  - Fact-Checking & Citation Generation| |  - Enterprise API & Database Calls   |
++---------------------------------------+ +---------------------------------------+
+```
+
 ## What problem it solves
 ChatGPT simplifies complex digital tasks by providing a natural language interface for creative writing, software engineering, real-time web research, and visual analysis. It bridges the gap between human intent and system execution. With the integration of FastMCP 3.1 and autonomous Deep Research agents, it eliminates data silos by allowing users to connect proprietary knowledge bases and enterprise services through standardized, secure interfaces.
 
 ## Where it fits in the stack
 **AI Model & Interaction Platform**. It occupies the foundational intelligence layer of the AI stack, supplying core reasoning that powers custom GPTs, enterprise workspaces, and autonomous background agents across desktop and mobile ecosystems.
+
+## Feature Matrix & AI Platform Comparison
+
+| Feature | ChatGPT (GPT-5.6) | Claude (Claude 5.6) | Gemini (Gemini 4.0) | DeepSeek (DeepSeek-V4) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Developer / Creator** | OpenAI | Anthropic | Google DeepMind | DeepSeek AI |
+| **Primary Architecture** | Frontier MoE Transformer | High-Precision Reasoning | Multimodal Ultra Engine | Open-Weight MoE |
+| **Real-Time Voice** | GPT-Live (Zero Latency) | Audio API Extensions | Live Multimodal API | Community Integrations |
+| **Deep Research Engine** | Built-in Autonomous Synthesis | Multi-Step Search Agents | Google Search Native | External Agent Wrappers |
+| **FastMCP 3.1 Support** | Native Protocol Integration | First-Class MCP Support | Native Protocol Support | Custom Gateway Adapters |
+| **Desktop Platform** | Linux, macOS, Windows | macOS, Windows | Web / Chrome OS | Web / API Only |
+
+## Operational Best Practices & Enterprise Management
+1. **Data Governance & Privacy Controls**: Ensure Enterprise and Team workspaces have training opt-out policies explicitly enabled to prevent confidential code or documents from entering alignment queues.
+2. **Context Window Optimization**: Utilize prompt caching and structured system instructions when deploying complex multi-turn FastMCP 3.1 workflows to reduce token consumption costs.
+3. **Guardrails & Temperature Tuning**: Lower temperature parameters (`0.0 - 0.2`) for deterministic code generation or structured JSON outputs while reserving higher settings for creative brainstorming.
+4. **FastMCP 3.1 Tool Scoping**: Enforce strict input schema validation on custom FastMCP server endpoints before permitting autonomous tool calls.
 
 ## Typical use cases
 - **Linux & Cross-Platform Desktop Workflows**: Utilizing ChatGPT Desktop for Linux with system hotkeys, tray integration, and local FastMCP tool routing.
@@ -92,6 +145,34 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+### FastMCP 3.1 OpenAI Tool Bridge Server (Python)
+The following Python script creates a FastMCP 3.1 tool server that exposes custom system operations directly to ChatGPT or OpenAI API agents:
+
+```python
+import os
+import subprocess
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("openai-system-bridge", version="3.1.0")
+
+class CommandArgs(BaseModel):
+    service_name: str = Field(..., description="Systemd service name to check or restart")
+
+@mcp.tool()
+def check_service_status(args: CommandArgs) -> dict:
+    """FastMCP 3.1 tool to check the status of a local system service."""
+    try:
+        res = subprocess.run(["systemctl", "is-active", args.service_name], capture_output=True, text=True)
+        active_status = res.stdout.strip()
+        return {"service": args.service_name, "status": active_status}
+    except Exception as e:
+        return {"service": args.service_name, "error": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### OpenAI Response Validation with Pydantic v2
 This Python script validates structured API outputs and token usage metrics returned by OpenAI using **Pydantic v2**:
 
@@ -127,7 +208,6 @@ class OpenAICompletionResponse(BaseModel):
 def validate_openai_response(raw_json: str) -> Optional[OpenAICompletionResponse]:
     try:
         data = json.loads(raw_json)
-        # Validate using Pydantic v2 model_validate
         return OpenAICompletionResponse.model_validate(data)
     except ValidationError as e:
         print(f"Validation Error: {e.json()}")
@@ -153,6 +233,7 @@ def validate_openai_response(raw_json: str) -> Optional[OpenAICompletionResponse
 - [OpenAI Research & Announcements](https://openai.com/blog)
 - [OpenAI FastMCP 3.1 Tool Specification](https://platform.openai.com/docs/guides/tools)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
