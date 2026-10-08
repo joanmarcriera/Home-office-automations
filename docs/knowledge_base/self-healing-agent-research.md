@@ -3,6 +3,42 @@
 ## What it is
 A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of early January 2027, these agents leverage **MCP 3.1 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Llama 4](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
 
+### Observability & Self-Healing Loop Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                        SELF-HEAVY AGENT REMEDIATION FLOW                          |
++-----------------------------------------------------------------------------------+
+                                          |
+  +----------------------+      +-----------------------+      +--------------------+
+  |  UPTIME KUMA / PROME | ---> | FASTMCP 3.1 WEBHOOK   | ---> | LOG EXTRACTION     |
+  |  HEALTH CHECK ALERT  |      | INGESTION ENGINE      |      | (Docker / K8s API) |
+  +----------------------+      +-----------------------+      +--------------------+
+                                                                          |
+                                                                          v
+  +----------------------+      +-----------------------+      +--------------------+
+  | LOCAL REASONING MODEL| <--- | ROOT CAUSE ANALYSIS   | <--- | LOG PATTERN        |
+  | (Gemma 3 / Claude)   |      | ENGINE                |      | CLASSIFICATION     |
+  +----------------------+      +-----------------------+      +--------------------+
+             |
+             v
+  +---------------------------------------------------------------------------------+
+  |                       PYDANTIC V2 ACTION VALIDATION GATE                        |
+  |   - Verify Cooldown Matrix      - Check Safety Boundary     - Assess Risk       |
+  +---------------------------------------------------------------------------------+
+             |
+    +--------+--------+
+    |                 |
+    v                 v
+[SAFE ACTION]    [HIGH RISK]
+    |                 |
+    v                 v
++---------+      +------------------------------------------------------------------+
+| DOCKER/ |      | ESCALATE TO HUMAN OPERATOR VIA MATRIX / NOTIFICATION             |
+| KUBECTL |      +------------------------------------------------------------------+
++---------+
+```
+
 ## What problem it solves
 - **Manual Monitoring Overhead**: Reduces the need for humans to constantly check dashboards.
 - **Extended Downtime**: Shortens the "Mean Time To Recovery" (MTTR) by acting immediately.
@@ -17,6 +53,15 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 - **Stale Sync Jobs**: Re-triggering a cloud sync or backup if the last run failed or was interrupted.
 - **Hardware Warnings**: Proactively notifying the operator if a ZFS pool is degraded.
 - **Log-Based Remediation**: Detecting a specific database lock pattern in logs and running a cleanup script.
+
+## Failure Mode & Remediation Strategy Matrix
+
+| Failure Pattern | Detection Signal | Automated Action | Safety Boundary | Human Escalation Trigger |
+| :--- | :--- | :--- | :--- | :--- |
+| **SQLite Lock Contention** | `database is locked` in logs | Purge stale lock / Graceful restart | Max 2 retries in 10m | Persistent lock > 15 mins |
+| **Out of Memory (OOM)** | Exit code 137 / Kernel OOM log | Temporary pod/container restart | Alert operator on 1st occurrence | Memory usage exceeds node alloc |
+| **Upstream Network Blip** | HTTP 502 Bad Gateway | Exponential backoff retry | Non-destructive polling only | Downstream service down > 5m |
+| **Config Syntax Error** | Container crashloop | GitOps rollback to previous commit | Revert 1 commit max | Rollback fails to clear error |
 
 ## Strengths
 - **Low Latency**: Responses happen in seconds, not minutes, especially when using local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
@@ -58,6 +103,9 @@ docker logs --tail 100 paperless-ngx
 
 # Revert a configuration change in a Git-ops repo
 git revert HEAD && git push origin main
+
+# Execute health check probe against local endpoints
+curl -fsSL --max-time 5 http://localhost:8080/healthz || echo "SERVICE_DOWN"
 ```
 
 ## API examples
@@ -68,7 +116,8 @@ This example demonstrates how an autonomous agent can register log parsing tools
 
 ```python
 import re
-from pydantic import BaseModel, Field
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("SelfHealingAgent")
@@ -77,6 +126,14 @@ class LogPatternRequest(BaseModel):
     service_name: str = Field(description="Name of the service that triggered an alert (e.g. 'paperless-ngx', 'vikunja')")
     log_dump: str = Field(description="Recent log dump (max 100 lines) of the failing service")
     exit_code: int = Field(default=0, description="Process exit code, if applicable")
+    retry_count: int = Field(default=0, description="Number of previous automated retry attempts")
+
+    @field_validator("retry_count")
+    @classmethod
+    def check_max_retries(cls, v: int) -> int:
+        if v > 5:
+            raise ValueError("Retry count exceeded safety threshold (max 5). Human intervention required.")
+        return v
 
 class RemediationAction(BaseModel):
     action_type: str = Field(description="The remediation strategy: 'restart', 'rollback', 'clear_cache', or 'escalate'")
@@ -91,7 +148,7 @@ class DiagnosticReport(BaseModel):
 @mcp.tool()
 def analyze_logs_and_remediate(request: LogPatternRequest) -> str:
     """
-    Analyzes container logs using late 2026 SOTA patterns to detect known failures
+    Analyzes container logs using late 2026/early 2027 SOTA patterns to detect known failures
     and returns a Pydantic v2 validated diagnostic and remediation strategy.
     """
     log_lower = request.log_dump.lower()
@@ -100,6 +157,19 @@ def analyze_logs_and_remediate(request: LogPatternRequest) -> str:
     command = ""
     confidence = 0.5
     requires_human = True
+
+    # Check retry boundary
+    if request.retry_count >= 3:
+        report = DiagnosticReport(
+            root_cause="Automated retry limit reached.",
+            recommended_action=RemediationAction(
+                action_type="escalate",
+                command=f"notify-operator --service {request.service_name} --msg 'Max retries exceeded'",
+                confidence=1.0
+            ),
+            requires_human=True
+        )
+        return report.model_dump_json(indent=2)
 
     # Check for known database connection lock/timeout errors
     if "database lock" in log_lower or "sqlite3.operationalerror: database is locked" in log_lower:
@@ -154,5 +224,5 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.info)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-08
 - Confidence: high

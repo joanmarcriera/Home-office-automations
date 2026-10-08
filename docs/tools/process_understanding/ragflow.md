@@ -3,6 +3,25 @@
 ## What it is
 RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) engine that prioritizes deep document understanding (DeepDoc) for complex, unstructured data. By early January 2027 (v0.16.x+), it has matured into an enterprise-grade Knowledge Engine for agentic workflows, featuring native multi-modal reasoning, native integration with frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4, and Qwen 3.6), and a modular architecture for constructing production-grade RAG pipelines.
 
+### DeepDoc Layout Parsing & Multimodal Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                        DEEPDOC VISION LAYOUT PARSING FLOW                         |
++-----------------------------------------------------------------------------------+
+                                          |
+  +-----------------------+     +-----------------------+     +---------------------+
+  | UNSTRUCTURED PDF /    | --> | DEEPDOC LAYOUT VISION | --> | RECOGNIZED BLOCKS   |
+  | IMAGE INPUT           |     | MODEL INFERENCE       |     | & BOUNDING BOXES    |
+  +-----------------------+     +-----------------------+     +---------------------+
+                                                                         |
+                                                                         v
+  +-----------------------+     +-----------------------+     +---------------------+
+  | FASTMCP 3.1 CITATION  | <-- | HYBRID RETRIEVAL      | <-- | TEMPLATE CHUNKING   |
+  | GROUNDING ENGINE      |     | (BM25 + Dense RRF)    |     | (Law/Manual/Book)   |
+  +-----------------------+     +-----------------------+     +---------------------+
+```
+
 ## What problem it solves
 It eliminates the "garbage in, garbage out" failure mode of traditional RAG systems by using layout-aware parsing (DeepDoc) instead of naive text chunking. It accurately extracts structured information from multi-column PDFs, nested tables, and embedded charts, ensuring that downstream LLM and agentic retrieval is grounded in high-fidelity evidence with precise, pixel-level visual citations.
 
@@ -14,6 +33,21 @@ It eliminates the "garbage in, garbage out" failure mode of traditional RAG syst
 - **Agentic RAG Pipelines**: Providing a high-fidelity knowledge source for agents built on Claude 5.6, Gemma 4, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4.
 - **Multi-modal Knowledge Extraction**: Reasoning over diagrams, flowcharts, and handwritten notes in scanned documents using multi-modal LLMs (e.g., Qwen 3.6-VL, Gemma 4 Vision).
 - **Enterprise-Grade Grounding**: Building self-hosted search systems with strict citation requirements, hybrid search (dense/sparse), and data sovereignty constraints.
+
+## Document Parsing Engine Comparison Matrix
+
+| Engine | Layout Recognition | Table Structure Extraction | Bounding Box Citations | Resource Requirements |
+| :--- | :--- | :--- | :--- | :--- |
+| **RAGFlow DeepDoc** | Vision-native (YOLOv8 + OCR) | Cell-level matrix reconstruction | Pixel-exact bbox `[x0, y0, x1, y1]` | High (16GB+ RAM / GPU) |
+| **Docling (IBM)** | Layout-Transformer | Structured Markdown tables | Bounding box coordinates | Medium (8GB+ RAM) |
+| **Unstructured.io** | Rule-based & Layout Parser | HTML / Markdown export | Page level | Low to Medium |
+| **LlamaParse** | Vision-LLM API | Markdown / Structured JSON | Page level | Cloud API dependent |
+
+## Operational Best Practices & Deployment Guidelines
+- **Elasticsearch Memory Mapping**: Allocate at least 50% of available host RAM to Elasticsearch or Infinity JVM heap size when indexing collections larger than 100,000 pages.
+- **GPU Inference Isolation**: Run DeepDoc vision layout models on dedicated GPU VRAM (NVIDIA RTX 4090 or A10G) to maintain parsing latencies below 2 seconds per page.
+- **Template Selection Tuning**: Match the parsing template strictly to input document semantics (use `Manual` for technical guides, `Law` for regulatory contracts, and `Paper` for academic research).
+- **Bounding Box Validation**: Enforce exact coordinate clipping against document page dimensions `[0, 0, page_width, page_height]` to prevent frontend citation rendering bugs.
 
 ## Strengths
 - **Vision-Based Parsing (DeepDoc)**: Superior handling of complex layouts and tables compared to OCR-only or text-only extractors.
@@ -88,6 +122,9 @@ This example showcases document uploading, dataset state management, and visual 
 ```python
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("RAGFlowKnowledgeServer")
 
 # 1. Define strict Pydantic v2 schemas for RAGFlow dataset and document configurations
 class DatasetConfig(BaseModel):
@@ -109,22 +146,16 @@ class IngestedDocument(BaseModel):
     @field_validator("citations")
     @classmethod
     def check_citations_presence_if_completed(cls, v: Optional[List[VisualCitation]], info) -> Optional[List[VisualCitation]]:
-        # Ensure completed state carries citations
         status = info.data.get("status")
         if status == "completed" and (v is None or len(v) == 0):
             print("[Warning] Completed document lacks any bounding-box citations.")
         return v
 
-# 2. Strict run simulation
-def process_ragflow_document(raw_doc_response: dict) -> Optional[IngestedDocument]:
-    try:
-        doc = IngestedDocument.model_validate(raw_doc_response)
-        return doc
-    except Exception as e:
-        print(f"RAGFlow schema validation error: {e}")
-        return None
-
-if __name__ == "__main__":
+@mcp.tool()
+def query_ragflow_citations(dataset_name: str, query_text: str) -> str:
+    """
+    FastMCP 3.1 tool for querying RAGFlow knowledge bases and returning visual citations.
+    """
     sample_response = {
         "doc_id": "doc_a1b2c3d4e5f607182930313233343536",
         "filename": "quarterly_financial_report_q1_2027.pdf",
@@ -137,12 +168,11 @@ if __name__ == "__main__":
             }
         ]
     }
+    doc = IngestedDocument.model_validate(sample_response)
+    return doc.model_dump_json(indent=2)
 
-    validated_doc = process_ragflow_document(sample_response)
-    if validated_doc:
-        print(f"Validated Document: {validated_doc.filename}")
-        print(f"Extraction Status: {validated_doc.status.upper()}")
-        print(f"Visual Grounding Citations: {len(validated_doc.citations or [])}")
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### FastMCP 3.1 Integration (Agentic Context)
@@ -181,5 +211,5 @@ RAGFlow exposes knowledge bases via Model Context Protocol (MCP 3.1 / FastMCP 3.
 - [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2027-01-07
+- Last reviewed: 2026-10-08
 - Confidence: high
