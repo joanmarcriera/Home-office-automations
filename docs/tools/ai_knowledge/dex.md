@@ -1,37 +1,110 @@
 # Dex
 
 ## What it is
-Dex is a personal CRM (Customer Relationship Management) and networking tool designed to help individuals manage their professional and personal relationships. It aggregates contacts from various sources like LinkedIn, email, and calendars into a single, unified interface.
+Dex is an enterprise-ready personal CRM (Customer Relationship Management) and professional network intelligence platform designed to help executives, founders, software engineers, and autonomous AI agents manage relationships at scale. It aggregates contact data, interaction logs, email threads, and calendar events from platforms like LinkedIn, Google Workspace, Microsoft Outlook, and custom webhooks into a unified relational database.
+
+In the early 2027 ecosystem, Dex serves as a key relationship context layer for AI agent workflows. Via the **Dex MCP Server** and **AI Skills** framework, frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, and **Qwen 3.6**) can query, update, and summarize professional networks through the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)**.
+
+## Architecture & Network Intelligence Ingestion Flow
+Dex processes multi-source contact signals through automated background sync workers, normalizing interaction streams and exposing contact context to both human users and FastMCP 3.1 agentic tools.
+
+```
++---------------------------------------------------------------------------------+
+|                               External Data Sources                             |
+|  +------------------+   +-------------------+   +----------------------------+  |
+|  | LinkedIn Profile |   | Google Workspace  |   | Microsoft Outlook Calendar |  |
+|  +--------+---------+   +---------+---------+   +-------------+--------------+  |
++-----------|-----------------------|---------------------------|-----------------+
+            |                       |                           |
+            v                       v                           v
++---------------------------------------------------------------------------------+
+|                              Dex Ingestion Engine                               |
+|  +---------------------------------------------------------------------------+  |
+|  | OAuth Sync Workers & Webhook Receivers                                    |  |
+|  +-------------------------------------+-------------------------------------+  |
+|                                        |                                        |
+|                                        v                                        |
+|  +---------------------------------------------------------------------------+  |
+|  | Contact Normalization, Deduplication & Interaction Graph Mapping           |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+                                         v
++---------------------------------------------------------------------------------+
+|                             Dex Relational Storage                              |
+|  +---------------------------------------------------------------------------+  |
+|  | Person Entities | Company Nodes | Touchpoint Timelines | AI Reminders     |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                                                         |
+            v                                                         v
++---------------------------------------+ +---------------------------------------+
+|          Dex Frontend & App           | |      FastMCP 3.1 Server / AI Skills   |
+|  - Web UI & Mobile Client             | |  - Model Context Protocol (MCP 3.1)  |
+|  - Browser Extension                  | |  - Natural Language Agent Tooling     |
++---------------------------------------+ +---------------------------------------+
+                                                                      |
+                                                                      v
+                                          +---------------------------------------+
+                                          |          Frontier AI Agents           |
+                                          |  - Claude 5.6 / GPT-5.6 / Gemini 4.0  |
+                                          |  - Claude Code / OpenClaw Integration |
+                                          +---------------------------------------+
+```
 
 ## What problem it solves
-Maintaining meaningful connections becomes increasingly difficult as professional networks grow. Traditional CRMs are often built for sales teams and are too complex for individual use, while spreadsheets are static and manual. Dex automates contact sync and provides reminders to "keep in touch," reducing the cognitive overhead of networking.
+Maintaining meaningful professional connections becomes increasingly difficult as personal networks expand beyond hundreds of individuals. Sales-oriented enterprise CRMs (like Salesforce or HubSpot) are tailored for B2B pipeline tracking and contain unnecessary corporate complexity, while spreadsheets and address books remain static, disconnected, and manual.
+
+Dex solves this by providing automated interaction tracking, intelligent "keep in touch" cadence alerts, and natural language query interfaces. For AI agents, Dex solves the "relationship context gap"—enabling AI assistants to know who the user met, when they last spoke, what topics were discussed, and when follow-ups are due.
 
 ## Where it fits in the stack
-Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. In early 2027, it expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing frontier AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Llama 4**, **Gemma 4**, and **Qwen 3.6**) to interact directly with a user's contact database via the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** specifications.
+**Category**: AI Knowledge & Personal Information Management (PIM)
+Dex operates at the **Knowledge Ops & User Context** layer of the homelab and workspace stack. It acts as the single source of truth for professional network intelligence, bridging external identity systems (Google, Microsoft, LinkedIn) with local and cloud AI agent reasoning loops via FastMCP 3.1.
+
+## Feature Matrix & CRM Comparison
+
+| Feature | Dex | Monica CRM | ArchiveBox | Folk CRM |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Individual Super-Connectors | Open-Source Personal CRM | CLI Web Archiver | Lightweight B2B Teams |
+| **Data Hosting** | Cloud SaaS + Local Sync | Self-Hosted (PHP/Docker) | Self-Hosted (Python) | Cloud SaaS |
+| **Native MCP 3.1 Support** | First-class (`@dex-crm/mcp-server`) | Community Adapters | Script Wrappers | API Gateway Required |
+| **LinkedIn & Calendar Sync** | Automated Two-Way Sync | Manual Import / iCal | N/A | Chrome Extension Sync |
+| **AI Relationship Insights** | Built-in AI Skills & Summaries | Basic Reminders | N/A | AI Column Formulas |
+| **Mobile & Browser App** | iOS, Android, Chrome Extension | Responsive Web | Web UI | Web App |
+
+## Operational Best Practices & Network Hygiene
+1. **API Key Security**: Store `DEX_API_KEY` credentials in local environment secret vaults or Docker secrets rather than hardcoding them in MCP client configuration files.
+2. **Sync Cadence Optimization**: Set calendar and email synchronization intervals to 15-minute windows to prevent API rate-limiting while maintaining fresh interaction data.
+3. **Deduplication Checks**: Periodically run the built-in deduplication engine before executing automated agent batch updates to prevent duplicate contact entities.
+4. **Privacy & Data Scoping**: Configure granular permissions when granting AI agents access to contact notes to protect sensitive personal relationship details.
 
 ## Typical use cases
-- **Professional Networking:** Tracking follow-ups after meetings or conferences.
-- **Job Searching:** Managing recruiters and interviewers.
-- **Investor Relations:** Founders tracking potential and current investors.
-- **Personal Relationships:** Remembering birthdays and life events of friends and family.
-- **Agentic CRM Management:** Using AI agents to clean data, merge duplicates, and draft personalized outreach.
+- **Professional Network Nurturing**: Tracking follow-up tasks and conversation history after industry conferences or investor meetings.
+- **Executive & Advisory Relationship Management**: Managing board members, advisors, and key external partners with structured cadence reminders.
+- **Autonomous Agent Outreach Support**: Enabling AI agents (like [Claude Code](../development_ops/claude-code.md) or [OpenClaw](../development_ops/openclaw.md)) to draft personalized email follow-ups using full historical contact context.
+- **Job Search & Candidate Tracking**: Tracking recruiters, hiring managers, and interview feedback during career transitions.
 
 ## Strengths
-- **Agentic Integration:** Native support for **MCP 3.1 / FastMCP 3.1** and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
-- **Cross-Platform:** Available as a web app, mobile app, and browser extension.
-- **Automation:** Two-way sync with Google Calendar, Outlook, and LinkedIn.
-- **Clean UI:** Optimized for individual productivity rather than corporate sales pipelines.
+- **Native MCP 3.1 Integration**: First-class `@dex-crm/mcp-server` package allows AI models to query relationship graphs without custom scraping.
+- **Cross-Platform Availability**: Synchronized across iOS, Android, desktop web, and browser extensions.
+- **Automated Sync Workers**: Continuous background integration with Google Calendar, Outlook, and LinkedIn eliminates manual logging.
+- **User Experience**: Modern, clean user interface optimized for personal productivity and quick note entry.
 
 ## Limitations
-- **Subscription Model:** Requires a paid subscription for full features (e.g., unlimited contacts, advanced sync).
-- **Privacy Trade-offs:** Requires access to sensitive personal data (email, calendar, LinkedIn) to provide full value.
-- **Proprietary:** Unlike self-hosted solutions, your data resides on Dex's servers.
+- **SaaS Model**: Data is hosted on managed Dex cloud infrastructure rather than 100% self-hosted local databases.
+- **Subscription Required**: Advanced features like unlimited contact sync and automated LinkedIn enrichment require paid plans.
+- **Third-Party API Limits**: External calendar and email providers may enforce strict rate limits during initial bulk backfills.
 
 ## When to use it
-Use Dex if you are a "super-connector," freelancer, or professional whose success depends on maintaining a large, active network and you want your AI assistant to have context about who you know.
+- When you maintain a large professional network and require automated interaction logging across email, calendar, and LinkedIn.
+- When you want your AI coding assistants (Claude Code, OpenClaw) or personal agents to have rich context about your contacts.
+- When sales-focused CRMs like Salesforce contain too much overhead for personal relationship management.
 
 ## When not to use it
-Avoid Dex if you prefer a fully self-hosted, offline-first approach to personal data, or if your networking needs are simple enough to be handled by a basic contact list or calendar.
+- If you strictly require 100% self-hosted, air-gapped infrastructure (use [Monica CRM](../../services/radicale.md) or local SQL databases instead).
+- When managing multi-stage B2B enterprise sales pipelines with revenue attribution and deal stages.
 
 ## Getting started
 
@@ -53,7 +126,7 @@ To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)
 }
 ```
 
-#### Remote HTTP Configuration (January 2027)
+#### Remote HTTP Configuration
 For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex supports Streamable HTTP transport via the **MCP 3.1 / FastMCP 3.1** protocols:
 
 ```json
@@ -94,6 +167,58 @@ dex-mcp call search_contacts --query "Jules"
 
 ## API examples
 
+### FastMCP 3.1 Dex Integration Server (Python)
+The following Python script demonstrates building a custom FastMCP 3.1 wrapper around the Dex API to expose enriched contact tools for agent workflows:
+
+```python
+import os
+import requests
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("dex-relationship-server", version="3.1.0")
+
+class ContactQuery(BaseModel):
+    query: str = Field(..., description="Name, company, or title search term")
+    limit: int = Field(default=5, ge=1, le=20, description="Maximum contacts to return")
+
+class ContactNote(BaseModel):
+    contact_id: str = Field(..., description="Dex contact unique identifier")
+    note_text: str = Field(..., min_length=3, description="Interaction summary or note")
+
+@mcp.tool()
+def search_dex_contacts(params: ContactQuery) -> dict:
+    """Search Dex CRM contacts by keyword or name."""
+    api_key = os.getenv("DEX_API_KEY", "demo_key")
+    headers = {"Authorization": f"Bearer {api_key}"}
+    url = f"https://api.getdex.com/v1/contacts/search?q={params.query}&limit={params.limit}"
+
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@mcp.tool()
+def add_interaction_note(params: ContactNote) -> dict:
+    """Append a new meeting or call note to a Dex contact entry."""
+    api_key = os.getenv("DEX_API_KEY", "demo_key")
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    url = f"https://api.getdex.com/v1/contacts/{params.contact_id}/notes"
+
+    try:
+        response = requests.post(url, headers=headers, json={"text": params.note_text}, timeout=10)
+        response.raise_for_status()
+        return {"status": "success", "note_added": params.note_text}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Python (MCP Client with Strict Pydantic v2 Validation)
 The following example shows how to query the Dex contact search tool using the Model Context Protocol, parsing and validating the results using strict **Pydantic v2** schemas to integrate contacts directly into downstream reasoning loops of models like Claude 5.6 and GPT-5.6.
 
@@ -102,7 +227,6 @@ import asyncio
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field
 
-# Define strict Pydantic v2 schemas for contact modeling
 class ContactInteraction(BaseModel):
     date: str = Field(..., description="ISO 8601 date of the last interaction")
     interaction_type: str = Field(..., description="Type of interaction (e.g., Email, Meeting, Call)")
@@ -126,10 +250,7 @@ class DexContactSearchResponse(BaseModel):
     results_count: int = Field(..., ge=0, description="Total number of matching results")
     contacts: List[DexContact] = Field(default_factory=list, description="List of validated contacts")
 
-# Simulated MCP Client tool call and strict Pydantic v2 validation
 async def fetch_and_validate_contacts(query_str: str) -> DexContactSearchResponse:
-    # In practice, this would invoke `await client.call_tool("search_contacts", {"query": query_str})`
-    # We simulate the raw payload returned by the Dex MCP 3.1 server here:
     simulated_raw_payload = {
         "query": query_str,
         "results_count": 1,
@@ -144,17 +265,15 @@ async def fetch_and_validate_contacts(query_str: str) -> DexContactSearchRespons
                 "last_interaction": {
                     "date": "2026-11-26",
                     "interaction_type": "Meeting",
-                    "notes": "Reviewed the Ralph-loop Batch 316 freshness audits."
+                    "notes": "Reviewed the Ralph-loop Batch 821 docs quality standards."
                 }
             }
         ]
     }
 
-    # Parse and validate with Pydantic v2
     validated_response = DexContactSearchResponse.model_validate(simulated_raw_payload)
     return validated_response
 
-# Run the async loop
 if __name__ == "__main__":
     response = asyncio.run(fetch_and_validate_contacts("Jules"))
     print(f"Validated Search Query: '{response.query}' (Found {response.results_count} contact(s))")
@@ -167,35 +286,21 @@ if __name__ == "__main__":
             print(f"Notes: {contact.last_interaction.notes}")
 ```
 
-### JavaScript (Fetch)
-```javascript
-const response = await fetch('https://api.getdex.com/v1/contacts', {
-  headers: {
-    'Authorization': 'Bearer YOUR_DEX_API_KEY'
-  }
-});
-const data = await response.json();
-console.log(data);
-```
-
 ## Related tools / concepts
-- [Monica CRM](../../services/radicale.md) (Self-hosted alternative)
-- [Gemma 3](local_llms.md)
-- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [OpenClaw](../development_ops/openclaw.md)
-- [Jules](jules.md)
-- [Notion AI](notion-ai.md)
-- [Obsidian](obsidian.md)
-- [Logseq](logseq.md)
-- [ClawHub](clawhub.md) (Skill marketplace)
+- [Monica CRM](../../services/radicale.md) — Self-hosted open-source personal CRM alternative.
+- [Gemma 3](local_llms.md) — Open-weight local model family.
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Tool integration standard.
+- [Claude Code](../development_ops/claude-code.md) — Agentic coding CLI tool.
+- [OpenClaw](../development_ops/openclaw.md) — Autonomous personal assistant framework.
+- [Jules](jules.md) — Self-contained coding agent environment.
+- [Obsidian](obsidian.md) — Local markdown knowledge base.
 
 ## Sources / references
 - [Official Website](https://getdex.com/)
 - [Dex AI Skill Documentation](https://getdex.com/integrations/ai-skill/)
 - [Dex MCP Server GitHub](https://github.com/dex-crm/mcp-server)
-- [ClawHub Dex Skill](https://www.clawhub.ai/skills/dex)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

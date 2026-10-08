@@ -3,12 +3,66 @@
 ## What it is
 Microsoft Agent Framework (integrated within **Azure AI Foundry**, **Microsoft AutoGen 0.8+**, and the **Semantic Kernel** ecosystem) is an enterprise-grade suite of libraries and standards for building, orchestrating, and managing multi-agent AI systems. As of early 2027, it serves as a primary backbone for deploying high-autonomy agents in corporate environments, supporting frontier models such as **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro/Ultra**, **DeepSeek-V4**, **Llama 4**, and **Gemma 3**.
 
+## Architecture & Enterprise Multi-Agent Topology
+The Microsoft Agent Framework coordinates specialized autonomous agents across Azure enterprise guardrails, connecting agent memory states with FastMCP 3.1 tool gateways and Entra ID identity controls.
+
+```
++---------------------------------------------------------------------------------+
+|                             Azure AI Foundry Gateway                            |
+|  +------------------+   +-------------------+   +----------------------------+  |
+|  | Entra ID Auth    |   | Zero-Trust Access |   | Audit & Compliance Logging |  |
+|  +--------+---------+   +---------+---------+   +-------------+--------------+  |
++-----------|-----------------------|---------------------------|-----------------+
+            |                       |                           |
+            v                       v                           v
++---------------------------------------------------------------------------------+
+|                 Microsoft Agent Framework Orchestration Core                    |
+|  +---------------------------------------------------------------------------+  |
+|  | AgentChat Protocol & Cross-Agent Handoff Engine                           |  |
+|  +-------------------------------------+-------------------------------------+  |
+|                                        |                                        |
+|                                        v                                        |
+|  +---------------------------------------------------------------------------+  |
+|  | Specialized Agent Roles                                                   |  |
+|  |  +---------------------------+   +-------------------------------------+  |  |
+|  |  | DevOps Agent (Claude 5.1)   |   | Analyst Agent (GPT-5.6 / DeepSeek)  |  |  |
+|  |  +---------------------------+   +-------------------------------------+  |  |
+|  +-------------------------------------+-------------------------------------+  |
++----------------------------------------|----------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                                                         |
+            v                                                         v
++---------------------------------------+ +---------------------------------------+
+|   Semantic Kernel Plugins & Memory    | |     FastMCP 3.1 Tool Servers          |
+|  - Vector Search & Cosmos DB Memory   | |  - Model Context Protocol (MCP 3.1)  |
+|  - Enterprise SAP / SQL Drivers       | |  - Microservice Task Execution      |
++---------------------------------------+ +---------------------------------------+
+```
+
 ## What problem it solves
 It simplifies the coordination of multiple LLM-powered agents, providing standardized protocols for communication (via Agent Chat), state management, and long-term memory. It addresses the challenges of "agentic drift," tool-use reliability, and cross-agent consistency that occur when scaling beyond single-prompt interactions in an enterprise context, now fully integrated with the **FastMCP 3.1 Protocol** for standardized, cross-platform task execution.
 
 ## Where it fits in the stack
 **Category**: Frameworks / Orchestration
 It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry, custom local inference) and the application layer, providing the "brain" and "memory" for autonomous workflows. It utilizes **FastMCP 3.1** for ultra-low latency tool hosting and agent discovery.
+
+## Feature Matrix & Enterprise Orchestration Comparison
+
+| Feature | MS Agent Framework | LangGraph | AutoGen 0.8+ | CrewAI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Enterprise Multi-Agent Suite | Cyclic Graph Agent Flows | Conversational Agent Teams | Role-Playing Agent Teams |
+| **Cloud Hosting** | Azure AI Foundry Native | LangGraph Cloud / Self-Host | Ecosystem Agnostic | CrewAI Enterprise Cloud |
+| **Identity & Security** | Entra ID (Azure AD), Zero-Trust | Custom OAuth / API Keys | Manual Setup | Team Workspace Auth |
+| **Protocol Standards** | AgentChat + FastMCP 3.1 | LangGraph State Graph | Conversational Handoff | Task Delegation Loops |
+| **Primary Languages** | C# (.NET), Python | Python, TypeScript | Python, .NET | Python |
+| **State Persistence** | Cosmos DB, Azure Blob, SQL | Postgres Checkpointer | SQLite / Custom State | Memory SQLite |
+
+## Operational Best Practices & Governance
+1. **Entra ID Role-Based Access**: Restrict agent plugin execution permissions using Microsoft Entra ID managed identities to enforce least-privilege principles across corporate data stores.
+2. **Conversation State Checkpointing**: Persist `AgentChat` conversation states in Azure Cosmos DB or Redis to allow agent recovery after system restarts or transient network partitions.
+3. **Human-in-the-Loop (HITL) Checkpoints**: Insert explicit approval nodes before triggering destructive FastMCP 3.1 tool calls (such as database migrations or production infrastructure changes).
+4. **Token Usage & Cost Monitoring**: Integrate Azure Monitor alerts to track token consumption spikes across multi-agent loops to prevent unexpected billing.
 
 ## Typical use cases
 - **Multi-agent Collaboration**: Building specialized teams (e.g., a "DevOps Agent" using Claude 5.1 and a "Quality Gate Agent" using DeepSeek-V4) that cooperate on software delivery.
@@ -104,6 +158,35 @@ sk-cli prompt run --model "gemma-3" --input "Hello Agent!"
 
 ## API examples
 
+### FastMCP 3.1 Multi-Agent Tool Gateway (Python)
+The following Python script creates a FastMCP 3.1 tool gateway that connects Microsoft Agent Framework orchestrators with enterprise microservices:
+
+```python
+import os
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("ms-agent-framework-gateway", version="3.1.0")
+
+class DelegationTask(BaseModel):
+    target_agent: str = Field(..., description="Target specialized agent name (e.g., DevOpsAgent, AuditAgent)")
+    payload_json: str = Field(..., description="JSON serialized payload for the delegated task")
+
+@mcp.tool()
+def delegate_task_to_agent(task: DelegationTask) -> dict:
+    """FastMCP 3.1 tool for routing agent-to-agent delegation tasks in Microsoft Agent Framework."""
+    # In production, this connects to Azure AI Foundry AgentChat threads
+    return {
+        "status": "delegated",
+        "target_agent": task.target_agent,
+        "mcp_version": "3.1",
+        "execution_id": "azure_run_99214a"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Multi-Agent Handoff (Semantic Kernel) with Pydantic v2 Configuration Validation
 Defining a "delegation" pattern between a Researcher and a Writer, validating configurations dynamically.
 
@@ -112,7 +195,6 @@ import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
 
-# Pydantic v2 schemas for validating agent deployment configuration
 class AgentPluginConfig(BaseModel):
     plugin_name: str = Field(..., description="Name of the semantic plugin")
     allowed_methods: List[str] = Field(default_factory=list, description="Methods allowed for agent execution")
@@ -126,7 +208,6 @@ class AgentDeploymentConfig(BaseModel):
 
 def load_and_validate_agent(config_json: str) -> Optional[AgentDeploymentConfig]:
     try:
-        # Validate configuration payload with Pydantic v2 model_validate_json
         config = AgentDeploymentConfig.model_validate_json(config_json)
         print(f"Successfully validated configuration for agent: {config.agent_name}")
         return config
@@ -134,7 +215,6 @@ def load_and_validate_agent(config_json: str) -> Optional[AgentDeploymentConfig]
         print(f"Configuration validation failed: {e.errors()}")
         return None
 
-# Example configuration JSON
 raw_config = """
 {
     "agent_name": "SeniorResearcher",
@@ -166,6 +246,7 @@ validated_config = load_and_validate_agent(raw_config)
 - [Gemma 3 on Azure AI Foundry](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/gemma-3-now-available-on-azure-ai/458921)
 - [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.org/task-protocol)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
