@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/frameworks/llama-factory.md",
-    "docs/tools/ai_knowledge/heretic-ara.md",
-    "docs/tools/infrastructure/vortex.md",
-    "docs/tools/ai_knowledge/parlor.md",
     "docs/tools/enterprise/curiosity.md",
     "docs/tools/providers/poolside.md",
     "docs/tools/process_understanding/agentops.md",
@@ -40,7 +36,11 @@
     "docs/tools/benchmarking/dream.md",
     "docs/tools/agents/gemini-robotics.md",
     "docs/tools/infrastructure/clawrouter.md",
-    "docs/tools/development_ops/sourcegraph_cody.md"
+    "docs/tools/development_ops/sourcegraph_cody.md",
+    "docs/tools/benchmarking/mmlu.md",
+    "docs/tools/benchmarking/mt-bench.md",
+    "docs/tools/process_understanding/lastmile.md",
+    "docs/tools/frameworks/autogen-studio.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
