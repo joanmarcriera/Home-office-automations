@@ -8,8 +8,31 @@ The logic relies on three core pillars:
 2. **Rate of Change (Spike Detection)**: Monitoring the derivative of power consumption to identify sudden loads.
 3. **Agentic Reasoning**: Routing unexplained anomalies to a "Home Admin Agent" for context-aware classification (e.g., distinguishing between a dishwasher cycle and a forgotten space heater).
 
-## What problem it solves
-Energy anomalies often indicate appliance failure (e.g., a fridge compressor stuck in a high-consumption state), safety hazards (e.g., an iron or stove left on), or security concerns (e.g., unexpected occupancy). Manual monitoring is impossible at the required granularity; this baseline provides an automated "detection-to-reasoning" pipeline that improves safety and significantly reduces energy waste.
+## System Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                        Telemetry & Ingestion Layer                                |
+|  [Shelly Pro 3EM] ---> [Home Assistant Sensor State] ---> [n8n Workflow Engine]  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        FastMCP 3.1 Detection & Analysis Loop                      |
+|  +-----------------------------------+     +-----------------------------------+  |
+|  | EnergyAnomalyAnalyzer Server      |     | Statistical Evaluator (Pydantic)  |  |
+|  | - calculate_rolling_baseline()    | --> | - checks: current > mean + 2σ     |  |
+|  | - classify_power_spike()          |     | - calculates excess load & delta  |  |
+|  +-----------------------------------+     +-----------------------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                      Autonomous Remediation & Agentic Control                     |
+|  [Claude 5.6 / Home Admin Agent] ---> [HA REST API] ---> [Smart Plug Shutdown]     |
+|                                  ---> [Habitica]     ---> [Create Urgency Task]   |
++-----------------------------------------------------------------------------------+
+```
 
 ## Where it fits in the stack
 This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack. It acts as the bridge between raw telemetry data (from Shelly or Emporia sensors) and the notification/action layer, providing the logic necessary to transform "noisy" power data into actionable alerts.
@@ -19,6 +42,16 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 - **Safety Critical Alerts**: Identifying high-wattage devices left on beyond their typical operating window.
 - **Occupancy Verification**: Using energy "noise" to verify if a home is truly vacant during "Away" modes.
 - **Cost Optimization**: Identifying "phantom loads" that can be autonomously switched off by the Home Admin Agent.
+
+## Detection Methodology Comparison
+
+| Feature / Criteria | Fixed Threshold | Moving Average ($2\sigma$) | FastMCP 3.1 Agentic Baseline |
+| :--- | :--- | :--- | :--- |
+| **Adaptability** | Low (Static values) | Moderate (Sliding window) | High (Context-aware & time-of-day) |
+| **False Positive Rate** | High (Spikes during baking/cooking) | Medium | Very Low (LLM filters known events) |
+| **Latency** | Sub-second | < 1 second | 1.5–3.0 seconds |
+| **Remediation Support** | Rule-based only | Rule-based only | Autonomous self-healing actions |
+| **Computational Overhead**| Minimal | Low (CPU-light) | Moderate (Requires MCP / LLM routing) |
 
 ## Strengths
 - **Low Latency Detection**: Initial spike detection occurs locally within Home Assistant (sub-second response).
@@ -62,6 +95,63 @@ ha sensor info sensor.house_power_baseline
 ```bash
 # Custom script to check for hardware health via energy metrics
 python3 scripts/hw-check.py --sensor sensor.fridge_power --threshold 500
+```
+
+## FastMCP 3.1 Energy Monitoring MCP Server
+
+Below is an enterprise FastMCP 3.1 implementation in Python for exposing energy anomaly detection tools directly to model context protocols:
+
+```python
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("EnergyAnomalyDetector", version="3.1.0")
+
+class TelemetryPoint(BaseModel):
+    sensor_id: str = Field(..., description="Entity ID of energy sensor")
+    power_watts: float = Field(..., ge=0.0, description="Real-time power draw in Watts")
+    voltage: float = Field(default=120.0, ge=0.0, description="Measured line voltage")
+
+class BaselineEvaluationResponse(BaseModel):
+    sensor_id: str
+    is_anomaly: bool
+    current_watts: float
+    threshold_watts: float
+    recommended_action: str
+
+@mcp.tool()
+async def evaluate_power_anomaly(
+    telemetry: TelemetryPoint,
+    historical_avg: float,
+    std_dev: float,
+    multiplier: float = 2.0
+) -> Dict[str, Any]:
+    """
+    Evaluates real-time energy telemetry against statistical moving averages.
+    """
+    threshold = historical_avg + (multiplier * std_dev)
+    is_anomaly = telemetry.power_watts > threshold
+
+    action = "NO_ACTION"
+    if is_anomaly:
+        excess = telemetry.power_watts - threshold
+        if excess > 2000.0:
+            action = "SHUTDOWN_HIGH_DRAW_RELAYS"
+        else:
+            action = "DISPATCH_HOME_ADMIN_AGENT"
+
+    result = BaselineEvaluationResponse(
+        sensor_id=telemetry.sensor_id,
+        is_anomaly=is_anomaly,
+        current_watts=telemetry.power_watts,
+        threshold_watts=threshold,
+        recommended_action=action
+    )
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples

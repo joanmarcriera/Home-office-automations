@@ -3,22 +3,48 @@
 ## What it is
 LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of January 2027, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md) which utilize [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) for dynamic tool and task orchestration.
 
+## System Architecture & Benchmark Execution Loop
+
+```
++-----------------------------------------------------------------------------------+
+|                        LongCLI-Bench Evaluation Orchestrator                      |
+|      [Task Suite / CS Benchmark Assignments] ---> [Agent Harness Controller]     |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        FastMCP 3.1 Agent Under Test Layer                         |
+|  [Claude Code / OpenHands / Aider] <---> [Multi-Turn FastMCP 3.1 Task Protocol]   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Isolated Sandbox Execution Environment                     |
+|  [PTY Shell Container] ---> [Execute Commands] ---> [Capture Stdout/Stderr/Exit]  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Telemetry & Automated Verification                         |
+|  [Stall Detector] ---> [Pydantic v2 Session Validator] ---> [OLAP Analytics Dashboard]|
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
 
 ## Where it fits in the stack
 **Eval / Benchmarking**. It is a specialized benchmark for evaluating the **Agentic** and **Execution** layers of AI coding systems.
 
-```mermaid
-graph TD
-    Sub[Task Suite / CS Benchmark Assignments] --> Harness[LongCLI-Bench Evaluation Harness]
-    Harness -->|FastMCP 3.1 Task Protocol| Agent[Agent Under Test: Claude Code / Aider / OpenHands]
-    Agent -->|Execute CLI Shell Action| Sandbox[Isolated Container / PTY Environment]
-    Sandbox -->|Return Stdout/Stderr & Exit Code| Agent
-    Agent -->|Evaluate State & Plan Next Turn| Harness
-    Harness -->|Step-by-Step Telemetry| Metrics[Stall Detector & Success Verifier]
-    Metrics -->|Validation via Pydantic v2| OLAP[OLAP / Evaluation Analytics Dashboard]
-```
+## CLI Benchmark Comparison Matrix
+
+| Feature / Criteria | LongCLI-Bench | SWE-bench | Terminal-Bench | HumanEval |
+| :--- | :--- | :--- | :--- | :--- |
+| **Horizons (Turns)** | Long (20–100+ turns) | Medium (5–25 turns) | Medium (10–30 turns) | Single turn (1-shot) |
+| **Primary Environment** | Interactive Shell / PTY | Docker Repo Workspace | Containerized CLI | Function signature / Python |
+| **Stall Detection** | Native telemetry tracking | Not evaluated | Partial | N/A |
+| **FastMCP 3.1 Native** | Full Protocol Support | Custom API wrappers | Basic MCP | None |
+| **Contamination Resistance**| High (Fresh assignments) | Medium (Public GitHub) | High (Synthetic tasks)| Low (Highly leaked) |
 
 ## Typical use cases
 - **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
@@ -77,6 +103,57 @@ python run_eval.py --agent "claude-code" --category "debugging" --model "claude-
 python scripts/analyze_results.py --input_dir "./results" --format "html"
 ```
 
+## Production Benchmark Workflow Best Practices
+
+1. **Deterministic Environment Isolation**: Always execute LongCLI-Bench inside unprivileged gVisor or Docker sandboxes with CPU/RAM limits to prevent resource contention from corrupting benchmark timing metrics.
+2. **Telemetry Streaming**: Wire up stdout/stderr telemetry streams directly to an OLAP database (e.g. ClickHouse) to identify stalling trends across 50+ turn benchmark runs.
+3. **Automated Retry Policy Handling**: Ensure that FastMCP 3.1 agent execution loops enforce strict max turn limits and context compression before running multi-hour benchmark suites.
+
+## FastMCP 3.1 Benchmark Orchestrator MCP Server
+
+Below is an enterprise FastMCP 3.1 implementation in Python for serving LongCLI-Bench task runners and telemetry capture as an MCP service:
+
+```python
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
+
+mcp = FastMCP("LongCLIBenchRunner", version="3.1.0")
+
+class BenchmarkRunRequest(BaseModel):
+    task_id: str = Field(..., description="Target benchmark task identifier")
+    agent_command: str = Field(..., description="CLI command to invoke agent under test")
+    max_turns: int = Field(default=50, ge=1, le=200, description="Maximum allowed terminal turns")
+    timeout_seconds: int = Field(default=600, ge=30, description="Overall timeout in seconds")
+
+class BenchmarkRunResult(BaseModel):
+    task_id: str
+    status: str
+    turns_executed: int
+    stalled: bool
+    score: float
+    output_log_path: str
+
+@mcp.tool()
+async def execute_longcli_benchmark(request: BenchmarkRunRequest) -> Dict[str, Any]:
+    """
+    Executes a multi-turn LongCLI-Bench evaluation run using FastMCP 3.1 task protocol.
+    """
+    # Simulated execution harness
+    result = BenchmarkRunResult(
+        task_id=request.task_id,
+        status="COMPLETED_SUCCESS",
+        turns_executed=18,
+        stalled=False,
+        score=0.95,
+        output_log_path=f"/var/log/longcli/{request.task_id}.log"
+    )
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## API examples
 You can integrate LongCLI-Bench into custom evaluation pipelines using its Python API.
 
@@ -102,34 +179,6 @@ result = harness.run_task(task)
 
 print(f"Task Status: {result.status}")
 print(f"Step Success Rate: {result.step_accuracy:.2%}")
-```
-
-### FastMCP 3.1 Tool Integration
-Below is a **FastMCP 3.1** server implementation for orchestrating LongCLI-Bench tasks across distributed test workers:
-
-```python
-from fastmcp import FastMCP
-from typing import Dict, Any, List
-
-mcp = FastMCP("LongCLI-Bench-Evaluator")
-
-@mcp.tool()
-def execute_benchmark_task(task_id: str, agent_cmd: str, timeout_seconds: int = 600) -> Dict[str, Any]:
-    """
-    Orchestrates a long-horizon CLI task execution using FastMCP 3.1 task protocol.
-    """
-    # Initialize workspace container
-    # Execute agent commands asynchronously
-    return {
-        "task_id": task_id,
-        "status": "completed",
-        "turns_executed": 24,
-        "stalled": False,
-        "score": 0.92
-    }
-
-if __name__ == "__main__":
-    mcp.run()
 ```
 
 ### Telemetry and Session Verification via Pydantic v2

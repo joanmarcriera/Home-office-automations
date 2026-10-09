@@ -3,11 +3,53 @@
 ## What it is
 Instructor is a multi-language library (Python, TypeScript, Go, Ruby, Rust) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of early January 2027, **Instructor v2.x** remains the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
+## System Architecture & Self-Healing Extraction Loop
+
+```
++-----------------------------------------------------------------------------------+
+|                        Application Logic & FastMCP 3.1 Layer                      |
+|      [User Prompt / Raw Data] ---> [Instructor Patched Client Request]            |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        LLM Structured Response Ingestion                          |
+|  [LLM Provider: Claude 5.6 / GPT-5.6 / Gemini] ---> [JSON Payload Generation]     |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Pydantic v2 & Semantic Validation Gate                      |
+|  +-------------------------------------+     +---------------------------------+  |
+|  | Schema Structure Check (Type-Safe)  |     | Semantic Validation (AfterVal)  |  |
+|  | - Check type constraints & required |     | - Evaluate business rules & tone|  |
+|  +-------------------------------------+     +---------------------------------+  |
++-----------------------------------------------------------------------------------+
+                                   |                       |
+                           [VALID] |                       | [INVALID / EXCEPTION]
+                                   v                       v
+            +------------------------------+     +----------------------------------+
+            | Validated Object Out         |     | Self-Healing Retry Loop          |
+            | (Programmatic Model Output)  |     | - Appends Traceback to Context   |
+            +------------------------------+     | - Re-prompts Model (max_retries) |
+                                                 +----------------------------------+
+```
+
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
 
 ## Where it fits in the stack
 **Category**: Frameworks / Data Extraction. It acts as the "Validation & Schema" layer between the LLM provider ([OpenAI](../ai_knowledge/openai.md), [Anthropic](../providers/anthropic.md), etc.) and the application logic, often used in conjunction with [PydanticAI](pydantic-ai.md).
+
+## Schema Framework Comparison Matrix
+
+| Feature / Criteria | Instructor v2.x | Standard Function Calling | PydanticAI | Outlines / Guidance |
+| :--- | :--- | :--- | :--- | :--- |
+| **Multi-Language** | Python, TS, Go, Ruby, Rust | Provider-dependent | Python only | Python C++ backends |
+| **Automatic Self-Correction**| Native multi-retry with errors| Manual error handling loop | Native exception loop | Constrained sampling (no retry) |
+| **Semantic Validation** | `AfterValidator` / LLM-in-the-loop| Custom code required | Native validator support | Regex / CFG constraints only |
+| **Streaming Support** | Iterable stream objects | Token stream parsing | Streaming event loop | Token-level logits masking |
+| **FastMCP 3.1 Integration** | Direct Pydantic export | Custom adapter required | Native MCP support | Low-level MCP mapping |
 
 ## Typical use cases
 - **Reliable Data Extraction**: Converting messy natural language (e.g., medical records, customer emails) into structured database records.
@@ -75,6 +117,54 @@ instructor hub check openai
 
 # Test a schema against a prompt from the CLI
 instructor jobs run --model gpt-5.6 --schema UserSchema.py --prompt "Extract user info from: Alice is 30"
+```
+
+## FastMCP 3.1 Instructor Structured Extraction MCP Server
+
+Below is an enterprise FastMCP 3.1 implementation in Python showing how Instructor structured extractions are served directly as MCP tools:
+
+```python
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import instructor
+from openai import OpenAI
+
+mcp = FastMCP("InstructorStructuredExtractor", version="3.1.0")
+
+class ExtractedEntity(BaseModel):
+    entity_name: str = Field(..., description="Name of the person, place, or organization")
+    category: str = Field(..., description="Entity classification (e.g. PERSON, ORG, LOCATION)")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence")
+
+class ExtractionResponse(BaseModel):
+    source_text: str
+    entities: List[ExtractedEntity]
+
+@mcp.tool()
+async def extract_structured_entities(text_content: str) -> Dict[str, Any]:
+    """
+    Extracts validated, type-safe entities from raw text using Instructor and Pydantic v2.
+    """
+    client = instructor.from_provider(OpenAI())
+
+    # Executing structured extraction
+    response = client.chat.completions.create(
+        model="gpt-5.6",
+        response_model=List[ExtractedEntity],
+        messages=[
+            {"role": "user", "content": f"Extract all entities from: {text_content}"}
+        ]
+    )
+
+    result = ExtractionResponse(
+        source_text=text_content,
+        entities=response
+    )
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
