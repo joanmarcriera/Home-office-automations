@@ -6,24 +6,42 @@ Flash-MSA (Million-token Sparse Attention) is an advanced acceleration framework
 ## What problem it solves
 Processing multi-million token contexts in standard Transformers is prohibitively expensive due to the quadratic complexity of full self-attention. Flash-MSA solves this by implementing sparse block-attention mechanisms that focus compute only on the most relevant token-to-token interactions. This dramatically reduces memory pressure (KV cache size) and increases hardware execution throughput, making ultra-long context training, alignment, and multi-agent deployment technically and economically viable on modern GPU clusters.
 
+## Architecture and Acceleration Pipeline
+
+Flash-MSA interfaces between low-level hardware tensor units and top-level model serving orchestrators, using block-sparse masking to bypass unneeded KV-cache computations.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                      Agent / Orchestration Layer                       │
+│             (Claude 5.6, FastMCP 3.1, n8n, Multi-Agent Mesh)           │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Execute Ultra-Long Context Query
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                    Model Serving Engine (vLLM / SGLang)                │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Invoke Sparse Block Attention
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                          FLASH-MSA KERNEL LAYER                        │
+│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────┐ │
+│ │  Block Indexing Mask │ │ Triton / CUDA Kernel │ │ Blackwell FP4/FP8│ │
+│ │  Pruner (>90% Sparse)│ │  Execution Stream    │ │ Tensor Cores     │ │
+│ └──────────────────────┘ └──────────────────────┘ └──────────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Where it fits in the stack
 **Category**: Infrastructure / AI Acceleration Frameworks. It sits directly above the raw hardware level (CUDA/Triton) and below high-level deep learning and serving frameworks ([vLLM](vllm.md), [Aphrodite Engine](aphrodite-engine.md), or [SGLang](sglang.md)). It provides the highly optimized mathematical kernels that attention layers in frontier models (such as Minimax M3, Claude 5.6, and Gemini 4.0 Ultra) use during run-time execution.
 
-```
-┌────────────────────────────────────────┐
-│      Agent / Orchestration Layer       │
-│     (Claude 5.6, FastMCP 3.1, n8n)     │
-└───────────────────┬────────────────────┘
-                    │ Execute Query
-┌───────────────────▼────────────────────┐
-│      Model Serving / Engine Layer      │
-│     (vLLM, Aphrodite, SGLang)          │
-└───────────────────┬────────────────────┘
-                    │ Invokes Sparse Attention
-┌───────────────────▼────────────────────┐
-│           FLASH-MSA KERNELS            │ (Triton / CUDA / Blackwell FP4)
-└────────────────────────────────────────┘
-```
+## Feature Comparison Matrix
+
+| Feature / Metric | Flash-MSA | FlashAttention-3 | RingAttention | DeepSeek-V3 Native Sparse |
+| :--- | :--- | :--- | :--- | :--- |
+| **Max Context Support** | 2M+ Tokens | ~256K Tokens | 1M+ Tokens | ~128K Tokens |
+| **Complexity Scaling** | Near-Linear ($O(N \log N)$) | Quadratic ($O(N^2)$ Memory Optimized) | Linear across Nodes ($O(N/P)$) | Block-Sparse Hybrid |
+| **Hardware Targets** | Hopper (H100/H200) & Blackwell (B200/B300) | Hopper (H100) | Distributed GPU Clusters | Custom Tensor Engines |
+| **FP4 Tensor Core Ready** | Yes | No | No | Partial |
+| **KV Cache Savings** | Up to 90% | Standard Paged KV | Ring Distributed | Up to 60% |
+| **FastMCP 3.1 Ready** | Native Server | Engine Dependent | Engine Dependent | Engine Dependent |
 
 ## Typical use cases
 - **Long-context pre-training and fine-tuning**: Training models with context windows extending up to 2M+ tokens on massive source repositories, clinical trials, or legal discovery sets.
@@ -66,6 +84,13 @@ To register an instance of an LLM server utilizing Flash-MSA kernels under FastM
 ```bash
 mcp register "flash-msa-engine" --command "python" --args "-m flash_msa.server --model minimax-m3-sparse --port 8080"
 ```
+
+## Operational Best Practices & Troubleshooting
+
+1. **Block Boundary Alignment**: Always ensure target token sequence lengths are exact multiples of the kernel block size (e.g., 128 or 256) to avoid edge-padding kernel overhead.
+2. **Precision Fallback**: When running on Hopper architecture without FP4 hardware units, force `dtype=torch.bfloat16` to retain numerical stability in multi-layer gradient accumulation.
+3. **KV Cache Paging**: Combine Flash-MSA kernels with PagedAttention VRAM managers in vLLM to eliminate VRAM fragmentation during dynamic batching.
+4. **Sparsity Tuning**: Calibrate the block sparsity threshold between `0.85` and `0.92` for optimal memory savings while keeping needle-in-a-haystack retrieval accuracy above 99.4%.
 
 ## CLI examples
 

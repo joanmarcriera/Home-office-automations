@@ -1,6 +1,6 @@
 # Inkling-Small
 
-Inkling-Small is an ultra-compact, open-weights small language model (SLM) developed by **thinkingmachines**. Optimized for high-efficiency local inference, edge device deployment, and FastMCP 3.1 subagent micro-tasks, it delivers strong instruction compliance and structured classification on consumer hardware and CPU runtimes.
+Inkling-Small is an ultra-compact, open-weights small language model (SLM) developed by **thinkingmachines**. Optimized for high-efficiency local inference, edge device deployment, and FastMCP 3.1 subagent micro-tasks, it delivers strong instruction compliance, deterministic schema routing, and structured classification on consumer hardware and CPU runtimes.
 
 ## What it is
 
@@ -12,24 +12,43 @@ Deploying large frontier models on mobile devices, IoT microcontrollers, or isol
 
 Inkling-Small solves these constraints by running comfortably within standard consumer device memory (<500MB RAM footprint when quantized). It executes high-throughput local text processing, intent classification, and structured schema generation completely offline without cloud API overhead.
 
+## Architecture and Execution Pipeline
+
+Inkling-Small operates as a low-latency edge node within multi-agent networks, handling preliminary token processing, regex routing, and JSON schema formatting locally before propagating unhandled edge cases to cloud-hosted orchestrators.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                    Multi-Agent Orchestration Layer                    │
+│             (Claude 5.6 / FastMCP 3.1 Global Router)                   │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Tool Dispatch / Micro-Task Escalation
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                       INKLING-SMALL EDGE ENGINE                        │
+│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────┐ │
+│ │  Prompt Preprocessor │ │ Quantized Tensor Core│ │ FastMCP 3.1 Tool │ │
+│ │  & Token Normalizer  │ │  (GGUF Q4_K_M / CPU) │ │ Output Formatter │ │
+│ └──────────────────────┘ └──────────────────────┘ └──────────────────┘ │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Local Execution (< 20ms Latency)
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                Consumer Edge Hardware / Embedded CPU                  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Where it fits in the stack
 
 **Local Model / Edge Compute Layer**. Inkling-Small acts as an offline micro-agent inference engine, handling local intent extraction, autocomplete, and preliminary data filtering before escalating complex tasks to larger orchestrators.
 
-```
-┌────────────────────────────────────────┐
-│     Multi-Agent Orchestrator           │
-│  (Claude 5.6 / FastMCP 3.1 Control)    │
-└───────────────────┬────────────────────┘
-                    │ Dispatch Micro-Task / Intent Filter
-┌───────────────────▼────────────────────┐
-│         INKLING-SMALL ENGINE           │
-└───────────────────┬────────────────────┘
-                    │ Local High-Speed Execution (< 20ms)
-┌───────────────────▼────────────────────┐
-│      Consumer Hardware / Edge CPU      │
-└────────────────────────────────────────┘
-```
+## Feature Comparison Matrix
+
+| Feature / Dimension | Inkling-Small | BetterGPT-150M | Llama-3.2-1B | Qwen-2.5-0.5B |
+| :--- | :--- | :--- | :--- | :--- |
+| **Parameter Count** | ~180M | 150M | 1.2B | 490M |
+| **RAM Footprint (Q4)** | ~380 MB | ~320 MB | ~1.4 GB | ~680 MB |
+| **Primary Use Case** | Edge Intent & FastMCP Micro-Tasks | Embedded Autocomplete | Local Document QA | Structured JSON Extraction |
+| **Instruction Adherence** | High (Fine-tuned Markdown/JSON) | Moderate | Very High | High |
+| **Inference Latency (CPU)** | < 18ms | < 15ms | ~65ms | ~32ms |
+| **Native FastMCP 3.1 Ready**| Yes | Partial | Yes | Yes |
 
 ## Typical use cases
 
@@ -79,6 +98,13 @@ generator = pipeline("text-generation", model="thinkingmachines/Inkling-Small")
 output = generator("To configure an offline sensor node, follow these steps:", max_new_tokens=40)
 print(output[0]["generated_text"])
 ```
+
+## Operational Best Practices & Troubleshooting
+
+1. **Quantization Selection**: Use `Q4_K_M` GGUF quantization for embedded Linux nodes to preserve memory under 400MB without degradation in tool-calling format precision.
+2. **Temperature Control**: Keep sampling temperature at `0.1`–`0.2` for JSON schema adherence and tool dispatch, ensuring deterministic output formatting.
+3. **Context Length Management**: Restrict context input sequences to 2,048 tokens on CPU runtimes to avoid cache memory pressure during continuous background streaming.
+4. **Thermal Monitoring**: When running on fanless SBCs (e.g., Raspberry Pi 5), cap thread counts to 2–3 physical cores to prevent thermal throttling under heavy micro-agent request loops.
 
 ## CLI examples
 

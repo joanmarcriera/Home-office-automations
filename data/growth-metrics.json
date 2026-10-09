@@ -21,7 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/calendar_tasks/todoist.md",
     "docs/services/searXNG.md",
     "docs/tools/agents/documentation-writer.md",
     "docs/tools/process_understanding/ocrmypdf.md",
@@ -40,7 +39,8 @@
     "docs/tools/frameworks/autogen-studio.md",
     "docs/tools/orchestration/flyte.md",
     "docs/tools/frameworks/superinterface.md",
-    "docs/tools/ai_knowledge/claude-desktop.md"
+    "docs/tools/ai_knowledge/claude-desktop.md",
+    "docs/tools/infrastructure/tensorrt-llm.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

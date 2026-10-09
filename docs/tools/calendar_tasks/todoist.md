@@ -6,26 +6,47 @@ Todoist is a task management platform designed for individuals and teams to orga
 ## What problem it solves
 Capturing ideas, tasks, and complex recurring schedules often suffers from UI friction, inconsistent multi-device synchronization, or rigid input forms. Todoist resolves this by offering intuitive natural language processing (e.g., "Review Q3 security policy every 2nd Tuesday at 4pm p1 #security"), real-time multi-platform sync, and structured API endpoints that allow AI agents to manage tasks autonomously.
 
+## System Architecture & FastMCP 3.1 Flow
+
+The following diagram outlines the FastMCP 3.1 integration architecture between AI foundation models, local client agents, and the Todoist REST API v2 infrastructure:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   AI Foundation Models & Agents                        │
+│          (Claude 5.6 / GPT-5.6 / Llama 4 / Multi-Agent Mesh)           │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ FastMCP 3.1 / MCP JSON-RPC Protocol
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                  TODOIST MCP AGENT INTEGRATION SERVER                  │
+│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────┐ │
+│ │  OAuth2 / Token Auth │ │ Pydantic v2 Payload  │ │ REST API v2      │ │
+│ │  Manager Module      │ │ Validator            │ │ Dispatcher       │ │
+│ └──────────────────────┘ └──────────────────────┘ └──────────────────┘ │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Validated Task Sync / NLP Parsing
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                    Todoist Cloud & Sync Ecosystem                      │
+│        (Google Calendar / Reclaim.ai / Ramble AI Voice Stream)         │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management. Serves as a centralized execution and task state repository connecting calendar engines ([Google Calendar](google_calendar.md), [Outlook](outlook.md)), automated schedulers ([Reclaim.ai](reclaim.md)), and AI frameworks via FastMCP 3.1.
 
-## System Architecture
+## Feature Comparison Matrix
 
-The following Mermaid diagram outlines the FastMCP 3.1 integration architecture between AI foundation models, local client agents, and the Todoist REST API v2 infrastructure:
-
-```mermaid
-graph TD
-    A[AI Foundation Models / Agents<br/>Claude 5.1 / GPT-5.5 / Llama 4] -->|MCP JSON-RPC / FastMCP 3.1| B[Todoist MCP Server<br/>Doist/todoist-ai]
-    B -->|Validated Payloads / OAuth2| C[Todoist REST API v2 Endpoint]
-    C -->|Task State & Project Updates| D[(Todoist Cloud DB)]
-    C -->|Two-Way Calendar Sync| E[Google Calendar / Outlook]
-    C -->|Automated Schedulers| F[Reclaim.ai / Motion]
-    G[User / Voice Engine<br/>Ramble AI Mobile & Web] -->|NLP Processing| C
-```
+| Feature / Aspect | Todoist | Vikunja | Motion | Reclaim.ai |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Cloud SaaS | 100% Self-Hosted | Cloud SaaS | Cloud SaaS |
+| **NLP Speed & Accuracy**| Industry Gold Standard | Standard Syntax | Algorithmic Calendar | Calendar Blocking |
+| **FastMCP 3.1 Integration**| Native (`@doist/mcp`) | Community Server | Custom API Wrapper | Calendar Tool |
+| **Voice Task Capture** | Native Ramble AI | External Webhook | No | No |
+| **Two-Way Calendar Sync**| Google / Outlook | CalDAV | Native | Native |
+| **Free Tier Features** | Core Task Management | Full System (Self-host)| Trial Only | Core Schedules |
 
 ## Typical use cases
 - **Personal and Team Task Capture**: Organize cross-functional work into hierarchical projects, sections, and sub-tasks with color-coded labels and priority tags.
-- **Autonomous Agent Workflows**: Allow AI assistants (**Claude 5.1**, **GPT-5.5**) to inspect task queues, decompose high-level objectives into sub-tasks, and update task status via MCP tools.
+- **Autonomous Agent Workflows**: Allow AI assistants (**Claude 5.6**, **GPT-5.6**) to inspect task queues, decompose high-level objectives into sub-tasks, and update task status via MCP tools.
 - **Voice-to-Task Ingestion**: Hands-free capture using the **Ramble AI** voice engine, automatically extracting due dates, project tags, and assignee metadata.
 - **System Maintenance & Audit Logging**: Track homelab maintenance, infrastructure health checks, and recurring compliance audits through scheduled recurring tasks.
 
@@ -39,6 +60,13 @@ graph TD
 - **Closed-Source SaaS**: Proprietary backend cloud infrastructure; not available for self-hosted local deployments (consider [Vikunja](../../services/vikunja.md) for self-hosted environments).
 - **Freemium Tier Limits**: Reminders, activity history, and custom filters require a Pro or Business subscription tier.
 - **Simple Dependency Modeling**: Lacks native Gantt chart visualization or complex dependency graph tracking out of the box.
+
+## Operational Best Practices & Troubleshooting
+
+1. **OAuth Token Refreshing**: Store the `TODOIST_API_TOKEN` securely in secret managers (e.g., HashiCorp Vault) rather than environment variables in production FastMCP subagents.
+2. **Rate Limit Handling**: Implement exponential backoff in automated task ingestion loops to comply with Todoist's 450 requests per minute API limit.
+3. **NLP Disambiguation**: Use explicit timezones in the `due_string` payload (e.g., `every Friday at 15:00 EST`) when automating tasks across distributed multi-region agent clusters.
+4. **Project ID Caching**: Cache Todoist `project_id` UUID mappings locally in subagent memory to minimize lookup REST calls during high-frequency task creation.
 
 ## When to use it
 - When you need a reliable, fast task management hub accessible across all user devices.
@@ -133,7 +161,7 @@ except ValidationError as e:
 ```
 
 ### Model Context Protocol (FastMCP 3.1) Integration
-Integrate Todoist with AI agent runtimes (**Claude 5.1**, **GPT-5.5**, **Llama 4**) using FastMCP 3.1 tools.
+Integrate Todoist with AI agent runtimes (**Claude 5.6**, **GPT-5.6**, **Llama 4**) using FastMCP 3.1 tools.
 
 **FastMCP Server Package**: `Doist/todoist-ai` or community server `shockedrope/todoist-mcp`.
 
