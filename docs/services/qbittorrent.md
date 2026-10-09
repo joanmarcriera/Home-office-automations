@@ -61,6 +61,17 @@ Enables multi-tenant pipeline isolation by organizing torrents into distinct dir
 #### 5. FastMCP 3.1 Protocol Support
 Custom MCP bridges expose qBittorrent state to AI agents, allowing models to inspect active seed/peer ratios, pause heavy downloads during work hours, or alert users when downloads stall due to missing seeders.
 
+## Feature Matrix & Torrent Client Comparison
+
+| Feature | qBittorrent | Transmission | Deluge | rTorrent / ruTorrent |
+| :--- | :--- | :--- | :--- | :--- |
+| **Language & Engine** | C++ (Qt / libtorrent) | C / C++ | Python / GTK | C++ |
+| **User Interface** | Qt Desktop & Web UI | Web UI / GTK / Mac | Web UI / GTK | ncurses / Web UI |
+| **Embedded RSS Engine** | Native Auto-Downloader | Requires Plugins | Requires FlexGet | Requires Plugins |
+| **Category & Tag Rules** | Advanced Automatic Paths | Basic Directories | Label Plugin | Label System |
+| **Network Binding** | Native Interface Select | Environment Config | Plugin Required | Config File Binding |
+| **FastMCP 3.1 Integration** | Web API Adapter | RPC Wrapper | JSON-RPC Wrapper | XML-RPC Adapter |
+
 ## Typical use cases
 - **Automated OS Image Acquisition**: Mirroring Arch Linux, Ubuntu, and Fedora ISO distributions as soon as new release hashes are posted.
 - **Agentic File Transfer Management**: Allowing AI assistants (e.g., [Claude Code](../tools/development_ops/claude-code.md)) to fetch public dataset archives requested during data science sessions.
@@ -176,13 +187,14 @@ curl -s http://localhost:8080/api/v2/transfer/setDownloadLimit \
 
 ## API examples
 
+### FastMCP 3.1 Python Tool Server Integration
 The Web API (v2) is the primary method for external interaction. The following Python script demonstrates an AI agent interacting with qBittorrent using FastMCP 3.1 and validating queue state with Pydantic v2.
 
 ```python
 import requests
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
-from mcp.server.fastmcp import FastMCP
+import mcp.server.fastmcp as fastmcp
 
 # Define strict Pydantic v2 schemas for torrent telemetry
 class TorrentItem(BaseModel):
@@ -207,7 +219,7 @@ class GlobalTransferInfo(BaseModel):
     up_rate_limit: int = Field(..., description="Active upload limit")
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("qBittorrent-Manager-MCP", version="3.1.0")
+mcp_server = fastmcp.FastMCP("qBittorrent Manager", version="3.1")
 
 class QBittorrentClient:
     def __init__(self, base_url: str = "http://localhost:8080"):
@@ -236,8 +248,8 @@ class QBittorrentClient:
 
 qb_client = QBittorrentClient()
 
-@mcp.tool()
-async def query_download_queue() -> str:
+@mcp_server.tool()
+def query_download_queue() -> str:
     """Fetch and validate active qBittorrent queue state using Pydantic v2."""
     try:
         qb_client.login()
@@ -256,7 +268,7 @@ async def query_download_queue() -> str:
         return f"qBittorrent Query Error: {str(e)}"
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp_server.run()
 ```
 
 ### Configuration & Troubleshooting Matrix
@@ -282,5 +294,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-09
 - Confidence: high

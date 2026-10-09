@@ -184,13 +184,13 @@ print(response.choices[0].message.content)
 import json
 import urllib.request
 from typing import Dict, Any, List
-from mcp.server.fastmcp import FastMCP
+import mcp.server.fastmcp as fastmcp
 
-mcp = FastMCP("llama-app-fastmcp-bridge")
+mcp_server = fastmcp.FastMCP("llama-app-bridge", version="3.1")
 
 LLAMA_APP_ENDPOINT = "http://127.0.0.1:8080/v1/chat/completions"
 
-@mcp.tool()
+@mcp_server.tool()
 def query_local_gguf_model(prompt: str, system_prompt: str = "You are a helpful AI assistant.") -> Dict[str, Any]:
     """Sends a completion request to local llama.app server via FastMCP 3.1 protocol."""
     payload = {
@@ -218,13 +218,14 @@ def query_local_gguf_model(prompt: str, system_prompt: str = "You are a helpful 
                 "status": "success",
                 "content": content,
                 "tokens_prompt": usage.get("prompt_tokens", 0),
-                "tokens_completion": usage.get("completion_tokens", 0)
+                "tokens_completion": usage.get("completion_tokens", 0),
+                "mcp_version": "3.1"
             }
     except Exception as e:
-        return {"status": "error", "error_message": str(e)}
+        return {"status": "error", "error_message": str(e), "mcp_version": "3.1"}
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp_server.run()
 ```
 
 ### 3. Strict Pydantic v2 Configuration Schema
@@ -278,7 +279,6 @@ except Exception as err:
 - [llama.cpp GitHub Repository](https://github.com/ggerganov/llama.cpp)
 - [Apple Silicon Metal Performance Guide](https://developer.apple.com/metal/)
 
----
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-09
 - Confidence: high
