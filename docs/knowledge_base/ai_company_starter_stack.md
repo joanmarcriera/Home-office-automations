@@ -42,6 +42,16 @@ Organizations adopting AI frequently suffer from "tool sprawl"—fragmented SaaS
 - **Developer Workflow Automation**: Packaging software delivery SOPs into Claude Skills to run automated CI bug triage and PR generation.
 - **Cost-Optimized Local Inference**: Offloading routine classification tasks to Ollama/LocalAI while reserving frontier models for reasoning.
 
+## Feature Matrix & Layer Capabilities
+
+| Stack Layer | Primary Technology Choices | Core Protocol / Standard | Enterprise Advantage |
+| :--- | :--- | :--- | :--- |
+| **Interaction Surface** | OpenWebUI, Custom Next.js | FastMCP 3.1 / WebSockets | Role-based unified access portal |
+| **Workflow Control Plane** | n8n, Temporal, Vikunja | REST / Webhooks / FastMCP | End-to-end auditability & replay |
+| **Context & Memory** | mem0, Qdrant, Dolt | Vector & SQL Hybrid | Persistent, cross-agent memory |
+| **Agent Execution Engine** | Claude Skills, Composio, Agno | FastMCP 3.1 / ACP | Modular SOP execution |
+| **Inference Router** | LiteLLM, Ollama, vLLM | OpenAI API Compatible | Dynamic model cost-routing |
+
 ## Strengths
 - **Cohesive Interoperability**: Every selected tool natively speaks OpenTelemetry tracing, REST APIs, or FastMCP 3.1 protocols.
 - **Cost Controls**: Combines frontier model routing for complex tasks with local inference for routine transformations, drastically lowering API costs.
@@ -142,6 +152,13 @@ def execute_company_task(payload: Dict[str, Any]) -> Dict[str, Any]:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & Deployment Architecture
+
+### High Availability & Credential Management
+- **Centralized Vault**: Store all model provider keys and OAuth tokens inside HashiCorp Vault or Infisical.
+- **Workflow Replayability**: Configure n8n with execution logging enabled so failed multi-step workflows can be re-run safely.
+- **Vector Index Benchmarking**: Schedule periodic Qdrant re-indexing and pruning to maintain low vector search latency.
 
 ## Related tools / concepts
 - [AI Tooling Landscape](ai_tooling_landscape.md)

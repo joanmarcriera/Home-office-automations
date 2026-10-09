@@ -9,11 +9,49 @@ General-purpose LLMs often suffer from elevated latency, high cost, and degraded
 ## Where it fits in the stack
 **LLM / Code Generation Engine / Provider Layer**. It serves as a specialized, code-intelligence backend for autonomous software engineering agents, developer IDE extensions, and repository indexing platforms.
 
+## System Architecture & Processing Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                           Poolside Laguna S 2.1 Engine                            |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Context Ingestion Layer (1M Token Buffer / Fast Tokenizer)                  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Mixture-of-Experts (MoE) Core (118B Parameters, Top-K Expert Routing)        |  |
+|  +-----------------------------------------------------------------------------+  |
+|           ||                                                   ||                 |
+|           \/                                                   \/                 |
+|  +----------------------------------+        +---------------------------------+  |
+|  | FP8 Precision Acceleration Engine|        | NVFP4 Hardware Quantization     |  |
+|  | (High Throughput Data Centers)   |        | (Single Workstation VRAM Opt)   |  |
+|  +----------------------------------+        +---------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 & Tool Interaction API (Standard OpenAI-Compatible Interface)    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Repository-Wide Parsing & Analysis**: Ingesting entire multi-million-line codebases within its 1M context window to identify architectural debt or perform system-wide refactoring.
 - **Agentic Multi-Step Software Engineering**: Powering autonomous agents (like Cline, Roo Code, or OpenHands) for complex, multi-file feature development.
 - **Low-Bit Local Deployment**: Utilizing NVFP4 (NVIDIA 4-bit Floating Point) quantized weights to run the 118B MoE model locally on single-node consumer/workstation hardware with low memory footprint.
 - **FastMCP 3.1 Integration**: Providing structural context querying through unified Model Context Protocol servers to keep real-time tool trees hydrated.
+
+## Feature Matrix & Model Comparison
+
+| Feature Metric | Poolside Laguna S 2.1 | DeepSeek-V4 | Claude 5.6 Sonnet |
+| :--- | :--- | :--- | :--- |
+| **Context Window** | 1,000,000 Tokens | 128,000 / 1M Tokens | 200,000 / 1M Tokens |
+| **Architecture** | 118B MoE | 671B MoE | Proprietary Frontier |
+| **Native Quantization** | FP8 & NVFP4 Out-of-the-Box | FP8 Native | Cloud API Only |
+| **Target Specialization** | Code Intelligence & Agents | Math, Code & General Reasoning | Enterprise Agentic Reasoning |
+| **Deployment Mode** | Cloud API & Self-Hosted vLLM | Cloud API & Self-Hosted | Cloud API Only |
 
 ## Strengths
 - **Dev-Centric Specialization**: Pre-trained and fine-tuned from the ground up on vast repositories of high-quality code.
@@ -42,7 +80,7 @@ Poolside AI's Laguna models can be run either via their official developer API o
 Install the official Poolside developer helper library or use standard OpenAI-compatible SDKs:
 
 ```bash
-pip install poolside-ai openai pydantic
+pip install poolside-ai openai pydantic fastmcp
 ```
 
 ### Local Setup (Hugging Face)
@@ -88,21 +126,33 @@ curl http://localhost:8000/v1/chat/completions \
 
 ## API examples
 
-### Python Integration with Pydantic v2 Schema Validation
-This example queries Poolside AI's Laguna endpoint to refactor a block of code, validating the token count and output format strictly using **Pydantic v2**.
+### Python Integration with FastMCP 3.1 & Pydantic v2 Schema Validation
+This example exposes Poolside AI's Laguna endpoint as a FastMCP 3.1 tool to refactor code, validating the output format strictly using **Pydantic v2**.
 
 ```python
 import os
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from openai import OpenAI
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 server
+mcp = FastMCP("PoolsideRefactorEngine", version="3.1")
 
 class CodeRefactorResult(BaseModel):
     refactored_code: str = Field(..., description="The improved, refactored programming code.")
     optimizations_made: List[str] = Field(default_factory=list, description="A bulleted list of optimizations applied.")
     confidence_score: float = Field(..., ge=0.0, le=1.0)
 
-def refactor_code_via_poolside(raw_code: str) -> Optional[CodeRefactorResult]:
+    @field_validator("refactored_code")
+    @classmethod
+    def validate_non_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Refactored code payload cannot be empty.")
+        return v
+
+@mcp.tool(name="refactor_code", description="Refactor code blocks using Poolside Laguna S 2.1")
+def refactor_code_via_poolside(raw_code: str) -> Dict[str, Any]:
     api_key = os.getenv("POOLSIDE_API_KEY", "mock_key")
     client = OpenAI(
         api_key=api_key,
@@ -122,32 +172,30 @@ def refactor_code_via_poolside(raw_code: str) -> Optional[CodeRefactorResult]:
             temperature=0.1
         )
 
-        # Parse and validate the response
         content = response.choices[0].message.content
-        return CodeRefactorResult.model_validate_json(content)
+        validated = CodeRefactorResult.model_validate_json(content)
+        return validated.model_dump()
 
-    except ValidationError as ve:
-        print(f"Pydantic Validation failed on Poolside response: {ve}")
-        return None
     except Exception as e:
         # Fallback simulation for offline testing
-        fallback_json = """
-        {
-            "refactored_code": "def find_duplicates(arr):\\n    return list(set([x for x in arr if arr.count(x) > 1]))",
-            "optimizations_made": ["Optimized list lookup using sets", "Reduced complexity to O(N)"],
-            "confidence_score": 0.95
+        fallback_data = {
+            "refactored_code": "def find_duplicates(arr):\n    seen = set()\n    return list({x for x in arr if x in seen or seen.add(x)})",
+            "optimizations_made": ["Optimized list lookup using sets", "Reduced complexity from O(N^2) to O(N)"],
+            "confidence_score": 0.98
         }
-        """
-        return CodeRefactorResult.model_validate_json(fallback_json)
+        validated = CodeRefactorResult.model_validate(fallback_data)
+        return validated.model_dump()
 
 if __name__ == "__main__":
-    sample_code = "def find_duplicates(arr):\n    duplicates = []\n    for x in arr:\n        if arr.count(x) > 1 and x not in duplicates:\n            duplicates.append(x)\n    return duplicates"
-    result = refactor_code_via_poolside(sample_code)
-    if result:
-        print("Refactored Code successfully validated via Pydantic v2:")
-        print(result.refactored_code)
-        print(f"Confidence: {result.confidence_score}")
+    mcp.run()
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Memory Management & GPU Sizing
+- **NVFP4 VRAM Target**: The NVFP4 118B model fits comfortably on a single 80GB GPU (e.g., NVIDIA H100/H200) or dual 48GB workstation GPUs (e.g., RTX 6000 Ada).
+- **Context Allocation**: When utilizing the full 1M token context, allocate sufficient KV-cache memory in vLLM (`--gpu-memory-utilization 0.95`).
+- **Quantization Fallback**: If non-Ada/Hopper NVIDIA GPUs are used, fall back to standard FP8 or AWQ 4-bit weights.
 
 ## Related tools / concepts
 - [DeepSeek](deepseek.md) — Primary competitor in open-weight code reasoning.
