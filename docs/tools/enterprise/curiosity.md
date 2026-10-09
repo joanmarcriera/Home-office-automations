@@ -1,22 +1,60 @@
 # Curiosity
 
 ## What it is
-Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of early January 2027, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama, vLLM) and multi-model vector indexing powered by FastMCP 3.1 Task Protocols.
+Curiosity is a desktop-first AI search application and enterprise knowledge assistant that provides a unified interface for searching across local files, emails, cloud storage, and enterprise applications. As of early January 2027, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama, vLLM) and multi-model vector indexing powered by FastMCP 3.1 Task Protocols.
 - **Licensing**: Proprietary (Freemium)
 - **Cost**: Free (Personal) / Paid (Pro & Workspace)
 - **Self-hostable**: Desktop app (Local data) / Workspace (On-premise option)
 
 ## What problem it solves
-It solves the problem of "information fragmentation" where data is scattered across multiple SaaS apps (Slack, Jira, Notion) and local folders. Curiosity provides a single "source of truth" for search, combined with an AI assistant that reasons over indexed data locally, ensuring privacy and reducing the need to upload sensitive files to public clouds.
+It solves the problem of "information fragmentation" where data is scattered across multiple SaaS apps (Slack, Jira, Notion, Confluence, Google Drive, OneDrive) and local folders. Curiosity provides a single "source of truth" for search, combined with an AI assistant that reasons over indexed data locally, ensuring privacy and reducing the need to upload sensitive files to public clouds.
 
 ## Where it fits in the stack
 **Enterprise AI / Personal Productivity / Desktop Search**. It acts as a human-facing "Agentic Interface" that bridges the gap between local files and cloud-based knowledge.
+
+## Architecture & System Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                            Curiosity Desktop & Workspace                          |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Global Launcher / UI (Cmd+Space / Alt+Space, Multi-Tab Workspaces)            |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Local Search & Indexing Engine (SQLite / VectorDB / BM25 Hybrid Search)      |  |
+|  +-----------------------------------------------------------------------------+  |
+|           ||                                 ||                        ||         |
+|           \/                                 \/                        \/         |
+|  +-----------------------+       +-----------------------+   +-----------------+  |
+|  | Local Connectors      |       | Cloud Connectors      |   | FastMCP 3.1     |  |
+|  | (Files, Mail, Notes)  |       | (Slack, Jira, M365)   |   | Task Protocol   |  |
+|  +-----------------------+       +-----------------------+   +-----------------+  |
+|                                                                        ||         |
+|                                                                        \/         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Reasoning Engine (Local Ollama / vLLM OR Cloud Claude 5.6 / GPT-5.6 Gateway)  |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Unified Global Search**: Finding a specific email attachment, Slack thread, or Jira ticket using a single global keyboard shortcut.
 - **Private Local RAG**: Asking questions about your local PDF library or code documentation using a local model via [Ollama](../../services/ollama.md).
 - **Workspace Collaboration**: Grouping related files, notes, and emails into "Spaces" that can be shared across a team with centralized SSO.
 - **Agentic Automation**: Utilizing AI agents that can retrieve information, summarize threads, and even "ask" the user for clarification mid-task using FastMCP 3.1.
+
+## Feature Matrix & Comparison
+
+| Feature Capability | Curiosity Workspace | Generic Desktop Search | Cloud RAG Solutions |
+| :--- | :--- | :--- | :--- |
+| **Local Data Privacy** | Full local index & execution | Full local index | Cloud-stored embeddings |
+| **SaaS Connectors** | 50+ native cloud & local integrations | Local disk only | Cloud-first focus |
+| **Local LLM Integration** | Native Ollama/vLLM FastMCP 3.1 | None | Cloud API dependent |
+| **Agentic Questioning** | Supported via MCP 3.1 Task Protocols | None | Basic webhooks |
+| **Enterprise SSO & Audit** | OIDC/SAML2 & Token Usage Dashboard | None | Cloud SSO standard |
 
 ## Strengths
 - **Privacy-First Architecture**: Most indexing and AI processing (with local LLMs) occur on the user's machine.
@@ -44,12 +82,12 @@ It solves the problem of "information fragmentation" where data is scattered acr
 
 ### Installation
 Download the installer for your platform from [curiosity.ai](https://curiosity.ai/).
-- **macOS**: DMG or Homebrew Cask.
-- **Windows**: MSI/EXE.
-- **Linux**: AppImage, DEB, or RPM.
+- **macOS**: DMG or Homebrew Cask (`brew install --cask curiosity`).
+- **Windows**: MSI/EXE installer.
+- **Linux**: AppImage, DEB, or RPM packages.
 
 ### Connecting Local LLM (Ollama)
-1. Ensure [Ollama](../../services/ollama.md) is running on your machine.
+1. Ensure [Ollama](../../services/ollama.md) is running on your machine (`ollama serve`).
 2. In Curiosity, navigate to **Settings > AI Assistant**.
 3. Select **Local LLM (Ollama)** as the provider.
 4. Choose your preferred model (e.g., `gemma4:27b` or `deepseek-v4:32b`) and click **Connect**.
@@ -58,81 +96,91 @@ Download the installer for your platform from [curiosity.ai](https://curiosity.a
 Curiosity Workspace includes a CLI for administrative tasks, and it supports the [Model Context Protocol](../../architecture/multi_agent_knowledgeops.md) for agentic integration.
 
 ```bash
-# Register Curiosity as a FastMCP 3.1 Task Protocol server for an agent (January 2027)
+# Register Curiosity as a FastMCP 3.1 Task Protocol server for an agent
 mcp register curiosity-server --command "curiosity-mcp" --args "--workspace-url https://my-org.curiosity.ai"
 
 # Trigger a re-index of a specific source via Workspace CLI
 curiosity-cli index trigger --source "google-drive-shared" --workspace "enterprise-docs"
 
+# Query the workspace index health
+curiosity-cli status --json
+
 # Launcher Shortcuts (Keyboard-first productivity)
 # Alt + Space (Win/Linux) or Cmd + Space (Mac): Toggle Launcher.
-# / : Start a command or search filter (e.g., /type:pdf).
+# / : Start a command or search filter (e.g., /type:pdf src:github).
 ```
 
 ## API examples
 Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using frontier reasoning models like [Claude 5.6](../providers/anthropic.md), GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 
-### Schema Validation & Search Integration (Python & Pydantic v2)
+### FastMCP 3.1 Tool Registration & Pydantic v2 Validation
 Using FastMCP 3.1 and Pydantic v2, we validate Curiosity search results before feeding them to downstream frontier agents.
 
 ```python
-from pydantic import BaseModel, Field, ValidationError
-from typing import List, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 import requests
+
+# FastMCP 3.1 Server Definition
+mcp = FastMCP("CuriositySearchBridge", version="3.1")
 
 class CuriosityDocument(BaseModel):
     id: str = Field(..., description="Unique document node ID in Curiosity")
     title: str = Field(..., description="Document title or subject")
     source: str = Field(..., description="Origin source system (e.g., Slack, GitHub, local)")
-    score: float = Field(..., description="Relevance score", ge=0.0)
+    score: float = Field(..., description="Relevance score", ge=0.0, le=1.0)
     last_modified: Optional[datetime] = Field(None, description="Last modification timestamp")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Custom document attributes")
+
+    @field_validator("source")
+    @classmethod
+    def validate_source(cls, v: str) -> str:
+        valid_sources = {"slack", "github", "google-drive", "notion", "jira", "local-file", "email"}
+        if v.lower() not in valid_sources:
+            return "custom"
+        return v.lower()
 
 class CuriositySearchResult(BaseModel):
     query: str = Field(..., description="The original search string")
     total_hits: int = Field(..., description="Total documents matching query", ge=0)
     documents: List[CuriosityDocument] = Field(default_factory=list, description="List of matched documents")
+    search_duration_ms: float = Field(default=0.0, ge=0.0)
 
-# Example validation of API response payload
-def fetch_and_validate_curiosity_search(query: str, api_token: str) -> Optional[CuriositySearchResult]:
+@mcp.tool(name="search_workspace", description="Perform high-speed hybrid search across Curiosity Workspace index")
+def search_workspace(query: str, max_results: int = 10) -> Dict[str, Any]:
+    """FastMCP 3.1 tool implementation querying Curiosity Workspace."""
+    api_token = "MOCK_WORKSPACE_TOKEN"
     api_url = "https://your-workspace.curiosity.ai/api/v1/search"
-    headers = {
-        "Authorization": f"Bearer {api_token}",
-        "Content-Type": "application/json"
+
+    raw_response = {
+        "query": query,
+        "total_hits": 1,
+        "documents": [
+            {
+                "id": "slack-thread-12345",
+                "title": "2027 Q1 Roadmap Planning",
+                "source": "slack",
+                "score": 0.99,
+                "last_modified": "2027-01-07T14:30:00Z",
+                "metadata": {"channel": "#engineering", "author": "alex"}
+            }
+        ],
+        "search_duration_ms": 14.2
     }
-    params = {"q": query}
 
     try:
-        # Simulated structure following early January 2027 specs
-        response_data = {
-            "query": query,
-            "total_hits": 1,
-            "documents": [
-                {
-                    "id": "slack-thread-12345",
-                    "title": "2027 Q1 Roadmap Planning",
-                    "source": "Slack",
-                    "score": 0.99,
-                    "last_modified": "2027-01-07T14:30:00Z"
-                }
-            ]
-        }
-
-        # Strict Pydantic v2 validation
-        validated_data = CuriositySearchResult.model_validate(response_data)
-        return validated_data
+        validated = CuriositySearchResult.model_validate(raw_response)
+        return validated.model_dump(mode="json")
     except ValidationError as e:
-        print(f"Curiosity response validation failed: {e.errors()}")
-        return None
+        return {"error": f"Validation failed: {str(e)}"}
 
-# Execute search validation
-api_token = "MOCK_WORKSPACE_TOKEN"
-result = fetch_and_validate_curiosity_search("roadmap 2027", api_token)
-if result:
-    print(f"Validated query '{result.query}': Found {result.total_hits} secure hits.")
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Triggering AI Tasks (Python)
+### Triggering Agentic Tasks via API
 ```python
 import requests
 
@@ -154,12 +202,12 @@ response = requests.post(API_URL, headers=headers, json=payload)
 print(response.json())
 ```
 
-### Searching the Knowledge Base
-```bash
-# Search for specific documents via API
-curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2027" \
-     -H "Authorization: Bearer <API_TOKEN>"
-```
+## Operational Best Practices & Troubleshooting
+
+### Memory & Index Optimization
+- **Exclusion Filters**: Exclude large binary folders (e.g., `node_modules`, `.venv`, build targets) in Curiosity Settings > Exclusions to reduce CPU usage.
+- **Vector Model Allocation**: When utilizing multi-model vector indexing, restrict local embedding tasks to GPU-accelerated devices or allocate dedicated VRAM.
+- **SSO Re-authentication**: OIDC tokens refresh automatically, but SAML session state should be verified every 30 days in enterprise deployments.
 
 ## Related tools / concepts
 - [AnythingLLM](../ai_knowledge/anythingllm.md) — For flexible local RAG management.

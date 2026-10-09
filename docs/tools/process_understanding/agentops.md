@@ -13,12 +13,50 @@ Developing autonomous agents is uniquely challenging due to their non-determinis
 ## Where it fits in the stack
 AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides native, first-class support for multi-agent orchestration and **FastMCP 3.1 / Model Context Protocol** tool calls.
 
+## System Architecture & Telemetry Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                              AgentOps Observability Stack                         |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Agentic Framework Layer (CrewAI, AutoGen, LangGraph, FastMCP 3.1 Tools)      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | AgentOps SDK / Decorator Tracing Engine (@agent, @operation, OpenTelemetry) |  |
+|  +-----------------------------------------------------------------------------+  |
+|           ||                                                   ||                 |
+|           \/                                                   \/                 |
+|  +----------------------------------+        +---------------------------------+  |
+|  | Session Replay & Directed Graphs |        | Token & Cost Management Gateway |  |
+|  | (Recursive Loop / Fail Detector) |        | (400+ LLM Provider Analytics)   |  |
+|  +----------------------------------+        +---------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Guardrail & Security Engine (PII Redaction, Prompt Injection Detection)      |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and task handoffs between agents in frameworks like [CrewAI](../frameworks/crewai.md), AG2 ([AutoGen](../frameworks/autogen.md)), or [LangGraph](../frameworks/langgraph.md).
 - **FastMCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency, payload sizes, and failure rates under FastMCP 3.1.
 - **Debugging Tool Failures**: Investigating exact model inputs and tool responses when agents fail or select incorrect parameters.
-- **Production Session Analysis**: Replaying user-agent interactions powered by models like **Claude 5.1 Opus** or **GPT-5.5** to identify edge cases and improve agent reliability.
+- **Production Session Analysis**: Replaying user-agent interactions powered by models like **Claude 5.6** or **GPT-5.6** to identify edge cases and improve agent reliability.
 - **Token and Bill Tracking**: Monitoring real-time token spend across long-running autonomous tasks across multiple model providers.
+
+## Feature Matrix & Comparison
+
+| Feature Capability | AgentOps Platform | Standard Logging (Winston/Loguru) | Request Proxies (Helicone/LiteLLM) |
+| :--- | :--- | :--- | :--- |
+| **Agent Session Replays** | Full graphical step-by-step trace | Text logs only | API call logs |
+| **Multi-Agent Handoffs** | Graph topology tracking | Manual tagging | Basic metadata |
+| **FastMCP 3.1 Tool Tracing** | Native payload & latency breakdown | Unstructured string | HTTP level |
+| **Recursive Loop Detection** | Automatic alert triggers | None | None |
+| **PII & Guardrail Defense** | Native redactor & prompt defender | Custom Regex | Proxy level |
 
 ## Strengths
 - **Framework Native**: Deep, multi-framework integrations with [CrewAI](../frameworks/crewai.md), [AutoGen](../frameworks/autogen.md), LangChain, LlamaIndex, and Smolagents.
@@ -46,7 +84,7 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 
 ### Installation
 ```bash
-pip install agentops pydantic
+pip install agentops pydantic fastmcp
 ```
 
 ### Basic Integration
@@ -57,7 +95,6 @@ import os
 import agentops
 
 # Initialize the AgentOps client
-# agentops.init() reads AGENTOPS_API_KEY from environment variables
 agentops.init(api_key=os.getenv("AGENTOPS_API_KEY", "your-api-key"), tags=["production-v2"])
 
 # Your agentic execution logic here...
@@ -68,7 +105,7 @@ agentops.end_session('Success')
 ```
 
 ### Using Decorators for Custom Agents
-For custom agent implementations, use decorators to maintain a rich trace hierarchy.
+For custom agent implementations, use decorators to maintain a rich trace hierarchy with Pydantic v2 validation.
 
 ```python
 from agentops.sdk.decorators import agent, operation
@@ -116,49 +153,67 @@ agentops export --session_id "sess_abc123" --format json
 
 ## API examples
 
-### Recording Tool Usage with FastMCP 3.1
+### Recording Tool Usage with FastMCP 3.1 & Pydantic v2
 Track specific FastMCP 3.1 tool invocations using Pydantic v2 structured payload validation.
 
 ```python
 from typing import Dict, Any
 import agentops
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
+
+mcp = FastMCP("AgentOpsFastMCPBridge", version="3.1")
 
 class FastMCPToolCall(BaseModel):
     tool_name: str = Field(description="Name of the MCP tool")
     server_id: str = Field(description="ID of the target FastMCP 3.1 server")
     parameters: Dict[str, Any] = Field(default_factory=dict)
 
-@agentops.sdk.decorators.operation
-def execute_mcp_tool(payload: FastMCPToolCall) -> Dict[str, Any]:
+    @field_validator("tool_name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Tool name cannot be blank")
+        return v
+
+@mcp.tool(name="execute_mcp_tool", description="Track and execute FastMCP 3.1 tool calls")
+def execute_mcp_tool(payload: Dict[str, Any]) -> Dict[str, Any]:
+    validated_payload = FastMCPToolCall.model_validate(payload)
+
     # Record structured FastMCP action in AgentOps session trace
     agentops.record_action(
-        f"Calling FastMCP Tool: {payload.tool_name}",
-        params={"server": payload.server_id, "args": payload.parameters}
+        f"Calling FastMCP Tool: {validated_payload.tool_name}",
+        params={"server": validated_payload.server_id, "args": validated_payload.parameters}
     )
-    # Tool execution logic...
-    return {"status": "success", "tool": payload.tool_name, "output": "Execution complete"}
+    return {"status": "success", "tool": validated_payload.tool_name, "output": "Execution logged in AgentOps"}
 ```
 
 ### Handling Multi-Model Sessions
-Track performance and cost across **Claude 5.1 Opus** and **GPT-5.5** within a single session.
+Track performance and cost across **Claude 5.6** and **GPT-5.6** within a single session.
 
 ```python
 import agentops
 
 def run_multi_model_session() -> None:
     # Initialize session with model comparison tags
-    agentops.init(tags=["multi-model-eval", "claude-5-1", "gpt-5-5"])
+    agentops.init(tags=["multi-model-eval", "claude-5-6", "gpt-5-6"])
 
-    # Step 1: Execute Claude 5.1 reasoning task
-    agentops.record_action("Reasoning Step", params={"model": "claude-5-1-opus-20261031"})
+    # Step 1: Execute Claude 5.6 reasoning task
+    agentops.record_action("Reasoning Step", params={"model": "claude-5-6-sonnet-20270105"})
 
-    # Step 2: Execute GPT-5.5 code generation task
-    agentops.record_action("Code Generation Step", params={"model": "gpt-5.5-preview"})
+    # Step 2: Execute GPT-5.6 code generation task
+    agentops.record_action("Code Generation Step", params={"model": "gpt-5-6-turbo"})
 
     # Complete session with explicit status
     agentops.end_session('Success')
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Optimization & Security
+- **API Key Scoping**: Maintain separate `AGENTOPS_API_KEY` credentials for development, staging, and production environments.
+- **PII Masking**: Ensure PII regex masking is enabled in session initialization to satisfy enterprise compliance requirements.
+- **Batch Export**: For high-volume multi-agent deployments, configure asynchronous trace ingestion to minimize execution overhead.
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md) - Open-source observability and evaluation platform.

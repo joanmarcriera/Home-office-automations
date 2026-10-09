@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/enterprise/curiosity.md",
-    "docs/tools/providers/poolside.md",
-    "docs/tools/process_understanding/agentops.md",
     "docs/tools/calendar_tasks/todoist.md",
     "docs/services/searXNG.md",
     "docs/tools/agents/documentation-writer.md",
@@ -40,7 +37,10 @@
     "docs/tools/benchmarking/mmlu.md",
     "docs/tools/benchmarking/mt-bench.md",
     "docs/tools/process_understanding/lastmile.md",
-    "docs/tools/frameworks/autogen-studio.md"
+    "docs/tools/frameworks/autogen-studio.md",
+    "docs/tools/orchestration/flyte.md",
+    "docs/tools/frameworks/superinterface.md",
+    "docs/tools/ai_knowledge/claude-desktop.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
