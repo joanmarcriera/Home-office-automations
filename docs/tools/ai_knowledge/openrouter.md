@@ -3,7 +3,7 @@
 ## What it is
 OpenRouter is a unified API gateway, intelligent model router, and meta-provider for foundation language, vision, code, and multimodal AI models. Operating as a single OpenAI-compatible HTTP interface, OpenRouter provides developer access to 250+ model variants hosted across major cloud providers (Anthropic, OpenAI, Google DeepMind, Meta, DeepSeek, Mistral, Qwen, Cohere, Fireworks, Together, and Baseten). As of early 2027, OpenRouter incorporates native **FastMCP 3.1 routing**, real-time thinking token streaming, dynamic price-to-performance load balancing, automatic failover chains, prompt caching normalization, and granular enterprise billing controls.
 
-OpenRouter sits between application frameworks ([LangChain](../frameworks/langchain.md), [AutoGPT](../agents/autogpt.md), [Claude Code](../development_ops/claude-code.md), [Aider](../development_ops/aider.md)) and raw inference endpoints. It evaluates real-time API latency metrics, provider capacity, and token pricing to route incoming requests to the optimal endpoint without requiring code changes or multiple subscription credentials.
+OpenRouter sits between application frameworks ([LangChain](langchain.md), [AutoGPT](../agents/autogpt.md), [Claude Code](../development_ops/claude-code.md), [Aider](../development_ops/aider.md)) and raw inference endpoints. It evaluates real-time API latency metrics, provider capacity, and token pricing to route incoming requests to the optimal endpoint without requiring code changes or multiple subscription credentials.
 
 ## What problem it solves
 Integrating frontier AI models into production software introduces severe infrastructure, operational, and financial friction:
@@ -238,7 +238,7 @@ if __name__ == "__main__":
 - [Gemini](gemini.md) — Multimodal long-context model family.
 - [Local LLMs](local_llms.md) — Offline, self-hosted model alternatives.
 - [FastMCP 3.1 Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Tool protocol standard.
-- [LangChain](../frameworks/langchain.md) — Framework using OpenRouter API gateways.
+- [LangChain](langchain.md) — Framework using OpenRouter API gateways.
 
 ## Sources / references
 - [OpenRouter Official Site](https://openrouter.ai/)

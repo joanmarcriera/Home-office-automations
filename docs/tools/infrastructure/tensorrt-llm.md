@@ -51,6 +51,19 @@
 
 ## Getting started
 
+### Installation
+Pull pre-built Docker containers or install via `pip`:
+
+```bash
+# Pull official NVIDIA TensorRT-LLM container
+docker pull nvcr.io/nvidia/tensorrtllm:latest
+
+# Or install python wheel in CUDA 12 environment
+pip install tensorrt_llm pydantic torch --extra-index-url https://pypi.nvidia.com
+```
+
+### Build Pipeline Architecture Overview
+
 ```
 +-------------------------------------------------------------------+
 |                        TensorRT-LLM Build Pipeline                |
@@ -81,9 +94,37 @@
 +-------------------------------------------------------------------+
 ```
 
+### Minimal Working Example
+```python
+from pydantic import BaseModel, Field
+
+class GenerationConfig(BaseModel):
+    prompt: str = Field(..., min_length=1)
+    max_tokens: int = Field(default=128, ge=1)
+
+def run_inference(cfg: GenerationConfig) -> str:
+    # Simulated execution demonstrating API flow for TensorRT-LLM runtime
+    return f"[TensorRT-LLM Engine Output]: Processing '{cfg.prompt[:20]}' with max_tokens={cfg.max_tokens}"
+
+if __name__ == "__main__":
+    config = GenerationConfig(prompt="Explain continuous batching in high-throughput inference.", max_tokens=64)
+    res = run_inference(config)
+    print(res)
+```
+
 
 ## CLI examples
 
+```bash
+# Build TensorRT engine checkpoint from Hugging Face model weights
+trtllm-build --checkpoint_dir ./llama-3-8b-ckpt --output_dir ./engine_outputs --gemm_plugin float16
+
+# Run multi-GPU tensor parallel inference on 2 ranks
+mpirun -n 2 --allow-run-as-root python3 -m tensorrt_llm.hlapi.llm --model ./engine_outputs
+
+# Benchmark TensorRT-LLM engine throughput and token latency
+python3 -m tensorrt_llm.benchmarks.benchmark_serving --engine_dir ./engine_outputs --num_prompts 100
+```
 
 
 ## API examples
@@ -129,11 +170,7 @@ class TensorRTLlmService:
         """Validate request payload and simulate TensorRT-LLM generation execution."""
         req = TensorRTInferenceRequest.model_validate(request_payload)
 
-        # In a production environment with GPU hardware:
-        # runner = tensorrt_llm.runtime.ModelRunner.from_dir(engine_dir)
-        # outputs = runner.generate(req.prompt, max_new_tokens=req.max_output_tokens)
-
-        simulated_response = f"[TensorRT-LLM Output ({self.config.quant_mode})]: Verified response for '{req.prompt[:30]}...'"
+        simulated_response = f"[TensorRT-LLM Output ({self.config.quant_mode})]: Verified response for '{req.prompt[:30]}'"
 
         return {
             "text": simulated_response,

@@ -4,50 +4,26 @@
 
 School Admin Intake is an enterprise-grade administrative automation playbook designed to parse, classify, and action high volumes of school correspondence, permission slips, academic reports, and extracurricular schedules. Operating across local document stores, workflow engines, and LLM inference runtimes, it eliminates human oversight errors in tracking academic deadlines and parental consent requirements. In current architectures (2026/2027), the playbook leverages local multimodal foundation models—including [Llama 4](../tools/ai_knowledge/llama.md) (70B/405B quantization), [Gemma 4](../tools/ai_knowledge/gemma.md), and [Qwen 3.8](../tools/ai_knowledge/qwen.md)—integrated via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers to maintain strict data sovereignty over minor Personally Identifiable Information (PII).
 
-```
-+--------------------------------------------------------------------------------------------------------------------+
-|                                        SCHOOL ADMIN INTAKE ARCHITECTURE                                            |
-+--------------------------------------------------------------------------------------------------------------------+
-|                                                                                                                    |
-|  +------------------------+      +--------------------------+      +-------------------------------------------+  |
-|  |  Physical / Scanning   |      |   Inbound Digital Email  |      |        School Web Portals                 |  |
-|  |  (Fujitsu / Mobile OCR)|      |  (IMAP / SMTP Ingestion) |      |   (ParentSquare API / Webhook)            |  |
-|  +-----------+------------+      +------------+-------------+      +---------------------+---------------------+  |
-|              |                                |                                          |                        |
-|              +-------------------+------------+------------------------------------------+                        |
-|                                  |                                                                                |
-|                                  v                                                                                |
-|                   +------------------------------+                                                                |
-|                   |  n8n Orchestration Pipeline  |                                                                |
-|                   |  (Filter, Route & Normalise) |                                                                |
-|                   +--------------+---------------+                                                                |
-|                                  |                                                                                |
-|                                  v                                                                                |
-|                   +------------------------------+                                                                |
-|                   |   Paperless-ngx Storage      |                                                                |
-|                   |   (Document Archival & OCR)  |                                                                |
-|                   +--------------+---------------+                                                                |
-|                                  |                                                                                |
-|                                  v                                                                                |
-|                   +------------------------------+                                                                |
-|                   |    FastMCP 3.1 Tool Server   |<------------+                                                  |
-|                   |  (Schema Enforcement & RAG)  |             |                                                  |
-|                   +--------------+---------------+             |                                                  |
-|                                  |                             |                                                  |
-|                                  v                             v                                                  |
-|                   +------------------------------+  +----------------------+                                      |
-|                   |   Local LLM Inference Engine |  |  Pydantic v2 Models  |                                      |
-|                   |   (Llama 4 / Ollama Runtime) |  |  (Strict Validation) |                                      |
-|                   +--------------+---------------+  +----------------------+                                      |
-|                                  |                                                                                |
-|         +------------------------+------------------------+                                                       |
-|         |                        |                        |                                                       |
-|         v                        v                        v                                                       |
-|  +--------------+        +---------------+        +---------------+                                               |
-|  | Google Cal / |        |  Vikunja Task |        | Home Assistant|                                               |
-|  | CalDAV Sync  |        |  Manager Sync |        | Push Alerts   |                                               |
-|  +--------------+        +---------------+        +---------------+                                               |
-+--------------------------------------------------------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph Ingestion["Inbound Sources"]
+        A1[Physical Documents / Scans] --> B1[n8n Automation Trigger]
+        A2[Inbound School Emails] --> B1
+        A3[Parent Portals / Webhooks] --> B1
+    end
+
+    subgraph Processing["Processing & Storage"]
+        B1 --> C1[Paperless-ngx Archive & OCR]
+        C1 --> C2[FastMCP 3.1 Tool Gateway]
+        C2 --> C3[Local LLM Inference Engine<br/>Llama 4 / Ollama Runtime]
+        C3 --> C4[Pydantic v2 Schema Validator]
+    end
+
+    subgraph Actions["Downstream Action Outlets"]
+        C4 --> D1[Google Calendar / CalDAV Sync]
+        C4 --> D2[Vikunja Task Manager]
+        C4 --> D3[Home Assistant Push Alerts]
+    end
 ```
 
 ## What problem it solves
