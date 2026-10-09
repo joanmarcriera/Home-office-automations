@@ -8,8 +8,63 @@ A research document evaluating the landscape of vision-capable AI models (VLMs) 
 ## What problem it solves
 It enables AI agents to "see" and interpret the physical and digital world, automating the extraction of structured data from images, videos, and complex PDFs. This reduces the need for manual data entry and allows for semantic search over vast personal media archives while preserving privacy through local-first processing.
 
+## Architectural Overview
+
+```
++-----------------------------------------------------------------------------------+
+|                             RAW MULTIMODAL INGESTION                              |
+|   Security Video Stream  /  Scanned Paperless Documents  /  Immich Media Assets   |
++-----------------------------------------------------------------------------------+
+                                         |
+                            Frame Sampling & Resizing
+                                         v
++-----------------------------------------------------------------------------------+
+|                           VISION-LANGUAGE PERCEPTION PLANE                        |
+|                                                                                   |
+|  +--------------------+   +-----------------------+   +------------------------+  |
+|  | High-Res OCR       |   | Spatial Grounding     |   | Video Context Window   |  |
+|  | - InternVL2 (Local)|-->| - Florence-2 / Qwen   |-->| - Gemini 4.0 Flash     |  |
+|  | - Paperless-ngx    |   | - 3D Bounding boxes   |   | - 2M+ Token Context    |  |
+|  +--------------------+   +-----------------------+   +------------------------+  |
+|            |                                                                      |
+|            +-------------------+--------------------+                             |
+|                                |                    |                             |
+|                                v                    v                             |
+|                      [Local Edge VRAM]      [Frontier Cloud VLM]                  |
+|                                |                    |                             |
+|                       Sub-50ms Perception   Deep Multimodal Analysis             |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                            FASTMCP 3.1 ACTION BRIDGE                              |
+|   Structured Schema (Pydantic v2)  |  Vector Embedding Indexing  | Agent Execution|
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+graph TD
+    A[Multimodal Source Assets] -->|FFmpeg / Image Pipeline| B[Vision Perception Engine]
+    B -->|FastMCP 3.1 Router| C{Deployment Strategy}
+    C -->|Local VRAM 24GB| D[InternVL2 / Gemma 3 / Qwen 2.5-VL]
+    C -->|Cloud Frontier| E[Claude 5.1 Opus / Gemini 4.0 Ultra]
+    D -->|Extracted JSON / Bounding Boxes| F[Home Memory Plane & Vector DB]
+    E -->|High-Precision Structuring| F
+```
+
 ## Where it fits in the stack
 Vision models act as the **Perception Layer** within the [Home-Office Architecture](../architecture/README.md). They process raw data from [Immich](../services/immich.md) or [Paperless-ngx](../services/paperless-ngx.md) and feed semantic descriptions into the [Memory Plane](./vector-db-comparison.md) (Vector DBs) for agentic retrieval.
+
+## Feature & Model Performance Matrix (Early 2027)
+
+| VLM / Architecture | Primary Strength | Local VRAM Need | Context Window | OCR / Table Extraction | FastMCP Protocol Support |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **InternVL2 (26B)** | Deep local reasoning | 24GB–48GB VRAM | 32K tokens | SOTA (High Resolution) | Native via FastMCP 3.1 |
+| **Gemma 3 (27B)** | Compact multimodal | 24GB VRAM | 128K tokens | Excellent | Native via FastMCP 3.1 |
+| **Florence-2** | Ultra-fast dense tagging| <4GB VRAM | 4K tokens | High speed (Regional) | Custom wrapper |
+| **Claude 5.1 Opus** | Complex reasoning | Cloud API | 200K tokens | Benchmark SOTA | Native Anthropic MCP |
+| **Gemini 4.0 Flash/Pro**| Video context (Hours) | Cloud API | 2,000,000+ tokens | Excellent | Native Google MCP |
+| **Moondream2** | Edge & IoT captioning | <2GB VRAM | 2K tokens | Basic | Direct CLI / Tool wrapper |
 
 ## Typical use cases
 - **Automated Media Tagging**: Generating high-fidelity metadata for thousands of home photos and videos in [Immich](../services/immich.md).
@@ -76,16 +131,37 @@ moondream-cli --image sample.jpg --prompt "Describe this image in one sentence."
 python3 -c "import torch; print(f'GPU: {torch.cuda.get_device_name(0)}' if torch.cuda.is_available() else 'No GPU')"
 ```
 
+## Operational Best Practices & Troubleshooting
+
+### VRAM OOM Management
+Large vision models scale token allocation dynamically with image aspect ratio and tile resolution.
+- Enforce image max dimension limits (e.g., max 2048px on longest side) before sending payloads to local Ollama/InternVL2 servers.
+- Use fixed tensor tiling to maintain constant GPU memory usage during batch document processing.
+
+### Avoiding Optical Hallucinations in OCR
+When extracting unstructured tables or handwritten invoices:
+- Require confidence scoring per extracted field or run dual-pass verification (e.g. local InternVL2 pass followed by local regular expression / Pydantic validation).
+- Provide explicit negative constraints in system prompts (e.g., "Do not infer unreadable text; return null for illegible characters").
+
+### Video Sampling Optimization
+Avoid uploading raw high-FPS video directly to cloud endpoints:
+- Use scene-change detection (`ffmpeg -vf "select='gt(scene,0.3)'"`) to sample keyframes only when visual context changes significantly.
+
 ## API examples
 
-### Multi-Modal Document Validation with Pydantic v2
+### Multi-Modal Document Validation with Pydantic v2 & FastMCP 3.1
 This API script models the ingestion, size validation, and schema checking for multi-modal VLM processors under FastMCP 3.1 guidelines.
 
 ```python
-from typing import Literal, Optional, Tuple
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import Literal, Optional, Tuple, List
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("vlm-perception-manager")
 
 class ImageMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     width_pixels: int = Field(..., description="Width of the processed image")
     height_pixels: int = Field(..., description="Height of the processed image")
     format: Literal["PNG", "JPEG", "WEBP"] = Field(..., description="The structural encoding format")
@@ -100,12 +176,23 @@ class ImageMetadata(BaseModel):
         return val
 
 class VisionProcessingJob(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_id: str = Field(..., description="Unique transaction ID for visual ingestion")
     image_info: ImageMetadata
     prompt: str = Field(..., min_length=5, description="Grounding directive for the VLM")
     preferred_backend: Literal["local_internvl2", "gemini_40_flash", "claude_51_opus"] = Field(
         default="local_internvl2"
     )
+
+class VLMInferenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    job_id: str
+    backend_used: str
+    success: bool
+    extracted_text: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
 
 def execute_vlm_perception(job: VisionProcessingJob) -> Tuple[bool, str]:
     # Ingestion check
@@ -114,24 +201,35 @@ def execute_vlm_perception(job: VisionProcessingJob) -> Tuple[bool, str]:
         return False, "Image resolution too high for local 24GB VRAM. Downsample or route to Gemini 4.0 Pro."
     return True, f"Successfully processed job {job.job_id} on {job.preferred_backend}."
 
-# Try validating a high resolution image for local processing
-raw_job = {
-    "job_id": "vlm_perception_task_773",
-    "image_info": {
-        "width_pixels": 6000,
-        "height_pixels": 4000,
-        "format": "JPEG"
-    },
-    "prompt": "List all physical items and bounding boxes in this office photo.",
-    "preferred_backend": "local_internvl2"
-}
+@mcp.tool()
+def process_vision_task(job_data: str) -> dict:
+    """FastMCP 3.1 tool wrapper for processing vision tasks with validated Pydantic v2 schemas."""
+    try:
+        job = VisionProcessingJob.model_validate_json(job_data)
+        ok, msg = execute_vlm_perception(job)
+        return {"status": "success" if ok else "error", "message": msg}
+    except ValidationError as e:
+        return {"status": "validation_error", "errors": e.errors()}
 
-try:
-    job = VisionProcessingJob.model_validate(raw_job)
-    ok, status = execute_vlm_perception(job)
-    print(f"Ingestion result: {ok}. Message: {status}")
-except ValidationError as e:
-    print(f"Validation error: {e.json()}")
+# Try validating a high resolution image for local processing
+if __name__ == "__main__":
+    raw_job = {
+        "job_id": "vlm_perception_task_773",
+        "image_info": {
+            "width_pixels": 3840,
+            "height_pixels": 2160,
+            "format": "JPEG"
+        },
+        "prompt": "List all physical items and bounding boxes in this office photo.",
+        "preferred_backend": "local_internvl2"
+    }
+
+    try:
+        job = VisionProcessingJob.model_validate(raw_job)
+        ok, status = execute_vlm_perception(job)
+        print(f"Ingestion result: {ok}. Message: {status}")
+    except ValidationError as e:
+        print(f"Validation error: {e.json()}")
 ```
 
 ### Gemini 4.0 Video Analysis (Python)

@@ -6,6 +6,40 @@ DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation f
 ## What problem it solves
 It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where fluent writing and plausible citations hide factual errors or reasoning flaws. Static judges cannot verify claims against real-world evidence; DREAM solves this by making the evaluator as capable (agentic) as the agent it is testing, utilizing **FastMCP 3.1** for dynamic tool discovery and tool execution.
 
+## Architectural Overview
+
+```
++-----------------------------------------------------------------------------------+
+|                            TARGET AGENT UNDER EVALUATION                          |
+|    Generates Multi-Page Research Report (Text, Tables, Citations, Claims)         |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                              DREAM AGENTIC EVALUATOR                              |
+|                                                                                   |
+|  +---------------------+   +-----------------------+   +-----------------------+  |
+|  | Claim Extractor     |   | Fact-Checking Loop    |   | Temporal Decay Engine |  |
+|  | - Atomic assertions |-->| - FastMCP 3.1 Tools   |-->| - Recency weight check|  |
+|  | - Data table values |   | - Multi-source lookup |   | - Stale data penalty  |  |
+|  +---------------------+   +-----------------------+   +-----------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|                         [FastMCP 3.1 Tool Discovery]                              |
+|                                        |                                          |
+|                      +-----------------+-----------------+                        |
+|                      |                                   |                        |
+|                      v                                   v                        |
+|          Live Web Search (Tavily)               Domain Document Ingestion         |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                             VERDICT & METRIC SUMMARY                              |
+|   Verification Status (Verified / Refuted / Unverifiable)  | Accuracy & Decay Score|
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 graph TD
     AgentReport[Generated Research Report] -->|Extract Claims| ClaimExtractor[DREAM Claim Extractor]
@@ -18,6 +52,17 @@ graph TD
 
 ## Where it fits in the stack
 **Eval / Benchmarking**: It is a framework for benchmarking and evaluating advanced LLM agentic performance, particularly for models when used in complex research loops. It bridges the gap between static benchmarks like [GPQA](gpqa.md) and real-world utility.
+
+## Feature & Operational Comparison
+
+| Feature / Metric | DREAM | GPQA / MMLU | SWE-bench | HLE (Humanity's Last Exam) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Evaluation Type** | Agentic Fact-Checking | Static Multiple Choice | Executable Code Sandbox | Static Multimodal Q&A |
+| **Verification Method**| FastMCP live web search | Pre-computed answer key | Automated Unit Tests | Closed Expert Answer Key |
+| **Temporal Awareness** | High (Detects stale data) | Zero (Static cutoff) | Zero (Fixed dependencies) | Zero (Fixed benchmark) |
+| **Target Workload** | Analyst-grade reports | General / Academic facts | Software Patch Generation | Extreme Expert Reasoning |
+| **Execution Overhead**| High (Multi-turn searches) | Negligible (Single API call)| High (Docker container builds)| Negligible (Single prompt) |
+| **Contamination Loss** | Low (Dynamic live web evidence)| High (Static text risk) | Medium (Repo snapshots) | Low (Obfuscated tasks) |
 
 ## Typical use cases
 - **Benchmarking Research Agents**: Comparing how well different models or agent architectures (like [OpenHands](../development_ops/openhands.md) or custom research loops) generate accurate analyst-grade reports.
@@ -88,6 +133,21 @@ Export the verification results to a structured JSON format for further analysis
 dream-eval verify --report report.md --output results.json
 ```
 
+## Operational Best Practices & Troubleshooting
+
+### Controlling Evaluation Cost and Multi-Turn Depth
+Because agentic evaluation invokes multiple LLM turns and web searches per report claim:
+- Limit maximum search depth per claim with `--max-search-depth 3`.
+- Enable cached tool responses during iterative evaluator prompt tuning (`--cache-search-results`).
+
+### Search API Rate Limits
+During batch evaluation of long reports (containing 50+ claims), search provider APIs (e.g. Tavily, Brave) may enforce rate limits.
+- Set `--concurrency 2` or pass rate-limit backoff parameters in the `dream-eval` config file.
+
+### Disambiguating Conflicting Web Evidence
+When web search returns contradictory results:
+- Ensure the DREAM evaluator prompt includes temporal weight weighting (e.g., favoring domain-specific primary sources over aggregated news blogs).
+
 ## API examples
 
 ### Basic Verification Loop (Python)
@@ -116,9 +176,11 @@ This Python script parses and validates agentic fact-checking results generated 
 ```python
 import json
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, ValidationError, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, HttpUrl
 
 class ClaimVerification(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     claim_id: str = Field(..., description="Unique identifier for the parsed claim")
     text: str = Field(..., description="The literal statement extracted from the research report")
     status: Literal["Verified", "Refuted", "Unverifiable"] = Field(..., description="Verification status")
@@ -127,6 +189,8 @@ class ClaimVerification(BaseModel):
     justification: str = Field(..., description="Reasoning or quotes from the sources justifying the decision")
 
 class DreamEvaluationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     report_id: str = Field(..., description="ID of the research report being evaluated")
     overall_accuracy_score: float = Field(..., ge=0.0, le=1.0, description="Fraction of claims verified")
     temporal_decay_metric: float = Field(..., ge=0.0, le=1.0, description="Indicates temporal freshness penalty")

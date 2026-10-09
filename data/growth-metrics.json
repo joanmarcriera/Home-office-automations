@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/llama-swap.md",
-    "docs/tools/ai_knowledge/otaku.md",
-    "docs/tools/benchmarking/dream.md",
-    "docs/tools/agents/gemini-robotics.md",
     "docs/tools/infrastructure/clawrouter.md",
     "docs/tools/development_ops/sourcegraph_cody.md",
     "docs/tools/benchmarking/mmlu.md",
@@ -40,7 +36,11 @@
     "docs/tools/infrastructure/local-embeddings.md",
     "docs/tools/automation_orchestration/atlassian-jira-mcp.md",
     "docs/tools/agents/claude-skills-ecosystem.md",
-    "docs/tools/development_ops/jupyter-kernel-mcp.md"
+    "docs/tools/development_ops/jupyter-kernel-mcp.md",
+    "docs/tools/infrastructure/docker-compose.md",
+    "docs/tools/calendar_tasks/reclaim.md",
+    "docs/tools/process_understanding/braintrust.md",
+    "docs/tools/providers/katcoderair.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
