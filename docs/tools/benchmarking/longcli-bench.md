@@ -3,8 +3,56 @@
 ## What it is
 LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of January 2027, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md) which utilize [FastMCP 3.1](../../tools/automation_orchestration/mcp.md) for dynamic tool and task orchestration.
 
+## System Architecture & Evaluation Pipeline
+
+```
+                                +----------------------------------+
+                                |  Task Suite (Long-Horizon Specs) |
+                                +-----------------+----------------+
+                                                  |
+                                                  | Load Assignment
+                                                  v
+                                +-----------------+----------------+
+                                | LongCLI-Bench Evaluation Harness |
+                                |  - FastMCP 3.1 Protocol Proxy    |
+                                |  - Turn & Timeout Manager        |
+                                +-----------------+----------------+
+                                                  |
+                                                  | Shell Action Request
+                                                  v
+                                +-----------------+----------------+
+                                | Isolated Sandbox Container       |
+                                |  - PTY / Terminal Session        |
+                                |  - Execution Environment         |
+                                +-----------------+----------------+
+                                                  |
+                                                  | Stdout / Stderr / Exit Code
+                                                  v
+                                +-----------------+----------------+
+                                | Telemetry & Stall Detector Engine|
+                                |  - Pydantic v2 Session Validation|
+                                |  - Step Accuracy & Failure Audit |
+                                +-----------------+----------------+
+                                                  |
+                                                  | OLAP Analytics Batch
+                                                  v
+                                +-----------------+----------------+
+                                | Leaderboard & Quality Dashboard  |
+                                +----------------------------------+
+```
+
 ## What problem it solves
 It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
+
+## Feature Comparison Matrix
+
+| Capability / Metric | LongCLI-Bench | SWE-bench | Terminal-Bench | HumanEval |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Multi-Turn Terminal Agency | GitHub PR / Issue Resolution | Single/Multi-Turn CLI Commands | Function-Level Code Generation |
+| **Horizon Depth** | Very Long (>30 turns) | Moderate-Long (10-20 turns) | Short-Moderate (1-10 turns) | Single Turn |
+| **Stall Detection** | Real-Time Loop & Stall Tracking | Final Pass/Fail | Timeout Based | Unit Test Pass/Fail |
+| **FastMCP 3.1 Support** | Native Task Protocol Telemetry | Third-Party Harness | Manual Wrapper | N/A |
+| **State Awareness** | Multi-Step PTY State Audit | Git Diff Validation | File Check | Return Value Verification |
 
 ## Where it fits in the stack
 **Eval / Benchmarking**. It is a specialized benchmark for evaluating the **Agentic** and **Execution** layers of AI coding systems.

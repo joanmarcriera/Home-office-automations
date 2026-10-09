@@ -3,8 +3,53 @@
 ## What it is
 Instructor is a multi-language library (Python, TypeScript, Go, Ruby, Rust) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of early January 2027, **Instructor v2.x** remains the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Ultra**.
 
+## Architecture & Validation Flow
+
+```
+                                +------------------------------------+
+                                |    Application Code / FastMCP 3.1  |
+                                +-----------------+------------------+
+                                                  | Define Pydantic v2 Schema
+                                                  v
+                                +-----------------+------------------+
+                                |    Instructor v2.x Client Engine   |
+                                |  - Schema -> JSON Schema Mode     |
+                                |  - System Prompt Injection         |
+                                +-----------------+------------------+
+                                                  | Call LLM API (Structured Outputs)
+                                                  v
+                                +-----------------+------------------+
+                                |    Frontier LLM Provider           |
+                                |  (Claude 5.6 / GPT-5.6 / Gemini)  |
+                                +-----------------+------------------+
+                                                  | Raw JSON Response
+                                                  v
+                                +-----------------+------------------+
+                                |   Pydantic v2 Validation Engine    |
+                                |  - Type Validation                 |
+                                |  - AfterValidator / Field Rules   |
+                                +--------+-------------------+-------+
+                                         |                   |
+                           Validation OK |                   | Validation Error
+                                         v                   v
+                        +----------------+---+      +--------+-------------------+
+                        | Validated Typed    |      | Re-prompt Loop (Retries)   |
+                        | Object Instantiation|      | Error Traceback back to LLM|
+                        +--------------------+      +----------------------------+
+```
+
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
+
+## Feature Comparison Matrix
+
+| Dimension / Feature | Instructor v2.x | PydanticAI | Vercel AI SDK (`generateObject`) | Raw LLM JSON Mode |
+| :--- | :--- | :--- | :--- | :--- |
+| **Language Support** | Python, TS, Go, Ruby, Rust | Python | TypeScript / JavaScript | All (REST API) |
+| **Validation Mechanism** | Native Pydantic v2 / Zod | Native Pydantic v2 | Zod | Manual Post-Parsing |
+| **Self-Correction Retries** | Automatic with trace | Automatic with trace | Manual Retry Logic | Custom Error Handling |
+| **Semantic Rules** | `AfterValidator` + LLM Grading | System Prompts | Custom Transformers | None |
+| **FastMCP 3.1 Native** | First-Class Tool Schema | First-Class Agent Frame | First-Class Server Route | Manual Parsing |
 
 ## Where it fits in the stack
 **Category**: Frameworks / Data Extraction. It acts as the "Validation & Schema" layer between the LLM provider ([OpenAI](../ai_knowledge/openai.md), [Anthropic](../providers/anthropic.md), etc.) and the application logic, often used in conjunction with [PydanticAI](pydantic-ai.md).
@@ -63,6 +108,41 @@ user = client.chat.completions.create(
 
 print(user.name) # "Jason"
 print(user.age)  # 25
+```
+
+## FastMCP 3.1 Task Protocol Integration
+
+In early 2027, Instructor integrates directly with FastMCP 3.1 Task Protocol servers to provide schema-validated tool calling:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import instructor
+from openai import OpenAI
+
+mcp = FastMCP("InstructorTaskServer", version="3.1.0")
+client = instructor.from_provider(OpenAI())
+
+class IncidentReport(BaseModel):
+    service_name: str = Field(..., description="Affected system or service name")
+    severity: str = Field(..., description="Incident severity level: LOW, MED, HIGH, CRITICAL")
+    remediation_steps: list[str] = Field(..., description="Ordered resolution action items")
+
+@mcp.tool()
+async def extract_incident_summary(raw_log_text: str) -> IncidentReport:
+    """Uses Instructor v2.x to extract structured incident reports from unstructured logs."""
+    report = client.chat.completions.create(
+        model="gpt-5.6",
+        response_model=IncidentReport,
+        messages=[
+            {"role": "system", "content": "Extract incident data accurately."},
+            {"role": "user", "content": raw_log_text}
+        ]
+    )
+    return report
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## CLI examples
