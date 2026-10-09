@@ -8,8 +8,55 @@ The logic relies on three core pillars:
 2. **Rate of Change (Spike Detection)**: Monitoring the derivative of power consumption to identify sudden loads.
 3. **Agentic Reasoning**: Routing unexplained anomalies to a "Home Admin Agent" for context-aware classification (e.g., distinguishing between a dishwasher cycle and a forgotten space heater).
 
+## System Architecture
+
+```
+                                +-----------------------------------+
+                                |   Whole Home / Circuit Sensors    |
+                                |  (Shelly Pro 3EM, Emporia Vue)    |
+                                +-----------------+-----------------+
+                                                  | MQTT / REST (1Hz)
+                                                  v
+                                +-----------------+-----------------+
+                                |      Home Assistant Core          |
+                                |   - Moving Average Filter         |
+                                |   - Derivative (dp/dt) Sensor     |
+                                |   - Statistical Threshold (2σ)    |
+                                +-----------------+-----------------+
+                                                  | Trigger Anomaly Event
+                                                  v
+                                +-----------------+-----------------+
+                                |  FastMCP 3.1 Anomaly Server       |
+                                |   - State Context Aggregation     |
+                                |   - Pydantic v2 Contract Check     |
+                                +-----------------+-----------------+
+                                                  | Task Execution
+                                                  v
+                                +-----------------+-----------------+
+                                |    Home Admin Reasoning Agent     |
+                                | (Claude 5.6 / Local Ollama VLM)   |
+                                +-----------------+-----------------+
+                                  /               |               \
+                                 /                |                \
+                                v                 v                 v
+                     +------------+     +------------------+     +------------+
+                     | HA Control |     |   Notification   |     | Audit Log  |
+                     | Auto-Off   |     | (Pushover/Signal)|     | PostgreSQL |
+                     +------------+     +------------------+     +------------+
+```
+
 ## What problem it solves
 Energy anomalies often indicate appliance failure (e.g., a fridge compressor stuck in a high-consumption state), safety hazards (e.g., an iron or stove left on), or security concerns (e.g., unexpected occupancy). Manual monitoring is impossible at the required granularity; this baseline provides an automated "detection-to-reasoning" pipeline that improves safety and significantly reduces energy waste.
+
+## Feature Comparison Matrix
+
+| Capability / Dimension | Basic HA Thresholds | Statistical Baseline ($2\sigma$) | Agentic Anomaly Detection (FastMCP 3.1) |
+| :--- | :--- | :--- | :--- |
+| **Detection Speed** | Instant (<100ms) | Low Latency (<1s) | Context Analysis (1-3s) |
+| **False Positive Rate** | High (triggers on normal high-wattage) | Moderate (handles cyclic loads) | Near-Zero (cross-references occupancy/schedule) |
+| **Context Awareness** | None (static threshold) | Historical Moving Window | Multimodal (Sensors + Calendar + Cameras) |
+| **Action Automation** | Basic Switch Off | Rule-based Alert | Autonomous Remediation & Self-Healing |
+| **Appliance Profiling** | Single Device Only | Aggregated Consumption | Signature-based Decomposition |
 
 ## Where it fits in the stack
 This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack. It acts as the bridge between raw telemetry data (from Shelly or Emporia sensors) and the notification/action layer, providing the logic necessary to transform "noisy" power data into actionable alerts.
@@ -45,6 +92,74 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 2. **Baseline Configuration**: In Home Assistant, set up a `statistics` sensor to track the 24-hour moving average and standard deviation of your main power feed.
 3. **Automation Trigger**: Create an n8n workflow that triggers when `current_power > baseline + (2 * std_dev)`.
 4. **Agent Handoff**: Pass the current power state, time of day, and recent appliance states to a Home Admin Agent for final classification.
+
+## FastMCP 3.1 Task Protocol Integration
+
+In early 2027, FastMCP 3.1 provides native Task Protocol tooling to handle real-time sensor streams and execute agentic remediation tools:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
+import time
+
+mcp = FastMCP("EnergyAnomalyDetectionServer", version="3.1.0")
+
+class TelemetryPoint(BaseModel):
+    sensor_id: str
+    power_watts: float
+    voltage: float = 120.0
+    timestamp: float = Field(default_factory=time.time)
+
+class AnomalyDecision(BaseModel):
+    sensor_id: str
+    is_anomaly: bool
+    risk_level: str  # "LOW", "MEDIUM", "HIGH", "CRITICAL"
+    recommended_action: str
+    auto_remediated: bool
+
+@mcp.tool()
+async def analyze_power_event(
+    reading: TelemetryPoint,
+    baseline_avg_watts: float,
+    std_dev_watts: float,
+    occupancy_state: str = "home"
+) -> AnomalyDecision:
+    """Analyze real-time power reading against statistical baselines and home context."""
+    threshold = baseline_avg_watts + (2.0 * std_dev_watts)
+    excess = reading.power_watts - threshold
+
+    if reading.power_watts <= threshold:
+        return AnomalyDecision(
+            sensor_id=reading.sensor_id,
+            is_anomaly=False,
+            risk_level="LOW",
+            recommended_action="None - Nominal baseline",
+            auto_remediated=False
+        )
+
+    # Contextual reasoning rule evaluation
+    if occupancy_state == "away" and reading.power_watts > 1500:
+        return AnomalyDecision(
+            sensor_id=reading.sensor_id,
+            is_anomaly=True,
+            risk_level="CRITICAL",
+            recommended_action="Isolate circuit via smart breaker and push priority emergency alert",
+            auto_remediated=True
+        )
+
+    risk = "HIGH" if excess > 2000 else "MEDIUM"
+    return AnomalyDecision(
+        sensor_id=reading.sensor_id,
+        is_anomaly=True,
+        risk_level=risk,
+        recommended_action="Dispatch query to Home Admin Agent for appliance identification",
+        auto_remediated=False
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ## CLI examples
 

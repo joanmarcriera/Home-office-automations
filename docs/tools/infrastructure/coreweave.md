@@ -3,8 +3,57 @@
 ## What it is
 CoreWeave is a specialized cloud hyper-scaler purpose-built for high-performance computing (HPC), AI/ML model training, large-scale inference, and GPU-accelerated rendering workflows. As of early 2027, CoreWeave operates expansive ultra-low latency compute clusters powered by NVIDIA H100, H200, B200, and GB200 NVL72 architectures connected via NVIDIA Quantum-2 InfiniBand networking. CoreWeave provides bare-metal and Kubernetes-native GPU infrastructure optimized for distributed training frameworks (e.g., Megatron-LM, DeepSpeed, Ray), high-throughput inference backends like [vLLM](./vllm.md) and [Triton Inference Server](triton.md), and automated FastMCP 3.1 agent execution workloads.
 
+## System Architecture & Interconnect Topology
+
+```
+                                +----------------------------------+
+                                |  AI Research / FastMCP 3.1 Agents |
+                                +-----------------+----------------+
+                                                  |
+                                                  | Kubernetes API / Helm / Slurm
+                                                  v
+                                +-----------------+----------------+
+                                | CoreWeave Bare-Metal K8s Control |
+                                |  - Custom GPU Operator (NVLink)  |
+                                |  - Slurm Cluster Manager         |
+                                +-----------------+----------------+
+                                                  |
+                                                  | Direct PCI-e / Direct Pass-Through
+                                                  v
+     +--------------------------------------------+--------------------------------------------+
+     |                                            |                                            |
+     v                                            v                                            v
++----+-----------------------+          +---------+---------------+          +-----------------+-------+
+| GB200 NVL72 Cluster        |          | H200 SXM Cluster        |          | H100 SXM Cluster        |
+| Foundation Model Training  |          | Distributed Fine-Tuning |          | FastMCP 3.1 Inference   |
++----+-----------------------+          +---------+---------------+          +-----------------+-------+
+     |                                            |                                            |
+     +--------------------------------------------+--------------------------------------------+
+                                                  |
+                                                  v
+                                +-----------------+----------------+
+                                | 3.2 Tbps Quantum-2 InfiniBand    |
+                                | Non-blocking Fat-Tree Fabric    |
+                                +-----------------+----------------+
+                                                  |
+                                                  v
+                                +-----------------+----------------+
+                                | CoreWeave NVMe Direct Storage    |
+                                +----------------------------------+
+```
+
 ## What problem it solves
 Traditional legacy cloud providers (e.g., AWS, GCP, Azure) often suffer from GPU availability constraints, high virtualization overhead, slow cross-node communication interconnects, and expensive egress fees. CoreWeave solves these critical issues by delivering bare-metal Kubernetes GPU clusters equipped with up to 3.2 Tbps InfiniBand fabrics per node, non-blocking network topologies, fast object storage, and dedicated vLLM / TensorRT-LLM serverless inference endpoints. This allows AI engineering teams to train frontier models and deploy sub-50ms latency agent clusters with lower infrastructure cost and maximum hardware utilization.
+
+## Feature Comparison Matrix
+
+| Dimension / Feature | CoreWeave | Legacy Public Cloud (AWS/Azure/GCP) | Sovereign AI Cloud |
+| :--- | :--- | :--- | :--- |
+| **GPU Virtualization** | Bare-Metal Kubernetes | Hypervisor / VM Overhead | Varied / VM-Based |
+| **Interconnect Fabric** | 3.2 Tbps Quantum-2 InfiniBand | 400-800 Gbps Proprietary (EFA/EFA2) | 100-400 Gbps Ethernet |
+| **Deployment Model** | Kubernetes CRDs & Slurm Operators | VM Instances & Managed K8s | Raw Metal / Custom API |
+| **Egress Fees** | Zero / Low Egress Charges | Premium Egress Bandwidth Pricing | Flat Rate / Variable |
+| **Agentic FastMCP 3.1 Native** | First-class Container Orchestration | Generic Microservice Hosting | Custom Container Runtime |
 
 ## Where it fits in the stack
 **Category**: Infrastructure / Specialized GPU Cloud Platform. CoreWeave operates at the **Hardware & Compute Infrastructure Layer**, supplying raw compute, storage, and networking engines for foundation model training, fine-tuning, and inference server deployments.
@@ -100,6 +149,45 @@ Inspect live GPU memory utilization and temperature across CoreWeave nodes:
 
 ```bash
 kubectl exec -it vllm-coreweave-h100 -- nvidia-smi
+```
+
+## FastMCP 3.1 Task Protocol Integration
+
+In early 2027, CoreWeave clusters expose FastMCP 3.1 Task Protocol tools to dynamically scale and manage GPU inference endpoints:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+mcp = FastMCP("CoreWeaveTaskOrchestrator", version="3.1.0")
+
+class PodScaleSpec(BaseModel):
+    deployment_name: str = Field(..., description="Target vLLM / FastMCP pod deployment")
+    target_replicas: int = Field(..., ge=1, le=100, description="Desired pod replica count")
+    gpu_type: str = Field(default="h100-sxm5-80gb", description="GPU hardware class")
+
+class ClusterScaleResult(BaseModel):
+    deployment_name: str
+    previous_replicas: int
+    current_replicas: int
+    status: str
+    endpoint_url: str
+
+@mcp.tool()
+async def scale_inference_cluster(spec: PodScaleSpec) -> ClusterScaleResult:
+    """Scales CoreWeave GPU inference cluster pods dynamically under FastMCP 3.1."""
+    # Simulated Kubernetes API interaction on CoreWeave bare-metal cluster
+    return ClusterScaleResult(
+        deployment_name=spec.deployment_name,
+        previous_replicas=2,
+        current_replicas=spec.target_replicas,
+        status="PROVISIONED_AND_READY",
+        endpoint_url=f"https://{spec.deployment_name}.cw.internal/v1"
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples

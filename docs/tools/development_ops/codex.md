@@ -3,8 +3,50 @@
 ## What it is
 OpenAI Codex was the original specialized coding model that paved the way for modern AI-assisted engineering. While the standalone Codex models (e.g., `code-davinci-002`) are deprecated, their legacy lives on in the coding-optimized architectures of **GPT-5.5** and the **o4 reasoning/intelligence series**. As of late November/December 2026, these models represent the frontier of closed-source coding intelligence, competing with open-weight alternatives like **Gemma 3** and **Llama 4** for developer mindshare. Under the hood, they are standardized on **MCP 3.1 / FastMCP 3.1** standard transport schemas to connect reasoning models to local execution systems securely.
 
+## System Architecture & FastMCP 3.1 Flow
+
+```
+                                +-----------------------------------+
+                                | Developer CLI / IDE (Cursor/Aider)|
+                                +-----------------+-----------------+
+                                                  |
+                                                  | MCP Transport (STDIO / HTTP-SSE)
+                                                  v
+                                +-----------------+-----------------+
+                                | FastMCP 3.1 Agent Task Server     |
+                                |  - Repository Context Indexer     |
+                                |  - Tool Definition Registrar      |
+                                +-----------------+-----------------+
+                                                  |
+                                                  | OpenAI API Call (REST / SSE)
+                                                  v
+                                +-----------------+-----------------+
+                                |  OpenAI Reasoning Engine          |
+                                |  - GPT-5.5 (Multimodal Code)      |
+                                |  - o4 Series (Deep Logic / Spec)  |
+                                +-----------------+-----------------+
+                                                  |
+                                                  | Structured Code Edits / Tool Calls
+                                                  v
+                                +-----------------+-----------------+
+                                | Sandboxed Execution Environment   |
+                                |  - Git Patch Application          |
+                                |  - Automated Test Verification    |
+                                +-----------------------------------+
+```
+
 ## What problem it solves
 It bridges the gap between natural language intent and executable source code. By understanding complex syntax, design patterns, and cross-file dependencies, these models reduce the cognitive load of boilerplate implementation, complex refactoring, and debugging. The o4 series specifically solves the "reasoning gap" in complex architectural migrations that previously required senior human intervention.
+
+## Feature Comparison Matrix
+
+| Dimension / Model | OpenAI o4 Series | OpenAI GPT-5.5 | Anthropic Claude 5.1 Opus | Open-Weight Gemma 3 / Llama 4 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | System 2 Coding Reasoning | Multimodal Repository Engineering | Long-Context Agentic Architecture | Self-Hosted Local Execution |
+| **Context Window** | 2M Tokens | 2M Tokens | 1M Tokens | 128k - 256k Tokens |
+| **FastMCP 3.1 Protocol** | Native | Native | Native | Via Local Proxy |
+| **Multimodal Inputs** | Vision + Code | Vision + UI + Audio + Code | Vision + Code | Vision (Gemma 3) |
+| **Deployment Model** | Cloud API Only | Cloud API Only | Cloud API / Bedrock | Self-Hosted vLLM / Ollama |
 
 ## Where it fits in the stack
 **Development & Ops / Core Reasoning Layer**. It functions as the underlying model powering the [GitHub Copilot Ecosystem](github-copilot-cli.md), [Cursor](cursor.md), and [Aider](aider.md). It serves as the high-intelligence "brain" for autonomous agents.
@@ -44,6 +86,53 @@ It bridges the gap between natural language intent and executable source code. B
 2. **Library Installation**: `pip install openai` or `npm install openai`.
 3. **Model Selection**: Choose `gpt-5.5-preview` for general coding or `o4-reasoning` for complex logic.
 4. **Tool Integration**: Plug your key into [Cursor](cursor.md) or [Aider](aider.md) for an immediate productivity boost.
+
+## FastMCP 3.1 Task Protocol Integration
+
+In early 2027, developers interact with GPT-5.5 / o4 models using FastMCP 3.1 Task Protocol tools to stream code edits and verify patches safely:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+mcp = FastMCP("OpenAICodexTaskManager", version="3.1.0")
+
+class CodeRefactorTask(BaseModel):
+    repo_path: str = Field(..., description="Local repo root path")
+    target_file: str = Field(..., description="Target source code path")
+    instructions: str = Field(..., description="Refactoring directive")
+    model: str = Field(default="gpt-5.5", description="Target reasoning model")
+
+class PatchResult(BaseModel):
+    target_file: str
+    git_diff: str
+    verification_passed: bool
+    test_stdout: str
+
+@mcp.tool()
+async def refactor_code_module(task: CodeRefactorTask) -> PatchResult:
+    """Executes code refactoring via FastMCP 3.1 using OpenAI GPT-5.5 / o4 models."""
+    # Simulated FastMCP 3.1 task protocol code generation and execution
+    sample_diff = (
+        "<<<<<<< SEARCH\n"
+        "def process():\n"
+        "    pass\n"
+        "=======\n"
+        "def process():\n"
+        "    return {'status': 'processed'}\n"
+        ">>>>>>> REPLACE"
+    )
+    return PatchResult(
+        target_file=task.target_file,
+        git_diff=sample_diff,
+        verification_passed=True,
+        test_stdout="1 passed in 0.04s"
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ## CLI examples
 The OpenAI CLI and related agentic tools allow for direct interaction with these models.
