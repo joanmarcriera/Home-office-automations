@@ -6,8 +6,38 @@ This playbook is a step-by-step operational guide for migrating a mesh network f
 ## What problem it solves
 It eliminates dependency on Tailscale's proprietary coordination server, providing 100% data sovereignty over your network topology. It solves the "proprietary lock-in" problem for users who require a fully self-hosted, sovereign VPN solution for their homelab.
 
+## Architecture and Migration Flow
+
+The migration shifts control plane signal routing from Tailscale's SaaS infrastructure to an internal, self-hosted Headscale container paired with an OIDC provider like Authentik.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   Original State: Tailscale SaaS                       │
+│     Target Node ──────► Proprietary SaaS Control Plane (Cloud)         │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Executing 'tailscale logout' & Re-auth
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                    Migrated State: Sovereign Mesh                      │
+│ ┌──────────────────────┐ ┌──────────────────────┐ ┌──────────────────┐ │
+│ │  Tailscale Client    │ │ Self-hosted Headscale│ │ Authentik OIDC   │ │
+│ │  Re-login (--server) │ │ Control Server       │ │ Identity Provider│ │
+│ └──────────────────────┘ └──────────────────────┘ └──────────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Where it fits in the stack
 It sits in the **Operational Playbook Layer**, specifically under **Infrastructure Migration**. It guides the transition from a managed service to a self-hosted infrastructure component.
+
+## Feature & Operational Comparison Matrix
+
+| Aspect / Metric | Tailscale SaaS | Self-Hosted Headscale |
+| :--- | :--- | :--- |
+| **Control Plane** | Proprietary Cloud | 100% Open-Source Go Server |
+| **Data Sovereignty** | Connection metadata hosted by vendor | Complete local control |
+| **User / Device Limit** | Tiered pricing limits on free plan | Unlimited (bound by hardware VRAM/RAM) |
+| **Identity Provider** | Vendor SSO | Native OIDC ([Authentik](../services/authentik.md), Keycloak) |
+| **FastMCP 3.1 Fleet Admin**| REST API / Personal Access Token | Direct Headscale gRPC / REST CLI Tooling |
+| **Maintenance Burden** | Zero | Low (Docker Compose / Systemd) |
 
 ## Typical use cases
 - **Homelab Hardening**: Moving your internal network control plane to hardware you own.
@@ -44,6 +74,13 @@ Modern agents can significantly simplify the migration process. Use an early Jan
 - **Translate ACLs**: Convert Tailscale `policy.hujson` to Headscale-compatible YAML/ACL formats.
 - **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH using MCP-enabled terminal tools.
 - **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../services/authentik.md) provider metadata.
+
+### Operational Best Practices & Troubleshooting
+
+1. **OIDC Redirect Normalization**: Set the `server_url` in `config.yaml` to match your external reverse proxy HTTPS URL exactly to prevent token authentication loops during node registration.
+2. **Derp Relay Persistence**: Maintain at least one local embedded DERP server on Headscale to ensure mesh node connectivity when direct STUN NAT-traversal fails.
+3. **Database Backups**: Schedule daily automated snapshots of Headscale's SQLite/PostgreSQL database to enable instant disaster recovery of node keys and ACL policies.
+4. **Pre-Auth Key Generation**: Always specify a 24-hour expiration window on pre-auth keys when batch-migrating headless Kubernetes nodes or IoT controllers.
 
 ### Migration Workflow
 
@@ -126,11 +163,6 @@ If migration fails, logout from Headscale and login back to Tailscale:
 tailscale logout
 tailscale up
 ```
-
-### Troubleshooting Migration Issues
-- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra to inspect the logs: `docker logs headscale`.
-- **Node Name Conflicts**: Headscale requires unique node names per user. If a migration fails due to naming, use `headscale nodes rename`.
-- **Pre-Auth Key Expiry**: If migrating headless nodes, ensure the pre-auth keys generated on the server have sufficient TTL.
 
 ## CLI examples
 
