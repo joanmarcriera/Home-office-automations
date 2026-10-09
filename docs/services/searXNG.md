@@ -5,11 +5,76 @@ SearXNG is a free internet metasearch engine which aggregates results from more 
 ## What it is
 SearXNG is a free, privacy-preserving internet metasearch engine that aggregates search results from over 70 search engines and services. Operating as an anonymizing proxy, SearXNG strips tracking cookies, user tokens, and IP addresses from outgoing queries, providing clean, structured results to end users, local LLM agents (**Gemma 3**, **Qwen 3.8**), and frontier multi-agent systems (**Claude 5.1**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro**).
 
+In the early 2027 AI architecture ecosystem, SearXNG acts as an essential gateway between deterministic internal agent loops and the noisy external web. By unifying multiple upstream providers—ranging from general search (Google, Bing, DuckDuckGo) to technical hubs (GitHub, StackOverflow, ArXiv, Wikipedia)—it normalizes unstructured web data into structured JSON objects. This empowers local RAG pipelines and autonomous agent toolkits to perform dynamic research without leaking private operational telemetry or incurring high API fees from commercial search providers.
+
+```
++-----------------------------------------------------------------------------------+
+|                            SearXNG Metasearch Architecture                        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-------------------+       +-----------------------+      +------------------+  |
+|  | Multi-Agent System|       | FastMCP 3.1 Server    |      | Local RAG Engine |  |
+|  | (Claude/GPT/Gemma)|       | (Tool Binding Server) |      | (Qwen/Docling)   |  |
+|  +---------+---------+       +-----------+-----------+      +--------+---------+  |
+|            |                             |                           |            |
+|            +------------------+          |          +----------------+            |
+|                               |          v          |                             |
+|                               v                     v                             |
+|                    +-----------------------------------+                          |
+|                    |  SearXNG Anonymizing Proxy Engine |                          |
+|                    |  - Cookie/IP Stripping            |                          |
+|                    |  - Engine Priority Weighting      |                          |
+|                    |  - JSON Output Normalizer         |                          |
+|                    +------------------+----------------+                          |
+|                                       |                                           |
+|            +--------------------------+--------------------------+                |
+|            |                          |                          |                |
+|            v                          v                          v                |
+|  +-------------------+      +-------------------+      +-------------------+      |
+|  | General Search    |      | Developer Hubs    |      | Academic / ArXiv  |      |
+|  | (Google/Bing/DDG) |      | (GitHub/SO/Docs)  |      | (ArXiv/Wikipedia) |      |
+|  +-------------------+      +-------------------+      +-------------------+      |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates search profiling, behavioral tracking, and search bubble bias enforced by commercial engines. For autonomous AI agent workflows, SearXNG solves rate-limiting, engine-specific IP blocking, and formatting fragmentation by unifying diverse upstream search provider responses into standardized JSON payloads accessible via [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers and direct HTTP APIs.
 
+Furthermore, commercial search APIs often charge per request or restrict query rate limits, making iterative multi-step research loops cost-prohibitive. SearXNG solves this by transforming self-hosted infrastructure into an unthrottled, privacy-first search broker. Agents can query, refine, and cross-validate web citations across hundreds of requests per minute without third-party tracking or budget exhaustion.
+
 ## Where it fits in the stack
 **Category**: Services / Search & Discovery. SearXNG acts as the primary web search and live-retrieval engine for private RAG pipelines and autonomous agent toolkits. It typically resides behind reverse proxies (Nginx, Traefik, or Caddy) with authentication secured by [Authentik](authentik.md) or Authelia, interfacing directly with orchestration engines like [n8n](n8n.md) or custom MCP servers.
+
+```
++-----------------------------------------------------------------------------------+
+|                             Stack Integration Context                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|   [ Reverse Proxy Layer ] ---> ( Traefik / Nginx with Authentik TLS )             |
+|                                         |                                         |
+|                                         v                                         |
+|   [ Ingestion & Retrieval ] -> ( SearXNG Engine : 8080 JSON Endpoint )             |
+|                                         |                                         |
+|                                         v                                         |
+|   [ FastMCP 3.1 Layer ] -----> ( FastMCP Search Tool Server )                     |
+|                                         |                                         |
+|                                         v                                         |
+|   [ Agent Execution Loop ] -> ( Claude 5.1 / DeepSeek-V4 / Gemma 3 RAG )           |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | SearXNG | Commercial Search APIs (Tavily/Perplexity) | Raw HTML Scraping (Playwright/Selenium) |
+| :--- | :--- | :--- | :--- |
+| **Privacy & Anonymity** | Complete IP & Header stripping; zero telemetry | Telemetry logged for service optimization | High exposure; exposes scraper IP to anti-bot systems |
+| **Pricing Model** | 100% Free & Open Source (Self-hosted) | Per-query API charges ($0.005–$0.02 / query) | Free code, high compute/proxy infrastructure cost |
+| **Data Format** | Native standardized JSON payload | Proprietary agent-optimized JSON | Unstructured HTML requires DOM parsing |
+| **Multi-Engine Aggregation**| Aggregates 70+ engines in parallel | Single backend aggregator | Single targeted domain per scraper session |
+| **Agent Protocol Support** | Native FastMCP 3.1 & REST integration | Standard REST / SDK wrappers | Requires custom tool wrapper scripts |
+| **Latency Profile** | Low-to-medium (200ms–800ms parallel fetch) | Very low (100ms–300ms cached API) | High (1s–5s browser render time) |
 
 ## Typical use cases
 - **Privacy-First Search Infrastructure**: Secure search backend for enterprise networks and self-hosted environments without tracking or analytics leakage.
@@ -99,6 +164,10 @@ curl -s "http://localhost:8080/search?q=DeepSeek-V4+architecture&categories=it&f
 
 # Direct query to specific search engine
 curl -s "http://localhost:8080/search?q=SearXNG&engines=wikipedia&format=json"
+
+# Extract top 5 result URLs and titles for agent processing
+curl -s "http://localhost:8080/search?q=Gemma+3+benchmarks&format=json" | \
+  jq -r '.results[:5][] | "[\(.engine)] \(.title) -> \(.url)"'
 ```
 
 ## API examples
@@ -178,6 +247,19 @@ def parse_searxng_response(raw_json: str) -> Optional[SearXNGQueryResponse]:
         print(f"Validation failure: {e}")
         return None
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Engine Reliability & CAPTCHA Mitigation
+When running SearXNG in cloud hosting environments (AWS, Hetzner, DigitalOcean), upstream providers (Google, Bing) may block cloud IP ranges.
+1. **Egress Proxy Rotation**: Route SearXNG outgoing requests through a rotating residential proxy pool or WireGuard VPN tunnel to prevent IP blocks.
+2. **Selective Engine Activation**: Disable unstable or heavily throttled engines in `settings.yml` under the `engines` block (`disabled: true`).
+3. **Timeout Tuning**: Increase `request_timeout` to 4.0–6.0 seconds when querying slow academic databases like ArXiv.
+
+### Common Error Resolutions
+- **`HTTP 429 Too Many Requests`**: Triggered when upstream search engines rate limit SearXNG egress IPs. Fix by enabling proxy rotation or increasing engine query intervals.
+- **`JSONDecodeError / Empty Response`**: Ensure `format: json` is explicitly enabled in `settings.yml` under `search.formats`.
+- **`Unresponsive Engine Alerts`**: Check local network DNS resolution and ensure container outbound firewall rules permit outbound port 443 HTTPS traffic.
 
 ## Related tools / concepts
 - [Authentik](authentik.md) — Identity provider securing SearXNG endpoints.

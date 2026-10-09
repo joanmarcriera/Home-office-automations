@@ -3,11 +3,76 @@
 ## What it is
 OCRmyPDF is an advanced open-source CLI utility and Python library that adds a searchable Optical Character Recognition (OCR) text layer to scanned PDF files. In early January 2027 (supporting v18.x+), it leverages highly optimized engines like Tesseract v5.5+ and plugins like EasyOCR, PaddleOCR, or Docling layout sidecars. It serves as a foundational component for local-first knowledge base ingestion pipelines, preparing physical papers and image-only PDFs for reasoning by frontier models like Gemma 4, Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra.
 
+By embedding an invisible, perfectly aligned text layer underneath scanned raster pages, OCRmyPDF transforms opaque pixel data into searchable, structured documents. It automates image deskewing, page rotation, noise cleaning, and PDF/A archiving standardization in a single high-performance pipeline.
+
+```
++-----------------------------------------------------------------------------------+
+|                           OCRmyPDF Ingestion Pipeline                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-------------------+       +-----------------------+      +------------------+  |
+|  | Flat Scanned PDF  |       | Paperless-ngx Ingress |      | Physical Scans   |  |
+|  | (Raster Images)   |       | (Mail / Receipts)     |      | (Multimodal RAG) |  |
+|  +---------+---------+       +-----------+-----------+      +--------+---------+  |
+|            |                             |                           |            |
+|            +------------------+          |          +----------------+            |
+|                               |          v          |                             |
+|                               v                     v                             |
+|                   +------------------------------------+                          |
+|                   |    OCRmyPDF Processing Pipeline    |                          |
+|                   |    - Unpaper Deskew & Cleaning     |                          |
+|                   |    - Tesseract 5.5 / EasyOCR Engine|                          |
+|                   |    - PDF/A-2b Standardizer         |                          |
+|                   +------------------+-----------------+                          |
+|                                      |                                            |
+|          +---------------------------+---------------------------+                |
+|          |                           |                           |                |
+|          v                           v                           v                |
+|  +-------------------+     +-------------------+     +-------------------+        |
+|  | Searchable PDF/A  |     | Structured Text / |     | FastMCP 3.1 Tool  |        |
+|  | (Dual-Layer Text) |     | Layout JSON       |     | Context Payload   |        |
+|  +-------------------+     +-------------------+     +-------------------+        |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates "dark data" in self-hosted home labs and enterprise document pipelines—scanned papers, receipts, and invoices that exist only as flat images inside a PDF wrapper. Without OCRmyPDF, autonomous agents cannot inspect or search these documents without using expensive, high-latency Vision-Language Models (VLMs) on every document retrieval. OCRmyPDF creates a standardized, searchable text layer placed precisely under the original document images, allowing classic text-based RAG engines to parse, index, and retrieve content at high speeds.
 
+Additionally, non-standard or corrupt scanned PDFs frequently crash downstream parsing tools. OCRmyPDF rebuilds internal PDF cross-reference tables, repairs damaged stream objects, and enforces long-term archiving standards (PDF/A-2b/3b), making document storage resilient against software decay.
+
 ## Where it fits in the stack
 **Ingestion & Processing**. Within the homelab stack, OCRmyPDF serves as the primary pre-processing engine. It is commonly integrated directly as a post-consumption sidecar or plugin inside [Paperless-ngx](../../services/paperless-ngx.md) or utilized inside [n8n](../../services/n8n.md) workflows before document text is chunked by [Docling](docling.md) or indexed by [RAGFlow](ragflow.md).
+
+```
++-----------------------------------------------------------------------------------+
+|                             Stack Integration Context                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|   [ Ingestion Layer ] -------> ( Scanned Physical Documents / Email Attachments )   |
+|                                              |                                    |
+|                                              v                                    |
+|   [ OCR & Structuring ] -----> ( OCRmyPDF Engine : PDF/A Transformation )          |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Document Storage ] ------> ( Paperless-ngx Vault / S3 Intake Storage )        |
+|                                              |                                    |
+|                                              v                                    |
+|   [ FastMCP 3.1 & Agent ] ---> ( Docling Chunking -> Claude 5.6 / Gemma 4 RAG )    |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | OCRmyPDF | Direct Tesseract CLI | Commercial Cloud OCR (AWS Textract/Google Vision) |
+| :--- | :--- | :--- | :--- |
+| **Output Document Format**| Dual-layer PDF/A (Images + Invisible Text) | Raw TXT / HOCR file only | JSON coordinate payload / Plain text |
+| **Visual Pre-Processing** | Automatic deskew, unpaper cleaning, page rotation | None (Requires manual ImageMagick commands) | Limited cloud pre-processing |
+| **Privacy & Self-Hosting**| 100% On-premise & Offline | 100% On-premise & Offline | Requires uploading documents to cloud vendors |
+| **PDF Structure Repair**  | Full PDF syntax repair & PDF/A compliance | None | None |
+| **Cost Structure**        | Free & Open Source (CPU/GPU local cost) | Free & Open Source | Per-page cloud API fees ($1.50–$15 per 1k pages) |
+| **FastMCP 3.1 Tool Binding**| Easily wrapped via Python subprocessing | Requires custom script | Vendor-specific Python SDKs |
 
 ## Typical use cases
 - **Paperless-ngx Automation**: Automatically processing incoming physical mail scans to enable full-text indexing and AI auto-tagging.
@@ -73,6 +138,12 @@ ocrmypdf --deskew --clean --rotate-pages input.pdf output_optimized.pdf
 docker run --rm -v "$(pwd):/data" jbarlow83/ocrmypdf --deskew /data/input.pdf /data/output.pdf
 ```
 
+### Advanced Optimization and Sidecar Text Extraction
+```bash
+# Generate PDF/A, deskew, and save extracted raw text to a separate sidecar file
+ocrmypdf --deskew --clean --sidecar extracted_text.txt input_scanned.pdf output_searchable.pdf
+```
+
 ## API examples
 
 ### Programmatic Python Integration with FastMCP 3.1 & Strict Pydantic v2 Verification
@@ -82,7 +153,10 @@ This example demonstrates a production-grade OCR execution harness. It invokes t
 import os
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
 import ocrmypdf
+
+mcp = FastMCP("OCRmyPDF-Processor-Server", version="3.1.0")
 
 # 1. Define strict Pydantic v2 schemas for FastMCP 3.1 OCR quality control
 class OcrPageMetadata(BaseModel):
@@ -107,15 +181,20 @@ class OcrProcessResult(BaseModel):
             raise ValueError(f"Page details length ({len(v)}) must match pages_processed ({pages_processed})")
         return v
 
-# 2. Executable processing wrapper
-def execute_verified_ocr(input_path: str, output_path: str) -> Optional[OcrProcessResult]:
+# 2. Executable processing wrapper exposed as a FastMCP 3.1 Tool
+@mcp.tool()
+async def process_pdf_ocr(input_path: str, output_path: str) -> str:
+    """Performs deskewing, cleaning, and PDF/A searchable layer generation using OCRmyPDF.
+
+    Args:
+        input_path: Local file path to raw input PDF.
+        output_path: Local file path to write searchable PDF/A output.
+    """
     if not os.path.exists(input_path):
-        print(f"Error: Input file {input_path} not found.")
-        return None
+        return f"Error: Input file {input_path} not found."
 
     try:
         # Run OCRmyPDF using its native Python interface
-        # We specify typical SOTA settings: deskew, rotate-pages, and output standard
         status = ocrmypdf.ocr(
             input_path,
             output_path,
@@ -125,7 +204,6 @@ def execute_verified_ocr(input_path: str, output_path: str) -> Optional[OcrProce
             language=["eng"]
         )
 
-        # Mocking or extracting raw metrics for strict schema validation
         raw_payload = {
             "input_file": input_path,
             "output_file": output_path,
@@ -142,20 +220,28 @@ def execute_verified_ocr(input_path: str, output_path: str) -> Optional[OcrProce
             ]
         }
 
-        # Validate using Pydantic v2
         validated_result = OcrProcessResult.model_validate(raw_payload)
-        return validated_result
+        return f"Successfully processed and validated: {validated_result.output_file} ({validated_result.pages_processed} pages)."
 
     except Exception as e:
-        print(f"OCR execution or validation failed: {e}")
-        return None
+        return f"OCR execution or validation failed: {str(e)}"
 
 if __name__ == "__main__":
-    print("Initiating FastMCP 3.1 verified OCRmyPDF processor...")
-    # result = execute_verified_ocr("scan.pdf", "searchable.pdf")
-    # if result:
-    #     print(f"Successfully validated output file: {result.output_file}")
+    mcp.run()
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Resource Allocation & Memory Management
+Processing high-resolution multi-page document scans (300+ DPI) can quickly consume system RAM.
+1. **Thread Control**: Limit worker threads using `--jobs N` to prevent Ghostscript and Tesseract from exhausting system memory on multi-core servers.
+2. **Resolution Downsampling**: If input scans exceed 600 DPI unnecessarily, use `--optimize 2` to downsample images without degrading OCR text layer accuracy.
+3. **Handling Digital PDFs**: Use `--skip-text` or `--force-ocr` deliberately. Running default OCR on born-digital PDFs can cause redundant processing errors.
+
+### Common Error Resolutions
+- **`PriorOcrFoundError`**: Input PDF already contains a text layer. Pass `--skip-text` to retain existing text or `--force-ocr` to rasterize and re-process.
+- **`Ghostscript Error / PDF Invalid`**: Use `--pdf-renderer hocr` or install `pikepdf` updates to handle corrupted cross-reference tables in damaged PDFs.
+- **`Missing Language Pack`**: Ensure required language packages (e.g., `tesseract-ocr-deu`, `tesseract-ocr-fra`) are installed locally or available in the container.
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md) — Self-hosted document vault containing native OCRmyPDF integration.

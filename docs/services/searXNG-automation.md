@@ -5,11 +5,76 @@ SearXNG Automation provides the patterns, API integrations, and programmatic wor
 ## What it is
 SearXNG Automation encompasses programmatic interactions with SearXNG's structured JSON API endpoints. It enables local LLMs (**Gemma 3**, **Qwen 3.8**) and frontier multi-agent systems (**Claude 5.1**, **GPT-5.5 / 5.6**, **DeepSeek-V4**) to browse the live web, bypass tracking filters, and aggregate search results from over 70 search engines into clean, machine-readable JSON data streams exposed via [FastMCP 3.1](../tools/automation_orchestration/mcp.md).
 
+Through automated metasearch wrappers, AI agents perform real-time internet research, query code repositories, parse academic papers, and verify web citations with zero per-request API costs.
+
+```
++-----------------------------------------------------------------------------------+
+|                            SearXNG Automation Flow                                |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-------------------+       +-----------------------+      +------------------+  |
+|  | Multi-Agent RAG   |       | FastMCP 3.1 Client    |      | n8n Workflow     |  |
+|  | Execution Loop    |       | (Claude/GPT/DeepSeek) |      | (Automation Node)|  |
+|  +---------+---------+       +-----------+-----------+      +--------+---------+  |
+|            |                             |                           |            |
+|            +------------------+          |          +----------------+            |
+|                               |          v          |                             |
+|                               v                     v                             |
+|                  +-------------------------------------+                          |
+|                  | SearXNG Automation Server (FastMCP)  |                          |
+|                  | - Query Construction & Formatting   |                          |
+|                  | - Category Filtering (IT/Science)   |                          |
+|                  | - Pydantic v2 Schema Validator      |                          |
+|                  +-------------------+-----------------+                          |
+|                                      |                                            |
+|          +---------------------------+---------------------------+                |
+|          |                           |                           |                |
+|          v                           v                           v                |
+|  +-------------------+     +-------------------+     +-------------------+        |
+|  | Local SearXNG     |     | Crawl4AI Deep     |     | Paperless-ngx     |        |
+|  | JSON Endpoint     |     | Content Scraper   |     | Search Archiver   |        |
+|  +-------------------+     +-------------------+     +-------------------+        |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates dependency on high-cost, rate-limited commercial search APIs (e.g., Tavily, Perplexity, or Bing Search API). SearXNG Automation delivers a private "Search-as-a-Service" layer on internal networks, enabling unlimited queries without per-request charges while keeping sensitive search intents from being logged or harvested for model training.
 
+Furthermore, commercial web search APIs restrict category filtering or charge extra for deep academic and code searches. SearXNG Automation provides fine-grained control over upstream search categories (e.g., querying GitHub, ArXiv, and StackOverflow simultaneously), returning unified JSON structures ready for LLM context injection.
+
 ## Where it fits in the stack
 **Category**: Services / Search Automation & Retrieval. It acts as the real-time web retrieval interface for private RAG pipelines, autonomous agent toolkits, and [n8n](n8n.md) automation workflows, sitting directly between agent execution loops and external web sources.
+
+```
++-----------------------------------------------------------------------------------+
+|                             Stack Integration Context                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|   [ Agent Layer ] -----------> ( Claude 5.1 / GPT-5.6 / DeepSeek-V4 Subagents )     |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Tool Binding Layer ] ----> ( FastMCP 3.1 SearXNG Automation Server )          |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Metasearch Engine ] -----> ( SearXNG Docker Container : JSON Endpoint )       |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Content Processing ] ----> ( Crawl4AI / Docling Web Extractor )              |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Capability / Dimension | SearXNG Automation (FastMCP 3.1) | Commercial Tavily / Perplexity API | Raw Playwright Browser Scraping |
+| :--- | :--- | :--- | :--- |
+| **API Cost Structure** | $0 / Free (Self-hosted) | $0.005–$0.02 per query | Free code, high server memory usage |
+| **Data Privacy** | 100% On-Premise; zero query logging | Vendor logs search telemetry | High anti-bot footprint |
+| **Category Selection** | Granular (General, IT, Science, News, Files)| Fixed general web search | Domain-specific scripting required |
+| **Response Latency** | 200ms–600ms (Parallel engine fetch) | 100ms–300ms | 2s–6s (Full rendering) |
+| **FastMCP 3.1 Integration**| Native Python async FastMCP tool | Standard REST / SDK | Custom wrapper required |
+| **Schema Validation** | Strict Pydantic v2 output schemas | Proprietary SDK objects | Custom DOM parser scripts |
 
 ## Typical use cases
 - **Multi-Agent Deep Research**: Powering autonomous research loops where agents query, filter, and summarize real-time web findings.
@@ -180,6 +245,18 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Egress IP Management & Proxy Pools
+High-frequency agent queries can trigger upstream search engine blockades if routed from a single cloud server IP.
+1. **Rotating Egress Proxies**: Configure SearXNG to route outbound requests through rotating residential proxies or wireguard VPN tunnels.
+2. **Category Isolation**: Assign developer research tasks specifically to the `it` category to avoid sending code queries to general search engines.
+3. **Engine Reliability Audits**: Periodically query `http://searxng.local:8080/stats` to detect and temporarily disable failing upstream search providers.
+
+### Common Error Resolutions
+- **`JSON Response Disabled Error`**: Verify that `formats: [html, json]` is defined in `settings.yml`.
+- **`Timeout Errors under Agent Load`**: Increase `engine_timeout: 8.0` and configure asynchronous connection pooling in HTTPX clients.
 
 ## Related tools / concepts
 - [SearXNG](searXNG.md) — The underlying self-hosted search engine container.

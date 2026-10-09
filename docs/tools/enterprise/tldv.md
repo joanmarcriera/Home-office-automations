@@ -9,11 +9,74 @@ Key capabilities as of early January 2027 include:
 - **Sales Playbook Coaching**: Automated evaluation of sales conversations against pre-defined qualification models (e.g., BANT, MEDDPICC), producing structured scorecards and direct CRM updates.
 - **FastMCP 3.1 & Model Context Protocol integration**: Local and cloud-hosted MCP servers that feed real-time meeting context directly into developer workspaces (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4-based IDEs).
 
+```
++-----------------------------------------------------------------------------------+
+|                           tl;dv Conversational Intelligence                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-------------------+       +-----------------------+      +------------------+  |
+|  | Google Meet Bot   |       | Zoom Meeting Bot      |      | MS Teams Bot     |  |
+|  | (Audio/Video Stream)      | (Audio/Video Stream)  |      | (A/V Stream)     |  |
+|  +---------+---------+       +-----------+-----------+      +--------+---------+  |
+|            |                             |                           |            |
+|            +------------------+          |          +----------------+            |
+|                               |          v          |                             |
+|                               v                     v                             |
+|                    +-----------------------------------+                          |
+|                    |   tl;dv Cloud Intelligence Engine |                          |
+|                    |   - Multilingual Transcription   |                          |
+|                    |   - Speaker Diarization           |                          |
+|                    |   - Claude 5.6 / GPT-5.6 Insights |                          |
+|                    +------------------+----------------+                          |
+|                                       |                                           |
+|            +--------------------------+--------------------------+                |
+|            |                          |                          |                |
+|            v                          v                          v                |
+|  +-------------------+      +-------------------+      +-------------------+      |
+|  | CRM Auto-Sync     |      | FastMCP 3.1 Tool  |      | Vector Knowledge  |      |
+|  | (Salesforce/HubSpot)     | (Agent Workspace) |      | Base (Notion/RAG) |      |
+|  +-------------------+      +-------------------+      +-------------------+      |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It solves the issue of lost organizational knowledge and meeting fatigue by replacing manual minute-taking with structured, searchable transcripts. It bridges synchronous call discussions with asynchronous documentation, making meeting highlights immediately referenceable.
 
+In distributed enterprise environments, unrecorded discussions create information silos and duplicate work. tl;dv automatically parses conversation threads into explicit action items, assigns owners, and pushes verified summaries directly into project management hubs (Jira, Notion, Slack) and agentic developer environments.
+
 ## Where it fits in the stack
 **Enterprise Productivity / Meeting Intelligence Layer**. It serves as a continuous context ingestion engine feeding downstream CRM, knowledge management, and task routing systems.
+
+```
++-----------------------------------------------------------------------------------+
+|                             Stack Integration Context                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|   [ Synchronous Communication ] -> ( Zoom / Google Meet / MS Teams Calls )         |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Ingestion & Analysis ] -------> ( tl;dv AI Bot & Real-Time Transcriber )        |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Tool Protocol Layer ] --------> ( FastMCP 3.1 Meeting Server )                |
+|                                              |                                    |
+|                                              v                                    |
+|   [ Agentic Execution ] ----------> ( Claude 5.6 / GPT-5.6 Developer Workspaces ) |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Capability / Dimension | tl;dv | Fyxer AI | Native Whisper (Local faster-whisper) |
+| :--- | :--- | :--- | :--- |
+| **Meeting Bot Autonomy** | Automatic calendar join across Meet/Zoom/Teams | Specialized calendar assistant | None (Requires manual audio recording import) |
+| **CRM & Webhook Sync** | Native automated Salesforce/HubSpot/Jira sync | Email & Calendar routing focused | Custom code script required |
+| **FastMCP 3.1 Support** | Cloud REST & FastMCP tool integration | Standard API hooks | Local FastMCP server wrapper |
+| **Video Timestamping** | Hyperlinked video timestamps to transcript lines | Text summary focus | Text transcript only (no video hosting) |
+| **Multilingual Support**| 40+ languages with auto-translation | Core business languages | High (Depends on Whisper model size) |
+| **Deployment Model** | Cloud SaaS (Enterprise SOC2 compliant) | Cloud SaaS | 100% On-Premise / Air-Gapped |
 
 ## Typical use cases
 - **Sales & Customer Success**: Generating call scorecards, tracking feature requests, and syncing key discovery highlights directly into Salesforce or HubSpot.
@@ -73,6 +136,12 @@ Retrieve the structured text transcript of a specific meeting.
 curl -s -X GET "https://api.tldv.io/v1/meetings/meet_923847aef893/transcript?format=markdown" \
   -H "Authorization: Bearer $TLDV_API_KEY" \
   -H "Accept: text/markdown" > meeting_transcript.md
+```
+
+### 3. Query Meeting Highlights via JSON API
+```bash
+curl -s -X GET "https://api.tldv.io/v1/meetings/meet_923847aef893/highlights" \
+  -H "Authorization: Bearer $TLDV_API_KEY" | jq '.highlights[] | {time: .timestamp, tag: .tag, text: .text}'
 ```
 
 ## API examples
@@ -139,7 +208,7 @@ if __name__ == "__main__":
 ```python
 from fastmcp import FastMCP
 
-mcp = FastMCP("tl;dv Meeting Intelligence Server")
+mcp = FastMCP("tl;dv Meeting Intelligence Server", version="3.1.0")
 
 @mcp.tool()
 def get_latest_meeting_summary(meeting_id: str) -> str:
@@ -150,6 +219,17 @@ def get_latest_meeting_summary(meeting_id: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Consent Management & Recording Compliance
+1. **Automated Disclaimer**: Enable tl;dv's pre-call chat announcements in Google Meet and Zoom to ensure call attendees are notified before recording commences.
+2. **Internal vs External Rules**: Configure auto-join filters to exclude non-disclosure calls or medical consultations based on keyword rules.
+3. **API Key Security**: Store `TLDV_API_KEY` securely in secret vaults (e.g., HashiCorp Vault, AWS Secrets Manager) and avoid hardcoding tokens in developer agent scripts.
+
+### Resolving API Integrations & Webhook Anomalies
+- **`Webhook Payload Timeout`**: Ensure downstream webhook receiver endpoints respond with `200 OK` within 3 seconds to avoid triggering tl;dv retries.
+- **`Bot Denied Entry`**: If external host denies the meeting bot entry, set up calendar fallback notifications to trigger manual recording extensions.
 
 ## Related tools / concepts
 - [Fyxer AI](fyxer.md)

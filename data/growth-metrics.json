@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/services/searXNG.md",
-    "docs/tools/agents/documentation-writer.md",
-    "docs/tools/process_understanding/ocrmypdf.md",
-    "docs/tools/enterprise/tldv.md",
-    "docs/services/searXNG-automation.md",
     "docs/tools/infrastructure/llama-swap.md",
     "docs/tools/ai_knowledge/otaku.md",
     "docs/tools/benchmarking/dream.md",
@@ -40,7 +35,12 @@
     "docs/tools/frameworks/superinterface.md",
     "docs/tools/ai_knowledge/claude-desktop.md",
     "docs/services/tailscale.md",
-    "docs/tools/frameworks/langgraph.md"
+    "docs/tools/frameworks/langgraph.md",
+    "docs/tools/calendar_tasks/google-tasks.md",
+    "docs/tools/infrastructure/local-embeddings.md",
+    "docs/tools/automation_orchestration/atlassian-jira-mcp.md",
+    "docs/tools/agents/claude-skills-ecosystem.md",
+    "docs/tools/development_ops/jupyter-kernel-mcp.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
