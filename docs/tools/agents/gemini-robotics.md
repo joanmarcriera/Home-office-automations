@@ -6,6 +6,50 @@ Gemini Robotics (anchored by **Gemini Robotics 3** and its embodied reasoning va
 ## What problem it solves
 Traditional robotics architectures rely on fragmented, hand-engineered pipelines where computer vision models detect objects, separate symbolic planners devise logical subgoals, and low-level control loops handle motor dynamics. This modular approach is fragile, suffers from high inter-module latency, and struggles with novel unconstrained environments. Gemini Robotics ER 3 replaces these disjointed modules with a unified, end-to-end reasoning and spatial action engine, allowing robots to perform complex physical tasks (e.g., sorting dynamic objects, multi-finger tool manipulation, and cross-fleet spatial task delegation) with sub-15ms perception-to-action control loops.
 
+## Architectural Overview
+
+```
++-----------------------------------------------------------------------------------+
+|                            MULTIMODAL SENSOR INPUT STREAM                         |
+|   60fps Stereo Cameras  | LiDAR Point Cloud  | Tactile Array  | Joint Telemetry   |
++-----------------------------------------------------------------------------------+
+                                         |
+                       High-bandwidth Stream / FastMCP 3.1
+                                         v
++-----------------------------------------------------------------------------------+
+|                         GEMINI ROBOTICS ER 3 VLA ENGINE                           |
+|                                                                                   |
+|  +--------------------+   +-----------------------+   +------------------------+  |
+|  | Spatial Performer  |   | Embodied Planner      |   | Safety & Force Engine  |  |
+|  | - 3D Bounding box  |-->| - Action primitives   |-->| - Torque thresholds    |  |
+|  | - Depth map fusion |   | - Subgoal generation  |   | - E-Stop triggers      |  |
+|  +--------------------+   +-----------------------+   +------------------------+  |
+|            |                                                                      |
+|            +-------------------+--------------------+                             |
+|                                |                    |                             |
+|                                v                    v                             |
+|                      [Cloud ER 3 Engine]    [On-Device Jetson Thor]               |
+|                                |                    |                             |
+|                    High-Level Task Plan     Direct 7-DoF Motors (15ms)            |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                             PHYSICAL ACTUATOR LAYER                               |
+|   Humanoid Arm (Apollo 3 / Figure 03)  |  Mobile AMR Platform  |  Spot Quadruped  |
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+graph TD
+    A[Multimodal Sensory Stream] -->|Camera / LiDAR / Tactile| B[Gemini Robotics ER 3 Engine]
+    B -->|FastMCP 3.1 Tool Gateway| C{Execution Domain}
+    C -->|Cloud Planning| D[Gemini ER 3 High-Level Planner]
+    C -->|Edge In-Loop| E[gemini-robotics-on-device-3]
+    D -->|Subgoals & Trajectories| E
+    E -->|Sub-15ms Motor Commands| F[Hardware Actuators & Grippers]
+```
+
 ## Where it fits in the stack
 **Category**: Agents / Embodied AI & MCP Hardware Tools. Gemini Robotics bridges high-level cognitive agent orchestration (such as Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra planning agents) with physical hardware actuators. It consumes real-time workspace telemetry via FastMCP 3.1 streams, reasons about multi-step spatial orchestration using `gemini-robotics-er-3`, and streams native joint motor commands to edge runtimes (`gemini-robotics-on-device-3`).
 
@@ -62,6 +106,22 @@ gcloud ai custom-jobs create \
   --display-name=robotics-er3-orchestration \
   --args="--model=gemini-robotics-er-3,--instruction='Scan bin B, locate object ID-492, and pass to AMR-02 using force-limited grasp.'"
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### E-Stop and Hardware Safety Guards
+Physical execution models require deterministic safety interlocks in front of hardware controllers.
+- Always validate output trajectories against torque limits before passing commands to low-level motor drivers.
+- Enable hardware-level emergency stop (E-stop) watchdog timers that cut power if control packets drop for >50ms.
+
+### Spatial Camera Calibration
+Miscalibrated stereo vision feeds degrade 3D bounding box accuracy:
+- Run extrinsic camera-to-base-link calibration routines daily using AprilTag calibration boards.
+- Ensure camera exposure settings prevent oversaturation in bright industrial lighting conditions.
+
+### Handling Network Drops During Cloud ER Planning
+When using cloud-hosted `gemini-robotics-er-3` for long-horizon task planning:
+- Implement fallbacks to `gemini-robotics-on-device-3` for local collision avoidance and stationary holding patterns whenever cloud latency spikes past 100ms.
 
 ## API examples
 
