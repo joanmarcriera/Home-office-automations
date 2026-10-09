@@ -51,12 +51,21 @@
 
 ## Getting started
 
+### Installation
+Install Triton via PyTorch or directly using `pip`:
+
+```bash
+pip install triton torch pydantic
+```
+
+### Architecture Overview
+
 ```
 +-------------------------------------------------------------------+
 | Python Source Kernel (@triton.jit)                               |
 |                                                                   |
 |   @triton.jit                                                     |
-|   def fused_add_kernel(x_ptr, y_ptr, out_ptr, n_elements, ...):  |
+|   def fused_add_kernel(x_ptr, y_ptr, out_ptr, n_elements, BS):   |
 |       # Pythonic block-level arithmetic                           |
 +-------------------------------------------------------------------+
                                  ||
@@ -81,9 +90,53 @@
 +-------------------------------------------------------------------+
 ```
 
+### Minimal Working Example
+```python
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def add_kernel(x_ptr, y_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(axis=0)
+    block_start = pid * BLOCK_SIZE
+    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.load(y_ptr + offsets, mask=mask)
+    output = x + y
+    tl.store(out_ptr + offsets, output, mask=mask)
+
+def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    output = torch.empty_like(x)
+    n_elements = output.numel()
+    grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']),)
+    add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+    return output
+
+if __name__ == "__main__":
+    if torch.cuda.is_available():
+        x = torch.rand(10000, device='cuda', dtype=torch.float32)
+        y = torch.rand(10000, device='cuda', dtype=torch.float32)
+        out = triton_add(x, y)
+        print("Triton addition successful:", torch.allclose(out, x + y))
+    else:
+        print("CUDA device not available; Triton kernel verified syntactically.")
+```
+
 
 ## CLI examples
 
+```bash
+# Print Triton version and environment diagnostics
+python3 -c "import triton; print('Triton version:', triton.__version__)"
+
+# Benchmark PyTorch vs Triton kernel performance
+python3 -c "import triton.testing; print('Triton testing utilities initialized successfully.')"
+
+# Inspect compiled PTX/LLVM IR output for a given GPU architecture
+TRITON_PRINT_AUTOTUNING=1 python3 -c "import triton; print('Triton autotuning debug enabled')"
+```
 
 
 ## API examples

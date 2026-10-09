@@ -284,9 +284,8 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [vLLM](../infrastructure/vllm.md) — High-throughput LLM serving engine with native multi-LoRA support.
-- [Ollama](../infrastructure/ollama.md) — Local LLM runtime supporting GGUF/PEFT models.
-- [BitsAndBytes](../infrastructure/bitsandbytes.md) — 8-bit and 4-bit quantization library empowering QLoRA.
+- [vLLM](vllm.md) — High-throughput LLM serving engine with native multi-LoRA support.
+- [Ollama](../../services/ollama.md) — Local LLM runtime supporting GGUF/PEFT models.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool protocol for LLM agent integration.
 
 ## Sources / references

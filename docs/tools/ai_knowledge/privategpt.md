@@ -114,7 +114,7 @@ poetry install --extras "ui llms-ollama embeddings-huggingface vector-stores-qdr
 ```
 
 ### Local Setup with Ollama
-Ensure [Ollama](../infrastructure/ollama.md) is running locally:
+Ensure [Ollama](../../services/ollama.md) is running locally:
 ```bash
 ollama pull llama3
 ollama pull bge-large
@@ -289,7 +289,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Ollama](../infrastructure/ollama.md) — Local LLM runner providing inference backends for PrivateGPT.
+- [Ollama](../../services/ollama.md) — Local LLM runner providing inference backends for PrivateGPT.
 - [Qdrant](../infrastructure/qdrant.md) — Vector search engine used for PrivateGPT vector storage.
 - [Crawl4AI](../process_understanding/crawl4ai.md) — Fast web scraping tool for ingesting web data into local RAG systems.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool integration protocol for local LLM agents.
