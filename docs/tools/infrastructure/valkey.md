@@ -17,6 +17,37 @@ graph TD
     H[FastMCP 3.1 Tool Execution Node] -->|Push Task State| B
 ```
 
+```
++-----------------------------------------------------------------------------------+
+|                           Valkey Multi-Agent In-Memory Hub                        |
++-----------------------------------------------------------------------------------+
+                                          |
+          +-------------------------------+-------------------------------+
+          |                               |                               |
+          v                               v                               v
+ +-------------------+           +-------------------+           +------------------+
+ | FastMCP 3.1 Agent |           | Vector Indexing   |           | Relational DB    |
+ | State Sync Bus    |           | Prompt Cache      |           | Persistence Sync |
+ +-------------------+           +-------------------+           +------------------+
+          |                               |                               |
+          +-------------------------------+-------------------------------+
+                                          |
+                                          v
+                        +-----------------------------------+
+                        | Valkey Core Event Loop (C Engine) |
+                        | - Multithreaded Async I/O         |
+                        | - In-Memory Hash Tables / Streams |
+                        +-----------------------------------+
+                                          |
+                   +----------------------+----------------------+
+                   |                                             |
+                   v                                             v
+        +--------------------+                         +-------------------+
+        | AOF Persistence    |                         | RDB Snapshot      |
+        | (appendfsync 1sec) |                         | (Dump to Disk)    |
+        +--------------------+                         +-------------------+
+```
+
 ## What problem it solves
 Autonomous multi-agent systems demand sub-millisecond state access and conversation history retrieval. Disk-bound databases introduce query latency that degrades model tool-use performance. Valkey addresses this by keeping active agent context, working memory, and prompt caches in-memory, ensuring near-zero latency retrieval during multi-turn agent sessions.
 
@@ -261,5 +292,5 @@ if __name__ == "__main__":
 - [Valkey Architecture & Caching Reference](https://valkey.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-09
 - Confidence: high

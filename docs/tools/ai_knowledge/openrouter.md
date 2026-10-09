@@ -139,9 +139,10 @@ The following production script demonstrates an AI agent executing multi-model r
 ```python
 import httpx
 import json
+import os
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
-from mcp.server.fastmcp import FastMCP
+import mcp.server.fastmcp as fastmcp
 
 # Define strict Pydantic v2 validation schemas
 class OpenRouterUsage(BaseModel):
@@ -167,7 +168,7 @@ class OpenRouterResponse(BaseModel):
         return v
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("OpenRouter-Gateway-MCP", version="3.1.0")
+mcp_server = fastmcp.FastMCP("OpenRouter Gateway", version="3.1")
 
 class OpenRouterClient:
     def __init__(self, api_key: str):
@@ -198,10 +199,9 @@ class OpenRouterClient:
             return OpenRouterResponse.model_validate(resp.json())
 
 # FastMCP Tool Endpoint
-@mcp.tool()
+@mcp_server.tool()
 async def dispatch_agent_prompt(prompt: str, primary_model: str = "anthropic/claude-5-1-sonnet") -> str:
     """Dispatch a prompt through OpenRouter with automatic fallback chains."""
-    import os
     api_key = os.getenv("OPENROUTER_API_KEY", "sk-or-v1-dev-key")
     client = OpenRouterClient(api_key=api_key)
 
@@ -220,7 +220,7 @@ async def dispatch_agent_prompt(prompt: str, primary_model: str = "anthropic/cla
         return f"OpenRouter Gateway Error: {str(e)}"
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp_server.run()
 ```
 
 ### Configuration & Gateway Comparison Matrix
@@ -247,5 +247,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-09
 - Confidence: high

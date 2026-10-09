@@ -22,6 +22,45 @@ graph TD
     H -->|RAG Text Ingestion| J
 ```
 
+```
++-----------------------------------------------------------------------------------+
+|                        Linkwarden Multi-Agent Archival Pipeline                   |
++-----------------------------------------------------------------------------------+
+                                          |
+          +-------------------------------+-------------------------------+
+          |                               |                               |
+          v                               v                               v
+ +------------------+            +------------------+            +------------------+
+ | REST API Gateway |            | FastMCP 3.1 Tool |            | Extension Client |
+ +------------------+            +------------------+            +------------------+
+          |                               |                               |
+          +-------------------------------+-------------------------------+
+                                          |
+                                          v
+                         +---------------------------------+
+                         |  Next.js 17 API & Queue Manager |
+                         +---------------------------------+
+                                          |
+                   +----------------------+----------------------+
+                   |                                             |
+                   v                                             v
+        +--------------------+                         +-------------------+
+        | PostgreSQL 16 DB   |                         | Playwright Worker |
+        +--------------------+                         +-------------------+
+        | - Bookmark Metadata|                         | - PNG Screenshots |
+        | - Collections/Tags |                         | - Searchable PDFs |
+        | - Full-Text Index  |                         | - Readability MD  |
+        +--------------------+                         +-------------------+
+                   |                                             |
+                   +----------------------+----------------------+
+                                          |
+                                          v
+                         +---------------------------------+
+                         |  Local Vision Engine (Ollama)   |
+                         |  Gemma 3 / Qwen 3.8 Vision Tag  |
+                         +---------------------------------+
+```
+
 ## What problem it solves
 Web content suffers from high ephemerality; "link rot" and content mutations render traditional bookmarking unreliable for research and compliance. Linkwarden solves this by establishing a self-hosted, searchable archive. In early 2027, it directly solves the "AI context drift" problem by providing stable, immutably versioned web snapshots that frontier models (**Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4**) can use for deterministic RAG retrieval without risking dynamic paywalls or anti-bot blocks.
 
@@ -37,12 +76,15 @@ Web content suffers from high ephemerality; "link rot" and content mutations ren
 | **Self-Hosted** | Yes (Docker / Next.js) | Yes (PHP / Docker) | Yes (Python / Docker) | No (Proprietary SaaS) |
 | **Vision Tagging** | Local Ollama Vision Models | None | None | Cloud AI Classification |
 | **FastMCP 3.1 Integration** | Native Task Protocol Server | Community Adapter | Python Script Wrapper | Unofficial API Gateway |
+| **Multi-Tenant Sharing** | Built-in Permissions & Teams | Single User / Basic Shared | File System Based | Shared Folders |
+| **Storage Backend** | Local Volume / S3 MinIO | Local Filesystem | Disk Volumes | Proprietary Cloud |
 
 ## Operational Best Practices & Retention Management
 1. **Storage Pruning & Retention Rules**: Configure automated volume cleanup jobs to compress older high-resolution PNG captures into WebP format or purge redundant PDFs while retaining clean Readability Markdown files.
 2. **PostgreSQL Database Indexing**: Ensure full-text search vector indexes are created on bookmark titles and extracted body text columns for high-speed API search queries.
 3. **Headless Browser Resource Allocation**: Adjust Playwright concurrency settings based on available CPU/RAM to prevent memory starvation during batch import operations.
 4. **S3 / MinIO Storage Backend Integration**: For enterprise deployments, configure Linkwarden to store snapshot blobs (PNG/PDF) on S3-compatible object storage like MinIO or AWS S3.
+5. **Worker Health Monitoring**: Set up continuous health probes on the background queue workers to restart hung browser processes automatically after rendering timeouts.
 
 ## Typical use cases
 - **Multimodal Research Ingestion**: Feeding archived full-page screenshots into vision models (**Gemini 4.0 Ultra**, **Llama 4 Vision**) for visual UI evaluation or document summarization.
@@ -208,9 +250,13 @@ Programmatic Python script for retrieving and validating Linkwarden snapshot met
 
 ```python
 import os
-from typing import Optional
+from typing import Optional, List
 import requests
 from pydantic import BaseModel, Field, HttpUrl
+
+class TagModel(BaseModel):
+    id: int
+    name: str
 
 class SnapshotDetails(BaseModel):
     pdf_path: Optional[str] = Field(None, alias="pdfPath")
@@ -222,6 +268,7 @@ class LinkwardenLinkResponse(BaseModel):
     url: HttpUrl
     title: str
     collection_id: int = Field(..., alias="collectionId")
+    tags: List[TagModel] = Field(default_factory=list)
     preserve_details: SnapshotDetails = Field(..., alias="preserveDetails")
 
 def get_snapshot_metadata(link_id: int) -> LinkwardenLinkResponse:
@@ -262,5 +309,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-09
 - Confidence: high
