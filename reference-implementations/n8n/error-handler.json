@@ -1,0 +1,74 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "error-handler",
+        "options": {}
+      },
+      "id": "e98e22d3-8e42-4f3d-8891-628043685e19",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ],
+      "webhookId": "error-handler"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://homeassistant.local:8123/api/states/sensor.n8n_error_queue",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_LONG_LIVED_ACCESS_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "state",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "attributes",
+              "value": "={{ { \"status\": \"failed\", \"model\": $json.model || \"N/A\", \"workflow_id\": $json.workflow_id, \"node_name\": $json.node_name, \"timestamp\": $json.timestamp || $now.toISO() } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f5a7e1b2-c3d4-4e5f-6g7h-8i9j0k1l2m3n",
+      "name": "Push to Home Assistant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        620,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Push to Home Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
