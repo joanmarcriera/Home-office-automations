@@ -3,6 +3,35 @@
 ## What it is
 AutoGen Studio is an open-source, low-code web interface built on top of Microsoft's AutoGen agentic orchestration framework. It enables developers and researchers to rapidly prototype, debug, monitor, and deploy collaborative multi-agent teams. As of early January 2027, it supports AutoGen v0.4+ specifications, incorporating native, event-driven multi-agent routing, safe execution sandboxes, and deep integration with tool registries.
 
+## System Architecture
+
+```
+                                +-------------------------------------------------------+
+                                |                  AutoGen Studio Web UI                |
+                                |     (React Frontend / Visual Agent Builder & Logs)    |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v  REST API / WebSockets
+                                +-------------------------------------------------------+
+                                |               AutoGen Studio FastAPI Server           |
+                                |       (Session Manager / Gallery / Agent Runtime)     |
+                                +---------------------------+---------------------------+
+                                                            |
+                                        +-------------------+-------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |       Agent Execution Engine        |   |    FastMCP 3.1 Tool Gateway Client  |
+                     |  (Planner / Coder / Reviewer Loop)  |   |    (Stdio / SSE Tool Connectors)    |
+                     +------------------+------------------+   +------------------+------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |      Sandboxed Docker / Python      |   |   External Data & API Resources     |
+                     |     Isolated Execution Container    |   |  (Databases, Files, Cloud Workflows)|
+                     +-------------------------------------+   +-------------------------------------+
+```
+
 ## What problem it solves
 Creating cooperative multi-agent systems using traditional, imperative code can be complex and error-prone. AutoGen Studio mitigates this complexity by providing:
 - **Visual Team Modeling**: Providing an intuitive web UI to set up agent identities, system instructions, memory constraints, and communication structures.
@@ -12,6 +41,16 @@ Creating cooperative multi-agent systems using traditional, imperative code can 
 
 ## Where it fits in the stack
 **Frameworks / Agent UI**. AutoGen Studio operates within the **Agent Orchestration and Design** layer, serving as a rapid visual design portal for workflows that are eventually compiled into production-grade multi-agent execution engines.
+
+## Key Feature Comparison Matrix
+
+| Capability / Feature | AutoGen Studio | CrewAI Enterprise | Dify Platform | LangGraph Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Design Paradigm** | Visual multi-agent chat playground | Role-based task assignments | Flowchart pipeline graph | Stateful graph execution tree |
+| **Protocol Integration** | Native FastMCP 3.1 stdio / SSE | Webhook / Custom Python tools | REST API / Webhooks | Custom Python state nodes |
+| **Code Execution Model** | Docker sandboxed Python interpreter | Local host / Docker container | Restricted Python sandbox | Local process execution |
+| **Deployment Target** | Self-hosted Python service | Managed Cloud / Docker | Docker Compose / K8s | LangGraph Cloud / Local Docker |
+| **Multi-Agent Topologies** | GroupChat, RoundRobin, Selector | Hierarchical, Sequential | Fixed Flow DAG | Cyclic / Acyclic Graphs |
 
 ## Typical use cases
 - **Multi-Agent Deliberation Testing**: Designing workflows where a planner agent decomposes problems, a coder agent writes scripts, and a reviewer agent validates outputs.
@@ -60,6 +99,18 @@ autogenstudio ui --port 8081
 
 Open `http://localhost:8081` in your web browser. Build your agents and testing workflows in the **Build** panel, then open a session in the **Playground** to test them.
 
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **Sandboxing Enforcements**: Always mount isolated volume mounts or run inside non-root Docker containers when enabling arbitrary code execution capabilities in AutoGen Studio skills.
+2. **Session Cleanup**: Routinely archive or purge historical SQLite database files generated by AutoGen Studio at `~/.autogenstudio/database.sqlite` to prevent web server UI sluggishness.
+3. **Environment Isolation**: Utilize dedicated Python virtual environments (`venv` or `conda`) to avoid package collision between AutoGen Studio dependencies and local development projects.
+
+### Common Troubleshooting Scenarios
+- **Port Conflicts**: If port 8081 is occupied, launch with `--port <alternate_port>` or terminate orphaned Python processes bound to the port.
+- **MCP Server Timeouts**: Ensure FastMCP 3.1 server processes stdout logs are redirected properly so stdio JSON-RPC channels are not corrupted.
+- **Model Key Validation**: Confirm `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` environment variables are exported in the shell session where `autogenstudio ui` is executed.
+
 ## CLI examples
 
 ### Starting the UI Port
@@ -96,18 +147,25 @@ from pydantic import BaseModel, Field, ConfigDict
 class AgentMessage(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-    sender: str
-    recipient: str
-    content: str
-    timestamp: Optional[str] = None
+    sender: str = Field(..., description="Name of the sending agent")
+    recipient: str = Field(..., description="Name of the receiving agent")
+    content: str = Field(..., description="Body of the agent communication message")
+    timestamp: Optional[str] = Field(default=None, description="Optional ISO timestamp string")
+
+class AgentSkillConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    skill_name: str = Field(..., description="Identifier name of the Python skill snippet")
+    python_code: str = Field(..., description="Executable Python code block")
+    description: str = Field(..., description="Human-readable description for agent tool selection")
 
 class WorkflowRunResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    workflow_id: str
-    status: str
-    summary: str
-    agent_messages: List[AgentMessage] = Field(default_factory=list)
+    workflow_id: str = Field(..., description="Path or identifier of the executed workflow")
+    status: str = Field(..., description="Execution status outcome code")
+    summary: str = Field(..., description="High-level text summary of the deliberation result")
+    agent_messages: List[AgentMessage] = Field(default_factory=list, description="Ordered communication trace log")
 
 def execute_studio_workflow(config_file: str, query: str) -> WorkflowRunResult:
     # Programmatic invocation of exported AutoGen Studio workflow

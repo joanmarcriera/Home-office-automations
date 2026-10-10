@@ -5,6 +5,33 @@ Superinterface is an open-source framework and platform for building and deployi
 
 ## System Architecture
 
+```
+                                +-------------------------------------------------------+
+                                |               React / Next.js Web App                 |
+                                |     (@superinterface/react Threads & Forms UI)        |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v  WebSocket / SSE Stream
+                                +-------------------------------------------------------+
+                                |              Superinterface Server Core               |
+                                |    (Session Manager / Thread Storage / Prompt Engine) |
+                                +---------------------------+---------------------------+
+                                                            |
+                                        +-------------------+-------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |     FastMCP 3.1 Gateway Client      |   |       Model Provider Gateway        |
+                     |  (Sub-10ms FastMCP Tool Integration)|   | (Claude 5.6 / GPT-5.6 / Gemini 4.0) |
+                     +------------------+------------------+   +-------------------------------------+
+                                        |
+                                        v
+                     +-------------------------------------+
+                     |     Computer Use Sandbox Target     |
+                     |  (Virtual Machine / Headless Browser)
+                     +-------------------------------------+
+```
+
 ```mermaid
 graph TD
     subgraph Frontend Client Layer
@@ -30,6 +57,16 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 
 ## Where it fits in the stack
 **Category**: Frameworks / UI Library & Assistant Backend. It sits at the **Application & Presentation Layer**, bridging frontend user interaction with model orchestrators and FastMCP tool servers.
+
+## Key Feature Comparison Matrix
+
+| Capability / Feature | Superinterface | Dify Platform | Vercel AI SDK | Open WebUI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Embeddable React assistant UI & backend | Complete No-Code/Low-Code agent platform | React/Next.js streaming primitives | Full chat UI web application |
+| **Interactive Components**| Native rich form & action UI embedding | Limited standard form widgets | Custom React Server Components | Standard Markdown/Code rendering |
+| **FastMCP 3.1 Support** | Built-in gateway client & SSE | Webhook / REST tools | Community integrations | Custom Python pipelines |
+| **Computer Use Support** | Native VM / Browser control support | None | Third-party function calls | Web browsing tool calling |
+| **Backend Architecture** | Docker / Node.js / PostgreSQL | Docker Compose / Python / Celery | Serverless / Edge functions | Python FastAPI / SQLite |
 
 ## Typical use cases
 - **AI-Powered Customer Portals**: Building chat interfaces that support **Interactive Components** like forms, surveys, and interactive cards for structured data entry.
@@ -76,6 +113,18 @@ docker run -d \
   supercorp/superinterface-server:latest
 ```
 
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **WebSocket Connection Handling**: Configure reverse proxies to handle WebSocket upgrades (`Upgrade $http_upgrade`, `Connection "upgrade"`) with generous read/write timeouts (e.g., 3600s).
+2. **Database Pooling**: Ensure PgBouncer or server-side connection pooling is enabled on PostgreSQL instances supporting high-concurrency Superinterface thread streams.
+3. **State Sync Enforcements**: Keep component client-side state synchronized by avoiding direct mutation of message objects outside the `@superinterface/react` hook lifecycle.
+
+### Common Troubleshooting Scenarios
+- **Streaming Interruptions**: Verify reverse proxy buffer settings (`proxy_buffering off;`) to prevent SSE response chunking delay.
+- **FastMCP Tool Connection Errors**: Inspect network reachability between the Superinterface backend container and FastMCP tool servers.
+- **Hydration Mismatches**: Ensure server-rendered Next.js pages wrapping Superinterface components specify client component directives (`"use client"`).
+
 ## CLI examples
 
 ### Deployment via CLI
@@ -100,7 +149,7 @@ This example demonstrates configuring a **FastMCP 3.1** tool server that interfa
 
 ```python
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, ValidationError
 
@@ -112,6 +161,15 @@ class InteractiveFormSubmission(BaseModel):
     user_id: str = Field(..., description="ID of the submitting user")
     field_values: Dict[str, Any] = Field(..., description="Key-value dictionary of form input data")
     client_timestamp: float = Field(..., description="Client-side submit timestamp")
+
+class ComponentOption(BaseModel):
+    label: str = Field(..., description="Human readable selection label")
+    value: str = Field(..., description="Internal key value string")
+
+class InteractiveComponentSpec(BaseModel):
+    component_type: str = Field(..., pattern="^(form|carousel|action_card|survey)$", description="Type of UI element")
+    title: str = Field(..., min_length=3, description="Component header title")
+    options: List[ComponentOption] = Field(default_factory=list, description="Selection options")
 
 class SuperinterfaceToolConfig(BaseModel):
     name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$", description="Alpha-numeric name of the tool")

@@ -3,11 +3,50 @@
 ## What it is
 A guide and reference implementation for programmatically uploading documents to Paperless-ngx via its REST API and Model Context Protocol (FastMCP 3.1) endpoints. This method enables real-time document ingestion from external sources like mobile scanners, email bots, home-automation webhooks, or multi-agent orchestrators, bypassing the latency of standard folder polling.
 
+## System Architecture
+
+```
+                                +-------------------------------------------------------+
+                                |               External Ingestion Sources              |
+                                |     (iOS Shortcuts / Email Gateway / n8n / Scanners)  |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v  HTTP Multipart POST
+                                +-------------------------------------------------------+
+                                |               Cloudflare / Reverse Proxy              |
+                                |      (TLS Termination / Authentication Header Check)  |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v
+                                +-------------------------------------------------------+
+                                |                 Paperless-ngx Webhook                 |
+                                |       (/api/documents/post_document/ Ingest API)      |
+                                +---------------------------+---------------------------+
+                                                            |
+                                        +-------------------+-------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |     PostgreSQL + Redis Queue        |   |     FastMCP 3.1 Task Protocol       |
+                     |  (Metadata Tracking / Celery OCR)   |   |  (Synchronous Agent Event Dispatch) |
+                     +-------------------------------------+   +-------------------------------------+
+```
+
 ## What problem it solves
 Standard Paperless-ngx ingestion relies on consumption folder polling, which introduces delays (up to several minutes) between scanning a document and its availability in the index. Webhook ingestion enables a real-time "push" architecture, providing instantaneous document ingestion, immediate HTTP feedback, and synchronous metadata application (tags, correspondent, document type, created date).
 
 ## Where it fits in the stack
 This implementation sits at the **Intake/Ingress layer**. It connects **External Sources** (n8n, mobile shortcuts, email gateways, edge sensors) to the **Document Management System** (Paperless-ngx) and downstream **AI Processing Engines** (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**).
+
+## Key Feature Comparison Matrix
+
+| Ingestion Method | Webhook Push Ingestion | Directory Polling | Email Import Gateway | FastMCP Tool Upload |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ingestion Latency** | Immediate (<500ms) | Polling Interval (1–5 min) | Polling Interval (1–3 min) | Immediate (<300ms) |
+| **Metadata Injection** | Synchronous during upload | Post-OCR auto-matching | Header / Subject regex | Synchronous Pydantic validated |
+| **Network Direction** | Inbound Push (HTTP POST) | Local File IO Mount | Inbound IMAP Polling | Bidirectional JSON-RPC |
+| **Error Handling** | Synchronous HTTP status | Log file inspection | Email bounce notification | Structured JSON response |
+| **Authentication** | Bearer / Token Auth Header | Filesystem permissions | IMAP Credentials | FastMCP Auth Header |
 
 ## Typical use cases
 - **Mobile Scan-to-Cloud**: iOS Shortcuts or Android shares POSTing image/PDF payloads directly to Paperless via secure tunnel.
@@ -40,6 +79,18 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 2. Verify instance connectivity via HTTPS or Tailscale.
 3. Perform a test upload using `curl` or the provided FastMCP 3.1 Python integration.
 4. Integrate the payload format into n8n or your agent framework.
+
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **Reverse Proxy Configuration**: Ensure reverse proxies (Nginx/Traefik) have `client_max_body_size` set to at least `100M` to accommodate multi-page high-resolution PDF uploads.
+2. **Token Security**: Store API authorization tokens in environment variables or secret vaults rather than hardcoding in client scripts.
+3. **Queue Health**: Monitor Redis queue depth on Paperless-ngx instances when receiving heavy concurrent webhook spikes.
+
+### Common Troubleshooting Scenarios
+- **413 Payload Too Large**: Increase `client_max_body_size` in the reverse proxy configuration.
+- **401 Unauthorized**: Check that the API token header follows the `Authorization: Token <token_hash>` format.
+- **OCR Delays**: Ensure Paperless worker containers have sufficient CPU core allocations for Tesseract/OCRmyPDF processing.
 
 ## CLI examples
 
