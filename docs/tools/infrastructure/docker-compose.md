@@ -3,20 +3,36 @@
 ## What it is
 Docker Compose is a declarative container orchestration tool for defining and running multi-container applications using YAML configuration files. As of 2027, Docker Compose v2 (integrated natively into the Docker CLI as `docker compose`) serves as the standard runtime orchestration standard for local microservice topologies, self-hosted AI stacks, edge deployments, and reproducible development environments.
 
-```mermaid
-graph TD
-    A[Developer / Operator] -->|docker compose up -d| B[Docker Compose v2 Engine]
-    B --> C{Parse docker-compose.yml}
-    C -->|Create Bridge Network| D[Isolated Docker Virtual Network]
-    C -->|Bind Named Volumes| E[Persistent Volume Storage]
-    C -->|Spawn Containers| F[Service 1: vLLM / Ollama Engine]
-    C -->|Spawn Containers| G[Service 2: Qdrant Vector DB]
-    C -->|Spawn Containers| H[Service 3: Open WebUI Frontend]
-    F --- D
-    G --- D
-    H --- D
-    F --- E
-    G --- E
+```
++-----------------------------------------------------------------------------------+
+|                                DEVELOPER / OPERATOR                               |
+|                  (CLI / CI/CD Pipeline / FastMCP Orchestrator Agent)              |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | docker compose up -d
+                                          v
++-----------------------------------------------------------------------------------+
+|                              DOCKER COMPOSE V2 ENGINE                             |
+|                                                                                   |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  YAML Specification    |  |  Network Management    |  |  Volume Persistence |  |
+|  |  Parsing & Validation  |  |  (Isolated Bridge DNS) |  |  (Named Bind Mounts)|  |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  GPU & Device          |  |  Healthcheck &         |  |  FastMCP 3.1 Stack  |  |
+|  |  Allocation (CUDA)     |  |  Dependency Ordering   |  |  Manager Engine     |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Docker Engine Socket (/var/run/docker.sock)
+                                          v
++-----------------------------------------------------------------------------------+
+|                           CONTAINERIZED SERVICE TOPOLOGY                          |
+|                                                                                   |
+|  +--------------------+    +-----------------------+    +----------------------+  |
+|  | Local LLM Engine   |    | Vector Database       |    | Web UI / API Gateway |  |
+|  | (vLLM / Ollama)    |<-->| (Qdrant / Milvus)     |<-->| (Open WebUI)         |  |
+|  +--------------------+    +-----------------------+    +----------------------+  |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -24,6 +40,36 @@ Orchestrating multi-service applications manually via isolated `docker run` comm
 
 ## Where it fits in the stack
 **Infrastructure / Container Orchestration**. Docker Compose operates directly on top of the Docker Daemon or Podman container engine, serving as the single-host orchestration layer for local development workstations, home labs, staging servers, and edge IoT devices.
+
+## Multi-Container Stack Lifecycle & Network Architecture
+
+```
+[Operator / Agent]              [Docker Compose v2]                 [Docker Runtime]
+        |                                |                                   |
+        | 1. docker compose up -d        |                                   |
+        |------------------------------->|                                   |
+        |                                | 2. Read & Parse docker-compose.yml|
+        |                                | 3. Create Bridge Network          |
+        |                                |---------------------------------->|
+        |                                | 4. Mount Persistent Volumes       |
+        |                                |---------------------------------->|
+        |                                | 5. Spawn Containers with Healthcheck
+        |                                |---------------------------------->|
+        |                                | 6. DNS Service Resolution Active  |
+        | 7. Stack Active & Healthy      |<----------------------------------|
+        |<-------------------------------|                                   |
+```
+
+## Container Orchestration Comparison Matrix
+
+| Feature / Dimension | Docker Compose v2 | Kubernetes / K3s | Docker Swarm | Systemd Units |
+| :--- | :--- | :--- | :--- | :--- |
+| **Scope** | Single-Host Orchestration| Multi-Node Cluster | Multi-Node Cluster | Single Host / OS |
+| **Configuration** | YAML (`docker-compose.yml`) | Kubernetes Manifests | Compose YAML | Ini Service Files |
+| **Networking** | Internal Bridge DNS | Ingress / Service Mesh | Swarm Overlay | Host Networking |
+| **GPU Allocation** | Native CUDA Passthrough | NVIDIA GPU Operator | Basic Device Mount | Host Driver Access |
+| **Learning Curve** | Extremely Low | High | Medium | Low |
+| **Auto-Healing** | Single-host Container Restart| Multi-node Pod Reschedule| Container Reschedule| Systemd Restart |
 
 ## Typical use cases
 - **Multi-Service AI & Local RAG Stacks**: Spinning up connected local inference engines (Ollama, vLLM), vector databases (Qdrant, Milvus, Chroma), and user interfaces (Open WebUI) in unified topologies.
@@ -116,6 +162,9 @@ docker compose down -v
 
 # Rebuild container images before restarting the stack
 docker compose up -d --build
+
+# Check running status and health of all stack containers
+docker compose ps
 ```
 
 ## API examples
@@ -126,7 +175,7 @@ The following code snippet demonstrates managing Docker Compose stacks programma
 ```python
 import subprocess
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
 # Define Pydantic v2 schemas for Docker Compose stack management requests and responses
@@ -134,6 +183,14 @@ class StackManageRequest(BaseModel):
     compose_file_path: str = Field(default="docker-compose.yml", description="Path to the docker-compose.yml manifest file.")
     action: str = Field(..., description="Action to execute: 'up', 'down', 'restart', or 'status'.")
     build_images: bool = Field(default=False, description="Whether to force rebuild images before starting services.")
+
+    @field_validator("action")
+    @classmethod
+    def validate_action(cls, v: str) -> str:
+        allowed = {"up", "down", "restart", "status"}
+        if v not in allowed:
+            raise ValueError(f"Action must be one of {allowed}")
+        return v
 
 class StackServiceStatus(BaseModel):
     service_name: str = Field(..., description="Name of the service defined in compose.")
@@ -164,13 +221,6 @@ async def manage_docker_stack(request: StackManageRequest) -> StackManageRespons
         cmd.extend(["restart"])
     elif request.action == "status":
         cmd.extend(["ps", "--format", "json"])
-    else:
-        return StackManageResponse(
-            action=request.action,
-            success=False,
-            output=f"Invalid action '{request.action}'. Supported: up, down, restart, status",
-            services=[]
-        )
 
     res = subprocess.run(cmd, capture_output=True, text=True)
     success = (res.returncode == 0)
@@ -186,6 +236,17 @@ async def manage_docker_stack(request: StackManageRequest) -> StackManageRespons
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Production Operational Best Practices
+
+### 1. GPU Allocation & Driver Resilience
+Ensure host NVIDIA drivers and `nvidia-container-toolkit` are installed before specifying GPU device reservations in `docker-compose.yml`. Use `count: all` or specify explicit GPU indices (`device_ids: ['0']`) for targeted inference workloads.
+
+### 2. Healthcheck Dependent Startup
+Always couple `depends_on` directives with `condition: service_healthy` to ensure database and inference engines finish initialization before dependent Web APIs or agent services attempt connections.
+
+### 3. Environment & Secret Isolation
+Store sensitive database credentials and API keys in `.env` files or Docker Compose secret mounts (`secrets:`) rather than hardcoding credentials inside version-controlled Compose manifests.
 
 ## Related tools / concepts
 - [Docker](docker.md) — Single-container engine runtime substrate.

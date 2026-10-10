@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/automation_orchestration/atlassian-jira-mcp.md",
-    "docs/tools/agents/claude-skills-ecosystem.md",
-    "docs/tools/development_ops/jupyter-kernel-mcp.md",
-    "docs/tools/infrastructure/docker-compose.md",
-    "docs/tools/calendar_tasks/reclaim.md",
     "docs/tools/process_understanding/braintrust.md",
     "docs/tools/providers/katcoderair.md",
     "docs/tools/infrastructure/milvus.md",
@@ -40,7 +35,12 @@
     "docs/tools/agents/perplexity-agent-api.md",
     "docs/tools/process_understanding/fiddler.md",
     "docs/tools/frameworks/nemo-automodel.md",
-    "docs/tools/process_understanding/faster-whisper.md"
+    "docs/tools/process_understanding/faster-whisper.md",
+    "docs/tools/calendar_tasks/outlook.md",
+    "docs/tools/orchestration/apache-airflow.md",
+    "docs/tools/development_ops/devin.md",
+    "docs/services/nextcloud.md",
+    "docs/tools/infrastructure/klq.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
