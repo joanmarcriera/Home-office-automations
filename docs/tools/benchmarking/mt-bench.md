@@ -26,6 +26,16 @@ graph TD
 - **LLM-as-a-Judge Validation**: MT-Bench uses strong models as judges to provide automated, scalable scoring, now enhanced by the [FastMCP 3.1](../automation_orchestration/mcp.md) standardized task representations.
 - **Agentic Workflow Stress-Testing**: Verifying that agents can maintain state across long-running tasks.
 
+## Feature Comparison Matrix
+
+| Evaluation Dimension | MT-Bench | Chatbot Arena | AlpacaEval | WildBench |
+| :--- | :--- | :--- | :--- | :--- |
+| **Turns Evaluated** | Multi-turn (2 turns per query) | Multi-turn human sessions | Single-turn instruction following | Multi-turn real user conversations |
+| **Scoring Method** | LLM-as-a-Judge (1-10 rating / pairwise) | Human Elo votes | LLM-as-a-Judge (Win rate against baseline) | LLM-as-a-Judge (Fine-grained rubric) |
+| **Question Count** | 80 fixed benchmark prompts | ~1,000,000+ crowdsourced chats | 805 evaluation prompts | 1,024 complex user prompts |
+| **Primary Domain** | Reasoning, coding, roleplay, math | Real-world general user traffic | Task instruction compliance | Real-world multi-step tasks |
+| **FastMCP 3.1 Native** | First-class Task Protocol server | REST API / Web App | REST / Harness CLI | REST / Harness CLI |
+
 ## Strengths
 - **Multi-turn Focus**: Specifically designed to test conversation depth and instruction adherence over multiple turns.
 - **Diverse Categories**: Covers a wide range of tasks from coding to roleplay, ensuring a balanced evaluation.
@@ -95,35 +105,54 @@ python fastchat/llm_judge/gen_judgment.py --model-list model1 model2 --parallel 
 python fastchat/llm_judge/gen_judgment.py --model-list model1 --output-file results.json
 ```
 
-## API examples
+## FastMCP 3.1 Integration
 
-### FastMCP 3.1 MT-Bench Judgment Tool
-Below is a **FastMCP 3.1** server for managing conversational judgment tasks:
+The following FastMCP 3.1 server exposes an automated conversational judge pipeline for executing MT-Bench multi-turn evaluations:
 
 ```python
-from fastmcp import FastMCP
+import json
+import httpx
 from typing import Dict, Any, List
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("MT-Bench-Judge-Server")
+mcp = FastMCP("MT-Bench-Judge-Server", version="3.1.0")
+
+class TurnExecutionPayload(BaseModel):
+    question_id: int = Field(..., description="MT-Bench question ID (1-80)")
+    model_id: str = Field(..., description="Target model identifier under test")
+    turn_responses: List[str] = Field(..., min_length=2, max_length=2, description="Turn 1 and Turn 2 model completion text")
+    judge_model: str = Field("gpt-5.6", description="Judge model identifier")
 
 @mcp.tool()
-def grade_multi_turn_conversation(question_id: int, model_id: str, turn_responses: List[str]) -> Dict[str, Any]:
-    """
-    FastMCP 3.1 tool for orchestrating multi-turn LLM-as-a-judge evaluation.
-    """
-    # Evaluate Turn 1 and Turn 2 responses with referee prompt
-    return {
-        "question_id": question_id,
-        "model_id": model_id,
+async def grade_multi_turn_conversation(payload: TurnExecutionPayload) -> str:
+    """FastMCP 3.1 tool for orchestrating multi-turn LLM-as-a-judge evaluation."""
+    # Simulated judge execution
+    scorecard = {
+        "question_id": payload.question_id,
+        "model_id": payload.model_id,
+        "judge_model": payload.judge_model,
         "turn_1_score": 9.5,
         "turn_2_score": 9.0,
         "overall_score": 9.25,
-        "judge_model": "gpt-5.6"
+        "judge_rationale": "Model provided clear syntax in Turn 1 and accurately resolved state dependencies in Turn 2."
     }
+    return json.dumps(scorecard, indent=2)
+
+@mcp.tool()
+async def get_mtbench_categories() -> str:
+    """Retrieves the 8 official MT-Bench evaluation categories."""
+    categories = [
+        "writing", "roleplay", "extraction", "reasoning",
+        "math", "coding", "stem_knowledge", "humanities_knowledge"
+    ]
+    return json.dumps(categories, indent=2)
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## API examples
 
 ### Programmatic Validation via Pydantic v2
 While MT-Bench is primarily a CLI-driven benchmark, it can be integrated into Python pipelines. This early 2027 example showcases robust **Pydantic v2** model schemas to structure, parse, and validate multi-turn prompt payloads and scores.
@@ -176,6 +205,15 @@ mock_judge_payload = {
 
 validated_card = validate_scorecard(mock_judge_payload)
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Mitigating Judge Position & Length Bias
+- **Position Swapping**: When executing pairwise judge ratings on MT-Bench, always run candidate output pairs in both orderings (A vs B, B vs A) to neutralize LLM position bias.
+- **Length Normalization**: Apply verbosity penalty filters if candidate models produce excessively verbose completions designed to skew judge scores.
+
+### Multi-Turn Context Persistence
+- **State Serialization**: Store Turn 1 assistant messages and prompt templates explicitly in an immutable memory store before submitting Turn 2 follow-ups to prevent context drift during batch evaluation runs.
 
 ## Related tools / concepts
 - [Chatbot Arena](chatbot-arena.md) - The primary leaderboard for human preferences.

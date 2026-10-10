@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-09",
+  "snapshot_date": "2026-10-10",
   "total_docs": 598,
   "tool_docs": 545,
   "service_docs": 53,
@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/clawrouter.md",
-    "docs/tools/development_ops/sourcegraph_cody.md",
-    "docs/tools/benchmarking/mmlu.md",
-    "docs/tools/benchmarking/mt-bench.md",
-    "docs/tools/process_understanding/lastmile.md",
     "docs/tools/frameworks/autogen-studio.md",
     "docs/tools/orchestration/flyte.md",
     "docs/tools/frameworks/superinterface.md",
@@ -40,11 +35,16 @@
     "docs/tools/infrastructure/docker-compose.md",
     "docs/tools/calendar_tasks/reclaim.md",
     "docs/tools/process_understanding/braintrust.md",
-    "docs/tools/providers/katcoderair.md"
+    "docs/tools/providers/katcoderair.md",
+    "docs/tools/infrastructure/milvus.md",
+    "docs/tools/process_understanding/prometheus.md",
+    "docs/tools/infrastructure/podman.md",
+    "docs/tools/providers/mistral.md",
+    "docs/services/whisper.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
-  "intake_items_7d": 29,
+  "intake_items_7d": 17,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }

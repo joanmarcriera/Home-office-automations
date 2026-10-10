@@ -9,11 +9,34 @@ It solves the "autonomous agent payment gap" by using the **x402 protocol** for 
 ## Where it fits in the stack
 **Infrastructure / Routing Layer**. ClawRouter sits between the AI agent (Claude 5.6, GPT-5.6) and model providers (Anthropic, OpenAI, Google, NVIDIA, etc.), acting as a smart, payment-integrated proxy.
 
+```mermaid
+graph TD
+    Agent[Autonomous AI Agent] -->|1. Request with x402 Header| Proxy[ClawRouter Local Proxy :8402]
+    Proxy -->|2. Check Balance & Wallet Sign| Wallet[Local BIP-39 Vault / x402 Engine]
+    Proxy -->|3. Evaluate 15 Routing Metrics| Router[1ms Smart Decision Engine]
+    Router -->|Option A: Low Latency/Cost| OpenModels[Free/Open-Weights Models: vLLM / Ollama]
+    Router -->|Option B: High Reasoning| FrontierModels[Frontier Models: Claude 5.6 / GPT-5.6 / DeepSeek-V4]
+    Router -->|Option C: Multimodal / Voice| VoiceService[Twilio / Voice API & Flux Image Gen]
+    FrontierModels -->|4. Stream Response & Micro-settlement| Proxy
+    Proxy -->|5. Return OpenAI-Compatible SSE Stream| Agent
+```
+
 ## Typical use cases
 - **Autonomous Agent Ops**: Powering agents that need to pay for their own inference via on-chain USDC.
 - **Cost-Optimized Coding**: Routing simple code edits to free or low-cost models while using Claude 5.1 for complex architecture.
 - **Multi-Modal Orchestration**: Seamlessly switching between specialized models for text, vision, image generation, and voice calls.
 - **Agentic Infrastructure**: Providing a local, <1ms routing layer for high-volume agent fleets and FastMCP 3.1 workflows.
+
+## Feature Comparison Matrix
+
+| Feature / Capability | ClawRouter | LiteLLM | OpenRouter | Portkey |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Autonomous agent micropayments & smart routing | Model abstraction & enterprise proxy | Hosted API aggregation | Enterprise observability & governance |
+| **Authentication** | On-chain wallet signatures (x402) | Static API keys / Virtual keys | API keys | Vault API keys / Service accounts |
+| **Billing Model** | Per-request USDC micropayments | Centralized SaaS / Self-hosted provider keys | Deposit account credits | SaaS subscription + usage |
+| **Routing Latency** | < 1 ms local execution | < 5 ms local execution | ~50-100 ms cloud hop | ~20-50 ms cloud proxy |
+| **Voice / Multimodal** | Native telephony & voice agent routing | LLM text/vision routing only | Text/vision image generation | Text/vision/audio proxying |
+| **FastMCP 3.1 Native** | First-class FastMCP 3.1 agent tool backend | Standard REST / OpenAI proxy | REST / OpenAI proxy | REST / Gateway SDK |
 
 ## Strengths
 - **Agent-First Auth**: Uses wallet signatures instead of API keys, making it truly native to autonomous entities.
@@ -77,6 +100,70 @@ Manage wallet-owned phone numbers for AI voice calls:
 clawrouter phone numbers buy US --area-code 415
 # List active numbers and expiry
 clawrouter phone numbers list
+```
+
+## FastMCP 3.1 Integration
+
+The following FastMCP 3.1 server implementation allows autonomous agents to dynamically query ClawRouter status, trigger smart routing decisions, and adjust cost budgets via Model Context Protocol:
+
+```python
+import json
+import httpx
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("ClawRouter-Control-Plane", version="3.1.0")
+
+CLAWROUTER_BASE_URL = "http://localhost:8402/v1"
+
+class RoutingConfig(BaseModel):
+    max_cost_limit_usd: float = Field(0.05, description="Maximum allowed spend in USD per request")
+    preferred_provider: str = Field("auto", description="Preferred provider tier or 'auto'")
+    latency_sla_ms: int = Field(1500, description="Maximum acceptable latency in ms")
+
+class PromptPayload(BaseModel):
+    prompt: str = Field(..., description="User or agent query string")
+    system_instruction: str = Field("You are a helpful assistant.", description="System instruction")
+    config: RoutingConfig = Field(default_factory=RoutingConfig)
+
+@mcp.tool()
+async def route_agent_task(payload: PromptPayload) -> str:
+    """Routes an agent task through ClawRouter with x402 micropayment handling."""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer x402"
+    }
+    body = {
+        "model": "blockrun/auto",
+        "messages": [
+            {"role": "system", "content": payload.system_instruction},
+            {"role": "user", "content": payload.prompt}
+        ],
+        "metadata": payload.config.model_dump()
+    }
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(f"{CLAWROUTER_BASE_URL}/chat/completions", json=body, headers=headers)
+        if response.status_code == 200:
+            res_data = response.json()
+            return res_data["choices"][0]["message"]["content"]
+        else:
+            return f"ClawRouter error ({response.status_code}): {response.text}"
+
+@mcp.tool()
+async def get_wallet_telemetry() -> str:
+    """Retrieves current USDC balance, active phone numbers, and proxy health."""
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        try:
+            res = await client.get(f"{CLAWROUTER_BASE_URL}/status")
+            if res.status_code == 200:
+                return json.dumps(res.json(), indent=2)
+            return f"Health check failed with status {res.status_code}"
+        except Exception as err:
+            return f"Failed to reach ClawRouter proxy: {err}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -210,6 +297,30 @@ if __name__ == "__main__":
     else:
         print("Running fallback diagnostics. Ensure 'npx @blockrun/clawrouter' is running locally.")
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Wallet Security & Key Management
+- **Mnemonic Backup**: Always store the BIP-39 seed phrase generated during `npx @blockrun/clawrouter` in an encrypted password manager or secure vault (`/etc/clawrouter/vault.json`).
+- **Low Balance Automation**: Implement automated balance alerts when USDC falls below threshold limits to prevent agent execution halts during long-running batch operations.
+
+### Local Proxy High-Availability
+- **Systemd Service Setup**: Run ClawRouter as a background daemon on agent host instances:
+  ```ini
+  [Unit]
+  Description=ClawRouter Agent Proxy
+  After=network.target
+
+  [Service]
+  ExecStart=/usr/bin/npx @blockrun/clawrouter daemon
+  Restart=always
+  User=agent
+  Environment=CLAWROUTER_PORT=8402
+
+  [Install]
+  WantedBy=multi-user.target
+  ```
+- **Fallback Configurations**: Keep standard provider keys (OpenAI / Anthropic) configured in secondary SDK fallbacks in case local x402 proxy instances undergo maintenance or experience network partition.
 
 ## Related tools / concepts
 - [OpenClaw](../development_ops/openclaw.md)

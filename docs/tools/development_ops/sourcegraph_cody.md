@@ -9,11 +9,32 @@ It solves the "context fragmentation" and "knowledge silo" problem in massive en
 ## Where it fits in the stack
 **Category**: Tool / Development & Ops / AI-assisted Coding. Cody functions as the "Code Intelligence and Enterprise Context Plane", feeding precise repository-level embeddings and syntax trees to local editor chats and remote autonomous developer agents alike.
 
+```mermaid
+graph TD
+    Developer[Enterprise Developer / FastMCP 3.1 Agent] -->|1. Natural Language / Code Context Request| CodyEngine[Cody Code Intelligence Engine]
+    CodyEngine -->|2. Hybrid Search Query| SCIPGraph[SCIP / LSIF Code Graph Index]
+    CodyEngine -->|3. Vector Embedding Match| VectorStore[Sourcegraph Enterprise Vector Store]
+    SCIPGraph -->|Cross-Repo AST / Symbol Dependencies| ContextBuilder[Context Aggregator & Reranker]
+    VectorStore -->|Semantic Code Chunks| ContextBuilder
+    ContextBuilder -->|4. High-Fidelity Code Prompt| FrontierLLM[Frontier LLM: Claude 5.6 / GPT-5.6 / DeepSeek-V4]
+    FrontierLLM -->|5. Verified Code Edits & Architecture Explanations| Developer
+```
+
 ## Typical use cases
 - **Multi-Repository Architecture Search**: Asking natural language questions that span across separate microservice codebases (e.g. tracking API request paths).
 - **Agentic Context Enrichment**: Serving as a FastMCP 3.1 server backend to feed high-fidelity code fragments to standalone agent frameworks like OpenHands, Cline, or Claude Code.
 - **Enterprise Developer Onboarding**: Allowing newly onboarded engineers to quickly understand complex system flows and database schemas through conversational search.
 - **Conforming to Internal Coding Standards**: Customizing Cody prompts to enforce specific company-wide coding rules, design patterns, and deprecation notices during code generation.
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | Sourcegraph Cody | GitHub Copilot | Cursor | Aider |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Multi-repo code graph & enterprise intelligence | Individual developer editor inline autocomplete | Local-first AI editor with fast file index | Terminal-native autonomous pair programmer |
+| **Context Scope** | Cross-repo SCIP/LSIF code graph + embeddings | Workspace open tabs + local embeddings | Active workspace folder + local vector index | Active git commit tree + user selected files |
+| **Model Agnostic** | Fully model agnostic (Claude 5.6, GPT-5.6, Gemini) | Multi-model picker (OpenAI, Anthropic) | Multi-model picker + custom API endpoints | Multi-model via Litellm / OpenRouter |
+| **FastMCP 3.1 Native** | First-class FastMCP 3.1 Context Server & Client | Proprietary extensions / MCP extensions | FastMCP tool server support | MCP CLI integration |
+| **On-Prem / VPC Option** | Comprehensive air-gapped & VPC enterprise server | Business/Enterprise cloud tier | Cloud / Self-hosted API key | Fully local CLI execution |
 
 ## Strengths
 - **Unrivaled Semantic Search**: Powered by Sourcegraph's hybrid search engine, combining keyword, vector embeddings, and precise LSIF/SCIP code graphs.
@@ -69,6 +90,68 @@ cody explain --high-level
 Authenticate your terminal helper against your enterprise instance headlessly:
 ```bash
 cody login --endpoint https://sourcegraph.company.com --token sgp_39b362198fa064_example
+```
+
+## FastMCP 3.1 Server Pattern
+
+The Python snippet below demonstrates how to implement a FastMCP 3.1 context bridge that exposes Sourcegraph Cody's deep code intelligence to external autonomous agents:
+
+```python
+import httpx
+import json
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("Sourcegraph-Cody-Context-Bridge", version="3.1.0")
+
+SOURCEGRAPH_URL = "https://sourcegraph.company.com/.api/graphql"
+ACCESS_TOKEN = "sgp_39b362198fa064_example"
+
+class CodeGraphQuery(BaseModel):
+    query: str = Field(..., description="Natural language or symbol search query across all indexed repos")
+    repository_filter: str = Field("", description="Optional repo path regex to restrict context scope")
+    limit: int = Field(5, description="Maximum number of code snippets to retrieve")
+
+@mcp.tool()
+async def query_cody_code_graph(payload: CodeGraphQuery) -> str:
+    """Queries Sourcegraph Cody SCIP/LSIF code graph for high-precision cross-repository snippets."""
+    graphql_query = """
+    query SearchCodeGraph($query: String!) {
+      search(query: $query, version: V3) {
+        results {
+          results {
+            ... on FileMatch {
+              file { path, url }
+              repository { name }
+              lineMatches { preview, lineNumber }
+            }
+          }
+        }
+      }
+    }
+    """
+    search_str = payload.query
+    if payload.repository_filter:
+        search_str += f" repo:{payload.repository_filter}"
+
+    headers = {
+        "Authorization": f"token {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        res = await client.post(
+            SOURCEGRAPH_URL,
+            json={"query": graphql_query, "variables": {"query": search_str}},
+            headers=headers
+        )
+        if res.status_code == 200:
+            data = res.json()
+            return json.dumps(data.get("data", {}), indent=2)
+        return f"Code graph search failed ({res.status_code}): {res.text}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -139,6 +222,16 @@ Hook Cody's indexing engine up to other agentic platforms like OpenHands or Clau
   }
 }
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Managing Multi-Repo Indexing Overhead
+- **Exclude Generated Artifacts**: Define `.cody/ignore` files at repository roots to skip heavy build outputs (`dist/`, `node_modules/`, `.pyc`) and reduce indexing strain on server workers.
+- **Repository Prioritization**: For organizations with thousands of repositories, configure Cody's server policy to auto-index only primary branches (`main`, `master`, `release/*`) rather than short-lived feature branches.
+
+### Latency Optimization & On-Prem Deployment
+- **Colocated SCIP Indexers**: Run SCIP/LSIF code graph generators inside CI/CD pipelines during PR merges rather than relying purely on real-time background workers.
+- **Token Security**: Rotate Sourcegraph Personal Access Tokens (`sgp_...`) every 90 days and enforce SSO/SAML integration on the central instance portal.
 
 ## Related tools / concepts
 - [Codeium](./codeium.md) — High-performance AI coding platform.
