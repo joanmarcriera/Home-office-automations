@@ -3,12 +3,45 @@
 ## What it is
 Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of early January 2027, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1 / FastMCP 3.1 Task Protocol** and frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
+## System Architecture
+
+```
+                                +-------------------------------------------------------+
+                                |                   Claude Desktop Host                 |
+                                |       (macOS / Windows Native GUI Application)        |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v  IPC / JSON-RPC Channel
+                                +-------------------------------------------------------+
+                                |               FastMCP 3.1 Gateway Client              |
+                                |       (Local File Manager & Stdio MCP Server Host)    |
+                                +---------------------------+---------------------------+
+                                                            |
+                                        +-------------------+-------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |     Anthropic API / Claude 5.6      |   |       Local MCP Stdio Servers       |
+                     |  (Cloud LLM Reasoning & Vision)     |   |   (Filesystem / SQLite / Playwright) |
+                     +-------------------------------------+   +-------------------------------------+
+```
+
 ## What problem it solves
 It overcomes the limitations of browser-based AI by providing a secure, local execution environment. Key problems solved include:
 - **Local Context**: Direct access to local files and system resources through MCP without uploading sensitive data to public cloud environments.
 - **Deep Integration**: Seamlessly integrates into desktop workflows via keyboard shortcuts, system-level hooks, and direct file drag-and-drop operations.
 - **Tool Orchestration**: Serves as a standard host for MCP servers, enabling Claude to perform complex actions like searching local databases, interacting with desktop APIs, or managing terminal sessions.
 - **Multi-Agent Coordination**: With MCP 3.1 / FastMCP 3.1 Task Protocol integrations, the desktop app acts as a local coordinator for sub-agents executing background micro-missions.
+
+## Key Feature Comparison Matrix
+
+| Capability / Feature | Claude Desktop | Claude Code CLI | ChatGPT Desktop App | Open WebUI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Native macOS / Windows GUI | Terminal CLI / Headless | Native macOS / Windows GUI | Web Browser Application |
+| **MCP Integration** | Native Host (MCP 3.1 Stdio/SSE) | Native Client (MCP 3.1) | Custom Developer Extensions | Custom Python Pipe / API |
+| **Local File Indexing** | Drag-and-drop & MCP filesystem | Terminal file tree inspection | File upload attachment | Local folder mounts |
+| **Background Task Protocol**| Supported via FastMCP 3.1 | Terminal background subshell | Async web calls | Celery / Asyncio queue |
+| **System OS Integration** | Global hotkeys & screen snippets | Terminal shell environment | System voice / Screen capture | Web browser sandbox |
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge**. It is a primary interface for interacting with [Anthropic (Claude)](../providers/anthropic.md) and acts as the "host" in the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) architecture.
@@ -49,6 +82,18 @@ It overcomes the limitations of browser-based AI by providing a secure, local ex
 4. **Configure MCP**: To add local tools, edit your `claude_desktop_config.json` file.
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **JSON Formatting**: Ensure `claude_desktop_config.json` remains strictly valid JSON without trailing commas or unescaped backslashes (especially on Windows paths).
+2. **Environment Inheritance**: Explicitly declare needed environment variables (`PATH`, `API_KEY`) under the `env` dictionary block for each MCP server, as desktop daemons do not inherit full terminal shell profiles automatically.
+3. **Log Monitoring**: Inspect MCP server standard error logs generated at `~/Library/Logs/Claude/mcp*.log` on macOS when tools fail to appear in the UI.
+
+### Common Troubleshooting Scenarios
+- **MCP Tool Missing in UI**: Verify process execution path (`command`) exists and is executable in the system environment.
+- **Connection Refused**: Ensure stdio-based MCP servers are not attempting to bind to network sockets unless configured with SSE endpoints.
+- **High CPU Usage**: Restrict filesystem MCP server scope paths to specific project folders rather than root directories.
 
 ## CLI examples
 

@@ -2,6 +2,35 @@
 
 Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of early January 2027, **Flyte v2.2+** is the stable major release, featuring a reimagined Python SDK, native async support, and deep integration with the **FastMCP 3.1** Task Protocol for agentic orchestration.
 
+## System Architecture
+
+```
+                                +-------------------------------------------------------+
+                                |                   Flyte UI / Console                  |
+                                |       (Workflow Monitoring & Execution Traces)        |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v  gRPC / REST API
+                                +-------------------------------------------------------+
+                                |                    FlyteAdmin                         |
+                                |     (Control Plane / Authorization / Workflows)       |
+                                +---------------------------+---------------------------+
+                                                            |
+                                                            v
+                                +-------------------------------------------------------+
+                                |                    FlytePropeller                     |
+                                |     (Kubernetes Operator / DAG State Machine)         |
+                                +---------------------------+---------------------------+
+                                                            |
+                                        +-------------------+-------------------+
+                                        |                                       |
+                                        v                                       v
+                     +-------------------------------------+   +-------------------------------------+
+                     |     Kubernetes Worker Pods          |   |     FastMCP 3.1 Task Protocol       |
+                     |  (PyTorch / TensorRT / GPU Execution)|   |   (Agentic Tool Server Integration) |
+                     +-------------------------------------+   +-------------------------------------+
+```
+
 ## What it is
 Flyte is a container-native orchestrator that manages the execution of complex ML and data workflows on Kubernetes. It ensures that every task is isolated, versioned, and reproducible, making it ideal for large-scale AI platforms. It provides a strongly-typed interface that allows for safe and predictable workflow execution across heterogeneous compute resources.
 
@@ -10,6 +39,16 @@ It solves the challenges of reproducibility, scalability, and maintainability in
 
 ## Where it fits in the stack
 **Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes. It coordinates between data storage, compute resources (CPU/GPU), and model registries. It is often used alongside [ZenML](zenml.md) for experiment tracking and [NVIDIA](../providers/nvidia.md) for hardware-accelerated training.
+
+## Key Feature Comparison Matrix
+
+| Capability / Feature | Flyte v2.2+ | Apache Airflow | Argo Workflows | Prefect |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Sandbox** | Container-native per task | Process / Worker Celery | Container-native YAML | Python Process / Agent |
+| **Type Safety & Contracts**| Strongly typed Protobuf / Pydantic | Python untyped callables | Raw YAML inputs/outputs | Python type hints |
+| **Agentic Protocol** | Native FastMCP 3.1 Tool Gateway | Webhook / Plugin integrations | Custom container steps | Custom task decorators |
+| **Dynamic Workflows** | Native nested dynamic tasks | Dynamic Task Mapping | Dynamic DAG specs | Dynamic Python execution |
+| **Resource Scheduling** | Fine-grained CPU/GPU limits | Task-level Queue tags | Pod resource requests | Worker pool tags |
 
 ## Typical use cases
 - **Large-Scale ML Training**: Orchestrating distributed training jobs across hundreds of GPUs (including NVIDIA H100/B200/X200 support).
@@ -75,6 +114,18 @@ if __name__ == "__main__":
     result = flyte.run(main, name="Flyte v2.2")
     print(result.wait())
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **Caching Strategies**: Enable task caching (`cache=True`, `cache_version="1.0"`) on computationally expensive preprocessing tasks to prevent redundant GPU cycles.
+2. **Resource Requests**: Express GPU requirements explicitly in task decorators to allow FlytePropeller to optimize node affinity and pod placement.
+3. **Container Registry Alignment**: Use immutable container image tags (`sha256` digests) when registering Flyte workflows in CI/CD pipelines.
+
+### Common Troubleshooting Scenarios
+- **Pod OOMKilled**: Increase memory limits on the Flyte task specification or optimize memory batch sizes in data loading scripts.
+- **FlyteAdmin Connection Failures**: Verify `flytectl` configuration files and gRPC port forwarding rules (`localhost:30080` or endpoint ingress).
+- **Registration Type Mismatches**: Inspect Pydantic/Protobuf schema definitions when passing complex nested structures across task boundaries.
 
 ## CLI examples
 The `flyte` CLI manages tasks, workflows, and executions.
