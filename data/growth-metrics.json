@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/webhook.md",
-    "docs/tools/development_ops/fuzzing-mcp-server.md",
-    "docs/tools/development_ops/opencode.md",
-    "docs/services/element.md",
-    "docs/tools/agents/perplexity-agent-api.md",
     "docs/tools/process_understanding/fiddler.md",
     "docs/tools/frameworks/nemo-automodel.md",
     "docs/tools/process_understanding/faster-whisper.md",
@@ -40,7 +35,12 @@
     "docs/tools/automation_orchestration/pulse-mcp.md",
     "docs/tools/ai_knowledge/lobehub.md",
     "docs/tools/automation_orchestration/puppeteer.md",
-    "docs/tools/benchmarking/math-benchmark.md"
+    "docs/tools/benchmarking/math-benchmark.md",
+    "docs/tools/infrastructure/exllamav3.md",
+    "docs/services/radicale-automation.md",
+    "docs/tools/providers/anthropic.md",
+    "docs/services/vikunja.md",
+    "docs/tools/frameworks/microsoft-agent-framework-harness.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

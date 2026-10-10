@@ -3,11 +3,67 @@
 ## What it is
 The Perplexity Agent API is a suite of programmatic interfaces providing developers with access to Perplexity's agentic workflows and orchestration capabilities. As of early January 2027, it features specialized models like **Sonar Pro**, **Sonar Reasoning Pro**, and **Sonar Deep Research**, which integrate real-time web search and multi-step reasoning. It serves as a standard backend for agents requiring SOTA search-groundedness, often compared to the reasoning density of [Gemma 4](../ai_knowledge/local_llms.md) and [Qwen 3.6](../ai_knowledge/local_llms.md) in local environments.
 
+```
++-----------------------------------------------------------------------------------+
+|                            FASTmcp 3.1 ORCHESTRATOR / AGENT                       |
+|                   (e.g. n8n / LangGraph / Claude Code Agent)                      |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          | JSON-RPC / REST Request over TLS
+                                          v
++-----------------------------------------------------------------------------------+
+|                           PERPLEXITY AGENT API ROUTER                             |
+|                                                                                   |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Sonar Pro          |   | Sonar Reasoning Pro |   | Sonar Deep Research      |  |
+|  | (Fast Grounded)    |   | (Chain-of-Thought)  |   | (Multi-Hop Deep Crawl)   |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|                                     |                                             |
+|                                     v                                             |
+|                   +-----------------------------------+                           |
+|                   | Perplexity Live Web Search Engine |                           |
+|                   +-----------------------------------+                           |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          | Grounded Response with Validated Citations
+                                          v
++-----------------------------------------------------------------------------------+
+|                      KNOWLEDGE GRAPH & AGENT MEMORY ENGINE                        |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It simplifies the creation of research-capable AI agents by offloading the complex tasks of web searching, data extraction, and information synthesis to Perplexity's specialized engine. It eliminates the need for developers to build and maintain their own RAG (Retrieval-Augmented Generation) pipelines for public web data, providing a turn-key solution for grounded AI with extremely high citation fidelity.
 
 ## Where it fits in the stack
 **Agentic Search / Orchestration API**. It serves as a high-level tool for agents to perform real-world research and retrieval, often used as a backend for [n8n](../../services/n8n.md) workflows or custom [LangGraph](../frameworks/langgraph.md) agents. It is increasingly utilized via the **MCP 3.1 / FastMCP 3.1 Task Protocol** for standardized automated benchmarking and research execution.
+
+## System Topology & Model Selection Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                             AGENT RESEARCH INTAKE                                 |
+|  User Query -> FastMCP Task Protocol Request -> Pydantic Schema Validation        |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                            MODEL CAPABILITY SELECTOR                              |
+|  +-----------------------------------------------------------------------------+  |
+|  | [Latency Critical / Simple Facts] -> Route to Sonar Pro                     |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | [Complex Logic & Verification]   -> Route to Sonar Reasoning Pro              |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | [Exhaustive Market Research]     -> Route to Sonar Deep Research            |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                            CITATIONS VERIFICATION PLANE                           |
+|  - Parse Inline Markers -> Validate HTTP Domain Health -> Extract Metadata        |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Automated Research**: Creating agents that perform deep-dives into specific topics using **Sonar Deep Research**.
@@ -26,6 +82,14 @@ It simplifies the creation of research-capable AI agents by offloading the compl
 - **Paid Service**: Requires a Perplexity API subscription (usage-based pricing).
 - **Rate Limits**: Subject to API usage limits which can be restrictive for high-volume automated agents.
 - **Cloud Dependent**: Not suitable for 100% offline or air-gapped environments (unlike [Llama 4](../ai_knowledge/llama.md) or [Gemma 4](../ai_knowledge/local_llms.md)).
+
+## Model Variant & Research Capability Comparison
+
+| Model Name | Primary Focus | Search Latency | Deep Research Hops | Best For |
+| :--- | :--- | :--- | :--- | :--- |
+| **Sonar Pro** | High-Speed Facts | Very Low (< 1.2s) | Single-pass search | Real-time agent tool calling |
+| **Sonar Reasoning Pro** | Step-by-Step Logic | Medium (2–4s) | Multi-pass grounding | Complex math/logic with sources |
+| **Sonar Deep Research** | Exhaustive Synthesis | High (10–30s) | Multi-hop web crawls | Market analysis & technical reports |
 
 ## When to use it
 - When your agent needs the absolute latest information from the web (e.g., news, market trends, public filings).
@@ -167,6 +231,63 @@ print(f"Response citations parsed: {len(validated_research.citations)}")
 for cit in validated_research.citations:
     print(f" [{cit.index}] {cit.domain} -> {cit.url}")
 ```
+
+### FastMCP 3.1 Agent Research Tool Server
+Integrating Perplexity Agent API into FastMCP 3.1 workflows for seamless autonomous research tool calls.
+
+```python
+import json
+import os
+import httpx
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("PerplexityResearchToolServer")
+
+class ResearchRequest(BaseModel):
+    topic: str = Field(..., description="Target query topic for research")
+    mode: str = Field("sonar-pro", description="Model: sonar-pro, sonar-reasoning-pro, sonar-deep-research")
+
+@mcp.tool()
+async def run_perplexity_research(request_json: str) -> str:
+    """Invokes Perplexity Agent API and returns search results with structured citations."""
+    try:
+        req = ResearchRequest.model_validate_json(request_json)
+        api_key = os.getenv("PERPLEXITY_API_KEY", "mock-key")
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": req.mode,
+            "messages": [
+                {"role": "system", "content": "You are a research agent. Return concise answers with explicit sources."},
+                {"role": "user", "content": req.topic}
+            ]
+        }
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.post("https://api.perplexity.ai/chat/completions", json=payload, headers=headers, timeout=30.0)
+            if resp.status_code == 200:
+                data = resp.json()
+                content = data["choices"][0]["message"]["content"]
+                citations = data.get("citations", [])
+                return json.dumps({"status": "success", "content": content, "citations": citations})
+            else:
+                return json.dumps({"status": "error", "code": resp.status_code, "detail": resp.text})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Hardening & Operational Best Practices
+
+1. **Citation Verification Pipeline**: Always validate that returned citation URLs are active and non-404 before storing extracted research facts into memory stores.
+2. **Rate Limit Handling & Backoff**: Wrap API calls with exponential backoff retries when using `sonar-deep-research` due to extended processing times.
+3. **Environment Security**: Use one-time reveal developer keys stored in KMS / secret vaults rather than hardcoding in agent configuration files.
 
 ## Related tools / concepts
 - [Perplexity](../providers/perplexity.md)

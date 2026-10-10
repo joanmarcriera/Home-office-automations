@@ -5,11 +5,59 @@ Element is a secure, decentralized communication app built on the [Matrix](https
 ## What it is
 Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of **early January 2027**, it supports **Matrix v1.170.0+**, featuring advanced metadata protection, sliding sync capabilities natively, and **FastMCP 3.1** / **MCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, allowing users to choose or host their own "homeserver" while communicating seamlessly across federated networks.
 
+```
++-----------------------------------------------------------------------------------+
+|                              ELEMENT CLIENT PLANE                                 |
+|      Element Web / Element Desktop / Element X (Mobile - Rust Core SDK)           |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          | Sliding Sync / Matrix API v1.170.0+
+                                          v
++-----------------------------------------------------------------------------------+
+|                             MATRIX HOMESERVER PLANE                               |
+|        Synapse 1.170.0+ / Dendrite / Federated Peer Homeservers                   |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                        +-----------------+-----------------+
+                        |                                   |
+                        v                                   v
++---------------------------------------+ +-----------------------------------------+
+| E2EE ENCRYPTION & KEY MANAGEMENT      | | FastMCP 3.1 BOT / AGENT LAYER           |
+| Megolm / Olm Ratchet, Cross-Signing   | | Room Participant Agents (Claude / Gemma)|
++---------------------------------------+ +-----------------------------------------+
+```
+
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
 
 ## Where it fits in the stack
 Element sits in the **Communication and Collaboration** layer. It serves as the primary interface for both human-to-human communication and bot-to-human notifications within a self-hosted ecosystem.
+
+## Architectural Topology & Message Routing
+
+```
++-----------------------------------------------------------------------------------+
+|                              USER INTERFACE & BRIDGES                             |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Element Clients    |   | Telegram / Discord  |   | Matrix RTC SFU           |  |
+|  | (E2EE GUI / Web)   |   | Matrix Bridges      |   | (High-Perf Video Calls)  |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           SYNAPSE HOMESERVER ROUTER                               |
+|  - PostgreSQL Database Backend with Partitioned History Caching                   |
+|  - Authentik OAuth2 / OIDC SSO Authentication Provider                            |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        AGENTIC INTEGRATION PLANE (FastMCP 3.1)                    |
+|  - Matrix AsyncClient listening for room events                                  |
+|  - Pydantic v2 Payload validation for automated alert dispatching                 |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Personal Messaging**: Secure, E2EE alternative to commercial messaging apps.
@@ -29,6 +77,16 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
 - **Resource Intensive**: Running a full Matrix homeserver (Synapse) can be resource-heavy for low-end hardware.
 - **Storage Growth**: Encrypted history and media can grow significantly over time without proper cleanup policies.
+
+## Matrix Protocol Architecture Comparison
+
+| Dimension / Metric | Element / Matrix | Slack | Signal | Telegram |
+| :--- | :--- | :--- | :--- | :--- |
+| **Architecture** | Open Decentralized Federated | Closed Centralized SaaS | Centralized Non-Profit | Centralized Proprietary |
+| **Encryption (E2EE)** | Olm / Megolm (Standard) | Paid Enterprise Add-on | Signal Protocol (Mandatory) | Optional Secret Chats |
+| **Data Ownership** | 100% Self-Hosted Sovereign | Vendor Controlled | Client Only (Centralized Server) | Vendor Controlled Cloud |
+| **Agent / Bot Integration** | Native FastMCP 3.1 / Webhooks | Custom Apps / Webhooks | Strictly Limited APIs | Bot API / Webhooks |
+| **Multi-Device Support** | High (Sliding Sync) | High | High (Linked Devices) | High |
 
 ## When to use it
 - When you need secure, encrypted communication that you fully control.
@@ -167,6 +225,12 @@ curl -X POST \
   -d '{"msgtype":"m.text","body":"Hello from curl"}' \
   "$MATRIX_HOMESERVER/_matrix/client/v3/rooms/$MATRIX_ROOM_ID/send/m.room.message/$(date +%s)"
 ```
+
+## Production Hardening & Operational Best Practices
+
+1. **Enable Sliding Sync Engine**: Use Matrix v1.170.0+ Sliding Sync proxy or native homeserver support to achieve sub-second mobile synchronization without battery drain.
+2. **Key Backup Verification**: Always set up cross-signing keys and secure secret storage during initial account setup to prevent loss of encrypted chat history.
+3. **Database Pruning Policies**: Configure Synapse media retention policies (`media_store_path` cleanup) to auto-delete unreferenced media uploads older than 90 days.
 
 ## Related tools / concepts
 - [Synapse](synapse.md) — The most common Matrix homeserver (v1.170.0+).

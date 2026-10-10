@@ -3,11 +3,54 @@
 ## What it is
 A Webhook is a standard, lightweight method for an application to deliver real-time data payloads to another application immediately upon the occurrence of a specific event. Unlike polling, which involves repeated and resource-heavy queries to an API, webhooks employ an event-driven "push" pattern over standard HTTP POST. In the early January 2027 agentic automation stack, webhooks serve as the vital "nervous system" linking inference engines (like [Ollama](../../services/ollama.md)) to external automated triggers and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) FastMCP 3.1 Task Protocol servers.
 
+```
++-------------------+      HTTP POST (JSON Payload)      +-------------------------+
+| Event Producer    | ---------------------------------> | Webhook Receiver        |
+| (e.g. Paperless)  |   X-Signature-256: sha256=...     | (FastAPI / n8n)         |
++-------------------+                                    +-------------------------+
+          |                                                           |
+          | Fire-and-Forget                                           | Validate HMAC &
+          v                                                           v Pydantic v2
++-------------------+                                    +-------------------------+
+| Event Logs /      |                                    | FastMCP 3.1 Agent Task  |
+| Audit Trail       |                                    | Execution Engine        |
++-------------------+                                    +-------------------------+
+```
+
 ## What problem it solves
 In an ecosystem dominated by long-running or asynchronous agentic processes, polling introduces unacceptable latency and wastes valuable CPU and network resources. Webhooks solve this "latency gap." For instance, when an autonomous agent triggers a long-running research or parsing pipeline, downstream tools do not need to repeatedly query the status; the processing service simply dispatches an HTTP POST request containing verified results directly to the orchestrator (e.g., [n8n](../../services/n8n.md)) the moment it completes.
 
 ## Where it fits in the stack
 **Integration & Orchestration**. Sitting between the **Inference Plane** (LLMs like Gemma 4, Claude 5.6, GPT-5.6, Gemini 4.0 Ultra and Agent Runtimes) and the **Execution Plane** (Home Automation and local services), webhooks facilitate clean, asynchronous, event-driven communications across the home lab and enterprise infrastructure.
+
+## System Architecture & Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                            EVENT PRODUCERS ENGINE                                 |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Paperless-ngx      |   | Gitea / GitHub      |   | Sentry / Datadog         |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
++-----------------------------------------+-----------------------------------------+
+                                          | Inbound HTTP POST
+                                          v
++-----------------------------------------------------------------------------------+
+|                         INGRESS SECURITY & VERIFICATION                           |
+|  +-----------------------------------------------------------------------------+  |
+|  | HMAC SHA-256 Cryptographic Verification Header Sanitizer                      |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Pydantic v2 Schema Validation & Rate-Limiting Middleware                      |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------+-----------------------------------------+
+                                          | Sanitized Telemetry
+                                          v
++-----------------------------------------------------------------------------------+
+|                        FASTmcp 3.1 ORCHESTRATION PLANE                            |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | n8n Workflows      |   | FastMCP Task Router |   | Self-Healing Daemon      |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Paperless-ngx AI Ingestion**: Post-consumption hooks triggering an LLM to analyze a newly parsed receipt and auto-classify tags.
@@ -25,6 +68,17 @@ In an ecosystem dominated by long-running or asynchronous agentic processes, pol
 - **Exposed Attack Surface**: Receiving endpoints must be reachable from the internet or internal networks, necessitating strict security (HMAC SHA256 signatures).
 - **Transient Delivery Failures**: If the receiving endpoint is briefly offline, the webhook payload can be lost permanently unless retry/dead-letter queues are configured.
 - **Unpredictable Spikes**: High-volume systems can generate sudden bursts of event deliveries, which can overwhelm unprepared receivers.
+
+## Webhook Transport vs. Alternative Protocols
+
+| Feature / Metric | Webhook (HTTP POST) | WebSockets | gRPC / HTTP2 | Polling (REST) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Communication Pattern** | Asynchronous Push | Full-Duplex Stream | Direct RPC Call | Repeated Pull |
+| **Connection Overhead** | Short-lived per event | Persistent TCP | Persistent TCP | High (Repeated Headers) |
+| **Latency** | Near-Zero (< 50ms) | Real-time (< 5ms) | Low (< 10ms) | Polling Interval Dependent |
+| **Firewall Friendliness** | High (Standard Port 80/443) | Medium (Requires Upgrades) | Medium (HTTP/2 framing) | High |
+| **Security Mechanism** | HMAC SHA-256 Signatures | Bearer / WSS TLS | mTLS / JWT | Bearer Tokens |
+| **Best Used For** | Discontinuous Event Alerts | Microsecond Video/Audio Streams | High-throughput Microservices | Legacy External APIs |
 
 ## When to use it
 - When you require real-time synchronization between independent, self-hosted services.
@@ -66,6 +120,15 @@ curl -X POST http://localhost:8000/webhook \
 ```bash
 # Verify active ports listening for incoming HTTP callback requests
 ss -tlnp | grep 8000
+```
+
+### Direct Cryptographic HMAC Generation in Bash
+Generate standard HMAC SHA-256 headers for testing webhooks directly from the terminal:
+```bash
+SECRET="homelab_super_secure_webhook_key"
+PAYLOAD='{"event_type":"agent_task_completed","sender_id":"claude-5.6"}'
+SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" | awk '{print $2}')
+echo "X-Hub-Signature-256: sha256=$SIGNATURE"
 ```
 
 ## API examples
@@ -137,6 +200,61 @@ if __name__ == "__main__":
     print("Starting FastMCP 3.1 secure Webhook receiver on port 8000...")
     # uvicorn.run(app, host="127.0.0.1", port=8000)
 ```
+
+### FastMCP 3.1 Webhook Dispatcher
+This example illustrates a FastMCP 3.1 server endpoint that emits signed webhooks to external orchestrators upon completing long-running tasks.
+
+```python
+import hmac
+import hashlib
+import json
+import httpx
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("WebhookDispatcherService")
+SHARED_SECRET = b"homelab_super_secure_webhook_key"
+
+class TaskWebhookEvent(BaseModel):
+    target_url: str = Field(..., description="Target webhook URL")
+    task_id: str = Field(..., description="Unique FastMCP task identifier")
+    result: str = Field(..., description="Execution outcome string")
+
+@mcp.tool()
+async def dispatch_signed_webhook(target_url: str, task_id: str, result: str) -> str:
+    """Dispatches an HMAC-signed webhook POST payload to an external orchestrator."""
+    payload_dict = {
+        "event_type": "agent_task_completed",
+        "sender_id": "fastmcp-orchestrator",
+        "timestamp": "2027-01-07T12:00:00Z",
+        "payload": {"task_id": task_id, "result": result},
+        "priority": 1
+    }
+    raw_payload = json.dumps(payload_dict).encode("utf-8")
+    signature = hmac.new(SHARED_SECRET, raw_payload, hashlib.sha256).hexdigest()
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-Hub-Signature-256": f"sha256={signature}"
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(target_url, content=raw_payload, headers=headers, timeout=5.0)
+            return json.dumps({"status": "dispatched", "http_code": resp.status_code})
+        except Exception as e:
+            return json.dumps({"status": "failed", "error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Hardening & Operational Best Practices
+
+1. **Enforce Mandatory Signature Verification**: Never accept unverified HTTP POST payloads on public or internal endpoints. Compute HMAC SHA-256 using `hmac.compare_digest` to eliminate timing side-channel attacks.
+2. **Implement Asynchronous Ingestion**: Offload heavy processing from the HTTP webhook route immediately. Store incoming events in a lightweight queue (e.g., Redis or Valkey) and return `202 Accepted` to avoid timeout errors from senders.
+3. **Idempotency Safeguards**: Include a unique `event_id` or `timestamp` in every payload. Receivers should cache processed IDs for 24 hours to discard duplicate deliveries caused by network retries.
+4. **Dead-Letter Queues (DLQ)**: Configure exponential backoff retry schedules (e.g., 5s, 30s, 5m, 1h). If delivery repeatedly fails, push events to a DLQ for manual inspection or alert notifications.
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md) — Self-hosted automation orchestrator natively driven by inbound webhooks.
