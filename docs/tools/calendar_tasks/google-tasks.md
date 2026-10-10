@@ -3,11 +3,52 @@
 ## What it is
 Google Tasks is a lightweight, low-overhead task management service embedded natively within the Google Workspace interface. In January 2027, it serves as an essential capturing and execution tracking layer (or "Surface") for autonomous task queues. Through the FastMCP 3.1 Task Protocol and Google Graph API, it allows frontier reasoning models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, and DeepSeek-V4) to programmatically register, update, and complete personal or homelab to-do entries.
 
+## System Architecture
+
+```
+                                 +-----------------------------------+
+                                 |  Autonomous Agent / LLM Pipeline  |
+                                 |  (Claude 5.6 / FastMCP 3.1 Server) |
+                                 +-----------------------------------+
+                                                   |
+                                     FastMCP 3.1 Tool Invocation
+                                     (google_tasks_create_task)
+                                                   v
+                                 +-----------------------------------+
+                                 |   OAuth2 / Token Manager Endpoint |
+                                 +-----------------------------------+
+                                                   |
+                                        REST API Call (v1/tasks)
+                                                   v
+                                 +-----------------------------------+
+                                 |    Google Tasks Cloud Service     |
+                                 +-----------------------------------+
+                                         /         |         \
+                                        /          |          \
+                                       v           v           v
+                                 +----------+ +----------+ +----------+
+                                 | Gmail    | | Google   | | Google   |
+                                 | Sidebar  | | Calendar | | Mobile   |
+                                 +----------+ +----------+ +----------+
+```
+
 ## What problem it solves
 It solves the issue of context fragmentation and "Agent-to-Human" handoff in highly automated environments. When a background agent (e.g., executing a system check) detects a required human action (such as manual network resets), it can instantly log the task into the user's primary to-do view. Google Tasks provides a central, zero-configuration surface that captures these instructions seamlessly from multi-agent pipelines and presents them in a unified personal dashboard.
 
 ## Where it fits in the stack
 **Calendar & Tasks Layer**. It sits at the execution tracking level, directly bridging the **Orchestration Layer** (such as [n8n](../../services/n8n.md) or custom LangGraph systems) with the user's physical devices, email client sidebar, and daily calendars.
+
+## Surface & Task Manager Comparison Matrix
+
+| Capability / Metric | Google Tasks | Todoist | TickTick | Microsoft To Do |
+| :--- | :--- | :--- | :--- | :--- |
+| **Workspace Integration** | Native Gmail / Calendar / Drive | Third-Party Webhooks | Third-Party Extensions | Native Outlook / Teams |
+| **Subtask Nesting** | Single Subtask Level | Multi-Level Hierarchy | Multi-Level Hierarchy | Single Subtask Level |
+| **Rich Formatting** | Plaintext Notes | Markdown Supported | Markdown Supported | Plaintext Notes |
+| **Priority Scoring** | Starred / Unstarred Only | P1 - P4 Custom Tags | Priority Flags | Starred / Important |
+| **FastMCP 3.1 Integration** | Google Tasks MCP Server | Todoist MCP Server | Custom API Wrapper | Graph API Adapter |
+| **Offline Syncing** | Mobile App Offline Cache | Full Multi-Device Offline | Full Multi-Device Offline | Windows/Mobile Offline Cache |
+| **Automated Agent API** | Google Tasks REST API v1 | REST API v2 / Sync API | Open API v2 | Microsoft Graph API v1.0 |
 
 ## Typical use cases
 - **Multi-Agent Action Capture**: A research agent powered by Qwen 3.6 VL or Claude 5.6 identifying follow-up reading items and programmatically queuing them in Google Tasks with priority tags and summary notes.
@@ -35,6 +76,29 @@ It solves the issue of context fragmentation and "Agent-to-Human" handoff in hig
 - For managing high-complexity projects with multiple team dependencies (use [TickTick](ticktick.md) or enterprise PM tools instead).
 - If your task definitions rely heavily on custom labels, priority tags, and Gantt charts.
 - If your homelab infrastructure operates entirely offline without external SaaS connectivity.
+
+## Operational Best Practices & Rate Limit Handling
+
+### Exponential Backoff and OAuth Token Management
+When queuing high volumes of automated tasks from multi-agent loops, Google Tasks API rate limits (10,000 requests/day per project) must be managed using token bucket throttling and exponential backoff:
+
+```python
+import time
+from random import uniform
+from googleapiclient.errors import HttpError
+
+def execute_with_backoff(request, max_retries=5):
+    """Executes a Google Tasks API request with exponential backoff and jitter."""
+    for attempt in range(max_retries):
+        try:
+            return request.execute()
+        except HttpError as err:
+            if err.resp.status in [429, 500, 503] and attempt < max_retries - 1:
+                sleep_time = (2 ** attempt) + uniform(0, 1)
+                time.sleep(sleep_time)
+            else:
+                raise err
+```
 
 ## Getting started
 
@@ -171,7 +235,6 @@ if __name__ == "__main__":
 - [Google Tasks Support Hub](https://support.google.com/tasks/)
 - [Google Tasks API REST Reference](https://developers.google.com/tasks/api/reference/rest)
 - [Model Context Protocol (FastMCP 3.1) Specification](https://modelcontextprotocol.io/)
-- [SOTA Task Handover & Queue Strategies Q1 2027](https://example.com/task-handover-2027)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

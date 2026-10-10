@@ -5,24 +5,36 @@ LangGraph is an open-source framework built on top of LangChain for creating sta
 
 ## System Architecture
 
-```mermaid
-graph TD
-    subgraph StateGraph Execution Core
-        START([Graph START Node]) --> NodeA[Reasoning & Planning Node]
-        NodeA --> Edge1{Conditional Router Edge}
+```
+                                 +------------------------------+
+                                 |    Graph START Node          |
+                                 +------------------------------+
+                                                |
+                                                v
+                                 +------------------------------+
+                                 |  Reasoning & Planning Node   |<-------------------+
+                                 +------------------------------+                    |
+                                                |                                    |
+                                                v                                    |
+                                 +------------------------------+                    |
+                                 |  Conditional Router Edge     |                    |
+                                 +------------------------------+                    |
+                                    /           |            \                       |
+          [Requires Tool Call]     /            |             \ [Human Approval]     |
+                                  v             |              v                     |
+    +---------------------------------+         |   +----------------------------+   |
+    |    FastMCP 3.1 Tool Node        |         |   | Human-in-the-Loop Breakpoint|   |
+    +---------------------------------+         |   +----------------------------+   |
+                   |                            |                  |                 |
+                   +----------------------------|------------------+-----------------+
+                                                | [Task Complete]
+                                                v
+                                 +------------------------------+
+                                 |      Graph END Node          |
+                                 +------------------------------+
 
-        Edge1 -->|Requires Tool Execution| NodeB[FastMCP 3.1 Tool Node]
-        Edge1 -->|Requires Human Approval| NodeC[Human-in-the-Loop Breakpoint]
-        Edge1 -->|Task Complete| END([Graph END Node])
-
-        NodeB -->|Tool Result Cycle| NodeA
-        NodeC -->|Approved / State Edited| NodeA
-    end
-
-    subgraph Persistence & Time-Travel Layer
-        NodeA <-->|State Checkpoint Snapshot| D[MemorySaver / Postgres Saver]
-        NodeC <-->|Inspect & Replay Past State| D
-    end
+    ======================== State Persistence Layer ========================
+    [ MemorySaver / Postgres Checkpointer ] <---> [ Inspect & Replay Past State ]
 ```
 
 ## What problem it solves
@@ -30,6 +42,18 @@ While standard Directed Acyclic Graph (DAG) pipelines excel at linear tasks, aut
 
 ## Where it fits in the stack
 **Category**: Frameworks / Multi-Agent Orchestration. It sits between foundation models and tool environments, managing execution state, memory checkpointers, and conditional edge transitions. It serves as a foundation for implementing [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design architectures.
+
+## Framework Comparison & Feature Matrix
+
+| Feature / Capability | LangGraph v0.3+ | AutoGen v0.4 | CrewAI v0.80+ | LlamaIndex Workflows |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Topology** | Cyclic Directed Graph | Actor Conversation | Role-Based Sequential/Hierarchical | Event-Driven Graph |
+| **State Persistence** | Native MemorySaver / Postgres | Async Actor Storage | Session Storage | Context Memory |
+| **Time-Travel / Rewind** | Built-in State Rewind & Replay | Manual Replay | Not Supported | Event Log Replay |
+| **Human-in-the-Loop** | Native Interrupt Breakpoints | Human Input Agent | Human Input Task | Event Interrupts |
+| **Tool Protocol** | FastMCP 3.1 Native | Custom Tool Adapters | LangChain Tool Wrappers | Function Tools |
+| **Recursion Guard** | Configurable Max Recursion Limit | Message Turn Limits | Step Iteration Limit | Event Count Limit |
+| **Visualization** | LangGraph Studio / Cloud | AutoGen Studio | AgentOps Integration | LlamaTrace |
 
 ## Typical use cases
 - **Cyclic Reflection & Self-Correction**: Building agents that generate code or copy, evaluate outputs against test suites, and loop back to fix errors.
@@ -87,6 +111,39 @@ builder.add_node("reasoning", reasoning_step)
 builder.add_edge(START, "reasoning")
 builder.add_edge("reasoning", END)
 graph = builder.compile()
+```
+
+## Operational Best Practices & Error Recovery
+
+### Managing Recursion Limits and Circuit Breakers
+To prevent runaway LLM tool loops, configure explicit recursion limits and fallback edge routers:
+
+```python
+from langgraph.graph import StateGraph, START, END
+from pydantic import BaseModel, Field
+
+class RobustState(BaseModel):
+    iteration_count: int = Field(default=0)
+    max_iterations: int = Field(default=5)
+    output: str = Field(default="")
+
+def retry_node(state: RobustState) -> dict:
+    return {"iteration_count": state.iteration_count + 1}
+
+def route_next(state: RobustState) -> str:
+    if state.iteration_count >= state.max_iterations:
+        return "circuit_breaker"
+    return "retry"
+
+# Compile graph with recursion limit override
+builder = StateGraph(RobustState)
+builder.add_node("retry", retry_node)
+builder.add_node("circuit_breaker", lambda s: {"output": "Max retries reached. Triggered fallback."})
+builder.add_conditional_edges("retry", route_next, {"retry": "retry", "circuit_breaker": "circuit_breaker"})
+builder.add_edge(START, "retry")
+builder.add_edge("circuit_breaker", END)
+
+app = builder.compile()
 ```
 
 ## CLI examples

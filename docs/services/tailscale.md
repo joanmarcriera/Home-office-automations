@@ -3,11 +3,43 @@
 ## What it is
 Tailscale is a zero-config enterprise-grade VPN that builds a secure, WireGuard-based mesh network (a "tailnet") across physical, virtual, and cloud nodes. In January 2027, it serves as the foundational **Zero-Trust Network Architecture (ZTNA)** layer for autonomous agent ecosystems, featuring **Identity-Aware Agent Routing**, granular access control policies (ACLs), and short-lived verifiable credentials. It connects distributed edge nodes, hybrid clouds, and local GPU instances into a single private network overlay.
 
+## System Architecture
+
+```
+                                 [Tailscale Coordination Server / Headscale]
+                                              |        |
+                         (Key Exchange & OIDC |        | Access Policy / DERP Map)
+                                              v        v
+   +---------------------------------+                  +---------------------------------+
+   |      Cloud Orchestrator Node    |                  |        Edge GPU Inference Node   |
+   | (Claude 5.6 / FastMCP 3.1 Gateway)|                  |   (Ollama / vLLM / Gemma 3)     |
+   |                                 |  Encrypted P2P   |                                 |
+   |   [tailscaled Network Interface] |<================>|   [tailscaled Network Interface] |
+   |          100.64.0.10            |  WireGuard Tunnel|          100.64.0.25            |
+   +---------------------------------+                  +---------------------------------+
+                    ^                                                    ^
+                    |                                                    |
+                    +---------------------[Tailscale ACLs]---------------+
+                                    (Identity & Port Filtering)
+```
+
 ## What problem it solves
-Managing remote node access and inter-service agent communication across disparate cloud providers and homelabs traditionally requires complex firewalls, public port forwarding, static SSH keys, and risky dynamic DNS. Tailscale eliminates public exposure by providing encrypted peer-to-peer mesh connectivity across NATs and carrier-grade CGNATs. It enables cloud-hosted LLM agents (running Claude 5.1, GPT-5.5/5.6, or Gemini 4.0 Pro) to securely query local databases and [Home Assistant](home-assistant.md) APIs without exposing open inbound ports to the public internet.
+Managing remote node access and inter-service agent communication across disparate cloud providers and homelabs traditionally requires complex firewalls, public port forwarding, static SSH keys, and risky dynamic DNS. Tailscale eliminates public exposure by providing encrypted peer-to-peer mesh connectivity across NATs and carrier-grade CGNATs. It enables cloud-hosted LLM agents (running Claude 5.6, GPT-5.6, or Gemini 4.0 Pro) to securely query local databases and [Home Assistant](home-assistant.md) APIs without exposing open inbound ports to the public internet.
 
 ## Where it fits in the stack
 **Category**: Service / Infrastructure / Networking & Security. Tailscale acts as the **private mesh transport layer**, establishing encrypted WireGuard tunnels across distributed nodes. It integrates with **FastMCP 3.1** and [LiteLLM](litellm.md) gateways to provide encrypted, authenticated low-latency tool and resource discovery across edge devices and remote inference clusters.
+
+## Feature Matrix & Service Comparison
+
+| Feature / Metric | Tailscale | Self-Hosted Headscale | Traditional WireGuard | Cloudflare Tunnels |
+| :--- | :--- | :--- | :--- | :--- |
+| **Control Plane** | SaaS (Tailscale Managed) | Self-Hosted (Go Binary) | Manual Peer Configs | Cloudflare SaaS |
+| **NAT Traversal** | Automatic (DERP Relay) | Automatic (DERP Relay) | Manual Port Forwarding | Inbound TLS Tunnel |
+| **Zero-Trust Identity** | OIDC / SSO Integration | OIDC / Custom OAuth | Public Key Pairs | Cloudflare Zero Trust |
+| **ACL Capabilities** | HuJSON Policy Engine | HuJSON / JSON Engine | Standard iptables | Access Group Policies |
+| **Subnet Routing** | Supported (HA Failover) | Supported | Manual Routing Rules | Tunnel Routing |
+| **Public Expose (Funnel)** | Integrated TLS Endpoints | Community Proxy | Requires Nginx/Caddy | Cloudflare Ingress |
+| **Agent Tool Transport** | Native FastMCP Support | Native FastMCP Support | Manual IP Binding | HTTP Host Binding |
 
 ## Typical use cases
 - **Multi-Cloud & Edge Agent Mesh**: Connecting cloud-hosted orchestrators with edge GPU nodes running [Ollama](ollama.md) or vLLM for local **Gemma 3** or **DeepSeek-V4** inference.
@@ -26,7 +58,7 @@ Managing remote node access and inter-service agent communication across dispara
 ## Limitations
 - **Coordination Server Dependency**: Relies on Tailscale's SaaS coordination plane unless self-hosting via [Headscale](headscale.md).
 - **Client Agent Overhead**: Requires running the lightweight `tailscaled` daemon on participating machines and containers.
-- **User-Space Kernel Performance**: High-throughput throughput setups (>10 Gbps) require Linux kernel-space WireGuard tuning.
+- **User-Space Kernel Performance**: High-throughput setups (>10 Gbps) require Linux kernel-space WireGuard tuning.
 
 ## When to use it
 - When connecting distributed agents, cloud instances, and local homelab hardware into an encrypted private mesh.
@@ -37,6 +69,39 @@ Managing remote node access and inter-service agent communication across dispara
 ## When not to use it
 - In air-gapped enterprise environments completely isolated from public internet access for control plane coordination.
 - When strict organizational compliance forbids third-party SaaS management planes (use [Headscale](headscale.md) instead).
+
+## Operational Best Practices & ACL Engineering
+
+### HuJSON Access Control Policy
+Enforcing micro-segmentation between AI agents, database servers, and administrative nodes using HuJSON ACLs:
+
+```json
+{
+  "groups": {
+    "group:ai-agents": ["agent-orchestrator@local", "agent-worker@local"],
+    "group:admins": ["admin@example.com"]
+  },
+  "tagOwners": {
+    "tag:gpu-node": ["group:admins"],
+    "tag:database": ["group:admins"]
+  },
+  "acls": [
+    // Admins have full access to everything
+    {"action": "accept", "src": ["group:admins"], "dst": ["*:*"]},
+
+    // AI Agents can only access FastMCP 3.1 tool ports on GPU nodes and database
+    {"action": "accept", "src": ["group:ai-agents"], "dst": ["tag:gpu-node:8000,11434", "tag:database:5432"]}
+  ],
+  "ssh": [
+    {
+      "action": "check",
+      "src": ["group:admins"],
+      "dst": ["tag:gpu-node"],
+      "users": ["root", "ubuntu"]
+    }
+  ]
+}
+```
 
 ## Getting started
 

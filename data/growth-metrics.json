@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/services/tailscale.md",
-    "docs/tools/frameworks/langgraph.md",
-    "docs/tools/calendar_tasks/google-tasks.md",
-    "docs/tools/infrastructure/local-embeddings.md",
     "docs/tools/automation_orchestration/atlassian-jira-mcp.md",
     "docs/tools/agents/claude-skills-ecosystem.md",
     "docs/tools/development_ops/jupyter-kernel-mcp.md",
@@ -40,7 +36,11 @@
     "docs/tools/process_understanding/webhook.md",
     "docs/tools/development_ops/fuzzing-mcp-server.md",
     "docs/tools/development_ops/opencode.md",
-    "docs/services/element.md"
+    "docs/services/element.md",
+    "docs/tools/agents/perplexity-agent-api.md",
+    "docs/tools/process_understanding/fiddler.md",
+    "docs/tools/frameworks/nemo-automodel.md",
+    "docs/tools/process_understanding/faster-whisper.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
