@@ -3,11 +3,78 @@
 ## What it is
 Atlassian Jira MCP implementations are Model Context Protocol (MCP) servers that expose Jira's project management capabilities directly to AI agents. As of early 2027, these servers fully support the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, and **DeepSeek-V4** to interact directly with Jira issues, sprints, and backlogs using standardized, agentic tool-calling patterns.
 
+```
++-----------------------------------------------------------------------------------+
+|                                 FRONTIER AI AGENTS                                |
+|           (Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra / DeepSeek-V4 / Gemma 4)        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | FastMCP 3.1 Task Protocol (JSON-RPC)
+                                          v
++-----------------------------------------------------------------------------------+
+|                            ATLASSIAN JIRA MCP SERVER                              |
+|                                                                                   |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  Issue Search & JQL    |  |  Issue Lifecycle /     |  |  Sprint & Backlog   |  |
+|  |  Query Execution       |  |  Status Transitions    |  |  Management         |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  Pydantic v2 Input/    |  |  FastMCP 3.1 Task      |  |  Rate-Limit &       |  |
+|  |  Output Contracts      |  |  State Management      |  |  Auth Token Guard   |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Atlassian REST API v3 (HTTPS)
+                                          v
++-----------------------------------------------------------------------------------+
+|                             ATLASSIAN JIRA CLOUD / DC                             |
+|              (Projects, Issues, Sprints, Components, Worklogs, Transitions)       |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates manual context switching between chat interfaces, developer IDEs, and Jira dashboards. By providing a standardized protocol interface for issue retrieval, creation, transition, and backlog management, it enables autonomous agents to perform project management tasks, triage bugs, and generate status reports without custom glue code. The integration of **FastMCP 3.1 Task Protocol** ensures that multi-step task execution is consistent, highly reliable, and type-safe across different agent frameworks and environments.
 
 ## Where it fits in the stack
 **Automation / Orchestration**. It acts as an architectural bridge between the **Agentic** orchestration layer and enterprise project management tools.
+
+## System Architecture & FastMCP 3.1 Execution Flow
+
+The interaction between an AI Agent harness, the Jira MCP server, and Atlassian Jira Cloud follows a deterministic lifecycle:
+
+```
+[Agent / Harness]              [Jira MCP Server]                   [Jira REST API v3]
+       |                               |                                   |
+       | 1. Request Issue Search (JQL) |                                   |
+       |------------------------------>|                                   |
+       |                               | 2. Execute JQL Query              |
+       |                               |---------------------------------->|
+       |                               | 3. Raw Issue Payload (JSON)       |
+       |                               |<----------------------------------|
+       |                               |                                   |
+       |                               | 4. Validate via Pydantic v2 Schema|
+       | 5. Return Structured Issues   |                                   |
+       |<------------------------------|                                   |
+       |                               |                                   |
+       | 6. Transition Issue Tool Call |                                   |
+       |------------------------------>|                                   |
+       |                               | 7. POST /rest/api/3/issue/trans   |
+       |                               |---------------------------------->|
+       |                               | 8. Status 204 No Content          |
+       |                               |<----------------------------------|
+       | 9. Task Execution Verified    |                                   |
+       |<------------------------------|                                   |
+```
+
+## Tool Comparison Matrix
+
+| Feature / Dimension | Atlassian Jira MCP | Custom REST Scripts | GitHub Projects MCP | Linear MCP |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Enterprise Jira Cloud / DC | Ad-hoc Custom Integration | GitHub Native Projects | Fast Modern Issue Tracking |
+| **Protocol Support** | FastMCP 3.1 / Task Protocol | None (Raw HTTP) | FastMCP 3.1 | FastMCP 3.1 |
+| **Search Capabilities** | Full JQL (Jira Query Language) | Hardcoded API endpoints | GraphQL filters | Filter parameters |
+| **Schema Enforcement**| Pydantic v2 / Zod | Manual parsing | GraphQL types | Pydantic v2 / Zod |
+| **Custom Field Support**| Full JSON schema mapping | Manual configuration | Custom fields via GraphQL| Custom attributes |
+| **Agentic Readiness** | Native Tool-Calling | High maintenance glue | Native Tool-Calling | Native Tool-Calling |
 
 ## Typical use cases
 - **Automated Bug Triage**: Asking [Gemma 4](../ai_knowledge/local_llms.md) to analyze incoming bug reports, categorize severity, and assign labels or components.
@@ -77,6 +144,9 @@ mcp-client call atlassian search_issues --jql "project = PROJ AND status = Open"
 
 # Transition an issue to 'In Review'
 mcp-client call atlassian transition_issue --issue_key "PROJ-123" --status "In Review"
+
+# Fetch active sprint issues with priority breakdown
+mcp-client call atlassian get_sprint_issues --sprint_id 42
 ```
 
 ## API examples
@@ -86,9 +156,10 @@ When building custom Jira MCP tools, using Python with FastMCP 3.1 and strict **
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, ValidationError
-from typing import Optional
+from pydantic import BaseModel, Field, ValidationError, field_validator
+from typing import Optional, List
 import os
+import requests
 
 # 1. Initialize FastMCP server conforming to early 2027 standards
 mcp = FastMCP("Custom Jira Integration")
@@ -98,10 +169,19 @@ class JiraIssueFields(BaseModel):
     summary: str = Field(description="The short summary or title of the issue")
     status_name: str = Field(description="The status name of the issue, e.g. 'In Progress'")
     assignee_name: Optional[str] = Field(None, description="The display name of the assignee")
+    priority_name: Optional[str] = Field(default="Medium", description="Issue priority level")
+    labels: List[str] = Field(default_factory=list, description="Associated issue labels")
 
 class JiraIssueContract(BaseModel):
     key: str = Field(description="The Jira issue key, e.g. PROJ-123")
     fields: JiraIssueFields = Field(description="Selected validated fields of the issue")
+
+    @field_validator("key")
+    @classmethod
+    def validate_key_format(cls, v: str) -> str:
+        if "-" not in v:
+            raise ValueError("Jira key must follow PROJECT-NUMBER format, e.g. PROJ-123")
+        return v
 
 # 3. Register tool with strict schema verification
 @mcp.tool()
@@ -111,13 +191,15 @@ def get_issue_details(key: str) -> str:
     auth_token = os.getenv("ATLASSIAN_API_TOKEN", "dummy-token")
     user_email = os.getenv("ATLASSIAN_USER_EMAIL", "agent@example.com")
 
-    # Representation of API payload from Jira Cloud REST API v3
+    # Mock response representation of Jira Cloud REST API v3
     mock_response_data = {
         "key": key,
         "fields": {
             "summary": "Implement FastMCP 3.1 Task Protocol integration",
             "status": {"name": "In Progress"},
-            "assignee": {"displayName": "Jules"}
+            "assignee": {"displayName": "Jules"},
+            "priority": {"name": "High"},
+            "labels": ["agentic", "fastmcp", "pydantic-v2"]
         }
     }
 
@@ -128,7 +210,9 @@ def get_issue_details(key: str) -> str:
             "fields": {
                 "summary": mock_response_data["fields"]["summary"],
                 "status_name": mock_response_data["fields"]["status"]["name"],
-                "assignee_name": mock_response_data["fields"]["assignee"]["displayName"]
+                "assignee_name": mock_response_data["fields"]["assignee"]["displayName"],
+                "priority_name": mock_response_data["fields"]["priority"]["name"],
+                "labels": mock_response_data["fields"]["labels"]
             }
         }
 
@@ -144,6 +228,20 @@ def get_issue_details(key: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Enterprise Operational Best Practices
+
+### 1. Token Management & Vault Storage
+Never hardcode API tokens in environment files or source code. Store Atlassian API tokens in [HashiCorp Vault](hashicorp-vault.md) and inject them dynamically into the MCP server container runtime at launch.
+
+### 2. Rate-Limiting & Exponential Backoff
+Jira Cloud enforces strict per-user and per-app REST API rate limits. Configure the MCP server client with exponential backoff and jitter algorithms to handle HTTP 429 (Too Many Requests) gracefully without aborting long-running agent workflows.
+
+### 3. JQL Query Optimization
+Construct concise JQL queries with explicit project key filters and field limiters (`fields=summary,status,assignee,priority`) to avoid transferring massive JSON payloads across the wire, saving context window space for the driving agent.
+
+### 4. Transition Guards & Read-Only Scopes
+In sensitive environments, deploy read-only instances of the Jira MCP server for triage agents, reserving state modification tools (transitions, deletions) for authorized harnesses operating under Human-In-The-Loop (HITL) supervision.
 
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](mcp.md) — The underlying standard, now at version 3.1.

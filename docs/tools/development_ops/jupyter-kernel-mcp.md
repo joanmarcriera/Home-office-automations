@@ -3,11 +3,75 @@
 ## What it is
 An MCP server providing AI assistants with stateful, persistent Jupyter kernel execution and notebook management. It enables frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4** to maintain complex computational state across an entire conversation. As of early January 2027, the **Jupyter Kernel MCP Server v2.0** introduces native support for the **FastMCP 3.1 Task Protocol**, allowing agents to treat long-running data science experiments as discrete, resumable, streaming, and telemetry-monitored tasks.
 
+```
++-----------------------------------------------------------------------------------+
+|                                 FRONTIER AI AGENTS                                |
+|          (Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra / DeepSeek-V4 / Llama 4)         |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | FastMCP 3.1 Task Protocol / ZMQ JSON-RPC
+                                          v
++-----------------------------------------------------------------------------------+
+|                            JUPYTER KERNEL MCP SERVER                              |
+|                                                                                   |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  Stateful Code         |  |  Notebook Lifecycle    |  |  Smart Suggestion   |  |
+|  |  Execution Engine      |  |  (Create/Edit/Export)  |  |  Debugger           |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  Pydantic v2 Contract  |  |  ZMQ Message Bridge    |  |  gVisor / Docker    |  |
+|  |  Validation Engine     |  |  Telemetry & Streaming |  |  Sandbox Guard      |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | ZeroMQ (ZMQ) Sockets (shell, iopub, stdin)
+                                          v
++-----------------------------------------------------------------------------------+
+|                                 IPYKERNEL RUNTIME                                 |
+|             (Persistent In-Memory Variables, Loaded Datasets, GPU/RAM)            |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Unlike traditional stateless code execution environments that start fresh for each query, this server maintains variables, imports, and loaded data structures in memory. This enables incremental data analysis, multi-step software development, and the ability to build documented Jupyter notebooks as part of an agent's reasoning process. It eliminates context-loss in AI-driven data exploration by providing a persistent, stateful workspace.
 
 ## Where it fits in the stack
 **Tool / Eval Layer**. It provides a persistent compute workspace for agents, often used for [Knowledge Base](../../knowledge_base/README.md) expansion and complex [Data Copilot](../../architecture/data-copilot-text-to-sql.md) workflows. It acts as the bridge between conversational agents and professional data science environments.
+
+## Interactive Stateful Execution Flow
+
+```
+[Agent / Harness]            [Jupyter MCP Server]                  [IPyKernel Runtime]
+       |                              |                                    |
+       | 1. compute("df = read_csv")  |                                    |
+       |----------------------------->|                                    |
+       |                              | 2. Send ZMQ Execution Request      |
+       |                              |----------------------------------->|
+       |                              | 3. Execute in In-Memory Session    |
+       |                              | 4. Return Output / Variable State  |
+       |                              |<-----------------------------------|
+       | 5. Return Output + Telemetry |                                    |
+       |<-----------------------------|                                    |
+       |                              |                                    |
+       | 6. compute("df.describe()")  |                                    |
+       |----------------------------->|                                    |
+       |                              | 7. Access Cached In-Memory 'df'    |
+       |                              |----------------------------------->|
+       |                              | 8. Streaming IOPub Results         |
+       |                              |<-----------------------------------|
+       | 9. Summary Statistics Payload|                                    |
+       |<-----------------------------|                                    |
+```
+
+## Execution Environment Comparison Matrix
+
+| Feature / Dimension | Jupyter Kernel MCP | Stateless Python REPL | E2B Code Interpreter | Modal Serverless |
+| :--- | :--- | :--- | :--- | :--- |
+| **State Retention** | Persistent across turns | Lost after execution | Session lifetime | Stateless per invocation |
+| **Protocol Support** | FastMCP 3.1 Task Protocol | Custom stdout | REST / WebSocket SDK | Custom Python SDK |
+| **Notebook Artifacts**| Direct `.ipynb` Export | Text logs only | File download | Cloud artifacts |
+| **Language Support** | Polyglot (Python/R/Julia)| Python only | Python / JS | Python |
+| **Memory Efficiency**| High (Reuses loaded RAM) | Low (Reloads per query)| High (In sandbox) | Medium |
+| **Sandbox Security** | Local / Docker / gVisor | In-process | Firecracker MicroVM | Cloud MicroVM |
 
 ## Typical use cases
 - **Incremental Data Analysis**: Loading large datasets once into GPU/RAM and performing multiple exploratory turns with live variable checking.
@@ -191,6 +255,17 @@ if __name__ == "__main__":
     }
     print(validate_jup_mcp_config(test_payload))
 ```
+
+## Production Operational Best Practices
+
+### 1. Kernel Isolation & Sandboxing
+Run Jupyter kernel runtimes within isolated Docker containers or gVisor sandboxes to prevent untrusted agent code from accessing host filesystem secrets or sensitive cloud infrastructure credentials.
+
+### 2. Memory Garbage Collection & VRAM Limits
+In persistent sessions with large PyTorch models or Pandas DataFrames, invoke `gc.collect()` and `torch.cuda.empty_cache()` explicitly or enforce memory resource limits on the Jupyter kernel container to prevent OOM termination.
+
+### 3. Notebook State Snapshotting
+Regularly export in-memory execution state to `.ipynb` notebook files using the `notebook` tool action to create reproducible checkpoint artifacts for human review and auditing.
 
 ## Related tools / concepts
 - [Jupyter](https://jupyter.org/) — The industry-standard notebook environment.

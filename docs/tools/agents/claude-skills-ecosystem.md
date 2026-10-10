@@ -3,11 +3,72 @@
 ## What it is
 The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, FastMCP tool providers, and workflow repositories built around [Claude Code](../development_ops/claude-code.md), Anthropic's Agent SDK, and related coding-agent toolchains. It leverages Anthropic's native tool-calling capabilities and structured execution protocols to provide high-level, domain-specific "skills" that can be dynamically loaded into an agent's runtime environment. As of early 2027, the ecosystem has matured into a cross-platform standard supported across **Claude 5.1**, **GPT-5.5 / GPT-5.6**, **Gemini 4.0 Pro / Ultra**, **DeepSeek-V4**, and **Llama 4** via **FastMCP 3.1** protocol schemas.
 
+```
++-----------------------------------------------------------------------------------+
+|                            CLAUDE CODE / AGENT HARNESS                            |
+|             (Claude 5.1 / GPT-5.6 / Gemini 4.0 Ultra / DeepSeek-V4)              |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Dynamic Skill Activation & Discovery
+                                          v
++-----------------------------------------------------------------------------------+
+|                              SKILL MANAGER & REGISTRY                             |
+|                                                                                   |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  Frontend Design Pack  |  |  Testing & E2E Pack    |  |  Security / Audit   |  |
+|  |  (React, Next.js 16)   |  |  (Playwright, Jest)    |  |  (SAST, DAST, Patch)|  |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  |  FastMCP 3.1 Schema    |  |  Pydantic v2 Contract  |  |  Context Scope      |  |
+|  |  Validation Engine     |  |  Parameter Guard       |  |  Isolation Engine   |  |
+|  +------------------------+  +------------------------+  +---------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Tool Execution & Sandbox Isolation
+                                          v
++-----------------------------------------------------------------------------------+
+|                           LOCAL WORKSPACE & TARGET SYSTEM                         |
+|         (Code Base, Git Repo, CI/CD Pipeline, Cloud Infra, Test Runners)          |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It makes operational engineering know-how reusable, modular, and version-controlled. Instead of rediscovering or manually pasting complex prompting strategies, planning routines, debugging scripts, or repository conventions, software engineering teams package them into portable skill modules. This solves the "cold start" problem for autonomous agents by equipping them with pre-vetted capabilities for specific codebases, framework migrations, and infrastructure operations. The universal adoption of FastMCP 3.1 has resolved cross-harness interoperability, allowing Claude Skills to run seamlessly across diverse agent orchestrators.
 
 ## Where it fits in the stack
 **Agents / Reusable Agent Capabilities**. Skills sit directly between raw frontier model runtimes (**Claude 5.1**, **GPT-5.5**, **DeepSeek-V4**) and application-specific development environments (IDE plugins, CI/CD pipelines, autonomous CLI runners).
+
+## Skill Execution & Lifecycle Architecture
+
+```
+[Agent Runtime]              [Skill Registry / CLI]               [FastMCP Tool Host]
+       |                               |                                   |
+       | 1. Query Skill Manifest       |                                   |
+       |------------------------------>|                                   |
+       |                               | 2. Resolve Active Skill Packs     |
+       | 3. Register Tool Signatures   |<----------------------------------|
+       |<------------------------------|                                   |
+       |                               |                                   |
+       | 4. User Prompt Triggers Skill |                                   |
+       |------------------------------->|                                   |
+       |                               | 5. Load Skill Prompt Context      |
+       |                               |    & FastMCP 3.1 Tool Schema      |
+       | 6. Execute Skill Tool Call    |                                   |
+       |------------------------------------------------------------------>|
+       |                                                                   | 7. Run Tool Action
+       | 8. Tool Result Output Payload (Pydantic v2 Validated)              |    (Code / Tests / AST)
+       |<------------------------------------------------------------------|
+```
+
+## Tooling & Harness Comparison Matrix
+
+| Feature / Dimension | Claude Skills Ecosystem | LangChain Tools | Custom Agent Tools | AutoGen Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Protocol Standard** | FastMCP 3.1 / Agent SDK | LangChain Tool Specs | Custom / Ad-hoc JSON | AutoGen Tool Protocol |
+| **Packaging & Distribution**| Portable Skill Packs (`npx skills`) | Python / JS Packages | Repository Scripts | Python Modules |
+| **Context Window Control**| Dynamic Tool Injection | Static Prompt Binding | Manual Construction | Static Agent Config |
+| **Cross-Harness Support**| Claude Code, Cline, Roo, Zed | LangChain Ecosystem | Single Application | AutoGen Framework |
+| **Schema Validation** | Pydantic v2 / Zod | Pydantic v1 / v2 | Manual JSON Parsing | Pydantic v2 |
+| **Security Isolation** | Workspace Sandboxing | In-process Execution | Application Dependent | Docker Container Sandbox |
 
 ## Typical use cases
 - **UI Prototyping & Design Systems**: Invoking the `frontend-design` skill for production-grade React, Next.js 16, and Vue components adhering to corporate design systems.
@@ -70,12 +131,14 @@ npx @modelcontextprotocol/inspector --skill-path ./skills/frontend-design
 ```
 
 ## API examples
+
+### Pydantic v2 Skill Schema Validation & Registration
 When building custom agent harnesses or managing skills dynamically, skill pack configurations and registered actions can be parsed and validated using **Pydantic v2**:
 
 ```python
 import json
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, ValidationError, field_validator
 
 class SkillParameter(BaseModel):
     name: str = Field(..., description="Parameter name")
@@ -87,6 +150,13 @@ class SkillAction(BaseModel):
     name: str = Field(..., description="Unique trigger name within the skill pack")
     description: str = Field(..., description="Purpose and expected result of executing this action")
     parameters: List[SkillParameter] = Field(default_factory=list, description="Input schema parameters")
+
+    @field_validator("name")
+    @classmethod
+    def validate_action_name(cls, v: str) -> str:
+        if not v.isidentifier():
+            raise ValueError("Action name must be a valid pythonic identifier")
+        return v
 
 class SkillPackConfig(BaseModel):
     pack_name: str = Field(..., alias="packName", description="Display name of the skill pack")
@@ -100,7 +170,9 @@ def validate_skill_pack(raw_json: str) -> Optional[SkillPackConfig]:
     try:
         data = json.loads(raw_json)
         # Validate using Pydantic v2 model_validate
-        return SkillPackConfig.model_validate(data)
+        validated_config = SkillPackConfig.model_validate(data)
+        print(f"Successfully validated skill pack '{validated_config.pack_name}' v{validated_config.version}")
+        return validated_config
     except ValidationError as e:
         print(f"Validation Error: {e.json()}")
         return None
@@ -108,6 +180,20 @@ def validate_skill_pack(raw_json: str) -> Optional[SkillPackConfig]:
         print("Error: Invalid JSON input.")
         return None
 ```
+
+## Enterprise Operational Best Practices
+
+### 1. Context Window Hygiene
+Avoid enabling dozens of skill packs simultaneously. Unused skills inflate the system prompt tool manifest, reducing available effective context for code reasoning and increasing token overhead per turn.
+
+### 2. Namespace Collision Prevention
+Enforce unique naming prefixes for custom internal skills (e.g., `corp-security-audit`, `corp-deploy-k8s`) to prevent name collisions with standard open-source skills.
+
+### 3. Continuous SAST & Security Verification
+Audit all installed third-party skill packs before deployment in enterprise environments. Verify that skill tools do not execute arbitrary shell commands without strict argument escaping and path sandboxing.
+
+### 4. Version Pinning
+Pin skill pack dependencies in project-level configuration files (`.claude-skills.json`) to guarantee deterministic agent behavior across developer workstations and automated CI runners.
 
 ## Related tools / concepts
 - [Documentation Writer](documentation-writer.md) — Autonomous documentation generation skill pack.

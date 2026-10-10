@@ -25,6 +25,43 @@ graph TD
     H -->|Private Time Defense| G
 ```
 
+## Dynamic Priority Solver & Calendar Sync Flow
+
+```
+[Upstream Task / Agent]        [Reclaim Priority Engine]          [Google / Outlook Calendar]
+          |                               |                                   |
+          | 1. Submit Task (1.5h, Due 25th)|                                  |
+          |------------------------------>|                                   |
+          |                               | 2. Scan Free/Busy Time Windows    |
+          |                               |---------------------------------->|
+          |                               | 3. Available Time Slots           |
+          |                               |<----------------------------------|
+          |                               |                                   |
+          |                               | 4. Compute Flexible "Ideal" Block |
+          |                               | 5. POST Calendar Event (Ideal)    |
+          |                               |---------------------------------->|
+          |                               |                                   |
+          |                               | 6. Incoming Conflict Meeting Inv  |
+          |                               |<----------------------------------|
+          |                               |                                   |
+          |                               | 7. Auto-Shift Flexible Block      |
+          |                               |    to Next Open Window            |
+          |                               |---------------------------------->|
+          | 8. Task Status Updated & Sync |                                   |
+          |<------------------------------|                                   |
+```
+
+## Scheduling Engine Comparison Matrix
+
+| Feature / Dimension | Reclaim.ai | Motion | Clockwise | Google Calendar Tasks |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Smart Time-Blocking & Habits | AI Project & Calendar Engine | Team Meeting Optimization | Basic Task List Overlay |
+| **Protocol Support** | FastMCP 3.1 Native | Custom REST API | Webhooks | Google Graph API |
+| **Flexible Time Blocks**| Dynamic (Ideal vs Locked) | Auto-scheduled | Focus Time Blocks | Static Manual Placement |
+| **Multi-Calendar Sync**| Bi-directional Privacy Defense| Single/Multi Account | Team Workspaces | Single Account Default |
+| **Upstream Integrations**| Linear, Jira, Asana, Todoist| Native Task Manager | Asana, Jira | Google Workspace |
+| **Schema Validation** | Pydantic v2 / Zod | Custom JSON | Custom JSON | Google Protobuf / JSON |
+
 ## Typical use cases
 - **Adaptive Time-Blocking**: Automatically schedule task duration blocks from [Todoist](todoist.md) or Linear directly onto work calendars.
 - **Dynamic Habit Protection**: Maintain recurring health, exercise, or learning habits that shift automatically when meeting conflicts arise.
@@ -97,6 +134,10 @@ curl -s -X POST -H "Authorization: Bearer $RECLAIM_API_KEY" \
     "priority": "P1"
   }' \
   https://api.app.reclaim.ai/api/tasks
+
+# 4. Force immediate schedule recalculation
+curl -s -X POST -H "Authorization: Bearer $RECLAIM_API_KEY" \
+  https://api.app.reclaim.ai/api/planner/recalculate
 ```
 
 ## API examples
@@ -173,6 +214,17 @@ Integrate Reclaim.ai with agent desktop runtimes (**Claude 5.1**, **GPT-5.5**) v
 - `reclaim_list_tasks`: Inspect active and upcoming scheduled tasks.
 - `reclaim_create_task`: Insert a new task with duration, priority, and deadline.
 - `reclaim_add_time`: Dynamically extend focus duration on an existing task.
+
+## Enterprise Operational Best Practices
+
+### 1. Multi-Calendar Privacy Defense
+Enable generic title sync ("Personal Commitment" or "Busy") when syncing personal calendar events to corporate Google Workspace or Microsoft 365 accounts to maintain strict personal privacy.
+
+### 2. Time Chunking Strategy
+Break long tasks (>4 hours) into 1-hour or 2-hour chunks (`timeChunksRequired: 4` or `8`) to allow the Reclaim scheduling solver greater flexibility when fitting work into tight calendar gaps.
+
+### 3. Emergency Schedule Override
+When urgent tasks arise, mark them with priority `P1` or toggle "Lock" status on existing time blocks to prevent the solver from shifting critical deep work slots during high-volume meeting days.
 
 ## Licensing and cost
 - **Open Source**: No
