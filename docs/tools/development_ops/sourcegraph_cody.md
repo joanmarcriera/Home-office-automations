@@ -6,8 +6,51 @@ Cody is an enterprise-grade AI coding assistant developed by Sourcegraph that le
 ## What problem it solves
 It solves the "context fragmentation" and "knowledge silo" problem in massive enterprise repositories. Traditional coding assistants operate file-by-file or are constrained to a single active workspace folder. Cody integrates directly with Sourcegraph's global index, allowing it to understand complex cross-repository dependencies, architectural patterns, and undocumented internal APIs. It acts as a bridge between the generalist knowledge of frontier models and the complex, multi-tenant codebase realities of enterprise organizations.
 
+## Architecture & Context Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                        IDE / Developer Workspace / Terminal                       |
+|                   (VS Code / JetBrains / Cursor / Cody CLI / MCP)                 |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v  Bi-directional Context Protocol
++-----------------------------------------+-----------------------------------------+
+|                                Sourcegraph Cody Engine                            |
+|                                                                                   |
+|  +-----------------------------------+   +-------------------------------------+  |
+|  |     Hybrid Context Retrieval      |   |       Multi-Model Router            |  |
+|  |  - SCIP / LSIF Syntax Code Graphs |   |  - Claude 5.6 / GPT-5.6 / Gemini    |  |
+|  |  - Vector Embedding Search        |   |  - DeepSeek-V4 / Open-Weights       |  |
+|  |  - Keyword / Exact Symbol Lookup  |   |  - Token Window & Latency Optimizer |  |
+|  +-----------------+-----------------+   +------------------+------------------+  |
+|                    |                                        |                     |
+|                    +--------------------+-------------------+                     |
+|                                         |                                         |
++-----------------------------------------+-----------------------------------------+
+                                          | FastMCP 3.1 & Remote Index Sync
+            +-----------------------------+-----------------------------+
+            |                             |                             |
+            v                             v                             v
++-----------------------+     +-----------------------+     +-----------------------+
+| Sourcegraph Enterprise|     | Enterprise VCS Hubs   |     | FastMCP Tool Server   |
+| (Global Code Index,   |     | (GitHub Enterprise,   |     | (Live Schema Streaming|
+|  RBAC, Audit Logs)    |     |  GitLab, Bitbucket)   |     |  & Executable Tools)  |
++-----------------------+     +-----------------------+     +-----------------------+
+```
+
 ## Where it fits in the stack
 **Category**: Tool / Development & Ops / AI-assisted Coding. Cody functions as the "Code Intelligence and Enterprise Context Plane", feeding precise repository-level embeddings and syntax trees to local editor chats and remote autonomous developer agents alike.
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | Sourcegraph Cody | GitHub Copilot | Cursor | Aider |
+| :--- | :--- | :--- | :--- | :--- |
+| **Multi-Repo Context** | Global SCIP Code Graph across 10,000+ Repos | Single Repository Workspace Focus | Local Indexing / Workspace Focus | Git Repository Branch Focus |
+| **Model Choice** | Multi-Model (Claude 5.6, GPT-5.6, Gemini, DeepSeek) | OpenAI & Claude Endpoints | Multi-Model Selection | Multi-Model via LLM API Keys |
+| **Deployment Options** | On-Premises, VPC, Managed Cloud | Cloud SaaS Only | Cloud SaaS Only | Local CLI Tool |
+| **Protocol Support** | Native FastMCP 3.1 & LSIF | Custom VS Code Extension Protocol | Custom VS Code Fork | Command-Line Pipe / Terminal |
+| **Enterprise RBAC** | Inherits Sourcegraph VCS Permissions | GitHub Permissions | Custom Workspace Invites | Local User VCS Context |
 
 ## Typical use cases
 - **Multi-Repository Architecture Search**: Asking natural language questions that span across separate microservice codebases (e.g. tracking API request paths).
@@ -72,6 +115,58 @@ cody login --endpoint https://sourcegraph.company.com --token sgp_39b362198fa064
 ```
 
 ## API examples
+
+### FastMCP 3.1 Context Provider Server Pattern
+The python example below exposes Cody's code graph query capability as a FastMCP 3.1 server tool:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List
+import requests
+
+mcp = FastMCP("sourcegraph-cody-mcp")
+
+class CodeGraphQueryInput(BaseModel):
+    query: str = Field(..., description="Semantic search query across multi-repository code graph")
+    limit: int = Field(default=5, ge=1, le=20, description="Max code snippets to retrieve")
+    repository_filter: Optional[str] = Field(default=None, description="Optional repo substring filter")
+
+class CodeSnippet(BaseModel):
+    repository: str
+    filepath: str
+    content: str
+    score: float
+
+class CodeGraphQueryOutput(BaseModel):
+    query: str
+    snippets: List[CodeSnippet]
+
+@mcp.tool()
+def search_code_graph(input_data: CodeGraphQueryInput) -> CodeGraphQueryOutput:
+    """Queries Sourcegraph Cody's global code graph and returns SCIP/vector-matched code snippets."""
+    # Simulated connection to Sourcegraph Enterprise REST/GraphQL endpoint
+    headers = {"Authorization": "Bearer sgp_39b362198fa064_example"}
+    payload = {
+        "query": input_data.query,
+        "limit": input_data.limit,
+        "repo": input_data.repository_filter
+    }
+
+    # Example snippet payload returned from Sourcegraph API
+    snippets = [
+        CodeSnippet(
+            repository="github.com/enterprise/core-services",
+            filepath="services/auth/jwt_verifier.go",
+            content="func VerifyJWT(tokenString string) (*Claims, error) { ... }",
+            score=0.96
+        )
+    ]
+    return CodeGraphQueryOutput(query=input_data.query, snippets=snippets)
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Programmatic Context Retrieval and Pydantic v2 Validation
 The following Python script executes a semantic codebase context search against the Sourcegraph Cody API, parsing and validating the retrieved code chunks with strict Pydantic v2 schemas.

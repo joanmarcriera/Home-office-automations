@@ -1,42 +1,86 @@
 # ClawRouter
 
 ## What it is
-ClawRouter is an open-source (MIT), agent-native smart LLM router designed for autonomous workflows. It provides a local proxy that analyzes requests across 15 dimensions (cost, latency, reasoning depth, etc.) and routes them to the optimal model in under 1ms.
+ClawRouter is an open-source (MIT), agent-native smart LLM router designed for autonomous workflows. It provides a local proxy that analyzes incoming inference requests across 15 dimensions (cost, latency, reasoning depth, token context size, privacy level, domain alignment, etc.) and routes them to the optimal backend model in under 1ms.
 
 ## What problem it solves
-It solves the "autonomous agent payment gap" by using the **x402 protocol** for USDC micropayments and wallet signatures for authentication. This allows agents to operate independently without human-managed API keys, accounts, or credit cards. It also reduces LLM costs by up to 92% through aggressive model routing across frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) and local open-weights servers (vLLM, TGI, Ollama).
+It solves the "autonomous agent payment gap" by leveraging the **x402 protocol** for USDC micropayments and local wallet cryptographic signatures for authentication. This allows autonomous AI agents to operate independently without human-managed API keys, corporate credit cards, or manual account provisioning. It also reduces aggregate LLM inference costs by up to 92% through dynamic model routing across frontier models (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) and local open-weights inference servers (vLLM, TGI, Ollama).
+
+## Architecture & System Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                              Autonomous Agent Fleet                               |
+|               (FastMCP 3.1 Tools / OpenClaw / Cursor / Auto-Agents)               |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v  HTTP / REST (OpenAI-compatible)
++-----------------------------------------+-----------------------------------------+
+|                                    ClawRouter                                     |
+|                                                                                   |
+|  +-----------------------------------+   +-------------------------------------+  |
+|  |     15-Dimension Routing Engine   |   |        x402 Micropayment Engine     |  |
+|  |  - Cost & Token Budget Guardrails |   |  - On-chain USDC Settlement          |  |
+|  |  - Latency SLA Thresholds (<1500ms)|   |  - Base / Solana Non-Custodial Wallet|  |
+|  |  - Reasoning Depth Classifier     |   |  - Cryptographic Signature Verification|
+|  +-----------------+-----------------+   +------------------+------------------+  |
+|                    |                                        |                     |
+|                    +--------------------+-------------------+                     |
+|                                         |                                         |
++-----------------------------------------+-----------------------------------------+
+                                          | <1ms Routing Overhead
+            +-----------------------------+-----------------------------+
+            |                             |                             |
+            v                             v                             v
++-----------------------+     +-----------------------+     +-----------------------+
+|  Frontier Cloud APIs  |     |   Free Hosted Models  |     | Open-Weights Clusters |
+| (Claude 5.6, GPT-5.6, |     |  (NVIDIA-hosted free  |     |  (vLLM, TGI, Ollama,  |
+|  Gemini 4.0 Ultra)    |     |   inference endpoints)|     |   Local Local GPUs)   |
++-----------------------+     +-----------------------+     +-----------------------+
+```
 
 ## Where it fits in the stack
-**Infrastructure / Routing Layer**. ClawRouter sits between the AI agent (Claude 5.6, GPT-5.6) and model providers (Anthropic, OpenAI, Google, NVIDIA, etc.), acting as a smart, payment-integrated proxy.
+**Infrastructure / Routing Layer**. ClawRouter sits directly between autonomous AI agents (running via FastMCP 3.1, OpenClaw, or custom SDKs) and upstream LLM providers (Anthropic, OpenAI, Google, NVIDIA, vLLM), acting as a smart, payment-integrated proxy.
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | ClawRouter | LiteLLM | OpenRouter | vLLM Proxy |
+| :--- | :--- | :--- | :--- | :--- |
+| **Authentication** | On-chain Wallet Signature (x402) | Static API Keys / OAuth | Static API Key / Pre-funded | Bearer Token / None |
+| **Micropayments** | Native USDC (Base/Solana per request) | External Billing / Enterprise | Credit Card Pre-pay | Self-hosted Infrastructure |
+| **Routing Latency** | <1ms Local Overhead | ~5–15ms Proxy Overhead | ~20–50ms Cloud Overhead | ~2–5ms Local Overhead |
+| **Free Model Access** | 6+ Free Hosted Tier Endpoints | Requires Own Keys | Limited Free Tiers | Local GPU Resources |
+| **Agent Native** | Built for Autonomous Workflows | Developer / Enterprise App Focus | Consumer / App Developer Focus | Inference Engine Operator Focus |
+| **FastMCP 3.1 Support** | Native Protocol Integration | Custom Adapter Required | Custom Adapter Required | OpenAI Schema Wrapper |
 
 ## Typical use cases
-- **Autonomous Agent Ops**: Powering agents that need to pay for their own inference via on-chain USDC.
-- **Cost-Optimized Coding**: Routing simple code edits to free or low-cost models while using Claude 5.1 for complex architecture.
-- **Multi-Modal Orchestration**: Seamlessly switching between specialized models for text, vision, image generation, and voice calls.
-- **Agentic Infrastructure**: Providing a local, <1ms routing layer for high-volume agent fleets and FastMCP 3.1 workflows.
+- **Autonomous Agent Ops**: Powering agents that need to pay for their own inference via on-chain USDC without human intervention.
+- **Cost-Optimized Coding**: Routing simple syntax checks to free open-weights models while escalating complex architectural queries to frontier models.
+- **Multi-Modal Orchestration**: Seamlessly dispatching text, vision, image generation, and audio requests to specialized model backends.
+- **Agentic Infrastructure**: Providing a local, sub-millisecond routing layer for high-volume agent fleets and FastMCP 3.1 tools.
 
 ## Strengths
-- **Agent-First Auth**: Uses wallet signatures instead of API keys, making it truly native to autonomous entities.
-- **Cost Efficiency**: Access to 6+ free models (NVIDIA-hosted) and smart routing that targets 90%+ savings.
-- **Local & Fast**: Routing logic runs entirely locally with sub-1ms latency and no external routing dependencies.
-- **Rich Ecosystem**: Supports 55+ models and integrates features like image generation, video generation, and AI-powered voice calls.
-- **Non-Custodial Payments**: Agents pay per-request using USDC via x402 directly from their own local wallets.
+- **Agent-First Auth**: Uses wallet cryptographic signatures instead of hardcoded API keys, ensuring non-custodial agent sovereignty.
+- **Cost Efficiency**: Built-in access to free hosted endpoints and aggressive routing rules that target up to 90%+ cost reductions.
+- **Local & Fast**: The decision matrix executes locally with sub-1ms routing overhead and zero network lookup delays.
+- **Rich Ecosystem**: Supports over 55 backend models, image generation workflows, video processing, and AI voice calls.
+- **Non-Custodial Settlement**: Agents pay per-request using USDC via x402 directly from local wallet keys.
 
 ## Limitations
-- **Ecosystem Focus**: While standalone, its primary integrations are centered around OpenClaw and agent-native environments.
-- **Payment Learning Curve**: Requires understanding of USDC micropayments and the x402 protocol for paid tiers.
-- **Model Bias**: Routing logic is optimized for agentic workloads, which may differ from general chat requirements.
-- **Local Resource Usage**: Running the routing engine and local wallet adds a small memory footprint to the host machine.
+- **Ecosystem Focus**: Primary integrations are tailored for OpenClaw, FastMCP 3.1, and agentic environments.
+- **Payment Learning Curve**: Requires setting up USDC micropayments and configuring the x402 protocol for paid model tiers.
+- **Model Bias**: Routing scoring heuristics are heavily optimized for autonomous, tool-calling agent workloads.
+- **Local Resource Usage**: The local wallet daemon and routing engine require a lightweight, persistent background process.
 
 ## When to use it
-- When building autonomous agents that need to manage their own inference costs and payments.
-- When model routing is a first-class operational concern for reducing agentic overhead.
-- In OpenClaw-heavy stacks where plugin integration provides advanced UI features.
+- When building autonomous agents that need to manage their own inference budgets and per-request payments.
+- When model routing latency and cost optimization are critical operational requirements for agentic fleets.
+- In OpenClaw and FastMCP 3.1 stacks where native plugin and tool integration simplifies deployment.
 
 ## When not to use it
-- When a simpler, provider-agnostic router like [LiteLLM](../../services/litellm.md) is sufficient and payments aren't a priority.
-- When you prefer centralized billing and account management over per-request USDC settlement.
-- For purely human-driven chat applications where standard API key management is preferred.
+- When a simpler, centralized router like [LiteLLM](../../services/litellm.md) meets your needs and on-chain payment is unnecessary.
+- When enterprise compliance requires traditional centralized invoicing and credit card billing.
+- For purely human-driven interactive chat applications where standard API keys are already managed.
 
 ## Getting started
 
@@ -46,84 +90,111 @@ To set up ClawRouter in January 2027:
    ```bash
    npx @blockrun/clawrouter
    ```
-2. **Wallet Setup**: On first run, a BIP-39 mnemonic and wallet (Base/Solana) are generated. Your address is printed to the console.
-3. **Funding**: Optional. Skip for the free tier (6 models). For paid models, send USDC on the Base or Solana network to your address.
-4. **Integration**: Point your client (Cursor, Continue, or OpenAI SDK) to `http://localhost:8402/v1/`.
+2. **Wallet Setup**: On first run, a BIP-39 mnemonic and wallet (Base/Solana) are generated automatically. Your address is printed to stdout.
+3. **Funding**: Optional for free models (6 free models included). For paid frontier models, deposit USDC on Base or Solana.
+4. **Integration**: Point your OpenAI SDK, Cursor, or FastMCP client to `http://localhost:8402/v1/`.
 
 ## CLI examples
 
 ### Diagnostic Check
-Run the "doctor" to verify system, wallet, and network status with AI-powered analysis:
+Run the diagnostic suite to verify routing engine health, wallet balances, and upstream model availability:
 
 ```bash
 npx @blockrun/clawrouter doctor
 ```
 
-### Managing Models
-Manually exclude or include models from the smart routing logic:
+### Managing Model Routing Rules
+Exclude expensive or latency-sensitive models from the auto-router evaluation pool:
 
 ```bash
-# Block expensive models
+# Exclude specific high-cost models
 clawrouter exclude add gpt-5.5-pro
-# Verify current exclusions
+
+# List active exclusions
 clawrouter exclude
 ```
 
-### Phone & Voice Ops
-Manage wallet-owned phone numbers for AI voice calls:
+### Phone & Voice Operations
+Manage wallet-owned virtual phone numbers for automated AI outbound and inbound calls:
 
 ```bash
-# Buy a US number for agentic calls
+# Purchase a US phone number for agentic calls
 clawrouter phone numbers buy US --area-code 415
-# List active numbers and expiry
+
+# List active numbers and expiration dates
 clawrouter phone numbers list
 ```
 
 ## API examples
 
 ### Smart Routing Call
-The default `blockrun/auto` model automatically selects the best model for each request:
+The default `blockrun/auto` alias evaluates request parameters and dispatches to the optimal backend:
 
 ```python
 from openai import OpenAI
 
-# ClawRouter local proxy
+# ClawRouter local proxy running at default port
 client = OpenAI(base_url="http://localhost:8402/v1", api_key="x402")
 
 response = client.chat.completions.create(
     model="blockrun/auto",
-    messages=[{"role": "user", "content": "Analyze this repo architecture."}]
+    messages=[{"role": "user", "content": "Analyze repo architecture and outline refactoring targets."}]
 )
+print(response.choices[0].message.content)
 ```
 
-### Image Generation (Asynchronous)
-Generate high-fidelity images using specialized agent tools:
+### FastMCP 3.1 Integration Pattern
+Register ClawRouter as an MCP tool server for agentic frameworks:
 
-```bash
-curl -X POST http://localhost:8402/v1/images/generations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "flux",
-    "prompt": "A futuristic city at sunset, cinematic lighting",
-    "size": "1024x1024"
-  }'
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import Optional
+import requests
+
+mcp = FastMCP("clawrouter-mcp-server")
+
+class RouteInferenceInput(BaseModel):
+    prompt: str = Field(description="The user prompt or query to route")
+    max_cost_usd: float = Field(default=0.02, description="Maximum USD budget for this single request")
+    required_latency_ms: int = Field(default=2000, description="Latency SLA threshold in milliseconds")
+
+class RouteInferenceOutput(BaseModel):
+    selected_model: str
+    response_text: str
+    cost_usd: float
+    latency_ms: float
+
+@mcp.tool()
+def route_agent_request(input_data: RouteInferenceInput) -> RouteInferenceOutput:
+    """Routes an agent prompt through ClawRouter using x402 micropayments and custom budget SLA."""
+    url = "http://localhost:8402/v1/chat/completions"
+    headers = {"Authorization": "Bearer x402", "Content-Type": "application/json"}
+    payload = {
+        "model": "blockrun/auto",
+        "messages": [{"role": "user", "content": input_data.prompt}],
+        "metadata": {
+            "max_cost_limit_usd": input_data.max_cost_usd,
+            "latency_sla_ms": input_data.required_latency_ms
+        }
+    }
+    res = requests.post(url, json=payload, headers=headers, timeout=15)
+    res.raise_for_status()
+    data = res.json()
+
+    return RouteInferenceOutput(
+        selected_model=data.get("model", "unknown"),
+        response_text=data["choices"][0]["message"]["content"],
+        cost_usd=data.get("usage", {}).get("estimated_cost_usd", 0.0),
+        latency_ms=res.elapsed.total_seconds() * 1000
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### AI-Powered Voice Call
-Initiate a real outbound phone call with automated x402 settlement:
-
-```bash
-curl -X POST http://localhost:8402/v1/voice/call \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to": "+14155552671",
-    "task": "Confirm the 3pm Thursday meeting.",
-    "max_duration": 5
-  }'
-```
-
-### Programmatic Python Routing & Verification (Pydantic v2)
-Verify and check metrics programmatically, enforcing budgets and latency SLAs on self-directed agent runs.
+### Programmatic Python Routing & Health Verification (Pydantic v2)
+Enforce budget controls and latency SLAs on self-directed agent workflows:
 
 ```python
 import sys
