@@ -8,9 +8,48 @@ LastMile AI is a comprehensive evaluation workspace that allows developers to de
 ## What problem it solves
 It solves the "scalability bottleneck" of manual evaluation. As AI systems become more complex and autonomous, humans can no longer review every response for quality. LastMile AI provides a systematic, repeatable way to measure the impact of changes to prompts, RAG retrieval parameters, or model versions, ensuring that performance improvements in one area don't cause regressions in another.
 
+## Architecture & System Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                            AI Application / Agent System                          |
+|             (RAG Pipeline / FastMCP 3.1 Agent / Prompt System Prompts)            |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v  Tool Executions & Prompts
++-----------------------------------------+-----------------------------------------+
+|                                  LastMile AI Engine                               |
+|                                                                                   |
+|  +-----------------------------------+   +-------------------------------------+  |
+|  |     RAG Faithfulness Evaluator    |   |     FastMCP Tool Trace Evaluator    |  |
+|  |  - Groundedness Scoring           |   |  - Argument Correctness Check       |  |
+|  |  - Context Recall Verification    |   |  - Execution Latency SLA Check      |  |
+|  +-----------------+-----------------+   +------------------+------------------+  |
+|                    |                                        |                     |
+|                    +--------------------+-------------------+                     |
+|                                         |                                         |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v  Grading & Telemetry Outputs
++-----------------------------------------------------------------------------------+
+|                         CI/CD Quality Gate / Dashboard Report                     |
+|              (Pydantic v2 Schema Validation, ClickHouse Telemetry, Reports)       |
++-----------------------------------------------------------------------------------+
+```
+
 ## Where it fits in the stack
-**Category**: Process & Understanding / AI Evaluation
+**Category**: Process & Understanding / AI Evaluation.
 LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. It typically sits between the development environment and the production deployment, serving as a quality gate in the CI/CD pipeline.
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | LastMile AI | Ragas | Braintrust | LangSmith |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Evaluation-as-a-Service (EaaS) & Agent Traces | Open-Source RAG Metrics Library | Enterprise AI Eval & Observability | LangChain Ecosystem Observability |
+| **FastMCP 3.1 Support**| Native FastMCP Tool Trace Evaluation | Custom Adapter Required | Custom Telemetry Hook | Custom Trace Adapter |
+| **Deployment Model** | Managed Cloud & VPC | Self-Hosted Python Package | Managed Cloud & Enterprise VPC | Managed Cloud & Enterprise Self-Host |
+| **CLI Capabilities** | Rich CLI for Local Execs & CI/CD | Python Library Scripting | Python / TS SDK Integrations | CLI & Web UI Tracing |
+| **Auto-Eval Judges** | Pre-built Fine-Tuned Judge Models | LLM Prompt-Based Judges | Multi-Model Judge Suite | Custom LLM Prompt Judges |
 
 ## Typical use cases
 - **Golden Set Benchmarking**: Running every version of a system prompt against a curated set of "perfect" answers to measure accuracy.
@@ -76,6 +115,42 @@ lastmile login
 
 ## API examples
 
+### FastMCP 3.1 Tool Evaluation Integration Pattern
+Expose LastMile AI evaluation suite checks as an MCP tool for developer agents:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List
+
+mcp = FastMCP("lastmile-eval-mcp")
+
+class EvalSuiteInput(BaseModel):
+    suite_name: str = Field(..., description="Name of the LastMile golden evaluation suite")
+    model_name: str = Field(..., description="Target model name evaluated")
+    sample_limit: int = Field(default=10, ge=1, le=100)
+
+class EvalSuiteOutput(BaseModel):
+    suite_name: str
+    pass_rate: float
+    faithfulness_score: float
+    status: str
+
+@mcp.tool()
+def run_lastmile_suite(input_data: EvalSuiteInput) -> EvalSuiteOutput:
+    """Runs a LastMile AI evaluation suite against a target model output."""
+    # Simulated connection to LastMile AI Evaluation API
+    return EvalSuiteOutput(
+        suite_name=input_data.suite_name,
+        pass_rate=0.95,
+        faithfulness_score=0.98,
+        status="PASSED"
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Python (Auto-Evaluating RAG Grounding and FastMCP 3.1 Tool Traces)
 The following example demonstrates how to parse and strictly validate LastMile evaluation results using **Pydantic v2**:
 
@@ -84,7 +159,6 @@ import os
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
 
-# 1. Define strict Pydantic v2 schemas for the evaluation payload
 class ToolCallEvaluation(BaseModel):
     tool_name: str = Field(..., description="The name of the tool called by the agent.")
     arguments: Dict[str, Any] = Field(..., description="The parameters passed to the tool.")
@@ -112,7 +186,6 @@ class LastMileEvalResult(BaseModel):
             raise ValueError(f"Target model must be an early 2027 frontier model: {allowed}")
         return v
 
-# 2. Example simulation of LastMile AutoEval API response with FastMCP 3.1 tracing
 raw_api_response = {
     "eval_id": "eval-99128-mcp",
     "target_model": "Claude 5.6",
@@ -133,15 +206,15 @@ raw_api_response = {
     ]
 }
 
-# 3. Perform strict validation
-try:
-    eval_report = LastMileEvalResult(**raw_api_response)
-    print(f"Successfully validated LastMile Eval ID: {eval_report.eval_id}")
-    print(f"Target Model: {eval_report.target_model}")
-    print(f"Faithfulness Score: {eval_report.metrics.faithfulness}")
-    print(f"Tool Selection Correctness: {eval_report.tool_calls_trace[0].is_correct}")
-except Exception as e:
-    print(f"Validation failed: {e}")
+if __name__ == "__main__":
+    try:
+        eval_report = LastMileEvalResult(**raw_api_response)
+        print(f"Successfully validated LastMile Eval ID: {eval_report.eval_id}")
+        print(f"Target Model: {eval_report.target_model}")
+        print(f"Faithfulness Score: {eval_report.metrics.faithfulness}")
+        print(f"Tool Selection Correctness: {eval_report.tool_calls_trace[0].is_correct}")
+    except Exception as e:
+        print(f"Validation failed: {e}")
 ```
 
 ## Related tools / concepts
