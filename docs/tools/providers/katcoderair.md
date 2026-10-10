@@ -5,6 +5,33 @@ KatCoderAir (specifically KatCoderAir v2.5) is a highly optimized, open-weight c
 
 In early 2027, the KatCoder Collective expanded its suite with **Kat Coder 2.5 Dev**, a specialized developmental-grade coding model designed specifically for aggressive multi-file code reasoning, deep AST analysis, FastMCP 3.1 Task Protocol execution, and agentic code modifications. Operating with a virtual 30B parameter size via 7B active parameters per token, Kat Coder 2.5 Dev is tailored for developers seeking raw reasoning power and high instruction-following accuracy in software engineering domains.
 
+```
++-----------------------------------------------------------------------------------+
+|                        KatCoderAir Local MoE Routing Architecture                  |
+|                                                                                   |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|  | User / FastMCP Client|===>| GGUF / MLX Runtime   |===>| Gating Router         |  |
+|  | (Code Query / Task)|    | (llama.cpp / ExLlama) |    | (Token Classifier)    |  |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|                                                                    ||             |
+|                                      +-----------------------------+              |
+|                                      ||                            ||             |
+|                                      \/                            \/             |
+|                            +-------------------+         +-------------------+    |
+|                            | Active Expert #1  |         | Active Expert #2  |    |
+|                            | (Syntax / AST)    |         | (Type Checker)    |    |
+|                            +-------------------+         +-------------------+    |
+|                                      ||                            ||             |
+|                                      +-----------------------------+              |
+|                                                                    ||             |
+|                                                                    \/             |
+|                                                        +-----------------------+  |
+|                                                        | Generated Code Output |  |
+|                                                        | (Sub-100ms Latency)   |  |
+|                                                        +-----------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Proprietary cloud-based coding assistants often suffer from latency issues, high cost of operation, and severe security concerns regarding source code telemetry and data residency. KatCoderAir and Kat Coder 2.5 Dev address these pain points by offering powerful, open-weight coding alternatives that can be deployed entirely locally. By running on local hardware, they guarantee absolute privacy, zero latency variation, and complete operational sovereignty.
 
@@ -16,6 +43,17 @@ Proprietary cloud-based coding assistants often suffer from latency issues, high
 - **Offline Codebase Generation**: Creating complete multi-file modules in private, air-gapped environments.
 - **Advanced Code Refactoring**: Executing complex AST-level optimizations, lint-fixing, and system restructuring using Kat Coder 2.5 Dev.
 - **Automated CLI Coding**: Driving agentic developer cycles via terminal assistants like [Aider](../development_ops/aider.md) and [Cline](../agents/cline.md).
+
+## Local Coding Model Comparison
+
+| Feature | KatCoderAir v2.5 | DeepSeek-V4 | Qwen 3.6 Coder | Codestral 25.01 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Architecture** | MoE (30B Total / 7B Active) | MoE (671B Total / 37B Active) | Dense 32B | Dense 22B |
+| **Min VRAM Requirement** | 16 GB (Q4_K_M) | 80 GB+ (Quantized) | 24 GB | 16 GB |
+| **Context Window** | 128k Tokens | 128k Tokens | 128k Tokens | 32k Tokens |
+| **AST-Aware Attention** | Native in 2.5 Dev | General Code Attention | Specialized | General Code Attention |
+| **FastMCP 3.1 Support** | Direct Task Schema Runner | Agent Protocol | Agent Protocol | Tool Calling Endpoint |
+| **Offline Performance** | Sub-100ms on Consumer GPU | Requires High-End Server | Medium Latency | Sub-200ms |
 
 ## Strengths
 - **Low Latency**: Highly optimized attention and routing mechanisms yield exceptional tokens-per-second (TPS) throughput.
@@ -87,6 +125,49 @@ curl http://localhost:8080/v1/chat/completions \
 
 ## API examples
 
+### FastMCP 3.1 Code Generation Tool Server
+This example demonstrates wrapping a local KatCoderAir endpoint inside a FastMCP 3.1 server to provide autonomous agents with offline code generation tools.
+
+```python
+from typing import Dict, Any
+from mcp.server.fastmcp import FastMCP
+from openai import OpenAI
+import json
+
+mcp = FastMCP("KatCoderAir-Code-Server")
+
+client = OpenAI(
+    base_url="http://localhost:8080/v1",
+    api_key="local-katcoder"
+)
+
+@mcp.tool()
+def generate_python_module(task_description: str, include_tests: bool = True) -> Dict[str, Any]:
+    """Generates clean, type-hinted Python code using local KatCoderAir v2.5."""
+    prompt = f"Write a complete Python module for: {task_description}."
+    if include_tests:
+        prompt += " Include pytest unit test cases at the end."
+
+    response = client.chat.completions.create(
+        model="katcoderair-v2.5",
+        messages=[
+            {"role": "system", "content": "You are KatCoderAir. Output production-ready Python code with clear docstrings."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.2
+    )
+
+    code_output = response.choices[0].message.content
+    return {
+        "status": "success",
+        "generated_code": code_output,
+        "model_used": "katcoderair-v2.5"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Python: local inference using llama-cpp-python
 ```python
 from llama_cpp import Llama
@@ -106,24 +187,6 @@ output = llm(
     echo=True
 )
 print(output["choices"][0]["text"])
-```
-
-### Local Endpoint integration with OpenAI-compatible client
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="http://localhost:8080/v1",
-    api_key="local"
-)
-
-completion = client.chat.completions.create(
-    model="katcoderair",
-    messages=[
-        {"role": "user", "content": "Refactor this code to use async/await."}
-    ]
-)
-print(completion.choices[0].message.content)
 ```
 
 ### Structured Output and Schema Validation (Pydantic v2)
@@ -170,6 +233,13 @@ except ValidationError as e:
 except Exception as e:
     print(f"API call to local KatCoderAir failed: {e}")
 ```
+
+## Operational Best Practices
+
+### VRAM & Quantization Tuning
+1. **Quantization Selection**: For consumer GPUs with 16GB VRAM (NVIDIA RTX 4080 / 5070), use `Q4_K_M` GGUF quantization. For Apple Silicon unified memory (32GB+ M-series Macs), use `Q8_0` or 16-bit MLX weights.
+2. **Context Shift Management**: Set `-c 16384` for IDE completion tasks. When analyzing multi-file codebases, enable context shifting (`--ctx-shift`) in llama.cpp to maintain high token throughput across multi-turn developer chat sessions.
+3. **MoE Offloading**: Ensure all MoE router gating layers and active experts are offloaded to GPU memory (`-ngl 99`) to eliminate CPU host-RAM transfer overhead during token generation.
 
 ## Related tools / concepts
 - [Local LLMs](../ai_knowledge/local_llms.md) — Standard overview of open weights models.

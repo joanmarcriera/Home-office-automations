@@ -3,6 +3,35 @@
 ## What it is
 Milvus is an open-source, high-performance vector database built for scalable similarity search and AI applications. Developed by Zilliz and hosted by the Linux Foundation (LF AI & Data), it is designed to manage, index, and search massive collections of vector embeddings. In January 2027, Milvus serves as the enterprise standard for "Agentic Memory" storage with multi-vector indexing, CAGRA GPU-accelerated indices, partition key routing, and native FastMCP 3.1 Task Protocol tool-calling connectivity.
 
+```
++-----------------------------------------------------------------------------------+
+|                           Milvus Cloud-Native Distributed Architecture            |
+|                                                                                   |
+|  +---------------------+    +----------------------+    +----------------------+  |
+|  | FastMCP 3.1 Client  |===>| Proxy Layer          |===>| Load Balancer        |  |
+|  | (Agentic Memory)    |    | (gRPC / REST Gateway)|    | (Session Router)     |  |
+|  +---------------------+    +----------------------+    +----------------------+  |
+|                                                                ||                 |
+|                                                                \/                 |
+|  +-----------------------------------------------------------------------------+  |
+|  |                             Worker Node Cluster                             |  |
+|  |                                                                             |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  |  | Query Nodes        |   | Data / Index Nodes  |   | GPU CAGRA Engine   |  |  |
+|  |  | (ANN Vector Search)|   | (Log Broker & Segs) |   | (NVIDIA Acceleration)| |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                ||                 |
+|                                                                \/                 |
+|  +-----------------------------------------------------------------------------+  |
+|  |                             Storage & State Tier                            |  |
+|  |  +------------------+     +-------------------+    +---------------------+  |  |
+|  |  | etcd (Metadata)  |     | MinIO / S3 (Data) |    | Pulsar/Kafka (WAL)  |  |  |
+|  |  +------------------+     +-------------------+    +---------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Traditional databases are not optimized for the high-dimensional vector data produced by machine learning models. Milvus provides a specialized engine that can perform approximate nearest neighbor (ANN) searches across billions of vectors with millisecond latency. It solves the challenge of scaling vector search from local prototypes to massive, distributed enterprise production environments, particularly for multi-agent systems requiring shared, real-time semantic memory across frontier reasoning models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, and Qwen 3.6 VL.
 
@@ -14,6 +43,17 @@ Traditional databases are not optimized for the high-dimensional vector data pro
 - **Agentic Memory**: Providing a persistent, searchable memory space for autonomous agents to store past observations and tool outputs.
 - **Multimodal Search**: Enabling search across different data types (text-to-image, image-to-video) using a shared vector space with Gemini 4.0 Ultra, Qwen 3.6 VL, or Claude 5.6.
 - **Molecular Similarity Search**: Used in drug discovery to find similar chemical structures with high-dimensional descriptors.
+
+## Vector Database Comparison
+
+| Feature | Milvus | Pinecone | Qdrant | Weaviate |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Open-Source / Self-Hosted / Cloud | Managed SaaS Only | Open-Source / Cloud | Open-Source / Cloud |
+| **GPU Acceleration** | Native CAGRA & HNSW-GPU | Proprietary Cloud | GPU Indexing (Beta) | Experimental |
+| **Multi-Vector Indexing** | First-Class Native Support | Single Dense + Sparse | Named Vectors | Multi-Vector |
+| **FastMCP 3.1 Integration**| Native Memory Gateway | Community Connector | Native Plugin | Custom Middleware |
+| **Partition Routing** | Dynamic Partition Keys | Namespace-Based | Payload Filters | Tenant Classes |
+| **Billion-Scale Latency**| < 5ms (CAGRA Index) | < 15ms | < 10ms | < 12ms |
 
 ## Strengths
 - **Massive Scalability**: Designed with a cloud-native, distributed architecture that can scale to tens of billions of vectors.
@@ -41,7 +81,7 @@ Traditional databases are not optimized for the high-dimensional vector data pro
 ### Installation (Milvus Lite)
 Ideal for local development and prototyping.
 ```bash
-pip install pymilvus
+pip install pymilvus mcp
 ```
 
 ### Basic Setup
@@ -65,6 +105,64 @@ milvus-cli list collections
 ```
 
 ## API examples
+
+### FastMCP 3.1 Agent Memory Tool Server
+This example demonstrates wrapping Milvus Lite in a FastMCP 3.1 server to provide autonomous agents with high-performance vector memory tools.
+
+```python
+from typing import List, Dict, Any
+from mcp.server.fastmcp import FastMCP
+from pymilvus import MilvusClient
+
+mcp = FastMCP("Milvus-Agent-Memory-Server")
+client = MilvusClient("agent_memory.db")
+
+COLLECTION_NAME = "agent_observations"
+
+# Ensure collection exists
+if not client.has_collection(COLLECTION_NAME):
+    client.create_collection(
+        collection_name=COLLECTION_NAME,
+        dimension=128,  # Standard embedding dimension
+        auto_id=True
+    )
+
+@mcp.tool()
+def store_observation(agent_id: str, observation: str, embedding: List[float]) -> str:
+    """Store an agent observation vector and metadata in Milvus."""
+    if len(embedding) != 128:
+        return "Error: Embedding vector must be 128 dimensions."
+
+    client.insert(
+        collection_name=COLLECTION_NAME,
+        data=[{"vector": embedding, "agent_id": agent_id, "observation": observation}]
+    )
+    return f"Observation stored successfully for agent '{agent_id}'."
+
+@mcp.tool()
+def recall_similar_memories(agent_id: str, query_vector: List[float], top_k: int = 3) -> List[Dict[str, Any]]:
+    """Retrieve top-K semantic memories for an agent from Milvus."""
+    results = client.search(
+        collection_name=COLLECTION_NAME,
+        data=[query_vector],
+        filter=f"agent_id == '{agent_id}'",
+        limit=top_k,
+        output_fields=["observation", "agent_id"]
+    )
+
+    memories = []
+    for hits in results:
+        for hit in hits:
+            memories.append({
+                "id": hit["id"],
+                "distance": float(hit["distance"]),
+                "observation": hit["entity"].get("observation", "")
+            })
+    return memories
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Programmatic Ingestion and Similarity Query Validation (Python + Pydantic v2)
 This example demonstrates how to interact with Milvus via `MilvusClient`, insert dynamic JSON metadata alongside vector embeddings, perform a filtered similarity search, and strictly validate the retrieved results against a **Pydantic v2** schema before routing the observation to an autonomous agent.
@@ -156,6 +254,13 @@ if __name__ == "__main__":
             print(f"  - Match [ID {item.id}] Distance: {item.distance:.4f}")
             print(f"    Task: {item.task} | Agent: {item.agent_id}")
 ```
+
+## Operational Best Practices
+
+### CAGRA GPU Indexing & Partition Routing
+1. **GPU Acceleration**: On NVIDIA H100 / L40S clusters, enable `GPU_CAGRA` index type for billion-scale collections. CAGRA provides graph-based ANN search optimized for massive parallel GPU memory bandwidth.
+2. **Partition Keys**: Assign `partition_key="agent_id"` during collection creation. Milvus uses partition key hashes to route queries directly to relevant data segments, avoiding full collection scans across tens of millions of records.
+3. **MMap Data Storage**: For memory-constrained nodes, configure `mmap.enabled=true` on scalar and vector fields to offload segment files to local NVMe storage without triggering OOM (Out Of Memory) kernel panics.
 
 ## Related tools / concepts
 - [Pinecone](pinecone.md) — managed cloud-native vector database.

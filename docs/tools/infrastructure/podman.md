@@ -5,6 +5,26 @@ Podman (Pod Manager) is a daemonless, open-source Linux container engine designe
 
 By leveraging native Linux kernel features—such as user namespaces, cgroups v2, SELinux, and Seccomp—Podman enables rootless container execution where unprivileged users can build, run, and manage isolated workloads without administrative privileges.
 
+```
++-----------------------------------------------------------------------------------+
+|                       Podman Daemonless User Namespace Sandbox Topology           |
+|                                                                                   |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|  | Unprivileged User  |===>| Podman CLI / Libpod  |===>| SubUID / SubGID Map   |  |
+|  | (Host Non-Root)    |    | (Direct Fork/Exec)   |    | (Kernel User Namespace)| |  |
+|  +--------------------+    +----------------------+    +-----------------------+  |
+|                                                                    ||             |
+|                                                                    \/             |
+|  +-----------------------------------------------------------------------------+  |
+|  |                         Conmon Container Monitor                            |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  |  | OCI Runtime (crun) |   | FastMCP 3.1 Sandbox |   | SELinux / Seccomp  |  |  |
+|  |  | (Process Isolation)|   | (Isolated Code Run) |   | (Label Enforcer)   |  |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Traditional container runtimes rely on a centralized, root-privileged daemon process (e.g., `dockerd`), which introduces significant security vulnerabilities, single-point-of-failure risks, and administrative friction in enterprise and multi-tenant environments. A compromise of the Docker daemon grants attackers full root access to the host operating system.
 
@@ -13,25 +33,22 @@ Podman solves this security risk by adopting a daemonless architecture. Containe
 ## Where it fits in the stack
 **Infrastructure / Container Runtime**. It serves as an enterprise-grade container runtime for local development, secure AI agent sandboxing, rootless container deployments, edge devices, and Kubernetes-compatible local pod execution.
 
-```mermaid
-graph TD
-    User[Unprivileged Host User] -->|podman CLI / SDK| Podman[Podman Engine / Libpod]
-
-    subgraph Rootless User Namespace
-        Podman -->|Fork / Exec Process| ConMon[Conmon Monitor Process]
-        ConMon -->|OCI Runtime| OCI[crun / runc]
-        OCI -->|Isolated Container| Sandbox[Container / FastMCP Sandbox]
-    end
-
-    Sandbox -->|Restricted Access| Host[Host Storage & Network]
-    Systemd[Host Systemd Service] -->|Manage Process| ConMon
-```
-
 ## Typical use cases
 - **Rootless Container Execution**: Running secure, isolated workloads in multi-tenant environments and corporate workstations without granting root privileges.
 - **AI Agent Sandboxing**: Executing untrusted AI code, FastMCP tool servers, or dynamic code interpreters inside non-root containers with strict SELinux and Seccomp profiles.
 - **Kubernetes Pod Simulation**: Creating, testing, and exporting local Kubernetes-compatible pods (`podman generate kube` and `podman play kube`) prior to cluster deployment.
 - **Systemd Service Integration**: Managing containerized home-lab services as native systemd unit files (`podman generate systemd` or systemd quadlets).
+
+## Container Runtime Comparison
+
+| Feature | Podman | Docker Engine | Containerd | Finch |
+| :--- | :--- | :--- | :--- | :--- |
+| **Daemon Architecture** | Daemonless (Process-Based) | Central Root Daemon (`dockerd`)| Central Daemon (`containerd`) | Daemonless Wrapper |
+| **Rootless Native Security**| First-Class Kernel Namespaces | Optional Rootless Mode | High Setup Overhead | Native in VM Layer |
+| **Native Pod Support** | Direct `podman pod` Engine | Requires Docker Compose | K8s CRI Only | Limited |
+| **Systemd Quadlet Support**| Native Declarative Unit Files | None (Requires Compose) | Systemd Units | None |
+| **FastMCP 3.1 Sandboxing** | Zero-Root Air-Gapped Runner | Socket-Exposed Runner | Production K8s Runner | Desktop Runner |
+| **Kubernetes Compatibility**| Direct `play kube` Manifests | Requires Kind / Minikube | Native K8s CRI Engine | Native K8s Support |
 
 ## Strengths
 - **Daemonless Architecture**: Directly executes containers as child processes, improving auditing, process isolation, and system reliability.
@@ -101,27 +118,16 @@ podman play kube ai-pod.yaml
 
 ## API examples
 
-### 1. Connecting to Podman REST API via Python SDK
-```python
-# Connecting to Podman REST API service via podman-py SDK
-import podman
+### FastMCP 3.1 Rootless Containerized Execution Tool Server
+This example demonstrates a FastMCP 3.1 tool server executing LLM-generated Python code safely inside an air-gapped, rootless Podman sandbox container.
 
-# Establish connection with user-level Podman Unix socket
-client = podman.PodmanClient(base_url="unix:///run/user/1000/podman/podman.sock")
-
-# List active containers
-containers = client.containers.list()
-print("Active containers:", [c.name for c in containers])
-```
-
-### 2. FastMCP 3.1 Containerized Sandbox Execution Tool
 ```python
 from typing import Dict, Any
 from mcp.server.fastmcp import FastMCP
 import subprocess
 import json
 
-mcp = FastMCP("podman-sandbox-runner")
+mcp = FastMCP("Podman-Sandbox-Server")
 
 @mcp.tool()
 def execute_in_podman_sandbox(code: str, language: str = "python") -> Dict[str, Any]:
@@ -131,9 +137,10 @@ def execute_in_podman_sandbox(code: str, language: str = "python") -> Dict[str, 
 
     cmd = [
         "podman", "run", "--rm",
-        "--network", "none",  # Air-gapped network isolation
-        "--memory", "512m",   # RAM limit
-        "--cpus", "1.0",      # CPU cap
+        "--network", "none",   # Air-gapped network isolation
+        "--memory", "512m",    # RAM limit
+        "--cpus", "1.0",       # CPU cap
+        "--security-opt", "no-new-privileges",
         "python:3.11-slim",
         "python3", "-c", code
     ]
@@ -155,7 +162,20 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### 3. Pydantic v2 Schema for Podman Container Manifest
+### Programmatic REST API Connection via Python SDK
+```python
+# Connecting to Podman REST API service via podman-py SDK
+import podman
+
+# Establish connection with user-level Podman Unix socket
+client = podman.PodmanClient(base_url="unix:///run/user/1000/podman/podman.sock")
+
+# List active containers
+containers = client.containers.list()
+print("Active containers:", [c.name for c in containers])
+```
+
+### Pydantic v2 Schema for Podman Container Manifest
 ```python
 from typing import List, Dict, Optional
 from pydantic import BaseModel, ConfigDict, Field
@@ -186,6 +206,13 @@ if __name__ == "__main__":
     )
     print("Podman Container Spec Validated:\n", spec.model_dump_json(indent=2))
 ```
+
+## Operational Best Practices
+
+### Rootless Storage & Systemd Quadlets
+1. **SubUID/SubGID Mapping**: Verify that `/etc/subuid` and `/etc/subgid` assign a range of at least 65,536 subordinate IDs to your non-root user account (e.g., `jules:100000:65536`).
+2. **Systemd Quadlets**: Store container unit definitions in `~/.config/containers/systemd/my-service.container`. Quadlet automatically generates native systemd units without requiring manual `podman generate systemd` commands.
+3. **SELinux Volume Relabeling**: When mounting host directories into rootless containers on SELinux-enforced Linux systems (Fedora/RHEL), append `:z` (shared) or `:Z` (private) flags to volume bind parameters (e.g., `-v /data/app:/app:Z`).
 
 ## Related tools / concepts
 - **[Docker](docker.md)**: Classical container engine runtime.

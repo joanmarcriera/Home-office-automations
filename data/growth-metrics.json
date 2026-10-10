@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/braintrust.md",
-    "docs/tools/providers/katcoderair.md",
-    "docs/tools/infrastructure/milvus.md",
-    "docs/tools/process_understanding/prometheus.md",
-    "docs/tools/infrastructure/podman.md",
     "docs/tools/providers/mistral.md",
     "docs/services/whisper.md",
     "docs/tools/process_understanding/webhook.md",
@@ -40,7 +35,12 @@
     "docs/tools/orchestration/apache-airflow.md",
     "docs/tools/development_ops/devin.md",
     "docs/services/nextcloud.md",
-    "docs/tools/infrastructure/klq.md"
+    "docs/tools/infrastructure/klq.md",
+    "docs/tools/infrastructure/text-generation-webui.md",
+    "docs/tools/calendar_tasks/google_calendar.md",
+    "docs/services/headscale.md",
+    "docs/tools/automation_orchestration/pulse-mcp.md",
+    "docs/tools/ai_knowledge/lobehub.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

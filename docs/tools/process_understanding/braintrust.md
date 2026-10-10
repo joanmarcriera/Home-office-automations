@@ -5,6 +5,27 @@ Braintrust is an enterprise-grade platform for evaluating, logging, and continuo
 ## What it is
 Braintrust is a developer-first AI evaluation and observability platform that combines interactive playground evaluation, high-fidelity agentic tracing, dataset management, and dynamic prompt versioning into a unified workflow. Featuring ergonomic Python and TypeScript SDKs, it transitions AI engineering from heuristic prompt tweaking to data-driven, quantitative software development. It features native support for **FastMCP 3.1**, allowing autonomous agents to automatically stream reasoning steps, tool invocations, and state transitions directly to nested Braintrust trace spans.
 
+```
++-----------------------------------------------------------------------------------+
+|                            Braintrust Observability Stack                         |
+|                                                                                   |
+|  +--------------------+    +-----------------------+    +----------------------+  |
+|  | Multi-Agent Swarm  |===>| FastMCP 3.1 Telemetry |===>| Braintrust SDK       |  |
+|  | (Reasoning Chains) |    | (Spans & Callbacks)   |    | (Trace Serializer)   |  |
+|  +--------------------+    +-----------------------+    +----------------------+  |
+|                                                                    ||             |
+|                                                                    \/             |
+|  +-----------------------------------------------------------------------------+  |
+|  |                         Braintrust Cloud / Enterprise                       |  |
+|  |                                                                             |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  |  | Trace Store & UI   |   | LLM-as-a-Judge      |   | Prompt Registry    |  |  |
+|  |  | (Nested Spans)     |   | (Automated Scorers) |   | (Dynamic Version)  |  |  |
+|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Non-deterministic AI agent failures present a primary engineering hurdle in production. Braintrust eliminates "black box" agent behavior by capturing every decision boundary, tool call, and state transition in structured, nested traces. This enables developers to pinpoint non-deterministic reasoning failures, catch regressions before deployment, and debug long-running autonomous workflows that would otherwise fail silently.
 
@@ -17,6 +38,17 @@ Non-deterministic AI agent failures present a primary engineering hurdle in prod
 - **Prompt Registry & Dynamic Deployment**: Managing prompt versions as code and deploying them dynamically with zero-downtime rollbacks and A/B testing.
 - **Production-to-Eval Datasets**: Automatically capturing low-confidence production traces and promoting them to evaluation sets for model fine-tuning.
 - **Cost & Latency Optimization**: Benchmark token expenditures, response latencies, and accuracy across provider models (e.g., comparing local **Gemma 3** / **DeepSeek-V4** vs. cloud Claude 5.1).
+
+## Observability Platform Comparison
+
+| Feature | Braintrust | Arize Phoenix | Comet Opik | Promptfoo |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | E2E Evaluation & Agent Tracing | ML Observability & Embeddings | Open-Source Tracing & Datasets | CLI Prompt Security & Red-Teaming |
+| **FastMCP 3.1 Support** | Native Task Spans & Context | Manual Span Mapping | Callback Handler | Test Suite Assertions |
+| **Prompt Registry** | Enterprise Dynamic Versioning | Read-Only Config | Local Config Files | File-Based Config |
+| **LLM-as-a-Judge** | Real-Time Production Streams | Offline / Batch Processing | Custom Scorer Functions | Assertion Rules Engine |
+| **Deployment Options** | SaaS / Private Cloud | Open-Source / SaaS | Open-Source / SaaS | CLI / Local Node.js |
+| **CI/CD Integration** | First-Class SDK & GitHub Actions | Batch API | Python Test Runner | Native CLI Matrix Runner |
 
 ## Strengths
 - **Developer-First Ergonomics**: Native Python and TypeScript SDKs designed for seamless integration with build tools and CI/CD pipelines.
@@ -44,7 +76,7 @@ Non-deterministic AI agent failures present a primary engineering hurdle in prod
 Install the Braintrust Python SDK alongside Pydantic v2:
 
 ```bash
-pip install braintrust pydantic
+pip install braintrust pydantic mcp
 ```
 
 Initialize project logging and record a basic evaluation event:
@@ -86,7 +118,60 @@ bt eval --file evals/test_agent_reasoning.py
 
 ## API examples
 
-### Python: Asynchronous Nested Tracing with Pydantic v2 & FastMCP 3.1
+### FastMCP 3.1 Agent Tool Execution Tracing
+This example demonstrates how an autonomous agent powered by FastMCP 3.1 decorates tool calls and reasoning tasks with Braintrust tracing spans.
+
+```python
+import asyncio
+from typing import Dict, Any, List
+from pydantic import BaseModel, Field, ValidationError
+from braintrust import init_logger, traced, current_span
+from mcp.server.fastmcp import FastMCP
+
+# Initialize Braintrust logger for FastMCP 3.1 tool server
+init_logger(project="fastmcp-braintrust-observability")
+
+mcp = FastMCP("Braintrust-Observed-Server")
+
+class FastMCPToolTrace(BaseModel):
+    tool_name: str = Field(..., description="Name of the invoked MCP tool")
+    params: Dict[str, Any] = Field(default_factory=dict, description="Parameters passed to tool")
+    execution_time_ms: float = Field(..., ge=0.0, description="Latency in ms")
+    status: str = Field(default="success", description="Execution outcome")
+
+@mcp.tool()
+@traced
+def search_knowledge_base(query: str, top_k: int = 5) -> str:
+    """FastMCP tool with native Braintrust trace span logging."""
+    span = current_span()
+    span.log(
+        input={"query": query, "top_k": top_k},
+        metadata={"mcp_protocol": "3.1", "tool": "search_knowledge_base"}
+    )
+
+    # Simulated search execution
+    result_text = f"Found top {top_k} documents matching query: '{query}'"
+
+    trace_data = FastMCPToolTrace(
+        tool_name="search_knowledge_base",
+        params={"query": query, "top_k": top_k},
+        execution_time_ms=45.2,
+        status="success"
+    )
+
+    span.log(
+        output=result_text,
+        metrics={"latency_sec": trace_data.execution_time_ms / 1000.0}
+    )
+    return result_text
+
+if __name__ == "__main__":
+    print("Executing traced FastMCP tool...")
+    res = search_knowledge_base("FastMCP 3.1 architecture guidelines")
+    print("Result:", res)
+```
+
+### Python: Asynchronous Nested Tracing with Pydantic v2 & Validation
 This example demonstrates logging nested agent execution spans and validating trace payloads using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`).
 
 ```python
@@ -161,6 +246,17 @@ sample_step = {
 
 asyncio.run(execute_agent_workflow("Fetch history for user usr-889", sample_step))
 ```
+
+## Operational Best Practices
+
+### Context Window & Trace Sampling
+When monitoring production autonomous agents executing hundreds of sub-agent tool invocations per session, logging full text prompts for every span can consume significant storage. Implement head-based or tail-based trace sampling:
+1. **Always Log Errors**: Retain 100% of traces where `status == 'error'` or validation exceptions are raised.
+2. **Sample Nominal Traces**: Sample successful nominal tool calls at 5–10% to preserve evaluation quota and dashboard performance.
+3. **Mask Sensitive Payload Fields**: Use Pydantic field validators or custom Braintrust middleware to strip API tokens, password hashes, and personally identifiable information (PII) before span serialization.
+
+### Continuous Evaluation in CI/CD
+Integrate `bt eval` directly into GitHub Actions or GitLab CI. Fail build pipelines if the LLM-as-a-Judge correctness score falls below configured baseline thresholds (e.g., 0.90) on the Golden Set evaluation dataset.
 
 ## Related tools / concepts
 - [Arize AI](./arize-ai.md) — Enterprise ML observability and Phoenix LLM tracing platform.
