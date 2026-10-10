@@ -9,10 +9,42 @@ Managing a household involves tracking disparate information across calendars, t
 ## Where it fits in the stack
 This prompt is part of the **AI Service** layer. It is typically executed by an LLM node (such as **Ollama**, **GPT-5.6**, **Claude 5.6**, **Qwen 3.6 VL**, **Gemma 4**, or **Gemini 4.0 Ultra**) within an **Orchestration** workflow (n8n), consuming data from the **Productivity** (Calendar/Tasks) and **Environmental** (Weather) layers. Modern integrations utilize the **Model Context Protocol (MCP) 3.1** and **FastMCP 3.1** to provide real-time, secure access to these data sources.
 
+```
++-----------------------------------------------------------------------------------+
+|                            HOUSEHOLD DATA SOURCES                                 |
+|   (Google Calendar, Vikunja Tasks, OpenWeatherMap, Immich Photos, Home Assistant) |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        ORCHESTRATION & DATA AGGREGATION                           |
+|                      (n8n Workflow / OpenClaw / FastMCP 3.1)                      |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          LLM SYNTHESIS & PROMPT ENGINE                            |
+|             (Claude 5.6, GPT-5.6, Local Ollama Gemma 4 / Llama 4)                |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          STRUCTURED OUTPUT VALIDATION                             |
+|                        (Pydantic v2 Schema Enforcement)                           |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           NOTIFICATION & DELIVERY LAYER                           |
+|                 (Telegram Bot, Discord Webhook, Gotify, Email / SMTP)              |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Morning Routine Automation**: Sending a briefing at 07:00 AM every morning.
 - **Conflict Resolution**: Identifying and alerting the family if two members have overlapping commitments.
 - **Activity Planning**: Using the weather summary to suggest outdoor vs. indoor activities for the day's tasks.
+- **School & Chore Coordination**: Alerting parents to bring signed field trip permission slips or specific gear.
 
 ## Strengths
 - **Centralization**: Consolidates multiple data sources into one location.
@@ -34,9 +66,17 @@ This prompt is part of the **AI Service** layer. It is typically executed by an 
 - If you have concerns about sharing personal calendar data with external LLM providers (use a local [Ollama](../../services/ollama.md) instance instead).
 - If your source systems (Calendar/Tasks) are not consistently updated.
 
+## Daily Briefing LLM Execution Modes Comparison
+
+| Execution Mode | Privacy Level | Response Latency | Cost per Briefing | Hardware Requirements | Reliability |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Local Ollama (Gemma 4 / Llama 4)** | 100% Private (On-Prem) | Medium (1.5 - 3.5s) | $0.00 | 16GB+ RAM / Local GPU | High (No Internet Dep) |
+| **Cloud Frontier (Claude 5.6 / GPT-5.6)** | Cloud Processed | Fast (0.4 - 1.2s) | ~$0.002 | Low (API Key Only) | High (Requires API) |
+| **Hybrid Edge (Local Embeddings + API)** | Partial Privacy | Fast (0.8 - 1.8s) | ~$0.001 | 8GB+ RAM | High |
+
 ## Getting started
 To implement the Family Daily Briefing:
-1. Ensure your household data sources (Google Calendar, Vikunja, OpenWeatherMap) are accessible via n8n.
+1. Ensure your household data sources (Google Calendar, Vikunja, OpenWeatherMap) are accessible via n8n or FastMCP 3.1.
 2. Use the **Aggregate** node in n8n to combine the data into a single JSON object.
 3. Pass this object into the LLM prompt template provided below.
 
@@ -76,6 +116,62 @@ You can test the synthesis logic using the `ollama` CLI with a local model.
 ```bash
 # Testing the briefing with Ollama and Gemma 4
 ollama run gemma-4 "Prepare a family briefing for 2027-01-07. Weather: Sunny, 25C. Tasks: Buy milk, Fix sink. Events: Dentist at 2PM."
+
+# Execute n8n CLI workflow triggering daily briefing generation
+n8n execute --id=Workflow_Family_Briefing_01 --output=json
+```
+
+## FastMCP 3.1 Daily Briefing MCP Server Integration
+
+The following Python script implements a FastMCP 3.1 server exposing tools to compile calendar events and tasks into a daily briefing object:
+
+```python
+import os
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "Family-Briefing-Server",
+    version="3.1.0",
+    description="FastMCP 3.1 Server for Household Data Aggregation and Briefing Generation"
+)
+
+class EventItem(BaseModel):
+    title: str
+    start_time: str
+    owner: str
+
+class TaskItem(BaseModel):
+    task_name: str
+    priority: str
+    due_today: bool
+
+class BriefingDataPayload(BaseModel):
+    date_str: str
+    weather_text: str
+    events: List[EventItem]
+    tasks: List[TaskItem]
+
+@mcp.tool(description="Fetch aggregated household data for today's daily briefing")
+def fetch_daily_data(date_str: str) -> Dict[str, Any]:
+    """Retrieves mock calendar and task data for household briefing."""
+    payload = BriefingDataPayload(
+        date_str=date_str,
+        weather_text="Partly cloudy, 18°C",
+        events=[
+            EventItem(title="Dentist Appointment", start_time="14:00", owner="Mom"),
+            EventItem(title="Soccer Practice", start_time="17:00", owner="Kids")
+        ],
+        tasks=[
+            TaskItem(task_name="Submit permission slip", priority="High", due_today=True),
+            TaskItem(task_name="Fix kitchen sink", priority="Medium", due_today=False)
+        ]
+    )
+    return payload.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -163,6 +259,16 @@ if __name__ == "__main__":
     """
     asyncio.run(generate_and_validate_briefing(sample_llm_output))
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### 1. Handling Missing Data Gracefully
+- **Fallbacks for Failed Feeds**: If the weather API or photo vault times out, set default fallback strings (e.g., `"Weather unavailable"`) rather than letting the entire n8n workflow halt.
+- **Calendar Timezone Normalization**: Always force UTC or explicit local timezone conversions (e.g., `America/New_York`) in n8n nodes before passing ISO timestamps to the LLM.
+
+### 2. Output Formatting & Channel Optimization
+- **Telegram/Discord Markdown Differences**: Markdown syntax varies across messaging platforms (e.g., Telegram uses single asterisks for bold in legacy mode, or HTML tags). Use platform-specific formatting nodes in n8n.
+- **Conciseness Guarantees**: Enforce strict length limits in system prompts (e.g., "Maximum 250 words total") to prevent mobile chat notification truncation.
 
 ## Related tools / concepts
 - [Google Calendar](../../tools/calendar_tasks/google_calendar.md): Primary data source for the schedule.

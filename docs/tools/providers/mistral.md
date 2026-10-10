@@ -9,6 +9,33 @@ Mistral provides a high-performance, efficient alternative to American providers
 ## Where it fits in the stack
 **LLM Provider** and **Agent Platform**. Mistral sits at the foundational layer of the AI stack, providing core reasoning engines and local weights that power enterprise workflows. It operates alongside GPT-5.5/5.6, Claude 5.1, Gemini 4.0 Pro/Ultra, and DeepSeek-V4, particularly in high-throughput enterprise routing and local sovereign deployment scenarios.
 
+```
++-----------------------------------------------------------------------------------+
+|                           MISTRAL AGENTIC ECOSYSTEM                               |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        MISTRAL MCP CONNECTOR & FASTMCP 3.1                        |
+|        (Model Context Protocol Bridges, Tool Calling, Resource Servers)           |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                         FOUNDATIONAL MODEL SUITE (2027)                           |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
+|  | Mistral Large 3.5  |  | Mixtral 8x22B v2   |  | Codestral v2 / Devstral     |  |
+|  | (Frontier Cloud)   |  | (Open MoE Weights) |  | (Specialized Coding Agent)  |  |
+|  +--------------------+  +--------------------+  +-----------------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                       DEPLOYMENT & INFERENCE TARGETS                              |
+|         (Mistral La Platform Cloud / On-Prem vLLM, Ollama, TensorRT-LLM)          |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Agentic Workflows**: Powering multi-agent networks that execute web search, sandboxed code, and FastMCP 3.1 tools.
 - **Local Deployment**: Running Mixtral 8x22B or Mistral NeMo 12B on-premises for maximum data privacy and zero network latency.
@@ -26,6 +53,16 @@ Mistral provides a high-performance, efficient alternative to American providers
 - **API Call Latency**: Larger MoE models (e.g., Mistral Large 3.5) require specialized hosting pipelines to match the extreme low latency of hardware like Groq LPUs.
 - **Fine-Tuning Complexity**: Mixture-of-Experts architectures require specialized distributed training pipelines (e.g., Megatron-LM or DeepSpeed) compared to dense models.
 - **Prompt Caching Support**: Proprietary cache management systems are highly customized, requiring specific API headers compared to standard OpenAI configurations.
+
+## Mistral Model Selection Matrix (2027)
+
+| Model Name | Type | Key Capabilities | Deployment Mode | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Mistral Large 3.5** | Commercial MoE | Frontier Reasoning, Complex MCP Tool Calling | Mistral Cloud API | High-complexity Enterprise Agents |
+| **Mixtral 8x22B v2** | Open Weights MoE | High Throughput, GDPR On-Prem Sovereignty | Local vLLM / Ollama | Self-Hosted Enterprise Core |
+| **Codestral v2** | Commercial Code | Code Generation, Refactoring, Syntax Trees | API / Specialized Endpoints | Autonomous Coding & IDE Extensions |
+| **Pixtral Large** | Multi-Modal MoE | High-Res PDF, Chart & Image Reasoning | Cloud API / On-Prem | Visual Document Analytics |
+| **Mistral NeMo 12B** | Open Weights Dense | Low Footprint, 128k Context Window | Edge / Desktop Hardware | Lightweight Agent Harnesses |
 
 ## When to use it
 - When GDPR compliance or strict European data sovereignty is an absolute business mandate.
@@ -89,6 +126,49 @@ curl https://api.mistral.ai/v1/embeddings \
     "model": "mistral-embed",
     "input": ["Grounding data for vector search."]
   }'
+```
+
+## FastMCP 3.1 Mistral Integration Pattern
+
+The following Python script illustrates how to build a FastMCP 3.1 tool server that routes tool requests through Mistral Large 3.5:
+
+```python
+import os
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+from mistralai import Mistral
+
+mcp = FastMCP(
+    "Mistral-Agent-Server",
+    version="3.1.0",
+    description="FastMCP 3.1 Server for Mistral Model Execution and Sovereign Tool Calling"
+)
+
+class TranslationRequest(BaseModel):
+    source_text: str = Field(..., description="Text to translate")
+    target_language: str = Field(..., description="Target language code (e.g. FR, DE, ES)")
+
+class TranslationResult(BaseModel):
+    translated_text: str
+    detected_source: str
+    model_used: str
+
+@mcp.tool(description="Translate text securely using European sovereign Mistral model")
+def sovereign_translate(source_text: str, target_language: str) -> Dict[str, Any]:
+    """Translates source text using Mistral Large API."""
+    client = Mistral(api_key=os.environ.get("MISTRAL_API_KEY", "mock_key"))
+
+    # In real execution: client.chat.complete(...)
+    result = TranslationResult(
+        translated_text=f"[Mistral Translated to {target_language}]: {source_text}",
+        detected_source="EN",
+        model_used="mistral-large-3.5"
+    )
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -167,6 +247,15 @@ def validate_mistral_response(raw_json: str) -> Optional[MistralResponse]:
         print("Error: Invalid JSON.")
         return None
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### 1. MoE Hardware Acceleration & Memory Sizing
+- **VRAM Allocation for Local Mixtral 8x22B**: Self-hosting Mixtral 8x22B in FP16 requires ~260GB VRAM (e.g., 4x A100 80GB or 8x RTX 4090 24GB). For cost-constrained environments, use AWQ or GGUF Q4_K_M quantization to fit within 2x RTX 4090 GPUs.
+- **vLLM MoE Optimization Flags**: When launching vLLM with Mixtral models, pass `--enable-chunked-prefill` and `--tensor-parallel-size` matching your GPU count to optimize token generation speeds.
+
+### 2. GDPR Data Residency Configs
+- **Explicit EU Endpoint Enforcement**: Ensure all client requests target Mistral's sovereign EU infrastructure (`https://api.mistral.ai/v1`) and configure enterprise zero-data-retention headers in the API portal.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local runner for Mistral and Mixtral models.
