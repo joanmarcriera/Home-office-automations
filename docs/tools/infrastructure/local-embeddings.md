@@ -3,17 +3,41 @@
 ## What it is
 Local Embedding Models refer to offline, open-weights text and multimodal representation models (such as `nomic-embed-text-v1.5`, `bge-m3`, `gte-Qwen2`, and `all-MiniLM-L6-v2`) executed directly on local compute hardware (CPU, GPU, or Apple Silicon via Ollama, llama.cpp, or Sentence-Transformers) without external API dependencies.
 
-```mermaid
-graph TD
-    A[Raw Documents: PDF / Markdown / Scans] --> B[Text Chunking & Preprocessing]
-    B --> C{Local Runtime Host}
-    C -->|Ollama / REST API| D[Ollama Execution Engine]
-    C -->|ONNX Runtime / PyTorch| E[Sentence-Transformers Pipeline]
-    D --> F[Local Model Weights: nomic-embed / bge-m3]
-    E --> F
-    F -->|Dense Vector Generation| G[Normalized Dense Vectors]
-    G --> H[Local Vector Stores: Qdrant / LanceDB / Chroma]
-    H --> I[FastMCP 3.1 RAG Tooling & Agent Context]
+## System Architecture
+
+```
+  +-------------------------------------------------------------------------+
+  |              Raw Documents: PDFs / Markdown / Web Scrapes               |
+  +-------------------------------------------------------------------------+
+                                       |
+                                       v
+  +-------------------------------------------------------------------------+
+  |                     Text Chunking & Preprocessing                       |
+  +-------------------------------------------------------------------------+
+                                       |
+                                       v
+  +-------------------------------------------------------------------------+
+  |                      Local Runtime Host / Engine                        |
+  |    (Ollama / llama.cpp / ONNX Runtime / PyTorch Sentence-Transformers)  |
+  +-------------------------------------------------------------------------+
+                                       |
+                                       v
+  +-------------------------------------------------------------------------+
+  |               Local Embedding Models (Dense Vector Generator)           |
+  |     (nomic-embed-text-v1.5 / BAAI bge-m3 / gte-Qwen2 / all-MiniLM)       |
+  +-------------------------------------------------------------------------+
+                                       |
+                                       v
+  +-------------------------------------------------------------------------+
+  |            Normalized Dense Vector Output (L2-Norm Sliced)              |
+  |                 (384-dim / 512-dim / 768-dim / 1024-dim)                |
+  +-------------------------------------------------------------------------+
+                                       |
+                                       v
+  +-------------------------------------------------------------------------+
+  |         Local Vector Database Storage & FastMCP 3.1 RAG Tools           |
+  |                 (Qdrant / LanceDB / Chroma / FastMCP)                   |
+  +-------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -21,6 +45,15 @@ Traditional cloud RAG architectures rely on remote embedding APIs (such as OpenA
 
 ## Where it fits in the stack
 **Infrastructure / AI Knowledge**. Local embedding models form the fundamental representation tier of offline RAG pipelines, serving as the bridge between document chunking (in Paperless-ngx, Obsidian, or Docling) and vector database storage (in ChromaDB, Qdrant, or LanceDB).
+
+## Model Family & Execution Backend Comparison
+
+| Model Name | Native Dimensions | Max Context Length | License | Recommended Runtime | Primary Strengths |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **nomic-embed-text-v1.5** | 768 (Matryoshka to 256) | 8192 tokens | Apache 2.0 | Ollama / llama.cpp | Long-context document indexing, MRL slicing |
+| **BAAI bge-m3** | 1024 | 8192 tokens | MIT | Sentence-Transformers / ONNX | Multi-lingual (100+ languages), Multi-vector retrieval |
+| **GTE-Qwen2-7B-instruct** | 3584 | 32768 tokens | Apache 2.0 | vLLM / PyTorch | High-accuracy code search, complex math reasoning |
+| **all-MiniLM-L6-v2** | 384 | 512 tokens | Apache 2.0 | ONNX Runtime CPU | Ultra-lightweight CPU inference, minimal memory footprint |
 
 ## Architecture & Technical Deep Dive
 Local embedding architectures convert textual tokens into dense mathematical representations (typically 384 to 1024 float32 dimensions) through transformer encoder backends:
@@ -54,6 +87,23 @@ Local embedding architectures convert textual tokens into dense mathematical rep
 ## When not to use it
 - When operating under extreme resource constraints with no RAM/VRAM capacity for model inference.
 - When cloud API embeddings are explicitly mandated by remote host agreements.
+
+## Operational Best Practices & L2 Vector Normalization
+
+### Python Vector Normalization and Matryoshka Truncation
+Ensuring generated local vectors are properly L2-normalized for cosine distance calculation:
+
+```python
+import numpy as np
+
+def process_matryoshka_vector(vector: list[float], target_dim: int = 256) -> list[float]:
+    """Truncates high-dimensional vector and applies L2 normalization."""
+    truncated = np.array(vector[:target_dim], dtype=np.float32)
+    norm = np.linalg.norm(truncated)
+    if norm > 0:
+        truncated = truncated / norm
+    return truncated.tolist()
+```
 
 ## Getting started
 To run local embedding models via Ollama or Sentence-Transformers:

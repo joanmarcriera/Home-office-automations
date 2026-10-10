@@ -3,11 +3,50 @@
 ## What it is
 Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **early January 2027**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
 
+## System Architecture
+
+```
+  +-----------------------+     +-----------------------+     +-----------------------+
+  |  Google Calendar API  |     |   Microsoft Outlook   |     |    CalDAV / Radicale  |
+  +-----------------------+     +-----------------------+     +-----------------------+
+              |                             |                             |
+              v                             v                             v
+  +-----------------------------------------------------------------------------------+
+  |               Chronos MCP / Multi-Calendar Ingestion Engine                       |
+  +-----------------------------------------------------------------------------------+
+                                            |
+                                            v
+  +-----------------------------------------------------------------------------------+
+  |               Normalizer & Interval Tree Overlap Resolution Matrix                |
+  +-----------------------------------------------------------------------------------+
+                                            |
+                                            v
+  +-----------------------------------------------------------------------------------+
+  |               Agentic Negotiator (Claude 5.6 / FastMCP 3.1 Server)                |
+  |     (Hard vs. Soft Conflict Evaluation & Automated Alternative Slot Discovery)    |
+  +-----------------------------------------------------------------------------------+
+                                            |
+                                            v
+  +-----------------------------------------------------------------------------------+
+  |            User Action Checkpoint / Notification (n8n / Home Assistant)            |
+  +-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It prevents double-booking and "calendar sprawl" by providing a unified, unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Pattern. It informs the logic layer of automation platforms like [n8n](../services/n8n.md) and [Home Assistant](../services/home-assistant.md). It serves as the primary data ingestion strategy for AI scheduling agents and "Focus Time" optimizers.
+
+## Calendar Sync & Conflict Engine Comparison
+
+| Capability / Metric | FastMCP 3.1 Chronos | Motion AI | Reclaim.ai | Native GCal / Outlook |
+| :--- | :--- | :--- | :--- | :--- |
+| **Protocol Support** | CalDAV, Google Graph, Outlook REST | Google, Outlook API | Google, Outlook API | Proprietary Protocols |
+| **Conflict Resolution** | Agentic Negotiator (Claude 5.6) | Automated Task Shifting | Flexible Time Buffers | Manual User Selection |
+| **Privacy Protection** | Local Zero-Knowledge Free/Busy | SaaS Cloud Sync | SaaS Cloud Sync | Account Isolation |
+| **Hard vs. Soft Rules** | Configurable Pydantic v2 Constraints | Fixed Priority Score | Habit & Focus Guards | None |
+| **FastMCP Integration** | Native FastMCP 3.1 Tool Server | Third-Party Webhooks | API Key Auth | Native Platform Only |
 
 ## Typical use cases
 - **Multi-Account Coordination**: Automatically blocking "Personal" time on a work calendar when a family event is added.
@@ -26,6 +65,29 @@ It prevents double-booking and "calendar sprawl" by providing a unified, unified
 - **Sync Latency**: Changes made in one calendar may take several minutes to propagate through the orchestration layer.
 - **Complex Recurring Logic**: Handling complex recurrence rules (e.g., "third Thursday of the month") across different implementations remains challenging.
 - **Authorization Complexity**: Managing OAuth tokens and CalDAV credentials for multiple users requires robust secret management.
+
+## Operational Best Practices & Interval Tree Conflict Scanning
+
+### Interval Tree Algorithm for Rapid Overlap Scans
+When detecting overlaps across dozens of subscribed calendars, naive $O(N^2)$ comparison causes latency. Using interval trees or sorted start-time scans achieves $O(N \log N)$ performance:
+
+```python
+from datetime import datetime
+
+def detect_interval_overlaps(events: list[dict]) -> list[tuple[dict, dict]]:
+    """Detects overlapping event pairs from a list of event dictionaries."""
+    sorted_events = sorted(events, key=lambda x: x["start_time"])
+    overlaps = []
+
+    for i in range(len(sorted_events)):
+        for j in range(i + 1, len(sorted_events)):
+            e1, e2 = sorted_events[i], sorted_events[j]
+            if e2["start_time"] < e1["end_time"]:
+                overlaps.append((e1, e2))
+            else:
+                break
+    return overlaps
+```
 
 ## When to use it
 - When you manage more than two independent calendar accounts.
@@ -125,29 +187,37 @@ validated_event = CalendarEvent(**event_data)
 print(f"Validated '{validated_event.summary}' event successfully (Flexible={validated_event.is_flexible}).")
 ```
 
-### Agentic Conflict Detection (MCP 3.1 Task Protocol)
-In November 2026, agents use the MCP 3.1 Task Protocol to query calendars and execute scheduling tasks. This example demonstrates how an agent might use a "Calendar Tool" to detect conflicts.
-
+### FastMCP 3.1 Multi-Calendar Conflict Resolution Tool
 ```python
-import mcp_client
+from mcp.server.fastmcp import FastMCP, Context
+from typing import List, Dict, Any
 
-async def detect_calendar_conflicts(agent, start_time, end_time):
-    # Agent calls the 'list_busy_times' tool via MCP 3.1 Task Protocol
-    busy_blocks = await agent.call_tool(
-        "chronos-mcp",
-        "list_busy_times",
-        {"start": start_time, "end": end_time}
-    )
+mcp = FastMCP("Chronos-Conflict-Resolver")
 
-    # Process blocks to find overlaps
-    conflicts = find_overlaps(busy_blocks)
-    return conflicts
+@mcp.tool()
+async def scan_and_resolve_conflicts(
+    ctx: Context,
+    calendar_ids: List[str],
+    start_iso: str,
+    end_iso: str
+) -> Dict[str, Any]:
+    """Scans multiple calendar endpoints for overlapping blocks and returns suggested slots."""
+    ctx.info(f"Scanning {len(calendar_ids)} calendars for range {start_iso} to {end_iso}")
 
-# Example logic for overlap detection
-def find_overlaps(blocks):
-    sorted_blocks = sorted(blocks, key=lambda x: x['start'])
-    # ... standard interval overlap logic ...
-    return overlaps
+    # Simulated overlap detection & resolution
+    return {
+        "status": "conflicts_detected",
+        "conflict_count": 1,
+        "conflicting_events": [
+            {"summary": "Team Standup", "calendar": "work@company.com", "time": "10:00-10:30"},
+            {"summary": "Dentist Appointment", "calendar": "personal@gmail.com", "time": "10:15-11:15"}
+        ],
+        "suggested_resolution": {
+            "action": "reschedule_soft_event",
+            "target_event": "Dentist Appointment",
+            "proposed_slot": "11:30-12:30"
+        }
+    }
 ```
 
 ### Google Calendar Free/Busy API
@@ -177,7 +247,6 @@ result = service.freebusy().query(body=body).execute()
 - [Google Calendar Free/Busy API Documentation](https://developers.google.com/calendar/api/v3/reference/freebusy/query)
 - [RFC 4791: CalDAV Scheduling Extensions](https://datatracker.ietf.org/doc/html/rfc4791)
 - [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.1/task-protocol)
-- [Awesome Time Tracking: AI Scheduling Agents 2026](https://github.com/ever-works/awesome-time-tracking/blob/develop/details/ai-scheduling-agents-2026.md)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
