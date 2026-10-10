@@ -3,11 +3,69 @@
 ## What it is
 Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits. As of early 2027, OmO features full support for **FastMCP 3.1**, stateful agent loops, and frontier models including [Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [DeepSeek-V4](../ai_knowledge/local_llms.md), [Qwen 3.8](../ai_knowledge/qwen.md), and [Llama 4](../ai_knowledge/local_llms.md).
 
+```
++-----------------------------------------------------------------------------------+
+|                           TERMINAL DEVELOPER COCKPIT                              |
+|                          User Prompt ("ultrawork ...")                            |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          SISYPHUS TEAM ORCHESTRATION PLANE                        |
+|                                                                                   |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Prometheus         |   | Sisyphus            |   | Hephaestus               |  |
+|  | (Architect & Plan) | ->| (Master Controller) | ->| (AST Search & Replace)   |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|                                     |                           |                 |
+|                                     v                           v                 |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Oracle             |   | Librarian           |   | Explore                  |  |
+|  | (Deep Reasoning)   |   | (Local AGENTS.md)   |   | (Exa Web Search MCP)     |  |
+|  +--------------------+   +---------------------+   +--------------------------+  |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        FASTmcp 3.1 EXECUTION & LINT SANDBOX                       |
+|           AST Hashing -> Multi-Threaded Tests -> Self-Healing Loop              |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, **Llama 4**, or **Qwen 3.8** execute modifications with high precision.
 
 ## Where it fits in the stack
 **Development & Ops / Agent Harness Layer**. OmO represents an open, customizable, terminal-based alternative to proprietary "walled garden" developer engines like [Claude Code](claude-code.md), cursor-based IDEs, or [Windsurf](windsurf.md).
+
+## System Architecture & Sisyphus Workflow Topology
+
+```
++-----------------------------------------------------------------------------------+
+|                             CONTEXT DISCOVERY LAYER                               |
+|   LSP Symbol Indexing -> AGENTS.md Rule Extraction -> Local Git Status Parsing    |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                             MULTI-MODEL ROUTING MATRIX                            |
+|  - Claude 5.6: Deep Logical Architecture Planning & Refactoring                   |
+|  - Qwen 3.8 / Llama 4: Ultra-fast AST Syntax Generation & Patch Writing           |
+|  - DeepSeek-V4: Complex Math & Symbolic Solver Routines                           |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                             VALIDATION & SELF-HEALING                             |
+|  +-----------------------------------------------------------------------------+  |
+|  | Run AST Integrity Verification (ast-grep)                                   |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Execute Pytest / Vitest Subprocess Test Suites                              |  |
+|  +-----------------------------------------------------------------------------+  |
+|  | If Failures Detected -> Pass Stack Trace back to Oracle Agent -> Auto-Fix   |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Multi-File Structural Refactoring**: Decomposing monolithic backend directories into micro-libraries using automated AST modifications.
@@ -35,6 +93,16 @@ OmO features a specialized multi-agent division of labor called the **Sisyphus T
 - **Substantial Initial Setup**: Requires managing and configuring API keys for multiple providers to achieve optimal performance.
 - **High Token Consumption**: Running complex multi-agent parallel loops can consume a high volume of input and output tokens.
 - **Exclusively Terminal-Centric**: Lacks a primary visual graphical editor, making it less appealing to developers who prefer GUI-focused IDEs.
+
+## Agentic Terminal Harness Comparison
+
+| Feature / Capability | Oh My OpenAgent (OmO) | Claude Code | Aider | Windsurf / Cursor |
+| :--- | :--- | :--- | :--- | :--- |
+| **Open Source License** | SUL 1.0 (Self-Hostable) | Proprietary CLI | Apache 2.0 | Proprietary Closed IDE |
+| **Multi-Model Routing** | Yes (Claude, GPT, Llama, DeepSeek) | Anthropic Models Only | Multi-Provider | Multi-Provider |
+| **AST-Guided Editing** | Native (ast-grep) | Text Diff / Patch | Tree-Sitter Diffs | Custom VSCode Diffs |
+| **FastMCP 3.1 Support** | First-Class Built-In | Native MCP Support | Basic Script Hooks | Limited Extension API |
+| **Self-Healing Loop** | Native (`ultrawork` loop) | Direct Terminal Fixes | Auto-test loop | Manual Trigger |
 
 ## When to use it
 - When implementing extensive, multi-file code modifications that require semantic type awareness.
@@ -151,6 +219,12 @@ async function runAutomation() {
 
 runAutomation();
 ```
+
+## Production Hardening & Operational Best Practices
+
+1. **Granular AGENTS.md Hierarchy**: Place scoped `AGENTS.md` files inside specific subdirectories (e.g. `src/auth/AGENTS.md`) so the Librarian agent automatically injects localized security constraints into agent context.
+2. **Model Router Tuning**: Assign reasoning tasks (architecture, security audits) to top-tier reasoning engines like **Claude 5.6** or **GPT-5.6**, while using fast local models (**Qwen 3.8**) for boilerplate generation.
+3. **AST Validation Thresholds**: Enable strict `ast-grep` pre-commit rules to abort invalid modifications before running expensive subprocess pytest suites.
 
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-centric Git-integrated editing assistant.
