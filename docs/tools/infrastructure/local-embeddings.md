@@ -3,17 +3,29 @@
 ## What it is
 Local Embedding Models refer to offline, open-weights text and multimodal representation models (such as `nomic-embed-text-v1.5`, `bge-m3`, `gte-Qwen2`, and `all-MiniLM-L6-v2`) executed directly on local compute hardware (CPU, GPU, or Apple Silicon via Ollama, llama.cpp, or Sentence-Transformers) without external API dependencies.
 
-```mermaid
-graph TD
-    A[Raw Documents: PDF / Markdown / Scans] --> B[Text Chunking & Preprocessing]
-    B --> C{Local Runtime Host}
-    C -->|Ollama / REST API| D[Ollama Execution Engine]
-    C -->|ONNX Runtime / PyTorch| E[Sentence-Transformers Pipeline]
-    D --> F[Local Model Weights: nomic-embed / bge-m3]
-    E --> F
-    F -->|Dense Vector Generation| G[Normalized Dense Vectors]
-    G --> H[Local Vector Stores: Qdrant / LanceDB / Chroma]
-    H --> I[FastMCP 3.1 RAG Tooling & Agent Context]
+## System Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                        LOCAL EMBEDDING GENERATION PIPELINE                        |
+|                                                                                   |
+|  +------------------------+                        +---------------------------+  |
+|  | Raw Ingestion Sources  |                        | Vector Target Database    |  |
+|  | (Paperless / Obsidian) |                        | (Qdrant / LanceDB/ Chroma)|  |
+|  +-----------+------------+                        +-------------+-------------+  |
+|              |                                                   ^                |
+|              | Document Chunks                                   | Vector Index   |
+|              v                                                   | Insertion      |
+|  +-----------+------------+                        +-------------+-------------+  |
+|  | FastMCP 3.1 Server     |                        | Local Model Weights       |  |
+|  | (Embedding Service)    +----------------------->| (nomic-embed / bge-m3)    |  |
+|  +-----------+------------+  Execution Engine      +-------------+-------------+  |
+|              |               (Ollama / ONNX Runtime)             |                |
+|              v                                                   v                |
+|  +-----------+---------------------------------------------------+-------------+  |
+|  | Dense Normalized Vectors (Matryoshka Truncation: 256 / 512 / 768 / 1024 dims) |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -21,6 +33,17 @@ Traditional cloud RAG architectures rely on remote embedding APIs (such as OpenA
 
 ## Where it fits in the stack
 **Infrastructure / AI Knowledge**. Local embedding models form the fundamental representation tier of offline RAG pipelines, serving as the bridge between document chunking (in Paperless-ngx, Obsidian, or Docling) and vector database storage (in ChromaDB, Qdrant, or LanceDB).
+
+## Model Comparison Matrix
+
+| Feature / Model | Nomic Embed v1.5 | BAAI BGE-M3 | GTE-Qwen2 | MiniLM-L6-v2 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Max Context Window** | 8192 tokens | 8192 tokens | 8192 tokens | 512 tokens |
+| **Native Vector Dims** | 768 dims | 1024 dims | 1024 dims | 384 dims |
+| **Matryoshka (MRL)** | Yes (Truncatable to 64+) | Partial | Yes | No |
+| **Multi-Lingual** | English / Code focus | 100+ Languages | 80+ Languages | English primary |
+| **Hybrid (Sparse+Dense)**| Dense only | Native Dense + Sparse | Dense primary | Dense only |
+| **RAM/VRAM Footprint** | ~0.6 GB GGUF | ~1.2 GB GGUF | ~1.5 GB GGUF | ~0.1 GB ONNX |
 
 ## Architecture & Technical Deep Dive
 Local embedding architectures convert textual tokens into dense mathematical representations (typically 384 to 1024 float32 dimensions) through transformer encoder backends:
@@ -143,49 +166,50 @@ if __name__ == "__main__":
 
 ### 2. FastMCP 3.1 Task Protocol Integration
 ```python
-from mcp.server.fastmcp import FastMCP, Context
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+from typing import List, Optional
 import time
 
 mcp = FastMCP("local-embeddings-service")
 
-@mcp.tool()
-async def generate_local_vector(
-    ctx: Context,
-    text: str,
-    model: str = "nomic-embed-text",
-    dimensions: int = 768
-) -> dict:
-    """Generates an embedding vector using a local embedding model via Ollama/Sentence-Transformers."""
-    ctx.info(f"Generating embedding for text using model '{model}' ({dimensions} dims)")
+class SingleEmbeddingRequest(BaseModel):
+    text: str = Field(..., description="Text content to encode into embedding vector")
+    model: str = Field(default="nomic-embed-text", description="Embedding model identifier")
+    dimensions: int = Field(default=768, description="Target output dimensions")
 
+class BatchEmbeddingRequest(BaseModel):
+    chunks: List[str] = Field(..., description="List of document text chunks")
+    model: str = Field(default="bge-m3", description="Embedding model identifier")
+
+@mcp.tool()
+def generate_local_vector(request: SingleEmbeddingRequest) -> dict:
+    """Generates an embedding vector using a local embedding model via Ollama/Sentence-Transformers."""
     start_time = time.time()
-    # Simulated vector generation
-    mock_vector = [0.0123] * dimensions
+    mock_vector = [0.0123] * request.dimensions
     elapsed_ms = (time.time() - start_time + 0.005) * 1000
 
     return {
         "status": "success",
-        "model": model,
-        "dimensions": dimensions,
+        "model": request.model,
+        "dimensions": request.dimensions,
         "elapsed_ms": round(elapsed_ms, 2),
         "vector": mock_vector
     }
 
 @mcp.tool()
-async def batch_embed_documents(
-    ctx: Context,
-    chunks: list[str],
-    model: str = "bge-m3"
-) -> dict:
+def batch_embed_documents(request: BatchEmbeddingRequest) -> dict:
     """Batch embeds multiple document chunks using local GPU or CPU inference."""
-    ctx.info(f"Batch embedding {len(chunks)} chunks with model '{model}'")
     return {
         "status": "completed",
-        "model": model,
-        "chunks_processed": len(chunks),
+        "model": request.model,
+        "chunks_processed": len(request.chunks),
         "vector_dimensions": 1024,
         "throughput_chunks_per_sec": 142.5
     }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

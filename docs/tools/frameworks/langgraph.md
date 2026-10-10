@@ -5,24 +5,41 @@ LangGraph is an open-source framework built on top of LangChain for creating sta
 
 ## System Architecture
 
-```mermaid
-graph TD
-    subgraph StateGraph Execution Core
-        START([Graph START Node]) --> NodeA[Reasoning & Planning Node]
-        NodeA --> Edge1{Conditional Router Edge}
-
-        Edge1 -->|Requires Tool Execution| NodeB[FastMCP 3.1 Tool Node]
-        Edge1 -->|Requires Human Approval| NodeC[Human-in-the-Loop Breakpoint]
-        Edge1 -->|Task Complete| END([Graph END Node])
-
-        NodeB -->|Tool Result Cycle| NodeA
-        NodeC -->|Approved / State Edited| NodeA
-    end
-
-    subgraph Persistence & Time-Travel Layer
-        NodeA <-->|State Checkpoint Snapshot| D[MemorySaver / Postgres Saver]
-        NodeC <-->|Inspect & Replay Past State| D
-    end
+```
++-----------------------------------------------------------------------------------+
+|                            LANGGRAPH STATE GRAPH CORE                             |
+|                                                                                   |
+|                   +---------------------------------------+                       |
+|                   |           START Node / Event          |                       |
+|                   +-------------------+-------------------+                       |
+|                                       |                                           |
+|                                       v                                           |
+|                   +---------------------------------------+                       |
+|                   |     Reasoning & Planning Node         |                       |
+|                   |   (Claude 5.6 / Llama 4 Maverick)     |                       |
+|                   +-------------------+-------------------+                       |
+|                                       |                                           |
+|                                       v                                           |
+|                   +---------------------------------------+                       |
+|                   |     Conditional Router Edge           |                       |
+|                   +-----+-----------------+-----------+---+                       |
+|                         |                 |           |                           |
+|        +----------------+                 |           +----------------+          |
+|        | (Requires Tools)                 | (Needs HITL)               | (Task    |
+|        v                                  v                            v  Done)   |
+|  +---------------------+      +-----------------------+      +------------------+ |
+|  | FastMCP 3.1 Tool    |      | Human-in-the-Loop     |      | END Node         | |
+|  | Execution Node      |      | Approval Breakpoint   |      | (Final Return)   | |
+|  +----------+----------+      +-----------+-----------+      +------------------+ |
+|             |                             |                                       |
+|             +-----------------------------+                                       |
+|             | Loop Back with Tool Outputs / Approval                              |
+|             v                                                                     |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   PERSISTENCE & TIME-TRAVEL LAYER                           |  |
+|  |  MemorySaver / PostgresSaver Checkpoint Store (Thread-Scoped State Snapshots) |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -30,6 +47,17 @@ While standard Directed Acyclic Graph (DAG) pipelines excel at linear tasks, aut
 
 ## Where it fits in the stack
 **Category**: Frameworks / Multi-Agent Orchestration. It sits between foundation models and tool environments, managing execution state, memory checkpointers, and conditional edge transitions. It serves as a foundation for implementing [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design architectures.
+
+## Framework Comparison Matrix
+
+| Feature / Criteria | LangGraph | [AutoGen](autogen.md) | [CrewAI](crewai.md) | [Semantic Kernel](../frameworks/semantic-kernel.md) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Topology** | Directed Cyclic State Graph | Conversational Message Passing | Role-based Sequential/Hierarchical | Plugin-based Functional Orchestration |
+| **State Persistence** | Thread-scoped checkpointers (Postgres/Redis) | Conversational History / In-Memory | Task State Memory | In-Memory / Context Variables |
+| **Human-in-the-Loop** | Native `interrupt_before`/`interrupt_after` | User Proxy Agent prompts | Human input callbacks | Manual function interception |
+| **Time-Travel / Editing**| Native state rewinding & re-execution | Not natively supported | Not supported | Not supported |
+| **Tool Integration** | Native FastMCP 3.1 & LangChain Tools | Function calling / OpenAPI | Agent Tool Abstractions | Native Plugins & Native Functions |
+| **Type Validation** | Native Pydantic v2 schemas | Python dicts / TypedDict | Pydantic v2 Models | C# / Python Type System |
 
 ## Typical use cases
 - **Cyclic Reflection & Self-Correction**: Building agents that generate code or copy, evaluate outputs against test suites, and loop back to fix errors.
@@ -78,14 +106,23 @@ from langgraph.graph import StateGraph, START, END
 class AgentGraphState(BaseModel):
     messages: List[str] = Field(default_factory=list)
     next_node: str = Field(default="")
+    iteration: int = Field(default=0, description="Current cyclic iteration counter")
 
 def reasoning_step(state: AgentGraphState) -> dict:
-    return {"messages": state.messages + ["Reasoning step completed."], "next_node": "tools"}
+    new_messages = state.messages + [f"Reasoning iteration {state.iteration + 1} completed."]
+    return {
+        "messages": new_messages,
+        "next_node": "tools" if state.iteration < 2 else "end",
+        "iteration": state.iteration + 1
+    }
+
+def router_edge(state: AgentGraphState) -> str:
+    return "reasoning" if state.next_node == "tools" else END
 
 builder = StateGraph(AgentGraphState)
 builder.add_node("reasoning", reasoning_step)
 builder.add_edge(START, "reasoning")
-builder.add_edge("reasoning", END)
+builder.add_conditional_edges("reasoning", router_edge)
 graph = builder.compile()
 ```
 
@@ -115,8 +152,8 @@ pip install langgraph-cli
 The following complete example demonstrates integrating a **FastMCP 3.1** tool execution server into a LangGraph state graph with persistent memory checkpoints and **Pydantic v2** validation:
 
 ```python
-from typing import List, Dict, Any
-from mcp.server.fastmcp import FastMCP
+from typing import List, Dict, Any, Optional
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field, ValidationError
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
