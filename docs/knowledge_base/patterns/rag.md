@@ -20,18 +20,42 @@ RAG resolves fundamental limitations of raw foundation models when applied to en
 RAG functions as the core **Knowledge & Retrieval Layer** within the KnowledgeOps framework. It bridges **Data & Vector Storage** (Milvus, Qdrant, PostgreSQL pgvector) and the **Agentic Orchestration Layer** (OpenClaw, LlamaIndex, LangChain).
 
 ```
-[User Query] ──► [Agentic Query Transformer / Router]
-                         │
-         ┌───────────────┼───────────────┐
-         ▼               ▼               ▼
- [Dense Vector DB] [Knowledge Graph] [Relational DB]
-         │               │               │
-         └───────────────┼───────────────┘
-                         ▼
-             [Cross-Encoder Reranker]
-                         │
-                         ▼
-          [Contextual LLM Generation]
++-----------------------------------------------------------------------------------+
+|                            USER / AGENTIC QUERY LAYER                             |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        QUERY TRANSFORMER & RE-WRITER                              |
+|   (Sub-Query Decomposition, Hypothetical Document Embeddings [HyDE], Expansion)   |
++-----------------------------------------------------------------------------------+
+       |                                  |                                  |
+       v                                  v                                  v
++-------------------+            +-------------------+            +-------------------+
+|  DENSE VECTOR DB  |            |  KNOWLEDGE GRAPH  |            |  RELATIONAL DB    |
+| (Qdrant, Milvus,  |            | (Neo4j, Memgraph, |            | (pgvector, DuckDB,|
+|  pgvector)        |            |  FalkorDB)        |            |  ClickHouse)      |
++-------------------+            +-------------------+            +-------------------+
+       |                                  |                                  |
+       +----------------------------------+----------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                         HYBRID FUSION & RERANKING ENGINE                          |
+|         (Reciprocal Rank Fusion [RRF], Cross-Encoder, Cohere Rerank v3.5)         |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        CONTEXTUAL PROMPT & GENERATION ENGINE                      |
+|         (Anthropic Contextual Retrieval, Native Prefix Caching, Grounded LLM)      |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          CITATIONS & FAITHFULNESS CHECK                           |
+|                      (Pydantic v2 Output Schema Validation)                       |
++-----------------------------------------------------------------------------------+
 ```
 
 ## Typical use cases
@@ -61,6 +85,16 @@ RAG functions as the core **Knowledge & Retrieval Layer** within the KnowledgeOp
 - Real-time sub-50ms applications where external vector database roundtrips introduce unacceptable latency.
 - Simple lookup queries over structured tables where standard SQL or Key-Value lookups are more efficient.
 
+## RAG Architectural Paradigms Comparison
+
+| Paradigm | Vector Retrieval | Graph Reasoning | Latency | Complex Queries | Implementation Complexity |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Naive RAG** | Dense Similarity Only | None | Low (<100ms) | Low | Low |
+| **Advanced Hybrid RAG** | Sparse (BM25) + Dense | None | Medium (150-300ms) | Moderate | Medium |
+| **Agentic RAG** | Dynamic Multi-Turn | Multi-Index Routing | High (300-1000ms) | High | High |
+| **GraphRAG** | Subgraph + Dense | Knowledge Graphs | High (500-2000ms) | Very High (Global Ops) | High |
+| **Contextual RAG** | Dense + Prefix Caching | Optional | Low-Medium (120-250ms) | High | Medium |
+
 ## Getting started
 Modern RAG implementation in early 2027 utilizes FastMCP 3.1 tool bindings, layout-aware document parsers, and hybrid vector/keyword search engines.
 
@@ -85,6 +119,66 @@ llamaindex-cli rag --files "./docs/*.pdf" --parse-tier layout-aware
 
 # Search and inspect chunk scores from local vector collection
 ragflow-cli search --query "thermal shutdown limits" --collection battery_specs --top-k 5
+
+# Reindex local knowledge graph store for GraphRAG
+graphrag-cli reindex --config ./graphrag.yaml --root-dir ./docs/
+```
+
+## FastMCP 3.1 RAG Tool Server Pattern
+
+The following Python script illustrates a full FastMCP 3.1 server exposing an enterprise hybrid RAG tool endpoint:
+
+```python
+import os
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "Enterprise-RAG-Server",
+    version="3.1.0",
+    description="FastMCP 3.1 RAG Retrieval Engine with Hybrid Search & Reranking"
+)
+
+class RAGChunk(BaseModel):
+    chunk_id: str
+    document_title: str
+    content: str
+    score: float = Field(..., ge=0.0, le=1.0)
+    source_url: str
+
+class RAGResponse(BaseModel):
+    query: str
+    total_retrieved: int
+    chunks: List[RAGChunk]
+
+@mcp.tool(description="Query enterprise knowledge base using hybrid dense/sparse retrieval")
+def query_knowledge_base(query: str, top_k: int = 5, min_score: float = 0.75) -> Dict[str, Any]:
+    """Retrieves authoritative context chunks matching the query string."""
+    # Simulated hybrid vector search & rerank pipeline
+    mock_chunks = [
+        RAGChunk(
+            chunk_id="chk_102",
+            document_title="FastMCP 3.1 Specification",
+            content="FastMCP 3.1 introduces protocol level prompt prefix caching and zero-copy JSON RPC transport.",
+            score=0.94,
+            source_url="https://docs.openclaw.io/mcp/v3.1"
+        ),
+        RAGChunk(
+            chunk_id="chk_108",
+            document_title="KnowledgeOps Deployment Guide",
+            content="Contextual RAG requires injecting situational headers into chunk text prior to vector embedding.",
+            score=0.88,
+            source_url="https://docs.openclaw.io/rag/contextual"
+        )
+    ]
+
+    filtered = [c for c in mock_chunks if c.score >= min_score][:top_k]
+    result = RAGResponse(query=query, total_retrieved=len(filtered), chunks=filtered)
+    return result.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -162,6 +256,20 @@ try:
 except ValidationError as err:
     print("Schema error during RAG payload validation:", err.json())
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### 1. Document Parsing & Chunking Strategies
+- **Semantic Chunking Over Fixed-Width Split**: Avoid arbitrary token boundary splitting (e.g., 512 tokens with 50 overlap). Prefer header-aware semantic splitters or layout-aware parsers like [Docling](../../tools/process_understanding/docling.md) to preserve logical sections.
+- **Contextual Ingestion Headers**: Prepend 50–100 token document summaries ("situational context") to individual chunks before computing vector embeddings to drastically boost keyword and semantic hit rates.
+
+### 2. Hybrid Retrieval & Reranking Tuning
+- **Reciprocal Rank Fusion (RRF)**: Combine sparse (BM25 / SPLADE) keyword ranks with dense semantic vector similarity scores using RRF constant $k=60$.
+- **Cross-Encoder Reranking**: Always filter top-50 vector search candidates through a dedicated cross-encoder model (e.g., Cohere Rerank v3.5 or BGE-Reranker-v2) before sending candidates to the generation prompt.
+
+### 3. Prompt Caching & Context Management
+- **Order Retrieved Chunks by Relevance**: Place the highest scoring chunks at the very beginning and very end of the prompt context window to mitigate "lost in the middle" attention decay.
+- **Leverage Prefix Caching**: Structure static prompt templates and retriever instructions before the dynamic chunks list so frontier models can reuse prompt KV caches across queries.
 
 ## Related tools / concepts
 - [Data-Copilot Agentic RAG](data-copilot-agentic-rag.md) — Autonomous multi-step retrieval architecture.

@@ -21,8 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/providers/mistral.md",
-    "docs/services/whisper.md",
     "docs/tools/process_understanding/webhook.md",
     "docs/tools/development_ops/fuzzing-mcp-server.md",
     "docs/tools/development_ops/opencode.md",
@@ -40,7 +38,9 @@
     "docs/tools/calendar_tasks/google_calendar.md",
     "docs/services/headscale.md",
     "docs/tools/automation_orchestration/pulse-mcp.md",
-    "docs/tools/ai_knowledge/lobehub.md"
+    "docs/tools/ai_knowledge/lobehub.md",
+    "docs/tools/automation_orchestration/puppeteer.md",
+    "docs/tools/benchmarking/math-benchmark.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

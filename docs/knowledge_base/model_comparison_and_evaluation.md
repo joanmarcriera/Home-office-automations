@@ -9,6 +9,31 @@ It solves the opaque "black box" problem of AI model selection by providing veri
 ## Where it fits in the stack
 Evaluation operates within the **Quality, Observability & Governance Layer** of the AI stack. It supplies empirical performance baselines to the [Model Routing Guide](model_routing_guide.md), defines verification hooks for [Prompt Engineering](patterns/prompt_requests.md), and validates structured outputs generated across [Data Copilot MCP Tooling](patterns/data-copilot-mcp-tooling.md).
 
+```
++-----------------------------------------------------------------------------------+
+|                        ENTERPRISE EVALUATION & BENCHMARKING ENGINE                |
+|           (MMLU-Pro, Terminal-Bench 2.0, SWE-bench Verified, GPQA, HLE)            |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           PROFILING & METRICS COLLECTION                          |
+|         (Pass@k Accuracy, TTFT Latency, Tokens/Sec, Tool Schema Accuracy)         |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          DYNAMIC ROUTING & POLICY LAYER                           |
+|       (Router dispatches complex reasoning to Claude 5.6/GPT-5.6, fast to Gemma 3)|
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          MODEL EXECUTION & OBSERVABILITY                          |
+|                 (OpenClaw Agent Harness, FastMCP 3.1 Tool Calling)                |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Frontier vs. Local Routing**: Benchmark-driven determination of when to dispatch tasks to frontier cloud endpoints (GPT-5.6, Claude 5.6) versus edge/local inference nodes (Llama 4-70B, Gemma 3-27B).
 - **Agentic Shell & CLI Benchmarking**: Evaluating autonomous agent execution inside terminal environments using **Terminal-Bench 2.0** or multi-step web agent tasks via **PA-bench 2.0**.
@@ -37,6 +62,16 @@ Evaluation operates within the **Quality, Observability & Governance Layer** of 
 - For open-ended creative brainstorming where subjective human feedback is the primary quality measure.
 - When the compute cost of running the benchmark suite exceeds the potential optimization savings.
 - Don't rely solely on static public leaderboards for domain-specific enterprise requirements without running custom internal evals.
+
+## Enterprise Evaluation Benchmark Matrix
+
+| Benchmark | Primary Focus | Metric | Evaluation Method | Key Model Standard |
+| :--- | :--- | :--- | :--- | :--- |
+| **Terminal-Bench 2.0** | CLI / Agentic Execution | Pass@1 Task Success | Sandboxed Execution | Frontier / Agentic Models |
+| **SWE-bench Verified** | GitHub Issue Resolution | Pass@1 Patch Merge Rate | Unit Test Validation | Claude 5.6, GPT-5.6 |
+| **Humanity's Last Exam (HLE)** | Frontier Reasoning / STEM | Accuracy (%) | Automated / Model-as-Judge | DeepSeek-V4, OpenAI o5 |
+| **Chatbot Arena** | General Human Preference | Bradley-Terry Elo | Blind Pairwise Human Votes | All Foundation Models |
+| **FastMCP 3.1 Tool-Eval** | Schema Adherence & Tools | Schema Violation Rate (%) | Pydantic v2 Contract Auditing | FastMCP 3.1 Servers |
 
 ## Getting started
 
@@ -72,6 +107,50 @@ llmperf compare --models openai/gpt-5.6,anthropic/claude-5.6-sonnet --tokens 200
 ```bash
 # Fetch latest top coding models from Chatbot Arena leaderboard
 chatbot-arena-cli top 5 --category coding --format json
+```
+
+## FastMCP 3.1 Benchmark Tool Server Pattern
+
+The following Python script implements a FastMCP 3.1 server exposing tools for automated model output evaluation and scoring:
+
+```python
+import os
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "Model-Eval-Server",
+    version="3.1.0",
+    description="FastMCP 3.1 Server for Model Evaluation and Benchmark Score Validation"
+)
+
+class BenchmarkScore(BaseModel):
+    benchmark_name: str
+    pass_rate: float = Field(..., ge=0.0, le=1.0)
+    latency_p95_ms: float
+    token_cost_per_m: float
+
+class ModelEvalReport(BaseModel):
+    model_id: str
+    scores: List[BenchmarkScore]
+    recommended_routing_tier: str
+
+@mcp.tool(description="Evaluate model benchmark score and suggest routing tier")
+def evaluate_model_tier(model_id: str) -> Dict[str, Any]:
+    """Retrieves benchmark metrics and determines optimal routing tier."""
+    report = ModelEvalReport(
+        model_id=model_id,
+        scores=[
+            BenchmarkScore(benchmark_name="Terminal-Bench 2.0", pass_rate=0.88, latency_p95_ms=450.0, token_cost_per_m=2.50),
+            BenchmarkScore(benchmark_name="SWE-bench Verified", pass_rate=0.74, latency_p95_ms=1200.0, token_cost_per_m=2.50)
+        ],
+        recommended_routing_tier="Frontier Reasoning Agent Tier"
+    )
+    return report.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -125,6 +204,15 @@ print(f"Validated Model: {validated_eval.model_name}")
 print(f"Faithfulness Score: {validated_eval.faithfulness_score:.4f}")
 print(f"Relevancy Score: {validated_eval.relevancy_score:.4f}")
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### 1. Mitigating Benchmark Contamination
+- **Use Dynamic & Synthetic Test Datasets**: Periodically generate clean, holdout evaluation sets (e.g., using synthetic dataset generators like Distilabel or PA-bench) rather than relying exclusively on public benchmarks that models may have memorized.
+- **Multi-Seed Testing**: Always run benchmark runs across multiple temperature/seed variations to measure variance and response stability.
+
+### 2. Guarding Against Model-as-a-Judge Bias
+- **Position & Self-Enhancement Bias**: When using frontier LLMs as evaluators (e.g., GPT-5.6 or Claude 5.6 judging outputs), shuffle the pair order and mask model identity tags to eliminate preference bias.
 
 ## Related tools / concepts
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md) — Directory of evaluation tools.
