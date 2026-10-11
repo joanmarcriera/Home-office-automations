@@ -3,19 +3,37 @@
 ## What it is
 text-generation-webui (commonly known as Oobabooga) is a flexible, open-source Gradio web interface and inference server for hosting and interacting with local large language models. Designed as a power-user alternative to consumer desktop runners, it supports a wide variety of backend backends including `llama.cpp`, `ExLlamaV2`, `Transformers`, `AutoGPTQ`, `AutoAWQ`, and `Hugging Face`.
 
-```mermaid
-graph TD
-    A[Client Request: Web UI / OpenAI API / WebSocket] --> B[Gradio Interface & Server.py Gateway]
-    B --> C{Selected Model Loader Backend}
-    C -->|GGUF Format| D[llama.cpp / llama-cpp-python]
-    C -->|EXL2 / GPTQ Format| E[ExLlamaV2 / ExLlamaV2_HF]
-    C -->|Safetensors / FP16 / BF16| F[Hugging Face Transformers]
-    C -->|AWQ Quantization| G[AutoAWQ Engine]
-    D --> H[GPU VRAM & CUDA / ROCm Drivers]
-    E --> H
-    F --> H
-    G --> H
-    H --> I[Streamed Token Output: SSE / WebSockets / Text Chat]
+```
++-----------------------------------------------------------------------------------+
+|                   TEXT-GENERATION-WEBUI INFERENCE ARCHITECTURE                    |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                       CLIENT & INGESTION LAYER                              |  |
+|  |           (Gradio Web UI / OpenAI-Compatible API / WebSockets)              |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 UNIFIED SERVER GATEWAY & SAMPLER PIPELINE                   |  |
+|  | - DRY / XTC / Min-P / Mirostat       - Extension Plugin Hooks (TTS/Whisper) |  |
+|  +--------+--------------------+--------------------+-----------------+--------+  |
+|           |                    |                    |                 |           |
+|           v                    v                    v                 v           |
+|  +-----------------+  +-----------------+  +-----------------+  +--------------+  |
+|  | LLAMA.CPP       |  | EXLLAMAV2       |  | TRANSFORMERS    |  | AUTOAWQ      |  |
+|  | (GGUF CPU/GPU)  |  | (EXL2 VRAM)     |  | (Safetensors)   |  | (AWQ Engine) |  |
+|  +--------+--------+  +--------+--------+  +--------+--------+  +-------+------+  |
+|           |                    |                    |                 |           |
+|           +--------------------+---------+----------+-----------------+           |
+|                                          |                                        |
+|                                          v                                        |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     HARDWARE DRIVER & VRAM OFFLOAD                          |  |
+|  |                         (CUDA / ROCm / Metal)                               |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -30,6 +48,15 @@ text-generation-webui features a modular Python architecture designed around dyn
 2. **Advanced Sampler Pipeline**: Exposes state-of-the-art sampling parameters unavailable in basic runners, including DRY (Don't Repeat Yourself) repetition penalty, XTC (Excluding Top Choices), Min-P, Mirostat, and dynamic temperature scaling.
 3. **Extension Architecture (`extensions/`)**: Plugin system supporting real-time text-to-speech (XTTS, Coqui), speech-to-text (Whisper), long-term vector memory (ChromaDB integrations), and automated API model switching via custom FastMCP or n8n hooks.
 
+## Loader Backend Comparison Matrix
+
+| Loader Backend | Target Checkpoint Format | VRAM Efficiency | Context Scaling Speed | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **llama.cpp** | GGUF | High (Partial Offload) | Medium | CPU+GPU Offload / General Quantized Models |
+| **ExLlamaV2** | EXL2 / BPW | Extremely High | Fast (FlashAttention-2) | Maximum VRAM Token Throughput |
+| **Transformers** | FP16 / BF16 Safetensors | Baseline (Dense) | Standard PyTorch | Unquantized Research Checkpoints |
+| **AutoAWQ / AutoGPTQ**| AWQ / GPTQ INT4 | High | Fast | Standard 4-bit CUDA Inference |
+
 ## Typical use cases
 - **Multi-Backend Inference Hosting**: Running GGUF models via llama.cpp or high-speed EXL2 models via ExLlamaV2 on local GPUs.
 - **API Endpoint Provider**: Exposing OpenAI-compatible (`/v1/chat/completions`) and native WebSocket APIs for home lab agents and n8n workflows.
@@ -43,6 +70,11 @@ text-generation-webui features a modular Python architecture designed around dyn
 ## Limitations
 - **Configuration Complexity**: Power-user interface with numerous hyperparameter dials can be overwhelming for beginners compared to simplified apps like Ollama or LM Studio.
 - **Resource Footprint**: Gradio UI and Python environment require higher baseline RAM compared to C++ single binaries.
+
+## Operational Best Practices & Performance Tuning
+1. **ExLlamaV2 VRAM Optimization**: When loading EXL2 models, enable `max_seq_len` scaling alongside `cache_4bit` to double available context without exceeding VRAM allocation limits.
+2. **Headless API Deployment**: Run in `--headless --api` mode when deploying as an automated inference provider for n8n or FastMCP agents to avoid Gradio rendering overhead.
+3. **Container Persistent Mounts**: Mount `./models` and `./characters` to external high-speed NVMe storage paths for zero-latency checkpoint access.
 
 ## When to use it
 - When requiring fine-grained control over model loaders (e.g., ExLlamaV2 max_seq_len, llama.cpp n_gpu_layers, rope_alpha).
@@ -133,52 +165,47 @@ if __name__ == "__main__":
 
 ### 2. FastMCP 3.1 Task Protocol Integration
 ```python
-from mcp.server.fastmcp import FastMCP, Context
-import time
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
 mcp = FastMCP("textgen-webui-controller")
 
+class ModelLoadRequest(BaseModel):
+    model_name: str = Field(..., min_length=3, description="Model folder or filename")
+    loader: str = Field(default="llama.cpp", description="Backend loader engine")
+    gpu_layers: int = Field(default=35, ge=0, description="Offloaded GPU layers")
+
 @mcp.tool()
-async def load_webui_model(
-    ctx: Context,
-    model_name: str,
-    loader: str = "llama.cpp",
-    gpu_layers: int = 35
-) -> dict:
+async def load_webui_model(request: ModelLoadRequest) -> dict:
     """Loads a model dynamically in a text-generation-webui server instance."""
-    ctx.info(f"Triggering WebUI model load for '{model_name}' via loader '{loader}' ({gpu_layers} GPU layers)")
-
-    start_time = time.time()
-    # Simulate API orchestration call to WebUI endpoint
-    time.sleep(0.05)
-    elapsed = time.time() - start_time
-
     return {
         "status": "loaded",
-        "model": model_name,
-        "loader": loader,
-        "gpu_layers": gpu_layers,
-        "load_time_seconds": round(elapsed, 3),
-        "api_endpoint": "http://localhost:5000/v1"
+        "model": request.model_name,
+        "loader": request.loader,
+        "gpu_layers": request.gpu_layers,
+        "api_endpoint": "http://localhost:5000/v1",
+        "fastmcp_version": "3.1"
     }
 
 @mcp.tool()
 async def update_samplers(
-    ctx: Context,
     temperature: float = 0.7,
     dry_multiplier: float = 0.8,
     repetition_penalty: float = 1.15
 ) -> dict:
     """Dynamically updates generation sampler settings on the running WebUI session."""
-    ctx.info(f"Updating samplers: Temp={temperature}, DRY={dry_multiplier}, RepPen={repetition_penalty}")
     return {
         "status": "updated",
         "active_samplers": {
             "temperature": temperature,
             "dry_multiplier": dry_multiplier,
             "repetition_penalty": repetition_penalty
-        }
+        },
+        "fastmcp_version": "3.1"
     }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

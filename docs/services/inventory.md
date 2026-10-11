@@ -3,11 +3,41 @@
 ## What it is
 The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. As of early January 2027, it serves as the ground truth for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (specifically MCP 3.1 and FastMCP 3.1 schemas) agents to discover and interact with the homelab infrastructure.
 
+```
++-----------------------------------------------------------------------------------+
+|                   HOMELAB SERVICES INVENTORY ARCHITECTURE                         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                       MODEL CONTEXT PROTOCOL (MCP 3.1)                      |  |
+|  |             (Claude 5.6 / GPT-5.6 / DeepSeek-V4 Autonomous Agents)           |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   FASTMCP 3.1 INVENTORY DISCOVERY SERVER                    |  |
+|  | - Service Catalog Mapping           - ZFS Volume Path Inspection            |  |
+|  | - Docker State Verification         - Exposure Security Auditing            |  |
+|  +--------+--------------------+--------------------+-----------------+--------+  |
+|           |                    |                    |                 |           |
+|           v                    v                    v                 v           |
+|  +-----------------+  +-----------------+  +-----------------+  +--------------+  |
+|  | CORE STORAGE    |  | AUTOMATION & AI |  | MEDIA & CONTENT |  | SECURITY/SSO |  |
+|  | - Nextcloud     |  | - n8n           |  | - Jellyfin      |  | - Authentik  |  |
+|  | - Paperless-ngx |  | - Ollama        |  | - Immich        |  | - Vault      |  |
+|  | - Syncthing     |  | - Home Assistant|  | - Navidrome     |  | - Tailscale  |  |
+|  +-----------------+  +-----------------+  +-----------------+  +--------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 In a complex home lab with dozens of interconnected services (Nextcloud, Home Assistant, Ollama, etc.), it becomes difficult to track where data is stored, which images are in use, and how each service is exposed. This inventory provides a machine-readable map (via the MCP 3.1 Task Protocol) for administrative oversight, automated maintenance, and disaster recovery planning.
 
 ## Where it fits in the stack
 **Infrastructure Management / Documentation**. It sits above the individual service configurations, providing a map of the entire self-hosted ecosystem.
+
+## Primary Services Directory
 
 | Service Name | Purpose | Image | Data Path | Exposure |
 | :--- | :--- | :--- | :--- | :--- |
@@ -23,6 +53,17 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 | **Linkwarden** | Bookmark Manager | `ghcr.io/linkwarden/linkwarden` | `/mnt/<pool>/applications/linkwarden/` | Reverse Proxy / LAN |
 | **Authentik** | IDP / SSO | `ghcr.io/goauthentik/server` | `/mnt/<pool>/applications/authentik/` | Reverse Proxy / LAN |
 | **Synapse** | Matrix Server | `matrixdotorg/synapse:latest` | `/mnt/<pool>/applications/synapse/` | Reverse Proxy / LAN |
+
+## Service Category & Topology Matrix
+
+| Service Tier | Core Representative | Storage Dependency | Backup Frequency | Health Check Endpoint |
+| :--- | :--- | :--- | :--- | :--- |
+| **Storage & Sync** | Nextcloud, Syncthing | Persistent ZFS Dataset | Daily Snapshot | `GET /status.php` |
+| **Document Processing**| Paperless-ngx | PostgreSQL + Media Mount| Daily Snapshot | `GET /api/` |
+| **Automation & Smart** | n8n, Home Assistant | SQLite / Postgres | Hourly Snapshot | `GET /healthz` |
+| **AI Inference** | Ollama, Local Models | NVMe Storage Pool | Weekly | `GET /api/version` |
+| **Media & Assets** | Immich, Jellyfin | Bulk HDD Pool + NVMe Cache| Daily | `GET /api/server/version` |
+| **Identity & Security**| Authentik, Vault | Encrypted ZFS Volume | Hourly Snapshot | `GET /-/health/live/` |
 
 ## Typical use cases
 - **Security Updates**: Auditing container image versions across the stack for early 2027 security patches.
@@ -51,6 +92,11 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - For managing secrets or environment variables (use [Vault](../tools/automation_orchestration/vault-mcp.md)).
 - For temporary, development-only services that are not part of the production lab.
 
+## Operational Best Practices & Maintenance
+1. **Automated Drift Detection**: Schedule weekly cron execution of `scripts/inventory_audit.py` to compare running Docker image tags against catalog definitions.
+2. **Exposure Verification**: Enforce reverse proxy ACL rules so services marked `LAN / Tailscale` are unreachable from public DNS.
+3. **ZFS Dataset Mapping**: Standardize all application persistent mounts under `/mnt/<pool>/applications/<service_name>` for uniform backup retention policies.
+
 ## Getting started
 
 ### Registering a New Service
@@ -74,8 +120,8 @@ The following script audits the versions of all services defined in the inventor
 ```python
 import subprocess
 import re
-from pydantic import BaseModel, Field
-from typing import Dict, List
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, List, Optional
 
 class ServiceItem(BaseModel):
     name: str = Field(..., description="The name of the service")
@@ -83,6 +129,14 @@ class ServiceItem(BaseModel):
     image: str = Field(..., description="Docker image reference")
     dataPath: str = Field(..., description="Local volume or storage mount path")
     exposure: str = Field(..., description="Access scope (LAN, Reverse Proxy, etc)")
+
+    @field_validator("exposure")
+    @classmethod
+    def validate_exposure(cls, v: str) -> str:
+        allowed = {"LAN", "Reverse Proxy / LAN", "LAN / Tailscale", "Private network / reverse proxy", "Reverse Proxy"}
+        if not any(a in v for a in ["LAN", "Proxy", "Tailscale", "Private"]):
+            raise ValueError(f"Invalid exposure specifier: {v}")
+        return v
 
 class AuditReport(BaseModel):
     services: List[ServiceItem]
@@ -121,37 +175,52 @@ def audit_inventory(inventory_file: str) -> None:
         print(f"Service: {svc.name} | Active Image: {actual} (Expected catalog image: {svc.image})")
 
 if __name__ == "__main__":
-    # Complete execution validation block
     print("Service inventory schema and auditor successfully loaded.")
 ```
 
 ## API examples
 
-### Fetching Inventory Data (Python + MCP 3.1)
+### Fetching Inventory Data via FastMCP 3.1
 Programmatically accessing the inventory for use in custom dashboards or agentic reasoning via MCP 3.1 / FastMCP tools.
 
 ```python
-import requests
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field
+from typing import List, Optional
 
-class ServicePathConfig(BaseModel):
-    service_name: str = Field(..., description="Name of the query service")
-    data_path: str = Field(..., description="System storage path configuration")
+mcp = FastMCP("Services-Inventory-MCP")
 
-def get_service_path(service_name: str) -> str:
-    # Programmatic mock catalog of active elements
-    inventory = {
-        "Nextcloud": {"data_path": "/mnt/pool/apps/nextcloud"},
-        "Immich": {"data_path": "/mnt/pool/apps/immich"}
+class InventoryQueryRequest(BaseModel):
+    filter_exposure: Optional[str] = Field(None, description="Filter services by exposure level (e.g. LAN, Reverse Proxy)")
+
+class ServiceEntry(BaseModel):
+    service_name: str
+    purpose: str
+    image: str
+    data_path: str
+    exposure: str
+
+@mcp.tool()
+async def query_services_inventory(request: InventoryQueryRequest) -> dict:
+    """Queries the homelab services inventory catalog."""
+    catalog = [
+        ServiceEntry(service_name="Nextcloud", purpose="File Storage", image="nextcloud:latest", data_path="/mnt/pool/apps/nextcloud", exposure="Reverse Proxy / LAN"),
+        ServiceEntry(service_name="Ollama", purpose="Local LLM Runner", image="ollama/ollama", data_path="/mnt/pool/apps/ollama", exposure="LAN / Tailscale"),
+        ServiceEntry(service_name="Authentik", purpose="IDP / SSO", image="ghcr.io/goauthentik/server", data_path="/mnt/pool/apps/authentik", exposure="Reverse Proxy / LAN")
+    ]
+
+    if request.filter_exposure:
+        catalog = [s for s in catalog if request.filter_exposure.lower() in s.exposure.lower()]
+
+    return {
+        "status": "success",
+        "services_count": len(catalog),
+        "items": [s.model_dump() for s in catalog],
+        "fastmcp_version": "3.1"
     }
-    raw_config = inventory.get(service_name)
-    if raw_config:
-        config = ServicePathConfig(service_name=service_name, data_path=raw_config["data_path"])
-        return config.data_path
-    return "Path not found"
 
 if __name__ == "__main__":
-    print(get_service_path('Immich'))
+    mcp.run()
 ```
 
 ## Related tools / concepts
