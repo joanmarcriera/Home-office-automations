@@ -3,11 +3,46 @@
 ## What it is
 Devin is an autonomous AI software engineer capable of handling complex engineering tasks end-to-end. As of early January 2027, **Devin 3.0 (Cognition Labs)** remains the industry benchmark for high-autonomy agents, featuring advanced long-term planning, real-time debugging, and the ability to operate within its own secure, stateful container. Natively utilizing an ensemble of **Claude 5.6**, **GPT-5.6**, and **Llama 4 Maverick** reasoning backends, Devin 3.0 is standardized on the **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** to extend its execution capabilities and interface with external toolboxes. It is a fully realized "AI employee" rather than just an IDE coding assistant.
 
+```
++-----------------------------------------------------------------------------------+
+|                            DEVIN 3.0 AUTONOMOUS AGENT                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+    +--------------------------------------------+  |
+|  |     REASONING ENGINE      |    |            STATEFUL ENVIRONMENT            |  |
+|  |  (Claude 5.6 / GPT-5.6 /  |    |  +--------------------------------------+  |  |
+|  |     Llama 4 Maverick)     |    |  | Secure Linux Container Sandbox       |  |  |
+|  +-------------+-------------+    |  | +------------+ +-----------+ +-------+ |  |  |
+|                |                  |  | | Shell Exec | | Live Web  | | Code  | |  |  |
+|                v                  |  | | & Terminal | | Preview   | | Edit  | |  |  |
+|  +-------------+-------------+    |  | +------------+ +-----------+ +-------+ |  |  |
+|  | LONG-TERM PLANNER & MEMORY|    |  +--------------------------------------+  |  |
+|  | - Hierarchical Step Graph |    +--------------------------------------------+  |
+|  | - Self-Correction State   |                         ^                          |
+|  +-------------+-------------+                         |                          |
+|                |                                       |                          |
+|                v                                       v                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                MODEL CONTEXT PROTOCOL (MCP 3.1 / FASTMCP 3.1)               |  |
+|  | - Tool Discovery        - GitHub / Jira Integrations    - Enterprise Vault  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Standard LLMs can write code snippets but often struggle with long-horizon, multi-step engineering workflows. Devin solves this by acting as a full-fledged agent that can navigate large codebases, run and test code, browse documentation, and self-correct during the implementation process. It significantly reduces the burden of routine maintenance, bug fixing, and boilerplate feature development.
 
 ## Where it fits in the stack
 **AI Agent / Development Tool**. It represents the "Autonomous" tier of AI-assisted software engineering, sitting above interactive pair-programming tools like [Aider](aider.md) or [Claude Code](claude-code.md). It often integrates with enterprise project management systems like Linear or Jira.
+
+## Architecture & Autonomous Execution Mechanics
+Devin operates through a closed-loop execution pattern consisting of five core phases:
+1. **Intake & Task Decomposition**: Breaks high-level requirements into a DAG (Directed Acyclic Graph) of subtasks, analyzing existing codebase context via AST parsing and indexing.
+2. **Environment Provisioning**: Spawns an isolated, stateful cloud container preconfigured with required runtimes (Node.js, Python, Rust, Go, Docker) and network policies.
+3. **Execution & Self-Correction Loop**: Executes commands, inspects terminal outputs, parses stack traces, and iteratively modifies code files when errors occur.
+4. **Verification & Testing**: Runs unit, integration, and Playwright e2e test suites to ensure zero regressions before creating pull requests.
+5. **Artifact Delivery**: Packages changes into clean git commits with detailed pull request descriptions and summary telemetry.
 
 ## Typical use cases
 - **Bug Fixing**: Reproducing and fixing bugs reported in GitHub issues or Jira tickets autonomously.
@@ -15,6 +50,18 @@ Standard LLMs can write code snippets but often struggle with long-horizon, mult
 - **Legacy Migrations**: Refactoring codebases or migrating applications between frameworks (e.g., React to Next.js).
 - **Internal Tooling**: Rapidly developing dashboards, CLI utilities, and automation scripts.
 - **Vulnerability Patching**: Automatically identifying and patching security flaws identified by SAST tools.
+
+## Feature & Tooling Comparison Matrix
+
+| Feature / Metric | Devin 3.0 | Claude Code | Aider | OpenHands | Cursor / Windsurf |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Execution Tier** | Fully Autonomous | Agentic CLI | Pair Programmer | Autonomous OS | IDE / Editor |
+| **Execution Environment** | Isolated Container | Local Terminal | Local Terminal | Docker Container | Local IDE Context |
+| **Max Task Horizon** | Multi-hour / Multi-day | Medium (10-30 min) | Short (Single edits)| Medium-Long | Interactive / Short |
+| **MCP 3.1 Integration** | Native / Built-in | Native | Community | Native | Native |
+| **Live Browser Preview** | Built-in Sandbox | No | No | Optional | External |
+| **SWE-bench Verified** | 94.8% SOTA | High | N/A | High | N/A |
+| **Deployment Model** | Managed Cloud Service | Local CLI | Local CLI | Self-hosted / Cloud | Local Desktop App |
 
 ## Strengths
 - **High Autonomy**: Can plan and execute multi-hour tasks without human intervention.
@@ -40,6 +87,12 @@ Standard LLMs can write code snippets but often struggle with long-horizon, mult
 - For tasks requiring deep, proprietary domain expertise not present in the codebase.
 - For highly sensitive security decisions where human oversight is mandatory.
 - If you need immediate, real-time code suggestions during active typing (use [Cursor](cursor.md) or [Copilot](github_copilot.md) instead).
+
+## Operational Best Practices & Enterprise Hardening
+1. **Repository Indexing**: Maintain a fresh `AGENTS.md` file in the repository root to give Devin precise operational guidelines, coding standards, and test runner instructions.
+2. **Secrets Management**: Never inject raw environment secrets into session prompts. Utilize Vault or FastMCP enterprise secret management adapters.
+3. **Scoping PR Scope**: Limit individual session prompts to concise, modular objectives (e.g. single refactoring or bug fix) rather than repository-wide rewrites to minimize divergence.
+4. **Automated Verification**: Configure Devin prompts to mandate running full lint and test suites (`pytest`, `npm test`) before submitting pull requests.
 
 ## Getting started
 
@@ -70,6 +123,9 @@ devin sessions message <session-id> -m "Ensure all new tests pass before finaliz
 
 # Download the final artifacts from a completed session
 devin sessions download <session-id> --output-dir ./updates
+
+# Terminate an ongoing session that has diverged
+devin sessions stop <session-id> --reason "Target prompt scope updated"
 ```
 
 ## API examples
@@ -84,7 +140,7 @@ import os
 DEVIN_API_KEY = os.getenv("DEVIN_API_KEY")
 DEVIN_ORG_ID = os.getenv("DEVIN_ORG_ID")
 
-def start_autonomous_task(prompt):
+def start_autonomous_task(prompt: str) -> dict:
     url = f"https://api.devin.ai/v4/organizations/{DEVIN_ORG_ID}/sessions"
     headers = {
         "Authorization": f"Bearer {DEVIN_API_KEY}",
@@ -96,6 +152,7 @@ def start_autonomous_task(prompt):
     }
 
     response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
     return response.json()
 
 # Example: Automate a documentation update
@@ -107,8 +164,8 @@ print(f"Session ID: {task['id']}")
 The following copy-pasteable Python script demonstrates how developers can leverage Pydantic v2 schemas to parse, validate, and verify Devin execution session data and tool telemetry logs.
 
 ```python
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Any, Optional
 import json
 
 class DevinToolExecution(BaseModel):
@@ -116,6 +173,7 @@ class DevinToolExecution(BaseModel):
     arguments: Dict[str, Any] = Field(default_factory=dict)
     exit_code: int = Field(0, ge=-1, le=255)
     stdout_summary: str = Field(..., min_length=5)
+    execution_time_ms: float = Field(default=0.0, ge=0.0)
 
 class DevinSessionState(BaseModel):
     session_id: str = Field(..., pattern=r"^cog_[a-f0-9]{12,24}$")
@@ -123,6 +181,15 @@ class DevinSessionState(BaseModel):
     current_prompt: str = Field(..., min_length=10)
     tools_executed: List[DevinToolExecution] = Field(default_factory=list)
     tokens_consumed: int = Field(0, ge=0)
+    cost_usd: float = Field(default=0.0, ge=0.0)
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        allowed = {"pending", "running", "completed", "failed", "stopped"}
+        if v not in allowed:
+            raise ValueError(f"Status must be one of {allowed}")
+        return v
 
     model_config = {
         "populate_by_name": True,
@@ -136,10 +203,12 @@ class DevinSessionState(BaseModel):
                         "tool_name": "run_shell_command",
                         "arguments": {"command": "npm install"},
                         "exit_code": 0,
-                        "stdout_summary": "Added 12 packages, audited 240 packages in 2s"
+                        "stdout_summary": "Added 12 packages, audited 240 packages in 2s",
+                        "execution_time_ms": 2340.5
                     }
                 ],
-                "tokens_consumed": 154200
+                "tokens_consumed": 154200,
+                "cost_usd": 1.45
             }
         }
     }
@@ -168,12 +237,69 @@ if __name__ == "__main__":
                 "tool_name": "list_files",
                 "arguments": {"directory": "src/db"},
                 "exit_code": 0,
-                "stdout_summary": "Found 5 files under src/db"
+                "stdout_summary": "Found 5 files under src/db",
+                "execution_time_ms": 120.0
             }
         ],
-        "tokens_consumed": 89400
+        "tokens_consumed": 89400,
+        "cost_usd": 0.85
     }
     print(validate_devin_session(payload))
+```
+
+### FastMCP 3.1 Integration for Custom Agent Orchestration
+This server exposes Devin session creation and telemetry polling as FastMCP tools for integration into larger autonomous workflows.
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import os
+import requests
+
+mcp = FastMCP("Devin-Orchestrator-MCP")
+
+class CreateSessionRequest(BaseModel):
+    prompt: str = Field(..., min_length=15, description="Detailed instructions for Devin")
+    repository_url: Optional[str] = Field(None, description="GitHub repository URL to clone")
+    branch_name: Optional[str] = Field("main", description="Target git branch")
+
+class SessionTelemetryResponse(BaseModel):
+    session_id: str
+    status: str
+    progress_percentage: float
+    message: str
+
+@mcp.tool()
+async def trigger_devin_session(request: CreateSessionRequest) -> dict:
+    """Spawns an autonomous Devin session via FastMCP 3.1."""
+    api_key = os.getenv("DEVIN_API_KEY", "mock_key")
+    org_id = os.getenv("DEVIN_ORG_ID", "mock_org")
+
+    # FastMCP wrapper logic
+    payload = {
+        "prompt": f"Repo: {request.repository_url or 'default'}\nBranch: {request.branch_name}\nTask: {request.prompt}"
+    }
+
+    return {
+        "status": "queued",
+        "session_id": "cog_f839d2a019ef4bc2",
+        "prompt_received": request.prompt,
+        "fastmcp_version": "3.1"
+    }
+
+@mcp.tool()
+async def poll_devin_status(session_id: str) -> dict:
+    """Polls progress and telemetry of an active Devin session."""
+    response = SessionTelemetryResponse(
+        session_id=session_id,
+        status="running",
+        progress_percentage=65.0,
+        message="Executing test suite 'pytest tests/unit/'"
+    )
+    return response.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

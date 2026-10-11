@@ -3,11 +3,59 @@
 ## What it is
 KLQ (Kullback-Leibler Measured Rotation Quantization) is an open-source, training-free model compression methodology and quantization framework. Introduced in August 2026, KLQ applies measured orthogonal rotation matrices to weight and activation spaces prior to post-training quantization (PTQ). This eliminates outlier activation spikes and preserves distribution shape, enabling ultra-low bitwidth execution (such as 2-bit, 3-bit, and EXL3/KM formats) with minimal perplexity degradation on open-weights LLMs.
 
+```
++-----------------------------------------------------------------------------------+
+|                        KLQ ROTATION & QUANTIZATION PIPELINE                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+    +--------------------------------------------+  |
+|  | DENSE MODEL WEIGHTS &     |    | CALIBRATION ACTIVATION SAMPLING            |  |
+|  | ACTIVATIONS (FP16/BF16)   |    | (Wikitext / C4 Sample Batches)             |  |
+|  +-------------+-------------+    +---------------------+----------------------+  |
+|                |                                        |                         |
+|                v                                        v                         |
+|  +-----------------------------------------------------------------------------+  |
+|  |                      MEASURED KL DIVERGENCE OPTIMIZER                       |  |
+|  | - Calculates Layer Activation Covariance Matrices                           |  |
+|  | - Minimizes KL(P_dense || Q_rotated_quant) Layer-by-Layer                   |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  |                  ORTHOGONAL ROTATION MATRIX APPLICATION                     |  |
+|  | - Suppresses Extreme Outlier Activation Spikes                              |  |
+|  | - Smooths Tensor Dynamic Range Prior to Bit-Packing                         |  |
+|  +--------------------------------------+--------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  |                    SUB-3-BIT PACKING & EXPORT ENGINE                        |  |
+|  | - GGUF (llama.cpp)  - EXL3 (ExLlamaV3)  - FastMCP 3.1 Quant Server          |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Standard sub-4-bit quantization techniques (like basic INT4 PTQ) suffer severe accuracy degradation due to extreme activation outliers in deep transformer layers. Traditional rotation methods (such as SpinQuant or QuaRot) apply randomized or fixed Hadamard rotations that fail to account for layer-specific activation covariance. KLQ solves this by using empirical Kullback-Leibler (KL) divergence measurements to optimize layer-wise rotation angles, allowing models to be quantized cleanly to 2-bit or 3-bit levels without requiring compute-intensive fine-tuning or full retraining.
 
 ## Where it fits in the stack
 **Infrastructure / Model Compression & Quantization**. KLQ operates as an offline optimization runtime tool or dynamic quantization pipeline stage within local inference ecosystems ([llama.cpp](llama-cpp.md), [vLLM](vllm.md), [ExLlamaV3](exllamav3.md)), converting dense FP16/BF16 checkpoints into ultra-compact GGUF/EXL3 formats.
+
+## Architecture & Rotation Mechanics
+1. **Activation Covariance Measurement**: Samples calibration batches to record output activations $X \in \mathbb{R}^{n \times d}$ across all transformer projection blocks ($W_q, W_k, W_v, W_o, W_{gate}, W_{up}, W_{down}$).
+2. **Layer-wise KL Divergence Minimization**: Solves for orthogonal matrix $R \in \mathbb{O}(d)$ that minimizes the Kullback-Leibler divergence between original output logits and quantized rotated outputs:
+   $$\min_R D_{KL}\left( P(X W) \;\parallel\; Q\left(X R \cdot R^T W\right) \right)$$
+3. **Outlier Suppression & Bit Packing**: Rotates weights $W' = R^T W$ and activation channels $X' = X R$, dampening heavy-tailed outlier dimensions so uniform or non-linear 2-bit/3-bit quantizers operate in their optimal linear range.
+
+## Quantization Method Comparison
+
+| Methodology | Training Required | Outlier Rotation Strategy | 2-Bit Perplexity Degradation | Quantization Speed (70B) |
+| :--- | :--- | :--- | :--- | :--- |
+| **KLQ (Measured Rotation)** | None (Training-Free) | Empirical KL-Optimized Rotations | Minimal (< 0.25 PPL) | ~10-15 Minutes |
+| **QuaRot / SpinQuant** | None | Fixed / Randomized Hadamard | Moderate (~0.8-1.5 PPL) | ~15-20 Minutes |
+| **AWQ / GPTQ** | None | Channel Activation Salience | High / Severe Spikes | ~20-30 Minutes |
+| **QLoRA / Fine-Quant** | Partial Fine-Tuning | None | Minimal | Hours (Requires GPUs) |
 
 ## Typical use cases
 - **Ultra-Low VRAM Edge Deployment**: Running 70B+ parameter models (e.g., Llama 4 or Qwen 3.8) on consumer single-GPU setups or edge workstations.
@@ -23,6 +71,10 @@ Standard sub-4-bit quantization techniques (like basic INT4 PTQ) suffer severe a
 ## Limitations
 - **Rotation Overhead at Export**: Matrix multiplication during rotation export adds a brief one-time processing delay during conversion.
 - **Kernel Hardware Support**: Maximum speedup gains require hardware kernels (CUDA/Metal) optimized for rotated low-bit matrix multiplication.
+
+## Operational Best Practices
+1. **Calibration Dataset Choice**: Use domain-representative calibration text (e.g., code repositories for coding models) during the initial KL measurement phase to prevent distribution shift.
+2. **Bit Allocation Strategy**: Assign slightly higher bitwidths (e.g., 3.5 bits) to initial embedding and final head layers while running internal MLP layers at 2.25 bits for an optimal overall 2.5-bit target.
 
 ## When to use it
 - When compressing LLM checkpoints to 2-bit or 3-bit precision where standard AWQ or GPTQ cause perplexity spikes.
@@ -90,13 +142,20 @@ The following Python script demonstrates how to execute a KLQ quantization calib
 ```python
 import os
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 class LayerQuantMetric(BaseModel):
     layer_index: int = Field(..., ge=0, description="Transformer layer index")
     kl_divergence: float = Field(..., ge=0.0, description="Measured KL divergence post-rotation")
     outlier_suppression_ratio: float = Field(..., ge=1.0, description="Ratio of activation peak reduction")
     bits_assigned: float = Field(..., gt=0.0, description="Target bit precision for layer")
+
+    @field_validator("bits_assigned")
+    @classmethod
+    def validate_bits(cls, v: float) -> float:
+        if v < 1.0 or v > 8.0:
+            raise ValueError("Bits assigned must be between 1.0 and 8.0")
+        return v
 
 class KLQQuantizationReport(BaseModel):
     model_name: str = Field(..., description="Target model converted")

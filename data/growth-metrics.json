@@ -21,10 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/development_ops/devin.md",
-    "docs/services/nextcloud.md",
-    "docs/tools/infrastructure/klq.md",
-    "docs/tools/infrastructure/text-generation-webui.md",
     "docs/tools/calendar_tasks/google_calendar.md",
     "docs/services/headscale.md",
     "docs/tools/automation_orchestration/pulse-mcp.md",
@@ -40,7 +36,11 @@
     "docs/tools/development_ops/llmfit.md",
     "docs/tools/providers/nebius.md",
     "docs/tools/ai_knowledge/nemotron.md",
-    "docs/services/jellyfin.md"
+    "docs/services/jellyfin.md",
+    "docs/tools/agents/aws-dogwood.md",
+    "docs/tools/ai_knowledge/sora.md",
+    "docs/tools/benchmarking/supermetal.md",
+    "docs/tools/development_ops/trelliscpp.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
