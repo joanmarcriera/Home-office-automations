@@ -9,11 +9,46 @@ Managing separate usernames and passwords for dozens of self-hosted services (Ne
 ## Where it fits in the stack
 SSO sits in the **Identity and Access** layer of the infrastructure stack. It typically integrates with a directory service (like LDAP or Kanidm's internal store) and provides standardized authentication protocols—OIDC (OpenID Connect), SAML 2.0, and OAuth2—to application-layer services, as well as sandboxed agent authentication tokens.
 
+```
++-----------------------------------------------------------------------------------+
+|                        CENTRALIZED SSO DELEGATION TOPOLOGY                        |
+|                                                                                   |
+|   +-----------------------+      +-----------------------+                        |
+|   |   Claude 5.6 / GPT-5.6|      |    Human User         |                        |
+|   |   Agent Swarm         |      |    Browser Session    |                        |
+|   +-----------+-----------+      +-----------+-----------+                        |
+|               |                              |                                    |
+|               | (FastMCP 3.1 OIDC Exchange)  | (WebAuthn / Passkeys)              |
+|               v                              v                                    |
+|   +-------------------------------------------------------+                       |
+|   |             IDENTITY PROVIDER ENGINE (IdP)            |                       |
+|   |         (Authentik / Kanidm / LLDAP Bridge)           |                       |
+|   +---------------------------+---------------------------+                       |
++-------------------------------+---------------------------------------------------+
+                                |
+                                v (OIDC JWT Bearer / SAML Assertions)
++-----------------------------------------------------------------------------------+
+|                              PROTECTED SERVICES LAYER                             |
+|                                                                                   |
+|     [Nextcloud Hub] <----------> [Gitea SCM] <----------> [Home Assistant]       |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Homelab Consolidation**: Unifying access to Gitea, Nextcloud, and Home Assistant dashboards.
 - **Enterprise-Lite**: Providing OIDC/SAML for small business internal tools with professional-grade security.
 - **Legacy Support**: Using LLDAP to provide authentication for older applications that only support the LDAP protocol.
 - **Agentic Authentication**: Allowing Claude 5.6, Llama 4, Qwen 3.6 VL, or GPT-5.6 agents to authenticate securely via OIDC token exchange (FastMCP 3.1 Task Protocol) to retrieve data from private services without master keys.
+
+## Feature Matrix
+
+| Feature | Authentik | Kanidm | LLDAP | Authelia |
+| :--- | :--- | :--- | :--- | :--- |
+| **Language / Architecture** | Python & Go (Outposts) | Rust (Security-First) | Rust (Minimalist) | Go (Lightweight Proxy) |
+| **Primary Protocols** | OIDC, SAML 2.0, OAuth2, LDAP | OIDC, LDAPS | LDAP only | OIDC, Proxy Header Auth |
+| **Resource Footprint** | ~1.5 GB - 2 GB RAM | ~150 MB - 300 MB RAM | ~30 MB - 50 MB RAM | ~100 MB - 200 MB RAM |
+| **Agentic Auth (FastMCP 3.1)**| Native OIDC OAuth2 Exchange | CLI & API Token Scopes | Via Bridge / Proxy | Proxy Header Auth |
+| **MFA / Passkeys** | FIDO2 / WebAuthn, TOTP | Mandatory WebAuthn / TOTP | TOTP | FIDO2 / WebAuthn, TOTP |
 
 ## Strengths
 
@@ -110,7 +145,7 @@ import json
 import requests
 from datetime import datetime, timezone
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, EmailStr, HttpUrl
+from pydantic import BaseModel, Field, EmailStr, HttpUrl, field_validator
 
 class SSOUser(BaseModel):
     username: str = Field(..., min_length=2, description="Unique login identifier")
@@ -126,6 +161,13 @@ class OIDCTokenExchange(BaseModel):
     refresh_token: Optional[str] = None
     scope: str
     issued_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    @field_validator("access_token")
+    @classmethod
+    def validate_non_empty(cls, v: str) -> str:
+        if not v or len(v) < 10:
+            raise ValueError("Invalid JWT token length")
+        return v
 
 def provision_sso_user(api_url: str, token: str, user: SSOUser) -> dict:
     """Provisions a new user in the Identity Provider (e.g., Authentik)."""
@@ -163,15 +205,31 @@ if __name__ == "__main__":
         print("Validation Failed:", str(e))
 ```
 
-### 2. OIDC Discovery Endpoint
-All modern SSO providers expose a discovery URL for client configuration:
-```text
-GET https://sso.example.com/application/o/gitea/.well-known/openid-configuration
-```
+### 2. FastMCP 3.1 Tool Registration for OIDC Token Verification
+Exposing token exchange and verification logic via FastMCP 3.1 for agentic authentication:
 
-### 3. Kanidm OIDC Client Creation via API
-```bash
-kanidm system oauth2 create gitea "Gitea Instance" https://gitea.example.com/oauth2/callback
+```python
+from fastmcp import FastMCP, Context
+
+mcp = FastMCP("SSO-Auth-Verifier")
+
+@mcp.tool()
+async def verify_agent_token(task_id: str, bearer_token: str, required_scope: str, ctx: Context) -> dict:
+    """Verifies agent identity and scope access using FastMCP 3.1 Task Protocol."""
+    ctx.info(f" Verifying token for task {task_id} with scope '{required_scope}'")
+
+    # Mock validation logic
+    if bearer_token.startswith("eyJ"):
+        return {
+            "task_id": task_id,
+            "authenticated": True,
+            "principal": "jules-agent@homelab.internal",
+            "granted_scopes": ["openid", "profile", required_scope]
+        }
+    return {"task_id": task_id, "authenticated": False, "error": "Invalid token header"}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
