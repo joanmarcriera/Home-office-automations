@@ -1,7 +1,7 @@
 # Self-Healing Homelab Agent Research
 
 ## What it is
-A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of early January 2027, these agents leverage **MCP 3.1 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Llama 4](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
+A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of late 2026 / early 2027, these agents leverage **MCP 3.1 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Llama 4](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
 
 ### Observability & Self-Healing Loop Topology
 
@@ -65,7 +65,7 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 
 ## Strengths
 - **Low Latency**: Responses happen in seconds, not minutes, especially when using local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
-- **Intelligent Recovery**: LLM-based reasoning (e.g., Claude 5.1 or GPT-5.5) can distinguish between a transient network blip and a persistent config error.
+- **Intelligent Recovery**: LLM-based reasoning (e.g., Claude 5.6 or GPT-5.6) can distinguish between a transient network blip and a persistent config error.
 - **Traceability**: Every action is logged, providing a clear history of system stability.
 
 ## Limitations
@@ -89,7 +89,7 @@ Implementing a self-healing agent involves setting up monitoring triggers and co
 Configure **Uptime Kuma** or **Prometheus** to send webhooks to your agent (e.g., n8n or a custom Python script) when a service goes down.
 
 ### 2. Remediation Logic
-Integrate an LLM (local [Gemma 3](../tools/ai_knowledge/local_llms.md) via [Ollama](../services/ollama.md) or cloud-based Claude 5.1 / GPT-5.5) to analyze the failure and decide on an action.
+Integrate an LLM (local [Gemma 3](../tools/ai_knowledge/local_llms.md) via [Ollama](../services/ollama.md) or cloud-based Claude 5.6 / GPT-5.6) to analyze the failure and decide on an action.
 
 ## CLI examples
 The agent can use CLI tools like `kubectl` or `docker` via MCP tools to execute remediation.
@@ -148,7 +148,7 @@ class DiagnosticReport(BaseModel):
 @mcp.tool()
 def analyze_logs_and_remediate(request: LogPatternRequest) -> str:
     """
-    Analyzes container logs using late 2026/early 2027 SOTA patterns to detect known failures
+    Analyzes container logs using SOTA patterns to detect known failures
     and returns a Pydantic v2 validated diagnostic and remediation strategy.
     """
     log_lower = request.log_dump.lower()
@@ -223,6 +223,7 @@ if __name__ == "__main__":
 - [n8n AI Node Documentation](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.ai-agent/)
 - [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.info)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-11
 - Confidence: high
