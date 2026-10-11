@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/lobehub.md",
-    "docs/tools/automation_orchestration/puppeteer.md",
-    "docs/tools/benchmarking/math-benchmark.md",
     "docs/tools/infrastructure/exllamav3.md",
     "docs/services/radicale-automation.md",
     "docs/tools/providers/anthropic.md",
@@ -40,7 +37,10 @@
     "docs/tools/development_ops/trelliscpp.md",
     "docs/tools/providers/perplexity.md",
     "docs/tools/benchmarking/deepeval.md",
-    "docs/services/home-assistant.md"
+    "docs/services/home-assistant.md",
+    "docs/tools/process_understanding/new-relic-ai.md",
+    "docs/services/kiwix.md",
+    "docs/tools/benchmarking/multipl-e.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

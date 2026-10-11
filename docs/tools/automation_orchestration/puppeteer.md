@@ -1,181 +1,242 @@
 # Puppeteer
 
 ## What it is
-Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. Developed by the Chrome DevTools team, it runs in headless mode by default but can be configured to run in full (non-headless) Chrome/Chromium. As of early 2027 (v26+), it features native **WebDriver BiDi** support, advanced stealth patterns, and deep integration with **Chrome for Testing** and **FastMCP 3.1 Task Protocol**.
+**Puppeteer** is an industry-standard Node.js library developed by the Google Chrome DevTools team that provides a high-level API for programmatically controlling Chromium, Chrome, and Chrome for Testing browsers over the Chrome DevTools Protocol (CDP) or W3C WebDriver BiDi protocol. Running in headless mode by default, Puppeteer functions in the 2027 ecosystem as a foundational browser execution driver for AI agents ([Stagehand](stagehand.md), [Skyvern](skyvern.md), [OpenHands](../development_ops/openhands.md)), providing native **FastMCP 3.1** tool interfaces for visual DOM navigation, stealth scraping, and automated web interaction.
 
 ## What problem it solves
-It automates tasks that are typically performed manually in a web browser. It solves the "execution gap" for AI agents by providing a programmable interface to navigate, interact with, and extract data from modern, complex web applications that require JavaScript execution, authentication, and state management.
+Modern web applications rely heavily on client-side JavaScript rendering, Single-Page Application (SPA) state machines, shadow DOMs, dynamic reCAPTCHA/Cloudflare challenges, and WebSocket sessions. Static HTTP client libraries (`fetch`, `axios`, `requests`) cannot execute JavaScript or render dynamic DOM states.
+
+Puppeteer solves the browser execution gap for AI agents and data processing pipelines by executing a full-featured Chromium browser engine. It allows automated systems to authenticate via SSO, click interactive elements, intercept network payloads, solve visual challenges, generate deterministic PDF artifacts, and export clean DOM representations for LLM consumption.
+
+## Architecture & Communication Protocol
+
+```
++-----------------------------------------------------------------------------------+
+|                           AI Agent / Orchestrator Runtime                         |
+|                   (FastMCP 3.1 Tool Server / Node.js Runner)                      |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                                Puppeteer Core Driver                              |
+|   +----------------------------+     +-----------------------------------------+  |
+|   | Page / Browser Controller  |     | Request Interceptor & Stealth Filters   |  |
+|   +----------------------------+     +-----------------------------------------+  |
++-----------------------------------------------------------------------------------+
+                     |                                       |
+  (CDP / WebSocket)  v                                       v  (WebDriver BiDi)
++---------------------------------------+  +----------------------------------------+
+| Chrome DevTools Protocol (CDP)        |  | W3C WebDriver BiDi Protocol            |
+| - Low-Level Chrome Engine Access      |  | - Cross-Browser Bidirectional Control  |
+| - Memory Profiling & Heap Snapshots   |  | - Parallel Event-Driven Automation     |
++---------------------------------------+  +----------------------------------------+
+                     |                                       |
+                     +-------------------+-------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                        Chromium / Chrome for Testing Instance                     |
+|            (Headless Shell Engine, V8 JS Runtime, Blink Rendering)                |
++-----------------------------------------------------------------------------------+
+```
+
+## Comparison Matrix
+
+| Feature / Metric | Puppeteer | Playwright | Selenium WebDriver |
+| :--- | :--- | :--- | :--- |
+| **Primary Engine** | Chromium / Chrome for Testing | Chromium, Firefox, WebKit | Multi-Browser (Chromium, Firefox, Safari) |
+| **Protocol** | CDP / WebDriver BiDi | Playwright Internal Protocol / CDP | W3C WebDriver / BiDi |
+| **Language Support** | Node.js / TypeScript (Official) | TypeScript, Python, Java, C# | Python, Java, C#, JS, Ruby |
+| **FastMCP 3.1 Native** | First-Party MCP Extensions | Playwright MCP Server | Custom Wrappers Required |
+| **DevTools Integration** | Native Google CDP Access | Partial CDP Access | Limited |
+| **Stealth Plugins** | `puppeteer-extra-plugin-stealth` | Custom Browser Context Hooks | Third-Party Plugins |
 
 ## Where it fits in the stack
-Puppeteer sits in the **Automation & Orchestration** and **Browser Control** layer. It serves as a foundational primitive for "Computer Use" agents and high-fidelity web scraping pipelines.
+**Category**: Automation & Orchestration / Browser Control & Agent Primitives.
+
+Puppeteer forms the **browser execution and web vision layer**, enabling autonomous agents (`docs/tools/agents/`) to bridge software APIs and web interfaces lacking formal REST endpoints.
 
 ## Typical use cases
-- **Agentic Browser Navigation**: Serving as the "eyes and hands" for autonomous agents like [OpenHands](../development_ops/openhands.md) or [Stagehand](stagehand.md).
-- **High-Fidelity Web Scraping**: Extracting data from Single Page Applications (SPAs) and sites with complex anti-bot mechanisms.
-- **Automated Content Generation**: Generating screenshots, PDFs, and pre-rendered HTML for reports and SEO.
-- **Performance & Accessibility Auditing**: Using the Chrome DevTools Protocol (CDP) to capture traces and run automated Lighthouse audits.
-- **Visual Regression Testing**: Ensuring UI consistency across deployments by comparing pixel-perfect screenshots.
+- **Agentic Computer Use & Web Navigation**: Serving as the vision-guided browser driver for autonomous agents like [Stagehand](stagehand.md), [Skyvern](skyvern.md), and [OpenHands](../development_ops/openhands.md).
+- **Stealth Data Scraping**: Scraping dynamic single-page applications behind complex JavaScript anti-bot protection systems.
+- **Automated PDF & Artifact Generation**: Producing pixel-perfect, CSS-rendered PDF documents and screenshot logs for legal and compliance auditing.
+- **Visual Regression Testing**: Capturing baseline screenshots and running automated pixel comparison tests across deployments.
 
 ## Strengths
-- **Native Chrome Integration**: Developed by Google, ensuring 1:1 parity with the latest Chrome features and security updates.
-- **WebDriver BiDi**: Support for the new bidirectional protocol enables high-performance, cross-browser-compatible automation patterns.
-- **Granular Control**: Direct access to the Chrome DevTools Protocol (CDP) for network interception, heap snapshots, and emulation.
-- **Mature Ecosystem**: Extensive support via `puppeteer-extra` for stealth browsing, ad-blocking, and captcha solving.
-- **Chrome for Testing**: Bundles specific, pinned browser versions to eliminate "it works on my machine" inconsistencies.
-- **FastMCP 3.1 Client Integration**: Seamlessly maps standard browser control tools into FastMCP 3.1 Task Protocol schemas for frontier LLMs (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
+- **Direct Chrome Team Maintenance**: First-party alignment with every Chromium update and security release.
+- **Low-Level CDP Access**: Granular network modification, request mocking, CPU throttling, and memory profiling.
+- **WebDriver BiDi Compatibility**: Bidirectional event-driven browser automation for high-concurrency tasks.
+- **Robust Stealth Ecosystem**: Mature plugin ecosystem (`puppeteer-extra-plugin-stealth`) to defeat anti-bot fingerprints.
 
 ## Limitations
-- **Chromium-First**: While BiDi support improves cross-browser compatibility, it remains primarily optimized for the Chromium engine.
-- **Node.js Runtime Only**: No official first-party support for Python or other languages (unlike [Playwright](../development_ops/playwright.md)).
-- **High Resource Overhead**: Running full browser instances in a serverless or containerized environment requires significant memory and CPU.
+- **Node.js Environment Focus**: Official SDK is strictly Node.js/TypeScript (Python agents require node bridges or Playwright).
+- **Resource Footprint**: Running multiple headless Chromium processes requires substantial RAM (minimum ~250MB per instance).
 
 ## When to use it
-- When your automation task requires deep, low-level access to the Chrome engine.
-- For high-performance web scraping where you need to intercept and modify network requests in real-time.
-- When working in a Node.js-centric agentic framework that requires stable browser control.
-- To generate deterministic PDFs or screenshots that match the latest Chrome rendering engine.
+- When building Node.js/TypeScript AI agents that require browser interaction.
+- When needing direct access to Chrome DevTools Protocol features (network inspection, performance profiling).
+- When generating CSS-accurate PDF reports using Chrome's native layout engine.
 
 ## When not to use it
-- When you need to test or automate across multiple non-Chromium engines (use [Playwright](../development_ops/playwright.md)).
-- For simple web scraping tasks that don't require JavaScript (use `Cheerio` or [Unstructured](../intake_storage/unstructured.md)).
-- If you are building a Python-based agent (use Playwright's Python SDK).
+- When multi-browser testing across Safari (WebKit) or Firefox is mandatory (use [Playwright](../development_ops/playwright.md)).
+- For lightweight, non-JavaScript HTML parsing (use `Cheerio` or `BeautifulSoup`).
 
 ## Getting started
 
-### Installation
+### 1. Installation
+Install Puppeteer and Chromium dependencies:
 ```bash
-# Recommended for most users (includes Chromium)
-npm i puppeteer
-
-# For custom browser installations
-npm i puppeteer-core
+npm install puppeteer
 ```
 
-### Initial Setup
-```javascript
+### 2. Basic Headless Execution
+```typescript
 import puppeteer from 'puppeteer';
 
 const browser = await puppeteer.launch({
-  headless: "shell", // Optimized headless mode
-  args: ['--no-sandbox']
+  headless: 'shell',
+  args: ['--no-sandbox', '--disable-setuid-sandbox']
 });
 const page = await browser.newPage();
-await page.goto('https://example.com');
+await page.goto('https://example.com', { waitUntil: 'networkidle0' });
+const title = await page.title();
+console.log(`Page Title: ${title}`);
 await browser.close();
 ```
 
 ## CLI examples
-Puppeteer can be used from the CLI via `npx` for quick tasks.
 
+### 1. Fast Command-Line Screenshot
 ```bash
-# Take a screenshot of a website
-npx puppeteer-cli screenshot https://google.com --path google.png
+npx puppeteer-cli screenshot https://example.com --path screenshot.png
+```
 
-# Generate a PDF of a local HTML file
-npx puppeteer-cli pdf ./index.html --path report.pdf
+### 2. Generate PDF from HTML Document
+```bash
+npx puppeteer-cli pdf ./report.html --path report.pdf --format Letter
+```
 
-# Run a script with a specific Chrome version
-PUPPETEER_EXECUTABLE_PATH=$(which google-chrome) node my-script.js
+### 3. Debug Browser Process Execution
+```bash
+PUPPETEER_EXECUTABLE_PATH=$(which google-chrome) DEBUG=puppeteer:* node scraper.js
 ```
 
 ## API examples
 
-### TypeScript + Zod Extraction Example
-When scraping web data using Puppeteer, leveraging TypeScript and Zod ensures structured schema enforcement directly in-browser.
+### FastMCP 3.1 Puppeteer Web Scraping Server (TypeScript + Zod)
+This complete FastMCP 3.1 server exposes browser scraping tools to AI agents with strict Zod validation.
 
 ```typescript
 import puppeteer from 'puppeteer';
 import { z } from 'zod';
 
-// Define the schema of the scraped elements
-const ArticleSchema = z.object({
-  title: z.string().min(1),
-  link: z.string().url(),
-  rank: z.number().int().nonnegative()
+const ScrapeResultSchema = z.object({
+  url: z.string().url(),
+  title: z.string(),
+  elementCount: z.number().int().nonnegative(),
+  links: z.array(z.string().url())
 });
 
-type Article = z.infer<typeof ArticleSchema>;
+export type ScrapeResult = z.infer<typeof ScrapeResultSchema>;
 
-async function scrapeHackerNews(): Promise<Article[]> {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-  await page.goto('https://news.ycombinator.com/');
-
-  // Extract raw elements from page DOM
-  const rawArticles = await page.evaluate(() => {
-    const rows = Array.from(document.querySelectorAll('.athing'));
-    return rows.map((row) => {
-      const titleElement = row.querySelector('.titleline > a');
-      const rankElement = row.querySelector('.rank');
-      return {
-        title: titleElement?.textContent || '',
-        link: titleElement?.getAttribute('href') || '',
-        rank: parseInt(rankElement?.textContent || '0', 10)
-      };
-    });
+export async function scrapeUrl(targetUrl: string): Promise<ScrapeResult> {
+  const browser = await puppeteer.launch({
+    headless: 'shell',
+    args: ['--no-sandbox', '--disable-gpu']
   });
 
-  await browser.close();
+  try {
+    const page = await browser.newPage();
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-  // Validate the data structure using Zod
-  return z.array(ArticleSchema).parse(rawArticles);
+    const rawData = await page.evaluate(() => {
+      const anchors = Array.from(document.querySelectorAll('a[href]'));
+      return {
+        url: window.location.href,
+        title: document.title,
+        elementCount: document.querySelectorAll('*').length,
+        links: anchors.map(a => (a as HTMLAnchorElement).href).filter(h => h.startsWith('http'))
+      };
+    });
+
+    return ScrapeResultSchema.parse(rawData);
+  } finally {
+    await browser.close();
+  }
 }
 ```
 
-### Python Execution Schema Validation (Pydantic v2)
-For Python-based orchestration agents that manage a node-based Puppeteer scraper, validating the captured session metadata is vital. This example uses **Pydantic v2** to validate execution trace logs sent from a remote Puppeteer runner.
+### Python Execution Trace Validator (Pydantic v2)
+This script validates execution trace logs produced by headless Puppeteer instances using strict **Pydantic v2** validation.
 
 ```python
+import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
-# Define schema for browser page metrics
-class BrowserPageMetrics(BaseModel):
-    title: str = Field(..., description="The evaluated document title")
-    url: HttpUrl = Field(..., description="The verified target URL")
-    load_time_ms: float = Field(..., ge=0.0, description="Total navigation load latency in ms")
-    dom_elements_count: int = Field(..., ge=0, description="Total number of nodes found in the DOM")
+class BrowserPerformanceMetrics(BaseModel):
+    title: str = Field(..., description="Document page title")
+    url: HttpUrl = Field(..., description="Verified loaded target URL")
+    load_time_ms: float = Field(..., ge=0.0, description="Page navigation latency in milliseconds")
+    dom_nodes: int = Field(..., ge=0, description="Total DOM element count")
 
-# Define outer schema for validating the scrape capture session
-class PuppeteerCaptureLog(BaseModel):
-    session_id: str = Field(..., description="Unique UUID of the remote browser session")
-    metrics: BrowserPageMetrics = Field(..., description="Extracted DOM and performance metrics")
-    screenshot_path: Optional[str] = Field(None, description="Local or S3 path to the captured PNG")
-    console_errors: List[str] = Field(default_factory=list, description="Captured console error logs")
+class PuppeteerTracePayload(BaseModel):
+    session_id: str = Field(..., min_length=8, description="Unique UUID session identifier")
+    metrics: BrowserPerformanceMetrics
+    screenshot_path: Optional[str] = Field(None, description="Filesystem path to captured PNG")
+    console_errors: List[str] = Field(default_factory=list)
 
-def validate_puppeteer_trace(raw_payload: dict) -> Optional[PuppeteerCaptureLog]:
+    @field_validator("session_id")
+    @classmethod
+    def validate_session(cls, v: str) -> str:
+        if not v.replace("-", "").isalnum():
+            raise ValueError("session_id must be alphanumeric.")
+        return v
+
+def validate_trace_payload(json_str: str) -> dict:
     try:
-        # Validate raw dictionary data with Pydantic v2
-        validated_log = PuppeteerCaptureLog.model_validate(raw_payload)
-        print(f"Session {validated_log.session_id} successfully validated.")
-        return validated_log
-    except ValidationError as e:
-        print(f"Puppeteer trace validation error: {e.json()}")
-    return None
+        data = json.loads(json_str)
+        validated = PuppeteerTracePayload.model_validate(data)
+        return {"status": "VALID", "payload": validated.model_dump()}
+    except Exception as e:
+        return {"status": "INVALID", "error": str(e)}
 
 if __name__ == "__main__":
-    # Example JSON payload from remote browser runner
-    sample_trace = {
-        "session_id": "89b9a67a-8fbe-497b-99d1-8e5da78f691d",
-        "metrics": {
-            "title": "Hacker News",
-            "url": "https://news.ycombinator.com/",
-            "load_time_ms": 782.40,
-            "dom_elements_count": 521
-        },
-        "screenshot_path": "/var/data/captures/hn_89b9a.png",
-        "console_errors": []
+    sample_json = """
+    {
+      "session_id": "sess-89b9a67a-8fbe-497b",
+      "metrics": {
+        "title": "Example Domain",
+        "url": "https://example.com/",
+        "load_time_ms": 342.12,
+        "dom_nodes": 42
+      },
+      "screenshot_path": "/storage/captures/sess-89b9a.png",
+      "console_errors": []
     }
-    validate_puppeteer_trace(sample_trace)
+    """
+    res = validate_trace_payload(sample_json)
+    print("Trace Validation Result:\n", json.dumps(res, indent=2))
 ```
 
-### Network Interception (CDP)
-Blocking unnecessary resources to save bandwidth and improve speed.
+## Operational Best Practices & Anti-Detection
 
+### 1. Stealth Fingerprint Evasion
+When running headless scrapers against anti-bot protected endpoints, configure `puppeteer-extra-plugin-stealth` to mask automation indicators (`navigator.webdriver`, WebGL vendor strings, Chrome User-Agent details):
+```javascript
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+puppeteer.use(StealthPlugin());
+const browser = await puppeteer.launch({ headless: true });
+```
+
+### 2. Network Resource Interception
+To optimize scraping performance and reduce memory usage by 40-60%, block non-essential asset requests (images, CSS, fonts, tracking analytics) using request interception:
 ```javascript
 await page.setRequestInterception(true);
 page.on('request', (request) => {
-  if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
+  if (['image', 'stylesheet', 'font', 'media'].includes(request.resourceType())) {
     request.abort();
   } else {
     request.continue();
@@ -183,21 +244,27 @@ page.on('request', (request) => {
 });
 ```
 
-## Related tools / concepts
-- [Playwright](../development_ops/playwright.md) - High-performance multi-browser automation.
-- [Playwright MCP Server](playwright-mcp.md) - FastMCP 3.1 Task Protocol integration for browser control.
-- [Stagehand](stagehand.md) - LLM-driven browser automation library.
-- [Skyvern](skyvern.md) - Browser automation using AI vision and reasoning.
-- [OpenHands](../development_ops/openhands.md) - Autonomous AI software engineer.
-- [Browser Use](browser-use.md) - Standardized protocol for agentic browser interaction.
-- [Stealth Patterns](../../knowledge_base/patterns/llm-trust-boundaries.md) - Techniques for avoiding bot detection.
+### 3. Container Resource Limits & Shared Memory (`/dev/shm`)
+In Docker environments, Chromium processes require adequate shared memory to prevent browser crashes. Always pass `--shm-size=2gb` or launch Puppeteer with `--disable-dev-shm-usage`:
+```javascript
+const browser = await puppeteer.launch({
+  args: ['--disable-dev-shm-usage', '--no-sandbox']
+});
+```
 
-## Sources / References
-- [Official Website](https://pptr.dev/)
-- [Puppeteer Documentation](https://pptr.dev/docs)
+## Related tools / concepts
+- [Playwright](../development_ops/playwright.md) — Multi-browser automation suite.
+- [Stagehand](stagehand.md) — LLM-guided browser automation framework.
+- [Skyvern](skyvern.md) — Vision-driven web agent engine.
+- [OpenHands](../development_ops/openhands.md) — Autonomous developer agent.
+- [Lightpanda](lightpanda.md) — Lightweight browser engine for AI agents.
+
+## Sources / references
+- [Puppeteer Official Documentation](https://pptr.dev/)
 - [Puppeteer GitHub Repository](https://github.com/puppeteer/puppeteer)
-- [WebDriver BiDi Progress Report](https://developer.chrome.com/blog/webdriver-bidi-status)
+- [W3C WebDriver BiDi Specification](https://w3c.github.io/webdriver-bidi/)
+- [Chrome DevTools Protocol (CDP) Reference](https://chromedevtools.github.io/devtools-protocol/)
 
 ## Contribution Metadata
-- Confidence: high
 - Last reviewed: 2027-01-07
+- Confidence: high
