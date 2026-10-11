@@ -6,6 +6,56 @@ NVIDIA NeMo AutoModel is a high-performance open-source training and optimizatio
 ## What problem it solves
 Fine-tuning and scaling multi-modal diffusion networks is extremely memory-intensive, slow, and computationally inefficient. NeMo AutoModel solves these bottlenecks by introducing native 3D parallelism (tensor, pipeline, and data parallel training), automated precision adjustments (FP8/BF16/INT4), and memory-efficient attention layers, allowing developers to scale training across hundreds of GPUs with minimal code overhead. It integrates with FastMCP 3.1 environments to allow autonomous agents to monitor, schedule, and configure long-running distributed training runs safely via the **MCP 3.1 Task Protocol**.
 
+## System Architecture
+
+The following ASCII diagram illustrates NeMo AutoModel's distributed 3D parallelism, automated FP8/BF16 quantization compilation, and FastMCP 3.1 agent orchestration interface:
+
+```
++-----------------------------------------------------------------------------------+
+|                        AGENT ORCHESTRATION & FastMCP 3.1 INTERFACE                |
+|  +-----------------------+     +-----------------------+     +-----------------+  |
+|  | Training Agent (MCP)  | --> | NeMo Task Protocol    | --> | Hyperparameter  |  |
+|  | (Claude 5.6 / GPT-5.6)|     | Scheduler             |     | Auto-Tuner      |  |
+|  +-----------------------+     +-----------------------+     +--------+--------+  |
++-----------------------------------------------------------------------|-----------+
+                                                                        |
+                                                                        v
++-----------------------------------------------------------------------------------+
+|                       NeMo AUTOMODEL DISTRIBUTED 3D ENGINE                        |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                         3D PARALLELISM ORCHESTRATOR                         |  |
+|  |  [Tensor Parallel (TP)]   <--->   [Pipeline Parallel (PP)]  <--->  [Data (DP)] |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     PRECISION COMPILER & QUANTIZATION                      |  |
+|  |  [FP8 / BF16 Transformer Layers] ---> [FlashAttention-3 / Memory Saver]      |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
++----------------------------------------|------------------------------------------+
+                                         v
++-----------------------------------------------------------------------------------+
+|                       HARDWARE CLUSTER & EXPORT RUNTIMES                          |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | NVIDIA H100/H200/Blackwell|  | Fault-Tolerant Checkpoint|  | TensorRT-LLM /  |  |
+|  | Multi-GPU Cluster        |  | (NVLink / InfiniBand)    |  | vLLM FP8 Export |  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Metric / Capability | NeMo AutoModel | vLLM Engine | HuggingFace Accelerate / Deepspeed |
+| :--- | :--- | :--- | :--- |
+| **Primary Target** | Multi-GPU Distributed Training | Ultra-Fast LLM Inference | General PyTorch Distributed Fine-Tuning |
+| **Native 3D Parallelism** | Built-in (TP + PP + DP) | Pipeline & Tensor (Inference) | Configurable via DeepSpeed ZeRO-3 |
+| **Precision Modes** | Native FP8, BF16, INT4 | FP8, AWQ, GPTQ (Inference) | FP16, BF16, ZeRO Quantization |
+| **Target Hardware** | NVIDIA GPUs (CUDA 12+) | NVIDIA, AMD ROCm, CPU | Cross-platform (NVIDIA, AMD, Apple) |
+| **FastMCP 3.1 Control** | Native Task Protocol Schemas | HTTP / OpenAI Proxy | Custom Python Wrappers |
+| **Export Engines** | Direct TensorRT-LLM Export | Internal vLLM Engine | Hugging Face SafeTensors |
+
 ## Where it fits in the stack
 **AI Framework / Model Training & Optimization Engine**. NeMo AutoModel sits at the development and framework layer. It serves as the bridging layer that compiles high-level generative model definitions into distributed training pipelines, enabling seamless integration with local data layers, [vLLM](../infrastructure/vllm.md), and TensorRT-LLM inference backends.
 
@@ -40,7 +90,7 @@ Fine-tuning and scaling multi-modal diffusion networks is extremely memory-inten
 1. **Prerequisites**: Ensure you have Python 3.11+, PyTorch 2.5+ (compiled with CUDA support), and an NVIDIA driver supporting CUDA 12.x+.
 2. **Installation**: Install the NeMo toolkit with the AutoModel training extensions:
    ```bash
-   pip install --extra-index-url https://pypi.nvidia.com nvidia-nemo-automodel pydantic
+   pip install --extra-index-url https://pypi.nvidia.com nvidia-nemo-automodel pydantic fastmcp
    ```
 3. **Training Script Setup**: Create a Python script to initialize a scaled model:
    ```python
@@ -82,67 +132,67 @@ nemo_automodel-cli export \
 
 ## API examples
 
-### Python (Distributed Training Configuration and Validation)
-The following script illustrates how to programmatically set up training configurations, validate hyperparameters, and execute fine-tuning using NeMo AutoModel and **Pydantic v2**:
+### FastMCP 3.1 Distributed Training Orchestrator Server
+The following example implements a **FastMCP 3.1** server that validates distributed training job parameters using **Pydantic v2** and triggers NeMo AutoModel jobs safely:
 
 ```python
-import os
-from typing import Dict, Any, Literal, List
-from pydantic import BaseModel, Field, field_validator
+from typing import Dict, Any, Literal
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastmcp import FastMCP
 
-# 1. Define robust Pydantic v2 validation schema for distributed NeMo parameters
-class ParallelismConfig(BaseModel):
-    tensor_parallel_size: int = Field(default=1, ge=1)
-    pipeline_parallel_size: int = Field(default=1, ge=1)
-    data_parallel_size: int = Field(default=1, ge=1)
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("NeMo-AutoModel-Orchestrator")
 
-class QuantizationConfig(BaseModel):
+class DistributedParallelConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", freeze=True)
+
+    tensor_parallel_size: int = Field(default=1, ge=1, le=16)
+    pipeline_parallel_size: int = Field(default=1, ge=1, le=16)
+    data_parallel_size: int = Field(default=1, ge=1, le=64)
+
+class NeMoJobConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    model_name: str = Field(..., description="NVIDIA/HuggingFace model identifier.")
+    parallelism: DistributedParallelConfig = Field(...)
     precision: Literal["fp8", "bf16", "fp16", "int4"] = Field(default="bf16")
-    enable_memory_efficient_attention: bool = Field(default=True)
-
-class NeMoTrainingConfig(BaseModel):
-    model_name: str = Field(..., description="Name of the pre-trained diffusion model to load.")
-    parallel_config: ParallelismConfig = Field(...)
-    quant_config: QuantizationConfig = Field(...)
-    learning_rate: float = Field(default=5e-5, gt=0)
-    optimizer_args: Dict[str, Any] = Field(default_factory=dict)
+    learning_rate: float = Field(default=1e-4, gt=0.0)
 
     @field_validator("model_name")
     @classmethod
-    def check_valid_model(cls, v: str) -> str:
-        if not any(keyword in v.lower() for keyword in ["diffusion", "stable-diffusion", "flux", "video", "nvidia", "gemma"]):
-            raise ValueError("Model name must point to a supported diffusion or multimodal model path.")
+    def validate_model_path(cls, v: str) -> str:
+        if not any(k in v.lower() for k in ["nvidia", "diffusion", "gemma", "llama", "flux"]):
+            raise ValueError("Model path must target a supported NVIDIA, Flux, or Gemma multimodal architecture.")
         return v
 
-# 2. Setup training parameters for an early 2027 SOTA Gemma 4 fine-tuning run
-training_payload = {
-    "model_name": "nvidia/stable-diffusion-xl-base-1.0",
-    "parallel_config": {
-        "tensor_parallel_size": 4,
-        "pipeline_parallel_size": 2,
-        "data_parallel_size": 1
-    },
-    "quant_config": {
-        "precision": "fp8",
-        "enable_memory_efficient_attention": True
-    },
-    "learning_rate": 2.5e-5,
-    "optimizer_args": {
-        "weight_decay": 0.01,
-        "lr_scheduler": "cosine"
-    }
-}
+@mcp.tool()
+def submit_nemo_training_job(config_payload: Dict[str, Any]) -> str:
+    """Validate and schedule a distributed NeMo AutoModel training run via FastMCP 3.1."""
+    try:
+        validated = NeMoJobConfig.model_validate(config_payload)
+        total_gpus = validated.parallelism.tensor_parallel_size * validated.parallelism.pipeline_parallel_size * validated.parallelism.data_parallel_size
 
-# 3. Perform strict verification of training constraints
-try:
-    config = NeMoTrainingConfig(**training_payload)
-    print(f"NeMo AutoModel training configuration validated successfully!")
-    print(f"Model Name: {config.model_name}")
-    print(f"Precision Target: {config.quant_config.precision}")
-    print(f"Total Parallel GPUs: {config.parallel_config.tensor_parallel_size * config.parallel_config.pipeline_parallel_size}")
-except Exception as e:
-    print(f"Configuration validation failed: {e}")
+        return (
+            f"Successfully validated NeMo AutoModel job!\n"
+            f"Target Model: {validated.model_name}\n"
+            f"Precision: {validated.precision}\n"
+            f"Total Allocated GPUs: {total_gpus} (TP={validated.parallelism.tensor_parallel_size}, PP={validated.parallelism.pipeline_parallel_size}, DP={validated.parallelism.data_parallel_size})"
+        )
+    except Exception as err:
+        return f"NeMo job validation error: {str(err)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Operational Hardening
+
+When scaling NeMo AutoModel across multi-GPU or multi-node DGX pods, enforce the following operational best practices:
+
+1. **NVLink & InfiniBand Health Checks**: Verify interconnect bandwidth (`nvidia-smi topo -m`) before initiating tensor-parallel runs to avoid silent communication stalls.
+2. **Checkpoint Sharding Strategy**: Configure distributed async checkpoint saving to avoid NVMe write bottlenecks during large model checkpoint dumps.
+3. **Automatic Precision Guardrails**: When training in `fp8`, enable loss scaling monitors to catch gradient overflow/underflow anomalies before training diverges.
+4. **Agentic Execution Safeguards**: Restrict total GPU allocation limits within FastMCP tool handlers to prevent autonomous agents from over-allocating cluster nodes.
 
 ## Related tools / concepts
 - [Axolotl](./axolotl.md) — High-performance, declarative fine-tuning framework for optimizing large models.

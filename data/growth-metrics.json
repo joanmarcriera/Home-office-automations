@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-10",
+  "snapshot_date": "2026-10-11",
   "total_docs": 598,
   "tool_docs": 545,
   "service_docs": 53,
@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/process_understanding/fiddler.md",
-    "docs/tools/frameworks/nemo-automodel.md",
-    "docs/tools/process_understanding/faster-whisper.md",
-    "docs/tools/calendar_tasks/outlook.md",
-    "docs/tools/orchestration/apache-airflow.md",
     "docs/tools/development_ops/devin.md",
     "docs/services/nextcloud.md",
     "docs/tools/infrastructure/klq.md",
@@ -40,11 +35,16 @@
     "docs/services/radicale-automation.md",
     "docs/tools/providers/anthropic.md",
     "docs/services/vikunja.md",
-    "docs/tools/frameworks/microsoft-agent-framework-harness.md"
+    "docs/tools/frameworks/microsoft-agent-framework-harness.md",
+    "docs/services/gitea.md",
+    "docs/tools/development_ops/llmfit.md",
+    "docs/tools/providers/nebius.md",
+    "docs/tools/ai_knowledge/nemotron.md",
+    "docs/services/jellyfin.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
-  "intake_items_7d": 17,
+  "intake_items_7d": 8,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }

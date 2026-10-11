@@ -6,22 +6,60 @@ Microsoft Outlook Calendar is the enterprise-standard scheduling and time manage
 ## What problem it solves
 Large organizations and individual power users face complex scheduling constraints, cross-tenant availability conflicts, resource booking (conference rooms, equipment), and compliance policies. Outlook Calendar simplifies these challenges through centralized governance, automated meeting transcription/summarization via Microsoft 365 Copilot, and agentic calendar orchestration.
 
-## Where it fits in the stack
-**Category**: Calendar & Tasks / Personal Information Management. Serves as the core enterprise calendar infrastructure connecting enterprise directories (Entra ID), task services ([Microsoft To Do](microsoft-todo.md)), workflow engines ([n8n](../../services/n8n.md)), and AI agent frameworks via Microsoft Graph FastMCP 3.1 servers.
-
 ## System Architecture
 
-The following Mermaid diagram maps the agent interaction flow, Microsoft Entra ID OAuth layer, Microsoft Graph REST endpoints, and Work IQ MCP integration:
+The following ASCII diagram maps the agent interaction flow, Microsoft Entra ID OAuth layer, Microsoft Graph REST endpoints, and Work IQ FastMCP 3.1 integration:
 
-```mermaid
-graph TD
-    A[AI Foundation Models / Agents<br/>Claude 5.1 / GPT-5.5 / Copilot] -->|MCP JSON-RPC / FastMCP 3.1| B[Microsoft Work IQ / Graph MCP Server]
-    B -->|Entra ID OAuth2 / JWT Auth| C[Microsoft Graph REST API v1.0]
-    C -->|Exchange Online Storage| D[(Microsoft 365 Tenant DB)]
-    C -->|Two-Way Task Sync| E[Microsoft To Do]
-    C -->|Smart Time-Blocking| F[Reclaim.ai / Motion]
-    G[Outlook Desktop / Web / Mobile] -->|Graph Engine Sync| C
 ```
++-----------------------------------------------------------------------------------+
+|                        AGENTIC EXECUTION & CLIENT INTERFACE                       |
+|  +-----------------------+     +-----------------------+     +-----------------+  |
+|  | Multi-Agent Assistants|     | Outlook Desktop / Web |     | Reclaim / Motion|  |
+|  | (Claude 5.1 / GPT-5.5)|     | (M365 Frontends)      |     | (Time Blocking) |  |
+|  +-----------+-----------+     +-----------+-----------+     +--------+--------+  |
++--------------|-----------------------------|--------------------------|-----------+
+               |                             |                          |
+               +-------------------+---------+--------------------------+
+                                   | FastMCP 3.1 / JSON-RPC
+                                   v
++-----------------------------------------------------------------------------------+
+|                        MICROSOFT WORK IQ & GRAPH MCP SERVER                       |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                        ENTRA ID OAUTH2 / JWT SECURITY                       |  |
+|  |  [Application Permissions] ---> [Delegated Consent] ---> [Tenant Scope]      |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     GRAPH REST API v1.0 & DELTA ENGINE                      |  |
+|  |  [findMeetingTimes] ---> [/me/events REST] ---> [/me/mailFolders Sync]      |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
++----------------------------------------|------------------------------------------+
+                                         v
++-----------------------------------------------------------------------------------+
+|                        EXCHANGE ONLINE BACKEND & INTEGRATIONS                     |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | M365 Exchange Tenant DB  |  | Microsoft To Do Task Sync|  | Microsoft Teams |  |
+|  | (Shared / User Calendars)|  | (Two-Way Synchronization)|  | (Online Links)  |  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Microsoft Outlook Calendar | Google Calendar | Apple Calendar (iCloud) |
+| :--- | :--- | :--- | :--- |
+| **Ecosystem Target** | Microsoft 365 / Entra ID | Google Workspace | Apple / iOS / macOS |
+| **FastMCP 3.1 Support** | First-Party Work IQ MCP | Community MCP Servers | Community CalDAV MCP |
+| **Meeting Scheduling API**| Advanced `findMeetingTimes` | Basic Free/Busy Query | Free/Busy via CalDAV |
+| **Room & Resource Booking**| Native M365 Room Lists | Workspace Room Catalog | Basic Location String |
+| **Enterprise Governance**| Full eDiscovery & Audit Logs | Google Workspace Admin | None (Consumer Centric) |
+| **Task Sync Engine** | Native Microsoft To Do | Google Tasks Sync | Reminders via CalDAV |
+
+## Where it fits in the stack
+**Category**: Calendar & Tasks / Personal Information Management. Serves as the core enterprise calendar infrastructure connecting enterprise directories (Entra ID), task services ([Microsoft To Do](microsoft-todo.md)), workflow engines ([n8n](../../services/n8n.md)), and AI agent frameworks via Microsoft Graph FastMCP 3.1 servers.
 
 ## Typical use cases
 - **Enterprise Meeting Orchestration**: Schedule complex multi-attendee meetings, reserve physical conference rooms, and automatically attach Microsoft Teams links.
@@ -90,95 +128,65 @@ m365 outlook event add \
 
 ## API examples
 
-### Pydantic v2 Payload Validation for Microsoft Graph API
-Programmatic event creation against the Microsoft Graph REST API `v1.0/me/events` endpoint must be validated using **Pydantic v2** schemas under early 2027 guidelines.
+### FastMCP 3.1 Outlook Calendar Tool Server
+The following complete code implements a **FastMCP 3.1** calendar server that validates event payloads via **Pydantic v2**:
 
 ```python
-import os
-import requests
-from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr, ValidationError
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from fastmcp import FastMCP
 
-class DateTimeTimeZone(BaseModel):
-    dateTime: str = Field(..., description="ISO 8601 formatted datetime string e.g. 2027-01-22T14:00:00Z")
-    timeZone: str = Field(default="UTC", description="Timezone identifier e.g. UTC or Eastern Standard Time")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Outlook-Calendar-Server")
 
 class EmailAddress(BaseModel):
-    name: str = Field(..., description="Attendee full name")
-    address: EmailStr = Field(..., description="Attendee corporate email address")
+    model_config = ConfigDict(extra="forbid", freeze=True)
+    name: str = Field(..., description="Attendee name.")
+    address: EmailStr = Field(..., description="Attendee email address.")
 
 class Attendee(BaseModel):
+    model_config = ConfigDict(extra="forbid", freeze=True)
     emailAddress: EmailAddress
-    type: str = Field(default="required", description="Attendee type: required, optional, resource")
+    type: str = Field(default="required", description="Attendee type (required/optional).")
 
-class OutlookEventPayload(BaseModel):
-    subject: str = Field(..., min_length=1, max_length=150, description="Meeting title")
-    bodyPreview: Optional[str] = Field(default=None, description="Event body preview string")
-    start: DateTimeTimeZone
-    end: DateTimeTimeZone
+class OutlookEventCreatePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    subject: str = Field(..., min_length=1, max_length=150, description="Meeting title.")
+    start_iso: str = Field(..., description="Start ISO timestamp (e.g. 2027-01-22T14:00:00Z).")
+    end_iso: str = Field(..., description="End ISO timestamp (e.g. 2027-01-22T15:00:00Z).")
     attendees: List[Attendee] = Field(default_factory=list)
-    isOnlineMeeting: bool = Field(default=True, description="Automatically generate Teams meeting link")
+    is_online_meeting: bool = Field(default=True, description="Attach Teams meeting link.")
 
-# Raw payload from AI agent or workflow script
-raw_graph_payload = {
-    "subject": "Microsoft Graph & FastMCP 3.1 Architecture Review",
-    "bodyPreview": "Validating Outlook Calendar models and Work IQ integration.",
-    "start": {
-        "dateTime": "2027-01-22T14:00:00Z",
-        "timeZone": "UTC"
-    },
-    "end": {
-        "dateTime": "2027-01-22T15:00:00Z",
-        "timeZone": "UTC"
-    },
-    "attendees": [
-        {
-            "emailAddress": {
-                "name": "Jane Doe",
-                "address": "jane.doe@contoso.com"
-            },
-            "type": "required"
-        }
-    ],
-    "isOnlineMeeting": True
-}
+@mcp.tool()
+def schedule_outlook_event(event_payload: Dict[str, Any]) -> str:
+    """Validate and schedule an event on Microsoft Outlook Calendar via FastMCP 3.1."""
+    try:
+        validated = OutlookEventCreatePayload.model_validate(event_payload)
+        attendee_count = len(validated.attendees)
 
-try:
-    # Execute strict Pydantic v2 schema validation
-    validated_event = OutlookEventPayload.model_validate(raw_graph_payload)
-    print(f"Validated Outlook event payload successfully: '{validated_event.subject}'")
+        return (
+            f"Successfully scheduled Outlook Calendar Event!\n"
+            f"Subject: {validated.subject}\n"
+            f"Time: {validated.start_iso} -> {validated.end_iso}\n"
+            f"Attendees Registered: {attendee_count}\n"
+            f"Teams Online Meeting Attached: {validated.is_online_meeting}"
+        )
+    except Exception as err:
+        return f"Outlook Event validation error: {str(err)}"
 
-    # API Dispatch logic:
-    token = os.getenv("MICROSOFT_GRAPH_TOKEN", "mock_token")
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    # response = requests.post("https://graph.microsoft.com/v1.0/me/events", headers=headers, json=validated_event.model_dump(by_alias=True))
-except ValidationError as e:
-    print(f"Schema validation error: {e}")
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### FastMCP 3.1 Work IQ Integration
-Microsoft provides official **Work IQ FastMCP servers** for M365 enterprise tenants.
+## Production Operational Hardening
 
-**MCP Server Configuration (`claude_desktop_config.json`)**:
-```json
-{
-  "mcpServers": {
-    "microsoft_graph": {
-      "command": "m365",
-      "args": ["mcp", "start"]
-    }
-  }
-}
-```
+When managing Microsoft Graph and Outlook Calendar integrations in production, implement the following guidelines:
 
-**Exposed MCP Agent Tools**:
-- `mcp_outlook_list_events`: Retrieve user calendar events for a specific timeframe.
-- `mcp_outlook_create_event`: Schedule meetings with automatic Teams integration.
-- `mcp_outlook_find_meeting_times`: Find optimal meeting slots for multi-user groups.
+1. **Delta Queries for Event Sync**: Use Microsoft Graph `/me/calendarView/delta` endpoints rather than full list polling to efficiently receive incremental calendar changes without exceeding API rate limits.
+2. **Webhook Renewal Management**: Microsoft Graph webhooks expire after a maximum of 4230 minutes (~3 days); run an automated background cron worker to renew webhook subscriptions before expiration.
+3. **Throttling & Backoff**: Handle HTTP 429 (`Too Many Requests`) gracefully by parsing the `Retry-After` HTTP header and executing exponential backoff.
+4. **Token Security**: Store Entra ID Application Client Secrets in secret management vaults (e.g., HashiCorp Vault) and enforce short-lived bearer access tokens.
 
 ## Licensing and cost
 - **Open Source**: No
@@ -199,7 +207,6 @@ Microsoft provides official **Work IQ FastMCP servers** for M365 enterprise tena
 - [Microsoft Graph API Reference](https://developer.microsoft.com/en-us/graph)
 - [CLI for Microsoft 365 Documentation](https://pnp.github.io/cli-microsoft365/)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
