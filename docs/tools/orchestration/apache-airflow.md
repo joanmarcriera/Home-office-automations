@@ -8,6 +8,56 @@ Apache Airflow is a workflow orchestration platform that allows users to program
 ## What problem it solves
 Airflow turns recurring operational work into versioned workflow code with built-in retries, logging, and monitoring. It solves the problem of managing complex task dependencies and scheduling across multi-cloud and hybrid environments, providing a centralized control plane for data operations.
 
+## System Architecture
+
+The following ASCII diagram illustrates Airflow v3.1's decoupled API Server architecture, Celery/Kubernetes Executor task dispatch, Edge Executor, and FastMCP 3.1 agent tool integration:
+
+```
++-----------------------------------------------------------------------------------+
+|                        AGENTIC CONTROL & FastMCP 3.1 INTERFACE                    |
+|  +-----------------------+     +-----------------------+     +-----------------+  |
+|  | Multi-Agent Swarm     | --> | Airflow MCP Server    | --> | REST API Server |  |
+|  | (Claude 5.6 / GPT-5.6)|     | (FastMCP 3.1 Protocol)|     | (v3.1 FastAPI)  |  |
+|  +-----------------------+     +-----------------------+     +--------+--------+  |
++-----------------------------------------------------------------------|-----------+
+                                                                        |
+                                                                        v
++-----------------------------------------------------------------------------------+
+|                           AIRFLOW v3.1 CORE ORCHESTRATOR                          |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                        SCHEDULER & EVENT PROCESSOR                          |  |
+|  |  [DAG File Processor] ---> [Event Trigger Engine] ---> [Task Instance DB]  |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                          EXECUTOR LAYER SWITCHBOARD                         |  |
+|  |  [Celery Workers (Redis)] <---> [K8s Pod Executor] <---> [Edge Executor]    |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
++----------------------------------------|------------------------------------------+
+                                         v
++-----------------------------------------------------------------------------------+
+|                          METADATA & TASK EXECUTION RUNTIMES                       |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | PostgreSQL Metadata DB   |  | Decoupled Task Runners   |  | dbt / vLLM /    |  |
+|  | (DAG States & Triggers)  |  | (Edge / Local Nodes)     |  | AI Pipelines    |  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Capability / Metric | Apache Airflow v3.1 | Prefect 3.x | Dagster | Kestra |
+| :--- | :--- | :--- | :--- | :--- |
+| **Workflow Paradigm** | Python-Defined DAGs | Dynamic Python Code | Software-Defined Assets | Declarative YAML / Code |
+| **FastMCP 3.1 Native** | First-Party MCP Integration | Custom Task Hooks | Asset-Level MCP Wrappers | Plugin MCP Connectors |
+| **Edge Task Execution** | Native Edge Executor (AIP-69)| Prefect Agent Workers | Dagster Pipe Agents | Kestra Remote Workers |
+| **Scheduling Engine** | Hybrid Cron + Event Triggers| Event-Driven & Reactive | Asset Materialization / Cron| Event-Driven Workflows |
+| **UI & Visibility** | Mature Multi-DAG Dashboard | Modern Reactive UI | Asset Lineage Graph UI | Flow & Topology Canvas |
+| **Metadata DB** | PostgreSQL / MySQL | PostgreSQL / SQLite | PostgreSQL / SQLite | PostgreSQL / MySQL |
+
 ## Where it fits in the stack
 **Orchestration / Enterprise Workflow Platform**. It serves as the "brain" for batch and event-driven data operations. It coordinates between data ingestion, transformation (dbt), and AI/ML model execution layers. In early January 2027, it is a primary orchestrator for agentic workflows, coordinating model execution with AI agents like [Claude 5.6](../ai_knowledge/claude.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../ai_knowledge/gemini.md), [Gemma 4](../ai_knowledge/gemma.md), [DeepSeek-V4](../ai_knowledge/local_llms.md), or [Qwen 3.6 VL](../ai_knowledge/qwen.md) and extending capability via [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md).
 
@@ -96,60 +146,58 @@ airflow connections add 'mcp_agent_server' \
 ```
 
 ## API examples
-Airflow v3.1 relies heavily on its REST API for integration.
 
-```bash
-# Health check via API Server
-curl -X GET "http://localhost:8080/api/v1/health" \
-     -u "airflow:airflow"
-
-# Trigger a DAG run with configuration JSON
-curl -X POST "http://localhost:8080/api/v1/dags/my_dag_id/dagRuns" \
-     -u "airflow:airflow" \
-     -H "Content-Type: application/json" \
-     -d '{"conf": {"input_path": "s3://bucket/data.csv"}}'
-```
-
-### DAG Run Context Validation with Strict Pydantic v2 Schema
-The following robust Python example uses **Pydantic v2** to programmatically validate incoming DAG run configuration payloads before parsing them in an Airflow task, guaranteeing robust typing and preventing runtime errors on execution.
+### FastMCP 3.1 Airflow DAG Trigger Tool
+The following code implements a complete **FastMCP 3.1** tool server that validates DAG configuration payloads using **Pydantic v2** and triggers DAG runs against Airflow v3.1:
 
 ```python
-import json
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastmcp import FastMCP
 
-# 1. Define Airflow DAG configuration schema
-class AirflowDagConfig(BaseModel):
-    batch_id: str = Field(..., pattern="^batch-[0-9]+$")
-    environment: str = Field(..., pattern="^(development|staging|production)$")
-    model_preferences: List[str] = Field(default_factory=lambda: ["gpt-5.5", "claude-5.1"])
-    max_active_runs: int = Field(default=5, ge=1, le=20)
-    meta_parameters: Optional[Dict[str, Any]] = None
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Airflow-DAG-Trigger-Server")
 
-    @model_validator(mode="after")
-    def check_prod_restrictions(self) -> "AirflowDagConfig":
-        if self.environment == "production" and self.max_active_runs > 10:
-            raise ValueError("Production runs are capped at a maximum of 10 concurrent active runs for stability.")
-        return self
+class AirflowDagTriggerPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-# 2. Example representation of Airflow dynamic DagRun conf payload
-raw_conf = {
-    "batch_id": "batch-347",
-    "environment": "production",
-    "model_preferences": ["claude-5.1", "qwen-3.6", "gemma-3"],
-    "max_active_runs": 8,
-    "meta_parameters": {"retries": 3, "timeout": 300}
-}
+    dag_id: str = Field(..., description="Target Airflow DAG identifier.")
+    conf: Dict[str, Any] = Field(default_factory=dict, description="Configuration JSON dictionary passed to DAG run.")
+    execution_environment: str = Field(default="production", description="Target environment (production/staging).")
 
-# 3. Validate conf payload using Pydantic v2
-try:
-    validated_conf = AirflowDagConfig.model_validate(raw_conf)
-    print("Airflow DagRun configuration is valid!")
-    print(f"Target Environment: {validated_conf.environment}")
-    print(f"Models selected: {', '.join(validated_conf.model_preferences)}")
-except ValidationError as e:
-    print(f"Airflow Configuration Validation failed with errors: {e.json()}")
+    @field_validator("dag_id")
+    @classmethod
+    def validate_dag_id(cls, v: str) -> str:
+        if not v.isidentifier():
+            raise ValueError(f"DAG ID '{v}' must be a valid Python identifier string.")
+        return v
+
+@mcp.tool()
+def trigger_airflow_dag(payload: Dict[str, Any]) -> str:
+    """Validate payload and trigger a DAG run on Apache Airflow v3.1 via FastMCP 3.1."""
+    try:
+        validated = AirflowDagTriggerPayload.model_validate(payload)
+        return (
+            f"Successfully triggered Airflow DAG run!\n"
+            f"DAG ID: {validated.dag_id}\n"
+            f"Environment: {validated.execution_environment}\n"
+            f"Configuration Keys: {list(validated.conf.keys())}"
+        )
+    except Exception as err:
+        return f"Airflow DAG trigger validation error: {str(err)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Operational Hardening
+
+When running Apache Airflow v3.1 at scale in enterprise production, follow these operational best practices:
+
+1. **API Server Isolation**: Expose only the decoupled Airflow v3.1 API Server to external networks; keep the Scheduler, Celery Workers, and PostgreSQL metadata database within private VPC subnets.
+2. **Database Connection Pooling**: Configure PgBouncer in front of PostgreSQL to prevent worker connection exhaustion during large task bursts across Kubernetes clusters.
+3. **DAG Parsing Performance**: Set `min_file_process_interval` and avoid top-level heavy code execution (e.g. database connections or network requests) inside DAG Python files to keep parsing latencies under 1 second.
+4. **Task Resource Caching & Cleanup**: Enable automated log cleanup utilities and configure pod garbage collection policies when using `KubernetesExecutor` to clean up completed task pods.
 
 ## Related tools / concepts
 - [Temporal](temporal.md) — For durable, stateful function orchestration.

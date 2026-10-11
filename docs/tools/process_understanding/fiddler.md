@@ -12,6 +12,64 @@ Deploying generative AI and autonomous agents at enterprise scale introduces com
 - **Explainability & Attribution (XAI)**: Demystifying frontier LLMs and agentic decision trees via feature attribution and retrieval-augmented generation (RAG) diagnostic tracing.
 - **Multi-Agent Session Audit**: Tracing complex multi-step reasoning loops, agent-to-agent delegatory calls, and **FastMCP 3.1** tool execution pipelines.
 
+## System Architecture
+
+The following ASCII diagram illustrates Fiddler's telemetry ingestion topology, guardrail enforcement pipeline, vector embedding drift analysis, and FastMCP 3.1 multi-agent tracing interface:
+
+```
++-----------------------------------------------------------------------------------+
+|                        AGENTIC EXECUTION & MODEL GATEWAY LAYER                    |
+|  +-----------------------+     +-----------------------+     +-----------------+  |
+|  | Multi-Agent Swarm     |     | LiteLLM / Gateway     |     | OpenClaw Engine |  |
+|  | (FastMCP 3.1 Callers) |     | (HTTP / gRPC Tracing) |     | (Autonomous)    |  |
+|  +-----------+-----------+     +-----------+-----------+     +--------+--------+  |
++--------------|-----------------------------|--------------------------|-----------+
+               |                             |                          |
+               +-------------------+---------+--------------------------+
+                                   | Telemetry Traces (JSON-RPC / OTel)
+                                   v
++-----------------------------------------------------------------------------------+
+|                           FIDDLER AI OBSERVABILITY PLATFORM                       |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     INGRESS GUARDRAIL & EVALUATION ENGINE                    |  |
+|  |  [Toxicity Filter] ---> [Hallucination Scorer] ---> [PII & Injection Guard] |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                    EMBEDDING & SEMANTIC DRIFT ANALYZER                      |  |
+|  |  [UMAP/t-SNE Cluster Tracker] ---> [Reference vs Production Drift (KS-Test)]  |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     EXPLAINABILITY & FEATURE ATTRIBUTION                    |  |
+|  |  [Integrated Gradients] ---> [RAG Context Relevance] ---> [XAI Attribution] |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
++----------------------------------------|------------------------------------------+
+                                         v
++-----------------------------------------------------------------------------------+
+|                          ENTERPRISE STORAGE & ANALYTICS                           |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | Fiddler Audit DB         |  | Real-Time Alert Engine   |  | Authentik SSO   |  |
+|  | (Time-Series & Vectors)  |  | (Slack / PagerDuty / MCP)|  | (RBAC Governance)|  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Capability / Metric | Fiddler AI Observability | Arize AI (Phoenix) | Braintrust | Comet Opik |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Enterprise MPM, Guardrails & XAI | ML Observability & RAG Tracing | LLM Evaluation & Prompt Eng. | Open-Source Tracing & Dataset Mgmt |
+| **FastMCP 3.1 Support** | Native Tracing & Tool Auditing | OTel Collector Integrations | Custom Tool Wrappers | Python Client Hooks |
+| **Explainability (XAI)** | Integrated Feature Attribution | SHAP & Embedding Drift | Prompt Comparison Matrix | Basic Metric Scoring |
+| **Deployment Options** | SaaS / Private Cloud / VPC | SaaS / Hybrid Cloud | SaaS / Self-Hosted Docker | Open-Source / Self-Hosted |
+| **Guardrail Engine** | Real-time Blocking & Scoring | Online Evaluation Monitors | Async Judge Scoring | Async Dataset Evaluation |
+| **Enterprise RBAC & SSO**| Built-in Authentik / Okta / SAML| Enterprise Tier Only | Team Role Management | Basic API Key Security |
+
 ## Where it fits in the stack
 **Category**: Process & Understanding / Enterprise AI Observability. Fiddler acts as the governance and telemetry layer sitting between AI Gateways (e.g., [LiteLLM](../../services/litellm.md)) and application orchestration frameworks. It leverages **FastMCP 3.1** for low-overhead telemetry injection without introducing latency to real-time agent execution loops.
 
@@ -48,7 +106,7 @@ Deploying generative AI and autonomous agents at enterprise scale introduces com
 Install the official Fiddler Python client:
 
 ```bash
-pip install fiddler-client pydantic
+pip install fiddler-client pydantic fastmcp
 ```
 
 Initialize a connection to your enterprise Fiddler tenant:
@@ -92,66 +150,79 @@ curl -X POST "https://your-org.fiddler.ai/api/v1/events" \
 
 ## API examples
 
-### Python: Telemetry Ingestion with Pydantic v2 & FastMCP 3.1
-This example demonstrates registering and validating agent execution telemetry using **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) for strict type safety.
+### FastMCP 3.1 Fiddler Observability Server Implementation
+This example demonstrates a complete **FastMCP 3.1** tool server that accepts telemetry spans, validates payload inputs using **Pydantic v2**, and publishes evaluated metrics directly to Fiddler AI.
 
 ```python
 import asyncio
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+from fastmcp import FastMCP
 import fiddler as fdl
 
-# Define telemetry validation schema using Pydantic v2
-class LLMTelemetryPayload(BaseModel):
-    query: str = Field(..., description="The user query or agent prompt input.")
-    response: str = Field(..., description="The generated model output or action response.")
-    model_version: str = Field(default="claude-5-1-sonnet", description="Model architecture identifier.")
-    latency_seconds: float = Field(..., ge=0.0, description="End-to-end execution latency in seconds.")
-    hallucination_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Evaluated factual grounding score.")
-    mcp_metadata: Dict[str, Any] = Field(default_factory=dict, description="FastMCP 3.1 trace and context metadata.")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Fiddler-Observability-Server")
 
-async def log_fiddler_telemetry(payload_dict: Dict[str, Any]) -> bool:
+# Define strict Pydantic v2 telemetry schema
+class FiddlerSpanPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", freeze=True)
+
+    project_id: str = Field(..., description="Enterprise project identifier in Fiddler.")
+    model_id: str = Field(..., description="Target model or agent version identifier.")
+    prompt_text: str = Field(..., description="User prompt or context input provided to model.")
+    response_text: str = Field(..., description="Generated model response or action output.")
+    hallucination_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Factual grounding evaluation score.")
+    latency_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds.")
+    mcp_trace_id: str = Field(..., description="FastMCP 3.1 correlation trace ID.")
+
+@mcp.tool()
+def publish_fiddler_span(payload: Dict[str, Any]) -> str:
+    """Validate and record an agent execution trace into Fiddler AI Observability."""
     try:
         # Validate input schema strictly with Pydantic v2
-        validated = LLMTelemetryPayload.model_validate(payload_dict)
+        validated = FiddlerSpanPayload.model_validate(payload)
 
+        # Initialize mock Fiddler API client (replace with enterprise endpoint credentials)
         client = fdl.FiddlerApi(
             url="https://your-org.fiddler.ai",
             org_id="agentic-ops",
             auth_token="secure_token_2027"
         )
 
+        event_data = {
+            "prompt": validated.prompt_text,
+            "response": validated.response_text,
+            "hallucination_score": validated.hallucination_score or 0.0,
+            "latency_ms": validated.latency_ms,
+            "mcp_trace_id": validated.mcp_trace_id
+        }
+
+        # Publish validated event payload
         response = client.publish_event(
-            project_id="customer-service-agents",
-            model_id="support-agent-v3",
-            event=validated.model_dump(),
-            event_id=f"evt_{validated.model_version}_{int(validated.latency_seconds * 1000)}"
+            project_id=validated.project_id,
+            model_id=validated.model_id,
+            event=event_data,
+            event_id=f"evt_{validated.mcp_trace_id}"
         )
-        print(f"Successfully published Fiddler telemetry: {response}")
-        return True
+        return f"Successfully logged span to Fiddler for trace {validated.mcp_trace_id}. Status: {response}"
+
     except ValidationError as err:
-        print(f"Pydantic validation error: {err}")
-        return False
+        return f"Pydantic Validation Error: {err.json()}"
     except Exception as err:
-        print(f"Failed to publish event to Fiddler: {err}")
-        return False
+        return f"Telemetry publishing error: {str(err)}"
 
-# Execute simulation
-sample_event = {
-    "query": "How do I upgrade my mesh network node using FastMCP 3.1?",
-    "response": "Deploy the updated FastMCP daemon and configure identity routing.",
-    "model_version": "claude-5-1-sonnet",
-    "latency_seconds": 0.412,
-    "hallucination_score": 0.01,
-    "mcp_metadata": {
-        "mcp_version": "3.1",
-        "transport": "stdio",
-        "tool_name": "network_upgrade"
-    }
-}
-
-asyncio.run(log_fiddler_telemetry(sample_event))
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Operational Hardening
+
+When deploying Fiddler AI in enterprise production environments, adhere to the following operational best practices:
+
+1. **Async Batch Telemetry Ingestion**: Avoid blocking agent execution loops by buffering execution spans using an in-memory queue or Redis stream before calling `publish_event`.
+2. **Sampling Rules for High-Throughput Streams**: For multi-agent swarms processing thousands of tokens per second, configure probabilistic sampling (e.g., log 100% of errors/hallucinations, but sample 5% of benign responses).
+3. **Guardrail Execution Latency Capping**: Set strict timeout thresholds (e.g., 50ms) on pre-generation guardrail evaluation; fall back to asynchronous post-generation auditing if latency targets are exceeded.
+4. **Authentik RBAC Alignment**: Map Fiddler user roles (Admin, Auditor, Viewer) directly to enterprise SAML/OAuth groups via [Authentik](../../services/authentik.md) to ensure least-privilege compliance.
 
 ## Related tools / concepts
 - [Arize AI](./arize-ai.md) — Enterprise ML observability and Phoenix LLM tracing platform.

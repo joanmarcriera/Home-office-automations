@@ -6,6 +6,56 @@ faster-whisper is a high-performance reimplementation of OpenAI's Whisper speech
 ## What problem it solves
 Reference Whisper is accurate but slow and memory-hungry, which makes large transcription backlogs painful on home-lab and consumer hardware. faster-whisper makes local, private transcription highly practical: it transcribes hours of audio quickly on a CPU or a modest GPU, with no cloud speech API dependencies and no audio ever leaving the local perimeter.
 
+## System Architecture
+
+The following ASCII diagram illustrates faster-whisper's execution pipeline, Silero VAD v5 segmenting, CTranslate2 quantized inference, and FastMCP 3.1 task protocol integration:
+
+```
++-----------------------------------------------------------------------------------+
+|                            AUDIO INGESTION & PREPROCESSING                        |
+|  +------------------------+     +-----------------------+     +----------------+  |
+|  | RAW Audio File / Stream| --> | Silero VAD v5 Engine  | --> | Audio Chunking |  |
+|  | (MP3 / WAV / FLAC)     |     | (Speech Detection)    |     | (Voice Segments)|  |
+|  +------------------------+     +-----------------------+     +-------+--------+  |
++-----------------------------------------------------------------------|-----------+
+                                                                        |
+                                                                        v
++-----------------------------------------------------------------------------------+
+|                        CTRANSLATE2 INFERENCE & QUANTIZATION                       |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   WEIGHT QUANTIZATION & MEMORY OPTIMIZATION                 |  |
+|  |     [INT8 / FLOAT16 Quantization]  <--->  [CUDA / cuDNN / Apple MLX]          |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  |                     WHISPER DECODER & WORD TIMESTAMPS                       |  |
+|  |  [Beam Search (size=5)] ---> [Prompt Conditioning] ---> [Word Timestamps]   |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
++----------------------------------------|------------------------------------------+
+                                         v
++-----------------------------------------------------------------------------------+
+|                        FASTMCP 3.1 TASK PROTOCOL & DOWNSTREAM                      |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
+|  | Pydantic v2 Validator    |  | Paperless-ngx Ingest     |  | RAG / Obsidian  |  |
+|  | (FastMCP Schema Output)  |  | (Searchable PDF & Text)  |  | (Local Indexing)|  |
+|  +--------------------------+  +--------------------------+  +-----------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Comparison Matrix
+
+| Metric / Feature | faster-whisper (CTranslate2) | OpenAI Whisper API | Whisper.cpp (C/C++) |
+| :--- | :--- | :--- | :--- |
+| **Execution Speed** | ~4x–6x faster than reference | Fast (Cloud Bottlenecked) | ~3x–5x faster (CPU tuned) |
+| **Quantization Support** | INT8 / FLOAT16 / INT16 | Standard FP32 Cloud Model | Q4_0 / Q5_1 / Q8_0 GGML |
+| **Privacy & Locality** | 100% Local / Offline | Cloud Hosted (Third-Party) | 100% Local / Offline |
+| **VAD Integration** | Built-in Silero VAD v5 | None (API Endpoint Level) | Basic Energy/Silero VAD |
+| **FastMCP 3.1 Integration**| Native Task Schema Support | Requires Custom API Proxy | Requires C++ MCP Server |
+| **Hardware Targets** | NVIDIA CUDA, CPU, Apple MLX | N/A (Cloud Web API) | CPU (AVX2/NEON), Metal |
+
 ## Where it fits in the stack
 **Process & Understanding / Speech-to-text.** It is the transcription engine that feeds downstream pipelines — turning voice notes, meeting recordings, or scanned-media audio into text for [Paperless-ngx](../../services/paperless-ngx.md), Obsidian notes, or RAG indexes. It is the engine behind many self-hosted transcription front-ends and agentic ingestion servers.
 
@@ -43,7 +93,7 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 
 ### Installation
 ```bash
-pip install faster-whisper
+pip install faster-whisper fastmcp pydantic
 ```
 
 ### Basic Usage
@@ -80,97 +130,77 @@ whisper-ctranslate2 audio.mp3 --model large-v3-turbo --device cuda --compute_typ
 
 ## API examples
 
-### 1. Word-level Timestamps & Custom Dictionary
-Injecting initial prompt vocabulary to guide model output on technical jargon.
+### FastMCP 3.1 Audio Transcription Server
+The following code implements a complete **FastMCP 3.1** server wrapping faster-whisper with strict Pydantic v2 validation:
+
 ```python
-from faster_whisper import WhisperModel
-
-model = WhisperModel("large-v3-turbo", device="cpu")
-segments, _ = model.transcribe(
-    "audio.mp3",
-    word_timestamps=True,
-    initial_prompt="PydanticAI, FastMCP 3.1 Task Protocol, MCP, Claude 5.6"
-)
-
-for segment in segments:
-    for word in segment.words:
-        print(f"[{word.start:.2f}s -> {word.end:.2f}s] {word.word}")
-```
-
-### 2. Structured FastMCP 3.1 Task Protocol Output Validation with Pydantic v2
-This example parses and validates the unstructured segments produced by `faster-whisper` into a robust, schema-validated JSON structure, ensuring logical timeline consistency, confidence intervals, and agent execution tracking.
-```python
-from typing import List, Optional
+from typing import List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from fastmcp import FastMCP
 from faster_whisper import WhisperModel
 
-# Define strict schemas for transcription segments
-class ValidatedSegment(BaseModel):
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Faster-Whisper-Audio-Server")
+
+class TranscriptionSegment(BaseModel):
     model_config = ConfigDict(extra="forbid", freeze=True)
 
-    start: float = Field(..., description="Segment start time in seconds", ge=0.0)
-    end: float = Field(..., description="Segment end time in seconds", ge=0.0)
-    text: str = Field(..., description="Decoded transcription text content")
-    avg_logprob: float = Field(..., description="Average log probability of decoded tokens")
+    start: float = Field(..., description="Start timestamp in seconds.", ge=0.0)
+    end: float = Field(..., description="End timestamp in seconds.", ge=0.0)
+    text: str = Field(..., description="Transcribed text content.")
 
     @field_validator("text")
     @classmethod
-    def clean_text(cls, value: str) -> str:
-        return value.strip()
+    def clean_text(cls, val: str) -> str:
+        return val.strip()
 
     @model_validator(mode="after")
-    def check_timestamps(self) -> "ValidatedSegment":
+    def validate_bounds(self) -> "TranscriptionSegment":
         if self.end <= self.start:
-            raise ValueError(f"Segment end time ({self.end}s) must be greater than start time ({self.start}s).")
+            raise ValueError("Segment end time must exceed start time.")
         return self
 
-class FastMCPTranscriptionTask(BaseModel):
+class FastMCPAudioTaskResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    task_id: str = Field(..., description="FastMCP 3.1 task identifier")
-    language: str = Field(..., description="Detected ISO language code")
-    language_probability: float = Field(..., description="Probability of language detection", ge=0.0, le=1.0)
-    segments: List[ValidatedSegment] = Field(..., description="List of chronologically validated audio segments")
+    task_id: str = Field(..., description="FastMCP 3.1 task reference.")
+    language: str = Field(..., description="Detected ISO language code.")
+    language_probability: float = Field(..., ge=0.0, le=1.0)
+    segments: List[TranscriptionSegment]
 
-    @model_validator(mode="after")
-    def verify_chronological_order(self) -> "FastMCPTranscriptionTask":
-        for i in range(1, len(self.segments)):
-            prev = self.segments[i - 1]
-            curr = self.segments[i]
-            if curr.start < prev.end:
-                raise ValueError(
-                    f"Segment overlap or non-chronological order found between segment {i-1} "
-                    f"(ends at {prev.end}s) and segment {i} (starts at {curr.start}s)."
-                )
-        return self
+@mcp.tool()
+def transcribe_local_audio(audio_path: str, task_id: str = "task_01") -> str:
+    """Transcribe a local audio file into structured JSON using faster-whisper and FastMCP 3.1."""
+    try:
+        model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
+        segments, info = model.transcribe(audio_path, beam_size=5, vad_filter=True)
 
-def run_validated_transcription(audio_path: str, task_id: str = "task_audio_01") -> str:
-    # Initialize the model
-    model = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
+        parsed_segments = []
+        for s in segments:
+            parsed_segments.append({"start": s.start, "end": s.end, "text": s.text})
 
-    # Transcribe with custom parameters
-    segments, info = model.transcribe(audio_path, beam_size=5, vad_filter=True)
+        task_result = FastMCPAudioTaskResult(
+            task_id=task_id,
+            language=info.language,
+            language_probability=info.language_probability,
+            segments=parsed_segments
+        )
+        return task_result.model_dump_json(indent=2)
+    except Exception as err:
+        return f"Transcription failure: {str(err)}"
 
-    # Collect raw results
-    raw_segments = []
-    for s in segments:
-        raw_segments.append({
-            "start": s.start,
-            "end": s.end,
-            "text": s.text,
-            "avg_logprob": s.avg_logprob
-        })
-
-    # Strictly validate structured outputs via Pydantic v2
-    transcription = FastMCPTranscriptionTask(
-        task_id=task_id,
-        language=info.language,
-        language_probability=info.language_probability,
-        segments=raw_segments
-    )
-
-    return transcription.model_dump_json(indent=2)
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Operational Hardening
+
+To run faster-whisper reliably in production environments, implement the following operational safeguards:
+
+1. **VRAM & Memory Budgeting**: When running on GPU with `float16`, allocate at least 3GB VRAM for `large-v3-turbo`. On CPU, restrict thread counts (`cpu_threads=4`) to prevent worker starvation across multi-tenant servers.
+2. **Silero VAD Tuning**: Always enable `vad_filter=True` for long recordings (>10 minutes) to drop silence and prevent hallucination loops in Whisper decoders.
+3. **Model Caching Strategy**: Pre-download and cache model weights (e.g. `faster-whisper-large-v3-turbo`) during Docker container build time to eliminate cold-start network delays during container initialization.
+4. **Batch Processing Pipelines**: For high-volume transcription backlogs, process audio files through asynchronous worker queues (e.g. Celery or Redis Task Workers) rather than inline HTTP request threads.
 
 ## Related tools / concepts
 - [Whisper](../../services/whisper.md) — The reference model faster-whisper reimplements.
