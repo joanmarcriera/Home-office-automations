@@ -1,100 +1,90 @@
 # LobeHub
 
 ## What it is
-LobeHub (primarily known for LobeChat) is an open-source, high-performance multi-agent framework, plugin runtime, and UI platform designed for the early 2027 agentic ecosystem. It provides an intuitive interface for interacting with various AI models (Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4, and Gemini 4.0 Ultra) and serves as a centralized hub for **FastMCP 3.1** and **MCP 3.0 Task Protocol** integration.
+**LobeHub** (primarily known for its core product, **LobeChat**) is an open-source, high-performance multi-agent framework, plugin runtime, and workbench platform for the modern agentic ecosystem. It provides a unified, highly customizable web, PWA, and desktop interface for interacting with frontier models (Claude 3.7, GPT-4.5, Llama 4, Gemma 3, Qwen 3.6 VL, DeepSeek-V3/R1) while acting as a central management engine for **FastMCP 3.1** servers and **MCP 3.0 Task Protocol** integrations.
 
 ## What problem it solves
-Managing multiple disparate AI tools, API keys, local LLM endpoints (Ollama, LocalAI, ExLlamaV3), vector stores, and custom MCP tool servers quickly leads to a fragmented developer experience. Users are forced to switch between isolated web UIs, terminal interfaces, and desktop applications.
+Managing multiple disparate AI tools, external API provider keys, local LLM endpoints ([Ollama](../../services/ollama.md), LocalAI, ExLlamaV3), self-hosted vector databases, and custom MCP tool servers leads to severe interface fragmentation. Developers and end-users are frequently forced to context-switch across disconnected web tabs, terminal CLIs, and desktop tools.
 
-LobeHub eliminates interface fragmentation by serving as a unified "Agentic Workbench." It consolidates local and cloud inference, provides dynamic RAG document vector search, supports full-duplex WebRTC voice interaction, and simplifies tool orchestration through a built-in FastMCP 3.1 server manager.
+LobeHub eliminates interface fragmentation by functioning as an integrated "Agentic Workbench." It consolidates local and cloud model gateways, provides zero-trust document vector search, supports full-duplex WebRTC voice interaction, and simplifies tool orchestration through a built-in FastMCP 3.1 server manager and plugin marketplace.
+
+## System Architecture & FastMCP Integration
+
+```
++-----------------------------------------------------------------------------------+
+|                            User / Client Interaction Layer                        |
+|              (Next.js 15 Web Client, PWA, Mobile, Desktop, WebRTC Audio)          |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                                LobeChat Application Core                          |
+|  +------------------------------+     +----------------------------------------+  |
+|  | Multi-Agent Orchestrator     |     | FastMCP 3.1 / MCP 3.0 Server Manager   |  |
+|  +------------------------------+     +----------------------------------------+  |
+|  | Knowledge Base Vector Search |     | Plugin Runtime & OAuth SSO Gateway     |  |
+|  +------------------------------+     +----------------------------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Unified Model Gateway & Router                             |
+|          (API Protocol Normalizer, Rate Limiting, Stream Transformer)             |
++-----------------------------------------------------------------------------------+
+           |                          |                         |
+           v                          v                         v
++-----------------------+  +----------------------+  +------------------------------+
+| Cloud API Providers   |  | Local Inference      |  | FastMCP 3.1 Tool Servers     |
+| (OpenAI, Anthropic,   |  | (Ollama, ExLlamaV3,  |  | (File System, Web Search,    |
+| Google Gemini, Cohere)|  | vLLM, LocalAI)       |  | Database SQL, Code Exec)     |
++-----------------------+  +----------------------+  +------------------------------+
+```
+
+## Comparison Matrix
+
+| Feature / Metric | LobeHub / LobeChat | Open WebUI | LibreChat | AnythingLLM |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | Next.js 15 / PWA / Desktop | Python FastAPI + Svelte | Node.js + React | Node.js + React |
+| **FastMCP 3.1 Native** | Full Native Registry & UI | OpenAPI/Custom Extensions | Plugin System / MCP | Internal Agents |
+| **Multi-Agent Teams** | Advanced Sub-Agent Workflows | Basic Pipelines | Agent System | Basic Workspace Agents |
+| **Real-time Voice** | WebRTC Dual-Channel Speech | Browser TTS/STT | Basic Audio | Basic Voice Ingestion |
+| **Multi-Tenancy & DB** | Client-Local or Postgres DB | SQLite / Postgres | MongoDB / PostgreSQL | SQLite / Vector DBs |
+| **Plugin Ecosystem** | Native Lobe Marketplace | Community Tools | Custom Tool Plugins | Custom Agents |
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Multi-Agent Platform & Workbench UI.
 
-```
-+-----------------------------------------------------------------------+
-|                         User / Developer                              |
-|          (Web Client, Mobile PWA, Desktop App, Voice UI)              |
-+-----------------------------------------------------------------------+
-                                   |
-                                   v
-+-----------------------------------------------------------------------+
-|                          LobeHub / LobeChat                           |
-|  +---------------------------+     +-------------------------------+  |
-|  | Multi-Agent Orchestrator  |     | FastMCP 3.1 Server Manager    |  |
-|  +---------------------------+     +-------------------------------+  |
-|                |                                   |                  |
-|                v                                   v                  |
-|  +-----------------------------------------------------------------+  |
-|  |     Unified Provider Gateway (OpenAI, Anthropic, Ollama)       |  |
-|  +-----------------------------------------------------------------+  |
-+-----------------------------------------------------------------------+
-        |                  |                   |                  |
-        v                  v                   v                  v
-+---------------+  +---------------+  +----------------+  +-------------+
-|   Claude 5.6  |  |    GPT-5.6    |  | Gemini 4.0 Ultra|  |  LocalAI/   |
-|  (Anthropic)  |  |   (OpenAI)    |  |    (Google)    |  |   Ollama    |
-+---------------+  +---------------+  +----------------+  +-------------+
-```
-
-Sitting at the top of the software stack as the primary interaction gateway, LobeHub coordinates user sessions, agent execution loops, MCP tool calls, and local database state.
-
-## System Architecture & Sequence Flow
-The diagram below illustrates how LobeChat handles a multi-agent user prompt, routes tool discovery through FastMCP 3.1, calls an LLM backend, and returns structured results.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as User / Client UI
-    participant Lobe as LobeChat Engine
-    participant MCP as FastMCP 3.1 Registry
-    participant Provider as AI Provider (OpenAI / LocalAI)
-    participant DB as Postgres / Vector Store
-
-    User->>Lobe: Send Prompt + Attachment
-    Lobe->>DB: Fetch Agent System Prompt & Memory Context
-    Lobe->>MCP: Query Active FastMCP Tools & Schemas
-    MCP-->>Lobe: Return Validated Tool Handlers
-    Lobe->>Provider: POST /v1/chat/completions (Prompt + Tools)
-    Provider-->>Lobe: Return Tool Call Payload
-    Lobe->>MCP: Execute FastMCP Tool Task
-    MCP-->>Lobe: Return Tool Result
-    Lobe->>Provider: Send Tool Result Context
-    Provider-->>Lobe: Stream Final Response Text
-    Lobe->>DB: Save Chat History & State
-    Lobe-->>User: Stream UI Render Tokens
-```
+LobeHub operates at the top of the homelab and enterprise AI software stack, serving as the client interaction and session orchestration gateway. It interfaces directly with downstream inference servers (`docs/tools/infrastructure/`), knowledge stores (`docs/tools/intake_storage/`), and automated workflow systems (`docs/tools/automation_orchestration/`).
 
 ## Typical use cases
-- **Multi-Agent Coding Teams**: Configuring specialized sub-agents (e.g. Frontend Specialist, Security Auditor, DB Architect) to collaborate on repository refactoring.
-- **Enterprise RAG Knowledge Gateways**: Deploying a self-hosted corporate portal with document uploads, semantic vector search, and role-based access control.
-- **Local-First AI Testing**: Evaluating local open-weights models (Gemma 4, DeepSeek-V4) via Ollama or LocalAI before deploying to public production APIs.
-- **FastMCP Tool Ecosystem Management**: Using LobeChat as a graphical testing environment for newly authored FastMCP 3.1 tool servers.
+- **Multi-Agent Engineering Teams**: Configuring specialized agents (e.g. Code Reviewer, Security Auditor, DB Optimizer) to execute collaborate repository tasks.
+- **Enterprise RAG Knowledge Gateways**: Deploying a self-hosted corporate portal with document upload, semantic vector search, and role-based access control (RBAC).
+- **Local-First AI Testing**: Benchmarking open-weights models (Llama 4, DeepSeek-R1) via Ollama before committing cloud budget to external APIs.
+- **FastMCP 3.1 Tool Server Management**: Providing a visual graphical workbench to test, debug, and execute FastMCP 3.1 tool calls.
 
 ## Strengths
-- **Native FastMCP 3.1 Integration**: Seamlessly registers, manages, and executes tool calls against any MCP-compliant server.
-- **Multi-Modal WebRTC Voice & Vision**: Supports continuous full-duplex speech and vision streaming.
-- **Extensive Plugin Marketplace**: Instant access to thousands of pre-configured community agents, prompts, and tool sets.
-- **Flexible Self-Hosting**: Supports simple client-only local storage deployments as well as enterprise database-backed (Postgres + Redis + S3) deployments.
+- **Native FastMCP 3.1 Support**: Direct graphical interface for discovering, authorizing, and executing tools on external MCP servers.
+- **Multi-Modal WebRTC Interface**: Seamless, full-duplex speech interaction and real-time vision stream analysis.
+- **Extensive Plugin Marketplace**: Instant deployment of hundreds of pre-configured community tools and agents.
+- **Flexible Deployment Models**: Deployable as a client-side local PWA or a multi-tenant PostgreSQL/Redis database-backed enterprise service.
 
 ## Limitations
-- **Deployment Complexity**: Setting up the full database-backed enterprise instance (LobeChat DB) requires configuring PostgreSQL, Redis, and S3-compatible storage.
-- **Resource Usage**: Hosting multiple real-time agents with active vector stores and voice streaming requires adequate host memory and bandwidth.
+- **Database Deployment Overhead**: Configuring the full database-backed enterprise setup requires orchestrating PostgreSQL, Redis, and S3-compatible object storage.
+- **Memory Consumption**: Running real-time multi-agent sessions with active vector indexes and streaming voice requires substantial host memory.
 
 ## When to use it
-- When seeking a modern, open-source workbench supporting frontier models and FastMCP 3.1.
-- When organizing team workflows into specialized agent personas.
-- When self-hosting requirements mandate that chat data and documents remain entirely on private servers.
+- When seeking a modern, multi-model client interface with native FastMCP 3.1 support.
+- When organizing team workflows into specialized, collaborating agent personas.
+- When strict data sovereignty mandates hosting chat logs, vector stores, and model endpoints entirely on-premises.
 
 ## When not to use it
-- When a lightweight terminal CLI is preferred over a full graphical workbench (use [Claude Code](../development_ops/claude-code.md)).
-- When building visual drag-and-drop node workflows (use [Langflow](../frameworks/langflow.md)).
+- When requiring a lightweight command-line interactive agent (use [Claude Code](../development_ops/claude-code.md)).
+- When constructing complex graphical node-based agent flowcharts (use [Langflow](../frameworks/langflow.md) or [Rivet](../frameworks/rivet.md)).
 
 ## Getting started
 
-### Docker Setup (Client Mode)
-Run LobeChat locally using Docker:
-
+### 1. Docker Setup (Client-Only Mode)
+Run LobeChat locally in client-only PWA mode using Docker:
 ```bash
 docker run -d -p 3210:3210 \
   -e OPENAI_API_KEY="sk-proj-xxxx" \
@@ -103,41 +93,70 @@ docker run -d -p 3210:3210 \
   lobehub/lobe-chat
 ```
 
-### Verification
-Verify that the service is running and healthy:
+### 2. Verification
+Verify that the HTTP endpoint is active and healthy:
 ```bash
 curl -I http://localhost:3210/
 ```
 
+### 3. Docker Compose (Enterprise DB Mode)
+For multi-user PostgreSQL-backed deployment:
+```yaml
+version: '3.8'
+services:
+  lobe-chat-db:
+    image: lobehub/lobe-chat-database:latest
+    ports:
+      - "3210:3210"
+    environment:
+      - DATABASE_URL=postgresql://lobe:lobepass@postgres:5432/lobe_chat
+      - REDIS_URL=redis://redis:6379
+      - KEYCLOAK_CLIENT_ID=lobechat
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=lobe
+      - POSTGRES_PASSWORD=lobepass
+      - POSTGRES_DB=lobe_chat
+
+  redis:
+    image: redis:7-alpine
+```
+
 ## CLI examples
 
+### 1. Pull Latest Image and Restart
 ```bash
-# Update LobeChat Docker image to latest version
 docker pull lobehub/lobe-chat:latest && docker restart lobe-chat
+```
 
-# Inspect PostgreSQL database migrations (for DB-backed deployments)
+### 2. Inspect Active PostgreSQL Migrations
+```bash
 docker exec -it lobe-chat-db psql -U lobe -d lobe_chat -c "SELECT version();"
+```
 
-# Launch local MCP Inspector for testing custom FastMCP 3.1 tools
+### 3. Launch FastMCP 3.1 Inspector
+```bash
 npx @modelcontextprotocol/inspector lobe-mcp-config.json
 ```
 
 ## API examples
 
-### FastMCP 3.1 Provider Configuration & Validation
-The following Python script implements a **FastMCP 3.1** configuration tool that validates provider setup and dynamic model limits for LobeChat using **Pydantic v2**.
+### FastMCP 3.1 Server Provider & Agent Tool Registry (Pydantic v2)
+This complete FastMCP 3.1 server validates provider configurations and dynamic model settings for LobeHub integrations using strict **Pydantic v2** models.
 
 ```python
+import json
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP(
-    name="LobeHub Config Engine",
-    version="3.1.0",
-    description="FastMCP server managing LobeHub agent and provider registration schemas"
-)
+mcp = FastMCP("lobehub-config-engine")
 
 class ModelParams(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
@@ -154,40 +173,63 @@ class ProviderRegistration(BaseModel):
     @field_validator("provider_id")
     @classmethod
     def validate_provider(cls, v: str) -> str:
-        allowed = {"openai", "anthropic", "google", "ollama", "localai", "deepseek"}
+        allowed = {"openai", "anthropic", "google", "ollama", "localai", "deepseek", "vllm"}
         if v.lower() not in allowed:
             raise ValueError(f"Provider '{v}' is not supported. Choose from {allowed}")
         return v.lower()
 
-@mcp.tool(name="register_lobehub_provider", description="Validates and registers a new model provider configuration for LobeHub")
-async def register_lobehub_provider(config_payload: Dict[str, Any]) -> Dict[str, Any]:
-    # Validate payload using Pydantic v2
-    reg = ProviderRegistration.model_validate(config_payload)
+class AgentDefinition(BaseModel):
+    agent_id: str = Field(..., min_length=3)
+    system_prompt: str = Field(..., min_length=10)
+    tools: List[str] = Field(default_factory=list)
+    provider_config: ProviderRegistration
 
-    return {
-        "status": "registered",
-        "provider": reg.provider_id,
-        "model": reg.model_name,
-        "config": reg.model_dump(by_alias=True)
-    }
+@mcp.tool()
+def register_lobehub_agent(payload: str) -> str:
+    """Validates and registers a new LobeHub multi-agent configuration.
+
+    Args:
+        payload: JSON string matching AgentDefinition schema.
+    """
+    try:
+        data = json.loads(payload)
+        agent = AgentDefinition.model_validate(data)
+        return json.dumps({
+            "status": "SUCCESS",
+            "agent_id": agent.agent_id,
+            "validated_config": agent.model_dump(by_alias=True)
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({"status": "VALIDATION_FAILED", "error": str(e)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
+## Operational Best Practices
+
+### 1. Vector Store Index Optimization
+When deploying LobeChat in enterprise database mode with Pgvector or Milvus, ensure vector indexes utilize HNSW (Hierarchical Navigable Small World) with `m=16` and `ef_construction=64` to maintain sub-50ms retrieval latencies across large document collections.
+
+### 2. FastMCP Tool Server Isolation
+Run external FastMCP tool servers inside isolated Docker sidecar containers on the same internal bridge network as LobeChat, restricting tool network egress to prevent unauthorized external data exfiltration.
+
+### 3. Session State & Redis Persistence
+Utilize Redis with AOF (Append Only File) persistence enabled for multi-user LobeChat deployments to prevent token streaming state loss during container upgrades.
+
 ## Related tools / concepts
-- [AnythingLLM](anythingllm.md) — RAG workspace and agent platform.
-- [Open WebUI](../../services/open-webui.md) — Open-source LLM UI alternative.
-- [LibreChat](librechat.md) — Enterprise multi-model chat UI.
-- [Ollama](../../services/ollama.md) — Local model serving engine.
-- [FastMCP 3.1](../automation_orchestration/mcp.md) — Agent tool integration standard.
+- [AnythingLLM](anythingllm.md) — Self-hosted RAG workspace and agent platform.
+- [Open WebUI](../../services/open-webui.md) — Open-source LLM chat web interface.
+- [LibreChat](librechat.md) — Enterprise multi-model chat UI framework.
+- [Ollama](../../services/ollama.md) — Local model serving runtime engine.
+- [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardization protocol for model tool calls.
 
 ## Sources / references
-- [LobeHub Official Site](https://lobehub.com/)
+- [LobeHub Official Website](https://lobehub.com/)
 - [LobeChat GitHub Repository](https://github.com/lobehub/lobe-chat)
-- [FastMCP 3.1 Protocol Specification](https://modelcontextprotocol.io)
+- [FastMCP Framework Specification](https://github.com/jlowin/fastmcp)
+- [MCP 3.0 Protocol Documentation](https://modelcontextprotocol.io)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
