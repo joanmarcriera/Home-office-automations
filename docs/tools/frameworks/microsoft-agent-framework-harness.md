@@ -6,9 +6,42 @@ The **Microsoft Agent Framework Harness** (or simply **Agent Harness**) is the p
 ## What problem it solves
 Before the Harness, developers had to manually write orchestration infrastructure—including state persistence, context compaction (to prevent token overflow), runaway safety brakes, manual tool approval prompts, and OpenTelemetry hooks. Research shows that up to 98.4% of high-autonomy agent code (like Claude Code or Codex CLI) is comprised of this harness infrastructure, with only 1.6% devoted to actual decision logic. The Microsoft Agent Framework Harness eliminates this development overhead by acting as a standard, secure, and production-supported runtime that wraps the agent logic, preventing common issues such as infinite agent loops and unmanaged context growth.
 
+## Architecture & Data Flow
+
+```
+                                  +------------------------------------+
+                                  |  Host Environment / Caller         |
+                                  |  (Azure Foundry / Local CLI)       |
+                                  +-----------------+------------------+
+                                                    |
+                                                    v
++-----------------------+         +------------------------------------+         +-----------------------+
+| FastMCP 3.1 Tools     | <-----> |   Microsoft Agent Harness Binary   | <-----> | State & History DB    |
+| (Search, DB, Code)    |         |   - Run Loop & Stopping Controls   |         | (SQLite / CosmosDB)   |
++-----------------------+         |   - Context Compaction Engine      |         +-----------------------+
+                                  |   - OpenTelemetry Tracing          |
+                                  +-----------------+------------------+
+                                                    |
+                                                    v
+                                  +------------------------------------+
+                                  | Frontier LLM Providers             |
+                                  | (Claude 5.6, GPT-5.6, Azure OpenAI)|
+                                  +------------------------------------+
+```
+
 ## Where it fits in the stack
 **Category**: Frameworks & Orchestration.
 It represents the runtime execution layer that hosts, governs, and runs agent workflows. It sits directly on top of the Microsoft Agent Framework and Semantic Kernel SDKs, connecting agents with underlying inference layers (such as Azure OpenAI, Anthropic, or custom local model endpoints) and tool integrations (such as the **FastMCP 3.1 Protocol**).
+
+## Agent Harness Framework Comparison
+
+| Dimension / Feature | Microsoft Agent Harness | Semantic Kernel Runtime | LangChain / LangGraph Agent | AutoGen Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Format** | Compiled Binary / Container | SDK Library Integration | Python / JS Code Runtime | UI / Python Framework |
+| **Context Compaction** | Built-in Auto Compaction | Custom Memory Plugins | Manual Checkpointing | Custom Message History |
+| **Runaway Prevention** | Rigid Turn Limits & Braking | Application-level logic | Graph Loop Guards | Loop max_consecutive_auto_reply |
+| **MCP Protocol Support** | Native FastMCP 3.1 | MCP Connectors Plugin | Custom MCP Adapter | Custom Tool Functions |
+| **Telemetry & Audit** | OpenTelemetry Native | Application Insights | LangSmith Integration | System Event Logs |
 
 ## Typical use cases
 - **Fleet Governance**: Wrapping diverse model-based agents (e.g. specialized Azure OpenAI or Claude 5.6 agents) in a single unified execution harness to guarantee standard auditing, policy enforcement, and telemetry across the entire enterprise.
@@ -58,6 +91,12 @@ project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential()
 )
 ```
+
+## Production Hardening & Operational Guidelines
+- **Max Execution Ceiling**: Always configure `max_execution_loops` in production configs (recommended: 30-50 turns) to prevent runaway token costs during infinite tool failure retry loops.
+- **Human-in-the-Loop Approvals**: Enforce `require_approval: True` for tools with filesystem side-effects, shell execution, or database mutations.
+- **Compaction Strategy**: Tune the compaction memory buffer size so conversation history summarizes automatically prior to reaching 80% of the model's token limit.
+- **Trace Exporting**: Route OpenTelemetry traces directly to Azure Monitor or Grafana Tempo for real-time alerting on anomalous tool invocations.
 
 ## CLI examples
 

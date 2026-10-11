@@ -8,8 +8,40 @@ It allows developers and home lab enthusiasts to host their own private Git repo
 
 In early January 2027, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), [GPT-5.6](../tools/providers/index.md), and [Claude 5.6](../tools/providers/anthropic.md). It provides a central hub for code collaboration, issue tracking, and multi-agent automation that can run on low-power hardware.
 
+## Webhook & Event Architecture Flow
+
+```
+                                +-----------------------------------+
+                                | Developer Push / Pull Request     |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | Gitea Instance (v1.27+)           |
+                                | - Repositories & Internal Git     |
+                                | - Webhook Dispatch Engine         |
+                                +--------+-----------------+--------+
+                                         |                 |
+                        Webhook Payload  |                 | FastMCP 3.1 JSON-RPC
+                                         v                 v
++------------------+           +------------------+    +-----------------------+
+| Authentik SSO    | <-------> | n8n Automation   |    | Autonomous AI Agents  |
+| (OIDC Identity)  |           | Webhook Listener |    | (Claude 5.6 / Jules)  |
++------------------+           +------------------+    +-----------------------+
+```
+
 ## Where it fits in the stack
 Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
+
+## Code Hosting Platform Comparison
+
+| Feature / Dimension | Gitea (v1.27+) | Forgejo | GitHub (SaaS) | GitLab Community Edition |
+| :--- | :--- | :--- | :--- | :--- |
+| **Footprint / Memory** | Low (~100 MB RAM) | Low (~100 MB RAM) | Cloud-Hosted | High (4 GB+ RAM) |
+| **CI/CD Integration** | Gitea Actions (act_runner) | Forgejo Actions | GitHub Actions | GitLab Runners |
+| **FastMCP 3.1 Support** | Native API / Webhooks | Native API / Webhooks | Via API Gateways | Via API Gateways |
+| **Database Backend** | SQLite / Postgres / MariaDB | SQLite / Postgres | Proprietary DB | PostgreSQL |
+| **SSO / OIDC** | Native OIDC / LDAP | Native OIDC / LDAP | SAML / SSO (Enterprise) | Native OIDC / LDAP |
 
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
@@ -86,6 +118,12 @@ ENABLED = true
 ```
 2. **Set up a Runner**: Gitea Actions requires a separate "Gitea Runner" (formerly `act_runner`).
 3. **Registration**: Registration tokens are managed via the administrative UI or CLI.
+
+## Disaster Recovery & Operational Best Practices
+- **Automated Dumps**: Schedule nightly `gitea dump` commands via cron or n8n, saving archives (`gitea-dump-*.zip`) to offsite storage or encrypted S3 targets.
+- **Database Backends**: For environments hosting >50 repositories or heavy Gitea Actions workflows, migrate from SQLite to PostgreSQL 16+ to handle concurrent locking smoothly.
+- **Git LFS Offloading**: Enable S3-compatible object storage offloading in `app.ini` for Large File Storage (LFS) to keep the primary container storage lightweight.
+- **SSH Port Remapping**: Avoid port conflicts with host SSH services by remapping Gitea's SSH listener to port `2222` or `222`.
 
 ## CLI examples
 The `gitea` binary inside the container can be used for administrative tasks:
