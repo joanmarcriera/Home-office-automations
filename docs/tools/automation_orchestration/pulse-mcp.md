@@ -9,11 +9,47 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 ## Where it fits in the stack
 **Automation & Orchestration / Tool Discovery**. It acts as a metadata layer and discovery service for LLM-powered agents to find and utilize standardized tools, often integrated with [Cline](../../tools/agents/cline.md) and [Aider](../../tools/development_ops/aider.md).
 
+```
++-----------------------------------------------------------------------------------+
+|                        PULSEMCP DISCOVERY & EXECUTOR FLOW                         |
+|                                                                                   |
+|   +-----------------------+      +-----------------------+                        |
+|   |   Claude 5.6 / GPT-5.6|      |    Cline / Aider      |                        |
+|   |   Autonomous Agent    |      |    Developer IDE      |                        |
+|   +-----------+-----------+      +-----------+-----------+                        |
+|               |                              |                                    |
+|               +--------------+---------------+                                    |
+|                              |                                                    |
+|                              v                                                    |
+|   +-------------------------------------------------------+                       |
+|   |                 PulseMCP Registry API                 |                       |
+|   |   - Metadata, Tool Schemas, Rating Aggregator         |                       |
+|   |   - FastMCP 3.1 Server Index & Compatibility Gate    |                       |
+|   +---------------------------+---------------------------+                       |
++-------------------------------+---------------------------------------------------+
+                                |
+                                v (Discovered Server Endpoint)
++-----------------------------------------------------------------------------------+
+|                           FASTMCP 3.1 EXECUTION CONTAINERS                        |
+|                                                                                   |
+|    [PostgreSQL MCP Server] <---> [Google Search MCP] <---> [Filesystem MCP Server] |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Tool Discovery**: Finding specific MCP servers for tasks like web scraping, database interaction, or specialized API management.
 - **Integration Research**: Exploring how different MCP servers can be combined to form complex agentic workflows using the [MCP 3.1](mcp.md) Task Protocol.
 - **Community Contribution**: Publishing and sharing custom-built [FastMCP](mcp.md) servers with the global developer community.
 - **Agent Self-Expansion**: Allowing autonomous agents to programmatically search for and propose new capabilities.
+
+## Capability Comparison Matrix
+
+| Protocol Engine / Registry | PulseMCP Registry | Official MCP Hub | Custom Internal Registry |
+| :--- | :--- | :--- | :--- |
+| **Discovery Mechanism** | Dynamic Search API & Web Portal | Static Docs Index | Private Endpoint / JSON Index |
+| **FastMCP 3.1 Verification**| Automated Schema Validation | Manual Pull Request | CI Pipeline Gate |
+| **Community Ratings** | Stars, Reviews & Audit Badges | None | Internal Compliance Score |
+| **Agentic Self-Expansion**| Supported via FastMCP 3.1 API | Limited | Supported via Internal RPC |
 
 ## Strengths
 - **Centralized Discovery**: Significantly reduces the time to find and implement new agent capabilities.
@@ -86,7 +122,7 @@ mcp-cli --command "npx @pulsemcp/weather-server" --env "API_KEY=xxx"
 To securely query, validate, and parse discovered tool metadata from the PulseMCP registry in early 2027, programmatic interactions must be strictly schema-validated with FastMCP 3.1 task protocol context. Below is a robust Python example utilizing **Pydantic v2**.
 
 ```python
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from typing import List, Optional
 
 # 1. Define schemas using strict Pydantic v2 annotations
@@ -102,6 +138,13 @@ class PulseToolResult(BaseModel):
     github_url: Optional[str] = None
     supports_task_protocol: bool = Field(default=True)
     rating: float = Field(default=5.0, ge=0.0, le=5.0)
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        if not v or " " in v:
+            raise ValueError("Tool name must be hyphenated or alphanumeric without spaces")
+        return v
 
 class PulseSearchResponse(BaseModel):
     task_id: str = Field(..., description="FastMCP 3.1 Task correlation identifier.")
@@ -162,6 +205,31 @@ if __name__ == "__main__":
     print(f"[Task {response.task_id}] Found {response.total_found} verified tools:")
     for tool in response.results:
         print(f" - {tool.name} (Rating: {tool.rating}), Task Protocol: {tool.supports_task_protocol}")
+```
+
+### FastMCP 3.1 Tool Listener Example
+Exposing PulseMCP discovery search via FastMCP 3.1 tool protocol:
+
+```python
+from fastmcp import FastMCP, Context
+
+mcp = FastMCP("PulseMCP-Registry-Listener")
+
+@mcp.tool()
+async def discover_mcp_tool(task_id: str, query: str, ctx: Context) -> dict:
+    """Discovers verified MCP servers via FastMCP 3.1 Task Protocol."""
+    ctx.info(f" Discovering tools for query '{query}' (Task: {task_id})")
+
+    return {
+        "task_id": task_id,
+        "query": query,
+        "recommended_tool": "postgresql-mcp",
+        "npm_package": "@modelcontextprotocol/server-postgresql",
+        "verified": True
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts

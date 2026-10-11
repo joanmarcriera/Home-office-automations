@@ -1,6 +1,6 @@
 # Headscale
 
-Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of early January 2027, **v0.26.0+** stands as the recommended production baseline, introducing enhanced **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for automated agentic network orchestration, Tailscale protocol 1.80+ compatibility, and integration with multimodal agent clusters (**Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro**, **DeepSeek-V4**) for intelligent traffic shaping, zero-trust ACL updates, and automated security auditing.
+Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of early January 2027, **v0.26.0+** stands as the recommended production baseline, introducing enhanced **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for automated agentic network orchestration, Tailscale protocol 1.80+ compatibility, and integration with multimodal agent clusters (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) for intelligent traffic shaping, zero-trust ACL updates, and automated security auditing.
 
 ## What it is
 Headscale allows you to run your own Tailscale-compatible coordination server, providing 100% control over your mesh network's control plane, IP address allocations, and node ACL policies without relying on Tailscale's SaaS infrastructure.
@@ -11,13 +11,46 @@ It enables organizations and homelab operators to use standard Tailscale client 
 ## Where it fits in the stack
 **Category**: Infrastructure / Networking. It serves as the central coordination hub for a self-hosted overlay mesh network. It forms the core zero-trust networking layer in [self-hosted infrastructure](../architecture/infrastructure.md), allowing autonomous agents and services to communicate securely across heterogeneous cloud environments and local hardware.
 
+```
++-----------------------------------------------------------------------------------+
+|                        HEADSCALE MESH COORDINATION TOPOLOGY                       |
+|                                                                                   |
+|   +---------------------------------------------------------------------------+   |
+|   |                   HEADSCALE COORDINATION SERVER (v0.26+)                  |   |
+|   |   - Control Plane & SQLite / PostgreSQL DB                                |   |
+|   |   - FastMCP 3.1 Node & ACL Orchestration Gateway                          |   |
+|   |   - OIDC Identity Mapping Engine (Authentik / Kanidm)                     |   |
+|   +-------------------------------------+-------------------------------------+   |
++-----------------------------------------|-----------------------------------------+
+                                          |
+                      (WireGuard Control Plane Handshake)
+                                          |
+      +-----------------------------------+-----------------------------------+
+      |                                   |                                   |
+      v                                   v                                   v
++-----------+                       +-----------+                       +-----------+
+| Edge Node | <===================> | Cloud VM  | <===================> | AI Agent  |
+| (Homelab) |  (Encrypted WireGuard | (VPS)     |  (Encrypted WireGuard | Cluster   |
++-----------+   P2P Mesh Tunnels)   +-----------+   P2P Mesh Tunnels)   +-----------+
+```
+
 ## Typical use cases
 - **Zero-Trust Agentic Mesh**: Creating an encrypted, private mesh network for cross-cloud AI agent clusters and local microservices.
 - **Cross-Cloud Node Interconnect**: Safely linking remote edge devices, bare-metal servers, and [Docker](../tools/infrastructure/docker.md) containers across disparate networks.
 - **Unified OIDC Identity Mapping**: Integrating OIDC/OAuth 2.0 authentication for VPN access using [Authentik](authentik.md).
 - **Kubernetes Cluster Interconnect**: Establishing secure Pod-to-Pod or Node-to-Node transport for a multi-region [K3s cluster](../playbooks/k3s-cluster-setup.md).
-- **Private API Transport**: Providing AI agents (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0 Pro**) with secure access to non-public internal APIs without exposing ports to the internet.
+- **Private API Transport**: Providing AI agents (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**) with secure access to non-public internal APIs without exposing ports to the internet.
 - **Automated GitOps ACL Orchestration**: Automating network firewall and routing rule updates via FastMCP 3.1 agentic workflows.
+
+## Feature & Architecture Comparison Matrix
+
+| Dimension | Headscale (Self-Hosted) | Tailscale SaaS | WireGuard (Standalone) | Nebula / Innernet |
+| :--- | :--- | :--- | :--- | :--- |
+| **Control Plane** | Self-Hosted Go Binary | Cloud Managed SaaS | None (Manual Keys) | Self-Hosted Lighthouse |
+| **Data Sovereignty** | 100% On-Premises | Third-Party Telemetry | 100% On-Premises | 100% On-Premises |
+| **Client Software** | Standard Tailscale Clients | Standard Tailscale Clients | Native WireGuard Tools | Dedicated Client Binaries |
+| **Agentic Auth (FastMCP 3.1)**| Native gRPC / REST API Tools | Limited Admin API Keys | Scripted SSH / Key swaps | Custom Lighthouse API |
+| **Node Limits** | Unlimited | Tiered Quotas | Unlimited | Unlimited |
 
 ## Strengths
 - **100% Data Sovereignty**: Complete ownership of the coordination server, node keys, and routing metadata.
@@ -146,6 +179,32 @@ if __name__ == "__main__":
             print(f" - [{status}] Name: {node.given_name} | User: {node.user.name} | IPs: {', '.join(node.ip_addresses)}")
     except Exception as e:
         print(f"Error querying Headscale API: {e}")
+```
+
+### FastMCP 3.1 Tool Registration for Node Management
+Exposing Headscale node queries via FastMCP 3.1:
+
+```python
+from fastmcp import FastMCP, Context
+
+mcp = FastMCP("Headscale-Node-Manager")
+
+@mcp.tool()
+async def register_agent_node(task_id: str, user_namespace: str, node_name: str, ctx: Context) -> dict:
+    """Generates a Headscale pre-auth key and registers a new agentic node via FastMCP 3.1 Task Protocol."""
+    ctx.info(f" Creating preauthkey for node '{node_name}' under user '{user_namespace}' (Task: {task_id})")
+
+    # Mock preauth key generation
+    return {
+        "task_id": task_id,
+        "status": "created",
+        "user": user_namespace,
+        "preauth_key": "hs_key_mock_9876543210abc",
+        "expiration": "24h"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### OIDC Integration (Authentik)

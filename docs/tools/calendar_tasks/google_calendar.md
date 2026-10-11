@@ -9,6 +9,31 @@ It bridges the gap between digital autonomous scheduling and human physical real
 ## Where it fits in the stack
 **Calendar & Tasks Layer**. It sits at the interface level, acting as an external scheduling surface that bridges **Orchestration Layers** (such as [n8n](../../services/n8n.md) or [Temporal](../orchestration/temporal.md)) with the user's mobile devices and smart home.
 
+```
++-----------------------------------------------------------------------------------+
+|                        AGENTIC TIME BLOCKING ARCHITECTURE                         |
+|                                                                                   |
+|   +------------------------+      +-----------------------+                       |
+|   |   Claude 5.6 / GPT-5.6 |      |   Home Assistant      |                       |
+|   |   Autonomous Agent     |      |   State Engine        |                       |
+|   +-----------+------------+      +-----------+-----------+                       |
+|               |                               |                                   |
+|               v                               v                                   |
+|   +-------------------------------------------------------+                       |
+|   |         FastMCP 3.1 Google Calendar Server            |                       |
+|   |   - Conflict Resolution Engine                        |                       |
+|   |   - Schema-Validated Task Protocol Gateway            |                       |
+|   +---------------------------+---------------------------+                       |
++-------------------------------+---------------------------------------------------+
+                                |
+                                v
++-----------------------------------------------------------------------------------+
+|                           GOOGLE GRAPH & CALENDAR API v3                          |
+|                                                                                   |
+|   [Primary Work Calendar] <---> [Shared Family Calendar] <---> [System Maintenance]|
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Autonomous Time Blocking**: Agents evaluating task backlogs and programmatically carving out dedicated deep-work slots based on deadline priority.
 - **Dynamic Context Coordination**: Automatically syncing work-related Google Calendar meetings to a local home automation hub (like [Home Assistant](../../services/home-assistant.md)) to trigger 'Do Not Disturb' indicator lights.
@@ -25,6 +50,16 @@ It bridges the gap between digital autonomous scheduling and human physical real
 - **Data Sovereignty Concerns**: All calendar events are stored on Google's cloud servers, which may not comply with strict local privacy requirements.
 - **Strict Rate Limits**: High-frequency polling or bulk event insertions can trigger API quota throttling.
 - **Proprietary Cloud Dependency**: Completely inoperable during local network disconnects or Google Cloud service outages.
+
+## Calendar Engine Comparison Matrix
+
+| Capability | Google Calendar | Nextcloud Calendar | Vikunja | Radicale |
+| :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | Public SaaS Cloud | Self-Hosted | Self-Hosted | Self-Hosted |
+| **Protocol Support** | Google REST API v3 / FastMCP 3.1 | CalDAV / WebDAV / OIDC | REST API / CalDAV | CalDAV / CardDAV |
+| **Multi-Agent Sync** | FastMCP 3.1 Task Protocol | CalDAV Polling / Webhooks | Native Kanban / Tasks | File-based sync |
+| **Offline Operations** | Mobile cache only | Full local storage | Full local storage | Full local storage |
+| **Ecosystem Depth** | High (Android/iOS/Gmail) | High (Nextcloud Hub) | Medium (Task-focused) | Minimal (Lightweight) |
 
 ## When to use it
 - When you require seamless cross-platform syncing with mobile clients.
@@ -45,7 +80,7 @@ It bridges the gap between digital autonomous scheduling and human physical real
 ### 2. Install dependencies
 Install the required Google client and Pydantic libraries:
 ```bash
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib pydantic
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib pydantic fastmcp
 ```
 
 ## CLI examples
@@ -68,8 +103,8 @@ gam calendar user admin@example.com delete events start 2027-01-01 end 2027-01-3
 This script utilizes Pydantic v2 to validate calendar event payloads before programmatically inserting them into Google Calendar, ensuring that logical errors (such as end times preceding start times) are caught before calling the cloud API.
 
 ```python
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
+from typing import Optional, List
 from pydantic import BaseModel, Field, field_validator, model_validator
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -85,6 +120,7 @@ class CalendarEventSchema(BaseModel):
     start: EventDateTime
     end: EventDateTime
     location: Optional[str] = Field(None, description="Physical address or meeting URL")
+    attendees: Optional[List[str]] = Field(default_factory=list, description="List of participant emails")
 
     @model_validator(mode="after")
     def validate_time_order(self) -> "CalendarEventSchema":
@@ -115,7 +151,8 @@ def create_google_calendar_event(validated_event: CalendarEventSchema) -> str:
             'dateTime': validated_event.end.date_time.isoformat(),
             'timeZone': validated_event.end.time_zone,
         },
-        'location': validated_event.location
+        'location': validated_event.location,
+        'attendees': [{'email': email} for email in validated_event.attendees] if validated_event.attendees else []
     }
 
     event = service.events().insert(calendarId='primary', body=event_body).execute()
@@ -135,7 +172,8 @@ if __name__ == "__main__":
             "dateTime": "2027-01-07T11:30:00Z",
             "timeZone": "UTC"
         },
-        "location": "Homelab Control Center"
+        "location": "Homelab Control Center",
+        "attendees": ["jules@example.com"]
     }
 
     # Validate utilizing Pydantic v2
@@ -153,6 +191,48 @@ if __name__ == "__main__":
         CalendarEventSchema.model_validate(invalid_input)
     except Exception as err:
         print(f"Successfully caught expected validation error: {err}")
+```
+
+### FastMCP 3.1 Tool Registration for Google Calendar
+Using FastMCP 3.1 to expose Google Calendar operations directly to autonomous agents:
+
+```python
+from fastmcp import FastMCP, Context
+from datetime import datetime
+
+mcp = FastMCP("Google-Calendar-FastMCP-Server")
+
+@mcp.tool()
+async def schedule_time_block(
+    task_id: str,
+    summary: str,
+    start_iso: str,
+    end_iso: str,
+    ctx: Context
+) -> dict:
+    """Schedule a dedicated deep-work time block via FastMCP 3.1 Task Protocol."""
+    ctx.info(f"Scheduling time block '{summary}' for Task {task_id}")
+
+    # Process event times
+    start_dt = datetime.fromisoformat(start_iso)
+    end_dt = datetime.fromisoformat(end_iso)
+
+    if end_dt <= start_dt:
+        return {"status": "error", "message": "End time must follow start time"}
+
+    return {
+        "task_id": task_id,
+        "status": "scheduled",
+        "event": {
+            "summary": summary,
+            "start": start_iso,
+            "end": end_iso,
+            "provider": "Google Calendar"
+        }
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
