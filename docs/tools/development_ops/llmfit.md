@@ -11,8 +11,43 @@ Setting up local Large Language Models or specialized agent components is tradit
 
 llmfit solves these bottlenecks by executing instant, predictive mathematical audits of your local hardware capability profile. This ensures that any model or local agent runtime selected by your workspace orchestrator is fully compatible and mathematically guaranteed to fit within your execution boundaries.
 
+## Hardware Estimation Pipeline Flow
+
+```
+                                +-----------------------------------+
+                                | System Discovery Engine           |
+                                | - CUDA / ROCm / Apple Silicon     |
+                                | - Available VRAM & System RAM     |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | Mathematical Sizing Matrix        |
+                                | - Model Base Weights (GGUF/FP16)  |
+                                | - KV Cache Context Scale Factor   |
+                                | - FastMCP 3.1 Agent Overhead      |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | Feasibility & Recommendation TUI  |
+                                | - Tokens/sec Generation Target    |
+                                | - Quantization Advice (Q4/Q8)     |
+                                +-----------------------------------+
+```
+
 ## Where it fits in the stack
 **Category**: [Development & Ops](index.md) / Local Sizing & Planning Utility. llmfit operates as a critical preparatory step. Before launching local LLM container platforms (like Ollama, vLLM, or LM Studio), developers and autonomous scripts run llmfit to dynamically verify the host hardware capacity, making it a cornerstone of local-first agent engineering setups.
+
+## LLM Sizing Utility Comparison
+
+| Dimension / Feature | llmfit | CanItRunLLM | Ollama System Audit | Manual Formula Calculation |
+| :--- | :--- | :--- | :--- | :--- |
+| **Interface Format** | CLI & Vim TUI | Web UI | CLI Verbose Logs | Manual Math / Spreadsheet |
+| **Hardware Scanning** | Automatic (CUDA/Apple Silicon) | Manual Input | Basic VRAM Probe | Manual Specs Entry |
+| **KV Cache Footprint** | Dynamic Context Window Math | Fixed Estimates | Runtime Allocation | Custom Formula |
+| **FastMCP 3.1 Modeling** | Supported | Not Supported | Not Supported | Manual Overhead Addition |
+| **JSON Export for CI/CD** | Native `--json` Export | Web Output | None | Manual Entry |
 
 ## Typical use cases
 - **Local Model Sizing Audits**: Checking if your development machine can run **Gemma 4 27B** or if you need to downsize to the **Gemma 4 4B** or **Llama 4** variants.
@@ -67,6 +102,12 @@ llmfit
 - Use `j` and `k` to navigate.
 - Type `/` to search by model family or use-case.
 - Press `S` to simulate upgraded hardware profiles.
+
+## Production Guidelines & Sizing Best Practices
+- **KV Cache Safety Margin**: Always reserve at least 15-20% VRAM buffer beyond base model weights to accommodate KV cache expansion at large context windows (32K+).
+- **Multi-Agent Overhead**: When running concurrent FastMCP 3.1 servers or background embedding models, account for an extra 1.5 - 3.0 GB of host RAM/VRAM buffer.
+- **CI/CD Gating**: Integrate `llmfit plan --json` checks in local setup scripts to fail fast if developer hardware cannot support required benchmark models.
+- **Unified Memory Allocation**: On Apple Silicon, configure macOS sysctl settings (`iogpu.wired_mem_limit`) if dedicating >75% of unified RAM to LLM inference.
 
 ## CLI examples
 

@@ -6,8 +6,42 @@ Vikunja is a high-performance, open-source task management platform designed for
 ## What problem it solves
 Managing tasks across fragmented devices, AI agents, and teams often leads to data silos and privacy compromises. Vikunja centralizes operations with a "local-first" philosophy while providing the API-first architecture required for modern AI automation. It solves the "orchestration gap" by allowing users and autonomous agentic clusters (running frontier models like **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4**) to manage everything from simple checklists to complex multi-dependency project timelines with full data sovereignty and end-to-end security.
 
+## Architecture & Data Flow
+
+```
+                                +----------------------------------+
+                                |  Autonomous Agentic Clusters     |
+                                |  (Claude 5.1, GPT-5.6, FastMCP)  |
+                                +----------------+-----------------+
+                                                 |
+                                                 | FastMCP 3.1 Tool Calls
+                                                 v
++------------------+   OAuth2 / OIDC   +----------------------------------+
+| Authentik Mesh   | <---------------+ |      Vikunja API Gateway         |
+| (Identity Auth)  |                   |     (Go REST / WebSocket)        |
++------------------+                   +----------------+-----------------+
+                                                        |
+                                       +----------------+----------------+
+                                       |                                 |
+                                       v                                 v
+                        +------------------------------+  +------------------------------+
+                        | Persistent Storage Engine    |  | Real-Time Event Bus          |
+                        | (PostgreSQL 16+ / SQLite)    |  | (Redis Pub/Sub & WebSockets) |
+                        +------------------------------+  +------------------------------+
+```
+
 ## Where it fits in the stack
 **Category**: Services / Task Management. It serves as the **operational coordination layer**, bridging high-level knowledge synthesis (from [Notion AI](../tools/ai_knowledge/notion-ai.md) or [Obsidian](../tools/ai_knowledge/obsidian.md)) with actionable execution. It is often the primary "source of truth" for an agent's current agenda and task execution queue within homelab and enterprise architectures.
+
+## Task Ecosystem Comparison Matrix
+
+| Feature / Dimension | Vikunja | Vikunja + FastMCP 3.1 | Todoist (SaaS) | OpenProject |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hosting Model** | Self-Hosted / Local-First | Self-Hosted / Local-First | Cloud SaaS | Self-Hosted / Cloud |
+| **Agentic Integration** | REST API / Webhooks | Native FastMCP 3.1 JSON-RPC | REST API | REST API |
+| **Subtask & Dependency Depth** | Multi-level + Blocked-by | Multi-level + Blocked-by | 4-level max | Gantt-level dependencies |
+| **Real-time Event Push** | WebSockets + Redis | Native Stream Event Dispatch | Webhooks only | WebSockets |
+| **Identity Management** | OIDC / OAuth2 / Internal | Service Tokens + RBAC | Single Sign-On (Paid) | LDAP / SAML / OIDC |
 
 ## Typical use cases
 - **Agentic Task Decomposition**: Using frontier models (Claude 5.1, GPT-5.5/5.6, Gemini 4.0 Pro, Llama 4, DeepSeek-V4) to automatically break down high-level project goals into granular Vikunja tasks via FastMCP 3.1 tool calls.
@@ -66,6 +100,12 @@ services:
 2. Register your administrative account.
 3. Create a new **Project** titled "Homelab Automation 2027".
 4. Add a **Task**: "Verify FastMCP 3.1 agent connectivity" to test live task tracking.
+
+## Operational Best Practices & Production Hardening
+- **Database Isolation**: For production workloads exceeding 100,000 tasks or active multi-agent loops, switch from SQLite to PostgreSQL 16+ with connection pooling enabled via PgBouncer.
+- **Token Scoping**: Generate dedicated service tokens for each autonomous agent cluster (e.g. `agent-jules-tasks`) with read/write scopes strictly limited to designated project namespaces.
+- **Backup Verification**: Implement daily automated database dumps (`docker exec vikunja /app/vikunja/vikunja dump`) and upload compressed snapshots to offsite object storage (e.g. S3/MinIO) with 30-day retention policies.
+- **Rate Limiting**: Configure reverse proxy rate limits (Nginx/Traefik) on `/api/v1/projects/*/tasks` to protect task state from runaway agent loops.
 
 ## CLI examples
 Interact with the Vikunja instance using the internal CLI:

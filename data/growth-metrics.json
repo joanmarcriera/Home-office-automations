@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/services/vikunja.md",
-    "docs/tools/frameworks/microsoft-agent-framework-harness.md",
-    "docs/services/gitea.md",
-    "docs/tools/development_ops/llmfit.md",
-    "docs/tools/providers/nebius.md",
     "docs/tools/ai_knowledge/nemotron.md",
     "docs/services/jellyfin.md",
     "docs/tools/agents/aws-dogwood.md",
@@ -40,7 +35,12 @@
     "docs/tools/benchmarking/multipl-e.md",
     "docs/tools/providers/microsoft-graph.md",
     "docs/tools/benchmarking/langsmith.md",
-    "docs/tools/infrastructure/msty.md"
+    "docs/tools/infrastructure/msty.md",
+    "docs/tools/calendar_tasks/calendly.md",
+    "docs/tools/process_understanding/snowflake.md",
+    "docs/tools/infrastructure/livekit.md",
+    "docs/tools/infrastructure/mlx.md",
+    "docs/tools/providers/aws-bedrock.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

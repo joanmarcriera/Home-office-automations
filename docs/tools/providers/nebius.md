@@ -30,8 +30,47 @@ Training frontier models and deploying multi-agent applications requires special
 - **Cost-Optimized AI Compute**: Offers competitive GPU instance rates with flexible commitment terms for AI startups and enterprise AI labs.
 - **FastMCP 3.1 & Model Serving**: Managed Slurm, Kubernetes, and inference server deployments optimized for FastMCP 3.1 tool-calling streaming APIs.
 
+## Infrastructure Routing & Request Lifecycle
+
+```
+                                +-----------------------------------+
+                                | Agentic Client / MCP Host Gateway |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | Nebius Ingress Gateway & Router   |
+                                | - Load Balancing & SSL Term       |
+                                | - API Auth & Token Validation     |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | Managed Kubernetes (MK8S Cluster) |
+                                | - 3.2 Tbps InfiniBand Fabric      |
+                                | - vLLM / FastMCP 3.1 Workers      |
+                                +-----------------+-----------------+
+                                                  |
+                                                  v
+                                +-----------------------------------+
+                                | NVIDIA H100 / H200 / B200 Arrays  |
+                                | - Direct-Attach NVMe Storage      |
+                                | - Slurm HPC Batch Schedulers      |
+                                +-----------------------------------+
+```
+
 ## Where it fits in the stack
 **Providers / AI Cloud Infrastructure**. Nebius sits alongside GPU cloud providers (Lambda Labs, CoreWeave, RunPod, AWS Bedrock) and specialized AI service stacks.
+
+## GPU Cloud Provider Comparison
+
+| Dimension / Feature | Nebius AI Cloud | CoreWeave | Lambda Labs | AWS Bedrock / EC2 |
+| :--- | :--- | :--- | :--- | :--- |
+| **GPU Hardware** | NVIDIA H100, H200, B200 | NVIDIA H100, H200, B200 | NVIDIA H100, A100 | NVIDIA H100, Trainium |
+| **Interconnect Speed** | 3.2 Tbps Quantum-2 InfiniBand | 3.2 Tbps InfiniBand | 3.2 Tbps InfiniBand | EFA (Elastic Fabric Adapter) |
+| **Native Search Services** | Integrated Tavily API | None | None | Amazon Kendra / Search |
+| **Orchestration Runtimes**| Managed K8s (MK8S) & Slurm | Managed K8s | Bare-metal & Cloud | EKS & ECS |
+| **FastMCP 3.1 Support** | Direct Native Adapters | Custom Deployment | Custom Deployment | AWS Agent Adapters |
 
 ## Architecture & Infrastructure Overview
 Nebius AI Cloud is built specifically for large-scale GPU workloads:
@@ -68,6 +107,12 @@ Nebius AI Cloud is built specifically for large-scale GPU workloads:
 1. Create a Nebius AI Cloud account at [nebius.com](https://nebius.com).
 2. Install the Nebius CLI or Terraform provider.
 3. Authenticate with your cloud credentials: `nebius auth login`.
+
+## Operational Best Practices & Latency Tuning
+- **InfiniBand Topology**: Ensure all multi-node PyTorch / DeepSpeed distributed training jobs specify node affinity tags within the same InfiniBand rail-aligned group to maximize cross-GPU memory bandwidth.
+- **Checkpoint Offloading**: Stream training checkpoints directly to Nebius Object Storage using asynchronous background processes to avoid blocking compute nodes during long runs.
+- **vLLM Continuous Batching**: Configure vLLM deployments on Nebius MK8S with chunked prefill enabled (`--enable-chunked-prefill`) to maintain stable latency under multi-agent FastMCP 3.1 query bursts.
+- **Quota & Cost Guards**: Set up strict spending alerts in the Nebius Billing Console and configure auto-scaling group policies to terminate idle GPU instances after 15 minutes of inactivity.
 
 ## CLI examples
 
