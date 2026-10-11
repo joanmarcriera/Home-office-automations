@@ -1,7 +1,7 @@
 # Portkey AI Gateway
 
 ## What it is
-Portkey AI Gateway is an open-source, ultra-low-latency API gateway, routing engine, and control plane designed to manage, monitor, and scale requests across **2,000+ Large Language Models (LLMs)** and 250+ model providers. As of early 2027, Portkey serves as an enterprise control plane for agentic AI architectures, featuring native support for the **FastMCP 3.1 Task Protocol**, dynamic multi-tier fallback routing, semantic caching, and real-time observability across frontier models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
+Portkey AI Gateway is an open-source, ultra-low-latency API gateway, routing engine, and control plane designed to manage, monitor, and scale requests across **2,000+ Large Language Models (LLMs)** and 250+ model providers. As of late 2026 / early 2027, Portkey serves as an enterprise control plane for agentic AI architectures, featuring native support for the **FastMCP 3.1 Task Protocol**, dynamic multi-tier fallback routing, semantic caching, and real-time observability across frontier models including **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4**.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -284,5 +284,5 @@ except Exception as err:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-11
 - Confidence: high

@@ -1,7 +1,7 @@
 # Gumloop
 
 ## What it is
-Gumloop is a visual AI automation and orchestration platform designed for building, testing, and scaling complex agentic workflows through a visual canvas. It provides a drag-and-drop interface to connect foundation models, SaaS APIs, databases, and custom tools into automated "flows." As of early 2027, Gumloop fully integrates with the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling seamless tool orchestration across diverse agent execution environments using models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
+Gumloop is a visual AI automation and orchestration platform designed for building, testing, and scaling complex agentic workflows through a visual canvas. It provides a drag-and-drop interface to connect foundation models, SaaS APIs, databases, and custom tools into automated "flows." As of late 2026 / early 2027, Gumloop fully integrates with the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling seamless tool orchestration across diverse agent execution environments using models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## Architecture & Workflow Execution Pipeline
 Gumloop executes visual flows by parsing workflow node graphs into async task execution queues. In FastMCP 3.1 environments, Gumloop functions as an orchestration orchestrator, coordinating requests across external FastMCP tool servers and cloud foundation models.
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 ```
 
 ### Executing a Flow and Validating Response with Python
-In early 2027 production applications, invoking external workflows via Gumloop requires strict data validations. This ensures that the execution response matches the expected schema. Here, we use **Pydantic v2** to enforce the response format of the Gumloop flow execution.
+In production applications, invoking external workflows via Gumloop requires strict data validations. This ensures that the execution response matches the expected schema. Here, we use **Pydantic v2** to enforce the response format of the Gumloop flow execution.
 
 ```python
 from typing import Dict, Any, Optional, List
@@ -174,7 +174,7 @@ class GumloopRunResult(BaseModel):
     protocol_version: str = Field(default="3.1", description="FastMCP protocol standard")
 
 def execute_and_verify_flow(flow_id: str, document_path: str) -> Optional[GumloopRunResult]:
-    # Initialize client conforming to early 2027 standards
+    # Initialize client conforming to current standards
     client = GumloopClient(
         api_key="your_api_key",
         user_id="your_user_id"
@@ -224,6 +224,7 @@ if __name__ == "__main__":
 - [Gumloop API Reference](https://docs.gumloop.com/api-reference)
 - [FastMCP Specification and Tools API](https://modelcontextprotocol.io/)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-11
 - Confidence: high

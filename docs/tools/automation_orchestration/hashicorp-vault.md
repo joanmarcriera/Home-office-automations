@@ -1,7 +1,7 @@
 # HashiCorp Vault
 
 ## What it is
-HashiCorp Vault is an enterprise-grade identity-based secret management, data encryption, and privileged credential management engine. Designed to secure sensitive credentials—including API tokens, database connection strings, TLS certificates, SSH keys, and cloud access keys—Vault provides centralized control, auditing, dynamic leasing, and real-time encryption in transit and at rest. As of early 2027, Vault functions as the core security foundation for agentic workflows and automated homelab/enterprise infrastructure. It bridges identity providers (such as [Authentik](../../services/authentik.md), Keycloak, and OIDC) with AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**) through standardized **Vault MCP** and **FastMCP 3.1** protocol integrations.
+HashiCorp Vault is an enterprise-grade identity-based secret management, data encryption, and privileged credential management engine. Designed to secure sensitive credentials—including API tokens, database connection strings, TLS certificates, SSH keys, and cloud access keys—Vault provides centralized control, auditing, dynamic leasing, and real-time encryption in transit and at rest. As of late 2026 / early 2027, Vault functions as the core security foundation for agentic workflows and automated homelab/enterprise infrastructure. It bridges identity providers (such as [Authentik](../../services/authentik.md), Keycloak, and OIDC) with AI models (such as **Claude 5.6**, **GPT-5.6**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**) through standardized **Vault MCP** and **FastMCP 3.1** protocol integrations.
 
 ## What problem it solves
 Hardcoding API tokens, database passwords, or private encryption keys in codebases, configuration files (`.env`), or CI/CD environment variables creates severe security vulnerabilities:
@@ -266,6 +266,7 @@ if __name__ == "__main__":
 - [hvac Python Vault Client Documentation](https://hvac.readthedocs.io/)
 - [Vault MCP Source Code Repository](https://github.com/democratize-technology/vault-mcp)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-11
 - Confidence: high
