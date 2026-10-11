@@ -48,6 +48,46 @@ Replit Agent abstracts this infrastructure burden completely. Developers communi
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Self-Healing Live Preview Remediation Loop
+
+```
++-----------------------------------------------------------------------------------+
+|               REPLIT AGENT SELF-HEALING LIVE PREVIEW REMEDIATION LOOP             |
++-----------------------------------------------------------------------------------+
+
+[ Agent Generates / Edits Full-Stack Application Files ]
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Launch Dev Server in Container (uvicorn main:app / npm run dev)                  |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Live Preview Monitor: Ping HTTP Endpoint & Capture Stderr Logs                   |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+        ┌────────────────┴────────────────┐
+        │                                 │
+        ▼                                 ▼
+[ HTTP 200 / Healthy ]          [ HTTP 500 / Exception Captured ]
+        │                                 │
+        │                                 ▼
+        │                       ┌──────────────────────────────────────────────────┐
+        │                       | Parse Stack Trace & DB Binding Error             |
+        │                       └──────────────────────────────────────────────────┘
+        │                                 │
+        │                                 ▼
+        │                       ┌──────────────────────────────────────────────────┐
+        │                       | In-Container Gemma 3 / Llama 4 Code Repair Pass  |
+        │                       └──────────────────────────────────────────────────┘
+        │                                 │
+        │                                 ▼
+        │                       [ Hot Reload Code & Re-Test Live Preview ]
+        ▼
+[ Ready for Cloud Deployment ]
+```
+
 ## Where it fits in the stack
 [Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration). Replit Agent is a high-autonomy **Development, Workspace, and Ops Agent**. It bridges developer intent with execution environments, functioning as an automated pairing engineer capable of building complete software artifacts inside sandboxed cloud workspaces.
 

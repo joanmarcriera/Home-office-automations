@@ -34,6 +34,45 @@ Integrating native support for the **FastMCP 3.1 Task Protocol**, `gh-copilot` b
 +-----------------------------------------------------------------------------------+
 ```
 
+### Interactive Command Verification & Safety Execution Loop
+
+```
++-----------------------------------------------------------------------------------+
+|            INTERACTIVE COMMAND VERIFICATION & SAFETY EXECUTION LOOP               |
++-----------------------------------------------------------------------------------+
+
+[ Developer Enters Alias Query: `?? "find listening TCP ports"` ]
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Context Resolution: Active OS (Linux/macOS), Shell Binary (Zsh/Bash), Env Vars   |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| GitHub Copilot API Synthesis (Claude 5.6 / GPT-5.6 Multi-Model Inference)         |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Display Proposed Shell Command & Flag Explanation Breakdown                       |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Interactive Confirmation Prompt: [ Execute ]  [ Revise ]  [ Copy ]  [ Cancel ]    |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+  [ Execute ]        [ Revise ]       [ Cancel ]
+        │                │                │
+        ▼                ▼                ▼
+[ Run Command in ] [ Edit Prompt ] [ Abort Session ]
+[ Active Shell   ]
+```
+
 ## What problem it solves
 Terminal productivity frequently suffers from command obfuscation, syntax friction, and the risk of destructive command execution (`rm -rf`, `git reset --hard`, complex `find`/`awk`/`sed` pipelines). Switching away from the terminal to a web browser or IDE to look up CLI flags breaks developer flow and introduces context-switching fatigue.
 

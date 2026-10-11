@@ -22,6 +22,50 @@ graph TD
     B -->|Return Tool Execution Result| A
 ```
 
+### Human-In-The-Loop Validation & SSH Tunnel Execution Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|          HUMAN-IN-THE-LOOP VALIDATION & SSH TUNNEL EXECUTION PIPELINE            |
++-----------------------------------------------------------------------------------+
+
+[ LLM Reasoning Engine Requests Tool Call: `execute_host_command` ]
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Custom Agent FastMCP Server Interceptor                                          |
+| 1. Regex Regex Allowlist Match: `systemctl status`, `df -h`, `docker ps`          |
+| 2. Risk Level Evaluation: Destructive / Mutating vs Read-Only Query               |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+        ┌────────────────┴────────────────┐
+        │                                 │
+        ▼                                 ▼
+[ Read-Only Query ]             [ Mutating / High-Risk Command ]
+        │                                 │
+        │                                 ▼
+        │                       ┌──────────────────────────────────────────────────┐
+        │                       | Human Approval Gate: Interactive Console / Webhook|
+        │                       └──────────────────────────────────────────────────┘
+        │                                 │
+        │                ┌────────────────┴────────────────┐
+        │                │                                 │
+        │                ▼                                 ▼
+        │        [ Admin Approves ]               [ Admin Rejects ]
+        │                │                                 │
+        ├────────────────┘                                 ▼
+        │                                         [ Abort Execution & Log Audit ]
+        ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Establish Encrypted SSH Tunnel (Paramiko / Restricted Key Authentication)         |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Execute Command on Target Remote Node & Stream Telemetry to FastMCP Client       |
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## What problem it solves
 Full enterprise agent platforms often bring heavy framework dependencies, complex configuration overhead, and opaque internal execution loops. Custom Agents provide a minimal, fully inspectable control plane tailored specifically for target infrastructure tasks. They address the "Reasoning vs. Execution" gap in remote host management by pairing high-level LLM reasoning with secure SSH tunneling, explicit command allowlists, and human-in-the-loop verification checkpoints.
 

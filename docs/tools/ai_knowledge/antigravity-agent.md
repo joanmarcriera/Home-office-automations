@@ -21,6 +21,38 @@ graph TD
     E -->|Mission Completion Signal| I[Final Verification & Output Report]
 ```
 
+### Error Recovery & Checkpoint Rewind Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                   ANTIGRAVITY AGENT CHECKPOINT REWIND PIPELINE                    |
++-----------------------------------------------------------------------------------+
+
+[ Active Mission Execution Step N ]
+                 │
+                 ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Execution Exception / Tool Failure / Rate Limit Breach (HTTP 429)                 |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                 │
+                 ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| State Evaluator: Compare Current Workspace Hash vs Last Valid Checkpoint Hash     |
+| - Verify SHA-256 Checkpoint Hash in Persistent DB                                |
+| - Roll Back Filesystem Mutations to Step N-1 State                                |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                 │
+                 ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Gemini Spark 2.5 Planner Re-Decomposition Pass                                    |
+| - Inject Exception Diagnostics & Error Context into Prompt Memory                |
+| - Regenerate Execution DAG Branch with Exponential Backoff                       |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                 │
+                 ▼
+[ Resumed Mission Tool Loop (Step N-1 Modified Context) ]
+```
+
 ## What problem it solves
 Traditional conversational agents are fundamentally stateless and ephemeral, rendering them incapable of managing complex, nested, long-running processes without losing state, losing planning alignment, or failing on security boundaries. Antigravity Agent solves these operational limitations by introducing secure, sandboxed session persistence, dynamic model-swapping, and structured multi-step planning loops, enabling robust, sovereign automation that can safely interact with local file systems and remote servers.
 
@@ -48,6 +80,7 @@ Traditional conversational agents are fundamentally stateless and ephemeral, ren
 2. **Hierarchical Task Planning**: Gemini Spark 2.5 breaks high-level goals into directed acyclic graphs (DAGs) of sub-tasks assigned to specialized sub-agents.
 3. **Deterministic State Checkpointing**: Every turn, file system edit, and terminal execution generates SHA-256 state hashes, allowing Missions to be paused, audited, or rewound to prior states.
 4. **Sandboxed FastMCP Protocol Guard**: All external tool calls are serialized over FastMCP 3.1 task boundaries with strict schema validation and execution timeouts.
+5. **Rate-Limiting & Backoff Management**: Automatic handling of Vertex AI TPM/RPM quota boundaries through token-bucket throttling and state-preserving pauses.
 
 ## Strengths
 - **Native Stateful Session Persistence**: Automatically checkpoints the agent's memory, terminal logs, and planning files to allow graceful pause and resume capabilities.

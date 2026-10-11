@@ -34,6 +34,46 @@ As of early 2027, Opik features native support for the **FastMCP 3.1 Task Protoc
 +-----------------------------------------------------------------------------------+
 ```
 
+### Evaluation-Driven Development (EDD) Automated Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|               EVALUATION-DRIVEN DEVELOPMENT (EDD) AUTOMATED PIPELINE              |
++-----------------------------------------------------------------------------------+
+
+[ Developer Modifies Prompt / Migrates Model Version ]
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Trigger CI/CD Workflow: `opik harbor run`                                         |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Fetch Golden Dataset Test Cases from Opik Dataset Registry                       |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| Execute Model Inferences & Capture OpenTelemetry Spans                           |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+| LLM-as-a-Judge Evaluation Engine Pass                                            |
+| - Score Hallucination (0.0 - 1.0)                                                |
+| - Score Context Precision & Answer Relevance                                     |
+└──────────────────────────────────────────────────────────────────────────────────┘
+                          │
+         ┌────────────────┴────────────────┐
+         │                                 │
+         ▼                                 ▼
+[ Scores Meet Quality Threshold ]   [ Scores Regress Below Threshold ]
+         │                                 │
+         ▼                                 ▼
+[ Merge Pull Request to Main ]      [ Reject PR & Export Trace Log to Opik UI ]
+```
+
 ## What problem it solves
 Developing multi-agent systems and agentic RAG workflows without observability leads to hidden failures: silent model hallucinations, agent looping, prompt regressions between model versions (e.g. migrating from GPT-5 to GPT-5.6 or Claude 5.1 to Claude 5.6), and untracked API cost inflation.
 
