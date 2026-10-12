@@ -5,11 +5,61 @@ Jellyfin is a free, open-source media server software that organizes, manages, a
 ## What it is
 Jellyfin is an open-source media management and streaming server designed as a completely free, privacy-first alternative to commercial platforms like Plex and Emby. Operating with zero subscription paywalls and no centralized user tracking, Jellyfin natively supports hardware-accelerated transcoding (Intel QuickSync, NVENC, AMF), multi-user access control, and integration with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) servers for multimodal library enrichment using models like **Claude 5.1**, **GPT-5.5 / 5.6**, and **Gemini 4.0 Pro**.
 
+## System Architecture
+
+The diagram below details the architecture of a self-hosted Jellyfin media streaming server, showing hardware GPU transcoding paths, FastMCP 3.1 AI enrichment workflows, and client streaming clients.
+
+```
++-----------------------------------------------------------------------------------+
+|                              Media Acquisition & Ingress                          |
+|  +--------------------+   +---------------------+   +--------------------------+  |
+|  | Prowlarr Indexer   |   | qBittorrent Engine  |   | Family Home Recordings   |  |
+|  +---------+----------+   +----------+----------+   +------------+-------------+  |
++------------|-------------------------|---------------------------|----------------+
+             | File Download Complete  | Disk Storage              | Local Upload
++------------v-------------------------v---------------------------v----------------+
+|                         Jellyfin Core Server Architecture                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | SQLite / PostgreSQL Database & Media Metadata Engine                        |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | GPU Hardware-Accelerated Transcoder Core                                    |  |
+|  | - Intel QuickSync (VAAPI) / NVIDIA NVENC / AMD AMF Passthrough              |  |
+|  | - On-the-fly H.264 / HEVC / AV1 to HLS / DASH Transcoding Stream Engine       |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | FastMCP 3.1 Agentic Enrichment Gateway                                      |  |
+|  | - Multimodal Vision Analysis (Gemma 3 / Gemini 4.0 Pro)                      |  |
+|  | - Automated Chapter Marking, Tagging, & Transcript Subtitle Generation      |  |
+|  +-----------------------------------------------------------------------------+  |
++----------------------------------------|------------------------------------------+
+                                         | HLS / WebSockets / REST API
++----------------------------------------v------------------------------------------+
+|                                Client Playback Network                            |
+|  +---------------------+   +----------------------+   +------------------------+  |
+|  | Smart TV App (Roku) |   | Mobile (iOS/Android) |   | Web Browser Player     |  |
+|  +---------------------+   +----------------------+   +------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates subscription fees, central telemetry harvesting, and restrictive licensing associated with commercial media streaming solutions. Jellyfin gives users total sovereignty over personal media libraries and metadata, while providing standardized API endpoints that allow AI agents to automatically organize, generate captions, tag home videos, and categorize raw media without relying on proprietary cloud services.
 
 ## Where it fits in the stack
 **Category**: Services / Media Management & Streaming. Jellyfin acts as the central media distribution engine within a homelab, interfacing with the "Arr" automation suite ([Prowlarr](prowlarr.md)), reverse proxies (Traefik, Nginx, Caddy), identity providers ([Authentik](authentik.md)), and agentic AI toolkits.
+
+## Comparison Matrix: Self-Hosted Media Servers
+
+| Feature | Jellyfin | Plex Media Server | Emby Server |
+| :--- | :--- | :--- | :--- |
+| **Licensing** | 100% Free / Open Source (GPL-3.0) | Proprietary / Freemium (Plex Pass) | Proprietary / Freemium (Emby Premiere) |
+| **Hardware Transcoding** | Free (Intel QSV, NVENC, VAAPI) | Requires Paid Plex Pass | Requires Paid Emby Premiere |
+| **Central Telemetry** | None (100% Offline Capable) | High (Mandatory Cloud Auth) | Moderate |
+| **Remote Access** | Native Reverse Proxy / Tailscale | Turnkey Cloud Relay | Turnkey Cloud Relay / Direct |
+| **Agentic AI Tools** | Native via FastMCP 3.1 & REST API | Limited Webhooks | REST API |
+| **Client Ecosystem** | Broad (Android TV, Apple TV, Web) | Extensive (Nearly All Devices) | Extensive |
 
 ## Typical use cases
 - **Privacy-First Streaming Server**: Streaming high-bitrate 4K HDR video and lossless audio (FLAC) across smart TVs, mobile clients, and web browsers.
@@ -180,6 +230,12 @@ async def search_jellyfin_library(search_term: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Best Practices & GPU Acceleration Tuning
+
+1. **QuickSync GPU Permissions**: Ensure the host user running the Jellyfin container belongs to the `video` and `render` groups (typically GID 44 or 109 on Linux systems) to avoid permission denied errors when accessing `/dev/dri/renderD128`.
+2. **Cache Directory Offloading**: Allocate high-speed NVMe storage for Jellyfin's `/cache` directory to prevent micro-stutters during dynamic trickplay thumbnail generation and active transcoding chunks.
+3. **Automated Library Scanning Rate Limits**: Configure webhooks from intake tools (e.g., qBittorrent or Sonarr/Radarr) rather than setting periodic automated library scans every 15 minutes, preserving CPU/IOPS for playback.
 
 ## Related tools / concepts
 - [Plex](plex.md) — Proprietary media server alternative.

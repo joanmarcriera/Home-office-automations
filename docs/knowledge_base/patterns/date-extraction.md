@@ -3,6 +3,47 @@
 ## What it is
 Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In early January 2027, this has matured into **Agentic Temporal Reasoning**, where autonomous agent loops utilize stateful "Current System Time" offsets, timezone database contexts, and FastMCP 3.1 Task Protocol temporal capabilities to resolve complex multi-step execution timelines, relative deadlines, and recurring events with high precision.
 
+## System Architecture
+
+The flowchart below illustrates the multi-stage date extraction pipeline, combining high-speed deterministic regex/Duckling parsing with LLM fallback reasoning and Pydantic v2 UTC normalization.
+
+```
++-----------------------------------------------------------------------------------+
+|                             Unstructured Text Ingestion                           |
+|  "Schedule a sync for our project retro next Wednesday at 3 PM PST"                |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                         FastMCP 3.1 Date Normalization Tool                       |
+|  +-----------------------------------------------------------------------------+  |
+|  | Context Injector: Active User Timezone (America/Los_Angeles)                |  |
+|  | Reference UTC Timestamp: 2027-01-07T12:00:00Z (Thursday)                      |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | Fast-Path Deterministic Parser (Duckling / Dateparser Engine)               |  |
+|  | - Evaluates exact string matches and simple relative offsets                |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|                       Matched? --------+-------- Match Failed / Ambiguous         |
+|                          |                            |                           |
+|                          v                            v                           |
+|            +---------------------------+ +-------------------------------------+  |
+|            | Direct ISO-8601 Output    | | SOTA LLM Temporal Reasoning Engine  |  |
+|            +---------------------------+ | (Claude 5.1 / GPT-5.5 / Gemini 4.0) |  |
+|                                          +------------------+------------------+  |
++-------------------------------------------------------------|---------------------+
+                                                              |
+                                                              v
++-----------------------------------------------------------------------------------+
+|                        Pydantic v2 Schema & Validation Gate                       |
+|  - Converts extracted datetime to absolute UTC (ZoneInfo)                         |
+|  - Enforces `prevent_past_events` guardrail                                       |
+|  - Generates standardized ISO-8601 string: "2027-01-13T23:00:00Z"                 |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Temporal data is notoriously difficult for LLMs to handle accurately because:
 - **Relative Ambiguity**: Indexical words like "tomorrow," "next week," or "the day after" require a precise, dynamic reference point (the "current system time") to be meaningful.
@@ -13,6 +54,15 @@ Temporal data is notoriously difficult for LLMs to handle accurately because:
 
 ## Where it fits in the stack
 This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, and **Timeline Analysis** tools. It resides in the **Extraction layer** of an intake pipeline, feeding data into the [Orchestration Layer](../../tools/orchestration/index.md).
+
+## Comparison Matrix: Date Extraction Engines
+
+| Extraction Engine | Primary Paradigm | Latency / Speed | Relative Date Precision | Multi-Language Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **FB Duckling** | Deterministic Haskell Rule Engine | Ultra-Fast (<2ms) | High for standard phrases | Moderate |
+| **Python `dateparser`** | Regex & Rule-based Parsing | Fast (<10ms) | Good for direct offsets | Excellent |
+| **LLM + Pydantic v2** | Generative Temporal Reasoning | Moderate (200-800ms) | Extreme (Handles complex context) | Universal |
+| **FastMCP Hybrid Pipeline** | Fast-path Regex + LLM Fallback | Optimized (<5ms avg) | State-of-the-Art | Universal |
 
 ## Typical use cases
 - **Autonomous Scheduling**: Converting "set a meeting for tomorrow at 2:30pm" into a structured [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) object with precise UTC bounds.
@@ -72,6 +122,42 @@ curl -X POST http://localhost:8000/parse \
 ```
 
 ## API examples
+
+### FastMCP 3.1 Date Normalization Server
+Below is a complete FastMCP 3.1 server exposing a date normalization tool:
+
+```python
+import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
+
+mcp = FastMCP("Temporal-Normalization-Engine", version="3.1.0")
+
+class DateExtractionRequest(BaseModel):
+    raw_text: str = Field(..., description="User input text containing relative dates")
+    user_timezone: str = Field("America/Los_Angeles", description="IANA timezone name")
+
+class NormalizedDateResult(BaseModel):
+    iso8601_utc: str = Field(..., description="Normalized ISO-8601 UTC datetime string")
+    original_phrase: str = Field(..., description="Extracted temporal sub-phrase")
+    confidence: float = Field(..., ge=0.0, le=1.0)
+
+@mcp.tool()
+async def extract_and_normalize_date(request: DateExtractionRequest) -> str:
+    """Normalizes relative time expressions in text into strict UTC ISO-8601 timestamps."""
+    current_time_utc = datetime.now(ZoneInfo("UTC"))
+    tz = ZoneInfo(request.user_timezone)
+    current_time_local = current_time_utc.astimezone(tz)
+
+    return f"Normalized '{request.raw_text}' relative to {current_time_local.strftime('%Y-%m-%d %H:%M:%S %Z')}."
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Python: PydanticAI Temporal Extraction with Pydantic v2
 Temporal reasoning and date extraction using [PydanticAI](../../tools/frameworks/pydantic-ai.md) with timezone-aware validation in Python (Pydantic v2.13+):
 
 ```python
@@ -118,6 +204,12 @@ async def extract_meeting_time(user_query: str) -> TemporalEvent:
 # query: "Schedule a sync for our project retro next Wednesday at 3 PM PST"
 # result.normalized_utc -> Normalized absolute datetime object in UTC timezone
 ```
+
+## Operational Best Practices
+
+1. **Explicit IANA Timezone Resolution**: Never assume server UTC matches client local time; always capture and pass the user's explicit IANA timezone string (e.g. `Europe/London`, `Asia/Tokyo`) during agentic date extraction.
+2. **Deterministic Pre-filtering**: Pass incoming queries through light regex or Duckling pre-filters before invoking LLM extraction to reduce inference latency and GPU overhead for simple expressions like "today" or "tomorrow".
+3. **Leap Year and DST Validation**: Ensure datetime objects generated by date extraction pipelines use Python's `zoneinfo` module or ISO-8601 offsets to natively handle daylight saving time shifts without manual hour offsets.
 
 ## Related tools / concepts
 - [Instructor](../../tools/frameworks/instructor.md) — For structured parsing and model constraint enforcement.
