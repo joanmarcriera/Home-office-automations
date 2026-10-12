@@ -354,7 +354,7 @@ return {
 - [Make](make.md) — Visual workflow automation with advanced array manipulation.
 - [Pipedream](pipedream.md) — Developer-first integration platform built on Node.js/Python code steps.
 - [Model Context Protocol (MCP)](mcp.md) — Open standard for AI agent tool integration.
-- [FastMCP](https://github.com/jlowin/fastmcp) — Python framework for building MCP tools.
+- [FastMCP](mcp.md) — Python framework for building MCP tools.
 - [Home Assistant](../../services/home-assistant.md) — Local open-source home automation hub.
 - [Claude 5.6](../providers/anthropic.md) — Anthropic frontier AI reasoning model.
 - [GPT-5.5](../ai_knowledge/openai.md) — OpenAI frontier model suite.

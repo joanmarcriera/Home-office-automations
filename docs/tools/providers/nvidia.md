@@ -282,7 +282,7 @@ print(response_data.model_dump_json(indent=2))
 - [Together AI](together.md) — Distributed cloud inference provider.
 - [NVIDIA Nemotron](../ai_knowledge/nemotron.md) — Enterprise LLM model family developed by NVIDIA.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool integration standard for agent workflows.
-- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Validation standard for API responses.
+- [Pydantic v2](../frameworks/pydantic.md) — Validation standard for API responses.
 
 ---
 

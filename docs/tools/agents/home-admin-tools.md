@@ -268,7 +268,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Home Assistant](../../services/index.md) — Open-source home automation platform.
+- [Home Assistant](../enterprise/index.md) — Open-source home automation platform.
 - [Paperless-ngx](../../services/paperless-ai.md) — Document management system with OCR indexing.
 - [Vikunja](../../tools/automation_orchestration/vikunja-mcp.md) — Open-source task management application.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Tool integration protocol for local LLM agents.

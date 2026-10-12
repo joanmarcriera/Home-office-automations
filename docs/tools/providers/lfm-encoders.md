@@ -295,7 +295,7 @@ if __name__ == "__main__":
 | **Sub-optimal CPU Execution** | CPU fallback missing AVX-512 / AMX instruction set optimizations. | Set environment variable `LIQUID_NUM_THREADS=8` and build with OpenMP flags enabled. |
 
 ## Related tools / concepts
-- [Liquid AI](https://liquid.ai) — Creator of Liquid Foundation Models and continuous-state architectures.
+- [Liquid AI](liquid-ai.md) — Creator of Liquid Foundation Models and continuous-state architectures.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting LFM encoders to agent pipelines.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Open-weights models operating alongside LFM encoders.
 - [Qdrant / Pgvector](../../services/nextcloud.md) — Vector databases storing LFM generated embeddings.

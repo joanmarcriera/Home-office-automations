@@ -330,7 +330,7 @@ print("Overridden Execution Output:", overridden_results)
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Model Context Protocol implementation for tool execution.
 - [vLLM](../infrastructure/vllm.md) — High-performance inference engine for local model execution.
 - [Claude 5.6](../ai_knowledge/claude-mythos.md) — Frontier reasoning model.
-- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Data validation standard for Hamilton node inputs and outputs.
+- [Pydantic v2](../frameworks/pydantic.md) — Data validation standard for Hamilton node inputs and outputs.
 
 ---
 

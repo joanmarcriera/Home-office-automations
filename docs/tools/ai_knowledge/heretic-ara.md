@@ -269,7 +269,7 @@ if __name__ == "__main__":
 - [Gemma](gemma.md) — Targeted model.
 - [Llama](local_llms.md) — Targeted model.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Automation standard.
-- [Optuna](https://optuna.org/) — Optimization library.
+- [Optuna](../development_ops/optuna.md) — Optimization library.
 
 ## Sources / References
 - [Heretic vs Abliterated LLMs: Refusal Rates & Benchmarks (2026)](https://aithinkerlab.com/heretic-ai-abliteration-benchmarks-2026/)

@@ -264,7 +264,7 @@ if __name__ == "__main__":
 - [Unsloth Studio](../development_ops/unsloth-studio.md) — Fine-tuning studio for open LLMs and diffusion models.
 - [Qwen Image](qwen-image.md) — High-performance image generation model family.
 - [Stable Audio](../ai_knowledge/stable-audio.md) — Audio and media generation model architecture.
-- [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agentic integration.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol for agentic integration.
 
 ## Sources / References
 - [AntLing Ming-Image Announcement on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1wnipcz/new_6b_image_model_coming_antling_just_open/)

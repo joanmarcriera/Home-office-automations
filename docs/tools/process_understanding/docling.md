@@ -309,7 +309,7 @@ print(f"Chunk 1 metadata: {chunks[0].meta}")
 - [Crawl4AI](crawl4ai.md) — Open-source web crawling and scraping library.
 - [Firecrawl](firecrawl.md) — Web scraping API optimized for LLMs.
 - [vLLM](../infrastructure/vllm.md) — High-performance local inference engine for VLM backends.
-- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Standard schema framework for validating Docling outputs.
+- [Pydantic v2](../frameworks/pydantic.md) — Standard schema framework for validating Docling outputs.
 
 ---
 

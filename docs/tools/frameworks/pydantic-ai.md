@@ -209,7 +209,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Pydantic](https://docs.pydantic.dev/) — Core data validation and settings management library.
+- [Pydantic](pydantic.md) — Core data validation and settings management library.
 - [Logfire](../process_understanding/logfire.md) — Native observability platform for Pydantic and PydanticAI.
 - [FastAPI](fastapi.md) — High-performance Python web framework for agent microservices.
 - [LangGraph](langgraph.md) — Graph-based agent state machine framework.

@@ -229,7 +229,7 @@ if __name__ == "__main__":
 - [Unsloth Studio](unsloth-studio.md) — Fine-tuning studio for open LLMs.
 - [vLLM](../infrastructure/vllm.md) — High-throughput GPU serving framework.
 - [Ollama](../../services/ollama.md) — Local LLM runner.
-- [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agent tool integration.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol for agent tool integration.
 
 ## Sources / References
 - [OpenVINO Flappy Bird Reddit Post](https://www.reddit.com/r/LocalLLaMA/comments/1wnf4q2/laya_model_playing_flappy_bird_on_a_cpu_using/)

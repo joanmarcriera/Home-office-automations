@@ -224,7 +224,7 @@ if __name__ == "__main__":
 - [Unsloth Studio](unsloth-studio.md) — Interactive fine-tuning studio.
 - [OpenVINO](openvino.md) — Cross-platform AI inference optimization toolkit.
 - [Sentry](../process_understanding/sentry.md) — Error tracking and monitoring framework.
-- [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agent tool integration.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol for agent tool integration.
 
 ## Sources / References
 - [stuntd Local LLaMA Thread](https://www.reddit.com/r/LocalLLaMA/comments/1wnt7kv/stuntd_a_local_jevcompatible_server_on_laya_that/)

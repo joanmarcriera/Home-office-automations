@@ -271,7 +271,7 @@ if __name__ == "__main__":
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — standard for connecting agents to Milvus.
 - [LLMWare](../automation_orchestration/llmware.md) — unified framework for building RAG pipelines with Milvus.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — the overarching architectural framework.
-- [Zilliz](https://zilliz.com/) — the commercial entity behind Milvus, providing Zilliz Cloud.
+- [Zilliz](zilliz.md) — the commercial entity behind Milvus, providing Zilliz Cloud.
 
 ## Sources / references
 - [Milvus Official Site](https://milvus.io/)

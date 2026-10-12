@@ -259,7 +259,7 @@ if __name__ == "__main__":
 - [Unsloth](../infrastructure/unsloth.md) — Base memory-efficient fine-tuning library.
 - [OpenVINO](openvino.md) — Intel toolkit for optimizing and deploying AI inference on heterogeneous hardware.
 - [vLLM](../infrastructure/vllm.md) — High-throughput LLM serving engine.
-- [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agent tool integration.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol for agent tool integration.
 
 ## Sources / References
 - [Unsloth Studio Discussion on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1wnrh76/unsloth_studio_vs_lm_studio_which_one_do_you/)

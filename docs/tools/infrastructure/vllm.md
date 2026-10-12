@@ -315,7 +315,7 @@ print("Generated Output:", response.choices[0].message.content)
 - [Ollama](../../services/ollama.md) — Desktop manager wrapping llama.cpp for easy local models.
 - [Aphrodite Engine](aphrodite-engine.md) — High-throughput vLLM derivative.
 - [NVIDIA NIM](../providers/nvidia.md) — Enterprise containerized inference microservices.
-- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Schema validation standard for inference outputs.
+- [Pydantic v2](../frameworks/pydantic.md) — Schema validation standard for inference outputs.
 
 ---
 

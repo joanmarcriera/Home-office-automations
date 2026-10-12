@@ -258,7 +258,7 @@ if __name__ == "__main__":
 - [Vercel OSS](vercel-oss.md) — The open-source libraries (AI SDK 6.x, v0) driving the ecosystem.
 - [Cloudflare Pages](cloudflare-pages.md) — Primary competitor for edge-first hosting.
 - [GitHub Pages](github-pages.md) — Simpler alternative for static-only sites.
-- [Next.js](https://nextjs.org/) — The React framework optimized for Vercel.
+- [Next.js](nextjs.md) — The React framework optimized for Vercel.
 - [Supabase](../infrastructure/supabase.md) — The standard backend/database pair for Vercel apps.
 - [Claude 5.1](../ai_knowledge/claude.md) — Recommended reasoning model for Vercel-hosted agents.
 - [GPT-5.5](../ai_knowledge/chatgpt.md) — Multi-modal frontier model supported via the Vercel AI SDK.
