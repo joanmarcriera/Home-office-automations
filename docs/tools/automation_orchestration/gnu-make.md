@@ -301,7 +301,7 @@ if __name__ == "__main__":
 - [Make (formerly Integromat)](make.md) — Cloud SaaS automation platform.
 - [Model Context Protocol (MCP)](mcp.md) — Standard protocol for agent tool interaction.
 - [Task](https://taskfile.dev/) — Modern YAML-based Makefile alternative.
-- [Just](https://github.com/casey/just) — Command runner focused on developer simplicity.
+- [Just](just.md) — Command runner focused on developer simplicity.
 - [Docker](../infrastructure/docker.md) — Standard container runtime.
 - [Claude Code](../development_ops/claude-code.md) — Anthropic CLI agent interface.
 - [Aider](../development_ops/aider.md) — Terminal-native coding assistant.

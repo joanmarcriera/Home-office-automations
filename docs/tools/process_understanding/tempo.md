@@ -173,7 +173,7 @@ if __name__ == "__main__":
 - [Grafana Cloud](grafana-cloud.md) — Unified visualization dashboard for Tempo, Loki, and Prometheus.
 - [OpenTelemetry Collector](opentelemetry-collector.md) — Telemetry gateway forwarding OTLP traces to Tempo.
 - [Logfire](logfire.md) — Python observability framework supporting OTLP output.
-- [Loki](loki.md) — Log aggregation engine correlated with Tempo traces.
+- [Loki](grafana-loki.md) — Log aggregation engine correlated with Tempo traces.
 
 ## Sources / references
 - [Grafana Tempo Official Documentation](https://grafana.com/docs/tempo/latest/)

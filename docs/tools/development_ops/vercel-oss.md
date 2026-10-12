@@ -334,8 +334,8 @@ Generative UI in Vercel OSS bridges LLM structured outputs directly with client-
 ## Related tools / concepts
 - [Vercel](vercel.md) — Enterprise hosting and edge network platform for Vercel OSS tools.
 - [Vercel AI SDK](vercel-ai-sdk.md) — Unified open-source model streaming library.
-- [v0.dev](https://v0.dev/) — Generative UI design system engine for Tailwind and React.
-- [Next.js](https://nextjs.org/) — React framework powering Vercel OSS architecture.
+- [v0.dev](v0-dev.md) — Generative UI design system engine for Tailwind and React.
+- [Next.js](nextjs.md) — React framework powering Vercel OSS architecture.
 - [Claude 5.1](../ai_knowledge/claude.md) — Anthropic frontier model integrated with AI SDK streaming.
 - [GPT-5.5](../ai_knowledge/chatgpt.md) — Multi-modal OpenAI model supported across AI SDK tools.
 - [Supabase](../infrastructure/supabase.md) — Open-source Postgres and vector database pair for Vercel applications.

@@ -247,7 +247,7 @@ if __name__ == "__main__":
 - [GLiNER](../process_understanding/gliner.md) — Generalist Named Entity Recognition model for text extraction.
 - [Breeze](../ai_knowledge/breeze.md) — Local text-to-speech and audio synthesis engine.
 - [DeepL](../providers/deepl.md) — Commercial cloud translation service.
-- [Argos Translate](../tools/argos-translate.md) — Offline open-source NMT framework.
+- [Argos Translate](argos-translate.md) — Offline open-source NMT framework.
 
 ## Sources / references
 - [Index-Translate Bilibili Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wxa1wr/bilibili_released_indextranslatea_a_multilingual/)

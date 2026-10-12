@@ -244,7 +244,7 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Terminal developer agent for managing data transformation scripts.
 - [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) — Protocol for serving SQLGlot tools to AI agents.
-- [DuckDB](https://duckdb.org/) — In-process analytical SQL engine frequently targeted by SQLGlot transpilations.
+- [DuckDB](../infrastructure/duckdb.md) — In-process analytical SQL engine frequently targeted by SQLGlot transpilations.
 - [Pydantic AI](../frameworks/pydantic-ai.md) — Agent framework used for building structured Text-to-SQL agents.
 
 ## Sources / references

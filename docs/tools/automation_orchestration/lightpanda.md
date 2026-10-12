@@ -284,7 +284,7 @@ if __name__ == "__main__":
 - [Skyvern](skyvern.md) — Vision-based web agent framework.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Protocol for exposing Lightpanda capabilities to AI agents.
 - [Gemma 4](../ai_knowledge/local_llms.md) — Edge model frequently paired with Lightpanda for local web automation.
-- [Pydantic v2](../../reference-implementations/metadata-schemas/pydantic-v2.md) — Schema validation standard for web data extraction.
+- [Pydantic v2](../frameworks/pydantic.md) — Schema validation standard for web data extraction.
 
 ---
 

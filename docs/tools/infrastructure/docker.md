@@ -330,14 +330,14 @@ if __name__ == "__main__":
   3. Restart Docker daemon: `sudo systemctl restart docker`.
 
 ## Related tools / concepts
-- [Docker Compose](https://docs.docker.com/compose/)
+- [Docker Compose](docker-compose.md)
 - [Kubernetes (K3s)](k3s.md)
 - [vLLM](vllm.md)
 - [OpenHands](../development_ops/openhands.md)
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Home Assistant](../../services/home-assistant.md)
-- [Podman](https://podman.io/)
+- [Podman](podman.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Sandboxed Code Execution](../../knowledge_base/patterns/sandboxed-execution.md)

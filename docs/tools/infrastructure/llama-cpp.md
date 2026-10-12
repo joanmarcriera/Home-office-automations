@@ -242,7 +242,7 @@ if __name__ == "__main__":
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Target model architecture for local deployment.
 - [Quantization Concepts](../ai_knowledge/local_llms.md) - Technical background on weights compression.
 - [GGUF Format](../ai_knowledge/local_llms.md) - The standard file format for llama.cpp.
-- [llama.app](https://www.reddit.com/r/LocalLLaMA/comments/1vdt1i2/psa_llamaapp_mac_app_and_llama_serve_from_llamacpp/) — A Mac companion GUI application built specifically for llama.cpp/llama-server.
+- [llama.app](llama-app.md) — A Mac companion GUI application built specifically for llama.cpp/llama-server.
 
 ## Sources / references
 - [llama.cpp GitHub Repository](https://github.com/ggml-org/llama.cpp)

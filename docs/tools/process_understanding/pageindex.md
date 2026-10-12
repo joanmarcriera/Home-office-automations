@@ -306,7 +306,7 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool calling framework for agents.
 - [Claude 5.1](../providers/anthropic.md) — High-reasoning model ideal for tree navigation.
 - [GPT-5.5](../ai_knowledge/openai.md) — Multi-modal frontier model supporting AST reasoning.
-- [GraphRAG](../process_understanding/graphrag.md) — Knowledge-graph based RAG alternative.
+- [GraphRAG](../frameworks/graphrag.md) — Knowledge-graph based RAG alternative.
 
 ## Sources / references
 - [Vectify AI PageIndex Official Portal](https://pageindex.ai/)

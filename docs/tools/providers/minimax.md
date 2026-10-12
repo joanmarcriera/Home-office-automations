@@ -235,7 +235,7 @@ if __name__ == "__main__":
 - [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for local inference alternatives.
 - [Llama 4](../ai_knowledge/llama.md) — Open-source alternative for local inference.
 - [DeepSeek](deepseek.md) — Primary regional competitor in the high-performance LLM space.
-- [Hailuo AI](https://hailuo.ai) — MiniMax's flagship video generation platform.
+- [Hailuo AI](hailuo-ai.md) — MiniMax's flagship video generation platform.
 
 ## Sources / references
 - [MiniMax Music3 Release Discussion on Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vngww3/minimaxmusic3_released/)

@@ -233,7 +233,7 @@ if __name__ == "__main__":
 - [Qwen](../ai_knowledge/qwen.md) — Base Qwen foundation LLM series.
 - [Ming-Image](ming-image.md) — Multimodal image generation model focused on layout design.
 - [Unsloth Studio](../development_ops/unsloth-studio.md) — Fine-tuning studio for open models.
-- [Model Context Protocol](https://modelcontextprotocol.io) — Open protocol for agent tool integration.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Open protocol for agent tool integration.
 
 ## Sources / References
 - [Qwen Image 2.1 LocalLLaMA Thread](https://www.reddit.com/r/LocalLLaMA/comments/1wnhq8d/qwen_image_21_fast_fp8_generates_premium_quality/)

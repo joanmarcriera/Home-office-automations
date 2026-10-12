@@ -275,7 +275,7 @@ if __name__ == "__main__":
 - [Authentik](../../services/authentik.md) — Open-source identity provider and SSO security gateway.
 - [Vault MCP](../automation_orchestration/vault-mcp.md) — FastMCP 3.1 integration for HashiCorp Vault secrets management.
 - [SSO Comparison](../../knowledge_base/sso-comparison.md) — Strategic comparison of enterprise identity providers.
-- [Keycloak](https://www.keycloak.org/) — Open-source identity and access management system.
+- [Keycloak](keycloak.md) — Open-source identity and access management system.
 
 ## Sources / references
 - [Okta Developer Official Documentation](https://developer.okta.com/docs/)

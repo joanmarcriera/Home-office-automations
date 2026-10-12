@@ -257,7 +257,7 @@ def edit_track_infill(project_id: str, request: InfillEditRequest) -> dict:
 - [Synthesia](synthesia.md)
 - [Suno](suno.md)
 - [Udio](udio.md)
-- [Stable Audio](https://www.stableaudio.com/)
+- [Stable Audio](stable-audio.md)
 - [AudioCPP](../ai_knowledge/audiocpp.md)
 
 ## Sources / references

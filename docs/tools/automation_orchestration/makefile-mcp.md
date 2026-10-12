@@ -318,7 +318,7 @@ The table below outlines target parsing and execution latency for `makefile-mcp`
 - [Model Context Protocol](mcp.md) — Communication standard for AI agents.
 - [Aider](../development_ops/aider.md) — Coding agent that leverages build MCP tools.
 - [Plandex](../development_ops/plandex.md) — Agentic framework using project tools.
-- [FastMCP](https://github.com/jlowin/fastmcp) — High-performance Python framework for MCP servers.
+- [FastMCP](mcp.md) — High-performance Python framework for MCP servers.
 - [MCP Registry](mcp-registry.md) — Open directory of MCP servers.
 - [Claude Code](../development_ops/claude-code-setup.md) — Terminal coding agent.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Open weight models using tool calling.

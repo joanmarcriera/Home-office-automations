@@ -222,7 +222,7 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Bloomberg Terminal](https://www.bloomberg.com/professional/solution/bloomberg-terminal/)
+- [Bloomberg Terminal](bloomberg-terminal.md)
 - [Perplexity](../providers/perplexity.md)
 - [Glean](glean.md)
 - [Langfuse](../process_understanding/langfuse.md)

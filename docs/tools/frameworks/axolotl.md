@@ -335,7 +335,7 @@ if __name__ == "__main__":
 - [LLaMA Factory](llama-factory.md) — Web-UI driven fine-tuning suite.
 - [distilabel](distilabel.md) — Synthetic dataset creation framework upstream of Axolotl.
 - [vLLM](../../tools/infrastructure/vllm.md) — High-throughput inference backend for serving fine-tuned weights.
-- [DeepSpeed](https://github.com/microsoft/DeepSpeed) — Distributed training framework integrated into Axolotl.
+- [DeepSpeed](deepspeed.md) — Distributed training framework integrated into Axolotl.
 - [FastMCP](../automation_orchestration/mcp.md) — Tool execution framework for training tool-calling agent models.
 
 ## Sources / references

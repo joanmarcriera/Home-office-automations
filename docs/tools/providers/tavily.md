@@ -342,7 +342,7 @@ Easily attach Tavily as a native tool server in Claude Desktop or open-source ag
 - [Firecrawl](../process_understanding/firecrawl.md) — Web crawling and full-site extraction engine optimized for RAG.
 - [DeerFlow](../agents/deerflow.md) — Open-source agentic research framework utilizing Tavily search loops.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Protocol standard for tool binding and agent context streaming.
-- [Nebius Group](https://nebius.com) — Parent AI cloud provider hosting Tavily infrastructure.
+- [Nebius Group](nebius.md) — Parent AI cloud provider hosting Tavily infrastructure.
 
 ## Sources / references
 - [Official Tavily Website](https://tavily.com/)
