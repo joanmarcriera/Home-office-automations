@@ -247,5 +247,5 @@ export function streamWorkspaceSearch(pattern: string, targetPath: string): Prom
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high

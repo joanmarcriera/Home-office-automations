@@ -211,5 +211,5 @@ RAGFlow exposes knowledge bases via Model Context Protocol (MCP 3.1 / FastMCP 3.
 - [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high

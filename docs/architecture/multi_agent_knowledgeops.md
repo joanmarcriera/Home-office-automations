@@ -229,5 +229,5 @@ if __name__ == "__main__":
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high
