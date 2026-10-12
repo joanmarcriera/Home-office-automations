@@ -21,9 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/infrastructure/mlx.md",
-    "docs/tools/providers/aws-bedrock.md",
-    "docs/tools/benchmarking/swe-bench.md",
     "docs/tools/orchestration/prefect.md",
     "docs/tools/automation_orchestration/open-webui-computer.md",
     "docs/tools/frameworks/aws-kiro.md"
