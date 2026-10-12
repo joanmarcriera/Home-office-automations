@@ -3,11 +3,59 @@
 ## What it is
 Google One is a unified subscription service providing expanded cloud storage across Google Drive, Gmail, and Google Photos. As of **early January 2027**, it has transitioned from a storage-centric model to a tiered AI-enablement platform. It serves as the primary gateway to the **Gemini 4.0** ecosystem, offering tiered access to frontier reasoning models (Gemini 4.0 Pro/Ultra), autonomous agents (**Gemini Spark/FastMCP 3.1**), and generative media tools (**Gemini Omni**).
 
+## System Architecture
+
+The architecture below illustrates how Google One AI subscription tiers interface with the Google Cloud Intelligence Core, Google Workspace endpoints, and agentic FastMCP 3.1 runtimes.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Subscriber Identity & Access Layer                      |
+|  +---------------------+   +---------------------+   +-------------------------+  |
+|  | Google One AI Plus  |   | Google One AI Pro   |   |   Google One AI Ultra   |  |
+|  | (2TB / 2M Tokens)   |   | (2TB / 10M Tokens)  |   |   (20TB / 30M Tokens)   |  |
+|  +----------+----------+   +----------+----------+   +------------+------------+  |
++-------------|-------------------------|---------------------------|---------------+
+              | Authentication & Entitlement Token Stream           |
++-------------v-------------------------v---------------------------v---------------+
+|                          Google Intelligence Core Gateway                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Gemini 4.0 Pro / Ultra Reasoning & Vision Engine                           |  |
+|  | - SynthID Watermarking & Content Safety Filter                              |  |
+|  | - 10M to 30M Token Multi-Turn Context Prefill Memory                       |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | FastMCP 3.1 & Gemini Spark Agentic Core                                     |  |
+|  | - Workspace Interoperability Protocol (Gmail, Calendar, Drive, Docs)        |  |
+|  | - Google Antigravity Managed Agent Execution Framework                       |  |
+|  +-----------------------------------------------------------------------------+  |
++----------------------------------------|------------------------------------------+
+                                         | API / SDK Execution
++----------------------------------------v------------------------------------------+
+|                             Developer & End-User Targets                          |
+|  +---------------------+   +----------------------+   +------------------------+  |
+|  | Google Workspace Apps |   | Antigravity Platform |   | Custom FastMCP Clients |  |
+|  +---------------------+   +----------------------+   +------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 4.0 Flash for agentic loops.
 
 ## Where it fits in the stack
 Google One sits at the **Subscription & Access Layer** of the personal AI stack. It provides the financial and resource backbone (storage and compute credits) for the [Gemini](../tools/ai_knowledge/gemini.md) ecosystem, [NotebookLM](../tools/ai_knowledge/notebooklm.md) research workflows, and the [Google Antigravity](../tools/agents/agno.md) agentic platform.
+
+## Subscription Tiers & Ecosystem Comparison Matrix
+
+| Feature | Google One AI Plus | Google One AI Pro | Google One AI Ultra | ChatGPT Plus | Claude Pro |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Monthly Fee** | $19.99/mo | $29.99/mo | $99.99/mo | $20.00/mo | $20.00/mo |
+| **Cloud Storage** | 2 TB | 2 TB | 20 TB | N/A | N/A |
+| **Primary Model** | Gemini Advanced | Gemini 4.0 Pro | Gemini 4.0 Pro (Elite) | GPT-5.5 / O3 | Claude 5.1 / Opus |
+| **Context Window** | 2M tokens | 10M tokens | 30M tokens | 128k - 200k tokens | 200k - 500k tokens |
+| **Agentic Platform** | Standard | Workspace Spark (MCP) | Spark Priority + $50/mo Antigravity | OpenAI Operator | Claude Code / Agent |
+| **Multimodal Video** | Trial | 30s 4K Omni Video | Unlimited 4K Omni Video | Sora Access | Standard Audio |
+| **Workspace Integration**| Basic | Full Native Workspace | Full Native + FastMCP Priority | Third-party Plugins | Desktop / Web |
 
 ## Typical use cases
 - **Agentic Productivity**: Utilizing **Gemini Spark** to autonomously manage calendars, draft complex responses, and clean up datasets across Google Workspace.
@@ -38,18 +86,6 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 - If you only require basic storage and have no need for agentic or generative capabilities.
 
 ## Getting started
-
-### Subscription Tiers (November 2026 Update)
-
-| Feature | AI Plus | AI Pro | AI Ultra |
-| :--- | :--- | :--- | :--- |
-| **Monthly Price** | $19.99 | $29.99 | $99.99 |
-| **Storage** | 2 TB | 2 TB | 20 TB |
-| **Primary Model** | Gemini Advanced | Gemini 4.0 Pro | Gemini 4.0 Pro (Elite) |
-| **Workspace AI** | Standard | Yes + Spark (MCP) | Yes + Spark (Priority FastMCP) |
-| **Omni (Video)** | Trial | 30s 4K + Edit | High Concurrency |
-| **Antigravity** | No | Standard Access | Priority + $50 Credit |
-| **Context Window** | 2M tokens | 10M tokens | 30M tokens |
 
 ### Upgrading your Account
 1. Navigate to the **Google One App** or [one.google.com](https://one.google.com).
@@ -108,36 +144,56 @@ validated_tier = SubscriptionTierQuota(**tier_data)
 print(f"Validated {validated_tier.tier_name} Tier with {validated_tier.context_window_tokens} token capacity.")
 ```
 
-### Accessing Gemini 4.0 Pro with Google One Credits
-Subscribers can use their monthly cloud credits via the `google-genai` Python SDK:
+### FastMCP 3.1 Gemini Spark Integration Tool
+Below is a complete Python FastMCP 3.1 tool for querying Workspace data using Google One Gemini Spark credits:
 
 ```python
-from google import genai
+import os
+import httpx
+from fastmcp import FastMCP
 
-# The SDK automatically detects the Google One subscription via authenticated session
-client = genai.Client(api_key="YOUR_API_KEY")
+mcp = FastMCP("Google-One-Spark-Bridge", version="3.1.0")
 
-response = client.models.generate_content(
-    model="gemini-4.0-pro",
-    contents="Analyze this 500MB log file for security anomalies.",
-    config={
-        "context_window": "30M", # Available for AI Ultra members
-        "use_subscription_credits": True
+GEMINI_SPARK_ENDPOINT = os.getenv("GEMINI_SPARK_ENDPOINT", "https://generativelanguage.googleapis.com/v1beta/spark:execute")
+GOOGLE_ONE_API_KEY = os.getenv("GOOGLE_ONE_API_KEY", "your-google-one-key")
+
+@mcp.tool()
+async def execute_spark_workspace_action(query: str, target_service: str = "gmail") -> str:
+    """Executes a Workspace Spark agent action using Google One subscription credits.
+
+    Args:
+        query: Natural language prompt or task for Workspace Spark.
+        target_service: Workspace service to query (gmail, calendar, drive, docs).
+    """
+    headers = {
+        "Authorization": f"Bearer {GOOGLE_ONE_API_KEY}",
+        "Content-Type": "application/json"
     }
-)
 
-print(response.text)
+    payload = {
+        "task_description": query,
+        "target_service": target_service,
+        "subscription_tier": "AI_ULTRA"
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(GEMINI_SPARK_ENDPOINT, json=payload, headers=headers, timeout=15.0)
+            res.raise_for_status()
+            data = res.json()
+            return data.get("result_summary", "Task executed successfully.")
+        except Exception as e:
+            return f"Spark agent execution error: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Triggering a Spark Action
-```python
-# Conceptual trigger for a Spark agentic workflow
-import google_spark
+## Operational Best Practices
 
-# Spark uses the Google One authorization to access Workspace
-spark = google_spark.Agent()
-spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
-```
+1. **Token Allocation Guardrails**: Configure `context_window` limits explicitly in application code to prevent unexpected throttling when handling huge log payloads on AI Plus/Pro tiers.
+2. **Workspace Privacy Controls**: Audit Gemini Spark permissions under Google Account Settings -> Data & Privacy to restrict automated actions on sensitive personal Drive folders.
+3. **Antigravity Credit Monitoring**: Programmatically poll `gemini-cli quota` at the beginning of agentic batch runs to ensure monthly $50 cloud credits are consumed before incurring standard pay-as-you-go GCP charges.
 
 ## Related tools / concepts
 - [Gemini 4.0 Pro](../tools/ai_knowledge/gemini.md): The flagship model for Pro/Ultra tiers.
@@ -151,9 +207,6 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md): Calendar service integrated natively into Workspace and Gemini Spark.
 - [Google Tasks](../tools/calendar_tasks/google-tasks.md): Unified task management integrated with Workspace.
 - [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md): Command line interface for automating Workspace services.
-- [Google Lyria](../tools/ai_knowledge/google-lyria.md): Multimodal audio generation model for YouTube/Omni.
-- [Google Opal](../tools/ai_knowledge/google-opal.md): Edge-optimized lightweight assistant for offline productivity.
-- [Google Search](../tools/ai_knowledge/google-search.md): Core search engine integrated with Gemini for real-time retrieval grounding.
 
 ## Sources / references
 - [Innovations from Google I/O 26 (Google Cloud Blog)](https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud)

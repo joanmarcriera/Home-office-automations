@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-11",
+  "snapshot_date": "2026-10-12",
   "total_docs": 598,
   "tool_docs": 545,
   "service_docs": 53,
@@ -21,8 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/nemotron.md",
-    "docs/services/jellyfin.md",
     "docs/tools/agents/aws-dogwood.md",
     "docs/tools/ai_knowledge/sora.md",
     "docs/tools/benchmarking/supermetal.md",
@@ -40,11 +38,13 @@
     "docs/tools/process_understanding/snowflake.md",
     "docs/tools/infrastructure/livekit.md",
     "docs/tools/infrastructure/mlx.md",
-    "docs/tools/providers/aws-bedrock.md"
+    "docs/tools/providers/aws-bedrock.md",
+    "docs/tools/benchmarking/swe-bench.md",
+    "docs/tools/orchestration/prefect.md"
   ],
   "underdeveloped_categories": [],
   "weekly_additions": 0,
-  "intake_items_7d": 8,
+  "intake_items_7d": 0,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
 }

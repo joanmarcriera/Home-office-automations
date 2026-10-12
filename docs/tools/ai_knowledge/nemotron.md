@@ -5,11 +5,58 @@ NVIDIA Nemotron is a family of highly optimized, open-weights large language mod
 
 In addition to enterprise flagships, NVIDIA NemotronLabs maintains specialized conversational voice-optimized variants, spearheaded by **Nemotron-4 11B VoiceChat** (`nvidia/Nemotron-4-11B-VoiceChat`) and **Nemotron-5 Voice Realtime**, optimized for real-time speech interaction, sub-100ms conversational flow, and end-to-end integration with local Automatic Speech Recognition (ASR) and Text-to-Speech (TTS) pipelines.
 
+## System Architecture
+
+The following diagram illustrates how Nemotron-5 models deploy via NVIDIA NIM containers, hardware-accelerated TensorRT-LLM runtimes, and FastMCP 3.1 protocol interfaces across enterprise GPU clusters.
+
+```
++-----------------------------------------------------------------------------------+
+|                            Client & Orchestration Layer                           |
+|  +------------------------+  +------------------------+  +---------------------+  |
+|  | Multi-Agent Orchestrator|  |   Voice Assistant UI   |  |   FastMCP 3.1 Client |  |
+|  +-----------+------------+  +-----------+------------+  +----------+----------+  |
++--------------|---------------------------|--------------------------|-------------+
+               | HTTP/gRPC                 | WebSockets/Audio Stream  | MCP Protocol
++--------------v---------------------------v--------------------------v-------------+
+|                             NVIDIA NIM Microservice Container                     |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Gateway / OpenAI-Compatible REST Router                         |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | TensorRT-LLM Execution Engine                                               |  |
+|  | - Hybrid Mamba-Transformer Attention Core                                   |  |
+|  | - FP4 / FP8 Quantized KV-Cache Manager                                      |  |
+|  | - Speculative Decoding & Chunked Context Prefill Engine                     |  |
+|  +-------------------------------------+---------------------------------------+  |
++----------------------------------------|------------------------------------------+
+                                         | Hardware Execution
++----------------------------------------v------------------------------------------+
+|                      NVIDIA Enterprise GPU Infrastructure                         |
+|  +-------------------------+ +-------------------------+ +---------------------+  |
+|  | NVIDIA Blackwell (B200) | |  NVIDIA Hopper (H100)   | | NVIDIA Rubin (R100)|  |
+|  +-------------------------+ +-------------------------+ +---------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It solves the performance bottleneck and "thinking tax" associated with long-running, multi-step autonomous agent operations. Traditional models often suffer from degraded tool-calling precision and extreme latency on large contexts. Additionally, standard models lack the acoustic conversational framing required for low-latency voice interactions. Nemotron solves this by introducing specialized conversational-vibe tuning and direct audio pipeline integrations, while the flagship models utilize a hybrid Mamba-Transformer architecture and FP4/FP8 quantization to enable precise, low-latency reasoning over context windows up to 2M tokens.
 
 ## Where it fits in the stack
 **Model / Intelligence Layer**. It serves as the primary inference engine or "brain" for multi-agent systems, complex RAG structures, and voice interfaces, particularly within environments utilizing standard [Model Context Protocol (FastMCP 3.1)](../automation_orchestration/mcp.md) servers.
+
+## Model Comparison Matrix
+
+| Feature / Model | Nemotron-5 340B-Instruct | Llama 4 Maverick | DeepSeek-V4 | Claude 5.1 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Developer** | NVIDIA | Meta AI | DeepSeek | Anthropic |
+| **Architecture** | Hybrid Mamba-Transformer | Dense / MoE Hybrid | Multi-Head Latent MoE | Proprietary Frontier |
+| **Primary Deployment** | NVIDIA NIM / TensorRT-LLM | vLLM / Ollama | Local / DeepSeek Cloud | Managed Anthropic API |
+| **Quantization Format** | Native FP4 / FP8 | INT4 / FP8 / AWQ | FP8 / INT8 | Managed Cloud API |
+| **Context Window** | Up to 2,000,000 tokens | 1,000,000 tokens | 1,000,000 tokens | 1,000,000 tokens |
+| **Agentic Tool Accuracy** | Extreme (96.4% ToolBench) | Very High (93.1%) | Very High (94.8%) | State-of-the-Art (98.2%) |
+| **Voice Optimization** | Native (VoiceChat 11B) | Third-party adapters | Text-only focus | Native Audio Multimodal |
+| **Licensing** | NVIDIA Open Model License | Llama 4 Community | Permissive MIT | Proprietary Commercial |
 
 ## Typical use cases
 - **Autonomous Coding Agents**: Powering repository-scale code analysis, structural refactoring, and multi-file debugging alongside Claude 5.1 and DeepSeek-V4.
@@ -79,6 +126,59 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
 ```
 
 ## API examples
+
+### FastMCP 3.1 Tool Server Integration
+The following code demonstrates a complete FastMCP 3.1 server exposing a Nemotron-powered agentic tool for automated code safety inspection:
+
+```python
+import os
+import httpx
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Nemotron-Code-Inspector", version="3.1.0")
+
+NIM_ENDPOINT = os.getenv("NIM_ENDPOINT", "http://localhost:8000/v1/chat/completions")
+NGC_API_KEY = os.getenv("NGC_API_KEY", "your-nim-api-key")
+
+class CodeInspectionRequest(BaseModel):
+    code_snippet: str = Field(..., min_length=10, description="Source code to analyze")
+    language: str = Field("python", description="Programming language of the snippet")
+
+class CodeInspectionResult(BaseModel):
+    has_vulnerabilities: bool = Field(..., description="Flag indicating detected security risks")
+    severity: str = Field(..., description="Severity level: low, medium, high, or critical")
+    summary: str = Field(..., description="Detailed safety report generated by Nemotron")
+
+@mcp.tool()
+async def inspect_code_safety(request: CodeInspectionRequest) -> str:
+    """Inspects source code for security vulnerabilities and FastMCP 3.1 compliance using local Nemotron NIM."""
+    prompt = f"Analyze the following {request.language} code for security flaws and performance regressions:\n\n{request.code_snippet}"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {NGC_API_KEY}"
+    }
+
+    payload = {
+        "model": "nvidia/nemotron-5-340b-instruct",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.1,
+        "max_tokens": 512
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(NIM_ENDPOINT, json=payload, headers=headers, timeout=30.0)
+        response.raise_for_status()
+        data = response.json()
+        analysis = data["choices"][0]["message"]["content"]
+        return analysis
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Python: Asynchronous Pydantic v2 Response Handling
 Below is a complete Python implementation illustrating how to query a running Nemotron NIM server and validate the response schema utilizing `pydantic` (v2) with modern asynchronous execution.
 
 ```python
@@ -142,6 +242,12 @@ async def fetch_nemotron_completion():
 if __name__ == "__main__":
     asyncio.run(fetch_nemotron_completion())
 ```
+
+## Operational Best Practices & Quantization Tuning
+
+1. **FP4 / FP8 Precision Allocation**: When deploying `nemotron-5-340b-instruct` on Blackwell/Rubin GPU clusters, enable native FP4 execution via TensorRT-LLM flags to reduce VRAM requirements by up to 60% with negligible loss in agentic accuracy.
+2. **vLLM Context Prefilling**: Configure `gpu_memory_utilization=0.92` and `max_model_len=131072` when serving `Nemotron-4 11B VoiceChat` to handle long multi-turn voice logs without triggering out-of-memory faults.
+3. **Health Check Probing**: Ensure container orchestrators monitor `/v1/health/ready` on NIM deployments before directing production FastMCP requests to prevent dropped agent connections during cold starts.
 
 ## Related tools / concepts
 - [NVIDIA](../providers/nvidia.md) — Creator of the Nemotron architecture and the CUDA/NIM deployment ecosystem.

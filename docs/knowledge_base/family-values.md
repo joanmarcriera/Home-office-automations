@@ -9,11 +9,56 @@ The Family Values and Agent Communication Style is a governance framework that d
 3. **Proactivity without Intrusion**: Agents should anticipate needs (e.g., preparing for a storm) without becoming a source of notification fatigue.
 4. **Sovereignty**: All automation must be overrideable by human members; the agent is an assistant, not a ruler.
 
+## System Architecture
+
+The diagram below details the governance pipeline through which every human interaction, agentic planning loop, and FastMCP 3.1 tool call is evaluated against the Family Values Policy.
+
+```
++-----------------------------------------------------------------------------------+
+|                           Human Interaction & Trigger Layer                       |
+|  +---------------------+   +---------------------+   +-------------------------+  |
+|  | Voice Interface      |   | Mobile UI / Chat    |   | Scheduled Chronos Task  |  |
+|  +----------+----------+   +----------+----------+   +------------+------------+  |
++-------------|-------------------------|---------------------------|---------------+
+              | User Request / Command  | Payload                   | Event Trigger
++-------------v-------------------------v---------------------------v---------------+
+|                    Family Values Governance & Policy Middleware                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Family Policy Engine (Pydantic v2 Context Inspector)                        |  |
+|  | - Evaluates Privacy Risk Score & PII Contamination                          |  |
+|  | - Checks Destination Endpoints against Whitelisted / Forbidden Domains      |  |
+|  +-------------------------------------+---------------------------------------+  |
+|                                        |                                          |
+|  +-------------------------------------v---------------------------------------+  |
+|  | Constitutional System Prompt Injection Layer                                 |  |
+|  | - Embeds Core Family Ethics & Tone Rules into Frontier Model Memory          |  |
+|  | - Enforces FastMCP 3.1 Task Protocol Legibility Constraints                    |  |
+|  +-----------------------------------------------------------------------------+  |
++----------------------------------------|------------------------------------------+
+                                         | Filtered & Approved Action
++----------------------------------------v------------------------------------------+
+|                         Model Context Protocol (FastMCP 3.1)                      |
+|  +---------------------+   +----------------------+   +------------------------+  |
+|  | Local Ollama / vLLM |   | Home Assistant MCP   |   | Cloud Provider API     |  |
+|  +---------------------+   +----------------------+   +------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It prevents "agentic drift"—the tendency for autonomous systems to become overly intrusive, compromise privacy for efficiency, or adopt an inconsistent tone. By providing a clear set of behavioral rules, it ensures that AI interactions remain harmonious, predictable, and aligned with the long-term values of the household.
 
 ## Where it fits in the stack
 This sits in the **Governance & Policy Layer** of the KnowledgeOps architecture. It informs the [System Prompts](system_prompts.md) and [Agentic Workflows](patterns/agentic-workflows.md), serving as the high-level logic that filters all agent actions before they are executed via the [Model Context Protocol](patterns/tool-calling-and-mcp.md).
+
+## Governance Framework Comparison Matrix
+
+| Governance Dimension | Family Values Framework | Standard Corporate AI Ethics | Unconstrained Frontier Agent |
+| :--- | :--- | :--- | :--- |
+| **Data Residency** | Strictly Local by Default | Central Cloud Storage | Cloud API Stream |
+| **Tool Execution** | Human Approval for High-Impact | Automated Policy Enforcer | Unrestricted Autonomous |
+| **Communication Vibe** | Warm, Legible, Concise | Formal / Corporate | Terse / Code-Centric |
+| **Consent Model** | Granular Value-Based Consent | Blanket Terms of Service | Implicit Execution |
+| **PII Handling** | Local Anonymization Pre-filter | Cloud Data Redaction | Pass-Through Raw |
 
 ## Typical use cases
 - **Persona Engineering**: Designing the base system messages for household assistants to ensure a "warm but professional" tone.
@@ -71,6 +116,33 @@ You are Ralph, the Home Admin Agent.
 - TRANSPARENCY: Always prefix tool calls with 'Using [ToolName] to...'
 ```
 
+### FastMCP 3.1 Governance Middleware Integration
+The Python code below demonstrates a FastMCP 3.1 context middleware enforcing the Family Values policy before tool execution:
+
+```python
+import os
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Family-Values-Governance-Gatekeeper", version="3.1.0")
+
+class GovernanceAuditRequest(BaseModel):
+    action_description: str = Field(..., description="Action proposed by the agent")
+    is_external_cloud_call: bool = Field(..., description="Flag indicating outbound cloud network traffic")
+    contains_private_pii: bool = Field(..., description="Flag indicating sensitive household data")
+
+@mcp.tool()
+async def validate_agent_action_governance(request: GovernanceAuditRequest) -> str:
+    """Evaluates whether an agent action complies with family values privacy rules."""
+    if request.is_external_cloud_call and request.contains_private_pii:
+        return "BLOCKED: Cannot transmit private household PII to external cloud services under Privacy-First policy."
+
+    return f"APPROVED: Action '{request.action_description}' conforms to family governance rules."
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Python: Policy-Based Filtering
 Using strict Pydantic v2 validation and early January 2027 patterns to filter outbound agentic activity:
 
@@ -99,7 +171,6 @@ class FamilyValuePolicy(BaseModel):
     @field_validator("forbidden_destinations")
     @classmethod
     def validate_destinations(cls, value: List[str]) -> List[str]:
-        # Normalize and ensure no empty destination strings
         normalized = [dest.strip().lower() for dest in value if dest.strip()]
         if not normalized:
             raise ValueError("Forbidden destinations list cannot be empty.")
@@ -107,15 +178,12 @@ class FamilyValuePolicy(BaseModel):
 
     @model_validator(mode="after")
     def verify_policy_boundaries(self) -> "FamilyValuePolicy":
-        # Ensure that if privacy_strictness is local_only, maximum allowable risk remains extremely low
         if self.privacy_strictness == PrivacyLevel.LOCAL_ONLY and self.max_allowable_risk > 0.10:
             self.max_allowable_risk = 0.10
         return self
 
 def check_action_compliance(action: AgentAction, policy: FamilyValuePolicy) -> tuple[bool, str]:
-    """
-    Evaluates whether a proposed agent action conforms to the family values privacy model.
-    """
+    """Evaluates whether a proposed agent action conforms to the family values privacy model."""
     if action.target_destination.lower().strip() in policy.forbidden_destinations:
         return False, f"Action blocked: Destination '{action.target_destination}' is explicitly forbidden."
 
@@ -123,13 +191,11 @@ def check_action_compliance(action: AgentAction, policy: FamilyValuePolicy) -> t
         return False, f"Action blocked: Risk score {action.privacy_impact_score} exceeds maximum allowed ({policy.max_allowable_risk})."
 
     if policy.privacy_strictness == PrivacyLevel.LOCAL_ONLY and action.contains_personally_identifiable_info:
-        # If strictness is local_only, no outbound transfer containing PII is allowed
         if action.target_destination.lower().strip() != "localhost" and not action.target_destination.startswith("192.168."):
             return False, f"Action blocked: Cannot send PII to non-local destination '{action.target_destination}' under LOCAL_ONLY."
 
     return True, "Action approved: Complies with all family privacy policies."
 
-# Example validation check:
 if __name__ == "__main__":
     policy = FamilyValuePolicy(privacy_strictness=PrivacyLevel.LOCAL_ONLY)
     action = AgentAction(
@@ -141,6 +207,12 @@ if __name__ == "__main__":
     approved, msg = check_action_compliance(action, policy)
     print(f"Status: {'Approved' if approved else 'Rejected'}\nReason: {msg}")
 ```
+
+## Operational Best Practices & Red-Teaming Guidelines
+
+1. **Automated Red-Teaming Probes**: Run periodic synthetic test scenarios against local LLM agents to ensure system prompts resist adversarial jailbreaks attempting to extract sensitive household data.
+2. **Audit Log Retention & Encryption**: Store all agent action evaluation logs in encrypted SQLite or PostgreSQL databases with strict access control, ensuring transparency without compromising privacy.
+3. **Emergency Override Switch**: Maintain a hardware or zero-trust software button (e.g., via Home Assistant) that instantly revokes API tokens for all autonomous agents if anomalous behavior is observed.
 
 ## Related tools / concepts
 - [Home Admin Agent Architecture](home-admin-agent-architecture.md) — The technical implementation of these values.
