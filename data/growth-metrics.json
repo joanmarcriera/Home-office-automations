@@ -21,11 +21,7 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/ai_knowledge/sora.md",
-    "docs/tools/development_ops/trelliscpp.md",
-    "docs/tools/providers/perplexity.md",
     "docs/tools/benchmarking/deepeval.md",
-    "docs/services/home-assistant.md",
     "docs/tools/process_understanding/new-relic-ai.md",
     "docs/services/kiwix.md",
     "docs/tools/benchmarking/multipl-e.md",

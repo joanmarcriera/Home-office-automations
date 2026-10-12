@@ -6,6 +6,30 @@ The OpenClaw Use-Case Catalog is a categorized directory of recurring automation
 
 The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and multi-agent workflows optimized for the [OpenClaw](../../tools/development_ops/openclaw.md) agent runtime. It distills real-world implementation patterns, security guardrails, and FastMCP 3.1 integrations from the ecosystem into an operational selection guide for executing autonomous tasks in enterprise and home environments.
 
+```
++-----------------------------------------------------------------------------------+
+|                        OPENCLAW SKILL ROUTER ARCHITECTURE                         |
++-----------------------------------------------------------------------------------+
+|  [User Goal / Incoming Event Prompt]                                              |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [OpenClaw Intent Classifier & FastMCP 3.1 Skill Resolver]                       |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Pydantic v2 Guardrail & Security Policy Inspection]                            |
+|        │                                               │                          |
+|        ▼ (Policy Compliant)                            ▼ (Requires HITL Gate)     |
+|  [Multi-Agent Execution Pipeline]               [HITL Approval Staging Queue]    |
+|   ├── Home & Office Briefing Skill                       │                        |
+|   ├── Knowledge & Vector Sync Skill                      ▼                        |
+|   └── Infrastructure Health Heuristic               [Human Admin Approval]        |
+|                │                                               │                  |
+|                └───────────────────────┬───────────────────────┘                  |
+|                                        ▼                                          |
+|                          [FastMCP 3.1 Tool Execution]                             |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 
 Deploying broad autonomous agents frequently leads to unconstrained execution, unexpected API spend, or "blank canvas" paralysis. This catalog addresses this by structuring abstract LLM capabilities into concrete, battle-tested workload patterns. Each entry provides mandatory safety boundaries, task decomposition models, and FastMCP 3.1 skill bindings to ensure execution remains safe, reliable, and auditable.
@@ -39,6 +63,16 @@ The following table summarizes proven SOTA patterns for OpenClaw deployment in e
 | Software Development | Remote Issue & PR Orchestration | Converts GitHub issues into branch creation, testing, and draft PR submit | Pre-commit gate & test pass verification required |
 | Communications | Intelligent Inbox Triage | Classifies incoming mail, flags urgencies, and drafts context-aware responses | Drafts-only mode; human approval for dispatch |
 | Enterprise Ops | Contract & Billing Extraction | Parses invoices using VLMs (Claude 5.1, GPT-5.5) and stage for review | HITL staging gate via Pydantic schema validation |
+
+## Pattern Workload Comparison Matrix
+
+| Pattern Category | Primary Model Routing | Avg. Token Overhead | Execution Model | Security Isolation | HITL Requirement |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Home-Office Admin** | Local Llama 4 / Claude 5.1 | Low (~5k - 15k) | Scheduled Cron / Event | User Network Sandbox | Read-Only Automated |
+| **Knowledge Capture** | Local Gemma 3 / GPT-5.5 | Medium (~10k - 25k) | Real-Time Sync Stream | Disk Write Scoped | Auto with Pydantic Gate |
+| **Deep Research** | Gemini 4.0 Pro / Claude 5.6 | High (~50k - 150k) | Multi-Step Recursive | Egress Web Sandbox | Auto with Citation Check |
+| **DevOps Fleet Check** | Claude 5.6 / DeepSeek-V4 | Medium (~20k - 40k) | Event Driven / Alert | SSH Bastion / Read-Only | **Mandatory** for Remediation |
+| **Enterprise Triage** | GPT-5.5 / Claude 5.1 | Medium (~15k - 30k) | Webhook Ingestion | OAuth Scoped API | **Mandatory** for Dispatch |
 
 ## Strengths
 
@@ -91,6 +125,9 @@ openclaw skills list --format json
 
 # Perform security audit on a skill definition file
 openclaw audit skills/infrastructure_monitor.yaml --strict
+
+# Run dry-run simulation of inbox triage skill
+openclaw run enterprise_inbox_triage --dry-run --config configs/triage_rules.yaml
 ```
 
 ## API examples
@@ -118,10 +155,12 @@ print(f"Execution started. Task ID: {execution.task_id}, Status: {execution.stat
 ### 2. Validating Skill Schemas & Guardrails with Pydantic v2
 ```python
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 import re
 
 class ParameterSpec(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str = Field(..., description="Parameter key name")
     type: str = Field(..., description="Data type: string, integer, boolean, float, list")
     description: str = Field(..., description="Usage description for LLM tool binding")
@@ -129,10 +168,13 @@ class ParameterSpec(BaseModel):
     default: Optional[Any] = None
 
 class GuardrailConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     read_only: bool = True
-    max_token_budget: int = Field(default=50000, ge=1000)
+    max_token_budget: int = Field(default=50000, ge=1000, le=500000)
     requires_human_approval: bool = False
     allowed_domains: List[str] = Field(default_factory=list)
+    enforce_rate_limits: bool = Field(default=True)
 
 class OpenClawSkillDefinition(BaseModel):
     name: str
@@ -161,7 +203,8 @@ skill_raw = {
         "read_only": False,
         "max_token_budget": 30000,
         "requires_human_approval": True,
-        "allowed_domains": ["company.com", "partner.org"]
+        "allowed_domains": ["company.com", "partner.org"],
+        "enforce_rate_limits": True
     },
     "fastmcp_endpoint": "mcp://localhost:8001/triage"
 }
@@ -173,6 +216,51 @@ try:
 except ValidationError as err:
     print("Schema error:", err.json())
 ```
+
+### 3. FastMCP 3.1 Skill Execution Host Server
+The snippet below illustrates registering an OpenClaw pattern tool on a FastMCP 3.1 server with Pydantic v2 validation:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("openclaw-usecase-server")
+
+class InfrastructureCheckRequest(BaseModel):
+    target_host: str = Field(..., description="Hostname or IP address of the node to check.")
+    check_type: str = Field(default="ping", description="Diagnostic check: ping, disk, load, services")
+
+class InfrastructureCheckResponse(BaseModel):
+    target_host: str
+    status: str
+    metrics: dict
+    recommended_action: str
+
+@mcp.tool()
+async def run_infrastructure_heuristic(request: InfrastructureCheckRequest) -> InfrastructureCheckResponse:
+    """Executes a guardrailed infrastructure health check heuristic for OpenClaw agents."""
+    # Simulated read-only diagnostic check
+    return InfrastructureCheckResponse(
+        target_host=request.target_host,
+        status="degraded",
+        metrics={"cpu_usage_pct": 88.5, "mem_free_mb": 420},
+        recommended_action="Clear temporary cache logs or request HITL approval for service restart."
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Best Practices & Security Hardening
+
+### 1. Enforce Mandatory Token Budgets
+Every autonomous skill must define strict upper limits on token usage (`max_token_budget`). This prevents infinite loop execution when an LLM encounters unexpected webpage formatting or API error responses.
+
+### 2. Human-In-The-Loop (HITL) Staging Gates
+Any workflow capable of modifying external state (sending emails, committing code, restarting servers) must route output to a review queue rather than executing directly. Implement Pydantic schema validation to ensure proposed actions are formatted predictably for human review.
+
+### 3. Isolated Network Egress
+Restrict agent web fetching tools (such as Tavily or Firecrawl) to specific domain allowlists where appropriate, ensuring secret tokens or private intranet URLs are not leaked during automated research passes.
 
 ## Related tools / concepts
 

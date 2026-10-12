@@ -3,6 +3,32 @@
 ## What it is
 Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of January 2027, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 4](../ai_knowledge/local_llms.md), [Claude 5.6](../ai_knowledge/claude.md), GPT-5.6, Gemini 4.0 Ultra, and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
 
+```
++-----------------------------------------------------------------------------------+
+|                     PERPLEXITY SONAR SEARCH & ROUTING FLOW                        |
++-----------------------------------------------------------------------------------+
+|  [User Query / Agent Tool Request]                                                 |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Orchestrator Intent Classifier & Query Reformulator]                            |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Parallel Index Search / Live Web Scraping / Financial API]                       |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Multi-Source Document Ranking & Deduplication Engine]                           |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Frontier Model Reasoning Pass (Sonar / Claude 5.6 / GPT-5.6)]                  |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Citation Verification & Grounding Validator]                                     |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [FastMCP 3.1 Response Staging & Pydantic v2 Schema Output]                       |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It addresses the "hallucination" and "knowledge cutoff" problems of traditional LLMs by grounding every response in current web data. Perplexity can search the internet in real-time to provide up-to-date information with verifiable citations, allowing for rapid verification of facts, technical specifications, and market trends.
 
@@ -17,12 +43,23 @@ It addresses the "hallucination" and "knowledge cutoff" problems of traditional 
 - **Autonomous Browsing**: Leveraging the "Computer" orchestration layer for multi-step web research.
 
 ### Model Routing (January 2027)
-| Model | Primary Use Case | Default? |
-| :--- | :--- | :--- |
-| **Sonar Small / Medium** | Fast, high-volume search tasks and simple extraction | No |
-| **Sonar Reasoning** | Standard research tasks requiring a balance of speed and depth | Yes |
-| **Sonar Reasoning Pro** | Complex, multi-step research, deep analysis, and high-stakes reasoning | No (Premium) |
-| **Agent API** | Supports third-party models like [Claude 5.6](../ai_knowledge/claude.md) for tool-calling | No |
+| Model | Primary Use Case | Default? | Max Context | Latency Tier |
+| :--- | :--- | :--- | :--- | :--- |
+| **Sonar Small / Medium** | Fast, high-volume search tasks and simple extraction | No | 32k tokens | Ultra-Fast (<1s) |
+| **Sonar Reasoning** | Standard research tasks requiring a balance of speed and depth | Yes | 128k tokens | Fast (1-2s) |
+| **Sonar Reasoning Pro** | Complex, multi-step research, deep analysis, and high-stakes reasoning | No (Premium) | 200k tokens | Standard (3-5s) |
+| **Agent API** | Supports third-party models like [Claude 5.6](../ai_knowledge/claude.md) for tool-calling | No | 200k tokens | Variable |
+
+## Provider Comparison Matrix
+
+| Dimension / Provider | Perplexity Sonar Pro | Google Gemini Search API | Exa AI | Tavily Search |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Strength** | Cited Conversational Synthesis | Mass-Scale Indexing | Neural Code & Domain Search | Agent-Optimized RAG Chips |
+| **Native Tool Calling** | Yes (OpenAI Compatible) | Yes (Function Calling) | Yes (REST) | Yes (Python/JS SDK) |
+| **Structured JSON Output** | Yes (Pydantic v2 Strict) | Yes (Schema Enforcement) | Yes (JSON) | Yes (JSON) |
+| **Cost Per 1k Queries** | ~$5.00 - $10.00 | ~$2.50 - $5.00 | ~$3.00 - $6.00 | ~$4.00 |
+| **FastMCP 3.1 Endpoint** | Native Integration | Third-Party Wrapper | Native MCP Server | Community MCP |
+| **Verification Depth** | Multi-Source URL In-line | Google Knowledge Graph | Deep Link Page Extraction | Cleaned Markdown Content |
 
 ## Strengths
 - **Verifiable Citations**: Every claim is linked to a source, drastically reducing hallucinations.
@@ -57,7 +94,7 @@ Sign up at [perplexity.ai](https://www.perplexity.ai/) to access the conversatio
 Perplexity provides an OpenAI-compatible API, easily manageable via [LiteLLM](../../services/litellm.md).
 
 ```bash
-pip install openai pydantic
+pip install openai pydantic fastmcp requests
 export PPLX_API_KEY="your-api-key"
 ```
 
@@ -105,6 +142,22 @@ Verify the current active models in the Sonar catalog:
 sonar-cli models list
 ```
 
+### 4. Direct JSON Extraction Query
+Force structured response format directly via curl:
+```bash
+curl -X POST https://api.perplexity.ai/chat/completions \
+  -H "Authorization: Bearer $PPLX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning",
+    "response_format": {"type": "json_object"},
+    "messages": [
+      {"role": "system", "content": "Return JSON containing fields: topic, current_version, release_date."},
+      {"role": "user", "content": "FastMCP 3.1 specification release state"}
+    ]
+  }'
+```
+
 ## API examples
 
 ### Python (OpenAI SDK with citations)
@@ -135,7 +188,7 @@ This example demonstrates how to retrieve and strictly validate search results f
 
 ```python
 import os
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from openai import OpenAI
 
 # Initialize OpenAI client to connect to Perplexity's API
@@ -146,12 +199,23 @@ client = OpenAI(
 
 # Define Pydantic v2 structured response schema for search outcomes
 class SearchCitation(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     source_url: str = Field(description="URL of the cited source")
+    title: Optional[str] = Field(None, description="Title of the cited web page")
     relevance_score: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score of relevance")
+
+    @field_validator("source_url")
+    @classmethod
+    def validate_url(cls, value: str) -> str:
+        if not (value.startswith("http://") or value.startswith("https://")):
+            raise ValueError("Citation source_url must start with http:// or https://")
+        return value
 
 class SearchResponse(BaseModel):
     summary: str = Field(description="Synthesized summary of the search results")
     citations: list[SearchCitation] = Field(default_factory=list, description="List of source citations")
+    query_topic: str = Field(..., description="Normalized target search topic")
 
 try:
     response = client.chat.completions.create(
@@ -169,6 +233,7 @@ try:
     # Parse and validate using Pydantic v2 model_validate_json
     raw_content = response.choices[0].message.content
     search_data = SearchResponse.model_validate_json(raw_content)
+    print(f"Topic: {search_data.query_topic}")
     print(f"Summary: {search_data.summary}")
     print(f"Citations: {len(search_data.citations)} sources verified.")
 
@@ -178,17 +243,64 @@ except Exception as e:
     print(f"Request failed: {e}")
 ```
 
-### Integration with Agentic Frameworks
-Perplexity can be used as a `tool` within agentic frameworks following [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) / FastMCP 3.1 standards.
+### FastMCP 3.1 Perplexity Search Server Integration
+The following code snippet defines a complete FastMCP 3.1 tool server wrapping Perplexity's Sonar Reasoning API for autonomous research agents:
 
 ```python
-# Simplified pseudocode for agentic tool use
-def web_search(query: str):
-    return client.chat.completions.create(
-        model="sonar-reasoning-pro",
-        messages=[{"role": "user", "content": query}]
-    ).choices[0].message.content
+import os
+from typing import List, Optional
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+from openai import OpenAI
+
+# Initialize FastMCP 3.1 server
+mcp = FastMCP("perplexity-sonar-search-server")
+
+client = OpenAI(
+    api_key=os.environ.get("PPLX_API_KEY", "mock-key"),
+    base_url="https://api.perplexity.ai"
+)
+
+class SonarSearchRequest(BaseModel):
+    query: str = Field(..., description="Web search prompt to send to Perplexity Sonar.")
+    reasoning_mode: bool = Field(default=True, description="Enable Sonar Reasoning Pro mode.")
+
+class SonarSearchOutput(BaseModel):
+    answer: str
+    model_used: str
+
+@mcp.tool()
+async def perplexity_web_search(request: SonarSearchRequest) -> SonarSearchOutput:
+    """Performs real-time web search with citations using Perplexity Sonar API."""
+    target_model = "sonar-reasoning-pro" if request.reasoning_mode else "sonar-reasoning"
+
+    response = client.chat.completions.create(
+        model=target_model,
+        messages=[
+            {"role": "system", "content": "You are a precise research assistant. Provide well-cited answers."},
+            {"role": "user", "content": request.query}
+        ]
+    )
+
+    return SonarSearchOutput(
+        answer=response.choices[0].message.content,
+        model_used=target_model
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Operational Best Practices & Cost Optimization
+
+### 1. Select Appropriate Model Tiers
+Do not use `sonar-reasoning-pro` for simple fact retrieval or single-token lookup tasks. Use `sonar-reasoning` or `sonar-small` for high-throughput batch queries to minimize API cost and latency.
+
+### 2. Implement Caching at Gateway
+Wrap API calls in a proxy or cache layer (such as LiteLLM or Redis) when querying static or semi-static technical topics (e.g., "Python 3.13 feature list").
+
+### 3. Handle Rate Limits Gracefully
+Perplexity API endpoints enforce per-minute rate limits. Implement exponential backoff retry loops using standard libraries like `tenacity` when invoking Sonar reasoning models in automated multi-agent loops.
 
 ## Related tools / concepts
 - [Google Search](../ai_knowledge/google-search.md) — Traditional search alternative.
