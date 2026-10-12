@@ -315,5 +315,5 @@ if __name__ == "__main__":
 - [Model Context Protocol FastMCP 3.1 Spec](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-07
+- Last reviewed: 2026-10-12
 - Confidence: high

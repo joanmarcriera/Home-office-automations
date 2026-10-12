@@ -242,5 +242,5 @@ print(f"Validated transcription of title: {metadata.title} (duration: {metadata.
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high
