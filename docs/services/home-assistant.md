@@ -3,6 +3,30 @@
 ## What it is
 Home Assistant is the world's leading open-source smart home automation platform, serving as the central nervous system for private internet-of-things (IoT) ecosystems. In early January 2027, version **2026.12/2027.1** has solidified its native "Agentic Core" architecture, incorporating **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** endpoints for zero-latency tool calling, offline voice pipeline integration via Assist, and physical sensor/actuator control by frontier AI models like **Claude 5.1**, **GPT-5.5/5.6**, **Gemini 4.0 Pro/Ultra**, and **DeepSeek-V4**.
 
+```
++-----------------------------------------------------------------------------------+
+|                   HOME ASSISTANT AGENTIC PHYSICAL PIPELINE                        |
++-----------------------------------------------------------------------------------+
+|  [Physical Sensors: Zigbee 3.0 / Matter 1.4 / Z-Wave LR / Wi-Fi / BLE]           |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Home Assistant Core Event Bus & State Machine]                                  |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [FastMCP 3.1 Bridge & Local Assist Pipeline]                                     |
+|        │                                               │                          |
+|        ▼ (Offline Local Path)                          ▼ (Frontier Cloud Path)    |
+|  [Ollama / Local Llama 4 Voice Models]          [Claude 5.1 / GPT-5.5 / Gemini 4.0] |
+|        │                                               │                          |
+|        └───────────────────────┬───────────────────────┘                          |
+|                                ▼                                                  |
+|  [Pydantic v2 Safety Guardrail Validation & Permission Check]                    |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Hardware Actuation: Lights, HVAC, Smart Locks, Perimeter Security]             |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 The consumer smart home market suffers from fragmented "walled gardens" and cloud provider lock-in that compromises user privacy and operational reliability during Internet outages. Home Assistant solves this by providing a unified, local-first interface integrating over 3,200 device standards (Matter 1.4+, Zigbee 3.0, Z-Wave Long Range, Wi-Fi, Bluetooth LE). It enables complex, cross-brand automations that run entirely within the user's private network, shielding physical hardware from cloud latency and data harvesting.
 
@@ -15,6 +39,18 @@ The consumer smart home market suffers from fragmented "walled gardens" and clou
 - **Autonomous Agentic Home Security**: Continuous local monitoring where AI agents evaluate complex multi-sensor events (e.g., "The perimeter gate has remained unlatched for over 10 minutes while no resident is home") and trigger escalated notifications.
 - **Unified Media & Lighting Orchestration**: Coordinating multi-room ambient audio, adaptive circadian lighting, and home theater scenes across disparate hardware ecosystems.
 - **Automated Workflow Execution**: Triggering operational tasks in [Vikunja](vikunja.md) or multi-step webhooks in [n8n](n8n.md) based on local physical sensor events.
+
+## Smart Home Platform Comparison Matrix
+
+| Dimension / Platform | Home Assistant (2027) | OpenHAB 4 | Hubitat Elevation | Apple Home / HomeKit |
+| :--- | :--- | :--- | :--- | :--- |
+| **License Model** | Open Source (Apache 2.0) | Open Source (EPL) | Commercial Proprietary | Commercial Proprietary |
+| **Local-First Architecture**| 100% Local Native | 100% Local Native | 100% Local Native | Cloud Hybrid |
+| **Integration Count** | 3,200+ Integrations | 400+ Bindings | 1,000+ Community Drivers | Curated HomeKit Certified |
+| **FastMCP 3.1 Endpoint**| Native Agentic Core | Third-Party Adapter | Custom Driver | No |
+| **Offline Voice AI** | Assist (Ollama Local) | Basic Rule Voice | Basic Keyword | Siri Cloud |
+| **Dashboard Complexity**| Lovelace Visual / YAML | Basic UI / Sitemaps | Dashboard Builder | iOS Home App |
+| **Hardware Flexibility**| Any Linux / Pi / X86 | Any Java Host | Dedicated Hubitat Box | Apple Hub Required |
 
 ## Strengths
 - **Native FastMCP 3.1 Integration**: Standardized, low-latency tool-calling interface allowing frontier models to query state and trigger entity actions directly.
@@ -79,6 +115,9 @@ docker exec homeassistant ha core restart
 
 # Manage active system integrations and add-on instances
 docker exec homeassistant ha addons list
+
+# Trigger state update check via curl REST API
+curl -X GET -H "Authorization: Bearer $HA_TOKEN" http://localhost:8123/api/states/light.living_room
 ```
 
 ## API examples
@@ -124,13 +163,18 @@ import os
 from datetime import datetime
 from typing import Dict, Any, Optional
 import requests
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class EntityAttributes(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     friendly_name: Optional[str] = Field(None, alias="friendly_name")
     unit_of_measurement: Optional[str] = Field(None, alias="unit_of_measurement")
+    battery_level: Optional[int] = Field(None, ge=0, le=100)
 
 class EntityState(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     entity_id: str = Field(..., alias="entity_id")
     state: str
     attributes: EntityAttributes
@@ -142,6 +186,13 @@ class EntityState(BaseModel):
     def validate_state_not_empty(cls, value: str) -> str:
         if not value.strip():
             raise ValueError("Entity state cannot be blank")
+        return value
+
+    @field_validator("entity_id")
+    @classmethod
+    def validate_entity_format(cls, value: str) -> str:
+        if "." not in value:
+            raise ValueError("entity_id must follow domain.object_id syntax (e.g., light.hallway)")
         return value
 
 def get_entity_state(entity_id: str) -> EntityState:
@@ -168,6 +219,27 @@ if __name__ == "__main__":
         print(f"Last Updated: {lock_status.last_updated}")
     except Exception as e:
         print(f"Failed to query Home Assistant state: {e}")
+```
+
+## Operational Best Practices & Homelab Hardening
+
+### 1. Multi-Factor Authentication & SSO Gateway
+Do not expose the Home Assistant web portal directly to public port forwarding. Use [Tailscale](tailscale.md) zero-trust mesh networks or route traffic through a reverse proxy (e.g., Cloudflare Tunnel or Nginx Proxy Manager) protected by [Authentik](authentik.md) SSO.
+
+### 2. Automated Configuration Backups
+Configure the official **Google Drive Backup** or **S3 Storage** add-on to perform daily encrypted snapshots of the `/config` directory before core platform updates.
+
+### 3. Database Maintenance & Recorder Tuning
+In high-entity environments, exclude high-frequency sensor streams (such as CPU usage or energy watts updates) from the default SQLite/MariaDB recorder in `configuration.yaml` to prevent database bloat and disk Wear:
+
+```yaml
+recorder:
+  purge_keep_days: 14
+  exclude:
+    domains:
+      - updater
+    entity_globs:
+      - sensor.processor_use*
 ```
 
 ## Related tools / concepts

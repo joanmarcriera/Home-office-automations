@@ -6,14 +6,30 @@
 ## What it is
 Sora was a landmark, large-scale spatio-temporal diffusion transformer (DiT) text-to-video generative model developed by OpenAI. Operating as a diffusion model trained over variable-size visual patch latent spaces, Sora generated high-fidelity, high-resolution videos (up to 1080p) lasting up to 60 seconds with spatial consistency, realistic physics approximations, and multi-angle cinematic coherence.
 
-```mermaid
-graph TD
-    A[Text Prompt / Image Input] -->|GPT-4o Prompt Expansion| B[Conditioning Embedding Pipeline]
-    B -->|Patchified Latent Space Injection| C[Spatio-Temporal Diffusion Transformer - DiT]
-    C -->|Denoising Patch Execution| D[Visual Latent Decoder]
-    D -->|H.264 / HEVC Encoded Stream| E[Generated Video File / MP4 Asset]
-    F[FastMCP 3.1 Legacy Archive Tool] -->|Metadata Query & Verification| E
-    G[Pydantic v2 Asset Catalog] -->|Schema Validation| F
+```
++-----------------------------------------------------------------------------------+
+|                            SORA ARCHITECTURAL PIPELINE                            |
++-----------------------------------------------------------------------------------+
+|  [Raw Text Prompt / Image Input]                                                  |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [GPT-4o Prompt Rewriter & Spatial Decomposition]                                 |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [3D Spatio-Temporal Patch Tokenizer (Spatial x Temporal Compression)]           |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Diffusion Transformer (DiT) Latent Denoiser - Variable Aspect Grid]            |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Visual Latent Decoder & Frame Assembler]                                        |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [H.264 / HEVC Master Stream Output (.mp4)]                                       |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [FastMCP 3.1 Legacy Archive Indexing & Pydantic v2 Catalog Validation]           |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -27,6 +43,18 @@ Prior to Sora, video generation models suffered from severe temporal distortion,
 - **Physical World Simulation**: Evaluating model ability to learn 3D visual persistence, camera movement dynamics, and light transport (Historical).
 - **Digital Marketing & Visual Assets**: Rapidly synthesizing custom video clips from descriptive textual prompts (Historical).
 - **Legacy Asset Migration & Archive Indexing**: Extracting, cataloging, and re-indexing historical Sora video files and prompt metadata using FastMCP 3.1 tools and Pydantic v2 schemas.
+
+## Technical Comparison Matrix
+
+| Feature / Dimension | OpenAI Sora (Legacy) | Runway Gen-4 (2027) | Luma Dream Machine 3 | HunyuanVideo (Open Weights) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Status (2027)** | Decommissioned | Active Commercial Cloud | Active Commercial Cloud | Active Open Weights |
+| **Max Clip Duration** | 60 seconds | 30 seconds (Chainable) | 120 seconds | 16 seconds |
+| **Native Resolution** | 1080p (Variable Grid) | 4K Upscaled | 1080p / 4K | 720p / 1080p |
+| **Architecture** | Spatio-Temporal DiT | Latent Flow Matching DiT | Real-Time Latent DiT | Multimodal Transformer DiT |
+| **Interactive Latency** | Offline Batch (~2-5 min) | Sub-15s Streaming | Near Real-Time (3s) | Dependent on Local VRAM |
+| **Self-Hosting** | No (Proprietary Cloud) | No (Cloud API) | No (Cloud API) | Yes (Dual-80GB VRAM) |
+| **FastMCP 3.1 Support** | Archival Catalog Only | Native Control API | Native Control API | Native Local MCP Tool |
 
 ## Strengths
 - **Spatio-Temporal Consistency**: Maintained continuous object identity, character features, and background geometry across multi-second camera passes.
@@ -85,6 +113,13 @@ Filter and extract prompt descriptions and video IDs from legacy bulk exports:
 jq -r '.assets[] | "ID: \(.video_id) | Duration: \(.duration_seconds)s | Prompt: \(.prompt)"' sora_export_archive.json
 ```
 
+### 4. Re-encoding Legacy Assets for Mobile Streaming
+Optimize legacy 1080p Sora clips for fast web preview playback using `ffmpeg`:
+
+```bash
+ffmpeg -i ./sora_archive/raw_clip.mp4 -vcodec libx264 -crf 23 -preset fast -acodec aac -movflags +faststart ./sora_archive/web_optimized.mp4
+```
+
 ## API examples
 
 ### Python FastMCP 3.1 & Pydantic v2 Archive Catalog Integration
@@ -93,18 +128,24 @@ The following code snippet demonstrates building a FastMCP 3.1 server that index
 ```python
 import os
 import json
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 # Define Pydantic v2 models for legacy Sora asset validation
 class SoraLegacyAsset(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
     video_id: str = Field(..., description="Unique Sora video generation identifier (e.g., 'sora_2026_001').")
     prompt: str = Field(..., description="Text prompt used during original video generation.")
+    expanded_prompt: Optional[str] = Field(None, description="GPT-4o rewritten conditioning prompt.")
     duration_seconds: int = Field(default=60, ge=1, le=60, description="Video clip length in seconds.")
     resolution: str = Field(default="1920x1080", description="Video stream spatial resolution.")
+    aspect_ratio: str = Field(default="16:9", description="Target aspect ratio frame geometry.")
     file_path: str = Field(..., description="Local file path to archived MP4 file.")
     archived_at: str = Field(..., description="ISO 8601 timestamp when asset was ingested into archive.")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Custom generation parameters (seed, CFG score).")
 
     @field_validator("video_id")
     @classmethod
@@ -113,13 +154,24 @@ class SoraLegacyAsset(BaseModel):
             raise ValueError("Legacy Sora video_id must begin with 'sora_' or 'vid_' prefix.")
         return value
 
+    @field_validator("archived_at")
+    @classmethod
+    def validate_timestamp(cls, value: str) -> str:
+        try:
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            raise ValueError("archived_at must be a valid ISO 8601 date string.")
+        return value
+
 class SoraCatalogSearchRequest(BaseModel):
     query_term: str = Field(..., description="Search keyword to query against archived prompts.")
     max_results: int = Field(default=10, ge=1, le=50, description="Maximum number of matched assets to return.")
+    min_duration: Optional[int] = Field(None, ge=1, description="Filter clips by minimum duration.")
 
 class SoraCatalogSearchResponse(BaseModel):
     total_matches: int = Field(..., description="Total count of matching historical assets.")
     assets: List[SoraLegacyAsset] = Field(default_factory=list, description="List of matched Sora assets.")
+    execution_time_ms: float = Field(..., description="Search query latency in milliseconds.")
 
 # Initialize FastMCP 3.1 server
 mcp = FastMCP("sora-archive-catalog-server")
@@ -129,27 +181,91 @@ ARCHIVE_METADATA_FILE = "/tmp/sora_archive_catalog.json"
 @mcp.tool()
 async def search_sora_archive(request: SoraCatalogSearchRequest) -> SoraCatalogSearchResponse:
     """Searches historical Sora video generation archives by prompt keywords using Pydantic v2 schemas."""
+    import time
+    start_time = time.time()
+
     if not os.path.exists(ARCHIVE_METADATA_FILE):
-        return SoraCatalogSearchResponse(total_matches=0, assets=[])
+        return SoraCatalogSearchResponse(total_matches=0, assets=[], execution_time_ms=0.0)
 
     with open(ARCHIVE_METADATA_FILE, "r") as f:
         raw_data = json.load(f)
 
     matched_assets = []
     for item in raw_data.get("assets", []):
-        if request.query_term.lower() in item.get("prompt", "").lower():
+        prompt_text = item.get("prompt", "").lower()
+        if request.query_term.lower() in prompt_text:
+            if request.min_duration and item.get("duration_seconds", 0) < request.min_duration:
+                continue
             asset = SoraLegacyAsset(**item)
             matched_assets.append(asset)
             if len(matched_assets) >= request.max_results:
                 break
 
+    elapsed_ms = (time.time() - start_time) * 1000.0
     return SoraCatalogSearchResponse(
         total_matches=len(matched_assets),
-        assets=matched_assets
+        assets=matched_assets,
+        execution_time_ms=round(elapsed_ms, 2)
     )
 
 if __name__ == "__main__":
     mcp.run()
+```
+
+## Operational Best Practices & Archival Migration Guide
+
+### 1. Structural Storage Strategy for Historical Visual Assets
+When preserving legacy generative media outputs, adhere to the following file hierarchy to ensure seamless FastMCP 3.1 catalog indexing:
+
+```
+sora_archive/
+├── catalog.json                  # Master Pydantic v2 catalog index
+├── video_assets/                 # Raw high-resolution MP4 clips
+│   ├── sora_2026_001.mp4
+│   └── sora_2026_002.mp4
+├── metadata/                     # Per-asset JSON metadata exports
+│   ├── sora_2026_001.json
+│   └── sora_2026_002.json
+└── thumbnails/                   # Fast preview webp extractions
+    ├── sora_2026_001.webp
+    └── sora_2026_002.webp
+```
+
+### 2. Migration Pipeline Execution
+To convert raw legacy export dumps into validated Pydantic v2 archives, execute the following Python migration script:
+
+```python
+import os
+import json
+import glob
+from pydantic import ValidationError
+
+def migrate_raw_sora_dumps(source_dir: str, target_catalog_file: str):
+    valid_assets = []
+    errors = []
+
+    for filepath in glob.glob(os.path.join(source_dir, "*.json")):
+        with open(filepath, "r") as f:
+            try:
+                data = json.load(f)
+                # Ensure local file reference exists
+                mp4_path = filepath.replace(".json", ".mp4")
+                if not os.path.exists(mp4_path):
+                    errors.append(f"Missing MP4 payload for {filepath}")
+                    continue
+                data["file_path"] = mp4_path
+                asset = SoraLegacyAsset(**data)
+                valid_assets.append(asset.model_dump())
+            except (json.JSONDecodeError, ValidationError) as e:
+                errors.append(f"Validation failed for {filepath}: {e}")
+
+    with open(target_catalog_file, "w") as f:
+        json.dump({"assets": valid_assets, "migrated_count": len(valid_assets)}, f, indent=2)
+
+    print(f"Migration complete. Ingested {len(valid_assets)} assets. Encountered {len(errors)} issues.")
+
+if __name__ == "__main__":
+    migrate_raw_sora_dumps("/tmp/sora_raw_exports", "/tmp/sora_archive_catalog.json")
 ```
 
 ## Related tools / concepts
