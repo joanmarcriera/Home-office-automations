@@ -167,13 +167,16 @@ curl -X PATCH http://localhost:8000/api/documents/123/ \
 ```
 
 ### Python Programmatic Tag Syncer & Validator (FastMCP 3.1 / Pydantic v2)
-Use this programmatic script with strict **Pydantic v2** schemas to synchronize tax tags from your master list to Paperless-ngx while validating matching rules and payload structures.
+Use this programmatic script with strict **Pydantic v2** schemas to synchronize tax tags from your master list to Paperless-ngx while validating matching rules and payload structures within a FastMCP 3.1 tool endpoint.
 
 ```python
 import sys
 import requests
-from pydantic import BaseModel, Field, HttpUrl, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Dict, List, Optional
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("PaperlessTaxonomyServer", version="3.1.0")
 
 class PaperlessTagCreate(BaseModel):
     """Pydantic v2 model for validating Paperless tag creation payloads."""
@@ -195,17 +198,23 @@ class TagSyncConfig(BaseModel):
     token: str = Field(..., description="Paperless REST API authorization token")
     tag_mapping: Dict[str, str] = Field(..., description="Mapping of tag names to hex colors")
 
-def sync_taxonomy_tags(config: TagSyncConfig) -> bool:
-    """Synchronizes taxonomy tags to Paperless-ngx with strict Pydantic v2 validation."""
+@mcp.tool()
+def sync_taxonomy_tags(config_dict: dict) -> dict:
+    """FastMCP tool step executing Paperless taxonomy synchronization with Pydantic v2 validation."""
+    try:
+        config = TagSyncConfig.model_validate(config_dict)
+    except ValidationError as e:
+        return {"status": "validation_error", "errors": e.errors(include_url=False)}
+
     headers = {
         "Authorization": f"Token {config.token}",
         "Content-Type": "application/json",
         "X-MCP-Version": "3.1"
     }
     try:
-        # Fetch current tags
         resp = requests.get(f"{config.api_url.rstrip('/')}/tags/", headers=headers, timeout=5)
         existing_tags = {t['name']: t['id'] for t in resp.json().get('results', [])}
+        created = []
 
         for name, color in config.tag_mapping.items():
             if name not in existing_tags:
@@ -216,26 +225,22 @@ def sync_taxonomy_tags(config: TagSyncConfig) -> bool:
                     headers=headers,
                     timeout=5
                 )
-                print(f"Created taxonomy tag: {name}")
-        return True
-    except ValidationError as e:
-        print(f"Taxonomy configuration validation error: {e.json()}", file=sys.stderr)
-        return False
+                created.append(name)
+        return {"status": "success", "created_tags": created, "total_synced": len(config.tag_mapping)}
     except Exception as e:
-        print(f"Taxonomy synchronization failed: {e}", file=sys.stderr)
-        return False
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
-    sample_config = TagSyncConfig(
-        api_url="http://localhost:8000/api",
-        token="mock_token_key",
-        tag_mapping={
+    sample_config = {
+        "api_url": "http://localhost:8000/api",
+        "token": "mock_token_key",
+        "tag_mapping": {
             "inbox": "#e67e22",
             "needs-action": "#e74c3c",
             "Finance/Bill": "#3498db"
         }
-    )
-    print("Taxonomy sync module loaded successfully.")
+    }
+    print("FastMCP Paperless Taxonomy Server initialized successfully.")
 ```
 
 ## Related tools / concepts
@@ -255,5 +260,5 @@ if __name__ == "__main__":
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high

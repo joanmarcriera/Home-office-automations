@@ -162,11 +162,14 @@ tesseract --list-langs
 ## API examples
 
 ### Programmatic Python Extraction with FastMCP 3.1 & Strict Pydantic v2 Validation
-This example showcases how to execute Tesseract OCR programmatically (using `pytesseract`) and validate raw text output, bounding boxes, and word-level confidences against strict Pydantic v2 schemas. This ensures that any OCR pipeline anomalies are caught and corrected before the text is sent to [Gemma 4](../ai_knowledge/local_llms.md) or [Claude](../ai_knowledge/claude.md) for further reasoning.
+This example showcases how to execute Tesseract OCR programmatically (using `pytesseract` or C++ bindings) and validate raw text output, bounding boxes, and word-level confidences against strict Pydantic v2 schemas within a FastMCP 3.1 tool server. This ensures that any OCR pipeline anomalies are caught and corrected before the text is sent to [Gemma 4](../ai_knowledge/local_llms.md) or [Claude](../ai_knowledge/claude.md) for further reasoning.
 
 ```python
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("TesseractOCRServer", version="3.1.0")
 
 # 1. Define strict Pydantic v2 schemas for OCR bounding boxes and results
 class BoundingBox(BaseModel):
@@ -199,15 +202,25 @@ class VerifiedOcrOutput(BaseModel):
             raise ValueError(f"Overall OCR confidence ({v}%) falls below quality standard (70.0%)")
         return v
 
-# 2. Executable FastMCP 3.1 validation harness
-def parse_and_verify_tesseract_output(raw_ocr_payload: dict) -> Optional[VerifiedOcrOutput]:
+# 2. Executable FastMCP 3.1 tool endpoint
+@mcp.tool()
+def parse_and_verify_tesseract_output(raw_ocr_payload: dict) -> dict:
+    """Validates raw pytesseract extraction output against Pydantic v2 runtime contracts."""
     try:
         # Validate raw dictionary against the Pydantic v2 schema
         validated_data = VerifiedOcrOutput.model_validate(raw_ocr_payload)
-        return validated_data
+        return {
+            "status": "success",
+            "image_name": validated_data.image_name,
+            "full_text": validated_data.full_text,
+            "overall_confidence": validated_data.overall_confidence,
+            "word_count": len(validated_data.words)
+        }
     except ValidationError as e:
-        print(f"OCR schema validation failed: {e.json()}")
-        return None
+        return {
+            "status": "validation_error",
+            "errors": e.errors(include_url=False)
+        }
 
 if __name__ == "__main__":
     # Simulated pytesseract raw dictionary extraction
@@ -230,11 +243,8 @@ if __name__ == "__main__":
         "overall_confidence": 97.35
     }
 
-    verified_result = parse_and_verify_tesseract_output(simulated_pytesseract_dict)
-    if verified_result:
-        print(f"Verification successful for: {verified_result.image_name}")
-        print(f"Extracted Text: {verified_result.full_text}")
-        print(f"Average Confidence: {verified_result.overall_confidence}%")
+    result = parse_and_verify_tesseract_output(simulated_pytesseract_dict)
+    print(f"FastMCP Tool Result: {result}")
 ```
 
 ## Related tools / concepts
@@ -257,5 +267,5 @@ if __name__ == "__main__":
 - [Tesseract v5.5 Release Specifications](https://github.com/tesseract-ocr/tesseract/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high
