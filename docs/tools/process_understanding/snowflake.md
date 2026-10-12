@@ -44,6 +44,33 @@ Snowflake sits in the **Data Storage and Analytics** layer, acting as a unified 
 
 ## Getting started
 
+To interact with Snowflake programmatically using Python, install the official connector:
+
+```bash
+pip install snowflake-connector-python
+```
+
+### Hello-World Example
+```python
+import snowflake.connector
+
+# Connect to Snowflake database
+conn = snowflake.connector.connect(
+    user='observability_bot',
+    password='SuperSecurePassword123!',
+    account='xy12345.us-east-1'
+)
+
+cursor = conn.cursor()
+try:
+    cursor.execute("SELECT CURRENT_VERSION()")
+    row = cursor.fetchone()
+    print(f"Connected to Snowflake version: {row[0]}")
+finally:
+    cursor.close()
+    conn.close()
+```
+
 ### Installation (SnowSQL CLI)
 Install the official Snowflake CLI tool to interact with your instance from local scripts:
 

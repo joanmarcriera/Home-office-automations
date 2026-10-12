@@ -63,6 +63,33 @@ Managing meeting availability manually requires constant back-and-forth communic
 
 ## Getting started
 
+To manage Calendly resources programmatically using Python:
+
+```bash
+pip install requests
+```
+
+### Hello-World Example
+```python
+import os
+import requests
+
+# Set your Calendly API Personal Access Token
+token = os.getenv("CALENDLY_API_TOKEN", "your_token_here")
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+}
+
+# Fetch current user profile details
+response = requests.get("https://api.calendly.com/users/me", headers=headers)
+if response.status_code == 200:
+    user_data = response.json().get("resource", {})
+    print(f"Connected to Calendly as {user_data.get('name')} ({user_data.get('email')})")
+else:
+    print(f"Failed to fetch profile: {response.status_code}")
+```
+
 ### Local Agentic MCP Setup
 To enable local AI agents to query availability and book events via Calendly's API:
 
@@ -87,6 +114,11 @@ curl --request GET \
 # List active Event Types for an organization
 curl --request GET \
   --url 'https://api.calendly.com/event_types?organization=https://api.calendly.com/organizations/ORG_ID' \
+  --header 'Authorization: Bearer <YOUR_CALENDLY_TOKEN>'
+
+# List scheduled events for a user URI
+curl --request GET \
+  --url 'https://api.calendly.com/scheduled_events?user=https://api.calendly.com/users/USER_ID' \
   --header 'Authorization: Bearer <YOUR_CALENDLY_TOKEN>'
 ```
 
