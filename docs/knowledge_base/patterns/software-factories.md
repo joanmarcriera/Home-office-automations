@@ -5,11 +5,45 @@ An architectural pattern for high-autonomy, non-interactive software engineering
 ## What it is
 The Software Factory is a "dark factory" approach to development where autonomous agents (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, [Gemma 3](../../tools/ai_knowledge/local_llms.md), [Llama 4](../../tools/ai_knowledge/local_llms.md)) operate within closed-loop environments. It shifts the human role from writing code to defining the "seeds" (specifications) and "validation harnesses" (test scenarios), treating code generation as a high-volume, low-marginal-cost industrial process using **AI-native software assembly** with the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1**.
 
+## Closed-Loop Factory Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                        Autonomous Software Factory Pipeline                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | Human / System Seed File  +------->+ FastMCP 3.1 Factory Task Controller      |  |
+|  +---------------------------+        +--------------------+--------------------+  |
+|                                                            |                      |
+|                                                            v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | Multi-Trajectory Agent    +<------>+ Docker Isolated Validation Sandbox      |  |
+|  | (Claude 5.6 / Llama 4)    |        | (AST, Linters, Integration Test Suite)  |  |
+|  +---------------------------+        +--------------------+--------------------+  |
+|                                                            |                      |
+|                                                            v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | Automated PR / Merge Hub  +<-------+ Satisfaction Evaluator (Pydantic v2)    |  |
+|  +---------------------------+        +-----------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates the human review bottleneck in traditional PR workflows and mitigates "inhuman mistakes" through exhaustive automated validation. It addresses the economic challenge of building and maintaining complex digital twins, legacy system migrations, and specialized tooling that was previously too expensive for manual development.
 
 ## Where it fits in the stack
 The Software Factory resides in the **Orchestration and Quality Layer** of the [Home-Office Architecture](../../architecture/README.md). It serves as the primary engine for [Jules](../../tools/ai_knowledge/jules.md) and other coding agents, utilizing **MCP 3.1** (with **FastMCP 3.1** for low-latency tool hosting) for tool-use and [Docker](../../tools/infrastructure/docker.md) for isolated validation environments.
+
+## Software Factory Orchestration Engine Comparison
+
+| Factory Framework / Engine | Execution Autonomy | Isolation Sandbox | Primary Validation Mechanism | Preferred LLM Engines |
+| :--- | :--- | :--- | :--- | :--- |
+| **Jules Factory Engine** | High (Multi-Day Loops) | Docker Container / Rootless | Satisfaction-Based Test Suites | Claude 5.6, GPT-5.6, DeepSeek-V4 |
+| **StrongDM Factory Pattern** | Fully Autonomous | Firecracker MicroVMs | Deterministic Unit & Integration Scans | Gemini 4.0 Pro, Llama 4 |
+| **OpenClaw Factory Mesh** | Hybrid Autonomous | Podman / Linux Namespaces | FastMCP 3.1 Task Contracts | Local Qwen 3.6 Coder / vLLM |
+| **Traditional CI/CD Agent** | Semi-Autonomous | Standard Runner / VM | Unit Tests & Lint Checks | Claude 3.5 Sonnet / GPT-4o |
 
 ## Typical use cases
 - **Autonomous Maintenance**: Agents that monitor, debug, and patch production codebases without human intervention.
@@ -79,23 +113,41 @@ docker exec -it factory_mock_okta status
 
 ## API examples
 
-### Factory Validation Request (MCP 3.1 Task Protocol)
-Example of an agent requesting a validation run within the software factory using the **MCP 3.1 Task Protocol**.
+### FastMCP 3.1 Software Factory Task Dispatcher
+This FastMCP 3.1 tool server manages software factory job creation and validation runs over the standardized Task Protocol:
 
-```json
-{
-  "mcp_version": "3.1",
-  "method": "tasks/run",
-  "params": {
-    "task_id": "factory_run_validation",
-    "input": {
-      "code_path": "/src/auth_handler.go",
-      "test_harness": "security_scan_v4",
-      "max_iterations": 5,
-      "stop_on_satisfaction": true
-    }
-  }
-}
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+mcp = FastMCP("Software Factory Control Plane")
+
+class FactoryTaskRequest(BaseModel):
+    seed_id: str = Field(..., description="Unique seed specification identifier")
+    target_language: str = Field(..., description="Target programming language (python, go, rust)")
+    max_iter: int = Field(10, ge=1, le=50, description="Maximum self-healing loop iterations")
+
+class FactoryTaskStatus(BaseModel):
+    job_id: str
+    status: str
+    current_satisfaction: float
+    iterations_completed: int
+
+@mcp.tool()
+async def dispatch_factory_job(req: FactoryTaskRequest, ctx: Context) -> FactoryTaskStatus:
+    """Dispatches an autonomous software generation task into the isolated container harness."""
+    ctx.info(f"Initiating software factory run for seed '{req.seed_id}' in language '{req.target_language}'")
+
+    return FactoryTaskStatus(
+        job_id="fact_9021",
+        status="RUNNING_VALIDATION_LOOP",
+        current_satisfaction=0.82,
+        iterations_completed=2
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Satisfaction-Based Scoring API (Python & Pydantic v2)
@@ -155,6 +207,42 @@ if __name__ == "__main__":
     except ValidationError as e:
         print(f"Validation Error: {e.json(indent=2)}")
 ```
+
+## Production Hardening & Operational Safety
+
+### Container Hardening & Rootless Execution
+Autonomous code execution must strictly occur inside disposable, non-root micro-containers to isolate network resources and host file systems:
+
+```dockerfile
+FROM alpine:3.20
+RUN adduser -D -u 10001 factoryrunner
+USER factoryrunner
+WORKDIR /home/factoryrunner
+# Read-only root filesystem with temporal tmpfs scratch disk
+```
+
+### Maximum Iteration & Token Hard-Caps
+To prevent endless recursive self-healing loops when an agent encounters unresolvable logical contradictions, set hard ceilings on both iteration count and token budget:
+
+```python
+MAX_FACTORY_ITERATIONS = 5
+MAX_FACTORY_TOKENS = 150_000
+
+def enforce_factory_limits(current_iter: int, total_tokens: int):
+    if current_iter >= MAX_FACTORY_ITERATIONS:
+        raise RuntimeError("Factory execution terminated: Maximum iteration threshold exceeded.")
+    if total_tokens >= MAX_FACTORY_TOKENS:
+        raise RuntimeError("Factory execution terminated: Token spending cap reached.")
+```
+
+## Troubleshooting & Common Issues
+
+| Issue / Failure | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Infinite Loop on Flaky Tests** | Non-deterministic test harness failing intermittently. | Ensure test suite relies on deterministic mocks or freeze time/RNG seeds in validation harness. |
+| **AST Parse Errors in Seed Ingestion** | Syntax errors present in generated gene-transfusion targets. | Run an initial tree-sitter or AST static syntax check before executing full integration suites. |
+| **Docker Out-Of-Memory (OOM)** | Parallel validation runners overwhelming host RAM. | Enforce strictly bounded cgroup memory limits (`--memory=2g`) per factory runner node. |
+| **Low Satisfaction Convergence** | Under-specified seed prompt or missing target environment context. | Enrich the seed prompt with dynamic RAG context from production architectural schemas. |
 
 ## Related tools / concepts
 - [Prompt Requests](prompt_requests.md) — Post-PR development workflows.

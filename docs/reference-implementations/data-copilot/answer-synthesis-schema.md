@@ -3,11 +3,26 @@
 ## What it is
 Data Copilot Answer Synthesis is a Pydantic v2 schema and prompt contract governing the final inference and response generation stage of agentic data pipelines. It ensures that every output synthesized by frontier models (**Claude 5.1 / 5.6**, **GPT-5.5 / 5.6**, **Gemini 4.0 Pro/Ultra**, **Llama 4**, **Gemma 3**) incorporates explicit chain-of-thought reasoning, numerical data point breakdowns, verifiable source citations, normalized confidence metrics, and actionable recommendations. It natively supports **FastMCP 3.1** structured tool outputs.
 
-## What problem it solves
-Raw LLM outputs over complex database queries or vector search results often yield ambiguous, incomplete, or unverified answers. By enforcing a rigid Pydantic v2 synthesis schema, this implementation eliminates "black-box" responses. It mandates explicit confidence scoring, source citation lineage, logical assumption tracking, and automated human-in-the-loop (HITL) review triggers when extraction confidence drops below threshold limits.
+## Synthesis Processing & Validation Pipeline
 
-## Where it fits in the stack
-Data Copilot Answer Synthesis operates as the final **Inference & Response Synthesis Layer** within the Data Copilot architecture. It executes after data retrieval (Text-to-SQL, Vector Search, FastMCP tool execution) and prior to client UI rendering or API payload delivery.
+```
++-----------------------------------------------------------------------------------+
+|                     Data Copilot Answer Synthesis Pipeline                        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | Multi-Source Context      +------->+ FastMCP 3.1 Synthesis Gateway           |  |
+|  | (SQL, RAG, Web Search)    |        | (Prompt Hydration & Schema Enforcer)    |  |
+|  +---------------------------+        +--------------------+--------------------+  |
+|                                                            |                      |
+|                                                            v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | Deliver Client Payload    +<-------+ Pydantic v2 Synthesis Evaluator         |  |
+|  | / HITL Review Staging     |        | (Confidence Boundary & Source Check)    |  |
+|  +---------------------------+        +-----------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ```
 [SQL Results / RAG Context] ──► [FastMCP 3.1 Tool Collector]
@@ -26,6 +41,21 @@ Data Copilot Answer Synthesis operates as the final **Inference & Response Synth
                   ▼                                               ▼
       [Deliver Structured Response]                   [Route to HITL Review Staging]
 ```
+
+## What problem it solves
+Raw LLM outputs over complex database queries or vector search results often yield ambiguous, incomplete, or unverified answers. By enforcing a rigid Pydantic v2 synthesis schema, this implementation eliminates "black-box" responses. It mandates explicit confidence scoring, source citation lineage, logical assumption tracking, and automated human-in-the-loop (HITL) review triggers when extraction confidence drops below threshold limits.
+
+## Where it fits in the stack
+Data Copilot Answer Synthesis operates as the final **Inference & Response Synthesis Layer** within the Data Copilot architecture. It executes after data retrieval (Text-to-SQL, Vector Search, FastMCP tool execution) and prior to client UI rendering or API payload delivery.
+
+## Synthesis Output Mode Comparison Matrix
+
+| Output Mode | Primary Format | Client Target | Key Schema Components | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Executive Briefing** | Markdown + Key Metrics | Executive UI / Email | `answer_summary`, `recommended_actions` | High-level business overview |
+| **Interactive Dashboard** | JSON Structured Payload | Frontend App / React | `key_metrics`, `sources`, `chart_config` | Real-time analytics dashboards |
+| **Audited Export** | CSV / Table Schema | Compliance & Audit | `sources`, `sql_query_id`, `confidence_score` | Financial/regulatory logging |
+| **Automated Alert** | Compact Webhook JSON | Slack / PagerDuty | `answer_summary`, `urgency`, `action_items` | Anomaly alert notifications |
 
 ## Typical use cases
 - **Executive BI Dashboards**: Synthesizing real-time revenue analytics with direct links to SQL transaction IDs.
@@ -57,6 +87,8 @@ Data Copilot Answer Synthesis operates as the final **Inference & Response Synth
 ## Getting started
 
 Initialize and validate the Pydantic v2 `SynthesisResponse` schema to parse LLM structured outputs with strict type checking.
+
+### Programmatic Pydantic v2 Validation Schema
 
 ```python
 import json
@@ -137,28 +169,61 @@ python -m data_copilot.test_prompt --model "anthropic/claude-5-1" --schema synth
 
 ## API examples
 
+### FastMCP 3.1 Synthesis Gateway Server
+Exposing answer synthesis capabilities via FastMCP 3.1 tool calls:
+
 ```python
-from data_copilot.synthesis import AnswerSynthesizer
-from data_copilot.models import SynthesisResponse
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-# Instantiate synthesizer with FastMCP 3.1 support
-synthesizer = AnswerSynthesizer(model="claude-5-1", use_fastmcp=True)
+mcp = FastMCP("Data Copilot Synthesis Server")
 
-# Generate response from SQL execution and RAG context
-execution_context = {
-    "sql_results": [{"region": "us-east-1", "cost": 142500.00}],
-    "rag_context": "Doc chunk: GPU cluster expansion approved Oct 2026."
-}
+class SynthesisRequestPayload(BaseModel):
+    query: str = Field(..., description="Original user prompt")
+    query_results_json: str = Field(..., description="Raw JSON execution results from SQL or RAG retriever")
 
-response: SynthesisResponse = synthesizer.generate(
-    user_query="What was our Q4 cloud spend and main drivers?",
-    context=execution_context
-)
+@mcp.tool()
+async def synthesize_data_answer(req: SynthesisRequestPayload, ctx: Context) -> SynthesisResponse:
+    """Synthesizes query execution results into a verified structured payload."""
+    ctx.info(f"Synthesizing data response for query: {req.query}")
 
-print(f"Synthesis Confidence: {response.confidence_score}")
-if response.needs_human_review:
-    print("Low confidence response - Routing to HITL Review Dashboard.")
+    return SynthesisResponse(
+        answer_summary="Q4 Revenue increased 15% YoY.",
+        key_metrics=[DataPoint(label="Revenue", value=1500000.0, unit="USD")],
+        explanation="SQL aggregation shows strong enterprise subscription growth.",
+        sources=[SourceCitation(type="SQL", id="q4_rev_query", description="Revenue table")],
+        confidence_score=0.98,
+        assumptions=[],
+        recommended_actions=["Maintain growth trajectory."],
+        needs_human_review=False
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Hardening & Error Recovery
+
+### Schema Version Migration Policy
+When extending answer synthesis schemas across minor releases, implement strict backward compatibility wrappers so client applications reading legacy cached synthesis responses do not fail validation:
+
+```python
+def load_legacy_synthesis_payload(raw_data: dict) -> SynthesisResponse:
+    """Provides default values for newly added schema fields."""
+    if "needs_human_review" not in raw_data:
+        raw_data["needs_human_review"] = raw_data.get("confidence_score", 1.0) < 0.50
+    return SynthesisResponse.model_validate(raw_data)
+```
+
+## Troubleshooting & Common Issues
+
+| Failure Mode | Underlying Root Cause | Resolution & Remediation |
+| :--- | :--- | :--- |
+| **`ValidationError: confidence_score`** | Model returned non-numeric confidence value (e.g. `"high"` instead of `0.95`). | Ensure system prompt explicitly defines `confidence_score` as a float between `0.0` and `1.0`. |
+| **Uncited Numerical Claims** | Model extracted a metric in `answer_summary` but failed to append to `sources`. | Enforce pydantic field validator checking that `sources` length is `>= 1` when `key_metrics` is non-empty. |
+| **Spurious Human Review Triggers** | Model under-estimating confidence on long-tail SQL schemas. | Re-calibrate system prompt confidence guidelines or lower threshold limit to `0.40`. |
+| **FastMCP Tool Serialization Error** | Nested Pydantic model failing to convert to FastMCP schema dictionary. | Call `.model_dump()` explicitly prior to returning dictionary payloads in MCP tool handlers. |
 
 ## Related tools / concepts
 - [Data Copilot Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md) — Base SQL generation framework.

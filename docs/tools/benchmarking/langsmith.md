@@ -5,6 +5,29 @@ LangSmith is a unified platform for debugging, testing, evaluating, and monitori
 
 ## Control Plane & Telemetry Architecture
 
+```
++-----------------------------------------------------------------------------------+
+|                         LangSmith Telemetry Infrastructure                        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | FastMCP 3.1 Agent Server  |        |  Frontier Models (GPT-5.6 / Claude 5.6) |  |
+|  +-------------+-------------+        +--------------------+--------------------+  |
+|                |                                           |                      |
+|                | Batch Traces (gRPC / HTTPS)               | Eval Feedback        |
+|                v                                           v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | LangSmith Ingestion Edge  +------->+ ClickHouse High-Throughput OLAP Engine  |  |
+|  +---------------------------+        +--------------------+--------------------+  |
+|                                                            |                      |
+|                                                            v                      |
+|  +---------------------------+        +-----------------------------------------+  |
+|  | LangSmith Fleet Controller+<-------+ Polly Assistant & Golden Regression     |  |
+|  +---------------------------+        +-----------------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 graph TD
     A[Agent Application / FastMCP Server] -->|Trace Event Batch| B[LangSmith Collector]
@@ -19,6 +42,17 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 
 ## Where it fits in the stack
 **Benchmarking / Observability**. It is the primary tool for managing the lifecycle of LLM applications from prototype to production.
+
+## Feature & Observability Platform Comparison Matrix
+
+| Capability / Feature | LangSmith | AgentOps | Promptfoo | Braintrust |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | SaaS / Self-Hosted Enterprise | Cloud Observability | CLI / Local Test Suite | Cloud / Enterprise Self-Host |
+| **Tracing Engine** | ClickHouse Distributed OLAP | Real-Time WebSocket | Static File / CI Output | PostgreSQL / DuckDB OLAP |
+| **FastMCP 3.1 Integration** | Native Task & Tool Tracing | Partial Agent Hook | Custom MCP Plugin | MCP Gateway Integration |
+| **LLM-as-a-Judge Support** | Native Golden Datasets | Custom Evaluators | Assertion-Based Rules | Custom Scorer Functions |
+| **Fleet Orchestration** | Supported (LangSmith Deployment) | Monitoring Only | Not Supported | CI/CD Pipeline Native |
+| **Cost & Latency Tracking** | Token-Level Granularity | Session-Level Granularity | Test-Run Granularity | Token & API Tier Level |
 
 ## Typical use cases
 - **Debugging Agent Loops**: Inspecting intermediate steps and tool calls to find where an agent "stalls" or fails.
@@ -190,6 +224,46 @@ def validate_eval_payload(raw_json: str) -> Optional[LangSmithEvalRun]:
         print(f"Validation failed: {e.errors()}")
     return None
 ```
+
+## Production Hardening & Operational Safety
+
+### Sampling & Rate Controls
+When operating at high concurrency (10,000+ agent steps/min), sending full trace payloads for every single execution can saturate network egress and incur unexpected telemetry storage costs. Implement dynamic trace sampling:
+
+```python
+import os
+import random
+
+def configure_dynamic_tracing(sample_rate: float = 0.1):
+    """Enables tracing conditionally based on a probabilistic sample rate or error states."""
+    if random.random() < sample_rate:
+        os.environ["LANGSMITH_TRACING"] = "true"
+    else:
+        os.environ["LANGSMITH_TRACING"] = "false"
+```
+
+### Data Redaction & Privacy Guardrails
+Ensure PII (Personally Identifiable Information) and sensitive API tokens are masked before traces hit external telemetry ingest endpoints:
+
+```python
+from langsmith.client import Client
+
+def sanitize_trace_inputs(inputs: dict) -> dict:
+    sanitized = inputs.copy()
+    for key in ["api_key", "ssn", "credit_card"]:
+        if key in sanitized:
+            sanitized[key] = "[REDACTED]"
+    return sanitized
+```
+
+## Troubleshooting & Common Issues
+
+| Issue / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` on trace export | Invalid or expired `LANGSMITH_API_KEY`. | Verify the key format begins with `ls__` and is exported in the runtime environment. |
+| Missing child trace nodes in async agent loops | Loss of context propagation across `asyncio.gather`. | Wrap async tasks using `langsmith.run_helpers.traceable` with explicit parent run context. |
+| High trace submission latency / worker lag | Synchronous export blocking the event loop. | Set `LANGSMITH_BACKGROUND_THREAD=true` to process trace exports asynchronously. |
+| Evaluator timeout on large datasets | Golden dataset test cases exceeding LLM-as-a-judge timeout. | Adjust evaluation batch size or increase judge model timeout in the evaluation runner configuration. |
 
 ## Related tools / concepts
 - [Promptfoo](promptfoo.md) — Open-source evaluation CLI.

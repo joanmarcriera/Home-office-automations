@@ -21,11 +21,6 @@
   "docs_with_code_examples": 598,
   "docs_without_code_examples": 0,
   "shallow_docs": [
-    "docs/tools/providers/microsoft-graph.md",
-    "docs/tools/benchmarking/langsmith.md",
-    "docs/tools/calendar_tasks/calendly.md",
-    "docs/tools/process_understanding/snowflake.md",
-    "docs/tools/infrastructure/livekit.md",
     "docs/tools/infrastructure/mlx.md",
     "docs/tools/providers/aws-bedrock.md",
     "docs/tools/benchmarking/swe-bench.md",
