@@ -122,7 +122,7 @@ The table below illustrates Cohere's capabilities against primary enterprise pro
 To start using Cohere, install the official Python SDK and Pydantic v2:
 
 ```bash
-pip install cohere pydantic httpx
+pip install cohere pydantic mcp
 ```
 
 Initialize the client and run a basic chat completion:
@@ -222,17 +222,18 @@ for res in results.results:
     print(f"Index: {res.index}, Doc: {res.document['text']}, Score: {res.relevance_score:.4f}")
 ```
 
-### Structured Output and Schema Validation (Pydantic v2)
-This production example demonstrates how to parse and strictly validate structured responses from Cohere's API using **Pydantic v2** and FastMCP 3.1 integration patterns.
+### FastMCP 3.1 Structured Output and Schema Validation (Pydantic v2)
+This production example demonstrates how to parse and strictly validate structured responses from Cohere's API using **Pydantic v2** within a FastMCP 3.1 tool server endpoint.
 
 ```python
 import os
 import json
 import cohere
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import List, Optional
+from typing import List
+from mcp.server.fastmcp import FastMCP
 
-# Initialize the Cohere client
+mcp = FastMCP("CohereRagServer", version="3.1.0")
 co = cohere.Client(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
 class GroundedFact(BaseModel):
@@ -251,28 +252,35 @@ class FactExtractionResult(BaseModel):
     topic: str
     facts: List[GroundedFact]
 
-try:
-    # Call the chat endpoint requesting JSON output format
-    response = co.chat(
-        model="command-r-plus",
-        message=(
-            "Extract key facts regarding Cohere Command R+ specifications. "
-            "Respond ONLY with a JSON object matching the FactExtractionResult model structure."
-        ),
-        response_format={"type": "json_object"}
-    )
+@mcp.tool()
+def extract_grounded_facts(topic_prompt: str) -> dict:
+    """FastMCP tool endpoint that invokes Command R+ and validates structured JSON with Pydantic v2."""
+    try:
+        response = co.chat(
+            model="command-r-plus",
+            message=(
+                f"Extract key facts regarding {topic_prompt}. "
+                "Respond ONLY with a JSON object matching the FactExtractionResult model structure."
+            ),
+            response_format={"type": "json_object"}
+        )
 
-    # Parse and validate strictly using Pydantic v2
-    data = json.loads(response.text)
-    validated_result = FactExtractionResult.model_validate(data)
-    print(f"Topic: {validated_result.topic}")
-    for fact in validated_result.facts:
-        print(f"- Fact: {fact.statement} (Score: {fact.confidence})")
+        data = json.loads(response.text)
+        validated_result = FactExtractionResult.model_validate(data)
+        return {
+            "status": "success",
+            "topic": validated_result.topic,
+            "fact_count": len(validated_result.facts),
+            "facts": [f.model_dump() for f in validated_result.facts]
+        }
+    except ValidationError as e:
+        return {"status": "validation_error", "errors": e.errors(include_url=False)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
-except ValidationError as e:
-    print(f"Pydantic validation failed: {e.json()}")
-except Exception as e:
-    print(f"Cohere request failed: {e}")
+if __name__ == "__main__":
+    result = extract_grounded_facts("Cohere Command R+ specifications")
+    print(f"FastMCP Extraction Result: {result}")
 ```
 
 ## Related tools / concepts
@@ -295,5 +303,5 @@ except Exception as e:
 - [FastMCP 3.1 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high

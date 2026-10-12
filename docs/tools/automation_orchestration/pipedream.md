@@ -160,12 +160,15 @@ pd test my_component.js --event payload.json
 
 ## API examples
 
-### Python Webhook & State Validation (Pydantic v2)
-In modern serverless integrations, validating dynamic state and external webhooks is critical to prevent cascading agent failures. This Python example runs inside a Pipedream step, executing strict **Pydantic v2** validation on incoming event objects and stateful data stores.
+### Python Webhook & FastMCP 3.1 State Validation (Pydantic v2)
+In modern serverless integrations, validating dynamic state and external webhooks is critical to prevent cascading agent failures. This Python example runs inside a Pipedream step or FastMCP tool server, executing strict **Pydantic v2** validation on incoming event objects and stateful data stores.
 
 ```python
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("PipedreamWorkflowServer", version="3.1.0")
 
 # Define the incoming event validation schema
 class WebhookTriggerEvent(BaseModel):
@@ -187,43 +190,44 @@ class StatefulWorkflowContext(BaseModel):
     run_count: int = Field(default=0, ge=0, description="Invocation counter")
     last_processed_id: Optional[str] = Field(None, description="Last event ID processed successfully")
 
-def handler(pd: "pipedream"):
-    # 1. Ingest and validate incoming event data from Pipedream trigger step
-    raw_event = pd.steps["trigger"]["event"]
-
+@mcp.tool()
+def validate_and_process_event(raw_event: dict, state_store: dict) -> dict:
+    """FastMCP tool step executing Pipedream event parsing and KV state verification."""
     try:
         event = WebhookTriggerEvent.model_validate(raw_event)
-        print(f"Validated webhook event {event.event_id} from {event.source}")
     except ValidationError as e:
-        print(f"Trigger validation error: {e.json()}")
-        return {"status": "error", "message": "Invalid webhook payload schema"}
+        return {"status": "validation_error", "errors": e.errors(include_url=False)}
 
-    # 2. Access and validate stateful Pipedream Data Store
-    raw_store = pd.inputs["data_store"]
     state_dict = {
-        "run_count": raw_store.get("run_count", 0),
-        "last_processed_id": raw_store.get("last_processed_id", None)
+        "run_count": state_store.get("run_count", 0),
+        "last_processed_id": state_store.get("last_processed_id", None)
     }
 
     try:
         state = StatefulWorkflowContext.model_validate(state_dict)
-    except ValidationError as e:
-        print(f"Stateful store corrupted, resetting context. Errors: {e.json()}")
+    except ValidationError:
         state = StatefulWorkflowContext()
 
-    # 3. Update state parameters
     state.run_count += 1
     state.last_processed_id = event.event_id
-
-    # 4. Save state back to Pipedream Data Store
-    raw_store.put("run_count", state.run_count)
-    raw_store.put("last_processed_id", state.last_processed_id)
 
     return {
         "status": "success",
         "current_run": state.run_count,
-        "processed_event_id": state.last_processed_id
+        "processed_event_id": state.last_processed_id,
+        "source": event.source
     }
+
+if __name__ == "__main__":
+    sample_event = {
+        "event_id": "evt_998124",
+        "source": "github",
+        "payload": {"action": "push", "ref": "refs/heads/main"},
+        "timestamp": 1772500000
+    }
+    sample_store = {"run_count": 5, "last_processed_id": "evt_998123"}
+    res = validate_and_process_event(sample_event, sample_store)
+    print(f"Workflow Processing Result: {res}")
 ```
 
 ### Node.js Action with Native Fetch (FastMCP 3.1 Integrated)
@@ -266,5 +270,5 @@ export default defineComponent({
 - [Pipedream REST API Reference](https://pipedream.com/docs/api/rest/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-10-12
 - Confidence: high
-- Last reviewed: 2026-10-08

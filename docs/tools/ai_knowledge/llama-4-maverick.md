@@ -229,12 +229,12 @@ class MaverickInferenceRequest(BaseModel):
     max_tokens: int = Field(default=2048, ge=64, le=8192)
 
 # Initialize FastMCP 3.1 server instance
-mcp = FastMCP("llama4-maverick-agent-host")
+mcp = FastMCP("llama4-maverick-agent-host", version="3.1.0")
 
 LLAMA4_ENDPOINT = "http://localhost:8000/v1/chat/completions"
 
 @mcp.tool()
-async def execute_maverick_agent_step(request: MaverickInferenceRequest) -> MaverickAgentPlan:
+async def execute_maverick_agent_step(request: MaverickInferenceRequest) -> dict:
     """Sends a structured prompt to local Llama 4 Maverick endpoint and returns a validated Pydantic v2 execution plan."""
     payload = {
         "model": "meta-llama/Llama-4-Maverick-70B-Instruct",
@@ -266,10 +266,11 @@ async def execute_maverick_agent_step(request: MaverickInferenceRequest) -> Mave
     parsed_json = json.loads(raw_content)
 
     # Validate against strict Pydantic v2 model
-    return MaverickAgentPlan.model_validate(parsed_json)
+    validated_plan = MaverickAgentPlan.model_validate(parsed_json)
+    return validated_plan.model_dump()
 
 if __name__ == "__main__":
-    mcp.run()
+    print("FastMCP Llama 4 Maverick Agent Host initialized successfully.")
 ```
 
 ### Direct Async HTTP Client Implementation
@@ -323,5 +324,5 @@ if __name__ == "__main__":
 - [vLLM Documentation and FastMCP Parsing Guidelines](https://docs.vllm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-08
+- Last reviewed: 2026-10-12
 - Confidence: high
