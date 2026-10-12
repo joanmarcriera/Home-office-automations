@@ -8,6 +8,39 @@ Kiwix is an offline content reader that allows you to download and access conten
 
 Accessing reliable information usually requires an active internet connection. Kiwix solves this for environments with limited, censored, or no connectivity (e.g., remote schools, maritime vessels, disaster zones, or personal survival archives). It allows for high-speed, local searching of massive datasets without incurring data costs or relying on external infrastructure.
 
+## High-Availability Kiwix Deployment Architecture
+
+```mermaid
+flowchart TD
+    subgraph Storage ["ZIM Library Storage"]
+        ZIM1[Wikipedia Maxi .zim]
+        ZIM2[Stack Overflow .zim]
+        ZIM3[Gutenberg / TED .zim]
+    end
+
+    subgraph Service ["Kiwix Engine Cluster"]
+        KServe1[kiwix-serve Primary Container]
+        KServe2[kiwix-serve Replica Container]
+        KManage[kiwix-manage Library Sync]
+    end
+
+    subgraph Interface ["FastMCP 3.1 Gateway"]
+        MCPTool[FastMCP 3.1 Kiwix Tool Server]
+        OPDS[OPDS Catalog Router]
+    end
+
+    subgraph Agents ["Local AI Agents"]
+        Agent1[Gemma 3 / Qwen 3.8 Local Agent]
+        Agent2[Claude 5.6 / GPT-5.6 Frontier Agent]
+    end
+
+    ZIM1 & ZIM2 & ZIM3 --> KManage
+    KManage --> KServe1 & KServe2
+    KServe1 & KServe2 --> OPDS
+    KServe1 & KServe2 --> MCPTool
+    MCPTool --> Agent1 & Agent2
+```
+
 ## Where it fits in the stack
 
 **Category**: Service / Knowledge Management. It sits in the **offline knowledge and archival** layer, providing a fallback for critical information when the broader web is unavailable.
@@ -19,6 +52,15 @@ Accessing reliable information usually requires an active internet connection. K
 - **Privacy-First Research**: Browsing Wikipedia or Stack Overflow without being tracked by ISPs or site owners.
 - **Low-Bandwidth Environments**: Accessing content at LAN speeds instead of waiting for slow satellite or cellular links.
 - **Developer Documentation**: Using `devdocs2zim` to keep offline copies of programming docs (API reference, MDN, etc.).
+
+## Offline Knowledge Solution Comparison
+
+| Solution | Content Format | Search Capability | Memory Overhead | FastMCP 3.1 Integration | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Kiwix** | OpenZIM (.zim) | Built-in Xapian / FTS | Low ($\sim 200 \text{ MB}$) | Native Tool Server | Massive Static Libraries |
+| **Internet-in-a-Box**| ZIM + Local Apps | Web Search & Apps | Medium ($\sim 2 \text{ GB}$) | External Wrapper | Turnkey School Deployments |
+| **Xowa** | Custom XML/DB | Built-in Index | High ($\sim 4 \text{ GB}$) | No Native Support | Offline Wikipedia Rendering |
+| **Local RAG Vector DB**| Parquet/Chroma | Vector Embedding | High ($\sim 8 \text{ GB}$) | Native FastMCP | Semantic Agent Search |
 
 ## Strengths
 
@@ -135,7 +177,7 @@ from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP Server
-mcp = FastMCP("KiwixSearchEngine")
+mcp = FastMCP("KiwixSearchEngine", version="3.1")
 
 class SearchQuerySchema(BaseModel):
     query: str = Field(description="The terms or topic to search for in the Kiwix library")
@@ -189,6 +231,15 @@ Kiwix-serve supports the Model Context Protocol (MCP 3.1). This allows an agent 
 # Example tool call via an MCP-compliant agent
 mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
 ```
+
+## Production Hardening & Operational Safety
+- **Resource Constraints**: Limit Docker CPU and RAM usage (`--memory="1g"`) to prevent kiwix-serve from exhausting host resources when indexing massive ZIMs.
+- **Read-Only Volume Mounts**: Always mount `/data` as read-only (`-v /path/to/zims:/data:ro`) to ensure ZIM database integrity during server execution.
+- **Search Latency Optimization**: Keep ZIM index files on NVMe SSD storage for low-latency multi-threaded full-text queries.
+
+## Troubleshooting & Common Pitfalls
+- **Missing Search Index**: If full-text search returns empty results, ensure the ZIM file includes pre-indexed Xapian tables (check file extension or catalog metadata).
+- **Port Conflict Errors**: If `kiwix-serve` fails on startup, verify no other service is bound to port `8080` using `lsof -i :8080`.
 
 ## Related tools / concepts
 

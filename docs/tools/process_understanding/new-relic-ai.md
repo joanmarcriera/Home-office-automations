@@ -1,10 +1,49 @@
 # New Relic AI
 
 ## What it is
-New Relic AI (part of the New Relic Intelligent Observability platform) is a specialized, enterprise-grade observability solution for monitoring large language model (LLM) applications and multi-agentic workflows. It provides "one-click" automated visibility into AI performance, security, and quality, seamlessly integrated with the broader New Relic Application Performance Monitoring (APM) ecosystem. It is a proprietary, usage-based SaaS offering that is not self-hostable.
+New Relic AI (part of the New Relic Intelligent Observability platform) is a specialized, enterprise-grade observability solution for monitoring large language model (LLM) applications and multi-agentic workflows. It provides "one-click" automated visibility into AI performance, security, and quality, seamlessly integrated with the broader New Relic Application Performance Monitoring (APM) ecosystem. It is a proprietary, usage-based SaaS offering that is not self-hostable. As of early 2027, New Relic AI features full Model Context Protocol (FastMCP 3.1 / MCP 3.1) Task Protocol integration for conversational APM diagnostic queries.
 
 ## What problem it solves
 It addresses the distinct challenges of production AI systems, including tracking non-deterministic model outputs, identifying token inefficiencies, detecting hallucinations or prompt injections, and managing spiraling LLM costs across highly distributed providers. By uniting system-level infrastructure telemetry with complex agent-level logic, New Relic AI gives developers complete visibility into system operations, especially as complexity grows with **Claude 5.6**, **GPT-5.6**, **DeepSeek-V4**, and **Gemini 4.0 Ultra** deployments.
+
+## System Architecture & Telemetry Pipeline
+
+```mermaid
+flowchart TD
+    subgraph Client ["Agentic Application Runtime"]
+        Agent[Agent Orchestrator / LangChain]
+        MCP[FastMCP 3.1 Tool Server]
+        SDK[New Relic Python Agent]
+    end
+
+    subgraph Scrubbing ["Local Security Gate"]
+        PII[PII / Token Redaction Filter]
+        Filter[Sampling & Rate Limiter]
+    end
+
+    subgraph Cloud ["New Relic SaaS Ingestion Engine"]
+        NRDB[New Relic Telemetry Database / NRDB]
+        EvalEngine[Automated LLM Eval & Quality Scorer]
+        CostEngine[Token & Cost Attribution Module]
+    end
+
+    subgraph Observability ["UI & API Interfaces"]
+        Dashboard[APM & AI Monitoring Dashboards]
+        NRQL[NRQL Query API]
+        MCPProxy[FastMCP 3.1 Conversational Telemetry Proxy]
+    end
+
+    Agent --> SDK
+    MCP --> SDK
+    SDK --> PII
+    PII --> Filter
+    Filter -->|Secure HTTPS / OTEL| NRDB
+    NRDB --> EvalEngine
+    NRDB --> CostEngine
+    NRDB --> Dashboard
+    NRDB --> NRQL
+    NRQL --> MCPProxy
+```
 
 ## Where it fits in the stack
 **Observability / Eval**. It operates within the **Governance & Monitoring** layer of modern agentic frameworks, competing directly with enterprise platforms like [Datadog](datadog.md) and open-source or specialized alternatives such as [Grafana Cloud](grafana-cloud.md) and [Langfuse](langfuse.md).
@@ -14,6 +53,28 @@ It addresses the distinct challenges of production AI systems, including trackin
 - **Quality and Bias Analysis**: Programmatically measuring output sentiment, quality, and semantic relevance using built-in or custom NLP evaluators.
 - **Trace Visualization**: Visualizing full multi-turn agent execution runs, highlighting where slow tool calls, database fetches, or intermediate prompts introduce performance bottlenecks.
 - **Cost Management**: Granular attribution of LLM spend on a per-user, per-organization, or per-agent-task basis to manage operational margins.
+
+## Observability & APM Feature Comparison
+
+| Capability | New Relic AI | Datadog APM | Grafana Cloud | Langfuse | Arize Phoenix |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Deployment Model** | SaaS (Proprietary) | SaaS (Proprietary) | Open / Cloud SaaS | Self-Host / SaaS | Self-Host / SaaS |
+| **FastMCP 3.1 Integration** | Official Server | Custom Integration | OpenTelemetry | Plugin Adapter | Native Adapter |
+| **Infrastructure Correlation**| Full APM + Infra | Full APM + Infra | Full Metrics/Logs | AI-Focused Tracing | AI-Focused Tracing |
+| **Pydantic v2 Support** | Native Auto-Instrument | Native Support | OTel Adapter | Native Support | Native Support |
+| **Cost Attribution** | Multi-Tenant Granular | Standard Token Cost | Custom Metrics | Granular Model Cost | Model Token Cost |
+| **Zero-Code Instrumentation**| Yes (Python/Node) | Yes (DD-Trace) | Manual / OTel | Python Wrapper | OpenInference |
+
+## Telemetry Metrics Reference
+
+| Metric Name | Type | Description | Alerting Threshold Benchmark |
+| :--- | :--- | :--- | :--- |
+| `llm.response.time` | Gauge | Total round-trip duration for model generation. | $> 2500 \text{ ms}$ |
+| `llm.tokens.total` | Counter | Combined prompt and completion token volume. | $> 8000 \text{ tokens/req}$ |
+| `llm.prompt.tokens` | Counter | Input context token overhead. | Track for cost spikes |
+| `llm.completion.tokens` | Counter | Output generation token count. | Monitor for runaway loops |
+| `llm.error.rate` | Percentage | Proportion of failed API requests (4xx/5xx). | $> 2.0\%$ |
+| `llm.tool_call.latency` | Gauge | Duration of FastMCP 3.1 tool execution. | $> 1000 \text{ ms}$ |
 
 ## Strengths
 - **Low-Configuration Setup**: Automatic, zero-code instrumentation for major developer libraries including [LangChain](../ai_knowledge/langchain.md) and [LlamaIndex](../ai_knowledge/llamaindex.md).
@@ -41,7 +102,7 @@ It addresses the distinct challenges of production AI systems, including trackin
 For Python application monitoring, install the latest New Relic agent package along with Pydantic v2:
 
 ```bash
-pip install newrelic pydantic
+pip install newrelic pydantic requests
 ```
 
 ### Basic Configuration
@@ -135,7 +196,7 @@ if __name__ == "__main__":
     print(f"Executing monitored LangChain call with model: {cfg.model_name}")
 ```
 
-### Querying Metrics via NRQL
+### Querying Metrics via NRQL with Pydantic v2
 Use Python to execute custom New Relic Query Language (NRQL) requests to audit model performance programmatically:
 
 ```python
@@ -160,7 +221,7 @@ def query_telemetry_metrics(config: NRQLQueryConfig) -> dict:
     }
     params = {"nrql": config.query}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=10)
     return response.json()
 
 
@@ -172,6 +233,53 @@ if __name__ == "__main__":
     )
     print(f"NRQL query configured for account: {cfg.account_id}")
 ```
+
+### FastMCP 3.1 Telemetry Query Server Implementation
+Expose New Relic AI APM metrics as a FastMCP 3.1 tool for agent self-debugging and operational introspection:
+
+```python
+import json
+import requests
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("NewRelicTelemetryMCP", version="3.1")
+
+class TelemetryQueryRequest(BaseModel):
+    account_id: str = Field(..., description="New Relic Account ID")
+    api_key: str = Field(..., description="NRAK API Query Key")
+    time_window_minutes: int = Field(default=60, ge=5, le=1440, description="Time window for NRQL calculation")
+
+@mcp.tool(name="query_llm_latency_stats", description="Queries average LLM latency from New Relic via FastMCP 3.1.")
+def query_llm_latency_stats(request_json: str) -> str:
+    try:
+        data = json.loads(request_json)
+        req = TelemetryQueryRequest.model_validate(data)
+
+        nrql = f"SELECT average(duration), count(*) FROM Transaction WHERE appName LIKE '%Agent%' SINCE {req.time_window_minutes} MINUTES AGO"
+        url = f"https://insights-api.newrelic.com/v1/accounts/{req.account_id}/query"
+        headers = {"X-Query-Key": req.api_key, "Accept": "application/json"}
+
+        resp = requests.get(url, headers=headers, params={"nrql": nrql}, timeout=5)
+        if resp.status_code == 200:
+            return json.dumps(resp.json(), indent=2)
+        return json.dumps({"error": f"HTTP {resp.status_code}", "body": resp.text})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Hardening & Operational Safety
+- **Client-Side PII Scrubbing**: Configure regex replacement rules in `newrelic.ini` to mask user emails, payment details, and SSNs before data crosses network boundaries.
+- **Trace Sampling Rules**: Implement adaptive sampling for high-throughput LLM endpoints to stay within monthly New Relic data ingestion tiers.
+- **Dead-Letter Queue Safeguards**: Wrap APM background thread logging in non-blocking try-except blocks to ensure telemetry failure does not crash agent inference.
+
+## Troubleshooting & Common Pitfalls
+- **Missing LLM Spans**: Verify that Python agent initialization (`newrelic.agent.initialize()`) occurs prior to importing frameworks like OpenAI or LangChain.
+- **NRQL Query Rate-Limiting**: Batch query requests when requesting multi-agent transaction history to avoid hitting `429 Too Many Requests` API limits.
+- **High Ingestion Cost Spikes**: Ensure `high_security` mode or attribute exclusion lists are enabled if full prompt text logging is not required.
 
 ## Related tools / concepts
 - [Datadog](datadog.md) — Main enterprise SaaS monitoring alternative.

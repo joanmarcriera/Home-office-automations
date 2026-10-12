@@ -51,8 +51,29 @@ Evaluating code generation capabilities using Python-only benchmarks introduces 
 
 MultiPL-E solves these problems by providing automated, semantically-validated compilers and prompt translation pipelines that convert benchmark unit tests and function signatures into 18+ programming languages with isolated containerized test execution.
 
+## Supported Target Languages & Compiler Environments
+
+| Language | Target Compiler / Runtime | Translation Mechanism | Typical Execution Sandbox |
+| :--- | :--- | :--- | :--- |
+| **Rust** | `rustc` / `cargo` | AST Intermediate Mapping | Isolated OCI / Docker Container |
+| **C++** | `g++` (C++17/C++20) | Type-Coerced Parser | Docker Sandbox |
+| **TypeScript** | Node.js / `tsc` | Transpiled Declaration | Node VM Sandbox |
+| **Go** | `go test` | Idiomatic Go Synthesizer | Docker Container |
+| **Java** | OpenJDK 21 | JUnit Class Wrapper | Isolated JVM Container |
+| **Julia** | Julia Runtime | Syntax Mapper | Process Jail |
+
 ## Where it fits in the stack
 **Category**: [Benchmarking](index.md) / Multi-Language Code Evaluation. MultiPL-E serves as an evaluation framework sitting alongside single-language datasets like [MBPP](mbpp.md) and interactive harness benchmarks like [Inspect AI](inspect-ai.md) or [SWE-bench](swe-bench.md).
+
+## Benchmark Comparison Matrix
+
+| Framework | Multi-Language Support | Primary Metric | Execution Isolation | FastMCP 3.1 Native |
+| :--- | :--- | :--- | :--- | :--- |
+| **MultiPL-E** | 18+ Languages | Pass@k (1, 10, 100) | Docker / Podman | Native Tool Server |
+| **HumanEval** | Python Only | Pass@1 | In-Process Exec | Plugin Adapter |
+| **MBPP** | Python Only | Pass@1 | In-Process Exec | Plugin Adapter |
+| **SWE-bench** | Python / Polyglot Repos | Issue Resolution Rate | Full Container Repo | Native Agent Engine |
+| **LiveCodeBench**| Multi-Language Competitive| Pass@1 / Time-Limit | Container Sandbox | Native Tool Server |
 
 ## Typical use cases
 - **Frontier Model Evaluation**: Benchmarking models (e.g., Claude 5.6, GPT-5.6, Llama 4 Code, Gemini 4.0 Ultra, DeepSeek-V4) across 18+ languages to assess polyglot coding competence.
@@ -86,7 +107,7 @@ MultiPL-E solves these problems by providing automated, semantically-validated c
 ```bash
 git clone https://github.com/nuprl/MultiPL-E.git
 cd MultiPL-E
-pip install -r requirements.txt
+pip install -r requirements.txt pydantic
 ```
 
 ### 2. Generate MultiPL-E Prompts
@@ -183,6 +204,15 @@ if __name__ == "__main__":
     ]
     print(summarize_multiple_results(sample_raw))
 ```
+
+## Production Hardening & Sandbox Security
+- **Container Isolation**: Always run code evaluation inside rootless Docker/Podman containers with network isolation (`--network none`) and read-only root filesystems.
+- **Resource Limits**: Limit evaluation container memory (`--memory="512m"`) and CPU execution time (`--cpus="1.0"`) to prevent malicious or accidental infinite loops.
+- **Timeouts**: Enforce strict execution timeouts ($\le 10 \text{ seconds}$) for unit test suites across compiled targets.
+
+## Troubleshooting & Common Pitfalls
+- **Compilation Overhead Latency**: When evaluating compiled languages like C++ or Rust, pre-compile benchmark boilerplate headers or use persistent compiler daemon containers to reduce run-time latency.
+- **Missing Toolchain Dependencies**: Ensure target container images include exact compiler versions (`gcc`, `rustc`, `javac`, `go`) specified in MultiPL-E target configs.
 
 ## Related tools / concepts
 - [MBPP](mbpp.md) — Mostly Basic Python Problems dataset, one of the primary sources for MultiPL-E translation.
