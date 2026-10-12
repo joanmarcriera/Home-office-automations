@@ -37,10 +37,36 @@ It simplifies developer interaction with Microsoft services by providing a singl
 
 ## Getting started
 
-### App Registration
+To interact with Microsoft Graph programmatically, install the official Microsoft Graph SDK:
+
+```bash
+pip install msgraph-sdk azure-identity
+```
+
+### App Registration Requirements
 1. Register an application in the [Microsoft Entra admin center](https://entra.microsoft.com).
 2. Configure required API permissions (e.g., `User.Read`, `Calendars.Read`).
 3. Obtain your Client ID, Tenant ID, and Client Secret.
+
+### Hello-World Example
+```python
+import asyncio
+from msgraph import GraphServiceClient
+from azure.identity import DefaultAzureCredential
+
+async def main():
+    # Initialize client with Azure Identity credentials
+    credential = DefaultAzureCredential()
+    scopes = ['https://graph.microsoft.com/.default']
+    client = GraphServiceClient(credentials=credential, scopes=scopes)
+
+    # Retrieve current user profile
+    user = await client.me.get()
+    print(f"Hello, {user.display_name}! UPN: {user.user_principal_name}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ### FastMCP 3.1 Integration
 The fastest way to use Graph with agents is via an MCP server:
@@ -73,6 +99,13 @@ curl -X GET "https://graph.microsoft.com/v1.0/me" \
 ```bash
 curl -X GET "https://graph.microsoft.com/v1.0/me/drive/root/search(q='Project Alpha')" \
      -H "Authorization: Bearer <access_token>"
+```
+
+### Listing Joined Teams via CLI
+```bash
+curl -X GET "https://graph.microsoft.com/v1.0/me/joinedTeams" \
+     -H "Authorization: Bearer <access_token>" \
+     -H "Content-Type: application/json"
 ```
 
 ## API examples

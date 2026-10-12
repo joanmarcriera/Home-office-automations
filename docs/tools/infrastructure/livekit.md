@@ -56,6 +56,12 @@ graph TD
 
 ## Getting started
 
+Install the LiveKit Agent Framework alongside its plugin dependencies:
+
+```bash
+pip install livekit-agents livekit-plugins-silero livekit-plugins-openai pydantic mcp
+```
+
 ### Self-Hosted LiveKit Server Setup
 Deploy a local LiveKit SFU instance using Docker for development:
 
@@ -65,11 +71,18 @@ docker run --rm -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
   livekit/livekit-server:latest --dev
 ```
 
-### Python Agent Framework Installation
-Install the LiveKit Agent Framework alongside FastMCP 3.1 and Pydantic v2 support:
+### Hello-World Voice Agent Example
+```python
+import asyncio
+from livekit import agents
+from livekit.agents import JobContext, WorkerOptions, cli
 
-```bash
-pip install livekit-agents livekit-plugins-silero livekit-plugins-openai pydantic mcp
+async def entrypoint(ctx: JobContext):
+    await ctx.connect()
+    print(f"Agent successfully connected to room: {ctx.room.name}")
+
+if __name__ == "__main__":
+    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))
 ```
 
 ## CLI examples
@@ -95,6 +108,16 @@ livekit-cli join-room \
   --api-secret secret \
   --room agent-demo-room \
   --identity benchmark-bot
+```
+
+### Listing Active Rooms
+Query active rooms hosted on a LiveKit instance:
+
+```bash
+livekit-cli list-rooms \
+  --url ws://localhost:7880 \
+  --api-key devkey \
+  --api-secret secret
 ```
 
 ## API examples
