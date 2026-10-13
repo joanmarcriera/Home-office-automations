@@ -15,6 +15,125 @@ Managing and executing developer workflows on a local or remote host usually req
 - **Remote Systems Administration**: Running shell tasks, managing backups, and editing configuration files via secure messaging bots (Telegram, Discord, Slack) connected to the host machine.
 - **Multimodal Web Scraping & Automation**: Instructing an agent to navigate websites, handle authentication, fill out forms, and capture screenshots using an automated browser.
 
+---
+
+## Architecture & Workstation Control Loop
+
+`cptr` sits as an orchestration layer between frontier models and host system execution subsystems (terminal, filesystem, browser automation, git engine).
+
+```
++-----------------------------------------------------------------------------------+
+|                            MOBILE BROWSER / CLIENT SURFACE                        |
+|  +-----------------------+   +-----------------------+   +---------------------+  |
+|  |  Terminal / PTY View  |   | Visual Git Staging    |   | Browser Canvas View |  |
+|  +-----------+-----------+   +-----------+-----------+   +----------+----------+  |
++--------------|---------------------------|--------------------------|-------------+
+               | (WebSocket / PTY)         | (REST API)               | (CDP Stream)
+               v                           v                          v
++-----------------------------------------------------------------------------------+
+|                        OPEN WEBUI COMPUTER (cptr Runtime)                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Tool Gateway Engine & Security Guardrails                         |  |
+|  |  +-------------------+   +--------------------+   +----------------------+  |  |
+|  |  | PTY Shell Handler |   | File System Agent  |   | Headless Browser CDP |  |  |
+|  |  +---------+---------+   +---------+----------+   +----------+-----------+  |  |
+|  +------------|-----------------------|-------------------------|--------------+  |
++---------------|-----------------------|-------------------------|-----------------+
+                |                       |                         |
+                v                       v                         v
++-----------------------------------------------------------------------------------+
+|                            HOST OPERATING SYSTEM                                  |
+|  +-------------------+       +-------------------+       +---------------------+  |
+|  | Bash / Zsh Shell  |       | Host Filesystem   |       | Chromium / WebKit   |  |
+|  +-------------------+       +-------------------+       +---------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+### Workstation Controller Comparison Matrix
+
+| Feature / Dimension | Open WebUI Computer (`cptr`) | Claude Computer Use | AutoGPT Workspace | OpenInterpreter |
+| :--- | :--- | :--- | :--- | :--- |
+| **Interface Type** | Web / Mobile Native | API / Container Frame | Web Dashboard | Terminal CLI |
+| **Execution Surface** | Direct Host / Container | Docker Sandbox | Virtual Sandbox | Direct Host Shell |
+| **Mobile Optimization**| Native Touch / Gestures | Desktop Stream | Basic Responsive | N/A (Terminal) |
+| **FastMCP 3.1 Support**| Native Core Integration| Via MCP Connectors | Custom Adapters | Plugin Modules |
+| **API Proxy Interface**| OpenAI `/v1/chat` | Anthropic Messages API | Custom REST API | Python Function API |
+
+---
+
+## FastMCP 3.1 Production Implementation & Pydantic v2 Schema
+
+Below is a complete, runnable **FastMCP 3.1** server that exposes workstation control tools to `cptr` with strict **Pydantic v2** validation parameters.
+
+```python
+import os
+import asyncio
+import subprocess
+from typing import Dict, Any, Optional
+from datetime import datetime, timezone
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    title="Open WebUI Computer FastMCP Gateway",
+    version="3.1.0",
+    description="FastMCP 3.1 tool server for cptr workstation control and terminal execution."
+)
+
+# Pydantic v2 Schema Declarations
+class ShellExecutionRequest(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation UUID.")
+    command: str = Field(..., min_length=2, max_length=1000, description="Shell command to run.")
+    working_directory: str = Field(default="/workspace", description="Directory context for execution.")
+    timeout_seconds: int = Field(default=30, ge=1, le=300, description="Execution timeout limit in seconds.")
+
+class ShellExecutionResult(BaseModel):
+    task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation UUID.")
+    exit_code: int = Field(..., description="Process exit code.")
+    stdout: str = Field(default="", description="Captured standard output.")
+    stderr: str = Field(default="", description="Captured standard error.")
+    executed_at: str = Field(..., description="ISO timestamp of command completion.")
+
+# FastMCP 3.1 Server Tools
+@mcp.tool(
+    name="cptr_execute_shell",
+    description="Executes a shell command on the cptr host workstation with Pydantic v2 validation."
+)
+async def cptr_execute_shell(request: ShellExecutionRequest) -> ShellExecutionResult:
+    try:
+        proc = await asyncio.create_subprocess_shell(
+            request.command,
+            cwd=request.working_directory,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout_data, stderr_data = await asyncio.wait_for(
+            proc.communicate(),
+            timeout=float(request.timeout_seconds)
+        )
+        return ShellExecutionResult(
+            task_id=request.task_id,
+            exit_code=proc.returncode if proc.returncode is not None else -1,
+            stdout=stdout_data.decode("utf-8", errors="replace"),
+            stderr=stderr_data.decode("utf-8", errors="replace"),
+            executed_at=datetime.now(timezone.utc).isoformat()
+        )
+    except asyncio.TimeoutError:
+        return ShellExecutionResult(
+            task_id=request.task_id,
+            exit_code=124,
+            stdout="",
+            stderr=f"Command execution timed out after {request.timeout_seconds} seconds.",
+            executed_at=datetime.now(timezone.utc).isoformat()
+        )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+---
+
 ## Strengths
 - **Persistent Sessions**: Terminal processes and agent execution keep running in the background even if the browser tab is closed or disconnected.
 - **Mobile-First Design**: A responsive interface crafted specifically for touch inputs, swipe gestures, and portrait layouts.
@@ -27,6 +146,8 @@ Managing and executing developer workflows on a local or remote host usually req
 - **High Resource Requirements**: Running browser automation, local inference, or background agent pipelines simultaneously requires substantial CPU, GPU, and VRAM resources.
 - **Security Warning**: Exposing the instance to the public internet without secure VPN/tunnels (like Tailscale) or proper JWT/credential guards poses a major security hazard.
 
+---
+
 ## When to use it
 - When you need a lightweight, self-hosted, web-accessible development workspace that works beautifully on mobile screens.
 - When orchestrating complex agentic tasks where the AI must have direct read/write access to files and local terminal environments.
@@ -36,6 +157,8 @@ Managing and executing developer workflows on a local or remote host usually req
 - If multiple untrusted users require access to the same container/machine (due to the lack of strict tenant sandboxing).
 - If you are operating under highly locked-down security compliance constraints where local shell execution by AI is strictly prohibited.
 - For purely conversational AI workflows that do not require tool calling or local file/command execution.
+
+---
 
 ## Getting started
 
@@ -73,6 +196,26 @@ volumes:
   cptr-data:
 ```
 
+---
+
+## Operational Hardening, Deployment & Troubleshooting
+
+### Operational Safety & Security Guidelines
+1. **Network Perimeter Protection**: Never expose `cptr` port 8000 directly to the public internet without passing through a VPN mesh (like [Tailscale](../../services/tailscale.md) or [Headscale](../../services/headscale.md)) or an authenticating reverse proxy (Traefik / Authelia).
+2. **FileSystem Jail Scoping**: Set `working_dir` in Docker Compose explicitly to `/workspace` and avoid mounting host root `/` or sensitive directories (`/etc`, `~/.ssh`).
+3. **Execution Timeouts**: Enforce mandatory tool call execution timeouts (defaulting to <= 30 seconds) within FastMCP 3.1 wrappers to prevent runaway processes from seizing host CPU threads.
+
+### Troubleshooting Guide
+
+| Issue / Error | Root Cause | Remediation Command / Solution |
+| :--- | :--- | :--- |
+| `Permission denied: /workspace` | Host directory permissions mismatch in Docker volume | Run `chown -R 1000:1000 /home/user/workspace` on host |
+| `Browser automation crash (CDP error)` | Missing Chromium dependencies inside container | Rebuild image or run `apt-get install -y chromium-driver` |
+| `FastMCP Tool Call Failed` | Agent passed invalid arguments to workstation tool | Verify request structure with Pydantic v2 validator schema |
+| `Terminal PTY Connection Reset` | WebSocket connection blocked by reverse proxy | Enable WebSocket upgrade headers (`Upgrade`, `Connection`) in proxy |
+
+---
+
 ## CLI examples
 The `cptr` CLI command provides simple administration controls:
 
@@ -86,6 +229,8 @@ cptr run --log-level debug --log-format json
 # Use uvx to run cptr instantly without permanent global installation
 uvx cptr@latest run
 ```
+
+---
 
 ## API examples
 
@@ -162,6 +307,8 @@ if __name__ == "__main__":
         pass
 ```
 
+---
+
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md) — The main parent conversational user interface that can integrate `cptr` as a gateway backend.
 - [Ollama](../../services/ollama.md) — Local LLM runner to serve models like Gemma 4 and DeepSeek-V4 directly to your agent.
@@ -172,10 +319,14 @@ if __name__ == "__main__":
 - [CliHub](clihub.md) — Unified CLI tooling platform for consolidating command interfaces.
 - [Tailscale](../../services/tailscale.md) — Secure overlay mesh network to safely access your workstation from anywhere in the world.
 
+---
+
 ## Sources / References
 - [GitHub: Open WebUI Computer](https://github.com/open-webui/computer)
 - [Official Documentation: Open WebUI Computer Integration](https://docs.openwebui.com/ecosystem/computer/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/introduction)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

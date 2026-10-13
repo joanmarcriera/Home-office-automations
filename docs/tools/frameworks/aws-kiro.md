@@ -15,6 +15,125 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 - **Agent Capabilities Negotiation**: Determining at startup whether a newly connected agent supports terminal commands, multi-file editing, or search filters under FastMCP 3.1 Task Protocol definitions.
 - **Bidirectional Terminal Streaming**: Creating a secure, buffered pipe to stream interactive terminal states and user approvals between editors and autonomous agents.
 
+---
+
+## Architecture & Decoupled Transport Flow
+
+AWS Kiro introduces a bidirectional, JSON-RPC 2.0 communication bus between host IDE clients and remote/local agent runtime engines.
+
+```
++-----------------------------------------------------------------------------------+
+|                            EDITOR HOST APPLICATION                                |
+|  +-----------------------+   +-----------------------+   +---------------------+  |
+|  |  VS Code / Cursor UI  |   | Terminal Panel / PTY  |   | File Diff Viewer    |  |
+|  +-----------+-----------+   +-----------+-----------+   +----------+----------+  |
++--------------|---------------------------|--------------------------|-------------+
+               | (capabilities)            | (terminal stream)        | (file patch)
+               v                           v                          v
++-----------------------------------------------------------------------------------+
+|                           AWS KIRO PROTOCOL TRANSPORT LAYER                       |
+|  +-----------------------------------------------------------------------------+  |
+|  | Kiro JSON-RPC 2.0 Message Router & Capabilities Handshake Engine             |  |
+|  |  +--------------------------------+   +----------------------------------+  |  |
+|  |  | Workspace Capabilities Schema  |   | FastMCP 3.1 Task Protocol Bridge |  |  |
+|  |  +---------------+----------------+   +----------------+-----------------+  |  |
+|  +------------------|-------------------------------------|--------------------+  |
++---------------------|-------------------------------------|-----------------------+
+                      |                                     |
+                      v                                     v
++-----------------------------------------------------------------------------------+
+|                             BACKEND AGENT RUNTIME                                 |
+|  +-------------------+       +-------------------+       +---------------------+  |
+|  | LLM Planning Engine       | Tool Execution Loop |    | Vector Memory Index |  |
+|  +-------------------+       +-------------------+       +---------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+### Agent Client Protocol Comparison Matrix
+
+| Feature / Dimension | AWS Kiro Protocol | Language Server Protocol (LSP) | MCP 3.1 / FastMCP | Custom IDE Plugin API |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | AI Agent <-> Editor Transport| Code Intelligence / AST | LLM <-> External Tools | Specific Editor UI |
+| **Protocol Foundation** | JSON-RPC 2.0 | JSON-RPC 2.0 | JSON-RPC 2.0 / SSE | Native JS / Lua / Python |
+| **Agent Capability Negotiation**| Native Built-in | Dynamic Capabilities | Server Info Tools | Static Package Manifest |
+| **Terminal Sync** | Bidirectional Stream | N/A | Exposed as Tools | Direct Native PTY |
+| **Multi-Editor Portability**| High (Universal) | High (Universal) | High (Universal) | Low (Single Editor) |
+
+---
+
+## FastMCP 3.1 Production Implementation & Pydantic v2 Schema
+
+Below is a complete, runnable **FastMCP 3.1** server that implements the **AWS Kiro** handshake and message routing specification with strict **Pydantic v2** models.
+
+```python
+import json
+import asyncio
+from typing import Dict, Any, Optional
+from datetime import datetime, timezone
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    title="AWS Kiro Protocol Gateway",
+    version="3.1.0",
+    description="FastMCP 3.1 server handling AWS Kiro client initialization and tool execution."
+)
+
+# Pydantic v2 Schema Declarations
+class WorkspaceCapabilities(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    file_edit: bool = Field(default=False, alias="fileEdit", description="Whether the host supports direct file editing")
+    terminal_exec: bool = Field(default=False, alias="terminalExec", description="Whether the host supports terminal execution")
+    user_approval_required: bool = Field(default=True, alias="userApprovalRequired", description="Whether user confirmation is required")
+    fastmcp_task_support: bool = Field(default=True, alias="fastmcpTaskSupport", description="Support for FastMCP 3.1 Task Protocol")
+
+class KiroInitializeParams(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    task_id: str = Field(..., alias="taskId", description="FastMCP 3.1 correlation identifier")
+    client_name: str = Field(..., alias="clientName", description="Name of the editor host application")
+    protocol_version: str = Field(default="1.1.0", alias="protocolVersion", description="Kiro protocol version")
+    capabilities: WorkspaceCapabilities = Field(..., description="Workspace capabilities supported by host")
+
+class KiroInitializeResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    task_id: str = Field(..., alias="taskId")
+    agent_name: str = Field(..., alias="agentName")
+    status: str = Field(..., description="Negotiation status ('ready', 'unsupported')")
+    negotiated_capabilities: WorkspaceCapabilities = Field(..., alias="negotiatedCapabilities")
+    timestamp: str = Field(..., description="ISO completion timestamp")
+
+# FastMCP 3.1 Server Tools
+@mcp.tool(
+    name="kiro_initialize_handshake",
+    description="Processes an AWS Kiro client handshake and negotiates capabilities."
+)
+async def kiro_initialize_handshake(params: KiroInitializeParams) -> KiroInitializeResult:
+    # Negotiate capabilities: Ensure agent matches host settings
+    negotiated = WorkspaceCapabilities(
+        fileEdit=params.capabilities.file_edit,
+        terminalExec=params.capabilities.terminal_exec,
+        userApprovalRequired=True,
+        fastmcpTaskSupport=params.capabilities.fastmcp_task_support
+    )
+
+    return KiroInitializeResult(
+        taskId=params.task_id,
+        agentName="AWS-Kiro-Agentic-Pro",
+        status="ready",
+        negotiatedCapabilities=negotiated,
+        timestamp=datetime.now(timezone.utc).isoformat()
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+---
+
 ## Strengths
 - **Clean Decoupling**: Fully separates the developer interface from complex, compute-heavy agent logical loops.
 - **JSON-RPC Foundation**: Utilizes lightweight, battle-tested transport specifications for fast message passing and easy debugging.
@@ -26,6 +145,8 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 - **Fringe Terminal Features**: Highly interactive or stateful custom terminal applications can be complex to sync via JSON-RPC.
 - **Slight Transport Overhead**: For extremely fast local operations, Kiro's serialization can add negligible microseconds compared to direct subprocess calls.
 
+---
+
 ## When to use it
 - When you are developing a coding or debugging agent and want to ensure it is immediately compatible with multiple IDEs and code editors.
 - When building a distributed developer stack where the AI agent runs on powerful cloud clusters while the developer uses a local IDE.
@@ -35,6 +156,8 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 - When building a completely closed, proprietary developer assistant that is permanently coupled to a single, proprietary interface.
 - For simple, non-interactive scripting agents that only require a one-way CLI execution flow and do not sync file state.
 - In highly resource-constrained embedded microcontrollers where JSON-RPC serialization overhead cannot be tolerated.
+
+---
 
 ## Getting started
 1. **Add AWS Kiro to your codebase**: Install the official runtime package:
@@ -63,6 +186,26 @@ Historically, AI software engineering agents were tightly-coupled to specific en
    }
    ```
 
+---
+
+## Operational Hardening, Deployment & Troubleshooting
+
+### Operational Safety & Security Guidelines
+1. **Enforce Approval Boundaries**: Set `userApprovalRequired: true` by default in all Kiro handshake configurations for terminal commands and file destructive actions (`git reset`, `rm -rf`).
+2. **Transport Encryption**: For remote Kiro connections (e.g., local IDE connecting to remote cloud agent), route JSON-RPC traffic over TLS or an SSH tunnel (`ssh -L 9090:localhost:9090 user@remote-agent-host`).
+3. **Sanitize Messages**: Enforce JSON schema validation via Pydantic v2 before processing incoming RPC payloads to prevent remote execution exploits or buffer overruns.
+
+### Troubleshooting Guide
+
+| Issue / Error | Root Cause | Remediation Command / Solution |
+| :--- | :--- | :--- |
+| `JSON-RPC error -32600: Invalid Request` | Malformed RPC message structure | Validate request payload against `KiroInitializeParams` schema |
+| `Handshake Timeout (9090 Unreachable)` | Kiro backend agent process crashed or port bound | Check port binding with `lsof -i :9090` and review server logs |
+| `Capability Mismatch: terminalExec Disabled` | Host editor rejected terminal stream capability | Set `terminalExec: false` in agent runtime configuration |
+| `FastMCP Bridge Desynchronization` | Mismatch in FastMCP 3.1 task protocol version | Upgrade `fastmcp` package to 3.1.0+ on both host and agent |
+
+---
+
 ## CLI examples
 AWS Kiro provides a diagnostic command-line runner to inspect local servers, audit capability handshakes, and debug JSON-RPC streams.
 
@@ -76,6 +219,8 @@ kiro-cli ping --url "http://localhost:9090" --handshake
 # Stream live JSON-RPC messages and event payloads for auditing
 kiro-cli stream --url "http://localhost:9090" --verbose
 ```
+
+---
 
 ## API examples
 
@@ -157,6 +302,8 @@ if __name__ == "__main__":
     print(f"Terminal Exec Support: {negotiated_state.negotiated_capabilities.terminal_exec}")
 ```
 
+---
+
 ## Related tools / concepts
 - [Cline](../agents/cline.md) — Advanced developer agent that communicates with IDEs using structured client protocols.
 - [Windsurf](../development_ops/windsurf.md) — Next-generation IDE designed with high-interoperability agent systems.
@@ -167,9 +314,13 @@ if __name__ == "__main__":
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — Architectural pattern for multi-agent knowledge engineering.
 - [AutoGen](../frameworks/autogen.md) — Conversational agent-framework benefiting from clean transport abstraction layers.
 
+---
+
 ## Sources / references
 - [Kiro Agent Client Protocol Specifications and Editor Decoupling standards](https://thenewstack.io/kiro-agent-client-protocol/)
 - [JSON-RPC 2.0 Specifications](https://www.jsonrpc.org/specification)
+
+---
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
