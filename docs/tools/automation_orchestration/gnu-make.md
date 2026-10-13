@@ -300,7 +300,7 @@ if __name__ == "__main__":
 - [n8n](../../services/n8n.md) — High-level enterprise workflow automation.
 - [Make (formerly Integromat)](make.md) — Cloud SaaS automation platform.
 - [Model Context Protocol (MCP)](mcp.md) — Standard protocol for agent tool interaction.
-- [Task](https://taskfile.dev/) — Modern YAML-based Makefile alternative.
+- [Task](taskfile.md) — Modern YAML-based Makefile alternative.
 - [Just](just.md) — Command runner focused on developer simplicity.
 - [Docker](../infrastructure/docker.md) — Standard container runtime.
 - [Claude Code](../development_ops/claude-code.md) — Anthropic CLI agent interface.
