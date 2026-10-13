@@ -9,6 +9,40 @@ Managing and executing developer workflows on a local or remote host usually req
 ## Where it fits in the stack
 **Automation & Orchestration Layer / Agentic Surface**. Open WebUI Computer serves as the bridging runtime and UI layer between frontier LLMs (via API keys or local runtimes) and the operating system's underlying shell and filesystem.
 
+## System Architecture
+
+```
+                    +------------------------------------+
+                    |  Web Browser / Mobile Client / UI  |
+                    +-----------------+------------------+
+                                      |
+                     Tailscale Mesh / HTTPS (Bearer Token)
+                                      |
+                    +-----------------v------------------+
+                    |    Open WebUI Computer Gateway    |
+                    |     (OpenAI Compatible API)        |
+                    +-----------------+------------------+
+                                      |
+                        FastMCP 3.1 Tool Transport
+                                      |
+          +---------------------------+---------------------------+
+          |                           |                           |
++---------v---------+       +---------v---------+       +---------v---------+
+| Terminal / Shell  |       | Git State Manager |       | Playwright Engine |
+| Execution Context |       |  Visual Staging   |       | Headless Browser  |
++-------------------+       +-------------------+       +-------------------+
+```
+
+## Feature & Workstation Surface Comparison Matrix
+
+| Feature / Dimension | Open WebUI Computer (`cptr`) | Claude Desktop CLI | Devin / OpenHands Workspace |
+| :--- | :--- | :--- | :--- |
+| **Interface Surface** | Mobile-First Web UI + Terminal | Desktop GUI App + CLI | Web IDE Canvas |
+| **Tool Protocol** | Native FastMCP 3.1 & SKILL.md | Native MCP Client | Proprietary / Sandbox Agent API |
+| **Deployment Model** | Self-Hosted Docker / Local Python | Local Binary Installation | Cloud Docker Container |
+| **API Server Capability**| OpenAI `/v1/chat/completions` Router | None (Client only) | REST Agent Dispatch API |
+| **Browser Automation** | Built-in Playwright Engine | Extension dependent | Built-in Browser Container |
+
 ## Typical use cases
 - **Mobile Workstation Access**: Pushing git commits, managing Docker containers, or editing source code directly from a phone or tablet.
 - **Autonomous Coding Agent Sessions**: Triggering an LLM (such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, or **Qwen 3.6 VL**) to execute local tests, read compile errors, apply code changes, and push fixes.
@@ -161,6 +195,13 @@ if __name__ == "__main__":
     except Exception as e:
         pass
 ```
+
+## Operational Security Hardening & Deployment Guidelines
+
+- **Tailscale Overlay Network**: Never expose `cptr` port `8000` directly to public IP addresses without protection. Bind the daemon to a Tailscale mesh IP (`100.x.y.z`) or localhost behind an authenticating reverse proxy.
+- **Dedicated Service User**: Run `cptr` under an unprivileged host system user account (e.g. `cptr-runner`) to limit blast radius in case of untrusted tool execution.
+- **Command Exclusion Rules**: Use workspace shell wrapper scripts to restrict dangerous destructive commands (e.g. `rm -rf /`, `dd`, `mkfs`) when allowing autonomous loop execution.
+- **FastMCP 3.1 Telemetry Auditing**: Enable JSON structured event logging (`--log-format json`) to record full prompt, shell command execution, and tool parameter history for compliance auditing.
 
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md) — The main parent conversational user interface that can integrate `cptr` as a gateway backend.

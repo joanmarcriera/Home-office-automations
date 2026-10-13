@@ -11,6 +11,41 @@ It simplifies the challenges associated with pipeline durability—including rob
 ## Where it fits in the stack
 **Orchestration / Python Workflow Engine**. It serves as the primary coordination plane, routing and scheduling tasks across local workers, Kubernetes pools, and external cloud services, bridging the reasoning capability of frontier models and raw compute nodes.
 
+## System Architecture
+
+```
+                                +-----------------------------------+
+                                |      Prefect Cloud / Server       |
+                                |       (Orchestration Engine)      |
+                                +-----------------+-----------------+
+                                                  |
+                                       FastMCP 3.1 Task Events
+                                       REST / WebSocket Protocol
+                                                  |
+                        +-------------------------+-------------------------+
+                        |                                                   |
+            +-----------v-----------+                           +-----------v-----------+
+            |  Kubernetes Work Pool |                           |   Local Process Pool  |
+            |   (Agent Worker Nodes)|                           |   (Self-Hosted Agent) |
+            +-----------+-----------+                           +-----------+-----------+
+                        |                                                   |
+            +-----------v-----------+                           +-----------v-----------+
+            |  @flow: Agent Loop    |                           |  @flow: ETL Ingestion  |
+            |  - Claude 5.6 Routing |                           |  - FastMCP 3.1 Telemetry |
+            |  - Task Retries/State |                           |  - Vector DB Indexing |
+            +-----------------------+                           +-----------------------+
+```
+
+## Feature & Tooling Comparison Matrix
+
+| Feature / Dimension | Prefect 3.1 | Apache Airflow 2.10 | Dagster 1.9 | Temporal.io | Kestra |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Paradigm** | Functional Python (`@flow`, `@task`) | Static DAG Definitions | Asset-Oriented Pipelines | Event-Sourced Workflows | Declarative YAML / Multi-Lang |
+| **Dynamic Execution** | Full native Python runtime branching | Complex Dynamic Task Mapping | Supported via Data Assets | Full native code execution | Conditional step routing |
+| **Agentic Correlation** | Built-in FastMCP 3.1 Task ID support | External plugin required | Custom metadata lineage | Custom context propagation | Custom plugin / Webhook |
+| **Infrastructure Overhead** | Minimal (Server + Process Worker) | High (Scheduler, Web, Workers, DB) | Moderate (Daemon + Web UI) | High (Temporal Server, DB, Workers) | Moderate (Server + Worker) |
+| **UI & Observability** | Real-time state graphs & log streaming | Task execution grids | Asset catalog & dependency graphs | Event history timeline | Flow execution timeline |
+
 ## Typical use cases
 - **Agentic Loop Orchestration**: Tracking, persisting, and scaling multi-turn autonomous loops where execution pathways can change based on AI reasoning.
 - **Dynamic Data Scraping & ETLa**: Managing dynamic pipelines that determine ingestion paths at runtime based on real-time feedback.
@@ -160,6 +195,14 @@ if __name__ == "__main__":
     else:
         print("Flow execution trigger or validation failed.")
 ```
+
+## Operational Best Practices & Production Hardening
+
+- **Work Pool Isolation**: Separate high-priority agent decision flows from background bulk ETL flows into distinct Work Pools (`agent-execution-pool` vs `batch-data-pool`).
+- **Secret Management**: Inject database credentials and frontier model API keys using Prefect `Secret` blocks rather than raw environment variables in source code.
+- **FastMCP 3.1 Telemetry Correlation**: Pass a unique `task_id` down into task executions to maintain multi-agent trace logs across distributed worker nodes.
+- **Postgres Storage Backend**: When self-hosting Prefect Server in production, always back the server with a dedicated PostgreSQL database instead of default SQLite.
+- **Graceful Failure Handling**: Configure `retries` and `retry_delay_seconds` on network-bound tasks, combined with custom state-change hook callbacks (`on_failure` / `on_completion`).
 
 ## Related tools / concepts
 - [Apache Airflow](apache-airflow.md) — Traditional task-based orchestrator.

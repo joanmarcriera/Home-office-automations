@@ -17,6 +17,19 @@ Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects mainte
 ## Where it fits in the stack
 This comparison sits at the **infrastructure orchestration layer**. It defines the foundation upon which all other services (n8n, Paperless-ngx, etc.) are deployed, determining how nodes are provisioned, updated, and managed within the homelab environment.
 
+## Node Architecture Topology Comparison
+
+```
++------------------------------------+      +------------------------------------+
+|  Ubuntu 26.04 K3s Host Topology   |      |  Talos OS Immutable Node Topology  |
++------------------------------------+      +------------------------------------+
+|  [ User Shell / SSH / apt / sudo ] |      |  [ API Gateway (talosctl gRPC) ]   |
+|  [ Systemd / Journald / Cron ]     |      |  [ Read-Only Squashed RootFS ]     |
+|  [ Docker / K3s Service / containerd]|     |  [ Containerd (K8s pods only) ]    |
+|  [ Linux Kernel (General Purpose) ]|      |  [ Minimalist Security-Hardened KNL]|
++------------------------------------+      +------------------------------------+
+```
+
 ## Typical use cases
 - **Evaluating Node OS**: Deciding which distribution to install on physical hardware or Proxmox VMs for a new K3s cluster.
 - **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to eliminate SSH-based attack vectors.
@@ -195,6 +208,13 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 }
 ```
 
+## Production Migration & Disaster Recovery Playbook
+
+- **Atomic Image Upgrades**: Upgrade Talos nodes without risk of broken package dependencies via `talosctl upgrade --nodes <ip> --image ghcr.io/siderolabs/installer:v1.10.0`.
+- **etcd Snapshot Automation**: Schedule nightly automated etcd snapshots directly to S3 or local NFS backends before initiating OS updates.
+- **Node Reset Procedure**: To repurpose or recover a compromised worker node, issue `talosctl reset --nodes <ip> --graceful=false` to immediately wipe ephemeral partitions and return to clean PXE/installer state.
+- **Hardware Acceleration Driver Injection**: For GPU-assisted workloads (DeepSeek-V4, Qwen 3.6 VL), build custom Talos installer images containing system extensions (`siderolabs/nvidia-container-toolkit`).
+
 ## Related tools / concepts
 - [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying K8s cluster management.
 - [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical deployment guide.
@@ -202,9 +222,6 @@ Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster pr
 - [Ubuntu AI](../tools/infrastructure/ubuntu-ai.md) — Ubuntu configurations for AI.
 - [Infrastructure Architecture](../architecture/infrastructure.md) — High-level stack overview.
 - [Home Assistant](../services/home-assistant.md) — Running smart home tools on K3s.
-- [K3s v1.31+](../playbooks/k3s-cluster-setup.md) — Baseline for high-performance clusters.
-- [Infrastructure Architecture](../architecture/infrastructure.md) — Host infrastructure for OS instances.
-- [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — Persistent storage management.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — For agent-infrastructure interaction.
 
 ## Sources / references
