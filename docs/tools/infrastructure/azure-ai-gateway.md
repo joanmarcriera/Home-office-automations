@@ -5,6 +5,32 @@ Azure AI Gateway is an enterprise API Management (APIM) tier designed to govern,
 
 ## System Architecture
 
+```
++-----------------------------------------------------------------------------------+
+|                        AZURE AI GATEWAY CONTROL PLANE                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Client Apps &      | -> | Entra ID Auth &    | -> | Token Bucket Rate       |  |
+|  | AI Agents          |    | RBAC Verification  |    | Limit & Quota Manager   |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                   |               |
+|                                                                   v               |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Azure Monitor /    | <- | FastMCP 3.1        | <- | Real-Time PII & DLP     |  |
+|  | OpenTelemetry      |    | Dynamic Router     |    | Redaction Engine        |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                      |                                            |
+|                                      v                                            |
+|                +-----------------------------------------+                        |
+|                | Primary: Azure OpenAI (70%)             |                        |
+|                | Fallback: Anthropic Claude 5.6 (20%)     |                        |
+|                | Self-Hosted: DeepSeek-V4 (10%)          |                        |
+|                +-----------------------------------------+                        |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 graph TD
     subgraph Enterprise Ingress Layer
@@ -34,6 +60,16 @@ Deploying commercial generative AI introduces risks around API availability, pro
 
 ## Where it fits in the stack
 **Category**: Infrastructure / AI Gateway & API Management. It sits between application clients/agent orchestrators and upstream model providers, securing API traffic and managing execution policies.
+
+## AI Gateway Solution Comparison Matrix
+
+| Gateway Solution | Target Environment | PII / DLP Redaction | Token-Aware Rate Limiting | FastMCP 3.1 Integration | License |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Azure AI Gateway** | Azure Cloud / Hybrid | Native Azure Purview DLP | Granular Token Quotas | Native Protocol Proxy | Enterprise Commercial |
+| **Vercel AI Gateway** | Serverless / Edge | Middleware Callbacks | Request-Level Rate Limits | Custom Plugin | Commercial / Usage |
+| **Portkey** | Multi-Cloud SaaS | Regex & Custom Pipelines | Budget & Token Bucket | Native Gateway Interceptor | Commercial / Open-Core |
+| **LiteLLM Proxy** | Self-Hosted / On-Prem | Custom Guardrail Plugins | Redis Token Bucket | Middleware Adapter | Apache 2.0 |
+| **Kong AI Gateway** | Enterprise On-Prem / Cloud | Enterprise Plugin Suite | Token Rate-Limiter Plugin | External MCP Gateway | Enterprise / Open Source |
 
 ## Typical use cases
 - **Multi-Provider Load Balancing**: Distributing prompt traffic across Azure OpenAI, Anthropic, and secondary endpoints to maximize throughput and resiliency.
@@ -80,6 +116,42 @@ Deploying commercial generative AI introduces risks around API availability, pro
    </policies>
    ```
 
+## Production APIM XML Policy Configuration Pattern
+
+Below is a complete enterprise APIM inbound policy snippet for handling automated multi-backend circuit-breaker failover and PII scrubbing:
+
+```xml
+<policies>
+    <inbound>
+        <base />
+        <!-- Entra ID OAuth 2.0 Validation -->
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401">
+            <openid-config url="https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration" />
+            <required-claims>
+                <claim name="aud" match="any">
+                    <value>https://cognitiveservices.azure.com</value>
+                </claim>
+            </required-claims>
+        </validate-jwt>
+
+        <!-- PII Redaction Interceptor -->
+        <llm-content-safety mode="redact" categories="Hate,Sexual,SelfHarm,Violence,PII" />
+
+        <!-- Token Budget Enforcer -->
+        <azure-openai-token-limit counter-key="@(context.Subscription.Id)" tokens-per-minute="120000" estimate-prompt-tokens="true" />
+
+        <!-- Multi-Backend Circuit Breaker Router -->
+        <backend-pool name="llm-failover-pool">
+            <backend id="azure-openai-uswest" priority="1" />
+            <backend id="anthropic-claude-primary" priority="2" />
+        </backend-pool>
+    </inbound>
+    <backend>
+        <forward-request timeout="30" />
+    </backend>
+</policies>
+```
+
 ## CLI examples
 
 ### Registering APIM Backend
@@ -118,7 +190,7 @@ This complete Python example demonstrates fetching, parsing, and auditing token 
 
 ```python
 from typing import Optional, List
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field, ValidationError
 
 # Initialize FastMCP 3.1 Server for Azure AI Gateway Audit
@@ -160,7 +232,6 @@ def audit_gateway_telemetry(log_payload: dict) -> dict:
         return {"status": "validation_error", "errors": err.errors()}
 
 if __name__ == "__main__":
-    # Test local execution
     sample_log = {
         "gatewayId": "azure-apim-ai-westus-01",
         "clientAppId": "agent-runner-v5",
@@ -177,6 +248,21 @@ if __name__ == "__main__":
     audit_res = audit_gateway_telemetry(sample_log)
     print("FastMCP Gateway Audit Result:", audit_res)
 ```
+
+## Operational Hardening Guidelines
+- **Managed Identity Authentication**: Use Azure Managed Identities rather than static API keys to authenticate APIM backends against Key Vault and Cognitive Services.
+- **Geo-Distributed Secondary Backends**: Always configure at least two geographically distinct Azure region backends to ensure zero-downtime regional outage handling.
+- **Log Analytics Exclusions**: Scrub sensitive authorization headers and raw prompt strings from telemetry logs transmitted to Application Insights.
+- **Soft Rate Limiting Alerts**: Configure Azure Monitor metric alerts at 80% quota usage to proactively scale backend token allocations before throttling occurs.
+
+## Troubleshooting & Common Pitfalls
+
+| Symptom / Error | Possible Root Cause | Mitigation Strategy |
+| :--- | :--- | :--- |
+| `HTTP 429 Rate Limit Exceeded` | Token bucket quota exhausted for target client ID | Adjust `tokens-per-minute` in policy or enable failover pool routing |
+| `HTTP 401 Unauthorized` | Invalid Entra ID JWT or mismatched audience claim | Verify Managed Identity client ID and `cognitiveservices` audience scope |
+| `High Ingress Latency (>500ms)` | Overly complex synchronous PII or DLP regex evaluation | Optimize regex expressions and enable APIM caching layer |
+| `FastMCP Proxy Connection Refused` | Upstream FastMCP tool server unreachable or port closed | Inspect network security group (NSG) ingress rules and health probe URLs |
 
 ## Related tools / concepts
 - [Azure OpenAI](../providers/azure-openai.md) — Enterprise OpenAI service hosted on Azure.

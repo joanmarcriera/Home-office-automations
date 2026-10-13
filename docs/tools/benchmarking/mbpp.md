@@ -3,6 +3,27 @@
 ## What it is
 MBPP is a benchmark designed to evaluate the code generation performance of LLMs on basic Python tasks. It consists of approximately 1,000 crowd-sourced Python programming problems, designed to be solvable by entry-level programmers. Each problem includes a task description (prompt), a gold-standard code solution, and three automated test cases. It was introduced by Google Research in 2021 and remains an early January 2027 baseline for agentic code generation.
 
+## System Architecture & Benchmark Execution Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                        MBPP BENCHMARK EXECUTION SUITE                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | MBPP Dataset       | -> | FastMCP 3.1 Code   | -> | Target Coding LLM       |  |
+|  | (1k Python Tasks)  |    | Evaluator Server   |    | (DeepSeek / Claude 5.6) |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                   |               |
+|                                                                   v               |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Pass@1 / Pass@k    | <- | Pydantic v2        | <- | Sandboxed PyPI / Docker |  |
+|  | Score Metric Report|    | Assertion Engine   |    | Test Runner Environment |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Provides a large-scale, standardized evaluation of LLM code generation on "mostly basic" problems. While benchmarks like [HumanEval](human-eval.md) focus on algorithmic complexity, MBPP covers a broader range of fundamental programming concepts, standard library usage, and common data structure manipulations. It is a key metric for "Satisfaction-Based Validation" in early 2027 agentic software factories.
 
@@ -17,6 +38,16 @@ graph TD
     Sandbox -->|Execute Test Cases| Asserts[Assert Verifier & EvalPlus Hardening Sweep]
     Asserts -->|Pydantic v2 Score Validation| PassScore[Pass@1 / Pass@k Metric Report]
 ```
+
+## Coding Benchmark Comparison Matrix
+
+| Benchmark Suite | Total Tasks | Primary Language | Evaluation Focus | Contamination-Resistant | License |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **MBPP** | ~1,000 | Python | Entry-Level Python Mechanics | Sanitized Subset Available | Apache 2.0 |
+| **HumanEval** | 164 | Python | Algorithmic Problem Solving | High Risk (Saturated) | MIT |
+| **SWE-bench** | 2,294 | Python | Multi-File Repository Issue Fixing | High (Real GitHub Issues) | CC-BY-4.0 |
+| **LiveCodeBench** | Continuous | Multi-Language | Real-Time Contest Problems | Native Contamination-Free | Apache 2.0 |
+| **BigCodeBench** | 1,140 | Python | Complex Library Invocation & Tools | Moderate | Apache 2.0 |
 
 ## Typical use cases
 - **Model Comparison**: Measuring the `Pass@1` and `Pass@k` metrics of new models (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, Qwen 3.6 VL, DeepSeek-V4) against industry baselines.
@@ -53,7 +84,7 @@ MBPP is typically run through evaluation frameworks like the **LM Evaluation Har
 ### 1. Installation
 ```bash
 # Install via LM Evaluation Harness
-pip install "lm_eval[hf,vllm]"
+pip install "lm_eval[hf,vllm]" fastmcp pydantic
 ```
 
 ### 2. Basic Run
@@ -62,6 +93,33 @@ lm_eval --model vllm \
     --model_args pretrained=meta-llama/Llama-4-8b \
     --tasks mbpp \
     --batch_size auto
+```
+
+## Production Benchmark Harness Configuration Pattern
+
+Below is a production `mbpp_eval_harness.yaml` configuration for running parallel MBPP evaluation sweeps over a local vLLM cluster:
+
+```yaml
+version: 1
+benchmark:
+  task_name: "mbpp_sanitized"
+  num_fewshot: 3
+  limit: 500
+  temperature: 0.2
+  top_p: 0.95
+
+runtime:
+  engine: "vllm"
+  model_name: "deepseek-ai/deepseek-coder-7b-v1.5"
+  gpu_memory_utilization: 0.85
+  tensor_parallel_size: 2
+
+sandbox:
+  type: "docker"
+  image: "python:3.11-slim"
+  timeout_seconds: 5
+  memory_limit: "512m"
+  network_disabled: true
 ```
 
 ## CLI examples
@@ -204,6 +262,21 @@ results = evaluate(
 )
 print(f"EvalPlus Hardened MBPP Score: {results['pass@1']}")
 ```
+
+## Operational Hardening Guidelines
+- **Network-Disabled Container Sandboxing**: Always run code assertion tests inside unprivileged Docker containers with `--network none` to prevent arbitrary socket connections or data exfiltration.
+- **Strict Execution Timeouts**: Apply hard subprocess timeouts (e.g., 5 seconds per test) to prevent infinite loops from hanging evaluation runners.
+- **Memory Consumption Limits**: Limit container cgroups memory to <= 512 MB per sample to catch memory leaks or recursive stack overflow failures.
+- **Sanitized Data Isolation**: Prefer `mbpp_sanitized` over raw `mbpp` to eliminate ambiguous test assertions that yield false negative evaluation failures.
+
+## Troubleshooting & Common Pitfalls
+
+| Symptom / Error | Possible Root Cause | Mitigation Strategy |
+| :--- | :--- | :--- |
+| `Process Execution Hanging` | Infinite `while` loop generated by target coding model | Enforce strict timeout parameter on sandbox runner process |
+| `Inconsistent Pass@1 Score` | Non-zero temperature setting during sampling | Set `temperature=0.0` or sample `k=100` for stable `Pass@k` metrics |
+| `Container Memory OOM Kills` | Generative solution consuming excessive memory allocation | Cap max recursion depth and set container memory limit to 512MB |
+| `Assertion Error False Negatives` | Test prompt formatting mismatch in standard input | Verify system prompt template matches standard LM Evaluation Harness spec |
 
 ## Related tools / concepts
 

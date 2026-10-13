@@ -3,6 +3,28 @@
 ## What it is
 Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time. In early January 2027, this is primarily performed on state-of-the-art open weights models like **Llama 4**, **Qwen 3.8**, **DeepSeek-V4**, and **Gemma 3** using parameter-efficient techniques.
 
+## System Architecture & Pipeline
+
+```
++-----------------------------------------------------------------------------------+
+|                        OPEN MODEL FINE-TUNING PIPELINE                            |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Raw Dataset /      | -> | Synthetic Data     | -> | Pydantic v2 Dataset     |  |
+|  | Domain Transcripts |    | Distillation      |    | Schema Validator        |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                   |               |
+|                                                                   v               |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Local / Server     | <- | Adapter Fusion     | <- | Parameter-Efficient     |  |
+|  | Model Serving      |    | (Merge LoRA Weights|    | Training (Unsloth/LoRA) |  |
+|  | (vLLM / llama.cpp) |    | into Base Model)   |    |                         |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Pre-trained open models are generalist and may:
 - **Inconsistent Formatting**: Fail to follow a specific output format consistently (JSON, YAML).
@@ -14,6 +36,16 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 
 ## Where it fits in the stack
 **Model Adaptation Layer** — between the raw pre-trained base model (Layer 0) and the inference/serving infrastructure (Layer 1). Fine-tuning is an offline process; the resulting model is then served via [Ollama](../../services/ollama.md), [vLLM](../../tools/infrastructure/vllm.md), or [llama.cpp](../../tools/infrastructure/llama-cpp.md).
+
+## Fine-tuning Framework Comparison Matrix
+
+| Framework | Target Hardware | Quantization Support | Primary Advantage | FastMCP 3.1 Server Integration | License |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Unsloth** | NVIDIA GPUs (Blackwell/Hopper) | 4-bit / 8-bit QLoRA | Up to 5x faster training & 80% memory reduction | Native FastMCP Tool | Apache 2.0 |
+| **MLX-LM** | Apple Silicon (M3/M4/M5) | 4-bit / 8-bit Metal | Native macOS unified memory optimization | External Subprocess | MIT |
+| **Axolotl** | Multi-GPU Clusters | FP8, BF16, QLoRA | Flexible YAML-driven multi-node training | Custom Plugin | Apache 2.0 |
+| **LLaMA-Factory** | NVIDIA / AMD ROCm | Int4, Int8, BF16 | Unified WebUI & CLI for SFT, DPO, PPO | FastMCP Runner API | Apache 2.0 |
+| **TRL (Hugging Face)** | Generic PyTorch Runtimes | BitsAndBytes / QLoRA | Native alignment with Hugging Face Hub | Native PyTorch Hook | Apache 2.0 |
 
 ## Typical use cases
 - **Structured Data Extraction**: Fine-tuning a small model (e.g., 8B or 12B) to consistently output JSON from messy OCR text.
@@ -84,6 +116,83 @@ model = FastLanguageModel.get_peft_model(
     use_gradient_checkpointing="unsloth",
     random_state=42,
 )
+```
+
+## FastMCP 3.1 Training Automation Pattern
+
+Exposing a fine-tuning pipeline as a FastMCP 3.1 server enables automated agentic dataset distillation and LoRA adapter creation:
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import os
+
+mcp = FastMCP("Fine-Tuning Orchestrator Server")
+
+class TrainingJobSpec(BaseModel):
+    dataset_path: str = Field(..., description="Path to curated JSONL training dataset")
+    base_model: str = Field("unsloth/gemma-3-12b-it", description="Pre-trained base model")
+    output_adapter_dir: str = Field("./adapters", description="Output path for LoRA adapter")
+    lora_rank: int = Field(16, ge=4, le=128, description="LoRA matrix rank hyperparameter")
+    learning_rate: float = Field(2e-4, gt=0, lt=1e-2)
+
+@mcp.tool()
+def trigger_fine_tuning_run(spec: TrainingJobSpec) -> dict:
+    """Triggers an automated LoRA fine-tuning run using FastMCP 3.1."""
+    if not os.path.exists(spec.dataset_path):
+        return {"status": "error", "message": f"Dataset file not found: {spec.dataset_path}"}
+
+    # Simulation of launch script invocation
+    return {
+        "status": "queued",
+        "job_id": "job_ft_9921a",
+        "base_model": spec.base_model,
+        "adapter_output": spec.output_adapter_dir,
+        "rank": spec.lora_rank
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Training Configuration Example
+
+Below is a production `axolotl_config.yaml` template for QLoRA training on NVIDIA Hopper/Blackwell hardware:
+
+```yaml
+base_model: unsloth/gemma-3-12b-it
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+load_in_8bit: false
+load_in_4bit: true
+strict: false
+
+datasets:
+  - path: ./data/structured_extraction.jsonl
+    type: alpaca
+
+dataset_prepared_path: ./last_run_prepared
+val_set_size: 0.05
+output_dir: ./lora-out
+
+adapter: qlora
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+
+gradient_accumulation_steps: 2
+micro_batch_size: 4
+num_epochs: 3
+optimizer: paged_adamw_8bit
+learning_rate: 0.0002
+lr_scheduler: cosine
+bf16: true
 ```
 
 ## CLI examples
@@ -158,12 +267,6 @@ training_args = TrainingArguments(
     logging_steps=config.logging_steps
 )
 
-# Trainer setup example (stub)
-# trainer = SFTTrainer(
-#     model=model, train_dataset=dataset,
-#     args=training_args
-# )
-# trainer.train()
 print(f"Validated Fine-Tuning arguments successfully for output directory: {config.output_dir}")
 ```
 
@@ -174,6 +277,21 @@ print(f"Validated Fine-Tuning arguments successfully for output directory: {conf
 | Format adaptation | 100–500 | 1,000 | 8B Model (e.g., Llama 4 8B / DeepSeek-V4 8B): 8 GB |
 | Domain vocabulary | 500–1,000 | 5,000 | 14B Model (e.g., Qwen 3.8 14B): 16 GB |
 | Narrow task | 200–500 | 2,000 | 32B Model (e.g., Qwen 3.8 32B): 24 GB |
+
+## Operational Hardening & Best Practices
+- **Data Deduplication**: Clean training datasets with fuzzy hashing to prevent repetition loops and model degradation.
+- **Gradient Checkpointing**: Enable gradient checkpointing to reduce VRAM consumption by 30-50% during long context window training.
+- **Evaluation Loss Tracking**: Monitor evaluation loss curves closely; stop training if evaluation loss begins increasing (overfitting indicator).
+- **Weight Fusion Verification**: Always test the fused base + adapter model against original base benchmarks to confirm core reasoning capabilities remain intact.
+
+## Troubleshooting & Common Pitfalls
+
+| Symptom / Error | Possible Root Cause | Mitigation Strategy |
+| :--- | :--- | :--- |
+| `CUDA Out of Memory (OOM)` | Excessively large batch size or unoptimized precision | Enable QLoRA 4-bit, increase `gradient_accumulation_steps`, and lower micro-batch size |
+| `Loss NaN / Inf Divergence` | Unstable learning rate or bfloat16 gradient overflow | Reduce learning rate by 50% and enable gradient clipping (`max_grad_norm=1.0`) |
+| `Catastrophic Forgetting` | Too many epochs or over-parameterized LoRA rank | Lower `lora_r` and mix 10-20% general instruction data into domain dataset |
+| `Inconsistent JSON Output` | Missing formatting tokens in training prompts | Enforce strict template schemas during data prep and test with Pydantic validators |
 
 ## Related tools / concepts
 - [RAG Pattern](rag-pattern.md) — Factual knowledge retrieval.
