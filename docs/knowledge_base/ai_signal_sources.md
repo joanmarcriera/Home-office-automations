@@ -9,6 +9,39 @@ The AI landscape moves at an overwhelming pace, making it difficult to distingui
 ## Where it fits in the stack
 It belongs in the **Knowledge Management / Intelligence** layer. It acts as the intake strategy for staying informed about changes in the underlying AI technologies (providers, frameworks, and tools) that power the homelab.
 
+## Intelligence Pipeline Architecture
+
+```
++-------------------------------------------------------------------+
+|               Raw Feed Sources (RSS / Atom / Webhooks)            |
+|   (OpenAI, Anthropic, DeepSeek, Simon Willison, Latent Space)     |
++---------------------------------+---------------------------------+
+                                  |
+               FastMCP 3.1 Signal Ingestion Service
+               (Pydantic v2 Schema & Keyword Filtering)
+                                  |
++---------------------------------v---------------------------------+
+|                   Technical Signal Scoring Engine                 |
+|   - High-Signal (>0.85): Direct Ingestion -> Docs Update          |
+|   - Moderate-Signal (0.50-0.85): Linkwarden Bookmark Archive      |
+|   - Low-Signal (<0.50): Filtered Out Marketing Noise              |
++---------------------------------+---------------------------------+
+                                  |
++---------------------------------v---------------------------------+
+|            Homelab KnowledgeOps Repository Integration           |
+|   (Triggers Ralph Loop / Tool Access Matrix Updates)              |
++-------------------------------------------------------------------+
+```
+
+## Signal Feed Quality Evaluation Matrix
+
+| Category / Dimension | Frontier Provider Research | Practitioner Blogs | Aggregators / Social Feeds |
+| :--- | :--- | :--- | :--- |
+| **Technical Depth** | Very High (Model Architecture, Safety) | High (Code, Workarounds, Benchmark) | Variable / Low |
+| **Noise Ratio** | Low (Official announcements) | Low / Moderate | Very High |
+| **Actionability** | High (API spec changes, new features)| High (Vibe-coding, local setups) | Moderate |
+| **Ingestion Format**| Atom / RSS / JSON API | RSS / Weblogs | API / Scraping required |
+
 ## Typical use cases
 - **Alpha-Seeking**: Tracking new model releases and API capabilities from frontier providers (OpenAI, Anthropic, Google, DeepSeek).
 - **Pattern Recognition**: Discovering practical agent engineering patterns and "vibe-coding" results from independent researchers.
@@ -160,6 +193,13 @@ processed = validate_and_process_signal(sample_feed_item)
 - Prefer primary sources over reposts.
 - Track only sources with clear technical signal.
 - Remove sources that become mostly marketing content.
+
+## Automated Curation & Filtering Rules
+
+- **Primary Source Requirement**: Only ingest articles containing original benchmarks, runnable code examples, or direct API specifications.
+- **Min Confidence Threshold**: Automatically discard posts with `confidence_score < 0.75` during FastMCP 3.1 feed processing.
+- **Model Standard Keyword Set**: Filter ingested feeds for keywords like `Claude 5.6`, `GPT-5.6`, `Gemini 4.0 Ultra`, `DeepSeek-V4`, `FastMCP 3.1`, `Pydantic v2`.
+- **Linkwarden Archival Trigger**: Automatically persist high-scoring posts into `Linkwarden` tags (`#ai-signal`, `#mcp`, `#frontier-models`) for permanent offline reference.
 
 ## Related tools / concepts
 - [AI Tool Access Matrix](ai_tool_access_matrix.md)

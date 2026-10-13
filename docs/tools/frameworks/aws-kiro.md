@@ -9,6 +9,39 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 ## Where it fits in the stack
 **Agent Client & Interoperability Layer**. It operates as a communication standard between frontend user interfaces (IDEs, web consoles, shell terminals) and backend agent runtimes, complementing standard protocols like LSP (Language Server Protocol) and FastMCP 3.1 (Model Context Protocol).
 
+## System Architecture
+
+```
++-------------------------------------------------------------------+
+|               Editor / Host Surface (VS Code / Neovim)            |
++---------------------------------+---------------------------------+
+                                  |
+                   JSON-RPC 2.0 / WebSocket Pipe
+                   (Capabilities Handshake & Events)
+                                  |
++---------------------------------v---------------------------------+
+|                   AWS Kiro Transport Layer                        |
+|   - Task ID Correlation (FastMCP 3.1)                            |
+|   - File System Diff & Approval Buffers                           |
+|   - Terminal Execution Pipes                                      |
++---------------------------------+---------------------------------+
+                                  |
++---------------------------------v---------------------------------+
+|                   Decoupled Agent Runtime Engine                  |
+|   - Claude 5.6 / GPT-5.6 / Gemini 4.0 Reasoning Loop             |
++-------------------------------------------------------------------+
+```
+
+## Protocol & Client Abstraction Comparison Matrix
+
+| Protocol / Layer | AWS Kiro Protocol | Language Server Protocol (LSP) | Model Context Protocol (FastMCP 3.1) |
+| :--- | :--- | :--- | :--- |
+| **Primary Domain** | Agent-to-Editor UI & Terminal Control | Code Intellisense & Diagnostics | Agent Tooling & Context Ingestion |
+| **Transport Medium** | JSON-RPC 2.0 / WebSockets | JSON-RPC over Stdio / Socket | JSON-RPC / SSE / WebSockets |
+| **Human-In-The-Loop**| Native User Confirmation Schema | None (Automated background tasks) | Tool Approval Callbacks |
+| **Terminal Control** | Bidirectional Streamed Pipe | None | Indirect Tool Invocations |
+| **Decoupling Focus**| Editor/IDE <-> Autonomous Agent | Editor/IDE <-> Language Compiler | Agent <-> External Data / Tools |
+
 ## Typical use cases
 - **Multi-Editor Agent Deployments**: Running a single, advanced software engineering agent across multiple environments like VS Code, Cursor, and Vim.
 - **Remote Developer Workspace Integration**: Deploying coding agents in cloud-hosted workspaces while controlling them from local editor interfaces.
@@ -156,6 +189,13 @@ if __name__ == "__main__":
     print(f"File Edit Support: {negotiated_state.negotiated_capabilities.file_edit}")
     print(f"Terminal Exec Support: {negotiated_state.negotiated_capabilities.terminal_exec}")
 ```
+
+## Operational Security & Integration Guidelines
+
+- **Strict User-Approval Flags**: Always enforce `user_approval_required=True` in production editor clients to prevent unverified file modifications or destructive shell execution.
+- **FastMCP 3.1 Context Correlation**: Include `fastmcpTaskSupport: true` during capabilities handshakes so multi-agent workflows can trace tool calls across Kiro bridges.
+- **TLS/Authentication Guards**: When running Kiro servers over remote network pipes, wrap JSON-RPC transport in TLS (HTTPS/WSS) with JWT authorization tokens.
+- **Buffer Timeout Management**: Set realistic socket timeout thresholds (15-30 seconds) on terminal buffer streaming to avoid UI freezes during heavy compilation tasks.
 
 ## Related tools / concepts
 - [Cline](../agents/cline.md) — Advanced developer agent that communicates with IDEs using structured client protocols.
