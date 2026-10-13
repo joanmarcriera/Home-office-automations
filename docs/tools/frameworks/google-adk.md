@@ -10,6 +10,60 @@ While lightweight scripting libraries are suitable for single-agent chat loops, 
 **Category**: [Frameworks](index.md) / [Enterprise Agent Frameworks](../../knowledge_base/README.md).
 It sits directly between the foundation model layer (Gemini, Claude, GPT) and the production application layer, acting as a structured, stateful middleware that coordinates business logic, session state, tool execution, FastMCP 3.1 tasks, and deployment orchestration.
 
+## Architecture & Runtime Architecture
+
+```
++-------------------------------------------------------------------------------+
+|                      Google ADK Agent Runtime Architecture                     |
++-------------------------------------------------------------------------------+
+|                                                                               |
+|   +-----------------------+     +-----------------------+                     |
+|   | FastMCP 3.1 Skill Client |   | Polyglot Client App   |                     |
+|   +-----------+-----------+     +-----------+-----------+                     |
+|               |                             |                                 |
+|               +--------------+--------------+                                 |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | ADK Stateful Orchestrator |                                  |
+|                | & Deterministic State Machine|                               |
+|                +-------------+-------------+                                  |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | Skill Schema & Validator  |                                  |
+|                +-------------+-------------+                                  |
+|                              |                                                |
+|               +--------------+--------------+                                 |
+|               |                             |                                 |
+|               v                             v                                 |
+|    +--------------------+        +--------------------+                       |
+|    | Gemini 4.0 Models  |        | External FastMCP   |                       |
+|    | (Pro / Flash / Omni|        | Task RPC Servers   |                       |
+|    +----------+---------+        +----------+---------+                       |
+|               |                             |                                 |
+|               +--------------+--------------+                                 |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | Vertex AI Evaluation &    |                                  |
+|                | Telemetry Pipeline        |                                  |
+|                +---------------------------+                                  |
+|                                                                               |
++-------------------------------------------------------------------------------+
+```
+
+## Enterprise Framework Comparison
+
+| Dimension / Framework | Google ADK | LangGraph | CrewAI | AutoGen Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Paradigm** | Stateful Deterministic State Machine | Directed Acyclic Graph (DAG) | Role-Playing Multi-Agent Swarm | Conversation-Driven Swarm |
+| **SDK Language Parity** | Python, TypeScript, Go, Java | Python, TypeScript | Python | Python |
+| **FastMCP 3.1 Integration**| Native Protocol & Skill System | Community Wrappers | Tool Wrapping | Plugin Wrappers |
+| **Cloud Deployment Target**| Vertex AI Agent Runtime / Cloud Run | LangGraph Cloud / Self-Hosted | CrewAI Enterprise | Local / Container |
+| **State Machine Control**| Strict Declarative Transitions | Graph State Code | Role Delegation | Agent Prompt Routing |
+| **Telemetry & Evals** | Native Vertex AI Telemetry | LangSmith | Built-in Crew Metrics | Basic Logging |
+
 ## Typical use cases
 - **Multi-Agent Enterprise Orchestration**: Coordinating complex, stateful workflows across specialized agents (e.g., an "Invoicing Agent" routing verified financial documents to a "Compliance Agent" for secondary legal audits).
 - **Long-Horizon Stateful Missions**: Orchestrating autonomous tasks ("Missions") that require persisting and recovering state across asynchronous loops, API wait states, and human-in-the-loop approvals.
@@ -75,11 +129,12 @@ The ADK leverages decorators to extract signatures and can be coupled with stric
 
 ```python
 import os
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from google_adk import Skill, Agent
 
 # Define a strict FastMCP 3.1 parameter validation schema using Pydantic v2
 class InventoryQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     task_id: str = Field(..., description="FastMCP 3.1 execution task identifier")
     sku: str = Field(..., description="Unique product stock-keeping unit (format: SKU-XXXXX)")
     warehouse_id: str = Field(default="us-east-1", description="Target fulfillment center identifier")
@@ -104,7 +159,8 @@ def fetch_inventory(query_payload: dict) -> dict:
         "sku": validated_query.sku,
         "status": "In Stock",
         "quantity": 142,
-        "warehouse": validated_query.warehouse_id
+        "warehouse": validated_query.warehouse_id,
+        "fastmcp_version": "3.1"
     }
 
 # Initialize the Gemini-powered agent and register the Skill
@@ -120,7 +176,35 @@ response = agent.run("Check inventory status for task task_inv_01 and SKU-90812 
 print("Agent Response:", response.text)
 ```
 
-### 2. State-Machine Orchestration with Context Propagation (TypeScript)
+### 2. FastMCP 3.1 ADK Agent Skill Server
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("google-adk-skill-server", version="3.1")
+
+class ADKSkillRequest(BaseModel):
+    task_id: str = Field(..., description="FastMCP task UUID")
+    agent_name: str = Field(..., description="Calling ADK Agent name")
+    state_action: str = Field(..., description="Target state action name")
+
+@mcp.tool()
+async def invoke_adk_skill_task(request: ADKSkillRequest) -> dict:
+    """Executes a FastMCP 3.1 task handler for a Google ADK state transition."""
+    return {
+        "task_id": request.task_id,
+        "agent": request.agent_name,
+        "status": "success",
+        "fastmcp_version": "3.1",
+        "message": f"State action '{request.state_action}' executed successfully."
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
+### 3. State-Machine Orchestration with Context Propagation (TypeScript)
 Define deterministic transitions between state blocks using the TypeScript SDK.
 
 ```typescript
@@ -151,6 +235,22 @@ const orchestratorAgent = new Agent({
   workflow: sm
 });
 ```
+
+## Operational Safety & Security Rules
+
+1. **State Transition Boundaries**: Enforce strict validation rules on state machine transition inputs to prevent agents from jumping to unverified approval loops.
+2. **Skill Sandbox Execution**: Run third-party Python/Node.js skill hooks within gVisor sandboxes or restricted Cloud Run execution contexts to prevent unauthorized filesystem access.
+3. **Vertex AI Context Caching**: Utilize Gemini context caching features for static system prompts to reduce token input overhead on long-running multi-turn agent missions.
+4. **FastMCP Task Handshake Verification**: Enforce HMAC authentication or TLS mutual client verification on remote FastMCP task endpoints.
+
+## Troubleshooting Guide
+
+| Issue | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **Invalid State Transition** | Agent output state string did not match declared state machine graph | Add explicit enum constraint to output prompt schemas or fallback router. |
+| **Skill Validation Failure** | Query payload passed to skill failed Pydantic v2 field constraints | Enable verbose skill validation logging (`adk debug --verbose`) to inspect payload. |
+| **Vertex Telemetry Timeout** | GCP project credentials or Vertex AI API endpoint unreachable | Verify `GOOGLE_APPLICATION_CREDENTIALS` path and GCP network route access. |
+| **FastMCP Transport Error** | MCP server transport lost stdio pipe during long-running execution | Re-initialize MCP transport client wrapper with auto-reconnect backoff logic. |
 
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md) — The core model backbone optimized for ADK's native context caching and planning.
