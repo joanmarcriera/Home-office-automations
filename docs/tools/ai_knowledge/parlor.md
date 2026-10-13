@@ -3,6 +3,8 @@
 ## What it is
 Parlor (with Parlor v2 being the prominent release) is a fully local, high-performance, and open-source continuous voice-to-voice interaction application built specifically to mimic OpenAI's GPT-Live/Advanced Voice Mode. Designed for high performance on Apple Silicon (such as M3/M4 Pro, Max, and Ultra) and ARM/CUDA workstations, Parlor orchestrates real-time automatic speech recognition (ASR), highly optimized local LLM inference via llama.cpp or MLX, native FastMCP 3.1 Task Protocol agent routing, and low-latency text-to-speech (TTS) synthesis (such as Kokoro or AudioCPP) into a seamless, continuous, zero-lag conversational loop.
 
+Operating as a modular Python and C++ voice harness in early 2027, Parlor connects real-time microphone streams to local neural processing models. It features built-in Voice Activity Detection (VAD), streaming sentence-level token buffering, and sub-second vocal playback, creating a hands-free interactive loop for local coding, home automation, and agentic workflows without cloud latency or subscription fees.
+
 ## Architecture & System Flow
 Parlor connects microphone input streams to local neural speech processing models and FastMCP 3.1 agents through a low-latency pipeline to achieve sub-700ms vocal response times.
 
@@ -49,19 +51,35 @@ graph TD
     E -->|Audio Frames| F[Local Speaker Playback Buffer]
 ```
 
+### Key Architectural Subsystems
+
+1. **VAD & Audio Ingestion Subsystem**: Monitored via PortAudio and Silero VAD, continuously isolating human speech frames while suppressing ambient background noise.
+2. **Streaming ASR Pipeline**: Utilizes Whisper.cpp or MLX-Whisper to transcribe audio buffers incrementally, emitting partial text transcripts to the LLM context within 100ms.
+3. **Local LLM & FastMCP 3.1 Task Router**: Connects to llama.cpp or MLX to generate response tokens. When tool calls are detected in the token stream, Parlor pauses TTS generation, executes the FastMCP 3.1 tool, injects the result, and resumes vocal synthesis seamlessly.
+4. **Sentence-Chunking Neural TTS Engine**: Feeds token streams into Kokoro-82M or AudioCPP ONNX pipelines, generating 24kHz raw PCM audio frames on sentence boundaries to minimize end-to-end user-perceived audio latency.
+
 ## What problem it solves
 Proprietary cloud voice models (such as OpenAI's Advanced Voice Mode, Gemini Live, Claude 5.6 Voice, or GPT-5.6 Live) feature high per-minute costs, require active high-speed internet connections, and carry significant data privacy and eavesdropping concerns. Parlor solves this by providing a completely local, private, and customizable continuous voice interface that executes with sub-second auditory response latency directly on macOS and Linux hardware.
 
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Conversational Voice Layer**. Parlor acts as the unified local voice wrapper and FastMCP 3.1 agent host, sitting on top of speech-to-text (ASR), local LLMs, and text-to-speech (TTS) engines to form an end-to-end local conversational system.
 
-## Typical use cases
-- **Hands-Free Local Coding Companion**: Chatting with a local coding assistant or refactoring helper using voice commands while keeping hands on the keyboard.
-- **FastMCP 3.1 Voice Agent Interface**: Driving autonomous agent workflows and FastMCP task executions entirely through continuous vocal dialogue.
-- **Privacy-First Family Smart Assistant**: Running a central smart home console that handles continuous natural conversation without exporting household audio to the cloud.
-- **Low-Latency Conversational Prototyping**: Developing custom, voice-native agent applications with real-time feedback.
+```
++-----------------------------------------------------------------------------------+
+|                        KnowledgeOps Voice Stack Architecture                      |
++-----------------------------------------------------------------------------------+
+|  [ Voice Interaction ]    PARLOR V2 CONTINUOUS VOICE HARNESS & VAD               |
++-----------------------------------------------------------------------------------+
+|  [ Agent Protocol ]       FastMCP 3.1 Task Protocol & Tool Execution Server       |
++-----------------------------------------------------------------------------------+
+|  [ Neural Engine Pool ]   Whisper.cpp (ASR) / MLX & llama.cpp (LLM) / Kokoro (TTS)|
++-----------------------------------------------------------------------------------+
+|  [ Hardware Layer ]       Apple Silicon M3/M4 Unified Memory / PCIe CUDA GPUs     |
++-----------------------------------------------------------------------------------+
+```
 
-## Feature Comparison
+## Feature Comparison Matrix
+
 | Voice Interface Platform | Parlor v2 | OpenAI GPT-Live | Gemini Live | ElevenLabs Conversational |
 | :--- | :--- | :--- | :--- | :--- |
 | **Execution Environment** | 100% On-Device / Local | OpenAI Cloud | Google Cloud | ElevenLabs Cloud |
@@ -69,6 +87,13 @@ Proprietary cloud voice models (such as OpenAI's Advanced Voice Mode, Gemini Liv
 | **Data Privacy & Telemetry**| Zero External Calls | Cloud Telemetry Logged | Cloud Telemetry Logged | API Audio Logged |
 | **FastMCP 3.1 Tool Server**| Native Built-in Host | Custom Function Calls | Vertex Function Calls | Custom Webhooks |
 | **Operational Cost** | $0 Per Minute (Hardware) | Usage / Sub Billing | Usage / Sub Billing | Per Minute Usage Fee |
+| **Hardware Requirement** | M-Series Mac / CUDA GPU | Web Browser / Mobile | Web Browser / Mobile | Web Browser / API |
+
+## Typical use cases
+- **Hands-Free Local Coding Companion**: Chatting with a local coding assistant or refactoring helper using voice commands while keeping hands on the keyboard.
+- **FastMCP 3.1 Voice Agent Interface**: Driving autonomous agent workflows and FastMCP task executions entirely through continuous vocal dialogue.
+- **Privacy-First Family Smart Assistant**: Running a central smart home console that handles continuous natural conversation without exporting household audio to the cloud.
+- **Low-Latency Conversational Prototyping**: Developing custom, voice-native agent applications with real-time feedback.
 
 ## Strengths
 - **Sub-Second Audio-to-Audio Latency**: Highly parallel execution path ensures vocal responses begin within 500-900ms of the user completing a phrase.
@@ -81,6 +106,15 @@ Proprietary cloud voice models (such as OpenAI's Advanced Voice Mode, Gemini Liv
 - **Hardware Bound**: Specifically optimized for M-series Apple Silicon Macs; running on Windows or Linux workstations requires custom PyTorch/CUDA pre-configurations.
 - **VRAM Contention**: Running combined ASR, 7B/14B LLMs (such as DeepSeek-V4 or Llama 4), and TTS models concurrently requires at least 18GB to 36GB of Unified Memory.
 - **Acoustic Environment Sensitivity**: Background noise can sometimes trigger false speech-detection signals, causing interruptions in model speech.
+
+## Troubleshooting & Failure Modes
+
+| Failure Mode / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| `MIC_VAD_FALSE_TRIGGER` | High ambient noise or overly low VAD threshold | Adjust `--sensitivity` flag (e.g., `--sensitivity 0.75`) or enable noise gate filter. |
+| `AUDIO_LATENCY_LAG_1500MS` | Large LLM model overloading unified memory bandwidth | Switch to quantized model (e.g. `gemma-4-8b-q4`) or reduce TTS chunk size. |
+| `FASTMCP_TOOL_TIMEOUT` | Agent tool call execution hanging during voice turn | Configure execution timeout limit on FastMCP tool invocations in `parlor.conf`. |
+| `PYDANTIC_VALIDATION_ERROR` | Mismatch in turn telemetry schema payload | Validate telemetry structures against `ParlorTurn` Pydantic v2 schemas. |
 
 ## When to use it
 - When you want a local, private, and highly responsive replica of OpenAI's GPT-Live voice interaction on your Apple Silicon Mac or workstation.
@@ -131,6 +165,11 @@ python main.py \
 python main.py --fastmcp-version 3.1 --mcp-server http://localhost:8000
 ```
 
+### 3. Debugging Audio Latency Telemetry
+```bash
+python main.py --debug-telemetry --log-latency-file latency_log.json
+```
+
 ## API examples
 
 ### FastMCP 3.1 Voice Orchestration Server (`parlor_mcp_server.py`)
@@ -138,10 +177,10 @@ This executable FastMCP 3.1 server exposes local Parlor voice loop state managem
 
 ```python
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError
-from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ValidationError, field_validator
+import fastmcp
 
-mcp = FastMCP("parlor-voice-agent")
+mcp = fastmcp.FastMCP("parlor-voice-agent", version="3.1.0")
 
 class VoicePipelineConfig(BaseModel):
     asr_model: str = Field("whisper-tiny-en-q5", description="Local ASR model name")
@@ -156,6 +195,13 @@ class ParlorTurn(BaseModel):
     assistant_transcript: str = Field(..., description="LLM generated assistant text")
     latency_ms: float = Field(..., description="End-to-end audio-to-audio latency")
 
+    @field_validator("latency_ms")
+    @classmethod
+    def validate_latency(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("latency_ms must be greater than zero.")
+        return v
+
 @mcp.tool()
 def get_voice_pipeline_status() -> Dict[str, Any]:
     """Retrieve real-time hardware memory and execution state for local Parlor voice loop."""
@@ -164,7 +210,8 @@ def get_voice_pipeline_status() -> Dict[str, Any]:
         "status": "active",
         "pipeline": config.model_dump(),
         "current_audio_buffer": "listening",
-        "vad_sensitivity": 0.65
+        "vad_sensitivity": 0.65,
+        "mcp_version": "3.1"
     }
 
 @mcp.tool()
@@ -176,7 +223,8 @@ def log_conversation_turn(turn: ParlorTurn) -> Dict[str, Any]:
             "status": "logged",
             "turn_id": validated.turn_id,
             "latency_ms": validated.latency_ms,
-            "sub_second_latency_met": validated.latency_ms < 1000.0
+            "sub_second_latency_met": validated.latency_ms < 1000.0,
+            "mcp_version": "3.1"
         }
     except ValidationError as ve:
         return {"status": "error", "errors": ve.errors()}

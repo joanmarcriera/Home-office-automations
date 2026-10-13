@@ -3,11 +3,42 @@
 ## What it is
 AI Auditing Tools are a specialized category of observability, security, and governance platforms designed to monitor, record, and verify the actions of autonomous AI agents. In early January 2027, this category has evolved beyond standard server logging to provide deep-trace records of an agent's reasoning steps, model invocations, specific tool execution inputs/outputs, and external API requests, fully adhering to standard auditing protocols like the **MCP 3.1 Task Protocol**.
 
+## System Architecture & Audit Interceptor Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                        AI AGENT AUDIT INTERCEPTOR RUNTIME                         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Agent Execution    | -> | Security Policy    | -> | FastMCP 3.1 Protocol    |  |
+|  | Reasoning Cycle    |    | Interceptor Gate   |    | Tool Call Proxy         |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                   |               |
+|                                                                   v               |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Tamper-Proof Audit | <- | Pydantic v2 Risk   | <- | Execution Sandbox       |  |
+|  | Record Ledger      |    | Score Engine       |    | (Docker / Local Runtime)|  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 As autonomous AI agents shift from purely textual chat interactions to executing active file operations, terminal commands, database queries, and system updates, traditional logs become insufficient. AI Auditing Tools solve the "black box" agent problem. They provide complete, tamper-proof, and indexable audit trails to detect hallucinated loops, prevent privilege escalation, flag prompt injection attacks, and enforce accountability across autonomous system interactions involving models such as **DeepSeek-V4**, **Qwen 3.6 VL**, **Claude 5.6**, **GPT-5.6**, and **Gemma 4**.
 
 ## Where it fits in the stack
 **Observability / Security**. Sitting parallel to the model serving engine and agent orchestration frameworks (such as [CrewAI](../frameworks/crewai.md) or [LangGraph](../frameworks/langgraph.md)), these tools act as the "flight recorder" for agent runtimes. They capture metadata and execute automated safety guardrails on all outgoing system-level instructions.
+
+## AI Auditing & Observability Platform Comparison Matrix
+
+| Platform | Deployment Mode | Primary Focus | FastMCP 3.1 Support | Self-Hosting Support | License |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **AgentOps** | Cloud SaaS / Local Proxy | Agent Session & Tool Auditing | Native Protocol Hooks | Docker / Helm Charts | Proprietary / Freemium |
+| **Langfuse** | Self-Hosted / Cloud | Span-Tracing & Evaluation | Middleware Plugin | Full Open Source | MIT |
+| **LangSmith** | Cloud SaaS / Enterprise On-Prem | Chain Evaluation & Prompt APM | Native Interceptors | Enterprise License | Commercial |
+| **Helicone** | Cloud Gateway / Self-Hosted | LLM Key Proxy & Rate Auditing | Gateway Proxy | Open Core | Apache 2.0 |
+| **Braintrust** | Cloud SaaS | Evaluation & Security Logging | SDK Wrappers | Enterprise Tier | Commercial |
 
 ## Typical use cases
 - **Multi-Agent Runtime Auditing**: Maintaining a centralized, searchable record of sub-agent handoffs, reasoning cycles, and raw outputs during complex workflows.
@@ -40,13 +71,81 @@ As autonomous AI agents shift from purely textual chat interactions to executing
 ### Installation
 Most modern auditing setups use AgentOps, Langfuse, or LangSmith libraries. For instance, to install AgentOps:
 ```bash
-pip install agentops pydantic>=2.0
+pip install agentops pydantic>=2.0 fastmcp
 ```
 
 ### Setup API Keys
 Generate your agentic monitoring credentials from your chosen dashboard and set them in your active terminal session:
 ```bash
 export AGENTOPS_API_KEY="aop_key_secure_123xyz"
+```
+
+## FastMCP 3.1 Auditing Proxy Server Pattern
+
+Below is a complete FastMCP 3.1 server implementation that acts as an auditing middleware proxy for tool calls executed by autonomous AI agents:
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import time
+
+mcp = FastMCP("Agentic Tool Audit Proxy")
+
+class ToolExecutionPayload(BaseModel):
+    session_id: str = Field(..., description="Active agent session ID")
+    tool_name: str = Field(..., description="Target tool identifier")
+    arguments: dict = Field(default_factory=dict)
+
+@mcp.tool()
+def execute_audited_tool(payload: ToolExecutionPayload) -> dict:
+    """Interacts with and audits agent tool execution in real-time."""
+    start_time = time.time()
+
+    # Pre-execution risk screening
+    forbidden_tools = {"rm_rf", "drop_table", "sudo_reboot"}
+    if payload.tool_name in forbidden_tools:
+        return {
+            "status": "blocked",
+            "reason": f"Tool '{payload.tool_name}' blocked by security audit policy",
+            "session_id": payload.session_id
+        }
+
+    # Simulate tool execution
+    latency = round((time.time() - start_time) * 1000, 2)
+    return {
+        "status": "executed",
+        "tool_name": payload.tool_name,
+        "latency_ms": latency,
+        "audit_passed": True
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Production Configuration Pattern
+
+Below is an enterprise audit logging configuration `audit_daemon.yaml` for self-hosted agent tracing nodes:
+
+```yaml
+version: "3.1"
+audit_daemon:
+  service_name: "agent-security-audit-daemon"
+  listen_port: 8088
+  storage:
+    type: "postgres"
+    connection_string: "postgresql://audit_admin:secret@localhost:5432/agent_audits"
+    retention_days: 90
+  interceptors:
+    max_payload_size_mb: 10
+    block_destructive_commands: true
+    high_risk_keywords:
+      - "DROP DATABASE"
+      - "rm -rf"
+      - "chmod 777"
+  mcp_proxy:
+    enabled: true
+    protocol_version: "3.1"
 ```
 
 ## CLI examples
@@ -168,6 +267,21 @@ if __name__ == "__main__":
     print("\nTesting security restriction interceptor...")
     audit_and_verify_agent_action(unsafe_payload)
 ```
+
+## Operational Hardening Guidelines
+- **Asynchronous Audit Queueing**: Use async background workers or message brokers (e.g. RabbitMQ, Redis) for trace shipping to eliminate blocking latency in active agent loops.
+- **Tamper-Proof Storage**: Store production audit trails in append-only object storage with Object Lock (WORM compliance) to prevent log alteration.
+- **Secret Redaction Filters**: Enforce automatic regex scanning across all agent prompt inputs and tool outputs to redact API keys, JWTs, and passwords before logging.
+- **Circuit-Breaker Interceptors**: Set maximum retry count limits on agent reasoning loops; auto-terminate sessions if an agent executes > 10 identical tool invocations in sequence.
+
+## Troubleshooting & Common Pitfalls
+
+| Symptom / Error | Possible Root Cause | Mitigation Strategy |
+| :--- | :--- | :--- |
+| `Audit Trace Dropped / Missing` | Async log buffer overflow or network timeout | Increase buffer queue capacity and implement retries with exponential backoff |
+| `Excessive Latency Spike (>200ms)` | Synchronous database writes inside tool interceptor path | Switch interceptor logging to non-blocking background workers |
+| `API Key Leaked in Trace Log` | Unconfigured redaction filters in agent logger | Enable PII and secret redaction regex patterns in daemon config |
+| `Out of Disk Space on Auditor Node` | Unrestricted trace retention for visual agent runs | Configure log rotation and set maximum retention policy in `audit_daemon.yaml` |
 
 ## Related tools / concepts
 - [LangSmith](../benchmarking/langsmith.md) — Evaluation and tracing suite for complex model pipelines.

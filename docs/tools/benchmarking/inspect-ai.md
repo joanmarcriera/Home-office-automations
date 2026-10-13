@@ -3,6 +3,27 @@
 ## What it is
 **Inspect AI** (`inspect-ai`) is an open-source framework for large language model evaluation and agent capability auditing developed by the **UK AI Safety Institute (UK AISI)** and Meridian Labs. Designed for rigorous technical safety research, benchmark execution, and red-teaming, Inspect AI provides standardized abstractions for dataset loading, prompt evaluation, model grading, and visual trace analysis. As of early 2027, Inspect AI features native integration with the **FastMCP 3.1 Task Protocol**, enabling automated sandboxed tool execution and async background evaluation monitoring.
 
+## System Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                            INSPECT AI EVALUATION ENGINE                           |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Dataset Loader     | -> | Solver Plan        | -> | Target Model Runtime    |  |
+|  | (Samples / Prompts)|    | (Multi-Turn Chain) |    | (GPT-5.6 / Claude 5.6)  |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                   |               |
+|                                                                   v               |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|  | Trace Log Viewer   | <- | Scoring Engine     | <- | Sandboxed Tool Subsystem|  |
+|  | (inspect view)     |    | (Fact / Model-Grad)|    | (FastMCP 3.1 Protocol)  |  |
+|  +--------------------+    +--------------------+    +-------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Evaluating agentic LLMs across complex multi-step reasoning, tool execution, and code execution benchmarks often requires custom, non-reproducible evaluation code. Inspect AI solves this by standardizing evaluation primitives (Datasets, Solvers, Scorers, and Logs) into a Python-native framework with built-in parallelism, trace logging, and interactive visual debugging utilities.
 
@@ -17,6 +38,16 @@ graph TD
     Tools --> Scorers[Scorer Module: Match / Fact / Model-Graded / Custom]
     Scorers --> Logs[Trace Logging & Visual Log Inspector - inspect view]
 ```
+
+## Evaluation Framework Comparison Matrix
+
+| Evaluation Framework | Primary Scope | Tool Execution Support | Trace Inspection UI | FastMCP 3.1 Support | License |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Inspect AI** | Technical Safety & Agent Auditing | Sandboxed Python & Subprocess | Native `inspect view` | Native Integration | MIT |
+| **Promptfoo** | Prompt Engineering & Security Scanning | Custom JS/Python Callbacks | Web UI Dashboard | External Plugin | MIT |
+| **LangSmith** | Production APM & Chain Evaluation | LangChain Tool Interceptors | Cloud SaaS Web UI | Middleware Proxy | Commercial / Tiered |
+| **Ragas** | RAG Pipeline Metric Auditing | Vector Store Interceptors | CLI & HTML Summaries | Custom Adapter | Apache 2.0 |
+| **DeepEval** | Unit Testing LLM Output Assertions | Pytest Tool Mocks | Web Dashboard | Custom Plugin | Apache 2.0 |
 
 ## Typical use cases
 - **Frontier Model Evaluation**: Running standardized capability benchmarks across Claude 5.6, GPT-5.6, Gemini 4.0 Pro, DeepSeek-V4, and Llama 4.
@@ -152,6 +183,36 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Configuration Pattern
+
+Below is an enterprise production configuration file `inspect_config.yaml` for setting up parallel evaluation harnesses across multiple model endpoints:
+
+```yaml
+version: 1
+eval:
+  max_connections: 16
+  max_retries: 3
+  timeout: 120
+  log_dir: "./eval_logs"
+  display: "terminal"
+
+models:
+  - name: "openai/gpt-5.6"
+    base_url: "https://api.openai.com/v1"
+    temperature: 0.0
+  - name: "anthropic/claude-3-5-sonnet-20241022"
+    temperature: 0.2
+  - name: "ollama/llama-4-8b"
+    base_url: "http://localhost:11434"
+
+solvers:
+  max_turns: 10
+  sandboxing:
+    enabled: true
+    engine: "docker"
+    memory_limit: "4g"
+```
+
 ## CLI examples
 
 ### 1. Evaluate with Limit and Concurrency
@@ -223,6 +284,21 @@ if __name__ == "__main__":
         )
         print(f"Task '{summary.task_name}' completed with status: {summary.status}")
 ```
+
+## Operational Hardening Guidelines
+- **Sandboxed Execution**: Always enforce containerized Docker or gVisor sandboxing when running code solver evaluations to isolate untrusted agent code execution.
+- **Rate Limit Safeguards**: Set `--max-connections` appropriately for target API provider tiers to prevent HTTP 429 throttling and dropped log traces.
+- **Trace Log Retention**: Store `.eval` log artifacts in S3 or local Object Storage with automated rotation rules to manage storage growth.
+- **Deterministic Sampling**: Fix seed parameters in solver configurations when evaluating reasoning models to maintain reproducible scores across benchmarks.
+
+## Troubleshooting & Common Pitfalls
+
+| Symptom / Error | Possible Root Cause | Mitigation Strategy |
+| :--- | :--- | :--- |
+| `HTTP 429 Too Many Requests` | Max parallel connections exceeding provider rate limits | Lower `--max-connections` or add exponential backoff in model runner |
+| `Docker Sandbox Timeout` | Tool execution hanging inside evaluation container | Set `timeout` parameter explicitly on solver plans |
+| `inspect view empty logs` | Incompatible log file format or corrupted JSON trace | Verify `.eval` log directory integrity and update `inspect-ai` package |
+| `MemoryLeak in Multi-turn` | Uncleaned agent turn memory accumulation | Enforce process isolation per sample in task runner settings |
 
 ## Related tools / concepts
 - [AssistantBench](assistant-bench.md) — Real-world web navigation evaluation suite.
