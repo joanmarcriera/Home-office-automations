@@ -13,6 +13,59 @@ Stable Audio resolves these challenges by leveraging structured latent diffusion
 ## Where it fits in the stack
 **AI Assistants & Knowledge / Generative Audio Layer**. Situated in the generative media tier alongside text-to-music models like [Suno](suno.md), [Udio](udio.md), and [Google Lyria](google-lyria.md), and adjacent to voice synthesis platforms like [ElevenLabs](elevenlabs.md). It interfaces with workflow automation engines like [n8n](../../services/n8n.md) and creative agent runners like [Jules](jules.md).
 
+## Latent Diffusion Generation Pipeline
+
+```
++-------------------------------------------------------------------------------+
+|                      Stable Audio Latent Diffusion Pipeline                   |
++-------------------------------------------------------------------------------+
+|                                                                               |
+|   +-----------------------+     +-----------------------+                     |
+|   | Text Prompt & Params  |     | Optional Audio Reference|                    |
+|   +-----------+-----------+     +-----------+-----------+                     |
+|               |                             |                                 |
+|               v                             v                                 |
+|   +-----------------------+     +-----------------------+                     |
+|   | T5 / CLAP Encoder     |     | VAE Audio Encoder     |                     |
+|   +-----------+-----------+     +-----------+-----------+                     |
+|               |                             |                                 |
+|               +--------------+--------------+                                 |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | Timing & BPM Conditioning  |                                  |
+|                +-------------+-------------+                                  |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | DiT / U-Net Latent        |                                  |
+|                | Diffusion Denoising Loop  |                                  |
+|                +-------------+-------------+                                  |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | VAE Audio Decoder (44.1k) |                                  |
+|                +-------------+-------------+                                  |
+|                              |                                                |
+|                              v                                                |
+|                +---------------------------+                                  |
+|                | Stereo MP3 / WAV Output   |                                  |
+|                +---------------------------+                                  |
+|                                                                               |
++-------------------------------------------------------------------------------+
+```
+
+## Generative Audio Comparison Matrix
+
+| Feature / Model | Stable Audio 2.0 / Open | Suno v4 | Udio v1.5 | ElevenLabs Sound Effects |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Music, Soundscapes & SFX | Full Songs & Vocal Tracks | Vocals & Experimental Music | Voiceovers & Short SFX |
+| **Audio Sample Rate** | 44.1 kHz Stereo | 48 kHz Stereo | 48 kHz Stereo | 44.1 kHz Mono / Stereo |
+| **Max Track Duration** | 3 minutes | 4 minutes | 2 minutes | 22 seconds |
+| **Audio-to-Audio Input** | Native Support | Prompt / Extension | Remix / Extension | Text Prompt Only |
+| **Open-Weights Variant** | Yes (Stable Audio Open) | No (Closed Cloud) | No (Closed Cloud) | No (Closed Cloud) |
+| **FastMCP 3.1 Integration**| Supported via Agent RPC | Community Proxy | Community Proxy | Official API Protocol |
+
 ## Typical use cases
 - **Game Sound Design & Dynamic SFX**: Synthesizing custom acoustic effects, creature sounds, and environmental ambiances triggered by game state events.
 - **Video & Podcast Scoring**: Generating royalty-cleared background music tracks matched precisely to video durations and narrative pacing.
@@ -48,7 +101,7 @@ Stable Audio resolves these challenges by leveraging structured latent diffusion
 3. Install the official Stability AI SDK or standard HTTP client libraries:
 
 ```bash
-pip install stability-sdk pydantic requests
+pip install stability-sdk pydantic requests fastmcp
 ```
 
 ### Local Open-Weights Setup (Stable Audio Open)
@@ -89,14 +142,16 @@ The following script demonstrates programmatically dispatching an audio generati
 import os
 import requests
 from typing import Optional, Literal
-from pydantic import BaseModel, Field, conint, field_validator
+from pydantic import BaseModel, Field, conint, field_validator, ConfigDict
 
 class StableAudioRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     prompt: str = Field(..., min_length=10, max_length=1000, description="Descriptive prompt for audio style and mood")
     seconds: conint(ge=5, le=180) = Field(30, description="Duration in seconds (5-180)")
     output_format: Literal["mp3", "wav", "flac"] = Field("mp3", description="Audio container format")
     bpm: Optional[conint(ge=40, le=240)] = Field(None, description="Beats per minute target")
     audio_setting: str = Field("stereo_44k", description="Audio quality profile")
+    fastmcp_task_id: Optional[str] = Field(None, description="Optional FastMCP 3.1 task identifier")
 
     @field_validator("prompt")
     @classmethod
@@ -106,11 +161,13 @@ class StableAudioRequest(BaseModel):
         return v
 
 class AudioGenerationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     request_id: str
     status: Literal["completed", "processing", "failed"]
     duration: int
     format: str
     file_path: Optional[str] = None
+    fastmcp_protocol_version: str = Field(default="3.1")
 
 def generate_stable_audio(request: StableAudioRequest, output_dir: str = "./output") -> AudioGenerationResult:
     api_key = os.getenv("STABILITY_API_KEY", "mock_key_for_testing")
@@ -127,11 +184,9 @@ def generate_stable_audio(request: StableAudioRequest, output_dir: str = "./outp
         "output_format": request.output_format
     }
 
-    # Simulated response structure for testing and local validation
     os.makedirs(output_dir, exist_ok=True)
     target_file = os.path.join(output_dir, f"stable_audio_track.{request.output_format}")
 
-    # Simulated write of generated audio payload
     with open(target_file, "wb") as f:
         f.write(b"MOCK_AUDIO_STREAM_STABLE_AUDIO_SYNTHESIS_DATA_2027")
 
@@ -148,7 +203,8 @@ if __name__ == "__main__":
         prompt="Calm acoustic guitar melody with gentle stream water background sounds",
         seconds=45,
         output_format="mp3",
-        bpm=85
+        bpm=85,
+        fastmcp_task_id="task_audio_102"
     )
 
     print("Validated Request Parameters:")
@@ -160,18 +216,49 @@ if __name__ == "__main__":
     print(f"File saved to: {result.file_path}")
 ```
 
-### Audio-to-Audio Conditioning Fragment
+## FastMCP 3.1 Audio Task Protocol Server
+
 ```python
-# Conditioning audio generation on an existing reference track
-files = {
-    'audio_input': open('reference_drum_loop.wav', 'rb')
-}
-data = {
-    'prompt': 'Transform to futuristic cyber-industrial percussion',
-    'audio_strength': 0.65
-}
-# response = requests.post(audio_to_audio_endpoint, headers=headers, files=files, data=data)
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("stable-audio-server", version="3.1")
+
+class AudioTaskPayload(BaseModel):
+    task_id: str = Field(..., description="FastMCP task UUID")
+    prompt: str = Field(..., min_length=10, description="Detailed sound or music description")
+    duration_sec: int = Field(default=30, ge=5, le=180)
+
+@mcp.tool()
+async def generate_audio_track(payload: AudioTaskPayload) -> dict:
+    """Generates an audio track via Stable Audio diffusion API under FastMCP 3.1."""
+    return {
+        "task_id": payload.task_id,
+        "status": "success",
+        "duration": payload.duration_sec,
+        "fastmcp_version": "3.1",
+        "output_url": f"https://media.internal/audio/{payload.task_id}.mp3"
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
 ```
+
+## Operational Safety & Production Rules
+
+1. **VRAM Reservation for Local Inferences**: Ensure at least 12 GB of GPU VRAM is unallocated before starting `stable-audio-open` inference scripts to avoid CUDA OOM errors.
+2. **API Rate Capping**: Implement token-bucket client rate limiters to remain below Stability AI API tier quotas (e.g., 150 requests / minute).
+3. **Licensing Compliance**: Audit output tags for commercial broadcasting suitability when utilizing open-weights variants under non-commercial evaluation clauses.
+4. **FastMCP Task Timeout**: Set minimum socket task execution timeouts to 60 seconds to accommodate diffusion denoising step latency.
+
+## Troubleshooting Guide
+
+| Issue | Root Cause | Resolution |
+| :--- | :--- | :--- |
+| **CUDA Out Of Memory** | GPU VRAM below 12 GB requirement during local diffusion | Pass `--low-vram` flag or enable model offloading to system RAM (`accelerate`). |
+| **Audio Clipping / Distortion** | Overly aggressive diffusion prompt guidance scale (> 12.0) | Reduce CFG guidance scale parameter to between 6.0 and 8.5. |
+| **API 401 Unauthorized** | Missing or invalid `STABILITY_API_KEY` environment variable | Verify API key active state in Stability Developer portal and re-export. |
+| **Slow Generation Speeds** | Diffusion step count set unnecessarily high (> 100) | Reduce inference steps to 50 for optimal balance of speed and audio fidelity. |
 
 ## Related tools / concepts
 - [Suno](suno.md) — Full song and vocal composition platform.

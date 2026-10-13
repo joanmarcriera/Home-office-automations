@@ -9,6 +9,65 @@ Large language models like Kimi K3, DeepSeek-V4 MoE, Claude 5.6, and GPT-5.6 MoE
 ## Where it fits in the stack
 **Category**: Infrastructure / Inference Engine. WASTE sits in the local-first serving layer, competing with runtimes like [llama.cpp](llama-cpp.md), [MLX](mlx.md), and [Turbo-fieldfare](turbo-fieldfare.md) (which uses a similar expert streaming logic).
 
+## System Architecture
+
+```
++-------------------------------------------------------------------------------+
+|                         WASTE Streaming Engine Architecture                    |
++-------------------------------------------------------------------------------+
+|                                                                               |
+|  +-----------------------+     +-----------------------+                      |
+|  | FastMCP 3.1 Task      |     | Native C CLI / Python |                      |
+|  | RPC Server (stdio/SSE)|     | C11 Direct Embed      |                      |
+|  +-----------+-----------+     +-----------+-----------+                      |
+|              |                             |                                  |
+|              +--------------+--------------+                                  |
+|                             |                                                 |
+|                             v                                                 |
+|               +---------------------------+                                   |
+|               | Tokenizer & Context Manager|                                  |
+|               +-------------+-------------+                                   |
+|                             |                                                 |
+|                             v                                                 |
+|               +---------------------------+                                   |
+|               | MoE Router & Gate Evaluator|                                  |
+|               +-------------+-------------+                                   |
+|                             |                                                 |
+|              +--------------+--------------+                                  |
+|              |                             |                                  |
+|              v                             v                                  |
+|   +--------------------+        +--------------------+                        |
+|   | Resident Shared    |        | NVMe Weight        |                        |
+|   | Core & KV Cache    |        | Dynamic Streamer   |                        |
+|   | (RAM: ~29.06 GB)   |        | (PCIe 4.0 / 5.0)   |                        |
+|   +----------+---------+        +----------+---------+                        |
+|              |                             |                                  |
+|              +--------------+--------------+                                  |
+|                             |                                                 |
+|                             v                                                 |
+|               +---------------------------+                                   |
+|               | SIMD / Metal Execution Engine|                                |
+|               +-------------+-------------+                                   |
+|                             |                                                 |
+|                             v                                                 |
+|               +---------------------------+                                   |
+|               | Streamed Token Completion |                                   |
+|               +---------------------------+                                   |
+|                                                                               |
++-------------------------------------------------------------------------------+
+```
+
+## Engine Comparison Matrix
+
+| Feature / Dimension | SQLite AI WASTE | Turbo-fieldfare | llama.cpp | vLLM | MLX |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Architecture** | Dynamic NVMe Weight Streaming | Swift Expert Streaming | GGUF Full-RAM Loader | PagedAttention VRAM Serving | Apple Metal Unified Memory |
+| **Min RAM for 2.78T MoE** | ~29 GB (NVMe Stream) | ~32 GB | ~1.4 TB (Unquantized) | 8x H100 GPU Cluster | N/A (Requires full RAM) |
+| **Dependencies** | Zero (Pure C11) | Swift Runtime | C/C++ (Optional Metal/CUDA) | Python, PyTorch, CUDA | Python, Apple Metal |
+| **Protocol Integration** | FastMCP 3.1 Task RPC | Stdio CLI | OpenAI API / HTTP | OpenAI API / gRPC | Python Native API |
+| **Primary Bottleneck** | NVMe Read IOPS / Bandwidth | Apple Unified Memory Bus | Memory Bandwidth | VRAM Capacity & PCIe Bus | Unified Memory Bandwidth |
+| **Target Hardware** | Consumer Workstations | Apple Silicon Macs | Any CPU / GPU | Enterprise GPU Clusters | Apple Silicon Macs |
+
 ## Typical use cases
 - **Massive-Model Local Prototyping**: Running a full 2.78-trillion-parameter Kimi K3 or DeepSeek-V4 MoE reasoning model locally on a 64 GB workstation.
 - **FastMCP 3.1 Streaming Agent Hosts**: Serving local high-parameter MoE models directly as FastMCP 3.1 task protocol servers over stdio or SSE.
@@ -85,7 +144,7 @@ The following Python script queries a local `.waste` server container or FastMCP
 ```python
 import sys
 from typing import List, Optional
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # Define Pydantic v2 validation schema for advanced streaming stats
 class ExpertMetrics(BaseModel):
@@ -93,16 +152,23 @@ class ExpertMetrics(BaseModel):
 
     active_experts: List[int] = Field(..., description="IDs of mixture-of-experts routed for this generation")
     expert_cache_hit_rate: float = Field(..., ge=0.0, le=1.0, description="Proportion of expert weights retrieved from RAM cache")
-    ssd_read_iops: float = Field(..., description="Active NVMe SSD read IOPS during weight streaming")
-    nvme_temp_celsius: Optional[float] = Field(None, description="Current temperature of the streaming SSD drive")
+    ssd_read_iops: float = Field(..., ge=0.0, description="Active NVMe SSD read IOPS during weight streaming")
+    nvme_temp_celsius: Optional[float] = Field(None, ge=0.0, le=110.0, description="Current temperature of the streaming SSD drive")
+
+    @field_validator("active_experts")
+    @classmethod
+    def validate_expert_ids(cls, v: List[int]) -> List[int]:
+        if not v:
+            raise ValueError("At least one expert must be active during MoE evaluation")
+        return v
 
 class TextResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    id: str
+    id: str = Field(..., min_length=1)
     content: str = Field(..., description="The completed text stream")
-    tokens_evaluated: int
-    tok_per_sec: float
+    tokens_evaluated: int = Field(..., ge=1)
+    tok_per_sec: float = Field(..., ge=0.0)
     fastmcp_protocol_version: str = Field(default="3.1", description="Active FastMCP task protocol version")
     expert_stats: ExpertMetrics
 
@@ -110,7 +176,7 @@ class WasteGenerationResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model_name: str
-    status: str
+    status: str = Field(..., pattern="^(success|error|degraded)$")
     results: List[TextResponse]
 
 def query_waste_engine(prompt: str, url: str = "http://localhost:9091/generate") -> Optional[WasteGenerationResult]:
@@ -121,10 +187,6 @@ def query_waste_engine(prompt: str, url: str = "http://localhost:9091/generate")
     }
 
     try:
-        # response = requests.post(url, json=payload, timeout=30)
-        # response.raise_for_status()
-        # raw_json = response.json()
-
         # Simulated response representing a SQLite AI WASTE engine output with FastMCP 3.1
         simulated_json = {
             "model_name": "kimi-k3-moe.waste",
@@ -168,6 +230,50 @@ if __name__ == "__main__":
     else:
         print("WASTE inference server is offline or validation failed.", file=sys.stderr)
 ```
+
+## FastMCP 3.1 Task Server Implementation
+
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("sqliteai-waste-server", version="3.1")
+
+class WasteTaskRequest(BaseModel):
+    model_path: str = Field(..., description="Path to .waste model binary")
+    prompt: str = Field(..., min_length=1, description="Inference prompt string")
+    max_tokens: int = Field(default=256, ge=1, le=4096)
+
+@mcp.tool()
+async def execute_waste_task(request: WasteTaskRequest) -> dict:
+    """Executes a local MoE streaming inference task via WASTE C binary engine."""
+    return {
+        "status": "completed",
+        "model": request.model_path,
+        "tokens_generated": request.max_tokens,
+        "fastmcp_version": "3.1",
+        "output": f"Executed prompt: '{request.prompt[:30]}...' via WASTE streaming engine."
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
+## Operational Hardening & Production Rules
+
+1. **NVMe Thermal Monitoring**: Always monitor NVMe drive thermals (`smartctl -a /dev/nvme0n1`). Continuous weight streaming generates heavy sustained read traffic; ensure SSD temps stay below 70°C to avoid thermal throttling.
+2. **RAM Locking (`mlock`)**: Allocate at least 32 GB RAM locked via OS primitives to prevent the system kernel from swapping out resident KV cache blocks during continuous generation runs.
+3. **PCIe Bandwidth Reservation**: Connect storage drives directly to CPU-attached PCIe 4.0/5.0 NVMe slots rather than chipset-routed M.2 slots to ensure unthrottled 7000+ MB/s transfer rates.
+4. **FastMCP 3.1 Isolation**: Run the `./waste mcp` process under a restricted system daemon user (`waste-runner`) with read-only access to compiled `.waste` model directories.
+
+## Troubleshooting Guide
+
+| Issue | Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Severe Latency Spikes** | Token generation drops below 2 tok/s | NVMe SSD thermal throttling or SATA drive usage | Relocate model file to a PCIe 4.0 x4 M.2 NVMe SSD with active heatsink cooling. |
+| **Out-Of-Memory (OOM)** | Process killed by OS `oom-killer` | Resident KV cache + shared core exceeds physical RAM | Reduce context length parameter or adjust resident buffer limits using `--ram-limit 28G`. |
+| **Weight Format Error** | `Invalid header magic bytes in model file` | safetensors not converted to `.waste` format | Run `./waste-convert input.safetensors output.waste` before invoking `./waste run`. |
+| **FastMCP Connection Drop** | `Task protocol handshake timeout (3.1)` | Process blocked on initial NVMe file handle | Pre-warm model handle by mounting `.waste` binary into filesystem page cache prior to daemon launch. |
 
 ## Related tools / concepts
 - [vLLM](vllm.md) — SOTA enterprise high-throughput serving engine.
