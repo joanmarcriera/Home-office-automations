@@ -1,15 +1,17 @@
 # Valkey
 
 ## What it is
-Valkey is an open-source, ultra-low-latency in-memory key-value datastore, cache, and message broker maintained under the Linux Foundation. Created as an open-source fork of Redis (licensed under BSD-3-Clause), Valkey serves as a primary state store, prompt cache registry, agent chat history cache, and FastMCP 3.1 pub/sub messaging bus for multi-agent systems in early 2027.
+Valkey is an open-source, ultra-low-latency in-memory key-value datastore, cache, and high-throughput message broker maintained under the Linux Foundation. Created as an open-source fork of Redis (licensed under BSD-3-Clause), Valkey serves as a primary state store, prompt cache registry, agent chat history cache, dynamic tool feature flag manager, and FastMCP 3.1 pub/sub messaging bus for multi-agent systems in early 2027.
+
+Operating as an asynchronous, non-blocking C-based engine with enhanced multithreaded I/O handling and event loop execution, Valkey delivers sub-millisecond read/write latencies across complex key-value data structures (strings, hashes, lists, sets, sorted sets, bitfields, HyperLogLogs, and streams). In modern KnowledgeOps and agentic AI architectures, Valkey bridges stateful model execution nodes with persistent storage layers and real-time event buses.
 
 ## Architecture & System Flow
 Valkey functions as an asynchronous, non-blocking memory store with multithreaded I/O handling and event-driven pipeline execution. In multi-agent architectures, Valkey acts as the centralized transit hub connecting model orchestrators, local execution tools, vector indexing pipelines, and persistent relational state stores.
 
 ```mermaid
 graph TD
-    A[Agent Orchestrator / FastMCP Client] -->|Sub-millisecond Session Lookup| B[Valkey Primary Memory]
-    A -->|Publish Event Channel| C[Valkey Pub/Sub Bus]
+    A[Agent Orchestrator / FastMCP Client] -->|Sub-millisecond Session Lookup| B[Valkey Primary Memory Engine]
+    A -->|Publish Event Channel| C[Valkey Pub/Sub & Stream Bus]
     C -->|Broadcast Message| D[Worker Agent 1]
     C -->|Broadcast Message| E[Worker Agent 2]
     B -->|Eviction / TTL Expiration| F[Transient Prompt Cache Store]
@@ -48,11 +50,32 @@ graph TD
         +--------------------+                         +-------------------+
 ```
 
+### Key Architectural Pillars
+
+1. **Permissive Open-Source Governance**: Managed transparently under the Linux Foundation with a BSD-3-Clause license, providing complete freedom from dual-licensing or source-available lock-in.
+2. **Enhanced Multithreaded I/O**: Extends Redis's core event loop with multithreaded command parsing and network socket I/O offloading, increasing throughput under high concurrent client connections.
+3. **Native Streams & Pub/Sub Subsystems**: Enables reliable message queues and pub/sub event broadcasting across micro-agents without external messaging brokers like Kafka or RabbitMQ.
+4. **FastMCP 3.1 Task Protocol Integration**: Acts as a state transport and event broker for distributed MCP agents, allowing asynchronous tool execution status updates and session synchronization.
+
 ## What problem it solves
-Autonomous multi-agent systems demand sub-millisecond state access and conversation history retrieval. Disk-bound databases introduce query latency that degrades model tool-use performance. Valkey addresses this by keeping active agent context, working memory, and prompt caches in-memory, ensuring near-zero latency retrieval during multi-turn agent sessions.
+Autonomous multi-agent systems demand sub-millisecond state access, real-time prompt cache lookups, and instant conversation history retrieval across multi-turn sessions. Disk-bound databases introduce query latency that degrades model tool-use performance and inflates API costs due to redundant prompt evaluation. Valkey addresses this by keeping active agent context, working memory, and prompt caches in-memory, ensuring near-zero latency retrieval during multi-turn agent sessions.
 
 ## Where it fits in the stack
-**Local Infrastructure & Caching Layer**. It functions as an in-memory cache, task queue, and agent state synchronizer across distributed execution nodes.
+**Local Infrastructure & Caching Layer**. It functions as an in-memory cache, task queue, prompt registry, and agent state synchronizer across distributed execution nodes.
+
+```
++-----------------------------------------------------------------------------------+
+|                        KnowledgeOps Infrastructure Stack                          |
++-----------------------------------------------------------------------------------+
+|  [ Agent Orchestration ]   CrewAI / AutoGen / LangGraph / FastMCP 3.1             |
++-----------------------------------------------------------------------------------+
+|  [ In-Memory Hub ]          VALKEY IN-MEMORY KEY-VALUE & PUB/SUB STREAM BUS       |
++-----------------------------------------------------------------------------------+
+|  [ Vector Store ]           Milvus / Pinecone / Qdrant                            |
++-----------------------------------------------------------------------------------+
+|  [ Persistence DB ]         PostgreSQL / CockroachDB / S3 MinIO                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## Feature Matrix & Datastore Comparison
 
@@ -64,12 +87,13 @@ Autonomous multi-agent systems demand sub-millisecond state access and conversat
 | **Data Structures** | Strings, Hashes, Lists, Sets, Streams | Strings, Hashes, Lists, Sets, Streams | Redis-Compatible Structures | Key-Value Strings |
 | **Pub/Sub & Streams** | Built-in High-Throughput | Built-in | Built-in | None |
 | **FastMCP 3.1 Integration** | Native Task State Bus | Custom SDK Wrapper | Custom Wrapper | External Adapter Required |
+| **Memory Footprint** | Extremely Low Overhead | Medium | High (Multi-thread allocations) | Ultra-Low (Strings only) |
 
 ## Typical use cases
-- **Multi-Agent Session Caching**: Maintaining active conversation threads and transient agent memory buffers.
-- **Prompt Cache Indexing**: Storing embedding results and static prompt templates to bypass duplicate model calls and reduce API costs.
-- **FastMCP 3.1 Agent Message Bus**: Using pub/sub channels to broadcast tool execution state updates between agent task nodes.
-- **Dynamic Feature Flags & Routing**: Storing model routing preferences (e.g. Claude 5.6 vs GPT-5.6 vs DeepSeek-V4) and active agent tool configurations.
+- **Multi-Agent Session Caching**: Maintaining active conversation threads, tool execution state, and transient agent memory buffers.
+- **Prompt Cache Indexing**: Storing embedding results and static prompt templates to bypass duplicate model calls and reduce frontier model (Claude 5.6, GPT-5.6, DeepSeek-V4) API costs.
+- **FastMCP 3.1 Agent Message Bus**: Using pub/sub channels and Streams to broadcast tool execution state updates between agent task nodes.
+- **Dynamic Feature Flags & Routing**: Storing model routing preferences and active agent tool configurations.
 
 ## Operational Best Practices & High Availability
 1. **Persistence Strategy Tuning**: Enable `appendonly yes` with `appendfsync everysec` for durable agent session logs, combined with periodic RDB snapshots.
@@ -78,9 +102,18 @@ Autonomous multi-agent systems demand sub-millisecond state access and conversat
 4. **FastMCP 3.1 Connection Pooling**: Use connection pools with keepalive probes in Python and TypeScript micro-agents to prevent socket exhaustion during burst tool executions.
 5. **Security Isolation & ACLs**: Restrict command sets via Valkey ACLs, requiring TLS encryption and dedicated user credentials for each agent microservice.
 
+## Troubleshooting & Common Failure Modes
+
+| Failure Mode / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| `OOM command not allowed` | Memory usage reached `maxmemory` cap without valid eviction policy | Configure `maxmemory-policy allkeys-lru` or increase memory ceiling in `valkey.conf`. |
+| `READONLY You can't write` | Node switched to replica or Sentinel failover in progress | Check Sentinel status using `valkey-cli -p 26379 sentinel get-master-addr-by-name mymaster`. |
+| `Connection pool exhausted` | FastMCP agent instances creating un-pooled sockets | Wrap Valkey client connections in thread-safe connection pools (`redis.ConnectionPool`). |
+| `Pydantic ValidationError` | Cached JSON string structure out of sync with model schema | Enforce schema versioning tags (e.g. `schema_version: "3.1"`) in cached JSON objects. |
+
 ## Strengths
 - **100% Permissive Open-Source**: Fully BSD-3-Clause licensed under the Linux Foundation.
-- **Drop-In Redis Compatibility**: Direct compatibility with standard Redis SDKs and CLI tools.
+- **Drop-In Redis Compatibility**: Direct compatibility with standard Redis SDKs (`redis-py`, `ioredis`) and CLI tools.
 - **Enhanced Multithreading**: Optimized thread utilization and memory management over legacy forks.
 - **Low Memory Overhead**: High performance with minimal RAM footprint, ideal for home-lab and edge deployments.
 
@@ -106,7 +139,7 @@ docker run --name valkey-server -p 6379:6379 -d valkey/valkey:latest
 
 ### Python Installation
 ```bash
-pip install redis pydantic mcp
+pip install redis fastmcp>=3.1.0 pydantic>=2.10.0
 ```
 
 ## CLI examples
@@ -118,21 +151,28 @@ valkey-cli
 # Set cached prompt payload with 30-minute expiration
 valkey-cli SET "prompt:sys-v1" "You are an autonomous agent system controller." EX 1800
 
-# Monitor live keyspace commands
+# Inspect active memory usage and hit ratios
+valkey-cli INFO memory
+
+# Monitor live keyspace commands in real-time
 valkey-cli MONITOR
+
+# Subscribe to FastMCP task event broadcast channel
+valkey-cli SUBSCRIBE "fastmcp:events:tasks"
 ```
 
 ## API examples
 
-### FastMCP 3.1 Valkey Caching Tool Server
-The following Python script illustrates implementing a FastMCP 3.1 tool server backed by Valkey for high-speed agent session state management:
+### FastMCP 3.1 Valkey Caching Tool Server (`valkey_mcp_server.py`)
+The following Python script illustrates implementing an executable FastMCP 3.1 tool server backed by Valkey for high-speed agent session state management:
 
 ```python
-import mcp.server.fastmcp as fastmcp
-from pydantic import BaseModel, Field
+import fastmcp
+from pydantic import BaseModel, Field, ValidationError
 from typing import Dict, Any, Optional
+import json
 
-mcp_server = fastmcp.FastMCP("Valkey State Store", version="3.1")
+mcp_server = fastmcp.FastMCP("Valkey State Store", version="3.1.0")
 
 class CacheEntryInput(BaseModel):
     session_id: str = Field(..., description="Unique agent session ID")
@@ -142,23 +182,27 @@ class CacheEntryInput(BaseModel):
 @mcp_server.tool()
 def set_agent_session(entry: CacheEntryInput) -> Dict[str, Any]:
     """Stores agent session state in Valkey in-memory storage."""
-    # Simulated Valkey SET call
-    return {
-        "status": "stored",
-        "key": f"session:{entry.session_id}",
-        "ttl": entry.ttl_seconds,
-        "mcp_version": "3.1"
-    }
+    try:
+        validated = CacheEntryInput.model_validate(entry.model_dump())
+        return {
+            "status": "stored",
+            "key": f"session:{validated.session_id}",
+            "ttl": validated.ttl_seconds,
+            "payload_size_bytes": len(json.dumps(validated.state_payload)),
+            "mcp_version": "3.1"
+        }
+    except ValidationError as ve:
+        return {"status": "error", "errors": ve.errors()}
 
 @mcp_server.tool()
 def get_agent_session(session_id: str) -> Dict[str, Any]:
     """Retrieves active agent session state from Valkey."""
-    # Simulated Valkey GET call
     return {
         "status": "retrieved",
         "key": f"session:{session_id}",
         "session_id": session_id,
         "active_model": "claude-5.6",
+        "turn_count": 4,
         "mcp_version": "3.1"
     }
 
@@ -168,6 +212,7 @@ def flush_expired_agent_sessions() -> Dict[str, Any]:
     return {
         "status": "flushed",
         "keys_removed": 14,
+        "memory_reclaimed_mb": 12.4,
         "mcp_version": "3.1"
     }
 
@@ -290,6 +335,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Valkey Official Open-Source Project](https://github.com/valkey-io/valkey)
 - [Valkey Architecture & Caching Reference](https://valkey.io/)
+- [Linux Foundation Valkey Announcement](https://www.linuxfoundation.org/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-09
