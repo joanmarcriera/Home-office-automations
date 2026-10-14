@@ -9,6 +9,26 @@ Managing a modern home lab requires balancing power efficiency, cost, and raw in
 ## Where it fits in the stack
 This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. It provides the physical foundation upon which the entire Multi-Agent KnowledgeOps stack (Docker, K3s, n8n, Ollama) is built.
 
+```
++-----------------------------------------------------------------------------------+
+|                        Home Lab Hardware Topology (2027)                           |
++-----------------------------------------------------------------------------------+
+                                          |
+        +---------------------------------+---------------------------------+
+        |                                 |                                 |
+        v                                 v                                 v
++-----------------------+     +-----------------------+     +-----------------------+
+|  Persistent Services  |     |   Dedicated GPU Server|     | Apple Silicon Unified |
+|  Intel N100 / N200    |     |   x86 + RTX 4060/5070   |     | M5/M6 Pro / Max Node  |
+|                       |     |                       |     |                       |
+| - K3s Control Plane   |     | - Fast 3-14B LLMs     |     | - 32-70B+ LLMs        |
+| - Home Assistant      |     | - Whisper Transcription|     | - 128k Context Windows|
+| - Paperless-ngx       |     | - Flux Image Gen      |     | - MLX Local Studio    |
+| - N8n & PostgreSQL    |     | - NVENC Transcoding   |     | - Unified RAM Pool    |
+| - 6W-15W Baseline TDP |     | - Sub-10ms Inference  |     | - Ultra-Quiet Burst   |
++-----------------------+     +-----------------------+     +-----------------------+
+```
+
 ## Typical use cases
 
 ### Model Routing and Placement
@@ -17,13 +37,13 @@ This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. I
 - **Background Tasks**: Offloading audio transcription (Whisper) and image generation (Flux) to dedicated GPU servers.
 
 ### VRAM and Memory Capacity Planning
-| Model Size | Min VRAM (Q4_K_M) | Hardware Recommendation |
-| :--- | :--- | :--- |
-| **1-3B** | 2-3 GB | Raspberry Pi 5+, Intel N100 |
-| **7-8B** | 5-6 GB | RTX 4060 8GB, M5 16GB, RTX 5060 |
-| **13-14B** | 9-10 GB | RTX 4060 Ti 16GB, M5 24GB, RTX 5070 |
-| **32-35B** | 20-22 GB | RTX 3090/4090/5080, M5 36GB+ |
-| **70B+** | 40 GB+ | 2x RTX 3090/4090, RTX 5090, M5 Max 64GB+ |
+| Model Size | Min VRAM (Q4_K_M) | Recommended Hardware Profile | Power Draw (Idle / Peak) | Target Latency / TPO |
+| :--- | :--- | :--- | :--- | :--- |
+| **1-3B** | 2-3 GB | Raspberry Pi 5+, Intel N100 | 5W / 15W | > 60 tokens/sec |
+| **7-8B** | 5-6 GB | RTX 4060 8GB, M5 16GB, RTX 5060 | 12W / 115W | > 45 tokens/sec |
+| **13-14B** | 9-10 GB | RTX 4060 Ti 16GB, M5 24GB, RTX 5070 | 15W / 165W | > 35 tokens/sec |
+| **32-35B** | 20-22 GB | RTX 3090/4090/5080, M5 36GB+ | 25W / 320W | > 25 tokens/sec |
+| **70B+** | 40 GB+ | 2x RTX 3090/4090, RTX 5090, M5 Max 64GB+ | 45W / 650W | > 18 tokens/sec |
 
 ## Strengths
 - **Hybrid Performance**: Combines the 24/7 reliability of x86 servers with the burst inference power of Apple Silicon.
@@ -58,6 +78,96 @@ The **Raspberry Pi 5+** (or Pi 500) serves as the primary "Edge" device.
 
 ### 3. The Inference King (RTX 4060 Ti 16GB & RTX 5070 16GB)
 The 16GB variants of the **RTX 4060 Ti** and the new **RTX 5070** are the recommended mid-range entry points for 24/7 inference servers due to their high VRAM-per-watt efficiency.
+
+## FastMCP 3.1 Hardware Resource Management Server
+The following FastMCP 3.1 server provides agentic tools to inspect homelab hardware nodes, query GPU memory state, evaluate model placement readiness, and track thermal metrics.
+
+```python
+from typing import Dict, List, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP(name="homelab-hardware-monitor")
+
+class HardwareNodeStatus(BaseModel):
+    node_id: str = Field(..., description="Unique node identifier")
+    platform: str = Field(..., description="Architecture platform (x86_gpu, apple_silicon, low_power_x86)")
+    cpu_utilization_pct: float = Field(..., ge=0.0, le=100.0)
+    total_ram_gb: float = Field(..., ge=1.0)
+    free_ram_gb: float = Field(..., ge=0.0)
+    vram_total_gb: float = Field(default=0.0, ge=0.0)
+    vram_free_gb: float = Field(default=0.0, ge=0.0)
+    gpu_temp_celsius: Optional[float] = Field(default=None)
+
+@mcp.tool()
+def get_cluster_hardware_summary() -> List[HardwareNodeStatus]:
+    """Retrieves current hardware utilization across all homelab compute nodes."""
+    return [
+        HardwareNodeStatus(
+            node_id="n100-master",
+            platform="low_power_x86",
+            cpu_utilization_pct=14.2,
+            total_ram_gb=16.0,
+            free_ram_gb=9.5,
+            vram_total_gb=0.0,
+            vram_free_gb=0.0,
+        ),
+        HardwareNodeStatus(
+            node_id="rtx-rig-01",
+            platform="x86_gpu",
+            cpu_utilization_pct=22.8,
+            total_ram_gb=64.0,
+            free_ram_gb=48.2,
+            vram_total_gb=16.0,
+            vram_free_gb=11.4,
+            gpu_temp_celsius=52.0,
+        ),
+        HardwareNodeStatus(
+            node_id="mac-studio-m6",
+            platform="apple_silicon",
+            cpu_utilization_pct=8.5,
+            total_ram_gb=64.0,
+            free_ram_gb=38.0,
+            vram_total_gb=48.0,  # Effective unified memory pool
+            vram_free_gb=28.5,
+            gpu_temp_celsius=41.0,
+        ),
+    ]
+
+@mcp.tool()
+def evaluate_model_placement(
+    model_name: str,
+    required_vram_gb: float,
+    allow_unified_memory: bool = True,
+) -> Dict[str, str]:
+    """Determines optimal node placement for an incoming model workload based on VRAM requirements."""
+    nodes = get_cluster_hardware_summary()
+    candidates = []
+
+    for node in nodes:
+        available_mem = node.vram_free_gb
+        if node.platform == "apple_silicon" and allow_unified_memory:
+            available_mem = node.free_ram_gb * 0.75
+
+        if available_mem >= required_vram_gb:
+            candidates.append((node.node_id, available_mem))
+
+    if not candidates:
+        return {"status": "REJECTED", "reason": f"No single node has {required_vram_gb} GB free VRAM/Unified RAM."}
+
+    # Pick node with smallest adequate margin to preserve large nodes
+    candidates.sort(key=lambda x: x[1])
+    best_node = candidates[0][0]
+    return {
+        "status": "APPROVED",
+        "target_node": best_node,
+        "model_name": model_name,
+        "required_vram_gb": str(required_vram_gb),
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ## CLI examples
 
@@ -161,6 +271,15 @@ model_list:
   "expected_range": "30-80"
 }
 ```
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out Of Memory (OOM)** | Model context window or KV cache exceeding physical GPU VRAM | `nvidia-smi` / `dmesg \| grep -i oom` | Reduce `num_ctx` in Ollama, switch to higher quantization (Q4_K_M -> Q3_K_S), or route to Apple Silicon node |
+| **Thermal Throttling on Mini PC** | Dusty fan or inadequate air circulation on low-power chassis | `sensors` / `cat /sys/class/thermal/thermal_zone*/temp` | Clean dust filters, adjust fan curve in BIOS, or add external 120mm USB cooling fan |
+| **P2P PCIe Bottleneck** | Dual-GPU setup running across PCIe Gen 3 x4 slots without NVLink | `nvidia-smi topo -m` | Re-align GPU slots to PCIe Gen 4/5 x8/x16, or switch to split-tensor parallelism over fast LAN |
+| **AVX-512 Instruction Fallback** | CPU backend using slow fallback matrix instructions | `lscpu \| grep -i avx512` | Recompile llama.cpp with `-DGGML_AVX512=ON` flag explicitly set |
 
 ## Related tools / concepts
 - [Ollama](../services/ollama.md) — The primary engine for running LLMs on this hardware.

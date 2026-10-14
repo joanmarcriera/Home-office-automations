@@ -13,11 +13,28 @@ Before MCP, every AI agent framework (LangChain, AutoGen, LlamaIndex) required c
 The Model Context Protocol establishes a bidirectional client-server relationship over JSON-RPC 2.0 primitives:
 
 ```
-+-------------------+      JSON-RPC 2.0 over stdio/SSE      +-------------------+
-|  AI Client Host   | <===================================> |   MCP Server      |
-| (Claude, Cursor,  |   - tools/list, tools/call            | (FastMCP 3.1)     |
-|   Open WebUI)     |   - resources/list, resources/read    |   - System APIs   |
-+-------------------+   - prompts/list, prompts/get         +-------------------+
++-----------------------------------------------------------------------------------+
+|                     Model Context Protocol Ecosystem (FastMCP 3.1)                 |
++-----------------------------------------------------------------------------------+
+                                          |
+  +---------------------------------------+---------------------------------------+
+  |                                       |                                       |
+  v                                       v                                       v
++-----------------------+     +-----------------------+     +-----------------------+
+|   Host Application    |     |  Transport Protocol   |     |     MCP Server        |
+|                       |     |                       |     |     (FastMCP 3.1)     |
+| - Claude Code / Cursor| ===>| - stdio (Subprocess)  |<===>| - Tool Handlers       |
+| - Open WebUI / Agent  |     | - SSE / HTTP Stream   |     | - Resource Providers  |
+| - Custom Python Loop  |     | - JSON-RPC 2.0 Spec   |     | - Prompt Templates    |
++-----------------------+     +-----------------------+     +-----------------------+
+                                          |
+                                          v
+                              +-----------------------+
+                              | Target Integrations   |
+                              | - Homelab / K3s APIs  |
+                              | - Postgres / VectorDB |
+                              | - Home Assistant      |
+                              +-----------------------+
 ```
 
 ### Core Primitives
@@ -176,6 +193,45 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+### JSON-RPC Protocol Message Schema (Pydantic v2)
+The following script validates JSON-RPC 2.0 tool-call messages used internally by MCP clients:
+
+```python
+from typing import Dict, Any, Optional, Literal
+from pydantic import BaseModel, Field, ValidationError
+
+class JSONRPCRequest(BaseModel):
+    jsonrpc: Literal["2.0"] = "2.0"
+    id: int | str = Field(..., description="Request identifier matching response")
+    method: str = Field(..., description="MCP JSON-RPC method (e.g., tools/call, tools/list)")
+    params: Dict[str, Any] = Field(default_factory=dict, description="Method parameters")
+
+class JSONRPCResponse(BaseModel):
+    jsonrpc: Literal["2.0"] = "2.0"
+    id: int | str
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[Dict[str, Any]] = None
+
+# Example validation check
+if __name__ == "__main__":
+    req_json = {
+        "jsonrpc": "2.0",
+        "id": 101,
+        "method": "tools/call",
+        "params": {"name": "evaluate_node_health", "arguments": {"node_id": "k3s-master"}}
+    }
+    validated_req = JSONRPCRequest.model_validate(req_json)
+    print(f"Validated JSON-RPC call for method: {validated_req.method}")
+```
+
+## Transport Layer & Protocol Capability Matrix
+
+| Transport Type | Primary Target | Framing / Format | Security Model | Recommended Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **stdio** | Local Agent Subprocesses | Newline-delimited JSON-RPC 2.0 | Process isolation, inherited environment | Claude Code CLI, Cursor, local desktop apps |
+| **SSE (Server-Sent Events)** | Containerized / Remote Services | HTTP GET `/sse` + POST `/message` | TLS + API Bearer Tokens + Docker network isolation | Open WebUI, multi-node K3s cluster tools |
+| **WebSocket** (Experimental) | High-Frequency Realtime Streams | Bidirectional WS Frames | TLS + Subprotocol Tokens | High-throughput sensor streaming / audio pipelines |
+
 ## Production Deployment & Operational Considerations
 - **Process Supervision**: Run stdio MCP servers under systemd or Supervisor to ensure continuous daemon availability.
 - **Docker / Podman Isolation**:
@@ -185,9 +241,12 @@ if __name__ == "__main__":
 - **Observability**: Log incoming JSON-RPC calls, execution latency, and exceptions to stdout or structured logging services for troubleshooting.
 
 ## Troubleshooting & Common Failure Modes
-- **Client Connection Timeout on stdio**: Occurs if the server writes unformatted print statements to stdout. Ensure all custom logging uses `stderr` so stdio transport remains clean.
-- **Tool Schema Rejection**: Client model fails to invoke tools when parameters mismatch. Use Pydantic v2 fields with explicit descriptions to guide model tool selection.
-- **SSE Network Port Conflicts**: Ensure the designated SSE port (e.g., 8000) is open and not bound by another service.
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Client Connection Timeout on stdio** | Server writing unformatted print/logging statements to stdout | `python server.py 2> /tmp/mcp_err.log` | Direct all custom logging strictly to `sys.stderr` or python `logging` module so stdout remains pure JSON-RPC |
+| **Tool Schema Rejection by LLM Client** | Mismatch in parameter descriptions or missing required field annotations | `mcp dev server.py` | Ensure all function inputs use Pydantic v2 or explicit type hints with `Field(description=...)` |
+| **SSE Network Port Conflicts / 404** | Remote agent hitting wrong endpoint URI (e.g. missing `/sse`) | `curl -i http://localhost:8000/sse` | Confirm client endpoint URL matches server listener, open firewall port 8000 |
 
 ## Related tools / concepts
 - [MCP Registry](mcp-registry.md) — Central directory for open-source MCP servers.
@@ -201,7 +260,6 @@ if __name__ == "__main__":
 - [FastMCP GitHub Repository](https://github.com/jlowin/fastmcp)
 - [MCP Server Examples Repository](https://github.com/modelcontextprotocol/servers)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

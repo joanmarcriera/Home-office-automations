@@ -88,7 +88,7 @@ nInfer re-architects key attention and memory management layers to enable massiv
 - When evaluating extreme-context local RAG or whole-repo analysis workflows.
 
 ## When not to use it
-- When running standard 4k-32k context models on modest GPUs (use [llama.cpp](llama-cpp.md), [vLLM](vllm.md), or [Ollama](ollama.md) instead).
+- When running standard 4k-32k context models on modest GPUs (use [llama.cpp](llama-cpp.md), [vLLM](vllm.md), or [Ollama](../../services/ollama.md) instead).
 - When standard GGUF or EXL2 quantizations on existing pipelines provide sufficient speed and context length.
 
 ## Installation / setup
