@@ -128,6 +128,77 @@ def analyze_company_fundamentals(symbol: str) -> dict:
 print(analyze_company_fundamentals("MSFT"))
 ```
 
+### FastMCP 3.1 Financial Intelligence Server Tool Implementation
+Expose OpenBB's multi-provider SDK endpoints directly to autonomous AI agents using a native FastMCP 3.1 streamable-http / stdio server pattern:
+
+```python
+import asyncio
+from typing import List, Optional, Dict, Any
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+from openbb import obb
+
+# Initialize FastMCP 3.1 server for OpenBB financial tools
+mcp = FastMCP(
+    name="OpenBB Financial Intelligence Gateway",
+    version="3.1.0",
+    description="Standardized FastMCP server exposing multi-asset market data and corporate fundamentals"
+)
+
+class TickerQueryInput(BaseModel):
+    symbol: str = Field(..., description="Stock ticker symbol (e.g. NVDA, AAPL, MSFT)")
+    provider: Optional[str] = Field("fmp", description="Downstream financial provider (fmp, polygon, yfinance)")
+    limit: Optional[int] = Field(5, ge=1, le=50, description="Max result items")
+
+class MacroQueryInput(BaseModel):
+    indicator: str = Field(..., description="Macroeconomic indicator ID or search query (e.g., CPI, UNRATE, GDP)")
+    provider: Optional[str] = Field("fred", description="Macro provider (fred, eia, ecb)")
+
+@mcp.tool(
+    name="get_corporate_income_statement",
+    description="Fetch normalized audited corporate income statements and top-line figures."
+)
+async def get_corporate_income_statement(query: TickerQueryInput, ctx: Context) -> Dict[str, Any]:
+    await ctx.info(f"Querying OpenBB income statement for {query.symbol} via {query.provider}")
+    try:
+        data = obb.stocks.fa.income(symbol=query.symbol, provider=query.provider)
+        df = data.to_df()
+        if df.empty:
+            return {"status": "empty", "symbol": query.symbol, "records": []}
+        records = df.head(query.limit).reset_index().to_dict(orient="records")
+        return {
+            "status": "success",
+            "symbol": query.symbol.upper(),
+            "provider_used": query.provider,
+            "record_count": len(records),
+            "data": records
+        }
+    except Exception as e:
+        await ctx.error(f"OpenBB income statement retrieval failed: {str(e)}")
+        return {"status": "error", "error_message": str(e), "symbol": query.symbol}
+
+@mcp.tool(
+    name="get_macroeconomic_series",
+    description="Fetch standardized macroeconomic time series data from Federal Reserve (FRED) or EIA."
+)
+async def get_macroeconomic_series(query: MacroQueryInput, ctx: Context) -> Dict[str, Any]:
+    await ctx.info(f"Fetching macro series {query.indicator} from {query.provider}")
+    try:
+        data = obb.economy.fred_series(symbol=query.indicator)
+        df = data.to_df()
+        records = df.tail(12).reset_index().to_dict(orient="records")
+        return {
+            "status": "success",
+            "indicator": query.indicator.upper(),
+            "recent_observations": records
+        }
+    except Exception as e:
+        return {"status": "error", "error_message": str(e), "indicator": query.indicator}
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
 ### Python (Financial Data Schema Validation with Pydantic v2)
 Ensure data integrity when fetching financial intelligence from OpenBB by validating raw API data outputs against clean, type-coerced Pydantic schemas:
 
@@ -170,6 +241,30 @@ raw_response = {
 profile = ValuationProfile.model_validate(raw_response)
 print(f"Validated financial profile for {profile.company_name} (Ticker: {profile.metrics.symbol})")
 ```
+
+## Architectural Comparison & Provider Matrix
+
+| Platform / Engine | Primary Focus | MCP 3.1 Integration | Schema Normalization | Cost Model | Best Agentic Deployment |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **OpenBB Platform v5.2** | Multi-asset financial & macro quantitative data | Native (`openbb-mcp-server`) | Universal Pydantic / DataFrame normalization across 50+ sources | Free core framework; downstream provider API keys required | Production Agentic Financial Research & Trading Copilots |
+| **Bloomberg Terminal API / BLPAPI** | Enterprise institutional financial trading & analysis | Custom wrapper required | Proprietary C++/Java SDK structures | High ($27,000+/user/year) | Wall St institutional desks with dedicated Bloomberg subscriptions |
+| **Direct FMP / Polygon REST APIs** | Single-provider financial endpoint access | Manual FastMCP implementation needed per vendor | Vendor-specific raw JSON | Paid per-request or tier-based monthly | Simple single-source data fetching scripts |
+| **Tavily / Perplexity Web Search** | Unstructured web search & unstructured news rag | Native or standard tools | Unstructured text snippets / Markdown | Tiered per-query pricing | Broad qualitative web grounding & press release discovery |
+
+## Operational Hardening & Security Best Practices
+- **Credential Segregation**: Store API provider keys (e.g. Polygon, FMP, AlphaVantage, FRED) in encrypted secrets managers or environment variables (`.env`) rather than hardcoding in scripts or agent system prompts.
+- **Dynamic Tool Throttling**: Configure `openbb-mcp-server` rate-limit rules to prevent LLM retry loops from exhausting downstream provider quota limits during complex multi-step reasoning runs.
+- **Filter Unused Endpoints**: Restrict exposed MCP tools via the `--allowed-categories` flag (e.g. `--allowed-categories economy,news`) to prevent context bloat and hallucinated API parameter combinations in smaller models (e.g., Llama 3 8B, Qwen 2.5 7B).
+- **Bearer Auth Enforcements**: Enable Base64 Bearer authentication when deploying `openbb-mcp` over HTTP/streamable-http endpoints in shared network environments or Kubernetes ingress routes.
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Exception: Empty Dataframe` returned from `obb.stocks.fa.income` | Invalid ticker symbol or insufficient access tier for selected downstream provider | Verify symbol formatting and ensure valid API key is set under `obb.account.credentials` for the requested provider. |
+| `401 Unauthorized` on FastMCP HTTP connection | Missing or invalid Bearer credentials passed in request headers | Set `OPENBB_MCP_SERVER_AUTH` environment variable and pass correct Base64 Bearer header in client config. |
+| Agent context window exhaustion during tool selection | Exposing hundreds of OpenBB endpoints simultaneously to client LLM | Launch `openbb-mcp` with `--allowed-categories` or enable dynamic tool discovery to lazily expose tools. |
+| Rate-limit `429 Too Many Requests` from FRED / Polygon | Rapid agent loop issuing unthrottled API calls | Wrap OpenBB tool invocations in an async queue or implement client-side caching with Redis for historical daily prices. |
 
 ## Related tools / concepts
 - [Tavily](../providers/tavily.md) — Sibling search provider optimized for broad real-time unstructured queries.

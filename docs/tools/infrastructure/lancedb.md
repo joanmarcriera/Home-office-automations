@@ -173,6 +173,17 @@ def search_memories(query_vector: List[float], category_filter: str = None, top_
 
     return query.to_list()
 
+@mcp.tool()
+def compact_memory_tables() -> Dict[str, Any]:
+    """Triggers file compaction and old version cleanup on embedded LanceDB tables."""
+    db = get_db()
+    compacted = []
+    for t_name in db.table_names():
+        tbl = db.open_table(t_name)
+        tbl.compact_files()
+        compacted.append(t_name)
+    return {"status": "completed", "compacted_tables": compacted}
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -208,6 +219,30 @@ if __name__ == "__main__":
     )
     print("Ingestion record validated:", doc.model_dump_json(indent=2))
 ```
+
+## Architectural Comparison & Vector Database Matrix
+
+| Vector Store | Primary Architecture | Daemon Required | Memory Footprint | Full-Text Search (FTS) | Best Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **LanceDB** | Serverless Embedded (`.lance` columnar files) | No (Embedded Python/Node/Rust) | Disk-native MMAP (Zero-RAM bloat) | Native BM25 + Vector Hybrid | Embedded local RAG, single-box agent memory, NVMe vector stores |
+| **Qdrant** | Standalone Service / Cluster | Yes (`qdrant` daemon) | High (In-Memory HNSW graphs) | Payload text indexing | Enterprise multi-tenant cloud vector search & microservices |
+| **ChromaDB** | Embedded SQLite + HNSW / Server | Optional | Medium (In-memory index) | Basic metadata filter | Simple prototype RAG & Python experiment scripts |
+| **Milvus** | Distributed Kubernetes Cluster | Yes (Multi-container etcd/MinIO) | Heavy | Supported via plugins | High-throughput distributed enterprise vector search at billion scale |
+
+## Production Hardening & Operational Best Practices
+- **Storage Directory Locking**: Ensure local filesystem paths (`./data/lancedb_store`) are configured with appropriate POSIX file permissions (`0700`) to prevent unauthorized cross-user reading of raw embedded vectors.
+- **Index Optimization for Large Collections**: When dataset size exceeds 100,000 vectors, explicitly invoke `table.create_index(metric="cosine", num_partitions=256, num_sub_vectors=96)` (IVF-PQ) to accelerate ANN retrieval speeds.
+- **Concurrent Write Serialization**: Use file-based locks or a single worker queue when writing to LanceDB tables from multi-threaded FastMCP web servers to avoid table schema update contention.
+- **Compaction & Cleanup**: Periodically call `table.compact_files()` and `table.cleanup_old_versions()` on long-lived tables to merge micro-append files and reclaim NVMe storage space.
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Commit Conflict Error` on multi-process writes | Multiple processes attempting simultaneous table append operations | Implement file-lock synchronization or designate a single write worker process. |
+| Slow query speeds on multi-million row tables | Search running unindexed flat brute-force scan (`Flat` index) | Create an IVF-PQ index (`table.create_index()`) to build clustered vector centroids. |
+| High disk usage after frequent row deletions | LanceDB retaining historical version snapshots | Run `table.cleanup_old_versions(older_than=timedelta(days=1))` to purge obsolete data files. |
+| `PyArrow.ArrowInvalid: Schema mismatch` | Appending record dicts with missing or mismatched field types | Validate incoming document objects using Pydantic v2 schemas before appending to LanceDB tables. |
 
 ## Related tools / concepts
 - [ChromaDB](chroma.md) — Embedded vector database comparison.

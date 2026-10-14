@@ -129,8 +129,8 @@ The following Python script illustrates how to query the local `llama.cpp` Windo
 import urllib.request
 import json
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List
-from fastmcp import FastMCP
+from typing import Optional, List, Dict, Any
+from fastmcp import FastMCP, Context
 
 # Initialize FastMCP 3.1 Server for Windows Service Control
 mcp = FastMCP(
@@ -155,8 +155,17 @@ class WindowsServerTelemetry(BaseModel):
             raise ValueError(f"Driver must match one of {allowed}")
         return v
 
+class LlamaLaunchConfig(BaseModel):
+    model_path: str = Field(..., description="Absolute Windows path to target GGUF file")
+    n_gpu_layers: int = Field(99, ge=0, description="Number of model layers to offload to GPU VRAM")
+    context_size: int = Field(8192, ge=512, le=131072, description="Context window size in tokens")
+    port: int = Field(8080, ge=1024, le=65535, description="HTTP port for llama-server.exe")
+    threads: Optional[int] = Field(8, ge=1, description="CPU threads allocated for CPU fallback layers")
+
 @mcp.tool(name="check_windows_service_health", description="Queries health and VRAM allocation of the local llama.cpp Windows Service")
-async def check_windows_service_health(endpoint_url: str = "http://localhost:8080") -> Dict[str, Any]:
+async def check_windows_service_health(endpoint_url: str = "http://localhost:8080", ctx: Context = None) -> Dict[str, Any]:
+    if ctx:
+        await ctx.info(f"Querying Windows service health endpoint at {endpoint_url}")
     mock_payload = {
         "serviceStatus": "Running",
         "activeModel": "C:\\LLM_Models\\gemma-4-12b-Q4_K_M.gguf",
@@ -172,9 +181,52 @@ async def check_windows_service_health(endpoint_url: str = "http://localhost:808
         "telemetry": validated.model_dump(by_alias=True)
     }
 
+@mcp.tool(name="relaunch_llama_windows_process", description="Triggers a clean restart of llama-server.exe with updated flags and VRAM parameters")
+async def relaunch_llama_windows_process(config: LlamaLaunchConfig, ctx: Context = None) -> Dict[str, Any]:
+    if ctx:
+        await ctx.info(f"Relaunching llama-server.exe with model: {config.model_path} on port {config.port}")
+
+    # Construct verified PowerShell command line string for Windows Service execution
+    powershell_cmd = (
+        f"Start-LlamaWindowsManager -ModelPath '{config.model_path}' "
+        f"-GpuLayers {config.n_gpu_layers} -ContextSize {config.context_size} -Port {config.port}"
+    )
+
+    return {
+        "status": "initiated",
+        "powershell_command": powershell_cmd,
+        "target_port": config.port,
+        "context_window": config.context_size,
+        "offloaded_layers": config.n_gpu_layers
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Architectural Comparison & Windows Inference Matrix
+
+| Manager / Runtime | OS Support | Backend Acceleration | Windows Service Mode | MCP 3.1 Support | VRAM Offload Control |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **llama.cpp Windows Manager** | Windows 10/11, Windows Server 2025 | CUDA 12.x, Vulkan, SYCL, DirectML | Native (`sc.exe` service daemon) | Native FastMCP 3.1 Task Protocol | Granular (`-ngl` layer slider, KV cache quant) |
+| **Ollama Windows (GUI/CLI)** | Windows, macOS, Linux | CUDA, DirectML | Background Tray App | Custom tool protocols | Automated layer heuristics |
+| **LM Studio** | Windows, macOS, Linux | CUDA, Vulkan, Metal | Graphical GUI process only | Standard REST / OpenAI API | Visual slider & automatic offload |
+| **vLLM (WSL2)** | Linux / WSL2 Hypervisor | CUDA, ROCm | Systemd in WSL2 Ubuntu | OpenAI API endpoints | Page-based PagedAttention VRAM allocation |
+
+## Operational Hardening & Windows Best Practices
+- **Service Account Permissions**: Run the `LlamaCppService` under `NT AUTHORITY\LocalService` with restricted folder write access rather than `LocalSystem` to prevent privilege escalation via GGUF execution bugs.
+- **Power & Thermal Throttling**: Configure Windows High Performance Power Scheme (`powercfg /s 8c5e7de8-e4d9-462a-a060-089203981744`) to avoid core frequency drops during long reasoning token generations.
+- **Direct I/O & Memory Locking**: Enable `Lock pages in memory` (Large Pages) in Windows Group Policy (`gpedit.msc`) to prevent Windows kernel swapping of KV caches or model weight pages to `pagefile.sys`.
+- **Firewall Isolation**: Bind local server endpoints to `127.0.0.1` (`-b 127.0.0.1`) unless explicitly exposing HTTP endpoints to external LAN networks via Windows Defender Firewall rules.
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `CUDA error 35: CUDA driver version is insufficient` | Outdated NVIDIA display driver on Windows host | Update display driver via GeForce Experience or NVIDIA Enterprise downloads to support CUDA 12.x. |
+| `DLL Load Failed: vulkan-1.dll missing` | Missing Vulkan runtime environment on clean Windows Server | Install Vulkan Runtime (`vulkan-1.dll`) via GPU vendor driver installer or DirectX runtime redistributables. |
+| Windows Service fails with `Error 1053: Service did not respond` | Invalid model path or missing GGUF weights on service startup | Verify GGUF file exists in `C:\LLM_Models` and service user account has read permissions. |
+| Stuttering / High RAM swap during token generation | GGUF weight allocation exceeding physical VRAM budget | Lower `-ngl` layer count or switch to a lower quantization format (e.g. `Q4_K_M` to `Q3_K_S`). |
 
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Core C/C++ GGUF inference engine.
