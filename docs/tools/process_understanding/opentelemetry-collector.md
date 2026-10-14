@@ -14,11 +14,65 @@ Managing telemetry in multi-agent environments often introduces high performance
 ## Where it fits in the stack
 The OpenTelemetry Collector sits in the **Observability Infrastructure** layer, acting as a telemetry router positioned securely between your production agent workflows (or proxies like [OpenRouter](../ai_knowledge/openrouter.md)) and target downstream monitoring platforms.
 
+## Architecture & Telemetry Pipeline Diagram
+```
++-----------------------------------------------------------------------------------+
+|                        OpenTelemetry Collector Pipeline                           |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Receivers (OTLP gRPC :4317, OTLP HTTP :4318, Prometheus, Jaeger, FastMCP)   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Processors (Memory Limiter, Batching, PII Scrubbing, Tail-based Sampling)   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Exporters (ClickHouse, Datadog, Prometheus, Jaeger, Sentry, CloudWatch)    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Multi-Agent Application / FastMCP
+    participant Receiver as OTel Receiver (gRPC/HTTP)
+    participant Processor as Processor Pipeline (Batch/Scrub)
+    participant Sampler as Tail-based Sampler
+    participant Exporter as Exporter (ClickHouse/Datadog)
+
+    Agent->>Receiver: Ship Trace Span & Token Usage Metrics (OTLP)
+    Receiver->>Processor: Enqueue Spans in Memory Limiter Queue
+    Processor->>Processor: Redact Sensitive Passwords / Prompts & Batch
+    Processor->>Sampler: Evaluate Trace Duration & Exception Status
+    alt Trace Normal (<1000ms & No Errors)
+        Sampler-->>Processor: Drop 95% Routine Traces (Cost Control)
+    else Trace Anomalous / Exception
+        Sampler-->>Processor: Preserve 100% Trace Span
+        Processor->>Exporter: Export Batched Spans to Storage Engine
+        Exporter-->>Receiver: Acknowledge Ingestion
+    end
+```
+
 ## Typical use cases
 - **PII Scrubbing and Safety Guarding**: Processing incoming LLM logs to identify and redact passwords, credentials, and medical data before cloud storage.
 - **System and Agentic Cross-Correlation**: Combining standard compute infrastructure telemetry (K3s CPU, memory use) with model-level latency indicators.
 - **Model Cost and Tokens Aggregation**: Extracting raw token counts from model payload fields and outputting them as custom prometheus gauges.
 - **Anomaly Selection (Tail Sampling)**: Dropping 95% of standard, cheap agent traces, while ensuring 100% of runs that throw exceptions or latency spikes >5000ms are preserved.
+
+## Comprehensive Comparison Matrix: Telemetry Architectures
+
+| Dimension | OTel Collector Pipeline | Direct SaaS SDK Integration | Custom Logging Proxy | Prometheus / Grafana Native |
+| :--- | :--- | :--- | :--- | :--- |
+| **Vendor Lock-in** | Zero (Vendor Agnostic) | High (Tied to SaaS API) | None (Custom) | Low (Open Standards) |
+| **Client Overhead** | Minimal (Asynchronous OTLP) | Medium (SaaS SDK Latency) | Medium (Custom HTTP Calls)| Low (Metrics Scraping) |
+| **PII Scrubbing** | On-prem / Local Processing | Cloud-side (Data Risk) | Custom Code | Limited (Label Filtering) |
+| **Trace & Metric Union** | Unified Spans + Metrics + Logs | Separate Products | Manual Correlation | Primary Metrics Focus |
+| **Tail Sampling** | Native Stateful Processor | Paid SaaS Feature | Hard to Implement | N/A |
+| **Protocol Standards** | OTLP / FastMCP 3.1 | Custom REST APIs | Custom Formats | OpenMetrics / Prometheus |
 
 ## Strengths
 - **Ultimate Vendor Freedom**: Compatible with nearly every commercial and open-source observability engine on the market.
@@ -123,15 +177,26 @@ otelcol --version
 
 ## API examples
 
-### Python Trace Ingestion with Pydantic v2 Payload Validation
-Configure your multi-agentic application (e.g., a **Claude 5.6** task routing loop) to validate payload metadata using Pydantic v2 and ship performance traces to your local Collector instance:
+### FastMCP 3.1 OTel Span Validation Server with Pydantic v2
+The following Python code configures a **FastMCP 3.1** telemetry instrumentation tool that validates agent span metadata using **Pydantic v2** and emits OTLP traces to the OpenTelemetry Collector:
 
 ```python
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 server
+mcp = FastMCP(name="otel-telemetry-instrumentor", version="3.1")
+
+# Configure Tracer Provider
+provider = TracerProvider()
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True))
+provider.add_span_processor(processor)
+tracer = trace.get_tracer("agentic-otel-tracer")
 
 class AgentSpanMetadata(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
@@ -141,53 +206,51 @@ class AgentSpanMetadata(BaseModel):
     completion_tokens: int = Field(..., ge=0, description="Token count in output completion")
     agent_id: str = Field(..., description="Unique agent identifier")
 
-# Set up local Tracer provider
-trace.set_tracer_provider(TracerProvider())
-tracer = trace.get_tracer(__name__)
+    @field_validator("model_name")
+    @classmethod
+    def validate_model(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Model name cannot be empty")
+        return v.lower()
 
-# Point exporter to local OTel Collector endpoint
-otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
-span_processor = BatchSpanProcessor(otlp_exporter)
-trace.get_tracer_provider().add_span_processor(span_processor)
+@mcp.tool(name="record_agent_trace", description="Emit validated OpenTelemetry trace span to OTel Collector")
+def record_agent_trace(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """FastMCP 3.1 tool endpoint for agent trace emission."""
+    try:
+        meta = AgentSpanMetadata.model_validate(payload)
+        with tracer.start_as_current_span("agent-task-routing-span") as span:
+            span.set_attribute("llm.model", meta.model_name)
+            span.set_attribute("llm.prompt_tokens", meta.prompt_tokens)
+            span.set_attribute("llm.completion_tokens", meta.completion_tokens)
+            span.set_attribute("agent.id", meta.agent_id)
 
-# Validate metadata via Pydantic v2
-metadata = AgentSpanMetadata(
-    model_name="claude-5-6-sonnet",
-    prompt_tokens=452,
-    completion_tokens=128,
-    agent_id="finance_routing_agent"
-)
+        return {
+            "status": "emitted",
+            "agent_id": meta.agent_id,
+            "model": meta.model_name,
+            "total_tokens": meta.prompt_tokens + meta.completion_tokens
+        }
+    except Exception as e:
+        return {"status": "failed", "error": str(e)}
 
-# Measure agent run latency and cost
-with tracer.start_as_current_span("agent-task-routing-span") as span:
-    span.set_attribute("llm.model", metadata.model_name)
-    span.set_attribute("llm.prompt_tokens", metadata.prompt_tokens)
-    span.set_attribute("llm.completion_tokens", metadata.completion_tokens)
-    span.set_attribute("agent.id", metadata.agent_id)
-    print("Executing core agentic task routing logic...")
+if __name__ == "__main__":
+    test_payload = {
+        "model_name": "claude-5-6-sonnet",
+        "prompt_tokens": 452,
+        "completion_tokens": 128,
+        "agent_id": "finance_routing_agent"
+    }
+    print("Record Agent Trace Result:", record_agent_trace(test_payload))
 ```
 
-### Node.js Custom Token Metrics Export (OTLP HTTP)
-Log and increment custom metrics representing model token spend via OTLP over HTTP:
+## Troubleshooting Guide
 
-```javascript
-const { MeterProvider } = require('@opentelemetry/sdk-metrics');
-const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
-
-const exporter = new OTLPMetricExporter({
-  url: 'http://localhost:4318/v1/metrics',
-});
-
-const meterProvider = new MeterProvider();
-const meter = meterProvider.getMeter('agentic-usage-metrics');
-
-const tokenCounter = meter.createCounter('tokens_spent', {
-  description: 'Tracks total prompt and completion token counts',
-});
-
-// Record token cost metrics for a GPT-5.6 call
-tokenCounter.add(1024, { 'model.name': 'gpt-5.6-preview', 'agent.id': 'finance_routing_agent' });
-```
+| Issue / Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| `Connection Refused on 4317/4318` | Collector container not running or ports not exposed | Check `docker ps` and ensure ports `4317` (gRPC) and `4318` (HTTP) are mapped. |
+| `High Memory Consumption / OOM` | Memory limiter limits set too high or batch sizes excessive | Lower `limit_percentage` in `memory_limiter` processor to `70%` and reduce `send_batch_max_size`. |
+| `Spans Missing in Downstream DB` | Tail-sampling filter dropping traces or exporter TLS mismatch | Temporarily disable tail-based sampling or enable `verbosity: detailed` in logging exporter. |
+| `Malformed OTLP Payload` | Client sending incompatible OTLP version | Upgrade client OpenTelemetry SDKs to align with Collector version `0.118+`. |
 
 ## Related tools / concepts
 - [Datadog](datadog.md) — Enterprise cloud tracing.

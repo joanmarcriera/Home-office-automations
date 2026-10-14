@@ -9,11 +9,71 @@ It solves the context mismatch, low accuracy, and extreme latency of traditional
 ## Where it fits in the stack
 **Category**: Tool / Development & Ops / AI-assisted Coding. Codeium functions as the local or VPC-hosted "Inference, Context, and Semantic Reasoning Plane" for IDE environments such as VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf.
 
+## Architecture Diagram & Cascade Workflow
+```
++-----------------------------------------------------------------------------------+
+|                        Codeium & Windsurf Cascade Architecture                    |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Developer Interaction Surface (Windsurf IDE / VS Code / Neovim plugin)      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Cascade Agent Engine (Context Weaver, Plan Generator, Tool Invoker)         |  |
+|  +-----------------------------------------------------------------------------+  |
+|                     ||                                    ||                      |
+|                     \/                                    \/                      |
+|  +--------------------------------------+  +-----------------------------------+  |
+|  | Exafunction Semantic Indexing Engine |  | FastMCP 3.1 External Tool Gateway |  |
+|  | (AST Parser, Vector Embeddings)      |  | (PostgreSQL, Terminal, GitHub)    |  |
+|  +--------------------------------------+  +-----------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Reasoning Plane (Claude 5.6, GPT-5.6, DeepSeek-V4, Enterprise Air-Gapped)    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer / IDE
+    participant Cascade as Cascade Agent Engine
+    participant Index as Exafunction Semantic Indexer
+    participant FastMCP as FastMCP 3.1 Gateway
+    participant Model as Frontier Model (Claude 5.6)
+
+    Dev->>Cascade: Submit Multi-File Task Request
+    Cascade->>Index: Query Semantic Symbol & Dependency Graph
+    Index-->>Cascade: Return Relevant Files & AST Slices
+    Cascade->>Model: Construct Prompt + Semantic Context + Tool Definitions
+    Model-->>Cascade: Return Reasoning Step & Tool Execution Instructions
+    Cascade->>FastMCP: Execute Local Tool Call (Terminal / Edit File)
+    FastMCP-->>Cascade: Tool Execution Result / Diff Output
+    Cascade->>Model: Submit Tool Output for Validation
+    Model-->>Cascade: Confirm Completion
+    Cascade-->>Dev: Present Final Diffs & Tests Verified
+```
+
 ## Typical use cases
 - **Multi-File Agentic Engineering**: Empowering the Cascade engine in Windsurf to autonomously navigate, edit, execute terminal commands, and run tests locally to solve complex issues.
 - **Enterprise Repo Onboarding**: Utilizing natural language chat to ask deep questions about large, unfamiliar codebases and trace intricate call graphs.
 - **Latency-Sensitive Autocomplete**: Serving ultra-fast, multi-line tab completions in network-constrained or terminal environments like Neovim/Emacs.
 - **VPC-Isolated Safe Coding**: Deploying completely air-gapped, self-hosted developer intelligence clusters for secure finance, healthcare, or government environments.
+
+## Comprehensive Comparison Matrix: AI Coding Assistants
+
+| Capability / Feature | Codeium (Windsurf/Cascade) | GitHub Copilot | Cursor | Aider |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Windsurf Editor / Extensions | Extension for VS Code/JetBrains | Forked VS Code Editor | Terminal CLI |
+| **Agentic Mode** | Cascade (Multi-file & Terminal) | Copilot Workspace / Edits | Agent Mode / Composer | Git-integrated CLI Agent |
+| **Model Selection** | Claude 5.6, GPT-5.6, DeepSeek-V4 | Claude 3.5, GPT-4o | Claude 3.5, GPT-4o | Any via LiteLLM / API keys |
+| **Protocol Standards** | FastMCP 3.1 / MCP 3.1 | Proprietary Extensions | MCP Protocol Support | Direct Function Calling |
+| **Indexing Latency** | Sub-100ms Exafunction Engine | Cloud-side Vector Indexing | Local RAG / Vector DB | Tree-sitter AST Graph |
+| **Air-Gapped VPC Setup** | Supported (Enterprise Tier) | Enterprise Cloud Only | Limited Local Modes | Fully Supported (Self-Hosted) |
+| **Terminal Integration** | Deep native CLI execution | Limited inline commands | Native terminal execution | Terminal is primary UI |
 
 ## Strengths
 - **Windsurf & Cascade Agent Model**: Seamless transition from chat to fully autonomous agentic mode, carrying perfect state and context without manual file attachment.
@@ -84,19 +144,27 @@ Accelerate the onboarding time for remote developer instances by pre-indexing ma
 ## API examples
 
 ### Pydantic v2 Configuration and Policy Validator
-Use the following Python script to programmatically construct, validate, and write Codeium Enterprise policy configurations. This enforces data leakage prevention rules and verified MCP tool integrations prior to workspace deployment.
+Use the following Python script to programmatically construct, validate, and write Codeium Enterprise policy configurations. This enforces data leakage prevention rules and verified FastMCP 3.1 tool integrations prior to workspace deployment.
 
 ```python
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, ValidationError, ConfigDict
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 server for Codeium plugin extension
+mcp = FastMCP(name="codeium-enterprise-validator", version="3.1")
 
 # Define modern Pydantic v2 schemas for Codeium tool integrations
 class McpServerSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     command: str = Field(..., description="The main executable command for the MCP server")
     args: List[str] = Field(default_factory=list, description="Command line arguments for the server")
     env: Dict[str, str] = Field(default_factory=dict, description="Custom environment variables injected into the server process")
 
 class CodeiumPolicyConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     enterprise_portal: HttpUrl = Field(..., description="Secure URL to the self-hosted Codeium enterprise portal")
     enable_local_indexing: bool = Field(True, description="Enables deep repository semantic index extraction")
     telemetry_opt_out: bool = Field(True, description="Strict opt-out for remote analytics transmission")
@@ -145,6 +213,15 @@ To restrict specific credentials or directories from ever being parsed by the in
 **/build/
 .git/
 ```
+
+## Troubleshooting Guide
+
+| Issue / Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| `Indexing Process Stalled` | High CPU usage or recursive symlinks in workspace | Create a `.codeiumignore` file excluding heavy build directories like `node_modules` and `dist`. |
+| `Cascade Agent Execution Error` | FastMCP 3.1 server command failed or environment variable missing | Check MCP server logs and ensure all required credentials (e.g. `PGPASSWORD`) are exported in runtime. |
+| `Neovim Autocomplete Disconnected` | `codeium_bin` binary missing or blocked by firewall | Re-run `./codeium_bin auth` and check port connectivity to `codeium.com`. |
+| `VPC Portal Sync Fail` | SSL Certificate validation failure on private enterprise URL | Export private CA bundle or specify `CA_BUNDLE_PATH` in environment configuration. |
 
 ## Related tools / concepts
 - [Windsurf](./windsurf.md) — The primary agentic IDE powered by Codeium.

@@ -13,11 +13,75 @@ Task addresses these operational challenges by offering a structured, schema-val
 ## Where it fits in the stack
 **Automation & Orchestration / Task Execution Layer**. Sitting directly above individual CLI utilities and below high-level workflow engines, Task provides a unified execution entrypoint for developer commands, container builds ([Docker](../infrastructure/docker.md)), hyperparameter optimization runs ([Optuna](../development_ops/optuna.md)), and CI/CD job steps.
 
+## Architecture & Task Pipeline Diagram
+```
++-----------------------------------------------------------------------------------+
+|                            Task Execution Pipeline                                |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Task CLI / Agent Invocation (`task build`, `task test --parallel`)          |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Taskfile Parser & Var Interpolation (`Taskfile.yml` / Included Sub-tasks)    |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-------------------------------------+  +------------------------------------+  |
+|  | Dependency DAG Solver (`deps`)      |  | Fingerprint Evaluator (`sources`   |  |
+|  | & Concurrency Controller            |  | vs `generates` Checksum Database)  |  |
+|  +-------------------------------------+  +------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Embedded POSIX Shell Engine (`mvdan/sh` Cross-Platform Runner)              |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Developer / AI Agent
+    participant TaskCLI as Task CLI Engine
+    participant Fingerprint as Checksum & Source Evaluator
+    participant Shell as Cross-Platform Shell (mvdan/sh)
+    participant Targets as System Commands / Compilers
+
+    Agent->>TaskCLI: Invoke `task build`
+    TaskCLI->>Fingerprint: Evaluate `sources` checksum against `generates` targets
+    alt Sources Unchanged
+        Fingerprint-->>TaskCLI: Status Up-to-Date (Cache Hit)
+        TaskCLI-->>Agent: Skip Execution (Instant Return)
+    else Sources Modified / Force Run
+        Fingerprint-->>TaskCLI: Cache Miss / Out-of-Date
+        TaskCLI->>Shell: Dispatch Commands in Dependent Order (`deps`)
+        Shell->>Targets: Execute Binaries / Scripts
+        Targets-->>Shell: Return Exit Code 0
+        Shell-->>TaskCLI: Command Succeeded
+        TaskCLI->>Fingerprint: Update Fingerprint Checksum Store
+        TaskCLI-->>Agent: Task Completed Successfully
+    end
+```
+
 ## Typical use cases
 - **Developer Onboarding & Common Workflows**: Unifying repository setup, linting, testing, and build commands under standard `task setup`, `task test`, and `task build` commands.
 - **Container & Service Orchestration**: Managing multi-container Docker Compose lifecycle commands and homelab service deployments ([Paperless-ngx](../../services/paperless-ngx.md), [n8n](../../services/n8n.md)).
 - **Autonomous Agent Tool Invocation**: Providing deterministic, sandboxed execution entrypoints for AI agents ([Jules](../../tools/ai_knowledge/jules.md), [Claude Code](../development_ops/claude-code.md)).
 - **Monorepo Task Inclusion**: Structuring hierarchical tasks using modular `Taskfile.yml` includes across multi-package projects.
+
+## Comprehensive Comparison Matrix: Command Runners
+
+| Feature / Dimension | Task (Taskfile) | GNU Make | Just | npm scripts / npx |
+| :--- | :--- | :--- | :--- | :--- |
+| **Syntax Format** | Structured YAML (`Taskfile.yml`) | Tab-indented Makefile | Custom `justfile` DSL | JSON (`package.json`) |
+| **Cross-Platform Shell** | Embedded Go POSIX (`mvdan/sh`) | System Shell (`sh`/`cmd.exe`) | System Shell (`sh`/`powershell`)| Node.js wrapper |
+| **Dependency Management**| Dynamic Task DAG (`deps`) | File-target dependency graph | Recipe dependencies | Parallel/sequential chaining |
+| **Caching / Fingerprinting**| Checksum of `sources` / `generates` | File modification timestamps | Manual conditional logic | None built-in |
+| **Task Inclusion** | Native modular `includes` | Textual `include` directives | Modular `import` statements | None built-in |
+| **Self-Documentation** | Built-in `task --list` | Manual target parsing | Built-in `just --list` | Manual `npm run` listing |
+| **Runtime Dependencies** | Single Go binary (Zero-dep) | C/POSIX toolchain | Single Rust binary | Node.js runtime |
 
 ## Strengths
 - **Simple YAML Syntax**: Clear, human-readable `Taskfile.yml` format with strict key validation and zero whitespace tab errors.
@@ -110,21 +174,29 @@ task build --force
 
 ## API examples
 
-### Python (Taskfile Schema Generator & Pipeline Execution with Pydantic v2)
-The following Python script illustrates how to programmatically generate a validated `Taskfile.yml` structure using strict **Pydantic v2** models and trigger task execution via subprocess.
+### Python FastMCP 3.1 Task Execution & Pydantic v2 Schema Generator
+The following Python script illustrates how to construct a **FastMCP 3.1** task execution server that validates `Taskfile.yml` definitions using **Pydantic v2** models and exposes remote task execution endpoints to AI agents.
 
 ```python
 import os
 import yaml
 import subprocess
-from typing import List, Dict, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 server for Taskfile orchestration
+mcp = FastMCP(name="taskfile-runner-server", version="3.1")
 
 class TaskCommand(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     cmd: str = Field(..., description="Shell command string to execute")
     ignore_error: bool = Field(False, description="Whether to ignore command exit codes")
 
 class TaskDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     desc: str = Field(..., min_length=5, description="Human-readable description of the task")
     summary: Optional[str] = Field(None, description="Detailed multiline task summary")
     cmds: List[str] = Field(..., min_items=1, description="List of shell commands")
@@ -133,6 +205,8 @@ class TaskDefinition(BaseModel):
     generates: List[str] = Field(default_factory=list, description="Output target files")
 
 class TaskfileSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     version: str = Field("3", pattern=r"^3$")
     vars: Dict[str, str] = Field(default_factory=dict, description="Global string variables")
     tasks: Dict[str, TaskDefinition] = Field(..., description="Map of task names to definitions")
@@ -144,25 +218,29 @@ class TaskfileSchema(BaseModel):
             raise ValueError("Taskfile should define a 'default' or 'help' task")
         return v
 
-def generate_and_run_taskfile(schema: TaskfileSchema, target_task: str = "default") -> int:
-    # Serialize Pydantic v2 model to dictionary
-    taskfile_dict = schema.model_dump(exclude_none=True)
+@mcp.tool(name="execute_task", description="Execute a named task from local Taskfile.yml")
+def execute_task(task_name: str, vars_override: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    """FastMCP 3.1 endpoint to invoke Taskfile commands."""
+    cmd = ["task", task_name]
+    env = os.environ.copy()
+    if vars_override:
+        for k, v in vars_override.items():
+            env[k] = v
 
-    # Write Taskfile.yml
-    taskfile_path = "Taskfile.yml"
-    with open(taskfile_path, "w") as f:
-        yaml.dump(taskfile_dict, f, sort_keys=False)
-
-    print(f"Generated valid {taskfile_path}. Executing 'task {target_task}'...")
-
-    # Execute via CLI
     try:
-        result = subprocess.run(["task", target_task], capture_output=True, text=True, check=True)
-        print("Task Output:\n", result.stdout)
-        return result.returncode
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Task execution simulated/handled: {e}")
-        return 0
+        res = subprocess.run(cmd, capture_output=True, text=True, check=True, env=env)
+        return {
+            "status": "success",
+            "task": task_name,
+            "stdout": res.stdout,
+            "exit_code": res.returncode
+        }
+    except Exception as e:
+        return {
+            "status": "failed",
+            "task": task_name,
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     schema = TaskfileSchema(
@@ -181,9 +259,16 @@ if __name__ == "__main__":
 
     print("Validated Taskfile Schema:")
     print(schema.model_dump_json(indent=2))
-
-    generate_and_run_taskfile(schema, "default")
 ```
+
+## Troubleshooting Guide
+
+| Issue / Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| `task: Command not found` | Task binary not installed in user `PATH` | Run official installer `sh -c "$(curl -ssL https://taskfile.dev/install.sh)"` and update `PATH`. |
+| `YAML Parsing Error` | Invalid whitespace or missing quotes around template variables | Wrap Go template expressions in quotes: `echo "{{.VAR}}"`. |
+| `Task Skipped Unexpectedly` | Checksum matching `sources` files without detecting changes | Use `task <task_name> --force` to bypass fingerprint checks. |
+| `Environment Variable Not Inherited` | Variable not exported or overwritten in `vars` section | Pass environment variables explicitly before command or set `env:` in task definition. |
 
 ## Related tools / concepts
 - [GNU Make](gnu-make.md) — Traditional tab-based Makefile build runner.

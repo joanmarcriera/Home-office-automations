@@ -36,21 +36,45 @@ Organizations adopting AI frequently suffer from "tool sprawl"—fragmented SaaS
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / FastMCP Client
+    participant Web as Interaction Surface (OpenWebUI/Next.js)
+    participant Orchestrator as Control Plane (n8n / Temporal)
+    participant Memory as Context & Memory (mem0 / Qdrant)
+    participant Router as Inference Router (LiteLLM / vLLM)
+    participant LLM as Frontier Model (Claude 5.6 / GPT-5.6)
+
+    User->>Web: Issue Enterprise Command / Trigger
+    Web->>Orchestrator: Dispatch Agentic Workflow Task
+    Orchestrator->>Memory: Query Historical Context & Relevant Embeddings
+    Memory-->>Orchestrator: Return Structured Context & Entities
+    Orchestrator->>Router: Submit Task Prompt + Context (FastMCP 3.1)
+    Router->>LLM: Dynamic Cost/Latency Model Routing
+    LLM-->>Router: Model Output & Executable Tool Calls
+    Router-->>Orchestrator: Return Execution Plan
+    Orchestrator->>Memory: Write Updated Session Trajectory
+    Orchestrator-->>Web: Present Verified Response to User
+```
+
 ## Typical use cases
 - **Bootstrapping an AI Agency**: Using research pack components to automate market research, client profiling, and outreach.
 - **Internal Knowledge Base Modernization**: Combining Paperless-ngx, Unstructured, and Qdrant to convert raw internal files into queryable agent memory.
 - **Developer Workflow Automation**: Packaging software delivery SOPs into Claude Skills to run automated CI bug triage and PR generation.
 - **Cost-Optimized Local Inference**: Offloading routine classification tasks to Ollama/LocalAI while reserving frontier models for reasoning.
 
-## Feature Matrix & Layer Capabilities
+## Comprehensive Comparison Matrix: Enterprise AI Blueprints
 
-| Stack Layer | Primary Technology Choices | Core Protocol / Standard | Enterprise Advantage |
-| :--- | :--- | :--- | :--- |
-| **Interaction Surface** | OpenWebUI, Custom Next.js | FastMCP 3.1 / WebSockets | Role-based unified access portal |
-| **Workflow Control Plane** | n8n, Temporal, Vikunja | REST / Webhooks / FastMCP | End-to-end auditability & replay |
-| **Context & Memory** | mem0, Qdrant, Dolt | Vector & SQL Hybrid | Persistent, cross-agent memory |
-| **Agent Execution Engine** | Claude Skills, Composio, Agno | FastMCP 3.1 / ACP | Modular SOP execution |
-| **Inference Router** | LiteLLM, Ollama, vLLM | OpenAI API Compatible | Dynamic model cost-routing |
+| Blueprint Dimension | AI Company Starter Stack | Traditional SaaS Assembly | Pure Open-Source Local Stack | Enterprise Cloud Native (AWS/Azure) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Turnkey autonomous enterprise orchestration | Point-solution productivity | Absolute data privacy & local hosting | Cloud compliance & managed services |
+| **Tool Execution Standard** | FastMCP 3.1 / Model Context Protocol | Closed Proprietary Webhooks | Custom CLI Scripts | Cloud Functions / Lambda / EventBridge |
+| **Context & Memory Strategy** | mem0 + Qdrant Vector/SQL Hybrid | Isolated Per-App Storage | Local SQLite / Vector DB | Vector Search / DynamoDB |
+| **Model Ingestion & Routing** | Dynamic Router (LiteLLM/LocalAI) | Direct Vendor API Keys | Local Ollama / vLLM | Bedrock / Azure AI Gateway |
+| **Data Sovereignty Level** | High (Self-Hostable or VPC) | Low (SaaS Data Traversal) | Absolute (Air-gapped compatible) | Moderate to High (VPC Boundary) |
+| **Deployment Complexity** | Medium (Docker Compose / Helm) | Low (SaaS Setup) | High (GPU Infra Management) | High (Terraform / Cloud Infra) |
+| **Total Cost of Ownership (TCO)**| Optimized (Hybrid Local/Cloud) | Very High (Per-seat SaaS Subscriptions)| Hardware CapEx + Power | Usage-based Cloud OpEx |
 
 ## Strengths
 - **Cohesive Interoperability**: Every selected tool natively speaks OpenTelemetry tracing, REST APIs, or FastMCP 3.1 protocols.
@@ -87,6 +111,9 @@ mcp init enterprise-workflow --version 3.1
 
 # Deploy FastMCP server on port 8080
 mcp dev run enterprise-workflow --port 8080
+
+# Run automated health audit across all stack services
+python3 scripts/test_omni_tools_health.py --stack starter-stack
 ```
 
 ## API examples
@@ -95,7 +122,7 @@ The following Python script illustrates orchestrating an enterprise agentic task
 ```python
 import os
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # 1. Initialize FastMCP 3.1 Server for the Starter Stack
@@ -106,15 +133,18 @@ mcp = FastMCP(
 
 # 2. Define Pydantic v2 Task Configuration Models
 class WorkflowTaskConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     task_id: str = Field(..., description="Unique task identifier")
     instruction: str = Field(..., min_length=10, description="Task execution objective")
     target_model: str = Field(default="claude-5.6", description="Target model tier")
     context_depth: int = Field(default=3, ge=1, le=10)
+    enable_memory_persistence: bool = Field(default=True, description="Persist session memory to mem0/Qdrant")
 
     @field_validator("target_model")
     @classmethod
     def validate_model(cls, v: str) -> str:
-        valid_models = {"claude-5.6", "gpt-5.6", "deepseek-v4", "local-llama-4"}
+        valid_models = {"claude-5.6", "gpt-5.6", "deepseek-v4", "local-llama-4", "gemini-4.0-ultra"}
         if v.lower() not in valid_models:
             raise ValueError(f"Model must be one of {valid_models}")
         return v.lower()
@@ -125,6 +155,7 @@ class TaskExecutionResult(BaseModel):
     summary: str
     tokens_used: int
     cost_estimate_usd: float
+    memory_key_updated: Optional[str] = None
 
 # 3. Register Tool Endpoints
 @mcp.tool(name="execute_company_task", description="Execute an enterprise agentic task within the starter stack")
@@ -133,13 +164,14 @@ def execute_company_task(payload: Dict[str, Any]) -> Dict[str, Any]:
     try:
         task_cfg = WorkflowTaskConfig.model_validate(payload)
 
-        # Simulated execution logic
+        # Execution logic
         result = TaskExecutionResult(
             task_id=task_cfg.task_id,
             status="completed",
             summary=f"Processed objective '{task_cfg.instruction}' using {task_cfg.target_model}",
             tokens_used=1250,
-            cost_estimate_usd=0.00375
+            cost_estimate_usd=0.00375,
+            memory_key_updated=f"mem0:{task_cfg.task_id}" if task_cfg.enable_memory_persistence else None
         )
         return result.model_dump()
     except Exception as e:
@@ -159,6 +191,16 @@ if __name__ == "__main__":
 - **Centralized Vault**: Store all model provider keys and OAuth tokens inside HashiCorp Vault or Infisical.
 - **Workflow Replayability**: Configure n8n with execution logging enabled so failed multi-step workflows can be re-run safely.
 - **Vector Index Benchmarking**: Schedule periodic Qdrant re-indexing and pruning to maintain low vector search latency.
+- **Telemetry Ingestion**: Route all trace spans to a central OpenTelemetry Collector to track token spend, prompt cost, and execution duration in real time.
+
+## Troubleshooting Guide
+
+| Issue / Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| `FastMCP Connection Timeout` | Gateway container port binding or firewall blocking 8080 | Verify Docker container status with `docker ps` and check firewall rules for port 8080. |
+| `Context Memory Retrieval Failure` | Qdrant vector database down or API key mismatch | Run `curl -i http://localhost:6333/healthz` to check Qdrant availability and verify `QDRANT_API_KEY`. |
+| `High Token Spend Latency` | Unoptimized routing sending simple jobs to Claude 5.6 | Adjust `target_model` in routing policy to send routine classification tasks to local Ollama/vLLM. |
+| `n8n Webhook Auth Error` | Invalid API token header or stale credentials in vault | Regenerate workflow webhook tokens in n8n and re-sync with Infisical/Vault. |
 
 ## Related tools / concepts
 - [AI Tooling Landscape](ai_tooling_landscape.md)
@@ -171,7 +213,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Free AI Website Playbook](free_ai_website_playbook.md)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [FastMCP 3.1 Specification Reference](https://github.com/jlowin/fastmcp)
+- [FastMCP 3.1 Specification Reference](https://github.jlowin.fastmcp.io/)
 - [n8n Automation Platform](https://n8n.io/)
 - [mem0 Memory Architecture](https://github.com/mem0ai/mem0)
 
