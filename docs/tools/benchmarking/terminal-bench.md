@@ -36,6 +36,16 @@ It measures whether autonomous systems can effectively and safely operate inside
 ## Where it fits in the stack
 **Benchmarking**. Positioned in the **Agent Evaluation Layer** of the homelab, used to rigorously evaluate the terminal proficiency of autonomous agent frameworks before they are granted administrative access to self-hosted server environments.
 
+## Comparative Feature Matrix
+
+| Metric / Feature | Terminal-Bench (Terminus 2) | InterCode | SWE-bench | OSWorld |
+| :--- | :--- | :--- | :--- | :--- |
+| **Target Operating Layer** | Linux Shell / Terminal CLI | Multi-turn Bash/SQL REPL | Git Repository / Python Code | GUI / Desktop / OS Level |
+| **Control Interface** | Tmux Control Channel / FastMCP 3.1 | Gym Step API / FastMCP 3.1 | Patch Submission Harness | Screen Pixels & Mouse/Keyboard |
+| **Sandbox Environment** | Harbor / Ubuntu 24.04 | Docker Containers | Containerized Repos | Virtual Machines / QEMU |
+| **State Persistence** | Continuous tmux sessions | Multi-turn environment state | Single-turn issue state | Full OS persistent disk |
+| **Evaluation Metrics** | System Exit Codes / State Verifiers | Unit Test & State Rewards | Git Test Suite Assertions | Task Completion / Visual State |
+
 ## Typical use cases
 - **DevOps Agent Evaluation**: Benchmarking developer-focused agents (such as Aider, OpenHands, or Claude Code) on software configuration and package installation before granting production repository access.
 - **Autonomous SysAdmin Research**: Evaluating frontier reasoning models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL) on their ability to execute multi-step scripts, manage process states, and debug networking failures.
@@ -66,7 +76,7 @@ Terminal-Bench (TB-2) is typically orchestrated using the **Harbor** framework t
 
 ### 1. Installation
 ```bash
-pip install terminal-bench harbor-framework pydantic
+pip install terminal-bench harbor-framework pydantic fastmcp
 # Verify Docker is active on the host machine
 ```
 
@@ -107,10 +117,10 @@ import sys
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for Terminal-Bench Trajectory Telemetry
-mcp = FastMCP("Terminal-Bench-Evaluator", version="3.1")
+mcp = FastMCP("Terminal-Bench-Evaluator", version="3.1.0")
 
 class SandboxConfig(BaseModel):
     image: str = Field(..., description="The Docker image to use for the sandbox")
@@ -168,6 +178,21 @@ if __name__ == "__main__":
     })
     print(evaluate_terminal_trajectory(sample_data))
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Sandbox Security & Execution Rules
+1. **Host Isolation**: Never run Terminal-Bench execution tasks directly on the bare-metal host; always execute within Harbor / Docker isolated sandboxes.
+2. **Resource Constraints**: Pinned cgroups rules (`--memory=4g --cpus=2`) prevent fork bombs or memory-leak benchmarks from crashing the host node.
+3. **Tmux Pane Cleanup**: Automatically terminate detached tmux panes upon evaluation completion to release system process handles.
+
+### Troubleshooting Execution Failures
+
+| Symptom / Error | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| `Harbor Sandbox Initialization Failed` | Missing base container image or Docker socket unreadable | Run `docker pull harbor/ubuntu-24.04-dev:v3` and check socket permissions. |
+| `Tmux Session Connection Dropped` | Pane crashed due to unhandled segfault in command | Inspect `/var/log/harbor/sandbox.log` for kernel panic or out-of-memory triggers. |
+| `Exit Code Mismatch` | Non-zero exit code due to missing environment variable | Verify sandbox initialization flags and pass required env vars in `SandboxConfig`. |
 
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md) - Software engineering repository-wide benchmark.

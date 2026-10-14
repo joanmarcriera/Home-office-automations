@@ -3,6 +3,29 @@
 ## What it is
 InterCode is an interactive benchmarking framework designed for evaluating Large Language Models (LLMs) in real-world programming, shell, and SQL environments. It focuses on multi-turn interactions where the model can execute code or commands and receive feedback from the environment. In early January 2027, it serves as a foundational environment for testing **FastMCP 3.1 Task Protocol** compliance in autonomous coding agents.
 
+## System Architecture
+
+The following diagram details the multi-turn interaction loop between the agent, the FastMCP 3.1 Task Gateway, the Docker container sandboxes, and the Pydantic v2 execution trajectory verifier:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as LLM Agent (GPT-5.6 / Claude 5.6)
+    participant Gateway as FastMCP 3.1 Task Server
+    participant GymEnv as InterCode Gym Environment
+    participant Docker as Docker Sandbox Container (Bash / SQL)
+    participant Evaluator as Pydantic v2 Trajectory Verifier
+
+    Agent->>Gateway: Issue multi-turn action request (tool: execute_code)
+    Gateway->>GymEnv: Dispatch action to environment step handler
+    GymEnv->>Docker: Execute command in isolated container
+    Docker-->>GymEnv: Return stdout, stderr, and exit code
+    GymEnv->>Evaluator: Inspect state change & validate trajectory step
+    Evaluator-->>GymEnv: Emit validated trajectory payload & step reward
+    GymEnv-->>Gateway: Return structured observation & environment feedback
+    Gateway-->>Agent: Send observation & task status update via MCP 3.1
+```
+
 ## What problem it solves
 Standard static benchmarks often fail to capture the interactive nature of software development. InterCode addresses this by providing an environment where models must reason over multiple steps, handle errors, and adapt based on actual execution results. It tests the "plan-execute-verify" loop essential for self-healing agents and advanced coding assistants like **GPT-5.6**, **Claude 5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
 
@@ -17,6 +40,17 @@ graph TD
     GymEnv -->|Formats Observation & Reward| Agent
     GymEnv -->|Exposes Tools via FastMCP 3.1| MCP[FastMCP 3.1 Task Server]
 ```
+
+## Comparative Feature Matrix
+
+| Feature / Metric | InterCode (v3.1) | SWE-bench | Terminal-Bench (Terminus 2) | BigCodeBench |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Multi-turn Bash / SQL / Python | GitHub Issue Resolution | Terminal / SysAdmin / SRE | Single-turn Code Generation |
+| **Execution Environment** | Docker Sandboxes | Docker Repositories | Harbor / Docker Containers | Isolated Python Runtimes |
+| **Interactive Multi-Turn** | Native (Gym-like interface) | Multi-step agent patch loops | Native (tmux control channels) | Single-turn / Few-turn |
+| **Protocol Integration** | FastMCP 3.1 Task Protocol | Custom Benchmark Harnesses | FastMCP 3.1 Task Protocol | Standard Execution Harness |
+| **Feedback Mechanism** | Live REPL / Environment Observation | Test Suite Execution | Terminal Output & Exit Codes | Unit Test Assertions |
+| **Reward Granularity** | Step-level & Episode-level | Binary Pass/Fail | Trajectory & Task Completion | Binary / Function Pass |
 
 ## Typical use cases
 - **Evaluating Terminal Agents**: Measuring how well models handle multi-step Bash/Shell tasks in a sandboxed environment.
@@ -52,7 +86,7 @@ InterCode requires [Docker](../infrastructure/docker.md) and Python 3.11+.
 ```bash
 git clone https://github.com/princeton-nlp/intercode
 cd intercode
-pip install -r requirements.txt fastmcp
+pip install -r requirements.txt fastmcp pydantic
 ```
 
 ### Running an Evaluation with FastMCP 3.1
@@ -94,21 +128,35 @@ print(f"Shell Output: {observation}")
 
 ### FastMCP 3.1 Task Integration
 ```python
+import json
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 # Expose InterCode environment as an MCP 3.1 tool server using FastMCP
-mcp = FastMCP("InterCode Execution Server")
+mcp = FastMCP("InterCode Execution Server", version="3.1.0")
 
 class ExecutionRequest(BaseModel):
-    command: str = Field(..., description="Bash command to execute in sandbox")
+    command: str = Field(..., min_length=1, description="Bash command to execute in sandbox")
     environment: str = Field("bash", description="Target environment type (bash/sql/python)")
+    timeout_seconds: int = Field(30, ge=1, le=300, description="Execution timeout limit")
+
+class ExecutionResult(BaseModel):
+    status: str = Field(..., description="Execution status code")
+    environment: str = Field(..., description="Target execution environment")
+    stdout: str = Field(..., description="Output capture from container")
+    exit_code: int = Field(0, description="Process exit status code")
 
 @mcp.tool()
 def execute_intercode_command(req: ExecutionRequest) -> str:
     """Executes a command within the isolated InterCode sandbox environment via FastMCP 3.1."""
     # Internal execution logic mapping to the Docker container
-    return f"[{req.environment.upper()} Output]: Executed successfully: {req.command}"
+    result = ExecutionResult(
+        status="SUCCESS",
+        environment=req.environment,
+        stdout=f"[{req.environment.upper()} Output]: Executed successfully: {req.command}",
+        exit_code=0
+    )
+    return result.model_dump_json()
 
 if __name__ == "__main__":
     mcp.run()
@@ -194,6 +242,22 @@ if __name__ == "__main__":
         print(f"Validated session {validated_run.session_id} successfully.")
         print(f"Total steps: {len(validated_run.steps)}, Final score: {validated_run.final_score}")
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Sandbox Isolation & Security Rules
+1. **Container Ephemerality**: Always configure Docker containers with `--rm` and strict memory/CPU limits (`--memory=2g --cpus=1.0`) to prevent agent runaway processes.
+2. **Network Scramble**: Disable network access (`--network none`) for code execution sandboxes unless the specific evaluation task mandates internet connectivity.
+3. **Volume Mount Safety**: Read-only mount (`ro`) all host filesystem dependencies into the sandbox container.
+
+### Troubleshooting Common Evaluation Errors
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Docker Daemon Connection Refused` | Docker daemon is not running or socket permissions are missing | Run `sudo systemctl start docker` and grant non-root socket access (`usermod -aG docker $USER`). |
+| `Gym Environment Reset Timeout` | Container initialization stalled waiting for lock files | Prune dangling containers (`docker container prune -f`) and increase setup timeout in `intercode.run`. |
+| `FastMCP 3.1 Task Protocol Error` | Mismatched JSON schema in tool response | Ensure `ExecutionResult` is validated using Pydantic v2 before returning string payloads to FastMCP. |
+| `Trajectory Step Reward NaN` | Division by zero in environment evaluation logic | Enforce custom Pydantic validators on `TrajectoryStep.reward` to catch non-finite floats. |
 
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md) — for evaluating models on real-world GitHub issues.

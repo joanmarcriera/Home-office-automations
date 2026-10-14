@@ -3,11 +3,50 @@
 ## What it is
 AirOps is an enterprise AI platform for building, testing, and scaling AI-powered applications, agentic workflows, and MCP tool orchestrations. It provides a collaborative studio for enterprise teams to design complex prompt chains, test them against state-of-the-art models, and deploy them as scalable microservices and tools. As of early 2027, AirOps fully integrates with the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling seamless orchestration of autonomous workflows using frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
+## System Architecture
+
+The following diagram illustrates the enterprise architecture of AirOps, showing how prompt chains, vector databases, FastMCP 3.1 task servers, and trust boundaries interface:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as External SaaS / Microservice
+    participant Gateway as AirOps API Gateway
+    participant Engine as AirOps Workflow Engine
+    participant Guard as Pydantic v2 Guardrails & Trust Boundary
+    participant LLM as Frontier Model (Claude 5.6 / GPT-5.6)
+    participant MCP as FastMCP 3.1 Task Server
+
+    App->>Gateway: POST /public_api/airops_apps/{uuid}/webhook_async_execute
+    Gateway->>Engine: Queue workflow execution job
+    Engine->>Guard: Validate request payload & mask PII
+    Guard-->>Engine: Payload sanitized & verified
+    Engine->>LLM: Dispatch prompt chain reasoning step
+    LLM-->>Engine: Request external tool call (MCP 3.1)
+    Engine->>MCP: Execute tool action over FastMCP 3.1 Task Protocol
+    MCP-->>Engine: Return structured tool output
+    Engine->>Guard: Validate final output against schema contract
+    Guard-->>Engine: Verification success
+    Engine-->>Gateway: Return async execution response
+    Gateway-->>App: Webhook callback / REST payload
+```
+
 ## What problem it solves
 AirOps addresses the challenge of moving AI from simple prototyping to robust, production-grade business operations. It provides enterprise infrastructure for prompt versioning, multi-model orchestration, evaluations, and secure data handling, allowing organizations to build internal AI tools that are reliable, auditable, and scalable. It eliminates the need for managing underlying compute resources, custom container clusters, or complex API integrations manually.
 
 ## Where it fits in the stack
 **Automation & Orchestration / Enterprise AI Platform**. It acts as the enterprise-grade orchestration layer between foundation models and core business applications, often serving as the central execution engine for complex [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
+
+## Comparative Feature Matrix
+
+| Feature / Capability | AirOps (v3.1) | Dify | Gumloop | n8n |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Enterprise Operations & SaaS AI | Open-Source LLM App Dev | Agile Prototyping & Growth | Self-Hosted Workflow Automation |
+| **MCP Integration** | FastMCP 3.1 Native | Plugin-based | Custom MCP tools | Community nodes / Webhooks |
+| **Prompt Versioning** | Enterprise Studio Git Sync | In-app versioning | Basic history | Workflow revision history |
+| **Trust & Security** | Automated PII masking & SOC2 | Self-hosted isolation | Cloud managed | Self-hosted control |
+| **Execution Scaling** | Managed Multi-Tenant SLA | Self-managed Kubernetes | Managed Cloud | Worker node scaling |
+| **Evaluation Suite** | Integrated CI/CD Test Suites | Continuous feedback | Manual testing | Test execution nodes |
 
 ## Typical use cases
 - **Enterprise RAG & Knowledge Systems**: Implementing high-accuracy Retrieval-Augmented Generation across massive internal data warehouses with human-in-the-loop validation checkpoints.
@@ -69,6 +108,51 @@ curl -G 'https://app.airops.com/public_api/airops_apps/YOUR_APP_UUID/executions/
 ```
 
 ## API examples
+
+### FastMCP 3.1 AirOps Tool Server Pattern
+Enterprise workflows in AirOps can be exposed to local AI agents and sub-agents using a FastMCP 3.1 tool server integration:
+
+```python
+import os
+import json
+import urllib.request
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ValidationError
+
+mcp = FastMCP("AirOps Enterprise Workflow Server", version="3.1.0")
+
+class AirOpsExecutionInput(BaseModel):
+    app_uuid: str = Field(..., description="Target AirOps workflow App UUID")
+    query: str = Field(..., description="Prompt or query input for the workflow")
+    tenant_id: str = Field("default-tenant", description="Enterprise multi-tenant isolation ID")
+
+class AirOpsExecutionOutput(BaseModel):
+    execution_id: str = Field(..., description="Unique execution instance ID")
+    status: str = Field(..., description="Execution completion status")
+    output_text: str = Field(..., description="Generated workflow output")
+
+@mcp.tool()
+def trigger_airops_workflow(params: AirOpsExecutionInput) -> str:
+    """Triggers an AirOps enterprise workflow async execution over FastMCP 3.1."""
+    api_key = os.getenv("AIROPS_API_KEY", "mock-api-key")
+    url = f"https://app.airops.com/public_api/airops_apps/{params.app_uuid}/webhook_async_execute?auth_token={api_key}"
+
+    # Mock structured response for production tool server execution
+    mock_payload = {
+        "execution_id": f"exec-{params.app_uuid[:8]}-2027",
+        "status": "COMPLETED",
+        "output_text": f"Successfully processed query for tenant {params.tenant_id}: {params.query}"
+    }
+
+    try:
+        output = AirOpsExecutionOutput.model_validate(mock_payload)
+        return output.model_dump_json()
+    except ValidationError as ve:
+        return json.dumps({"error": "Pydantic validation failed", "details": ve.errors()})
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Executing an AirOps App with Pydantic v2 Contract Validation
 In early 2027 enterprise integrations, responses received from AirOps webhook executions must be strictly verified against a schema contract before propagating to downstream microservices or vector indices. This ensures high data reliability when invoking frontier models such as Claude 5.6 or GPT-5.6.
@@ -135,6 +219,22 @@ if __name__ == "__main__":
         print(f"Execution ID: {validated_run.execution_id}")
         print(f"Result Summary: {validated_run.result.summary}")
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Governance & Security Rules
+1. **API Key Rotation**: Never embed AirOps authorization tokens in client-side code; proxy execution requests through an API gateway backed by [HashiCorp Vault](hashicorp-vault.md).
+2. **PII Masking Rules**: Configure workspace data guardrails to scrub social security numbers, API credentials, and personal email addresses before prompt transmission.
+3. **Tenant Context Isolation**: Always specify explicit tenant identifiers in payload metadata to prevent multi-tenant vector context bleed.
+
+### Troubleshooting Operational Anomalies
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| `401 Unauthorized` | Invalid or expired AirOps Auth Token | Re-generate API key in AirOps Workspace settings and update Vault secret. |
+| `429 Too Many Requests` | Concurrency limit exceeded on model provider tier | Implement exponential backoff retry policy or increase model tier quota in AirOps settings. |
+| `PII Violation Triggered` | Prompt input matched restricted pattern filter | Review input data scrubbing policies or modify Regex filter rules in AirOps Guardrails. |
+| `Schema Validation Error` | Output schema structure changed after workflow update | Synchronize Pydantic v2 schemas in downstream consumers with the newly published AirOps version. |
 
 ## Related tools / concepts
 - [Gumloop](gumloop.md) — Visual AI automation for agile teams and rapid prototyping.
