@@ -35,11 +35,45 @@ Connecting autonomous agents to external software services (GitHub, Slack, Sales
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as Autonomous Agent / Framework
+    participant Composio as Composio FastMCP 3.1 Router
+    participant AuthVault as Managed Auth Vault
+    participant SaaS as Downstream SaaS API (GitHub/Slack)
+
+    Agent->>Composio: Request Action Execution (e.g. `GITHUB_CREATE_ISSUE`)
+    Composio->>AuthVault: Verify Active Token & Refresh Scopes
+    alt Token Valid
+        AuthVault-->>Composio: Inject Encrypted Access Token
+    else Token Expired
+        AuthVault->>SaaS: Execute Background OAuth2 Refresh
+        SaaS-->>AuthVault: Return New Access Token
+        AuthVault-->>Composio: Inject Refreshed Token
+    end
+    Composio->>SaaS: Execute API Request with Payload Validation
+    SaaS-->>Composio: Return Payload Data / Status Code 201
+    Composio->>Composio: Log Action Audit Trace Span
+    Composio-->>Agent: Return Standardized Execution Result
+```
+
 ## Typical use cases
 - **Autonomous Software Engineering**: Connecting agents to Gitea/GitHub and Linear to manage bug tickets, push feature commits, and open pull requests.
 - **Enterprise Operations Co-Pilot**: Linking Google Workspace and Slack to handle scheduling, draft team announcements, and organize file archives.
 - **Automated Sales & CRM Operations**: Enabling lead qualification agents to search Salesforce records, update sales pipeline stages, and send calendar invites.
 - **DevOps & Infrastructure Remediation**: Triggering automated cloud resource scaling or diagnostic runs based on incident webhook alerts.
+
+## Comprehensive Comparison Matrix: Tool Execution Platforms
+
+| Dimension | Composio | Custom LangChain Tools | CrewAI Tools | Zapier AI Actions |
+| :--- | :--- | :--- | :--- | :--- |
+| **Integrations Library** | 250+ Managed SaaS Apps | Custom Python Wrappers | 30+ Community Tools | 6000+ Zapier Ecosystem |
+| **Auth & OAuth Vault** | Native Automated Refresh | Manual Code Required | Manual Token Handling | Managed Zapier Auth |
+| **Protocol Support** | FastMCP 3.1 / MCP 3.1 | Python Native | Python Native | Proprietary REST |
+| **Framework Agnostic** | Fully Agnostic | LangChain Centric | CrewAI Centric | Webhook / API Only |
+| **Audit Trace Logging**| Built-in Span Tracing | Custom Logger Required | Custom Logger Required | Zapier Activity Log |
+| **Local / VPC Support**| FastMCP Local Runners | Fully Local | Fully Local | Cloud-Only SaaS |
 
 ## Strengths
 - **Massive Tool Library**: Pre-built integrations for over 250+ cloud services and local developer utilities.
@@ -108,11 +142,11 @@ composio run github star-repo --params '{"owner": "composiohq", "repo": "composi
 ```
 
 ## API examples
-The following Python script demonstrates validating Composio tool connection telemetry and action execution logs using Pydantic v2 and FastMCP 3.1:
+The following Python script demonstrates validating Composio tool connection telemetry and action execution logs using **Pydantic v2** and **FastMCP 3.1**:
 
 ```python
 from typing import Dict, Any, Optional, Literal
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from fastmcp import FastMCP
 
@@ -121,17 +155,23 @@ mcp = FastMCP(name="composio-audit-server", version="3.1")
 
 # 2. Define Pydantic v2 Telemetry Models
 class AuthStateSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     app_name: str = Field(..., description="Target app name (e.g., github, slack)")
     authenticated: bool = Field(default=False)
     auth_method: Literal["oauth2", "api_key", "jwt"] = Field("oauth2")
 
 class ActionExecutionSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     action_id: str = Field(..., description="Specific action string")
     status: Literal["success", "failed", "rate_limited", "unauthorized"]
     latency_ms: float = Field(..., ge=0.0)
     response_payload: Dict[str, Any] = Field(default_factory=dict)
 
 class ComposioAuditLogSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     trace_id: str = Field(..., description="Unique audit trace identifier")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     connection: AuthStateSchema
@@ -186,6 +226,15 @@ if __name__ == "__main__":
     res = record_audit_log(sample_audit)
     print("Validation Result:", res)
 ```
+
+## Troubleshooting Guide
+
+| Issue / Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| `OAuth Consent Pending` | Connected account authorization flow not completed | Run `composio add <app_name>` in CLI and follow browser redirect to authorize. |
+| `Rate Limit Exceeded (429)` | Downstream SaaS app rate limits reached | Configure backoff retries in Composio tool settings or upgrade SaaS API tier. |
+| `FastMCP Tool Call Unrecognized` | Stale MCP schema or version mismatch | Re-fetch tool schemas using `toolset.get_tools(..., protocol="fastmcp3.1")`. |
+| `Token Encryption Error` | Expired vault secret key or invalid environment variable | Re-authenticate session using `composio login` and refresh local auth tokens. |
 
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol standard for tool execution.
