@@ -32,7 +32,17 @@ sequenceDiagram
 As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments. It solves the lack of standardized "red teaming" protocols for agentic workflows using **MCP 3.1** and **FastMCP 3.1**.
 
 ## Where it fits in the stack
-**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools. It is a critical component for validating [Gemma 4](../ai_knowledge/local_llms.md), [Claude](../ai_knowledge/claude.md) 5.1, and **GPT-5.6** agents.
+**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools. It is a critical component for validating [Gemma 4](../ai_knowledge/local_llms.md), [Claude](../ai_knowledge/claude.md) 5.6, and **GPT-5.6** agents.
+
+## Comparative Feature Matrix
+
+| Benchmark / Tool | SHARP (v3.1) | Giskard | Lakera Guard | Promptfoo |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Agentic Security & Tool Misuse | Quality & Bias Auditing | Real-time Inline Firewall | Matrix Prompt Regression |
+| **Execution Phase** | CI/CD Pre-deployment Gate | Pre-deployment & Staging | Production Runtime | Development & Testing |
+| **Tool Call Interception** | Native FastMCP 3.1 Sandbox | Function call wrappers | API Proxy Filter | Prompt assertions |
+| **Multi-Turn Red Teaming** | Yes (Adaptive probes) | Static / Dynamic sweeps | Single-turn inspection | Automated test matrices |
+| **Report Format** | Pydantic v2 JSON / PDF | HTML / Python Report | Real-time Webhook Flag | CLI / Web Dashboard |
 
 ## Typical use cases
 - **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../ai_knowledge/dify.md).
@@ -98,10 +108,10 @@ docker run -v $(pwd)/reports:/app/reports sharpai/eval-runner run \
            --output /app/reports/result.json
 
 # Run a specific 'Indirect Injection' attack suite using FastMCP 3.1
-sharp-cli test --category indirect-injection --model gemma-3-8b-it --mcp-version 3.1
+sharp-cli test --category indirect-injection --model gemma-4-27b-it --mcp-version 3.1
 
 # List all available security scenarios
-sharp-cli list scenarios --version 2026.12
+sharp-cli list scenarios --version 2027.01
 ```
 
 ## API examples
@@ -112,11 +122,11 @@ Integrate SHARP into your CI/CD pipeline using the FastMCP 3.1 server pattern an
 import json
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, condecimal, ValidationError
-from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for SHARP Security Benchmark
-mcp = FastMCP("SHARP-Security-Benchmark-Server", version="3.1")
+mcp = FastMCP("SHARP-Security-Benchmark-Server", version="3.1.0")
 
 class VulnerabilityDetail(BaseModel):
     category: str = Field(..., description="Adversarial category of the detected vulnerability")
@@ -161,6 +171,21 @@ if __name__ == "__main__":
     })
     print(evaluate_sharp_audit(sample_payload))
 ```
+
+## Operational Best Practices & Troubleshooting
+
+### Security Hardening & Red Teaming Rules
+1. **Network Sandbox Ephemerality**: Ensure all red-team tool probes run in temporary containerized environments with strict outbound firewall rules (`--network none` or whitelist only).
+2. **Credential Masking**: Do not pass production keys into agent test harnesses during SHARP security evaluations.
+3. **Automated Safety Gate**: Fail CI/CD build pipelines if any `CRITICAL` or `HIGH` severity vulnerabilities are detected in the SHARP report.
+
+### Troubleshooting Security Audit Failures
+
+| Symptom / Failure | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| `Vulnerability: Indirect Injection` | Agent followed malicious prompt hidden in retrieved text | Implement system prompt trust boundaries and wrap search tool returns in clear XML markers. |
+| `Vulnerability: Unauthorized Tool Escalation` | Model executed `execute_bash` when requested `read_file` | Restrict FastMCP tool access per agent role using strict permission schemas. |
+| `SHARP Engine Connection Refused` | Docker container port not bound or agent endpoint offline | Verify agent HTTP server accessibility on target port prior to executing `sharp-cli`. |
 
 ## Related tools / concepts
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core concepts behind SHARP.
