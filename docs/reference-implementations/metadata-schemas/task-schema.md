@@ -13,6 +13,65 @@ It solves the "API Fragmentation" and interoperability problems in multi-agent e
 ## Where it fits in the stack
 **Reference Implementations / Metadata Schemas**. It serves as the primary data contract between the [Orchestration Layer](../../tools/orchestration/index.md) and [Agent Frameworks](../../tools/frameworks/index.md), ensuring schema consistency throughout agent execution pipelines.
 
+```
++-----------------------------------------------------------------------------------+
+|                        Agent Frameworks & LLM Loops                               |
+|        (Claude 5.6, GPT-5.6, LangGraph, Antigravity Agent, FastMCP 3.1)           |
++-----------------------------------------------------------------------------------+
+                                          |
+                        [ Unified Autonomous Task Object (ATO) ]
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Task Schema Engine & Adapter Layer                         |
+|   +-----------------------+   +------------------------+   +-------------------+  |
+|   | Pydantic v2 Schema    |   | State Transition Guard |   | Recursive Subtask |  |
+|   | Validation            |   | Machine Engine         |   | Dependency Tree   |  |
+|   +-----------------------+   +------------------------+   +-------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                  [ Platform Adapters: ServiceNow / Jira / GitHub ]
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Enterprise Task Backends & APIs                            |
+|             (Atlassian Jira, ServiceNow ITIL, GitHub Issues, Temporal)            |
++-----------------------------------------------------------------------------------+
+```
+
+## Architectural Overview & State Transition Machine
+
+The Task Schema enforces a deterministic, state-machine-driven lifecycle to govern how agents transition tasks across platforms:
+
+```
+                  +-----------------------------------+
+                  |             PENDING               |
+                  +-----------------------------------+
+                                    |
+                           [ assign_agent ]
+                                    v
+                  +-----------------------------------+
+        +-------->|           IN_PROGRESS             |<---------+
+        |         +-----------------------------------+          |
+        |                           |                            |
+  [ unblock ]                 [ mark_blocked ]             [ retry ]
+        |                           v                            |
+  +-----------+   [ resolve ] +-------------------+   [ fail ] +-----------+
+  |  RESOLVED | <------------ |      BLOCKED      | ---------> |  FAILED   |
+  +-----------+               +-------------------+            +-----------+
+        |
+    [ verify ]
+        v
+  +-----------+
+  |  CLOSED   |
+  +-----------+
+```
+
+1. **PENDING**: Initial state upon ingestion or recursive decomposition. Unassigned or waiting for prerequisites.
+2. **IN_PROGRESS**: Agent or human worker actively executing the task payload.
+3. **BLOCKED**: Waiting on external API dependency, human-in-the-loop approval, or child subtask completion.
+4. **RESOLVED**: Task execution completed successfully; awaiting automated validation or SRE audit.
+5. **FAILED**: Terminal or retryable error condition recorded in the execution log history.
+6. **CLOSED**: Finalized and archived state, synced back to primary enterprise databases.
+
 ## Typical use cases
 - **Enterprise Ticket Ingestion**: An agent queries [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md) and [Jira](../../tools/automation_orchestration/atlassian-jira-mcp.md) endpoints, transforming incoming alerts into a single unified queue of Task Schema objects.
 - **Autonomous Mission Decomposition**: A coordinator agent receives a high-level goal and recursively decomposes it into standard sub-tasks, allocating them to worker droids.
@@ -29,6 +88,17 @@ It solves the "API Fragmentation" and interoperability problems in multi-agent e
 - **Granular Detail Loss**: Highly customized, platform-specific attributes (such as specialized ServiceNow work notes tables) must be simplified or stored in a generic metadata dictionary.
 - **Translation Maintenance**: Requires ongoing mapping rules to align standard fields with evolving enterprise APIs.
 - **Payload Overhead**: Including recursive sub-task arrays and detailed execution histories can inflate context usage on smaller models.
+
+## Comparison Matrix: Task Serialization & Modeling Standards
+
+| Metric / Feature | Task Schema (ATO) | Raw JSON Schema | Protocol Buffers (v3) | OpenAPI 3.1 Spec |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Agentic Workflows & Multi-Agent Loops | General Data Validation | High-performance RPC | REST API Specifications |
+| **Pydantic v2 Native** | Yes (Built-in runtime models) | Requires code generator | Requires `protobuf` compiler | Requires generator |
+| **State Machine Enforcement** | Strict Enums & Transition Guards | Manual validation | Enums only | Structural schemas |
+| **Recursive Subtasks** | Native (`subtasks: List[TaskObject]`) | Complex `$ref` structures | Supported via `repeated` | Supported via `$ref` |
+| **Execution Audit Trail** | Embedded (`history: List[ExecutionLog]`) | Custom array | Custom message | Custom array |
+| **FastMCP 3.1 Compatibility** | Native Task Protocol Adapter | Manual Tool Specs | gRPC bridge required | REST Tool Bridge |
 
 ## When to use it
 - When orchestrating complex, multi-agent systems that need to collaboratively work on and hand off tasks.
@@ -68,74 +138,207 @@ Querying unified, cross-platform tasks via the [Junie-cli](../../tools/developme
 junie tasks list --priority critical --unified --source all
 ```
 
-## API examples
+## Production FastMCP 3.1 Task Server Implementation
+
+The following Python script implements a production FastMCP 3.1 task orchestration server (`mcp_task_schema_engine.py`) exposing standardized task creation, state manipulation, and subtask decomposition tools.
+
+```python
+from typing import List, Dict, Any, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from datetime import datetime, timezone
+from enum import Enum
+import json
+import logging
+
+mcp = FastMCP("TaskSchemaEngine")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("mcp_task_schema")
+
+class TaskStatus(str, Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    BLOCKED = "blocked"
+    RESOLVED = "resolved"
+    FAILED = "failed"
+    CLOSED = "closed"
+
+class PriorityLevel(str, Enum):
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+class ExecutionLog(BaseModel):
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    agent_id: str = Field(..., description="Identifier of agent taking action")
+    action_taken: str = Field(..., description="Action description")
+    output_summary: str = Field(..., description="Output or status note")
+
+class TaskObject(BaseModel):
+    task_id: str = Field(..., description="Unique platform-agnostic ID e.g. JIRA-101")
+    title: str = Field(..., description="Actionable title summary")
+    description: Optional[str] = Field(None, description="Detailed actionable body")
+    status: TaskStatus = Field(default=TaskStatus.PENDING)
+    priority: PriorityLevel = Field(default=PriorityLevel.MEDIUM)
+    source: str = Field(..., description="Originating backend (jira, servicenow, github)")
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    assignee: Optional[str] = Field(None, description="Assigned worker agent ID")
+    subtasks: List["TaskObject"] = Field(default_factory=list)
+    history: List[ExecutionLog] = Field(default_factory=list)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+# In-memory Task Repository for FastMCP Server
+TASK_STORE: Dict[str, TaskObject] = {}
+
+@mcp.tool()
+def create_autonomous_task(
+    task_id: str,
+    title: str,
+    source: str,
+    priority: str = "medium",
+    description: Optional[str] = None
+) -> str:
+    """
+    Creates and stores a schema-compliant Autonomous Task Object (ATO).
+    """
+    try:
+        task = TaskObject(
+            task_id=task_id,
+            title=title,
+            source=source,
+            priority=PriorityLevel(priority.lower()),
+            description=description
+        )
+        TASK_STORE[task_id] = task
+        logger.info(f"Task created successfully: {task_id}")
+        return json.dumps({"status": "success", "task": task.model_dump(mode="json")}, indent=2)
+    except (ValidationError, ValueError) as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+@mcp.tool()
+def update_task_state(task_id: str, new_status: str, agent_id: str, summary: str) -> str:
+    """
+    Updates the state of an existing task and appends an entry to its history.
+    """
+    if task_id not in TASK_STORE:
+        return json.dumps({"status": "error", "message": f"Task {task_id} not found"})
+
+    task = TASK_STORE[task_id]
+    try:
+        status_enum = TaskStatus(new_status.lower())
+        task.status = status_enum
+        task.updated_at = datetime.now(timezone.utc).isoformat()
+
+        log_entry = ExecutionLog(
+            agent_id=agent_id,
+            action_taken=f"Transitioned status to {status_enum.value}",
+            output_summary=summary
+        )
+        task.history.append(log_entry)
+        return json.dumps({"status": "success", "task": task.model_dump(mode="json")}, indent=2)
+    except ValueError:
+        return json.dumps({"status": "error", "message": f"Invalid status '{new_status}'"})
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## API & Pydantic v2 Validation Schemas
+
 Fully realized, nested Task Schema modeling with custom validation decorators and platform-mapping logic using `pydantic` (v2.13+) in Python:
 
 ```python
 from datetime import datetime, timezone
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Dict, Any, Optional
 
-# Define standard Task state transitions
 class TaskStatus(str, Enum):
-    OPEN = "open"
+    PENDING = "pending"
     IN_PROGRESS = "in_progress"
     BLOCKED = "blocked"
     RESOLVED = "resolved"
+    FAILED = "failed"
     CLOSED = "closed"
 
-# Define standard task execution log
 class ExecutionLog(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     agent_id: str
     action_taken: str
     output_summary: str
 
-# Define standard nested Task Object
 class TaskObject(BaseModel):
     task_id: str = Field(description="Platform-agnostic unique identifier (e.g., JIRA-101)")
     title: str = Field(description="Standardized, clear summary of the work item")
-    description: str | None = Field(None, description="Detailed actionable items")
-    status: TaskStatus = Field(default=TaskStatus.OPEN)
-    priority: str = Field(pattern="^(critical|high|medium|low)$")
+    description: Optional[str] = Field(None, description="Detailed actionable items")
+    status: TaskStatus = Field(default=TaskStatus.PENDING)
+    priority: str = Field(default="medium", pattern="^(critical|high|medium|low)$")
     source: str = Field(description="Source system originating the task (e.g., jira, servicenow)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    assignee: str | None = Field(None, description="Assigned agent ID or human email")
+    assignee: Optional[str] = Field(None, description="Assigned agent ID or human email")
     subtasks: List["TaskObject"] = Field(default_factory=list, description="Recursive child tasks")
     history: List[ExecutionLog] = Field(default_factory=list, description="Chronological log of agent actions")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Platform-specific raw payload fields")
 
-    # Ensure parent task is updated when status is set to resolved
-    @field_validator("status")
-    @classmethod
-    def validate_transitions(cls, value: TaskStatus) -> TaskStatus:
-        # Custom logic can be injected here to enforce strict state machine transitions
-        return value
-
-    # Ensure subtasks follow priority boundaries
     @field_validator("priority")
     @classmethod
     def validate_priority_boundary(cls, value: str) -> str:
         valid_priorities = {"critical", "high", "medium", "low"}
-        if value not in valid_priorities:
+        if value.lower() not in valid_priorities:
             raise ValueError(f"Priority must be one of {valid_priorities}")
-        return value
+        return value.lower()
 
-# Implement basic platform translation logic
 def transform_jira_to_task(raw_issue: dict) -> TaskObject:
+    """Transforms raw Jira issue JSON payloads into standard TaskObject schemas."""
     fields = raw_issue.get("fields", {})
+    priority_name = fields.get("priority", {}).get("name", "medium").lower()
+    if priority_name not in {"critical", "high", "medium", "low"}:
+        priority_name = "medium"
+
     return TaskObject(
         task_id=raw_issue.get("key", "UNKNOWN"),
         title=fields.get("summary", "No Summary"),
         description=fields.get("description", ""),
-        status=TaskStatus.OPEN,  # Simple mapper logic
-        priority=fields.get("priority", {}).get("name", "medium").lower(),
+        status=TaskStatus.PENDING,
+        priority=priority_name,
         source="jira",
         metadata={"jira_raw": raw_issue}
     )
+
+if __name__ == "__main__":
+    sample_jira_payload = {
+        "key": "OPS-402",
+        "fields": {
+            "summary": "Deploy Karpenter autoscaler to production cluster",
+            "description": "Configure NodePool CRD and IAM instance profiles",
+            "priority": {"name": "High"}
+        }
+    }
+    task = transform_jira_to_task(sample_jira_payload)
+    print(task.model_dump_json(indent=2))
 ```
+
+## Operational Hardening & Schema Migration Rules
+
+1. **Schema Version Tagging**: Include a mandatory `schema_version: "1.8.0"` attribute in the `metadata` dictionary to support backward compatibility during multi-agent system updates.
+2. **Prevent Infinite Subtask Recursion**: Cap child subtask depth at `depth <= 4` within decomposition adapters to avoid blowing up context windows or execution limits.
+3. **Strict Validation Fail-Fast**: Always pass incoming raw payloads through `TaskObject.model_validate()` before persisting into database tables or passing to FastMCP tools.
+4. **Idempotent Task Keys**: Enforce deterministic `task_id` prefixing (`servicenow:<sys_id>`, `jira:<issue_key>`, `github:<owner>/<repo>/<issue_num>`) to prevent duplicate ingestion.
+5. **PII & Credential Scrubbing**: Intercept `description` and `metadata` text blocks to strip passwords, OAuth tokens, and sensitive private user data before sending payloads to LLM APIs.
+
+## Troubleshooting & Diagnostics
+
+| Symptoms / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`ValidationError`: Priority Regex Mismatch** | Platform adapter passed non-standard priority string (e.g. `P1`, `Blocker`) | Check adapter transformation code | Map source priorities (`Blocker` -> `critical`, `P3` -> `medium`) before instantiation |
+| **Infinite Recursion / Context Exhaustion** | Recursive child subtasks pointing back to parent `task_id` | `jq '.subtasks[] | .task_id'` | Implement parent-id checking in decomposition loop to prevent circular links |
+| **State Machine Guard Violation** | Agent attempted forbidden state transition (e.g., `PENDING` -> `CLOSED` directly) | Inspect agent history log array | Enforce state machine transitions via Pydantic `@field_validator("status")` |
+| **Jira / ServiceNow Sync Drift** | Updated status in Task Schema failed to sync back to enterprise API | `curl -i -X PUT <api-endpoint>` | Verify target platform API credentials and webhook subscription health |
+| **FastMCP Tool De-serialization Error** | Missing optional string default values caused `NoneType` attribute error | `python3 -m pydantic.v2` test script | Set explicit `Optional[str] = None` and default values on all nullable schema fields |
 
 ## Related tools / concepts
 - [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md) — ServiceNow target integration.

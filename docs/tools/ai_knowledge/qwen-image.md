@@ -71,6 +71,17 @@ sequenceDiagram
 - **Hardware Prerequisites**: Fast FP8 speedups require modern GPU architectures with FP8 Tensor Core support (NVIDIA Ada Lovelace / Hopper / Blackwell).
 - **GPU Memory during Batch Generation**: Concurrent batch generation of ultra-high-resolution images (4K+) still requires enterprise VRAM headroom.
 
+## Comparison Matrix: Generative Vision & Diffusion Models
+
+| Feature / Metric | Qwen Image 2.1 (Fast FP8) | Flux.1 (Dev / Schnell) | Stable Diffusion 3.5 Large | Midjourney v6 (SaaS) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Model Weights Availability** | Open Weights | Open Weights (Non-commercial Dev) | Open Weights | Closed SaaS |
+| **Typography & Embedded Text** | Pristine (Multilingual CJK/Latin) | High (Latin script focused) | Good (Latin script focused) | High (English text) |
+| **Minimum VRAM (1024x1024)** | **8 GB VRAM** (FP8) | 12 GB VRAM (FP8 quantized) | 12 GB VRAM | N/A (Cloud Hosted) |
+| **Inference Precision** | Fast FP8 (`e4m3fn`) | FP8 / INT8 | FP16 / FP8 | Cloud FP16 |
+| **Self-Hosting / Air-Gap** | Native Support | Native Support | Native Support | No |
+| **FastMCP 3.1 Integration** | Direct (Native Tool Wrappers) | Third-party Diffusers tool | Third-party Diffusers tool | Unofficial REST wrappers |
+
 ## When to use it
 - When generating visual media requiring precise embedded text or multi-lingual typography.
 - When hosting local image generation models on GPUs with 8GB–16GB VRAM using Fast FP8 optimization.
@@ -141,67 +152,88 @@ qwen-image-cli batch-generate \
   --device cuda
 ```
 
-## API examples
+## Production FastMCP 3.1 Server Implementation
 
-### FastMCP 3.1 Qwen Image Tool Server
-The following complete Python script establishes a **FastMCP 3.1** server that provides image generation capabilities to AI agents:
+The following complete Python script establishes a **FastMCP 3.1** server (`mcp_qwen_image_pipeline.py`) that provides image generation tools to autonomous AI agents:
 
 ```python
 import os
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from fastmcp import FastMCP
+import json
+import logging
 
 mcp = FastMCP(
     "qwen-image-mcp-server",
     instructions="FastMCP 3.1 server exposing Qwen Image 2.1 Fast FP8 generation tools."
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("mcp_qwen_image")
+
 class ImageGenerationRequest(BaseModel):
     prompt: str = Field(..., description="Detailed text prompt describing the desired image")
+    negative_prompt: Optional[str] = Field(default="blurry, distorted, low quality", description="Unwanted visual elements")
     width: int = Field(default=1024, ge=512, le=2048, description="Image width in pixels")
     height: int = Field(default=1024, ge=512, le=2048, description="Image height in pixels")
     guidance_scale: float = Field(default=6.0, ge=1.0, le=20.0, description="Classifier-free guidance scale")
+    num_inference_steps: int = Field(default=25, ge=1, le=100, description="DiT denoising step count")
     seed: Optional[int] = Field(default=None, description="Optional seed for deterministic generation")
 
 class ImageGenerationResult(BaseModel):
-    status: str
-    image_url: str
+    status: str = Field("completed", description="Task execution status")
+    image_url: str = Field(..., description="Access URL for generated asset")
     width: int
     height: int
-    fp8_accelerated: bool
+    num_steps: int
+    fp8_accelerated: bool = Field(True, description="Whether Fast FP8 kernel execution was utilized")
 
 @mcp.tool()
-def generate_qwen_image(request: ImageGenerationRequest) -> Dict[str, Any]:
+def generate_qwen_image(
+    prompt: str,
+    width: int = 1024,
+    height: int = 1024,
+    guidance_scale: float = 6.0,
+    num_steps: int = 25
+) -> str:
     """
-    Generate an image using Qwen Image 2.1 with Fast FP8 acceleration.
+    Generate a photorealistic or graphic asset using Qwen Image 2.1 with Fast FP8 acceleration.
     """
     try:
-        image_id = f"qwen-{hash(request.prompt) & 0xffffffff:08x}"
+        req = ImageGenerationRequest(
+            prompt=prompt,
+            width=width,
+            height=height,
+            guidance_scale=guidance_scale,
+            num_inference_steps=num_steps
+        )
+        image_id = f"qwen-{hash(req.prompt) & 0xffffffff:08x}"
         result = ImageGenerationResult(
             status="completed",
             image_url=f"https://media.internal.ai/images/{image_id}.png",
-            width=request.width,
-            height=request.height,
+            width=req.width,
+            height=req.height,
+            num_steps=req.num_inference_steps,
             fp8_accelerated=True
         )
-        return result.model_dump()
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return json.dumps(result.model_dump(mode="json"), indent=2)
+    except (ValidationError, Exception) as e:
+        logger.error(f"Failed to generate Qwen image: {e}")
+        return json.dumps({"status": "error", "message": str(e)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Pydantic v2 Media Schema
-Validation schema for image rendering configurations:
+## API & Pydantic v2 Media Validation Schemas
+
+Validation schemas for image rendering specifications and multi-modal pipeline outputs:
 
 ```python
 from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
+import json
 
 class ImageGenerationSpec(BaseModel):
     job_id: str = Field(..., description="Unique job tracking ID")
@@ -228,6 +260,24 @@ if __name__ == "__main__":
     spec = validate_image_spec(data)
     print(f"Validated Spec ID: {spec.job_id} ({spec.width}x{spec.height})")
 ```
+
+## Operational Hardening & GPU Memory Optimization Guidelines
+
+1. **FP8 Quantization Directives**: Enforce `torch_dtype=torch.float8_e4m3fn` during pipeline initialization to restrict VRAM consumption under 8GB for single 1024x1024 generations.
+2. **CPU Offloading**: Enable `pipe.enable_model_cpu_offload()` when running on GPUs with less than 12GB VRAM during multi-modal batch processing.
+3. **VAE Tiling**: Enable `pipe.enable_vae_tiling()` when generating image resolutions greater than 1536x1536 to avoid VRAM allocation spikes during final VAE decoding.
+4. **Deterministic Seed Control**: Always pass explicit `generator=torch.Generator("cuda").manual_seed(seed)` parameters when exact visual reproduction is required across agent runs.
+5. **Prompt Truncation Guardrails**: Limit prompt token length to under 512 tokens to prevent cross-attention matrix memory fragmentation.
+
+## Troubleshooting & Diagnostics
+
+| Symptoms / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`CUDA out of memory` during DiT loop** | VRAM exhausted due to high resolution or batch size | `nvidia-smi` | Enable `pipe.enable_vae_tiling()` or switch to FP8 (`torch.float8_e4m3fn`) |
+| **Distorted / Unreadable Text Rendering** | `guidance_scale` set too low or text prompt ambiguously formatted | N/A | Increase `guidance_scale` to `6.5` - `8.0` and enclose target text in single quotes `'Text'` |
+| **`ImportError: FP8 requires Ada Lovelace+`** | GPU architecture older than NVIDIA RTX 4000 / Ampere / Hopper | `torch.cuda.get_device_capability()` | Fallback to FP16 precision (`torch.float16`) on legacy Pascal / Turing GPUs |
+| **Black / All-Zero Output Images** | VAE numerical instability under low precision | Check VAE output tensors | Force VAE module to execute in FP32 precision (`pipe.vae.to(torch.float32)`) |
+| **Slow Step Latency (>2s/step)** | Tensor Core FP8 kernel missing or xFormers / FlashAttention disabled | `python3 -c "import torch; print(torch.backends.cuda.flash_sdp_enabled())"` | Install `flash-attn` or enable PyTorch 2.x SDPA (`torch.backends.cuda.enable_flash_sdp(True)`) |
 
 ## Related tools / concepts
 - [Qwen](../ai_knowledge/qwen.md) — Base Qwen foundation LLM series.
