@@ -3,6 +3,53 @@
 ## What it is
 Exa AI is a neural search engine engineered specifically for large language models (LLMs) and autonomous AI agents. Unlike keyword-matching or SEO-biased traditional search platforms, Exa uses transformer-based embedding models to perform semantic searches, finding high-signal web content and delivering it in structured, LLM-clean formats.
 
+## System & Retrieval Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                            Autonomous AI Agent / MCP Server                        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | FastMCP 3.1 Neural Search Tool Call
+                                          v
++-----------------------------------------------------------------------------------+
+|                              Exa AI Neural Search API                             |
+|  +---------------------+  +---------------------+  +--------------------------+  |
+|  | Semantic Vector     |  | Category & Domain   |  | Content Parsing          |  |
+|  | Search Engine       |  | Filtering Engine    |  | & Markdown Synthesizer   |  |
+|  +---------------------+  +---------------------+  +--------------------------+  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Vector Index Scan & Live Web Extraction
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Web Content / Research Sources                             |
+|        [ Personal Blogs | Academic Papers | Company Sites | News Portals ]        |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          | Sanitized LLM-Ready Markdown & Highlights
+                                          v
++-----------------------------------------------------------------------------------+
+|                          Pydantic v2 Contract Validation                          |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                          Agent RAG / Knowledge Base Grounding                      |
++-----------------------------------------------------------------------------------+
+```
+
+## Feature Matrix & Provider Comparison
+
+| Feature / Metric | Exa AI | Traditional Search APIs (Bing/Google) | Headless Scraping (Puppeteer) |
+| :--- | :--- | :--- | :--- |
+| **Search Mechanism** | Neural Embeddings (Intent-based) | Lexical / Keyword matching | N/A (Requires direct URL) |
+| **Output Format** | Clean Markdown / Text / Highlights | HTML Snippets / Heavy JSON | Raw HTML / JS Rendered DOM |
+| **Parsing Overhead** | Zero (Handled by Exa) | Medium (HTML stripping needed) | High (Custom parsers required) |
+| **Token Efficiency** | Optimized for LLM contexts | Moderate noise | High noise / Ads / Modals |
+| **Category Filters** | Native (Blogs, Papers, News, Company) | Domain-level only | Custom custom scrapers |
+| **FastMCP 3.1 Native** | Fully Supported | Requires custom wrapper | Requires custom wrapper |
+
 ## What problem it solves
 Standard search engines optimize results for human browsers, often cluttering responses with sponsored ads, heavy javascript elements, and SEO-bloated pages. These structures consume massive token volume and introduce irrelevant noise into agent pipelines. Exa solves this by retrieving clean, pre-parsed markdown directly from the web, drastically decreasing latency, parsing errors, and input token overhead for agent reasoning loops.
 
@@ -10,7 +57,7 @@ Standard search engines optimize results for human browsers, often cluttering re
 **Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms.
 
 ## Typical use cases
-- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 4, Qwen 3.6 VL, DeepSeek-V4) to execute complex, multi-query research missions over the live web.
+- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.6, GPT-5.6, Llama 4, Gemma 3, Qwen 3.8, DeepSeek-V4) to execute complex, multi-query research missions over the live web.
 - **Dynamic Context Grounding**: Supplying real-time, high-fidelity context slices into enterprise RAG systems to keep corporate knowledge bases dynamically up to date.
 - **Automated Lead and Market Synthesis**: Aggregating structured company, academic, or product information via custom domain and timestamp filters.
 - **Factual Claims Verification**: Querying reference documents and extracting clean source texts to cross-examine and ground agent-generated responses.
@@ -40,9 +87,9 @@ Standard search engines optimize results for human browsers, often cluttering re
 Exa AI can be integrated into your applications using the official python library and a registered developer API key.
 
 ### 1. Installation
-Install the official Exa PyPI package:
+Install the official Exa PyPI package and FastMCP 3.1 dependencies:
 ```bash
-pip install exa_py
+pip install exa_py fastmcp pydantic
 ```
 
 ### 2. Configure API Key
@@ -52,7 +99,6 @@ export EXA_API_KEY="your-exa-api-key"
 ```
 
 ## CLI examples
-Exa can be queried via standard curl commands or configured via command-line tools.
 
 ### Querying the Semantic API with Curl
 Search for specialized articles on Model Context Protocol developments:
@@ -81,101 +127,122 @@ curl -X POST https://api.exa.ai/contents \
 
 ## API examples
 
-### Simple Semantic Web Search with Pydantic v2 Validation
-To parse and validate web-intelligence queries securely within agent pipelines, leverage the Exa Python client integrated with strict **Pydantic v2** validation models:
+### FastMCP 3.1 Exa Search Server with Pydantic v2 Contracts
+The following complete Python script creates a **FastMCP 3.1** server that exposes Exa AI neural search tools to agentic clients, validating inputs and outputs with **Pydantic v2**:
 
 ```python
 import os
-from typing import Optional, List
-from pydantic import BaseModel, HttpUrl, Field, ValidationError
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+from fastmcp import FastMCP
 from exa_py import Exa
 
-# Define rigid Pydantic v2 models for web-grounding ingestion
-class ExaWebDocument(BaseModel):
-    title: str = Field(..., description="The curated title of the target web page")
-    url: HttpUrl = Field(..., description="A syntactically valid URL string")
-    published_date: Optional[str] = Field(None, description="The ISO publication date if resolved")
-    score: Optional[float] = Field(None, description="The semantic relevance similarity score")
-
-class ExaQueryResult(BaseModel):
-    query: str = Field(..., description="The query passed to the neural search engine")
-    results: List[ExaWebDocument] = Field(default_factory=list, description="Validated list of retrieved documents")
-
-# Initialize client
-exa = Exa(api_key=os.getenv("EXA_API_KEY"))
-query_str = "Best design practices for building secure multi-agent systems in 2027"
-
-# Perform semantic neural search
-response = exa.search(
-    query_str,
-    num_results=3,
-    use_autoprompt=True
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP(
+    name="Exa-Neural-Search-MCP",
+    instructions="FastMCP 3.1 web intelligence server utilizing Exa AI for neural semantic retrieval."
 )
 
-try:
-    # Build data dict for Pydantic v2 validation
-    payload = {
-        "query": query_str,
-        "results": [
-            {
-                "title": getattr(r, "title", "Untitled"),
-                "url": getattr(r, "url", ""),
-                "published_date": getattr(r, "published_date", None),
-                "score": getattr(r, "score", None)
-            }
-            for r in response.results
-        ]
-    }
+# Pydantic v2 Contracts
+class ExaSearchQuery(BaseModel):
+    query: str = Field(..., min_length=3, description="Semantic search query phrase")
+    num_results: int = Field(default=3, ge=1, le=10, description="Number of web documents to retrieve")
+    category: Optional[str] = Field(None, description="Optional category filter (e.g. 'company', 'research paper', 'news')")
+    use_autoprompt: bool = Field(default=True, description="Enable automatic query refinement")
 
-    # Validate with Pydantic v2
-    validated_payload = ExaQueryResult.model_validate(payload)
-    print(f"Validated query: {validated_payload.query}\n")
+class WebDocumentResult(BaseModel):
+    title: str = Field(..., description="Document title")
+    url: str = Field(..., description="Source web URL")
+    published_date: Optional[str] = Field(None, description="ISO publication date if available")
+    score: float = Field(default=0.0, description="Semantic similarity score")
+    summary: Optional[str] = Field(None, description="Extracted content text or highlights")
 
-    for doc in validated_payload.results:
-        print(f"Title: {doc.title}")
-        print(f"URL: {doc.url}")
-        print(f"Published: {doc.published_date}")
-        print(f"Score: {doc.score}\n")
+class ExaSearchResponse(BaseModel):
+    status: str = Field(..., description="Status string: 'success' or 'error'")
+    query_processed: str = Field(..., description="Executed query string")
+    documents: List[WebDocumentResult] = Field(default_factory=list, description="List of validated web document results")
+    error_message: Optional[str] = Field(None, description="Error details if query failed")
 
-except ValidationError as e:
-    print(f"Data ingestion contract violation: {e}")
+@mcp.tool()
+def search_live_web(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Executes neural web search via Exa AI and returns validated document summaries.
+    """
+    api_key = os.getenv("EXA_API_KEY")
+    if not api_key:
+        res = ExaSearchResponse(
+            status="error",
+            query_processed="N/A",
+            error_message="EXA_API_KEY environment variable is missing."
+        )
+        return res.model_dump()
+
+    try:
+        # Validate inbound payload with Pydantic v2
+        query_data = ExaSearchQuery.model_validate(payload)
+        exa = Exa(api_key=api_key)
+
+        kwargs = {
+            "num_results": query_data.num_results,
+            "use_autoprompt": query_data.use_autoprompt
+        }
+        if query_data.category:
+            kwargs["category"] = query_data.category
+
+        # Perform neural search
+        search_res = exa.search_and_contents(query_data.query, text=True, **kwargs)
+
+        docs = []
+        for r in getattr(search_res, "results", []):
+            docs.append(WebDocumentResult(
+                title=getattr(r, "title", "Untitled"),
+                url=getattr(r, "url", ""),
+                published_date=getattr(r, "published_date", None),
+                score=float(getattr(r, "score", 0.0) or 0.0),
+                summary=getattr(r, "text", "")[:300] + "..." if getattr(r, "text", None) else None
+            ))
+
+        response = ExaSearchResponse(
+            status="success",
+            query_processed=query_data.query,
+            documents=docs
+        )
+        return response.model_dump()
+
+    except ValidationError as val_err:
+        res = ExaSearchResponse(
+            status="error",
+            query_processed=payload.get("query", "Unknown"),
+            error_message=f"Pydantic v2 Validation Error: {val_err.errors()}"
+        )
+        return res.model_dump()
+    except Exception as ex:
+        res = ExaSearchResponse(
+            status="error",
+            query_processed=payload.get("query", "Unknown"),
+            error_message=f"Exa Execution Error: {str(ex)}"
+        )
+        return res.model_dump()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Combined Search and Highlight Extraction
-Perform a semantic query and retrieve clean markdown text blocks containing the most relevant highlights in a single API call, validating content length and structure:
-```python
-from typing import Optional
-from pydantic import BaseModel, Field, ValidationError
+## Production Hardening & Operational Guidelines
 
-class ExaHighlightDocument(BaseModel):
-    title: str
-    url: str
-    text: str = Field(..., min_length=10, description="Web content raw text or clean markdown")
-    highlights: Optional[list] = Field(None, description="Semantic highlights parsed from the page")
+1. **API Key Isolation**: Never hardcode Exa API keys in client code or store them in repository files; ingest via environment variables or secret vaults.
+2. **Category Pre-Filtering**: When conducting specialized agent tasks (e.g. market research), always set category parameters (`company`, `research paper`) to reduce search space and token costs.
+3. **Response Length Clipping**: Truncate raw page text payloads to target token limits before feeding results into LLM prompts.
+4. **Retry Circuit Breakers**: Wrap Exa API calls in standard exponential-backoff retry blocks to handle occasional HTTP 429 rate limit spikes gracefully.
 
-# Execute combined search and contents call
-search_results = exa.search_and_contents(
-    "How to configure LangGraph with FastMCP 3.1 Task Protocol servers",
-    num_results=1,
-    text=True,  # Return clean text
-    highlights={"num_sentences": 3}  # Extract semantic highlights
-)
+## Troubleshooting Matrix
 
-try:
-    first_res = search_results.results[0]
-    validated_doc = ExaHighlightDocument.model_validate({
-        "title": getattr(first_res, "title", "Untitled"),
-        "url": getattr(first_res, "url", ""),
-        "text": getattr(first_res, "text", ""),
-        "highlights": getattr(first_res, "highlights", [])
-    })
-
-    print(f"Extracted Content Length: {len(validated_doc.text)} characters")
-    print(f"Semantic Highlights:\n{validated_doc.highlights}")
-
-except ValidationError as e:
-    print(f"Highlight extraction validation failed: {e}")
-```
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`401 Unauthorized`** | Invalid or missing `EXA_API_KEY` | Verify `export EXA_API_KEY="your-key"` is correctly set in environment. |
+| **`HTTP 429 Too Many Requests`** | API rate limit exceeded on current subscription tier | Implement exponential backoff or upgrade Exa developer plan. |
+| **`Zero Search Results Returned`** | Overly specific keyword constraints or invalid domain filter | Enable `use_autoprompt=True` or broaden query phrase syntax. |
+| **`Empty Text Payload in Contents`** | Target web page protected by paywall or anti-scraping block | Use semantic highlights fallback or query alternative domains in search results. |
 
 ## Related tools / concepts
 - [Tavily](tavily.md) — Semantic search tailored specifically for LLM agents.

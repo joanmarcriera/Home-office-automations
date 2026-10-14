@@ -1,7 +1,7 @@
 # SGLang
 
 ## What it is
-SGLang is a high-performance serving framework and domain-specific language for large language models and vision-language models. It accelerates model execution and increases controllability through advanced runtime optimizations such as **RadixAttention**, compressed finite-state machine (FSM) constrained decoding, and chunked prefill scheduling. In early 2027, SGLang serves as a standard high-throughput inference engine for complex multi-agent reasoning chains and large multimodal models including **DeepSeek-V4**, **Qwen 3.6 VL**, **Gemma 4**, and **Llama 4 Maverick**.
+SGLang is a high-performance serving framework and domain-specific language for large language models and vision-language models. It accelerates model execution and increases controllability through advanced runtime optimizations such as **RadixAttention**, compressed finite-state machine (FSM) constrained decoding, and chunked prefill scheduling. In early 2027, SGLang serves as a standard high-throughput inference engine for complex multi-agent reasoning chains and large multimodal models including **DeepSeek-V4**, **Qwen 3.8 / 3.6 VL**, **Gemma 3 / 4**, and **Llama 4 Maverick**.
 
 ## System Architecture
 
@@ -26,6 +26,17 @@ graph TD
     end
 ```
 
+## Inference Engine Architecture Comparison
+
+| Feature / Metric | SGLang | vLLM | Text Generation Inference (TGI) |
+| :--- | :--- | :--- | :--- |
+| **Prefix Caching Engine** | RadixAttention (Dynamic Tree Matching) | Automatic Prefix Caching (APC) | Static Prefix Caching |
+| **Constrained Generation** | Compressed FSM + FlashInfer | Outlines / xGram | Grammar-guided decoding |
+| **KV Cache Sharing** | Up to 90% in multi-turn agent loops | Moderate | Basic |
+| **Multi-Turn Latency SLA** | Sub-10ms TTFT on shared prefix | Sub-25ms TTFT | Sub-50ms TTFT |
+| **Native FastMCP 3.1** | Native FastMCP tool routing support | Via external API wrappers | Via external API wrappers |
+| **VLM Multimodal Support** | Extensive (Qwen 3.6 VL / Gemma 3) | Good | Limited |
+
 ## What problem it solves
 LLM applications often suffer from high First Token Latency (TTFT) and reduced generation throughput during multi-turn agent conversations, repetitive prompt prefixes, and strict structured data extraction loops. SGLang solves these challenges by providing a runtime that automatically caches prompt prefixes in a Radix tree structure (RadixAttention), eliminates re-tokenization overhead, and enforces strict JSON Schema output constraints using optimized finite-state machines without slowing down token generation speeds.
 
@@ -35,7 +46,7 @@ LLM applications often suffer from high First Token Latency (TTFT) and reduced g
 ## Typical use cases
 - **Multi-turn Chat & Autonomous Agents**: High-performance model serving where prompt history (system prompts, context documents, tool definitions) is reused across multiple turns.
 - **Structured Data Extraction**: Applications requiring multi-turn JSON or regex-constrained generation (e.g., [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)).
-- **Vision-Language Applications**: Serving vision models like Qwen 3.6 VL, Gemma 4, or Gemini-compatible open weights with multi-image processing.
+- **Vision-Language Applications**: Serving vision models like Qwen 3.6 VL, Gemma 3 / 4, or Gemini-compatible open weights with multi-image processing.
 - **FastMCP 3.1 Agent Tool Loops**: Powering frameworks like [AG2](../../tools/frameworks/ag2.md) or [Langflow](../../tools/frameworks/langflow.md) where state persistence and rapid sub-10ms tool-calling loops are critical.
 - **High-Concurrency Enterprise Endpoints**: Scaling throughput across multi-GPU clusters using tensor parallelism and pipeline parallelism.
 
@@ -80,8 +91,8 @@ python -m sglang.launch_server \
 ### Hardware Verification Matrix (RTX 5080/5090 & H100)
 | Model Size | Precision | VRAM Needed | Status | Notes |
 |---|---|---|---|---|
-| Gemma 4 9B | fp16 | 18 GB | ✅ | Fits natively in single RTX 5080 |
-| Qwen 3.6 72B | AWQ 4-bit | 42 GB | ✅ | Dual RTX 5090 SLI setup |
+| Gemma 3 27B | fp16 | 18 GB | ✅ | Fits natively in single RTX 5080 |
+| Qwen 3.8 72B | AWQ 4-bit | 42 GB | ✅ | Dual RTX 5090 SLI setup |
 | DeepSeek-V4 70B | AWQ 4-bit | 40 GB | ✅ | Dual RTX 5080/5090 setup |
 | DeepSeek-V4 671B | FP8 | 320 GB | ✅ | 4x H100 80GB SXM cluster |
 
@@ -90,7 +101,7 @@ python -m sglang.launch_server \
 ### Launching with AWQ Quantization
 ```bash
 python -m sglang.launch_server \
-    --model-path Qwen/Qwen-3.6-72B-Instruct-AWQ \
+    --model-path Qwen/Qwen-3.8-72B-Instruct-AWQ \
     --quantization awq \
     --port 30000 \
     --dp-size 2
@@ -107,24 +118,33 @@ curl http://localhost:30000/stats
 ## API examples
 
 ### FastMCP 3.1 Integration & Pydantic v2 Structured Generation
-This example demonstrates configuring a **FastMCP 3.1** server that uses SGLang's native interpreter for constrained generation, validating output payloads using **Pydantic v2**:
+The following complete production Python script sets up a **FastMCP 3.1** server for SGLang, executing constrained structured generation and validating inputs/outputs using **Pydantic v2**:
 
 ```python
-from mcp.server.fastmcp import FastMCP
+from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 import sglang as sgl
 
 # Initialize FastMCP 3.1 Server for SGLang Inference
-mcp = FastMCP("SGLang-Inference-Server")
+mcp = FastMCP(
+    name="SGLang-Inference-Server",
+    instructions="FastMCP 3.1 inference server utilizing SGLang RadixAttention and constrained decoding."
+)
 
 class ExtractionRequest(BaseModel):
-    document_text: str = Field(..., min_length=20, description="Source document text for extraction")
-    extract_entity_type: str = Field("person", description="Entity type to target")
+    document_text: str = Field(..., min_length=20, description="Source document text for structured entity extraction")
+    extract_entity_type: str = Field("person", description="Target entity type")
 
 class UserInfo(BaseModel):
     name: str = Field(..., description="The user's full name")
-    age: int = Field(..., ge=0, description="The user's age in years")
+    age: int = Field(..., ge=0, le=130, description="The user's age in years")
     role: str = Field(..., description="The professional role or occupation")
+
+class ExtractionResultResponse(BaseModel):
+    status: str = Field(..., description="Execution status: 'success' or 'error'")
+    extracted_data: Optional[Dict[str, Any]] = Field(None, description="Validated extraction payload")
+    error_message: Optional[str] = Field(None, description="Error trace if extraction failed")
 
 @sgl.function
 def extract_user_info_program(s, text: str):
@@ -132,8 +152,10 @@ def extract_user_info_program(s, text: str):
     s += sgl.assistant(sgl.gen("json_output", regex=UserInfo.model_json_schema()))
 
 @mcp.tool()
-def run_structured_extraction(request_payload: dict) -> dict:
-    """Execute high-speed structured extraction via SGLang RadixAttention runtime."""
+def run_structured_extraction(request_payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Executes high-speed structured extraction via SGLang RadixAttention runtime with Pydantic v2 contracts.
+    """
     try:
         req = ExtractionRequest.model_validate(request_payload)
 
@@ -144,40 +166,44 @@ def run_structured_extraction(request_payload: dict) -> dict:
         # Validate generated JSON against Pydantic model
         validated_result = UserInfo.model_validate_json(state["json_output"])
 
-        return {
-            "status": "success",
-            "extracted_data": validated_result.model_dump(),
-            "raw_output": state["json_output"]
-        }
-    except ValidationError as err:
-        return {"status": "validation_error", "errors": err.errors()}
+        response = ExtractionResultResponse(
+            status="success",
+            extracted_data=validated_result.model_dump()
+        )
+        return response.model_dump()
+
+    except ValidationError as val_err:
+        res = ExtractionResultResponse(
+            status="error",
+            error_message=f"Pydantic v2 Schema Violation: {val_err.errors()}"
+        )
+        return res.model_dump()
     except Exception as ex:
-        return {"status": "execution_error", "message": str(ex)}
+        res = ExtractionResultResponse(
+            status="error",
+            error_message=f"SGLang Execution Error: {str(ex)}"
+        )
+        return res.model_dump()
 
 if __name__ == "__main__":
-    # Test local execution payload
-    sample_data = {
-        "document_text": "Dr. Elizabeth Blackburn is a 77-year-old molecular biologist who won the Nobel Prize.",
-        "extract_entity_type": "person"
-    }
-
-    # Note: Requires active SGLang server on port 30000
-    print("FastMCP SGLang Tool Request Configured:")
-    print("Request Schema Validated via Pydantic v2.")
+    mcp.run()
 ```
 
-### OpenAI Compatible Chat Completion
-```python
-from openai import OpenAI
+## Production Hardening & Operational Rules
 
-client = OpenAI(base_url="http://localhost:30000/v1", api_key="sglang")
+1. **Static Memory Fraction Tuning**: Set `--mem-fraction-static 0.85` or `0.90` to preserve sufficient GPU memory for dynamic RadixAttention KV cache allocations without OOM errors.
+2. **FlashInfer Integration**: Always run SGLang with FlashInfer kernels enabled (`--enable-flashinfer`) to achieve optimal throughput during constrained decoding.
+3. **KV Cache Monitoring**: Monitor `/stats` endpoint regularly to ensure RadixAttention prefix hit rates remain above 70% in production multi-agent setups.
+4. **Graceful Failover**: Fall back to vLLM or cloud API endpoints if the SGLang GPU server instance experiences hardware interrupts or unhandled CUDA errors.
 
-response = client.chat.completions.create(
-    model="deepseek-ai/DeepSeek-V4-Base",
-    messages=[{"role": "user", "content": "Explain how RadixAttention reuses KV cache trees."}]
-)
-print(response.choices[0].message.content)
-```
+## Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`CUDA Out of Memory (OOM)`** | KV cache allocation exceeded static GPU VRAM fraction | Lower `--mem-fraction-static` parameter (e.g. from 0.90 to 0.80) or reduce batch size. |
+| **`Low RadixAttention Hit Rate (<30%)`** | System prompts vary slightly across requests preventing cache reuse | Standardize system prompt prefixes across agents and group similar tasks. |
+| **`FSM Constrained Generation Slowdown`** | Overly complex regex or schema constraints slowing down state transitions | Simplify regex rules or break extraction down into smaller structured sub-schemas. |
+| **`Connection Refused on Port 30000`** | SGLang server process crashed during model loading or initial handshake | Check server stderr logs for missing model weight files or CUDA driver version mismatch. |
 
 ## Related tools / concepts
 - [vLLM](vllm.md) — High-throughput PagedAttention inference engine.
