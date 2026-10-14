@@ -49,8 +49,8 @@ Running 32B to 70B parameter models locally on 16GB VRAM consumer graphics cards
 - When building private local development environments on single consumer GPU workstations.
 
 ## When not to use it
-- When operating high-end multi-GPU enterprise clusters (use [vLLM](../infrastructure/vllm.md) or [TGI](../infrastructure/tgi.md) instead).
-- When running tiny 1B–7B models where default [Ollama](../infrastructure/ollama.md) or [llama.cpp](../infrastructure/llama-cpp.md) execution is sufficient.
+- When operating high-end multi-GPU enterprise clusters (use [vLLM](vllm.md) or [TGI](tgi.md) instead).
+- When running tiny 1B–7B models where default [Ollama](../../services/ollama.md) or [llama.cpp](llama-cpp.md) execution is sufficient.
 
 ## Architecture & Technical Deep Dive
 

@@ -294,10 +294,10 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [qBittorrent Automation](qbittorrent-automation.md) — API automation scripts and n8n pipelines.
-- [n8n](../../services/n8n.md) — Self-hosted automation engine for download notifications.
-- [Plex](../../services/plex.md) — Media server for streaming completed qBittorrent downloads.
-- [Jellyfin](../../services/jellyfin.md) — Open-source streaming media platform.
-- [Authentik](../../services/authentik.md) — Identity provider for securing qBittorrent Web UI behind SSO.
+- [n8n](../services/n8n.md) — Self-hosted automation engine for download notifications.
+- [Plex](../services/plex.md) — Media server for streaming completed qBittorrent downloads.
+- [Jellyfin](../services/jellyfin.md) — Open-source streaming media platform.
+- [Authentik](../services/authentik.md) — Identity provider for securing qBittorrent Web UI behind SSO.
 
 ## Sources / references
 - [qBittorrent Official Site](https://www.qbittorrent.org/)

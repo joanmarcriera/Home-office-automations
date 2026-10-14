@@ -15,6 +15,34 @@ It ensures continuous availability of mission-critical AI applications when prim
 
 ## Architecture & Workflow
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as FastMCP 3.1 / App
+    participant Gateway as LiteLLM Proxy Gateway
+    participant Breaker as Circuit Breaker Evaluator
+    participant Cloud as Primary Cloud Tier<br/>(Claude 5.6 / GPT-5.5)
+    participant Local as Local Engine Tier<br/>(Ollama / vLLM - Llama 4)
+
+    Client->>Gateway: Send Inference Request
+    Gateway->>Breaker: Evaluate Route & Endpoint Health
+
+    alt Primary Endpoint Healthy
+        Breaker->>Cloud: Forward Request
+        Cloud-->>Breaker: Return Response (HTTP 200)
+        Breaker-->>Gateway: Forward Completion
+    else Timeout / HTTP 5xx / Rate Limit 429
+        Breaker->>Cloud: Forward Request
+        Cloud--XBreaker: Fail (HTTP 429 / 5xx / Timeout)
+        Breaker->>Breaker: Trigger Cooldown & Failover Policy
+        Breaker->>Local: Route Request to Local Pre-Warmed Engine
+        Local-->>Breaker: Return Local Completion
+        Breaker-->>Gateway: Forward Fallback Completion
+    end
+
+    Gateway-->>Client: Return Unified Response Payload
+```
+
 ```
 +-------------------------------------------------------------------------------+
 |                       Graceful Degradation Gateway Flow                       |
