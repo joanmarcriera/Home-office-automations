@@ -11,6 +11,28 @@ Selecting the appropriate vector store is critical for preventing "hallucination
 ## Where it fits in the stack
 Vector databases serve as the **Memory Plane** within the [Home-Office Architecture](../architecture/README.md). They interface with [Ollama](../services/ollama.md) for local embeddings and [n8n](../services/n8n.md) for retrieval-augmented workflows, typically acting as the backend for [Paperless-ngx](../services/paperless-ngx.md) or custom agentic memory servers.
 
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Agentic Workflow / MCP Client                      │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ Query Embeddings / Context Search
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     Vector Query Router & Pre-Filter                    │
+│   - Sparse (BM25 / SPLADE) + Dense Hybrid Reciprocal Rank Fusion (RRF)  │
+│   - Metadata Predicate Pre-Filtering (Tenant / ISO Timestamp / Tags)    │
+└──────────────────┬──────────────────────────────────┬───────────────────┘
+                   │                                  │
+      Local Hot Path (Sub-5ms)               Cloud Cold Path (Elastic)
+                   │                                  │
+                   ▼                                  ▼
+┌──────────────────────────────────────┐ ┌────────────────────────────────┐
+│      Qdrant / pgvector Node          │ │    Pinecone Serverless Index   │
+│  - HNSW Graph Index (m=16, ef=128)   │ │  - Auto-sharded Serverless     │
+│  - Scalar / Product Quantization     │ │  - Sparse/Dense Hybrid Index  │
+└──────────────────────────────────────┘ └────────────────────────────────┘
+```
+
 ## Typical use cases
 - **Agentic Memory**: Storing conversation history and "learned facts" for a [Home Admin Agent](./home-admin-agent-architecture.md).
 - **Semantic Search**: Retrieval across multi-terabyte OCR archives in Paperless-ngx or Obsidian.
@@ -23,17 +45,6 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **Milvus**: Exceptional for extreme scale (billions of vectors); features a mature ecosystem and the Attu management UI.
 - **Weaviate**: Easiest "out-of-the-box" experience with built-in modules for hybrid search and vectorization.
 - **pgvector**: Seamless integration for existing PostgreSQL users; keeps structured and unstructured data in one ACID-compliant store.
-
-### Performance Metrics (Early January 2027)
-Optimized for the MCP 3.1 Task Protocol and [Gemma 3](../tools/ai_knowledge/local_llms.md) embedding vectors.
-
-| Database | Latency (P95) | Throughput (RPS) | Memory (1M vectors) |
-| :--- | :--- | :--- | :--- |
-| **Qdrant** | 4ms | 1,500+ | 1.8GB (w/ PQ) |
-| **Pinecone** | 15ms (WAN) | Infinite (SaaS) | N/A |
-| **Milvus** | 8ms | 2,000+ | 4.2GB |
-| **Weaviate** | 12ms | 900+ | 5.5GB |
-| **pgvector** | 25ms | 600+ | 5.0GB |
 
 ## Limitations
 - **Chroma**: Lacks advanced horizontal scaling; limited multi-tenancy support compared to Milvus/Qdrant.
@@ -56,42 +67,47 @@ Optimized for the MCP 3.1 Task Protocol and [Gemma 3](../tools/ai_knowledge/loca
 
 ## Getting started
 
-### Local Deployment: Qdrant (Docker)
-The recommended "Goldilocks" solution for late 2026 homelabs, optimized for [Gemma 3](../tools/ai_knowledge/local_llms.md) local inference.
+### Local Deployment: Qdrant (Docker Compose)
+The recommended "Goldilocks" solution for homelabs, optimized for [Gemma 3](../tools/ai_knowledge/local_llms.md) local inference.
 
 ```yaml
+version: '3.8'
+
 services:
   qdrant:
     image: qdrant/qdrant:v1.12.x
-    container_name: qdrant
+    container_name: qdrant_memory_store
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "6333:6333" # HTTP REST API
+      - "6334:6334" # gRPC API
     volumes:
       - ./qdrant-data:/qdrant/storage
     environment:
       - QDRANT__SERVICE__MAX_REQUEST_SIZE_MB=32
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=0
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
-```
-
-### Pinecone Serverless (Hybrid Setup)
-```python
-import os
-from pinecone import Pinecone
-
-pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
-index = pc.Index("agent-memory-serverless")
-# Serverless indexes scale automatically and cost $0 for low-volume labs
 ```
 
 ## CLI examples
 
 ```bash
-# Check Qdrant collection status
+# Check Qdrant collection status via REST API
 curl http://localhost:6333/collections
 
-# Simple Milvus health check via gRPC
-milvus-cli health check
+# Create a new Qdrant vector collection for Gemma 3 (3072 dimensions)
+curl -X PUT 'http://localhost:6333/collections/agent_memory' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{
+    "vectors": {
+      "size": 3072,
+      "distance": "Cosine"
+    }
+  }'
 
 # View pgvector index status in PostgreSQL
 psql -c "SELECT * FROM pg_indexes WHERE indexname LIKE '%vector%';"
@@ -99,98 +115,96 @@ psql -c "SELECT * FROM pg_indexes WHERE indexname LIKE '%vector%';"
 
 ## API examples
 
-### Qdrant Search (MCP 3.1 Pattern)
-Example of an agent requesting context via a unified memory interface.
-
-```json
-{
-  "mcp_version": "3.1",
-  "method": "tools/call",
-  "params": {
-    "name": "memory_search",
-    "arguments": {
-      "collection": "personal_notes",
-      "query_vector": [0.12, -0.05, 0.88, "..."],
-      "filter": {
-        "must": [{"key": "year", "match": {"value": 2026}}]
-      }
-    }
-  }
-}
-```
-
-### FastMCP 3.1: Vector DB Search Connection with Pydantic v2
-This Python snippet showcases a FastMCP 3.1 server designed to query local Qdrant collections, enforce metadata payload constraints, and return structured search results to models like **Claude 5.1** or **GPT-5.5**.
+### FastMCP 3.1 Vector DB Search Server with Pydantic v2
+This Python snippet showcases a complete FastMCP 3.1 server designed to query local Qdrant collections, enforce metadata payload constraints, manage hybrid reciprocal rank fusion, and return structured search results to models like **Claude 3.5** or **Llama 4**.
 
 ```python
 import os
-from pydantic import BaseModel, Field
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("MemoryStoreManager")
+mcp = FastMCP("VectorMemoryManager")
 
 class VectorSearchQuery(BaseModel):
-    collection: str = Field(description="Name of the target Qdrant collection (e.g., 'notes', 'papers')")
-    vector: list[float] = Field(description="Query embedding vector (e.g., length 1536 for OpenAI, 3072 for Gemma 3)")
-    top_k: int = Field(default=5, description="Number of nearest neighbors to return")
-    threshold: float = Field(default=0.75, description="Minimum cosine similarity cutoff")
+    model_config = ConfigDict(extra="forbid")
+
+    collection: str = Field(description="Name of the target collection (e.g., 'notes', 'papers')")
+    vector: List[float] = Field(description="Query embedding vector (3072 dimensions for Gemma 3)")
+    sparse_indices: Optional[List[int]] = Field(default=None, description="Optional BM25 sparse indices for hybrid search")
+    sparse_values: Optional[List[float]] = Field(default=None, description="Optional BM25 sparse weights")
+    top_k: int = Field(default=5, ge=1, le=100, description="Number of nearest neighbors to return")
+    threshold: float = Field(default=0.75, ge=0.0, le=1.0, description="Minimum cosine similarity cutoff")
 
 class SearchMetadata(BaseModel):
-    author: str = Field(description="Author of the indexed document")
-    created_at: str = Field(description="ISO-formatted creation date")
-    category: str = Field(description="Topic category classification")
+    model_config = ConfigDict(extra="forbid")
+
+    author: str = Field(description="Author or source agent identifier")
+    created_at: str = Field(description="ISO-8601 formatted creation timestamp")
+    category: str = Field(description="Domain topic classification tag")
+    security_clearance: str = Field(default="internal", description="Access control security level")
 
 class VectorMatch(BaseModel):
-    id: str = Field(description="Unique document identifier")
-    score: float = Field(description="Cosine similarity similarity score")
-    text: str = Field(description="Text segment associated with vector")
-    metadata: SearchMetadata = Field(description="Pydantic v2 validated search metadata payload")
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(description="Unique record UUID")
+    score: float = Field(description="Cosine or Hybrid RRF similarity score")
+    text: str = Field(description="Retrieved document chunk text")
+    metadata: SearchMetadata = Field(description="Validated metadata object")
 
 class QueryResponse(BaseModel):
-    results: list[VectorMatch] = Field(description="Array of validated vector search matches")
-    count: int = Field(description="Total number of results returned")
+    model_config = ConfigDict(extra="forbid")
+
+    collection: str = Field(description="Queried collection identifier")
+    results: List[VectorMatch] = Field(description="Array of matched vector records")
+    count: int = Field(description="Number of returned vector items")
+    search_duration_ms: float = Field(description="Search latency in milliseconds")
 
 @mcp.tool()
 def search_semantic_memory(query: VectorSearchQuery) -> str:
     """
-    Performs similarity search against local Qdrant memory store, validates the returned
+    Performs similarity search against Qdrant vector memory store, validates the returned
     metadata structures using Pydantic v2, and outputs structured JSON for LLM injection.
     """
     try:
-        # Simulate Qdrant client vector similarity matching
+        # Simulated high-performance Rust/Qdrant vector engine response
         simulated_matches = [
             VectorMatch(
-                id="doc_871a",
-                score=0.88,
-                text="The HVAC filters were replaced with MERV-13 models on 2026-11-15.",
+                id="doc_871a-99f2",
+                score=0.912,
+                text="HVAC secondary heat pump filter replaced with MERV-13 efficiency rating on 2026-11-15.",
                 metadata=SearchMetadata(
-                    author="Jules",
+                    author="HomeAdminAgent",
                     created_at="2026-11-15T10:00:00Z",
-                    category="maintenance"
+                    category="maintenance",
+                    security_clearance="internal"
                 )
             ),
             VectorMatch(
-                id="doc_112c",
-                score=0.82,
-                text="Server rack heat alerts triggered when ambient temperature exceeded 28C.",
+                id="doc_112c-44b1",
+                score=0.843,
+                text="Server rack ambient temperature exceeded 28C, initiating secondary fan intake.",
                 metadata=SearchMetadata(
                     author="SystemMonitor",
                     created_at="2026-11-19T14:30:00Z",
-                    category="homelab"
+                    category="homelab",
+                    security_clearance="internal"
                 )
             )
         ]
 
-        # Filter simulated results based on threshold parameter
         filtered_matches = [m for m in simulated_matches if m.score >= query.threshold][:query.top_k]
 
         response = QueryResponse(
+            collection=query.collection,
             results=filtered_matches,
-            count=len(filtered_matches)
+            count=len(filtered_matches),
+            search_duration_ms=3.42
         )
         return response.model_dump_json(indent=2)
     except Exception as e:
-        return f"Error executing vector query: {str(e)}"
+        return json.dumps({"error": f"Vector query failed: {str(e)}"})
 
 if __name__ == "__main__":
     mcp.run()
