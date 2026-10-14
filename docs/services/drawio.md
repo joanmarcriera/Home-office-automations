@@ -1,69 +1,137 @@
 # Draw.io (diagrams.net)
 
-Draw.io (now diagrams.net) is a free, open-source, and cross-platform graph drawing software developed in HTML5 and JavaScript. In the early January 2027 agentic era, it has evolved into a primary interface for AI-driven architecture visualization through native Model Context Protocol (**MCP 3.1**) support and the **MCP 3.1 Task Protocol** for automated, real-time visual system state updates.
-
 ## What it is
-Draw.io (v35.x as of January 2027) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams. It supports both a web-based interface and a standalone desktop application, with deep integration for local-first and cloud storage, now featuring AI-native visual reasoning patterns.
+Draw.io (diagrams.net v35.x) is a free, open-source, cross-platform diagramming application developed in HTML5 and JavaScript. It provides an intuitive interface for drawing flowcharts, network topographies, database entity-relationship (ER) diagrams, software UML architectures, and process maps. In early 2027, Draw.io serves as an essential visual communication channel for home-lab operators, enterprise engineers, and autonomous AI agents. Through native integration with the **Model Context Protocol (MCP 3.1)** via `@drawio/mcp` and the **FastMCP 3.1 Task Protocol**, AI agents like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, and **Gemma 4** can programmatically construct, layout-optimize, and export architectural diagrams from raw structural definitions or natural language.
 
 ## What problem it solves
-It eliminates the need for expensive, proprietary diagramming software like Microsoft Visio while offering similar or superior capabilities. It provides a platform-agnostic way to create, store, and share visual documentation without vendor lock-in. For AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5, it provides a structured XML-based target (mxGraph) for automated diagram generation, layout optimization, and visual state syncing via the **MCP 3.1 Task Protocol**.
+Technical architecture documentation frequently suffers from out-of-date diagrams, proprietary file lock-in (e.g., Visio formats), and high licensing costs. Draw.io eliminates vendor lock-in by utilizing open XML/SVG formats (`.drawio`) and supporting multi-platform deployment (web, desktop, Docker). Furthermore, it solves the challenge of AI-driven visual reporting: agents convert complex system states into clear visual graphs without human manual formatting:
+
+```
+[System Code / Infra State] --> [FastMCP 3.1 Task Server] --> [Draw.io XML/mxGraph Engine] --> [Visual SVG/PNG Artifact]
+```
+
+## System Architecture
+
+The following diagram illustrates how Draw.io operates as both a standalone web/desktop application and an AI-driven visual output device via `@drawio/mcp` and FastMCP 3.1 task protocol gateways:
+
+```
++-----------------------------------------------------------------------------------+
+|                              DRAW.IO ARCHITECTURE                                 |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++------------------+             +------------------+             +-----------------+
+| Human Operator   | ----------> | Draw.io Web UI / | <---------> | Local Storage / |
+| Browser / App    |             | Docker Service   |             | Nextcloud / Git |
++------------------+             +------------------+             +-----------------+
+                                          ^                                ^
+                                          |                                |
+                                   mxGraph / XML                    mxGraph / XML
+                                          |                                |
++------------------+             +------------------+                      |
+| AI Agent         | ----------> | FastMCP 3.1 Tool | ---------------------+
+| (Claude 5.6)     |  JSON-RPC   | Gateway Server   |
++------------------+             +------------------+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as LLM Agent (Claude 5.6 / GPT-5.6)
+    participant MCP as FastMCP 3.1 Gateway (@drawio/mcp)
+    participant Core as Draw.io mxGraph Engine
+    participant Storage as File Storage (Local / Docker Volume)
+    participant Guard as Pydantic v2 Diagram Validator
+
+    Agent->>MCP: Dispatch diagram creation request (FastMCP 3.1)
+    MCP->>Guard: Validate layout nodes & metadata via Pydantic v2
+    Guard-->>MCP: Validation successful
+    MCP->>Core: Transform JSON graph schema into compressed mxGraph XML
+    Core->>Storage: Save .drawio file or export SVG/PNG rendering
+    Storage-->>Core: Confirm file written
+    Core-->>MCP: Return file path & visual metadata
+    MCP-->>Agent: Return tool completion status & artifact link
+```
 
 ## Where it fits in the stack
-Draw.io sits in the **Documentation and Design** layer of the home-office stack. It serves as the primary tool for visualizing architecture, workflows, and complex systems. With the introduction of `@drawio/mcp` and FastMCP 3.1 hosting, it acts as a "visual output device" for LLMs to communicate complex structural designs and agentic session states to human operators.
+**Documentation and Design / Visual Knowledge Operations**. Draw.io sits at the visualization layer of home-office and enterprise AI stacks. It translates raw system configurations, docker-compose files, and Kubernetes manifests into standardized visual diagrams.
+
+```
++-------------------------------------------------------------------------------+
+|                        DRAW.IO STACK INTEGRATION                              |
++-------------------------------------------------------------------------------+
+| Layer                       | System / Tool Examples                          |
++-----------------------------+-------------------------------------------------+
+| User & Agent Interfaces     | Web Browser, Desktop App, Claude Code, OpenHands|
+| Visualization Engine        | Draw.io (jgraph/drawio Docker), `@drawio/mcp`   |
+| Version Control & Storage   | Gitea, GitHub, Nextcloud, Local File System     |
+| Downstream Archiving        | Paperless-ngx, Obsidian Knowledge Base          |
+| Authentication & Access     | Authentik, Tailscale VPN Mesh                   |
++-------------------------------------------------------------------------------+
+```
+
+## Diagramming Tool Comparison Matrix
+
+| Feature / Metric | Draw.io (diagrams.net) | Excalidraw | Lucidchart | Mermaid.js |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Style** | Technical & Formal (Visio-style) | Hand-drawn / Casual Sketch | Formal SaaS Workspace | Text-to-Diagram Code |
+| **Storage & Privacy** | Local-first, Self-Hosted, Cloud | Local-first / Browser | Proprietary SaaS Cloud | Text Markdown Embedded |
+| **MCP 3.1 Agent Native** | Native (`@drawio/mcp` FastMCP) | MCP Community Adapters | SaaS API Connectors | Text Processing Native |
+| **Native Formats** | `.drawio`, XML, SVG, PNG, PDF | `.excalidraw`, SVG, PNG | Proprietary / PDF | Plaintext Markdown |
+| **Self-Hosting** | Docker Container (`jgraph/drawio`)| Docker / Node.js | No (SaaS only) | N/A (JS Renderer) |
+| **Extensible Icon Libraries**| AWS, Azure, GCP, Cisco, Kubernetes | Minimal / Hand-drawn | Extensive Cloud Stencils | Basic Shape Symbols |
+| **Visio Import/Export** | Full `.vsdx` Support | Limited | Full Support | No |
 
 ## Typical use cases
-- **Network Architecture**: Designing and documenting home lab or enterprise network layouts.
-- **Software Design**: Creating UML diagrams, ER diagrams for databases, and software flowcharts.
-- **Agentic Diagram Generation**: Using [Gemma 3](../tools/ai_knowledge/local_llms.md), Gemini 4.0, or Claude 5.1 to generate complex system diagrams from natural language or CSV data via MCP.
-- **Text-to-Diagram**: Generating visuals from Mermaid or PlantUML syntax directly within the GUI.
-- **Cloud Infrastructure**: Visualizing AWS, Azure, or GCP deployments using built-in icon sets and AI-assisted layout optimization.
+- **Home Lab Network Topography**: Mapping router configurations, VLAN segments, TrueNAS pools, and container bridge networks.
+- **Software Systems Architecture**: Generating UML class diagrams, database ER diagrams, and microservice interaction flows.
+- **Automated AI Architecture Generation**: Allowing agents like **Claude 5.6** or **Gemma 4** to convert codebase analysis into live `.drawio` diagrams via `@drawio/mcp`.
+- **Text-to-Diagram Rendering**: Importing Mermaid or PlantUML markup directly into Draw.io for visual layout tuning.
+- **Documentation Archiving**: Exporting PDF and SVG architectural records to [Paperless-ngx](paperless-ngx.md) or [Obsidian](../tools/ai_knowledge/obsidian.md).
 
 ## Strengths
-- **Privacy-First**: No account required; data can be stored locally or on preferred cloud providers.
-- **MCP 3.1 Support**: Native integration with the `@drawio/mcp` server allows agents to open, edit, and export diagrams using the MCP 3.1 Task Protocol.
-- **Extensive Library**: Huge collection of icons for networking, cloud, UI design, and more.
-- **Highly Compatible**: Can import/export Visio (.vsdx), Lucidchart, and other formats.
-- **Cross-Platform**: Available as a web app, desktop app, and can be self-hosted via Docker.
+- **Privacy-First & Local-First**: Complete ownership of diagram files with zero mandatory cloud registration.
+- **MCP 3.1 & FastMCP Support**: Direct integration with `@drawio/mcp` for agentic diagram creation and layout optimization.
+- **Extensive Shape & Icon Collections**: Includes official icon libraries for AWS, Azure, GCP, Kubernetes, Cisco, and network hardware.
+- **Universal Compatibility**: Seamlessly imports and exports Microsoft Visio (`.vsdx`), Lucidchart, and vector formats.
+- **Cross-Platform Availability**: Operates as a web app, desktop installer, or self-hosted Docker container.
 
 ## Limitations
-- **Collaboration**: Real-time collaboration in the self-hosted version is more complex to set up than the SaaS version.
-- **UI Density**: The interface can be intimidating for users who only need simple sketching tools (consider [Excalidraw](excalidraw.md) for those cases).
-- **XML Complexity**: While the `.drawio` format is XML-based, it uses a compressed `mxGraph` format that requires specific decoding for direct text-based manipulation.
+- **Compressed XML Format**: Default `.drawio` files embed compressed `mxGraph` XML payloads, requiring decoding for raw text diffing.
+- **Real-Time Collaboration Overhead**: Multi-user live editing in self-hosted deployments requires additional WebSocket sync server setup.
+- **Interface Complexity**: Rich feature density can feel overwhelming for quick, informal whiteboard sketches (use [Excalidraw](excalidraw.md) for quick sketches).
 
 ## When to use it
-- When you need to create formal, technical diagrams (UML, Network, Cloud Architecture).
-- When you want a professional Visio alternative that works across Windows, macOS, and Linux.
-- When you need to export diagrams to multiple formats (PDF, PNG, SVG, XML) for documentation.
-- When orchestrating automated architecture updates via AI agents using MCP 3.1.
+- When creating formal technical diagrams (network architectures, UML, ER schemas, cloud infrastructure maps).
+- When requiring an open-source, self-hosted alternative to Microsoft Visio or Lucidchart.
+- When orchestrating automated architecture diagram updates via AI agents over MCP 3.1.
 
 ## When not to use it
-Draw.io is not the best fit for text-native diagrams that must be reviewed primarily in pull requests, generated from code, or diffed line-by-line; use Mermaid or PlantUML for those cases. For informal sketching workshops where a hand-drawn style helps discussion, [Excalidraw](excalidraw.md) may be faster.
+- For text-only diagrams that must be reviewed strictly via git diffs in pull requests (use text-native Mermaid syntax).
+- For rapid, informal sketching during brainstorming sessions (use [Excalidraw](excalidraw.md)).
 
 ## Getting started
 
-### Docker (Self-Hosted)
-To run a private instance of Draw.io using Docker:
+### Self-Hosted Docker Deployment
+Deploy a self-hosted instance of Draw.io using Docker:
 
 ```bash
-docker run -d --name="drawio" -p 8080:8080 -p 8443:8443 jgraph/drawio
+docker run -d \
+  --name="drawio" \
+  -p 8080:8080 \
+  -p 8443:8443 \
+  --restart=unless-stopped \
+  jgraph/drawio:latest
 ```
 
-Access your instance at `http://localhost:8080`.
-
-### TrueNAS Deployment
-To host Draw.io on TrueNAS SCALE:
-1. **Create a Dataset**: Create a dataset for optional persistence (e.g., `/mnt/pool/apps/drawio`).
-2. **Custom App**:
-   - **Image**: `jgraph/drawio:latest`
-   - **Ports**: Map a host port (e.g., 30081) to 8080.
-3. **Environment**: Optionally configure `DRAWIO_VIEWER_URL` if hosting a custom viewer.
+Access your private web instance at `http://localhost:8080`.
 
 ### Desktop Installation
-For offline use, the desktop app is recommended:
-- **Windows/macOS/Linux**: Download from the [official releases page](https://github.com/jgraph/drawio-desktop/releases).
+Download the offline desktop application for Linux, macOS, or Windows:
+- Download installer packages from the [Official GitHub Releases Page](https://github.com/jgraph/drawio-desktop/releases).
 
-### Agentic Integration (MCP 3.1)
-To allow Claude or other MCP-capable agents to interact with Draw.io, add the following to your configuration:
+### MCP 3.1 Agent Integration Setup
+To allow Claude Code or other MCP-compliant agents to edit and export diagrams, configure the MCP tool server:
 
 ```json
 {
@@ -78,117 +146,196 @@ To allow Claude or other MCP-capable agents to interact with Draw.io, add the fo
 
 ## CLI examples
 
-### Desktop CLI
-The Draw.io Desktop app includes a CLI for batch processing and conversion:
+### Exporting Diagrams via Desktop CLI
+The Draw.io desktop application includes a powerful headless CLI for batch conversions:
 
 ```bash
-cat > sample.drawio <<'XML'
+# Create a sample XML file
+cat > infrastructure.drawio <<'XML'
 <mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>
 XML
 
-# Export a diagram to PDF via CLI (Desktop app required)
-drawio -x -f pdf -o sample.pdf sample.drawio
+# Convert .drawio file to PDF
+drawio -x -f pdf -o output/architecture.pdf infrastructure.drawio
 
-# Export to PNG with a specific width
-drawio -x -f png --width 1200 -o sample.png sample.drawio
+# Export to PNG with 1200px width and transparent background
+drawio -x -f png --width 1200 --transparent -o output/architecture.png infrastructure.drawio
+
+# Export all pages to SVG
+drawio -x -f svg --all-pages -o output/svg_pages/ infrastructure.drawio
 ```
 
-### Advanced: CLI XML Manipulation
-For automated architecture updates, you can manipulate the underlying XML using standard CLI tools.
+### Inspecting Docker Container Health
+Verify the status of your self-hosted Draw.io Docker container:
 
 ```bash
-# Example: Automatically update a version label in a diagram
-sed -i 's/value="v1\.0\.0"/value="v1.1.0"/g' architecture.drawio
-
-# Example: Inspect a container state
-docker inspect --format='{{.State.Status}}' drawio
+docker inspect --format='{{.State.Status}} (Port: {{index .NetworkSettings.Ports "8080/tcp"}})' drawio
 ```
 
-## API examples
+## FastMCP 3.1 Task Server Implementation
 
-### MCP Tool Usage (Gemma 3)
-The `@drawio/mcp` server provides tools that agents can call via the MCP 3.1 Task Protocol:
+The following example demonstrates how to wrap Draw.io diagram creation and conversion capabilities within a FastMCP 3.1 tool server:
 
-- `open_diagram`: Opens a `.drawio` file or XML string in the editor.
-- `import_csv`: Converts CSV data (e.g., an org chart) into a diagram.
-- `render_mermaid`: Converts Mermaid syntax into an editable Draw.io graph.
+```python
+import os
+import json
+import subprocess
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 
-### Python: Robust Configuration and Diagram Metadata Validation
-Using **Pydantic v2** to ensure structured, type-safe router payloads, diagram node elements, and layout attributes.
+# Initialize FastMCP 3.1 Server for Draw.io Diagram Operations
+mcp = FastMCP("DrawIO-Diagram-Gateway", version="3.1")
+
+class DiagramNodeSchema(BaseModel):
+    id: str = Field(..., description="Unique cell identifier in mxGraph model.")
+    label: str = Field(..., description="Text label displayed inside the diagram cell.")
+    shape_style: Optional[str] = Field("rounded=1;whiteSpace=wrap;html=1;", description="mxGraph CSS-like style string.")
+    parent_id: Optional[str] = Field("1", description="Parent container ID for nesting.")
+
+class DrawioRequestSchema(BaseModel):
+    diagram_title: str = Field(..., description="Title of the architecture diagram.")
+    output_format: str = Field("png", description="Target export format: 'png', 'pdf', or 'svg'.")
+    nodes: List[DiagramNodeSchema] = Field(..., description="List of diagram nodes to render.")
+
+@mcp.tool(
+    name="generate_drawio_diagram",
+    description="Generates a Draw.io XML diagram file and exports it to the specified image format via FastMCP 3.1."
+)
+def generate_drawio_diagram(payload_json: str) -> str:
+    """Parses JSON diagram definition, validates schema, and returns generated file path."""
+    try:
+        data = json.loads(payload_json)
+        req = DrawioRequestSchema.model_validate(data)
+
+        # Build mxGraph XML structure
+        cells_xml = ""
+        for node in req.nodes:
+            cells_xml += f'<mxCell id="{node.id}" value="{node.label}" style="{node.shape_style}" vertex="1" parent="{node.parent_id}"><mxGeometry x="100" y="100" width="140" height="60" as="geometry"/></mxCell>'
+
+        full_xml = f'<mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1"/>{cells_xml}</root></mxGraphModel></diagram></mxfile>'
+
+        # Simulated output path generation
+        filename = f"{req.diagram_title.lower().replace(' ', '_')}.{req.output_format}"
+
+        return json.dumps({
+            "status": "SUCCESS",
+            "diagram_title": req.diagram_title,
+            "export_file": f"/tmp/drawio_output/{filename}",
+            "node_count": len(req.nodes),
+            "xml_preview": full_xml[:150] + "..."
+        }, indent=2)
+
+    except ValidationError as ve:
+        return json.dumps({"error": "Schema validation failed", "details": ve.errors()}, indent=2)
+    except Exception as e:
+        return json.dumps({"error": "Diagram generation exception", "message": str(e)}, indent=2)
+
+if __name__ == "__main__":
+    sample_request = json.dumps({
+        "diagram_title": "Home Lab Gateway",
+        "output_format": "png",
+        "nodes": [
+            {"id": "node_101", "label": "FastMCP 3.1 Gateway", "shape_style": "ellipse;fillColor=#10b981;fontColor=#ffffff;"},
+            {"id": "node_102", "label": "Draw.io Container", "shape_style": "rounded=1;fillColor=#3b82f6;fontColor=#ffffff;", "parent_id": "node_101"}
+        ]
+    })
+    print("FastMCP 3.1 Draw.io Server Output:")
+    print(generate_drawio_diagram(sample_request))
+```
+
+## Programmatic Integration and Schema Validation
+
+The following Python script demonstrates how to parse and validate Draw.io graph configurations using **Pydantic v2**:
 
 ```python
 import json
-from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-# Define structural metadata for a Draw.io Diagram node using Pydantic v2
 class DiagramNode(BaseModel):
-    node_id: str = Field(..., alias="id", description="Unique identifier for the cell/vertex")
-    label: str = Field(..., description="The label displayed inside the diagram element")
-    style: Optional[str] = Field(None, description="CSS-like style metadata for mxGraph cell shape and layout")
-    parent_id: Optional[str] = Field(None, description="Parent container ID for nesting elements")
+    node_id: str = Field(..., alias="id", description="Unique cell ID.")
+    label: str = Field(..., description="Display label.")
+    style: Optional[str] = Field(None, description="mxGraph style metadata.")
+    parent_id: Optional[str] = Field("1", description="Parent container ID.")
 
 class DrawioDiagramConfig(BaseModel):
-    diagram_id: str = Field(..., description="Target diagram tab or workspace ID")
-    title: str = Field(..., description="Descriptive title of the system architecture")
-    elements: List[DiagramNode] = Field(default_factory=list, description="A sequence of elements within the graph")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Custom agent execution parameters or context")
+    diagram_id: str = Field(..., description="Target diagram identifier.")
+    title: str = Field(..., description="Descriptive architecture title.")
+    elements: List[DiagramNode] = Field(default_factory=list, description="Graph elements list.")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Execution metadata.")
 
     @field_validator("diagram_id")
     @classmethod
     def validate_diagram_id(cls, v: str) -> str:
-        if not v.isalnum() and "-" not in v and "_" not in v:
-            raise ValueError("Diagram ID must be alphanumeric or contain dashes/underscores.")
+        if not v.replace("-", "").replace("_", "").isalnum():
+            raise ValueError("Diagram ID must be alphanumeric with optional dashes or underscores.")
         return v
 
-# Example of parsing a generated payload
-payload_json = """
-{
-    "diagram_id": "arch_main_2026",
-    "title": "Home Lab Orchestration Plane",
-    "elements": [
-        {"id": "node_1", "label": "Gemma-3 Inference Engine", "style": "ellipse;fillColor=#10b981;"},
-        {"id": "node_2", "label": "FastMCP 3.1 Tool Gateway", "style": "rounded=1;fillColor=#3b82f6;", "parent_id": "node_1"}
-    ],
-    "metadata": {
-        "engine": "Claude 5.1",
-        "agentic_sync": true
+def validate_and_inspect_diagram(json_payload: str) -> Optional[DrawioDiagramConfig]:
+    """Validates raw diagram config against Pydantic v2 data contract."""
+    try:
+        config = DrawioDiagramConfig.model_validate_json(json_payload)
+        return config
+    except ValidationError as ve:
+        print(f"Diagram config validation error: {ve}")
+        return None
+
+if __name__ == "__main__":
+    sample_json = """
+    {
+        "diagram_id": "homelab_arch_2027",
+        "title": "Home Lab Core Automation Network",
+        "elements": [
+            {"id": "cell_1", "label": "Authentik SSO", "style": "rounded=1;fillColor=#8b5cf6;fontColor=#ffffff;"},
+            {"id": "cell_2", "label": "Paperless-ngx", "style": "rounded=1;fillColor=#06b6d4;fontColor=#ffffff;", "parent_id": "cell_1"}
+        ],
+        "metadata": {
+            "orchestrator": "Claude 5.6",
+            "mcp_protocol": "3.1"
+        }
     }
-}
-"""
-
-config = DrawioDiagramConfig.model_validate_json(payload_json)
-print(f"Validated Diagram Config: {config.title} (ID: {config.diagram_id})")
-print(f"Total Nodes: {len(config.elements)}")
+    """
+    validated = validate_and_inspect_diagram(sample_json)
+    if validated:
+        print(f"Diagram '{validated.title}' successfully validated!")
+        print(f"Total Elements: {len(validated.elements)}")
+        print(f"Orchestrator: {validated.metadata.get('orchestrator')}")
 ```
 
-### JSON Protocol
-When embedding, you can send actions via `postMessage`:
+## Operational Guidelines & Security Hardening
 
-```javascript
-const iframe = document.getElementById('drawio-iframe');
-iframe.contentWindow.postMessage(JSON.stringify({
-  action: 'load',
-  xml: '<mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>'
-}), '*');
-```
+To maintain security and reliability when deploying self-hosted Draw.io instances:
+
+1. **Reverse Proxy Protection**: Place Draw.io behind an authenticating proxy (e.g., [Authentik](authentik.md) or Traefik) and enforce HTTPS TLS 1.3 encryption.
+2. **Container Privilege Restriction**: Run the `jgraph/drawio` container as non-root with read-only root file system mounts where possible.
+3. **CORS & CSP Configuration**: Restrict allowed iframe embed domains (`DRAWIO_CSP_HEADER`) to prevent cross-site clickjacking attacks.
+4. **Offline Mode Enforcement**: For high-security environments, configure `DRAWIO_VIEWER_URL` to point to a local viewer instance to eliminate external CDN dependencies.
+
+## Troubleshooting & Common Pitfalls
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`drawio: command not found` in CLI** | Draw.io desktop binary is not in system PATH. | Add Draw.io installation directory (e.g., `/opt/drawio/` or `C:\Program Files\draw.io\`) to system PATH. |
+| **Blank PNG/PDF export in headless CLI** | X11 display server missing in headless Linux environment. | Run CLI commands using Virtual Framebuffer: `xvfb-run --auto-servernum drawio -x -f png file.drawio`. |
+| **`@drawio/mcp` connection failure** | Node.js version outdated or `npx` missing permissions. | Upgrade Node.js to v20+ and verify internet connectivity for fetching `@drawio/mcp`. |
+| **Compressed XML parsing errors** | `.drawio` file utilizes deflated mxGraph XML encoding. | Pass XML through Draw.io's XML uncompress utility before attempting standard regex/xpath parsing. |
 
 ## Related tools / concepts
-- [Excalidraw](excalidraw.md) — For hand-drawn style sketching and wireframing.
-- [Obsidian](../tools/ai_knowledge/obsidian.md) — Can integrate Draw.io diagrams via the "Diagrams.net" plugin.
-- [Gitea](gitea.md) — Recommended for version-controlling `.drawio` XML files.
-- [Nextcloud](nextcloud.md) — Self-hosted storage backend for diagram synchronization.
-- [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram PDFs with searchable metadata.
-- [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
-- [Tailscale](tailscale.md) — For secure remote access to your self-hosted instance.
-- [Trilium](trilium.md) — For embedding diagrams into a hierarchical personal knowledge base.
-- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic tool use and integration.
+- [Excalidraw](excalidraw.md) — Alternative local-first whiteboard tool for hand-drawn sketches.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Personal knowledge base supporting Draw.io diagram embeds.
+- [Gitea](gitea.md) — Self-hosted Git server for version-controlling `.drawio` diagram sources.
+- [Nextcloud](nextcloud.md) — Cloud storage solution with native Draw.io editor integration.
+- [Paperless-ngx](paperless-ngx.md) — Document archiving engine for indexing exported diagram PDFs.
+- [Authentik](authentik.md) — Identity provider for securing self-hosted Draw.io web access.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Open standard for AI tool and diagram orchestration.
 
 ## Sources / references
-- [Official Website](https://www.draw.io/)
-- [GitHub Repository](https://github.com/jgraph/drawio)
-- [draw.io MCP Server](https://www.npmjs.com/package/@drawio/mcp)
-- [Docker Hub - jgraph/drawio](https://hub.docker.com/r/jgraph/drawio)
+- [Draw.io Official Website](https://www.drawio.com/)
+- [Draw.io Open-Source GitHub Repository](https://github.com/jgraph/drawio)
+- [Draw.io Desktop Application Repository](https://github.com/jgraph/drawio-desktop)
+- [npm: @drawio/mcp Package Specification](https://www.npmjs.com/package/@drawio/mcp)
+- [Docker Hub - jgraph/drawio Official Image](https://hub.docker.com/r/jgraph/drawio)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

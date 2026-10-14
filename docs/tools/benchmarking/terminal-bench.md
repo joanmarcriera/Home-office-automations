@@ -1,187 +1,326 @@
 # Terminal-Bench (Terminus 2)
 
 ## What it is
-Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark for evaluating AI agents' ability to operate within a real terminal environment. It goes beyond static code generation by testing the agent's ability to interpret command output, handle stateful bash sessions, and remediate complex system or server failures. In early January 2027, it serves as the premier benchmark for "Terminus 2" patterns where agents manage long-running tmux control channels and interact with sandboxes via the Model Context Protocol (FastMCP 3.1 Task Protocol).
+Terminal-Bench (including the Terminus 2 research baseline) is a specialized benchmark suite designed to evaluate AI agents' ability to operate within real-world, stateful Linux terminal environments. Moving beyond static code snippet generation, Terminal-Bench measures an agent's capability to execute complex shell commands, parse stdout/stderr streams, manage long-running terminal sessions (via persistent tmux channels), and remediate cascading system, network, and application failures. In early 2027, Terminal-Bench serves as the premier evaluation standard for validating **FastMCP 3.1 Task Protocol** compliance in autonomous DevOps and SRE agents powered by frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, **Gemma 4**, and **Qwen 3.6 VL**.
+
+## What problem it solves
+Traditional code generation benchmarks (e.g., HumanEval or MBPP) test isolated algorithmic synthesis but fail to evaluate real-world system administration skills: navigating file hierarchies, configuring web servers, managing process states, diagnosing memory leaks, and recovering from syntax or permissions errors. Terminal-Bench solves this gap by evaluating agents in isolated, containerized Linux sandboxes through a continuous "Intent-State-Action" feedback loop:
+
+```
+[Agent Intent] --> [Tmux Shell Command] --> [Linux Container Execution] --> [Stdout/Stderr Observation] --> [State Remediation]
+```
+
+This interactive loop tests the persistence, self-correction, and terminal proficiency required before granting autonomous agents administrative privileges in production server environments.
 
 ## System Architecture
 
-The following diagram illustrates the interaction flow between the Terminal-Bench orchestrator, Terminus 2 persistent tmux control channels, containerized sandboxes, and FastMCP 3.1 task protocol tools:
+The following diagram details how the Terminal-Bench evaluation harness (Harbor) coordinates persistent tmux control channels, isolated container sandboxes, and FastMCP 3.1 task protocol gateways:
+
+```
++-----------------------------------------------------------------------------------+
+|                        TERMINAL-BENCH EVALUATION HARNESS                          |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++------------------+             +------------------+             +-----------------+
+| Autonomous Agent | ----------> | FastMCP 3.1 Task | ----------> | Persistent Tmux |
+| (Terminus 2 /    |             | Server Gateway   |             | Control Channel |
+|  Claude 5.6)     |             +------------------+             +-----------------+
++------------------+                      |                                |
+                                          v                                v
+                                 +------------------+             +-----------------+
+                                 | Pydantic v2      |             | Isolated Linux  |
+                                 | Trajectory Guard |             | Sandbox Container|
+                                 +------------------+             +-----------------+
+```
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant Harness as Terminal-Bench Orchestrator (Harbor)
     participant Agent as Autonomous Agent (Terminus 2)
-    participant Tmux as Persistent Tmux Control Channel
-    participant Container as Isolated Linux Sandbox (Ubuntu 24.04)
     participant FastMCP as FastMCP 3.1 Task Server
+    participant Tmux as Persistent Tmux Channel
+    participant Container as Linux Sandbox (Ubuntu 24.04)
     participant Guard as Pydantic v2 Trajectory Verifier
 
     Harness->>Container: Spin up isolated sandbox container
-    Harness->>Tmux: Initialize persistent control channel & pane
-    Agent->>Tmux: Issue bash command sequence
-    Tmux->>Container: Execute command in shell environment
-    Container-->>Tmux: Return stdout, stderr, and exit code
-    Tmux-->>FastMCP: Forward execution trace over FastMCP 3.1 transport
-    FastMCP->>Guard: Validate trajectory schema & verify exit state
-    Guard-->>Harness: Log execution step & score task status
+    Harness->>Tmux: Initialize persistent tmux control session
+    Harness-->>Agent: Send task instructions & initial prompt
+
+    loop Interactive Terminal Loop
+        Agent->>FastMCP: Dispatch shell execution tool call
+        FastMCP->>Tmux: Relay command sequence to tmux pane
+        Tmux->>Container: Execute command in bash environment
+        Container-->>Tmux: Stream stdout, stderr, and exit code
+        Tmux-->>FastMCP: Return execution trace over FastMCP 3.1
+        FastMCP->>Guard: Validate trajectory step against Pydantic v2 schema
+        Guard-->>FastMCP: Trajectory step verified
+        FastMCP-->>Agent: Return terminal observation & session status
+    end
+
+    Harness->>Container: Inspect final system state & evaluate success criteria
+    Container-->>Harness: Return status code & pass/fail score
 ```
 
-## What problem it solves
-It measures whether autonomous systems can effectively and safely operate inside a standard Linux shell. Standard benchmarks evaluate model capabilities on isolated snippets or reasoning puzzles; Terminal-Bench evaluates the agent's "Intent-State-Action" loop in real time. It tests key capabilities such as:
-- Installing software and fixing configuration mismatches (e.g., mismatched Nginx load balancers).
-- Direct LLM-to-tmux shell interaction for persistent session management.
-- Navigating isolated system sandboxes to diagnose performance degradation or memory leaks.
-
 ## Where it fits in the stack
-**Benchmarking**. Positioned in the **Agent Evaluation Layer** of the homelab, used to rigorously evaluate the terminal proficiency of autonomous agent frameworks before they are granted administrative access to self-hosted server environments.
+**Benchmarking / Agent Evaluation**. Terminal-Bench operates at the evaluation and testing layer of autonomous systems. It provides the verification gate used to measure terminal proficiency before deploying autonomous agents to manage self-hosted home-lab services or cloud infrastructure.
+
+```
++-------------------------------------------------------------------------------+
+|                    TERMINAL-BENCH STACK INTEGRATION                         |
++-------------------------------------------------------------------------------+
+| Layer                       | Tools & Frameworks                              |
++-----------------------------+-------------------------------------------------+
+| Autonomous Terminal Agents  | Terminus 2, Claude Code, OpenHands, Aider       |
+| Protocol & Tooling          | FastMCP 3.1 Task Protocol, Model Context Protocol|
+| Benchmark Execution Harness | Terminal-Bench, Harbor Framework                |
+| Isolation Runtime           | Docker, Podman, Containerd                      |
+| Foundation Models           | Claude 5.6, GPT-5.6, Gemini 4.0, Gemma 4        |
++-------------------------------------------------------------------------------+
+```
+
+## Benchmark Comparison Matrix
+
+| Feature / Metric | Terminal-Bench (Terminus 2) | SWE-bench | InterCode | OSWorld |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Linux SysAdmin & DevOps | GitHub Repository Issues | Interactive Shell/SQL/Py | Desktop OS & GUI Tasks |
+| **Interaction Mode** | Stateful Tmux / Terminal | Diff / Patch Generation | Interactive Gym Loop | GUI & OS Environment |
+| **Execution Environment** | Isolated Linux Sandbox | Docker Container Suite | Docker Containers | OS Virtual Machines |
+| **State Persistence** | Persistent Tmux Session | Post-Patch Run | Per-Step Reset | Stateful OS Machine |
+| **FastMCP 3.1 Native** | Full FastMCP 3.1 Support | via Harness Adapter | Full Support | Custom Adapters |
+| **Evaluation Focus** | SysAdmin, Nginx, Systemd | Repo Bug Fixing | Code Syntax & Logic | GUI & Multimodal OS |
+| **Resource Overhead** | Moderate to High | High | Moderate | Very High |
 
 ## Typical use cases
-- **DevOps Agent Evaluation**: Benchmarking developer-focused agents (such as Aider, OpenHands, or Claude Code) on software configuration and package installation before granting production repository access.
-- **Autonomous SysAdmin Research**: Evaluating frontier reasoning models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, Qwen 3.6 VL) on their ability to execute multi-step scripts, manage process states, and debug networking failures.
-- **Persistent tmux Multi-Session Coordination**: Researching the stability of agentic control channels when multiple long-running tasks are handled in parallel.
+- **DevOps Agent Evaluation**: Benchmarking developer-focused agents (e.g., Aider, OpenHands, or Claude Code) on Nginx load balancer configuration, systemd service setup, and SSL certificate installation.
+- **Autonomous SysAdmin Research**: Evaluating frontier reasoning models (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Gemma 4) on their ability to execute multi-step shell scripts, manage process trees, and debug networking failures.
+- **Persistent tmux Session Management**: Testing agentic control loops when managing long-running tasks across multiple parallel tmux panes.
+- **Self-Healing Infrastructure Testing**: Evaluating agents' ability to inspect log files (e.g., `/var/log/syslog`), identify memory leaks, and execute remediation scripts without human intervention.
 
 ## Strengths
-- **Practical Realism**: Replaces abstract coding challenges with real-world DevOps, site reliability engineering (SRE), and system administration scenarios.
-- **Stateful Interaction**: Requires the agent to maintain state and recover from cascading errors in real time.
-- **FastMCP 3.1 Protocol Compatibility**: Fully integrates with FastMCP 3.1 Task Protocol server definitions, allowing modern agents to access sandboxes using standard, type-safe JSON schema tool definitions.
+- **Practical Realism**: Replaces abstract coding puzzles with real-world DevOps, Site Reliability Engineering (SRE), and system administration scenarios.
+- **Stateful Tmux Integration**: Maintains true state across command executions using persistent tmux channels.
+- **FastMCP 3.1 Compatibility**: Native support for FastMCP 3.1 task protocol definitions, ensuring type-safe tool invocations.
+- **Strict Environment Isolation**: Runs evaluations inside containerized environments to ensure safety and reproducibility.
 
 ## Limitations
-- **High Resource Overhead**: Demands a containerized Docker or Harbor environment to safely execute arbitrary agent-generated commands.
-- **Environment Flakiness**: Changes in base images, pinned package repositories, or hardware drivers can lead to inconsistent benchmarking scores.
-- **OS Specificity**: Scenarios are often optimized for specific Linux distributions (e.g., Ubuntu 24.04 or Alpine), making comparisons across diverse hosting architectures challenging.
+- **High Compute Overhead**: Demands a containerized Docker or Harbor environment to safely execute arbitrary agent-generated commands.
+- **Environment Flakiness**: Package repository updates or hardware driver variations can introduce evaluation noise.
+- **OS Specificity**: Scenarios are primarily optimized for Debian/Ubuntu environments, requiring adaptation for other Linux distributions.
 
 ## When to use it
 - When evaluating the safety, accuracy, and efficiency of autonomous agents executing command-line instructions.
-- When configuring sandbox environments for local models (Gemma 4, DeepSeek-V4, Qwen 3.6 VL) to run self-healing scripts.
+- When configuring sandbox environments for local models (Gemma 4, DeepSeek-V4) to run self-healing scripts.
 - When validating persistent agent control loops via tmux sessions.
 
 ## When not to use it
 - For quick, lightweight model evaluations (use [LM Evaluation Harness](lm-evaluation-harness.md)).
-- For purely language-focused or code-synthesizing evaluations (use [MBPP](mbpp.md) or [Humanitys Last Exam](humanitys-last-exam.md)).
+- For purely language-focused or code-synthesizing evaluations (use [MBPP](mbpp.md) or [HumanEval](humaneval.md)).
 
 ## Getting started
 
-Terminal-Bench (TB-2) is typically orchestrated using the **Harbor** framework to provide a consistent, containerized execution environment.
+### Installation
+Terminal-Bench (TB-2) is orchestrated using the **Harbor** framework:
 
-### 1. Installation
 ```bash
-pip install terminal-bench harbor-framework pydantic
-# Verify Docker is active on the host machine
+# Install Terminal-Bench and Harbor framework
+pip install terminal-bench harbor-framework fastmcp pydantic
+
+# Verify Docker service status
+docker info
 ```
 
-### 2. Sandbox Setup
-Initialize an isolated benchmarking environment with specific resource constraints:
+### Sandbox Initialization
+Initialize an isolated Harbor environment for benchmarking:
+
 ```bash
-harbor init --benchmark terminal-bench --memory-limit 4g --cpu-shares 1024
+harbor init \
+  --benchmark terminal-bench \
+  --memory-limit 4g \
+  --cpu-shares 1024
 ```
 
 ## CLI examples
 
-### Running a specific DevOps task with strict limits
-Evaluate an agent's ability to set up an Nginx load balancer under strict execution constraints:
+### Running a DevOps Task Benchmark
+Evaluate an agent's ability to configure an Nginx load balancer under strict execution constraints:
+
 ```bash
 tb run \
-    --task_id "nginx-lb-config" \
-    --model "anthropic/claude-5-6-sonnet" \
-    --timeout 300 \
-    --sandbox-image "harbor/ubuntu-24.04-dev:v3"
+  --task_id "nginx-lb-config-v2" \
+  --model "anthropic/claude-5-6-sonnet" \
+  --timeout 300 \
+  --sandbox-image "harbor/ubuntu-24.04-dev:v3.1"
 ```
 
-### Managing tmux sessions via Terminus 2
-Terminus 2 allows for direct shell interaction via persistent tmux control channels:
+### Managing Tmux Sessions via Terminus 2
+Connect an agent to a persistent tmux control session:
+
 ```bash
 terminus2 connect \
-    --session "devops-audit-2027" \
-    --agent "my-devops-droid" \
-    --pane-size "80x24"
+  --session "devops-audit-2027" \
+  --agent "devops-droid-v1" \
+  --pane-size "80x24"
 ```
 
-## API examples
+## FastMCP 3.1 Task Server Implementation
 
-### Orchestrating Terminal Evaluation with FastMCP 3.1 & Pydantic v2
-This robust example demonstrates how to orchestrate a Terminal-Bench task via FastMCP 3.1 server tools and validate trajectory telemetry using **Pydantic v2**:
+The following example demonstrates how to implement a FastMCP 3.1 server for managing Terminal-Bench task trajectories:
 
 ```python
-import sys
+import os
+import json
+import time
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for Terminal-Bench Trajectory Management
+mcp = FastMCP("Terminal-Bench-Task-Server", version="3.1")
+
+class TerminalExecutionRequest(BaseModel):
+    task_id: str = Field(..., description="Unique Terminal-Bench task identifier.")
+    command: str = Field(..., min_length=1, description="Shell command string to execute in tmux pane.")
+    session_name: str = Field("tb_default_session", description="Persistent tmux session identifier.")
+    timeout_seconds: int = Field(30, ge=1, le=300, description="Command execution timeout in seconds.")
+
+class TerminalTrajectoryStep(BaseModel):
+    task_id: str
+    step_number: int
+    command_executed: str
+    stdout_preview: str = Field(..., description="First 200 characters of stdout.")
+    exit_code: int = Field(..., description="Process exit code.")
+    session_status: str = Field(..., description="State of the persistent tmux channel.")
+
+@mcp.tool(
+    name="execute_terminal_command",
+    description="Executes a shell command in a persistent tmux session via FastMCP 3.1 and returns validated telemetry."
+)
+def execute_terminal_command(payload_json: str) -> str:
+    """Executes command in tmux channel and returns Pydantic v2 validated trajectory telemetry."""
+    try:
+        data = json.loads(payload_json)
+        req = TerminalExecutionRequest.model_validate(data)
+
+        # Simulated execution result for demonstration
+        stdout_text = f"Executed '{req.command}' in session '{req.session_name}' successfully."
+        exit_code = 0 if "error" not in req.command.lower() else 1
+
+        step = TerminalTrajectoryStep(
+            task_id=req.task_id,
+            step_number=1,
+            command_executed=req.command,
+            stdout_preview=stdout_text[:200],
+            exit_code=exit_code,
+            session_status="ACTIVE"
+        )
+
+        return step.model_dump_json(indent=2)
+
+    except ValidationError as ve:
+        return json.dumps({"error": "Schema validation failed", "details": ve.errors()}, indent=2)
+    except Exception as e:
+        return json.dumps({"error": "Execution exception", "message": str(e)}, indent=2)
+
+if __name__ == "__main__":
+    sample_request = json.dumps({
+        "task_id": "task_nginx_01",
+        "command": "systemctl status nginx",
+        "session_name": "devops_session_2027"
+    })
+    print("FastMCP 3.1 Terminal Tool Output:")
+    print(execute_terminal_command(sample_request))
+```
+
+## Programmatic Integration and Trajectory Validation
+
+The following Python script demonstrates how to parse and validate Terminal-Bench trajectories using **Pydantic v2**:
+
+```python
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
 
-# Initialize FastMCP 3.1 Server for Terminal-Bench Trajectory Telemetry
-mcp = FastMCP("Terminal-Bench-Evaluator", version="3.1")
-
-class SandboxConfig(BaseModel):
-    image: str = Field(..., description="The Docker image to use for the sandbox")
-    network_isolated: bool = Field(default=True, description="Enforce strict network isolation")
-    memory_limit: str = Field(default="4g", description="Memory allocation limit for the container")
-    timeout_seconds: int = Field(default=600, ge=10, description="Max execution duration in seconds")
-
-class ExecutionTrajectory(BaseModel):
-    command: str = Field(..., description="The command executed by the agent")
-    exit_code: int = Field(..., description="The resulting exit code from the shell")
-    stdout_preview: str = Field(..., description="First 200 characters of stdout")
-    stderr_preview: Optional[str] = Field(None, description="First 200 characters of stderr")
+class ExecutionStep(BaseModel):
+    command: str = Field(..., description="Executed command string.")
+    exit_code: int = Field(..., description="Process exit code.")
+    stdout_preview: str = Field(..., description="Preview of stdout response.")
+    stderr_preview: Optional[str] = Field(None, description="Preview of stderr response.")
 
 class TerminalEvaluationResult(BaseModel):
-    task_id: str = Field(..., description="The unique identifier of the benchmark task")
-    success: bool = Field(..., description="Indicates if the agent satisfied the goal criteria")
-    final_status_code: int = Field(..., description="The final status code returned by the sandbox")
-    trajectories: List[ExecutionTrajectory] = Field(default_factory=list, description="Sequence of commands executed")
+    task_id: str = Field(..., description="Unique task ID.")
+    success: bool = Field(..., description="Pass/fail completion indicator.")
+    final_status_code: int = Field(..., description="Final container exit code.")
+    trajectories: List[ExecutionStep] = Field(default_factory=list, description="Executed step sequence.")
 
-@mcp.tool(name="evaluate_terminal_trajectory", description="Validates terminal execution telemetry against Pydantic v2 schemas and computes summary stats.")
-def evaluate_terminal_trajectory(raw_json: str) -> str:
-    """Parses raw evaluation payload, verifies against Pydantic v2, and outputs status summary."""
+def validate_terminal_trajectory(raw_json: str) -> Optional[TerminalEvaluationResult]:
+    """Validates terminal telemetry payload against Pydantic v2 data contract."""
     try:
-        data = json.loads(raw_json)
-        result = TerminalEvaluationResult.model_validate(data)
-        return json.dumps({
-            "status": "VALIDATED",
-            "task_id": result.task_id,
-            "success": result.success,
-            "total_commands_executed": len(result.trajectories)
-        }, indent=2)
-    except json.JSONDecodeError:
-        return json.dumps({"error": "Invalid JSON format"})
-    except ValidationError as e:
-        return json.dumps({"error": "Validation failed", "details": e.errors()})
+        res = TerminalEvaluationResult.model_validate_json(raw_json)
+        return res
+    except ValidationError as ve:
+        print(f"Trajectory validation error: {ve}")
+        return None
 
 if __name__ == "__main__":
-    sample_data = json.dumps({
-        "task_id": "debug-c-memory-leak",
-        "success": True,
+    sample_payload = """
+    {
+        "task_id": "debug-memory-leak-01",
+        "success": true,
         "final_status_code": 0,
         "trajectories": [
             {
-                "command": "gcc -o debug_app main.c -fsanitize=address",
+                "command": "gcc -o app main.c -fsanitize=address",
                 "exit_code": 0,
-                "stdout_preview": "Compilation finished successfully."
+                "stdout_preview": "Compilation finished."
             },
             {
-                "command": "./debug_app",
+                "command": "./app",
                 "exit_code": 1,
-                "stdout_preview": "AddressSanitizer: heap-use-after-free",
-                "stderr_preview": "ERROR: AddressSanitizer: heap-use-after-free"
+                "stdout_preview": "AddressSanitizer detected heap leak.",
+                "stderr_preview": "ERROR: LeakSanitizer: detected memory leaks"
             }
         ]
-    })
-    print(evaluate_terminal_trajectory(sample_data))
+    }
+    """
+    validated = validate_terminal_trajectory(sample_payload)
+    if validated:
+        print(f"Validated task '{validated.task_id}' successfully!")
+        print(f"Success Status: {validated.success}")
+        print(f"Total Trajectory Steps: {len(validated.trajectories)}")
 ```
 
-## Related tools / concepts
-- [SWE-bench](swe-bench.md) - Software engineering repository-wide benchmark.
-- [BigCodeBench](./bigcodebench.md) - Advanced code generation benchmark.
-- [OpenHands](../development_ops/openhands.md) - Open-source platform for agentic dev.
-- [Aider](../development_ops/aider.md) - Terminal-native AI pair programmer.
-- [Claude Code — Project Setup Guide](../development_ops/claude-code-setup.md) - Modern terminal agentic workflows.
-- [LM Evaluation Harness](lm-evaluation-harness.md) - Unified benchmark runner.
-- [OSWorld](./os-world.md) - Operating system-wide agent evaluation.
-- [PA-bench](./pa-bench.md) - Web-based personal assistant benchmark.
+## Operational Guidelines & Security Hardening
 
-## Sources / References
-- [Terminal-Bench GitHub Repository](https://github.com/harbor-framework/terminal-bench)
+To ensure safe execution during terminal benchmarks:
+
+1. **Non-Root Container Runtime**: Run sandbox containers as unprivileged users (`--user 1000:1000`) and drop kernel capabilities (`--cap-drop=ALL`).
+2. **Resource Constraints**: Impose strict memory and CPU quotas on benchmark containers (`--memory 4g --cpus 2.0`).
+3. **Network Isolation**: Disable container internet connectivity (`--network none`) unless network functionality is explicitly required by the task.
+4. **Automatic Teardown**: Ensure tmux sessions and Docker containers are terminated and destroyed immediately upon task completion.
+
+## Troubleshooting & Common Pitfalls
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`TmuxSessionError: Session lost`** | Tmux server crashed or container memory limit exceeded. | Increase sandbox container memory allocation (`--memory 8g`) and inspect system dmesg logs. |
+| **Command Timeout in Tmux** | Command triggered an interactive prompt (e.g., `apt-get` asking for confirmation). | Supply non-interactive environment flags (`DEBIAN_FRONTEND=noninteractive`) and `-y` flags. |
+| **Flaky Evaluation Scores** | Stale state inherited from previous benchmark trial. | Ensure complete container recreation (`harbor reset`) between benchmark trials. |
+| **FastMCP 3.1 Tool Disconnect** | Terminal output stream exceeded maximum JSON-RPC message size. | Truncate stdout/stderr buffers prior to returning payloads over FastMCP 3.1 transport. |
+
+## Related tools / concepts
+- [SWE-bench](swe-bench.md) — Benchmark for repository-level software engineering tasks.
+- [InterCode](intercode.md) — Interactive benchmark framework for shell, SQL, and Python.
+- [BigCodeBench](bigcodebench.md) — Suite for evaluating complex code generation.
+- [OpenHands](../development_ops/openhands.md) — Open-source platform for autonomous coding agents.
+- [Aider](../development_ops/aider.md) — Terminal-native AI pair programming tool.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for AI tool and resource orchestration.
+
+## Sources / references
+- [Terminal-Bench Official GitHub Repository](https://github.com/harbor-framework/terminal-bench)
 - [Harbor Framework Documentation](https://github.com/harbor-framework/harbor)
+- [Model Context Protocol (MCP) FastMCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
