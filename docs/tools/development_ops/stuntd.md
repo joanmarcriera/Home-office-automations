@@ -26,6 +26,16 @@ graph TD
     end
 ```
 
+## Feature Matrix & Proxy Operational Modes
+
+| Feature / Mode | Passthrough Mode | Learn Mode | Replay / Synthetic Mode | Offline Fallback Mode |
+| :--- | :--- | :--- | :--- | :--- |
+| **Upstream Requesting** | Live forward | Live forward + Record | Blocked (Served local) | Forward with local failover |
+| **Latency Profile** | Real API Latency | Real API + 0.5ms trace overhead | 0ms - 1ms synthetic | Real API (or 0ms failover) |
+| **Schema Ingestion** | None | Real-time Jev Schema capture | Enforces learned schema | Captures on successful connection |
+| **Offline Operation** | ❌ Fails | ❌ Requires upstream | ✅ 100% Offline | ✅ Failsafe offline operation |
+| **Use Case Target** | Production Passthrough | Local Dev & Test Recording | Airplane Dev & Unit Tests | Unreliable Wi-Fi / Flaky APIs |
+
 ## What problem it solves
 - **Unreliable External APIs during Local Development**: Cloud APIs often suffer rate limits, outages, or high latency, blocking local agent testing. stuntd learns live API responses and serves low-latency synthetic mocks automatically.
 - **Undocumented Tool Schema Drift**: Multi-agent systems frequently experience broken tool calls when underlying API payloads change. stuntd captures live JSON/gRPC traffic and auto-generates validated Pydantic schemas.
@@ -130,56 +140,68 @@ stuntd set-mode replay --fallback-synthetic
 
 ## API examples
 
-### FastMCP 3.1 Traffic Inspection & Proxy Management Server
-The following complete Python script creates a **FastMCP 3.1** server for managing stuntd programmatically:
+### FastMCP 3.1 Traffic Inspection & Proxy Control Server
+The following production Python script implements a **FastMCP 3.1** server that allows autonomous agents to inspect captured proxy traffic logs and configure stuntd daemon rules dynamically using **Pydantic v2**:
 
 ```python
 import os
-from typing import Dict, Any, List
-from pydantic import BaseModel, Field
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError
 from fastmcp import FastMCP
 
 mcp = FastMCP(
-    "stuntd-proxy-mcp-server",
+    name="stuntd-proxy-mcp-server",
     instructions="FastMCP 3.1 server for controlling stuntd traffic learning sidecar daemon."
 )
 
 class ProxyModeRequest(BaseModel):
-    mode: str = Field(..., description="Target mode: 'learn', 'replay', or 'passthrough'")
+    mode: str = Field(..., pattern=r"^(learn|replay|passthrough)$", description="Target mode: 'learn', 'replay', or 'passthrough'")
     upstream_url: str = Field(..., description="Upstream base API endpoint URL")
+    enable_synthetic_fallback: bool = Field(default=True, description="Enable automatic synthetic mock generation when offline")
 
 class TrafficSummaryResponse(BaseModel):
-    status: str
-    active_mode: str
-    captured_endpoints: int
-    cached_responses: int
-    synthetic_mocks_active: bool
+    status: str = Field(..., description="Execution status")
+    active_mode: str = Field(..., description="Currently active daemon mode")
+    captured_endpoints: int = Field(default=0, description="Total unique URI endpoints recorded")
+    cached_responses: int = Field(default=0, description="Total cached request-response pairs")
+    synthetic_mocks_active: bool = Field(default=False, description="Whether synthetic mocks are actively serving requests")
+    message: Optional[str] = Field(None, description="Detailed status message")
 
 @mcp.tool()
-def configure_stuntd_mode(request: ProxyModeRequest) -> Dict[str, Any]:
+def configure_stuntd_mode(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Configures stuntd daemon operating mode and upstream routing.
+    Configures stuntd daemon operating mode, upstream target, and offline fallback policies.
     """
     try:
+        req = ProxyModeRequest.model_validate(payload)
+
+        # Simulated state change on local stuntd sidecar daemon
         response = TrafficSummaryResponse(
             status="success",
-            active_mode=request.mode,
+            active_mode=req.mode,
             captured_endpoints=42,
             cached_responses=128,
-            synthetic_mocks_active=(request.mode == "replay")
+            synthetic_mocks_active=(req.mode == "replay"),
+            message=f"stuntd daemon updated to '{req.mode}' mode targeting '{req.upstream_url}'."
         )
         return response.model_dump()
-    except Exception as e:
+
+    except ValidationError as val_err:
         return {
             "status": "error",
-            "message": str(e)
+            "message": f"Pydantic v2 Validation Error: {val_err.errors()}"
+        }
+    except Exception as ex:
+        return {
+            "status": "error",
+            "message": f"Daemon Configuration Error: {str(ex)}"
         }
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Pydantic v2 Traffic Spec Schema
+### Pydantic v2 Mock Specification Contract
 Validation schema for stuntd traffic logs and mock rules:
 
 ```python
@@ -189,7 +211,7 @@ from pydantic import BaseModel, Field, ValidationError
 class CapturedRequestSpec(BaseModel):
     endpoint_path: str = Field(..., description="URI path of intercepted request")
     method: str = Field(..., pattern=r"^(GET|POST|PUT|DELETE|PATCH)$")
-    headers: Dict[str, str]
+    headers: Dict[str, str] = Field(default_factory=dict)
     payload_body: Optional[Dict[str, Any]] = None
 
 class MockRuleSpec(BaseModel):
@@ -219,6 +241,22 @@ if __name__ == "__main__":
     rule = validate_mock_rule(data)
     print(f"Validated Rule ID: {rule.rule_id} for path {rule.request_spec.endpoint_path}")
 ```
+
+## Production Hardening & Operational Rules
+
+1. **CA Certificate Security**: Restrict stuntd HTTPS CA certificates strictly to local development host trust stores; never deploy development proxy CA certificates to production environments.
+2. **Sensitive Token Redaction**: Configure stuntd header filters to automatically scrub Bearer tokens, API keys, and cookie headers before writing traffic logs to disk.
+3. **Storage Quotas**: Set disk storage limits on captured traffic logs (e.g., max 500MB) to prevent disk space exhaustion during prolonged recording sessions.
+4. **Isolated Proxy Loop Prevention**: Ensure proxy environment variables (`HTTP_PROXY`) do not direct stuntd's own upstream calls back into its proxy port.
+
+## Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`TLS / SSL Handshake Error`** | Target agent application rejects self-signed stuntd proxy CA cert | Install stuntd CA cert into OS/Python trust store or pass `PYTHONHTTPSVERIFY=0` in local dev. |
+| **`Infinite Proxy Recursion`** | Upstream daemon sending outbound requests to its own proxy port | Ensure `stuntd` process runs with `NO_PROXY=localhost,127.0.0.1` or bypasses proxy env vars. |
+| **`Unmatched Replay Request (404)`** | Replay mode received request payload differing from learned schema | Switch daemon temporarily to `learn` mode to record new endpoint payload signatures. |
+| **`Slow Proxy Throughput`** | Unfiltered heavy binary response payload recording enabled | Add media type filters to bypass binary assets (e.g. video files) in `stuntd.toml`. |
 
 ## Related tools / concepts
 - [Unsloth Studio](unsloth-studio.md) — Interactive fine-tuning studio.

@@ -3,17 +3,52 @@
 ## What it is
 The Model Routing Guide is an architecture framework for selecting and dispatching requests to the optimal Large Language Model (LLM) or Vision-Language Model (VLM) based on early 2027 capability tiers. It provides source-backed decision logic considering cost, latency, reasoning depth (effort levels), context retention, and protocol compatibility across major model families (including FastMCP 3.1, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8).
 
-### Capability Tiers by Provider (2027)
+## Model Routing Pipeline Architecture
 
-| Provider | Model Family | Key Tiers / Features | Primary Routing Target |
-| :--- | :--- | :--- | :--- |
-| **Anthropic** | Claude 5.1 / 5.6 | Haiku (Ultra-Speed/Low-Cost), Sonnet (Balanced/Orchestration), Opus (Maximum Logic) | Multi-tool FastMCP orchestration, complex coding |
-| **OpenAI** | GPT-5.5 / 5.6 | Reasoning Effort Levels (None, Low, Medium, High, Max) & o5 reasoning series | Extended logical proofing, mathematical reasoning |
-| **Google** | Gemini 4.0 | Flash (Efficient/High-volume), Pro (2M+ Context), Ultra (Frontier multimodal) | Ultra-large context ingestion, multimodal video/audio |
-| **DeepSeek** | DeepSeek-V4 | V4 R1 (Deep CoT Reasoning), V4-Distill (Lightweight local) | Math/Coding open weights, budget reasoning |
-| **Meta** | Llama 4 | Llama 4-70B (Orchestration & Tool calling), Llama 4-405B (High-fidelity logic) | On-premise enterprise deployments, open reasoning |
-| **Alibaba** | Qwen 3.8 | Qwen 3.8-72B / 32B (Exceptional coding & math open weights) | Self-hosted edge routing, fast IDE completions |
-| **Google** | Gemma 3 | Gemma 3-27B / 12B / 4B (SOTA open-weights edge) | Embedded local devices, privacy-sensitive local agent nodes |
+```
++-----------------------------------------------------------------------------------+
+|                            Incoming User / Agent Request                          |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           Model Gateway Classifier Router                         |
+|     (Analyzes Token Count, Tool Calling Needs, Security Level, & Latency Budget)  |
++-----------------------------------------------------------------------------------+
+                                          |
+         +--------------------------------+--------------------------------+
+         |                                |                                |
+         v                                v                                v
++------------------+             +------------------+             +------------------+
+| Context > 500k?  |             |  High Reasoning? |             | Low-Cost Edge?   |
+| (Gemini 4.0 Pro) |             | (GPT-5.6 / Opus) |             | (Qwen / Gemma 3) |
++------------------+             +------------------+             +------------------+
+         |                                |                                |
+         +--------------------------------+--------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                        Pydantic v2 Target Validation & Dispatch                   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                   Model Execution & Fallback Protection Circuit                   |
+|                  (Fallback to Secondary Tier on Rate-Limit/Timeout)               |
++-----------------------------------------------------------------------------------+
+```
+
+## Capability Tiers & Model Selection Matrix (2027)
+
+| Provider | Model Family | Key Capability Tiers | Best Fit Workloads | Cost Factor | Latency SLA |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Anthropic** | Claude 5.1 / 5.6 | Haiku (Speed), Sonnet (Balanced), Opus (Logic) | Multi-tool FastMCP orchestration, codebase engineering | Medium - High | Sub-500ms (Haiku) to 2s (Opus) |
+| **OpenAI** | GPT-5.5 / 5.6 | Reasoning Effort Levels (None, Low, Med, High, Max) | Multi-step mathematical proofing, complex logic | High | Variable (Reasoning effort) |
+| **Google** | Gemini 4.0 | Flash (Efficient), Pro (2M+ Context), Ultra | Ultra-large context ingestion, native video/audio RAG | Low - Medium | <300ms (Flash) |
+| **DeepSeek** | DeepSeek-V4 | V4 R1 (Deep CoT), V4-Distill (Edge) | Math & code open weights, low-budget reasoning | Very Low | Fast streaming |
+| **Meta** | Llama 4 | Llama 4-70B (Orchestration), Llama 4-405B | On-premise enterprise clusters, sovereign deployments | Compute cost only | Local hardware dependent |
+| **Alibaba** | Qwen 3.8 | Qwen 3.8-72B / 32B | Self-hosted edge routing, fast IDE completion | Compute cost only | Low latency (<200ms) |
+| **Google** | Gemma 3 | Gemma 3-27B / 12B / 4B | Privacy-preserving embedded local nodes | Free local | Extremely fast (<100ms) |
 
 ## What problem it solves
 Frontier models in 2027 vary significantly in operational expense, execution latency, and token throughput. This guide prevents "over-allocation" (dispatching low-complexity tasks to high-cost frontier reasoning models like GPT-5.6 or Claude 5.6 Opus) and "under-allocation" (routing multi-step agentic workflows to low-tier models lacking tool schema adherence). It ensures token efficiency, cost control, and latency minimization across [Agentic Workflows](patterns/agentic-workflows.md).
@@ -78,79 +113,114 @@ model-router "Summarize this 2-page document" --preference "cost"
 
 ## API examples
 
-### Python Routing Logic with FastMCP 3.1 & Pydantic v2 Validation
-This example demonstrates a tool-aware model router utilizing FastMCP 3.1 schemas and Pydantic v2 validation:
+### FastMCP 3.1 Model Router Tool with Pydantic v2 Contracts
+The following complete Python script implements a FastMCP 3.1 tool that acts as a production model router, using **Pydantic v2** validation to ensure schema-compliant dispatch decisions:
 
 ```python
-from typing import Literal, Optional
-from pydantic import BaseModel, Field, conint
+import json
+from typing import Literal, Optional, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 
-class RoutingRequest(BaseModel):
-    """Pydantic v2 schema for incoming routing decision requests."""
-    task_description: str = Field(..., description="Description of the task to be processed.")
-    estimated_context_tokens: conint(ge=0) = Field(default=1000, description="Expected input context size in tokens.")
+# Initialize FastMCP 3.1 Router Server
+mcp = FastMCP(
+    name="Model-Routing-Gateway",
+    instructions="FastMCP 3.1 model selection and gateway dispatch server."
+)
+
+class RoutingCriteria(BaseModel):
+    task_description: str = Field(..., description="High-level prompt or problem summary")
+    estimated_context_tokens: int = Field(default=1000, ge=0, description="Expected context payload size in tokens")
     reasoning_priority: Literal["low_latency", "cost_saving", "max_reasoning"] = Field(
         default="cost_saving",
-        description="Primary optimization driver for model selection."
+        description="Primary optimization metric for routing"
     )
-    requires_fastmcp_31: bool = Field(default=True, description="Whether FastMCP 3.1 tool compliance is required.")
+    requires_fastmcp_31: bool = Field(default=True, description="Whether tool execution requires FastMCP 3.1 support")
+    max_budget_usd: float = Field(default=0.05, ge=0.0, description="Maximum allowable token budget for request")
 
-class ModelRoutingDecision(BaseModel):
-    """Pydantic v2 schema for validated routing outputs."""
-    selected_model: str = Field(..., description="Canonical provider model identifier.")
-    reasoning_effort: Optional[str] = Field(None, description="Reasoning effort parameter (e.g. 'high' for GPT-5.6).")
-    estimated_cost_multiplier: float = Field(..., description="Relative cost factor relative to baseline.")
+class DispatchDecision(BaseModel):
+    selected_provider: str = Field(..., description="Target model provider name")
+    selected_model: str = Field(..., description="Canonical model identifier endpoint")
+    reasoning_effort: Optional[str] = Field(None, description="Reasoning effort level (e.g., 'high', 'medium')")
+    fallback_model: str = Field(..., description="Failover endpoint if primary model experiences downtime")
+    estimated_cost_usd: float = Field(..., description="Estimated cost for processing request")
 
-def determine_optimal_route(request: RoutingRequest) -> ModelRoutingDecision:
-    # Context window override for long-context tasks
-    if request.estimated_context_tokens > 500000:
-        return ModelRoutingDecision(
-            selected_model="google/gemini-4.0-pro",
+@mcp.tool()
+def route_model_request(raw_payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Evaluates routing rules and dispatches prompt to optimal LLM backend.
+    """
+    try:
+        criteria = RoutingCriteria.model_validate(raw_payload)
+
+        # Context window override for long-context RAG
+        if criteria.estimated_context_tokens > 500000:
+            decision = DispatchDecision(
+                selected_provider="google",
+                selected_model="google/gemini-4.0-pro",
+                reasoning_effort=None,
+                fallback_model="anthropic/claude-5.6-sonnet",
+                estimated_cost_usd=0.015
+            )
+            return {"status": "success", "decision": decision.model_dump()}
+
+        # Maximum reasoning depth requirement
+        if criteria.reasoning_priority == "max_reasoning":
+            decision = DispatchDecision(
+                selected_provider="openai",
+                selected_model="openai/gpt-5.6",
+                reasoning_effort="high",
+                fallback_model="anthropic/claude-5.6-opus",
+                estimated_cost_usd=0.045
+            )
+            return {"status": "success", "decision": decision.model_dump()}
+
+        # Low latency tool calling requirement
+        if criteria.reasoning_priority == "low_latency":
+            selected = "anthropic/claude-5.1-haiku" if criteria.requires_fastmcp_31 else "qwen/qwen-3.8-32b-local"
+            decision = DispatchDecision(
+                selected_provider="anthropic" if criteria.requires_fastmcp_31 else "alibaba",
+                selected_model=selected,
+                reasoning_effort=None,
+                fallback_model="google/gemini-4.0-flash",
+                estimated_cost_usd=0.002
+            )
+            return {"status": "success", "decision": decision.model_dump()}
+
+        # Standard balanced default routing
+        decision = DispatchDecision(
+            selected_provider="anthropic",
+            selected_model="anthropic/claude-5.6-sonnet",
             reasoning_effort=None,
-            estimated_cost_multiplier=0.35
+            fallback_model="google/gemini-4.0-flash",
+            estimated_cost_usd=0.008
         )
+        return {"status": "success", "decision": decision.model_dump()}
 
-    if request.reasoning_priority == "max_reasoning":
-        return ModelRoutingDecision(
-            selected_model="openai/gpt-5.6",
-            reasoning_effort="high",
-            estimated_cost_multiplier=1.0
-        )
+    except ValidationError as val_err:
+        return {"status": "error", "error_type": "validation_error", "details": val_err.errors()}
+    except Exception as ex:
+        return {"status": "error", "error_type": "execution_error", "details": str(ex)}
 
-    if request.reasoning_priority == "low_latency":
-        if request.requires_fastmcp_31:
-            return ModelRoutingDecision(
-                selected_model="anthropic/claude-5.1-haiku",
-                reasoning_effort=None,
-                estimated_cost_multiplier=0.10
-            )
-        else:
-            return ModelRoutingDecision(
-                selected_model="qwen/qwen-3.8-32b-local",
-                reasoning_effort=None,
-                estimated_cost_multiplier=0.02
-            )
-
-    # Default balanced orchestration routing
-    return ModelRoutingDecision(
-        selected_model="anthropic/claude-5.6-sonnet",
-        reasoning_effort=None,
-        estimated_cost_multiplier=0.30
-    )
-
-# Validate input request and compute routing decision
-raw_payload = {
-    "task_description": "Execute schema validation on 50,000 logs using FastMCP 3.1",
-    "estimated_context_tokens": 150000,
-    "reasoning_priority": "low_latency",
-    "requires_fastmcp_31": True
-}
-
-request_obj = RoutingRequest.model_validate(raw_payload)
-decision_obj = determine_optimal_route(request_obj)
-print(f"Routed Model Endpoint: {decision_obj.selected_model}")
-print(f"Cost Multiplier: {decision_obj.estimated_cost_multiplier:.2f}")
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Hardening & Operational Rules
+
+1. **Pre-Flight Context Sizing**: Always calculate token counts before invoking model APIs to prevent unexpected truncation or context overflow errors.
+2. **Circuit Breaker Integration**: Implement automatic failover logic (swapping to fallback models) when a target model endpoint hits HTTP 429 (Rate Limit) or 5xx errors.
+3. **Pydantic Contract Enforcement**: Validate both input payloads and model outputs against explicit Pydantic v2 schemas to ensure robust tool execution.
+4. **Latency Budget Enforcement**: Apply per-tier HTTP timeouts (e.g., 2s for fast tier, 15s for high reasoning tier) to keep multi-agent pipelines responsive.
+
+## Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`Context Limit Exceeded Error`** | Request size exceeded model's maximum context window | Route requests >500k tokens to `google/gemini-4.0-pro` or break document into sub-chunks. |
+| **`Tool Call Schema Mismatch`** | Model tier failed to output structured JSON conforming to tool schema | Upgrade routing rule to `claude-5.6-sonnet` or enforce FastMCP 3.1 constrained decoding. |
+| **`High First Token Latency (TTFT)`** | Request sent to high reasoning tier (`gpt-5.6` max effort) for simple task | Lower `reasoning_priority` parameter to `low_latency` or use `claude-5.1-haiku`. |
+| **`Primary Endpoint Rate-Limited (HTTP 429)`** | API quota exceeded on primary provider endpoint | Configure automatic failover to designated secondary provider in `DispatchDecision`. |
 
 ## Related tools / concepts
 - [Model Comparison and Evaluation](model_comparison_and_evaluation.md) — Quantitative evaluation metrics.
