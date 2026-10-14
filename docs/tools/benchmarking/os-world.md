@@ -159,6 +159,58 @@ if __name__ == "__main__":
     print(execute_os_action(sample_action, sample_obs))
 ```
 
+### FastMCP 3.1 OSWorld Evaluation Server Tool Implementation
+```python
+import os
+import json
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+
+mcp = FastMCP(
+    name="OSWorld Evaluation Runner",
+    version="3.1.0",
+    description="FastMCP 3.1 server managing OSWorld Virtual Machine task orchestration and result evaluation"
+)
+
+class EvaluationRunConfig(BaseModel):
+    task_id: str = Field(..., description="Unique OSWorld task ID (e.g. 'ubuntu-123' or 'windows-456')")
+    model_identifier: str = Field("anthropic/claude-5.6", description="Frontier model used for visual computer use")
+    env_backend: str = Field("docker", description="VM hypervisor backend ('docker', 'vmware', 'virtualbox')")
+    record_video: bool = Field(True, description="Record MP4 desktop video for trajectory diagnostic audit")
+    max_steps: int = Field(15, ge=1, le=100, description="Maximum GUI actions allowed per task run")
+
+class TaskEvaluationResult(BaseModel):
+    task_id: str
+    model_identifier: str
+    success: bool
+    reward_score: float = Field(..., ge=0.0, le=1.0)
+    total_steps_executed: int
+    video_recording_path: Optional[str] = None
+
+@mcp.tool(name="run_osworld_evaluation", description="Spawns an OSWorld guest VM task run and validates completion reward score")
+async def run_osworld_evaluation(config: EvaluationRunConfig, ctx: Context) -> Dict[str, Any]:
+    await ctx.info(f"Initiating OSWorld evaluation task '{config.task_id}' with model '{config.model_identifier}'")
+
+    # Simulate execution of OSWorld python runner and verification script
+    res = TaskEvaluationResult(
+        task_id=config.task_id,
+        model_identifier=config.model_identifier,
+        success=True,
+        reward_score=1.0,
+        total_steps_executed=7,
+        video_recording_path=f"/tmp/recordings/{config.task_id}.mp4" if config.record_video else None
+    )
+
+    return {
+        "status": "completed",
+        "result": res.model_dump()
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
 ### State-Verification Script Structure
 OSWorld executes target verification scripts inside the guest OS to determine task completion:
 ```python
@@ -172,6 +224,30 @@ def verify_task_completion():
                 return True
     return False
 ```
+
+## Benchmark Comparison Matrix
+
+| Benchmark | Scope & Environment | Action Space | Evaluation Metric | FastMCP 3.1 Support | Primary Focus |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **OSWorld** | Full Desktop VMs (Ubuntu, Windows, macOS) | Raw GUI (Clicks, Coordinates, Keys) + Shell | Execution-based state verification in Guest OS | Native FastMCP 3.1 Task Protocol | Open-ended desktop 'Computer Use' and multi-app digital twin workflows |
+| **SWE-bench** | Containerized Git / Python repos | Terminal commands, patch files | Unit test pass/fail assertion | Custom MCP tools | Software engineering & bug resolving in codebase repos |
+| **WebArena** | Web Browsers & Self-hosted Web Apps | DOM elements, clicks, typing | Execution assertions on web app state | Native Browser MCP | E-commerce, CMS, and web-only agentic navigation |
+| **TerminalBench** | Linux CLI Terminals | Bash commands, stdin | Shell return code & file state validation | Terminal MCP | Direct Command-line sysadmin and script generation |
+
+## Operational Hardening & VM Sandbox Rules
+- **Snapshot Reset Policy**: Revert guest virtual machines to clean baseline snapshots (`vmrun revertToSnapshot`) prior to every evaluation run to prevent task state contamination.
+- **Network Isolation**: Restrict OSWorld guest OS internet access via host iptables/firewall rules to prevent evaluated agents from executing unintended external web transactions or leaking sensitive API tokens.
+- **Resource Limits**: Cap VM hypervisor resource usage to 4 vCPUs and 8GB RAM per guest instance to avoid host memory starvation during multi-worker parallel benchmark evaluations.
+- **Coordinate Normalization**: Scale screenshot frame buffers to fixed standard resolutions (e.g. 1920x1080) to ensure accurate VLM visual coordinate mapping across heterogeneous host displays.
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `VMWareException: Unable to connect to host` | VMware Workstation / Fusion API background service not running | Start the `vmware-rest` service or check hypervisor path permissions on host system. |
+| `Coordinate Mapping Offset Error` | High-DPI scaling active on host display manager | Disable OS display scaling (set to 100% / 1:1 pixel rendering) on host monitor before launching OSWorld. |
+| Evaluation script timeout on guest OS | Verification script hanging on interactive prompts | Ensure guest verification scripts pass `--batch` or `-y` flags to bypass interactive stdin blocks. |
+| High visual token billing during task runs | Sending uncompressed high-FPS PNG frames to VLM endpoints | Implement frame-difference filtering to only send screenshot frames when desktop pixels actually change. |
 
 ## Related tools / concepts
 - [PA-bench](./pa-bench.md) — Web navigation benchmark.

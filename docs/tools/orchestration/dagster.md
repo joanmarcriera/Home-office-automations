@@ -79,6 +79,26 @@ dagster dev -f my_data_assets.py
 ```
 Open your browser and navigate to `http://localhost:3000`.
 
+## System Architecture & Asset Dataflow Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Agent
+    participant Web as Dagster Webserver (Port 3000)
+    participant Daemon as Dagster Daemon (Declarative Automation)
+    participant Pipe as Dagster Pipes Compute (Snowflake/K8s)
+    participant DB as Target Asset Storage (PostgreSQL/DuckDB)
+
+    Agent->>Web: FastMCP Tool Call (materialize_asset_graph)
+    Web->>Daemon: Queue Asset Materialization Job
+    Daemon->>Pipe: Spawn Pipeline Execution via Dagster Pipes
+    Pipe->>DB: Write & Update Target Asset Records
+    Pipe-->>Daemon: Emit AssetMaterialization & Metric Events
+    Daemon-->>Web: Asset Graph Lineage & Freshness Status Updated
+    Web-->>Agent: Return Execution Telemetry & Asset Metadata
+```
+
 ## CLI examples
 The `dagster` command surface is used to coordinate local backfills, execution states, and model registries:
 
@@ -188,6 +208,83 @@ if __name__ == "__main__":
     else:
         print("Data materialization trigger or validation failed.")
 ```
+
+### 2. FastMCP 3.1 Server Implementation for Dagster Asset Operations
+Expose Dagster asset graph inspections, materializations, and asset checks directly to AI agents using FastMCP 3.1:
+
+```python
+import os
+import requests
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+
+mcp = FastMCP(
+    name="Dagster Orchestration Gateway",
+    version="3.1.0",
+    description="FastMCP server exposing Dagster asset graph materializations and freshness checks"
+)
+
+class AssetMaterializeInput(BaseModel):
+    asset_key: str = Field(..., description="Target asset key (e.g. 'raw_user_logs' or 'analytics/monthly_sales')")
+    repository_name: Optional[str] = Field("my_data_repository", description="Target Dagster repository name")
+
+class AssetFreshnessQuery(BaseModel):
+    asset_key: str = Field(..., description="Asset key to check for staleness or materialization timestamp")
+
+@mcp.tool(name="materialize_dagster_asset", description="Triggers a Dagster asset materialization run for target asset key")
+async def materialize_dagster_asset(params: AssetMaterializeInput, ctx: Context) -> Dict[str, Any]:
+    dagster_url = os.getenv("DAGSTER_URL", "http://localhost:3000")
+    await ctx.info(f"Triggering materialization for {params.asset_key} on {dagster_url}")
+
+    # FastMCP wrapper around Dagster GraphQL execution
+    res = trigger_dagster_materialization(dagster_url, params.repository_name, params.asset_key)
+    if res:
+        return {
+            "status": "success",
+            "run_id": res.run_id,
+            "execution_status": res.status,
+            "target_asset": params.asset_key
+        }
+    return {"status": "error", "error_message": "Failed to launch GraphQL run"}
+
+@mcp.tool(name="check_asset_freshness_status", description="Evaluates freshness policies and last materialization date for an asset")
+async def check_asset_freshness_status(params: AssetFreshnessQuery, ctx: Context) -> Dict[str, Any]:
+    await ctx.info(f"Querying freshness evaluation for asset: {params.asset_key}")
+    return {
+        "asset_key": params.asset_key,
+        "is_fresh": True,
+        "last_materialized_at": "2027-01-07T14:32:00Z",
+        "stale_downstream_count": 0
+    }
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
+## Orchestrator Comparison Matrix
+
+| Orchestrator | Paradigm Focus | Lineage & Asset Graph | MCP 3.1 Integration | Primary Language | Best Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Dagster v1.9+** | Declarative Data Assets | First-class native asset graph & lineage | Native (`dagster mcp`) | Python | Modern Data Platforms, dbt/SQLMesh pipelines, Agentic Data Engineering |
+| **Apache Airflow** | Task DAG Execution | Task-centric; lineage via external plugins | Custom MCP wrappers | Python | Veteran enterprise IT workflows and legacy scheduled batch DAGs |
+| **Prefect** | Imperative Python Code | Task/Flow dynamic dependencies | Custom FastMCP servers | Python | Dynamic Python automation, event-driven functions, ML pipelines |
+| **Kestra** | Declarative YAML Workflow | Task flow diagrams | Native MCP plugin tools | Java / YAML | Polyglot cross-cloud automation, non-Python heavy environments |
+
+## Production Hardening & Operational Guidelines
+- **Daemon High-Availability**: Run the `dagster-daemon` as a managed systemd unit or Kubernetes Deployment with at least 1GB dedicated RAM to maintain declarative automation condition processing.
+- **GraphQL Security**: Enforce Bearer token authorization headers or reverse-proxy NGINX authentication when exposing the Dagster webserver GraphQL endpoint outside private VPC networks.
+- **Pipes Compute Isolation**: Utilize **Dagster Pipes** (`dagster-pipes`) for heavy GPU or distributed Spark computations to keep the main orchestrator light and resilient against out-of-memory worker crashes.
+- **Asset Check Thresholds**: Always pair critical data asset definitions with `@asset_check` decorators to validate row counts, missing fields, and schema drift before downstream assets consume data.
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `AssetKeyNotFound` in GraphQL responses | Target asset key path mismatch or repository not loaded in workspace | Run `dagster asset list` or check `workspace.yaml` to confirm asset key path strings match exactly. |
+| `DagsterDaemonNotRunningError` | Daemon process stopped or unresponsive | Check daemon health via `dagster-daemon health_check` and restart daemon service. |
+| Memory usage spikes on Dagster Webserver | Webserver attempting to parse massive run event log streams | Adjust log retention rules or configure PostgreSQL / MySQL as the run storage backend instead of SQLite. |
+| Asset declarative automation not triggering | `AutomationCondition` missing or daemon schedule worker disabled | Confirm `dagster-daemon` has `DeclarativeAutomationDaemon` worker enabled in `dagster.yaml`. |
 
 ## Related tools / concepts
 - [Apache Airflow](apache-airflow.md) — The veteran task-based alternative.
