@@ -152,7 +152,9 @@ qwen-image-cli batch-generate \
   --device cuda
 ```
 
-## Production FastMCP 3.1 Server Implementation
+## API examples
+
+### Production FastMCP 3.1 Server Implementation
 
 The following complete Python script establishes a **FastMCP 3.1** server (`mcp_qwen_image_pipeline.py`) that provides image generation tools to autonomous AI agents:
 

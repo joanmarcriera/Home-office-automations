@@ -5,6 +5,47 @@ Diskover is an open-source file indexer and data management tool that uses Elast
 ## What it is
 Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the early January 2027 ecosystem, it serves as the ground truth for agents managing large-scale data archives, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP specifications for automated storage queries.
 
+## Architecture Flowchart
+
+```
++-----------------------------------------------------------------------------------+
+|                            Diskover Crawling & Indexing Pipeline                  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                  [ Target Storage ]
+                        (NFS / SMB / Local NVMe / TrueNAS Datasets)
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                              Diskover Crawler Workers                             |
+|  - Directory Traversal & Stat Extraction                                         |
+|  - File Hash Calculation (xxHash / MD5)                                           |
+|  - MIME Type & File Metadata Parsing                                              |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                              Redis Task Queue / Cache                             |
+|  - Distributed Batch Queueing                                                     |
+|  - Worker Task State Synchronization                                             |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                              Elasticsearch 8.x Cluster                            |
+|  - Dynamic Mapping for Storage Records                                            |
+|  - Sub-second Full-text & Range Aggregations                                      |
++-----------------------------------------------------------------------------------+
+                     /                                  \
+                    /                                    \
+                   v                                      v
++------------------------------------+  +-------------------------------------------+
+|          Diskover Web UI           |  |       FastMCP 3.1 Server / API Gateway     |
+| - Treemaps & Disk Usage Charts     |  | - Tool Calling: /search_files, /analyze   |
+| - Visual Diff & Duplicate Scanners |  | - Structured Pydantic v2 Schema Output    |
++------------------------------------+  +-------------------------------------------+
+```
+
 ## What problem it solves
 It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/ai_knowledge/openai.md), and [Claude 5.1](../tools/providers/anthropic.md) to make informed decisions about data retention.
 
@@ -31,6 +72,18 @@ In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides t
 - **Scheduled, Not Real-time**: It provides a snapshot in time; changes to the file system aren't reflected until the next crawl.
 - **Complex Setup**: Setting up the worker/web/ES stack can be daunting for beginners.
 
+## Storage Indexer Comparison Matrix
+
+| Feature / Metric | Diskover | GrandPerspective | ncdu | WizTree / Everything | Czkawka |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Backend Storage** | Elasticsearch 8.x | In-Memory (Local) | In-Memory (Local) | MFT / Local Memory | SQLite / Local Memory |
+| **Multi-Node / Heterogeneous** | Yes (NFS/SMB/S3) | Local Only | Local Only | Windows MFT / SMB | Local Only |
+| **Agent / MCP 3.1 Integration** | Native via FastMCP | No | No | Windows API Only | CLI Only |
+| **Scale Limit** | 100M+ Records | ~5M Files | ~10M Files | 10M+ Files (Local) | ~5M Files |
+| **Search Speed** | < 50ms (Indexed) | Real-time scan | Real-time scan | Sub-second (MFT) | Minutes (Full Scan) |
+| **Duplicate Detection** | xxHash / MD5 in ES | None | None | None | Per-hash comparison |
+| **Resource Overhead** | High (ES + Redis) | Very Low | Minimal | Very Low | Low |
+
 ## When to use it
 - When you need to gain visibility into large, heterogeneous storage environments.
 - To identify "dark data," such as old, large, or duplicate files that are wasting space.
@@ -48,7 +101,7 @@ In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides t
 The recommended way to run Diskover is using Docker Compose, as it handles both the Diskover application and the required Elasticsearch instance.
 
 ```yaml
-version: '2'
+version: '3.8'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
@@ -59,7 +112,7 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
   diskover:
-    image: lscr.io/linuxserver/diskover
+    image: lscr.io/linuxserver/diskover:latest
     environment:
       - PUID=1000
       - PGID=1000
@@ -112,54 +165,104 @@ Diskover stores its data in Elasticsearch, allowing you to use the standard Elas
 curl -X GET "http://elasticsearch:9200/diskover-data/_search?q=filesize:>1073741824&pretty"
 ```
 
-### Python example to query indices with Pydantic v2 Validation
-In early January 2027, integrating Storage Intelligence into AI pipelines relies on structured schemas. Below is an asynchronous Python snippet retrieving and validating indices and storage statistics from Diskover's backend Elasticsearch engine using **Pydantic v2**:
+### FastMCP 3.1 FastMCP Server Implementation with Pydantic v2
+In early January 2027, integrating Storage Intelligence into AI agent pipelines relies on FastMCP 3.1 server tools. Below is an asynchronous FastMCP tool exposing file metadata queries and duplicate identification with strict **Pydantic v2** validation:
 
 ```python
 import asyncio
 import httpx
-from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
 
-class ElasticsearchIndexModel(BaseModel):
-    health: str = Field(..., description="The status of the Elasticsearch index (green, yellow, red)")
-    status: str = Field(..., description="The open/close status of the index")
-    index: str = Field(..., description="Name of the index")
-    docs_count: Optional[int] = Field(None, alias="docs.count", description="Number of indexed file objects")
-    store_size: Optional[str] = Field(None, alias="store.size", description="Raw text representing total size on disk")
+# Initialize FastMCP Server for Diskover Storage Intelligence
+mcp = FastMCP("Diskover Storage Intelligence", version="3.1.0")
 
-    @field_validator("docs_count", mode="before")
+class FileSearchQuery(BaseModel):
+    index_name: str = Field(default="diskover-*", description="Elasticsearch index pattern")
+    min_size_bytes: int = Field(default=104857600, ge=0, description="Minimum file size in bytes (default 100MB)")
+    extension: Optional[str] = Field(None, description="File extension filter (e.g., 'iso', 'mp4', 'gguf')")
+    limit: int = Field(default=50, ge=1, le=500, description="Maximum number of file records returned")
+
+class FileMetadataRecord(BaseModel):
+    filename: str = Field(..., description="Base filename")
+    filepath: str = Field(..., description="Absolute file path")
+    filesize: int = Field(..., description="File size in bytes")
+    extension: str = Field(default="", description="File extension")
+    last_modified: str = Field(..., description="ISO timestamp of last modification")
+    owner: str = Field(default="unknown", description="POSIX file owner")
+
+    @field_validator("filename", mode="before")
     @classmethod
-    def parse_docs_count(cls, value):
-        if value is None or value == "null" or value == "":
-            return 0
-        try:
-            return int(value)
-        except ValueError:
-            return 0
+    def sanitize_filename(cls, value: str) -> str:
+        return value.strip() if value else "unnamed_file"
 
-async def query_diskover_indices(es_host: str) -> List[ElasticsearchIndexModel]:
+class StorageSummaryResponse(BaseModel):
+    total_files_found: int = Field(..., description="Total files matching query criteria")
+    total_bytes: int = Field(..., description="Aggregated size in bytes")
+    records: List[FileMetadataRecord] = Field(..., description="Validated list of file objects")
+
+@mcp.tool()
+async def search_storage_files(query: FileSearchQuery, es_host: str = "http://localhost:9200") -> StorageSummaryResponse:
+    """Search for indexed files across Diskover Elasticsearch clusters with size and extension filters."""
+    must_clauses = [{"range": {"filesize": {"gte": query.min_size_bytes}}}]
+    if query.extension:
+        must_clauses.append({"term": {"extension.keyword": query.extension.lower()}})
+
+    search_payload = {
+        "size": query.limit,
+        "query": {"bool": {"must": must_clauses}},
+        "sort": [{"filesize": {"order": "desc"}}]
+    }
+
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"{es_host}/_cat/indices?format=json")
-        response.raise_for_status()
-        raw_list = response.json()
+        resp = await client.post(f"{es_host}/{query.index_name}/_search", json=search_payload)
+        resp.raise_for_status()
+        data = resp.json()
 
-        # Validates and parses the Elasticsearch metadata payload using Pydantic v2
-        return [ElasticsearchIndexModel.model_validate(item) for item in raw_list]
+        hits = data.get("hits", {}).get("hits", [])
+        total_count = data.get("hits", {}).get("total", {}).get("value", len(hits))
+        records = []
+        sum_bytes = 0
 
-async def main():
-    try:
-        indices = await query_diskover_indices("http://localhost:9200")
-        diskover_indices = [idx for idx in indices if idx.index.startswith("diskover-")]
-        print(f"Discovered {len(diskover_indices)} Diskover index/indices:")
-        for idx in diskover_indices:
-            print(f"- Index: {idx.index} | Health: {idx.health} | Files Indexed: {idx.docs_count} | Storage: {idx.store_size}")
-    except Exception as e:
-        print(f"Validation failed: {e}")
+        for hit in hits:
+            source = hit.get("_source", {})
+            fsize = source.get("filesize", 0)
+            sum_bytes += fsize
+            records.append(FileMetadataRecord(
+                filename=source.get("name", "unknown"),
+                filepath=source.get("parent_path", "") + "/" + source.get("name", ""),
+                filesize=fsize,
+                extension=source.get("extension", ""),
+                last_modified=source.get("mtime", ""),
+                owner=source.get("owner", "unknown")
+            ))
+
+        return StorageSummaryResponse(
+            total_files_found=total_count,
+            total_bytes=sum_bytes,
+            records=records
+        )
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run()
 ```
+
+## Troubleshooting & Error Remediation
+
+| Issue / Error | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Elasticsearch heap out of memory` | ES heap exceeded default 1GB allocation during deep crawls | Set `ES_JAVA_OPTS=-Xms4g -Xmx4g` in Docker Compose environment settings. |
+| `Crawler worker lockup on NFS` | NFS stale file handle or server timeout during deep directory traversal | Mount NFS with `timeo=600,retrans=2,hard,noresvport` and enable `--threads 4` in diskover.py. |
+| `Web UI login failure (401)` | Default admin database uninitialized or secret key mismatch | Exec into container and run `python3 /app/diskover/diskover_web_init.py --reset-admin`. |
+| `Index mapping conflict error` | Upgraded ES schema without reindexing legacy diskover indexes | Run index alias alias migration: `curl -X POST "http://localhost:9200/_reindex"`. |
+| `FastMCP query timeout (>30s)` | ES query searching multi-terabyte index without proper field mappings | Add explicit field mappings for `filesize` and `extension.keyword` before crawling. |
+
+## Production Guardrails & Security
+
+1. **Read-Only Storage Mounting**: Mount target storage datasets into Diskover worker containers using the `:ro` (read-only) flag to guarantee zero accidental modification or file deletion during indexing.
+2. **Elasticsearch Network Isolation**: Bind Elasticsearch ports (`9200`, `9300`) to internal Docker network aliases or `127.0.0.1` unless authentication (X-Pack or reverse proxy) is strictly enabled.
+3. **Scheduled Off-Peak Crawls**: Configure cron jobs to trigger `diskover.py` during low-usage hours (e.g., 02:00 AM) to minimize IOPS contention on active production NAS pools.
 
 ## Related tools / concepts
 - [Storj](storj.md) — Targeted off-site storage for large, cold datasets identified by Diskover.
