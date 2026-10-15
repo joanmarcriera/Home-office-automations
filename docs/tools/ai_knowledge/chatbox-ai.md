@@ -27,6 +27,29 @@ flowchart TD
     G --> H[iOS / Android Chatbox App]
 ```
 
+## Multi-Device Encrypted Sync & MCP Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                            CHATBOX DESKTOP CLIENT (ELECTRON)                      |
+|  +---------------------------+  +--------------------------+  +----------------+  |
+|  | Multi-Model Provider Hub  |  | FastMCP 3.1 Host Module  |  | Artifact View  |  |
+|  +---------------------------+  +--------------------------+  +----------------+  |
++-----------------------------------------------------------------------------------+
+       | (BYOK Cloud API)                   | (Local MCP Tools)              | (E2EE Sync)
+       v                                    v                                v
++------------------+             +--------------------+            +------------------+
+| Anthropic /      |             | FastMCP 3.1 Server |            | Encrypted Cloud  |
+| OpenAI / Gemini  |             | (Local Py/Node)    |            | Sync Relay       |
++------------------+             +--------------------+            +------------------+
+                                                                             |
+                                                                             v
+                                                                   +------------------+
+                                                                   | Chatbox Mobile   |
+                                                                   | (iOS / Android)  |
+                                                                   +------------------+
+```
+
 ## Typical use cases
 
 - **Multi-Device Research**: Initiating complex technical prompts on a desktop workstation and continuing research seamlessly on mobile devices via end-to-end encrypted session synchronization.
@@ -43,6 +66,17 @@ flowchart TD
 - **Interactive Artifact Viewer**: Clean side-by-side split view rendering generated code, HTML previews, and visual diagrams.
 - **Privacy First (BYOK)**: User API keys and conversation histories remain stored locally or securely encrypted in cloud sync without being used for model training.
 - **Custom System Prompts**: Configurable agent persona templates, custom temperature controls, and per-chat system message overrides.
+
+## Feature Matrix & Provider Capabilities
+
+| Client Feature / Provider | Anthropic Claude | OpenAI GPT-4o/5.6 | Google Gemini 2.5 | Ollama Local Engine |
+| :--- | :--- | :--- | :--- | :--- |
+| **Authentication Type** | BYOK (API Key) | BYOK (API Key) | BYOK (API Key) | Local HTTP Endpoint |
+| **FastMCP 3.1 Integration** | Full Support | Full Support | Full Support | Native Tools Support |
+| **Vision / Multimodal** | Images / PDF | Images / Audio / PDF | Images / Video / Audio | Image Models (llava) |
+| **Streaming Response** | SSE Stream | SSE Stream | SSE Stream | Local Chunked Stream |
+| **Offline Execution** | No | No | No | 100% Offline |
+| **Cost Profile** | Pay-per-token | Pay-per-token | Pay-per-token / Free quota | Zero Incremental Cost |
 
 ## Limitations
 
@@ -96,36 +130,48 @@ npx -y @modelcontextprotocol/server-memory
 
 ## API examples
 
-### FastMCP 3.1 Server for Chatbox AI Tool Calls
-The following Python script defines a FastMCP 3.1 server that provides filesystem search tools directly to Chatbox AI.
+### FastMCP 3.1 Server for Chatbox AI Session & Tool Calls
+The following Python script defines a FastMCP 3.1 server that provides session management and filesystem search tools directly to Chatbox AI with Pydantic v2 validation.
 
 ```python
 import os
+import json
+from typing import List, Optional
 from glob import glob
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 # Initialize FastMCP Server for Chatbox integration
-mcp = FastMCP("Chatbox Desktop Helper")
+mcp = FastMCP("Chatbox Desktop Helper", version="3.1")
 
 class FileSearchQuery(BaseModel):
     directory: str = Field(..., description="Target directory path to search")
     file_pattern: str = Field("*.md", description="Glob pattern for filtering files")
+    max_results: int = Field(20, ge=1, le=100, description="Maximum match count limit")
+
+    @field_validator("directory")
+    def validate_dir(cls, v: str) -> str:
+        if not os.path.exists(v):
+            raise ValueError(f"Directory path '{v}' does not exist on local filesystem.")
+        return v
 
 class FileSearchResult(BaseModel):
-    matched_files: list[str]
+    matched_files: List[str]
     total_matches: int
+    truncated: bool
 
 @mcp.tool()
-def search_local_files(query: FileSearchQuery) -> FileSearchResult:
-    """Search local desktop directory files for matching patterns."""
+def search_local_files(query: FileSearchQuery) -> str:
+    """Search local desktop directory files for matching patterns and return structured JSON."""
     search_path = os.path.join(query.directory, query.file_pattern)
     matches = glob(search_path, recursive=True)
 
-    return FileSearchResult(
-        matched_files=matches[:20],
-        total_matches=len(matches)
+    result = FileSearchResult(
+        matched_files=matches[:query.max_results],
+        total_matches=len(matches),
+        truncated=len(matches) > query.max_results
     )
+    return result.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     # Runs HTTP SSE endpoint compatible with Chatbox MCP host settings
@@ -187,6 +233,20 @@ config = validate_config(raw_data)
 if config:
     print(f"Validated configuration for active profile: {config.active_profile}")
 ```
+
+## Diagnostic & Operational Troubleshooting
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **MCP Connection Refused (Port 3000)** | Local FastMCP 3.1 server process is not running or blocked by firewall. | Verify server status using `curl http://localhost:3000/mcp` and check local port. |
+| **API Key Decryption Error** | Key store corrupted or platform keytar permission denied. | Re-enter provider API keys under Chatbox Model Settings. |
+| **E2EE Sync Mismatch** | Client encryption keys differ across synced devices. | Re-sync passphrase across desktop and mobile devices via QR code scan. |
+| **Ollama CORS Blocking** | Ollama local server rejecting requests from Chatbox app origin. | Start Ollama with `OLLAMA_ORIGINS="*" ollama serve`. |
+
+## Operational Hardening & Privacy Guardrails
+- **Zero Model Training**: Direct BYOK connections ensure Anthropic and OpenAI do not use customer inputs for training models.
+- **Local Key Storage**: API secrets are saved in platform-native secure keychains (macOS Keychain, Windows Credential Manager).
+- **FastMCP Tool Permission Gate**: Chatbox prompts for explicit user confirmation before executing any write or system tool call.
 
 ## Related tools / concepts
 

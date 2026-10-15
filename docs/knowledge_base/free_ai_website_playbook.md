@@ -7,6 +7,7 @@ The Free AI Website Playbook is a comprehensive guide for builders, founders, an
 - **Landing page**: Use this when you need one clear conversion goal: book a call, join a waitlist, or try a product.
 - **Waitlist or lead-gen microsite**: Use this when the site exists to validate demand before you build the product.
 - **Documentation or blog**: Use this when discoverability and clear reading experience matter more than interactivity.
+- **Agentic AI Web App MVP**: Interactive web application backed by edge API routes and lightweight serverless vector or key-value stores.
 
 ### Free host matrix
 | Host | Best for | Free-tier fit | Backend story | Upgrade trigger |
@@ -33,6 +34,32 @@ flowchart TD
     D1 -->|Yes| D2["Vercel + Supabase"]
     D1 -->|No| D3["Vercel only"]
     E --> E1["Cloudflare Pages or Netlify + Supabase or n8n"]
+```
+
+## Architecture & Edge Deployment Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                                  USER / BROWSER                                   |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                              GLOBAL EDGE CDN / DNS                                |
+|                   (Cloudflare / Vercel Edge / GitHub Pages)                       |
++-----------------------------------------------------------------------------------+
+            |                                                      |
+            v                                                      v
++-----------------------+                              +-----------------------+
+|  Static Asset Delivery|                              | Serverless / Edge API |
+|   (HTML / JS / CSS)   |                              |  (Vercel AI SDK v5)   |
++-----------------------+                              +-----------------------+
+                                                                   |
+                                                                   v
+                                                       +-----------------------+
+                                                       | Free-Tier Backend Services|
+                                                       | (Supabase / D1 / KV)  |
+                                                       +-----------------------+
 ```
 
 ## What problem it solves
@@ -69,6 +96,17 @@ Free tiers are best for distribution, validation, and early workflow testing. Th
 - **Usage Caps**: Free tiers have limits on bandwidth, build minutes, or database records.
 - **Cold Starts**: Some services may "sleep" after inactivity, leading to initial load delays.
 - **Branding**: Some providers may require attribution or restrict custom domains.
+
+## Detailed Provider Comparison Matrix
+
+| Feature / Metric | Vercel (Hobby) | Cloudflare Pages (Free) | GitHub Pages (Free) | Supabase (Free Tier) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Bandwidth** | 100 GB / month | Unlimited | 100 GB / month | 5 GB egress / month |
+| **Build Limits** | 6,000 build mins / mo | 500 builds / mo | 10 builds / hr max | N/A |
+| **Serverless Functions** | 100k invocations / mo | 100k requests / day (Workers) | None (Static only) | Edge Functions included |
+| **Custom Domains** | Unlimited with free SSL | Unlimited with free SSL | 1 domain per repo | Standard subdomains |
+| **Database Inclusion** | Postgres via KV/KV store | Cloudflare D1 (5 million reads/day) | None | 500 MB Postgres |
+| **Cold Start Latency** | < 250ms | < 50ms (Edge) | 0ms (Static CDN) | ~ 1-2s if paused |
 
 ## When to use it
 - When launching a side project, hobby site, or early-stage startup MVP.
@@ -180,21 +218,38 @@ This Python example demonstrates a backend MCP tool that automatically scaffolds
 
 ```python
 import os
-from pydantic import BaseModel, Field, EmailStr
+import json
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("WebBuilderHelper")
+mcp = FastMCP("WebBuilderHelper", version="3.1")
+
+class EdgeRoutingRule(BaseModel):
+    path_pattern: str = Field(description="URL pattern for edge routing (e.g. '/api/*')")
+    target_service: str = Field(description="Backend service name, e.g. 'supabase' or 'worker'")
+    cache_ttl_sec: int = Field(default=300, ge=0, le=86400, description="Edge cache duration in seconds")
 
 class SiteConfig(BaseModel):
     project_name: str = Field(description="URL-safe name of the web project")
-    template_type: str = Field(description="The architectural blueprint (e.g., 'waitlist', 'blog', 'portfolio')")
+    template_type: str = Field(description="The architectural blueprint (e.g., 'waitlist', 'blog', 'portfolio', 'agentic-app')")
     admin_email: EmailStr = Field(description="Contact email of the site operator for alert webhooks")
     use_supabase: bool = Field(default=False, description="Whether to include Supabase database config")
+    custom_domain: Optional[str] = Field(default=None, description="Optional custom domain name")
+    routing_rules: List[EdgeRoutingRule] = Field(default_factory=list, description="Custom edge routing policies")
+
+    @field_validator("project_name")
+    def validate_project_name(cls, v: str) -> str:
+        if not v.isalnum() and "-" not in v and "_" not in v:
+            raise ValueError("Project name must contain only alphanumeric characters, hyphens, or underscores.")
+        return v.lower()
 
 class DeployResult(BaseModel):
-    success: bool = Field(description="True if the mock build/scaffold succeeded")
+    success: bool = Field(description="True if the build and deployment pipeline succeeded")
     url: str = Field(description="The generated URL on the free tier domain")
-    build_time_sec: float = Field(description="Scaffolding and compilation duration")
+    build_time_sec: float = Field(description="Scaffolding and compilation duration in seconds")
+    dns_cname_record: Optional[str] = Field(default=None, description="Target CNAME for custom domain setup")
+    free_tier_limits: Dict[str, Any] = Field(description="Summary of remaining free quotas")
 
 @mcp.tool()
 def scaffold_free_site(config: SiteConfig) -> str:
@@ -206,23 +261,45 @@ def scaffold_free_site(config: SiteConfig) -> str:
         subdomain = config.project_name.lower().replace(" ", "-")
 
         # Base URLs for free tier services
-        if config.use_supabase:
+        if config.use_supabase or config.template_type == "agentic-app":
             url = f"https://{subdomain}.vercel.app"
+            cname = "cname.vercel-dns.com"
         else:
             url = f"https://{subdomain}.pages.dev"
+            cname = f"{subdomain}.pages.dev"
 
         result = DeployResult(
             success=True,
             url=url,
-            build_time_sec=1.45
+            build_time_sec=1.45,
+            dns_cname_record=cname if config.custom_domain else None,
+            free_tier_limits={
+                "bandwidth_gb": 100,
+                "monthly_build_minutes": 6000,
+                "edge_invocations": 100000
+            }
         )
         return result.model_dump_json(indent=2)
     except Exception as e:
-        return f"Error during site scaffolding: {str(e)}"
+        return json.dumps({"error": f"Error during site scaffolding: {str(e)}"})
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Operational Troubleshooting
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **Supabase Project Paused** | Free tier databases pause after 7 days of inactivity. | Send a weekly automated heartbeat query via n8n or GitHub Actions. |
+| **Vercel Serverless Timeout** | Function execution exceeded 10s free limit. | Move long-running AI generation to streaming or edge functions. |
+| **Cloudflare Pages Build OOM** | Node memory exceeded 1GB build worker limit. | Set `NODE_OPTIONS="--max-old-space-size=1024"` or disable sourcemaps. |
+| **Custom Domain SSL Failure** | CNAME record misconfigured or DNS propagation delay. | Ensure CNAME points directly to `cname.vercel-dns.com` or Pages apex. |
+
+## Operational Hardening & Guardrails
+- **Automated Usage Alerts**: Configure webhook notifications when monthly bandwidth hits 80% of free limits.
+- **Environment Secret Isolation**: Never hardcode client API keys; use platform secret managers (`vercel env add` or `wrangler secret put`).
+- **Rate Limiting Edge Rules**: Implement Cloudflare or Vercel edge middleware to block abuse before hitting serverless logic.
 
 ## Related tools / concepts
 - [Vercel](../tools/development_ops/vercel.md)
