@@ -12,6 +12,52 @@ It solves the "Black Box" transparency and latency problems of AI memory and con
 ## Where it fits in the stack
 This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the local development environment and frontier models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), providing a standardized system interface through tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) via the **FastMCP 3.1 Task Protocol**.
 
+## Filesystem-as-Interface Multi-Agent Pipeline Architecture
+
+```
+                       FILESYSTEM-AS-INTERFACE MULTI-AGENT ARCHITECTURE
+
+  ┌────────────────────────┐    ┌────────────────────────┐    ┌────────────────────────┐
+  │  Claude Code / Agent 1 │    │  Aider / Agent 2       │    │  Human Developer       │
+  └───────────┬────────────┘    └───────────┬────────────┘    └───────────┬────────────┘
+              │                             │                             │
+              └──────────────────────┬──────┴─────────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │    FastMCP 3.1 File Server   │
+                      │  - Path Traversal Shield     │
+                      │  - Read / Write / Diff Tools │
+                      │  - CRDT Workspace Locking    │
+                      └──────────────┬───────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │ Local Workspace Filesystem   │
+                      │  ├── CLAUDE.md (System Rules)│
+                      │  ├── AGENTS.md (Coordination)│
+                      │  ├── docs/ (Canonical State) │
+                      │  └── memory/ (Agent Context) │
+                      └──────────────┬───────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │   Git Version Control Engine │
+                      │  - Branch-Atomic Memory Sync │
+                      │  - Human Auditability & Diff │
+                      └──────────────────────────────┘
+```
+
+## SOTA Workspace Rule & Context Convention Matrix
+
+| File Convention | Primary Target Engine | Scope & Capabilities | Auditability | Sync Mechanism |
+| :--- | :--- | :--- | :--- | :--- |
+| `CLAUDE.md` | Claude Code / Claude Desktop | Project build rules, style guides, preferred CLI flags | 100% Human-readable Markdown | Git commit tracking |
+| `AGENTS.md` | Multi-Agent Orchestrators | Cross-agent boundaries, role assignments, safety policies | 100% Human-readable Markdown | Git commit / CRDT lock |
+| `.cursorrules` | Cursor IDE | Code style, framework instructions, linting constraints | Plain text / Markdown | Local IDE workspace sync |
+| `.windsurfrules` | Windsurf / Codeium Cascade | Workflow rules, tool permissions, step execution steps | Plain text / Markdown | Windsurf Cascade engine |
+| `SKILL.md` | FastMCP / Agent Skills | Tool schemas, procedural sub-tasks, execution scripts | YAML + Markdown | FastMCP dynamic server registration |
+
 ## Typical use cases
 - **Workspace Operating Rules (CLAUDE.md)**: Storing precise build commands, test patterns, linting constraints, and architectural guidelines for coding agents.
 - **Multi-Agent Coordination (AGENTS.md)**: Defining roles, execution domains, and boundary conditions for autonomous droids in a shared codebase.
@@ -59,6 +105,89 @@ cat CLAUDE.md
 
 # Scan workspace directories to map structural architecture
 find docs/knowledge_base/ -maxdepth 2 -type f
+
+# Query FastMCP 3.1 Filesystem Context Server
+mcp call filesystem_context read_file_safely '{"relative_path": "AGENTS.md"}'
+```
+
+## FastMCP 3.1 Filesystem Context Server Implementation
+
+The Python snippet below creates a complete **FastMCP 3.1** server for managing local filesystem context, featuring path security boundaries, git-aware searching, and structured markdown file manipulation tools.
+
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ValidationError
+from typing import Dict, Any, List, Optional
+import os
+import pathlib
+
+# Initialize FastMCP 3.1 Filesystem Context server
+mcp = FastMCP(
+    "filesystem-context-server",
+    instructions="FastMCP 3.1 server for safely managing agent workspace context files (CLAUDE.md, AGENTS.md, memory)."
+)
+
+WORKSPACE_ROOT = os.path.abspath(os.getcwd())
+
+class FileReadRequest(BaseModel):
+    relative_path: str = Field(..., description="Workspace relative path to file")
+    max_bytes: int = Field(default=50000, le=500000, description="Maximum bytes to read")
+
+class FileWriteRequest(BaseModel):
+    relative_path: str = Field(..., description="Workspace relative path to file")
+    content: str = Field(..., description="Content to write or append")
+    mode: str = Field(default="write", pattern="^(write|append)$", description="Write mode ('write' or 'append')")
+
+def resolve_safe_path(rel_path: str) -> pathlib.Path:
+    """Ensure path is within the designated workspace root boundary."""
+    abs_path = pathlib.Path(WORKSPACE_ROOT) / rel_path
+    resolved = abs_path.resolve()
+    if not str(resolved).startswith(WORKSPACE_ROOT):
+        raise PermissionError(f"Security Boundary Violation: Path '{rel_path}' attempts to traverse outside workspace root.")
+    return resolved
+
+@mcp.tool()
+async def read_workspace_context_file(request: FileReadRequest, ctx: Context) -> Dict[str, Any]:
+    """Safely read a markdown or configuration file from the workspace context directory."""
+    await ctx.info(f"Reading workspace context file: '{request.relative_path}'")
+    try:
+        target_path = resolve_safe_path(request.relative_path)
+        if not target_path.exists():
+            return {"error": f"File '{request.relative_path}' does not exist in workspace."}
+
+        with open(target_path, "r", encoding="utf-8") as f:
+            content = f.read(request.max_bytes)
+
+        return {
+            "relative_path": request.relative_path,
+            "bytes_read": len(content.encode("utf-8")),
+            "content": content
+        }
+    except Exception as err:
+        return {"error": "Failed to read context file", "details": str(err)}
+
+@mcp.tool()
+async def write_workspace_context_file(request: FileWriteRequest, ctx: Context) -> Dict[str, Any]:
+    """Safely write or append content to a workspace context file (e.g. CLAUDE.md, AGENTS.md)."""
+    await ctx.info(f"Writing mode='{request.mode}' to file: '{request.relative_path}'")
+    try:
+        target_path = resolve_safe_path(request.relative_path)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+
+        file_mode = "w" if request.mode == "write" else "a"
+        with open(target_path, file_mode, encoding="utf-8") as f:
+            f.write(request.content)
+
+        return {
+            "status": "success",
+            "relative_path": request.relative_path,
+            "bytes_written": len(request.content.encode("utf-8"))
+        }
+    except Exception as err:
+        return {"error": "Failed to write context file", "details": str(err)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -159,6 +288,16 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Failed to validate rules: {e}")
 ```
+
+## Operational Guardrails & Troubleshooting
+
+| Operational Issue | Root Cause | Impact | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Path Traversal Security Risk** | Unvalidated user or LLM input relative paths (e.g. `../../etc/passwd`) | Arbitrary filesystem access outside workspace root | Enforce strict canonical path boundary checks (`Path.resolve().startswith(WORKSPACE_ROOT)`). |
+| **Concurrent Edit Collisions** | Multiple parallel agents writing to `memory/state.json` simultaneously | File corruption and race conditions | Implement file locking primitives (`fcntl.flock` or CRDT-based workspace synchronization). |
+| **Context Window Exhaustion** | Including massive logs or full source dumps into system context | Degraded agent reasoning & expensive token usage | Enforce file size caps (e.g. max 50KB) and mandate `ripgrep` / snippet extraction rather than full file dumps. |
+| **Context Drift across Git Branches** | Rule files (`CLAUDE.md`) modified locally without committing to git | Inconsistent agent behavior on pull requests | Enforce pre-commit git checks that verify `CLAUDE.md` and `AGENTS.md` are synchronized with git HEAD. |
+| **Encoding Failures** | Non-UTF8 files (binary, images, compressed archives) read as plain text | Unhandled exceptions in MCP server tools | Perform file mime-type checking before reading and return base64 binary structures for non-text files. |
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md)

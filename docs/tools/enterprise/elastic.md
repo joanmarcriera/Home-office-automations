@@ -12,6 +12,58 @@ It solves the problem of finding "needles in haystacks" across massive datasets.
 ## Where it fits in the stack
 **Data & Storage Layer / Enterprise AI Search**. It acts as the primary "Context Layer" for agentic workflows, providing high-performance retrieval of both structured and unstructured data. In early 2027, it serves as a central hub for context management across multiple SOTA models (including Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL), integrating smoothly via standard FastMCP 3.1 Task Protocol APIs.
 
+## Architecture & Enterprise Hybrid Search Flow
+
+```
+                                ELASTICSEARCH 9.6+ HYBRID AI SEARCH ARCHITECTURE
+
+  ┌────────────────────────┐    ┌────────────────────────┐    ┌────────────────────────┐
+  │  Claude 5.6 / Agents   │    │ FastMCP 3.1 Tools API  │    │  Log Ingestion Pipeline│
+  └───────────┬────────────┘    └───────────┬────────────┘    └───────────┬────────────┘
+              │                             │                             │
+              └──────────────────────┬──────┴─────────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │ Elasticsearch Query Frontend │
+                      │  - ES|QL Pipe Parser         │
+                      │  - Semantic Text Inference   │
+                      └──────────────┬───────────────┘
+                                     │
+            ┌────────────────────────┴────────────────────────┐
+            ▼                                                 ▼
+  ┌────────────────────────┐                        ┌────────────────────────┐
+  │ BM25 Lexical Engine    │                        │ Dense Vector Engine    │
+  │ - Inverted Index       │                        │ - HNSW Vector Index    │
+  │ - BM25 Scoring         │                        │ - kNN Vector Retriever │
+  └───────────┬────────────┘                        └───────────┬────────────┘
+              │                                                 │
+              └──────────────────────┬──────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │  Reciprocal Rank Fusion (RRF)│
+                      │  - Rank Window: 100          │
+                      │  - Rank Constant: 60         │
+                      └──────────────┬───────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │   Pydantic v2 Result Stream  │
+                      │   - Strictly Validated RAG   │
+                      └──────────────────────────────┘
+```
+
+## SOTA Vector & Search Platform Comparison
+
+| Platform / Database | Vector Index Type | Hybrid RRF Support | Query Language | Built-in Inference | Self-Hosting Footprint |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Elasticsearch 9.6+** | HNSW + Quantization | Native (Reciprocal Rank Fusion) | ES|QL + JSON DSL | Native (`semantic_text`) | Medium/High (4GB+ RAM) |
+| **Qdrant** | HNSW / Quantized | Manual payload combining | REST / gRPC Filter DSL | External via Proxy | Low/Medium (512MB+ RAM) |
+| **Milvus** | HNSW / IVF_FLAT | Hybrid Search API | SQL-like filtering | External models | High (Multi-node microservices) |
+| **Pinecone** | Proprietary Cloud | Hybrid sparse-dense | Proprietary API | External Embeddings | Cloud-only (Managed) |
+| **pgvector (Supabase)** | HNSW / IVFFlat | Custom SQL RRF ranking | Standard PostgreSQL | External / PL/Python | Low/Medium (Depends on Postgres) |
+
 ## Typical use cases
 - **Production RAG**: Storing and retrieving chunks of data for LLM context using hybrid search (BM25 + kNN).
 - **ES|QL Analytics**: Using the pipe-based query language to filter, transform, and aggregate data in a single command, now supporting **subqueries** and JSON object expansions.
@@ -80,6 +132,97 @@ curl -X DELETE "http://localhost:9200/old-index"
 
 # Register the Elasticsearch FastMCP 3.1 server in the local MCP CLI tool
 mcp register --command "npx" --args "-y @modelcontextprotocol/server-elasticsearch --url http://localhost:9200"
+```
+
+## FastMCP 3.1 Elasticsearch Server Implementation
+
+The snippet below demonstrates a production-grade **FastMCP 3.1** server that exposes Elasticsearch v9.6+ hybrid search and ES|QL analytical querying tools to autonomous AI agents.
+
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ValidationError
+from typing import Dict, Any, List, Optional
+import httpx
+
+# Initialize FastMCP 3.1 Elasticsearch server
+mcp = FastMCP(
+    "elasticsearch-mcp-server",
+    instructions="FastMCP 3.1 server for querying Elasticsearch 9.6+ indices using hybrid RRF search and ES|QL."
+)
+
+ELASTICSEARCH_URL = "http://localhost:9200"
+
+class EsqlQueryRequest(BaseModel):
+    query: str = Field(..., description="ES|QL query string (e.g. 'FROM logs-* | WHERE level == \"error\" | LIMIT 10')")
+    format: str = Field(default="json", description="Response format (json, csv, txt)")
+
+class HybridSearchRequest(BaseModel):
+    index: str = Field(..., description="Target Elasticsearch index name")
+    query_text: str = Field(..., description="Text query to search semantically and lexically")
+    vector_field: str = Field(default="vector_field", description="Field name storing dense vectors")
+    top_k: int = Field(default=10, ge=1, le=100, description="Number of results to return")
+
+@mcp.tool()
+async def execute_esql_query(request: EsqlQueryRequest, ctx: Context) -> Dict[str, Any]:
+    """Execute a pipe-based ES|QL query against Elasticsearch 9.6+."""
+    await ctx.info(f"Executing ES|QL query: {request.query}")
+    endpoint = f"{ELASTICSEARCH_URL}/_query"
+    payload = {"query": request.query}
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(endpoint, json=payload, headers={"Content-Type": "application/json"}, timeout=10.0)
+            if res.status_code != 200:
+                return {"error": f"Elasticsearch HTTP {res.status_code}", "details": res.text}
+            return res.json()
+        except Exception as err:
+            return {"error": "Failed to connect to Elasticsearch", "details": str(err)}
+
+@mcp.tool()
+async def execute_hybrid_rrf_search(request: HybridSearchRequest, ctx: Context) -> Dict[str, Any]:
+    """Perform a Reciprocal Rank Fusion (RRF) hybrid search combining BM25 keyword matching and dense kNN vector retrieval."""
+    await ctx.info(f"Executing Hybrid RRF search on index '{request.index}' for query: {request.query_text}")
+    endpoint = f"{ELASTICSEARCH_URL}/{request.index}/_search"
+
+    rrf_payload = {
+        "size": request.top_k,
+        "retriever": {
+            "rrf": {
+                "retrievers": [
+                    {
+                        "standard": {
+                            "query": { "match": { "text": request.query_text } }
+                        }
+                    },
+                    {
+                        "knn": {
+                            "field": request.vector_field,
+                            "query_vector_builder": {
+                                "text_embedding": {
+                                    "model_id": "my-embedding-model",
+                                    "model_text": request.query_text
+                                }
+                            }
+                        }
+                    }
+                ],
+                "rank_window_size": 100,
+                "rank_constant": 60
+            }
+        }
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(endpoint, json=rrf_payload, headers={"Content-Type": "application/json"}, timeout=10.0)
+            if res.status_code != 200:
+                return {"error": f"Elasticsearch HTTP {res.status_code}", "details": res.text}
+            return res.json()
+        except Exception as err:
+            return {"error": "Failed to connect to Elasticsearch", "details": str(err)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -167,6 +310,16 @@ try:
 except ValidationError as e:
     print(f"Elasticsearch Search Validation failed with errors: {e.json()}")
 ```
+
+## Operational Guardrails & Troubleshooting
+
+| Operational Issue | Root Cause | Impact | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **CircuitBreakerException (Data Too Large)** | JVM Heap exhaustion caused by large vector memory requirements | Cluster fails queries and drops nodes | Adjust ES_JAVA_OPTS to set heap size to 50% of system RAM (max 32GB) and enable byte quantization for vector fields. |
+| **High Vector Indexing Latency** | HNSW graph construction under heavy concurrent write loads | Slow ingestion and drop in indexing throughput | Increase `index.translog.flush_threshold_size` and defer HNSW indexing during bulk loading using deferred vector indices. |
+| **RRF Ranking Inconsistency** | Mismatched field mappings across shards or unnormalized BM25 scores | Sub-optimal ranking in hybrid search results | Set explicit `rank_window_size` (e.g. 100) and ensure uniform mappings across all index shards. |
+| **Elasticsearch Out of Memory (OOM) Kill** | Docker container memory limit hit due to unmapped off-heap memory | Process killed by OS kernel | Set Docker memory limit higher than ES JVM heap (e.g., 8GB container limit for a 4GB JVM heap). |
+| **ES|QL Query Syntax Errors** | Using deprecated JSON DSL syntax inside `_query` endpoints | Query returns 400 Bad Request | Ensure ES|QL queries follow pipe format (`FROM index | WHERE ... | LIMIT x`). |
 
 ## Related tools / concepts
 - [Coveo](coveo.md) — Enterprise-scale AI search alternative.
