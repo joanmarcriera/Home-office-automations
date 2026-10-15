@@ -1,5 +1,148 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-13
+
+## Digest fallback for 2026-10-13
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Anthropic is doing free publicity for GLM again](https://www.reddit.com/r/LocalLLaMA/comments/1x4ii8e/anthropic_is_doing_free_publicity_for_glm_again/) (r/LocalLLaMA)
+2. [Anyone feel like reverse-engineering CUDA?](https://www.reddit.com/r/LocalLLaMA/comments/1x4n6sg/anyone_feel_like_reverseengineering_cuda/) (r/LocalLLaMA)
+3. [Once again anthropic doing free marketing for open weight models](https://www.reddit.com/r/LocalLLaMA/comments/1x4cm73/once_again_anthropic_doing_free_marketing_for/) (r/LocalLLaMA)
+4. [It's been 2 months](https://www.reddit.com/r/LocalLLaMA/comments/1x4akj7/its_been_2_months/) (r/LocalLLaMA)
+5. [Intel "Crescent Island" GPU Gets D-Series Name, Supports Up to 480 GB of LPDDR5X](https://www.reddit.com/r/LocalLLaMA/comments/1x4g90u/intel_crescent_island_gpu_gets_dseries_name/) (r/LocalLLaMA)
+6. [Qwen released QwenGyre - RL framework for training AI agents on extremely long complex tasks](https://www.reddit.com/r/LocalLLaMA/comments/1x41myz/qwen_released_qwengyre_rl_framework_for_training/) (r/LocalLLaMA)
+7. [openbmb/MiniCPM-V-4.7-35B-A3B](https://www.reddit.com/r/LocalLLaMA/comments/1x47taj/openbmbminicpmv4735ba3b/) (r/LocalLLaMA)
+8. [I clustered two old Android phones to run a 27B LLM locally. Bypassed RAM limits via C++ RPC split and Hadamard Ternary math (No overheating)](https://www.reddit.com/r/LocalLLaMA/comments/1x4mrty/i_clustered_two_old_android_phones_to_run_a_27b/) (r/LocalLLaMA)
+9. [NVIDIA’s 9-Year-Old Tesla V100 Still Packs Some Inference Muscle; 4 GPUs On An NVLink Board Can Outperform M5 Ultra, DGX Spark In Various AI Benchmarks By Up To 230%](https://www.reddit.com/r/LocalLLaMA/comments/1x4mtzx/nvidias_9yearold_tesla_v100_still_packs_some/) (r/LocalLLaMA)
+10. [In 2030 owning a gpu cluster will be seen the same as owning a gun for home defense](https://www.reddit.com/r/LocalLLaMA/comments/1x47d7k/in_2030_owning_a_gpu_cluster_will_be_seen_the/) (r/LocalLLaMA)
+11. [Hope the software support is good, but -> Intel Crescent Island Squeezes 1.3 PFLOPs Of FP8 Into Just 350W As D270 Targets The Competition With Value-Oriented LPDDR5X Up To 480 GB](https://www.reddit.com/r/LocalLLaMA/comments/1x4n0bq/hope_the_software_support_is_good_but_intel/) (r/LocalLLaMA)
+12. [NVIDIA RTX 5080 24GB reportedly launching in Q1 2027, board partners still waiting for details](https://www.reddit.com/r/LocalLLaMA/comments/1x41n6l/nvidia_rtx_5080_24gb_reportedly_launching_in_q1/) (r/LocalLLaMA)
+13. [Qwen 3.8 Flash Next Q3 S - Benchmark creation](https://www.reddit.com/r/LocalLLaMA/comments/1x4h1c2/qwen_38_flash_next_q3_s_benchmark_creation/) (r/LocalLLaMA)
+14. [Decision 3.0: open, multimodal decision models from 0.6B to 27B. Ranks #1 on both Jev Decision Index boards](https://www.reddit.com/r/LocalLLaMA/comments/1x3th4p/decision_30_open_multimodal_decision_models_from/) (r/LocalLLaMA)
+15. [Boole-1.7B: A 1-bit Qwen3-1.7B model that outperforms Bonsai-1.7B](https://www.reddit.com/r/LocalLLaMA/comments/1x452zj/boole17b_a_1bit_qwen317b_model_that_outperforms/) (r/LocalLLaMA)
+16. [openbmb/MiniCPM-V-4.7-1B](https://www.reddit.com/r/LocalLLaMA/comments/1x492f9/openbmbminicpmv471b/) (r/LocalLLaMA)
+17. [Mac mini for running LLMs and AI agents 24/7: Prioritize RAM or CPU/GPU performance?](https://www.reddit.com/r/LocalLLaMA/comments/1x4ly8i/mac_mini_for_running_llms_and_ai_agents_247/) (r/LocalLLaMA)
+18. [How far are we from a local model being able to optimize it's own runtime stack?](https://www.reddit.com/r/LocalLLaMA/comments/1x4j70c/how_far_are_we_from_a_local_model_being_able_to/) (r/LocalLLaMA)
+19. [Built a VRAM scheduler (vramble) to automate model swapping on my local AI workstation](https://www.reddit.com/r/LocalLLaMA/comments/1x4ocgn/built_a_vram_scheduler_vramble_to_automate_model/) (r/LocalLLaMA)
+20. [Qwen3.8-27B vs Frontier vs Others](https://www.reddit.com/r/LocalLLaMA/comments/1x49pmn/qwen3827b_vs_frontier_vs_others/) (r/LocalLLaMA)
+21. [Running unsloth/Qwen3.8-27B-UD-IQ4_XS 262k q4_0 KV + vision on 16GB VRAM @ 80t/s and 1500pp](https://www.reddit.com/r/LocalLLaMA/comments/1x4cmfc/running_unslothqwen3827budiq4_xs_262k_q4_0_kv/) (r/LocalLLaMA)
+22. [Problems with Tesla V100 SXM2](https://www.reddit.com/r/LocalLLaMA/comments/1x4oma6/problems_with_tesla_v100_sxm2/) (r/LocalLLaMA)
+23. [I made an open-source AI leaderboard that shows the best models your machine can run](https://www.reddit.com/r/LocalLLaMA/comments/1x3wp8c/i_made_an_opensource_ai_leaderboard_that_shows/) (r/LocalLLaMA)
+24. [Any takers for local llm? NVIDIA’s CUDA Moat Is Accelerating RTX Spark Laptop Sales, Higher 128GB Unified Memory Options Belonging To Surface Laptop Ultra Already Out Of Stock](https://www.reddit.com/r/LocalLLaMA/comments/1x3ykyb/any_takers_for_local_llm_nvidias_cuda_moat_is/) (r/LocalLLaMA)
+25. [Explore DNA with DeepMind’s AlphaGenome and in-browser MedGemma 1.5 4B via WebGPU](https://www.reddit.com/r/LocalLLaMA/comments/1x4ec7b/explore_dna_with_deepminds_alphagenome_and/) (r/LocalLLaMA)
+26. [Hello Python 3.15, goodbye 3.10, and now I can use 3.11](https://simonwillison.net/2026/Oct/12/python-3-15/) (Simon Willison's Weblog)
+27. [How Anthropic’s Dynamic Workflows Coordinate Claude Agents](https://www.latent.space/p/claude-dynamic-workflows) (Latent Space)
+28. [“A major overhaul”: OpenCode 2.0 puts its terminal, desktop, and web apps on one shared service](https://thenewstack.io/opencode-2-shared-service/) (The New Stack)
+29. [GPUs on Kubernetes are bring-your-own-everything, starting with the bill](https://thenewstack.io/gpus-on-kubernetes/) (The New Stack)
+30. [Google paid $90,000 for this bug, then waited two months to fix it](https://thenewstack.io/google-devsite-rce-bounty/) (The New Stack)
+31. [Coding agents made building easy. Platform teams that build from scratch are 3.5x more likely to lack a strategy.](https://thenewstack.io/coding-agents-platform-teams/) (The New Stack)
+32. [Andrej Karpathy says only 5,000 people have seen what AI can really do](https://thenewstack.io/karpathy-levie-ai-capability-gap/) (The New Stack)
+33. [Claude Code found my app’s shared contract in two MCP calls. Then the records ran out.](https://thenewstack.io/claude-code-mcp-records/) (The New Stack)
+34. [Claude found 29,000 possible bugs in open source. Only 516 have been fixed.](https://thenewstack.io/anthropic-oss-scanner-vulnerabilities/) (The New Stack)
+35. [Vi Hart's Big Navier-Stokes Post](https://www.patreon.com/vihart/posts/vi-harts-big-171939430) (Lobsters — AI tag)
+36. [Spotify More Than Doubled Monthly Code Changes as AI Accelerated Development](https://www.infoq.com/news/2026/10/spotify-ai-quality-controls/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+37. [Article: When Should You Use Liquid Clustering? Benchmarking Lakehouse Layout Strategies](https://www.infoq.com/articles/liquid-clustering-lakehouse-layout/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+38. [Podcast: What Does It Really Mean To Program With AI: A Conversation with Joy Ebertz](https://www.infoq.com/podcasts/what-really-mean-program-ai/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+39. [Presentation: You Can't Trust Your AI Bill. And Neither Can I](https://www.infoq.com/presentations/ai-cloud-cost-economics/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+40. [Context Language Models: Self-Managing Context to Improve Performance and Reduce Compute Costs](https://www.infoq.com/news/2026/10/context-language-models/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+41. [Build a morning AI news brief with You.com, Jev, and n8n](https://blog.n8n.io/spotlight-you-com/) (n8n Blog)
+42. [11 Best DevOps Automation Tools for Engineering Teams](https://blog.n8n.io/devops-automation-tools/) (n8n Blog)
+43. [I turned my security cameras into a backyard bird counter with BirdNET-Go, and put the results on e-ink frames](https://www.reddit.com/r/homeassistant/comments/1x4k946/i_turned_my_security_cameras_into_a_backyard_bird/) (r/homeassistant)
+44. [KeyBridge 2.0 Is Finally Here!](https://www.reddit.com/r/homeassistant/comments/1x47pi5/keybridge_20_is_finally_here/) (r/homeassistant)
+45. [Sound password for Home Assistant](https://www.reddit.com/r/homeassistant/comments/1x4l5of/sound_password_for_home_assistant/) (r/homeassistant)
+46. [Unifi Network 11 - Adds Matter / Thread Support](https://www.reddit.com/r/homeassistant/comments/1x43rmo/unifi_network_11_adds_matter_thread_support/) (r/homeassistant)
+47. [NesPanel – a Home Assistant wall controller with a rotary encoder](https://www.reddit.com/r/homeassistant/comments/1x4d40e/nespanel_a_home_assistant_wall_controller_with_a/) (r/homeassistant)
+48. [1 year of Home Assistant – finally happy with my dashboard](https://www.reddit.com/r/homeassistant/comments/1x4dhbc/1_year_of_home_assistant_finally_happy_with_my/) (r/homeassistant)
+49. [I just created a custom Card for my Renault R5, you may be interested](https://www.reddit.com/r/homeassistant/comments/1x447m5/i_just_created_a_custom_card_for_my_renault_r5/) (r/homeassistant)
+50. [Finally a dashboard that's both pretty and useful, part 2](https://www.reddit.com/r/homeassistant/comments/1x40wt3/finally_a_dashboard_thats_both_pretty_and_useful/) (r/homeassistant)
+51. [Reliability: Home Assistant vs Habitat (excluding hardware)](https://www.reddit.com/r/homeassistant/comments/1x4p099/reliability_home_assistant_vs_habitat_excluding/) (r/homeassistant)
+52. [Volkswagen shut down We Connect Go, so my OBD2 app now sends trip start, trip end and car data to my own Home Assistant](https://www.reddit.com/r/homeassistant/comments/1x46iws/volkswagen_shut_down_we_connect_go_so_my_obd2_app/) (r/homeassistant)
+53. [Tested the new Sonoff SNZB-09P Zigbee siren with Z2M and ZHA](https://www.reddit.com/r/homeassistant/comments/1x466do/tested_the_new_sonoff_snzb09p_zigbee_siren_with/) (r/homeassistant)
+54. [Wall mount for Lenovo Tab M10 FHD Plus with inbuilt charging.](https://www.reddit.com/r/homeassistant/comments/1x4lej3/wall_mount_for_lenovo_tab_m10_fhd_plus_with/) (r/homeassistant)
+55. [I made a set of cyberpunk/neon cards for Home Assistant: real WebGL rain on the glass, nixie tubes, a fluid-sim climate card (free, MIT, HACS)](https://www.reddit.com/r/homeassistant/comments/1x4bsb4/i_made_a_set_of_cyberpunkneon_cards_for_home/) (r/homeassistant)
+56. [My Weather Dashboard](https://www.reddit.com/r/homeassistant/comments/1x40aq9/my_weather_dashboard/) (r/homeassistant)
+57. [LED replacement for incandescent - which create the same effect?](https://www.reddit.com/r/homeassistant/comments/1x44euf/led_replacement_for_incandescent_which_create_the/) (r/homeassistant)
+58. [I just wanted easy timelapses from my Frigate cameras… and got a little carried away (free desktop app, beta)](https://www.reddit.com/r/homeassistant/comments/1x4kat9/i_just_wanted_easy_timelapses_from_my_frigate/) (r/homeassistant)
+59. [I made an add-on that pairs Matter devices without a phone (Android 17 broke the app flow)](https://www.reddit.com/r/homeassistant/comments/1x4f1ng/i_made_an_addon_that_pairs_matter_devices_without/) (r/homeassistant)
+60. [Tapo s505: Is It Really That Easy? What Am I Missing?](https://www.reddit.com/r/homeassistant/comments/1x4n9qu/tapo_s505_is_it_really_that_easy_what_am_i_missing/) (r/homeassistant)
+61. [Is anyone here using blindsbypost Zigbee Smart blinds ?, how do you find them? Are they reliable ?](https://www.reddit.com/r/homeassistant/comments/1x4bwxe/is_anyone_here_using_blindsbypost_zigbee_smart/) (r/homeassistant)
+62. [Which tablet would you recommend for a homeassistant dashboard in fully kiosk browser?](https://www.reddit.com/r/homeassistant/comments/1x3ze91/which_tablet_would_you_recommend_for_a/) (r/homeassistant)
+63. [HA <-> Ecobee Renewal](https://www.reddit.com/r/homeassistant/comments/1x4ochi/ha_ecobee_renewal/) (r/homeassistant)
+64. [4 years haven't touch home assistant. Now there's mcp](https://www.reddit.com/r/homeassistant/comments/1x46c3d/4_years_havent_touch_home_assistant_now_theres_mcp/) (r/homeassistant)
+65. [AiDot / Winees Cameras for Home Assistant](https://www.reddit.com/r/homeassistant/comments/1x4o67f/aidot_winees_cameras_for_home_assistant/) (r/homeassistant)
+
+
+---
+
+
+## 📅 Digest for 2026-10-11
+
+## Digest fallback for 2026-10-11
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Sophos cuts threat investigation time by 96% with OpenAI Daybreak](https://openai.com/index/sophos) (OpenAI Blog)
+2. [Asana cuts model costs 76x in browser tests with GPT-6.1 Sol](https://openai.com/index/asana-browser-agent) (OpenAI Blog)
+3. [Impactful scheduling for GPU clusters](https://huggingface.co/blog/allenai/impactful-scheduling) (Hugging Face Blog)
+4. [Building a 4x R9700 setup for a 10 person startup](https://www.reddit.com/r/LocalLLaMA/comments/1x2u742/building_a_4x_r9700_setup_for_a_10_person_startup/) (r/LocalLLaMA)
+5. [Qualcomm CEO reveals AI companies want phones running 100-billion-parameter models continuously by 2028.](https://www.reddit.com/r/LocalLLaMA/comments/1x2z14s/qualcomm_ceo_reveals_ai_companies_want_phones/) (r/LocalLLaMA)
+6. [AMD Reportedly Raises GDDR6 Prices for Board Partners](https://www.reddit.com/r/LocalLLaMA/comments/1x2xatx/amd_reportedly_raises_gddr6_prices_for_board/) (r/LocalLLaMA)
+7. [Be careful fam - New RTX 4090 fakes hit the market, with GPUs and memory almost indistinguishable from real chips](https://www.reddit.com/r/LocalLLaMA/comments/1x2xniv/be_careful_fam_new_rtx_4090_fakes_hit_the_market/) (r/LocalLLaMA)
+8. [Open-source Mac app that runs EmbeddingGemma 2 locally to search your files by what’s in them](https://www.reddit.com/r/LocalLLaMA/comments/1x2eeds/opensource_mac_app_that_runs_embeddinggemma_2/) (r/LocalLLaMA)
+9. [NVIDIA reportedly discontinuing RTX 5090, GB202 GPUs to be reserved for RTX PRO series](https://www.reddit.com/r/LocalLLaMA/comments/1x2bt6r/nvidia_reportedly_discontinuing_rtx_5090_gb202/) (r/LocalLLaMA)
+10. [No more RTX 5090](https://www.reddit.com/r/LocalLLaMA/comments/1x2hs1e/no_more_rtx_5090/) (r/LocalLLaMA)
+11. [big or small?](https://www.reddit.com/r/LocalLLaMA/comments/1x29hx8/big_or_small/) (r/LocalLLaMA)
+12. [Running Next Flash IQ3_XXS at ~70 tok/s with 100k context or 2 instances of Qwen 3.6 35B A3B IQ4 at ~145 tok/s with 256k all on $500 of ex mining BC-250 boards](https://www.reddit.com/r/LocalLLaMA/comments/1x2yv1b/running_next_flash_iq3_xxs_at_70_toks_with_100k/) (r/LocalLLaMA)
+13. [Qwen3.8 Flash Next fixed my GNOME extension](https://www.reddit.com/r/LocalLLaMA/comments/1x2xxql/qwen38_flash_next_fixed_my_gnome_extension/) (r/LocalLLaMA)
+14. [Engineer / developer observations of Gemma4-31B, Qwen3.8-27B, and 6.1-Sol for software engineering work](https://www.reddit.com/r/LocalLLaMA/comments/1x2mw1o/engineer_developer_observations_of_gemma431b/) (r/LocalLLaMA)
+15. [OMG! If you have a Mac with 64GB, try Qwen3.8-Flash-Next-oQ4e-mtp with oMLX!](https://www.reddit.com/r/LocalLLaMA/comments/1x2tstj/omg_if_you_have_a_mac_with_64gb_try/) (r/LocalLLaMA)
+16. [Converting dense models into Mixture-of-Experts](https://www.reddit.com/r/LocalLLaMA/comments/1x3078i/converting_dense_models_into_mixtureofexperts/) (r/LocalLLaMA)
+17. [Is anyone running Qwen3.8 Flash Next with a 1M context?](https://www.reddit.com/r/LocalLLaMA/comments/1x2lgca/is_anyone_running_qwen38_flash_next_with_a_1m/) (r/LocalLLaMA)
+18. [Imagine M5 Ultra + this: NVIDIA GeForce RTX 5060 runs macOS 15 with Metal 3 acceleration through unofficial driver](https://www.reddit.com/r/LocalLLaMA/comments/1x2z64z/imagine_m5_ultra_this_nvidia_geforce_rtx_5060/) (r/LocalLLaMA)
+19. [Qwen3.8-27B on a single 3090: 140 tok/s on code with a custom megakernel](https://www.reddit.com/r/LocalLLaMA/comments/1x2erdj/qwen3827b_on_a_single_3090_140_toks_on_code_with/) (r/LocalLLaMA)
+20. [Benefits of using bigger models than Qwen 3.8 flash next?](https://www.reddit.com/r/LocalLLaMA/comments/1x2nn4b/benefits_of_using_bigger_models_than_qwen_38/) (r/LocalLLaMA)
+21. [Created laya : Now Introducing a new 800 Million Param physics-based typed decision model with 73k context and image support](https://www.reddit.com/r/LocalLLaMA/comments/1x28zr9/created_laya_now_introducing_a_new_800_million/) (r/LocalLLaMA)
+22. [[Model] Support MiniCPM-V 4.7 by tc-mb · Pull Request #29416 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1x2qsh3/model_support_minicpmv_47_by_tcmb_pull_request/) (r/LocalLLaMA)
+23. [M5 Ultra Mac 256GB Studio - 64 core vs. 80 core version, is the inference speed difference worth the extra 10 weeks wait time?](https://www.reddit.com/r/LocalLLaMA/comments/1x2wzsa/m5_ultra_mac_256gb_studio_64_core_vs_80_core/) (r/LocalLLaMA)
+24. [Fully local conversational AI: Whisper + Hermes 8B + Kokoro, zero cloud, running inside a plush toy](https://www.reddit.com/r/LocalLLaMA/comments/1x2cztv/fully_local_conversational_ai_whisper_hermes_8b/) (r/LocalLLaMA)
+25. [2x 3090, 3x 3060 potential (smart and informed) future upgrade paths (send help)](https://www.reddit.com/r/LocalLLaMA/comments/1x2zc0v/2x_3090_3x_3060_potential_smart_and_informed/) (r/LocalLLaMA)
+26. [What are people doing with decisions Jev-like models?](https://www.reddit.com/r/LocalLLaMA/comments/1x29q4a/what_are_people_doing_with_decisions_jevlike/) (r/LocalLLaMA)
+27. [[vllm] Is it possible to run Qwen3.8-27B-FP8 on a 5090?](https://www.reddit.com/r/LocalLLaMA/comments/1x2wcwg/vllm_is_it_possible_to_run_qwen3827bfp8_on_a_5090/) (r/LocalLLaMA)
+28. [M5 Ultra 256GB or 2x DGX Spark? Which one?](https://www.reddit.com/r/LocalLLaMA/comments/1x30cv1/m5_ultra_256gb_or_2x_dgx_spark_which_one/) (r/LocalLLaMA)
+29. [A new feature for my blog, built using my voice](https://simonwillison.net/2026/Oct/9/built-using-my-voice/) (Simon Willison's Weblog)
+30. [From zero to NanoClaw](https://changelog.com/podcast/686) (The Changelog)
+31. [[Subscriber Exclusive] NYC Subscriber Meetups!](https://www.latent.space/p/nyc2026) (Latent Space)
+32. [Building AI for Reliable Execution: Lessons From Industrial Robotics](https://www.latent.space/p/standard-bots) (Latent Space)
+33. [[AINews] TypeSafe/Jev at >$100M ARR, $7.5B valuation 3 weeks after launch](https://www.latent.space/p/ainews-typesafejev-at-100m-arr-75b) (Latent Space)
+34. [Why AlphaFold Didn't Solve Protein Folding — Pushmeet Kohli, Google DeepMind & Sal Candido, Biohub](https://www.latent.space/p/biohub-deepmind) (Latent Space)
+35. [How to turn AI production feedback into better agents](https://thenewstack.io/ai-agent-evaluation-loop/) (The New Stack)
+36. [Microsoft skipped OpenAI’s decision model and built its own on Alibaba’s Qwen](https://thenewstack.io/microsoft-decision-model-foundry/) (The New Stack)
+37. [Elon Musk’s Grok Bot will pick Claude over Grok when it’s better. One-model loyalty is dead.](https://thenewstack.io/musk-claude-model-triage/) (The New Stack)
+38. [Kubernetes on cgroup v1 is dead. Here’s what comes next.](https://thenewstack.io/kubernetes-node-swap-ai/) (The New Stack)
+39. [Cloudflare acquires Node.js creator’s startup that copied its serverless playbook](https://thenewstack.io/cloudflare-acquires-deno-ryan-dahl/) (The New Stack)
+40. [Amazon ECS now auto-repairs failing GPUs and instances. Here’s why it matters for SREs.](https://thenewstack.io/amazon-ecs-auto-repair/) (The New Stack)
+41. [AWS, Upstage and Ollama agree on a decision-model API. OpenAI hasn’t signed on.](https://thenewstack.io/decision-models-system-one/) (The New Stack)
+42. [“Don’t use ‘open weight’ and ‘open source’ interchangeably”: Percona CEO on why AI terminology matters](https://thenewstack.io/open-weight-open-source-ai/) (The New Stack)
+43. [I expect rapid progress but not towards general superintelligence](https://www.interconnects.ai/p/i-expect-rapid-progress-but-not-towards) (Interconnects (Nathan Lambert))
+44. [Consistency is not a localized property](https://n-the-loop.com/blog/consistency-is-not-a-localized-property/) (Lobsters — AI tag)
+45. [Byte Language Models: Scaling, Emergent Abstractions, and Information Allocation](https://arxiv.org/html/2610.05978v1) (Lobsters — AI tag)
+46. [Cloudflare Traces Turns the Proxy Layer into OpenTelemetry Spans, with New Volume-Based Pricing](https://www.infoq.com/news/2026/10/cloudflare-traces-open-beta/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+47. [Android Bench 2 Adds Support for Long-Horizon Tasks, Agentic Evaluation, and Continuous Scoring](https://www.infoq.com/news/2026/10/android-bench-2/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+48. [Github Migrates Copilot Runtime to Rust with AI-Assisted Rewrite](https://www.infoq.com/news/2026/10/github-copilot-rust-migration/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+49. [Presentation: Ontology‐Driven Observability: Building the E2E Knowledge Graph at Netflix Scale](https://www.infoq.com/presentations/netflix-observability-aiops-ontology-scale/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+50. [Self-Host Weekly (9 October 2026)](https://selfh.st/weekly/2026-10-09/) (Self-Host Weekly (selfh.st))
+
+
+---
+
+
 ## 📅 Digest for 2026-10-09
 
 ## Digest fallback for 2026-10-09
