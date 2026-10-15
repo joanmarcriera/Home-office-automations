@@ -166,7 +166,9 @@ gh workflow run deploy-docs.yml
 gh run list --workflow "Deploy static content to Pages"
 ```
 
-## Production FastMCP 3.1 Server Implementation
+## API examples
+
+### Production FastMCP 3.1 Server Implementation
 
 The following Python code implements a **FastMCP 3.1** server (`mcp_github_pages_manager.py`) enabling developer agents to audit Pages build statuses, verify SSL/CNAME health, and trigger deployments programmatically.
 

@@ -138,7 +138,9 @@ Querying unified, cross-platform tasks via the [Junie-cli](../../tools/developme
 junie tasks list --priority critical --unified --source all
 ```
 
-## Production FastMCP 3.1 Task Server Implementation
+## API examples
+
+### Production FastMCP 3.1 Task Server Implementation
 
 The following Python script implements a production FastMCP 3.1 task orchestration server (`mcp_task_schema_engine.py`) exposing standardized task creation, state manipulation, and subtask decomposition tools.
 

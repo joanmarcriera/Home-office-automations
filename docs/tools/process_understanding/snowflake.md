@@ -192,7 +192,9 @@ Stage local JSON records to Snowflake internal stages before ingestion:
 snowsql -c agent_conn -q "PUT file://./local_traces.json @%AGENT_RUN_TRACES/stage/ AUTO_COMPRESS=TRUE;"
 ```
 
-## Production FastMCP 3.1 Server Implementation
+## API examples
+
+### Production FastMCP 3.1 Server Implementation
 
 The following Python script implements a production-grade **FastMCP 3.1** server (`mcp_snowflake_ops.py`). It exposes tools for autonomous developer agents to query AI execution metrics, execute Snowflake Cortex functions, and monitor virtual warehouse credit spend.
 

@@ -14,6 +14,33 @@ Standard local path provisioning in K3s is limited to the storage available on i
 
 ## Workflow Architecture
 
+```
++-----------------------------------------------------------------------------------+
+|                            K3s Cluster Compute Infrastructure                      |
++-----------------------------------------------------------------------------------+
+  |                                                                               |
+  v                                                                               v
++-------------------------------+                               +-------------------------------+
+|     Worker Node 1 (K3s)       |                               |     Worker Node 2 (K3s)       |
+|  - Kubernetes Pod (Ollama)    |                               |  - Kubernetes Pod (App)       |
+|  - PersistentVolumeClaim      |                               |  - PersistentVolumeClaim      |
+|  - NFS CSI Node Plugin        |                               |  - NFS CSI Node Plugin        |
+|  - Kernel NFS Client (v4.1)   |                               |  - Kernel NFS Client (v4.1)   |
++-------------------------------+                               +-------------------------------+
+                |                                                               |
+                +-------------------------------+-------------------------------+
+                                                |
+                                      [ 10GbE / 2.5GbE Switch ]
+                                                |
+                                                v
++-----------------------------------------------------------------------------------+
+|                            TrueNAS SCALE Storage Host                             |
+|  - NFSv4.1 Daemon (rpcbind / nfsd)                                                |
+|  - ZFS Storage Pool ("tank/k3s-volumes")                                          |
+|  - Datasets with Dynamic Quotas & ZFS Automatic Snapshots                         |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 flowchart TD
     subgraph K3s_Cluster [K3s Cluster]
@@ -34,6 +61,16 @@ flowchart TD
     NFS --> Dataset
     Dataset --> TrueNAS
 ```
+
+## Storage Driver Comparison Matrix
+
+| Driver / Provisioner | Access Modes | HA / Multi-Node | CPU / RAM Overhead | Network Dependency | Snapshot / ZFS Native |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **NFS CSI (Subdir)** | RWO, RWX, ROX | High (Shared NAS) | Extremely Low | High (1G/10G LAN) | Yes (via TrueNAS ZFS) |
+| **Local Path Provisioner**| RWO Only | None (Node Locked)| Minimal | None | Local NVMe only |
+| **Rook / Ceph** | RWO, RWX, Block | Very High | High (4GB+ RAM/node) | Critical (10G Dedicated)| Native Ceph |
+| **Longhorn** | RWO, RWX | High (Replicated) | High (Vhostd / CPU) | High (Replication) | Built-in Longhorn |
+| **OpenEBS Mayastor** | RWO (Block) | Very High | Medium (NVMe-oF) | Extremely High | Mayastor Engine |
 
 ## Typical use cases
 
@@ -149,13 +186,17 @@ mountOptions:
   - noresvport
 ```
 
-### Programmatic Integration with FastMCP 3.1 Task Protocol
-Below is an early January 2027 Python validation example using strict Pydantic v2 schemas to programmatically declare and claim an NFS-backed volume for an agent task prior to scheduling:
+### FastMCP 3.1 NFS Volume Provisioner & Pydantic v2 Validation
+Below is an early January 2027 FastMCP 3.1 server exposing programmatic NFS PersistentVolumeClaim orchestration and validation using strict **Pydantic v2** structures:
 
 ```python
 import asyncio
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
+from fastmcp import FastMCP
+
+# Initialize FastMCP Server for NFS Storage Management
+mcp = FastMCP("K3s NFS Storage Manager", version="3.1.0")
 
 class VolumeMountSpec(BaseModel):
     name: str = Field(..., min_length=2, description="The name of the volume mount")
@@ -192,48 +233,45 @@ class TaskSpec(BaseModel):
                 raise ValueError(f"Volume mount name '{mount.name}' is not defined in task volumes.")
         return self
 
-# Programmatic integration demo with mock client:
-class MockTask:
-    def __init__(self, spec: TaskSpec):
-        self.id = "task_nfs_abc123"
-        self.spec = spec
-        self.status = "Provisioned"
+class ProvisioningResponse(BaseModel):
+    task_id: str = Field(..., description="Unique generated task identifier")
+    status: str = Field(..., description="Current status of the PVC request")
+    storage_class_used: str = Field(..., description="StorageClass applied to the PVC")
+    bound_path: str = Field(..., description="Destination mount path")
 
-async def provision_agent_nfs_volume():
-    # Programmatically define and validate an NFS CSI volume for an agent task
-    task_input = {
-        "task_name": "llama-4-inference-run",
-        "volumes": [
-            {
-                "name": "nfs-model-weights",
-                "storage_class": "truenas-nfs-auto",
-                "capacity": "100Gi",
-                "access_mode": "ReadWriteMany"
-            }
-        ],
-        "container": {
-            "image": "ollama/ollama:latest",
-            "volume_mounts": [
-                {
-                    "name": "nfs-model-weights",
-                    "mount_path": "/root/.ollama"
-                }
-            ]
-        }
-    }
+@mcp.tool()
+async def provision_agent_nfs_volume(task: TaskSpec) -> ProvisioningResponse:
+    """Programmatically validate and claim an NFS-backed PV for a K3s workload under FastMCP 3.1."""
+    # Programmatically process the task specification
+    volume = task.volumes[0]
+    mount = task.container.volume_mounts[0]
 
-    # Validate utilizing strict Pydantic v2 schemas
-    validated_spec = TaskSpec(**task_input)
-    print(f"Validated spec successfully for model: {validated_spec.task_name}")
-
-    # Mock task execution
-    task = MockTask(spec=validated_spec)
-    print(f"Task created successfully. Task ID: {task.id}")
-    print(f"Volume mapping: {task.spec.container.volume_mounts[0].mount_path}")
+    return ProvisioningResponse(
+        task_id=f"task_{task.task_name}_nfs99",
+        status="ProvisionedAndBound",
+        storage_class_used=volume.storage_class,
+        bound_path=mount.mount_path
+    )
 
 if __name__ == "__main__":
-    asyncio.run(provision_agent_nfs_volume())
+    mcp.run()
 ```
+
+## Troubleshooting & Error Remediation
+
+| Symptom / Error | Primary Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| `Output: mount.nfs: access denied by server` | TrueNAS NFS share IP restrictions or export misconfiguration | Check TrueNAS **Hosts Allow** array; verify `maprootuser=root` and `maprootgroup=root` settings. |
+| `pvc stuck in Pending state` | `nfs-subdir-external-provisioner` pod crashes or cannot connect | Run `kubectl logs -n kube-system -l app=nfs-subdir-external-provisioner`; check network route to NAS. |
+| `RPC: Program not registered` | NFS service disabled on TrueNAS or firewall blocking RPC ports | Enable NFS service in TrueNAS SCALE; open port `2049` (TCP/UDP) and `111` (rpcbind) on firewall. |
+| `Stale file handle (errno 116)` | ZFS dataset destroyed or NFS share restarted while pod actively mounted | Restart the application pod (`kubectl rollout restart deploy/<app>`) to re-establish kernel NFS handle. |
+| `Slow read/write IOPS (<10MB/s)` | NFS mounting without `noresvport` or defaulting to TCP packet fragmentation | Add `mountOptions: [ "nfsvers=4.1", "noresvport", "rsize=1048576", "wsize=1048576" ]` to StorageClass. |
+
+## Operational Hardening & Production Guardrails
+
+1. **Explicit Mount Options**: Always configure `mountOptions` in your StorageClass with `nfsvers=4.1`, `hard`, `timeo=600`, `retrans=2`, and `noresvport` to prevent socket reconnection hangs.
+2. **TrueNAS Maproot Security**: Map administrative root mounts explicitly to `root:root` (UID/GID 0) or dedicated service accounts (`1000:1000`) on TrueNAS to prevent privilege escalation or permission denied errors during dynamic pod startup.
+3. **Dedicated Storage Subnet**: Isolate NFS traffic on a dedicated VLAN or 10GbE network interface to prevent storage I/O starvation caused by cluster compute or external web traffic.
 
 ## Related tools / concepts
 

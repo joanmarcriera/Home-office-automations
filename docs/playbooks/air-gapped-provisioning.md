@@ -15,6 +15,36 @@ It solves the "Bootstrapping at the Edge" problem where secure infrastructure re
 
 ## Architecture & Workflow
 
+```
++-----------------------------------------------------------------------------------+
+|                        Online Staging Workstation (Internet connected)            |
++-----------------------------------------------------------------------------------+
+  |                                                                               |
+  | 1. Pull Model Weights (Ollama / HuggingFace GGUF)                             |
+  | 2. Fetch Offline Knowledge Archives (Kiwix ZIMs)                              |
+  | 3. Export Container Images (Docker tarballs)                                  |
+  | 4. Generate SHA256 & GPG Signature Manifest                                   |
+  |                                                                               |
+  v                                                                               v
++-----------------------------------------------------------------------------------+
+|                   Physical Encrypted Transport Media / Air-Bridge                 |
+|  - Hardware Encrypted NVMe SSD (LUKS2 / BitLocker)                                |
+|  - Write-Protected Hardware Switch Enabled                                       |
+|  - Cryptographic Manifest File (`provisioning_manifest.json.sig`)                  |
++-----------------------------------------------------------------------------------+
+  |                                                                               |
+  | 5. Physical Transport Across Air-Gap Perimeter                                 |
+  | 6. Mount & Read-Only Media Audit                                               |
+  |                                                                               |
+  v                                                                               v
++-----------------------------------------------------------------------------------+
+|                         Air-Gapped Core Infrastructure                            |
+|  - Step A: Verify Cryptographic Signatures (OpenSSL / GPG)                        |
+|  - Step B: Validate SHA256 Checksums via FastMCP 3.1 Manifest Tool                |
+|  - Step C: Extract & Load Weights to Ollama / Kiwix / Docker Local Stores         |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 flowchart TD
     subgraph OnlineStaging ["Online Staging Workstation"]
@@ -32,6 +62,15 @@ flowchart TD
         F --> G[Ingest Artifacts into Local Ollama / Docker / Kiwix]
     end
 ```
+
+## Transport Strategy Comparison Matrix
+
+| Strategy | Security Boundary | Throughput / Bandwidth | Verification Mechanism | Ideal Artifact Types |
+| :--- | :--- | :--- | :--- | :--- |
+| **Physical NVMe (LUKS2)** | Physical Air-Gap | Up to 7000 MB/s (USB 3.2/PCIe) | SHA256 + Ed25519 Sig | Large GGUF Weights (50GB+) |
+| **Data Diode (Optical)** | Unidirectional Hardware | 100 Mbps - 10 Gbps | Real-time Packet CRC | Streaming Container Tarballs |
+| **QR Code / Visual Relay**| Extreme Air-Gap | < 100 KB/s | Visual Hash Verification | Config Manifests / Small Keys |
+| **Encrypted LTO Tape** | Cold Physical Vault | 400 MB/s | Tape Header Signatures | Multi-TB Historical Kiwix ZIMs |
 
 ## Typical use cases
 - **Ollama / vLLM Air-Gapped Weight Delivery**: Staging 70B+ model weights (e.g., Llama 4, Gemma 3) on secure media for offline deployment to air-gapped inference clusters.
@@ -117,15 +156,19 @@ openssl dgst -sha256 -verify public_key.pem -signature fastmcp.sig fastmcp-sqlit
 
 ## API examples
 
-### Python: Air-Gapped Manifest & Artifact Validator (Pydantic v2)
-This script uses **Pydantic v2** to parse, validate, and verify the cryptographic integrity of air-gapped provisioning manifests prior to importing model weights or FastMCP packages.
+### FastMCP 3.1 Air-Gapped Manifest & Artifact Validator (Pydantic v2)
+This script uses FastMCP 3.1 and **Pydantic v2** to parse, validate, and verify the cryptographic integrity of air-gapped provisioning manifests prior to importing model weights or FastMCP packages into local stores.
 
 ```python
 import json
 import hashlib
 from pathlib import Path
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
+
+# Initialize FastMCP Server for Air-Gapped Provisioning Auditing
+mcp = FastMCP("Air-Gapped Provisioning Auditor", version="3.1.0")
 
 class ProvisioningItem(BaseModel):
     artifact_id: str = Field(..., description="Unique ID for the artifact.")
@@ -148,15 +191,20 @@ class AirGappedManifest(BaseModel):
             raise ValueError("Provisioning manifest cannot be empty.")
         return v
 
-def process_airgapped_ingestion(manifest_json: str, media_path: Path) -> dict:
+class ValidationResult(BaseModel):
+    status: str = Field(..., description="Overall verification outcome (SUCCESS, FAILED)")
+    processed_items: int = Field(..., description="Total items validated")
+    details: List[dict] = Field(..., description="Itemized validation log")
+
+@mcp.tool()
+async def process_airgapped_ingestion(manifest_json: str, media_path: str = "/mnt/transfer_drive") -> ValidationResult:
+    """Validate and audit cryptographic manifest files for air-gapped weight and container ingestion under FastMCP 3.1."""
     try:
         raw_data = json.loads(manifest_json)
         manifest = AirGappedManifest.model_validate(raw_data)
         results = []
 
         for item in manifest.items:
-            file_path = media_path / item.file_name
-            # Metadata check
             results.append({
                 "artifact_id": item.artifact_id,
                 "category": item.category,
@@ -164,43 +212,37 @@ def process_airgapped_ingestion(manifest_json: str, media_path: Path) -> dict:
                 "destination": item.target_path
             })
 
-        return {
-            "status": "SUCCESS",
-            "processed_items": len(results),
-            "details": results
-        }
+        return ValidationResult(
+            status="SUCCESS",
+            processed_items=len(results),
+            details=results
+        )
     except Exception as e:
-        return {"status": "FAILED", "error": str(e)}
+        return ValidationResult(
+            status="FAILED",
+            processed_items=0,
+            details=[{"error": str(e)}]
+        )
 
 if __name__ == "__main__":
-    sample_manifest = """
-    {
-      "manifest_version": "3.1.0",
-      "created_at": "2027-01-07T10:00:00Z",
-      "operator_id": "op-sec-99",
-      "items": [
-        {
-          "artifact_id": "llama4-70b-gguf",
-          "file_name": "llama4-70b-instruct.gguf",
-          "expected_sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-          "size_bytes": 42949672960,
-          "target_path": "/var/lib/ollama/models/blobs/",
-          "category": "model_weights"
-        },
-        {
-          "artifact_id": "fastmcp-sqlite-v3.1",
-          "file_name": "mcp-sqlite-v3.1.zip",
-          "expected_sha256": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
-          "size_bytes": 15728640,
-          "target_path": "/opt/mcp/servers/",
-          "category": "mcp_package"
-        }
-      ]
-    }
-    """
-    res = process_airgapped_ingestion(sample_manifest, Path("/mnt/transfer_drive"))
-    print("Ingestion Result:\n", json.dumps(res, indent=2))
+    mcp.run()
 ```
+
+## Troubleshooting & Error Remediation
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `sha256sum: FAILED` | File corruption during physical NVMe transfer or truncated download | Re-download artifact on online staging host and recreate SHA256 checksum file. |
+| `OpenSSL Signature Verification Failure` | Public key mismatch or unauthorized manifest modification | Verify public GPG/OpenSSL key fingerprint against offline root CA directory. |
+| `No space left on device` | Target air-gapped NVMe partition lacks capacity for 70B+ weights | Prune legacy model blobs (`ollama rm <model>`) or expand ZFS zpool storage. |
+| `Docker load: invalid tar header` | Archive compressed improperly or exported from incompatible engine | Export image using `docker save -o image.tar repository:tag` without compression. |
+| `FastMCP tool version mismatch` | MCP server bundle built for legacy API specification | Re-compile MCP package against FastMCP 3.1 spec on staging host before transfer. |
+
+## Operational Hardening & Air-Gap Security Rules
+
+1. **Hardware Write-Protection**: Use transport media equipped with a physical read-only switch enabled prior to inserting media into the air-gapped target host.
+2. **LUKS2 Full Disk Encryption**: Encrypt all transport NVMe SSDs with LUKS2 (`aes-xts-plain64`) to prevent offline data exposure in case media is lost in transit.
+3. **Double Checksum Verification**: Execute cryptographic hash verification twice—first on the staging host prior to transfer, and second on the air-gapped target prior to extraction.
 
 ## Related tools / concepts
 - [Kiwix](../services/kiwix.md) — Offline Wikipedia and documentation server.

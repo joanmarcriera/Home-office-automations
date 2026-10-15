@@ -156,7 +156,9 @@ talosctl upgrade \
   --preserve
 ```
 
-## Production FastMCP 3.1 SRE Server Implementation
+## API examples
+
+### Production FastMCP 3.1 SRE Server Implementation
 
 The following Python script implements a production-grade **FastMCP 3.1** server (`mcp_invisible_k8s_sre.py`). It exposes tools for autonomous SRE agents to audit Karpenter node pool utilization, inspect Talos OS node health via gRPC, and apply emergency cluster remediation.
 
