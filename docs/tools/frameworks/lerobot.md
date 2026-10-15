@@ -5,24 +5,39 @@ LeRobot is an open-source end-to-end robotics learning framework developed by Hu
 
 ## System Architecture
 
-```mermaid
-graph TD
-    subgraph Physical Hardware Layer
-        A[Cameras / Spatial Sensors] -->|Image Streams @ 30-60Hz| B[LeRobot Sensor Pipeline]
-        C[Motor Encoders / Joint State] -->|Joint Angles & Velocities| B
-    end
-
-    subgraph Core Policy Runtime
-        B -->|Normalized State Chunks| D[Imitation Policy Engine]
-        D -->|ACT / Diffusion Policy / VQ-BeT| E[Target Action Trajectory]
-        E -->|Inverse Kinematics / Actuator Command| F[Robotic Manipulator / SO-ARM100]
-    end
-
-    subgraph Data & Agent Cloud Ecosystem
-        G[Hugging Face Hub] <-->|Dataset Datasets & Weights Streaming| D
-        H[LLM / VLM Planner] -->|FastMCP 3.1 Task Primitives| I[FastMCP 3.1 Action Server]
-        I -->|Low-Level Control Signals| D
-    end
+```
++-----------------------------------------------------------------------------------+
+|                              LeRobot Control Pipeline                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+         +-----------------------+                         |
+|  | Cameras & Spatial  | ------> | LeRobot Sensor        |                         |
+|  | Sensors @ 30-60Hz  |         | Normalization Pipeline|                         |
+|  +--------------------+         +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Imitation Policy      |                         |
+|                                 | ACT / Diffusion / VQ  |                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                        +--------------------+--------------------+                |
+|                        |                                         |                |
+|                        v                                         v                |
+|           +-------------------------+               +-------------------------+   |
+|           | FastMCP 3.1 Server      |               | Hugging Face Hub        |   |
+|           | High-Level VLA Agent    |               | Model Weights & Datasets|   |
+|           +------------+------------+               +------------+------------+   |
+|                        |                                         |                |
+|                        +--------------------+--------------------+                |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Motor Actuator &      |                         |
+|                                 | Joint Controller      |                         |
+|                                 +-----------------------+                         |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -37,6 +52,16 @@ Robotics development historically suffered from extreme fragmentation, proprieta
 - **Edge Deployment & Real-Time Inference**: Running optimized policy control loops at 30-100Hz on local NVIDIA Jetson, Mac Studio, or edge AI gateways.
 - **Multimodal Agent Control Integration**: Connecting frontier vision-language models (e.g. Gemini 4.0 Pro, Claude 5.1) to physical robotic arms via FastMCP 3.1 action primitives.
 - **Sim-to-Real Benchmark Testing**: Evaluating trained policies across simulated environments (Isaac Gym, MuJoCo) before zero-shot or fine-tuned deployment on physical robotic arms.
+
+## Policy Framework Comparison Matrix
+
+| Policy / Framework | Policy Type | Training Source | Inference Frequency | Hardware Compatibility | Primary Strengths |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **LeRobot ACT (Hugging Face)** | Action Chunking Transformer | Teleoperation Demonstrations | 30 - 50 Hz | SO-ARM100, Koch, Universal Robots | Low sample complexity, precise dexterity |
+| **LeRobot Diffusion Policy** | Denoising Diffusion | Teleoperation & Sim Trails | 20 - 30 Hz | Multi-camera manipulators | High multi-modal action distribution modeling |
+| **OpenX / RT-2 (Google)** | Vision-Language-Action (VLA) | Massive Multi-Robot Datasets | 5 - 10 Hz | High-end industrial manipulators | High semantic generalization, natural language tasks |
+| **RoboMimic** | Imitation / RL Benchmarking | Simulated & Real Datasets | 20 - 50 Hz | MuJoCo, Franka Emika Panda | Modular research benchmarking algorithms |
+| **ROS2 / MoveIt** | Deterministic Motion Planning | Mathematical Trajectories | 100 - 1000 Hz | All industrial robotics platforms | Hard real-time safety guarantees, obstacle avoidance |
 
 ## Strengths
 - **Native Hugging Face Ecosystem Integration**: Directly streams datasets and model weights to and from the Hugging Face Hub using standard parquet and zarr formats.
@@ -65,7 +90,7 @@ Robotics development historically suffered from extreme fragmentation, proprieta
 ### Installation
 Install LeRobot via pip from source or PyPI with physical robot hardware support:
 ```bash
-pip install lerobot torch torchvision
+pip install lerobot torch torchvision pydantic mcp
 ```
 
 ### Basic Hardware Initialization & Policy Evaluation
@@ -78,6 +103,75 @@ from lerobot.common.policies.act.modeling_act import ACTPolicy
 policy = ACTPolicy.from_pretrained("lerobot/act_so100_real")
 policy.eval()
 print("LeRobot ACT Policy successfully loaded.")
+```
+
+## FastMCP 3.1 Server Integration & Pydantic v2 Telemetry Verification
+
+The following complete script demonstrates creating a **FastMCP 3.1** server that exposes LeRobot physical robot commands to higher-level AI agents, validating input commands and sensor telemetry using **Pydantic v2**:
+
+```python
+import time
+from typing import List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+
+# Initialize FastMCP 3.1 Server for LeRobot Control
+mcp = FastMCP("lerobot-robotics-gateway", version="3.1.0")
+
+
+class JointState(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    joint_positions: List[float] = Field(..., min_items=6, max_items=6, description="6-DOF motor joint angles in radians")
+    joint_velocities: List[float] = Field(..., min_items=6, max_items=6, description="Motor joint velocities in rad/s")
+    gripper_open: bool = Field(..., description="Boolean status of end-effector gripper")
+
+
+class TeleoperationFrame(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    timestamp: float = Field(..., description="Unix timestamp of sensor reading")
+    episode_index: int = Field(..., ge=0, description="Active demonstration episode ID")
+    robot_state: JointState = Field(..., description="State telemetry")
+    action_command: JointState = Field(..., description="Target action state")
+
+
+class RobotCommandRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    target_positions: List[float] = Field(..., min_items=6, max_items=6, description="Target joint angles for physical arm movement")
+    gripper_target: bool = Field(True, description="Target gripper position (True=Open, False=Closed)")
+    max_velocity_scaling: float = Field(0.5, ge=0.1, le=1.0, description="Safety velocity scaling factor")
+
+
+@mcp.tool()
+async def execute_robot_action(request_data: RobotCommandRequest) -> dict:
+    """Validate and dispatch physical robot movement command via LeRobot control loop."""
+    # Simulate local LeRobot policy step execution
+    frame = TeleoperationFrame(
+        timestamp=time.time(),
+        episode_index=1,
+        robot_state=JointState(
+            joint_positions=[0.0, -0.45, 1.2, 0.0, 0.8, 0.0],
+            joint_velocities=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            gripper_open=True
+        ),
+        action_command=JointState(
+            joint_positions=request_data.target_positions,
+            joint_velocities=[v * request_data.max_velocity_scaling for v in [0.05, 0.03, -0.02, 0.0, 0.0, 0.0]],
+            gripper_open=request_data.gripper_target
+        )
+    )
+
+    return {
+        "status": "executed",
+        "timestamp": frame.timestamp,
+        "validated_action": frame.action_command.model_dump()
+    }
+
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## CLI examples
@@ -116,80 +210,61 @@ lerobot-eval \
 
 ## API examples
 
-### FastMCP 3.1 Server Integration & Pydantic v2 Telemetry Verification
-The following complete script demonstrates creating a **FastMCP 3.1** server that exposes LeRobot physical robot commands to higher-level AI agents, validating input commands and sensor telemetry using **Pydantic v2**:
+### Direct Python Trajectory Sampling & Model Ingestion
+The following example demonstrates instantiating a custom LeRobot trajectory dataset schema and running inference through a Hugging Face ACT Policy instance:
 
 ```python
-import time
-from typing import List, Optional
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, conlist
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict
 
-# Initialize FastMCP 3.1 Server for LeRobot Control
-mcp = FastMCP("LeRobot-Robotics-Gateway")
 
-class JointState(BaseModel):
-    joint_positions: conlist(float, min_length=6, max_length=6) = Field(
-        ..., description="6-DOF motor joint angles in radians"
-    )
-    joint_velocities: conlist(float, min_length=6, max_length=6) = Field(
-        ..., description="Motor joint velocities in rad/s"
-    )
-    gripper_open: bool = Field(..., description="Boolean status of end-effector gripper")
+class TrajectorySample(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-class TeleoperationFrame(BaseModel):
-    timestamp: float = Field(..., description="Unix timestamp of sensor reading")
-    episode_index: int = Field(..., ge=0, description="Active demonstration episode ID")
-    robot_state: JointState = Field(..., description="State telemetry")
-    action_command: JointState = Field(..., description="Target action state")
+    frame_index: int = Field(..., ge=0, description="Visual frame sequence index")
+    camera_rgb_b64: str = Field(..., description="Base64 encoded camera frame")
+    joint_angles: List[float] = Field(..., min_items=6, max_items=6)
+    target_action: List[float] = Field(..., min_items=6, max_items=6)
 
-class RobotCommandRequest(BaseModel):
-    target_positions: conlist(float, min_length=6, max_length=6) = Field(
-        ..., description="Target joint angles for physical arm movement"
-    )
-    gripper_target: bool = Field(True, description="Target gripper position (True=Open, False=Closed)")
-    max_velocity_scaling: float = Field(0.5, ge=0.1, le=1.0, description="Safety velocity scaling factor")
 
-@mcp.tool()
-def execute_robot_action(request_data: dict) -> dict:
-    """Validate and dispatch physical robot movement command via LeRobot control loop."""
-    try:
-        command = RobotCommandRequest.model_validate(request_data)
+def sample_policy_trajectory(sample: TrajectorySample) -> Dict[str, Any]:
+    # Simulates loading observation vector into policy network
+    processed_action = [a * 0.98 for a in sample.target_action]
+    return {
+        "frame": sample.frame_index,
+        "predicted_action": processed_action,
+        "confidence": 0.992
+    }
 
-        # Simulate local LeRobot policy step execution
-        frame = TeleoperationFrame(
-            timestamp=time.time(),
-            episode_index=1,
-            robot_state=JointState(
-                joint_positions=[0.0, -0.45, 1.2, 0.0, 0.8, 0.0],
-                joint_velocities=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                gripper_open=True
-            ),
-            action_command=JointState(
-                joint_positions=command.target_positions,
-                joint_velocities=[v * command.max_velocity_scaling for v in [0.05, 0.03, -0.02, 0.0, 0.0, 0.0]],
-                gripper_open=command.gripper_target
-            )
-        )
-
-        return {
-            "status": "executed",
-            "timestamp": frame.timestamp,
-            "validated_action": frame.action_command.model_dump()
-        }
-    except Exception as err:
-        return {"status": "error", "error_message": str(err)}
 
 if __name__ == "__main__":
-    # Test local execution
-    sample_cmd = {
-        "target_positions": [0.05, -0.42, 1.18, 0.0, 0.8, 0.0],
-        "gripper_target": False,
-        "max_velocity_scaling": 0.4
-    }
-    res = execute_robot_action(sample_cmd)
-    print("FastMCP LeRobot Action Execution Result:", res)
+    sample = TrajectorySample(
+        frame_index=12,
+        camera_rgb_b64="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        joint_angles=[0.0, -0.1, 0.5, 0.0, 0.2, 0.0],
+        target_action=[0.01, -0.09, 0.52, 0.0, 0.21, 0.0]
+    )
+    res = sample_policy_trajectory(sample)
+    print("Trajectory Sample Result:", res)
 ```
+
+## Troubleshooting & Hardware Edge Cases
+
+| Error / Failure Mode | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `MOTOR_COMMUNICATION_TIMEOUT` | USB serial connection dropped to Feetech/Dynamixel motor bus. | Verify baud rate (1Mbps/3Mbps); replace worn USB-to-RS485 interface dongle. |
+| `JOINT_LIMIT_EXCEEDED` | Policy predicted target joint angle outside physical arm range. | Enforce joint limit clipping in `RobotCommandRequest` prior to motor register write. |
+| `CAMERA_FRAME_DROPPED` | High USB bus contention with 2+ webcam video streams. | Move cameras to separate USB host controllers; decrease camera resolution to 640x480 @ 30FPS. |
+| `POLICY_OUT_OF_DISTRIBUTION` | Arm moved into unexpected workspace orientation causing erratic jitter. | Trigger manual safety kill switch; record additional teleoperation episodes in target pose. |
+| `MOTOR_OVERHEAT_WARNING` | Extended high-torque holding pose causing servo driver thermal throttling. | Add cooling fans or adjust home resting posture in script to release continuous motor torque. |
+
+## Production Deployment Guardrails
+
+1. **Hardware E-Stop Hook**: Always bind a physical USB or Bluetooth emergency stop button to instantly disarm motor torque registers.
+2. **Velocity & Acceleration Capping**: Clamp maximum joint velocity (`max_velocity_scaling <= 0.5`) during early real-world policy testing.
+3. **Joint Angle Hard Limits**: Define software boundary guardrails in Python drivers matching the exact mechanical joint limits of the arm.
+4. **Thermal Monitoring**: Programmatically poll servo temperature registers; halt policy execution if motor temp exceeds 65°C.
+5. **Sim-to-Real Domain Randomization**: Add visual noise, lighting variations, and random object position shifts during training to improve real-world policy transfer.
 
 ## Related tools / concepts
 - [Hugging Face Ecosystem](../providers/huggingface.md)
