@@ -9,6 +9,48 @@ It simplifies developer interaction with Microsoft services by providing a singl
 ## Where it fits in the stack
 **Providers / API Gateway**. It serves as the primary integration point for applications needing to interact with the Microsoft 365 ecosystem. It natively powers [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers for calendar, email, and file management, providing the "eyes and hands" for enterprise agents.
 
+## Microsoft Graph FastMCP 3.1 Architecture
+
+```
+                      MICROSOFT GRAPH API ENTERPRISE AGENTIC PIPELINE
+
+  ┌────────────────────────┐    ┌────────────────────────┐    ┌────────────────────────┐
+  │  Claude 5.6 / GPT-5.6  │    │  FastMCP 3.1 Client    │    │  Enterprise Apps       │
+  └───────────┬────────────┘    └───────────┬────────────┘    └───────────┬────────────┘
+              │                             │                             │
+              └──────────────────────┬──────┴─────────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │  FastMCP 3.1 Graph Connector │
+                      │  - OAuth2 / MSAL Token Pool  │
+                      │  - Rate Limit Retry & Backoff│
+                      │  - Delta Query Cache         │
+                      └──────────────┬───────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │ Microsoft Graph API Gateway  │
+                      │  https://graph.microsoft.com │
+                      └──────────────┬───────────────┘
+                                     │
+            ┌────────────────────────┼────────────────────────┐
+            ▼                        ▼                        ▼
+  ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
+  │ Outlook & Calendar│    │ OneDrive & Teams  │    │ Microsoft Entra   │
+  │ - Emails / Events │    │ - Docs & Channels │    │ - Users & Roles   │
+  └───────────────────┘    └───────────────────┘    └───────────────────┘
+```
+
+## SOTA Enterprise API Gateway Comparison
+
+| Gateway / API | Primary Target Ecosystem | Authentication Standard | Delta Query Sync | FastMCP 3.1 Integration | Rate Limit Throttling |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Microsoft Graph** | Microsoft 365 / Entra ID | OAuth 2.0 / MSAL Bearer | Native (`@odata.deltaLink`) | Native (`@modelcontextprotocol/server-microsoft-graph`) | Adaptive headers (`Retry-After`) |
+| **Google Workspace API** | Google Workspace / GCP | OAuth 2.0 Service Account | Sync Tokens | FastMCP Google Workspace Connector | Exponential Backoff quotas |
+| **Salesforce Graph API** | Salesforce CRM / Force.com | OAuth 2.0 JWT Bearer | Change Data Capture (CDC) | FastMCP Salesforce Server | Hourly API Request Limits |
+| **Slack Web API** | Slack Enterprise Grid | OAuth 2.0 Bot Tokens | Webhooks / Events API | FastMCP Slack Server | Tier-based Rate Limits (Tier 1-4) |
+
 ## Typical use cases
 - **Personal AI Assistants**: Synchronizing calendars (Outlook) and files (OneDrive) for autonomous [Task Management](../calendar_tasks/index.md).
 - **Agentic Knowledge Retrieval**: Using RAG patterns to search corporate documents via [OneDrive and SharePoint](https://learn.microsoft.com/en-us/graph/api/resources/onedrive).
@@ -40,7 +82,7 @@ It simplifies developer interaction with Microsoft services by providing a singl
 To interact with Microsoft Graph programmatically, install the official Microsoft Graph SDK:
 
 ```bash
-pip install msgraph-sdk azure-identity
+pip install msgraph-sdk azure-identity httpx
 ```
 
 ### App Registration Requirements
@@ -106,6 +148,76 @@ curl -X GET "https://graph.microsoft.com/v1.0/me/drive/root/search(q='Project Al
 curl -X GET "https://graph.microsoft.com/v1.0/me/joinedTeams" \
      -H "Authorization: Bearer <access_token>" \
      -H "Content-Type: application/json"
+
+# Call Microsoft Graph FastMCP 3.1 Tool
+mcp call microsoft-graph get_calendar_view '{"start_time": "2027-01-07T00:00:00Z", "end_time": "2027-01-07T23:59:59Z"}'
+```
+
+## FastMCP 3.1 Microsoft Graph Server Implementation
+
+The following Python code initializes a complete **FastMCP 3.1** server for Microsoft Graph, allowing AI agents to query calendar events, search documents, and retrieve Entra identity data.
+
+```python
+from mcp.server.fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, EmailStr, ValidationError
+from typing import Dict, Any, List, Optional
+import httpx
+
+# Initialize FastMCP 3.1 Microsoft Graph Server
+mcp = FastMCP(
+    "microsoft-graph-server",
+    instructions="FastMCP 3.1 server for querying Microsoft 365 Outlook, Teams, OneDrive, and Entra ID via Graph API."
+)
+
+class CalendarViewRequest(BaseModel):
+    start_time: str = Field(..., description="ISO 8601 start timestamp (e.g. '2027-01-07T00:00:00Z')")
+    end_time: str = Field(..., description="ISO 8601 end timestamp (e.g. '2027-01-07T23:59:59Z')")
+    access_token: str = Field(..., description="Valid OAuth2 Bearer Access Token for Microsoft Graph")
+
+class OneDriveSearchRequest(BaseModel):
+    query_text: str = Field(..., description="Search phrase for documents in user's OneDrive")
+    access_token: str = Field(..., description="Valid OAuth2 Bearer Access Token for Microsoft Graph")
+
+@mcp.tool()
+async def get_calendar_events(request: CalendarViewRequest, ctx: Context) -> Dict[str, Any]:
+    """Retrieve calendar events for the specified time window using Microsoft Graph API."""
+    await ctx.info(f"Querying Graph Calendar from {request.start_time} to {request.end_time}")
+    headers = {
+        "Authorization": f"Bearer {request.access_token}",
+        "Content-Type": "application/json"
+    }
+    url = f"https://graph.microsoft.com/v1.0/me/calendarView?startDateTime={request.start_time}&endDateTime={request.end_time}"
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.get(url, headers=headers, timeout=10.0)
+            if res.status_code != 200:
+                return {"error": f"Microsoft Graph HTTP {res.status_code}", "details": res.text}
+            return res.json()
+        except Exception as err:
+            return {"error": "Failed to connect to Microsoft Graph API", "details": str(err)}
+
+@mcp.tool()
+async def search_onedrive_documents(request: OneDriveSearchRequest, ctx: Context) -> Dict[str, Any]:
+    """Search documents and files in OneDrive for the current user."""
+    await ctx.info(f"Searching OneDrive for query: '{request.query_text}'")
+    headers = {
+        "Authorization": f"Bearer {request.access_token}",
+        "Content-Type": "application/json"
+    }
+    url = f"https://graph.microsoft.com/v1.0/me/drive/root/search(q='{request.query_text}')"
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.get(url, headers=headers, timeout=10.0)
+            if res.status_code != 200:
+                return {"error": f"Microsoft Graph HTTP {res.status_code}", "details": res.text}
+            return res.json()
+        except Exception as err:
+            return {"error": "Failed to query OneDrive API", "details": str(err)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -209,6 +321,16 @@ if __name__ == "__main__":
         print(f"  Title: {user_profile.job_title}")
         print(f"  Protocol: FastMCP {user_profile.fastmcp_protocol_version}")
 ```
+
+## Operational Guardrails & Troubleshooting
+
+| Operational Challenge | Root Cause | Impact | Recommended Resolution |
+| :--- | :--- | :--- | :--- |
+| **HTTP 429 Too Many Requests** | Exceeding Microsoft Graph per-app or per-tenant throttling thresholds | API requests blocked temporarily | Implement exponential backoff retry logic checking the `Retry-After` header. |
+| **Insufficient Privileges (403 Forbidden)** | Missing required OAuth consent scopes in Entra App Registration | Tool fails to read or write specific endpoints | Ensure all necessary permissions (e.g. `Calendars.ReadWrite`) are consented in Entra admin center. |
+| **Expired OAuth Access Token** | Token lifetime expired (typically 60-90 minutes) | Unhandled 401 Unauthorized errors | Use MSAL library with refresh tokens to automatically silently renew access tokens. |
+| **Delta Query Sync Invalidation** | Client delays sync request past delta token retention window | Full initial sync required, increasing API traffic | Catch `410 Gone` error and initiate a full re-sync using a fresh initial delta link. |
+| **Complex OData Filter Syntax Errors** | Invalid OData query format or missing required headers | Returns 400 Bad Request | Validate OData query string formats using Microsoft Graph Explorer before embedding in tools. |
 
 ## Related tools / concepts
 - [Microsoft Entra ID](../enterprise/microsoft-entra-id.md) — for identity and access management.
