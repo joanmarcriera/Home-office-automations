@@ -39,6 +39,15 @@ Raw reasoning benchmarks (e.g., Humanity's Last Exam) measure intellectual accur
 - **Network Dependency**: Client-side benchmarking results are heavily affected by network routes; tests must be conducted from inside the same private cloud/homelab mesh for pure engine benchmarks.
 - **Resource Intensive**: Running distributed Ray clusters for high-concurrency testing requires significant computing resources.
 
+## Detailed Serving Performance Matrix
+
+| Metric Category | Target SLA (Real-Time Agent) | vLLM Local Endpoint | Cloud Endpoint (Claude 5.6 / GPT-5.6) | Failure Mode Threshold |
+| :--- | :--- | :--- | :--- | :--- |
+| **TTFT (Time to First Token)** | < 350 ms | 120 ms - 280 ms | 220 ms - 450 ms | > 1000 ms (Degraded User DX) |
+| **ITL (Inter-Token Latency)** | < 25 ms / token | 8 ms - 18 ms / token | 12 ms - 22 ms / token | > 60 ms / token (Stuttering) |
+| **Output Throughput** | > 50 tokens / sec / user | 65 - 120 tokens / sec | 45 - 85 tokens / sec | < 20 tokens / sec |
+| **Concurrency Ceiling** | 50 parallel agents | ~ 40 parallel (8x H100) | ~ 250 parallel (Quota bound) | > 5% HTTP 429 RateLimit |
+
 ## When to use it
 - When evaluating and comparing cloud API performance under peak load.
 - When benchmarking custom-tuned open-weight models (e.g., Qwen 3.6 VL or DeepSeek-V4) on self-hosted vLLM or sglang servers.
@@ -101,37 +110,57 @@ python token_benchmark_ray.py \
 ## API examples
 
 ### FastMCP 3.1 Load Benchmarking Trigger Server
-Exposing LLMPerf load testing runs over FastMCP 3.1 Task Protocol:
+Exposing LLMPerf load testing runs over FastMCP 3.1 Task Protocol with Pydantic v2 validation:
 
 ```python
+import json
+import asyncio
+from typing import List, Optional, Dict, Any
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conint, confloat, HttpUrl
 
-mcp = FastMCP("LLMPerf Load Orchestrator")
+mcp = FastMCP("LLMPerf Load Orchestrator", version="3.1")
 
 class LoadTestConfig(BaseModel):
-    target_endpoint: str = Field(..., description="Target model URL / base API")
-    model_name: str = Field(...)
-    concurrent_users: int = Field(20, ge=1, le=500)
-    total_requests: int = Field(200, ge=10)
+    target_endpoint: str = Field("https://api.openai.com/v1", description="Target model URL / base API")
+    model_name: str = Field(..., description="Target model string ID")
+    concurrent_users: int = Field(20, ge=1, le=500, description="Parallel client actors to spin up")
+    total_requests: int = Field(200, ge=10, description="Total completed requests for run")
+    mean_input_tokens: int = Field(1024, ge=16, le=128000, description="Average prompt token count")
+    mean_output_tokens: int = Field(256, ge=16, le=16384, description="Average completion token count")
+
+class LatencyPercentiles(BaseModel):
+    p50: float = Field(..., description="P50 latency in seconds")
+    p90: float = Field(..., description="P90 latency in seconds")
+    p99: float = Field(..., description="P99 latency in seconds")
 
 class LoadTestResult(BaseModel):
     model_name: str
     tokens_per_sec: float
     mean_ttft_sec: float
+    mean_itl_sec: float
+    latency_percentiles: LatencyPercentiles
     meets_sla: bool
+    error_rate: float
 
 @mcp.tool()
-async def execute_load_test(config: LoadTestConfig, ctx: Context) -> LoadTestResult:
-    """Triggers an LLMPerf benchmark run via MCP."""
+async def execute_load_test(config: LoadTestConfig, ctx: Context) -> str:
+    """Triggers an LLMPerf benchmark run via FastMCP 3.1."""
     ctx.info(f"Triggering Ray LLMPerf load run against {config.target_endpoint} with {config.concurrent_users} users.")
 
-    return LoadTestResult(
+    # Simulated load execution output
+    await asyncio.sleep(0.5)
+
+    result = LoadTestResult(
         model_name=config.model_name,
         tokens_per_sec=940.5,
         mean_ttft_sec=0.380,
-        meets_sla=True
+        mean_itl_sec=0.018,
+        latency_percentiles=LatencyPercentiles(p50=0.35, p90=0.48, p99=0.62),
+        meets_sla=True,
+        error_rate=0.00
     )
+    return result.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()
@@ -208,6 +237,20 @@ if __name__ == "__main__":
     passed = evaluate_serving_sla(metrics)
     assert passed is True, "Performance evaluation did not pass!"
 ```
+
+## Diagnostic & Operational Troubleshooting
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **HTTP 429 / Rate Limit Exceeded** | Concurrent client count exceeds API provider rate limits. | Configure backoff in LLMPerf client or lower `--num-concurrent-requests`. |
+| **Ray Cluster OOM (Out of Memory)** | Ray workers buffer excessive streaming response logs in memory. | Increase worker node RAM or decrease `--max-num-completed-requests`. |
+| **Unusually High TTFT Spikes** | Cold start or KV cache eviction on the target engine (e.g., vLLM). | Pre-warm model endpoints with dummy queries before starting the benchmark. |
+| **Broken SSE Stream Token Parsing** | Custom API gateway or proxy returns non-standard JSON stream lines. | Custom adapter function needed in LLMPerf client parser. |
+
+## Operational Hardening & Guardrails
+- **Isolated Testing Network**: Run benchmarks from within the same VPC or K8s cluster as the serving engine to isolate network noise.
+- **Ray Actor Limits**: Set clear CPU/GPU resource bounds on Ray actor tasks to prevent starvation of the host server.
+- **Automated SLA Regression Gates**: Integrate LLMPerf validation with CI/CD pipelines to fail model deployments that exceed latency thresholds.
 
 ## Related tools / concepts
 - [Ollama Benchmark](ollama-benchmark-cli.md) — Fast local-only hardware benchmarking utility.
