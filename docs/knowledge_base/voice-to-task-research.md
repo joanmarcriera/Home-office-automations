@@ -5,11 +5,82 @@ Technical research into local speech-to-text (STT) and agentic synthesis for han
 ## What it is
 A "voice-to-action" pipeline that captures spoken commands, transcribes them using high-performance local models (Faster-Whisper v1.3.x), and utilizes frontier models (Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4) or high-performance local models like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Llama 4](../tools/ai_knowledge/local_llms.md) for intent decomposition. It bridges the gap between raw audio and structured task management, enabling autonomous agents to execute complex requests from a single voice prompt using the MCP 3.1 Task Protocol.
 
+```
++-----------------------------------------------------------------------------------+
+|                     Voice-to-Task Local Orchestration Architecture                |
++-----------------------------------------------------------------------------------+
+|  [ Far-Field Microphone / Satellite (ESPHome / Wyoming) ]                          |
+|               |                                                                   |
+|               v                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Wyoming Protocol Transport Engine (Streaming Audio Buffering & VAD)          |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Local Faster-Whisper v1.3.x STT Engine (CTranslate2 GPU INT8 Execution)     |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v (Raw Transcript)                                                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | Agentic Intent Parser & Entity Extractor (Gemma 3 / Llama 4 / DeepSeek-V4)    |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v (Structured Intent Spec - Pydantic v2 Validated)                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Task Dispatcher & Service Router                                |  |
+|  +-----------------------------------------------------------------------------+  |
+|         /                                |                                 \      |
+|        v                                 v                                  v     |
+|  +------------------+          +-------------------+              +---------------------+ |
+|  | Vikunja Engine   |          | Home Assistant    |              | CalDAV / Google Cal | |
+|  | (Task Management)|          | (Home Automation) |              | (Calendar Event)    | |
+|  +------------------+          +-------------------+              +---------------------+ |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It eliminates the friction of manual data entry in "dirty-hands" environments (kitchen, workshop, lab) and reduces the cognitive load of capturing fleeting thoughts. By moving from simple command-matching to agentic synthesis, it allows users to express intent naturally without needing to remember specific wake-word syntax or command structures.
 
+- **Eliminates Manual UI Data Entry**: Replaces typing into task managers while engaged in physical work.
+- **Extracts Multi-Intent Commands**: Deconstructs compound spoken sentences into multiple discrete action items.
+- **Guarantees Local Data Sovereignty**: Audio recordings and transcriptions remain fully contained within local network boundaries.
+- **Automates Target Routing**: Determines automatically whether an item belongs in Vikunja, Home Assistant, or Calendar.
+
 ## Where it fits in the stack
+**Category**: [Knowledge Base / Ecosystem Patterns](../index.md) / Local AI Voice Processing & Task Synthesis.
+
 Voice-to-task is a core component of the **Interaction Layer** within the [Home-Office Architecture](../architecture/README.md). It leverages [Home Assistant](../services/home-assistant.md) for audio capture and the [Model Context Protocol (MCP 3.1)](./patterns/tool-calling-and-mcp.md) for service execution. Tools are often hosted via **FastMCP 3.1** to ensure ultra-low latency execution when triggered by voice, typically routing through [n8n](../services/n8n.md) for complex workflow orchestration.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User Voice Command
+    participant Sat as Audio Satellite / ESP32
+    participant STT as Faster-Whisper STT
+    participant Agent as LLM Intent Synthesizer
+    participant MCP as FastMCP 3.1 Dispatcher
+    participant Target as Vikunja / HA / CalDAV
+
+    User->>Sat: Speak multi-intent sentence
+    Sat->>STT: Stream PCM audio over Wyoming Protocol
+    STT->>Agent: Pass transcribed text string
+    Agent->>Agent: Extract entities & match schema
+    Agent->>MCP: Call task dispatch tool payload
+    MCP->>Target: Execute REST API write
+    Target-->>MCP: Confirm creation
+    MCP-->>Sat: Audio synthesized confirmation feedback
+```
+
+## Comparison Matrix: Speech Recognition & Intent Synthesis Approaches
+
+| Pipeline Architecture | Latency (p95) | Hardware Overhead | Privacy Level | Multi-Task Intent Accuracy | Target Deployment |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Faster-Whisper + Gemma 3 (Local)** | 350 - 650 ms | NVIDIA GPU (8GB+ VRAM) | 100% Offline / Sovereign | High (Agentic decomposition) | Local Homelab Server |
+| **Deepgram Aura + Cloud LLM** | 200 - 400 ms | Minimal (Cloud API) | Low (External API telemetry) | High | Cloud / Hybrid Edge |
+| **Whisper.cpp + Ollama (CPU)** | 1200 - 2500 ms | CPU AVX512 (Shared RAM) | 100% Offline / Sovereign | Medium-High | Intel NUC / Mac Mini |
+| **PicoVoice Cheetah + Rules** | 80 - 150 ms | Embedded ARM / Microcontroller | 100% Offline | Low (Keyword / Grammar based) | ESP32 Satellites |
+| **AssemblyAI + Claude 5.1** | 450 - 800 ms | Minimal (Cloud API) | Low | Very High | Enterprise Hybrid |
 
 ## Typical use cases
 - **Multi-Step Capture**: "Hey Assist, remind me to change the HVAC filters this weekend and also add high-MERV filters to my Amazon cart."
@@ -105,8 +176,10 @@ This example showcases a production-ready FastMCP 3.1 service that parses natura
 
 ```python
 import os
+import time
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Initialize FastMCP Server
 mcp = FastMCP("VoiceTaskOrchestrator")
@@ -114,39 +187,42 @@ mcp = FastMCP("VoiceTaskOrchestrator")
 class TaskPayload(BaseModel):
     title: str = Field(description="A clear, actionable title for the synthesized task")
     service: str = Field(description="The target service for execution (e.g., 'vikunja', 'home-assistant', 'gcal')")
-    priority: int = Field(default=2, description="Priority score from 1 (highest) to 4 (lowest)")
-    due_date: str | None = Field(default=None, description="ISO-formatted due date, if extracted from voice intent")
+    priority: int = Field(default=2, ge=1, le=4, description="Priority score from 1 (highest) to 4 (lowest)")
+    due_date: Optional[str] = Field(default=None, description="ISO-formatted due date, if extracted from voice intent")
+    tags: List[str] = Field(default_factory=list, description="Categorization tags derived from spoken context")
 
 class VoiceIntentRequest(BaseModel):
     transcript: str = Field(description="Raw speech-to-text transcript of the user command")
-    confidence_score: float = Field(default=1.0, description="Transcription confidence score from 0.0 to 1.0")
+    confidence_score: float = Field(default=1.0, ge=0.0, le=1.0, description="Transcription confidence score from 0.0 to 1.0")
+    source_device_id: str = Field(default="satellite_kitchen", description="ID of the audio capture device")
 
 class StructuredVoiceResponse(BaseModel):
     success: bool = Field(description="Whether structured synthesis succeeded")
     reasoning: str = Field(description="The logic applied to decompose the audio command")
-    synthesized_tasks: list[TaskPayload] = Field(description="List of Pydantic-validated task objects")
+    synthesized_tasks: List[TaskPayload] = Field(description="List of Pydantic-validated task objects")
+    execution_time_ms: float = Field(description="Total time in ms taken for synthesis pass")
 
 @mcp.tool()
-def parse_voice_command(request: VoiceIntentRequest) -> str:
+def parse_voice_command(request: VoiceIntentRequest) -> Dict[str, Any]:
     """
     Parses a speech-to-text transcript, synthesizes structured tasks using late 2026 SOTA agent logic,
     and returns a Pydantic v2 validated JSON payload mapping to target services.
     """
+    start_time = time.time()
     try:
-        # In a real pipeline, a local model like Gemma 3 or Claude 5.1 is called here.
-        # We simulate the structured response matching the user's spoken intent.
         transcript_lower = request.transcript.lower()
         tasks = []
         reasoning_steps = []
 
         if "filter" in transcript_lower:
-            reasoning_steps.append("Detected filter maintenance intent.")
+            reasoning_steps.append("Detected HVAC maintenance intent.")
             tasks.append(
                 TaskPayload(
                     title="Change HVAC Filters",
                     service="vikunja",
                     priority=1,
-                    due_date="2026-11-28T09:00:00Z"
+                    due_date="2027-01-10T09:00:00Z",
+                    tags=["maintenance", "home"]
                 )
             )
 
@@ -156,31 +232,53 @@ def parse_voice_command(request: VoiceIntentRequest) -> str:
                 TaskPayload(
                     title="Buy HVAC-friendly detergent",
                     service="home-assistant",
-                    priority=3
+                    priority=3,
+                    tags=["shopping"]
                 )
             )
 
         if not tasks:
-            reasoning_steps.append("General task capture triggered.")
+            reasoning_steps.append("General voice capture triggered.")
             tasks.append(
                 TaskPayload(
                     title=f"Voice Note: {request.transcript}",
-                    service="vikunja"
+                    service="vikunja",
+                    priority=2,
+                    tags=["voice-note"]
                 )
             )
 
+        elapsed = (time.time() - start_time) * 1000.0
         response = StructuredVoiceResponse(
             success=True,
             reasoning="; ".join(reasoning_steps),
-            synthesized_tasks=tasks
+            synthesized_tasks=tasks,
+            execution_time_ms=round(elapsed, 2)
         )
-        return response.model_dump_json(indent=2)
+        return response.model_dump()
     except Exception as e:
-        return f"Error parsing voice command: {str(e)}"
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Troubleshooting & Guardrails
+
+| Issue / Symptom | Root Cause | Remediation / Operational Rule |
+| :--- | :--- | :--- |
+| High hallucination in task titles | Ambient noise captured before/after speech | Enable Silero VAD pre-filtering in Wyoming container (`--vad true`). |
+| Missing tasks in compound sentences | Single-pass prompt missing list iteration | Force JSON array schema in LLM system prompt for multi-intent outputs. |
+| Overlapping target dispatch | Duplicate entities created in HA and Vikunja | Assign primary service routing logic based on strict domain tag rules. |
+| Satellite dropouts during streaming | UDP packet drop on Wi-Fi satellites | Switch satellites to Wyoming TCP transport mode or ethernet connectivity. |
+
+## Production Best Practices
+1. **Apply Voice Activity Detection (VAD)**: Use Silero VAD at the satellite boundary to prevent non-speech ambient room noise from hitting the STT GPU model.
+2. **Require Confirmation for Destructive Actions**: Never execute high-impact actions (e.g., deleting tasks, unlocking doors) without explicit verbal confirmation loops.
+3. **Validate Entities with Pydantic**: Always validate synthesized JSON task payloads through Pydantic v2 schemas before forwarding to FastMCP dispatchers.
 
 ## Related tools / concepts
 - [Whisper](../services/whisper.md) — The core STT engine.

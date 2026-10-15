@@ -3,6 +3,34 @@
 ## What it is
 Joplin is a free, open-source note-taking and to-do application capable of managing structured notes across notebooks and sub-notebooks. It features native end-to-end encryption (E2EE) and provides a secure, token-authenticated Data REST API allowing frontier AI models and autonomous agent frameworks (including Claude Code, GPT-5.5, Gemini 4.0 Pro, and Llama 4) to index, query, edit, and synchronize note graphs via **FastMCP 3.1** protocol tools.
 
+```
++-----------------------------------------------------------------------------------+
+|                        Joplin E2EE Sync & Agent API Architecture                  |
++-----------------------------------------------------------------------------------+
+|  [ FastMCP 3.1 Agent Client / Claude Code / Local LLM Agent ]                      |
+|               |                                                                   |
+|               v                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | FastMCP 3.1 Joplin Server Tool Wrapper (Pydantic v2 Input/Output Validation)  |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v (HTTP REST Requests with Session Bearer Token)                    |
+|  +-----------------------------------------------------------------------------+  |
+|  | Joplin Local Data REST Service (:41184 Web Clipper HTTP Listener)           |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Local SQLite Storage Engine (Markdown Files, Revisions, Tags, & Metadata)   |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v (Client-Side E2EE Master Key Encryption Pass)                     |
+|  +-----------------------------------------------------------------------------+  |
+|  | Zero-Knowledge E2EE Sync Payload Target (Nextcloud / WebDAV / S3 / Dropbox) |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ```mermaid
 graph TD
     A[Autonomous Agent / MCP Client] -->|FastMCP 3.1 Tool Request| B[Joplin FastMCP Server]
@@ -19,8 +47,46 @@ graph TD
 ## What problem it solves
 Organizations, privacy-focused researchers, and homelab engineers frequently require a unified, secure knowledge management repository that bridges human note-taking with AI scratchpad and long-term memory operations. Standard cloud note applications expose private thoughts, personal data, and proprietary technical documentation to vendor AI training loops and potential telemetry leaks. Joplin addresses these risks by maintaining all notes in plain Markdown format on local storage, protecting synchronized data across devices via client-side E2EE, and exposing a local REST API that enables agentic systems to interact with knowledge graphs without external network exposure.
 
+- **Eliminates Telemetry & Cloud Vendor Sprawl**: Notes and attachments remain encrypted on client devices before sync.
+- **Enables Programmatic AI Scratchpads**: Exposes full CRUD operations over local localhost REST API endpoints.
+- **Prevents Vendor Lock-in**: Standard Markdown files and open SQLite database structure ensure long-term portability.
+- **Guarantees Zero-Knowledge Storage**: Remote sync targets (WebDAV/S3) receive only client-side encrypted blobs.
+
 ## Where it fits in the stack
-**AI & Knowledge / Note Taking**. Joplin serves as a privacy-centric knowledge retrieval application, local scratchpad, and structured document store. It integrates into local homelab automation and multi-agent knowledge loops via its REST Data API, browser web clipper extension, and **FastMCP 3.1** protocol connectors.
+**Category**: [AI & Knowledge / Note Taking](index.md).
+
+Joplin serves as a privacy-centric knowledge retrieval application, local scratchpad, and structured document store. It integrates into local homelab automation and multi-agent knowledge loops via its REST Data API, browser web clipper extension, and **FastMCP 3.1** protocol connectors.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as AI Coding Agent (Jules / Claude Code)
+    participant MCP as FastMCP 3.1 Joplin Server
+    participant API as Local Joplin REST Service (:41184)
+    participant DB as Local SQLite Store
+    participant Sync as Nextcloud / WebDAV E2EE Sync
+
+    Agent->>MCP: Issue note lookup request (`search_joplin_notes`)
+    MCP->>API: GET /search?query=...&token=...
+    API->>DB: Query SQLite FTS index
+    DB-->>API: Return matching note entities
+    API-->>MCP: HTTP 200 JSON payload
+    MCP-->>Agent: Deliver Pydantic v2 validated note list
+    Agent->>MCP: Issue note write request (`create_joplin_note`)
+    MCP->>API: POST /notes?token=...
+    API->>DB: Store markdown body & trigger sync mark
+    DB->>Sync: Background client-side encrypted sync push
+```
+
+## Comparison Matrix: Personal Knowledge Management (PKM) Systems
+
+| Feature / Dimension | Joplin | Obsidian | Logseq | Notion | Dendron |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Data Storage Model** | SQLite + Local Markdown | Plain File Vaults | Local Outliner Markdown/Org | Cloud Hosted DB | Local VSCode Markdown |
+| **Native E2EE Sync** | Yes (Built-in WebDAV/S3/Nextcloud) | Paid Obsidian Sync | Experimental / Manual | No (Cloud Vendor Access) | Git / Manual |
+| **Local Data REST API** | Yes (Built-in :41184 HTTP Server) | Plugin dependent | Local HTTP Plugin | Cloud API only | Local File System |
+| **Native AI / Agent Access** | Excellent (FastMCP 3.1 REST Tools) | Community plugins / CLI | Community plugins | Cloud AI subscription | Community plugins |
+| **Mobile & Desktop GUI** | Native apps across all OS | Native apps across all OS | Native desktop / mobile | Native & Web | VSCode Extension |
 
 ## Typical use cases
 - **Personal & Engineering Knowledge Management**: Organizing architecture designs, code snippets, and operational playbooks in hierarchical notebook structures.
@@ -102,23 +168,23 @@ joplin sync
 
 ## API examples
 
-### Python FastMCP 3.1 Server Integration with Joplin REST API
-The following code demonstrates a complete FastMCP 3.1 server exposing Joplin note operations as structured MCP tools backed by Pydantic v2 validation:
+### FastMCP 3.1 Joplin Server Integration with Data REST API
+The following code demonstrates a complete FastMCP 3.1 server exposing Joplin note indexing, full-text search, and note creation operations as structured MCP tools backed by Pydantic v2 validation:
 
 ```python
 import json
 import urllib.request
 import urllib.parse
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Define Pydantic v2 schemas for Joplin API operations
 class JoplinNoteCreateRequest(BaseModel):
     title: str = Field(..., min_length=1, description="Title of the new Joplin note.")
     body: str = Field(..., description="Markdown content body of the note.")
     parent_id: Optional[str] = Field(None, description="Optional ID of the target notebook folder.")
-    tags: Optional[List[str]] = Field(default_factory=list, description="Tags to attach to the note.")
+    tags: List[str] = Field(default_factory=list, description="Tags to attach to the note.")
 
 class JoplinNoteSearchRequest(BaseModel):
     query: str = Field(..., description="Search query string to search across notes.")
@@ -132,70 +198,93 @@ class JoplinNoteResponse(BaseModel):
     updated_time: int = Field(..., description="Unix timestamp of last modification.")
 
 # Initialize FastMCP 3.1 server instance
-mcp = FastMCP("joplin-knowledge-server")
+mcp = FastMCP("joplin-knowledge-server", instructions="FastMCP 3.1 server providing programmatic access to local Joplin notes.")
 
 JOPLIN_API_URL = "http://localhost:41184"
 JOPLIN_TOKEN = "your_joplin_web_clipper_token_here"
 
 @mcp.tool()
-async def create_joplin_note(request: JoplinNoteCreateRequest) -> JoplinNoteResponse:
+def create_joplin_note(request: JoplinNoteCreateRequest) -> Dict[str, Any]:
     """Creates a new note in Joplin with full Pydantic v2 validation and returns note metadata."""
-    params = {"token": JOPLIN_TOKEN}
-    url = f"{JOPLIN_API_URL}/notes?{urllib.parse.urlencode(params)}"
+    try:
+        params = {"token": JOPLIN_TOKEN}
+        url = f"{JOPLIN_API_URL}/notes?{urllib.parse.urlencode(params)}"
 
-    payload = {
-        "title": request.title,
-        "body": request.body
-    }
-    if request.parent_id:
-        payload["parent_id"] = request.parent_id
+        payload = {
+            "title": request.title,
+            "body": request.body
+        }
+        if request.parent_id:
+            payload["parent_id"] = request.parent_id
 
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"}
+        )
 
-    with urllib.request.urlopen(req) as response:
-        res_data = json.loads(response.read().decode("utf-8"))
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
 
-    return JoplinNoteResponse(
-        id=res_data["id"],
-        title=res_data["title"],
-        body=res_data["body"],
-        parent_id=res_data["parent_id"],
-        updated_time=res_data["updated_time"]
-    )
+        return {
+            "status": "success",
+            "note": JoplinNoteResponse(
+                id=res_data["id"],
+                title=res_data["title"],
+                body=res_data["body"],
+                parent_id=res_data["parent_id"],
+                updated_time=res_data["updated_time"]
+            ).model_dump()
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @mcp.tool()
-async def search_joplin_notes(request: JoplinNoteSearchRequest) -> List[JoplinNoteResponse]:
+def search_joplin_notes(request: JoplinNoteSearchRequest) -> Dict[str, Any]:
     """Searches Joplin notes matching a query term via the local REST API."""
-    params = {
-        "token": JOPLIN_TOKEN,
-        "query": request.query,
-        "limit": request.limit,
-        "fields": "id,title,body,parent_id,updated_time"
-    }
-    url = f"{JOPLIN_API_URL}/search?{urllib.parse.urlencode(params)}"
+    try:
+        params = {
+            "token": JOPLIN_TOKEN,
+            "query": request.query,
+            "limit": request.limit,
+            "fields": "id,title,body,parent_id,updated_time"
+        }
+        url = f"{JOPLIN_API_URL}/search?{urllib.parse.urlencode(params)}"
 
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
-    with urllib.request.urlopen(req) as response:
-        res_data = json.loads(response.read().decode("utf-8"))
+        req = urllib.request.Request(url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
 
-    results = []
-    for item in res_data.get("items", []):
-        results.append(JoplinNoteResponse(
-            id=item["id"],
-            title=item.get("title", ""),
-            body=item.get("body", ""),
-            parent_id=item.get("parent_id", ""),
-            updated_time=item.get("updated_time", 0)
-        ))
-    return results
+        results = []
+        for item in res_data.get("items", []):
+            results.append(JoplinNoteResponse(
+                id=item["id"],
+                title=item.get("title", ""),
+                body=item.get("body", ""),
+                parent_id=item.get("parent_id", ""),
+                updated_time=item.get("updated_time", 0)
+            ).model_dump())
+        return {"status": "success", "results": results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Troubleshooting & Guardrails
+
+| Symptom / Issue | Root Cause | Remediation / Action Item |
+| :--- | :--- | :--- |
+| `HTTP 403 Forbidden` on REST API calls | Invalid or missing token in API request | Copy token from Joplin Desktop (**Tools > Options > Web Clipper**) into request headers/params. |
+| `Connection Refused` on port 41184 | Web Clipper service disabled or Joplin GUI closed | Ensure Joplin application is running and Web Clipper service is toggled ON. |
+| Master Key Decryption Failure | Sync target missing local master password configuration | Enter E2EE master password in Joplin application settings (**Tools > Options > Encryption**). |
+| Excessive Conflict Notes Created | Simultaneous edits from multiple offline clients | Configure sync interval to 5 minutes or trigger `joplin sync` before starting editing session. |
+
+## Production Best Practices
+1. **Never Commit Clipper Auth Tokens**: Treat the Web Clipper authorization token as a secret credential; store in `.env` or system keychain.
+2. **Enable Auto-Lock Master Keys**: Configure client-side E2EE master keys with passphrase protection and auto-lock timeouts for laptops and mobile devices.
+3. **Automate Nightly SQLite Backups**: Export the local database or create automated `.jex` backup archives before automated agent write passes.
 
 ## Related tools / concepts
 - [Obsidian](obsidian.md) — Local Markdown knowledge base with graph visualization.

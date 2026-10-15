@@ -5,13 +5,71 @@ Just (invoked as `just` and configured via a `justfile`) is a fast, handy comman
 
 In early 2027, Just is a standard command execution wrapper across developer environments, local AI agent setups, and homelab operational workflows.
 
+```
++-----------------------------------------------------------------------------------+
+|                          Just Command Execution Pipeline                          |
++-----------------------------------------------------------------------------------+
+|  [ Human Developer CLI / Autonomous AI Agent (Claude Code / Jules) ]               |
+|               |                                                                   |
+|               v                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Just CLI Parser & AST Evaluator (justfile syntax parsing & .env loading)    |  |
+|  +-----------------------------------------------------------------------------+  |
+|               |                                                                   |
+|               v (Recipe Resolution & Variable Substituted AST)                    |
+|  +-----------------------------------------------------------------------------+  |
+|  | Target Shell Invocation Manager (Bash / Zsh / PowerShell / Python Hashbangs)  |  |
+|  +-----------------------------------------------------------------------------+  |
+|         /                                |                                 \      |
+|        v                                 v                                  v     |
+|  +------------------+          +-------------------+              +---------------------+ |
+|  | Subprocess CLI   |          | Inline Python     |              | Container Systems   | |
+|  | Tools & Scripts  |          | Interpreter       |              | (Docker / Podman)   | |
+|  +------------------+          +-------------------+              +---------------------+ |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 [GNU Make](gnu-make.md) is frequently abused as a simple task runner. However, Make's design requires file target resolution, `.PHONY` declarations to prevent conflicts with local directory names, and strict tab indentation. Moreover, passing positional CLI arguments or dynamic parameters to Makefile targets requires awkward `$(filter-out ...)` hacks or environment variable overrides. Other alternatives like heavy shell scripts lack self-documenting capabilities, listing mechanisms, or clean multi-line recipe formatting.
 
 Just solves these friction points by providing a purpose-built syntax designed exclusively for command execution. `justfile` recipes support typed positional arguments (`recipe param1 param2="default"`), modular `import` statements, inline polyglot scripts (`#!/usr/bin/env python3`), and automated `--list` command generation with doc comments.
 
+- **Eliminates .PHONY Overhead**: Treat every entry as a executable command recipe without file target checking.
+- **First-Class Positional Parameters**: Support optional, required, and default command line arguments natively.
+- **Polyglot Hashbang Execution**: Embed Python, Node, or Ruby multi-line logic directly inside recipe blocks.
+- **Self-Documenting CLI Entrypoints**: Automatically format and render project commands using `just --list`.
+
 ## Where it fits in the stack
 **Automation & Orchestration / Task Execution Layer**. Operating at the root of project repositories, Just provides the primary command interface for human developers and autonomous AI agents ([Claude Code](../development_ops/claude-code.md), [Jules](../../tools/ai_knowledge/jules.md)). It delegates execution to CLI tools, container systems ([Docker](../infrastructure/docker.md)), or complex task runners ([Taskfile](taskfile.md)).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer / AI Agent
+    participant J as Just CLI Runner
+    participant Env as Environment / .env Loader
+    participant Shell as Subprocess Shell / Hashbang
+    participant Target as Subprocess Target Command
+
+    Dev->>J: Invoke `just deploy staging`
+    J->>Env: Load .env file & export variables
+    J->>J: Evaluate recipe positional parameters
+    J->>Shell: Spawn configured default shell (e.g. bash -c)
+    Shell->>Target: Execute recipe commands sequentially
+    Target-->>Shell: Exit status (0 = success)
+    Shell-->>J: Propagate exit code
+    J-->>Dev: Print execution output & return status
+```
+
+## Comparison Matrix: Task Runners & Build Tools
+
+| Tool / Framework | Target Resolution | Variable & Argument Support | Polyglot Scripting | Primary Focus | Language Ecosystem |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Just** | Command recipes only (No file graph) | Native positional, defaults, variadic | Direct hashbangs (Python/Node/Bash) | Project command alias execution | Rust (Standalone binary) |
+| **GNU Make** | File modification timestamps | Complex macro hacks (`$(filter-out)`) | Shell strings only | C/C++ incremental compilation | C / POSIX standard |
+| **Taskfile (Task)** | File checksum fingerprinting (`STATUS`) | YAML task arguments & vars | Shell commands & Go templates | Cross-platform dev task runner | Go (Standalone binary) |
+| **Invoke (pyinv)** | Python functions & tasks | Python kwargs & CLI flags | Native Python code | Python-centric task execution | Python |
+| **Cargo-make** | Rust build steps & flows | Environment variables & TOML | Inline Duckscript / Rust / Bash | Rust project workflow automation | Rust |
 
 ## Typical use cases
 - **Developer Command Alias Suite**: Wrapping long, multi-flag development CLI commands under simple aliases (`just test`, `just lint`, `just serve`).
@@ -107,6 +165,75 @@ just --dump --dump-format json
 
 ## API examples
 
+### FastMCP 3.1 Justfile Orchestrator Tool Server
+The following Python script implements a complete **FastMCP 3.1** server that allows autonomous AI agents to inspect, list, and trigger `just` recipes with validated positional parameters.
+
+```python
+import os
+import subprocess
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "just-runner-server",
+    instructions="FastMCP 3.1 server exposing programmatic execution of local justfile recipes."
+)
+
+class JustRecipeExecutionRequest(BaseModel):
+    recipe_name: str = Field(..., description="Name of the justfile recipe to execute")
+    positional_args: List[str] = Field(default_factory=list, description="Positional parameters for recipe")
+    environment_overrides: Dict[str, str] = Field(default_factory=dict, description="Env vars to inject")
+
+class JustfileRecipeInfo(BaseModel):
+    name: str
+    doc_string: Optional[str] = None
+    parameters: List[str] = Field(default_factory=list)
+
+@mcp.tool()
+def list_available_recipes() -> Dict[str, Any]:
+    """
+    Executes `just --dump --dump-format json` to programmatically return all available recipes in workspace.
+    """
+    try:
+        res = subprocess.run(["just", "--dump", "--dump-format", "json"], capture_output=True, text=True, check=True)
+        dump_data = json.loads(res.stdout)
+        recipes_summary = []
+        for name, details in dump_data.get("recipes", {}).items():
+            if not details.get("private", False):
+                recipes_summary.append({
+                    "name": name,
+                    "doc": details.get("doc"),
+                    "parameters": [p["name"] for p in details.get("parameters", [])]
+                })
+        return {"status": "success", "recipes": recipes_summary}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@mcp.tool()
+def execute_recipe(request: JustRecipeExecutionRequest) -> Dict[str, Any]:
+    """
+    Triggers execution of a specific justfile recipe.
+    """
+    try:
+        env = os.environ.copy()
+        env.update(request.environment_overrides)
+        cmd = ["just", request.recipe_name] + request.positional_args
+        res = subprocess.run(cmd, capture_output=True, text=True, env=env)
+        return {
+            "status": "success" if res.returncode == 0 else "failed",
+            "exit_code": res.returncode,
+            "stdout": res.stdout,
+            "stderr": res.stderr
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Python (Justfile Parser & Executor with Pydantic v2 Schema Validation)
 The following script demonstrates programmatically generating and validating `justfile` configurations using strict **Pydantic v2** models and executing recipes via subprocess.
 
@@ -201,6 +328,20 @@ if __name__ == "__main__":
     print("\nGenerated justfile Content:\n")
     print(justfile_text)
 ```
+
+## Operational Troubleshooting & Guardrails
+
+| Symptom / Issue | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| `just: command not found` | `just` binary missing from user `$PATH` | Install `just` via system package manager or `cargo install just`. |
+| Recipe fails on Windows environment | Default shell missing or defaulting to `cmd.exe` | Add `set shell := ["powershell.exe", "-c"]` or `["bash", "-c"]` to top of `justfile`. |
+| Tab vs space indentation error | Mixed whitespace or spaces used in tab-sensitive block | Use hard tabs or set `set allow-duplicate-recipes := false` / run `just --fmt`. |
+| Variables in `.env` ignored | `.env` loading not explicitly declared | Add `set dotenv-load := true` at top of `justfile`. |
+
+## Production Best Practices
+1. **Always Define a `default` Recipe**: Set `default:` to `@just --list` so running `just` without arguments prints available project recipes cleanly.
+2. **Use Hashbangs for Complex Scripts**: For logic requiring multi-line conditionals or API calls, use `#!/usr/bin/env python3` inside the recipe rather than giant shell one-liners.
+3. **Format Standard Compliance**: Execute `just --fmt --check` in pre-commit CI pipelines to ensure uniform `justfile` formatting across developer machines.
 
 ## Related tools / concepts
 - [GNU Make](gnu-make.md) — Classic tab-indented build runner.
