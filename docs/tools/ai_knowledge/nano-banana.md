@@ -12,6 +12,50 @@ Key capabilities of the early 2027 ecosystem include:
 ## What problem it solves
 Traditional graphical editing pipelines (e.g., Photoshop, GIMP) are tedious and require deep technical expertise. Early text-to-image models lack revision control—any modification to a prompt generates a completely new image, destroying valuable layout progress. Nano Banana provides true non-destructive, conversational editing with exact continuity.
 
+## System Architecture
+
+```
++-----------------------------------------------------------------------------------+
+|                            Nano Banana Architecture Flow                          |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+         +-----------------------+                         |
+|  | User / App Input   | ------> | FastMCP 3.1 Server    |                         |
+|  | Prompt + Image Ref |         | Validates Schema      |                         |
+|  +--------------------+         +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Gemini Interactions   |                         |
+|                                 | Context & Memory      |                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                        +--------------------+--------------------+                |
+|                        |                                         |                |
+|                        v                                         v                |
+|           +-------------------------+               +-------------------------+   |
+|           | Reasoning & Depth Map   |               | Spatial Attention Engine|   |
+|           | Analyzes lighting/edges |               | Preserves key identities|   |
+|           +------------+------------+               +------------+------------+   |
+|                        |                                         |                |
+|                        +--------------------+--------------------+                |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Multimodal Diffusion  |                         |
+|                                 | Gemini 4.0 Flash /    |                         |
+|                                 | Gemini 4.0 Ultra      |                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Rendered Image Output |                         |
+|                                 | PNG / WebP + Metadata |                         |
+|                                 +-----------------------+                         |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## Where it fits in the stack
 It fits within the **AI Assistants & Knowledge** and **Creative & Communication** layers. It serves as a specialized image manipulation utility for multi-modal AI interactions, particularly for developers utilizing Google's API ecosystem.
 
@@ -20,6 +64,18 @@ It fits within the **AI Assistants & Knowledge** and **Creative & Communication*
 - **Identity-Consistent Product Design**: Placing an existing base product mockup into varied lifestyle scenes (e.g., "place this water bottle on a marble kitchen counter next to fresh lemons").
 - **Asset Localization**: Quickly translating text inside banner graphics or modifying regional elements for global marketing campaigns.
 - **Creative Visual Storytelling**: Progressively illustrating graphic novels or video scene concepts turn-by-turn.
+
+## Feature Matrix & Model Comparison
+
+| Feature / Model | Nano Banana (Gemini 4.0) | DALL-E 3 (OpenAI) | Flux.1 Pro (Black Forest) | Midjourney v6 | Stable Diffusion 3.5 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Conversational API / Studio | API / ChatGPT | API / Replicate | Discord / Web UI | API / Local GPU / ComfyUI |
+| **Multi-Turn Editing** | Native (Interaction ID) | Limited (Inpainting) | Single-turn / Seed-based | Vary Region / Pan | ControlNet / Inpainting |
+| **Inpainting Method** | Natural language text mask | Visual bounding box | Text / Bounding box | Selection lasso | Mask image + prompt |
+| **Identity Preservation** | High (Spatial-attention) | Medium | High | High (Character ref) | High (LoRA / IP-Adapter) |
+| **Typography Accuracy** | High | High | Very High | Moderate | High |
+| **Deployment Model** | Managed API (Vertex AI) | Managed API | Managed API / Cloud | Proprietary SaaS | Self-Hosted / Managed API |
+| **Reasoning Latency** | ~2.5s (Flash Image) | ~6.0s | ~4.0s | ~10.0s | ~1.5s - 8.0s (hardware dependent) |
 
 ## Strengths
 - **Logical Continuation**: Maintains high fidelity of untouched elements during localized modifications.
@@ -45,7 +101,7 @@ It fits within the **AI Assistants & Knowledge** and **Creative & Communication*
 Configure your environment to run Google's generative interactions APIs.
 
 ```bash
-pip install google-genai pillow pydantic
+pip install google-genai pillow pydantic mcp
 ```
 
 Obtain a key from Google AI Studio and expose it globally:
@@ -91,6 +147,85 @@ if __name__ == "__main__":
         prompt="A stylized illustration of a computer setup with neon lighting on a wooden desk."
     )
     print(f"Validated generation request for model: {req.model_name}")
+```
+
+## FastMCP 3.1 Server Integration
+
+To integrate Nano Banana into model context protocol (MCP) workflows, create a FastMCP 3.1 server expose tools for text-to-image and conversational in-context image edits:
+
+```python
+import base64
+from typing import Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+from google import genai
+
+# Initialize FastMCP Server
+mcp = FastMCP("nano-banana-editor", version="3.1.0")
+
+
+class GenerateImageSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+    prompt: str = Field(..., description="Natural language description of image to generate")
+    model_name: str = Field("gemini-4.0-flash-image", description="Gemini model name")
+    aspect_ratio: str = Field("1:1", description="Target aspect ratio: 1:1, 16:9, 9:16, 4:3")
+
+
+class EditImageSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+    prompt: str = Field(..., description="Natural language editing command (e.g., 'Change shirt color to red')")
+    previous_interaction_id: Optional[str] = Field(None, description="Previous interaction ID for context continuity")
+    base_image_b64: Optional[str] = Field(None, description="Base64 encoded image string if starting from local file")
+    mime_type: str = Field("image/png", description="Image MIME type")
+
+
+@mcp.tool()
+async def generate_image(params: GenerateImageSchema) -> dict:
+    """Generate a new image using Nano Banana Gemini Image API."""
+    client = genai.Client()
+    interaction = client.interactions.create(
+        model=params.model_name,
+        input=params.prompt,
+        config={"aspect_ratio": params.aspect_ratio}
+    )
+    return {
+        "status": "success",
+        "interaction_id": interaction.id,
+        "image_b64": interaction.output_image.data
+    }
+
+
+@mcp.tool()
+async def edit_image(params: EditImageSchema) -> dict:
+    """Edit an existing image using multi-turn conversational history or input image payload."""
+    client = genai.Client()
+
+    if params.previous_interaction_id:
+        interaction = client.interactions.create(
+            model="gemini-4.0-flash-image",
+            input=params.prompt,
+            previous_interaction_id=params.previous_interaction_id
+        )
+    elif params.base_image_b64:
+        interaction = client.interactions.create(
+            model="gemini-4.0-flash-image",
+            input=[
+                {"type": "text", "text": params.prompt},
+                {"type": "image", "mime_type": params.mime_type, "data": params.base_image_b64}
+            ]
+        )
+    else:
+        raise ValueError("Either previous_interaction_id or base_image_b64 must be provided.")
+
+    return {
+        "status": "success",
+        "interaction_id": interaction.id,
+        "edited_image_b64": interaction.output_image.data
+    }
+
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## CLI examples
@@ -230,6 +365,24 @@ if __name__ == "__main__":
     )
     print(f"Prepared batch swap for {len(req.backgrounds)} background variations.")
 ```
+
+## Troubleshooting & Edge Cases
+
+| Error / Failure Mode | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `INVALID_INTERACTION_ID` | Expired or non-existent `previous_interaction_id` session context. | Re-send the latest image state as base64 input in a fresh `interactions.create` call. |
+| `IMAGE_REASONING_TIMEOUT` | Complex prompt with dense text and spatial transformation rules exceeding 30s. | Simplify input turn; split structural modification and lighting/texture changes into separate turns. |
+| `SAFETY_BLOCK_WATERMARK` | Input image contains protected trademarks or sensitive human facial features. | Apply pre-filtering or blur trademarked logos before sending payload to Gemini API. |
+| `SPATIAL_DRIFT` | Over-editing in 5+ turns causes unintended shifts in background scale or perspective. | Reset context by passing original background anchor image along with requested foreground edits. |
+| `PAYLOAD_SIZE_EXCEEDED` | Base64 image payload exceeds HTTP POST limit (>20MB). | Compress image to JPEG/WebP or upload via Vertex AI GCS uri before invoking interaction API. |
+
+## Production Deployment & Operational Rules
+
+1. **Rate Limiting & Retries**: Implement exponential backoff with jitter on `RESOURCE_EXHAUSTED` (HTTP 429) errors. Set initial retry delay to 1.5s with max 5 attempts.
+2. **Base64 Payload Handling**: Avoid holding large uncompressed PNG buffers in memory. Streaming or temporary file cleanups must be enforced in FastMCP or backend handlers.
+3. **Session Expiry Rules**: `interaction_id` instances in Google AI Studio expire after 2 hours of inactivity. Always persist generated images locally or to S3/GCS alongside `interaction_id`.
+4. **Safety & Content Moderation**: Handle `finish_reason: SAFETY` gracefully. Provide fallback responses or user notifications when prompt safety blocks are triggered.
+5. **Cost Optimization**: Use `gemini-4.0-flash-image` for rapid iterative editing loops; switch to `gemini-4.0-pro-image` only for final studio-grade output renders.
 
 ## Related tools / concepts
 - [Gemini](gemini.md)

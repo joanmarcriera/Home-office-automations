@@ -12,63 +12,57 @@ Matt Pocock Skills addresses this problem by embedding explicit critical-thinkin
 **Category**: AI Assistants & Knowledge / Agent Execution Skills & Scaffolds.
 
 ```
-+-----------------------------------------------------------------------+
-|                    Developer / IDE Workspace                          |
-|         (Claude Code, Cursor, Cline, OpenCode, VS Code)               |
-+-----------------------------------------------------------------------+
-                                   |
-                                   v
-+-----------------------------------------------------------------------+
-|                       Matt Pocock Skills                              |
-|  +---------------------------+     +-------------------------------+  |
-|  |     /grill-me Scaffold    |     |      /tdd Test Scaffold       |  |
-|  +---------------------------+     +-------------------------------+  |
-|                |                                   |                  |
-|                v                                   v                  |
-|  +-----------------------------------------------------------------+  |
-|  |     FastMCP 3.1 Server Engine & Task Handler Interface          |  |
-|  +-----------------------------------------------------------------+  |
-+-----------------------------------------------------------------------+
-                                   |
-                                   v
-+-----------------------------------------------------------------------+
-|                  Frontier Reasoning Model & System                    |
-|       (Claude 5.1, GPT-5.5, Gemini 4.0 Pro, Local Llama 4)           |
-+-----------------------------------------------------------------------+
++-----------------------------------------------------------------------------------+
+|                           Matt Pocock Skills Execution Architecture               |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+         +-----------------------+                         |
+|  | Developer / IDE    | ------> | Skill Trigger         |                         |
+|  | Cursor, Claude Code|         | /grill-me, /tdd       |                         |
+|  +--------------------+         +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | FastMCP 3.1 Server    |                         |
+|                                 | Task Dispatch & Schema|                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                        +--------------------+--------------------+                |
+|                        |                                         |                |
+|                        v                                         v                |
+|           +-------------------------+               +-------------------------+   |
+|           | Adversarial Interrogator|               | TDD Red-Green Refactor  |   |
+|           | Generates probing Qs    |               | Writes failing tests    |   |
+|           +------------+------------+               +------------+------------+   |
+|                        |                                         |                |
+|                        +--------------------+--------------------+                |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Verified Plan & Code  |                         |
+|                                 | Authorized Mutator    |                         |
+|                                 +-----------------------+                         |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
 ```
 
 Operating at the reasoning and execution layer, these skills inject structured execution guidelines into agent runtimes like [Jules](jules.md) or [Claude Code](../development_ops/claude-code.md).
-
-## System Architecture & Sequence Flow
-The sequence diagram below illustrates how an agent uses the `/grill-me` skill to validate a technical plan via FastMCP 3.1 before applying changes to codebase files.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Dev as Software Engineer
-    participant Agent as Agent Runtime (e.g. Claude Code)
-    participant Skill as Pocock Skill (/grill-me)
-    participant FastMCP as FastMCP 3.1 Task Server
-    participant Model as Reasoning Engine (Claude 5.1 / GPT-5.5)
-
-    Dev->>Agent: Request complex refactor ("Migrate SQLite to Postgres")
-    Agent->>Skill: Trigger /grill-me skill scaffold
-    Skill->>FastMCP: Dispatch grill_plan task via MCP 3.0 Protocol
-    FastMCP->>Model: Present plan + adversarial interrogation prompts
-    Model-->>FastMCP: Generate 3 probing architectural questions
-    FastMCP-->>Skill: Return questioning payload
-    Skill-->>Dev: Present questions & wait for clarification
-    Dev->>Skill: Provide clarifications & boundary conditions
-    Skill->>Model: Re-evaluate plan with user answers
-    Model-->>Skill: Issue High-Confidence Verified Plan
-    Skill-->>Agent: Authorize file modifications
-```
 
 ## Typical use cases
 - **Plan Pressure-Testing (`/grill-me`)**: Requiring agents to answer 3 to 5 challenging architectural questions before executing complex code changes.
 - **Strict Test-Driven Development (`/tdd`)**: Forcing agents to write failing unit tests first, verify red status, write minimal implementation, and refactor cleanly.
 - **Environment & Dependency Diagnostics (`/diagnose`)**: Uncovering hidden version mismatches, missing system libraries, or environment variables causing build failures.
 - **FastMCP 3.1 Agent Extensions**: Binding custom engineering tools to IDE assistants via standardized MCP server interfaces.
+
+## Skill Suite Comparison Matrix
+
+| Skill / Scaffold | Primary Focus | Interaction Pattern | Key Guardrails | Primary Target Models |
+| :--- | :--- | :--- | :--- | :--- |
+| **`/grill-me`** | Plan pressure-testing & edge case discovery | Multi-turn adversarial Q&A | Block file modifications until plan verification | Claude 5.1, GPT-5.5, Gemini 4.0 Pro |
+| **`/tdd`** | Strict Red-Green-Refactor code writing | Automated test-first loop | Mandatory failing test execution before source editing | Claude 5.1, Llama 4 Maverick |
+| **`/diagnose`** | Environment & dependency failure triage | System inspection & log reading | Non-mutating read-only analysis | GPT-5.5, DeepSeek-V4 |
+| **Karpathy Skills** | Surgical code modification & context minimizer | Direct single-turn code refactor | Minimal diff footprint enforcement | Open-weight 70B models, Gemma 4 |
+| **OpenCode Skills** | Full-repository feature generation | Autonomous task loop | Sandbox container execution | Claude Code, Cursor Agent |
 
 ## Strengths
 - **Enforces Staff Engineer Rigor**: Replaces hasty token generation with deliberate plan verification and boundary testing.
@@ -132,17 +126,18 @@ The Python code below demonstrates a complete **FastMCP 3.1** server that execut
 ```python
 import asyncio
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
-from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for Pocock Skills
 mcp = FastMCP(
     name="Matt Pocock Skills Engine",
-    version="3.1.0",
-    description="FastMCP server hosting grill-me and TDD execution scaffolds"
+    version="3.1.0"
 )
 
 class PlanGrillRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     proposal_title: str = Field(..., alias="title", min_length=5)
     plan_description: str = Field(..., alias="description", min_length=20)
     target_files: List[str] = Field(default_factory=list, alias="targetFiles")
@@ -203,6 +198,24 @@ async def grill_me_plan(payload: Dict[str, Any]) -> Dict[str, Any]:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Troubleshooting & Failure Modes
+
+| Failure Mode / Error | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Grill Loop Deadlock** | Agent refuses to proceed waiting for human answers in an unattended environment. | Use `--non-interactive` flag or configure automated synthetic answers for CI pipelines. |
+| **Over-Engineering Bias** | `/grill-me` generates excessive architectural questions for minor feature changes. | Set `question_depth=1` for minor refactors; enforce strict scope boundaries. |
+| **FastMCP Schema Mismatch** | Agent runtime tool payload missing required `targetFiles` alias field. | Use Pydantic v2 `populate_by_name=True` or enforce alias validation in tool wrappers. |
+| **Context Window Overflow** | Long `/tdd` test runs accumulate excessive test log output in agent context. | Pipe test output through log filter scripts (`/tdd --quiet`) to preserve context. |
+| **Permission Denied Mutator** | Agent attempts file modifications prior to plan verification approval. | Configure IDE system prompts to strictly require `grill_session_result.authorized == True`. |
+
+## Production Deployment Guardrails
+
+1. **Gatekeeping File Access**: Enforce system prompt rules prohibiting code generation tools from touching files until `/grill-me` returns `authorized: True`.
+2. **Context Window Preserving**: Truncate test runner output in `/tdd` loops to only display relevant stack traces and failure assertions.
+3. **Automated Interrogation Fallback**: In automated batch mode, feed `/grill-me` questions to an independent reviewer agent (e.g., Gemini 4.0 Ultra) to verify answers autonomously.
+4. **Audit Trajectory Logging**: Store all grill questions and developer clarifications in version-controlled markdown reports (`docs/reports/grill-sessions/`).
+5. **Tool Scope Enforcement**: Ensure skills only access white-listed directories and cannot run arbitrary shell commands outside test targets.
 
 ## Related tools / concepts
 - [Andrej Karpathy Skills](karpathy-skills.md) — Surgical code modification patterns.

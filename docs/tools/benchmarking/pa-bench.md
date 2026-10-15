@@ -5,39 +5,45 @@ PA-bench is a comprehensive benchmark suite designed to evaluate the performance
 
 ## Architecture & Agentic Simulation Flow
 
-```mermaid
-flowchart TD
-    subgraph Suite ["PA-bench Task Harness"]
-        TaskDef["Task Definition (Calendar / Email / Travel)"]
-        Orchestrator["Experiment Orchestrator"]
-    end
-
-    subgraph Simulation ["Simulated Backend Enclaves"]
-        DockerSim["Docker Container: PA Simulations"]
-        MockGmail["Mock Gmail API / Web UI"]
-        MockGCal["Mock Google Calendar API / Web UI"]
-    end
-
-    subgraph AgentLoop ["Agent Execution Loop"]
-        Agent["Web Agent (Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra)"]
-        Browser["Chromium Headless (v146 Side-Panel Hooks)"]
-        FastMCP["FastMCP 3.1 Task Server"]
-    end
-
-    subgraph Scoring ["Evaluation & Verification"]
-        Verify["Deterministic State Verifier"]
-        Scorecard["Pydantic v2 Validated Trajectory Report"]
-    end
-
-    TaskDef --> Orchestrator
-    Orchestrator --> DockerSim
-    DockerSim --> MockGmail & MockGCal
-    Orchestrator --> Agent
-    Agent --> Browser
-    Browser --> FastMCP
-    FastMCP --> MockGmail & MockGCal
-    MockGmail & MockGCal --> Verify
-    Verify --> Scorecard
+```
++-----------------------------------------------------------------------------------+
+|                              PA-bench Execution Flow                              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+         +-----------------------+                         |
+|  | Task Definition    | ------> | Experiment            |                         |
+|  | Calendar/Email/Travel        | Orchestrator          |                         |
+|  +--------------------+         +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Docker Simulation     |                         |
+|                                 | Mock Gmail & GCal     |                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                        +--------------------+--------------------+                |
+|                        |                                         |                |
+|                        v                                         v                |
+|           +-------------------------+               +-------------------------+   |
+|           | Web Agent Execution     |               | FastMCP 3.1 Task Server |   |
+|           | Headless Browser / MCP  |               | Trajectory Telemetry    |   |
+|           +------------+------------+               +------------+------------+   |
+|                        |                                         |                |
+|                        +--------------------+--------------------+                |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Deterministic State   |                         |
+|                                 | Verifier              |                         |
+|                                 +-----------+-----------+                         |
+|                                             |                                     |
+|                                             v                                     |
+|                                 +-----------------------+                         |
+|                                 | Pydantic v2 Scorecard |                         |
+|                                 | Metric Report         |                         |
+|                                 +-----------------------+                         |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -51,6 +57,17 @@ It addresses the lack of realistic evaluation frameworks for web-based agents by
 - **Regression Testing**: Ensuring that updates to an agent's reasoning or navigation logic don't break existing capabilities in the Ralph-loop.
 - **Research**: Providing a standardized baseline for academic and industrial research into autonomous web navigation and "Computer Use" capabilities.
 - **Security Auditing**: Testing agentic resilience against adversarial UI patterns using the SHARP (SharpAI Security Benchmark) methodology.
+
+## Benchmark Comparison Matrix
+
+| Benchmark Suite | Focus Domain | Execution Environment | Evaluation Metric | Interaction Protocol |
+| :--- | :--- | :--- | :--- | :--- |
+| **PA-bench** | Personal Assistant / Web Apps | Mock Web Services (Docker) | State Verification & Trajectory Success | Browser Side-Panel / FastMCP 3.1 |
+| **promptfoo** | LLM Prompt / Security / Red-Teaming | API / Simulated Prompts | Assertions / LLM-as-a-Judge | HTTP / REST API |
+| **DeepEval** | LLM Quality & RAG Pipelines | Python In-Memory | Hallucination, Faithfulness, Toxicity | Python SDK / Pytest |
+| **SWE-bench** | Software Engineering / GitHub | Docker Containers | Unit Test Pass Rate | Terminal / Git Commands |
+| **OSWorld** | OS-Level GUI Control | QEMU VMs / Linux / Win / Mac | OS State / Pixels | VNC / OS API |
+| **Terminal-bench** | Bash Command Line Tasks | Docker / Container Shell | Exit Code / File System State | PTY Shell Commands |
 
 ## Strengths
 - **Real-world Focus**: Tasks are based on actual personal assistant workflows rather than synthetic laboratory examples.
@@ -79,7 +96,7 @@ PA-bench is typically executed via its Python SDK, which manages simulated envir
 
 ### 1. Installation
 ```bash
-pip install pa-bench
+pip install pa-bench pydantic mcp
 # Ensure Docker is running
 docker pull vibrantlabs/pa-simulations:latest
 ```
@@ -90,6 +107,66 @@ Configure your agent's API access via environment variables or a `.env` file:
 export ANTHROPIC_API_KEY="sk-..."
 export OPENAI_API_KEY="sk-proj-..."
 export PA_BENCH_MODE="simulation"
+```
+
+## FastMCP 3.1 Server Evaluation & Trajectory Logging
+
+The following Python snippet implements a FastMCP 3.1 server designed to evaluate PA-bench task runs, record agent step trajectories, and return validated scorecard reports using Pydantic v2 schemas:
+
+```python
+import json
+from typing import List, Optional
+from datetime import datetime
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("pa-bench-evaluator", version="3.1.0")
+
+
+class TrajectoryStepSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    step_num: int = Field(..., ge=1, description="Sequential step counter")
+    action_type: str = Field(..., description="Action type: navigate, click, type, wait, verify")
+    target_selector: Optional[str] = Field(None, description="CSS or XPath target element")
+    input_text: Optional[str] = Field(None, description="Typed text payload")
+    url: Optional[str] = Field(None, description="URL location during action execution")
+    screenshot_b64: Optional[str] = Field(None, description="Base64 encoded screenshot image")
+
+
+class EvaluationTaskRunSchema(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    run_id: str = Field(..., min_length=5, description="Unique evaluation session ID")
+    task_id: str = Field(..., description="PA-bench task identifier (e.g. 'calendar_sync_2027')")
+    suite_category: str = Field(..., description="Suite category: travel, email, calendar, research")
+    steps: List[TrajectoryStepSchema] = Field(default_factory=list)
+    max_allowed_steps: int = Field(default=50, ge=5, le=200)
+    is_completed: bool = Field(False)
+    verification_passed: bool = Field(False)
+
+
+@mcp.tool()
+async def evaluate_task_trajectory(payload: EvaluationTaskRunSchema) -> dict:
+    """Validate and evaluate a completed PA-bench task trajectory execution."""
+    total_steps = len(payload.steps)
+    step_efficiency = 1.0 - (total_steps / payload.max_allowed_steps)
+
+    scorecard = {
+        "run_id": payload.run_id,
+        "task_id": payload.task_id,
+        "suite_category": payload.suite_category,
+        "total_steps": total_steps,
+        "verification_status": "PASSED" if payload.verification_passed else "FAILED",
+        "efficiency_score": max(0.0, round(step_efficiency, 2)),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return scorecard
+
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## CLI examples
@@ -124,8 +201,8 @@ pa-bench report --run_id RUN_123 --format webm
 
 ## API examples
 
-### Trajectory Schema Validation & FastMCP 3.1 Server Integration
-Using **Pydantic v2** and **FastMCP 3.1 Task Protocol**, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines (using frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL).
+### Trajectory Schema Validation & FastMCP 3.1 Integration
+Using **Pydantic v2** and **FastMCP 3.1 Task Protocol**, we validate web agent trajectories generated during PA-bench runs before persisting them to the database or passing them to evaluation engines.
 
 ```python
 import json
@@ -208,17 +285,23 @@ print(f"Mean Steps: {results.mean_steps_to_completion}")
 sim_manager.shutdown()
 ```
 
-### Defining a Custom Web Task
-```python
-from pa_bench import TaskDefinition
+## Troubleshooting & Common Errors
 
-task = TaskDefinition(
-    id="multi_calendar_sync_01",
-    goal="Sync my Fastmail and GCal events for next Tuesday.",
-    apps=["gmail", "google_calendar"],
-    eval_script="verify_sync.py"
-)
-```
+| Error / Failure Mode | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `DOCKER_CONTAINER_TIMEOUT` | Simulation environment container failed to spawn within 30s. | Increase Docker memory limit to 8GB; restart `vibrantlabs/pa-simulations` daemon. |
+| `SIDE_PANEL_HOOK_FAILED` | Chrome headless extension unable to attach to side-panel DOM context. | Ensure Chrome args include `--enable-extension-hooks` and update to Chrome v145+. |
+| `STATE_VERIFICATION_MISMATCH` | Agent completed actions but backend DB verification script returned non-zero. | Check target mock API endpoint state; inspect `diagnostics/screenshots/` for UI navigation errors. |
+| `MAX_STEPS_EXCEEDED` | Agent stuck in infinite UI interaction loop without reaching completion state. | Adjust prompt system instructions with clear stopping criteria or decrease element selector timeout. |
+| `INFERENCE_RATE_LIMIT` | LLM provider API rate limit hit during multi-step browser interaction. | Configure LiteLLM proxy with fallback keys or apply retry backoff on API calls. |
+
+## Production Validation Guardrails
+
+1. **Simulated Isolation**: Always run PA-bench evaluations against isolated mock container enclaves to prevent unintended side effects on real user accounts.
+2. **Determinism Verification**: Run 3 trials per task to calculate trajectory consistency and rule out stochastic prompt variance.
+3. **Artifact Retention**: Store DOM snapshots, network HAR files, and step screenshots for every failed trajectory step to accelerate agent debugging.
+4. **Token Cost Budgeting**: Set strict per-run token limits in LiteLLM or agent orchestrators to prevent budget exhaustion during agent loop bugs.
+5. **Security Isolation**: Execute un-trusted agent code within unprivileged sandboxes to mitigate prompt injection risks targeting browser agents.
 
 ## Related tools / concepts
 - [Web Agents](../../knowledge_base/agent_protocols.md) - Core architectural patterns.
