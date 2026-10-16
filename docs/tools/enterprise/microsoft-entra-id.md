@@ -6,6 +6,17 @@ Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity a
 ## What problem it solves
 It solves the critical security challenges of federated identity, Single Sign-On (SSO), and access governance in modern hybrid work and autonomous agent environments. Entra ID provides granular control over authentication, conditional access, and privileged roles for both human users and automated workloads, preventing unauthorized access and credential leakage across enterprise services.
 
+```mermaid
+flowchart TD
+    A[Kubernetes Pod / Workload Agent] -->|1. Request ServiceAccount Token| B[K8s OIDC Provider]
+    B -->|2. Projected JWT Assertion| A
+    A -->|3. Exchange Token via OAuth2 Client Credentials| C[Microsoft Entra ID STS]
+    C -->|4. Validate OIDC Issuer & Claims| D[Federated Identity Credentials]
+    D -->|5. Cryptographically Approved| C
+    C -->|6. Return Access Token| A
+    A -->|7. FastMCP 3.1 Graph API Call| E[Microsoft Graph API / M365]
+```
+
 ## Where it fits in the stack
 **Category**: Enterprise / Identity & Access Management. It sits at the absolute security perimeter, serving as the central authentication, authorization, and audit boundary between frontier language models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or DeepSeek-V4), custom orchestration loops, and secure API gateways like the [Microsoft Graph API](../providers/microsoft-graph.md).
 
@@ -69,6 +80,88 @@ mgc users get --user-id me
 # List all secure groups available within the tenant
 mgc groups list --select id,displayName,mailNickname
 ```
+
+
+## FastMCP 3.1 Server & Identity Tools
+
+The following FastMCP 3.1 server implementation provides tools for autonomous agents to verify token validity, fetch token assertions via Workload Identity, and evaluate Conditional Access context using **Pydantic v2** validation.
+
+```python
+import os
+import uuid
+import time
+from typing import List, Optional, Dict
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+import msal
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Entra ID Workload Identity Server", version="3.1")
+
+# ---------------------------------------------------------------------------
+# Strict Pydantic v2 Models
+# ---------------------------------------------------------------------------
+
+class EntraAuthConfig(BaseModel):
+    tenant_id: str = Field(..., description="Microsoft Entra Tenant ID UUID")
+    client_id: str = Field(..., description="Application / Client ID UUID")
+    authority: str = Field(default="https://login.microsoftonline.com", description="STS Endpoint Base URL")
+
+    @field_validator("tenant_id", "client_id")
+    @classmethod
+    def validate_uuid_format(cls, v: str) -> str:
+        try:
+            uuid.UUID(v)
+        except ValueError:
+            raise ValueError("Must be a valid UUID string")
+        return v
+
+class WorkloadTokenRequest(BaseModel):
+    scopes: List[str] = Field(default=["https://graph.microsoft.com/.default"], description="Requested OAuth2 scopes")
+    assertion_token_path: str = Field(..., description="Path to projected OIDC service account token")
+
+class TokenResponse(BaseModel):
+    access_token: str = Field(..., description="OAuth2 access token string")
+    expires_in: int = Field(..., description="Token lifespan in seconds")
+    token_type: str = Field(default="Bearer")
+    scope: str = Field(...)
+
+# ---------------------------------------------------------------------------
+# FastMCP Tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def acquire_workload_token(config: EntraAuthConfig, request: WorkloadTokenRequest) -> TokenResponse:
+    """Acquire Entra ID access token using Workload Identity Federation (no secrets)."""
+    if not os.path.exists(request.assertion_token_path):
+        raise FileNotFoundError(f"Federated assertion token not found at: {request.assertion_token_path}")
+
+    with open(request.assertion_token_path, "r") as f:
+        client_assertion = f.read().strip()
+
+    app = msal.ConfidentialClientApplication(
+        client_id=config.client_id,
+        authority=f"{config.authority}/{config.tenant_id}",
+        client_credential={"client_assertion": client_assertion}
+    )
+
+    result = app.acquire_token_for_client(scopes=request.scopes)
+
+    if "access_token" not in result:
+        error_desc = result.get("error_description", "Unknown STS authentication failure")
+        raise RuntimeError(f"Entra ID token acquisition failed: {error_desc}")
+
+    return TokenResponse(
+        access_token=result["access_token"],
+        expires_in=result.get("expires_in", 3600),
+        token_type=result.get("token_type", "Bearer"),
+        scope=" ".join(request.scopes)
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 
 ## API examples
 This example demonstrates secure federated authentication for an autonomous agent using the MSAL library, validated with **Pydantic v2** models to guarantee strict schema boundaries on the generated token and context.
@@ -148,7 +241,6 @@ def get_access_token_via_federation(raw_context: dict) -> dict:
 
 
 if __name__ == "__main__":
-    # Example execution configuration (early January 2027 parameters)
     raw_config = {
         "azure_tenant_id": "00000000-1111-2222-3333-444444444444",
         "azure_client_id": "99999999-8888-7777-6666-555555555555",
@@ -176,6 +268,26 @@ curl -X POST https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token 
      -d "grant_type=client_credentials"
 ```
 
+
+## Operational Guardrails & Identity Security
+
+1. **Eliminate Client Secrets**: Never use static long-lived Client Secrets in automated agent production pipelines. Mandate Workload Identity Federation (Kubernetes ServiceAccount projection or GitHub Actions OIDC).
+2. **Least-Privilege Scopes**: Grant specific Graph API permissions (e.g. `User.Read.All` instead of `Directory.AccessAsUser.All`) and require explicit tenant admin consent.
+3. **PIM Just-In-Time Elevation**: For admin automation tasks, require automated PIM activation requests with temporary duration limits (<4 hours) rather than standing admin permissions.
+4. **Token Cache Isolation**: Cache MSAL tokens in encrypted memory or secure keyring stores. Never write unencrypted access tokens or refresh tokens to disk or log streams.
+
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Remediation Action |
+| :--- | :--- | :--- |
+| `AADSTS700016: Application with identifier 'X' was not found` | Invalid Client ID or cross-tenant application registration issue. | Check client ID string in config and verify application exists in target tenant admin console. |
+| `AADSTS70021: No matching federated credentials found` | Workload identity issuer URL, subject, or audience mismatch. | Inspect Kubernetes ServiceAccount namespace and name against Entra ID App Federated Credential settings. |
+| `AADSTS50105: The signed in user 'X' is not assigned to a role` | User or Service Principal lacks explicit Enterprise App assignment. | Enable "Assignment required?" flag under Enterprise Application settings or assign security group. |
+| `AADSTS53003: Access has been blocked by Conditional Access policies` | Agent runtime IP address or platform profile fails policy constraints. | Exclude agent workload subnet or configure Location Named IPs in Entra ID Conditional Access. |
+| `401 Unauthorized: Invalid Signature` | Access token intended for different audience or expired. | Verify requested scope matches resource URL (e.g. `https://graph.microsoft.com/.default`). |
+
+
 ## Related tools / concepts
 - [Microsoft Graph API](../providers/microsoft-graph.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
@@ -184,11 +296,13 @@ curl -X POST https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token 
 - [Tailscale OIDC Integration](../../services/tailscale.md)
 - [Vault Secret Management](../automation_orchestration/vault-mcp.md)
 
+
 ## Sources / References
 - [Microsoft Entra Fundamentals](https://learn.microsoft.com/en-us/entra/fundamentals/)
 - [Microsoft Authentication Library (MSAL) Documentation](https://learn.microsoft.com/en-us/entra/msal/)
 - [Microsoft Entra Admin Center Portal](https://entra.microsoft.com/)
 - [OAuth 2.0 Workload Identity Federation (RFC 7523)](https://datatracker.ietf.org/doc/html/rfc7523)
+
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

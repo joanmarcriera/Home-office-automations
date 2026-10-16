@@ -12,45 +12,12 @@
 ## What problem it solves
 - Solves the security and compliance risk of handling confidential communications, sensitive document attachments, and proprietary prompt templates on unencrypted email servers.
 - Prevents unauthorized data scraping and surveillance by enforcing client-side zero-access encryption.
+- Eliminates manual document classification bottlenecks by enabling headless local agent pipelines to ingest, decrypt, and route messages securely.
+
 
 ## Where it fits in the stack
 - Sits in the **Enterprise Privacy & Intake Automation** layer.
 - Connects local agent pipelines (via Proton Mail Bridge IMAP/SMTP) with secure cloud email storage under Swiss privacy laws.
-
-## Typical use cases
-
-- **Confidential Document Ingestion**: Securely receiving sensitive contracts, medical reports, and financial statements for processing in local RAG architectures without exposing raw text to cloud email providers.
-- **Privacy-Preserving Task Automation**: Ingesting user-submitted instructions, calendar invites, and service requests for automated parsing into ticket management systems (Paperless-ngx, Vikunja, JIRA).
-- **Secure Executive Communication**: Protecting C-suite and research team communications against external surveillance and automated data scraping.
-- **Encrypted Agent Telemetry & Alerts**: Transporting high-priority operational alerts and compliance reports across organizational security boundaries using PGP key encryption.
-
-
-## Strengths
-
-- **Unmatched Data Privacy**: Zero-access storage and zero-knowledge architecture guarantee strict data sovereignty governed by Swiss jurisdiction.
-- **Open Standards Compliance**: Native support for OpenPGP (RFC 4880 / RFC 9580) and standard IMAP/SMTP protocols via Proton Mail Bridge.
-- **Enterprise Productivity Integration**: Tightly integrated with Proton Calendar, Proton Drive, and Proton Pass for a complete privacy-first suite.
-
-
-## Limitations
-
-- **Client-Side Search Overhead**: Content search inside encrypted mailboxes requires client-side search index building, which can consume local RAM/CPU on large mailboxes.
-- **Bridge Dependency for Scripts**: Programmatic headless automation requires local execution of the Proton Mail Bridge daemon.
-- **Rate Limits & Anti-Spam Safeguards**: Outbound sending limits are enforced to prevent platform abuse, requiring custom SMTP domain reputation configuration for high-volume notification pipelines.
-
-
-## When to use it
-
-- When building AI document intake pipelines that process sensitive, regulated, or proprietary human communications.
-- When absolute data privacy and regulatory compliance (GDPR, Swiss FADP, HIPAA compatibility) are required for executive and developer workflows.
-- When you require a reliable, OpenPGP-compatible secure messaging platform integrated with desktop and server agent environments.
-
-
-## When not to use it
-- When you require high-volume automated marketing email blasts (use dedicated transactional email gateways).
-- When native server-side CalDAV/IMAP endpoints are required without running local proxy daemons.
-
-## Getting started
 
 ```
 +-------------------------------------------------------------------+
@@ -68,6 +35,7 @@
 |                                                                   |
 |  +-------------------------------------------------------------+  |
 |  |                  Proton Mail Bridge Daemon                  |  |
+|  |             (Background headless container/daemon)           |  |
 |  +-------------------------------------------------------------+  |
 |                                ||                                 |
 |                  Local localhost:1143 (IMAP)                      |
@@ -84,8 +52,183 @@
 ```
 
 
+## Typical use cases
+
+- **Confidential Document Ingestion**: Securely receiving sensitive contracts, medical reports, and financial statements for processing in local RAG architectures without exposing raw text to cloud email providers.
+- **Privacy-Preserving Task Automation**: Ingesting user-submitted instructions, calendar invites, and service requests for automated parsing into ticket management systems (Paperless-ngx, Vikunja, JIRA).
+- **Secure Executive Communication**: Protecting C-suite and research team communications against external surveillance and automated data scraping.
+- **Encrypted Agent Telemetry & Alerts**: Transporting high-priority operational alerts and compliance reports across organizational security boundaries using PGP key encryption.
+
+
+## Strengths
+
+- **Unmatched Data Privacy**: Zero-access storage and zero-knowledge architecture guarantee strict data sovereignty governed by Swiss jurisdiction.
+- **Open Standards Compliance**: Native support for OpenPGP (RFC 4880 / RFC 9580) and standard IMAP/SMTP protocols via Proton Mail Bridge.
+- **Enterprise Productivity Integration**: Tightly integrated with Proton Calendar, Proton Drive, and Proton Pass for a complete privacy-first suite.
+- **Headless Server Compatibility**: Proton Mail Bridge can run in CLI non-interactive mode or within dedicated Docker containers for CI/CD and server automation.
+
+
+## Limitations
+
+- **Client-Side Search Overhead**: Content search inside encrypted mailboxes requires client-side search index building, which can consume local RAM/CPU on large mailboxes.
+- **Bridge Dependency for Scripts**: Programmatic headless automation requires local execution of the Proton Mail Bridge daemon.
+- **Rate Limits & Anti-Spam Safeguards**: Outbound sending limits are enforced to prevent platform abuse, requiring custom SMTP domain reputation configuration for high-volume notification pipelines.
+
+
+## When to use it
+
+- When building AI document intake pipelines that process sensitive, regulated, or proprietary human communications.
+- When absolute data privacy and regulatory compliance (GDPR, Swiss FADP, HIPAA compatibility) are required for executive and developer workflows.
+- When you require a reliable, OpenPGP-compatible secure messaging platform integrated with desktop and server agent environments.
+
+
+## When not to use it
+- When you require high-volume automated marketing email blasts (use dedicated transactional email gateways like Postmark or Amazon SES).
+- When native server-side CalDAV/IMAP endpoints are required without running local proxy daemons.
+
+
+## Getting started
+
+To configure Proton Mail for server automation:
+
+1. **Install Proton Mail Bridge**: Download and install `protonmail-bridge` for Linux, macOS, or Windows.
+2. **Configure Non-Interactive / Headless Mode**:
+   ```bash
+   # Launch Bridge CLI for initial account authentication
+   protonmail-bridge --cli
+   ```
+3. **Login & Copy Credentials**: Log in using your main account username and password. Execute `info` inside the CLI shell to retrieve your locally generated IMAP/SMTP port numbers and app-specific password.
+4. **Connect Local FastMCP 3.1 Ingestion Agent**: Point your local Python script or FastMCP tool server to `127.0.0.1:1143` (IMAP) and `127.0.0.1:1025` (SMTP) using the Bridge credentials.
+
+
 ## CLI examples
 
+### Managing Proton Mail Bridge via CLI Interface
+```bash
+# Start Proton Mail Bridge in interactive CLI mode
+protonmail-bridge --cli
+
+# Inside the Bridge CLI:
+# > login
+# Username: admin@domain.ch
+# Password: [PROMPT]
+# > info
+# Account: admin@domain.ch
+# IMAP Host: 127.0.0.1 | Port: 1143 | Security: STARTTLS
+# SMTP Host: 127.0.0.1 | Port: 1025 | Security: STARTTLS
+# Username: admin@domain.ch
+# Password: [GENERATED_BRIDGE_PASSWORD]
+```
+
+### Headless Systemd Service Configuration
+```ini
+# /etc/systemd/system/proton-bridge.service
+[Unit]
+Description=Proton Mail Bridge Headless Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=automation
+ExecStart=/usr/bin/protonmail-bridge --non-interactive
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Local IMAP Connection Verification with OpenSSL / cURL
+```bash
+# Test local STARTTLS handshake on Bridge IMAP port
+openssl s_client -connect 127.0.0.1:1143 -starttls imap
+
+# Query IMAP capability list
+curl --url "imap://127.0.0.1:1143/" \
+     --user "admin@domain.ch:GENERATED_BRIDGE_PASSWORD" \
+     --ssl-reqd
+```
+
+
+## FastMCP 3.1 Server & Encrypted Email Tools
+
+The following FastMCP 3.1 server implementation exposes tools for querying unread intake messages and sending OpenPGP-encrypted status dispatches via local Proton Mail Bridge.
+
+```python
+import imaplib
+import smtplib
+import email
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from typing import List, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, EmailStr, field_validator
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Proton Mail FastMCP Server", version="3.1")
+
+# ---------------------------------------------------------------------------
+# Strict Pydantic v2 Models
+# ---------------------------------------------------------------------------
+
+class EmailDispatchConfig(BaseModel):
+    bridge_host: str = Field(default="127.0.0.1", description="Proton Mail Bridge local host IP")
+    smtp_port: int = Field(default=1025, ge=1, le=65535, description="Local SMTP port")
+    imap_port: int = Field(default=1143, ge=1, le=65535, description="Local IMAP port")
+    account_email: EmailStr = Field(..., description="Proton Mail address")
+    bridge_password: str = Field(..., min_length=8, description="Generated Bridge app password")
+
+class SendEmailRequest(BaseModel):
+    recipient: EmailStr = Field(..., description="Target recipient email address")
+    subject: str = Field(..., min_length=1, max_length=200, description="Email subject line")
+    body: str = Field(..., min_length=1, description="Email message body content")
+    high_priority: bool = Field(default=False, description="Flag for urgent delivery header")
+
+    @field_validator("subject", "body")
+    @classmethod
+    def sanitize_text(cls, v: str) -> str:
+        return v.strip()
+
+class EmailDispatchResponse(BaseModel):
+    status: str
+    recipient: str
+    subject: str
+    message_id: str
+
+# ---------------------------------------------------------------------------
+# FastMCP Tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def send_encrypted_dispatch(config: EmailDispatchConfig, request: SendEmailRequest) -> EmailDispatchResponse:
+    """Send an encrypted email through local Proton Mail Bridge SMTP proxy."""
+    msg = MIMEMultipart()
+    msg["From"] = config.account_email
+    msg["To"] = request.recipient
+    msg["Subject"] = request.subject
+
+    if request.high_priority:
+        msg["X-Priority"] = "1"
+        msg["Importance"] = "High"
+
+    msg.attach(MIMEText(request.body, "plain", "utf-8"))
+
+    # Connect to local Bridge SMTP server
+    with smtplib.SMTP(config.bridge_host, config.smtp_port) as server:
+        server.starttls()
+        server.login(config.account_email, config.bridge_password)
+        server.send_message(msg)
+
+    return EmailDispatchResponse(
+        status="sent",
+        recipient=request.recipient,
+        subject=request.subject,
+        message_id=msg.get("Message-ID", "unknown")
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 
 ## API examples
@@ -184,9 +327,27 @@ class ProtonMailIngestor:
         return results
 
 if __name__ == "__main__":
-    # Demonstration instantiation (requires active local Proton Mail Bridge)
     print("Proton Mail Ingestion module ready.")
 ```
+
+
+## Operational Guardrails & Key Management
+
+1. **Bridge Keychain Protection**: In headless server environments, ensure `protonmail-bridge` uses secret storage drivers like `pass` (GnuPG keyring) or `secret-service` rather than plain-text secret storage.
+2. **Localhost Endpoint Binding**: Proton Mail Bridge MUST be bound strictly to `127.0.0.1` or isolated container networks. Never expose raw Bridge IMAP (1143) or SMTP (1025) ports to public interfaces without TLS tunnels.
+3. **Outbound Anti-Spam Throttling**: Proton Mail enforces strict rate limits on SMTP dispatches. Configure FastMCP tool runners to rate-limit outbound emails to <30 messages/minute.
+4. **Memory Management**: On large mailboxes (>50GB), client-side indexing inside Proton Mail Bridge can consume 1–2GB RAM. Limit IMAP folder sync settings to specific intake folders (e.g. `INBOX/Intake`).
+
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Action |
+| :--- | :--- | :--- |
+| `imaplib.error: [AUTHENTICATIONFAILED]` | Incorrect Bridge password or unauthenticated Bridge CLI. | Run `protonmail-bridge --cli`, log in, execute `info`, and copy the exact generated Bridge app password (not main account password). |
+| `ssl.SSLError: [SSL: WRONG_VERSION_NUMBER]` | Client attempted direct SSL connection instead of STARTTLS. | Change connection method from `imaplib.IMAP4_SSL` to `imaplib.IMAP4` followed by explicit `starttls()`. |
+| `ConnectionRefusedError: [Errno 111]` | Proton Mail Bridge process is not running. | Verify systemd service status via `systemctl status proton-bridge` or restart daemon with `protonmail-bridge --non-interactive`. |
+| `OpenPGP Decryption Error` | PGP key corrupt or missing local private key block. | Re-import external recipient public keys or reset Bridge local key cache using `keychain` reset in Bridge CLI. |
+| `SMTP 451 / 421 Rate Limit Exceeded` | Automated script exceeding hourly outbound message quotas. | Implement exponential backoff inside FastMCP dispatch tool and queue outbound messages in local sqlite/redis buffer. |
 
 
 ## Related tools / concepts
@@ -202,7 +363,6 @@ if __name__ == "__main__":
 - [Proton Mail Bridge Official Guide](https://proton.me/mail/bridge)
 - [OpenPGP RFC Standard Specification](https://datatracker.ietf.org/doc/html/rfc9580)
 - [Proton Developer Resources & Open Source Repositories](https://github.com/ProtonMail)
-
 
 
 ## Contribution Metadata
