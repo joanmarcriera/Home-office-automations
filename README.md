@@ -62,7 +62,7 @@ This repository is optimized for long-term maintainability:
 - One canonical page per tool/framework/provider.
 - Cross-linked documentation with stable taxonomy.
 - CI quality gates for catalog consistency and docs contract compliance.
-- Scheduled GitHub workflows for source intake and backlog processing.\n
+- Scheduled GitHub workflows for source intake and backlog processing.
 
 <!-- vikunja-tracking -->
 ## Tracking
