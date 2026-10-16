@@ -9,6 +9,34 @@ It solves the critical security challenges of federated identity, Single Sign-On
 ## Where it fits in the stack
 **Category**: Enterprise / Identity & Access Management. It sits at the absolute security perimeter, serving as the central authentication, authorization, and audit boundary between frontier language models (such as Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, or DeepSeek-V4), custom orchestration loops, and secure API gateways like the [Microsoft Graph API](../providers/microsoft-graph.md).
 
+```
++-------------------------------------------------------------------+
+|                     Microsoft Entra ID Cloud                      |
+|  +-------------------------------------------------------------+  |
+|  | Tenant Identity Boundary / OAuth 2.0 Token Issuer (OIDC)     |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+                                 ||
+         OAuth 2.0 Workload Assertion / OIDC Federation
+                                 ||
+                                 \/
++-------------------------------------------------------------------+
+| Kubernetes / Server Node (GKE, AKS, or On-Prem)                   |
+|                                                                   |
+|  +-------------------------------------------------------------+  |
+|  | Projected ServiceAccount Token (/var/run/secrets/tokens)      |  |
+|  +-------------------------------------------------------------+  |
+|                                ||                                 |
+|                                \/                                 |
+|  +-------------------------------------------------------------+  |
+|  | FastMCP 3.1 Enterprise Agent Runtime                          |  |
+|  | - MSAL Python Library exchanges assertion for OAuth Bearer   |  |
+|  | - Pydantic v2 Schema validates token claims & scopes          |  |
+|  | - Authorized requests dispatched to Graph / Azure APIs       |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Agentic Authentication**: Issuing secure, short-lived OAuth 2.0 access tokens to custom-built [Autonomous Agents](../agents/index.md) using Workload Identity Federation (no-secret deployments).
 - **Enterprise Single Sign-On (SSO)**: Implementing centralized, federated authentication across thousands of custom and commercial SaaS platforms.
@@ -71,99 +99,86 @@ mgc groups list --select id,displayName,mailNickname
 ```
 
 ## API examples
-This example demonstrates secure federated authentication for an autonomous agent using the MSAL library, validated with **Pydantic v2** models to guarantee strict schema boundaries on the generated token and context.
 
-### Python (MSAL Client Assertion for Workload Identity Federation with Pydantic v2)
+### FastMCP 3.1 Entra ID Authentication Server
+The following complete Python example demonstrates a **FastMCP 3.1** server hosting Entra ID token acquisition and validation tools for autonomous multi-agent pipelines.
+
 ```python
 import os
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+import uuid
 import msal
+from typing import Optional, List
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
+
+# Initialize FastMCP 3.1 Tool Server
+mcp = FastMCP("EntraIDAuthServer", version="3.1")
 
 # ---------------------------------------------------------------------------
 # Strict Schema Validation with Pydantic v2
 # ---------------------------------------------------------------------------
 
-class TokenRequestContext(BaseModel):
-    tenant_id: str = Field(..., min_length=36, max_length=36, description="Strict UUID format tenant ID")
-    client_id: str = Field(..., min_length=36, max_length=36, description="Strict UUID format client ID")
-    token_path: str = Field(..., description="The path to the local federated token assertion")
+class WorkloadTokenRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tenant_id: str = Field(..., description="Microsoft Entra tenant UUID")
+    client_id: str = Field(..., description="Registered application client UUID")
+    assertion_token_path: str = Field(..., description="File path to projected workload assertion token")
+    scopes: List[str] = Field(default_factory=lambda: ["https://graph.microsoft.com/.default"])
 
     @field_validator("tenant_id", "client_id")
     @classmethod
-    def validate_uuid(cls, v: str) -> str:
-        # Verify strict standard UUID format
-        import uuid
+    def validate_uuid_format(cls, v: str) -> str:
         try:
             uuid.UUID(v)
         except ValueError:
-            raise ValueError("Must be a valid UUID hex string")
+            raise ValueError("Parameter must be a valid 36-character UUID string")
         return v
 
-class SecureTokenResult(BaseModel):
-    access_token: str = Field(..., description="The cryptographically verified OAuth2 token")
-    expires_in: int = Field(..., ge=60, le=86400, description="Expiration buffer in seconds")
-    token_type: str = Field(default="Bearer", pattern="^(Bearer|bearer)$")
-    id_token: Optional[str] = Field(None)
+class TokenValidationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    access_token: str = Field(..., description="Valid OAuth2 Bearer token string")
+    token_type: str = Field("Bearer")
+    expires_in_sec: int = Field(..., ge=60, le=86400)
+    tenant_id: str
+    client_id: str
 
 # ---------------------------------------------------------------------------
-# Secure Token Fetch Routine
+# FastMCP 3.1 Tools
 # ---------------------------------------------------------------------------
 
-def get_access_token_via_federation(raw_context: dict) -> dict:
-    """
-    Fetches an access token from Microsoft Entra ID using Federated Workload Identites,
-    employing Pydantic v2 to validate context schemas and generated tokens.
-    """
-    try:
-        # Validate raw context inputs strictly
-        context = TokenRequestContext.model_validate(raw_context)
-    except ValidationError as err:
-        raise ValueError(f"Invalid request context schema: {err}")
+@mcp.tool()
+def acquire_entra_workload_token(request: WorkloadTokenRequest) -> TokenValidationResponse:
+    """Acquire short-lived OAuth2 access token via Workload Identity Federation."""
+    if not os.path.exists(request.assertion_token_path):
+        raise FileNotFoundError(f"Federated assertion token not found: {request.assertion_token_path}")
 
-    # Read the projected token from Kubernetes workload identity path
-    if not os.path.exists(context.token_path):
-        raise FileNotFoundError(f"Federated assertion token not found at: {context.token_path}")
-
-    with open(context.token_path, "r") as f:
+    with open(request.assertion_token_path, "r") as f:
         client_assertion = f.read().strip()
 
-    # Initialize the MSAL confidential client application
     app = msal.ConfidentialClientApplication(
-        client_id=context.client_id,
-        authority=f"https://login.microsoftonline.com/{context.tenant_id}",
+        client_id=request.client_id,
+        authority=f"https://login.microsoftonline.com/{request.tenant_id}",
         client_credential={"client_assertion": client_assertion}
     )
 
-    # Acquire token using the client credentials grant with assertion binding
-    scopes = ["https://graph.microsoft.com/.default"]
-    result = app.acquire_token_for_client(scopes=scopes)
+    result = app.acquire_token_for_client(scopes=request.scopes)
 
-    # Validate output token format with strict Pydantic v2 schema before consuming
-    try:
-        validated_result = SecureTokenResult.model_validate(result)
-        return validated_result.model_dump()
-    except ValidationError as err:
-        raise RuntimeError(f"Entra ID token response failed schema validation: {err}")
+    if "access_token" not in result:
+        error_desc = result.get("error_description", "Unknown authentication error")
+        raise RuntimeError(f"Entra ID Token Acquisition Failed: {error_desc}")
 
+    return TokenValidationResponse(
+        access_token=result["access_token"],
+        token_type=result.get("token_type", "Bearer"),
+        expires_in_sec=result.get("expires_in", 3600),
+        tenant_id=request.tenant_id,
+        client_id=request.client_id
+    )
 
 if __name__ == "__main__":
-    # Example execution configuration (early January 2027 parameters)
-    raw_config = {
-        "azure_tenant_id": "00000000-1111-2222-3333-444444444444",
-        "azure_client_id": "99999999-8888-7777-6666-555555555555",
-        "token_path": "/var/run/secrets/azure/tokens/client-assertion"
-    }
-
-    try:
-        token_data = get_access_token_via_federation({
-            "tenant_id": raw_config["azure_tenant_id"],
-            "client_id": raw_config["azure_client_id"],
-            "token_path": raw_config["token_path"]
-        })
-        print(f"Token acquired. Extracted: {token_data['access_token'][:30]}...")
-    except Exception as e:
-        print(f"Authentication routing failed: {e}")
+    mcp.run()
 ```
 
 ### cURL (OAuth 2.0 Client Credentials Grant Token Request)
@@ -175,6 +190,23 @@ curl -X POST https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token 
      -d "client_secret=YOUR_CLIENT_SECRET" \
      -d "grant_type=client_credentials"
 ```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| `AADSTS700016: Application with identifier 'X' was not found` | Incorrect `client_id` or wrong tenant authority URL specified | Confirm the Application (client) ID in Entra Portal under App Registrations and check `tenant_id`. |
+| `AADSTS700211: No matching federated identity record found` | Subject identifier or issuer mismatch in Kubernetes Workload Identity | Verify Kubernetes ServiceAccount name, namespace, and cluster OIDC issuer URL match Entra federated credentials. |
+| `AADSTS65001: The user or administrator has not consented` | Required API permissions added but admin consent not granted | Request Entra Global Admin to click "Grant admin consent for [Tenant]" in App Registration API permissions. |
+| `AADSTS53003: Access has been blocked by Conditional Access policies` | Agent execution IP or device posture triggered security block | Add agent workload IP ranges or compliant managed identities to Conditional Access exclusion rules. |
+| Token expired errors during long agent execution runs | Token lifetime exceeded without background refresh loop | Implement automatic token caching and proactive background renewal before `expires_in` threshold. |
+
+## Operational Guardrails & Best Practices
+
+1. **Eliminate Client Secrets**: Prefer Workload Identity Federation (OIDC) or Managed Identities over hardcoded Client Secrets for containerized agent workloads running on AKS, GKE, or Azure VMs.
+2. **Least Privilege Scope Limits**: Never grant full `https://graph.microsoft.com/.default` directory administrative roles to agent service principals; restrict scopes to explicit resource needs (e.g., `Files.Read.All`).
+3. **Privileged Identity Management (PIM)**: Enforce just-in-time (JIT) role elevation and mandatory MFA approvals for human administrators modifying Entra ID application consents.
+4. **Audit Log Monitoring**: Stream Entra ID Sign-in Logs and Audit Logs to Azure Monitor / Sentinel to detect anomalous agent token acquisition spikes or unauthorized access attempts.
 
 ## Related tools / concepts
 - [Microsoft Graph API](../providers/microsoft-graph.md)

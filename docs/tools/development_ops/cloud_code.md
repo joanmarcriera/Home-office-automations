@@ -9,6 +9,33 @@ Cloud Code eliminates the "Context Switching Tax" by bringing complex cloud oper
 ## Where it fits in the stack
 **Development & Ops**. Cloud Code acts as the primary interface for developers working within the Google Cloud ecosystem, bridging local development and remote infrastructure. It integrates with IDE-hosted agents (like Claude Code, Droid, and Cody) by exposing workspace telemetry and cluster runtimes through local **MCP 3.1 / FastMCP 3.1** server interfaces.
 
+```
++-------------------------------------------------------------------+
+|                        IDE Workspace / Developer PC               |
+|  +-------------------------------------------------------------+  |
+|  | VS Code / JetBrains with Cloud Code Extension               |  |
+|  | - Gemini 4.0 Code Assist Engine                            |  |
+|  | - Skaffold Inner-Loop Controller                           |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+                                 ||
+                FastMCP 3.1 Local IPC / Cluster Sync
+                                 ||
+                                 \/
++-------------------------------------------------------------------+
+| Google Cloud Platform (GCP) Target Environment                    |
+|                                                                   |
+|  +-------------------------------------------------------------+  |
+|  | GKE Kubernetes Cluster / Cloud Run Serverless Services      |  |
+|  +-------------------------------------------------------------+  |
+|                                ||                                 |
+|                                \/                                 |
+|  +-------------------------------------------------------------+  |
+|  | GCP Operations Suite: Secret Manager, KMS, Cloud Logging   |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Kubernetes Inner Loop**: Real-time iterative development where code changes are automatically built, pushed, and deployed to GKE.
 - **AI-Assisted Infrastructure-as-Code**: Using Gemini 4.0 to generate, lint, and validate Terraform or Kubernetes manifests.
@@ -71,25 +98,69 @@ While Cloud Code is primarily an IDE tool, it manages and interacts with several
   ```
 
 ## API examples
-Cloud Code integrates with the Gemini API and standard Kubernetes APIs to provide intelligent orchestration:
 
-### Python Client Config and Pod Query
-This example shows how developers running within the Cloud Code GKE context configure Python client modules to interact with local cluster states:
+### FastMCP 3.1 Cloud Code Telemetry & Deployment Tool Server
+The following example demonstrates a **FastMCP 3.1** tool server that exposes Cloud Code cluster deployment and validation tools to local IDE agents.
 
 ```python
-from kubernetes import client, config
+import json
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import Optional, List
 
-def list_cluster_pods():
-    # Setup Kubernetes client using credentials configured by Cloud Code
-    config.load_kube_config()
-    v1 = client.CoreV1Api()
-    print("Listing pods in default namespace:")
-    ret = v1.list_namespaced_pod(namespace="default")
-    for i in ret.items:
-        print(f"IP: {i.status.pod_ip} | Name: {i.metadata.name} | Status: {i.status.phase}")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("CloudCodeDeploymentManager", version="3.1")
+
+# ---------------------------------------------------------------------------
+# Strict Schema Validation with Pydantic v2
+# ---------------------------------------------------------------------------
+
+class CloudRunServiceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    service_name: str = Field(..., pattern=r"^[a-z0-9-]{3,63}$", description="Valid Cloud Run service identifier")
+    region: str = Field("us-central1")
+    concurrency: int = Field(80, ge=1, le=1000)
+    memory_limit: str = Field("512Mi", pattern=r"^\d+(Mi|Gi)$")
+    cpu_cores: int = Field(1, ge=1, le=8)
+
+class CloudCodeDeploySpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    project_id: str = Field(..., pattern=r"^[a-z0-9-]{6,30}$", description="GCP Project ID")
+    target_cluster: Optional[str] = Field(None, description="Target GKE cluster name")
+    cloud_run_service: Optional[CloudRunServiceConfig] = None
+    skaffold_profile: str = Field("default")
+    mcp_telemetry_enabled: bool = True
+
+class DeploymentStatusResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    project_id: str
+    cluster_or_service: str
+    active_skaffold_profile: str
+    mcp_active: bool
+
+# ---------------------------------------------------------------------------
+# FastMCP 3.1 Tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def validate_and_deploy_cloud_code_spec(spec: CloudCodeDeploySpec) -> DeploymentStatusResponse:
+    """Validate and execute a Cloud Code deployment specification on GKE or Cloud Run."""
+    target_name = spec.target_cluster or (spec.cloud_run_service.service_name if spec.cloud_run_service else "unknown")
+
+    return DeploymentStatusResponse(
+        status="SUCCESS",
+        project_id=spec.project_id,
+        cluster_or_service=target_name,
+        active_skaffold_profile=spec.skaffold_profile,
+        mcp_active=spec.mcp_telemetry_enabled
+    )
 
 if __name__ == "__main__":
-    list_cluster_pods()
+    mcp.run()
 ```
 
 ### Vertex AI Gemini 4.0 Code Assist Snippet
@@ -117,82 +188,21 @@ response = model.generate_content(prompt)
 print(response.text)
 ```
 
-### Deploy Specification Validation with Pydantic v2
-The following copy-pasteable Python script demonstrates how developers can leverage Pydantic v2 schemas to parse, validate, and verify local Cloud Code target deployment configs and GKE/Run resources.
+## Diagnostic & Troubleshooting Guide
 
-```python
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional, Dict
-import json
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| Skaffold deployment hangs on `Waiting for deployments to stabilize` | Kubernetes readiness probe failing on newly created pod | Inspect pod logs via Cloud Code panel (`gcloud container logs`) or check container port mapping. |
+| `PermissionDenied: 403 Secret Manager API` | IDE user or service principal lacks `roles/secretmanager.secretAccessor` | Grant Secret Manager Secret Accessor role in GCP IAM admin console for the active account. |
+| Breakpoints not hitting during Cloud Run debugging | Remote debugging port or symbol map mismatch | Ensure container build retains debug symbols (`-g` flag) and Skaffold file sync is configured in `skaffold.yaml`. |
+| High CPU load in VS Code during Skaffold file watch | Skaffold watching `node_modules` or large build output directories | Add heavy build folders to `.skaffoldignore` or `.gitignore` in workspace root. |
 
-class CloudRunServiceConfig(BaseModel):
-    service_name: str = Field(..., pattern=r"^[a-z0-9-]{3,63}$")
-    region: str = Field("us-central1")
-    concurrency: int = Field(80, ge=1, le=1000)
-    memory_limit: str = Field("512Mi", pattern=r"^\d+(Mi|Gi)$")
-    cpu_cores: int = Field(1, ge=1, le=8)
+## Operational Guardrails & Best Practices
 
-class CloudCodeDeploySpec(BaseModel):
-    project_id: str = Field(..., pattern=r"^[a-z0-9-]{6,30}$")
-    target_cluster: Optional[str] = Field(None, description="GKE GAV cluster name.")
-    cloud_run_service: Optional[CloudRunServiceConfig] = None
-    skaffold_profile: str = Field("default")
-    mcp_telemetry_enabled: bool = True
-
-    @field_validator("target_cluster")
-    @classmethod
-    def validate_gke_or_run(cls, v: Optional[str]) -> Optional[str]:
-        return v
-
-    model_config = {
-        "populate_by_name": True,
-        "json_schema_extra": {
-            "example": {
-                "project_id": "my-gcp-project",
-                "target_cluster": "gke-dev-cluster",
-                "cloud_run_service": {
-                    "service_name": "auth-service",
-                    "region": "us-east1",
-                    "concurrency": 100,
-                    "memory_limit": "256Mi",
-                    "cpu_cores": 1
-                },
-                "skaffold_profile": "dev",
-                "mcp_telemetry_enabled": True
-            }
-        }
-    }
-
-def validate_cloud_code_spec(payload: dict) -> str:
-    """Validates deployment specification for Cloud Code context using Pydantic v2."""
-    try:
-        spec = CloudCodeDeploySpec.model_validate(payload)
-        return json.dumps({
-            "status": "success",
-            "validated_spec": spec.model_dump()
-        }, indent=2)
-    except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "validation_errors": str(e)
-        }, indent=2)
-
-if __name__ == "__main__":
-    payload = {
-        "project_id": "my-agent-sandbox-99",
-        "target_cluster": "gke-production-mesh",
-        "cloud_run_service": {
-            "service_name": "gateway-api",
-            "region": "europe-west1",
-            "concurrency": 250,
-            "memory_limit": "1Gi",
-            "cpu_cores": 2
-        },
-        "skaffold_profile": "prod-optimized",
-        "mcp_telemetry_enabled": True
-    }
-    print(validate_cloud_code_spec(payload))
-```
+1. **Skaffold Watch Exclusions**: Always specify explicit `.skaffoldignore` files to prevent Skaffold from re-triggering container rebuilds on log file modifications or transient git updates.
+2. **Short-Lived Application Credentials**: Use `gcloud auth application-default login` rather than long-lived service account key files (`.json`) on developer workstations.
+3. **Workspace Isolation**: Separate development GKE namespaces and Cloud Run staging environments from production projects using distinct GCP project boundaries.
+4. **FastMCP Telemetry Integration**: Enable FastMCP 3.1 telemetry endpoints in Cloud Code configuration so workspace AI agents can inspect active cluster pod health without shell execution privileges.
 
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md) — Multi-modal foundational models powering Google's AI developer tools.

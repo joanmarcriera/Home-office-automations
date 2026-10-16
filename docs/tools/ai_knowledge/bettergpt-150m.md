@@ -29,6 +29,34 @@ flowchart TD
     E --> B
 ```
 
+```
++-------------------------------------------------------------------+
+|                        Client App / Smart Editor                  |
++-------------------------------------------------------------------+
+                                 ||
+             Keystroke Event / Sensor Stream (Raw Input)
+                                 ||
+                                 \/
++-------------------------------------------------------------------+
+| Edge Node / Low-Power CPU Host                                    |
+|                                                                   |
+|  +-------------------------------------------------------------+  |
+|  |                 BetterGPT-150M Edge Engine                  |  |
+|  |       (300MB FP16 / <80MB GGML Q4 / Sub-10ms Latency)       |  |
+|  +-------------------------------------------------------------+  |
+|                                ||                                 |
+|               FastMCP 3.1 Local Task Protocol Stream              |
+|                                ||                                 |
+|                                \/                                 |
+|  +-------------------------------------------------------------+  |
+|  | FastMCP 3.1 Micro-Agent Orchestrator                        |  |
+|  | - Evaluates response confidence threshold                      |  |
+|  | - Validates JSON/telemetry fields with Pydantic v2           |  |
+|  | - Dispatches complex queries to cloud LLM if required          |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+```
+
 ## Typical use cases
 
 - **Smart Terminal & IDE Autocomplete**: Delivering sub-15ms real-time shell command, inline code, and Markdown completions inside local editors without cloud round-trips.
@@ -111,21 +139,25 @@ The following example implements a **FastMCP 3.1** server that hosts BetterGPT-1
 ```python
 import time
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from transformers import pipeline
 
-# Initialize FastMCP Server
-mcp = FastMCP("BetterGPT-150M Fast Completion Server")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("BetterGPT-150M Fast Completion Server", version="3.1")
 
 # Load model pipeline into memory
 generator = pipeline("text-generation", model="thinkingmachines/BetterGPT-150M")
 
 class AutocompleteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt: str = Field(..., min_length=1, max_length=1000, description="Input prompt for local completion")
     max_tokens: int = Field(default=30, ge=1, le=256, description="Maximum new tokens to generate")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
 
 class AutocompleteResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     prompt: str
     generated_text: str
     tokens_generated: int
@@ -170,9 +202,11 @@ In edge IoT environments, validating model output metadata before downstream con
 
 ```python
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class TelemetryReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     sensor_id: str = Field(..., description="Unique hardware sensor identifier")
     raw_reading: float = Field(..., description="Raw metric value")
     bettergpt_summary: str = Field(..., min_length=5, description="Edge LLM classification summary")
@@ -199,6 +233,22 @@ data = {
 report = TelemetryReport(**data)
 print(f"Validated Telemetry [{report.sensor_id}]: {report.bettergpt_summary} (Alert: {report.alert_level})")
 ```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| Out of Memory (OOM) on ARM microcontrollers | Loading unquantized PyTorch FP32 model weights (~600MB) | Export model to GGUF 4-bit or ONNX quantized format under `llama.cpp` / ONNX Runtime. |
+| Repetitive or infinite output loops | Degenerate sampling hyperparameters at low temperatures | Set `temperature=0.7`, `repetition_penalty=1.15`, and enforce `max_new_tokens` limits. |
+| Slow CPU generation (<5 tokens/sec) | Single-threaded PyTorch execution on multi-core ARM CPU | Set `torch.set_num_threads(4)` or pass `-t 4` flag to GGML runtime for multi-core parallelism. |
+| Hallucinated factual details | Parametric knowledge limits of 150M parameter scale | Combine model with local RAG / vector database context or restrict model to classification tasks. |
+
+## Operational Guardrails & Best Practices
+
+1. **Quantization Baseline**: Standardize on GGUF Q4_K_M or ONNX INT8 formats for edge deployments to maintain memory footprint strictly under 100MB RAM.
+2. **Deterministic Output Bounds**: Always wrap model execution outputs with Pydantic v2 validation models to prevent unparsed raw text from entering local control systems.
+3. **Draft Model Speculative Pipeline**: Deploy BetterGPT-150M alongside larger local models (e.g., Llama 3 8B) as a draft proposal engine to achieve 2x-3x faster speculative decoding speedups on desktop CPUs.
+4. **Air-Gapped Containerization**: Run local FastMCP 3.1 completion tools inside isolated container runtimes with read-only root filesystems and zero external network interfaces.
 
 ## Related tools / concepts
 

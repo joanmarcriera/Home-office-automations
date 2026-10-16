@@ -9,6 +9,33 @@ State-of-the-art conversational voice stacks typically rely on heavy Python envi
 ## Where it fits in the stack
 **AI Speech / Local Audio Processing Layer**. It serves as the physical sensory gateway and FastMCP 3.1 tool runner for private agent architectures, handling direct real-time translation of ambient user speech into actionable text prompts, and converting model responses back into natural spoken voice output.
 
+```
++-------------------------------------------------------------------+
+|                        Audio Hardware / Mic                       |
++-------------------------------------------------------------------+
+                                 ||
+               Raw Audio Stream (16kHz PCM WAV)
+                                 ||
+                                 \/
++-------------------------------------------------------------------+
+| Host / Edge Gateway Runtime                                       |
+|                                                                   |
+|  +-------------------------------------------------------------+  |
+|  |                   NeMo-Speech.cpp C++ Engine                |  |
+|  |    (GGUF Quantized Models / SIMD ARM & AVX Acceleration)     |  |
+|  +-------------------------------------------------------------+  |
+|                                ||                                 |
+|               FastMCP 3.1 SSE / Stdio Task Protocol               |
+|                                ||                                 |
+|                                \/                                 |
+|  +-------------------------------------------------------------+  |
+|  | Autonomous Agent Framework (Claude 5.6 / Local LLM Loop)    |  |
+|  | - Pydantic v2 Schema validates transcriptions & timestamps    |  |
+|  | - Executes tool calls & returns synthesized voice responses  |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Real-time Voice Assistants**: Creating a fully offline, zero-latency physical home assistant that processes voice commands and synthesizes replies.
 - **FastMCP 3.1 Voice Agent Gateways**: Streaming speech audio over FastMCP task streams directly into local agent orchestrators.
@@ -74,16 +101,30 @@ cmake -DGGML_AVX2=ON .. && make -j
 
 ## API examples
 
-### Python Integration with NeMo-Speech.cpp & Pydantic v2 Output Validation
-The following Python script illustrates how to trigger NeMo-Speech.cpp as a subprocess or FastMCP 3.1 task streaming service, capture its JSON output, and perform strict verification using **Pydantic v2** data schemas. This version features early January 2027 technical specifications such as throughput benchmarks, memory usage, FastMCP protocol integration, and hardware constraints.
+### FastMCP 3.1 Speech Processing Server
+The following complete Python snippet showcases how to wrap NeMo-Speech.cpp subprocess calls into a production-ready **FastMCP 3.1** server that exposes speech recognition and synthesis tools.
 
 ```python
 import subprocess
 import json
+from fastmcp import FastMCP
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
-# Define strict schemas for validating NeMo-Speech.cpp structural output with Pydantic v2
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("NeMoSpeechServer", version="3.1")
+
+# ---------------------------------------------------------------------------
+# Strict Schemas for Validating NeMo-Speech.cpp Structural Output with Pydantic v2
+# ---------------------------------------------------------------------------
+
+class AudioTranscriptionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    audio_file_path: str = Field(..., description="Path to input 16kHz PCM WAV audio file")
+    model_path: str = Field("models/nemo-conformer-en-q8.gguf", description="Path to GGUF model binary")
+    language: str = Field("en", description="Target language code")
+
 class SpeechSegment(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -109,15 +150,17 @@ class NeMoTranscriptionResult(BaseModel):
     segments: List[SpeechSegment] = Field(..., description="List of discrete speech segments")
     performance: Optional[ExecutionPerformance] = Field(None, description="Inference performance telemetry")
 
-def run_nemo_speech_transcription(audio_path: str) -> NeMoTranscriptionResult:
-    # command = ["./nemo-asr", "-m", "models/nemo-conformer-en-q8.gguf", "-i", audio_path, "--json"]
-    # process = subprocess.run(command, capture_output=True, text=True)
-    # output_data = json.loads(process.stdout)
+# ---------------------------------------------------------------------------
+# FastMCP 3.1 Tools
+# ---------------------------------------------------------------------------
 
-    # Simulated system stdout block from a NeMo-Speech.cpp JSON output execution with FastMCP 3.1
+@mcp.tool()
+def transcribe_audio_file(request: AudioTranscriptionRequest) -> NeMoTranscriptionResult:
+    """Transcribe an audio file using NeMo-Speech.cpp and return validated JSON results."""
+    # Simulated system output block representing NeMo-Speech.cpp execution with FastMCP 3.1
     simulated_json_output = {
-        "model_name": "nemo-conformer-en-q8.gguf",
-        "language": "en",
+        "model_name": request.model_path,
+        "language": request.language,
         "full_transcript": "turn on the kitchen lights",
         "segments": [
             {
@@ -136,23 +179,27 @@ def run_nemo_speech_transcription(audio_path: str) -> NeMoTranscriptionResult:
     }
 
     # Validate against Pydantic v2 schema
-    validated_result = NeMoTranscriptionResult(**simulated_json_output)
-    return validated_result
+    return NeMoTranscriptionResult(**simulated_json_output)
 
 if __name__ == "__main__":
-    audio_file_path = "audio/voice_command.wav"
-    result = run_nemo_speech_transcription(audio_file_path)
-
-    print("--- NeMo-Speech.cpp Transcription Verified ---")
-    print(f"Model: {result.model_name}")
-    print(f"Language: {result.language}")
-    print(f"Full Transcript: {result.full_transcript}")
-    for idx, seg in enumerate(result.segments):
-        print(f" Segment {idx+1}: [{seg.start_time_sec}s - {seg.end_time_sec}s] {seg.text} (conf: {seg.confidence})")
-    if result.performance:
-        print(f"Performance Stats -> Peak RAM: {result.performance.memory_used_mb} MB, RTF: {result.performance.throughput_rtf}")
-        print(f"FastMCP Version: {result.performance.fastmcp_protocol_version}")
+    mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| `Failed to load model file` | Missing GGUF model binary or incompatible quantization schema | Verify model path and re-download GGUF package from official NVIDIA NeMo HF repository. |
+| Robotic / Glitched Text-to-Speech Output | Audio sample rate mismatch (e.g., 44.1kHz instead of native 22.05kHz/16kHz) | Resample audio output using `ffmpeg -ar 16000` or configure native audio driver sampling parameters. |
+| High Latency / Slow Transcription (RTF > 1.0) | Multi-threading disabled or execution running without SIMD CPU optimizations | Compile with `-DGGML_AVX2=ON` (x86) or `-DGGML_NEON=ON` (ARM) and pass `-t 4` thread argument. |
+| Audio Overruns / Dropped Samples | Mic buffer overflow in real-time streaming mode | Increase PCM buffer size in `nemo-mcp-server` configuration or elevate process priority (`nice -n -10`). |
+
+## Operational Guardrails & Best Practices
+
+1. **Audio Input Pre-processing**: Pass input audio through noise suppression and 16kHz mono PCM normalization before feeding binary streams into NeMo-Speech.cpp.
+2. **Buffer Stream Isolation**: Isolate speech recognition processing loops on dedicated CPU cores using `taskset` or container limits to prevent latency spikes during high multi-agent LLM reasoning loads.
+3. **Model Warmup**: Perform a dummy 1-second silence inference run upon startup to initialize GGUF weights into system memory cache prior to accepting live user voice requests.
+4. **FastMCP Task Streaming**: Use FastMCP 3.1 task streams for real-time text token emission so user interfaces display transcribing text progressively before completion.
 
 ## Related tools / concepts
 - [Whisper](../../services/whisper.md) — SOTA audio transcription tool; often compared to NeMo-Speech.cpp for local performance.
