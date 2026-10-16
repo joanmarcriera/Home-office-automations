@@ -89,6 +89,21 @@ For enterprise operations handling hundreds of thousands of multi-page documents
 - **Inference Cost Per Query**: Navigating tree paths involves 2–3 iterative reasoning calls per complex query, incurring higher per-query token costs than simple vector lookups.
 - **Model Dependency**: Requires high-reasoning frontier models (Claude 5.1, GPT-5.5, Llama 4) for optimal AST branch evaluation.
 
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Unstructured PDF / Missing Typography Hierarchy` | Source PDF lacks embedded text tags or structural outline headings | Enable vision LLM layout fallback (`visual_parsing=True`) to infer section breaks visually. |
+| `API Rate Limit Exceeded During AST Generation` | Unthrottled parallel LLM requests during tree node summary generation | Configure exponential backoff retry decorator and reduce batch concurrency limits. |
+| `FastMCP Node Traversal Timeout` | Unbounded recursive search down deeply nested AST tree leaves | Set `max_tree_depth` limit (e.g. `max_tree_depth=4`) in tree builder parameters. |
+| `Memory Allocation Failure on Large Index` | Storing full text payloads directly in JSON AST node instances | Enable lazy node content loading, storing raw text on disk and loading on demand via node ID. |
+
+## Operational Best Practices & Guardrails
+- **Enforce Depth Bounds on Large PDFs**: Cap maximum tree depth at 4 or 5 levels for documents over 500 pages to maintain sub-second traversal times.
+- **Store Verified AST Indices on Local Disk**: Cache computed JSON-LD AST files alongside source PDFs to eliminate re-indexing costs during multi-turn agent sessions.
+- **Enable Cryptographic Provenance Hashes**: Compute SHA-256 hashes of target text nodes to guarantee source document integrity in legal/financial audit workflows.
+- **Use Hybrid Tree-Vector Search for Multi-Document Corpora**: Combine BM25/vector search for document selection with PageIndex tree reasoning for intra-document retrieval.
+
 ## When to use it
 - When retrieval precision, auditability, and proof paths are mandatory requirements (e.g., finance, healthcare, legal).
 - When processing dense multi-page documents with complex nested sections, headers, and tables.

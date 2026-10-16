@@ -62,6 +62,15 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 - **Chunk Window Overlap**: Use a sliding time window of 30 seconds with 5-second overlaps when feeding audio segments into LLM summarization context windows.
 - **Metadata Indexing Backpressure**: Throttle vector indexing requests to max 50 segments per second to prevent database memory spikes.
 
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `ValidationError: Probability out of range` | Whisper API output raw log-likelihoods instead of softmax probabilities | Apply `math.exp(log_prob)` normalization prior to Pydantic model validation. |
+| `Speaker ID Swap (SPEAKER_00 / 01 mixed)` | Aggressive voice activity detection (VAD) threshold clipping speech boundaries | Adjust Pyannote VAD ON threshold to `0.5` and set `min_duration_on` to `0.2s`. |
+| `Audio-Text Drift (>2.5s offset at 1h mark)` | Variable frame-rate MP3 container dropping silence frames | Convert source audio to uncompressed 16kHz mono WAV using `ffmpeg -ac 1 -ar 16000` prior to processing. |
+| `FastMCP Tool Timeout on Chunk Indexing` | Unbounded segment batch size choking vector database connection pool | Implement chunked stream batching (50 segments per batch) with async retry backoff in the FastMCP tool server. |
+
 ## When to use it
 - When building a local RAG (Retrieval-Augmented Generation) system over audio collections.
 - When you need to provide a UI that allows users to "jump to" specific words in a long audio recording.
@@ -109,7 +118,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("AudioMetadataProvider")
+mcp = FastMCP("AudioMetadataProvider", version="3.1")
 
 class TranscriptionSegment(BaseModel):
     """A single segment of transcribed text with timing under FastMCP 3.1 schemas."""
@@ -126,12 +135,20 @@ class TranscriptionSegment(BaseModel):
             raise ValueError('Probability must be between 0.0 and 1.0')
         return v
 
+    @field_validator('end')
+    @classmethod
+    def validate_time_bounds(cls, v: float, info) -> float:
+        start = info.data.get('start')
+        if start is not None and v < start:
+            raise ValueError('Segment end time must be greater than or equal to start time')
+        return v
+
 class ChapterMarker(BaseModel):
     """Identified chapter or logical section in the audio."""
-    start: float
-    end: float
-    title: str
-    summary: Optional[str] = None
+    start: float = Field(..., description="Start timestamp of chapter")
+    end: float = Field(..., description="End timestamp of chapter")
+    title: str = Field(..., min_length=1, description="Chapter title")
+    summary: Optional[str] = Field(None, description="Brief summary of section content")
 
 class SpeakerProfile(BaseModel):
     """Profile metadata for an identified speaker in diarization pipelines."""
@@ -142,12 +159,12 @@ class SpeakerProfile(BaseModel):
 class AudioTranscriptionMetadata(BaseModel):
     """Top-level metadata for an audio transcription file."""
     file_id: str = Field(..., description="Unique identifier for the source audio file")
-    title: str
+    title: str = Field(..., min_length=1, description="Source media title")
     author_artist: Optional[str] = None
     transcribed_at: datetime = Field(default_factory=datetime.utcnow)
     model_used: str = Field(..., description="e.g., 'distil-large-v3' or 'gemini-4.0-flash'")
-    language: str = Field("en", description="ISO 639-1 language code")
-    duration_seconds: float
+    language: str = Field("en", min_length=2, max_length=10, description="ISO 639-1 language code")
+    duration_seconds: float = Field(..., gt=0.0)
     segments: List[TranscriptionSegment]
     chapters: List[ChapterMarker] = []
     speakers: List[SpeakerProfile] = []
@@ -180,6 +197,20 @@ def search_audio_segments(query: str, max_results: int = 5) -> str:
     )
 
     return metadata.model_dump_json(indent=2)
+
+@mcp.tool()
+def extract_speaker_segments(file_id: str, speaker_id: str) -> str:
+    """
+    FastMCP 3.1 tool for extracting all spoken segments attributed to a specific speaker ID.
+    """
+    sample_segment = TranscriptionSegment(
+        start=12.5,
+        end=24.0,
+        text="Diarized attribution under pyannote-audio 3.3.",
+        speaker_id=speaker_id,
+        probability=0.95
+    )
+    return sample_segment.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()

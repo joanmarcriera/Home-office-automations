@@ -89,6 +89,21 @@ The table below specifies the standardized taxonomy tiers, color conventions, an
 - **Tool Support**: While ideal for Paperless-ngx, other DMS tools may have different tagging limitations or lack hierarchical support.
 - **Over-Categorization**: Risk of creating too many niche tags that humans won't remember to use, necessitating agentic "Tag Cleanup" routines.
 
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Duplicate Tag Sprawl (Finance/Bills vs Finance/Bill)` | LLM Agent prompt lacks exact tag enum constraints | Enforce strict tag validation via Pydantic schema in the FastMCP 3.1 middleware tool. |
+| `Document Stuck in inbox State` | Paperless auto-matching rule failed to match document OCR text | Run manual tag assignment or execute `document_index reindex` to re-extract OCR content. |
+| `403 Forbidden on Tag PATCH API` | Paperless API token lacks edit permissions for state tags | Ensure API user token possesses `document_change` and `tag_change` global permissions. |
+| `Vikunja Task Creation Failure` | Missing `needs-action` tag webhook handler in n8n pipeline | Verify n8n webhook node listener URL matches Paperless post-consumption trigger payload. |
+
+## Operational Best Practices & Guardrails
+- **Restrict Inbox Tag Auto-Removal**: Configure Paperless-ngx matching algorithms so the `inbox` tag is only stripped when an explicit classification payload is received from the agent.
+- **Color-Code Taxonomy Layers**: Assign distinct color families in Paperless (e.g., Warm colors for State tags, Cool colors for Categories, Grayscale for Retention).
+- **Run Monthly Orphan Audits**: Execute `document_index --tags=none` periodically to catch documents that bypassed auto-matching rules.
+- **Tag Mutation Mutex Locking**: Ensure concurrent agent classification workers apply tag mutations sequentially to prevent race conditions during bulk ingestion.
+
 ## When to use it
 - When setting up a new Paperless-ngx instance for household or small office use.
 - When designing automated "Scan-to-Action" pipelines that require high-precision routing.
@@ -97,25 +112,6 @@ The table below specifies the standardized taxonomy tiers, color conventions, an
 ## When not to use it
 - For extremely small document sets (under 100 files) where a simple full-text search is sufficient.
 - If using a DMS that relies entirely on vector-based search without robust tagging support.
-
-### Failure Modes & Mitigation Strategies
-
-#### 1. Tag Sprawl and Uncontrolled LLM Tag Creation
-- **Symptom**: AI Agents creating redundant near-duplicate tags (e.g., `utility-bill`, `Electricity-Bill`) instead of reusing `Finance/Bill`.
-- **Mitigation**: Constrain LLM agent endpoints to select tags exclusively from a pre-validated `enum` or fetch current tags dynamically via the Paperless REST API before assignment.
-
-#### 2. Stale `needs-action` Accumulation
-- **Symptom**: Documents remaining permanently tagged `needs-action` due to broken webhook execution downstream in Vikunja or n8n.
-- **Mitigation**: Implement a weekly scheduled agent audit job that scans for `needs-action` tags older than 14 days and posts a summary digest.
-
-#### 3. Category Conflict Misclassifications
-- **Symptom**: Dual-category documents (e.g., a medical bill) receiving conflicting tags or missing critical tax retention flags.
-- **Mitigation**: Allow multi-tag assignments (e.g. `Finance/Bill` + `Health/Medical` + `Keep-7-years`) and validate tag sets against Pydantic schema rules.
-
-### Operational Best Practices
-- **Restrict Inbox Tag Auto-Removal**: Configure Paperless-ngx matching algorithms so the `inbox` tag is only stripped when an explicit classification payload is received from the agent.
-- **Color-Code Taxonomy Layers**: Assign distinct color families in Paperless (e.g., Warm colors for State tags, Cool colors for Categories, Grayscale for Retention).
-- **Run Monthly Orphan Audits**: Execute `document_index --tags=none` periodically to catch documents that bypassed auto-matching rules.
 
 ## Getting started
 1. **Initial Tag Creation**: Create core status tags (`inbox`, `needs-action`, `processed`) in the Paperless-ngx UI or via API.

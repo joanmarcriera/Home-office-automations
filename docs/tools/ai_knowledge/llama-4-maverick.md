@@ -80,7 +80,7 @@ The table below contrasts Llama 4 Maverick against other open-weight foundation 
 - **Agentic Code Generation & Self-Correction**: Executing automated software engineering loops (e.g., test creation, bug triage, refactoring) in isolated container sandboxes.
 - **High-Density Multimodal Document Extraction**: Extracting complex tables, code snippets, and structural metadata from high-resolution PDF blueprints.
 - **Air-Gapped Enterprise Copilots**: Powering secure, private copilots on local GPU clusters without outbound network traffic.
-- **Multi-Agent Session Delegation**: Serving as the central coordinator in multi-agent session topologies where sub-tasks are dynamically dispatched to specialized micro-agents.
+- **Multi-Agent Session Delegation**: Serving as the central coordinator in multi-agent session topologies where sub-tasks are dispatched to specialized micro-agents.
 
 ## Strengths
 - **Native FastMCP 3.1 Protocol Support**: Directly emits typed JSON-RPC tool calls without reliance on brittle regex parsing or JSON wrapper prompts.
@@ -94,6 +94,21 @@ The table below contrasts Llama 4 Maverick against other open-weight foundation 
 - **Strict License Terms**: Governed by the Meta Llama 4 Community License, requiring compliance for massive commercial user bases.
 - **System Prompt Calibration**: Extremely tuned safety guardrails may require careful system prompt instructions when running authorized cybersecurity testing tools.
 
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `vLLM MoE Kernel OOM Stalls` | Unbalanced CUDA memory allocation during high-concurrency requests | Launch vLLM with `--tensor-parallel-size` matching physical GPU count and set `--enable-chunked-prefill`. |
+| `FastMCP JSON Schema Mismatch` | Model emitted partial JSON tokens due to max token truncation | Increase `max_tokens` limit to 4096 and supply explicit Pydantic v2 JSON Schema models in tool headers. |
+| `Context Boundary Degradation (>96k)` | Rotary Positional Embedding (RoPE) scaling factor misalignment | Set `rope_scaling: {"type": "dynamic", "factor": 8.0}` in the model inference server configuration. |
+| `Over-Refusal on Pen-Testing Scripts` | High safety guardrail sensitivity triggered by shell command strings | Include explicit authorized sandbox framing in system context (`You are an authorized security auditing agent...`). |
+
+## Operational Best Practices & Guardrails
+- **Use FP8 or Q4_K_M Quantization**: For production local deployments where VRAM is constrained, Q4_K_M provides optimal speed and quality.
+- **Enforce Strict FastMCP Schemas**: Supply explicit Pydantic v2 schemas in system tool declarations to take full advantage of the model's native JSON-RPC output parser.
+- **Keep KV-Cache Warm**: Utilize vLLM continuous batching and prefix caching (`--enable-prefix-caching`) to reduce latency in multi-turn agent dialogues.
+- **Set Up Token Streaming Timeout Locks**: Implement a 15-second heartbeat guardrail on local token generation streams to kill hung inference threads automatically.
+
 ## When to use it
 - When deploying self-hosted, privacy-first AI agent workflows that demand high-precision function calling.
 - When minimizing cloud API expenditures for continuous, high-volume automated developer loops.
@@ -102,25 +117,6 @@ The table below contrasts Llama 4 Maverick against other open-weight foundation 
 ## When not to use it
 - On resource-constrained edge hardware with under 16GB VRAM (consider smaller open models like Gemma 4 or Llama 3.2 3B).
 - When fully managed cloud APIs (e.g., Anthropic Claude or OpenAI GPT series) are preferred over hosting local GPU hardware.
-
-### Failure Modes & Mitigation Strategies
-
-#### 1. MoE Routing Bottlenecks Under High Concurrency
-- **Symptom**: Unbalanced CUDA kernel allocation leading to token generation stalls when handling heterogeneous concurrent requests (e.g., mixing code synthesis with long-context retrieval).
-- **Mitigation**: Deploy vLLM with `--tensor-parallel-size` aligned to physical GPU nodes and enable chunked prefill (`--enable-chunked-prefill`).
-
-#### 2. Context Boundary Hallucinations Beyond 96k Tokens
-- **Symptom**: Progressive degradation in tool parameter key accuracy when conversation history exceeds 96,000 tokens.
-- **Mitigation**: Implement automated context compression using sliding window token summarization or dynamic state compaction prior to passing history back to Llama 4 Maverick.
-
-#### 3. Over-Refusal on Authorized Pen-Testing Snippets
-- **Symptom**: Model emits refusal responses when requested to synthesize security inspection code or analyze shell exploit payloads.
-- **Mitigation**: Provide an explicit system context framing (e.g., "You are an authorized security auditing agent operating in a closed sandbox environment").
-
-### Operational Best Practices
-- **Use FP8 or Q4_K_M Quantization**: For production local deployments where VRAM is constrained, Q4_K_M provides optimal speed and quality.
-- **Enforce Strict FastMCP Schemas**: Supply explicit Pydantic v2 schemas in system tool declarations to take full advantage of the model's native JSON-RPC output parser.
-- **Keep KV-Cache Warm**: Utilize vLLM continuous batching and prefix caching (`--enable-prefix-caching`) to reduce latency in multi-turn agent dialogues.
 
 ## Getting started
 
