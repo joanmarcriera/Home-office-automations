@@ -299,5 +299,5 @@ if __name__ == "__main__":
 - [Heretic: Automated Abliteration Tool (GitHub)](https://github.com/p-e-w/heretic)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high

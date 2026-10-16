@@ -310,5 +310,5 @@ except ValidationError as ve:
 - [DeepSpeed Optimization Library](https://www.deepspeed.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high
