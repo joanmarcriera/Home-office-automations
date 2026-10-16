@@ -6,6 +6,9 @@ This playbook is a step-by-step operational guide for migrating a mesh network f
 ## What problem it solves
 It eliminates dependency on Tailscale's proprietary coordination server, providing 100% data sovereignty over your network topology. It solves the "proprietary lock-in" problem for users who require a fully self-hosted, sovereign VPN solution for their homelab.
 
+## Where it fits in the stack
+It sits in the **Operational Playbook Layer**, specifically under **Infrastructure Migration**. It guides the transition from a managed service to a self-hosted infrastructure component.
+
 ## Architecture and Migration Flow
 
 The migration shifts control plane signal routing from Tailscale's SaaS infrastructure to an internal, self-hosted Headscale container paired with an OIDC provider like Authentik.
@@ -24,20 +27,6 @@ The migration shifts control plane signal routing from Tailscale's SaaS infrastr
 │ └──────────────────────┘ └──────────────────────┘ └──────────────────┘ │
 └────────────────────────────────────────────────────────────────────────┘
 ```
-
-## Where it fits in the stack
-It sits in the **Operational Playbook Layer**, specifically under **Infrastructure Migration**. It guides the transition from a managed service to a self-hosted infrastructure component.
-
-## Feature & Operational Comparison Matrix
-
-| Aspect / Metric | Tailscale SaaS | Self-Hosted Headscale |
-| :--- | :--- | :--- |
-| **Control Plane** | Proprietary Cloud | 100% Open-Source Go Server |
-| **Data Sovereignty** | Connection metadata hosted by vendor | Complete local control |
-| **User / Device Limit** | Tiered pricing limits on free plan | Unlimited (bound by hardware VRAM/RAM) |
-| **Identity Provider** | Vendor SSO | Native OIDC ([Authentik](../services/authentik.md), Keycloak) |
-| **FastMCP 3.1 Fleet Admin**| REST API / Personal Access Token | Direct Headscale gRPC / REST CLI Tooling |
-| **Maintenance Burden** | Zero | Low (Docker Compose / Systemd) |
 
 ## Typical use cases
 - **Homelab Hardening**: Moving your internal network control plane to hardware you own.
@@ -65,9 +54,9 @@ It sits in the **Operational Playbook Layer**, specifically under **Infrastructu
 
 ### Deployment
 To begin the migration:
-1.  **Deploy Headscale**: Follow the [Headscale Service](../services/headscale.md) guide to set up the server.
-2.  **Back up Tailscale**: Document your existing node names and ACLs.
-3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
+1. **Deploy Headscale**: Follow the [Headscale Service](../services/headscale.md) guide to set up the server.
+2. **Back up Tailscale**: Document your existing node names and ACLs.
+3. **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
 ### Agent-Assisted Migration
 Modern agents can significantly simplify the migration process. Use an early January 2027-class agent (e.g., [Claude 5.6](../tools/ai_knowledge/claude.md), [GPT-5.6](../tools/ai_knowledge/openai.md), [Gemini 4.0 Ultra](../tools/ai_knowledge/gemini.md), [Llama 4](../tools/ai_knowledge/llama.md), or [Qwen 3.8](../tools/ai_knowledge/qwen.md)) integrated with Model Context Protocol (MCP 3.1 / FastMCP 3.1) to:
@@ -75,27 +64,40 @@ Modern agents can significantly simplify the migration process. Use an early Jan
 - **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH using MCP-enabled terminal tools.
 - **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../services/authentik.md) provider metadata.
 
-### Operational Best Practices & Troubleshooting
+### Feature & Operational Comparison Matrix
 
-1. **OIDC Redirect Normalization**: Set the `server_url` in `config.yaml` to match your external reverse proxy HTTPS URL exactly to prevent token authentication loops during node registration.
-2. **Derp Relay Persistence**: Maintain at least one local embedded DERP server on Headscale to ensure mesh node connectivity when direct STUN NAT-traversal fails.
-3. **Database Backups**: Schedule daily automated snapshots of Headscale's SQLite/PostgreSQL database to enable instant disaster recovery of node keys and ACL policies.
-4. **Pre-Auth Key Generation**: Always specify a 24-hour expiration window on pre-auth keys when batch-migrating headless Kubernetes nodes or IoT controllers.
+| Aspect / Metric | Tailscale SaaS | Self-Hosted Headscale |
+| :--- | :--- | :--- |
+| **Control Plane** | Proprietary Cloud | 100% Open-Source Go Server |
+| **Data Sovereignty** | Connection metadata hosted by vendor | Complete local control |
+| **User / Device Limit** | Tiered pricing limits on free plan | Unlimited (bound by hardware VRAM/RAM) |
+| **Identity Provider** | Vendor SSO | Native OIDC ([Authentik](../services/authentik.md), Keycloak) |
+| **FastMCP 3.1 Fleet Admin**| REST API / Personal Access Token | Direct Headscale gRPC / REST CLI Tooling |
+| **DERP Relaying** | Global Tailscale DERP fleet | Custom self-hosted DERP server + relay nodes |
+| **ACL Engine** | HuJSON Policy / Web Console | YAML Policy / GitOps Integration |
+| **Maintenance Burden** | Zero | Low (Docker Compose / Systemd) |
 
-### Migration Workflow
+### Multi-Site Migration & High-Availability Failover Flow
 
 ```mermaid
-flowchart TD
-    Start[Current: Tailscale SaaS] --> Backup[Back up node names & ACLs]
-    Backup --> Deploy[Deploy Headscale Server]
-    Deploy --> Auth[Integrate Authentik OIDC]
-    Auth --> NodeMigrate{Migrate Node}
-    NodeMigrate --> Logout[tailscale logout]
-    Logout --> Login[tailscale up --login-server URL]
-    Login --> OIDC[OIDC Authentication]
-    OIDC --> Approve[Headscale Node Approval]
-    Approve --> Verify[Verify Connectivity]
-    Verify --> End[Target: Self-hosted Mesh]
+sequenceDiagram
+    autonumber
+    participant Node as Target Node
+    participant TS as Tailscale SaaS
+    participant HS as Headscale Control Plane
+    participant Auth as Authentik OIDC
+    participant Agent as FastMCP 3.1 Migration Controller
+
+    Agent->>Node: Verify active session (tailscale status)
+    Agent->>TS: Back up ACLs & node metadata
+    Agent->>Node: Issue 'tailscale logout'
+    Node-->>TS: Session Terminated
+    Agent->>Node: Issue 'tailscale up --login-server https://hs.internal.net'
+    Node->>HS: Pre-auth / OIDC handshake request
+    HS->>Auth: Challenge user credentials / SSO ticket
+    Auth-->>HS: Return OIDC JWT Token
+    HS->>Node: Assign WireGuard VIP & register node
+    Agent->>HS: Validate active ping & route advertisement
 ```
 
 ### Migration Steps
@@ -189,6 +191,93 @@ headscale preauthkeys create -u jules --expiration 24h
 
 ## API examples
 
+### FastMCP 3.1 Integration & Server Implementation
+
+Below is a production-grade FastMCP 3.1 server designed to automate fleet-wide Tailnet migration, audit node authorization, and orchestrate pre-authenticated migration keys across Linux nodes.
+
+```python
+"""
+FastMCP 3.1 Migration Control Server for Headscale
+Provides automated node key registration, OIDC audit logging, and migration orchestration.
+"""
+
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, HttpUrl, field_validator
+from mcp.server.fastmcp import FastMCP
+import requests
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("HeadscaleMigrationMCP")
+
+mcp = FastMCP("Headscale-Migration-Controller", version="3.1.0")
+
+class MigrationNodeSpec(BaseModel):
+    hostname: str = Field(..., description="Target node FQDN or hostname")
+    user_owner: str = Field(..., description="User account responsible for the node")
+    node_key: str = Field(..., pattern=r"^(nodekey|mkey):[a-f0-9]{64}$", description="Node registration key")
+    routes: List[str] = Field(default_factory=list, description="Subnet routes advertised by target node")
+    is_exit_node: bool = Field(default=False, description="Whether node serves as exit node")
+
+    @field_validator("routes")
+    def validate_cidrs(cls, value: List[str]) -> List[str]:
+        import ipaddress
+        for cidr in value:
+            ipaddress.ip_network(cidr)
+        return value
+
+class PreAuthKeyRequest(BaseModel):
+    user: str = Field(..., description="Headscale user namespace")
+    reusable: bool = Field(default=False, description="Allow key reuse across multi-node clusters")
+    ephemeral: bool = Field(default=False, description="Auto-remove node on disconnect")
+    expiration_hours: int = Field(default=24, ge=1, le=168, description="Key validity in hours")
+
+@mcp.tool()
+def generate_migration_preauth_key(server_url: str, api_key: str, req: PreAuthKeyRequest) -> Dict[str, Any]:
+    """Generates a Headscale pre-authenticated key for headless server migration."""
+    endpoint = f"{server_url.rstrip('/')}/api/v1/preauthkey"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    payload = {
+        "user": req.user,
+        "reusable": req.reusable,
+        "ephemeral": req.ephemeral,
+        "expiration": f"{req.expiration_hours}h"
+    }
+
+    try:
+        res = requests.post(endpoint, json=payload, headers=headers, timeout=10)
+        res.raise_for_status()
+        return res.json()
+    except Exception as err:
+        logger.error(f"Failed to generate preauth key: {err}")
+        return {"error": str(err), "status": "failed"}
+
+@mcp.tool()
+def approve_migrated_node(server_url: str, api_key: str, spec: MigrationNodeSpec) -> Dict[str, Any]:
+    """Registers and approves a node migrated from Tailscale SaaS to Headscale."""
+    endpoint = f"{server_url.rstrip('/')}/api/v1/node/register"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    payload = {
+        "user": spec.user_owner,
+        "key": spec.node_key
+    }
+
+    try:
+        res = requests.post(endpoint, json=payload, headers=headers, timeout=10)
+        res.raise_for_status()
+        data = res.json()
+        logger.info(f"Node {spec.hostname} registered under user {spec.user_owner}")
+        return {"status": "registered", "node": data}
+    except Exception as err:
+        logger.error(f"Failed node registration: {err}")
+        return {"error": str(err), "status": "rejected"}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ### Querying Node Status via REST API
 Agents can use the Headscale REST API to verify migration status across the fleet.
 
@@ -197,33 +286,6 @@ Agents can use the Headscale REST API to verify migration status across the flee
 curl -X GET \
   -H "Authorization: Bearer $HEADSCALE_API_KEY" \
   https://headscale.example.com/api/v1/node
-```
-
-### Scripted Node Approval
-```python
-import requests
-from pydantic import BaseModel, Field, ValidationError
-
-class NodeRegistration(BaseModel):
-    user: str = Field(..., min_length=1, description="The username to register the node under")
-    key: str = Field(..., pattern=r"^(nodekey|mkey):[a-f0-9]+$", description="The node key generated by the client")
-
-def approve_node(headscale_url: str, api_key: str, user: str, node_key: str) -> bool:
-    try:
-        # Strict Pydantic v2 validation
-        reg = NodeRegistration(user=user, key=node_key)
-    except ValidationError as e:
-        print(f"Validation error: {e}")
-        return False
-
-    endpoint = f"{headscale_url.rstrip('/')}/api/v1/node/register"
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = reg.model_dump()
-    response = requests.post(endpoint, headers=headers, json=payload)
-    return response.status_code == 200
-
-# Example usage
-# approve_node("https://headscale.local", "secret_key", "jules", "nodekey:abcdef123456")
 ```
 
 ## Related tools / concepts

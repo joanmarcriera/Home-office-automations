@@ -36,16 +36,6 @@ Diagrid Catalyst solves this by:
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Model & Framework Compatibility (Early 2027 SOTA)
-
-| Feature / Metric | Diagrid Catalyst 2.4 | Temporal Cloud Agentic | Restate Agent Runner | Prefect 3.0 Agentic |
-| :--- | :--- | :--- | :--- | :--- |
-| **FastMCP 3.1 Support** | Native real-time streaming wrapper | External adapter required | Custom plugin required | Custom middleware |
-| **Durable Checkpointing** | Automatic Dapr state store | Code-first activity replay | Journaling KV state | Task cache state |
-| **Micro-Runtime Isolation**| Wasm micro-containers & containers | Container / VM basis | Light event handlers | Container / Process |
-| **Cryptographic Audit** | Native non-repudiable audit logs | Client-side tracing | Standard OTel tracing | Standard OTel tracing |
-| **Resume Latency** | < 15ms | ~150ms | ~40ms | ~300ms |
-
 ## Typical use cases
 
 - **Long-Horizon Multi-Agent Tasks**: Executing multi-hour software engineering, research, or data aggregation agents where transient failures are highly probable.
@@ -152,7 +142,6 @@ class AgentCheckpointState(BaseModel):
     state_variables: Dict[str, Any] = Field(default_factory=dict, description="Agent's current memory dictionary")
 
     @field_validator("framework")
-    @classmethod
     def validate_framework_choice(cls, value: str) -> str:
         allowed = {"FASTMCP", "LANGGRAPH", "CREWAI", "GOOGLE_ADK", "OPENAI_AGENTS", "MICROSOFT_AGENT_FRAMEWORK", "CUSTOM"}
         if value.upper() not in allowed:
@@ -194,6 +183,48 @@ if __name__ == "__main__":
 
     print("Durable checkpoint state successfully validated for Diagrid Catalyst:")
     print(validated_checkpoint.model_dump_json(indent=2))
+```
+
+### FastMCP 3.1 Integration & Server Implementation
+
+```python
+"""
+FastMCP 3.1 Durable Execution State Server for Diagrid Catalyst
+Manages state checkpoints, activity replays, and event orchestration.
+"""
+
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mcp.server.fastmcp import FastMCP
+import requests
+import json
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("CatalystMCP")
+
+mcp = FastMCP("Diagrid-Catalyst-Durable-Server", version="3.1.0")
+
+@mcp.tool()
+def save_durable_checkpoint(catalyst_url: str, session_id: str, state: AgentCheckpointState) -> Dict[str, Any]:
+    """Persists an agent execution checkpoint into Diagrid Catalyst state engine."""
+    endpoint = f"{catalyst_url.rstrip('/')}/v1.0/state/catalyst-statestore"
+    payload = [{
+        "key": f"session-{session_id}",
+        "value": json.loads(state.model_dump_json())
+    }]
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        res = requests.post(endpoint, json=payload, headers=headers, timeout=5)
+        res.raise_for_status()
+        return {"status": "checkpoint_saved", "session_id": session_id, "step": state.current_step}
+    except Exception as err:
+        logger.error(f"Failed to persist checkpoint: {err}")
+        return {"error": str(err), "status": "checkpoint_failed"}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
