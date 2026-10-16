@@ -359,5 +359,5 @@ if __name__ == "__main__":
 - [Apache Arrow Format Specification](https://arrow.apache.org/docs/format/Columnar.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high
