@@ -1,175 +1,244 @@
 # Project Genie
 
 ## What it is
-Project Genie (and its early 2027 iteration, Genie 4.5) is a pioneering generative world model developed by Google DeepMind. It generates interactive, navigable 2D and 3D virtual environments from a single prompt, image, or hand-drawn sketch. Unlike traditional video generation models, Genie models the underlying dynamics of a simulated world, allowing users to control characters and interact with the environment in real-time. It effectively functions as an AI-driven, unsupervised game engine that learns physics, mechanics, and latent actions entirely from unlabeled internet videos. In the modern AI stack, it serves as a high-fidelity sandbox for training and testing agentic frameworks, providing simulated "Missions" for frontier models such as Gemma 4, Claude 5.6, GPT-5.6, and Llama 4.
+Project Genie (and its early 2027 iteration, Genie 4.5) is a pioneering generative world model developed by Google DeepMind. It generates interactive, navigable 2D and 3D virtual environments from a single prompt, image, or hand-drawn sketch. Unlike traditional video generation models that produce passive, non-interactive video streams, Genie models the underlying physics and causal dynamics of a simulated world. This allows users and autonomous AI agents to control characters, manipulate terrain, and interact with environmental objects in real time. It operates as an AI-driven, unsupervised game engine that learns spatial mechanics, collision boundaries, and latent action vectors entirely from unlabeled video streams. In the modern KnowledgeOps and agentic AI stack, Project Genie serves as a high-fidelity synthetic training sandbox, executing interactive "Missions" for frontier agent frameworks such as [Agno](../agents/agno.md), [AutoGPT](../agents/autogpt.md), and [OpenClaw](../development_ops/openclaw.md) using models like Claude 5.6, GPT-5.6, and Gemma 4.
 
 ## What problem it solves
-Creating interactive virtual environments has historically required thousands of hours of manual labor, involving 3D asset modeling, game physics programming, collision detection, and level design. Genie automates this entire pipeline, generating functional, playable mechanics from simple text or image inputs. Furthermore, for AI agent training, Genie solves the scarcity of diverse, safe simulation environments. Instead of risking physical robotic or digital agents in real-world or manually hardcoded test beds, developers can dynamically spin up infinite synthetic training grounds with custom physical rules to evaluate agent behavior, tool-use, and spatial navigation.
+Creating interactive virtual environments for human simulation or robotic/agent reinforcement learning has historically required thousands of engineering hours involving manual 3D mesh modeling, physics engine programming, collision box creation, and level scripting. Project Genie automates this entire pipeline by synthesizing functional, interactive gameplay loops directly from raw multimodal prompts.
+
+Furthermore, for autonomous agent development, Genie solves the critical scarcity of diverse, safe simulation environments. Instead of deploying experimental software agents into risky real-world software APIs or hand-coded static testbeds, developers can dynamically generate infinite, customizable synthetic testing grounds. In these environments, agentic spatial reasoning, multi-step tool use, and visual observation processing can be stress-tested under non-deterministic physical rules without catastrophic real-world side effects.
 
 ## Where it fits in the stack
-Project Genie operates at the **Generative World Modeling and Simulation Layer** of the AI ecosystem. It acts as the environmental substrate for agent training and reinforcement learning. By exposing its virtual worlds via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md), Genie interfaces seamlessly with downstream agentic systems, serving as a live simulator that translates high-level model decisions into latent actions and returns updated visual/spatial observations.
+Project Genie operates at the **Generative World Modeling & Simulation Layer** of the AI stack. It serves as the physical substrate for agent training, spatial reasoning benchmarking, and synthetic data generation. Exposing its virtual worlds via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md), Genie integrates seamlessly with downstream agent orchestration frameworks. It functions as an interactive environment tool that translates high-level agent choices into continuous environmental responses.
 
 ```
-┌────────────────────────────────────────┐
-│     Autonomous Agent / Controller      │
-│     (Claude 5.6, FastMCP 3.1, Gemma 4) │
-└───────────────────┬────────────────────┘
-                    │ Latent Action Vector / MCP Tool Call
-┌───────────────────▼────────────────────┐
-│      GENIE 4.5 WORLD ENGINE            │
-│       (TPU v6e / v7 Cluster)           │
-└───────────────────┬────────────────────┘
-                    │ Real-time Frame & Physics Stream
-┌───────────────────▼────────────────────┐
-│  Interactive Generative Sandbox        │
-└────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                      Autonomous Agent / Controller                       │
+│             (Claude 5.6, FastMCP 3.1, Gemma 4, OpenClaw Agent)           │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Latent Action Vector / FastMCP Tool Call
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│                       GENIE 4.5 WORLD ENGINE                             │
+│ ┌───────────────────────┐ ┌───────────────────────┐ ┌──────────────────┐ │
+│ │ Spatio-Temporal VAE   │ │ Latent Action Model   │ │ Dynamics Transf. │ │
+│ └───────────────────────┘ └───────────────────────┘ └──────────────────┘ │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Real-time Frame & Physics Stream
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│                    Interactive Generative Sandbox                        │
+│          (Synthetic Gym, Spatial Navigation, Tool Verification)           │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Typical use cases
-- **Rapid Prototyping for Game Design**: Instantly generating functional gameplay loops and level concepts from raw art or text descriptions.
-- **Agentic Reinforcement Learning**: Creating diverse, complex, and highly customizable "gym" environments to benchmark multi-agent systems and spatial reasoning capabilities.
-- **Interactive Narrative Experiences**: Powering next-generation storytelling applications where audiences can step into and explore worlds described dynamically in prose.
-- **Synthetic Data Generation**: Creating high-fidelity video and sensory datasets to train secondary computer vision and object detection models.
-- **Agent Mission Simulation**: Underpinning frameworks like [Anti-Gravity](../agents/agno.md) by serving as a simulated, non-deterministic target environment for executing multi-step mission objectives.
+- **Agentic Reinforcement Learning & Gym Environments**: Generating infinite, highly customized test environments to benchmark multi-agent spatial reasoning, pathfinding, and obstacle avoidance.
+- **Rapid Prototyping for Game Design**: Transforming raw concept art, narrative prose, or hand-drawn sketches into fully playable gameplay loops within seconds.
+- **Synthetic Multimodal Data Generation**: Synthesizing high-fidelity visual and physical video streams to pre-train secondary computer vision, depth estimation, and spatial perception models.
+- **Interactive Narrative & Education**: Powering dynamic educational simulations where students can enter and navigate historical events or scientific physical phenomena described in natural language.
+- **Agent Mission Validation**: Underpinning multi-step agent frameworks by providing a non-deterministic target environment for validating tool execution safety before real-world deployment.
 
 ## Strengths
-- **Interactive Temporal Consistency**: Maintains high spatial and object stability; objects, landmarks, and terrain do not drift or disappear when the player or agent navigates away and returns.
-- **Unsupervised Physics Inference**: Infers complex mechanics like gravity, friction, momentum, and collision boundaries purely from visual observation without any hand-coded physical equations.
-- **Flexible Multi-Modal Grounding**: Accepts input prompts across text, photography, sketches, and digital art, maintaining the stylistic fidelity of the source material.
-- **SOTA Real-Time Inference**: Optimized for Google's TPU v6e/v7 clusters, achieving real-time 1080p resolution at 60 frames per second with minimal latency.
-- **Latent Action Spaces**: Automatically learns a consistent action space (WASD/controller-compatible) across radically different visual genres.
+- **Interactive Temporal Consistency**: Maintains high spatial and object stability; landmarks and obstacles persist accurately when an agent turns away and returns.
+- **Unsupervised Physics Inference**: Learns gravity, momentum, momentum conservation, and collision boundaries purely from visual data without hand-crafted equations.
+- **Flexible Multimodal Grounding**: Accepts text, photographs, sketches, and digital art, preserving the visual style while embedding interactive mechanics.
+- **FastMCP 3.1 Protocol Support**: Native support for Model Context Protocol servers enables autonomous agents to inspect world states and execute actions via structured tools.
+- **Low-Latency TPU Pipeline**: Optimized for Google Cloud TPU infrastructure, delivering interactive 1080p generation with minimal input lag.
 
 ## Limitations
-- **Fidelity vs. Native Engines**: While real-time generative capabilities are highly advanced, it still lacks the ultra-high-definition ray-traced rendering quality of modern rasterized engines like Unreal Engine 5.
-- **Finite Memory Horizon**: After extended periods (e.g., tens of minutes) of continuous, far-ranging exploration, subtle drift in global consistency or terrain layout can occur.
-- **High Compute Overhead**: Real-time generation demands substantial TPU or high-end GPU clusters, making local execution on consumer hardware impractical without API-based cloud streaming.
+- **Fidelity vs. Rasterized Engines**: Still lacks the ultra-fine ray-traced reflections and deterministic collision precision of Unreal Engine 5 or Unity.
+- **Extended Memory Drift**: Beyond extended exploration horizons (30+ minutes), global spatial layout and landmark coordinates can experience subtle generative drift.
+- **Compute Overhead**: Demands high-end TPU or multi-GPU enterprise infrastructure, making native local execution on consumer hardware unfeasible without cloud streaming APIs.
 
 ## When to use it
-- When you require a dynamic, fully navigable simulation environment for training, testing, or benchmarking AI agents.
-- For rapid game design brainstorming and "vibe-based" prototyping where atmospheric exploration is more important than deterministic, competitive pixel-per-frame mechanics.
-- To generate interactive virtual companions or environments for multi-modal agent frameworks.
-- For evaluating [Agent Protocols](../../knowledge_base/agent_protocols.md) and tool interaction patterns in non-deterministic environments.
+- When you require a dynamic, navigable physical sandbox to train, test, or evaluate multi-modal AI agents.
+- For rapid game prototyping where immediate mechanics validation takes precedence over pixel-perfect production rendering.
+- When generating synthetic visual trajectory datasets for spatial computer vision models.
+- For testing [Agent Protocols](../../knowledge_base/agent_protocols.md) in non-deterministic, simulated physical spaces.
 
 ## When not to use it
-- For production-grade video games that require pixel-perfect collision, deterministic physics, and local execution on low-spec consumer consoles.
-- In latency-critical applications where any frame generation delay (e.g., competitive e-sports requiring sub-10ms response times) is unacceptable.
-- When working entirely offline in edge environments that lack high-bandwidth connections to specialized cloud TPU/GPU runtimes.
+- For production video games requiring sub-millisecond deterministic physics and offline client execution.
+- For static, passive video generation workflows where interactive control is unnecessary (use [Sora](sora.md) or [Luma Dream Machine](luma-dream-machine.md) instead).
+- In air-gapped edge environments without high-bandwidth connectivity to Google Cloud TPU infrastructure.
 
 ## Getting started
 
 ### Prompting Genie 4.5
-Effective world generation in Genie 4.5 involves structuring prompts around three key components: the **Environment**, the **Character**, and the **World Sketch**.
+Structuring prompts for Genie 4.5 requires defining three core components: the **Environment**, the **Character/Entity**, and the **World Rules**.
 
-#### Example: Text-to-World Prompt
 ```text
-Environment: A neon-lit cyberpunk cityscape during a rainy night. Surfaces are slick asphalt with neon reflections. Distant skyscrapers with glowing advertisements.
-Character: A sleek hover-bike that drifts through corners.
-Action: Navigate the bike through tight alleys and over high-rise bridges.
+Environment: A glowing bioluminescent alien forest at dusk with towering crystal trees and floating moss islands.
+Character: A agile, quad-legged research drone with bright headlights.
+World Rules: Low gravity, high atmosphere drag, physics-based momentum drifting around floating platform edges.
 ```
-
-### Navigating the World
-Once the world is generated:
-1. **Select the Character**: Choose the primary entity you wish to control.
-2. **Input Actions**: Use standard WASD or arrow keys. Genie interprets these "latent actions" based on the character's inferred physics.
 
 ## CLI examples
 
-### Generating a World from a Sketch
-Using the `genie-cli` (v2027.01):
+### Generating World Sketches
+Using `genie-cli` (v2027.01):
 
 ```bash
-# Generate a world from an image and save the latent representation (world sketch)
-genie-cli generate --image ./concept_art.png --output ./worlds/cyberpunk.genie
+# Generate a world from an input sketch and store the latent state
+genie-cli generate --image ./sketches/alien_forest.png --output ./worlds/alien_forest.genie --tpu-tier v6e
 
-# Start an interactive session with a specific latent action mapping
-genie-cli play ./worlds/cyberpunk.genie --mapping platformer
-```
+# Launch an interactive playing session with custom WASD latent mapping
+genie-cli play ./worlds/alien_forest.genie --mapping platformer_3d --resolution 1080p
 
-### Exporting World Metadata
-```bash
-# View the physics parameters inferred by the model
-genie-cli inspect ./worlds/cyberpunk.genie --physics
+# Inspect inferred physics variables and latent action bounds
+genie-cli inspect ./worlds/alien_forest.genie --physics-summary
 ```
 
 ## API examples
 
-### Integration with Anti-Gravity Agent
-The following example demonstrates loading a Genie 4.5 environment for a Gemini 4.0 agent using the Managed Agents API with Pydantic v2 validation in early 2027.
+### 1. Pydantic v2 FastMCP 3.1 Environment Controller
+The following production Python module uses Pydantic v2 to validate Genie 4.5 world parameters and interface with a FastMCP 3.1 agent loop.
 
+```python
+import asyncio
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+
+# Define Pydantic v2 Schema for Genie 4.5 Simulation Parameters
+class GenieWorldConfig(BaseModel):
+    world_id: str = Field(..., pattern=r"^[a-zA-Z0-9_\-]+$", description="Unique alphanumeric world identifier")
+    resolution: Literal["720p", "1080p", "1440p"] = Field(default="1080p", description="Output render resolution")
+    target_fps: int = Field(default=60, ge=30, le=120, description="Target render frame rate")
+    latent_step_size: float = Field(default=0.05, gt=0.0, le=0.5, description="Granularity of latent action step")
+    allowed_actions: List[str] = Field(
+        default_factory=lambda: ["MOVE_FORWARD", "MOVE_BACKWARD", "TURN_LEFT", "TURN_RIGHT", "JUMP"],
+        description="Active latent action bindings"
+    )
+    tpu_cluster_zone: str = Field(default="us-central1-a", description="Google Cloud TPU region")
+
+    @field_validator("allowed_actions")
+    @classmethod
+    def validate_action_count(cls, actions: List[str]) -> List[str]:
+        if len(actions) < 2:
+            raise ValueError("At least two active latent actions are required for navigation.")
+        return actions
+
+class AgentActionPayload(BaseModel):
+    action: str = Field(..., description="Action name corresponding to allowed_actions")
+    intensity: float = Field(default=1.0, ge=0.0, le=1.0, description="Analog action scalar")
+    duration_ms: int = Field(default=50, ge=10, le=1000, description="Execution duration in milliseconds")
+
+class GenieObservation(BaseModel):
+    frame_id: int = Field(..., ge=0)
+    reward: float = Field(default=0.0)
+    done: bool = Field(default=False)
+    collision_detected: bool = Field(default=False)
+    latent_position: List[float] = Field(..., min_length=3, max_length=3)
+
+# FastMCP 3.1 Simulation Execution Pipeline
+class FastMCPGenieRunner:
+    def __init__(self, config: GenieWorldConfig):
+        self.config = config
+        self.current_frame = 0
+
+    async def step(self, action_payload: AgentActionPayload) -> GenieObservation:
+        if action_payload.action not in self.config.allowed_actions:
+            raise ValueError(f"Action '{action_payload.action}' not permitted in world {self.config.world_id}")
+
+        await asyncio.sleep(action_payload.duration_ms / 1000.0)
+        self.current_frame += 1
+
+        # Simulate physics frame advancement from Latent Action Model
+        return GenieObservation(
+            frame_id=self.current_frame,
+            reward=0.1 if action_payload.action == "MOVE_FORWARD" else 0.0,
+            done=False,
+            collision_detected=False,
+            latent_position=[0.12 * self.current_frame, 0.0, 1.5]
+        )
+
+# Example Instantiation & Validation
+async def main():
+    raw_config = {
+        "world_id": "cyberpunk_synth_v45",
+        "resolution": "1080p",
+        "target_fps": 60,
+        "latent_step_size": 0.05,
+        "tpu_cluster_zone": "us-central1-a"
+    }
+
+    try:
+        validated_config = GenieWorldConfig.model_validate(raw_config)
+        runner = FastMCPGenieRunner(validated_config)
+
+        action = AgentActionPayload(action="MOVE_FORWARD", intensity=0.8, duration_ms=50)
+        observation = await runner.step(action)
+
+        print(f"Genie World Bootstrapped: {validated_config.world_id}")
+        print(f"Frame {observation.frame_id} Latent Position: {observation.latent_position}")
+    except ValidationError as e:
+        print(f"Configuration Validation Error: {e.json()}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 2. Multi-Agent Gym Mission with Agno / Gemini 4.0
 ```python
 import google_antigravity as ag
 from google_genie import GenieEnvironment
-from pydantic import BaseModel, Field
 
-# Define Pydantic v2 configuration for World Parameters
-class WorldConfig(BaseModel):
-    world_id: str = Field(..., pattern=r"^[a-zA-Z0-9_\-]+$")
-    latent_step_size: float = Field(0.05, gt=0.0, le=1.0)
-    allowed_actions: list[str] = Field(default_factory=lambda: ["W", "A", "S", "D"])
-    resolution: str = Field("1080p", pattern=r"^(720p|1080p|1440p|4k)$")
+# Load pre-compiled generative world sketch
+world = GenieEnvironment.load("cyberpunk_synth_v45")
 
-# Validate configuration metadata using Pydantic v2
-config_data = {
-    "world_id": "cyberpunk_city_v45",
-    "latent_step_size": 0.05,
-    "resolution": "1080p"
-}
-config = WorldConfig(**config_data)
-
-# Load the generative world model
-world = GenieEnvironment.load(config.world_id)
-
-# Initialize the agent with the Genie world as its physical surface
+# Initialize Gemini 4.0 Pro agent using Antigravity framework
 agent = ag.Agent(
     model="gemini-4.0-pro",
     surface=world,
-    config=config.model_dump(),
-    mission="Locate the hidden terminal in the neon alley"
+    mission="Navigate through the lower neon alley, avoid static obstacles, and locate the central server tower.",
+    max_steps=500
 )
 
-# Run the agentic mission
-status = agent.run()
-print(f"Mission Status: {status.success}")
+# Execute interactive agent mission in Genie sandbox
+run_result = agent.run()
+print(f"Mission Completion: {run_result.success} | Total Trajectory Steps: {run_result.steps}")
 ```
 
-### Manual Latent Action Control
-```python
-import genie_sdk
-from pydantic import BaseModel, Field
+## Architectural Mechanics & Comparison Matrix
 
-class StepAction(BaseModel):
-    action_vector: list[float] = Field(..., min_length=2, max_length=2)
-    step_size: float = Field(0.05, gt=0.0)
+### Core Neural Components
+Project Genie 4.5 relies on a multi-stage neural architecture optimized for real-time generative physical simulation:
+- **Spatio-Temporal Video Tokenizer**: Converts high-resolution video frames into discrete latent tokens.
+- **Latent Action Model (LAM)**: Discovers low-dimensional discrete latent action spaces $a_t$ from video pairs without human annotations.
+- **Dynamics Transformer**: Predicts frame token states $x_{t+1}$ given past frames and latent actions.
+- **TPU v6e/v7 Real-Time Inference Streamer**: Generates 1080p 60fps video with sub-30ms glass-to-glass latency.
 
-# Initialize the environment
-env = genie_sdk.make("platformer_forest")
-obs = env.reset()
+### Engine Comparison Matrix
+| Feature / Metric | Project Genie 4.5 | Sora (OpenAI) | Luma Dream Machine | Runway Gen-3 Alpha |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Paradigm** | Interactive World Engine | Generative Video Model | Fast Video Generator | High-Fidelity Video Suite |
+| **Real-time Interactivity** | Native (WASD / Latent Action) | Non-interactive (Passive) | Non-interactive (Passive) | Non-interactive (Passive) |
+| **Frame Latency** | Sub-30ms (60 fps live) | Batch generation (seconds) | Batch generation (seconds) | Batch generation (seconds) |
+| **Unsupervised Physics** | Inferred Latent Action Space | Visual physics simulation | Surface-level kinematics | Style & motion control |
+| **Agent Gym Suitability** | High (Native FastMCP 3.1) | Low (Offline rendering) | Low (Offline rendering) | Low (Creative generation) |
+| **Target Deployment** | TPU v6e/v7 Clusters / APIs | Cloud API / Studio | Web Studio / API | Web Enterprise Suite |
 
-# Validate action payload with Pydantic v2
-action_input = StepAction(action_vector=[0.1, -0.5], step_size=0.05)
+## Operational & Troubleshooting Guide
 
-# Action is a 'latent action' vector inferred from the world model
-obs, reward, done, info = env.step(
-    action=action_input.action_vector,
-    latent_step_size=action_input.step_size
-)
-```
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **Spatial Drift / Object Fading** | Memory horizon exceeded during long exploration sequences | Re-anchor world state using periodic `genie-cli checkpoint --sync` or reduce latent step size. |
+| **Frame Latency Spikes (>50ms)** | TPU v6e cluster throttling under high resolution | Lower stream resolution to `720p` or switch to `us-central1` high-bandwidth TPU pod allocation. |
+| **Unresponsive Controls** | Latent action vector mapping mismatch with visual geometry | Re-run `genie-cli calibrate-actions` to re-train the unsupervised action mapper on target sprite. |
+| **FastMCP 3.1 Timeout Errors** | SSE connection dropping during heavy physics step compute | Increase `mcp_client_timeout` parameter to `15.0s` and enable keep-alive pings in agent config. |
+| **Visual Artifacting / Noise** | Corrupted autoencoder latent tokens under high motion | Apply temporal smoothing filter parameter `--temporal-beta 0.85` in `GenieWorldConfig`. |
 
 ## Related tools / concepts
-- [Sora](sora.md) — Passive, high-fidelity generative video model.
-- [Luma Dream Machine](luma-dream-machine.md) — Fast, high-quality video generation tool.
-- [Runway Gen-3](runwayml.md) — Enterprise video generation suite.
-- [Google Lyria](google-lyria.md) — Generative audio and music model integrated with interactive worlds.
-- [Nano Banana](nano-banana.md) — High-efficiency, multimodal image-to-video capabilities.
-- [Anti-Gravity](../agents/agno.md) — Agentic framework utilizing generative simulations.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool integration protocol.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Concepts on chaining agent actions and tool use.
-- [Agent Protocols](../../knowledge_base/agent_protocols.md) — Operational frameworks for agent communication.
+- [Sora](sora.md) — Passive, high-fidelity generative video model from OpenAI.
+- [Luma Dream Machine](luma-dream-machine.md) — Fast video generation framework.
+- [Runway Gen-3](runwayml.md) — Enterprise creative video generation suite.
+- [Agno](../agents/agno.md) — Multi-agent framework capable of executing physical missions in synthetic sandboxes.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool interface for connecting agents to simulation models.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Architectural patterns for autonomous agent step planning.
+- [Gemma 4](gemini.md) — Google's high-efficiency open weights model family.
 
 ## Sources / references
 - [Google DeepMind: Genie: Generative Interactive Environments](https://deepmind.google/discover/blog/genie-generative-interactive-environments/)
-- [Genie 4.5 Prompt Guide](https://deepmind.google/models/genie/prompt-guide/)
-- [ALM Corp: Project Genie Technical Analysis](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
+- [Genie 4.5 Prompt & Simulation Guide](https://deepmind.google/models/genie/prompt-guide/)
+- [ALM Corp: Project Genie Technical Analysis & Agent Integration](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
