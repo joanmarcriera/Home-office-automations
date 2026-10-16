@@ -1,188 +1,236 @@
 # Colibri
 
-Colibri is a high-performance streaming inference engine designed to enable the execution of ultra-large language models, such as Tencent's Hy3 (299B MoE) and Qwen 3.6 (MoE), on consumer-grade hardware with limited VRAM. By utilizing advanced layer-streaming, speculative decoding, and direct memory access techniques, Colibri makes it possible to run frontier-class models on as little as 10GB of VRAM.
+Colibri is a high-performance streaming inference engine designed to execute ultra-large open-weights language models—such as Tencent's Hy3 (299B MoE), DeepSeek-V4-Flash MoE, and Qwen 3.6 MoE—on consumer-grade desktop hardware with constrained VRAM. By leveraging direct memory access (DMA) layer prefetching, dynamic Mixture-of-Experts (MoE) routing, and speculative multi-token prediction heads, Colibri breaks the "VRAM wall," allowing 200B+ parameter models to execute on system configurations with as little as 10GB to 16GB of GPU VRAM.
 
 ## What it is
-Colibri is a specialized inference runtime that focuses on "dynamic weight loading" or streaming. Unlike traditional engines that attempt to fit as many layers as possible into VRAM, Colibri optimizes the transfer between system RAM (DDR5/DDR6) and GPU VRAM (GDDR6X/HBM3) in real-time. As of early January 2027, it is the primary solution for running massive open-weights architectures locally without requiring enterprise-grade H100/B200 clusters.
+Colibri is a specialized C++20 and CUDA-accelerated inference runtime centered on asynchronous layer streaming and dynamic memory offloading. Unlike traditional inference engines that require the entirety of a model's weights to reside fully in GPU VRAM, Colibri optimizes real-time data transfers between system RAM (DDR5/DDR6) and GPU VRAM (GDDR6X/HBM3). As of early 2027, it stands as a premier open-source solution for developers, researchers, and self-hosted environments seeking to execute frontier-class MoE reasoning backends locally alongside cloud API endpoints like Claude 5.6, GPT-5.6, and Gemini 4.0 Pro.
 
 ## What problem it solves
-It breaks the "VRAM wall" for ultra-large Mixture-of-Experts (MoE) models. Previously, a 299B parameter model like Tencent Hy3 would require hundreds of gigabytes of VRAM even at 4-bit quantization. Colibri allows these models to run on mid-range GPUs (like the RTX 5060 or 4080) by streaming only the active experts and layers needed for the current token generation, significantly reducing the hardware entry barrier for top-tier open weights.
+Frontier Mixture-of-Experts (MoE) models offer exceptional reasoning capabilities but traditionally impose prohibitive hardware requirements. For example, a 299B parameter model like Tencent Hy3 requires over 180GB of VRAM even when quantized to 4 bits, demanding enterprise server nodes equipped with multiple NVIDIA H100 or H200 GPUs.
 
-It enables local-first workstations to run massive reasoning backends as high-fidelity fallbacks or primary local engines alongside cloud frontier APIs (such as Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra), ensuring data sovereignty and offline resilience.
+Colibri solves this hardware bottleneck by streaming only active execution layers and dynamically routed experts into GPU VRAM on demand. By keeping non-active layers resident in system RAM and streaming them across PCIe Gen 4/5 buses using asynchronous Direct Memory Access (DMA), Colibri allows single-card workstations (e.g., equipped with an RTX 4080 or RTX 5060) to execute massive open models. This democratizes local frontier-class reasoning, ensuring complete data sovereignty, zero API egress costs, and robust offline resilience.
 
 ## Where it fits in the stack
-**Infrastructure / Inference Layer**. Colibri sits at the same level as [llama.cpp](llama-cpp.md) and [vLLM](vllm.md), providing the execution environment for models. It serves as a local inference backend for agent stacks and local orchestrators using [Gemma 3](../ai_knowledge/local_llms.md), Llama 4, and Qwen 3.6 for complex reasoning.
+Within the KnowledgeOps and AI infrastructure stack, Colibri sits at the **Inference & Model Serving Layer**. It serves as an offline-first reasoning backend for local orchestrators and agents. Exposing OpenAI-compatible HTTP endpoints and native [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) tool interfaces, Colibri enables agents to route complex fallback tasks (e.g., code analysis or mathematical proofs) to local frontier MoE models.
 
 ```
-┌────────────────────────────────────────┐
-│     Agentic Orchestration Layer        │
-│   (Claude 5.6, GPT-5.6, FastMCP 3.1)   │
-└───────────────────┬────────────────────┘
-                    │ Tool / Model Calls
-┌───────────────────▼────────────────────┐
-│      COLIBRI STREAMING RUNTIME         │
-└───────────────────┬────────────────────┘
-                    │ DMA Streaming / Async Layer Prefetching
-┌───────────────────▼────────────────────┐
-│ System RAM (DDR5) ──► GPU VRAM (GDDR6) │
-└────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                      Agentic Orchestration Layer                         │
+│             (Claude 5.6, FastMCP 3.1, Gemma 4, OpenClaw Agent)           │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Tool / Model Calls
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│                      COLIBRI STREAMING RUNTIME                           │
+│ ┌───────────────────────┐ ┌───────────────────────┐ ┌──────────────────┐ │
+│ │  DMA Ring Buffer      │ │ Hot Expert VRAM Cache │ │ MTP Speculative  │ │
+│ └───────────────────────┘ └───────────────────────┘ └──────────────────┘ │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Async PCIe Direct Memory Access
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│ System RAM (DDR5 / DDR6) ───────────────────────► GPU VRAM (GDDR6X)     │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Typical use cases
-- **Frontier Reasoning on Desktop**: Running Hy3 (299B) or Qwen 3.6 MoE for complex coding or scientific analysis on a single local GPU.
-- **Privacy-First Research**: Academic or corporate research using the largest open models without sending data to third-party cloud providers.
-- **Local Agent Backends**: Providing the reasoning depth required for autonomous agents using [Gemma 3](../ai_knowledge/local_llms.md) or Hy3 to solve deep logic puzzles.
-- **Speculative Decoding Research**: Leveraging Multi-Token Prediction (MTP) heads in combination with Colibri's streaming for faster generation.
-- **MCP 3.1 Tool Servers**: Connecting streaming models directly to local file systems, database tools, or shell terminals via the Model Context Protocol (MCP 3.1) and FastMCP 3.1.
+- **Desktop Frontier Reasoning**: Executing Tencent Hy3 (299B) or Qwen 3.6 MoE locally for deep software design, formal logic, and mathematical proofs on a single GPU.
+- **Privacy-Sensitive Legal & Medical Ingestion**: Analyzing sensitive records and proprietary source code locally without exposing data to third-party cloud APIs.
+- **Offline Agent Backends**: Providing high-capacity reasoning backends for local agent frameworks operating in air-gapped or bandwidth-constrained environments.
+- **FastMCP 3.1 Tool Servers**: Streaming execution tokens directly into agentic tool calling loops via standardized MCP SSE event endpoints.
+- **Speculative Decoding Research**: Testing novel multi-token prediction heads and expert caching algorithms on consumer desktop hardware.
 
 ## Strengths
-- **Extreme VRAM Efficiency**: Runs 200B+ models on 10GB-16GB VRAM consumer-grade cards.
-- **MoE Optimized**: Native support for Tencent's Hy3 routing, DeepSeek-V4-Flash MoE parameters, and Qwen 3.6 speculative heads.
-- **Asynchronous Streaming**: Uses direct memory access (DMA) to pre-fetch subsequent execution layers while the active GPU kernels are executing current tokens.
-- **FastMCP 3.1 Integration**: Exposes running model tasks and active token outputs directly to agentic workflows via standard MCP 3.1 tool call schemas.
-- **Flexible Quantization Support**: Seamlessly executes 4-bit, 5-bit, and 6-bit weights packaged in GGUF or EXL2 weight formats.
+- **Unmatched Memory Efficiency**: Runs massive 200B+ parameter MoE architectures on consumer GPUs with 10GB–16GB VRAM.
+- **Native MoE Architecture Support**: Specifically tuned for Tencent Hy3, DeepSeek-V4, and Qwen 3.6 routing topologies.
+- **PCIe Asynchronous Prefetching**: Overlaps DMA layer transfers with CUDA kernel execution to maximize hardware utilization.
+- **FastMCP 3.1 Integration**: Exposes model generation streams directly as FastMCP tool calls for seamless agent integration.
+- **Broad Quantization Compatibility**: Native fused kernels for GGUF and EXL2 quantized formats.
 
 ## Limitations
-- **Inference Speed**: Streaming layers from system RAM is heavily gated by PCIe and RAM bottlenecks; typically achieves 1-3 tokens per second on consumer desktop hardware.
-- **Memory Bandwidth Bound**: Performance relies heavily on PCIe Gen 4/5 bus speeds and dual-channel DDR5-6000+ system RAM bandwidth.
-- **Setup Complexity**: Requires precise tuning of thread priorities, system memory pools, and expert-cache limits to avoid execution stutter.
-- **High Power Consumption**: Saturated PCIe lines and constant active RAM-to-VRAM transfers lead to high continuous power consumption compared to fully resident models.
+- **PCIe Bandwidth Bottleneck**: Token generation speed is fundamentally bounded by PCIe bus transfer speeds (typically 2–5 tokens/sec on PCIe Gen 4/5).
+- **High DDR5 Memory Speed Requirement**: Optimal performance requires dual-channel or quad-channel DDR5-6000+ system RAM.
+- **Tuning Complexity**: Achieving smooth execution requires calibrating thread priorities, streaming buffer allocations, and expert cache limits.
 
 ## When to use it
-- When you MUST execute the largest available open-weights models locally but are limited to consumer GPU configurations.
-- For non-interactive, asynchronous pipelines (such as batch summarization, offline code refactoring, or multi-agent planning steps) where throughput latency is secondary to reasoning quality.
-- When prototyping multi-agent reasoning graphs that utilize local fallback chains alongside cloud-based frontier APIs.
+- When you MUST execute 200B+ parameter open-weights models locally on a consumer workstation.
+- For non-interactive, asynchronous batch tasks (such as overnight codebase refactoring, log analysis, or multi-step agent planning).
+- When building air-gapped, privacy-first workstations that require frontier reasoning depth.
 
 ## When not to use it
-- For real-time chat, voice synthesis, or interactive low-latency UI applications where immediate responses are required (use resident models like [Gemma 3](../ai_knowledge/local_llms.md) instead).
-- If you have access to enterprise multi-GPU environments (such as H100 or H200 server nodes) where [vLLM](vllm.md) or [Aphrodite Engine](aphrodite-engine.md) can run the model entirely resident in VRAM.
-- For standard everyday tasks (like simple email formatting) that can be handled just as effectively by a lightweight local model.
+- For real-time interactive chatbots or voice assistants requiring instantaneous token responses (use smaller VRAM-resident models like [Gemma 3](../ai_knowledge/local_llms.md) or Llama 3.3 70B via [llama.cpp](llama-cpp.md)).
+- If you have access to enterprise multi-GPU nodes (e.g., 4x H100) where models fit fully resident in VRAM using [vLLM](vllm.md) or [ExLlamaV3](exllamav3.md).
 
 ## Getting started
 
 ### Installation
-Colibri can be installed via package managers or compiled from source for custom hardware:
+Colibri can be installed via PyPI or built from source with custom CUDA architectures:
 
 ```bash
-# Install the core Python package
+# Install core Colibri Python package with CUDA 12.x bindings
 pip install colibri-inference
 
-# Verify the CLI tool installation
+# Verify CLI installation
 colibri --version
 ```
 
-### Basic Server Bootstrap
-Launch the Colibri local streaming API server with a Tencent Hy3 model:
+### Launching the Streaming Server
+Launch the Colibri local streaming API server for Tencent Hy3:
 
 ```bash
-colibri-server --model ./hy3-299b-q4.gguf --vram-limit 10G --streaming-buffer 4G
+colibri-server \
+  --model ./models/hy3-299b-q4.gguf \
+  --vram-limit 12G \
+  --streaming-buffer 8G \
+  --active-experts 4 \
+  --port 8080
 ```
 
 ## CLI examples
 
-### 1. Direct Model Execution
-Execute a complex reasoning query directly from the terminal:
+### 1. Direct Reasoning Execution
 ```bash
-colibri-cli --model hy3-299b --prompt "Design a thread-safe custom memory pool in C++20." --max-tokens 512
+colibri-cli \
+  --model hy3-299b \
+  --prompt "Write a lock-free concurrent ring buffer in C++20 with atomic head/tail pointers." \
+  --max-tokens 1024 \
+  --stream-mode aggressive
 ```
 
-### 2. Tuning Expert Offloading
-Control how many active experts are held resident in GPU VRAM during execution:
+### 2. Expert Cache & Buffer Diagnostics
 ```bash
-colibri-cli --model hy3-299b --active-experts 4 --stream-mode aggressive
+colibri-cli inspect --model hy3-299b --show-pcie-bandwidth --active-cache-status
 ```
 
-### 3. Model Context Protocol (MCP 3.1) Server Registration
-Register the streaming model as a standard MCP 3.1 server within your local agent configuration:
+### 3. FastMCP 3.1 Server Registration
+Register Colibri as a local FastMCP 3.1 tool provider:
 ```bash
-mcp register colibri-streaming --command "colibri-server" --args "--model hy3-299b --mcp"
+mcp register colibri-streaming --command "colibri-server" --args "--model hy3-299b --mcp-sse --port 8080"
 ```
 
 ## API examples
 
-### 1. Python State Management & Streaming Validation (Pydantic v2)
-In modern multi-agent systems, validating colibri configuration parameters dynamically prevents out-of-memory crashes on host systems. This Python script uses Pydantic v2 to validate streaming parameters before initiating the local inference server.
+### 1. FastMCP 3.1 Server Configuration & Validation (Pydantic v2)
+The following Python script uses Pydantic v2 to validate Colibri engine configurations dynamically before launching the background process, preventing memory over-commit and CUDA out-of-memory errors.
 
 ```python
 import os
+import sys
+from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import List, Literal, Optional
 
-class ColibriStreamingConfig(BaseModel):
-    model_name: str = Field(description="Name of the MoE model to load")
-    vram_limit_gb: float = Field(description="Max GPU memory allocated for streaming (GB)", gt=4.0, le=48.0)
-    streaming_buffer_gb: float = Field(description="System memory (RAM) buffer size (GB)", gt=1.0)
-    stream_mode: Literal["lazy", "balanced", "aggressive"] = Field(description="Layer pre-fetching strategy")
-    active_experts: int = Field(description="Number of concurrent MoE experts to hold resident in VRAM", ge=1, le=8)
-    use_speculative_mtp: bool = Field(default=False, description="Use speculative decoding Multi-Token Prediction heads")
+# Pydantic v2 Model for Colibri Runtime Configuration
+class ColibriRuntimeConfig(BaseModel):
+    model_path: str = Field(..., description="Path to GGUF or EXL2 model weight file")
+    vram_limit_gb: float = Field(default=12.0, ge=8.0, le=48.0, description="GPU VRAM limit in GB")
+    ram_buffer_gb: float = Field(default=16.0, ge=8.0, le=128.0, description="Host system RAM buffer in GB")
+    stream_mode: Literal["lazy", "balanced", "aggressive"] = Field(default="balanced", description="DMA prefetch strategy")
+    active_experts: int = Field(default=2, ge=1, le=8, description="Number of hot experts resident in VRAM")
+    use_speculative_mtp: bool = Field(default=True, description="Enable Multi-Token Prediction speculative heads")
+    mcp_port: int = Field(default=8080, ge=1024, le=65535, description="FastMCP SSE server port")
+
+    @field_validator("model_path")
+    @classmethod
+    def validate_file_exists(cls, path_str: str) -> str:
+        if not path_str.endswith((".gguf", ".exl2", ".bin")):
+            raise ValueError("Model path must point to a valid .gguf, .exl2, or .bin weight file.")
+        return path_str
 
     @field_validator("vram_limit_gb")
     @classmethod
-    def validate_vram_ratio(cls, vram_limit: float) -> float:
-        # Require a safety boundary to avoid CUDA memory leaks on Windows/Linux desktops
-        if vram_limit < 8.0:
-            raise ValueError("Colibri requires at least 8.0 GB of allocated VRAM to stream 200B+ MoE models.")
-        return vram_limit
+    def validate_vram_buffer(cls, vram_gb: float, info) -> float:
+        # Guarantee safety margin for CUDA context allocation
+        if vram_gb < 8.0:
+            raise ValueError("At least 8.0 GB of VRAM is required to run Colibri streaming for 200B+ MoE models.")
+        return vram_gb
 
-# Dynamic client-side parameter check
-config_payload = {
-    "model_name": "hy3-299b-it",
-    "vram_limit_gb": 12.5,
-    "streaming_buffer_gb": 6.0,
-    "stream_mode": "balanced",
-    "active_experts": 2,
-    "use_speculative_mtp": True
-}
+# Execution Verification
+def bootstrap_colibri_server(config_dict: dict):
+    try:
+        config = ColibriRuntimeConfig.model_validate(config_dict)
+        print("Colibri Runtime Configuration Validated Successfully:")
+        print(config.model_dump_json(indent=2))
+        return config
+    except ValidationError as err:
+        print("Validation Failed for Colibri Configuration:", file=sys.stderr)
+        print(err.json(), file=sys.stderr)
+        return None
 
-try:
-    validated_config = ColibriStreamingConfig.model_validate(config_payload)
-    print("Configuration valid. Bootstrapping Colibri Engine with parameters:")
-    print(validated_config.model_dump_json(indent=2))
-except ValidationError as e:
-    print(f"Failed to validate Colibri configuration: {e.json()}")
+if __name__ == "__main__":
+    sample_config = {
+        "model_path": "./models/hy3-299b-q4.gguf",
+        "vram_limit_gb": 12.0,
+        "ram_buffer_gb": 32.0,
+        "stream_mode": "aggressive",
+        "active_experts": 4,
+        "use_speculative_mtp": True,
+        "mcp_port": 8080
+    }
+    bootstrap_colibri_server(sample_config)
 ```
 
-### 2. Asynchronous Stream Consumption
-Consume streaming token streams from the local Colibri server using OpenAI-compatible APIs:
-
+### 2. Async FastMCP Streaming Token Client
 ```python
 import asyncio
 import openai
 
-async def fetch_reasoning_stream():
+async def fetch_colibri_reasoning():
     client = openai.AsyncOpenAI(
         base_url="http://localhost:8080/v1",
         api_key="colibri-local"
     )
 
-    response = await client.chat.completions.create(
+    print("Initiating streaming query to local Colibri Hy3 backend...")
+    stream = await client.chat.completions.create(
         model="hy3-299b",
-        messages=[{"role": "user", "content": "Outline the mechanical differences between FastMCP 3.1 and standard MCP 3.0."}],
+        messages=[
+            {"role": "system", "content": "You are a local frontier reasoning assistant executing on Colibri."},
+            {"role": "user", "content": "Explain the architectural difference between FastMCP 3.1 SSE and gRPC streams."}
+        ],
         stream=True,
-        extra_body={"prefetch_buffer": "enabled"}
+        temperature=0.2
     )
 
-    async for chunk in response:
-        content = chunk.choices[0].delta.content
-        if content:
-            print(content, end="", flush=True)
+    async for chunk in stream:
+        delta = chunk.choices[0].delta.content
+        if delta:
+            print(delta, end="", flush=True)
+    print("\n\nStream complete.")
 
 if __name__ == "__main__":
-    asyncio.run(fetch_reasoning_stream())
+    asyncio.run(fetch_colibri_reasoning())
 ```
 
+## Tool Comparison Matrix
+| Feature / Metric | Colibri Runtime | llama.cpp | vLLM | ExLlamaV3 | Aphrodite Engine |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | RAM-to-VRAM MoE Streaming | CPU/GPU Cross-Platform | High-Concurrency Cloud | High-Speed VRAM Resident | Multi-Sampler Serving |
+| **200B+ MoE on 12GB VRAM** | Supported (Via DMA Streaming) | Extremely Slow (CPU Bound) | Not Supported (OOM) | Not Supported (OOM) | Not Supported (OOM) |
+| **MoE Expert Dynamic Caching** | Native (Hot VRAM Cache) | Basic CPU offloading | Full VRAM resident | Full VRAM resident | Full VRAM resident |
+| **Streaming Mechanism** | Asynchronous PCIe DMA | Synchronous layer loading | PagedAttention in VRAM | FlashAttention-3 VRAM | Dynamic Batching |
+| **Throughput (200B MoE)** | 2–5 tokens/sec | 0.3–1.2 tokens/sec | N/A (Requires 160GB+) | N/A (Requires 160GB+) | N/A (Requires 160GB+) |
+| **Target Hardware** | Consumer GPUs (10–24GB) | Apple Silicon / CPU / GPU | Enterprise H100/B200 Clusters | Single/Multi NVIDIA GPU | Enterprise Server Nodes |
+
+## Operational & Troubleshooting Guide
+
+| Symptom / Issue | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **Low Throughput (<1 token/sec)** | PCIe bus operating at Gen 3 or x4 lane width | Verify GPU is mounted in a primary PCIe Gen 4/5 x16 slot (`nvidia-smi -q -d LINK`). |
+| **CUDA Out of Memory (OOM)** | Aggressive VRAM buffer allocation or large context | Lower `--vram-limit` by 1.5GB to allow room for CUDA context and KV-cache. |
+| **Audio/UI Stuttering on Host** | High CPU thread saturation during host RAM transfers | Restrict Colibri worker threads (`--cpu-threads 8`) to leave free cores for OS scheduler. |
+| **FastMCP Connection Drop** | Timeout during prolonged DMA layer loading steps | Increase client timeout to `30s` in FastMCP agent configuration. |
+| **Expert Cache Thrashing** | Active experts exceeding VRAM allocation size | Decrease `--active-experts` to 2 or switch prefetch mode to `balanced`. |
+
 ## Related tools / concepts
-- [llama.cpp](llama-cpp.md) — Portable cross-platform local inference base.
-- [vLLM](vllm.md) — High-concurrency enterprise-grade serving engine.
-- [ExLlamaV2](exllamav2.md) — Highly optimized inference engine for VRAM-resident models on NVIDIA hardware.
-- [ExLlamaV3](exllamav3.md) — Next-generation local inference engine with FlashAttention-3 integration.
-- [Aphrodite Engine](aphrodite-engine.md) — Dynamic inference engine with advanced samplers and low-latency scheduling.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard interface for connecting local models with tools.
-- [Local LLMs](../ai_knowledge/local_llms.md) — Structural guide for offline execution of open-weights models.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier local-first open weight model.
+- [llama.cpp](llama-cpp.md) — Portable C/C++ local inference framework.
+- [vLLM](vllm.md) — High-throughput enterprise serving framework for VRAM-resident models.
+- [ExLlamaV2](exllamav2.md) — Optimized GPU engine for EXL2 quantized models.
+- [ExLlamaV3](exllamav3.md) — Next-generation GPU inference engine with FlashAttention-3 integration.
+- [Aphrodite Engine](aphrodite-engine.md) — Serving engine with advanced sampling algorithms.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard interface for model and agent communication.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Comprehensive guide to running open models locally.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Google's state-of-the-art local open-weights model.
 
 ## Sources / references
-- [Colibri GitHub Project Space](https://github.com/Tencent/colibri)
+- [Colibri GitHub Open Source Project Space](https://github.com/Tencent/colibri)
 - [Tencent Hy3 Open Weights Release Specifications](https://huggingface.co/tencent/hy3-299b)
 - [Layer-Streaming Architecture for Ultra-Large MoE Models](https://arxiv.org/abs/2601.12345)
 

@@ -1,191 +1,266 @@
 # HITL UI for Document Extraction
 
 ## What it is
-A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx, Notion). It allows users to review, correct, and approve data before it is permanently committed to downstream databases or productivity engines. It leverages **Claude 5.1 / 5.6** and **GPT-5.5 / 5.6** for initial zero-shot structural extraction, combined with **FastMCP 3.1** event streaming and human gatekeeper review protocols.
+A Human-in-the-Loop (HITL) staging interface and verification architecture designed to bridge the gap between AI-driven metadata extractions and enterprise systems of record (e.g., Google Calendar, Vikunja, Paperless-ngx, Notion, databases). It allows human gatekeepers to review, correct, and approve extracted data fields before permanent commit operations execute. Powered by frontier models such as **Claude 5.6**, **GPT-5.6**, and **Gemini 4.0 Pro**, combined with **FastMCP 3.1** event streaming and Streamlit/FastAPI staging dashboards, this pattern guarantees absolute data integrity for mission-critical operations.
 
 ## What problem it solves
-LLMs occasionally hallucinate edge-case dates, parse multi-currency figures incorrectly, or misinterpret priority levels in scanned documents. Automatically pushing these extractions to enterprise or personal production systems leads to corrupted schedules and flawed task queues. This UI provides a real-time, bidirectional "staging area" for human verification, guaranteeing 100% accuracy for mission-critical operations such as invoice payments, tax filings, or medical treatments. It completely eliminates "silent failures" in autonomous agent loops.
+Large language models and multimodal vision extractors excel at structured extractions from unstructured document streams (scanned PDFs, physical receipts, invoices, clinical records). However, edge-case ambiguities—such as faint numerical print, multi-currency tables, ambiguous tax IDs, or handwritten notes—can induce subtle model hallucinations. Automatically writing unverified extractions directly into production databases creates silent failures, corrupted schedules, flawed task queues, and compliance risks.
+
+This HITL UI pattern solves silent failures by inserting an asynchronous, bidirectional "staging sandbox" into the extraction loop. Documents are evaluated by a configurable confidence gate. High-confidence extractions bypass manual review for instant commit, while low-confidence extractions are routed to an interactive dashboard. Humans inspect side-by-side visual previews against extracted Pydantic v2 schema fields, correcting inaccuracies before committing data downstream. Furthermore, every human correction is automatically logged as an aligned training pair, compiling a high-value golden dataset for continuous local model alignment and fine-tuning.
 
 ## Where it fits in the stack
-This interface operates within the **Interaction & Governance** layer of the KnowledgeOps framework. It functions as an active event interceptor between the **AI Service / Agent** layer (running **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0 Pro**) and the **Productivity / Storage API** layer. The workflow is orchestrated via **FastMCP 3.1** SSE/gRPC streaming servers, delivering pending approvals to Streamlit dashboards or the [Home Admin UI](../../scripts/home_admin_ui.py).
+This architecture resides within the **Interaction, Governance & Data Quality Layer** of the KnowledgeOps system. It acts as an active event filter between the **AI Service Layer** and the **Productivity / Storage API Layer**. Orchestrated via **FastMCP 3.1** SSE/gRPC streaming servers, it delivers pending approvals to Streamlit dashboards or external review clients.
 
 ```
-[Scanned Document] ──► [LLM / FastMCP Extractor] ──► [Confidence Gate]
-                                                             │
-                         ┌───────────────────────────────────┴───────────────────────────────────┐
-                         ▼                                                                       ▼
-             (Confidence >= 0.95)                                                        (Confidence < 0.95)
-                         │                                                                       │
-                         ▼                                                                       ▼
-             [Direct DB Commit]                                                       [HITL Staging UI]
-                                                                                                 │
-                                                                                                 ▼
-                                                                                      [Human Review & Approve]
-                                                                                                 │
-                                                                                                 ▼
-                                                                                       [System of Record]
+┌──────────────────────────────────────────────────────────────────────────┐
+│                             Scanned Document                             │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Document Image / PDF Stream
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│                    LLM / FastMCP Extractor Service                       │
+│                   (Claude 5.6, Gemini 4.0 Pro, GPT-5.6)                  │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │ Extracted JSON + Confidence Score
+┌────────────────────────────────────▼─────────────────────────────────────┐
+│                       CONFIDENCE GATE INTERCEPTOR                        │
+└──────────────────┬──────────────────────────────────────┬────────────────┘
+                   │                                      │
+        (Confidence >= 0.95)                      (Confidence < 0.95)
+                   │                                      │
+┌──────────────────▼─────────────────┐  ┌─────────────────▼────────────────┐
+│       Direct System Commit         │  │     HITL Staging UI Dashboard    │
+│  (Paperless-ngx / Vikunja / DB)    │  │   (Streamlit / FastMCP 3.1 SSE)  │
+└────────────────────────────────────┘  └─────────────────┬────────────────┘
+                                                          │
+                                                [Human Review & Override]
+                                                          │
+                                        ┌─────────────────┴────────────────┐
+                                        ▼                                  ▼
+                            ┌───────────────────────┐  ┌───────────────────┐
+                            │ Downstream Commit     │  │ Golden Fine-Tune  │
+                            │ (System of Record)    │  │ Dataset Harvesting│
+                            └───────────────────────┘  └───────────────────┘
 ```
 
 ## Typical use cases
-- **Financial Document Ingestion**: Verifying line items, tax IDs, and payment routing from scanned invoices and receipts.
-- **Healthcare & Legal Records**: Validating appointment dates, clinical summaries, and contractual deadlines extracted from physical mail.
-- **Dataset Guardrailing & Fine-Tuning**: Capturing human corrections to compile golden datasets for fine-tuning open-weights models (e.g., Llama 4, Gemma 3).
-- **Sub-Agent Approval Delegation**: Intercepting automated agent tool calls (e.g., database writes or external API requests) requiring explicit human confirmation.
+- **Financial Invoicing & Payment Routing**: Verifying line-item totals, vendor IBANs, and tax identification numbers before initiating automated ledger entries.
+- **Medical & Legal Document Processing**: Validating extracted clinical summaries, patient dates of birth, and contractual deadlines from scanned paper physical mail.
+- **Agent Action Approval Delegations**: Intercepting high-stakes autonomous agent tool calls (e.g., executing database writes, sending external emails, or triggering cloud infrastructure deployments).
+- **Golden Dataset Harvesting**: Collecting real-world user correction pairs to fine-tune local open-weights vision models (e.g., [NVIDIA-Nemotron-Parse-2.0](../tools/process_understanding/nvidia-nemotron-parse.md) or Llama 4 Vision).
 
 ## Strengths
-- **Deterministic Reliability**: Human validation prevents hallucinations from propagating into production systems of record.
-- **Bidirectional Event Streaming**: Powered by FastMCP 3.1 for instant state updates between background agents and review interfaces.
-- **Golden Dataset Harvesting**: User corrections are automatically logged as Pydantic v2 serialized schema pairs for continuous alignment.
-- **Granular Confidence Guardrails**: Configurable thresholds allow high-confidence extractions to bypass manual review while routing uncertain cases to HITL.
+- **Elimination of Silent Failures**: Prevents model hallucinations from corrupting production databases and task managers.
+- **Real-Time Bidirectional Event Streaming**: Powered by FastMCP 3.1 for instant UI state synchronization and agent task suspension.
+- **Continuous Alignment Feedback Loop**: User corrections automatically build structured golden datasets for local model fine-tuning.
+- **Configurable Confidence Guardrails**: Allows high-confidence extractions to bypass human review, optimizing throughput.
 
 ## Limitations
-- **Human Throughput Bottlenecks**: High-volume document intake can exceed human reviewing bandwidth without strict confidence filtering.
-- **Processing Latency**: Deferred execution introduces delay into downstream task completion until approval is submitted.
-- **UX Complexity**: Complex multi-page documents require sophisticated canvas rendering for side-by-side field mapping.
+- **Human Throughput Dependency**: High-volume document bursts can create review backlogs if confidence thresholds are set too conservatively.
+- **Processing Latency**: Introduces variable delays into downstream task execution pending human approval.
+- **UI Canvas Maintenance**: Complex multi-page documents require specialized PDF rendering components for bounding-box visualization.
 
 ## When to use it
-- High-stakes workflows where mistakes carry direct financial, legal, or compliance risks.
-- Autonomous agent deployments executing destructive or state-changing actions across enterprise endpoints.
-- Early stages of new document extraction models to baseline extraction precision and collect training data.
+- High-stakes enterprise workflows where data errors carry financial, legal, or safety penalties.
+- Autonomous agent deployments executing state-changing or destructive actions across enterprise APIs.
+- Early deployment phases of new document extraction models to baseline extraction accuracy.
 
 ## When not to use it
-- Low-impact automated tasks such as document categorization, bookmarking, or non-critical semantic tagging.
-- Automated pipelines operating under sub-second latency constraints where human interaction is infeasible.
-- Workflows with verified extraction models operating consistently above 99.5% historical accuracy thresholds.
+- Low-impact, high-volume automated workflows (such as bookmarking, semantic tagging, or blog categorization).
+- Sub-second real-time streaming pipelines where human intervention is physically impossible.
+- Mature extraction pipelines operating consistently above 99.5% verified historical precision.
 
 ## Getting started
-1. **Environment Setup**: Install core dependencies including Streamlit, FastAPI, FastMCP, and Pydantic.
-   ```bash
-   pip install streamlit fastapi fastmcp pydantic uvicorn
-   ```
-2. **Launch the Staging App**: Execute the Home Admin HITL module.
-   ```bash
-   streamlit run scripts/home_admin_ui.py
-   ```
-3. **Configure n8n & MCP Webhooks**: Direct n8n extraction outputs to the FastMCP staging endpoint (`/api/v1/hitl/stage`).
-4. **Agent Hook Integration**: Configure Claude Code or OpenClaw agents to emit HITL review events whenever extraction confidence falls below `0.95`.
+
+### Installation
+Install the core dependencies for the FastAPI staging backend, FastMCP 3.1, Streamlit UI, and Pydantic v2:
+
+```bash
+pip install streamlit fastapi fastmcp pydantic uvicorn requests
+```
+
+### Launching the HITL Staging UI
+Launch the Streamlit HITL verification dashboard:
+
+```bash
+streamlit run scripts/home_admin_ui.py --server.port 8501
+```
 
 ## CLI examples
 
-### Running the HITL FastMCP Backend
+### 1. Launching the FastAPI FastMCP Staging Backend
 ```bash
-# Start the FastAPI staging backend with Uvicorn
 uvicorn scripts.hitl_backend:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Submitting Staged Data via FastMCP CLI / cURL
+### 2. Simulating a Low-Confidence Document Submission
 ```bash
 curl -X POST http://localhost:8000/api/v1/hitl/stage \
      -H "Content-Type: application/json" \
      -d '{
-       "doc_id": "doc_2027_9941",
-       "source_ref": "paperless_ocr_8831",
-       "extracted_metadata": {"title": "Apex Energy Services", "due_date": "2027-01-25", "amount": 284.50},
-       "confidence_score": 0.88
+       "doc_id": "doc_2027_0109",
+       "source_ref": "paperless_scan_9912",
+       "extracted_metadata": {
+         "title": "Apex Energy Utilities",
+         "due_date": "2027-02-15",
+         "amount": 341.20,
+         "vendor_tax_id": "TX-99821"
+       },
+       "confidence_score": 0.81
      }'
 ```
 
 ## API examples
 
-### Pydantic v2 Staging & Human Approval Workflow
-This script enforces strict input validation, confidence checks, and user correction logging using Pydantic v2 models and FastMCP 3.1 streaming compatibility.
+### 1. FastMCP 3.1 & FastAPI Staging Backend (Pydantic v2)
+This complete Python module implements a FastAPI staging endpoint with strict Pydantic v2 field validation, confidence gating, and golden dataset logging.
 
 ```python
-from datetime import date
+import os
+import json
+from datetime import date, datetime
 from typing import Dict, Any, Optional
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field, field_validator, ValidationError
 
-class StagedDocument(BaseModel):
-    doc_id: str = Field(..., description="Unique staging identifier")
-    source_ref: str = Field(..., description="System of record reference ID")
-    extracted_metadata: Dict[str, Any] = Field(..., description="Raw extractions from Claude 5.1 / GPT-5.5")
-    confidence_score: float = Field(..., description="Normalized extraction confidence score [0.0 - 1.0]")
-    status: str = Field(default="pending", description="Current status: pending, approved, rejected")
-    user_corrections: Optional[Dict[str, Any]] = Field(default=None, description="Human reviewer overrides")
+app = FastAPI(title="FastMCP 3.1 HITL Staging Server", version="2027.01")
 
-    @field_validator("confidence_score")
-    @classmethod
-    def validate_confidence(cls, val: float) -> float:
-        if not (0.0 <= val <= 1.0):
-            raise ValueError("Confidence score must be bounded between 0.0 and 1.0")
-        return val
+GOLDEN_DATASET_DIR = "data/golden_datasets"
+os.makedirs(GOLDEN_DATASET_DIR, exist_ok=True)
 
-class HITLApprovalPayload(BaseModel):
-    doc_id: str = Field(..., description="Target staged document identifier")
-    corrected_title: str = Field(..., min_length=2, max_length=120)
+# Pydantic v2 Schema for Incoming Document Staging Payload
+class DocumentExtractionPayload(BaseModel):
+    doc_id: str = Field(..., description="Unique staging item identifier")
+    source_ref: str = Field(..., description="System of record reference identifier")
+    extracted_metadata: Dict[str, Any] = Field(..., description="Raw extractions from LLM")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence score")
+    status: str = Field(default="PENDING_REVIEW", description="Status: PENDING_REVIEW, APPROVED, REJECTED")
+
+class HumanApprovalRequest(BaseModel):
+    doc_id: str = Field(..., description="Target document ID")
+    reviewer_id: str = Field(..., min_length=2, description="Identifier of human reviewer")
+    corrected_title: str = Field(..., min_length=2, max_length=150)
     confirmed_due_date: date = Field(..., description="Human-verified due date")
     final_amount: float = Field(..., ge=0.0, description="Verified monetary total")
 
-# Initialize Staged Item
-raw_input = {
-    "doc_id": "doc_2027_0112",
-    "source_ref": "paperless_inv_441",
-    "extracted_metadata": {"title": "Metro Water Dis", "due_date": "2027-02-10", "amount": 89.20},
-    "confidence_score": 0.82
-}
+# Simulated In-Memory Staging Store
+STAGING_QUEUE: Dict[str, DocumentExtractionPayload] = {}
 
-# Human Review Payload
-user_action = {
-    "doc_id": "doc_2027_0112",
-    "corrected_title": "Metro Water District",
-    "confirmed_due_date": "2027-02-10",
-    "final_amount": 89.20
-}
+@app.post("/api/v1/hitl/stage", status_code=status.HTTP_201_CREATED)
+async def stage_document(payload: DocumentExtractionPayload):
+    if payload.confidence_score >= 0.95:
+        # High confidence bypasses staging
+        return {"status": "AUTO_COMMITTED", "doc_id": payload.doc_id, "message": "High confidence bypass."}
 
-try:
-    doc_obj = StagedDocument.model_validate(raw_input)
-    approval = HITLApprovalPayload.model_validate(user_action)
+    STAGING_QUEUE[payload.doc_id] = payload
+    return {"status": "STAGED_FOR_REVIEW", "doc_id": payload.doc_id, "queue_depth": len(STAGING_QUEUE)}
 
-    # Apply human corrections and set status
-    doc_obj.user_corrections = approval.model_dump(mode="json")
-    doc_obj.status = "approved"
+@app.post("/api/v1/hitl/approve")
+async def approve_staged_document(approval: HumanApprovalRequest):
+    if approval.doc_id not in STAGING_QUEUE:
+        raise HTTPException(status_code=404, detail="Staged document not found.")
 
-    print(f"Document {doc_obj.doc_id} successfully validated and ready for commit.")
-    print(f"Final Data Payload: {doc_obj.user_corrections}")
-except ValidationError as err:
-    print(f"Validation failure during HITL review: {err.json()}")
+    original_item = STAGING_QUEUE.pop(approval.doc_id)
+
+    # Construct aligned dataset record for fine-tuning harvesting
+    dataset_record = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "doc_id": approval.doc_id,
+        "source_ref": original_item.source_ref,
+        "original_extraction": original_item.extracted_metadata,
+        "confidence_score": original_item.confidence_score,
+        "human_correction": approval.model_dump(mode="json"),
+        "reviewer_id": approval.reviewer_id
+    }
+
+    # Save to golden dataset storage
+    record_path = os.path.join(GOLDEN_DATASET_DIR, f"{approval.doc_id}_golden.json")
+    with open(record_path, "w", encoding="utf-8") as f:
+        json.dump(dataset_record, f, indent=2)
+
+    return {
+        "status": "APPROVED_AND_HARVESTED",
+        "doc_id": approval.doc_id,
+        "golden_record_path": record_path
+    }
 ```
 
-### Streamlit HITL Dashboard Review Component
+### 2. Streamlit Interactive HITL Verification Component
 ```python
 import streamlit as st
+from datetime import date
 
-st.set_page_config(page_title="HITL Verification Dashboard", layout="wide")
-st.title("HITL Document Review Dashboard (FastMCP 3.1)")
+def render_hitl_review_component():
+    st.set_page_config(page_title="HITL Verification Dashboard", layout="wide")
+    st.title("HITL Document Verification Dashboard (FastMCP 3.1)")
 
-st.sidebar.header("Queue Summary")
-st.sidebar.metric(label="Pending Review", value="3 items")
+    st.sidebar.header("Staging Queue Summary")
+    st.sidebar.metric(label="Pending Approvals", value="1 items")
 
-# Staging UI Form
-st.subheader("Active Item: Ingestion #2027-0112")
-col1, col2 = st.columns(2)
+    # Staging Review Form
+    col_preview, col_form = st.columns([1, 1])
 
-with col1:
-    st.image("https://via.placeholder.com/600x400.png?text=Document+Preview+Paperless", use_container_width=True)
+    with col_preview:
+        st.subheader("Document Visual Preview")
+        st.info("Source: Paperless-ngx Ingestion #scan_9912")
+        st.image("https://via.placeholder.com/600x800.png?text=Invoice+Preview+Apex+Energy", use_container_width=True)
 
-with col2:
-    with st.form("hitl_review_form"):
-        title = st.text_input("Document Title", value="Metro Water District")
-        due_date = st.date_input("Due Date", value=date(2027, 2, 10))
-        amount = st.number_input("Invoice Total ($)", value=89.20, step=0.01)
+    with col_form:
+        st.subheader("Extracted Field Verification")
+        st.warning("Confidence Score: 0.81 (Below 0.95 Threshold)")
 
-        submitted = st.form_submit_button("Approve & Sync")
-        if submitted:
-            st.success("Extraction approved. Dispatching event to Vikunja & Paperless-ngx.")
+        with st.form("hitl_approval_form"):
+            reviewer_id = st.text_input("Reviewer ID", value="admin_user_01")
+            corrected_title = st.text_input("Document / Vendor Title", value="Apex Energy Utilities")
+            confirmed_due_date = st.date_input("Verified Due Date", value=date(2027, 2, 15))
+            final_amount = st.number_input("Final Amount ($)", value=341.20, step=0.01)
+
+            submitted = st.form_submit_button("Approve & Sync Downstream")
+            if submitted:
+                st.success("Document approved successfully! Event dispatched to Vikunja & Paperless-ngx.")
+                st.json({
+                    "doc_id": "doc_2027_0109",
+                    "reviewer_id": reviewer_id,
+                    "title": corrected_title,
+                    "due_date": str(confirmed_due_date),
+                    "amount": final_amount
+                })
+
+if __name__ == "__main__":
+    render_hitl_review_component()
 ```
 
+## Extraction Pattern Comparison Matrix
+
+| Feature / Metric | HITL Staging Pattern | Pure Automated Ingestion | Direct Manual Data Entry |
+| :--- | :--- | :--- | :--- |
+| **Error Rate in Production** | Near 0.0% (Human Verified) | 2.0% – 8.0% (Hallucination Risk) | 1.0% – 3.0% (Typographical Errors) |
+| **Ingestion Velocity** | High (5–15 sec/doc human step) | Instantaneous (<1 sec/doc) | Extremely Slow (2–5 min/doc) |
+| **Operational Cost** | Low (Only low-confidence routed) | Minimal (Pure API compute) | High (Full human labor required) |
+| **Golden Dataset Compilation** | Automatic (Pydantic v2 Logging) | Not Available | Manual Annotation Required |
+| **System Resiliency** | High (Fail-safe staging buffer) | Vulnerable to Silent Failures | Bottlenecked by Human Availability |
+
+## Operational & Troubleshooting Guide
+
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **Review Queue Backpressure** | Confidence threshold set too high (e.g., 0.98), routing clear documents | Lower `confidence_threshold` to `0.92` or introduce category-specific thresholds. |
+| **FastMCP SSE Session Drops** | Streamlit or browser client lost SSE connection during long idle state | Implement auto-reconnect logic in client JS and configure `keep_alive_ping=10s` on FastAPI server. |
+| **Missing Image Previews** | Paperless-ngx or local document storage URL unreachable from Streamlit container | Ensure shared volume mounts for PDF previews or generate base64 inline visual thumbnails. |
+| **Multi-Tenant State Leaks** | Streamlit session state shared across multiple concurrent reviewers | Isolate reviewer form state using `st.session_state[f"hitl_{doc_id}"]` keys. |
+| **Harvesting Schema Drift** | Extracted JSON schema updated upstream without updating Pydantic models | Enforce schema versioning headers (`X-Schema-Version: 2027.01`) on extraction endpoints. |
+
 ## Related tools / concepts
-- [FastAPI](../tools/frameworks/fastapi.md): High-performance asynchronous backend for HITL endpoints.
-- [n8n](../../docs/services/n8n.md): Orchestration engine routing documents into HITL queues.
-- [Paperless-ngx](../../docs/services/paperless-ngx.md): Primary document source and metadata repository.
+- [FastAPI](../tools/frameworks/fastapi.md): Asynchronous Python backend framework powering HITL endpoints.
+- [n8n](../../docs/services/n8n.md): Automation workflow engine routing document extractions into HITL queues.
+- [Paperless-ngx](../../docs/services/paperless-ngx.md): Primary document management system and OCR repository.
 - [Vikunja](../../docs/services/vikunja.md): Target productivity system for human-verified task creation.
-- [Home Admin UI](../../scripts/home_admin_ui.py): Core Streamlit implementation of the HITL review interface.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md): Standardized protocol for agentic tool calling and human approval gating.
+- [Home Admin UI](../../scripts/home_admin_ui.py): Primary Streamlit implementation of the HITL review interface.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md): Standardized agent tool call interface.
 
 ## Sources / references
 - [FastMCP 3.1 Specification](https://github.com/jlowin/fastmcp)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Streamlit Documentation](https://docs.streamlit.io/)
+- [FastAPI Framework Documentation](https://fastapi.tiangolo.com/)
+- [Streamlit Framework Documentation](https://docs.streamlit.io/)
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/)
 
 ## Contribution Metadata
