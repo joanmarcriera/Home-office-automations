@@ -306,5 +306,5 @@ if __name__ == "__main__":
 - [FastMCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high

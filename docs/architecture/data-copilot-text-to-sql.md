@@ -298,5 +298,5 @@ if __name__ == "__main__":
 - [Gemma 3: Open Models for Agentic Workflows](https://ai.google.dev/gemma)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high
