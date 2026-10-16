@@ -379,5 +379,5 @@ if __name__ == "__main__":
 - [MCP 3.1 Specification](https://modelcontextprotocol.io/3.1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high

@@ -322,5 +322,5 @@ except Exception as err:
 - [Apple Silicon Metal Performance Guide](https://developer.apple.com/metal/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-10-09
+- Last reviewed: 2027-01-07
 - Confidence: high
