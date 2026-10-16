@@ -1,0 +1,16 @@
+name: gitleaks
+# Secret-scanning gate (Vikunja #1846): same pattern as lab-site. Full history, because gitleaks
+# scans commit ranges and fails on a shallow clone. Reviewed false positives go in .gitleaksignore.
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: gitleaks/gitleaks-action@v2
+        env: {GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"}
