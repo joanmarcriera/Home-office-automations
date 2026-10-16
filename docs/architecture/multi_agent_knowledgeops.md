@@ -73,6 +73,21 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 - **Rigidity**: Strict section requirements may struggle with non-standard research papers or experimental architecture notes.
 - **Bootstrap Complexity**: Requires initial setup of FastMCP servers and validation scripts to be effective.
 
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Contract Violation: Missing metadata block` | Agent omitted `Last reviewed` or `Confidence` header during file generation | Run `python3 scripts/backfill_docs_metadata.py` to restore metadata structure. |
+| `Catalog Mismatch Error` | Navigation entry created in `mkdocs.yml` without matching `data/all_tools.json` entry | Run `python3 scripts/check_catalog_consistency.py` and synchronize catalog keys. |
+| `Git Merge Conflict on Main` | Multiple agent lanes updating identical canonical page concurrently | Isolate agent lane updates to distinct file paths; use rebase before submission. |
+| `FastMCP Tool Call Disconnection` | Unhandled exception inside Pydantic model validation hook | Inspect system error logs and ensure inputs match strict Pydantic v2 schemas. |
+
+## Operational Best Practices & Guardrails
+- **Enforce Single Canonical Ownership**: Maintain strictly one canonical Markdown document per technology topic to eliminate duplication.
+- **Zero-Trust Continuous Integration**: Automatically reject PRs that fail `audit_docs_quality.py` or `check_docs_contract.py` validation passes.
+- **Atomic Commits with Metric Updates**: Every batch update must execute `scripts/growth_tracker.py` to record volume growth and maintain catalog health metrics.
+- **Preserve Historical Reports**: Keep batch tracking reports in `docs/reports/` read-only after creation to maintain an immutable audit trail.
+
 ## When to use it
 - When operating a knowledge base that receives contributions from more than one automated agent or worker lane.
 - When maintaining a "High Confidence" technical repository with 500+ pages of documentation.
@@ -142,7 +157,7 @@ from datetime import date
 from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("KnowledgeOpsPolicyEngine")
+mcp = FastMCP("KnowledgeOpsPolicyEngine", version="3.1.0")
 
 class DocumentMetadata(BaseModel):
     last_reviewed: date = Field(..., description="Date of last quality review in YYYY-MM-DD format")
