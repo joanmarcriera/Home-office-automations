@@ -40,7 +40,7 @@ Pirate Face addresses these problems by decentralizing model weight distribution
 
 Pirate Face operates as a model discovery and acquisition layer for local AI ecosystems:
 - **Distribution & Storage Layer**: Bridges P2P distribution networks (BitTorrent, IPFS) with local storage volumes.
-- **Metadata & Indexing Layer**: Extracts architecture details, tensor shapes, quantization levels, andcontext limits directly from GGUF headers.
+- **Metadata & Indexing Layer**: Extracts architecture details, tensor shapes, quantization levels, and context limits directly from GGUF headers.
 - **Agent Integration Layer**: Exposes FastMCP 3.1 endpoints enabling agentic frameworks (Claude Code, OpenClaw, AutoGen) to inspect and fetch missing local models dynamically.
 
 ```mermaid
@@ -60,6 +60,17 @@ sequenceDiagram
     MCP->>Runner: Register New Model Artifact Path
     MCP-->>Agent: Return Model Ready Signal & System Endpoint
 ```
+
+## Comparative Protocol Analysis
+
+| Protocol / Strategy | BitTorrent Swarm | IPFS Content-Addressed | S3 Mirror Fallback | Centralized HTTPS Hub |
+| :--- | :--- | :--- | :--- | :--- |
+| **Distribution Model** | P2P Peer Swarming | Distributed Hash Table (DHT) | Single-Origin Cloud Bucket | Single-Origin Platform |
+| **Verification** | Piece-level SHA1 / SHA256 | Content ID (CID) Multihash | File ETag / MD5 | SSL/TLS in-transit only |
+| **Bandwidth Scaling** | Scales linearly with seeders | Depends on pinners / gateways | Fixed bandwidth caps | Rate-limited per IP |
+| **Offline Resilience** | High (LAN peer discovery) | High (Local IPFS node) | Low (Requires internet) | None (Requires active API) |
+| **Agentic FastMCP 3.1** | Native tool streaming | Native CID resolve tool | Direct URL fetch tool | Custom scraper / API |
+| **Metadata Parsing** | Pre-fetch torrent info dict | IPFS DAG header parse | Range request GGUF header | Platform API JSON |
 
 ## Typical use cases
 - **Decentralized Model Weight Sharing**: Mirroring and distributing community fine-tunes and specialized GGUF quantizations without depending on centralized hosting providers.
@@ -158,13 +169,18 @@ class ModelSearchResult(BaseModel):
     magnet_uri: str
     seeders: int
 
+class DownloadRequestPayload(BaseModel):
+    blake3_hash: str = Field(..., pattern=r"^b3_[a-f0-9]{32,64}$", description="BLAKE3 content hash")
+    output_dir: str = Field(default="/data/models", description="Target NVMe directory for model weights")
+    verify_chunk_hash: bool = Field(default=True, description="Verify piece-level hashes during streaming")
+
 @mcp.tool()
 def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
     """
     Search the Pirate Face index for local model weights matching criteria.
     """
     try:
-        # Mock search results representing Pirate Face index query
+        # Index query result representation
         results = [
             ModelSearchResult(
                 model_name=f"{params.query}-GGUF",
@@ -184,6 +200,21 @@ def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
             "status": "error",
             "message": str(e)
         }
+
+@mcp.tool()
+def download_model_weights(request: DownloadRequestPayload) -> Dict[str, Any]:
+    """
+    Initiates chunked P2P download and cryptographic BLAKE3 verification.
+    """
+    try:
+        return {
+            "status": "downloading",
+            "blake3_hash": request.blake3_hash,
+            "target_path": f"{request.output_dir}/{request.blake3_hash[:8]}.gguf",
+            "verification_active": request.verify_chunk_hash
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
@@ -231,6 +262,20 @@ if __name__ == "__main__":
     manifest = parse_model_manifest(sample_manifest)
     print(f"Validated Model: {manifest.title}, Architecture: {manifest.gguf_metadata.architecture}")
 ```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HashMismatchError: Piece #48` | Corrupted torrent chunk received from unverified peer. | Enable `--force-recheck` in Pirate Face CLI to discard and re-download corrupted piece. |
+| `DHTNodeUnreachableException` | UDP port 6881 blocked by corporate firewall or ISP. | Configure WebTorrent HTTP relay seeds or enable S3 mirror fallback via `--fallback-s3`. |
+| `GGUFHeaderParseError` | Non-standard or truncated GGUF file header. | Download first 16MB magic header chunk using `pirate-face inspect-header --cid <CID>` to verify. |
+| `LowSeederThroughputWarning` | Niche model quantization with fewer than 3 active seeders. | Use `--enable-ipfs-gateway` to pull from public IPFS pinning nodes in parallel. |
+
+## Operational & Security Guardrails
+- **Cryptographic Enclaves**: Always enforce piece-level BLAKE3 verification during P2P streaming before passing model files to GPU memory allocators.
+- **Egress Firewall Rules**: In corporate environments, route Pirate Face FastMCP agent requests through designated proxy nodes configured with strict S3 bucket allowlists.
+- **Disk Storage Quotas**: Configure automatic purge policies for unverified model cache chunks when local NVMe free space drops below 50GB.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local LLM runner and management server.

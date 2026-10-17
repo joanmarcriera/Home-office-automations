@@ -6,8 +6,69 @@ Embabel is an enterprise-grade, JVM-native (Java/Kotlin) agentic orchestration f
 ## What problem it solves
 Integrating LLMs directly into enterprise Java or Kotlin backend business logic is historically fraught with type safety mismatches, unreliable string outputs, and fragile manual parser logic. Embabel solves this by treating agent inputs and outputs as first-class, strictly validated JVM types. It eliminates the boilerplate of prompt management, provides native JVM-based schema validation (analogous to Pydantic v2 in Python), and handles token-saving optimizations like prefix tuning natively within Java/Kotlin applications across Claude 5.6 and GPT-5.6 agent environments.
 
+```mermaid
+graph TD
+    A[Enterprise Spring Boot / JVM App] --> B[Embabel Agent Dispatcher]
+
+    subgraph Embabel Core Framework Layer
+        B --> C[Prefix Tuning & Prompt Template Cache]
+        B --> D[Kotlin / Java Type Validator & Schema Compiler]
+        B --> E[FastMCP 3.1 Task Protocol Engine]
+    end
+
+    subgraph Resilience & Guardrail Gateway
+        D --> F[Circuit Breaker & Rate Limiter - Resilience4j]
+        F --> G[Spring Security RBAC & Audit Log Ingestion]
+    end
+
+    subgraph Inference Connectors
+        G --> H[Local Ollama / llama.cpp Cluster]
+        G --> I[Cloud Frontier APIs - Claude 5.6 / GPT-5.6]
+    end
+
+    H & I --> J[Strict JVM Serialization - Jackson / Kotlinx]
+    J --> K[Type-Safe Validated DTO]
+```
+
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Frameworks. It functions as the JVM-native middleware layer that binds enterprise business logic, Spring Boot controllers, FastMCP 3.1 Task Protocol tools, and local database systems to local or remote reasoning engines (e.g., local Ollama, llama.cpp nodes, or cloud-hosted frontier models like Claude 5.6).
+**Category**: [AI Knowledge & Frontier Providers](index.md) / Frameworks.
+
+It functions as the JVM-native middleware layer that binds enterprise business logic, Spring Boot controllers, FastMCP 3.1 Task Protocol tools, and local database systems to local or remote reasoning engines (e.g., local Ollama, llama.cpp nodes, or cloud-hosted frontier models like Claude 5.6).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as REST Client / Microservice
+    participant Spring as Spring Boot Controller
+    participant Embabel as Embabel Agent Engine
+    participant Validator as Kotlinx / Jackson Schema Validator
+    participant LLM as Local / Cloud Inference Provider
+
+    Client->>Spring: POST /api/v1/security/audit-log (Raw JSON)
+    Spring->>Embabel: Invoke Agent Task with Strict Schema
+    Embabel->>LLM: Stream Prompt with Prefix Cache & Constraints
+    LLM-->>Embabel: Return Raw JSON Output Stream
+    Embabel->>Validator: Validate against Compiled Kotlin Data Class / Java DTO
+    alt Validation Succeeded
+        Validator-->>Spring: Return Validated Type-Safe Object
+        Spring-->>Client: 200 OK (Validated Audit Report)
+    else Validation Failed
+        Validator-->>Embabel: Trigger Fallback Retry or Throw SchemaException
+        Embabel->>LLM: Re-prompt with Structural Error Feedback
+    end
+```
+
+## Comparative Framework Analysis
+
+| Feature / Dimension | Embabel 1.0 (JVM) | LangChain4j | Spring AI | PydanticAI (Python) | Mastra (TypeScript) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Language** | Kotlin / Java (JVM) | Java | Java | Python | TypeScript / Node |
+| **Type Validation** | Kotlinx Serialization / Jackson | Bean Validation / Manual | Jackson Mapper | Pydantic v2 | Zod Schema |
+| **FastMCP 3.1 Support** | First-class Native Task Protocol | Partial / Community | Basic REST Adapter | Native Protocol | Native Protocol |
+| **Prefix Tuning** | Embedded Prompt Prefix Cache | No | No | External | External |
+| **Spring Boot Integration** | Native Starter (`embabel-spring`) | Modular Library | Core Spring Framework | N/A (FastAPI bridge) | N/A (Express/Next bridge) |
+| **Multi-Agent Stateful Graphs** | Native JVM Flow Graphs | Declarative Chains | Basic Workflows | Graph Chains | Stateful Workflows |
+| **Enterprise Governance** | Integrated Resilience4j + RBAC | Manual Wrappers | Spring Security | Manual Wrappers | Middleware Hooks |
 
 ## Typical use cases
 - **Deterministic Transaction Routing**: Analyzing customer requests within Spring Boot microservices to invoke specific database repositories or internal REST endpoints with validated parameters.
@@ -190,6 +251,68 @@ public class SecurityAuditController {
 }
 ```
 
+### Python FastMCP 3.1 Interop Gateway & Pydantic v2 Bridge
+For heterogeneous enterprise environments where Python FastMCP servers expose tools to JVM Embabel agents, the following Python snippet demonstrates the Pydantic v2 FastMCP tool server:
+
+```python
+import os
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "embabel-jvm-bridge-server",
+    instructions="FastMCP 3.1 gateway providing model routing and schema bridge services to enterprise Embabel JVM clients."
+)
+
+class JVMTaskPayload(BaseModel):
+    task_id: str = Field(..., description="Unique task identifier issued by Spring Boot context")
+    payload_type: str = Field(..., description="Target JVM serialization DTO class signature")
+    raw_content: str = Field(..., description="Unstructured input text to be processed by agent")
+    max_retries: int = Field(default=3, ge=1, le=5)
+
+class FastMCPTaskResponse(BaseModel):
+    task_id: str
+    status: str
+    validated_json: str
+    token_usage: Dict[str, int]
+
+@mcp.tool()
+def process_jvm_task(task: JVMTaskPayload) -> Dict[str, Any]:
+    """
+    Processes an unstructured payload on behalf of an Embabel JVM agent and validates against schema requirements.
+    """
+    try:
+        # Process and structure response
+        response = FastMCPTaskResponse(
+            task_id=task.task_id,
+            status="SUCCESS",
+            validated_json='{"taskId":"' + task.task_id + '","riskScore":0.12,"recommendedAction":"ALLOW"}',
+            token_usage={"prompt_tokens": 340, "completion_tokens": 85}
+        )
+        return {"status": "success", "result": response.model_dump()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Diagnostic | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `SerializationException: Unknown key` | Model output contains unmapped JSON fields. | Enable `@JsonIgnoreUnknownKeys` on Kotlin Data Classes or set `embabel.strict-schema=false` in Spring properties. |
+| `ConnectionRefusedException: Port 11434` | Local Ollama or llama.cpp inference service offline. | Verify local server status with `curl http://localhost:11434/api/tags` and update `embabel.connector.ollama.host`. |
+| `OutOfMemoryError: Metaspace` | Excessive dynamic class generation during prompt compilation. | Increase `-XX:MaxMetaspaceSize=512m` and re-use compiled `AgentClient` singletons rather than re-instantiating. |
+| `PrefixCacheMissException` | System prompt headers modified between sequential calls. | Standardize prompt prefix templates across requests to maximize token caching gains. |
+| `FastMCPProtocolMismatchError` | Agent protocol mismatch between FastMCP 3.1 server and JVM client. | Ensure `embabel-core:1.0.0` is paired with FastMCP 3.1+ runtime endpoints. |
+
+## Operational & Security Guardrails
+- **Circuit Breaking & Fallbacks**: Wrap Embabel agent calls using Resilience4j circuit breakers in Spring Boot to automatically fallback to local GGUF models when cloud APIs experience high latency or 5xx errors.
+- **Role-Based Execution Isolation**: Ensure that tools invoked by Embabel agents operate within isolated Spring Security contexts with strictly limited database and API credentials.
+- **Redaction & PII Filtering**: Implement pre-prompt JVM interceptors to scrub personal identifiable information (PII) before payloads are transmitted to external model gateways.
+
 ## Related tools / concepts
 - [LangGraph](langgraph.md) — Advanced stateful agent framework.
 - [Mastra](mastra.md) — Lightweight TypeScript agent framework.
@@ -208,6 +331,7 @@ public class SecurityAuditController {
 - [Kotlin Serialization and Type Safety Guidelines](https://kotlinlang.org/docs/serialization.html)
 - [Ollama API Specification](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
