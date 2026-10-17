@@ -6,8 +6,59 @@ A technical blueprint and operational framework for validating AI-generated SQL 
 ## What problem it solves
 Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
 
+```mermaid
+graph TD
+    A[Natural Language Query / Prompt] --> B[Text-to-SQL Agent Engine]
+
+    subgraph FastMCP 3.1 Validation Guardrail System
+        B --> C[Static Syntax & AST Parser - SQLGlot]
+        C --> D[Security & Policy Inspector - Pydantic v2 Schema]
+        D --> E[Dynamic Explain / Dry-Run Validator - DB Engine]
+        E --> F[Semantic & Metric Judge - Local Qwen / Frontier LLM]
+    end
+
+    subgraph Database Execution & Repair Loop
+        F -- Passed All Guardrails --> G[Production Database Execution]
+        C & D & E & F -- Failure Triggered --> H[SQL Repair Prompt Formatter]
+        H --> B
+    end
+```
+
 ## Where it fits in the stack
 It operates within the **Inference Pipeline**, specifically between the **SQL Generation Agent** and the **Database Execution Engine**.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Business Analyst / User
+    participant Agent as SQL Generation Subagent
+    participant Guard as FastMCP 3.1 SQL Guardrail
+    participant DB as Production Warehouse (Postgres/Snowflake)
+
+    User->>Agent: "Show 2027 Q1 Revenue by Country"
+    Agent->>Guard: Validate Generated SQL (`SELECT * FROM sales...`)
+    Guard->>Guard: AST Parse & Table Allowlist Verification
+    alt Policy Violation (Missing LIMIT / Unindexed Join)
+        Guard-->>Agent: Reject Query + Structural Error Traceback
+        Agent->>Guard: Resubmit Corrected SQL (`SELECT country, SUM(revenue)... LIMIT 1000`)
+    end
+    Guard->>DB: Dynamic EXPLAIN Dry-Run
+    DB-->>Guard: Cost Estimate Approved (Scan < 500MB)
+    Guard->>DB: Execute Query
+    DB-->>Guard: Return Result Set
+    Guard-->>User: Synthesized Type-Safe Data Answer
+```
+
+## Comparative Dialect & Validation Analysis
+
+| Validation Metric / Dimension | PostgreSQL | Snowflake | BigQuery | DuckDB / SQLite |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dry-Run Mechanism** | `EXPLAIN (FORMAT JSON)` | `EXPLAIN USING TEXT` | `DRY_RUN=True` API | `EXPLAIN QUERY PLAN` |
+| **AST Transpilation Support** | Native (Full AST) | Full Support | Full Support | Native (Full AST) |
+| **Hard Row Limit Control** | `LIMIT n` / `FETCH FIRST` | `LIMIT n` / `TOP n` | `LIMIT n` | `LIMIT n` |
+| **PII Column Masking** | Dynamic Data Masking | Policy Tags & Masking | Policy Tags | Programmatic Projection |
+| **Validation Latency Overhead** | < 5ms (Local AST) | 20-50ms (Cloud EXPLAIN) | 30-80ms (Cloud API) | < 2ms (In-Memory AST) |
+| **FastMCP 3.1 Integration** | Native Tool Gateway | Native Tool Gateway | Native Tool Gateway | Native Tool Gateway |
 
 ## Typical use cases
 - **Automated PII Masking**: Ensuring that any query targeting the `users` table automatically excludes `email` or `password_hash` columns.
@@ -46,7 +97,7 @@ To implement basic static validation, use the `sqlglot` library to parse and ins
 
 ### Installation
 ```bash
-pip install sqlglot pydantic>=2.0.0
+pip install sqlglot pydantic>=2.0.0 fastmcp
 ```
 
 ### Basic Usage
@@ -161,65 +212,112 @@ python3 -c "from pydantic import BaseModel; import pydantic; print(f'Pydantic lo
 
 ## API examples
 
-### 1. Parsing Expressions
+### Programmatic SQL Parsing & Transpilation
 ```python
 import sqlglot
 from sqlglot import exp
 
-sql = "SELECT a, b FROM table"
-for expression in sqlglot.parse(sql):
-    if expression is None:
-        continue
-    for column in expression.find_all(exp.Column):
-        print(column.name)
+# Transpile PostgreSQL syntax into DuckDB dialect
+duckdb_sql = sqlglot.transpile("SELECT * FROM sales_data LIMIT 10", read="postgres", write="duckdb")[0]
+
+# Inspect AST columns programmatically
+parsed = sqlglot.parse_one("SELECT user_id, email, total_spend FROM users_summary")
+columns = [col.name for col in parsed.find_all(exp.Column)]
+print(f"Target Columns: {columns}")
 ```
 
-### 2. Dialect Conversion
+## FastMCP 3.1 SQL Guardrail Tool Server Integration
+
+The following Python script implements a production **FastMCP 3.1** server that intercepts SQL generation requests, enforces Pydantic v2 schemas, and executes static AST checks:
+
 ```python
 import sqlglot
+from sqlglot import exp
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
+from fastmcp import FastMCP
 
-# Convert Postgres to DuckDB
-duckdb_sql = sqlglot.transpile("SELECT * FROM x LIMIT 10", read="postgres", write="duckdb")[0]
-print(duckdb_sql)
+mcp = FastMCP(
+    "sql-guardrail-server",
+    instructions="FastMCP 3.1 guardrail server providing static AST validation and query repair services."
+)
+
+class SQLGuardrailRequest(BaseModel):
+    raw_sql: str = Field(..., description="AI-generated SQL query to validate")
+    target_dialect: str = Field(default="postgres", description="Target database SQL dialect")
+    allowed_tables: List[str] = Field(..., description="Allowlist of table names")
+    max_row_limit: int = Field(default=1000, ge=1, le=10000)
+
+class SQLGuardrailResponse(BaseModel):
+    is_approved: bool
+    sanitized_sql: Optional[str]
+    violation_type: Optional[str]
+    suggested_fix: Optional[str]
+
+@mcp.tool()
+def validate_and_sanitize_sql(request: SQLGuardrailRequest) -> Dict[str, Any]:
+    """
+    Validates SQL queries against table allowlists, mutation blocks, and hard limits.
+    """
+    try:
+        expressions = sqlglot.parse(request.raw_sql, read=request.target_dialect)
+        for expr in expressions:
+            if expr is None:
+                continue
+
+            # Check for mutation statement
+            if any(isinstance(node, (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter))
+                   for node, *_ in expr.walk()):
+                response = SQLGuardrailResponse(
+                    is_approved=False,
+                    sanitized_sql=None,
+                    violation_type="FORBIDDEN_MUTATION",
+                    suggested_fix="Remove non-SELECT mutation statement."
+                )
+                return {"status": "rejected", "result": response.model_dump()}
+
+            # Validate tables
+            for table in expr.find_all(exp.Table):
+                if table.name.lower() not in [t.lower() for t in request.allowed_tables]:
+                    response = SQLGuardrailResponse(
+                        is_approved=False,
+                        sanitized_sql=None,
+                        violation_type="UNAUTHORIZED_TABLE",
+                        suggested_fix=f"Table '{table.name}' is prohibited."
+                    )
+                    return {"status": "rejected", "result": response.model_dump()}
+
+            # Enforce hard LIMIT
+            if not expr.find(exp.Limit):
+                expr = expr.limit(request.max_row_limit)
+
+        response = SQLGuardrailResponse(
+            is_approved=True,
+            sanitized_sql=expr.sql(dialect=request.target_dialect),
+            violation_type=None,
+            suggested_fix=None
+        )
+        return {"status": "approved", "result": response.model_dump()}
+    except Exception as err:
+        return {"status": "error", "message": str(err)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-## Workflow Architecture
+## Troubleshooting & Diagnostics
 
-```mermaid
-flowchart TD
-    A[AI-Generated SQL Query] --> B{Syntactic Validation}
-    B -- Pass --> C{Policy Validation}
-    B -- Fail --> R[Capture Error & Repair Loop]
+| Symptom / Violation | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `ParseError: Unexpected token` | Vendor-specific SQL syntax dialect mismatch (e.g. Snowflake `QUALIFY`). | Pass explicit `read='snowflake'` parameter to SQLGlot parser. |
+| `FORBIDDEN_MUTATION: Drop` | Prompt injection attack or LLM hallucinated table reset. | Hard-block request at FastMCP 3.1 gateway and alert security team. |
+| `UNAUTHORIZED_TABLE: information_schema` | LLM trying to inspect metadata tables outside granted schema. | Provide synthetic table schema DDL in system prompt to prevent information schema queries. |
+| `EXPLAIN Query Cost High` | Missing index on `WHERE` filter causing full table scan on 10M+ rows. | Reject query and suggest indexed column constraints via the repair prompt. |
 
-    C -- Pass --> D{Semantic Validation}
-    C -- Fail --> R
-
-    D -- Pass --> E[Database Execution]
-    D -- Fail --> R
-
-    R --> F{Max Retries Reached?}
-    F -- No --> G[LLM Repair Prompt]
-    G --> B
-    F -- Yes --> H[Stop and Escalate]
-
-    subgraph "Validation Layers"
-    B
-    C
-    D
-    end
-
-    subgraph "Error Recovery"
-    R
-    F
-    G
-    H
-    end
-```
-
-## Low-Cost Implementation Options
-- **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
-- **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
-- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.8 / Gemma 4) specifically to check the generated SQL against the policy checklist.
+## Operational & Security Guardrails
+- **Read-Only Database Roles**: Ensure that the database credentials assigned to the execution engine are granted strictly `SELECT` privileges at the PostgreSQL or Snowflake role level.
+- **Query Timeout Enforcement**: Set database-level query statement timeouts (e.g., `SET statement_timeout = '5s'`) to kill long-running runaway joins.
+- **Audit Logging**: Log all raw generated SQL, AST parse results, policy validation statuses, and execution latencies to an immutable logging bucket for compliance.
 
 ## Related tools / concepts
 - [Data Copilot Architecture](../architecture/data-copilot-text-to-sql.md)
@@ -238,6 +336,7 @@ flowchart TD
 - [Guardrails AI](https://www.guardrailsai.com/)
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

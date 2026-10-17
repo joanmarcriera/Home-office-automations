@@ -12,6 +12,31 @@ Large-scale software refactoring—such as updating database models across dozen
 
 Mentat addresses this challenge by providing explicit multi-file context management in the terminal. Developers can specify target directories, individual files, or Git diff ranges, allowing the LLM reasoning agent to inspect cross-file dependencies, generate synchronized multi-file edit blocks, and apply changes directly to disk while respecting Git tracking boundaries.
 
+```mermaid
+graph TD
+    A[Developer / CI Runner Prompt] --> B[Mentat Context Selector]
+
+    subgraph Multi-File Context Extraction Engine
+        B --> C[AST Syntactic Tree Parser & Symbol Index]
+        B --> D[Git Diff & Staging Boundary Resolver]
+        B --> E[Context File Includer / Token Scraper]
+    end
+
+    subgraph LLM Reasoning & Edit Payload Construction
+        C & D & E --> F[Prompt Packaging with Code Enclosing Blocks]
+        F --> G[Frontier Model Execution - Claude 5.1 / GPT-5.5]
+        G --> H[Multi-File Search / Replace AST Diff Stream]
+    end
+
+    subgraph Automated Disk Operations & Verification
+        H --> I[Apply Search/Replace Diffs to Local NVMe]
+        I --> J[Run Local Test Suite - Pytest / Cargo / Jest]
+        J -- Tests Pass --> K[Git Auto-Commit Session Patch]
+        J -- Tests Fail --> L[Feed Error Traceback Back to Model]
+        L --> G
+    end
+```
+
 ## Where it fits in the stack
 **Development & Ops / Multi-File Terminal Editing & Headless Refactoring Tier** — acts as a CLI driver positioning between local terminal developers (or CI/CD pipelines) and LLM reasoning providers for multi-file workspace manipulation.
 
@@ -34,31 +59,47 @@ Mentat addresses this challenge by providing explicit multi-file context managem
 +-----------------------------------------------------------------------+
 ```
 
-## System architecture
+## System architecture & Sequence
+
 Mentat coordinates context collection, LLM reasoning, and file editing through a structured terminal loop:
 
 ```mermaid
-graph TD
-    subgraph User Input & Context Selection
-        A[Terminal Command: mentat <paths>] --> B[Context Selector]
-        C[Target Source Files] --> B
-        D[Git Workspace State] --> B
-    end
+sequenceDiagram
+    autonumber
+    actor Developer as Developer / CI Script
+    participant CLI as Mentat CLI Engine
+    participant AST as AST & Workspace Parser
+    participant LLM as Frontier Reasoning Model
+    participant Disk as Local NVMe / File System
+    participant Git as Git Version Control
 
-    subgraph LLM Reasoning & Edit Generation
-        B --> E[Prompt & Context Builder]
-        E --> F[Frontier LLM: Claude 5.1 / GPT-5.5]
-        F --> G[Multi-File Search/Replace Diff Payload]
-    end
-
-    subgraph File Verification & Git Commit
-        G --> H[Apply Diffs to Disk]
-        H --> I[Execute Test / Linter Suite]
-        I -- Tests Pass --> J[Generate Git Commit]
-        I -- Tests Fail --> K[Feed Errors Back to Reasoning Layer]
-        K --> F
+    Developer->>CLI: Execute `mentat src/ --message "Refactor Pydantic"`
+    CLI->>AST: Inspect AST symbols and Git file tree
+    AST-->>CLI: Return context-bounded source code payload
+    CLI->>LLM: Stream prompt + AST file context
+    LLM-->>CLI: Return unified Search/Replace diff block
+    CLI->>Disk: Apply multi-file diff modifications
+    CLI->>Git: Execute unit test suite
+    alt Unit Tests Pass
+        Git-->>CLI: Zero exit code
+        CLI->>Git: Auto-commit staged refactor
+        CLI-->>Developer: Success confirmation
+    else Unit Tests Fail
+        Git-->>CLI: Non-zero exit code + stderr traceback
+        CLI->>LLM: Re-prompt model with traceback for auto-repair
     end
 ```
+
+## AI Coding Assistant Comparative Matrix
+
+| Feature / Metric | Mentat CLI | Claude Code (Anthropic) | Aider CLI | Cursor IDE | Windsurf IDE |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Interface** | Terminal CLI | Terminal Agent CLI | Terminal CLI | Graphical IDE | Graphical IDE |
+| **Multi-File AST Parsing** | Native Tree-Sitter | Agentic Search / Ripgrep | Universal Tree-Sitter | Index-based Vector Graph | Index-based Cascade |
+| **Edit Format** | Search / Replace Diffs | Agentic File Tools | Search / Replace Diffs | Inline Diff Overlays | Streamed Overlays |
+| **Headless CI/CD Mode** | Full Non-interactive | Full Agentic Mode | Native Scripting | Limited | Limited |
+| **FastMCP 3.1 Server Integration** | FastMCP Tool Bridge | Native MCP Client | External Wrappers | Native MCP Client | Native MCP Client |
+| **Upstream Status** | Legacy / Archived Mirror | Active Production | Active Open Source | Active Commercial | Active Commercial |
 
 ## Typical use cases
 - **Cross-Cutting Codebase Refactoring**: Executing coordinated edits across data models, business logic controllers, and unit tests simultaneously.
@@ -141,14 +182,20 @@ The following Python script implements a headless refactoring runner that valida
 ```python
 import sys
 import subprocess
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
+
+class ASTDiffChunk(BaseModel):
+    file_path: str = Field(..., description="Target file path relative to repository root")
+    search_block: str = Field(..., description="Exact string block to search in target file")
+    replace_block: str = Field(..., description="Replacement string block to inject")
 
 class MentatRefactorConfig(BaseModel):
     target_files: List[str] = Field(..., min_items=1, description="Source files or directories to refactor")
     prompt: str = Field(..., min_length=10, description="Natural language instructions")
     model: str = Field(default="claude-5-1-sonnet-20261022", description="Target reasoning model")
     auto_commit: bool = Field(default=False, description="Automatically create git commits")
+    expected_diffs: Optional[List[ASTDiffChunk]] = None
 
     @field_validator("target_files")
     @classmethod
@@ -186,7 +233,7 @@ The following complete Python script creates a FastMCP 3.1 server that exposes M
 
 ```python
 import subprocess
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field
 
@@ -197,48 +244,62 @@ class MentatActionResult(BaseModel):
     modified_files: List[str]
     summary_log: str
 
+class RefactorRequestPayload(BaseModel):
+    instructions: str = Field(..., description="Detailed instructions for multi-file editing")
+    target_files: List[str] = Field(..., description="List of target file paths or directories")
+    auto_commit: bool = Field(default=True)
+
 @mcp.tool()
 async def run_mentat_refactor(
-    instructions: str,
-    target_files: List[str],
-    auto_commit: bool = True,
-    ctx: Context = None
-) -> MentatActionResult:
+    payload: RefactorRequestPayload,
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
     """
     Executes a multi-file refactoring task using Mentat.
-
-    Args:
-        instructions: Detailed prompt explaining the desired code changes.
-        target_files: List of file paths or directories to edit.
-        auto_commit: Whether to automatically commit changes in Git.
     """
     if ctx:
-        await ctx.info(f"Initiating Mentat refactor on {len(target_files)} target paths.")
+        await ctx.info(f"Initiating Mentat refactor on {len(payload.target_files)} target paths.")
 
-    cmd = ["mentat", "--message", instructions]
-    if auto_commit:
+    cmd = ["mentat", "--message", payload.instructions]
+    if payload.auto_commit:
         cmd.append("--auto-commit")
-    cmd.extend(target_files)
+    cmd.extend(payload.target_files)
 
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         passed = (proc.returncode == 0)
         output = proc.stdout + proc.stderr
-        return MentatActionResult(
+        result = MentatActionResult(
             success=passed,
-            modified_files=target_files,
+            modified_files=payload.target_files,
             summary_log=output if output else "Mentat multi-file refactor completed."
         )
+        return {"status": "success", "result": result.model_dump()}
     except Exception as err:
-        return MentatActionResult(
+        result = MentatActionResult(
             success=False,
-            modified_files=target_files,
+            modified_files=payload.target_files,
             summary_log=f"Mentat execution error: {str(err)}"
         )
+        return {"status": "error", "result": result.model_dump()}
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Diagnostic | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `SearchBlockNotFoundException` | Target source file modified concurrently during LLM generation. | Ensure working tree is clean and uncommitted changes are stashed prior to execution. |
+| `TreeSitterParseError` | Unsupported programming language syntax version. | Upgrade local Tree-Sitter grammar bindings or pass `--ignore-ast` flag to force line-based diff matching. |
+| `GitWorkingDirectoryDirtyError` | Uncommitted local edits blocking `--auto-commit` step. | Execute `git commit` or `git stash` before launching Mentat refactor loops. |
+| `ContextWindowExceededError` | Included directory contains excessive binary files or `node_modules`. | Add an `.gitignore` or `.mentatignore` file to exclude compiled assets and vendor libraries. |
+
+## Operational & Security Guardrails
+- **Git Branch Isolation**: Always execute Mentat tasks on dedicated feature branches (`feature/ai-refactor-*`) to ensure atomic rollback capabilities via `git reset --hard`.
+- **Pre-Commit Verification**: Chain Mentat non-interactive calls with local linter/test triggers (`pytest`, `eslint`) to prevent syntax errors from leaking into main branches.
+- **API Secret Sanitization**: Ensure local `.env` and API key configuration files are strictly excluded from Mentat file context payloads via `.mentatignore`.
 
 ## Related tools / concepts
 - [Aider](aider.md) — Active terminal-native AI pair programmer.
@@ -252,6 +313,7 @@ if __name__ == "__main__":
 - [Historical AbanteAI Mentat Repository Mirror](https://github.com/AbanteAI/mentat)
 - *Note*: Official website (`https://www.mentat.ai/`) and original repository are no longer actively maintained.
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
