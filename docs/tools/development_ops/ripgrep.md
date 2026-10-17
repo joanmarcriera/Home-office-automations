@@ -36,18 +36,49 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
 
 ## Command-Line Search Tool Comparison Matrix
 
-| Search Tool | Engine Language | SIMD Acceleration | `.gitignore` Support | Output Streaming Format |
-| :--- | :--- | :--- | :--- | :--- |
-| **ripgrep (rg)** | Rust | AVX-512 / Neon | Native (Hierarchical) | Line-oriented JSON events |
-| **git grep** | C | Limited | Native (Git index) | Plain text / NULL-terminated |
-| **silver searcher (ag)** | C | SSE4.2 | Native | Plain text / Ack style |
-| **ack** | Perl | None | Basic | Plain text |
+| Search Tool | Engine Language | SIMD Acceleration | `.gitignore` Support | Output Streaming Format | Memory Footprint | Indexing Lag |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **ripgrep (rg)** | Rust | AVX-512 / Neon | Native (Hierarchical) | Line-oriented JSON events | Minimal (<15MB) | Zero (On-demand) |
+| **git grep** | C | Limited | Native (Git index) | Plain text / NULL-terminated | Low | Requires git repo |
+| **silver searcher (ag)** | C | SSE4.2 | Native | Plain text / Ack style | Low | Zero |
+| **ack** | Perl | None | Basic | Plain text | Moderate | Zero |
+| **vector search (Chroma/pgvector)** | Python/C++ | SIMD/BLAS | Manual filter rules | JSON score vectors | High (RAM cached) | High (Background build) |
 
 ## Operational Best Practices & High-Throughput Tuning
 - **Thread Count Capping**: Set `--threads N` (where N is equal to available physical CPU cores, omitting hyperthreads) when running inside containerized agent runners to avoid CPU throttling.
 - **JSON Stream Buffering**: Implement line-buffered readline interfaces in wrapper processes (TypeScript/Python) to handle high-frequency match token streams without dropping memory frames.
 - **Pattern Escaping**: Always pass literal strings with `-F` (`--fixed-strings`) when searching for fixed variable names or paths to bypass regular expression compilation overhead.
 - **Ignore File Cascading**: Place repo-specific exclusion rules in `.rgignore` to prevent agentic searches from walking build artifacts or heavy test fixtures without modifying shared `.gitignore` rules.
+- **Max File Size Guardrails**: Set `--max-filesize 5M` in automated agent invocations to avoid scanning massive minified JavaScript bundles or binary blob outputs.
+
+## Performance Benchmark & CLI Flag Matrix
+
+| CLI Flag | Function / Target | Throughput Impact | Recommended Agent Default |
+| :--- | :--- | :--- | :--- |
+| `--json` | Emits structured match events | Low overhead, enables AST parsing | **Enabled** |
+| `-F / --fixed-strings` | Bypasses regex automaton | Up to 3.5x faster pattern lookup | **Enabled for literal symbols** |
+| `-u / -uu / -uuu` | Bypasses `.gitignore`, hidden files, & binary filters | Higher scan volume | **Disabled (Use default filtering)** |
+| `--threads N` | Binds execution worker pool | Prevents CPU contention in containers | **N = Physical Cores** |
+| `--max-filesize 5M` | Skips giant files | Prevents memory spike on minified assets | **Enabled** |
+
+## Regex Compilation & Automaton Lifecycle
+
+```
++-----------------------------------------------------------------------------------+
+|                     RIPGREP AUTOMATON LIFECYCLE & REGEX SCAN                      |
++-----------------------------------------------------------------------------------+
+
+   +----------------+     +-------------------+     +-------------------------+
+   | REGEX PATTERN  | --> | HIR COMPILATION   | --> | AVX-512 LITERAL PRE-FILTER|
+   | (-P / standard)|     | (Rust Regex Core) |     | (Boyer-Moore / Teddy)   |
+   +----------------+     +-------------------+     +-------------------------+
+                                                               |
+                                                               v
+   +----------------+     +-------------------+     +-------------------------+
+   | FASTMCP 3.1    | <-- | MATCH RECORDING   | <-- | DFA / NFA AUTOMATON     |
+   | JSON EMISSION  |     | & LINE EXTRACTION |     | SCANNING (Zero-Copy)    |
+   +----------------+     +-------------------+     +-------------------------+
+```
 
 ## Strengths
 - **AVX-512 SIMD Acceleration**: Leverages modern CPU instruction sets for SOTA raw pattern-matching throughput.
@@ -126,35 +157,41 @@ import subprocess
 import json
 import os
 from typing import List, Dict, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("RipgrepSearchServer")
+mcp = FastMCP("RipgrepSearchServer", version="3.1.0")
 
 class Submatch(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     match_text: str = Field(..., alias="match")
 
-    class Config:
-        populate_by_name = True
-
 class MatchData(BaseModel):
-    path: str
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    path: Dict[str, str]
     line_number: int
-    submatches: List[Dict]
+    submatches: List[Dict[str, str]]
 
 class RipgrepMatchEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
     type: str
-    data: Optional[MatchData] = None
+    data: Optional[Dict] = None
+
+class SearchQuerySpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    pattern: str = Field(..., min_length=1, description="Regex pattern or literal string to search")
+    search_dir: str = Field(default=".", description="Target directory path")
+    max_filesize: str = Field(default="5M", description="Max filesize threshold e.g. 5M")
 
 @mcp.tool()
-def search_repository(pattern: str, search_dir: str = ".") -> str:
+def search_repository(spec: SearchQuerySpec) -> str:
     """
     FastMCP 3.1 tool for high-performance code pattern searching using ripgrep JSON event streams.
     """
-    if not os.path.exists(search_dir):
-        return json.dumps({"error": f"Directory '{search_dir}' does not exist."})
+    if not os.path.exists(spec.search_dir):
+        return json.dumps({"error": f"Directory '{spec.search_dir}' does not exist."})
 
-    cmd = ["rg", "--json", pattern, search_dir]
+    cmd = ["rg", "--json", "--max-filesize", spec.max_filesize, spec.pattern, spec.search_dir]
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         matched_results = []
@@ -166,13 +203,13 @@ def search_repository(pattern: str, search_dir: str = ".") -> str:
                 event = RipgrepMatchEvent.model_validate_json(line)
                 if event.type == "match" and event.data:
                     matched_results.append({
-                        "file": event.data.path,
-                        "line": event.data.line_number,
-                        "context": [s.get("match") for s in event.data.submatches if "match" in s]
+                        "file": event.data.get("path", {}).get("text"),
+                        "line": event.data.get("line_number"),
+                        "context": [s.get("match", {}).get("text") for s in event.data.get("submatches", [])]
                     })
             except Exception:
                 continue
-        return json.dumps({"query": pattern, "results": matched_results}, indent=2)
+        return json.dumps({"query": spec.pattern, "results": matched_results}, indent=2)
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -196,7 +233,7 @@ export interface RgMatchEvent {
 export function streamWorkspaceSearch(pattern: string, targetPath: string): Promise<RgMatchEvent[]> {
   return new Promise((resolve, reject) => {
     const events: RgMatchEvent[] = [];
-    const child = spawn('rg', ['--json', pattern, targetPath]);
+    const child = spawn('rg', ['--json', '--max-filesize', '5M', pattern, targetPath]);
 
     const rl = createInterface({
       input: child.stdout,
@@ -229,6 +266,21 @@ export function streamWorkspaceSearch(pattern: string, targetPath: string): Prom
   });
 }
 ```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Error | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **No matches returned for known files** | File path ignored by `.gitignore` or hidden by default | `rg -u "pattern" filepath` | Add path override in `.rgignore` or use `-u` / `--no-ignore` flag |
+| **Memory spike during stream parsing** | Giant single-line minified file matching regex | `rg --files-with-matches "pattern"` | Set `--max-filesize 5M` and limit submatch output length |
+| **Subprocess execution timeout in FastMCP** | Deep recursive traversal over unignored node_modules/build dirs | `rg --files \| wc -l` | Ensure build directories are listed in `.rgignore` or passed via `-g '!dist/*'` |
+| **Regex Syntax Error (PCRE Lookaround)** | PCRE features used without enabling PCRE2 engine | `rg -P "(?<=foo)bar"` | Pass `-P` / `--pcre2` flag to explicitly enable Rust PCRE2 engine |
+
+## Enterprise Governance & Agent Safety Guardrails
+
+1. **Subprocess Sanitization**: FastMCP servers and wrappers must pass arguments array-formatted directly to `subprocess.run` or `spawn` without shell interpolation (`shell=False`) to avoid command injection.
+2. **Secret Masking Filters**: Automated agent runs must apply pattern suppressions for credentials (e.g. `rg -g '!*.pem' -g '!*.key'`).
+3. **Execution Timeouts**: Enforce a 5-second hard execution deadline on ripgrep subprocesses in automated loop agents to prevent hangs on network-mounted shares.
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)

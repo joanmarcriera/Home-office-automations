@@ -36,14 +36,35 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 - **Audiobook Enrichment**: Creating a searchable index of local audiobooks, allowing for keyword search across hundreds of hours of audio.
 - **Agentic Search**: An agent can use a FastMCP tool to query the audio transcription database using natural language, retrieving specific segments based on meaning.
 
-## Transcription Engine Comparison Matrix
+## Transcription Engine & Framework Matrix
 
-| Feature | OpenAI Whisper v3 | Faster-Whisper (CTranslate2) | Pyannote Audio 3.3+ | Gemini 4.0 Flash |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Scope** | High-fidelity transcription | Ultra-fast local CPU/GPU | Speaker Diarization | Multimodal Native Audio |
-| **Timestamp Precision**| Word & Segment level | Segment level | Frame level | Time offset ranges |
-| **Diarization Support**| Requires post-process | Requires post-process | Native SOTA | Native multi-speaker |
-| **Throughput (1h audio)**| ~3 mins (RTX 4090) | ~45 secs (RTX 4090) | ~2 mins (RTX 4090) | ~10 secs (Cloud API) |
+| Feature / Metric | OpenAI Whisper v3 | Faster-Whisper (CTranslate2) | Pyannote Audio 3.3+ | Gemini 4.0 Flash API | Nemo Speech Engine |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | High-Fidelity Transcription | Low-Latency CPU/GPU Engine | Native Diarization | Multimodal Audio Understanding | Enterprise ASR / Diarization |
+| **Timestamp Granularity** | Word & Segment Level | Segment Level | Frame / Boundary Level | Segment Offset Ranges | Word & Frame Level |
+| **Diarization Engine** | Requires External Filter | Requires External Filter | Native SOTA Clustering | Native Multimodal Clustering | Native Neural Diarization |
+| **Throughput (1h Audio)** | ~3.0 mins (RTX 4090) | ~0.7 mins (RTX 4090) | ~1.8 mins (RTX 4090) | ~0.2 mins (Cloud API) | ~1.1 mins (RTX 4090) |
+| **Model Footprint** | ~3.1 GB VRAM | ~1.5 GB VRAM | ~2.2 GB VRAM | Managed API | ~4.5 GB VRAM |
+| **Schema Compatibility** | Native Segment Mapping | Native Segment Mapping | Speaker ID Post-Process | Direct API Mapping | Native Schema Exporter |
+
+## Processing Pipeline & Chunking Lifecycle
+
+```
++-----------------------------------------------------------------------------------+
+|                   AUDIO TRANSCRIBE & CHUNKING LIFECYCLE                           |
++-----------------------------------------------------------------------------------+
+
+   +----------------+     +-------------------+     +-------------------------+
+   | INPUT AUDIO    | --> | ACOUSTIC VAD      | --> | DIARIZATION CLUSTERING  |
+   | (16kHz WAV)    |     | (Silero VAD v5)   |     | (Pyannote Embeddings)   |
+   +----------------+     +-------------------+     +-------------------------+
+                                                               |
+                                                               v
+   +----------------+     +-------------------+     +-------------------------+
+   | FASTMCP 3.1    | <-- | PYDANTIC V2       | <-- | ASR WHISPER INFERENCE   |
+   | RETRIEVAL TOOL |     | JSON GENERATION   |     | (Segment & Word Timings)|
+   +----------------+     +-------------------+     +-------------------------+
+```
 
 ## Strengths
 - **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files (e.g., `#t=300`).
@@ -64,12 +85,13 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 
 ## Troubleshooting & Diagnostics Matrix
 
-| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| `ValidationError: Probability out of range` | Whisper API output raw log-likelihoods instead of softmax probabilities | Apply `math.exp(log_prob)` normalization prior to Pydantic model validation. |
-| `Speaker ID Swap (SPEAKER_00 / 01 mixed)` | Aggressive voice activity detection (VAD) threshold clipping speech boundaries | Adjust Pyannote VAD ON threshold to `0.5` and set `min_duration_on` to `0.2s`. |
-| `Audio-Text Drift (>2.5s offset at 1h mark)` | Variable frame-rate MP3 container dropping silence frames | Convert source audio to uncompressed 16kHz mono WAV using `ffmpeg -ac 1 -ar 16000` prior to processing. |
-| `FastMCP Tool Timeout on Chunk Indexing` | Unbounded segment batch size choking vector database connection pool | Implement chunked stream batching (50 segments per batch) with async retry backoff in the FastMCP tool server. |
+| Issue / Error Symptom | Probable Root Cause | Diagnostic Command / Log Check | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| `ValidationError: Probability out of range` | Whisper API output raw log-likelihoods instead of softmax probabilities | Inspect Pydantic validation trace for `probability > 1.0` | Apply `math.exp(log_prob)` normalization prior to Pydantic model validation. |
+| `Speaker ID Swap (SPEAKER_00 / 01 mixed)` | Aggressive voice activity detection (VAD) threshold clipping speech boundaries | `python -m pyannote.audio.cli --debug` | Adjust Pyannote VAD ON threshold to `0.5` and set `min_duration_on` to `0.2s`. |
+| `Audio-Text Drift (>2.5s offset at 1h mark)` | Variable frame-rate MP3 container dropping silence frames | `ffprobe -show_entries stream=r_frame_rate audio.mp3` | Convert source audio to uncompressed 16kHz mono WAV using `ffmpeg -ac 1 -ar 16000` prior to processing. |
+| `FastMCP Tool Timeout on Chunk Indexing` | Unbounded segment batch size choking vector database connection pool | `mcp-server --log-level DEBUG` | Implement chunked stream batching (50 segments per batch) with async retry backoff in the FastMCP tool server. |
+| `Missing Chapter Summaries` | Low LLM temperature causing empty JSON output on chunking call | Check LLM completion response HTTP 200 payload | Explicitly validate chapter start/end bounds and enforce strict Pydantic return format. |
 
 ## When to use it
 - When building a local RAG (Retrieval-Augmented Generation) system over audio collections.
@@ -115,13 +137,15 @@ The schema is implemented using Pydantic in [transcribe_audio.py](../../../scrip
 ```python
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("AudioMetadataProvider", version="3.1")
 
 class TranscriptionSegment(BaseModel):
     """A single segment of transcribed text with timing under FastMCP 3.1 schemas."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     start: float = Field(..., description="Start time in seconds")
     end: float = Field(..., description="End time in seconds")
     text: str = Field(..., description="Transcribed text for this segment")
@@ -145,6 +169,8 @@ class TranscriptionSegment(BaseModel):
 
 class ChapterMarker(BaseModel):
     """Identified chapter or logical section in the audio."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     start: float = Field(..., description="Start timestamp of chapter")
     end: float = Field(..., description="End timestamp of chapter")
     title: str = Field(..., min_length=1, description="Chapter title")
@@ -152,12 +178,16 @@ class ChapterMarker(BaseModel):
 
 class SpeakerProfile(BaseModel):
     """Profile metadata for an identified speaker in diarization pipelines."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     speaker_id: str = Field(..., description="Unique speaker identifier (e.g., SPEAKER_00)")
     name: Optional[str] = Field(None, description="Human readable speaker name")
     role: Optional[str] = Field(None, description="Role in recording (e.g. Host, Guest, Presenter)")
 
 class AudioTranscriptionMetadata(BaseModel):
     """Top-level metadata for an audio transcription file."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     file_id: str = Field(..., description="Unique identifier for the source audio file")
     title: str = Field(..., min_length=1, description="Source media title")
     author_artist: Optional[str] = None
@@ -255,6 +285,14 @@ sample_payload = """
 metadata = AudioTranscriptionMetadata.model_validate_json(sample_payload)
 print(f"Validated transcription of title: {metadata.title} (duration: {metadata.duration_seconds}s)")
 ```
+
+## Enterprise Governance & Privacy Guardrails
+
+In compliance-focused environment setups, audio transcription metadata pipelines must follow strict data protection rules:
+
+1. **Voice Biometric Anonymization**: Internal speaker tokens (e.g. `SPEAKER_00`) must be dynamically mapped via encrypted lookup tables to prevent raw biometric tracking in centralized vector databases.
+2. **PII Masking at Inference**: Segment transcripts undergo regex and NER filter passes before vector index persistence to remove credit card or identity tokens.
+3. **Retention & Expiration Limits**: Transcribed audio JSON documents retain TTL attributes (`expires_at`) aligned with enterprise data disposal policies.
 
 ## Related tools / concepts
 - [Audio Transcription Research](../../knowledge_base/audio-transcription-research.md) — Baseline research on Whisper and speaker diarization.
