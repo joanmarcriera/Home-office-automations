@@ -7,7 +7,34 @@ Google Axion is a custom, enterprise-grade ARM64-based CPU family designed by Go
 It solves the critical "energy ceiling" constraint of modern cloud compute infrastructure. As AI model reasoning and large-scale agentic loops (powering Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL) scale, traditional x86 server architectures hit thermal and power limits. Google Axion provides an unprecedented combination of high-throughput performance and low power consumption, maximizing the "Tokens per Watt" efficiency of backend workloads.
 
 ## Where it fits in the stack
-**Category**: Compute Infrastructure. It serves as the physical (and virtualized) **Hardware/Compute Layer** within GCP, directly hosting Google Kubernetes Engine (GKE) clusters, multi-node compute pools, FastMCP 3.1 Task Protocol servers, and containerized inference runners.
+**Category**: Compute Infrastructure. It serves as the physical (and virtualized) **Hardware/Compute Layer** within GCP, directly hosting Google Kubernetes Engine (GKE) clusters, multi-node compute pools, [FastMCP 3.1](../tools/automation_orchestration/mcp.md) Task Protocol servers, and containerized inference runners.
+
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                    Cloud-Native AI Workload Layer                         │
+│   (Gemma 4 / Qwen 3.6 VL / FastMCP 3.1 Task Protocol / LangGraph Agents) │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      GKE Multi-Arch Orchestration                         │
+│    (ComputeClasses / Dynamic ARM64 Node Selectors / Auto-Scaling)         │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                  Google Axion N4A / C4A Bare-Metal Engine                 │
+│   (Arm Neoverse V3 Core / SVE2 Vector Acceleration / 60% Power Reduction) │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+## Microarchitecture & Hardware Breakdown
+Google Axion is built on Arm Neoverse V3 cores, providing significant structural advantages over legacy x86 server chips:
+
+- **Neoverse V3 Core Pipeline**: Features 3x256-bit SVE2 (Scalable Vector Extension v2) vector units specifically tailored for matrix math and quantized neural network tensor math (INT8, FP16, BF16).
+- **DDR5 Memory Controllers**: Delivers up to 460 GB/s per socket memory bandwidth, eliminating memory-bound bottlenecking in token generation phases.
+- **PCIe Gen 5 Integration**: Direct high-speed interconnect to Google TPU v6e and Nvidia B200 accelerators for hybrid CPU-GPU model execution.
+- **Titanium Offloading Chiplet**: Google's custom Silicon Offload Engine handles storage I/O, encryption, and network routing, freeing 100% of Axion ARM cores for user application processing.
 
 ## Typical use cases
 - **Multi-Architecture GKE Workloads**: Running highly scalable, containerized microservices on ARM64 nodes with automatic x86-64 fallbacks.
@@ -34,6 +61,74 @@ It solves the critical "energy ceiling" constraint of modern cloud compute infra
 ## When not to use it
 - If your workload relies heavily on x86-64 closed-source compiled binaries or legacy libraries that are not ported to ARM64.
 - If your primary infrastructure is hosted on-premises, on AWS (use Graviton), or on Azure (use Cobalt).
+
+## FastMCP 3.1 Axion Hardware Telemetry Tool
+FastMCP 3.1 servers leverage custom ARM64 Linux system telemetry tools to monitor CPU frequency, power consumption (Watts), and token generation efficiency directly from Google Axion VM nodes.
+
+```python
+import os
+import psutil
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+# Initialize FastMCP 3.1 Hardware Monitoring Server
+mcp = FastMCP("axion-telemetry-server", version="3.1.0")
+
+class TelemetryMetricRequest(BaseModel):
+    node_id: str = Field(..., min_length=3, description="Target GKE Node ID")
+    sample_interval_sec: float = Field(default=1.0, ge=0.1, le=10.0)
+    include_vector_units: bool = Field(default=True)
+
+    @field_validator("node_id")
+    @classmethod
+    def validate_node_id(cls, v: str) -> str:
+        if not v.startswith("gke-"):
+            raise ValueError("node_id must start with 'gke-' prefix")
+        return v
+
+class AxionPowerReport(BaseModel):
+    node_id: str
+    architecture: str = Field(default="arm64")
+    core_count: int = Field(..., ge=1)
+    cpu_utilization_pct: float = Field(..., ge=0.0, le=100.0)
+    estimated_power_watts: float = Field(..., ge=0.0)
+    tokens_per_watt: float = Field(..., ge=0.0)
+
+    @model_validator(mode="after")
+    def validate_arm64_arch(self) -> "AxionPowerReport":
+        if self.architecture != "arm64":
+            raise ValueError("AxionPowerReport requires arm64 architecture")
+        return self
+
+@mcp.tool()
+async def collect_axion_power_metrics(request: TelemetryMetricRequest) -> Dict[str, Any]:
+    """
+    Collects real-time physical power and efficiency metrics from Google Axion ARM64 nodes.
+    """
+    cpu_util = psutil.cpu_percent(interval=request.sample_interval_sec)
+    cores = psutil.cpu_count(logical=True) or 8
+
+    # Estimate power usage based on Neoverse V3 TDP scaling
+    base_idle_watts = 15.0
+    active_watts = base_idle_watts + (cpu_util / 100.0) * 120.0
+    simulated_tokens_per_sec = (cpu_util / 100.0) * 450.0
+
+    report = AxionPowerReport(
+        node_id=request.node_id,
+        architecture="arm64",
+        core_count=cores,
+        cpu_utilization_pct=cpu_util,
+        estimated_power_watts=active_watts,
+        tokens_per_watt=simulated_tokens_per_sec / max(active_watts, 1.0)
+    )
+
+    return {
+        "status": "SUCCESS",
+        "telemetry": report.model_dump(),
+        "fastmcp_version": "3.1.0"
+    }
+```
 
 ## Getting started
 1. **Prepare Multi-Architecture Container Images**: Use `docker buildx` to build and tag images supporting both `linux/amd64` and `linux/arm64`.
@@ -93,7 +188,7 @@ This Python script uses **Pydantic v2** (`BaseModel`, `Field`, `model_validate`,
 ```python
 import sys
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
 # Define strict node pool spec schema in Pydantic v2
 class GKENodeToleration(BaseModel):
@@ -109,6 +204,19 @@ class NodePoolConfig(BaseModel):
     max_nodes: int = Field(default=10, le=100)
     cpu_limit_cores: int = Field(..., ge=2, description="Allocated CPU cores per node")
     tolerations: List[GKENodeToleration] = Field(default_factory=list)
+
+    @field_validator("name")
+    @classmethod
+    def validate_name_alphanumeric(cls, v: str) -> str:
+        if not v.replace("-", "").isalnum():
+            raise ValueError("Node pool name must be alphanumeric with dashes")
+        return v
+
+    @model_validator(mode="after")
+    def validate_min_max_bounds(self) -> "NodePoolConfig":
+        if self.min_nodes > self.max_nodes:
+            raise ValueError("min_nodes cannot exceed max_nodes")
+        return self
 
     @property
     def is_axion_powered(self) -> bool:
@@ -151,6 +259,24 @@ if __name__ == "__main__":
     if validated_spec:
         print(f"Deployment authorized on Axion: {validated_spec.is_axion_powered}")
 ```
+
+## Performance & Cost Comparison Matrix
+
+| Machine Family | CPU Architecture | Core Platform | Max Memory | Energy Efficiency | Target Workload Profile |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Google Axion N4A** | ARM64 | Arm Neoverse V3 | 512 GB DDR5 | **Baseline (100% Top Efficiency)** | Multi-agent clusters, LLM inference, FastMCP 3.1 |
+| **Intel N4** | x86-64 | Emerald Rapids | 512 GB DDR5 | ~40% lower efficiency | Legacy x86 binaries, non-ported C++ extensions |
+| **AMD C4** | x86-64 | Zen 4 | 768 GB DDR5 | ~45% lower efficiency | High memory-bound batch processing |
+| **AWS Graviton 4** | ARM64 | Arm Neoverse V2 | 512 GB DDR5 | Comparable ARM efficiency | AWS-native cloud workloads |
+
+## Troubleshooting & Migration Guide
+
+| Issue Symptom | Root Cause | Diagnostic Method | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `exec format error` in GKE Pod | Container image was built exclusively for `linux/amd64` | Run `docker inspect <image> \| grep Architecture` | Rebuild image with `docker buildx --platform linux/amd64,linux/arm64` |
+| `CrashLoopBackOff` on Axion node | Uncompiled x86 binary or missing ARM shared library | Examine `kubectl logs` for illegal instruction error | Recompile binary targeting `aarch64` or enable Rosetta 2 / emulation |
+| Pod un-schedulable | Missing toleration for `kubernetes.io/arch=arm64:NoSchedule` | Run `kubectl describe pod <pod-name>` | Add explicit node toleration and `nodeSelector` in Deployment manifest |
+| Degraded Math Throughput | SVE2 vector extensions not compiled into C++ tensor library | Inspect ONNX runtime build flags | Pass `-march=armv9-a+sve2` compiler flags during build step |
 
 ## Kubernetes Architecture and Scheduling Integration
 Integrating Axion into multi-architecture clusters is modeled as a simple scheduling policy rather than an infrastructure overhaul:

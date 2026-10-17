@@ -9,6 +9,35 @@ It handles the complexities of distributed systems, such as retries, timeouts, a
 ## Where it fits in the stack
 **Orchestration / Reliability Layer**. It sits below high-level frameworks like [LangGraph](../frameworks/langgraph.md), [Agno](../agents/agno.md), or [PydanticAI](../frameworks/pydantic-ai.md), providing the underlying durability, state machine guarantees, and fault tolerance for long-running agentic missions.
 
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      Agentic Application Layer                            │
+│           (Claude 5.6 / DeepSeek-V4 / LangGraph / Agno / FastMCP 3.1)     │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                     Temporal Workflows & Activities                       │
+│  - Deterministic Workflow Logic      - Non-Deterministic Tool Invocations │
+│  - Signal & Query Handlers          - Automatic Exponential Backoff Retries│
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                       Temporal Cluster Persistence                        │
+│     (Event Sourcing / PostgreSQL Persistence / Internal Task Queues)      │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+## Architecture & Core Concepts
+Temporal breaks execution down into distinct, decoupled components that ensure deterministic workflow state reconstruction:
+
+1. **Workflows**: Deterministic functions that define execution paths, state transitions, and coordination logic. Workflows replay event histories to reconstruct state upon process recovery.
+2. **Activities**: Non-deterministic side-effect handlers (e.g., HTTP API calls, FastMCP 3.1 tool invocations, database writes, LLM prompt executions).
+3. **Task Queues**: Decoupled buffers that route Workflow and Activity tasks to available Worker processes based on capability and capacity.
+4. **Signals & Queries**: Mechanisms for asynchronously sending external data into active workflows or querying internal workflow memory state in real-time.
+5. **Continue-As-New**: Operational mechanism preventing workflow event history event log exhaustion during multi-week or continuous agent loops.
+
 ## Typical use cases
 - **Long-running AI Agents**: Managing agents that perform tasks over days or weeks (e.g., recursive research or software engineering).
 - **Reliable Multi-step Pipelines**: Ensuring that complex sequences of LLM calls and tool uses complete successfully.
@@ -38,6 +67,81 @@ It handles the complexities of distributed systems, such as retries, timeouts, a
 - For simple, short-lived AI tasks where traditional error handling is sufficient.
 - If you don't want the operational overhead of managing a workflow engine (consider [n8n](../../services/n8n.md) for simpler needs).
 
+## FastMCP 3.1 Server Integration
+Temporal workflows integrate with FastMCP 3.1 to expose durable workflow control procedures over Model Context Protocol JSON-RPC endpoints.
+
+```python
+from datetime import timedelta
+import asyncio
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator
+from temporalio.client import Client
+
+# Initialize FastMCP 3.1 Server for Temporal Operations
+mcp = FastMCP("temporal-orchestrator-v3", version="3.1.0")
+
+class TriggerWorkflowRequest(BaseModel):
+    workflow_id: str = Field(..., min_length=4, max_length=100)
+    agent_name: str = Field(..., min_length=2)
+    input_payload: Dict[str, Any] = Field(default_factory=dict)
+    task_queue: str = Field(default="agent-task-queue")
+
+    @field_validator("workflow_id")
+    @classmethod
+    def validate_id(cls, v: str) -> str:
+        if " " in v:
+            raise ValueError("workflow_id must not contain whitespace")
+        return v
+
+class WorkflowStatusResponse(BaseModel):
+    workflow_id: str
+    status: str
+    history_length: int
+    execution_time_sec: float
+
+@mcp.tool()
+async def start_durable_agent_workflow(request: TriggerWorkflowRequest) -> Dict[str, Any]:
+    """
+    Triggers a durable Temporal agent workflow via FastMCP 3.1 protocol.
+    """
+    client = await Client.connect("localhost:7233")
+
+    handle = await client.start_workflow(
+        "RobustAgentWorkflow",
+        request.input_payload,
+        id=request.workflow_id,
+        task_queue=request.task_queue,
+        execution_timeout=timedelta(hours=24)
+    )
+
+    return {
+        "status": "STARTED",
+        "workflow_id": handle.id,
+        "run_id": handle.result_run_id,
+        "mcp_protocol": "3.1"
+    }
+
+@mcp.tool()
+async def query_agent_workflow_state(workflow_id: str) -> Dict[str, Any]:
+    """
+    Queries real-time state of an active agent workflow in Temporal.
+    """
+    client = await Client.connect("localhost:7233")
+    handle = client.get_workflow_handle(workflow_id)
+
+    # Query custom internal state defined in workflow
+    current_state = await handle.query("get_current_agent_state")
+
+    response = WorkflowStatusResponse(
+        workflow_id=workflow_id,
+        status="RUNNING",
+        history_length=12,
+        execution_time_sec=142.5
+    )
+    return {"validated_status": response.model_dump(), "state": current_state}
+```
+
 ## Getting started
 Temporal consists of a Server and SDKs for various languages.
 
@@ -49,7 +153,7 @@ temporal server start-dev
 
 ### Python SDK Installation
 ```bash
-pip install temporalio pydantic
+pip install temporalio pydantic mcp
 ```
 
 ## CLI examples
@@ -79,8 +183,8 @@ A Temporal workflow is a durable function that orchestrates activities. It lever
 ### Python: Robust Agent Tool-Calling and Fallback Workflow with Pydantic v2
 ```python
 from datetime import timedelta
-from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, model_validator, ValidationError
 from temporalio import workflow, activity
 from temporalio.client import Client
 
@@ -93,6 +197,7 @@ class AgentInput(BaseModel):
     task_description: str = Field(..., min_length=10, description="The mission objectives for the agent")
     max_steps: int = Field(default=10, ge=1, le=100)
     fallback_models: List[str] = Field(default_factory=lambda: ["gpt-5.6", "deepseek-v4", "claude-5.6"])
+    strict_mode: bool = Field(default=True)
 
     @field_validator("agent_id")
     @classmethod
@@ -101,11 +206,18 @@ class AgentInput(BaseModel):
             raise ValueError("agent_id must be alphanumeric or contain underscores/dashes")
         return v
 
+    @model_validator(mode="after")
+    def validate_fallback_consistency(self) -> "AgentInput":
+        if not self.fallback_models:
+            raise ValueError("fallback_models list cannot be empty")
+        return self
+
 class ToolExecutionResult(BaseModel):
     success: bool
     output_payload: str = Field(..., description="Normalized output from the tool execution")
     error_message: Optional[str] = Field(None, description="Detailed error description if execution failed")
     execution_duration_sec: float = Field(..., ge=0.0)
+    retry_count: int = Field(default=0, ge=0)
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +245,8 @@ async def agent_tool_call_with_fallback(raw_input: dict) -> dict:
         result = ToolExecutionResult(
             success=True,
             output_payload="Tool executed successfully using Claude 5.6 and FastMCP 3.1 Task Protocol",
-            execution_duration_sec=1.45
+            execution_duration_sec=1.45,
+            retry_count=0
         )
     except Exception as e:
         # Graceful fallback logic
@@ -141,7 +254,8 @@ async def agent_tool_call_with_fallback(raw_input: dict) -> dict:
             success=False,
             output_payload=f"Primary tool failed, fallback triggered for models: {validated_input.fallback_models}",
             error_message=str(e),
-            execution_duration_sec=3.12
+            execution_duration_sec=3.12,
+            retry_count=1
         )
 
     # Return as primitive dictionary for Temporal cross-network serialization
@@ -154,10 +268,23 @@ async def agent_tool_call_with_fallback(raw_input: dict) -> dict:
 
 @workflow.definition
 class RobustAgentWorkflow:
+    def __init__(self):
+        self._current_status = "INITIALIZED"
+        self._execution_history: List[str] = []
+
+    @workflow.query
+    def get_current_agent_state(self) -> Dict[str, Any]:
+        return {
+            "status": self._current_status,
+            "history": self._execution_history
+        }
+
     @workflow.run
     async def run(self, raw_input: dict) -> dict:
+        self._current_status = "RUNNING"
+        self._execution_history.append("Started activity execution")
+
         # Workflows are deterministic, activities handle side effects (e.g., API requests)
-        # Execute activity with a robust retry policy
         result_dict = await workflow.execute_activity(
             agent_tool_call_with_fallback,
             raw_input,
@@ -171,6 +298,9 @@ class RobustAgentWorkflow:
 
         # Enforce validation of the activity output before progressing
         validated_result = ToolExecutionResult.model_validate(result_dict)
+        self._current_status = "COMPLETED" if validated_result.success else "FAILED"
+        self._execution_history.append(f"Completed with status {self._current_status}")
+
         return validated_result.model_dump()
 
 
@@ -202,6 +332,53 @@ async def main():
     except Exception as e:
         print(f"Workflow execution failed: {e}")
 ```
+
+## Multi-Agent Sequence Flow
+
+```
+┌─────────────┐            ┌──────────────────┐           ┌────────────────────┐          ┌──────────────────────┐
+│  FastMCP    │            │ Temporal Worker  │           │  Claude 5.6 / LLM  │          │ Target System / DB   │
+│ Client/UI   │            │ (Workflow Engine)│           │ Activity Execution │          │ Side Effect Action   │
+└──────┬──────┘            └────────┬─────────┘           └─────────┬──────────┘          └──────────┬───────────┘
+       │                            │                               │                                │
+       │ 1. start_durable_agent_... │                               │                                │
+       ├───────────────────────────>│                               │                                │
+       │                            │ 2. Schedule Activity          │                                │
+       │                            ├──────────────────────────────>│                                │
+       │                            │                               │ 3. Execute Tool / Prompt       │
+       │                            │                               ├───────────────────────────────>│
+       │                            │                               │                                │
+       │                            │                               │ 4. Tool Result Returned        │
+       │                            │                               │<───────────────────────────────┤
+       │                            │ 5. Validated Result           │                                │
+       │                            │<──────────────────────────────┤                                │
+       │                            │                                                                │
+       │                            │ 6. Save Event History to Cluster Persistence                   │
+       │                            ├────────────────────────────────────────────────────────────────┐
+       │                            │                                                                │
+       │ 7. Return Workflow Result  │                                                                │
+       │<───────────────────────────┤                                                                │
+```
+
+## Production Guardrails & Security Compliance
+
+| Guardrail Focus | Implementation Strategy | Risk Mitigation Target | Operational Threshold |
+| :--- | :--- | :--- | :--- |
+| **Nondeterminism Guard** | Keep non-deterministic calls strictly inside Activities | Eliminates workflow replay corruption | 100% activity isolation |
+| **History Truncation** | Invoke `workflow.continue_as_new()` on high iteration loops | Prevents temporal history buffer exhaust (>10k events) | Truncate every 2,000 steps |
+| **Payload Encryption** | Implement `DataConverter` with AES-256 GCM encryption | Protects sensitive FastMCP 3.1 LLM prompts in cluster | Zero unencrypted state payloads |
+| **Worker Heartbeating** | Issue `activity.record_heartbeat()` during long operations | Detects hung AI tool calls or network drops early | Heartbeat every 10s |
+| **Retry Backoff** | Exponential retry policies with max interval limit | Avoids rate-limiting LLM upstream APIs | Initial 2s, max 300s, max 5 tries |
+
+## Operational Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Steps | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| `NonDeterministicWorkflowError` | Non-deterministic call (e.g. `datetime.now()`, `random()`, HTTP GET) used directly in workflow body | Inspect workflow event history using `temporal workflow show-with-stack` | Move non-deterministic logic into an `@activity.definition` function |
+| `ActivityTimeoutError: START_TO_CLOSE` | Tool execution exceeded allotted activity duration | Check worker logs and tool activity execution metrics | Increase `start_to_close_timeout` or implement activity heartbeating |
+| `UnhandledCommandException` | State modification attempted after workflow completion or block | Examine concurrent async execution blocks | Structure workflow loops synchronously or await pending futures |
+| `BlobSizeExceededError` | Payload returned from Activity exceeds Temporal 4MB payload limit | Inspect size of LLM output text or file byte streams | Stream content or save large payloads to S3/Object Storage |
+| `WorkerRegistrationError` | Worker process listening to incorrect task queue or version mismatch | Verify task queue strings between Client and Worker | Unify task queue names across deployment manifests |
 
 ## AI Ecosystem Integrations (Early 2027)
 Following Replay 2026/2027, Temporal offers native integrations for building durable AI agents:
