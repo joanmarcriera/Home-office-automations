@@ -55,12 +55,31 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 
 ## Governance Matrix & Role Breakdown
 
-| Role | Primary Scope | Permitted File Mutations | Primary Quality Check | Concurrency Key |
-| :--- | :--- | :--- | :--- | :--- |
-| **Intake Agent** | `docs/new-sources/*`, `data/all_tools.json` | Daily intake logs, tool catalog records | `validate_new_sources.py` | Source URL hash |
-| **Curation Agent** | `docs/tools/*`, `docs/services/*` | Canonical tool/service pages | `check_docs_contract.py` | Canonical slug |
-| **Audit Agent** | Entire repository | Metadata blocks, links, navigation | `audit_docs_quality.py` | Directory path |
-| **Decomposition Agent**| `docs/reports/*` | Batch tracking reports | `check_catalog_consistency.py` | Batch ID |
+| Role | Primary Scope | Permitted File Mutations | Primary Quality Check | Concurrency Key | Max Active Instances |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Intake Agent** | `docs/new-sources/*`, `data/all_tools.json` | Daily intake logs, tool catalog records | `validate_new_sources.py` | Source URL hash | 4 parallel instances |
+| **Curation Agent** | `docs/tools/*`, `docs/services/*` | Canonical tool/service pages | `check_docs_contract.py` | Canonical slug | 8 parallel instances |
+| **Audit Agent** | Entire repository | Metadata blocks, links, navigation | `audit_docs_quality.py` | Directory path | 2 parallel instances |
+| **Decomposition Agent**| `docs/reports/*` | Batch tracking reports | `check_catalog_consistency.py` | Batch ID | 1 singleton instance |
+
+## Event Orchestration & Lifecycle State Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                 KNOWLEDGE OPS MULTI-AGENT STATE LIFECYCLE                         |
++-----------------------------------------------------------------------------------+
+
+   +----------------+     +-------------------+     +-------------------------+
+   | INTAKE ITEM    | --> | CANONICAL MATCH   | --> | CURATION DEEPENING      |
+   | (new-sources)  |     | DISCOVERY         |     | (FastMCP 3.1 Server)    |
+   +----------------+     +-------------------+     +-------------------------+
+                                                               |
+                                                               v
+   +----------------+     +-------------------+     +-------------------------+
+   | PUBLISH TO     | <-- | METADATA & LINK   | <-- | AUDIT & CONTRACT        |
+   | MAIN BRANCH    |     | FRESHNESS AUDIT   |     | CHECK PASS              |
+   +----------------+     +-------------------+     +-------------------------+
+```
 
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
@@ -75,12 +94,13 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 
 ## Troubleshooting & Diagnostics Matrix
 
-| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| `Contract Violation: Missing metadata block` | Agent omitted `Last reviewed` or `Confidence` header during file generation | Run `python3 scripts/backfill_docs_metadata.py` to restore metadata structure. |
-| `Catalog Mismatch Error` | Navigation entry created in `mkdocs.yml` without matching `data/all_tools.json` entry | Run `python3 scripts/check_catalog_consistency.py` and synchronize catalog keys. |
-| `Git Merge Conflict on Main` | Multiple agent lanes updating identical canonical page concurrently | Isolate agent lane updates to distinct file paths; use rebase before submission. |
-| `FastMCP Tool Call Disconnection` | Unhandled exception inside Pydantic model validation hook | Inspect system error logs and ensure inputs match strict Pydantic v2 schemas. |
+| Issue / Error Symptom | Probable Root Cause | Diagnostic Command | Remediation Procedure |
+| :--- | :--- | :--- | :--- |
+| `Contract Violation: Missing metadata block` | Agent omitted `Last reviewed` or `Confidence` header during file generation | `python3 scripts/check_docs_contract.py <file>` | Run `python3 scripts/backfill_docs_metadata.py` to restore metadata structure. |
+| `Catalog Mismatch Error` | Navigation entry created in `mkdocs.yml` without matching `data/all_tools.json` entry | `python3 scripts/check_catalog_consistency.py` | Synchronize catalog keys using `check_catalog_consistency.py`. |
+| `Git Merge Conflict on Main` | Multiple agent lanes updating identical canonical page concurrently | `git log --oneline -n 5` | Isolate agent lane updates to distinct file paths; use rebase before submission. |
+| `FastMCP Tool Call Disconnection` | Unhandled exception inside Pydantic model validation hook | `mcp-server --log-level DEBUG` | Inspect system error logs and ensure inputs match strict Pydantic v2 schemas. |
+| `Stale Source Log Validation Failure` | Raw URL entry missing required pipe delimiters in intake log | `python3 scripts/validate_new_sources.py` | Format table row to match `| Name | Category | URL | Status |` contract. |
 
 ## Operational Best Practices & Guardrails
 - **Enforce Single Canonical Ownership**: Maintain strictly one canonical Markdown document per technology topic to eliminate duplication.
@@ -152,14 +172,16 @@ The KnowledgeOps framework can be integrated into multi-agent workflows via Pyth
 
 ```python
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import date
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("KnowledgeOpsPolicyEngine", version="3.1.0")
 
 class DocumentMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     last_reviewed: date = Field(..., description="Date of last quality review in YYYY-MM-DD format")
     confidence: str = Field(..., description="Assigned confidence level: 'high', 'medium', or 'low'")
     sources: List[str] = Field(default_factory=list, description="Verifiable reference links or canonical sources")
@@ -173,6 +195,8 @@ class DocumentMetadata(BaseModel):
         return value.lower()
 
 class ContractValidationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     filepath: str
     is_compliant: bool
     violations: List[str] = Field(default_factory=list)
@@ -223,6 +247,14 @@ def audit_knowledgeops_contract(filepath: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Enterprise Governance & Agent Safety Guardrails
+
+To safeguard enterprise-grade KnowledgeOps repositories from accidental corruption or non-compliant disclosures:
+
+1. **Immutable Historical Reports**: Reports in `docs/reports/` are flagged read-only and write-protected from deletion by non-admin roles.
+2. **Deterministic Pre-Push Hooks**: Local git hooks prevent `git push` unless `scripts/audit_docs_quality.py` returns 100% compliance.
+3. **Model Attributable Signatures**: Every commit must explicitly denote the driving AI agent model signature in the git commit body.
 
 ## Related tools / concepts
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for KnowledgeOps.

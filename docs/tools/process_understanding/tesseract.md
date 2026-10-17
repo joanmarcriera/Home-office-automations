@@ -74,6 +74,17 @@ The matrix below compares Tesseract against alternative open-source and cloud OC
 - **Multilingual Transcription**: Utilizing customized language training files to extract historical documents in complex non-Latin scripts.
 - **Searchable PDF Generation**: Injecting invisible text layers into scanned documents within Paperless-ngx pipelines.
 
+## Page Segmentation Mode (PSM) & OEM Reference Matrix
+
+| PSM Flag | Target Layout & Orientation | Recommended Use Case |
+| :--- | :--- | :--- |
+| `--psm 0` | Orientation and script detection (OSD) only | Auto-detect page rotation before OCR pass |
+| `--psm 1` | Automatic page segmentation with OSD | Complex multi-page scanned PDF documents |
+| `--psm 3` | Fully automatic page segmentation (Default) | Standard single-column or multi-column documents |
+| `--psm 4` | Single column of text of variable sizes | Receipts, invoices, elongated column clippings |
+| `--psm 6` | Uniform single block of text | Form field blocks, paragraphs, single-page letters |
+| `--psm 11` | Sparse text; find as much text as possible | Watermarks, scattered labels, complex diagrams |
+
 ## Strengths
 - **Fully Offline**: 100% local processing guarantees total security for sensitive personal or corporate documents.
 - **Extensive Language Assets**: Supports over 100 languages with community-trained, high-fidelity LSTM data models.
@@ -95,19 +106,15 @@ The matrix below compares Tesseract against alternative open-source and cloud OC
 - For "born-digital" documents that already have a structured text layer (use standard text extraction libraries instead).
 - When a document requires sophisticated document layout reconstruction (use [Docling](docling.md) or [OCRmyPDF](ocrmypdf.md) instead).
 
-### Failure Modes & Mitigation Strategies
+### Failure Modes & Diagnostic Matrix
 
-#### 1. Low Resolution & DPI Artifact Degradation
-- **Symptom**: High character error rates when scanning images at resolutions below 300 DPI.
-- **Mitigation**: Apply pre-processing upsizing filters (e.g., ImageMagick resize with Lanczos interpolation) prior to invoking Tesseract.
-
-#### 2. Layout Orientation Misclassification
-- **Symptom**: Rotated or sideways documents yielding garbled character strings due to incorrect text line detection.
-- **Mitigation**: Enable Tesseract Orientation and Script Detection (`--psm 0`) or use `tesseract` in conjunction with `leptonica` deskewing algorithms.
-
-#### 3. Multi-Column Flow Bleeding
-- **Symptom**: Horizontal text reading across multi-column news articles, combining distinct paragraphs into invalid sentences.
-- **Mitigation**: Adjust Page Segmentation Mode (`--psm 3` or `--psm 4`) to force automatic column and block segmentation.
+| Failure Mode / Symptom | Probable Cause | Diagnostic Command | Mitigation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Low Accuracy on Small Text** | Image resolution below 300 DPI | `identify -format "%x x %y" scan.png` | Upscale and smooth scan using ImageMagick Lanczos resize |
+| **Garbled Output on Sideways Scans** | Incorrect page orientation angle | `tesseract scan.png output --psm 0` | Run orientation detection and auto-rotate image using Leptonica |
+| **Multi-Column Text Bleeding** | Unsegmented horizontal scanning across columns | `tesseract scan.png output --psm 3` | Switch PSM mode to column-aware `--psm 4` or `--psm 6` |
+| **Language Model Missing Error** | Specified language data pack `.traineddata` not installed | `tesseract --list-langs` | Download required language traineddata pack into `tessdata` directory |
+| **FastMCP Timeout on Batch Processing** | Large uncompressed TIFF file blocking CPU worker pool | `mcp-server --log-level DEBUG` | Pre-convert TIFF assets to compressed 300 DPI PNG before calling FastMCP tool |
 
 ### Operational Best Practices
 - **Optimize Page Segmentation Mode (PSM)**: Select the appropriate PSM flag (e.g., `--psm 6` for uniform text blocks, `--psm 11` for sparse text) to drastically improve accuracy.
@@ -166,19 +173,23 @@ This example showcases how to execute Tesseract OCR programmatically (using `pyt
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("TesseractOCRServer", version="3.1.0")
 
 # 1. Define strict Pydantic v2 schemas for OCR bounding boxes and results
 class BoundingBox(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     left: int = Field(..., ge=0, description="Pixel coordinate from left boundary")
     top: int = Field(..., ge=0, description="Pixel coordinate from top boundary")
     width: int = Field(..., gt=0, description="Bounding box width in pixels")
     height: int = Field(..., gt=0, description="Bounding box height in pixels")
 
 class OcrWord(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     word_text: str = Field(..., min_length=1, description="Recognized character string")
     confidence: float = Field(..., ge=0.0, le=100.0, description="Tesseract confidence score percentage")
     box: BoundingBox
@@ -189,6 +200,8 @@ class OcrWord(BaseModel):
         return v.strip()
 
 class VerifiedOcrOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     image_name: str
     language: str = Field("eng", pattern=r"^[a-z]{3}(\+[a-z]{3})*$")
     full_text: str = Field(..., min_length=1)
@@ -246,6 +259,12 @@ if __name__ == "__main__":
     result = parse_and_verify_tesseract_output(simulated_pytesseract_dict)
     print(f"FastMCP Tool Result: {result}")
 ```
+
+## Enterprise Security & Air-Gap Privacy Guardrails
+
+1. **Air-Gapped Processing Enforcement**: Tesseract execution runs entirely in local memory or container sandbox environments without network socket binding.
+2. **PII Masking at Image Pass**: Pre-processing scripts mask designated region-of-interest coordinates (such as credit card CVVs or national security IDs) before OCR text extraction.
+3. **Ephemeral Temp File Cleanup**: All intermediate pre-processed image bitmaps (`/tmp/ocr_binarized_*.png`) must be deleted immediately after Pydantic schema validation.
 
 ## Related tools / concepts
 - [OCRmyPDF](ocrmypdf.md) — High-level PDF wrapper that uses Tesseract as its core OCR engine.
