@@ -9,6 +9,30 @@ Prevents "hallucinated" SQL from causing data breaches (SQL injection), performa
 ## Where it fits in the stack
 It operates within the **Inference Pipeline**, specifically between the **SQL Generation Agent** and the **Database Execution Engine**.
 
+```
++--------------------------+       +-------------------------------+       +----------------------------+
+|   SQL Generation Agent   | ----> | FastMCP 3.1 SQL Validation    | ----> | Database Execution Engine  |
+| (Claude 5.6 / GPT-5.6)   |       | Guardrail Interceptor         |       | (PostgreSQL / Snowflake)   |
++--------------------------+       +---------------+---------------+       +----------------------------+
+                                                   |
+                                                   v
+                                   +-------------------------------+
+                                   | Pydantic v2 AST & Policy      |
+                                   | Validation Engine (SQLGlot)   |
+                                   +-------------------------------+
+```
+
+## Validation Approach Comparison Matrix
+
+| Approach / Technique | Static AST Parsing (SQLGlot) | Dynamic Dry-Run (`EXPLAIN`) | LLM-as-a-Judge Evaluation | FastMCP 3.1 Interception |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Overhead** | Sub-millisecond (< 5ms) | Low (10 - 50ms) | High (500ms - 2000ms) | Very Low (< 10ms) |
+| **Mutation Prevention** | 100% Deterministic (Keyword AST) | High (Database Permissions) | Variable (Model Reliability) | 100% Deterministic (Schema Guard) |
+| **Dialect Compatibility** | Broad (Transpiles 20+ dialects) | Specific to Target DB | General NL Reasoning | Transport Neutral |
+| **PII/PHI Detection** | Column Allowlist Matching | DB Schema Metadata Check | Contextual Sensitivity Check | Schema Rules Enforcement |
+| **Semantic Correctness** | Syntactic Only | Verifies Table/Column Existence | High (Evaluates Business Logic) | Protocol Level Verification |
+| **Resource Cost** | Minimal Local CPU | Low DB Connection Query | API Token Cost per Query | Minimal Local Runtime |
+
 ## Typical use cases
 - **Automated PII Masking**: Ensuring that any query targeting the `users` table automatically excludes `email` or `password_hash` columns.
 - **Query Optimization**: Catching unindexed filters in natural language questions like "Show me every transaction since 2010" before they scan millions of rows.
@@ -46,7 +70,7 @@ To implement basic static validation, use the `sqlglot` library to parse and ins
 
 ### Installation
 ```bash
-pip install sqlglot pydantic>=2.0.0
+pip install sqlglot pydantic>=2.0.0 fastmcp
 ```
 
 ### Basic Usage
@@ -142,47 +166,6 @@ Stop the automated flow and notify a human if:
 3.  **Repair Timeout**: Max retries reached without a valid query.
 4.  **Complex Logic**: The intent requires a logic depth the current model cannot reliably produce.
 
-## CLI examples
-
-### 1. Static Validation
-```bash
-python3 -c "import sqlglot; print(sqlglot.transpile('SELECT * FROM users', read='postgres', write='sqlite')[0])"
-```
-
-### 2. Formatted SQL
-```bash
-python3 -c "import sqlglot; print(sqlglot.parse_one('SELECT * FROM users WHERE id=1').sql(pretty=True))"
-```
-
-### 3. Programmatic CLI Repair Invocation
-```bash
-python3 -c "from pydantic import BaseModel; import pydantic; print(f'Pydantic loaded version: {pydantic.__version__}')"
-```
-
-## API examples
-
-### 1. Parsing Expressions
-```python
-import sqlglot
-from sqlglot import exp
-
-sql = "SELECT a, b FROM table"
-for expression in sqlglot.parse(sql):
-    if expression is None:
-        continue
-    for column in expression.find_all(exp.Column):
-        print(column.name)
-```
-
-### 2. Dialect Conversion
-```python
-import sqlglot
-
-# Convert Postgres to DuckDB
-duckdb_sql = sqlglot.transpile("SELECT * FROM x LIMIT 10", read="postgres", write="duckdb")[0]
-print(duckdb_sql)
-```
-
 ## Workflow Architecture
 
 ```mermaid
@@ -216,10 +199,147 @@ flowchart TD
     end
 ```
 
-## Low-Cost Implementation Options
-- **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
-- **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
-- **Small Model Judge**: Use a small local model (Qwen 2.5 7B / Qwen 3.8 / Gemma 4) specifically to check the generated SQL against the policy checklist.
+## CLI examples
+
+### 1. Static Validation
+```bash
+python3 -c "import sqlglot; print(sqlglot.transpile('SELECT * FROM users', read='postgres', write='sqlite')[0])"
+```
+
+### 2. Formatted SQL
+```bash
+python3 -c "import sqlglot; print(sqlglot.parse_one('SELECT * FROM users WHERE id=1').sql(pretty=True))"
+```
+
+### 3. Programmatic CLI Repair Invocation
+```bash
+python3 -c "from pydantic import BaseModel; import pydantic; print(f'Pydantic loaded version: {pydantic.__version__}')"
+```
+
+## API examples
+
+### FastMCP 3.1 & Pydantic v2 Production Implementation
+
+The following complete Python module provides a FastMCP 3.1 server that intercepts SQL execution requests, runs static and policy validation via Pydantic v2 and SQLGlot, and returns structured validation objects:
+
+```python
+import sqlglot
+from sqlglot import exp
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "sql-guardrail-server",
+    instructions="FastMCP 3.1 server for validating and sanitizing AI-generated SQL queries prior to database execution."
+)
+
+class SQLGuardrailPolicy(BaseModel):
+    allowed_tables: List[str] = Field(..., min_length=1, description="List of allowlisted database tables")
+    forbidden_columns: List[str] = Field(default_factory=lambda: ["password_hash", "ssn", "credit_card_number"])
+    max_row_limit: int = Field(default=1000, ge=1, le=50000)
+    allow_mutations: bool = Field(default=False)
+
+class SQLValidationRequest(BaseModel):
+    sql_query: str = Field(..., min_length=5, description="Generated SQL statement to validate")
+    target_dialect: str = Field(default="postgres", description="Target SQL dialect (postgres, sqlite, snowflake, duckdb)")
+    policy: SQLGuardrailPolicy
+
+class SQLValidationReport(BaseModel):
+    is_safe: bool
+    risk_level: str = Field(..., description="Risk classification: LOW, MEDIUM, HIGH, CRITICAL")
+    violations: List[str] = Field(default_factory=list)
+    sanitized_sql: Optional[str] = None
+
+@mcp.tool()
+def validate_and_sanitize_sql(request: SQLValidationRequest) -> Dict[str, Any]:
+    """
+    Validates a generated SQL statement against security policy rules and dialect syntax.
+    """
+    violations = []
+    sanitized = request.sql_query
+    risk_level = "LOW"
+
+    try:
+        expressions = sqlglot.parse(request.sql_query, read=request.target_dialect)
+
+        for expr in expressions:
+            if expr is None:
+                continue
+
+            # 1. Mutation Check
+            if not request.policy.allow_mutations:
+                if any(isinstance(node, (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter)) for node, *_ in expr.walk()):
+                    violations.append("FORBIDDEN_MUTATION: Query contains state-modifying operations (DELETE/DROP/UPDATE/INSERT).")
+                    risk_level = "CRITICAL"
+
+            # 2. Table Allowlist Check
+            for table in expr.find_all(exp.Table):
+                if table.name.lower() not in [t.lower() for t in request.policy.allowed_tables]:
+                    violations.append(f"UNAUTHORIZED_TABLE: Table '{table.name}' is not in the allowlist.")
+                    if risk_level != "CRITICAL":
+                        risk_level = "HIGH"
+
+            # 3. Sensitive Column Check
+            for col in expr.find_all(exp.Column):
+                if col.name.lower() in [c.lower() for c in request.policy.forbidden_columns]:
+                    violations.append(f"PII_EXPOSURE_RISK: Column '{col.name}' accesses forbidden sensitive data.")
+                    if risk_level not in ["CRITICAL", "HIGH"]:
+                        risk_level = "HIGH"
+
+            # 4. Limit Clause Enforcement
+            if not expr.find(exp.Limit):
+                expr = expr.limit(request.policy.max_row_limit)
+                sanitized = expr.sql(dialect=request.target_dialect)
+                violations.append(f"MISSING_LIMIT_ADDED: Automatically appended LIMIT {request.policy.max_row_limit}.")
+
+        report = SQLValidationReport(
+            is_safe=(len([v for v in violations if "FORBIDDEN" in v or "UNAUTHORIZED" in v or "PII" in v]) == 0),
+            risk_level=risk_level,
+            violations=violations,
+            sanitized_sql=sanitized
+        )
+
+        return {
+            "status": "success",
+            "report": report.model_dump()
+        }
+
+    except sqlglot.errors.ParseError as e:
+        report = SQLValidationReport(
+            is_safe=False,
+            risk_level="HIGH",
+            violations=[f"SYNTAX_PARSE_ERROR: {str(e)}"],
+            sanitized_sql=None
+        )
+        return {
+            "status": "syntax_error",
+            "report": report.model_dump()
+        }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Resolution / Fix |
+| :--- | :--- | :--- | :--- |
+| **`ParseError: Unknown Dialect Keyword`** | Dialect mismatch between generated SQL dialect and SQLGlot parser configuration | Inspect `target_dialect` parameter | Set exact dialect (e.g., `read="snowflake"` or `read="postgres"`) |
+| **False Positive Mutation Flags on CTEs** | CTE expressions using terms like `UPDATE` in alias names | Inspect SQL AST node types rather than regex string matching | Use `isinstance(node, exp.Update)` on AST nodes instead of string search |
+| **Cross-Join Cartesian Explosion** | LLM omitted `ON` join predicate when joining multiple large tables | Check `EXPLAIN` query plan for `Nested Loop` or `Cartesian Product` | Reject query in static AST check if `exp.Join` lacks `on` predicate |
+| **Repair Retry Loop Exhaustion** | SQL repair prompt lacks exact error string from database driver | Inspect repair loop logs for missing error context | Pass full database exception string and schema definition in repair prompt |
+| **PII Exposure via SELECT *** | Dynamic `SELECT *` expanding into sensitive columns | Trace column expansion via database catalog schema | Enforce explicit column lists in SQL Generation system prompt |
+
+## Operational Best Practices & Guardrails
+
+### 1. Database User Permission Guardrails
+- **Read-Only Credentials**: Connect Text-to-SQL execution agents strictly using read-only database roles (`db_datareader` or `GRANT SELECT`).
+- **Statement Timeouts**: Set aggressive statement timeouts (`SET statement_timeout = '5000ms';`) on database connection pools to cancel unoptimized scans automatically.
+
+### 2. Multi-Layered Validation Defense
+- **Combine Static & Dynamic Checks**: Always run local SQLGlot static validation prior to issuing dynamic `EXPLAIN` dry-runs against the production server.
+- **Audit Logging**: Log all AI-generated queries, policy violations, and repair iterations to a security audit log for compliance and model evaluation.
 
 ## Related tools / concepts
 - [Data Copilot Architecture](../architecture/data-copilot-text-to-sql.md)
@@ -238,6 +358,7 @@ flowchart TD
 - [Guardrails AI](https://www.guardrailsai.com/)
 - [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

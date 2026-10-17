@@ -6,6 +6,33 @@ Embabel is an enterprise-grade, JVM-native (Java/Kotlin) agentic orchestration f
 ## What problem it solves
 Integrating LLMs directly into enterprise Java or Kotlin backend business logic is historically fraught with type safety mismatches, unreliable string outputs, and fragile manual parser logic. Embabel solves this by treating agent inputs and outputs as first-class, strictly validated JVM types. It eliminates the boilerplate of prompt management, provides native JVM-based schema validation (analogous to Pydantic v2 in Python), and handles token-saving optimizations like prefix tuning natively within Java/Kotlin applications across Claude 5.6 and GPT-5.6 agent environments.
 
+## Architecture & Execution Pipeline
+
+```mermaid
+graph TD
+    subgraph Spring Boot Application Context
+        A[Spring RestController / Event Trigger] --> B[Embabel StructuredAgent Engine]
+        B --> C[Jackson / Kotlinx Serializer Schema Binder]
+    end
+
+    subgraph Prompt Optimization & Local Routing
+        C --> D[Prefix Tuning Prompt Caching Layer]
+        D --> E{Inference Router}
+    end
+
+    subgraph Inference Execution Targets
+        E -- Local Private Network --> F[Ollama / llama.cpp Server]
+        E -- Cloud Frontier Gateway --> G[Claude 5.6 / GPT-5.6 API]
+    end
+
+    subgraph Interop & Tool Bridge
+        F & G --> H[FastMCP 3.1 Task Protocol Gateway]
+        H --> I[Validated Output Data Class / DTO]
+    end
+
+    I --> J[Enterprise Business Logic Execution]
+```
+
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Frameworks. It functions as the JVM-native middleware layer that binds enterprise business logic, Spring Boot controllers, FastMCP 3.1 Task Protocol tools, and local database systems to local or remote reasoning engines (e.g., local Ollama, llama.cpp nodes, or cloud-hosted frontier models like Claude 5.6).
 
@@ -14,6 +41,18 @@ Integrating LLMs directly into enterprise Java or Kotlin backend business logic 
 - **Automated Document Auditing**: Extracting complex structured data from invoices and compliance files directly into Kotlin Data Classes using local GPU inference.
 - **Self-Healing JVM Workflows**: Operating local subagents that monitor JVM application logs, diagnose memory leak trends, and automatically initiate microservice restarts or configuration fallbacks.
 - **Interactive Conversational Portals**: Building conversational assistants for internal enterprise portals that maintain multi-session memory, FastMCP 3.1 protocol states, and strict role-based access control (RBAC).
+
+## JVM Agent Framework Comparison Matrix
+
+| Feature / Capability | Embabel 1.0 | LangChain4j | Spring AI | Semantic Kernel (Java) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Design Focus** | Deterministic JVM Agent Loops & Prefix Caching | General-Purpose LLM Chains & Port | Spring Native Model Abstractions | Microsoft Ecosystem & Memory Integration |
+| **Native Kotlin DSL Support** | First-Class (Coroutines + Data Classes) | Secondary (Wrapper classes) | Basic (Java-first design) | Limited (Java-centric builder patterns) |
+| **Type Safety Enforcement** | Compile-time Data Class Schema Binding | Runtime Reflection Parsers | OutputParsers with JSON Schema | Plugin Function Parameter Annotations |
+| **FastMCP 3.1 Protocol** | Native Tool & Task Protocol Support | Custom Tool Adapters | Experimental Community Modules | OpenTelemetry / Custom Plugins |
+| **Prompt Optimization** | Built-in Prefix Tuning Caching | Manual Prompt Formatting | Template String Substitutions | Prompt Template Formatted Strings |
+| **Spring Boot Auto-Config** | `embabel-spring-boot-starter` | Third-party Starters | Official `spring-ai-starter` | Manual Bean Wiring Required |
+| **Python Interop Bridge** | Native FastMCP 3.1 Server Interop | HTTP REST Gateway | WebClient REST Endpoint | gRPC / REST Wrappers |
 
 ## Strengths
 - **First-Class Spring Boot Integration**: Fully integrates with Spring's dependency injection system, auto-configurations, and standard application properties.
@@ -190,6 +229,109 @@ public class SecurityAuditController {
 }
 ```
 
+## FastMCP 3.1 Python Bridge and Validation Models
+
+In heterogeneous microservice architectures where Python AI orchestration agents interact with JVM backends running Embabel, FastMCP 3.1 acts as the bidirectional protocol bridge.
+
+### Python FastMCP 3.1 Gateway for Embabel Spring Boot Services
+```python
+import httpx
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    "embabel-jvm-bridge",
+    instructions="FastMCP 3.1 gateway server bridging Python orchestration tools to Embabel Spring Boot AI microservices."
+)
+
+class EmbabelAuditRequest(BaseModel):
+    task_id: str = Field(..., min_length=5, description="Unique task tracker ID")
+    transaction_id: str = Field(..., min_length=3, description="Target transaction reference")
+    raw_payload: str = Field(..., min_length=20, description="Raw log or JSON string payload for analysis")
+    max_risk_tolerance: float = Field(default=0.85, ge=0.0, le=1.0)
+
+    @field_validator("task_id")
+    @classmethod
+    def validate_task_format(cls, v: str) -> str:
+        if not v.startswith("task_"):
+            raise ValueError("task_id must begin with prefix 'task_'")
+        return v
+
+class EmbabelAuditResponse(BaseModel):
+    task_id: str
+    transaction_id: str
+    risk_score: float
+    flag_reason: Optional[str] = None
+    recommended_action: str
+    audited_by_subagent: str
+
+@mcp.tool()
+async def invoke_embabel_security_audit(request: EmbabelAuditRequest) -> Dict[str, Any]:
+    """
+    Submits security audit tasks to the Embabel JVM Spring Boot REST endpoint and verifies the returned payload.
+    """
+    jvm_endpoint = "http://localhost:8080/api/v1/security/audit-log"
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                jvm_endpoint,
+                json=request.model_dump(),
+                headers={"Content-Type": "application/json", "X-FastMCP-Version": "3.1"}
+            )
+            response.raise_for_status()
+            raw_json = response.json()
+
+        # Validate returned JSON against Pydantic v2 schema matching Kotlin Data Class
+        validated_response = EmbabelAuditResponse.model_validate(raw_json)
+
+        return {
+            "status": "success",
+            "mcp_task_id": validated_response.task_id,
+            "audit_data": validated_response.model_dump()
+        }
+    except httpx.HTTPError as http_err:
+        return {
+            "status": "error",
+            "error_type": "JVM_HTTP_FAILURE",
+            "message": f"Failed to communicate with Embabel Spring Boot service: {str(http_err)}"
+        }
+    except ValidationError as val_err:
+        return {
+            "status": "error",
+            "error_type": "SCHEMA_MISMATCH",
+            "message": f"Embabel response failed FastMCP 3.1 validation: {str(val_err)}"
+        }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Resolution / Fix |
+| :--- | :--- | :--- | :--- |
+| `SerializationException: Unknown field` | Mismatch between LLM output JSON keys and Kotlin Data Class properties | Inspect raw LLM JSON output in debug logs | Annotate Kotlin fields with `@Optional` or set `ignoreUnknownKeys = true` in `Json {}` configuration |
+| Spring Boot Bean Creation Error | Missing `embabel.connector.ollama.host` property in `application.yml` | Check `ApplicationContext` startup stack trace | Add mandatory host and model properties to `src/main/resources/application.yml` |
+| Excessive Local Latency (>10s) | Prefix tuning cache misses caused by dynamic prompt prepending | Enable Embabel debug timer log `logging.level.ai.embabel=DEBUG` | Move variable state out of prompt prefix and pass through structured arguments |
+| `FastMCP 3.1 Connection Refused` | Python FastMCP bridge unable to bind to Embabel REST controller port | Test endpoint via `curl -X POST http://localhost:8080/actuator/health` | Ensure Spring Boot application process is active and CORS/RBAC permits FastMCP loopback requests |
+| `OutOfMemoryError: Java heap space` | Large context windows allocated repeatedly during batch agent processing | Run `jmap -histo:live <pid>` or inspect GC logs | Increase JVM heap memory (`-Xmx4g`) and configure Embabel memory pooling |
+
+## Operational Best Practices & Guardrails
+
+### 1. JVM Memory Allocation & Garbage Collection
+- **Heap Sizing**: Allocate a minimum of 4GB Heap space (`-Xmx4g -Xms2g`) for Spring Boot services hosting Embabel agents to account for transient Jackson AST serialization buffers.
+- **GC Choice**: Use the **ZGC** (`-XX:+UseZGC`) or **G1GC** (`-XX:+UseG1GC`) garbage collector to minimize stop-the-world pauses during multi-token prompt generation cycles.
+
+### 2. Resilience & Circuit Breaking
+- **Resilience4j Integration**: Wrap `StructuredAgent.generate()` invocations with Resilience4j circuit breakers to handle local inference engine (Ollama / llama.cpp) thermal throttling gracefully.
+- **Fallback Models**: Configure secondary cloud endpoints (Claude 5.6 or DeepSeek-V4) as automatic fallbacks when local GPU workers report non-200 responses.
+
+### 3. Enterprise Security & Access Control
+- **Spring Security Integration**: Protect Embabel REST endpoints using standard OAuth2/JWT tokens (`@PreAuthorize("hasRole('ROLE_AI_AGENT')")`).
+- **Prompt Injection Defense**: Pre-process user inputs through Embabel's input sanitizer before passing to local or cloud LLM contexts.
+
 ## Related tools / concepts
 - [LangGraph](langgraph.md) — Advanced stateful agent framework.
 - [Mastra](mastra.md) — Lightweight TypeScript agent framework.
@@ -208,6 +350,7 @@ public class SecurityAuditController {
 - [Kotlin Serialization and Type Safety Guidelines](https://kotlinlang.org/docs/serialization.html)
 - [Ollama API Specification](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

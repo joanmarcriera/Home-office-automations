@@ -40,7 +40,7 @@ Pirate Face addresses these problems by decentralizing model weight distribution
 
 Pirate Face operates as a model discovery and acquisition layer for local AI ecosystems:
 - **Distribution & Storage Layer**: Bridges P2P distribution networks (BitTorrent, IPFS) with local storage volumes.
-- **Metadata & Indexing Layer**: Extracts architecture details, tensor shapes, quantization levels, andcontext limits directly from GGUF headers.
+- **Metadata & Indexing Layer**: Extracts architecture details, tensor shapes, quantization levels, and context limits directly from GGUF headers.
 - **Agent Integration Layer**: Exposes FastMCP 3.1 endpoints enabling agentic frameworks (Claude Code, OpenClaw, AutoGen) to inspect and fetch missing local models dynamically.
 
 ```mermaid
@@ -60,6 +60,18 @@ sequenceDiagram
     MCP->>Runner: Register New Model Artifact Path
     MCP-->>Agent: Return Model Ready Signal & System Endpoint
 ```
+
+## Model Distribution Platform Comparison Matrix
+
+| Feature / Capability | Pirate Face P2P | Hugging Face Hub | ModelScope | Kaggle / GitHub Releases |
+| :--- | :--- | :--- | :--- | :--- |
+| **Architecture** | Decentralized P2P (BitTorrent, IPFS, S3) | Centralized Cloud Storage | Centralized Cloud (Alibaba) | Centralized Asset Storage |
+| **Integrity Check** | Mandatory BLAKE3 / SHA256 Content-Addressing | Optional Git Commit SHA / LFS | SHA256 Verification | Basic File Size / MD5 |
+| **Agent Integration** | Native FastMCP 3.1 Tool APIs | `huggingface_hub` Python SDK | `modelscope` Python Library | Custom HTTP Scripts |
+| **Download Throughput** | High (Multi-Peer Swarm Saturated Sockets) | Rate-Limited on Free Tiers | High in APAC Regions | Variable / Rate-Limited |
+| **Censorship Resistance** | High (Distributed Community Swarms) | Low (Subject to DMCA & Policy Removals) | Low (Subject to Platform Policies) | Low (Subject to Terms of Service) |
+| **GGUF Inspection** | Automatic Header Pre-Fetch & Quant Extraction | On-Demand File Viewer | Manual Download Inspection | Manual Inspection |
+| **Operational Cost** | Distributed Bandwidth (Zero Infrastructure Lock-in) | Bandwidth & Storage Egress Fees | Free / Platform Subsidized | Free Platform Limits |
 
 ## Typical use cases
 - **Decentralized Model Weight Sharing**: Mirroring and distributing community fine-tunes and specialized GGUF quantizations without depending on centralized hosting providers.
@@ -133,22 +145,37 @@ pirate-face download --hash "b3_e3b0c44298fc1c149afbf4c8996fb924" --verify
 ## API examples
 
 ### FastMCP 3.1 Local Model Management Server
-The following Python script creates a **FastMCP 3.1** server that enables local agents to search and pull model weights programmatically:
+The following Python script creates a **FastMCP 3.1** server that enables local agents to search, verify, and pull model weights programmatically with strict Pydantic v2 input validation:
 
 ```python
 import os
+import hashlib
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from fastmcp import FastMCP
 
 mcp = FastMCP(
     "pirate-face-model-server",
-    instructions="FastMCP 3.1 server for searching and downloading local model weights via Pirate Face P2P."
+    instructions="FastMCP 3.1 server for searching, verifying, and downloading local model weights via Pirate Face P2P swarms."
 )
 
 class ModelSearchQuery(BaseModel):
-    query: str = Field(..., description="Model name or architecture keyword (e.g. Qwen, Llama-3, DeepSeek)")
+    query: str = Field(..., min_length=2, description="Model name or architecture keyword (e.g. Qwen, Llama-3, DeepSeek)")
     preferred_quant: Optional[str] = Field(default="Q4_K_M", description="Preferred quantization format (e.g., Q4_K_M, Q8_0, FP16)")
+    max_results: int = Field(default=5, ge=1, le=20)
+
+    @field_validator("preferred_quant")
+    @classmethod
+    def validate_quant_type(cls, v: Optional[str]) -> Optional[str]:
+        valid_quants = {"Q2_K", "Q3_K_S", "Q3_K_M", "Q3_K_L", "Q4_0", "Q4_1", "Q4_K_S", "Q4_K_M", "Q5_0", "Q5_1", "Q5_K_S", "Q5_K_M", "Q6_K", "Q8_0", "FP16", "EXL2"}
+        if v and v.upper() not in valid_quants:
+            raise ValueError(f"Invalid quantization format '{v}'. Must be one of {sorted(valid_quants)}")
+        return v.upper() if v else "Q4_K_M"
+
+class ModelDownloadTask(BaseModel):
+    blake3_hash: str = Field(..., pattern=r"^b3_[a-f0-9]{32,64}$", description="BLAKE3 content-addressed hash")
+    output_directory: str = Field(default="/var/models/gguf", description="Destination path for GGUF model artifact")
+    enable_p2p_seeding: bool = Field(default=True, description="Keep seeding swarm after download completion")
 
 class ModelSearchResult(BaseModel):
     model_name: str
@@ -167,7 +194,7 @@ def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
         # Mock search results representing Pirate Face index query
         results = [
             ModelSearchResult(
-                model_name=f"{params.query}-GGUF",
+                model_name=f"{params.query}-Instruct-GGUF",
                 quant_type=params.preferred_quant or "Q4_K_M",
                 size_bytes=19800000000,
                 blake3_hash="b3_7a8f9102830192830192830192830192",
@@ -177,6 +204,7 @@ def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
         ]
         return {
             "status": "success",
+            "query": params.query,
             "results": [r.model_dump() for r in results]
         }
     except Exception as e:
@@ -184,6 +212,22 @@ def search_local_models(params: ModelSearchQuery) -> Dict[str, Any]:
             "status": "error",
             "message": str(e)
         }
+
+@mcp.tool()
+def download_verified_model(task: ModelDownloadTask) -> Dict[str, Any]:
+    """
+    Initiates a chunked P2P swarm download for a verified model artifact by BLAKE3 hash.
+    """
+    # Simulate swarm download and verification
+    destination_file = os.path.join(task.output_directory, f"{task.blake3_hash}.gguf")
+
+    return {
+        "status": "initiated",
+        "blake3_hash": task.blake3_hash,
+        "destination_file": destination_file,
+        "p2p_seeding_active": task.enable_p2p_seeding,
+        "message": "Swarm download initiated. Verification active."
+    }
 
 if __name__ == "__main__":
     mcp.run()
@@ -194,13 +238,22 @@ Enforce strict validation for model weight metadata:
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 class GGUFHeaderMetadata(BaseModel):
     architecture: str = Field(..., description="Model architecture type (e.g. llama, qwen2, gemma2)")
     context_length: int = Field(..., ge=1024, description="Maximum supported context length")
     block_count: int = Field(..., ge=1, description="Number of transformer layers")
     embedding_length: int = Field(..., ge=128)
+    head_count: int = Field(..., ge=1)
+
+    @field_validator("architecture")
+    @classmethod
+    def validate_arch(cls, v: str) -> str:
+        known_archs = {"llama", "qwen2", "gemma2", "mistral", "deepseek", "phi3"}
+        if v.lower() not in known_archs:
+            raise ValueError(f"Unsupported architecture '{v}'. Supported: {known_archs}")
+        return v.lower()
 
 class ModelArtifactManifest(BaseModel):
     artifact_id: str = Field(..., description="Unique model artifact identifier")
@@ -224,13 +277,38 @@ if __name__ == "__main__":
             "architecture": "llama",
             "context_length": 131072,
             "block_count": 32,
-            "embedding_length": 4096
+            "embedding_length": 4096,
+            "head_count": 32
         },
         "is_verified": True
     }
     manifest = parse_model_manifest(sample_manifest)
     print(f"Validated Model: {manifest.title}, Architecture: {manifest.gguf_metadata.architecture}")
 ```
+
+## Diagnostic & Troubleshooting Guide
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Step | Resolution / Fix |
+| :--- | :--- | :--- | :--- |
+| **Stalled Download at 0%** | Zero active seeders or blocked BitTorrent/DHT ports | Run `pirate-face swarm-status --hash <hash>` | Configure VPN with port forwarding or enable fallback HTTPS S3 mirrors |
+| **BLAKE3 Hash Mismatch Error** | Corrupted download chunk or malicious model modification | Run `pirate-face verify --file model.gguf --expected-hash <hash>` | Trigger chunk repair via `pirate-face repair --hash <hash>` |
+| **`GGUFHeaderError: Invalid Magic`** | Downloaded file is HTML redirect error page or truncated | Inspect file header: `head -c 4 model.gguf` (must be `GGUF`) | Re-initiate download from verified BLAKE3 magnet link |
+| **Out of NVMe Disk Space** | Multi-gigabyte GGUF model download exceeds drive capacity | Check storage volume: `df -h /var/models/` | Clean stale caches with `pirate-face prune-cache --older-than 7d` |
+| **Local Agent FastMCP Timeout** | Large model download blocks MCP tool execution thread | Check MCP log file for async execution status | Increase `timeout` in MCP client configuration or run download in background task mode |
+
+## Operational Best Practices & Guardrails
+
+### 1. Cryptographic Payload Verification
+- **BLAKE3 Mandate**: Always enforce cryptographic BLAKE3 checksum verification prior to registering new GGUF weights with local inference engines like `llama.cpp` or `vLLM`.
+- **Sandboxed Header Parsing**: Parse GGUF headers within isolated sub-processes to prevent malicious GGUF metadata payloads from causing memory exploits.
+
+### 2. Bandwidth & Swarm Seeding Guardrails
+- **Seeding Ratios**: Maintain a minimum 1:1 seeding ratio for community fine-tunes to support decentralized swarm health.
+- **Bandwidth Capping**: Configure upper limits for upload/download speeds during working hours (`--max-upload 5MB/s`) to prevent LAN congestion.
+
+### 3. Local Model Storage Lifecycle Management
+- **Automated Cache Pruning**: Setup cron/systemd timers to clear inactive model weights based on last access timestamps.
+- **FastMCP 3.1 Health Monitoring**: Expose local storage metrics via FastMCP tools to alert agents when available NVMe space drops below 50GB.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local LLM runner and management server.
