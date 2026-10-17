@@ -1,0 +1,36 @@
+# n8n Helm Chart Values for Homelab
+# Chart: https://github.com/8gears/n8n-helm-chart
+
+n8n:
+  image:
+    repository: n8nio/n8n
+    tag: latest
+  config:
+    generic:
+      N8N_EMAIL_MODE: "smtp"
+      N8N_SMTP_HOST: "smtp.gmail.com"
+      N8N_SMTP_PORT: "465"
+      N8N_SMTP_USER: "admin@riera.co.uk"
+      N8N_SMTP_PASS:
+        secretName: n8n-smtp-secret
+        secretKey: smtp-password
+      WEBHOOK_URL: "https://n8n.riera.co.uk/"
+  persistence:
+    enabled: true
+    storageClass: "longhorn"
+    size: 10Gi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: networking-authentik-middleware@kubernetescrd
+    hosts:
+      - host: n8n.riera.co.uk
+        paths:
+          - /
+    tls:
+      - secretName: n8n-tls
+        hosts:
+          - n8n.riera.co.uk
