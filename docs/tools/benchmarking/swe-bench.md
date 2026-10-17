@@ -15,7 +15,7 @@ sequenceDiagram
     participant Harness as SWE-bench Evaluation Harness
     participant Agent as Autonomous Agent (FastMCP 3.1)
     participant Container as Isolated Docker Container
-    participant TestSuite as Repository Test Runner (pytest/cargo/jest)
+    participant TestSuite as Repository Test Runner (pytest/cargo/jest/go test)
     participant Verifier as Pydantic v2 Patch Verifier
 
     Harness->>Container: Spawn repository workspace (base commit SHA)
@@ -30,14 +30,14 @@ sequenceDiagram
     TestSuite-->>Harness: Return PASS / FAIL evaluation report
 ```
 
-## Benchmark Variants Comparison Matrix
+## Benchmark Variants & Leaderboard Comparison Matrix
 
-| SWE-bench Variant | Test Set Size | Primary Focus | Language Support | Eval Latency / Task | Frontier Baseline Accuracy |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **SWE-bench Lite** | 300 instances | Fast iterative agent feedback | Python | ~2-5 mins | 68.4% (Claude 5.1) |
-| **SWE-bench Full** | 2,294 instances | Comprehensive real-world benchmark | Python | ~10-20 mins | 59.2% (GPT-5.6) |
-| **SWE-bench Verified**| 500 instances | Human-verified solvable issues | Python | ~3-8 mins | 74.1% (DeepSeek-V4) |
-| **SWE-bench Multilingual**| 1,500 instances | Multi-language enterprise repo evaluation | C, C++, Go, Rust, TS, Java | ~10-15 mins | 61.5% (Claude 5.1) |
+| SWE-bench Variant | Test Set Size | Primary Focus | Language Support | Eval Latency / Task | SOTA Accuracy (Early 2027) | Top Performing Model |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **SWE-bench Lite** | 300 instances | Fast iterative agent feedback | Python | ~2-5 mins | 68.4% | Claude 5.1 Sonnet |
+| **SWE-bench Full** | 2,294 instances | Comprehensive real-world benchmark | Python | ~10-20 mins | 59.2% | GPT-5.6 Enterprise |
+| **SWE-bench Verified**| 500 instances | Human-verified solvable issues | Python | ~3-8 mins | 74.1% | DeepSeek-V4 / Claude 5.1 |
+| **SWE-bench Multilingual**| 1,500 instances | Multi-language enterprise repo evaluation | C, C++, Go, Rust, TS, Java | ~10-15 mins | 61.5% | Claude 5.1 Sonnet |
 
 ## What problem it solves
 Evaluating LLMs on code usually relies on toy problems or short code snippets (like HumanEval or MBPP). SWE-bench solves this by testing models on complex, multi-file codebases, real dependency trees, and non-trivial issue descriptions, providing a much closer proxy for real-world software engineering capability.
@@ -171,7 +171,8 @@ def evaluate_swebench_patch(submission_dict: Dict[str, Any]) -> Dict[str, Any]:
 
         return {
             "success": True,
-            "data": result.model_dump()
+            "data": result.model_dump(),
+            "protocol": "FastMCP 3.1"
         }
     except ValidationError as e:
         return {
@@ -192,6 +193,9 @@ if __name__ == "__main__":
 2. **Deduplication & Patch Truncation**:
    - Enforce a maximum patch size (e.g. 100KB) to prevent hallucinated runaway agent loops from overwhelming git apply mechanisms.
    - Filter out modifications to test suite files unless the specific task explicitly permits test-file updates.
+
+3. **Multi-Language Runner Isolation**:
+   - For SWE-bench Multilingual, use language-specific Docker base images (e.g. `rust:1.80-slim`, `golang:1.23-alpine`) pre-loaded with cached compiler artifacts to accelerate test execution.
 
 ## Systematic Troubleshooting Guide
 

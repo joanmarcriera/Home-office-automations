@@ -10,6 +10,43 @@ Traditional web scraping, RPA (Robotic Process Automation), and heuristic automa
 **Category**: [Agents](index.md) / [Automation & Orchestration](../automation_orchestration/index.md).
 It functions as the execution and interaction layer of the agentic stack. SOTA models generate semantic intents or command paths (such as using Model Context Protocol / FastMCP 3.1 specifications), which are translated by MultiOn's browser orchestrator into physical browser operations (click, type, hover, scroll, extract).
 
+## Architecture & Visual Grounding Sequence
+
+The following sequence diagram illustrates MultiOn's API v3 visual grounding loop, from user command ingestion and FastMCP 3.1 agent tool invocation to physical browser interaction, anti-bot proxy routing, and screenshot verification:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Frontier Agent (FastMCP 3.1)
+    participant MultiOn as MultiOn v3 API Gateway
+    participant VLM as Visual Grounding Engine (VLM)
+    participant Browser as Sandboxed Headless Browser
+    participant Web as Target Web Application
+
+    Agent->>MultiOn: Post command ("Submit purchase form")
+    MultiOn->>Browser: Attach persistent session cookie/proxy
+    Browser->>Web: Render page & capture viewport snapshot
+    Web-->>Browser: DOM tree + render frame
+    Browser->>VLM: High-res viewport screenshot + bounding boxes
+    VLM->>MultiOn: Identify target element coordinates (x, y)
+    MultiOn->>Browser: Issue physical mouse click / type event
+    Browser->>Web: Execute action & wait for network idle
+    Web-->>Browser: Updated page state
+    Browser-->>MultiOn: Return visual step verification
+    MultiOn-->>Agent: Action completed (Pydantic v2 session report)
+```
+
+## Web Automation Framework Comparison Matrix
+
+| Framework | Primary Engine | Anti-Bot & CAPTCHA | Visual Grounding | State Persistence | Avg Step Latency | Ideal Use Case |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **MultiOn** | Cloud API v3 / Chromium | Advanced Auto-Solving | High (VLM-Native) | Continuous Cookies | ~3 - 8s | Complex transactional SaaS automation |
+| **Stagehand** | Playwright + AI | Proxy Integration | Medium (DOM + Vision) | Local Browser State | ~2 - 5s | Node/TypeScript web agent execution |
+| **Browser Use** | LangChain / Playwright | Custom Proxies | High (VLM Viewport) | Session Context | ~4 - 10s | Python-native LLM browser steering |
+| **Skyvern** | Computer Vision / OCR | Basic Proxy | High (OCR + Bounding) | Ephemeral Session | ~5 - 12s | Layout-agnostic visual scraping |
+| **Crawl4AI** | Headless Chromium | Stealth Mode | None (Pure Text/DOM) | Stateless / Per Request| ~0.2 - 0.8s | High-throughput LLM text ingestion |
+| **Playwright** | Native CDP / Chromium | Manual Extension | None (Rule-Based) | Manual Storage State| ~0.05 - 0.2s | Deterministic unit testing & scraping |
+
 ## Typical use cases
 - **Transaction Orchestration**: Completing automated purchases, hotel/flight bookings, or filling out long corporate forms across disjointed websites.
 - **Enterprise SaaS Workflows**: Automating repetitive data entry or cross-platform synchronization between internal tools, legacy portals, and third-party SaaS dashboards.
@@ -43,9 +80,9 @@ It functions as the execution and interaction layer of the agentic stack. SOTA m
 ## Getting started
 
 ### Installation
-Install the official MultiOn client and Pydantic libraries:
+Install the official MultiOn client, Pydantic, and MCP libraries:
 ```bash
-pip install multion pydantic
+pip install multion pydantic mcp
 ```
 
 ### Authentication and Setup
@@ -137,43 +174,81 @@ finally:
     print("Session terminated successfully.")
 ```
 
-### 3. Session Safeguarding & Validation via Pydantic v2
-Enforce strict structural safety constraints and validation boundaries on MultiOn browser sessions before invoking physical navigation loops.
+### 3. FastMCP 3.1 Executable Browser Automation Tool Server
+Exposing MultiOn visual navigation capabilities as a standardized FastMCP 3.1 tool server with Pydantic v2 session guardrails:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+import os
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
+from multion.client import MultiOn
 
-class BrowserConfig(BaseModel):
-    target_url: str = Field(..., description="Target URL to start the session")
-    max_steps: int = Field(default=10, ge=1, le=50, description="Maximum browsing steps allowed")
-    mode: str = Field(default="headless", description="Execution mode: headless or visual")
-    allow_transactions: bool = Field(default=False, description="Whether to allow monetary or state-altering transactions")
-    protocol_version: str = Field(default="FastMCP 3.1", description="FastMCP Protocol version")
+mcp = FastMCP("multion-browser-tool-server")
+
+class BrowseCommandSchema(BaseModel):
+    target_url: str = Field(..., description="HTTPS target URL to initiate browsing session.")
+    command: str = Field(..., min_length=5, description="Natural language navigation command.")
+    max_steps: int = Field(default=10, ge=1, le=30)
+    capture_screenshot: bool = Field(default=True)
 
     @field_validator("target_url")
     @classmethod
-    def validate_secure_domain(cls, v: str) -> str:
-        if not v.startswith(("https://", "http://")):
-            raise ValueError("URL must start with http or https")
+    def validate_https(cls, v: str) -> str:
+        if not v.startswith("https://"):
+            raise ValueError("Target URL must use secure https:// scheme.")
         return v
 
-# Validate incoming browsing request from orchestration layer
-payload = {
-    "target_url": "https://github.com/trending",
-    "max_steps": 15,
-    "mode": "headless",
-    "allow_transactions": False,
-    "protocol_version": "FastMCP 3.1"
-}
+@mcp.tool()
+def execute_multion_browse(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Executes an autonomous visual browser navigation loop via MultiOn v3 API."""
+    try:
+        req = BrowseCommandSchema.model_validate(payload_dict)
+        client = MultiOn(api_key=os.environ.get("MULTION_API_KEY", "mock_key"))
 
-try:
-    config = BrowserConfig.model_validate(payload)
-    print(f"Validated MultiOn configurations successfully.")
-    print(f"Launching session on {config.target_url} with max steps: {config.max_steps}")
-except Exception as e:
-    print(f"Validation failed: {e}")
+        # Trigger MultiOn v3 browse execution
+        res = client.browse(
+            url=req.target_url,
+            cmd=req.command,
+            include_screenshot=req.capture_screenshot
+        )
+
+        return {
+            "status": "success",
+            "execution_message": getattr(res, "message", "Command processed successfully"),
+            "steps_completed": getattr(res, "steps", 1),
+            "protocol": "FastMCP 3.1"
+        }
+    except ValidationError as e:
+        return {"status": "error", "error_type": "ValidationFailure", "details": e.errors()}
+    except Exception as e:
+        return {"status": "error", "error_type": "RuntimeFailure", "details": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Guardrails & Operational Security Guidelines
+
+1. **Transaction Guardrails & Domain Safelisting**:
+   - Always run MultiOn browser sessions with explicit domain safelists (`allowed_domains=["*.internal.corp", "github.com"]`) to prevent unintended navigation or credential exfiltration.
+   - Enforce human-in-the-loop confirmation before issuing state-altering form submissions (e.g. wire transfers, deleting accounts).
+
+2. **Session Cleanup & Rate Limiting**:
+   - Ensure active session tokens are terminated inside `finally:` blocks to prevent orphaned cloud browser instances from consuming quotas.
+   - Limit parallel sessions (`max_concurrent_sessions=5`) per worker pod to maintain predictable API rate limits.
+
+3. **Proxy Rotation & Anti-Bot Reliability**:
+   - Route requests through premium residential proxy networks when navigating geo-restricted or strict anti-bot targets.
+
+## Systematic Troubleshooting & Navigation Diagnostic Guide
+
+| Diagnostic Symptom | Probable Cause | Diagnostic Command / Tool | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`ElementNotFoundError` during step** | Dynamic JS rendering delay or hidden iframe element | `multion browse --local --debug` | Add explicit visual wait instruction in prompt (e.g., "Wait for modal to render") |
+| **CAPTCHA Solving Failure** | Bot score trigger on IP or outdated browser fingerprint | MultiOn Console Session Inspector | Enable enterprise residential proxy routing or manual human solve fallback |
+| **Session Token Expiration** | Session timeout after prolonged inactivity (>15m) | `client.sessions.get_status(session_id)` | Implement automated heartbeat ping or re-authenticate session |
+| **High VLM Token Overhead** | Viewport rendering on ultra-dense high-resolution web pages | MultiOn API payload configuration | Set viewport resolution to `1280x720` and disable unneeded background asset downloads |
 
 ## Related tools / concepts
 - [Stagehand](../automation_orchestration/stagehand.md) — Node-based visual automation using SOTA vision-language models and Playwright.
