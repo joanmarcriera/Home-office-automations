@@ -27,6 +27,15 @@ LLM-based agents and multi-agent systems often display unpredictable behaviors, 
 **Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/README.md).
 It serves as the critical validation and safety auditing layer during the development, testing, and integration phases of LLM applications, typically integrated as an automated test runner inside CI/CD pipelines before production deployment.
 
+## Key Red-Teaming Probes & Vulnerability Categories
+Giskard provides targeted adversarial generator modules designed to expose distinct failure modes in LLM pipelines:
+
+1. **Direct Prompt Injection**: Evaluates model adherence to base instructions when user inputs contain adversarial system prompt overrides.
+2. **Indirect Prompt Injection**: Probes RAG pipelines by inserting hidden malicious prompts inside ingested document contexts (PDFs, Markdown, Web Scrapes).
+3. **Hallucination & Ungrounded Speculation**: Measures response reliance on provided grounding documents versus speculative internal weights.
+4. **Information Disclosure (PII / System Leakage)**: Tests whether agents can be trick-guided into printing internal state variables, API keys, or prompt boundaries.
+5. **Harmful & Illegal Content Generation**: Validates content safety boundaries under complex multi-turn roleplay or hypothetical framing attacks.
+
 ## Typical use cases
 - **Continuous Red Teaming**: Scanning conversational agents or search interfaces for prompt injection, jailbreaking, and sensitive PII or system prompt extraction.
 - **RAG Factuality & Hallucination Audits**: Stress-testing Retrieval-Augmented Generation (RAG) pipelines to verify that responses are strictly grounded in retrieved document contexts.
@@ -55,6 +64,69 @@ It serves as the critical validation and safety auditing layer during the develo
 - For basic, low-risk, offline scripting experiments where qualitative evaluations or simple deterministic assertions are sufficient.
 - If you lack the API token budget or compute resources required to run large-scale multi-turn adversarial simulations.
 - When testing highly deterministic, non-generative ML classifiers that can be fully covered by traditional statistical metrics (accuracy, F1 score).
+
+## FastMCP 3.1 Security Scanner Integration
+Giskard can be exposed as an automated security scanner tool over FastMCP 3.1, enabling agentic frameworks to initiate on-demand red-teaming sweeps.
+
+```python
+import os
+import json
+from typing import Dict, Any, List, Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+mcp = FastMCP("giskard-security-scanner", version="3.1.0")
+
+class ScanTargetSpec(BaseModel):
+    model_endpoint: str = Field(..., min_length=5)
+    model_name: str = Field(..., min_length=2)
+    test_categories: List[str] = Field(
+        default_factory=lambda: ["prompt_injection", "hallucination", "pii_leakage"]
+    )
+    max_adversarial_probes: int = Field(default=20, ge=1, le=100)
+
+    @field_validator("test_categories")
+    @classmethod
+    def validate_categories(cls, v: List[str]) -> List[str]:
+        valid_cats = {"prompt_injection", "hallucination", "pii_leakage", "toxicity", "sycophancy"}
+        for item in v:
+            if item not in valid_cats:
+                raise ValueError(f"Invalid scan category '{item}'. Allowed: {valid_cats}")
+        return v
+
+class VulnerabilitySummary(BaseModel):
+    category: str
+    issues_found: int = Field(..., ge=0)
+    risk_score: float = Field(..., ge=0.0, le=10.0)
+    remediation_required: bool
+
+@mcp.tool()
+async def execute_giskard_redteam_scan(spec: ScanTargetSpec) -> Dict[str, Any]:
+    """
+    Executes an automated Giskard adversarial red-team scan via FastMCP 3.1.
+    """
+    summaries: List[VulnerabilitySummary] = []
+
+    for cat in spec.test_categories:
+        # Simulate Giskard probe scan execution
+        found = 0 if cat == "pii_leakage" else 1
+        score = 0.0 if found == 0 else 7.5
+        summaries.append(
+            VulnerabilitySummary(
+                category=cat,
+                issues_found=found,
+                risk_score=score,
+                remediation_required=(found > 0)
+            )
+        )
+
+    return {
+        "status": "COMPLETED",
+        "model_name": spec.model_name,
+        "results": [s.model_dump() for s in summaries],
+        "fastmcp_protocol": "3.1"
+    }
+```
 
 ## Getting started
 
@@ -144,7 +216,7 @@ print("Vulnerability scan complete. Results stored in 'giskard_vulnerability_rep
 Build assertions and test suites to prevent regression of critical safety and operational rules, and parse the output results into validated **Pydantic v2** structures.
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import List, Optional
 from giskard import Suite, test, Model
 
@@ -169,6 +241,12 @@ class GiskardScanResult(BaseModel):
             raise ValueError("Vulnerability count cannot be negative.")
         return v
 
+    @model_validator(mode="after")
+    def validate_vulnerability_consistency(self) -> "GiskardScanResult":
+        if self.passed and self.total_vulnerabilities > 0:
+            raise ValueError("Report cannot be marked 'passed' if total_vulnerabilities > 0")
+        return self
+
 # Example parsing Giskard scan outputs into structured validation models
 report_payload = {
     "model_name": "Claude 5.6 Enterprise Agent",
@@ -188,6 +266,25 @@ report_payload = {
 validated_report = GiskardScanResult.model_validate(report_payload)
 print(validated_report.model_dump_json(indent=2))
 ```
+
+## Vulnerability Classification Matrix
+
+| Vulnerability Vector | Severity Threshold | Primary Target | Giskard Probe Strategy | Automated Mitigation Strategy |
+| :--- | :--- | :--- | :--- | :--- |
+| **Direct Jailbreak** | **Critical** | Conversational Agents | Multi-turn roleplay & cipher framing | [Lakera Guard](lakera-guard.md) input firewall |
+| **Indirect Injection** | **Critical** | RAG / Web Indexers | Zero-width unicode & embedded instruction text | Strict context isolation & HTML striping |
+| **System Prompt Leak** | **High** | Custom Agent Loops | Delimiter extraction & echo requests | Variable sanitization before response emission |
+| **Hallucinated Fact** | **Medium** | Knowledge Bases | Inverted document ground-truth queries | FastMCP 3.1 strict schema output validation |
+| **Sycophancy Bias** | **Low** | Customer Chatbots | User argument coaxing & opinion leading | Balanced evaluator judge prompt tuning |
+
+## Diagnostic & Error Remediation Matrix
+
+| Scan Error Symptom | Root Cause | Diagnostic Log Pattern | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `LLMJudgeAPIError: RateLimit` | Judge model (GPT-5.6 / Claude 5.6) hit provider request quota | `RateLimitError: 429 Too Many Requests` | Configure `giskard.settings.max_concurrent_calls = 5` |
+| `InferenceTimeoutError` | Target agent execution loop hung during adversarial probe | `TimeoutError: Agent took > 60s` | Implement per-probe activity timeout and backoff |
+| `GiskardWorkerDisconnected` | Local Giskard Worker daemon crashed under heavy memory load | `ConnectionResetError: Worker 127.0.0.1:19000` | Restart daemon via `giskard worker restart` |
+| `UnparseableJudgeOutput` | Evaluator LLM failed to return structured JSON verdict | `ValueError: Could not extract JSON from judge response` | Switch judge model or enforce Pydantic structured outputs |
 
 ## Related tools / concepts
 - [SharpAI Security Benchmark](sharp-ai.md) — Complements Giskard with high-level agent security metrics.

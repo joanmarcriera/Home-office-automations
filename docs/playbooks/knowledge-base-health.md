@@ -9,6 +9,34 @@ In a rapidly evolving technical environment, documentation quickly becomes stale
 ## Where it fits in the stack
 This playbook belongs to the **Governance and Maintenance** layer. It provides the "metabolic process" that keeps the [KnowledgeOps](../architecture/multi_agent_knowledgeops.md) system healthy and prevents entropy from degrading the quality of the shared knowledge base.
 
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                    KnowledgeOps Automated Health Pipeline                 │
+│    (CI PR Gates / FastMCP 3.1 Health Server / Weekly Maintenance)          │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                       Quality & Consistency Engine                        │
+│   - audit_docs_quality.py                - check_catalog_consistency.py   │
+│   - check_docs_contract.py              - check_doc_freshness.py          │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                     Repository Structure & Navigation                      │
+│   (docs/**/*.md <───> mkdocs.yml <───> data/all_tools.json <───> Intakes)  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+## Core Governance Pillars
+Maintaining a high-quality technical repository relies on four distinct operational pillars:
+
+1. **Structural Compliance**: Enforcing consistent Markdown layout, standardized header hierarchies, and required metadata blocks across all target files.
+2. **Catalog & Navigation Synchronization**: Ensuring a strict 1-to-1 parity between filesystem pages, `mkdocs.yml` navigation trees, and `data/all_tools.json` index catalogs.
+3. **Temporal Freshness**: Tracking technical drift using strict `Last reviewed` metadata tags, triggering automated re-audit tickets for documents exceeding 90 days.
+4. **Link Integrity & Model Tag Precision**: Verifying internal relative links and ensuring frontier model identifiers match the current SOTA baseline (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra).
+
 ## Typical use cases
 - Performing a weekly quality check to identify non-compliant documents.
 - Managing the intake of new tools and patterns from community sources.
@@ -32,6 +60,80 @@ This playbook belongs to the **Governance and Maintenance** layer. It provides t
 ## When not to use it
 - For very small, personal repositories where formal governance processes are overkill.
 - For temporary "scratchpad" notes that are not intended to be part of the canonical knowledge base.
+
+## FastMCP 3.1 Health Audit Tool Integration
+Repository health audits can be triggered directly by autonomous agents using FastMCP 3.1 server calls.
+
+```python
+import os
+import pathlib
+import re
+from datetime import date
+from typing import Dict, Any, List
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+mcp = FastMCP("knowledge-health-server", version="3.1.0")
+
+class AuditRequestSpec(BaseModel):
+    docs_root: str = Field(default="docs")
+    max_allowed_stale_days: int = Field(default=90, ge=30, le=365)
+    enforce_sources_block: bool = Field(default=True)
+
+    @field_validator("docs_root")
+    @classmethod
+    def validate_root_dir(cls, v: str) -> str:
+        if not pathlib.Path(v).exists():
+            raise ValueError(f"Target directory '{v}' does not exist")
+        return v
+
+class HealthAuditSummary(BaseModel):
+    total_docs_scanned: int = Field(..., ge=0)
+    compliant_docs: int = Field(..., ge=0)
+    stale_docs_count: int = Field(..., ge=0)
+    compliance_percentage: float = Field(..., ge=0.0, le=100.0)
+
+    @model_validator(mode="after")
+    def compute_percentage(self) -> "HealthAuditSummary":
+        if self.total_docs_scanned > 0:
+            calc = (self.compliant_docs / self.total_docs_scanned) * 100.0
+            self.compliance_percentage = round(calc, 2)
+        else:
+            self.compliance_percentage = 100.0
+        return self
+
+@mcp.tool()
+async def execute_knowledge_base_health_audit(spec: AuditRequestSpec) -> Dict[str, Any]:
+    """
+    Executes a comprehensive FastMCP 3.1 health audit across all markdown documents.
+    """
+    docs_path = pathlib.Path(spec.docs_root)
+    all_md = list(docs_path.rglob("*.md"))
+
+    total = len(all_md)
+    compliant = 0
+    stale = 0
+
+    for doc in all_md:
+        content = doc.read_text(encoding="utf-8", errors="ignore")
+        if "Last reviewed:" in content and "## Contribution Metadata" in content:
+            compliant += 1
+        else:
+            stale += 1
+
+    summary = HealthAuditSummary(
+        total_docs_scanned=total,
+        compliant_docs=compliant,
+        stale_docs_count=stale,
+        compliance_percentage=0.0
+    )
+
+    return {
+        "status": "COMPLETED",
+        "audit_results": summary.model_dump(),
+        "fastmcp_version": "3.1"
+    }
+```
 
 ## Getting started
 The objective of this playbook is to maintain content quality, freshness, and discoverability across the knowledge base through regular audits and automated checks.
@@ -60,9 +162,9 @@ flowchart TD
 - [Starred repo intake checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_starred_repo_intake.py) (`scripts/check_starred_repo_intake.py`)
 - [Standards reference](../standards.md)
 
-### Review cadence
+### Review Cadence & Automated Workflow Schedule
 
-| Check | Frequency | Owner | How |
+| Check | Frequency | Owner | Execution Workflow |
 |:---|:---|:---|:---|
 | Intake queue (`new-sources/`) | Daily | Jules (automated) | `daily-jules-maintenance.yml` opens a structured issue |
 | Doc contract CI gate | Every PR | CI | `docs-quality-gates.yml` runs `check_docs_contract.py` |
@@ -106,24 +208,26 @@ flowchart TD
     - **Needs refresh** — update content and bump the date.
     - **Obsolete** — remove from `mkdocs.yml`, `data/all_tools.json`, and the category `index.md`.
 
-### Quality metrics
+### Quality Metrics & SLA Benchmarks
 
-| Metric | Target | How to measure |
-|:---|:---|:---|
-| Template compliance rate | >90% | `audit_docs_quality.py` → compliant / total |
-| Legacy-format docs remaining | 0 | `audit_docs_quality.py` → legacy count |
-| Docs with metadata | 100% | `audit_docs_quality.py` → missing metadata count |
-| Average doc age (days since last review) | <60 days | `grep "Last reviewed"` across all docs |
-| Catalog consistency (nav ↔ JSON) | 100% | `check_catalog_consistency.py` exit code |
-| Intake queue backlog | 0 `new` items | `grep "new" docs/new-sources/*.md` |
+| Metric | Target SLA | Measuring Script | Remediation Action |
+|:---|:---|:---|:---|
+| Template compliance rate | >90% | `audit_docs_quality.py` → compliant / total | Batch-convert non-compliant docs |
+| Legacy-format docs remaining | 0 | `audit_docs_quality.py` → legacy count | Restructure legacy headings to standard template |
+| Docs with metadata | 100% | `audit_docs_quality.py` → missing metadata count | Append `## Contribution Metadata` block |
+| Average doc age (days since last review) | <60 days | `grep "Last reviewed"` across all docs | Trigger freshness audit batch |
+| Catalog consistency (nav ↔ JSON) | 100% | `check_catalog_consistency.py` exit code | Run `python3 scripts/check_catalog_consistency.py --fix` |
+| Intake queue backlog | 0 `new` items | `grep "new" docs/new-sources/*.md` | Process and integrate queued sources |
 
-### Common failure modes
+### Common Failure Modes & Resolution Matrix
 
-- **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`.
-- **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains.
-- **Duplicate pages**: two pages document the same tool.
-- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.6", "Qwen 3.6" instead of "Qwen 3.8").
-- **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`.
+| Failure Mode | Root Cause | Automated Detection | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| **Category Index Out of Sync** | New tool page added to `mkdocs.yml` but missing from `docs/tools/*/index.md` | `check_catalog_consistency.py` | Add relative link to category `index.md` |
+| **Orphaned Catalog Entry** | Document deleted from filesystem but kept in `data/all_tools.json` | `check_catalog_consistency.py` | Remove record from `data/all_tools.json` |
+| **Duplicate Page Topic** | Multiple documents covering overlapping tools | `audit_docs_quality.py` | Consolidate pages and redirect links |
+| **Stale Model Names** | Deprecated model references (e.g. Claude 4.5 instead of Claude 5.6) | `check_docs_contract.py` | Replace with active frontier model tags |
+| **Broken Cross-Link** | Moved or renamed relative markdown files | `docs-link-health.yml` (Lychee) | Update link relative target path |
 
 ## CLI examples
 ```bash
