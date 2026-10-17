@@ -31,7 +31,7 @@ Developing agentic applications and optimizing multimodal LLM prompts often requ
 - **Schema Misalignment**: Integrates real-time Pydantic v2 and OpenAPI schema validation engines directly into the web playground to ensure output structure fidelity.
 
 ## Where it fits in the stack
-**Category**: Provider / Development & Ops / AI Developer Portal. It sits at the **Intelligence & API Gateway Layer**, providing developer tooling and API access to Google's foundation models alongside [Vertex AI](google-ai-studio.md), competing with OpenAI Platform and Anthropic Console.
+**Category**: Provider / Development & Ops / AI Developer Portal. It sits at the **Intelligence & API Gateway Layer**, providing developer tooling and API access to Google's foundation models alongside Vertex AI, competing with OpenAI Platform and Anthropic Console.
 
 ```
 +-----------------------------------------------------------------------+
@@ -92,7 +92,7 @@ Developing agentic applications and optimizing multimodal LLM prompts often requ
 Install the official Google GenAI Python SDK and Pydantic v2:
 
 ```bash
-pip install google-genai pydantic>=2.0
+pip install google-genai pydantic>=2.0 fastmcp
 ```
 
 ### Initial Configuration
@@ -155,10 +155,21 @@ import sys
 from typing import List, Dict, Any, Optional
 from google import genai
 from google.genai import types
-from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from fastmcp import FastMCP
 
-# 1. Define strict Pydantic v2 schemas for Gemini structured outputs
+# 1. Define strict Pydantic v2 validation models
+class SafetySettingConfig(BaseModel):
+    category: str = Field(..., description="Harm category (e.g. HARM_CATEGORY_HATE_SPEECH)")
+    threshold: str = Field("BLOCK_MEDIUM_AND_ABOVE", description="Harm threshold policy")
+
+class MultimodalAnalysisRequest(BaseModel):
+    model_name: str = Field("gemini-2.5-flash", pattern="^gemini-(2\.5|4\.0)-(flash|pro)$")
+    prompt_text: str = Field(..., min_length=5, description="Input instructions or query")
+    media_url: Optional[str] = Field(None, description="Optional public URL to image, audio, or video stream")
+    temperature: float = Field(0.2, ge=0.0, le=2.0)
+    safety_settings: List[SafetySettingConfig] = Field(default_factory=list)
+
 class ModelPerformanceMetrics(BaseModel):
     latency_ms: float = Field(..., ge=0.0, description="Time to first token in milliseconds")
     tokens_per_second: float = Field(..., gt=0.0, description="Output token generation speed")
@@ -172,19 +183,20 @@ class GeminiStudioAnalysis(BaseModel):
     metrics: ModelPerformanceMetrics = Field(..., description="Execution telemetry")
 
 # 2. Instantiate FastMCP 3.1 server wrapping Google AI Studio API
-mcp = FastMCP("GoogleAIStudio-ToolGateway", version="1.4.0")
+mcp = FastMCP("GoogleAIStudio-ToolGateway", version="3.1.0")
 
-@mcp.tool()
-def analyze_gemini_capabilities(prompt_query: str) -> Dict[str, Any]:
-    """Queries Gemini 2.5 Pro via Google GenAI SDK and validates structured response."""
+@mcp.tool(description="Analyzes text and multimodal queries using Google AI Studio Gemini API.")
+def analyze_gemini_capabilities(request: MultimodalAnalysisRequest) -> Dict[str, Any]:
+    """Queries Gemini model via Google GenAI SDK and validates structured response."""
     api_key = os.environ.get("GEMINI_API_KEY", "mock-key")
     client = genai.Client(api_key=api_key)
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
-            contents=prompt_query,
+            model=request.model_name,
+            contents=request.prompt_text,
             config=types.GenerateContentConfig(
+                temperature=request.temperature,
                 response_mime_type="application/json",
                 response_schema=GeminiStudioAnalysis,
             ),
@@ -194,31 +206,51 @@ def analyze_gemini_capabilities(prompt_query: str) -> Dict[str, Any]:
     except Exception as err:
         return {"error": f"Gemini Query Failed: {str(err)}"}
 
-if __name__ == "__main__":
-    print("--- Testing Local Pydantic v2 Schema Validation ---")
-    sample_json = {
-        "platform_name": "Google AI Studio",
-        "supported_models": ["gemini-4.0-pro", "gemini-4.0-flash", "gemma-4"],
-        "max_context_window": 2000000,
-        "is_multimodal": True,
-        "metrics": {
-            "latency_ms": 120.5,
-            "tokens_per_second": 85.0,
-            "context_tokens_used": 1420
-        }
-    }
+@mcp.tool(description="Counts prompt tokens for a given multimodal payload prior to execution.")
+def count_prompt_tokens(prompt: str, model_name: str = "gemini-2.5-flash") -> Dict[str, Any]:
+    """Retrieves exact token consumption using count_tokens API."""
+    api_key = os.environ.get("GEMINI_API_KEY", "mock-key")
+    client = genai.Client(api_key=api_key)
 
     try:
-        data = GeminiStudioAnalysis.model_validate(sample_json)
-        print(f"Validation Passed for: {data.platform_name}")
-        print(f"Models: {data.supported_models}")
-        print(f"Token Speed: {data.metrics.tokens_per_second} tok/s")
-    except ValidationError as e:
-        print(f"Validation Failed: {e.json()}")
+        res = client.models.count_tokens(model=model_name, contents=prompt)
+        return {"model": model_name, "total_tokens": res.total_tokens}
+    except Exception as e:
+        return {"error": f"Token count failed: {str(e)}"}
 
-    if "--serve" in sys.argv:
-        mcp.run(port=8080)
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Developer & AI Provider Comparison Matrix
+
+| Dimension / Provider | Google AI Studio | Google Cloud Vertex AI | OpenAI Developer Platform | Anthropic Console | Azure OpenAI Service |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Audience** | Developers / Rapid Prototypers | Enterprise IT / Cloud Engineers | AI Application Developers | AI Application Developers | Enterprise Cloud Architecture |
+| **Core Models** | Gemini 4.0 Pro/Flash, Gemma 4 | Gemini 4.0, Imagen 3, Claude 3.5 | GPT-5.5, GPT-5.6, O3, O4 | Claude 5.1, Claude 5.6 Sonnet | GPT-5.5, GPT-5.6 Enterprise |
+| **Max Context Window** | 2,000,000+ Tokens | 2,000,000+ Tokens | 200,000 Tokens | 200,000–500,000 Tokens | 200,000 Tokens |
+| **Multimodal Inputs** | Text, Audio, Image, 4K Video, PDF | Text, Audio, Image, Video, PDF | Text, Audio, Image | Text, PDF, Image | Text, Audio, Image |
+| **Free Tier Access** | Generous free tier with key generation | Free trial credits ($300) | Pay-as-you-go | Pay-as-you-go | Pay-as-you-go / Subscription |
+| **Data Privacy Policy** | Free tier may review non-paid inputs | Strictly private (No human review) | Paid Tier Private | Paid Tier Private | Enterprise Isolated |
+| **MCP 3.1 / FastMCP** | Native FastMCP Python/TS export | Vertex AI Extension Protocol | OpenAI Function Calling / MCP | Native MCP Desktop & Server | Azure API Management MCP |
+
+## Security & Operational Guardrails
+
+| Security Dimension | Requirement / Policy | Implementation Mechanism | Enforcement Level |
+| :--- | :--- | :--- | :--- |
+| **API Key Protection** | Never commit raw API keys into source code or repos | `GEMINI_API_KEY` environment variable injection | Automated repo secret scanner block |
+| **Safety Thresholds** | Apply harm category filtering to prevent output violations | `SafetySettingConfig` schema in GenAI SDK payload | Built-in Gemini API safety filter |
+| **Free Tier Compliance** | Free tier inputs subject to reviewer access; do not send PII | Local PII filter or upgrade to Vertex AI | Mandatory for private home data |
+| **Rate Limit Guardrails** | Respect RPM and TPM quotas on free tier endpoints | Client-side backoff exponential retry policy | Rate limit error retry logic |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `429 Too Many Requests` | Exceeded RPM/TPM rate limits on Google AI Studio key | Check request frequency in console dashboard | Implement exponential backoff or switch to paid tier |
+| `400 Invalid Argument / Schema Mismatch` | JSON schema definition incompatible with GenAI SDK | Validate Pydantic v2 schema against OpenAPI v3 rules | Ensure nested objects use standard primitive types |
+| Response blocked due to `SAFETY` | Prompt triggered default safety category threshold | Inspect `response.prompt_feedback` for safety block code | Adjust `SafetySettingConfig` harm thresholds in request |
+| Multimodal file upload error | Exceeded maximum single file size or unsupported format | Check media mime-type and file size in request | Transcode video to MP4/WebM or split audio into chunks |
 
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md) — Google's flagship multimodal model family.

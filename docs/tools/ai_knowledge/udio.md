@@ -23,7 +23,7 @@ flowchart TD
     C -->|Diffusion Transformer Model| D[Raw Audio Track Generation]
     D -->|Post-Processing| E{Creation Mode}
     E -->|Full Song| F[48kHz Stereo Master MP3/WAV]
-    E -->|Inpainting Edit| G[Temporal Section Replacement]
+    E -->|Inplanting Edit| G[Temporal Section Replacement]
     E -->|Stem Isolation| H[Separate Vocal & Instrumental Stems]
     F --> I[DAW / Video Editor Integration]
     G --> I
@@ -74,7 +74,7 @@ flowchart TD
 3. Install required Python packages for API requests and validation:
 
 ```bash
-pip install requests fastmcp pydantic
+pip install requests fastmcp pydantic>=2.0
 ```
 
 ## CLI examples
@@ -110,29 +110,48 @@ curl -X GET https://api.udio.com/v1/tracks/udio_trk_91234 \
 
 ## API examples
 
-### FastMCP 3.1 Audio Generation Tool
-The following example wraps Udio music synthesis inside a **FastMCP 3.1** tool server for integration with multimedia agent systems.
+### FastMCP 3.1 Audio Generation & Stem Server Implementation
+The following complete Python script demonstrates wrapping Udio music synthesis, temporal inpainting, and stem separation into a **FastMCP 3.1** tool server for integration with multi-agent media synthesis pipelines.
 
 ```python
 import os
 import time
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, conint, confloat
+from typing import List, Dict, Any, Optional
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, conint, confloat, field_validator
 
 # Initialize FastMCP Server for Udio audio tool integration
-mcp = FastMCP("Udio Generative Audio Server")
+mcp = FastMCP("UdioGenerativeAudioServer", version="3.1.0")
 
 class UdioGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=10, max_length=1000, description="Musical style, mood, and instrumentation prompt")
     duration_seconds: conint(gt=5, le=180) = Field(30, description="Target duration in seconds")
     tempo_bpm: conint(gt=40, le=240) = Field(120, description="Target tempo in Beats Per Minute")
     has_vocals: bool = Field(True, description="Whether to include synthesized vocal tracks")
+    genre_tags: List[str] = Field(default_factory=list, description="Genre taxonomy tags")
 
-class UdioInpaintRequest(BaseModel):
+class TrackInpaintWindow(BaseModel):
     track_id: str = Field(..., description="Target Udio track identifier")
-    start_time: confloat(ge=0.0) = Field(..., description="Inpaint start timestamp in seconds")
-    end_time: confloat(gt=0.0) = Field(..., description="Inpaint end timestamp in seconds")
-    edit_prompt: str = Field(..., min_length=5, description="New sound, lyrics, or instruments to insert")
+    start_sec: confloat(ge=0.0) = Field(..., description="Inpaint window start offset in seconds")
+    end_sec: confloat(gt=0.0) = Field(..., description="Inpaint window end offset in seconds")
+    edit_prompt: str = Field(..., min_length=5, description="New musical elements or lyrics to insert")
+
+    @field_validator("end_sec")
+    @classmethod
+    def validate_window(cls, v: float, info) -> float:
+        start = info.data.get("start_sec", 0.0)
+        if v <= start:
+            raise ValueError("end_sec must be strictly greater than start_sec")
+        if (v - start) > 30.0:
+            raise ValueError("Maximum single inpaint window length is 30 seconds")
+        return v
+
+class UdioStemResult(BaseModel):
+    track_id: str
+    vocal_stem_url: Optional[str]
+    drum_stem_url: Optional[str]
+    bass_stem_url: Optional[str]
+    other_stem_url: Optional[str]
 
 class UdioAudioResult(BaseModel):
     track_id: str
@@ -141,10 +160,9 @@ class UdioAudioResult(BaseModel):
     duration: int
     bpm: int
 
-@mcp.tool()
+@mcp.tool(description="Generates a full-fidelity audio track using the Udio generative music API.")
 def generate_music_track(request: UdioGenerateRequest) -> UdioAudioResult:
-    """Generate a high-fidelity audio track using the Udio generative music API."""
-    # Simulated Udio API integration call
+    """Generates a new track based on prompt and tempo parameters."""
     track_id = f"udio_trk_{int(time.time())}"
 
     return UdioAudioResult(
@@ -155,9 +173,9 @@ def generate_music_track(request: UdioGenerateRequest) -> UdioAudioResult:
         bpm=request.tempo_bpm
     )
 
-@mcp.tool()
-def inpaint_audio_segment(request: UdioInpaintRequest) -> UdioAudioResult:
-    """Inpaint or replace a temporal audio segment within an existing Udio track."""
+@mcp.tool(description="Inpoints or replaces a temporal segment within an existing Udio track.")
+def inpaint_audio_segment(request: TrackInpaintWindow) -> UdioAudioResult:
+    """Re-generates specified time window with updated musical instructions."""
     return UdioAudioResult(
         track_id=request.track_id,
         status="inpainted",
@@ -208,6 +226,36 @@ job_data = {
 validated_job = UdioProductionJob(**job_data)
 print(f"Validated Udio Production Job [{validated_job.job_id}]: Window {validated_job.inpaint_window.start_sec}s -> {validated_job.inpaint_window.end_sec}s")
 ```
+
+## Generative Audio & Music Tool Comparison Matrix
+
+| Feature / Dimension | Udio | Suno | Google Lyria | ElevenLabs | AudioCPP |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Full song synthesis with temporal inpainting | Full song & lyric synthesis | Research baseline audio model | Voice & sound effect synthesis | C++ local audio engine |
+| **Audio Output Quality** | 48kHz / 24-bit HD Stereo | 44.1kHz Stereo | 48kHz Stereo | 44.1kHz Mono/Stereo | 48kHz Raw PCM |
+| **Stem Separation** | Built-in (Vocal, Drum, Bass, Other) | Built-in (Vocal + Instrumental) | Experimental | N/A (Speech focused) | External DAW required |
+| **Temporal Inpainting** | Precision window editing (5s–30s) | Chorus/Section replace | N/A | N/A | Manual buffer edit |
+| **Max Song Duration** | Multi-minute extensions | Multi-minute extensions | Short clips / loop | Infinite speech stream | Arbitrary buffer |
+| **Execution Hosting** | Cloud API / Web Console | Cloud API / Web Console | Proprietary Cloud | Cloud API / On-Prem | Local C++ Native / Edge |
+| **MCP 3.1 Support** | Native FastMCP 3.1 Server | Custom API wrapper | N/A | FastMCP Server | Native CLI C++ bridge |
+
+## Operational Guardrails & Licensing Standards
+
+| Dimension | Policy / Constraint | Technical Implementation | Enforcement Level |
+| :--- | :--- | :--- | :--- |
+| **Commercial Licensing** | Commercial distribution requires active paid plan | Key header tier verification | API key entitlement check |
+| **Inpaint Window Cap** | Maximum single temporal inpaint edit is 30 seconds | Pydantic v2 `field_validator` on `end_sec - start_sec` | Pre-dispatch validation rejection |
+| **Audio Format Output** | Export in 48kHz 24-bit WAV for master stem isolation | Configurable render target format parameter | Server-side ffmpeg transcoding |
+| **Content Safety Filter** | Reject non-consensual vocal clones or explicit lyrics | Automated safety classifier in Udio API engine | API request status error |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| Generation status stays `queued` for > 60s | High server cluster utilization or queue spike | Poll track endpoint and inspect `queue_position` | Retry with exponential backoff; lower output duration |
+| Audible boundary click on inpainting edit | Crossfade transition window too short or non-zero cross | Check `start_sec` / `end_sec` alignment with measure beats | Snap edit window to nearest quarter-note grid in DAW |
+| Stem isolation URL returns `404 Not Found` | Stem processing job not yet finished | Query `isolate_track_stems` status endpoint | Ensure parent track status is `completed` before requesting stems |
+| Vocal synthesis sounds robotic / distorted | Conflicting genre prompt tags (e.g. heavy metal + chiptune) | Inspect `style_prompt` string for tag conflicts | Simplify prompt and specify vocal style explicitly (e.g. "clear acoustic tenor") |
 
 ## Related tools / concepts
 
