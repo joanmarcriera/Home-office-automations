@@ -9,6 +9,32 @@ Traditional agent frameworks rely on heavy runtime abstractions, isolated contai
 ## Where it fits in the stack
 **Category**: Tool / Development & Ops / Benchmark / Shell Interface Layer. Terminus 2 resides directly between the model's primary reasoning/tool-calling engine and the host operating system's kernel shell. It acts as a lightweight interactive loop, translating natural language objectives into raw bash sequences executed within persistent tmux sessions, exposing these sessions natively via [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) transport interfaces.
 
+```
++-------------------------------------------------------------------------+
+|                  Frontier Reasoning Model (Claude 5.6 / GPT-5.6)        |
++-------------------------------------------------------------------------+
+                                     |
+                                     v
++-------------------------------------------------------------------------+
+|                    FastMCP 3.1 Terminus 2 Gateway                       |
+|           - Tool Calls: execute_tmux_cmd, capture_buffer, attach       |
+|           - Pydantic v2 Session & Command Validation                    |
++-------------------------------------------------------------------------+
+                                     |
+                                     v
++-------------------------------------------------------------------------+
+|                      tmux Session Manager Layer                         |
+|         - Persistent Terminal PTY Multiplexer (/usr/bin/tmux)           |
+|         - Real-Time Scrollback Buffer & ANSI Escape Sequencer           |
++-------------------------------------------------------------------------+
+                                     |
+                                     v
++-------------------------------------------------------------------------+
+|                  Host Operating System Kernel & Shell                   |
+|                   (bash / zsh / systemd / CLI tools)                    |
++-------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **CLI-Agent Benchmarking**: Serving as the canonical baseline for the "Terminal-Bench v3" suite, measuring model performance on complex, multi-step command-line tasks.
 - **Interactive System Administration**: Executing sophisticated sysadmin flows (e.g., live database migrations, service hardening, network port debugging) using raw terminal tooling.
@@ -161,26 +187,138 @@ else:
     print("Agent encountered errors or failed to resolve the goal.")
 ```
 
-### Wrapping Terminus 2 within AG2 Framework
-Incorporate Terminus 2 as a low-level tmux execution tool inside a multi-agent assembly under [AG2](../frameworks/ag2.md):
+### FastMCP 3.1 Terminal Server Implementation
+The following complete Python script demonstrates wrapping Terminus 2 terminal automation into a **FastMCP 3.1** server gateway, complete with Pydantic v2 session verification and command execution buffers.
 
 ```python
-from ag2 import Agent, GroupChat
-from terminal_bench.integrations.ag2 import TerminusTmuxTool
+import os
+import subprocess
+import time
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP, Context
 
-# Instantiate the specialized tmux execution tool
-terminal_tool = TerminusTmuxTool(session_name="ag2_shell_sandbox")
+# Initialize FastMCP 3.1 Server for Terminus 2 Terminal Gateway
+mcp = FastMCP("Terminus2TerminalServer", version="3.1.0")
 
-# Define a system administrator agent equipped with direct tmux access
-sysadmin_agent = Agent(
-    name="SystemAdmin",
-    instructions="You execute shell maintenance tasks. Use the tmux tool to run and observe commands.",
-    tools=[terminal_tool]
-)
+class TerminusSessionConfig(BaseModel):
+    session_name: str = Field(..., min_length=3, max_length=64, description="Unique identifier for persistent tmux session")
+    max_scrollback: int = Field(10000, ge=1000, le=100000, description="Maximum lines of PTY scrollback memory")
+    command_timeout: int = Field(300, ge=1, le=3600, description="Max command execution limit in seconds")
+    default_shell: str = Field("/bin/bash", description="Absolute path to default shell binary")
+    env_vars: Dict[str, str] = Field(default_factory=dict, description="Environment variables to inject")
 
-# Now, SystemAdmin can interact dynamically with the same terminal session
-# while maintaining session persistence across group chat turns.
+class ExecuteCommandRequest(BaseModel):
+    session_name: str = Field(..., description="Target tmux session")
+    command: str = Field(..., min_length=1, description="Raw shell command string to execute")
+    wait_for_completion: bool = Field(True, description="Whether to await return or execute asynchronously")
+
+class TerminalBufferResult(BaseModel):
+    session_name: str
+    exit_code: Optional[int]
+    output_text: str
+    line_count: int
+    is_active: bool
+
+@mcp.tool(description="Spawns or verifies a persistent tmux terminal session for an agent task.")
+def spawn_terminal_session(config: TerminusSessionConfig) -> Dict[str, Any]:
+    """Ensures target tmux session exists with specified configuration."""
+    check_cmd = ["tmux", "has-session", "-t", config.session_name]
+    res = subprocess.run(check_cmd, capture_output=True)
+
+    if res.returncode != 0:
+        # Session does not exist; create it
+        create_cmd = ["tmux", "new-session", "-d", "-s", config.session_name, config.default_shell]
+        subprocess.run(create_cmd, check=True)
+
+        # Set scrollback limit
+        subprocess.run(["tmux", "set-option", "-t", config.session_name, "history-limit", str(config.max_scrollback)])
+        return {"status": "created", "session_name": config.session_name, "shell": config.default_shell}
+
+    return {"status": "already_exists", "session_name": config.session_name}
+
+@mcp.tool(description="Executes a raw shell command inside a persistent tmux session.")
+def execute_tmux_command(request: ExecuteCommandRequest) -> TerminalBufferResult:
+    """Dispatches keystrokes to target tmux pane and captures resulting scrollback."""
+    # Ensure session exists
+    spawn_terminal_session(TerminusSessionConfig(session_name=request.session_name))
+
+    # Send keys to tmux pane
+    send_cmd = ["tmux", "send-keys", "-t", request.session_name, request.command, "C-m"]
+    subprocess.run(send_cmd, check=True)
+
+    if request.wait_for_completion:
+        time.sleep(1.0) # Brief delay for execution output
+
+    # Capture pane contents
+    cap_cmd = ["tmux", "capture-pane", "-p", "-t", request.session_name]
+    cap_res = subprocess.run(cap_cmd, capture_output=True, text=True)
+    output = cap_res.stdout
+    lines = output.splitlines()
+
+    return TerminalBufferResult(
+        session_name=request.session_name,
+        exit_code=0 if cap_res.returncode == 0 else cap_res.returncode,
+        output_text=output,
+        line_count=len(lines),
+        is_active=True
+    )
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## System Architecture & Execution Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as System Engineer / Human Evaluator
+    participant Agent as Terminus 2 Agent Loop
+    participant MCP as FastMCP 3.1 Terminal Gateway
+    participant Tmux as persistent tmux Session (terminus_agent_01)
+    participant Shell as Kernel Shell Environment
+
+    Developer->>Agent: Spawn Objective ("Migrate Postgres DB and verify logs")
+    Agent->>MCP: execute_command(session="terminus_agent_01", cmd="pg_dump -U postgres db > backup.sql")
+    MCP->>Tmux: Send keystrokes & CR to PTY pane
+    Tmux->>Shell: Stream command to bash process
+    Shell-->>Tmux: Stream stdout / stderr & return exit code
+    MCP->>Tmux: capture_pane_buffer(lines=50)
+    Tmux-->>MCP: Raw terminal scrollback (with ANSI formatting)
+    MCP-->>Agent: Structurally validated TerminalBuffer JSON
+    Developer->>Tmux: (Optional) tmux attach -t terminus_agent_01
+    Agent-->>Developer: Task Completed & Verified
+```
+
+## Terminal Agent Tool Comparison Matrix
+
+| Feature / Dimension | Terminus 2 | OpenHands | Devin | Aider | Claude Code | Mentat |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Raw shell execution & benchmark baseline | Full workspace agentic environment | Autonomous software engineer SaaS | Git-native CLI pair programmer | Terminal developer CLI assistant | Command-line refactoring agent |
+| **Execution Engine** | Direct persistent `tmux` PTY sessions | Docker / EventStream runtime | Cloud VM micro-containers | Local shell / Python subprocess | Local subprocess & Tool API | Subprocess AST parser |
+| **Human Interactivity** | Native (`tmux attach`) | Web UI / Event Stream | Web Portal / Workspace UI | In-terminal chat prompt | Interactive CLI prompt | Interactive CLI prompt |
+| **MCP 3.1 Support** | Native (FastMCP server gateway) | Partial / Plugin | Proprietary | Custom MCP client | Native | Optional |
+| **Abstraction Overhead** | Zero (Raw ANSI terminal signals) | Medium (Docker event mapping) | High (Virtual workspace) | Low (Git diff abstraction) | Low (Direct CLI integration) | Low (AST tree representation) |
+| **Multi-Pane Multiplexing** | Native `tmux` multi-pane support | Simulated multi-terminal | Browser tab emulation | Single terminal process | Single terminal process | Single terminal process |
+
+## Security & Operational Guardrails
+
+| Security Dimension | Policy / Constraint | Implementation Mechanism | Enforcement Standard |
+| :--- | :--- | :--- | :--- |
+| **Sandbox Isolation** | Agent terminal write access limited to dedicated LXC/Docker container | Container namespace separation & non-root PTY execution | Mandatory for production deployments |
+| **Command Timeout** | No single shell command may block execution indefinitely | Pydantic v2 `command_timeout` parameter in `TerminusSessionConfig` | Auto-terminate command on timeout expiry |
+| **Destructive Command Gate** | Restrict `rm -rf /` or raw disk formatting operations | Shell alias wrapper / pre-execution command policy filter | Block & raise security policy failure |
+| **Scrollback Buffer Cap** | Buffer memory capped at max 100,000 lines | `history-limit` set on target `tmux` session | Prune oldest scrollback lines automatically |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `tmux: command not found` | Host system missing `tmux` binary dependency | Run `which tmux` or `tmux -V` in local terminal | Install tmux via system package manager (`apt install tmux`) |
+| Agent hangs on interactive command | Model issued interactive command without passing non-interactive flags | Capture pane buffer via `capture_terminal_buffer` tool | Re-issue command with non-interactive flags (`sudo -n` or `DEBIAN_FRONTEND=noninteractive`) |
+| PTY buffer overflow / high token cost | Raw terminal scrollback returned huge log dumps | Check line count of returned `TerminalBufferResult` | Use Unix filtering (`grep`, `tail -n 50`, `less`) to truncate scrollback |
+| `Session not found` error | tmux server restarted or session auto-terminated | Run `tmux ls` to inspect active session registry | Re-trigger `spawn_terminal_session` to re-initialize environment |
 
 ## Related tools / concepts
 - [OpenHands](./openhands.md) — Comprehensive agentic workspace framework.

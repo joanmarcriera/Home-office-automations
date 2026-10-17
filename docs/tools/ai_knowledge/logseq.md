@@ -22,36 +22,6 @@ Traditional note-taking apps force users into rigid, hierarchy-bound file system
 - **FastMCP 3.1 Protocol Server**: Direct integration with Model Context Protocol servers enables autonomous multi-agent graph navigation and Datalog queries.
 - **In-App PDF & Document Annotation**: Built-in PDF reader that supports highlight extraction directly into block-level citations.
 
-## Architecture & Internal Mechanics
-
-Logseq employs a hybrid architecture where flat Markdown files serve as the persistent source of truth on disk, while an embedded SQLite/Datalog database indexes the graph in memory for real-time querying.
-
-```mermaid
-graph TD
-    subgraph Disk Storage Layer
-        A[Journals Markdown Files YYYY_MM_DD.md]
-        B[Pages Markdown Files page.md]
-        C[Logseq Configuration & Assets]
-    end
-
-    subgraph Logseq Core Indexer & Database
-        A & B --> D[Logseq Local Parsing Engine]
-        D --> E[(SQLite / Datalog Graph Index)]
-    end
-
-    subgraph Agentic Context Integration
-        E --> F[FastMCP 3.1 Server Interface]
-        F <-->|Datalog Queries & Updates| G[Frontier LLM Agent Claude 5.6 / GPT-5.6]
-        F <-->|RAG Vectorization| H[Local RAG Engine / LanceDB]
-    end
-```
-
-### Retrieval & Query Flow
-1. **Agent Request**: An AI agent requests relevant blocks for a topic using FastMCP 3.1.
-2. **Datalog Query Execution**: The FastMCP server queries Logseq's local Datalog engine for blocks linked to target pages or keywords.
-3. **Block Extraction**: Matches are returned with full UUID references and breadcrumb hierarchies.
-4. **Context Injection**: The precise blocks are injected into the agent's prompt window without needing to pull the entire document.
-
 ## Strengths
 - **Open Source**: Fully transparent codebase with an active developer community.
 - **Privacy-First**: No mandatory cloud sync; all data resides locally on disk by default.
@@ -118,18 +88,32 @@ Execute Datalog queries against Logseq SQLite index:
 sqlite3 ~/.logseq/graphs/default/db.sqlite "SELECT content FROM blocks WHERE content LIKE '%FastMCP%';"
 ```
 
-## API examples
+## FastMCP 3.1 Logseq Bridge Implementation (Python)
 
-### FastMCP 3.1 Logseq Bridge Implementation (Python)
-Expose Logseq graph querying as a FastMCP 3.1 tool for agentic workflows:
+The following complete Python snippet implements a **FastMCP 3.1** server that exposes Logseq SQLite graph querying, journal block creation, and backlink resolution to AI agents.
 
 ```python
 import pathlib
 import sqlite3
+import datetime
+from typing import List, Dict, Any, Optional
 from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP("logseq-knowledge-graph", version="3.1.0")
 GRAPH_DB_PATH = pathlib.Path.home() / ".logseq/graphs/default/db.sqlite"
+GRAPH_JOURNALS_PATH = pathlib.Path.home() / "Documents/logseq/journals"
+
+class LogseqBlock(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    uuid: Optional[str] = Field(default=None, description="UUID of the block")
+    content: str = Field(..., description="Raw Markdown content of the block")
+    is_todo: bool = Field(default=False)
+
+class JournalBlockAppendRequest(BaseModel):
+    date_str: Optional[str] = Field(default=None, description="YYYY_MM_DD date string. Defaults to today")
+    block_text: str = Field(..., min_length=3, description="Bullet text to append to journal")
 
 @mcp.tool(description="Search Logseq blocks matching keyword query via Datalog SQLite index")
 async def search_logseq_blocks(query_term: str, ctx: Context) -> list[dict]:
@@ -148,6 +132,8 @@ async def search_logseq_blocks(query_term: str, ctx: Context) -> list[dict]:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## API examples
 
 ### Python: Validating and Extracting Journal Blocks (Pydantic v2)
 The following example demonstrates using **Pydantic v2** to parse and validate Logseq block data extracted from Markdown files:
@@ -200,11 +186,35 @@ if journal_path.exists():
     print(entry.model_dump())
 ```
 
-## Production & Knowledge Management Best Practices
-- **Atomic Block Writing**: Keep individual bullet points self-contained with minimal context dependencies to ensure high-precision vector embeddings for RAG retrieval.
-- **Consistent Namespace Hierarchies**: Use namespaces like `[[Projects/Alpha]]` and `[[Meeting/2027-01-07]]` to build implicit taxonomy trees across unstructured journal notes.
-- **Git Backup Hooks**: Implement automated `post-commit` Git hooks that push local graph changes to a private remote repository or encrypted NAS volume at regular intervals.
-- **Read-Only Agent Permissions**: Grant FastMCP servers read-only access to master knowledge graphs, directing agent write operations to an isolated `[[Inbox/Agent-Staging]]` page for human review.
+## Knowledge Base & PKM Tool Comparison Matrix
+
+| Feature / Tool | Logseq | Obsidian | Anytype | SilverBullet | Notion |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Structure** | Outliner-first (Atomic Blocks) | Page-first (Markdown files) | Object-oriented graph | Space-first Markdown wiki | Block-based cloud workspace |
+| **Data Ownership** | 100% Local Plaintext/SQLite | 100% Local Plaintext | Local-first P2P encrypted | Local Plaintext | Cloud Hosted (Proprietary) |
+| **Query Engine** | Native Datalog / SQLite | Dataview plugin / Search | Built-in Object Search | Space Queries | Database views / Formulas |
+| **Block-Level UUIDs** | Native (Every bullet has UUID) | Manual block anchors (`^uuid`) | Native object IDs | Paragraph offsets | Native block IDs |
+| **Version Control** | Native local Git integration | Git plugin / Sync | Peer-to-peer history | Git plugin | Cloud revision history |
+| **FastMCP 3.1 Integration** | Native FastMCP Datalog Server | Community MCP Bridge | Custom API adapter | Custom HTTP bridge | Official Notion MCP Server |
+| **PDF Annotation** | Native inline highlight graph | Plugin required | Basic viewer | Basic viewer | PDF embedding |
+
+## Operational Guardrails & Knowledge Management Standards
+
+| Dimension | Standard / Policy | Implementation Mechanism | Enforcement Level |
+| :--- | :--- | :--- | :--- |
+| **Agent Write Staging** | Agents write to `[[Inbox/Agent-Staging]]` page rather than master graph | FastMCP tool write boundary restriction | Human review before merging to main graph |
+| **Atomic Block Granularity** | Keep bullet blocks concise (< 200 words per block) | Pydantic v2 validator on block length | Pre-write validation error |
+| **Git Backup Frequency** | Commit graph changes every 4 hours or after major batch tasks | Automated systemd timer / Git hook | Background execution script |
+| **Database Concurrency** | SQLite database opened in read-only WAL mode during agent queries | SQLite `open_flags = SQLITE_OPEN_READONLY` | Read-only connection pooling |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Step | Mitigation / Resolution |
+| :--- | :--- | :--- | :--- |
+| `sqlite3.OperationalError: database is locked` | Logseq desktop app held exclusive lock during re-index | Check open file locks using `lsof ~/.logseq/graphs/default/db.sqlite` | Open SQLite connection in URI WAL mode (`file:...db.sqlite?mode=ro`) |
+| FastMCP queries return empty block list | Graph index re-parse in progress or database path wrong | Verify `GRAPH_DB_PATH` exists on filesystem | Re-index graph inside Logseq desktop (`Re-index` menu button) |
+| Git merge conflict across journal files | Simultaneous write to same `YYYY_MM_DD.md` date by multiple agents | Inspect `git status` in graph root folder | Use line-append strategy or append timestamp headers to entries |
+| Datalog query syntax error | Invalid Datalog clause or unescaped bracket in query | Test query directly in Logseq developer tools console | Wrap page references in proper `[?b :block/content]` clauses |
 
 ## Related tools / concepts
 - [Obsidian](obsidian.md) - Non-outliner local Markdown knowledge base alternative.
