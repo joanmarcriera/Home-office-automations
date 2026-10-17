@@ -5,26 +5,22 @@ Unsloth Studio is an open-source visual interactive workspace and unified orches
 
 Operating in 2027, Unsloth Studio bridges the gap between raw Python fine-tuning scripts and graphical model engineering. It features built-in dataset preparation tools, real-time loss curve monitoring, automated hyperparameter tuning, GGUF/EXL2 quantization exporters, and direct FastMCP 3.1 server deployment endpoints.
 
-```mermaid
-graph TD
-    A[Raw Training Datasets - JSONL/Parquet] --> B[Unsloth Studio GUI / Pipeline]
-
-    subgraph Unsloth Acceleration Core
-        B --> C[Custom Triton Autograd Kernels]
-        B --> D[LoRA / QLoRA Memory Optimizers]
-        B --> E[Quantization Engine - GGUF / AWQ / EXL2]
-    end
-
-    subgraph Model Post-Training
-        C --> F[Llama 3 / DeepSeek R1 / Qwen Fine-Tuning]
-        D --> F
-        F --> G[Interactive Loss & Evaluation Dashboard]
-    end
-
-    subgraph Export & Deployment
-        G --> H[Quantized Weights Export]
-        G --> I[FastMCP 3.1 Inference Server Gateway]
-    end
+```
++-----------------------------------------------------------------------------------+
+|                            UNSLOTH STUDIO ARCHITECTURE                            |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|  | Studio Web / GUI      | <-> | Custom Triton Autograd | <-> | LoRA / QLoRA    | |
+|  | Real-Time Dashboard   |     | Memory Kernels         |     | Memory Manager  | |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|               |                            |                           |          |
+|               v                            v                           v          |
+|  +-----------------------+     +------------------------+     +-----------------+ |
+|  | Quantization Engine   |     | FastMCP 3.1 Server     |     | Pydantic v2     | |
+|  | GGUF / AWQ / EXL2     |     | Agent Deployment       |     | Schema Config   | |
+|  +-----------------------+     +------------------------+     +-----------------+ |
++-----------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -66,6 +62,28 @@ sequenceDiagram
 - **Agentic Tool-Calling Alignment**: Training models specifically to follow FastMCP 3.1 tool schemas and structured JSON outputs with zero formatting errors.
 - **Local Model Compression & Deployment**: Quantizing fine-tuned models to GGUF (Q4_K_M, Q8_0) for edge deployment in offline desktop applications.
 - **Rapid Experimentation**: Comparing LoRA rank hyperparameters (r=16, r=64, r=128) and learning rate schedules visually in real time.
+
+## Feature & Performance Comparison Matrix
+
+The following table compares Unsloth Studio against standard fine-tuning workflows across key performance and operational dimensions when training a 70B parameter model on a single 80GB VRAM GPU:
+
+| Feature / Metric | Unsloth Studio | Hugging Face + PEFT | DeepSpeed Stage 3 | LLaMA-Factory |
+| :--- | :--- | :--- | :--- | :--- |
+| **Max Model Parameter Size (Single 80GB GPU)** | **70B (QLoRA 4-bit)** | 32B (QLoRA 4-bit) | 14B (Full Precision) | 32B (QLoRA 4-bit) |
+| **Fine-Tuning Speed Improvement** | **2.5x – 5.0x Faster** | 1.0x Baseline | 1.8x Faster | 1.2x Faster |
+| **VRAM Consumption Reduction** | **Up to 80% Saved** | Baseline | High Offload Overhead | Baseline PEFT |
+| **User Interface** | **Native Web GUI & CLI** | CLI / Scripting Only | CLI Only | Web UI (Gradio) |
+| **FastMCP 3.1 Agent Deployment Endpoint** | **Native One-Click Service** | Manual Wrapper Needed | Manual Wrapper Needed | Manual Export |
+| **GGUF / EXL2 Quantization Export** | **Integrated Direct Export** | Manual llama.cpp Step | Manual Step | Integrated GGUF Export |
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error Symptom | Potential Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`CUDA OOM during Backward Pass`** | Batch size or sequence length exceeds remaining VRAM headroom. | `nvidia-smi --query-gpu=memory.used --format=csv` | Reduce `per_device_train_batch_size` to `1` and increase `gradient_accumulation_steps`. |
+| **`TritonKernelCompilationError`** | Incompatible CUDA driver or missing Triton JIT compilation header files. | `python3 -c "import triton; print(triton.__version__)"` | Ensure CUDA 12.x drivers are installed and update Triton via `pip install triton --upgrade`. |
+| **Loss spikes / Gradient NaN divergence** | Learning rate too high or unstable fp16 mixed precision overflow. | `unsloth-studio inspect-logs --job-id <job_id>` | Enable `bf16=True` (Ampere/Ada GPUs) or lower learning rate to `1e-4`. |
+| **GGUF export formatting error** | Missing tokenizer Chat Template in model config files. | `unsloth-studio check-template --model <dir>` | Supply explicit Jinja chat template string in Studio configuration YAML. |
 
 ## Strengths
 - **Massive Memory Savings**: Cuts VRAM requirements by up to 80% compared to standard PyTorch implementation.
@@ -153,13 +171,18 @@ unsloth-studio export \
 ## API examples
 
 ### FastMCP 3.1 Training Orchestration & Management Server
-The following Python script creates a **FastMCP 3.1** server for remotely triggering and managing Unsloth Studio fine-tuning jobs:
+The following Python script creates a **FastMCP 3.1** server for remotely triggering and managing Unsloth Studio fine-tuning jobs with strict **Pydantic v2** validation:
 
 ```python
 import os
-from typing import Dict, Any, List
-from pydantic import BaseModel, Field
-from fastmcp import FastMCP
+import logging
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from fastmcp import FastMCP, Context
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("UnslothStudio-MCP")
 
 mcp = FastMCP(
     "unsloth-studio-mcp-server",
@@ -167,11 +190,20 @@ mcp = FastMCP(
 )
 
 class TrainingJobRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     base_model: str = Field(..., description="Target base model identifier (e.g. unsloth/Qwen2.5-7B-Instruct)")
     dataset_path: str = Field(..., description="Path to input training dataset JSONL")
     lora_rank: int = Field(default=16, ge=4, le=256, description="LoRA rank dimension")
     epochs: int = Field(default=3, ge=1, le=20, description="Total training epochs")
     learning_rate: float = Field(default=2e-4, description="Base learning rate")
+
+    @field_validator("base_model")
+    @classmethod
+    def validate_model_name(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Base model name cannot be empty")
+        return v.strip()
 
 class TrainingJobStatus(BaseModel):
     job_id: str
@@ -181,12 +213,26 @@ class TrainingJobStatus(BaseModel):
     gpu_memory_used_gb: float
 
 @mcp.tool()
-def start_fine_tuning_job(request: TrainingJobRequest) -> Dict[str, Any]:
+async def start_fine_tuning_job(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
     """
     Triggers an asynchronous fine-tuning job inside Unsloth Studio.
+
+    Args:
+        request_dict: Configuration parameters for fine-tuning.
+        ctx: FastMCP Context.
     """
+    if ctx:
+        await ctx.info("Validating Unsloth Studio fine-tuning request payload...")
+
     try:
-        job_id = f"job-{hash(request.base_model + request.dataset_path) & 0xffffffff:08x}"
+        req = TrainingJobRequest.model_validate(request_dict)
+        if ctx:
+            await ctx.info(f"Initializing LoRA training (rank={req.lora_rank}) for model {req.base_model}...")
+
+        job_id = f"job-{hash(req.base_model + req.dataset_path) & 0xffffffff:08x}"
         status = TrainingJobStatus(
             job_id=job_id,
             status="running",
@@ -198,11 +244,9 @@ def start_fine_tuning_job(request: TrainingJobRequest) -> Dict[str, Any]:
             "status": "initiated",
             "job_data": status.model_dump()
         }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+    except ValidationError as ve:
+        logger.error(f"Validation failure: {ve}")
+        raise ValueError(f"Invalid fine-tuning request payload: {ve}")
 
 if __name__ == "__main__":
     mcp.run()
@@ -213,7 +257,7 @@ Validation schema for Unsloth Studio training jobs:
 
 ```python
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 class LoRAConfigSpec(BaseModel):
     r: int = Field(default=16, ge=4, le=256)
@@ -222,6 +266,8 @@ class LoRAConfigSpec(BaseModel):
     dropout: float = Field(default=0.0, ge=0.0, le=0.5)
 
 class UnslothTrainingPipelineSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     pipeline_name: str
     base_model_name: str
     dataset_uri: str
@@ -253,6 +299,30 @@ if __name__ == "__main__":
     }
     validated = validate_pipeline_spec(data)
     print(f"Validated Pipeline: {validated.pipeline_name} (LoRA Rank: {validated.lora_spec.r})")
+```
+
+## Production Operational Guardrails
+
+```ini
+# /etc/systemd/system/unsloth-studio.service
+[Unit]
+Description=Unsloth Studio Model Engineering Gateway
+After=network.target nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=unsloth-service
+WorkingDirectory=/opt/unsloth-studio
+ExecStart=/usr/local/bin/unsloth-studio \
+  --host 127.0.0.1 \
+  --port 8080 \
+  --gpu-id 0
+Restart=always
+RestartSec=5
+Environment=CUDA_VISIBLE_DEVICES=0
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Related tools / concepts
