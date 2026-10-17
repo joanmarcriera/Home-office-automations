@@ -9,6 +9,39 @@ Key capabilities of the early 2027 release include:
 - **Natively Multilingual Processing**: High-fidelity, accent-aware speech synthesis across more than 85 languages, with automatic pronunciation code switching inside the same text payload.
 - **Google Gen AI Unified SDK Support**: Direct integration with the modern `google-genai` library using standard `generate_content` and `generate_content_stream` APIs.
 
+## Architecture & Real-Time Streaming Audio Sequence
+
+The following sequence diagram illustrates the real-time chunked streaming pipeline of Gemini 3.1 Flash TTS, from agent prompt generation and FastMCP 3.1 tool invocation to multimodal audio chunk synthesis and local speaker buffer streaming:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Client / Voice Assistant
+    participant Server as FastMCP 3.1 TTS Server
+    participant Gemini as Gemini 3.1 Flash TTS Multimodal Engine
+    participant AudioBuffer as Client Speaker Buffer / PCM Output
+
+    Agent->>Server: Request speech synthesis with steerable prompt
+    Server->>Server: Validate prompt & voice preset (Pydantic v2)
+    Server->>Gemini: `generate_content_stream(response_modalities=["AUDIO"])`
+    loop Real-Time Chunk Streaming
+        Gemini-->>Server: Return 16kHz PCM / WAV Audio Chunk
+        Server-->>AudioBuffer: Push audio chunk to speaker buffer (<100ms TTFB)
+    end
+    Gemini-->>Server: Final audio stream frame completed
+    Server-->>Agent: Return synthesis metadata report
+```
+
+## Generative Speech Models Comparison Matrix
+
+| Speech Model | Architecture | Sub-100ms TTFB | Zero-Shot Steerability | In-Context Emotion Tags | Local Execution | Pricing Tier |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Gemini 3.1 Flash TTS** | Multimodal LLM Native | Yes | High (Natural Prompting) | Yes (`[laughs]`, `[sigh]`) | Cloud Only | Competitive ($/1M chars) |
+| **ElevenLabs Turbo v2.5** | Diffusion / Autoregressive | Yes | High (Voice Cloning) | Partial (Prompt Hints) | Cloud Only | Premium SaaS |
+| **Kokoclone** | Compact Local Model | Yes | Moderate (Embeddings) | Minimal | Self-Hosted | Open-Source / Free |
+| **Fish Audio** | Vector-Quantized LM | Moderate | High (Zero-Shot Clone) | Moderate | Hybrid Cloud/Local | Standard SaaS |
+| **AudioCPP** | C++ Local Inference Engine | Extreme | Low (Fixed Presets) | No | Fully Air-Gapped | Open-Source / Free |
+
 ## What problem it solves
 Traditional text-to-speech architectures rely on a distinct dual-model process: an LLM generates text, and a standalone TTS model synthesizes it. This separation introduces notable round-trip latency and strips away emotional context. Gemini 3.1 Flash TTS unifies these steps into a single multimodal sequence, enabling conversational latency (under 100ms) and highly contextual emotional depth.
 
@@ -42,10 +75,10 @@ Traditional text-to-speech architectures rely on a distinct dual-model process: 
 ## Getting started
 
 ### 1. SDK Installation and Configuration
-To utilize the Gemini 3.1 Flash TTS model, install the Google Gen AI SDK along with Pydantic v2:
+To utilize the Gemini 3.1 Flash TTS model, install the Google Gen AI SDK along with Pydantic v2 and MCP:
 
 ```bash
-pip install google-genai pydantic
+pip install google-genai pydantic mcp
 ```
 
 Set your API token in your local shell session:
@@ -160,9 +193,8 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-t
 ```
 
 ## API examples
-For complex software platforms, real-time chunked streaming ensures playback starts before the full response is generated.
 
-### 1. Real-Time Streaming Audio Generation (Python API)
+### Real-Time Streaming Audio Generation (Python API)
 Use `generate_content_stream` to receive audio chunks sequentially as they are synthesized.
 
 ```python
@@ -213,40 +245,90 @@ if __name__ == "__main__":
     print(f"Stream request prepared for voice: {req.voice_name}")
 ```
 
-### 2. Multi-Turn Speech Generation with Continuous Context
-Maintain conversational history so that the synthesizer is aware of previous statements.
+### FastMCP 3.1 Executable Audio Tool Server with Pydantic v2 Validation
+Exposing Gemini 3.1 Flash TTS generation as a standardized FastMCP 3.1 tool server:
 
 ```python
+import os
+from typing import Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from mcp.server.fastmcp import FastMCP
 from google import genai
 from google.genai import types
-from pydantic import BaseModel, Field
 
+mcp = FastMCP("gemini-flash-tts-server")
 
-class ConversationalSpeechRequest(BaseModel):
-    prompt: str = Field(..., min_length=1)
+class TTSRequestSchema(BaseModel):
+    text_payload: str = Field(..., min_length=1, description="Text string containing optional emotion tags like [laughs].")
+    voice_name: str = Field(default="Kore-Expressive", description="Target Google prebuilt voice name.")
+    output_format: str = Field(default="wav", description="Audio container format: wav or pcm.")
 
+    @field_validator("voice_name")
+    @classmethod
+    def validate_voice_name(cls, v: str) -> str:
+        valid_voices = ["Kore-Expressive", "Puck-Interactive", "Callirrhoe", "Fenrir-Narrative"]
+        if v not in valid_voices:
+            return "Kore-Expressive"
+        return v
 
-def generate_conversational_response(request: ConversationalSpeechRequest):
-    client = genai.Client()
+@mcp.tool()
+def synthesize_speech_mcp(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Generates low-latency expressive speech using Gemini 3.1 Flash TTS model."""
+    try:
+        req = TTSRequestSchema.model_validate(payload_dict)
+        client = genai.Client()
 
-    chat = client.chats.create(
-        model="gemini-3.1-flash-tts",
-        config=types.GenerateContentConfig(response_modalities=["AUDIO"])
-    )
+        config = types.GenerateContentConfig(
+            response_modalities=["AUDIO"],
+            speech_config={
+                "voice_config": {
+                    "prebuilt_voice_config": {"voice_name": req.voice_name}
+                }
+            }
+        )
 
-    response = chat.send_message(request.prompt)
-    audio_data = response.candidates[0].content.parts[0].inline_data.data
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-tts",
+            contents=req.text_payload,
+            config=config
+        )
 
-    with open("conversational_followup.wav", "wb") as f:
-        f.write(audio_data)
-    print("Conversational followup voice generated successfully!")
-    return audio_data
-
+        audio_bytes = response.candidates[0].content.parts[0].inline_data.data
+        return {
+            "status": "success",
+            "audio_byte_length": len(audio_bytes),
+            "voice_used": req.voice_name,
+            "protocol": "FastMCP 3.1"
+        }
+    except ValidationError as e:
+        return {"status": "error", "message": e.errors()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
-    req = ConversationalSpeechRequest(prompt="Does sound travel faster in water than in air?")
-    print(f"Conversational prompt validated: {req.prompt}")
+    mcp.run()
 ```
+
+## Production Guardrails & Operational Performance Guidelines
+
+1. **Streaming Latency Optimization**:
+   - Use `generate_content_stream` rather than unary `generate_content` for real-time speech playback to achieve sub-100ms TTFB.
+   - Buffer audio bytes in 4KB to 16KB frame chunks before flushing to the client audio hardware device to prevent buffer underruns.
+
+2. **Emotion Tag Sanity Checking**:
+   - Limit nested emotion tags (`[laughs] [sighs] [whispering]`) to max 2 consecutive tags to avoid unusual pitch shifting or audio distortion.
+
+3. **Quota & Rate Limit Defense**:
+   - Deploy exponential backoff logic around Google API endpoints (`HTTP 429 Too Many Requests`) and cache generated static assets (e.g. standard system alerts) locally.
+
+## Systematic Troubleshooting & Speech Synthesis Diagnostic Guide
+
+| Failure Symptom | Probable Cause | Diagnostic Command / Log | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **High Audio TTFB Latency (>500ms)** | Using non-streaming REST endpoint instead of gRPC/streaming API | Check API request endpoint in network trace | Switch to `generate_content_stream` in SDK |
+| **Unrecognized Emotion Tag** | Syntax error in emotion tag (e.g., `<laugh>` instead of `[laughs]`) | Inspect raw prompt text payload | Use markdown bracket format `[laughs]`, `[sigh]`, `[whispering]` |
+| **`RESOURCE_EXHAUSTED` (429)** | Exceeded concurrent streaming quota limit | `google-genai` exception handler | Implement queue worker pattern or request quota increase via GCP Console |
+| **Audio Clipping or Distortion** | High temperature setting during multimodal audio generation | Inspect `GenerateContentConfig.temperature` | Lower temperature setting to `0.2 - 0.4` for speech stability |
 
 ## Related tools / concepts
 - [Gemini](./gemini.md)

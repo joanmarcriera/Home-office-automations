@@ -12,6 +12,29 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 
 **Category**: Knowledge Base / Learning Path. It sits in the **architectural decision layer**, serving as a meta-framework that informs the selection of specific tools like [LangGraph](../tools/frameworks/langgraph.md), [CrewAI](../tools/frameworks/crewai.md), or [AutoGen](../tools/frameworks/autogen.md).
 
+## Architectural Decision Flowchart
+
+The following flowchart guides system architects in selecting the optimal agent framework based on state persistence, sub-agent spawning requirements, sandboxed code execution, and web browser automation:
+
+```mermaid
+flowchart TD
+    Start([Evaluate Agent Project Requirements]) --> Q1{Need Durable State & Circular Control Loops?}
+    Q1 -- Yes --> LangGraph[LangGraph / Stateful Runtimes]
+    Q1 -- No --> Q2{Need Fast Prototyping & Role Playing?}
+
+    Q2 -- Yes --> CrewAI[CrewAI / Role-Based Teams]
+    Q2 -- No --> Q3{Autonomous Software Engineering / Coding?}
+
+    Q3 -- Yes --> Q3_1{Terminal & Sandboxed Workspace?}
+    Q3_1 -- Full Environment --> OpenHands[OpenHands / Aider Workspace]
+    Q3_1 -- Persistent Local OS --> OpenClaw[OpenClaw Agent OS]
+
+    Q3 -- No --> Q4{Browser Interaction or Deep Research?}
+    Q4 -- Web Automation --> BrowserUse[Browser Use / MultiOn]
+    Q4 -- Deep Research & Synthesis --> GPTResearch[GPT Researcher / DeerFlow]
+    Q4 -- Lightweight Tool Calling --> OpenAISDK[OpenAI Agents SDK / Minimal SDKs]
+```
+
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
@@ -19,20 +42,20 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
-### Quick classification (Late 2026 / Early 2027)
+## Framework Taxonomy & Feature Matrix (Late 2026 / Early 2027)
 
-| Tool | Type | Learn from it | Use in production | Best reason to study or adopt |
-| :--- | :--- | :---: | :---: | :--- |
-| [LangGraph](../tools/frameworks/langgraph.md) | Stateful agent orchestration runtime | Excellent | Excellent | Reliable graph control flow, state, loops, and checkpoints for serious agent engineering. |
-| [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) | Lightweight agent SDK | Excellent | Strong | Minimal agent abstractions around tools, handoffs, sessions, and tracing. |
-| [CrewAI](../tools/frameworks/crewai.md) | Role-based multi-agent framework | Good | Moderate | Fast prototyping and clear mental model for role-playing collaborative agents. |
-| [AutoGen](../tools/frameworks/autogen.md) | Conversation-driven multi-agent framework | Excellent | Mixed | Influential reference point for agent-to-agent collaboration and research experiments. |
-| [OpenHands](../tools/development_ops/openhands.md) | Coding agent platform | Excellent | Emerging | Full software-engineering agent loop with terminal, editor, browser, and verification. |
-| [OpenClaw](../tools/development_ops/openclaw.md) | Personal agent operating system / orchestrator | Fascinating | Experimental | Persistent personal agents with tools, skills, memory, sessions, and human override. |
-| [Browser Use](../tools/automation_orchestration/browser-use.md) | Browser automation layer for agents | Very useful | Strong | Lets agents operate real websites when APIs are unavailable or incomplete. |
-| [GPT Researcher](../tools/agents/gpt-researcher.md) | Deep research agent | Strong niche | Strong niche | Good reference implementation for planning, browsing, synthesis, and report writing. |
-| [Letta](../tools/agents/letta.md) | Memory-first agent framework | Important ideas | Emerging | Persistent memory architecture for long-lived agents and personal assistants. |
-| [DeerFlow](../tools/agents/deerflow.md) | Multi-agent research and coding harness | Excellent | Emerging | Modern sub-agent, tool-routing, sandbox, and long-horizon workflow patterns. |
+| Tool | Framework Category | State Durability | Sub-Agent Spawning | FastMCP 3.1 Support | Human-In-Loop Mechanism | Production Readiness |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| [LangGraph](../tools/frameworks/langgraph.md) | Stateful Graph Runtime | Persistent Checkpoints | Native | Native | First-Class Interrupts | Excellent |
+| [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) | Minimalist Agent SDK | Session Memory | Handoff Tokens | Native | Callbacks / Guardrails | Strong |
+| [CrewAI](../tools/frameworks/crewai.md) | Role-Based Multi-Agent | Memory Threads | Delegated Tasks | Native | Manager Interruption | Moderate |
+| [AutoGen](../tools/frameworks/autogen.md) | Conversation Engine | Ephemeral / Logs | Dynamic Group Chat | Community | User Proxy Agent | Mixed |
+| [OpenHands](../tools/development_ops/openhands.md) | Autonomous Coding Agent | Git / Workspace Snapshot | Sub-Agents | Native | Interactive Terminal | Emerging |
+| [OpenClaw](../tools/development_ops/openclaw.md) | Personal Agent OS | Persistent SQLite DB | Skill Workers | Native | Mobile / Chat Prompts | Experimental |
+| [Browser Use](../tools/automation_orchestration/browser-use.md) | Web Browser Automation | Cookie / Session State | Concurrent Browsers | Native | Visual Debug Overlay | Strong |
+| [GPT Researcher](../tools/agents/gpt-researcher.md) | Autonomous Research | File Reports | Sub-Researchers | Native | Report Approval | Niche SOTA |
+| [Letta](../tools/agents/letta.md) | Memory-First Architecture | Core / Archival Memory | Memory Workers | Native | Context Editing UI | Emerging |
+| [DeerFlow](../tools/agents/deerflow.md) | Research & Coding Harness | Multi-Tenant Sandbox | Sub-Harness Spawning | Native | Step Approvals | Emerging |
 
 ## Strengths
 
@@ -136,53 +159,109 @@ response = runner.run(triage_agent, "What is the weather in San Francisco?")
 print(response.final_text)
 ```
 
-### Stateful Graph Logic (LangGraph)
-Defining a simple cycle where an auditor checks the work of a writer using Claude 5.6.
+### Stateful Graph Logic with Pydantic v2 State Validation (LangGraph)
+Defining a stateful graph where an auditor agent reviews and validates content produced by a generator agent:
+
 ```python
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError
 from langgraph.graph import StateGraph, END
 
-def writer(state):
-    return {"text": "Draft content", "status": "draft"}
+class AgentStateSchema(BaseModel):
+    task_id: str = Field(..., description="Unique task tracker ID")
+    content: str = Field(default="", description="Drafted content payload")
+    review_status: str = Field(default="pending", description="Status: pending, approved, or rewrite")
+    iteration_count: int = Field(default=0, ge=0, le=5)
 
-def auditor(state):
-    if "quality" in state["text"]:
-        return {"status": "approved"}
-    return {"status": "rewrite"}
+def writer_node(state: dict) -> dict:
+    current = AgentStateSchema.model_validate(state)
+    new_text = f"Draft v{current.iteration_count + 1}: High quality autonomous agent architecture document."
+    return {
+        "task_id": current.task_id,
+        "content": new_text,
+        "review_status": "pending",
+        "iteration_count": current.iteration_count + 1
+    }
+
+def auditor_node(state: dict) -> dict:
+    current = AgentStateSchema.model_validate(state)
+    status = "approved" if "High quality" in current.content else "rewrite"
+    return {
+        "task_id": current.task_id,
+        "content": current.content,
+        "review_status": status,
+        "iteration_count": current.iteration_count
+    }
 
 workflow = StateGraph(dict)
-workflow.add_node("writer", writer)
-workflow.add_node("auditor", auditor)
+workflow.add_node("writer", writer_node)
+workflow.add_node("auditor", auditor_node)
 
 workflow.set_entry_point("writer")
 workflow.add_edge("writer", "auditor")
 workflow.add_conditional_edges(
     "auditor",
-    lambda x: x["status"],
+    lambda x: x["review_status"],
     {"rewrite": "writer", "approved": END}
 )
 
 app = workflow.compile()
+print("LangGraph workflow compiled with Pydantic v2 state validation.")
 ```
 
-### FastMCP 3.1 Task Protocol JSON Schema
-Standardized FastMCP 3.1 Task Protocol JSON payload structure for tool calling and task dispatching between agents.
-```json
-{
-  "$schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json",
-  "task_id": "task-abc-123",
-  "executor": "claude-5.6-sonnet",
-  "tool_calls": [
-    {
-      "name": "fetch_mcp_context",
-      "arguments": {
-        "repository": "home-automation",
-        "query": "LangGraph state preservation"
-      }
-    }
-  ],
-  "state_token": "token_session_xyz_789"
-}
+### FastMCP 3.1 Agent Task Dispatch Server
+Standardized FastMCP 3.1 server exposing framework routing and agent task execution tools:
+
+```python
+from typing import Dict, Any
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("agent-framework-router")
+
+class TaskDispatchPayload(BaseModel):
+    framework: str = Field(..., description="Target framework: langgraph, crewai, openhands, or multion")
+    goal: str = Field(..., min_length=5, description="High-level task goal description")
+    max_steps: int = Field(default=10, ge=1, le=50)
+
+@mcp.tool()
+def dispatch_agent_task(payload_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Validates and dispatches a task to the selected agent framework runtime."""
+    try:
+        task = TaskDispatchPayload.model_validate(payload_dict)
+        return {
+            "status": "dispatched",
+            "framework": task.framework,
+            "goal": task.goal,
+            "session_id": f"sess-{task.framework}-99812",
+            "protocol_version": "FastMCP 3.1"
+        }
+    except ValidationError as e:
+        return {"status": "error", "message": e.errors()}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Production Guardrails & Operational Security Guidelines
+
+1. **Sandboxed Code Execution**:
+   - Software engineering agents (OpenHands, DeerFlow, Aider) must always run inside non-root Docker containers or gVisor microVMs with restricted network egress to avoid accidental code injection or credential leakage.
+
+2. **Recursion & Step Limits**:
+   - Enforce hard execution step limits (`max_steps=20` or `recursion_limit=25`) in stateful graph engines (LangGraph) to prevent runaway LLM loops during recursive tool calls.
+
+3. **Human-in-the-Loop Interruption**:
+   - Require explicit human confirmation (`interrupt_before=["tool_execution"]`) prior to issuing destructive actions like database writes, monetary transactions, or outbound email dispatches.
+
+## Troubleshooting & Framework Diagnostic Guide
+
+| Diagnostic Symptom | Probable Cause | Diagnostic Command / Tool | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Infinite Re-planning Loop** | Sub-agent state not updating completion flag correctly | Checkpoint inspector (`langgraph.get_state()`) | Ensure state node returns explicit status state key updates |
+| **Deadlocked Group Chat** | Speaker selection logic unable to resolve next speaker in AutoGen | `autogen.GroupChatManager.debug_log` | Set explicit `speaker_selection_method="round_robin"` or custom selector |
+| **Out-of-Context Memory Leak** | Agent appending full uncompressed scratchpads to every turn | FastMCP context window monitor | Integrate [Letta](../tools/agents/letta.md) core memory pruning or chunk summarization |
+| **Tool Calling Schema Error** | MCP schema format mismatch between agent and server | `python -m mcp.cli validate` | Re-generate tool definitions using FastMCP 3.1 Pydantic v2 models |
 
 ## Related tools / concepts
 

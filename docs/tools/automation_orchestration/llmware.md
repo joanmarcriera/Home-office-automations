@@ -16,7 +16,28 @@ Enterprise AI applications often encounter privacy constraints (sending sensitiv
 - **On-Device / Edge Agent Deployment**: Running structured reasoning agents on resource-constrained local infrastructure or workstation clusters.
 
 ## Architecture & Technical Overview
+
 LLMWare uses a modular component architecture that cleanly separates document parsing, text chunking, embedding generation, vector storing, and model generation:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as FastMCP 3.1 Client / Orchestrator
+    participant Parser as C-Based Parsing Engine
+    participant Library as LLMWare Library Engine
+    participant VectorDB as Vector Database (Qdrant / Milvus)
+    participant SLM as Local SLM (BLING / DRAGON / SLIM)
+
+    App->>Library: Ingest raw documents (PDF, DOCX, CSV)
+    Library->>Parser: Fast C-native parsing & chunking
+    Parser-->>Library: Standardized text blocks + metadata
+    Library->>VectorDB: Generate & store embeddings (Sentence Transformers)
+    App->>Library: Query / Retrieve relevant contexts
+    Library->>VectorDB: Hybrid semantic search
+    VectorDB-->>Library: Top-k matched document chunks
+    Library->>SLM: Prompt execution with grounded chunks
+    SLM-->>App: Structured extraction / reasoning response (Pydantic v2)
+```
 
 1. **Library Engine**: Handles high-performance document ingestion across 20+ file formats (PDF, DOCX, PPTX, CSV, JSON, TXT). Uses native C-based parser bindings to maintain high throughput.
 2. **Embeddings & Vector Database Adapters**: Integrates directly with local vector stores (Milvus, Qdrant, Chroma, PGVector, FAISS) while offering zero-code switching between local sentence transformers and cloud embeddings.
@@ -25,6 +46,16 @@ LLMWare uses a modular component architecture that cleanly separates document pa
    - **DRAGON (Data Retrieval Augmented Generation Optimization Network)**: 6B-7B parameter models fine-tuned specifically for complex multi-document synthesis and grounded Q&A.
    - **SLIM (Structured Language Instruction Models)**: Task-specific micro-models (NER, intent analysis, sentiment, classification, summary) designed for deterministic function calling and structured outputs.
 4. **FastMCP 3.1 & Agent Interoperability Layer**: Exposes LLMWare workflows as standard Model Context Protocol (MCP) tools and resources, allowing orchestration engines to invoke sovereign local pipelines seamlessly.
+
+## SLM Model Family Comparison Matrix
+
+| Model Family | Param Range | Quantization Options | Memory Footprint | Ideal Use Case | CPU Latency (Avg) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **BLING** | 1B - 3B | GGUF Q4_K_M / Q8_0 | 1.2 GB - 2.8 GB | Low-latency QA, desktop assistants, edge nodes | ~80 - 150 ms |
+| **DRAGON** | 6B - 7B | GGUF Q4_K_M / FP16 | 4.5 GB - 14.0 GB | Deep document synthesis, complex legal/financial RAG | ~250 - 500 ms |
+| **SLIM-NER** | 1B | GGUF Q4_K_M / INT8 | 0.8 GB - 1.2 GB | Named Entity Extraction (Orgs, Dates, Amounts) | ~40 - 90 ms |
+| **SLIM-Sentiment**| 1B | GGUF Q4_K_M / INT8 | 0.8 GB - 1.2 GB | Risk level & sentiment categorization | ~35 - 80 ms |
+| **SLIM-Summary**  | 1B - 2B | GGUF Q4_K_M / INT8 | 1.1 GB - 1.8 GB | Bulleted clause condensation & summaries | ~60 - 120 ms |
 
 ## Strengths
 - **SLM Optimization**: Purpose-built to maximize accuracy using ultra-compact, domain-specific models (BLING, DRAGON, SLIM).
@@ -51,7 +82,7 @@ LLMWare uses a modular component architecture that cleanly separates document pa
 Install LLMWare core and standard dependencies:
 
 ```bash
-pip install llmware pydantic
+pip install llmware pydantic mcp
 ```
 
 ### Basic RAG Pipeline
@@ -93,13 +124,18 @@ llmware library info --name "ComplianceDocs"
 Using SLIM models for structured named entity extraction validated with Pydantic v2:
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from llmware.models import ModelCatalog
 
 class EntityExtractionResult(BaseModel):
     organization: str = Field(description="Name of the organization")
     location: str = Field(description="Location referenced in text")
     status: str = Field(default="extracted", description="Extraction status")
+
+    @field_validator("organization")
+    @classmethod
+    def clean_org_name(cls, v: str) -> str:
+        return v.strip().title()
 
 # Load SLIM NER model
 model = ModelCatalog().load_model("slim-ner-tool")
@@ -166,44 +202,92 @@ if __name__ == "__main__":
     print(f"Generated {len(records)} audit records.")
 ```
 
-### FastMCP 3.1 Server Registration Example
-Exposing LLMWare SLM reasoning as a FastMCP 3.1 tool service:
+### FastMCP 3.1 & MCP 3.0 Task Protocol Server Implementation
+Exposing LLMWare sovereign SLM reasoning pipelines as an executable FastMCP 3.1 tool server:
 
 ```python
-from pydantic import BaseModel, Field
+from typing import Dict, Any, List
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
 from llmware.models import ModelCatalog
+from llmware.library import Library
+from llmware.retrieval import Query
 
-class FastMCPToolRequest(BaseModel):
-    tool_name: str = Field(default="slim_ner_tool", description="FastMCP tool name")
-    input_text: str = Field(description="Input document text for local entity extraction")
+mcp = FastMCP("llmware-sovereign-rag-server")
 
-def handle_mcp_request(request: FastMCPToolRequest) -> dict:
-    # Model execution wrapper
-    model = ModelCatalog().load_model("slim-ner-tool")
-    result = model.function_call(request.input_text)
-    return {
-        "status": "success",
-        "tool": request.tool_name,
-        "extracted_data": result
-    }
+class RAGQueryRequest(BaseModel):
+    library_name: str = Field(..., description="Target ingested LLMWare library name.")
+    query_text: str = Field(..., min_length=3, description="Semantic search query string.")
+    top_k: int = Field(default=3, ge=1, le=10)
 
-req_data = FastMCPToolRequest(input_text="Global Tech Inc opened a new office in Tokyo.")
-print(handle_mcp_request(req_data))
+class ExtractionRequest(BaseModel):
+    text_content: str = Field(..., min_length=10, description="Raw document text for entity extraction.")
+    extraction_type: str = Field(default="ner", description="Extraction mode: ner, sentiment, or summary.")
+
+@mcp.tool()
+def query_sovereign_rag(request_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Retrieves relevant document excerpts from an air-gapped LLMWare library."""
+    try:
+        req = RAGQueryRequest.model_validate(request_dict)
+        lib = Library().load_library(req.library_name)
+        query = Query(lib)
+        results = query.semantic_search(req.query_text, number_of_results=req.top_k)
+
+        matches = [
+            {
+                "text": res.get("text", "")[:300],
+                "score": res.get("special_score", 0.0),
+                "source": res.get("file_source", "")
+            }
+            for res in results
+        ]
+        return {"status": "success", "matches": matches}
+    except ValidationError as e:
+        return {"status": "error", "message": e.errors()}
+
+@mcp.tool()
+def extract_slim_entities(request_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Runs a local SLIM micro-model to perform zero-leakage entity extraction."""
+    try:
+        req = ExtractionRequest.model_validate(request_dict)
+        model_name = f"slim-{req.extraction_type}-tool"
+        slim_model = ModelCatalog().load_model(model_name)
+        raw_output = slim_model.function_call(req.text_content)
+
+        return {
+            "status": "success",
+            "model_used": model_name,
+            "extracted_data": raw_output
+        }
+    except ValidationError as e:
+        return {"status": "error", "message": e.errors()}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Production Deployment & Operational Considerations
-- **Memory & CPU Sizing**:
-  - SLIM micro-models (1B) run comfortably in under 2 GB RAM per instance on standard x86 CPU cores.
-  - DRAGON 7B models require 8-16 GB RAM (GGUF Q4 quantification) or 16 GB GPU VRAM (FP16 via vLLM) for high concurrency.
-- **Docker Containerization**:
-  - Run LLMWare workers in stateless containers with shared mounted volumes for library indexes or persistent vector stores (Qdrant/Milvus).
-- **Data Governance**:
-  - Because all model weights and vector indexes run locally on premises, compliance audit logs are retained entirely within private VPC boundaries.
 
-## Troubleshooting & Common Failure Modes
-- **Out of Memory During Large PDF Ingestion**: High-resolution scanned PDFs may saturate memory during image extraction. Enable text-only parsing mode or pass `--batch-size 10` during ingestion.
-- **Vector DB Connection Failures**: Ensure vector store host ports (e.g., Qdrant `:6333` or Milvus `:19530`) are reachable from the LLMWare process environment.
-- **GGUF Model Load Errors**: Verify that C++ build tools or `llama-cpp-python` drivers match local CPU instruction extensions (AVX2/AVX512 or Metal on macOS).
+1. **Air-Gapped Container Architecture**:
+   - Packaged inside stateless Kubernetes pods or Docker containers where outbound internet access is disabled.
+   - Model weights (GGUF) are mounted via read-only PersistentVolumeClaims (`/opt/llmware/models`) to ensure deterministic cold-starts without runtime downloads.
+
+2. **Memory & CPU Sizing**:
+   - **SLIM micro-models (1B)** run comfortably in under 2 GB RAM per instance on standard x86 CPU cores.
+   - **DRAGON 7B models** require 8-16 GB RAM (GGUF Q4 quantification) or 16 GB GPU VRAM (FP16 via vLLM) for high concurrency.
+   - High-performance installations pair C-native parser threads with multi-threaded GGUF CPU inference (`threads=8` or `threads=16`).
+
+3. **Multi-Tenant Index Isolation**:
+   - Enforce strict per-tenant separation at the Library layer by namespace-prefixing vector database collections (e.g. `tenant_acme_compliance_v1`).
+
+## Systematic Troubleshooting & Diagnostic Guide
+
+| Failure Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`OutOfMemoryError` during ingestion** | High-resolution scanned PDFs triggering unconstrained image extraction | `llmware library info --name "my_lib"` | Set `image_mode=False` or pass `batch_size=10` during parser invocation |
+| **Vector DB Connection Failures** | Misconfigured host port or missing vector store driver | `curl -i http://localhost:6333/healthz` | Verify vector store host ports (Qdrant `:6333`, Milvus `:19530`) are reachable |
+| **GGUF Model Load Crash** | Missing CPU AVX2/AVX512 instruction set or driver mismatch | `lscpu \| grep -E "avx2\|avx512"` | Rebuild `llama-cpp-python` bindings matching host instruction set or CPU architecture |
+| **Low Retrieval Precision** | Chunk size mismatch relative to document density | `python -m llmware.retrieval --inspect` | Adjust chunk target size from default 400 to 200 tokens for dense tabular documents |
 
 ## Related tools / concepts
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
