@@ -37,6 +37,39 @@ graph TD
     Policy --> RLTrainer
 ```
 
+## Comparative Sandbox Architecture Matrix
+
+| Architectural Dimension | Standard Docker/K8s Containers | WebAssembly (Wasm) Runtime | DSec MicroVM Sandbox Pool |
+| :--- | :--- | :--- | :--- |
+| **Startup / Reset Latency** | 1,500ms - 5,000ms | 5ms - 20ms | **< 0.95ms (Sub-Millisecond)** |
+| **Memory Base Footprint** | ~150MB - 500MB / instance | ~10MB - 30MB / instance | **~15MB - 35MB / instance** |
+| **Isolation Barrier** | Linux Namespaces / cgroups | Software Fault Isolation | **Hardware KVM Hypervisor Isolation** |
+| **System Call Support** | Full POSIX Syscalls | Restricted WASI Spec | **Full Linux POSIX Kernel & Devices** |
+| **Tool Call Telemetry** | External eBPF / Log Scrapers | Wasm Host Function Call Tracing | **Native FastMCP 3.1 Proxy Driver** |
+
+## MicroVM State Checkpoint & Trajectory Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Trainer as RL Training Engine (GRPO)
+    participant DSec as DSec MicroVM Orchestrator
+    participant VM as Isolated MicroVM Sandbox
+    participant Proxy as FastMCP 3.1 Proxy Driver
+    participant Evaluator as Trajectory Evaluator
+
+    Trainer->>DSec: Request N Sandbox Rollout Instances
+    DSec->>VM: Copy-on-Write Snapshot Restore (<0.95ms)
+    VM-->>DSec: Instance Ready ACK
+    Trainer->>VM: Stream Agent Action Steps (Code / Terminal)
+    VM->>Proxy: Emit FastMCP 3.1 Tool Call Payloads
+    Proxy->>Proxy: Intercept & Sanitize Telemetry
+    Proxy->>Evaluator: Stream Execution Output & Stdout
+    Evaluator->>Trainer: Return Step Reward & Trajectory Log
+    Trainer->>DSec: Release Sandbox Session
+    DSec->>VM: Issue Memory Page Reset & Cgroup Wipe
+```
+
 ## Typical use cases
 - **Large-Scale Agentic RL Training**: Running millions of parallel tool interaction sandboxes for policy gradient optimization (e.g., GRPO/PPO code and math reasoning training).
 - **Sandboxed Untrusted Code Execution**: Safely executing arbitrary LLM-generated code in isolated, multi-tenant microVMs with sub-millisecond state resets.
@@ -114,6 +147,38 @@ Create a reusable base snapshot image from an active sandbox instance:
 dsec snapshot create --instance sandbox-vm-9912 --out-image python312-fastmcp-base:v1
 ```
 
+## Systemd Production Service Configuration
+
+Below is a systemd unit configuration (`/etc/systemd/system/dsec-agent-proxy.service`) for running the DSec Telemetry and Sandbox Proxy Daemon:
+
+```ini
+[Unit]
+Description=DeepSeek Elastic Compute (DSec) Sandbox Proxy Gateway
+After=network.target containerd.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dsec-admin
+Group=dsec-admin
+WorkingDirectory=/var/lib/dsec
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="DSEC_KVM_DEVICE=/dev/kvm"
+Environment="DSEC_MAX_VM_POOL=5000"
+ExecStart=/usr/local/bin/dsec-daemon --config /etc/dsec/config.yaml --port 9090
+Restart=always
+RestartSec=3s
+LimitNOFILE=1048576
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN CAP_SYS_RAWIO
+NoNewPrivileges=false
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### Python: FastMCP 3.1 Sandbox Orchestration with Pydantic v2
@@ -126,7 +191,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("DSec Sandbox Controller")
+mcp = FastMCP("DSec Sandbox Controller", version="3.1.0")
 
 class SandboxAllocationSchema(BaseModel):
     pool_id: str = Field(..., description="Target DSec sandbox pool identifier")
@@ -136,6 +201,7 @@ class SandboxAllocationSchema(BaseModel):
     enable_mcp_tracing: bool = Field(default=True, description="Enable FastMCP tool message interception")
 
     @field_validator("pool_id")
+    @classmethod
     def validate_pool_id(cls, v: str) -> str:
         if not v.startswith("pool-"):
             raise ValueError("pool_id must start with prefix 'pool-'")
@@ -203,6 +269,21 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Operational Safety & Infrastructure Guardrails
+
+1. **Hardware KVM Permissions Control**: Ensure `/dev/kvm` device permissions are restricted to designated `dsec-admin` group users to prevent unauthorized hypervisor calls.
+2. **Resource Cgroup Hard Limits**: Enforce strict cgroup v2 memory limits (`memory.max`) and CPU quota restrictions on each MicroVM pool to prevent host kernel panics.
+3. **Egress Network Filtering**: Block all outbound external network connections (`0.0.0.0/0`) from sandbox MicroVMs unless explicit local proxy endpoints are specified.
+
+## Systematic Troubleshooting Matrix
+
+| Symptom / Failure | Probable Root Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`Permission denied /dev/kvm`** | `dsec-daemon` user lacks group membership for KVM | `ls -la /dev/kvm` | Add daemon user to `kvm` group: `usermod -aG kvm dsec-admin` |
+| **Snapshot Reset Latency > 10ms** | Host swap thrashing or non-NVMe disk storage | `dsec pool inspect <pool_id>` | Enable pinned hugepages and back pool with NVMe / RAM disk |
+| **MicroVM OOM Panic** | Code trajectory exceeded default 512MB RAM limit | `dsec vm logs <vm_id>` | Increase `--memory` parameter during pool initialization |
+| **FastMCP Interception Drop** | Telemetry proxy socket queue buffer overflow | `journalctl -u dsec-agent-proxy` | Increase `LimitNOFILE` and socket buffer size in systemd unit |
+
 ## Related tools / concepts
 - [DeepSeek](../providers/deepseek.md) — Primary foundation model provider leveraging DSec infrastructure.
 - [vLLM](../infrastructure/vllm.md) — High-throughput inference backend integrated with DSec execution pipelines.
@@ -217,7 +298,6 @@ if __name__ == "__main__":
 - [Firecracker MicroVM Architecture](https://firecracker-microvm.github.io/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/introduction)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

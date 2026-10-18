@@ -5,7 +5,7 @@ SWE-bench is a benchmark for evaluating LLMs on real-world software engineering 
 
 With the launch of **SWE-bench Multilingual**, the benchmark has been expanded to support a wider array of programming languages (C, C++, Go, Java, JavaScript, TypeScript, PHP, Ruby, and Rust), making it a truly language-agnostic evaluator for autonomous engineering agents across diverse modern software stacks.
 
-## System Architecture
+## System Architecture & Execution Flow
 
 The following sequence diagram illustrates SWE-bench's dockerized execution sequence, from task instance ingestion and FastMCP 3.1 agent tool interactions to patch application and automated test suite evaluation:
 
@@ -44,6 +44,21 @@ Evaluating LLMs on code usually relies on toy problems or short code snippets (l
 
 ## Where it fits in the stack
 **Benchmarking / Evaluation**. It is used by researchers, agent developers, and enterprises to benchmark the real-world software engineering capabilities of models and autonomous coding agents like OpenHands, Devin, and Claude Code.
+
+## Multi-Language Benchmark Execution Strategy
+
+```
++-----------------------------------------------------------------------------------+
+|                         SWE-bench Multilingual Architecture                       |
++-----------------------------------------------------------------------------------+
+|  [ Python Engine ]  |  [ Rust / Cargo ]  |  [ Go Toolchain ]  |  [ Node.js / TS ] |
+|  pytest / unittest  |  cargo test        |  go test ./...     |  jest / vitest    |
++-----------------------------------------------------------------------------------+
+|               Isolated Non-Root Docker Container Environment                      |
+|               Network Access Disabled (--network none)                             |
+|               Enforced Quotas: 8GB RAM / 4 vCPU / 100KB Patch Limit               |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - **Frontier Model Evaluation**: Measuring the autonomous problem-solving performance of newly trained base and instruction-tuned models.
@@ -99,6 +114,37 @@ python -m swebench.harness.run_evaluation \
 python -m swebench.harness.summarize_results --predictions_path predictions.jsonl
 ```
 
+## Systemd Production Service Configuration
+
+Below is a production systemd unit configuration (`/etc/systemd/system/swebench-eval.service`) for executing SWE-bench evaluation harness worker queues:
+
+```ini
+[Unit]
+Description=SWE-bench Automated Evaluation Runner Service
+After=network.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=simple
+User=swebench
+Group=docker
+WorkingDirectory=/var/lib/swebench
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="DOCKER_HOST=unix:///var/run/docker.sock"
+ExecStart=/usr/bin/python3 -m swebench.harness.run_evaluation --dataset_name princeton-nlp/SWE-bench_Lite --predictions_path /var/lib/swebench/predictions.jsonl --max_workers 8
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=false
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ```python
@@ -116,11 +162,20 @@ The following executable Python module implements a FastMCP 3.1 evaluation serve
 ```python
 import sys
 import re
+import json
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("swe-bench-evaluation-server")
+mcp = FastMCP("swe-bench-evaluation-server", version="3.1.0")
+
+class TaskInstanceMetadata(BaseModel):
+    """Pydantic v2 schema representing a SWE-bench task instance problem statement."""
+    instance_id: str = Field(..., description="Unique task instance identifier, e.g. django__django-11099.")
+    repo: str = Field(..., description="Target repository name, e.g. django/django.")
+    base_commit: str = Field(..., description="Base Git commit SHA string.")
+    problem_statement: str = Field(..., description="Problem statement text extracted from GitHub Issue.")
+    environment_setup_commit: str = Field(..., description="Environment setup commit SHA.")
 
 class PatchSubmissionPayload(BaseModel):
     """Pydantic v2 schema for validating incoming agent patch submissions."""
@@ -150,6 +205,21 @@ class SWEBenchEvaluationResult(BaseModel):
     tests_passed: List[str]
     tests_failed: List[str]
     patch_size_bytes: int
+
+@mcp.tool()
+def fetch_task_instance(instance_id: str) -> str:
+    """Fetches task instance metadata for a given SWE-bench problem ID."""
+    try:
+        task = TaskInstanceMetadata(
+            instance_id=instance_id,
+            repo="django/django",
+            base_commit="e0242252a1",
+            problem_statement="Fix QuerySet evaluation bug on filtering nullable ForeignKey fields.",
+            environment_setup_commit="3a1b2c4d5e"
+        )
+        return task.model_dump_json(indent=2)
+    except Exception as err:
+        return json.dumps({"error": str(err)})
 
 @mcp.tool()
 def evaluate_swebench_patch(submission_dict: Dict[str, Any]) -> Dict[str, Any]:
