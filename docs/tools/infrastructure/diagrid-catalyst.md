@@ -20,7 +20,7 @@ Diagrid Catalyst solves this by:
 
 **Infrastructure / Durable Execution Layer**. Diagrid Catalyst sits as an orchestration, security, and persistence wrapper around popular agent frameworks (like LangGraph, CrewAI, Microsoft Agent Framework, or FastMCP 3.1 multi-agent topologies) and downstream services (databases, custom tools, or cloud resources).
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │              User / Multi-Agent Applications            │
 │       (FastMCP 3.1, LangGraph, CrewAI, Google ADK)      │
@@ -34,6 +34,35 @@ Diagrid Catalyst solves this by:
 ┌────────────────────────────▼────────────────────────────┐
 │ Downstream Tools / VectorDBs / Databases / Cloud Infra   │
 └─────────────────────────────────────────────────────────┘
+```
+
+## Durable State Interception & Workflow Replay Sequence
+
+```text
+┌──────────────┐      ┌──────────────────┐      ┌──────────────────────────┐      ┌──────────────────┐
+│ Agent Runner │      │ Diagrid Interceptor│     │ Catalyst State Store     │      │ External Tool    │
+└──────┬───────┘      └────────┬─────────┘      └────────────┬─────────────┘      └────────┬─────────┘
+       │                       │                             │                             │
+       │ 1. Invoke Tool Call   │                             │                             │
+       ├──────────────────────>│                             │                             │
+       │                       │ 2. Check Cached Activity    │                             │
+       │                       ├────────────────────────────>│                             │
+       │                       │                             │                             │
+       │                       │ 3. Cache Miss (New Step)    │                             │
+       │                       │<────────────────────────────┤                             │
+       │                       │                             │                             │
+       │                       │ 4. Exec Tool with mTLS      │                             │
+       │                       ├──────────────────────────────────────────────────────────>│
+       │                       │                             │                             │
+       │                       │ 5. Return Tool Execution Result                           │
+       │                       │<──────────────────────────────────────────────────────────┤
+       │                       │                             │                             │
+       │                       │ 6. Persist Cryptographic Checkpoint                      │
+       │                       ├────────────────────────────>│                             │
+       │                       │                             │                             │
+       │ 7. Return Result      │                             │                             │
+       │<──────────────────────┤                             │                             │
+       │                       │                             │                             │
 ```
 
 ## Typical use cases
@@ -226,6 +255,69 @@ def save_durable_checkpoint(catalyst_url: str, session_id: str, state: AgentChec
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Production Kubernetes Manifests
+
+Below is a complete Kubernetes manifest template deploying Diagrid Catalyst sidecars alongside an agent runtime workload:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-durable-runner
+  namespace: default
+  labels:
+    app: agent-runner
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent-runner
+  template:
+    metadata:
+      labels:
+        app: agent-runner
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "agent-runner-app"
+        dapr.io/app-port: "8080"
+        dapr.io/enable-mtls: "true"
+        diagrid.io/catalyst-enabled: "true"
+    spec:
+      containers:
+        - name: agent-container
+          image: myregistry.internal/agent-runner:v1.4.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DIAGRID_CATALYST_URL
+              value: "http://localhost:3500"
+            - name: FASTMCP_VERSION
+              value: "3.1"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Possible Cause | Diagnostic Command | Resolution |
+| :--- | :--- | :--- | :--- |
+| `StateStoreConnectionRefused` | Dapr state component not bound to Catalyst statestore | `kubectl logs -l app=agent-runner -c daprd` | Verify Catalyst joinToken and statestore binding in Dapr component YAML. |
+| `DuplicateActivityReplayError` | External tool call was not idempotent | `diagrid sessions describe <session_id>` | Wrap non-idempotent tool calls in Catalyst activity handlers to ensure single execution. |
+| `mTLSIdentityVerificationFailed` | Cryptographic certificate mismatch between agent and sidecar | `diagrid certs status` | Rotate mTLS certificates or check SPIFFE trust domain configuration. |
+| `CheckpointPayloadTooLarge` | Agent memory payload exceeded maximum gRPC size (4MB) | Inspect state_variables size in python logs | Store large payloads in vector store and keep checkpoint state minimal. |
+
+## Zero-Trust Security & Operational Guardrails
+
+1. **Cryptographic Action Attestation**: Enforce Wasm isolated micro-runtimes with signed cryptographic digests for all external tool executions.
+2. **mTLS Policy Enforcement**: Reject unencrypted TCP traffic between agent runners and downstream database connectors.
+3. **Idempotency Mandate**: Ensure all write-heavy tools invoked via FastMCP 3.1 support transaction keys or deduplication tokens to handle replay safety.
+4. **Least-Privilege Token Scopes**: Assign short-lived JWT tokens with minimal tool invocation privileges to autonomous agent instances.
 
 ## Related tools / concepts
 

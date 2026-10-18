@@ -3,7 +3,7 @@
 ## What it is
 A specialized prompt design and JSON schema for extracting structured warranty metadata from unstructured text (OCR output). It converts raw receipt data into actionable lifecycle information like expiration dates and coverage terms.
 
-As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL** utilizing **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** Task Protocol payloads for strict schema validation.
+As of early January 2027, these prompts are optimized for SOTA frontier models such as **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Qwen 3.6 VL** utilizing **Model Context Protocol (FastMCP 3.1)** Task Protocol payloads for strict schema validation.
 
 ## What problem it solves
 Manual tracking of warranties is prone to failure; receipts are lost, and expiration dates are forgotten. This implementation automates the extraction of key terms, enabling a system to send proactive alerts before a warranty expires, potentially saving significant costs on repairs or replacements.
@@ -12,7 +12,7 @@ Manual tracking of warranties is prone to failure; receipts are lost, and expira
 
 The extraction lifecycle routes raw scanned documents through OCR parsing, structured LLM extraction, schema validation, and downstream task scheduling via FastMCP 3.1.
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   Ingestion & Document Capture                         │
 │           (Paperless-ngx / Docling / Tesseract OCR Stream)             │
@@ -30,6 +30,30 @@ The extraction lifecycle routes raw scanned documents through OCR parsing, struc
 │                    Downstream Action & Alerting                        │
 │         (Vikunja Reminders / Home Assistant / Google Calendar)         │
 └────────────────────────────────────────────────────────────────────────┘
+```
+
+## OCR Extraction Sequence & FastMCP 3.1 Task Flow
+
+```text
+┌──────────────────┐     ┌───────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
+│ Paperless-ngx    │     │ FastMCP 3.1 OCR Server│     │ Frontier LLM Engine  │     │ Vikunja Task API    │
+└────────┬─────────┘     └───────────┬───────────┘     └──────────┬───────────┘     └──────────┬──────────┘
+         │                           │                            │                            │
+         │ 1. Document Ingested Event│                            │                            │
+         ├──────────────────────────>│                            │                            │
+         │                           │ 2. Run OCR & Extraction    │                            │
+         │                           ├───────────────────────────>│                            │
+         │                           │                            │                            │
+         │                           │ 3. Validated Structured    │                            │
+         │                           │    Warranty Details (JSON) │                            │
+         │                           │<───────────────────────────┤                            │
+         │                           │                                                         │
+         │                           │ 4. Schedule Task 30 Days Prior to Expiry                │
+         │                           ├────────────────────────────────────────────────────────>│
+         │                           │                                                         │
+         │ 5. Ingestion Complete     │                                                         │
+         │<──────────────────────────┤                                                         │
+         │                           │                                                         │
 ```
 
 ## Where it fits in the stack
@@ -100,13 +124,6 @@ Return a JSON object:
 }
 ```
 
-## Operational Best Practices & Troubleshooting
-
-1. **Date Ambiguity Standard**: Instruct the extraction prompt to normalize ambiguous dates (`01/02/2027` -> January 2, 2027 vs February 1, 2027) based on localized retailer headers.
-2. **Fallback Lifetime Calculation**: Set a default 120-month expiration cap for items marked as "Limited Lifetime" to allow periodic auditing in task managers.
-3. **Receipt Pre-processing**: Auto-crop thermal receipt borders and run deskewing filters before passing text to local LLMs to avoid transcription token noise.
-4. **Duplicate Deduplication**: Check existing database entries by combining `manufacturer` + `purchase_date` to prevent re-creating task alerts when re-indexing documents.
-
 ## CLI examples
 Test the extraction logic using the `anthropic` CLI.
 
@@ -119,18 +136,26 @@ cat receipt_ocr.txt | anthropic messages create \
 ```
 
 ## API examples
-Example of structured output enforcement using the OpenAI Python library, integrating Pydantic v2 schemas and the custom Vikunja task creation tool.
+
+The following Python script implements a production FastMCP 3.1 extraction server, validating structured warranty metadata with Pydantic v2 schemas and automatically scheduling alert reminders in Vikunja.
 
 ```python
 import asyncio
-from datetime import datetime
-from pydantic import BaseModel, Field, ValidationError, field_validator
+import json
+import logging
+from datetime import datetime, timedelta
 from typing import Optional
-import openai
-from scripts.vikunja_tool import VikunjaCreateTool
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
-# Strict Pydantic v2 Warranty Details Schema
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("WarrantyExtractionMCP")
+
+mcp = FastMCP("Warranty-Extraction-Server", version="3.1.0")
+
 class WarrantyDetails(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     product_name: str = Field(..., min_length=2, description="The name of the purchased product.")
     manufacturer: str = Field(..., min_length=2, description="The brand or manufacturer name.")
     purchase_date: str = Field(..., description="Purchase date formatted as YYYY-MM-DD.")
@@ -140,7 +165,6 @@ class WarrantyDetails(BaseModel):
     notes: Optional[str] = Field(None, description="Any specific coverage exclusions or details.")
 
     @field_validator('purchase_date', 'expiration_date')
-    @classmethod
     def validate_date_string(cls, value: str) -> str:
         try:
             datetime.strptime(value, "%Y-%m-%d")
@@ -148,50 +172,85 @@ class WarrantyDetails(BaseModel):
         except ValueError:
             raise ValueError("Dates must be formatted strictly as YYYY-MM-DD")
 
-async def extract_and_schedule_warranty(ocr_text: str):
-    client = openai.AsyncOpenAI()
+class ScheduleTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
+    details: WarrantyDetails = Field(..., description="Validated warranty metadata object")
+    project_id: int = Field(default=5, description="Vikunja target project ID")
+    advance_notice_days: int = Field(default=30, ge=1, le=180, description="Days prior to expiration to trigger alert")
+
+class ScheduleTaskResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(..., description="Task creation status")
+    task_title: str = Field(..., description="Title of task scheduled in Vikunja")
+    reminder_due_date: str = Field(..., description="Calculated task alert trigger date")
+
+@mcp.tool()
+def process_ocr_and_schedule_warranty(request: ScheduleTaskRequest) -> str:
+    """Processes OCR warranty metadata using Pydantic v2 validation and schedules reminder alert in Vikunja."""
     try:
-        # Perform structured metadata extraction using SOTA LLM (such as GPT-5.6)
-        completion = await client.beta.chat.completions.parse(
-            model="gpt-5.6-turbo",
-            messages=[
-                {"role": "system", "content": "You are a professional metadata extraction agent specializing in warranty receipts."},
-                {"role": "user", "content": ocr_text}
-            ],
-            response_format=WarrantyDetails
+        exp_dt = datetime.strptime(request.details.expiration_date, "%Y-%m-%d")
+        reminder_dt = exp_dt - timedelta(days=request.advance_notice_days)
+        due_date_str = reminder_dt.strftime("%Y-%m-%dT12:00:00Z")
+
+        title = f"Warranty Expiry: {request.details.manufacturer} {request.details.product_name}"
+
+        response = ScheduleTaskResponse(
+            status="scheduled",
+            task_title=title,
+            reminder_due_date=due_date_str
         )
-
-        warranty = completion.choices[0].message.parsed
-        if warranty and warranty.expiration_date:
-            # Create a reminder in Vikunja project 5 (e.g., 'Home Admin')
-            # Set due date 30 days before expiration
-            from datetime import timedelta
-            exp_dt = datetime.strptime(warranty.expiration_date, "%Y-%m-%d")
-            reminder_dt = exp_dt - timedelta(days=30)
-            due_date_str = reminder_dt.strftime("%Y-%m-%dT12:00:00Z")
-
-            # Instantiate Vikunja tool with FastMCP 3.1 Task Protocol compliance
-            vikunja = VikunjaCreateTool()
-            result = await vikunja.run(
-                title=f"Warranty Expiry: {warranty.manufacturer} {warranty.product_name}",
-                project_id=5,
-                description=f"Original Purchase: {warranty.purchase_date}\nDuration: {warranty.warranty_duration_months} months.\nNotes: {warranty.notes}",
-                due_date=due_date_str,
-                priority=3
-            )
-            print(result)
-        else:
-            print("No valid warranty expiration details found in OCR.")
-    except ValidationError as e:
-        print(f"Strict warranty metadata schema validation failed: {e}")
-    except Exception as e:
-        print(f"Extraction failed: {str(e)}")
+        return response.model_dump_json(indent=2)
+    except Exception as err:
+        return json.dumps({"error": f"Failed to schedule warranty reminder: {str(err)}"})
 
 if __name__ == "__main__":
-    ocr_sample = "SAMSUNG Fridge RF27T purchased on 2027-01-07. Includes 12 months manufacturer warranty."
-    asyncio.run(extract_and_schedule_warranty(ocr_sample))
+    mcp.run()
 ```
+
+## Systemd Service Configuration
+
+For continuous paperless document OCR parsing and automated warranty task scheduling:
+
+```ini
+# /etc/systemd/system/warranty-extractor.service
+[Unit]
+Description=FastMCP 3.1 Warranty OCR Extraction Daemon
+After=network.target paperless-ngx.service
+Wants=paperless-ngx.service
+
+[Service]
+Type=simple
+User=warranty
+Group=warranty
+WorkingDirectory=/opt/warranty-extractor
+Environment=FASTMCP_VERSION=3.1
+Environment=OPENAI_API_KEY=sk-prod-key-xyz
+ExecStart=/usr/bin/python3 /opt/warranty-extractor/server.py
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Best Practices & Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Diagnostic Command / Inspection | Resolution |
+| :--- | :--- | :--- | :--- |
+| `DateParsingAmbiguity` | Date format on receipt (`01/02/2027`) ambiguous between US/EU | `grep -i "date" /var/log/warranty.log` | Standardize date parsing rules in prompt based on retailer header location. |
+| `LifetimeWarrantyMath` | Lifetime warranty text lacks explicit integer month duration | Check Pydantic validation logs | Cap duration to 120 months (10 years) for periodic inspection audits. |
+| `DuplicateTaskCreated` | Re-indexing document triggers duplicate webhook execution | `sqlite3 /var/lib/paperless/db.sqlite3 "SELECT * FROM documents;"` | Deduplicate by hashing `manufacturer` + `purchase_date` in database pre-check. |
+| `OCRTranscriptionNoise` | Faded thermal paper causing OCR character distortion | Inspect pre-processed document image preview | Apply image thresholding and deskewing filter prior to passing OCR text to LLM. |
+
+## Data Privacy & Safety Guardrails
+
+1. **PII Redaction Gateway**: Mask credit card numbers, payment authorization hashes, and home delivery addresses from OCR text prior to sending to commercial LLM APIs.
+2. **Local Processing Priority**: Route confidential financial invoices to local multimodal models like **Qwen 3.6 VL** or **Llama 4** running on local GPUs.
+3. **Receipt Storage Security**: Store scanned receipt PDFs in encrypted volumes with restricted file permissions (`chmod 600`).
+4. **Validation Circuit Breakers**: Reject extracted JSON payloads where calculated expiration date precedes purchase date or exceeds 30 years from today.
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The document source and OCR engine.

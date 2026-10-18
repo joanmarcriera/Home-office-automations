@@ -3,7 +3,7 @@
 A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of early January 2027.
 
 ## What it is
-A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.1) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Llama 4](../tools/ai_knowledge/local_llms.md) for intent resolution.
+A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (FastMCP 3.1) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Llama 4](../tools/ai_knowledge/local_llms.md) for intent resolution.
 
 ## What problem it solves
 Selecting the appropriate vector store is critical for preventing "hallucination sprawl" in autonomous agents. This comparison balances the trade-offs between local resource constraints (RAM/CPU), query latency, and the need for enterprise-grade features like horizontal scaling and high-availability indexing for massive personal knowledge bases.
@@ -11,7 +11,7 @@ Selecting the appropriate vector store is critical for preventing "hallucination
 ## Where it fits in the stack
 Vector databases serve as the **Memory Plane** within the [Home-Office Architecture](../architecture/README.md). They interface with [Ollama](../services/ollama.md) for local embeddings and [n8n](../services/n8n.md) for retrieval-augmented workflows, typically acting as the backend for [Paperless-ngx](../services/paperless-ngx.md) or custom agentic memory servers.
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                      Agentic Workflow / MCP Client                      │
 └────────────────────────────────────┬────────────────────────────────────┘
@@ -33,6 +33,32 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 └──────────────────────────────────────┘ └────────────────────────────────┘
 ```
 
+## Vector Search Indexing & Query Pipeline Sequence
+
+```text
+┌──────────────┐     ┌───────────────────────┐     ┌──────────────────────┐     ┌──────────────────────┐
+│ MCP Client   │     │ Hybrid Search Router  │     │ Embedding Generator  │     │  Vector Store Node   │
+└──────┬───────┘     └───────────┬───────────┘     └──────────┬───────────┘     └──────────┬───────────┘
+       │                         │                            │                            │
+       │ 1. Vector Search Query  │                            │                            │
+       ├────────────────────────>│                            │                            │
+       │                         │ 2. Embed Query Text        │                            │
+       │                         ├───────────────────────────>│                            │
+       │                         │                            │                            │
+       │                         │ 3. Dense Embedding Vector  │                            │
+       │                         │<───────────────────────────┤                            │
+       │                         │                            │                            │
+       │                         │ 4. Execute HNSW Graph & Metadata Pre-filter             │
+       │                         ├────────────────────────────────────────────────────────>│
+       │                         │                                                         │
+       │                         │ 5. Matched Vector Points + Payload Payloads             │
+       │                         │<────────────────────────────────────────────────────────┤
+       │ 6. Reciprocal Rank      │                                                         │
+       │    Fused Results        │                                                         │
+       │<────────────────────────┤                                                         │
+       │                         │                                                         │
+```
+
 ## Typical use cases
 - **Agentic Memory**: Storing conversation history and "learned facts" for a [Home Admin Agent](./home-admin-agent-architecture.md).
 - **Semantic Search**: Retrieval across multi-terabyte OCR archives in Paperless-ngx or Obsidian.
@@ -52,6 +78,17 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **Qdrant**: REST API can be verbose for simple prototyping compared to Chroma's Pythonic simplicity.
 - **Pinecone**: Cloud-only (proprietary); raises privacy concerns for highly sensitive personal data.
 - **pgvector**: Slower index builds (HNSW) compared to specialized Rust/C++ engines; limited sparse vector support.
+
+## Feature & Performance Comparison Matrix
+
+| Database | Architecture / Language | Primary Index Type | Hybrid Search Support | Min RAM Footprint | SOTA Quantization | Best Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Qdrant** | Native Rust | HNSW / Quantized Graph | Native BM25 + Dense | 512 MB | Scalar & Product (SQ/PQ) | Homelab hot memory & low-latency RAG |
+| **Pinecone** | Proprietary Cloud | Serverless Graph | Native Sparse-Dense | N/A (Serverless) | Cloud Managed | Fully managed enterprise cold memory |
+| **Milvus** | Distributed Go/C++ | Knowhere (HNSW/DiskANN) | Supported (v2.4+) | 4 GB+ | Scalar / Int8 / IVF | Multi-node multi-billion vector archives |
+| **Weaviate** | Native Go | HNSW / Flat | Native BM25 + Vector | 1 GB | Product Quantization (PQ) | GraphQL/REST rich object Graph RAG |
+| **pgvector** | PostgreSQL C Ext | HNSW / IVFFlat | via pg_trgm / tsvector | 256 MB (Add-on) | Half-vec (fp16) | Single-node PostgreSQL unified storage |
+| **Chroma** | Python / ClickHouse | HNSW (hnswlib) | Basic Text Filters | 512 MB | None | Local Python prototyping & quick tests |
 
 ## When to use it
 - Use **Qdrant** for the primary local memory store (highly recommended for late 2026 homelabs).
@@ -122,13 +159,13 @@ This Python snippet showcases a complete FastMCP 3.1 server designed to query lo
 import os
 import json
 from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("VectorMemoryManager")
+mcp = FastMCP("VectorMemoryManager", version="3.1.0")
 
 class VectorSearchQuery(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     collection: str = Field(description="Name of the target collection (e.g., 'notes', 'papers')")
     vector: List[float] = Field(description="Query embedding vector (3072 dimensions for Gemma 3)")
@@ -137,8 +174,14 @@ class VectorSearchQuery(BaseModel):
     top_k: int = Field(default=5, ge=1, le=100, description="Number of nearest neighbors to return")
     threshold: float = Field(default=0.75, ge=0.0, le=1.0, description="Minimum cosine similarity cutoff")
 
+    @field_validator("vector")
+    def validate_vector_dim(cls, vec: List[float]) -> List[float]:
+        if len(vec) == 0:
+            raise ValueError("Embedding vector cannot be empty.")
+        return vec
+
 class SearchMetadata(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     author: str = Field(description="Author or source agent identifier")
     created_at: str = Field(description="ISO-8601 formatted creation timestamp")
@@ -146,7 +189,7 @@ class SearchMetadata(BaseModel):
     security_clearance: str = Field(default="internal", description="Access control security level")
 
 class VectorMatch(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     id: str = Field(description="Unique record UUID")
     score: float = Field(description="Cosine or Hybrid RRF similarity score")
@@ -154,7 +197,7 @@ class VectorMatch(BaseModel):
     metadata: SearchMetadata = Field(description="Validated metadata object")
 
 class QueryResponse(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     collection: str = Field(description="Queried collection identifier")
     results: List[VectorMatch] = Field(description="Array of matched vector records")
@@ -209,6 +252,50 @@ def search_semantic_memory(query: VectorSearchQuery) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Service Configuration
+
+To run a vector query routing daemon for local agent pipelines:
+
+```ini
+# /etc/systemd/system/vector-router.service
+[Unit]
+Description=FastMCP 3.1 Vector Query Router Daemon
+After=network.target qdrant.service
+Wants=qdrant.service
+
+[Service]
+Type=simple
+User=vectorrouter
+Group=vectorrouter
+WorkingDirectory=/opt/vector-router
+Environment=QDRANT_HOST=localhost
+Environment=QDRANT_PORT=6333
+ExecStart=/usr/bin/python3 /opt/vector-router/server.py
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Command / Inspection | Resolution |
+| :--- | :--- | :--- | :--- |
+| `QdrantCollectionNotFound` | Target collection has not been initialized with proper dimensions | `curl http://localhost:6333/collections` | Run collection setup script with exact dimension matching model (e.g. 3072 for Gemma 3). |
+| `HNSWIndexBuildOOM` | HNSW graph construction exceeded container RAM limit | `dmesg -T \| grep -i oom` | Enable Scalar Quantization (`SQ`) or lower `m` / `ef_construct` parameters. |
+| `DimensionMismatchError` | Query embedding vector length does not match index vector length | Inspect input vector length in log payload | Ensure embedding generator model matches index target schema. |
+| `SlowSparseQueryLatency` | Unindexed metadata field evaluated during post-filter | `curl -X POST http://localhost:6333/collections/memory/points/search` | Create explicit payload index on filtered metadata field (e.g. `category` or `author`). |
+| `PostgreSQLVectorLockTimeout` | High-concurrency HNSW updates blocking read queries in pgvector | `SELECT * FROM pg_stat_activity WHERE query LIKE '%vector%';` | Use IVFFlat index for append-heavy workloads or scale out read replicas. |
+
+## Data Privacy & Operational Guardrails
+
+1. **Local Hot Data Retention**: Keep sensitive personal records (financial documents, medical notes, credentials) strictly inside local Qdrant or pgvector nodes; never sync unencrypted vectors to proprietary cloud providers.
+2. **Quantization Thresholds**: Use Scalar Quantization (SQ8) to reduce RAM usage by up to 75% with less than 1% loss in retrieval precision on 100k+ vector collections.
+3. **Payload Sanitization**: Strip raw passwords or unencrypted auth tokens before indexing doc payloads into vector databases.
+4. **Backup Automation**: Take hourly snapshots of Qdrant vector storage directories (`/qdrant/storage/snapshots`) prior to index re-segmentation or model upgrades.
 
 ## Related tools / concepts
 - [RAG Patterns](./patterns/rag.md)
