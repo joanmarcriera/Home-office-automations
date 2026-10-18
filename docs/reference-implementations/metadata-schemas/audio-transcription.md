@@ -246,6 +246,30 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+### Systemd Service Unit Configuration
+
+Deploying the FastMCP 3.1 Audio Ingest Service as a managed background daemon:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Audio Transcription Metadata Ingestion Engine
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/repos/Home-office-automations
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/audio_metadata_provider.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=WHISPER_MODEL=distil-large-v3
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### Schema Instantiation & Validation Example
 ```python
 import json

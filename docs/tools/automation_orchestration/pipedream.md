@@ -230,6 +230,30 @@ if __name__ == "__main__":
     print(f"Workflow Processing Result: {res}")
 ```
 
+### Systemd Service Configuration
+
+Deploying the FastMCP 3.1 Pipedream Workflow Bridge service as a background systemd service daemon:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Pipedream Workflow Bridge Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/repos/Home-office-automations
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/pipedream_workflow_server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=PIPEDREAM_LOG_LEVEL=INFO
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### Node.js Action with Native Fetch (FastMCP 3.1 Integrated)
 Making an authenticated call to a connected service while adhering to FastMCP 3.1 Task Protocol schemas.
 

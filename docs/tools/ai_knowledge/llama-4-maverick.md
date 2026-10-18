@@ -269,6 +269,30 @@ if __name__ == "__main__":
     print("FastMCP Llama 4 Maverick Agent Host initialized successfully.")
 ```
 
+### Systemd Service Configuration
+
+Deploying the FastMCP 3.1 Llama 4 Maverick Agent Host service as a background daemon:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Llama 4 Maverick Agent Host Daemon
+After=network.target local-fs.target vllm.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/repos/Home-office-automations
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/llama4_maverick_agent_host.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=LLAMA4_ENDPOINT=http://localhost:8000/v1/chat/completions
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### Direct Async HTTP Client Implementation
 For high-throughput async processing without external server wrappers:
 

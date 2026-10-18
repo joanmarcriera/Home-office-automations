@@ -239,6 +239,30 @@ if __name__ == "__main__":
     print("FastMCP Paperless Taxonomy Server initialized successfully.")
 ```
 
+### Systemd Service Configuration
+
+Deploying the FastMCP 3.1 Paperless Tag Taxonomy Sync Engine as a background systemd service unit:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Paperless Tag Taxonomy Sync Daemon
+After=network.target local-fs.target paperless-webserver.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/repos/Home-office-automations
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/paperless_taxonomy_server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=PAPERLESS_API_URL=http://localhost:8000/api
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The implementation platform for this taxonomy.
 - [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): A workflow that uses these tags to trigger tasks.

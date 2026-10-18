@@ -81,6 +81,24 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
    +----------------+     +-------------------+     +-------------------------+
 ```
 
+### Detailed Agent Routing Sequence Diagram
+
+```
++--------------+        +---------------------+        +--------------------+        +------------------+
+| Intake Agent |        | Curation Agent      |        | FastMCP Server     |        | Git CI/CD        |
++--------------+        +---------------------+        +--------------------+        +------------------+
+       |                           |                              |                           |
+       |-- 1. Scan new-sources --->|                              |                           |
+       |                           |-- 2. Match canonical doc --->|                           |
+       |                           |                              |-- 3. Run contract audit ->|
+       |                           |<-- 4. Audit Passed ----------|                           |
+       |                           |-- 5. Deepen doc & tools ---->|                           |
+       |                           |                              |-- 6. Execute checks ---->|
+       |                           |                              |<-- 7. All Green ----------|
+       |                           |-- 8. Commit & Create PR -------------------------------->|
+       v                           v                              v                           v
+```
+
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
 - **FastMCP 3.1 Integration**: Low-latency execution and standardized agent discovery for rapid tooling validation.
@@ -246,6 +264,30 @@ def audit_knowledgeops_contract(filepath: str) -> str:
 
 if __name__ == "__main__":
     mcp.run()
+```
+
+### Systemd Service Configuration
+
+Deploying the FastMCP 3.1 KnowledgeOps Policy Engine as a resilient systemd background service:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Multi-Agent KnowledgeOps Policy Engine
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/repos/Home-office-automations
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/knowledgeops_policy_engine.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=LOG_LEVEL=INFO
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Enterprise Governance & Agent Safety Guardrails
