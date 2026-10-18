@@ -5,6 +5,37 @@ Letta (v1.15.x+, early January 2027), formerly known as MemGPT, is an open-sourc
 
 Through native support for **FastMCP 3.1 Task Protocol**, Letta agents autonomously invoke external tools, query knowledge bases, and edit their own memory blocks across multi-session interactions and multi-agent teams.
 
+```mermaid
+flowchart TD
+    subgraph RAM ["Active LLM Context Window (RAM Cache)"]
+        SYS["System Prompt & Core Rules"]
+        subgraph CoreMem ["Core Memory Blocks (Self-Editable)"]
+            HUMAN["human: User Preferences & Traits"]
+            PERS["persona: Agent Identity & Rules"]
+        end
+        FIFO["Working Message FIFO Buffer (Short-Term Memory)"]
+    end
+
+    subgraph Paging ["Automated Paging / Memory Tools"]
+        MTOOLS["core_memory_append / archival_memory_insert"]
+    end
+
+    subgraph DB ["Persistent Storage Layer (PostgreSQL + pgvector)"]
+        RECALL["RECALL MEMORY: Full Conversation Logs"]
+        ARCHIVAL["ARCHIVAL MEMORY: Vectorized Document KB"]
+    end
+
+    subgraph Gateway ["FastMCP 3.1 Tool & Agent Gateway"]
+        MCP["Tool Execution & Multi-Agent Handoffs"]
+    end
+
+    SYS & CoreMem & FIFO --> MTOOLS
+    MTOOLS --> RECALL & ARCHIVAL
+    RECALL & ARCHIVAL --> Gateway
+```
+
+## Tiered Memory Architecture Flow
+
 ```
 +-----------------------------------------------------------------------------------+
 |                           LETTA TIERED MEMORY ARCHITECTURE                        |
@@ -72,6 +103,15 @@ Letta resolves this by decoupling agent memory state from the LLM's raw context 
 +-----------------------------------------------------------------------------------+
 ```
 
+## Memory Tier Comparison Matrix
+
+| Memory Tier | Storage Backend | Access Latency | Primary Function | Editable By Agent? |
+| :--- | :--- | :--- | :--- | :--- |
+| **Core Memory** | Active Context / RAM | Sub-millisecond | User traits & Persona instructions | Yes (`core_memory_append`) |
+| **Working Buffer** | FIFO Context Queue | Sub-millisecond | Recent turn-by-turn conversation | Automatic FIFO Eviction |
+| **Recall Memory** | PostgreSQL Relational | ~10-25 ms | Full message logs & search history | Read-only |
+| **Archival Memory**| PostgreSQL + `pgvector`| ~20-50 ms | Vectorized passage & document store | Yes (`archival_memory_insert`)|
+
 ## Typical use cases
 - **Long-Term Personal AI Executive Assistants**: Assistants that maintain deep context on user habits, organizational structures, and personal preferences over years.
 - **Durable Software Engineering Agents**: Agents that track long-running refactoring projects across days, remembering resolved bugs, remaining tasks, and architecture decisions.
@@ -128,6 +168,40 @@ services:
       - LETTA_PG_URI=postgresql://letta_user:letta_secure_pass@letta-db:5432/letta_db
 ```
 
+## Systemd Server Unit Configuration
+
+For production environments running Letta Agent Server as a systemd service, configure `/etc/systemd/system/letta-server.service`:
+
+```ini
+[Unit]
+Description=Letta Stateful Agent Server Daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=letta
+Group=letta
+WorkingDirectory=/opt/letta
+Environment=LETTA_HOST=0.0.0.0
+Environment=LETTA_PORT=8283
+EnvironmentFile=/etc/letta/environment
+ExecStart=/opt/letta/venv/bin/letta server --host 0.0.0.0 --port 8283
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/letta /opt/letta/data
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ### Create Stateful Agent
@@ -157,25 +231,31 @@ curl -X POST "${LETTA_HOST}/v1/agents/${AGENT_ID}/core-memory/blocks/human" \
 ## API examples
 
 ### Python SDK with Pydantic v2 & FastMCP 3.1 Server Integration
+The following script demonstrates managing Letta agent memory states using Pydantic v2 schemas and exposing a FastMCP 3.1 tool server:
+
 ```python
 import os
 import json
 import logging
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("LettaMemory")
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Letta-Agent-Memory-Server", version="3.1")
 
 class CoreMemoryBlock(BaseModel):
     label: str = Field(..., description="Block label (e.g. human, persona)")
     value: str = Field(..., min_length=1, description="Content of the memory block")
 
 class AgentStateDump(BaseModel):
-    agent_id: str
-    name: str
-    model: str
-    core_memory: List[CoreMemoryBlock] = Field(default_factory=list)
+    agent_id: str = Field(..., description="Unique agent identifier.")
+    name: str = Field(..., description="Agent display name.")
+    model: str = Field(..., description="Target model identifier.")
+    core_memory: List[CoreMemoryBlock] = Field(default_factory=list, description="List of core memory blocks.")
 
 class LettaManager:
     def __init__(self, server_url: Optional[str] = None):
@@ -193,27 +273,64 @@ class LettaManager:
         }
         return AgentStateDump.model_validate(mock_raw)
 
-try:
-    from fastmcp import FastMCP
-    mcp = FastMCP("Letta Agent Memory Server")
-    manager = LettaManager()
+manager = LettaManager()
 
-    @mcp.tool()
-    def get_agent_memory(agent_id: str) -> str:
-        """Retrieve core memory blocks for a persistent Letta agent."""
+@mcp.tool(name="get_agent_memory", description="Retrieve core memory blocks for a persistent Letta agent.")
+def get_agent_memory(agent_id: str) -> str:
+    """Retrieve core memory blocks for a persistent Letta agent."""
+    try:
         state = manager.inspect_agent_state(agent_id)
         return state.model_dump_json(indent=2)
+    except ValidationError as val_err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": val_err.errors()})
+    except Exception as ex:
+        return json.dumps({"status": "ERROR", "error": str(ex)})
 
-except ImportError:
-    pass
+@mcp.tool(name="update_core_memory", description="Updates a specific core memory block for a Letta agent.")
+def update_core_memory(agent_id: str, label: str, new_value: str) -> str:
+    """Simulates updating a core memory block via Letta API."""
+    try:
+        block = CoreMemoryBlock(label=label, value=new_value)
+        logger.info(f"Updated memory block '{block.label}' for agent {agent_id}")
+        return json.dumps({
+            "status": "UPDATED",
+            "agent_id": agent_id,
+            "block": block.model_dump()
+        }, indent=2)
+    except ValidationError as val_err:
+        return json.dumps({"status": "INVALID_BLOCK", "errors": val_err.errors()})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error Symptom | Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `Paging Latency > 100ms` | Unindexed PostgreSQL `pgvector` table on archival memory embeddings. | `docker exec -it letta-db psql -U letta_user -c "\d archival_memory"` | Create HNSW index: `CREATE INDEX ON archival_memory USING hnsw (vector vector_cosine_ops);` |
+| `Memory Overflow Warning` | Core memory blocks exceeding active context RAM allocation. | `curl http://localhost:8283/v1/agents/<id>/memory` | Truncate stale user preferences or compress memory blocks using `core_memory_replace`. |
+| `Database Connection Refused` | PostgreSQL container failed or network bridge disconnected. | `systemctl status letta-server && docker logs letta-db` | Restart PostgreSQL service and check `LETTA_PG_URI` environment string. |
+| `Token Budget Exhaustion` | Unbounded FIFO working buffer size sending huge prompt histories. | `letta inspect-buffer --agent-id <id>` | Lower max FIFO message count limit (`max_tokens_buffer: 4000`) in agent config. |
+| `Context Loss on Model Switch` | Mismatched prompt template tags between Anthropic and OpenAI models. | `letta test-migration --agent-id <id> --target-model gpt-5.6` | Execute Letta context adapter migration script prior to switching model backends. |
+
+## Operational Best Practices & Guardrails
+
+### 1. Database Connection Pooling
+In high-throughput multi-agent deployments, deploy `PgBouncer` in front of PostgreSQL to manage database connection pools effectively and prevent connection exhaustion.
+
+### 2. Memory Sanitization Guardrails
+Ensure agents sanitize incoming user inputs before appending to `archival_memory` to prevent vector store prompt injection attacks or storing sensitive PII unencrypted.
+
+### 3. Regular Context Compaction
+Schedule periodic agent maintenance passes to summarize historical FIFO message logs into compact archival memory passages.
+
 ## Related tools / concepts
-- [Mem0](mem0.md)
-- [Gemma 4](../ai_knowledge/local_llms.md)
-- [Agno](agno.md)
-- [LangGraph](../frameworks/langgraph.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Mem0](mem0.md) — Lightweight AI memory layer framework.
+- [Gemma 4](../ai_knowledge/local_llms.md) — Open weights model family.
+- [Agno](agno.md) — High-performance multi-agent runtime.
+- [LangGraph](../frameworks/langgraph.md) — Stateful agent execution graph framework.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Retrieval-Augmented Generation architectural patterns.
 
 ## Sources / references
 - [Letta Official Project & Documentation](https://www.letta.com/)

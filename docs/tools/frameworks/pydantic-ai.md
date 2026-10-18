@@ -43,6 +43,34 @@ graph TD
     AgentCore --> Logfire[Pydantic Logfire Observability]
 ```
 
+## System Execution Sequence Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                       PYDANTIC-AI EXECUTION SEQUENCE FLOW                         |
++-----------------------------------------------------------------------------------+
+
+[User Input] --> [RunContext Inject] --> [LLM Prompt + FastMCP Tools]
+                                                  |
+                                                  v
+[Validated Result] <-- (Pass) <-- [Pydantic v2 Schema] <-- [LLM Response Payload]
+                                          |
+                                    (Fail / Error)
+                                          v
+                                [Self-Correction Retry Loop]
+```
+
+## Feature Comparison Matrix
+
+| Feature / Metric | PydanticAI | LangChain / LangGraph | CrewAI | AutoGen |
+| :--- | :--- | :--- | :--- | :--- |
+| **Type Validation** | Native Pydantic v2 | Pydantic / Dict Wrappers | Pydantic Models | Dict / Dynamic |
+| **Dependency Injection** | Native `RunContext[Deps]` | State Graph Pass-Through | Task Context Pass | Conversation History |
+| **Observability** | Native Pydantic Logfire | LangSmith | Crew Telemetry | Console / OpenTelemetry |
+| **FastMCP 3.1 Native** | Native Integration | Adapter Wrappers | Custom Tools | Custom Agents |
+| **Self-Correction Retry** | Automatic Error Feedback | Graph Error Handler | Task Retry Loop | Agent Conversation |
+| **Primary Language** | Python 3.10+ | Python & TypeScript | Python | Python & C# |
+
 ## Typical use cases
 - **Production Structured Data Extraction**: Extracting complex, multi-nested domain entities from unstructured legal, medical, or financial documents into validated Pydantic v2 models with automatic self-correction.
 - **Enterprise Agentic Microservices**: Building type-safe FastAPI endpoints powered by PydanticAI agents that expose standardized REST and FastMCP 3.1 tool APIs.
@@ -79,7 +107,7 @@ Install `pydantic-ai` alongside Pydantic v2 and optional observability tools via
 
 ```bash
 # Core package installation
-pip install pydantic-ai pydantic logfire
+pip install pydantic-ai pydantic logfire fastmcp
 
 # Install provider dependencies
 pip install anthropic openai google-genai
@@ -100,6 +128,38 @@ agent = Agent(
 # Execute synchronous agent run
 result = agent.run_sync('Explain the primary benefits of Pydantic v2 validation.')
 print(result.data)
+```
+
+## Systemd Microservice Unit Configuration
+
+To run a PydanticAI agent service continuously in an enterprise microservices architecture, configure `/etc/systemd/system/pydantic-ai-agent.service`:
+
+```ini
+[Unit]
+Description=PydanticAI Agent Microservice Gateway
+After=network.target postgresql.service
+Requires=network.target
+
+[Service]
+Type=simple
+User=pydanticai
+Group=pydanticai
+WorkingDirectory=/opt/pydanticai-service
+Environment=PYTHONPATH=/opt/pydanticai-service
+EnvironmentFile=/etc/pydanticai/environment
+ExecStart=/opt/pydanticai-service/venv/bin/python3 -m uvicorn server:app --host 0.0.0.0 --port 8080 --workers 4
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -132,9 +192,10 @@ This production-ready Python example demonstrates injecting runtime database con
 
 ```python
 import json
+import os
 from dataclasses import dataclass
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from pydantic_ai import Agent, RunContext
 from mcp.server.fastmcp import FastMCP
 
@@ -186,27 +247,52 @@ def fetch_customer_records(ctx: RunContext[DatabaseConnection], user_id: str) ->
     return json.dumps(records)
 
 # 4. FastMCP 3.1 Gateway Integration
-mcp = FastMCP("PydanticAIAuditGateway")
+mcp = FastMCP("PydanticAIAuditGateway", version="3.1")
 
-@mcp.tool()
+@mcp.tool(name="execute_customer_audit", description="FastMCP tool wrapper executing PydanticAI agent with injected context.")
 def execute_customer_audit(user_id: str, tenant_id: str) -> str:
     """FastMCP tool wrapper that executes the PydanticAI agent with injected context."""
     db_conn = DatabaseConnection(
-        connection_string="postgresql://user:pass@localhost:5432/audit_db",
+        connection_string=os.getenv("DATABASE_URL", "postgresql://user:pass@localhost:5432/audit_db"),
         active_tenant_id=tenant_id
     )
 
-    result = agent.run_sync(
-        f"Generate a validated CustomerAuditReport for customer user_id: '{user_id}'.",
-        deps=db_conn
-    )
-
-    # result.data is guaranteed to be a valid CustomerAuditReport instance
-    return result.data.model_dump_json(indent=2)
+    try:
+        result = agent.run_sync(
+            f"Generate a validated CustomerAuditReport for customer user_id: '{user_id}'.",
+            deps=db_conn
+        )
+        # result.data is guaranteed to be a valid CustomerAuditReport instance
+        return result.data.model_dump_json(indent=2)
+    except ValidationError as val_err:
+        return json.dumps({"status": "VALIDATION_FAILED", "errors": val_err.errors()})
+    except Exception as ex:
+        return json.dumps({"status": "ERROR", "error": str(ex)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error Symptom | Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `UnexpectedModelBehavior: Retry limit reached` | Model output consistently fails Pydantic v2 schema validation after max retries. | `LOGFIRE_LEVEL=debug python3 agent.py` | Add explicit instructions or field descriptions in Pydantic schema or increase `max_result_retries`. |
+| `MissingDependencyError: RunContext.deps missing` | Executed agent tool requiring dependencies without passing `deps=` to `agent.run()`. | `python3 -m pydantic_ai inspect agent` | Ensure `agent.run_sync(..., deps=my_deps)` is invoked with valid dependency object instance. |
+| `FastMCP Tool Call Unhandled` | Model attempted tool invocation with mismatched argument keys. | `mcp inspect my_tools.py` | Align Pydantic tool argument type annotations with FastMCP schema definitions. |
+| `RateLimitError: 429` | LLM provider endpoint exhausted token bucket during self-correction retries. | `curl -i https://api.anthropic.com` | Implement exponential backoff or configure fallback models via LiteLLM proxy. |
+| `Logfire Export Failed` | Invalid Logfire write token or network egress block on port 443. | `logfire auth status` | Check `LOGFIRE_TOKEN` environment variable and firewall rule egress permissions. |
+
+## Production Best Practices & Guardrails
+
+### 1. Schema Retry Caps
+Always set explicit retry bounds (`max_result_retries=3`) on agent definitions to prevent infinite self-correction retry loops that exhaust token budgets.
+
+### 2. Dependency Injection Security
+Never store secret API keys directly inside Pydantic model field defaults; pass secret tokens at runtime via `RunContext[Deps]` or secure environment file pointers.
+
+### 3. Logfire Tracing
+Enable Logfire tracing in production deployments to log execution latency distribution, prompt token counts, tool invocation timelines, and schema validation failures.
 
 ## Related tools / concepts
 - [Pydantic](pydantic.md) — Core data validation and settings management library.

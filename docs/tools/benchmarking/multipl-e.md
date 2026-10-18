@@ -1,7 +1,7 @@
 # MultiPL-E
 
 ## What it is
-MultiPL-E is an open-source system and benchmark suite for evaluating code generation LLMs in a polyglot setting. Developed to extend single-language benchmarks (such as HumanEval and MBPP), MultiPL-E translates canonical Python programming problems into 18+ programming languages—including C++, Rust, TypeScript, Java, Go, C#, PHP, Swift, Scala, and Julia. As of early 2027, MultiPL-E is a standard benchmark used across frontier model developers (OpenAI, Anthropic, Meta, Google, DeepSeek) to evaluate cross-language code synthesis, multi-language instruction following, and FastMCP 3.1 Task Protocol code evaluation.
+MultiPL-E is an open-source system and benchmark suite for evaluating code generation LLMs in a polyglot setting. Developed to extend single-language benchmarks (such as HumanEval and MBPP), MultiPL-E translates canonical Python programming problems into 18+ programming languages—including C++, Rust, TypeScript, Java, Go, C#, PHP, Swift, Scala, Julia, R, Lua, Perl, and Ruby. As of early 2027, MultiPL-E is a standard benchmark used across frontier model developers (OpenAI, Anthropic, Meta, Google, DeepSeek) to evaluate cross-language code synthesis, multi-language instruction following, and FastMCP 3.1 Task Protocol code evaluation.
 
 ## Architecture & Polyglot Translation Flow
 
@@ -24,6 +24,7 @@ flowchart TD
         CPP["C++ / GCC Runner"]
         TS["TypeScript / Node Runner"]
         GO["Go Compiler Engine"]
+        JVM["Java OpenJDK 21 Runner"]
     end
 
     subgraph Evaluation ["Telemetry & Scoring"]
@@ -37,17 +38,31 @@ flowchart TD
     AST --> IR
     IR --> Trans
     Trans --> TypeMap
-    TypeMap --> RUST & CPP & TS & GO
-    RUST & CPP & TS & GO --> PassK
+    TypeMap --> RUST & CPP & TS & GO & JVM
+    RUST & CPP & TS & GO & JVM --> PassK
     PassK --> Telemetry
     Telemetry --> Summary
+```
+
+## System Execution Sequence Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                        MULTIPL-E EXECUTION SEQUENCE FLOW                          |
++-----------------------------------------------------------------------------------+
+
+[Python Dataset] --(AST Parse)--> [Intermediate AST] --(Type Map)--> [Target Code Prompt]
+                                                                            |
+                                                                    (Model Prompting)
+                                                                            v
+[Pass@k Calculator] <-- (Parse JSON) <-- [Container Exec] <-- (Gzip JSON) <-- [LLM Completion]
 ```
 
 ## What problem it solves
 Evaluating code generation capabilities using Python-only benchmarks introduces severe evaluation biases:
 - **Monolingual Overfitting**: Models fine-tuned heavily on Python code snippets perform well on HumanEval but fail dramatically when asked to write idiomatic Rust, C++, or Go.
 - **Inconsistent Benchmark Methodologies**: Comparing model performance across different programming languages previously required using disjoint, uncalibrated datasets with varying test harness rules.
-- **Execution Environment Variability**: Running generated code across multi-language environments without strict sandboxing leads to flaky test results and security risks.
+- **Execution Environment Variability**: Running generated code across multi-language environments without strict sandboxing leads to flaky test results, memory leaks, and security risks.
 
 MultiPL-E solves these problems by providing automated, semantically-validated compilers and prompt translation pipelines that convert benchmark unit tests and function signatures into 18+ programming languages with isolated containerized test execution.
 
@@ -55,12 +70,14 @@ MultiPL-E solves these problems by providing automated, semantically-validated c
 
 | Language | Target Compiler / Runtime | Translation Mechanism | Typical Execution Sandbox |
 | :--- | :--- | :--- | :--- |
-| **Rust** | `rustc` / `cargo` | AST Intermediate Mapping | Isolated OCI / Docker Container |
-| **C++** | `g++` (C++17/C++20) | Type-Coerced Parser | Docker Sandbox |
-| **TypeScript** | Node.js / `tsc` | Transpiled Declaration | Node VM Sandbox |
-| **Go** | `go test` | Idiomatic Go Synthesizer | Docker Container |
-| **Java** | OpenJDK 21 | JUnit Class Wrapper | Isolated JVM Container |
-| **Julia** | Julia Runtime | Syntax Mapper | Process Jail |
+| **Rust** | `rustc` 1.84+ / `cargo` | AST Intermediate Mapping | Isolated OCI / Docker Container |
+| **C++** | `g++` 13+ (C++20) | Type-Coerced Parser | Docker Sandbox |
+| **TypeScript** | Node.js 22 / `tsc` 5.x | Transpiled Declaration | Node VM Sandbox |
+| **Go** | `go` 1.23 (`go test`) | Idiomatic Go Synthesizer | Docker Container |
+| **Java** | OpenJDK 21 (JUnit 5) | JUnit Class Wrapper | Isolated JVM Container |
+| **Julia** | Julia 1.10 Runtime | Syntax Mapper | Process Jail |
+| **C#** | .NET 9 SDK | MSTest Assembly Wrapper | Podman Rootless Sandbox |
+| **Swift** | Swift 6.0 Compiler | XCTest Harness Generator | Containerized Jail |
 
 ## Where it fits in the stack
 **Category**: [Benchmarking](index.md) / Multi-Language Code Evaluation. MultiPL-E serves as an evaluation framework sitting alongside single-language datasets like [MBPP](mbpp.md) and interactive harness benchmarks like [Inspect AI](inspect-ai.md) or [SWE-bench](swe-bench.md).
@@ -74,6 +91,7 @@ MultiPL-E solves these problems by providing automated, semantically-validated c
 | **MBPP** | Python Only | Pass@1 | In-Process Exec | Plugin Adapter |
 | **SWE-bench** | Python / Polyglot Repos | Issue Resolution Rate | Full Container Repo | Native Agent Engine |
 | **LiveCodeBench**| Multi-Language Competitive| Pass@1 / Time-Limit | Container Sandbox | Native Tool Server |
+| **EvalEval** | Meta-Evaluation | Score Distribution | Virtualenv Jail | Plugin Adapter |
 
 ## Typical use cases
 - **Frontier Model Evaluation**: Benchmarking models (e.g., Claude 5.6, GPT-5.6, Llama 4 Code, Gemini 4.0 Ultra, DeepSeek-V4) across 18+ languages to assess polyglot coding competence.
@@ -138,6 +156,50 @@ for lang in go rs ts; do
 done
 ```
 
+### Containerized Execution Setup via Podman / Docker
+```bash
+# Run rootless Podman execution harness for isolated Rust tests
+docker run --rm \
+  --network none \
+  --memory 1g \
+  --cpus 2.0 \
+  -v $(pwd)/completions:/data \
+  nuprl/multipl-e-rs:latest \
+  python3 -m multipl_e.eval --dir /data/humaneval-rs --lang rs
+```
+
+## Systemd Daemon Service Configuration
+
+For continuous evaluation pipelines running MultiPL-E worker jobs in production, deploy the following systemd service configuration:
+
+```ini
+[Unit]
+Description=MultiPL-E Polyglot Evaluation Worker Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=benchmarker
+Group=benchmarker
+WorkingDirectory=/opt/multipl-e
+ExecStart=/opt/multipl-e/venv/bin/python3 -m multipl_e.worker_daemon --config /etc/multipl-e/worker.yaml
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+MemoryMax=16G
+CPUQuota=400%
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### FastMCP 3.1 Integration & Pydantic v2 Polyglot Verification
@@ -145,8 +207,10 @@ The following Python script implements a **FastMCP 3.1 Task Protocol** tool serv
 
 ```python
 import json
-from typing import List, Dict, Optional
-from pydantic import BaseModel, Field, ValidationError
+import os
+import subprocess
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server for MultiPL-E Evaluation
@@ -156,17 +220,27 @@ class BenchmarkResultItem(BaseModel):
     task_id: str = Field(..., description="Canonical task ID (e.g., HumanEval_0_rs).")
     language: str = Field(..., description="Target language extension/identifier.")
     passed: bool = Field(..., description="Indicates whether all unit tests passed.")
-    execution_time_ms: float = Field(..., description="Execution duration in milliseconds.")
+    execution_time_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds.")
     error_type: Optional[str] = Field(None, description="SyntaxError, TimeoutError, or AssertionError if failed.")
+    stdout_log: Optional[str] = Field(None, description="Captured stdout from sandbox container.")
+
+    @field_validator("language")
+    @classmethod
+    def validate_language_code(cls, v: str) -> str:
+        valid_langs = {"rs", "cpp", "ts", "go", "java", "jl", "cs", "py", "swift", "php", "rb", "lua", "r", "pl", "scala"}
+        if v.lower() not in valid_langs:
+            raise ValueError(f"Language '{v}' is not in supported MultiPL-E target languages: {valid_langs}")
+        return v.lower()
 
 class MultiPLESummary(BaseModel):
-    total_tasks: int = Field(..., description="Total tasks evaluated.")
-    passed_tasks: int = Field(..., description="Number of passing tasks.")
-    pass_rate: float = Field(..., description="Overall pass@1 rate (0.0 to 1.0).")
+    total_tasks: int = Field(..., ge=0, description="Total tasks evaluated.")
+    passed_tasks: int = Field(..., ge=0, description="Number of passing tasks.")
+    pass_rate: float = Field(..., ge=0.0, le=1.0, description="Overall pass@1 rate (0.0 to 1.0).")
     language_breakdown: Dict[str, float] = Field(..., description="Pass rate per target language.")
+    execution_telemetry: Dict[str, Any] = Field(default_factory=dict)
 
 @mcp.tool(name="summarize_polyglot_results", description="Validates and summarizes MultiPL-E polyglot evaluation results.")
-def summarize_multiple_results(results_data: List[Dict]) -> str:
+def summarize_multiple_results(results_data: List[Dict[str, Any]]) -> str:
     """Parses raw result items and computes summary metrics with Pydantic v2 validation."""
     try:
         items = [BenchmarkResultItem.model_validate(item) for item in results_data]
@@ -189,12 +263,44 @@ def summarize_multiple_results(results_data: List[Dict]) -> str:
             total_tasks=total,
             passed_tasks=passed,
             pass_rate=passed / total if total > 0 else 0.0,
-            language_breakdown=breakdown
+            language_breakdown=breakdown,
+            execution_telemetry={
+                "evaluator_engine": "FastMCP 3.1 MultiPL-E Harness",
+                "container_isolation": "Docker OCI Sandbox"
+            }
         )
 
         return summary.model_dump_json(indent=2)
     except ValidationError as e:
         return json.dumps({"error": "Schema validation failed", "details": e.errors()})
+
+@mcp.tool(name="execute_container_eval", description="Triggers isolated container evaluation for a completion file.")
+def execute_container_eval(language: str, completion_path: str) -> str:
+    """Invokes Docker sandbox execution for MultiPL-E target language completions."""
+    if not os.path.exists(completion_path):
+        return json.dumps({"error": f"Completion file not found: {completion_path}"})
+
+    cmd = [
+        "docker", "run", "--rm",
+        "--network", "none",
+        "--memory", "1g",
+        "-v", f"{os.path.abspath(completion_path)}:/completion.json",
+        f"nuprl/multipl-e-{language}:latest",
+        "python3", "-m", "multipl_e.eval", "--file", "/completion.json"
+    ]
+
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        return json.dumps({
+            "status": "COMPLETED" if res.returncode == 0 else "FAILED",
+            "returncode": res.returncode,
+            "stdout": res.stdout[:1000],
+            "stderr": res.stderr[:1000]
+        })
+    except subprocess.TimeoutExpired:
+        return json.dumps({"status": "TIMEOUT", "error": "Sandbox container exceeded 30s timeout."})
+    except Exception as ex:
+        return json.dumps({"status": "ERROR", "error": str(ex)})
 
 if __name__ == "__main__":
     sample_raw = [
@@ -205,23 +311,32 @@ if __name__ == "__main__":
     print(summarize_multiple_results(sample_raw))
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error Symptom | Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `CompilationError: cargo build failed` | Unhandled type coercion or missing crate imports in generated Rust. | `docker run --rm nuprl/multipl-e-rs cargo check` | Adjust AST type mapper or insert explicit type annotations in translator prompt. |
+| `TimeoutError: Container killed` | Infinite loop or heavy macro expansion in generated C++ / Rust code. | `podman inspect --format='{{.State.OOMKilled}}' <container_id>` | Decrease container timeout threshold (`--timeout 10`) and reduce thread allocation. |
+| `TypeCoercionError: Cannot convert float to int` | Python dynamically typed return value mapped to strict integer target. | `python3 -m multipl_e.prompt_translation --check-types --lang java` | Regenerate prompt translator AST schema with explicit static type coercion rules. |
+| `DockerDaemonError: Cannot connect` | Docker daemon inactive or permissions missing on benchmark host. | `systemctl status docker && id -nG benchmarker` | Start Docker service and add evaluation user account to `docker` group. |
+| `MemoryLimitExceeded` | Excessive allocation in memory-managed runtime (JVM / Node.js). | `docker stats --no-stream` | Restrict heap size flags (`-Xmx512m` for Java, `--max-old-space-size=512` for Node). |
+
 ## Production Hardening & Sandbox Security
 - **Container Isolation**: Always run code evaluation inside rootless Docker/Podman containers with network isolation (`--network none`) and read-only root filesystems.
 - **Resource Limits**: Limit evaluation container memory (`--memory="512m"`) and CPU execution time (`--cpus="1.0"`) to prevent malicious or accidental infinite loops.
 - **Timeouts**: Enforce strict execution timeouts ($\le 10 \text{ seconds}$) for unit test suites across compiled targets.
-
-## Troubleshooting & Common Pitfalls
-- **Compilation Overhead Latency**: When evaluating compiled languages like C++ or Rust, pre-compile benchmark boilerplate headers or use persistent compiler daemon containers to reduce run-time latency.
-- **Missing Toolchain Dependencies**: Ensure target container images include exact compiler versions (`gcc`, `rustc`, `javac`, `go`) specified in MultiPL-E target configs.
+- **Credential Storage**: Store execution tokens and model API credentials in environment variables or secured secret managers (`Vault` / `Systemd Credentials`), never in benchmark completion logs.
 
 ## Related tools / concepts
 - [MBPP](mbpp.md) — Mostly Basic Python Problems dataset, one of the primary sources for MultiPL-E translation.
 - [Inspect AI](inspect-ai.md) — AI safety and evaluation framework for LLMs.
 - [SWE-bench](swe-bench.md) — Benchmark for evaluating agents on real GitHub issues.
+- [EvalEval](evaleval.md) — Framework for evaluating benchmark tools and score distributions.
 
 ## Sources / references
 - [MultiPL-E GitHub Repository](https://github.com/nuprl/MultiPL-E)
 - [MultiPL-E Research Paper (NUPRL)](https://arxiv.org/abs/2208.08227)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
