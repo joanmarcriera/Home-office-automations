@@ -274,6 +274,38 @@ In high-compliance production deployments, RAGFlow must adhere to strict audit t
 - [DeepDoc Architecture Deep Dive](https://ragflow.io/docs/dev/deepdoc)
 - [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
 
+## Production Deployment & Systemd Service Architecture
+
+To run RAGFlow FastMCP 3.1 gateway background workers as resilient system services on enterprise Linux hosts, use the systemd unit template below:
+
+```ini
+[Unit]
+Description=RAGFlow FastMCP 3.1 DeepDoc Engine Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=ragflow
+Group=ragflow
+WorkingDirectory=/opt/ragflow-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run ragflow_server.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=RAGFLOW_API_URL=http://localhost:9337
+Environment=RAGFLOW_API_KEY=rf-prod-key-7781239
+
+# Security and Isolation Guardrails
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high

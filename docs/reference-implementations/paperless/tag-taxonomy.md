@@ -255,6 +255,37 @@ if __name__ == "__main__":
 - [Tagging Strategies for Personal Documents](https://github.com/joanmarcriera/Home-office-automations)
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
+## Production Deployment & Systemd Worker Architecture
+
+To execute taxonomy maintenance scripts and FastMCP 3.1 background sync daemons on Linux hosts managing Paperless-ngx instances, use the systemd unit template below:
+
+```ini
+[Unit]
+Description=Paperless Taxonomy FastMCP 3.1 Daemon
+After=network.target paperless-webserver.service
+
+[Service]
+Type=simple
+User=paperless
+Group=paperless
+WorkingDirectory=/opt/paperless-taxonomy
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run paperless_taxonomy_server.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=PAPERLESS_API_URL=http://localhost:8000/api
+Environment=PAPERLESS_API_TOKEN=mock_token_key
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high

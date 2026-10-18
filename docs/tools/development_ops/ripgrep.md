@@ -298,6 +298,40 @@ export function streamWorkspaceSearch(pattern: string, targetPath: string): Prom
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.org)
 
 ---
+## Production Deployment & Systemd Service Architecture
+
+For enterprise Linux servers deploying high-throughput FastMCP 3.1 ripgrep search daemon workers, deploy the following hardened `systemd` service unit:
+
+```ini
+[Unit]
+Description=Ripgrep FastMCP 3.1 Code Search Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=ripgrep-agent
+Group=ripgrep-agent
+WorkingDirectory=/opt/ripgrep-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run ripgrep_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=RIPGREP_MAX_FILESIZE=5M
+Environment=RIPGREP_THREADS=4
+
+# Hardened Security Guardrails
+ProtectSystem=strict
+ProtectHome=read-only
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadOnlyPaths=/var/repo_storage
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high

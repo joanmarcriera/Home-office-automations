@@ -302,6 +302,38 @@ if __name__ == "__main__":
 - [Command R+ Model Details](https://cohere.com/blog/command-r-plus-microsoft-azure)
 - [FastMCP 3.1 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
 
+## Production Deployment & Systemd Service Architecture
+
+To run Cohere FastMCP 3.1 gateway proxy agents as resilient background system services on enterprise Linux infrastructure, deploy the systemd unit template below:
+
+```ini
+[Unit]
+Description=Cohere FastMCP 3.1 Gateway Service
+After=network.target
+
+[Service]
+Type=simple
+User=cohere-agent
+Group=cohere-agent
+WorkingDirectory=/opt/cohere-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run cohere_server.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=COHERE_API_KEY=mock_key_production
+Environment=FASTMCP_VERSION=3.1.0
+
+# Security Guardrails
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high
