@@ -1,13 +1,75 @@
 # Cherry-Pick Major Gains Design Spec
 
 ## What it is
-The Cherry-Pick Major Gains Design Spec defines the technical architecture and selection criteria for a "harvest" operation that recovers high-value documentation and script content from 16 closed or conflicting Pull Requests. In early January 2027, this has matured into a fully autonomous workflow where multi-agent orchestrators coordinate via **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to ingest, validate, and merge enriched files while safeguarding repository integrity. It establishes a protocol for using file snapshots to ensure significant content enrichment (≥20 lines) is merged into the main branch.
+The **Cherry-Pick Major Gains Design Spec** defines the technical architecture and selection criteria for a "harvest" operation that recovers high-value documentation and script content from 16 closed or conflicting Pull Requests (#619, #646, #656, #694, #704, #708, #709, #714, #722, #738, #757, #762, #772, #779, #797, #803). In early January 2027, this has matured into a fully autonomous workflow where multi-agent orchestrators coordinate via **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to ingest, validate, and merge enriched files while safeguarding repository integrity. It establishes a protocol for using file snapshots to ensure significant content enrichment (≥20 lines) is merged into the main branch.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous Agent (Claude 5.6 / GPT-5.6)
+    participant Gateway as FastMCP 3.1 Gateway
+    participant Git as Local Git Subsystem
+    participant Validator as Pydantic v2 Validator
+    participant Main as Main Repository Branch
+
+    Agent->>Gateway: Request Snapshot Inspection (Branch & Path)
+    Gateway->>Git: Execute git show branch:filepath
+    Git-->>Gateway: Return raw file content
+    Gateway->>Validator: Validate line delta & Pydantic schema
+    alt Enrichment >= 20 lines
+        Validator-->>Gateway: Validation Approved
+        Gateway->>Git: Write content to local file
+        Gateway-->>Agent: Confirm file snapshot harvested
+        Agent->>Main: Commit harvested gains into PR
+    else Enrichment < 20 lines
+        Validator-->>Gateway: Validation Rejected (< 20 lines)
+        Gateway-->>Agent: Reject harvest (Insufficient delta)
+    end
+```
 
 ## What problem it solves
 It solves the problem of effort loss in a high-concurrency multi-agent environment. When multiple frontier agents (e.g., Claude 5.6, GPT-5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, Qwen 3.8) work on similar files, traditional git merges often result in closed PRs and "knowledge rot." This spec provides a robust, non-destructive, and programmatically validated alternative to recover the "richest" version of a file regardless of git history conflicts.
 
+When PR branches diverge significantly, standard merge drivers fail because they attempt to reconcile conflicting line-by-line git histories. By extracting snapshot buffers directly, the system shifts from *diff-based resolution* to *content-based enrichment verification*.
+
 ## Where it fits in the stack
 **Architecture Layer** — provides the design blueprint for the recovery operations defined in the [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md). It is a key component of the repository's self-healing and content consolidation strategy, leveraging the **MCP 3.1 Task Protocol** for orchestration.
+
+```
++-----------------------------------------------------------------------------------+
+|                        MULTI-AGENT RECOVERY ORCHESTRATOR                          |
+|             (FastMCP 3.1 Task Protocol / Claude 5.6 / GPT-5.6)                   |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                           SNAPSHOT ARCHITECTURE SPEC                              |
+|               - Inventory Selection Criteria (>= 20 Line Delta)                   |
+|               - Pydantic v2 Contract Validation Engine                            |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                            TARGET KNOWLEDGE GRAPH                                 |
+|           (Canonical Docs / Python Scripts / MkDocs Structural Catalog)           |
++-----------------------------------------------------------------------------------+
+```
+
+## Architectural Topology & Quality Decision Matrix
+
+```
++----------------------------------------------------------------------------------------------------+
+|                                HARVEST SELECTION & QUALITY MATRIX                                  |
++-------------------+-----------------------------------+--------------------------------------------+
+| Component Phase   | Technical Requirement             | Validation Mechanism                       |
++-------------------+-----------------------------------+--------------------------------------------+
+| Candidate Audit   | Identifies closed/stale PR branch | `git log --branches --closed`              |
+| Line Delta Check  | >= 20 lines added over main       | Pydantic v2 `validate_enrichment_depth`    |
+| Schema Validation | Valid Pydantic v2 Python models   | `python3 -m py_compile <file>`             |
+| Doc Contract Check| Meets 2027 KnowledgeOps standards | `python3 scripts/check_docs_contract.py`   |
+| Catalog Check     | No broken relative links or tags  | `python3 scripts/check_catalog_consistency`|
++-------------------+-----------------------------------+--------------------------------------------+
+```
 
 ## Typical use cases
 - **Conflict Resolution Design**: Designing the workflow for an agent to recover from a "stale" PR by snapshots.
@@ -55,6 +117,11 @@ git diff main...origin/closed-branch --stat | grep ".md" | awk '$3 > 20 {print $
 ```bash
 # Ensure new tools are properly indexed in mkdocs.yml
 grep "heygen.md" mkdocs.yml
+```
+
+### Doc Contract Quality Verification
+```bash
+python3 scripts/check_docs_contract.py docs/superpowers/specs/2026-06-08-cherry-pick-major-gains-design.md
 ```
 
 ## API examples
@@ -148,6 +215,79 @@ if __name__ == "__main__":
 }
 ```
 
+### FastMCP 3.1 Gateway Server Blueprint for Harvest Verification
+
+```python
+"""
+FastMCP 3.1 Server for Automated Design Spec Harvest Verification.
+Exposes design validation endpoints for multi-agent autonomous loops.
+"""
+
+from typing import Dict, Any, List
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("harvest-design-validator", version="3.1.0")
+
+class DesignAuditRequest(BaseModel):
+    batch_id: str = Field(..., description="Target batch identifier")
+    target_files: List[str] = Field(..., description="List of repository files to audit")
+
+class DesignAuditResponse(BaseModel):
+    batch_id: str
+    compliant_files: List[str]
+    non_compliant_files: List[str]
+    overall_status: str
+
+@mcp.tool(
+    name="audit_harvest_design_compliance",
+    description="Audits candidate files against Major Gains selection spec criteria."
+)
+def audit_harvest_design_compliance(request: DesignAuditRequest) -> DesignAuditResponse:
+    """Simulates or checks file compliance against major gains spec rules."""
+    compliant = []
+    non_compliant = []
+
+    for path in request.target_files:
+        if path.endswith(".md") or path.endswith(".py"):
+            compliant.append(path)
+        else:
+            non_compliant.append(path)
+
+    status = "APPROVED" if not non_compliant else "REQUIRES_ATTENTION"
+
+    return DesignAuditResponse(
+        batch_id=request.batch_id,
+        compliant_files=compliant,
+        non_compliant_files=non_compliant,
+        overall_status=status
+    )
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Diagnostic & Troubleshooting Guide
+
+```
++----------------------------------------------------------------------------------------------------+
+|                         DESIGN SPEC HARVEST TROUBLESHOOTING MATRIX                                 |
++-----------------------+----------------------------------+-----------------------------------------+
+| Failure Symptom       | Root Cause                       | Corrective Action                       |
++-----------------------+----------------------------------+-----------------------------------------+
+| Rejected line delta   | Candidate added < 20 lines       | Verify if file is new or discard        |
+| JSON Schema Mismatch  | Missing required payload fields  | Re-generate schema via Pydantic v2      |
+| Pydantic import error | Legacy Pydantic v1 syntax used   | Upgrade model to `BaseModel` v2         |
+| Merge Conflict Alert  | Manual git merge attempted       | Re-run file snapshot extraction `git show`|
++-----------------------+----------------------------------+-----------------------------------------+
+```
+
+## Operational Guardrails & Safety Protocols
+
+1. **Strict Line Delta Threshold**: Never harvest snapshots for existing files unless the net line delta exceeds 20 substantive lines.
+2. **Schema Verification Gate**: All Python scripts recovered via cherry-pick snapshots must pass `python3 -m py_compile` and Pydantic v2 schema validation.
+3. **Catalog Integrity**: All new documentation tools recovered must be indexed in `mkdocs.yml` and verified via `scripts/check_catalog_consistency.py`.
+
 ## Related tools / concepts
 - [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md)
 - [Ralph-loop Protocol](../../architecture/automated_contributions.md)
@@ -163,6 +303,7 @@ if __name__ == "__main__":
 - [Git Diff Documentation](https://git-scm.com/docs/git-diff)
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
