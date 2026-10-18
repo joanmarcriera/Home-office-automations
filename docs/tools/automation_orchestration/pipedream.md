@@ -269,6 +269,38 @@ export default defineComponent({
 - [Pipedream Component Registry (GitHub)](https://github.com/PipedreamHQ/pipedream)
 - [Pipedream REST API Reference](https://pipedream.com/docs/api/rest/)
 
+## Production Deployment & Systemd Gateway Architecture
+
+When managing custom FastMCP 3.1 gateway connectors or self-hosted relay bridges that interface with Pipedream webhooks, deploy the following production `systemd` service configuration:
+
+```ini
+[Unit]
+Description=Pipedream FastMCP 3.1 Relay Gateway Worker
+After=network.target
+
+[Service]
+Type=simple
+User=pipedream-agent
+Group=pipedream-agent
+WorkingDirectory=/opt/pipedream-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run pipedream_gateway.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=PIPEDREAM_CLIENT_ID=pd_client_live_881902
+Environment=FASTMCP_VERSION=3.1.0
+
+# Hardened Security Guardrails
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high
