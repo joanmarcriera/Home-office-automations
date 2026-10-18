@@ -3,6 +3,22 @@
 ## What it is
 **Text Generation Inference (TGI)** is an enterprise-grade toolkit developed by Hugging Face for deploying, serving, and scaling open-weights Large Language Models (LLMs) in high-throughput production environments. Written in Rust, Python, and C++/Triton, TGI provides a battle-tested inference engine that powers Hugging Face's own global Inference API infrastructure. As of 2027, TGI is deeply optimized for modern GPU architectures (including **NVIDIA Blackwell**, **Hopper**, and **Rubin**), offering advanced low-latency features like FlashAttention-3, PagedAttention, speculative decoding, multi-adapter LoRA serving, tensor parallelism, and native **FastMCP 3.1** (Model Context Protocol) tool integration.
 
+```mermaid
+graph TD
+    Client[Agent / FastMCP 3.1 Client] -->|gRPC / HTTP Streaming| Router[Rust Continuous Batch Scheduler & Router]
+
+    subgraph TGI High-Performance Engine
+        Router -->|PagedAttention Manager| KV[Virtual KV-Cache Memory Pool]
+        Router -->|Tensor Parallel Shard Controller| TP[NCCL GPU Sharding Engine]
+        Router -->|Dynamic LoRA Router| LoRA[Multi-LoRA Adapter Kernel Fusion]
+    end
+
+    TP -->|GPU Shard 0| GPU0[NVIDIA Blackwell / Hopper GPU 0]
+    TP -->|GPU Shard 1| GPU1[NVIDIA Blackwell / Hopper GPU 1]
+    TP -->|GPU Shard 2| GPU2[NVIDIA Blackwell / Hopper GPU 2]
+    TP -->|GPU Shard 3| GPU3[NVIDIA Blackwell / Hopper GPU 3]
+```
+
 ## What problem it solves
 Deploying large language models at enterprise scale introduces significant infrastructure and latency engineering challenges:
 - **High VRAM & Compute Demands**: Open-weights models with 70B+ parameters exceed the memory capacity of single GPUs.
@@ -97,6 +113,33 @@ docker run --gpus all --shm-size 1g -p 8080:80 \
     --quantize fp8
 ```
 
+## Systemd Service Unit Configuration
+
+Deploy TGI as a persistent system service using systemd:
+
+```ini
+[Unit]
+Description=Text Generation Inference (TGI) Container Service
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10s
+ExecStartPre=/usr/bin/docker pull ghcr.io/huggingface/text-generation-inference:latest
+ExecStart=/usr/bin/docker run --name tgi-service --rm --gpus all --shm-size 1g -p 8080:80 \
+    -v /opt/tgi/data:/data \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3.3-70B-Instruct \
+    --num-shard 4 \
+    --quantize fp8
+ExecStop=/usr/bin/docker stop tgi-service
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 Execute administration and model serving commands via docker/shell:
@@ -113,6 +156,9 @@ curl http://localhost:8080/health
 
 # Query TGI Prometheus metrics endpoint
 curl http://localhost:8080/metrics | grep tgi_request_duration_seconds
+
+# Validate TGI documentation quality contract
+python3 scripts/check_docs_contract.py docs/tools/infrastructure/tgi.md
 ```
 
 ## API examples
@@ -128,7 +174,7 @@ Wraps TGI REST API into standard MCP tools for autonomous agent orchestration.
 """
 
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 
@@ -138,7 +184,7 @@ class TGIInferenceRequest(BaseModel):
     prompt: str = Field(..., description="Target input prompt for text generation")
     max_tokens: int = Field(default=256, ge=1, le=4096, description="Maximum tokens to generate")
     temperature: float = Field(default=0.2, ge=0.0, le=2.0, description="Sampling temperature")
-    stop_sequences: Optional[list[str]] = Field(default_factory=lambda: ["\n\nUser:"], description="Stop tokens")
+    stop_sequences: Optional[List[str]] = Field(default_factory=lambda: ["\n\nUser:"], description="Stop tokens")
 
 class TGIInferenceResponse(BaseModel):
     generated_text: str
@@ -206,6 +252,28 @@ if __name__ == "__main__":
     print(validated.model_dump_json(indent=2))
 ```
 
+## Diagnostic & Troubleshooting Guide
+
+```
++----------------------------------------------------------------------------------------------------+
+|                             TGI SERVING TROUBLESHOOTING MATRIX                                     |
++-----------------------+----------------------------------+-----------------------------------------+
+| Failure Mode          | Root Cause                       | Remediation Procedure                   |
++-----------------------+----------------------------------+-----------------------------------------+
+| CUDA OOM Exception    | KV-cache or model VRAM overflow  | Enable fp8 quantization or add shards   |
+| NCCL Timeout Error    | Multi-GPU sharded communication  | Set `--shm-size 1g` in Docker run       |
+| HTTP 422 Unprocessable| Request prompt exceeds max length| Adjust `--max-input-tokens` parameter   |
+| Slow First Token Time | Warmup kernel compilation lag    | Pre-warm container during container boot|
++-----------------------+----------------------------------+-----------------------------------------+
+```
+
+## Operational Guardrails & Safety Protocols
+
+1. **Shared Memory Allocation**: Always set `--shm-size 1g` or higher in Docker run flags when using `--num-shard > 1` to ensure inter-GPU NCCL messaging succeeds.
+2. **Quantization Thresholds**: For 70B+ model weights deployed on 80GB VRAM GPUs, utilize FP8 or NF4 quantization to leave ample KV-cache headroom for continuous batching.
+3. **Health Check Probes**: Configure Kubernetes or Docker health probes against `http://localhost:8080/health` prior to shifting router traffic.
+4. **FastMCP Token Rate Limiting**: Implement strict payload size validation when funneling automated agent requests through TGI tools.
+
 ## Related tools / concepts
 - [vLLM](vllm.md) — High-throughput alternative LLM serving framework using PagedAttention.
 - [Ollama](../../services/ollama.md) — Simplified local model management runtime.
@@ -218,6 +286,7 @@ if __name__ == "__main__":
 - [Official TGI GitHub Repository](https://github.com/huggingface/text-generation-inference)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
