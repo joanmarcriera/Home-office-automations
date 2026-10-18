@@ -29,6 +29,27 @@ flowchart TD
     G --> H[Execution on MCU / IoT / Retro Hardware / Agent Edge]
 ```
 
+## Compilation & Verification Execution Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                            C89 COMPILATION & AUDIT PIPELINE                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|  | C89 Source File    | ---> | FastMCP 3.1 Audit    | ---> | Strict GCC/Clang   | |
+|  | (*.c, *.h)         |      | Verification Tool    |      | Syntax Verification| |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|                                                                      |            |
+|                                                                      v            |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|  | Bare-Metal Target  | <--- | Zero-Dependency NM   | <--- | Cppcheck Static    | |
+|  | / MCU Binary       |      | Symbol Audit         |      | Analyzer           | |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 
 - **Zero-Dependency Edge AI Runtimes**: Implementing lightweight neural network inference engines (such as [AnsIGPT](../ai_knowledge/ansigpt.md) or custom quantized tensor utilities) that execute directly on bare-metal microcontrollers without OS support.
@@ -108,6 +129,17 @@ typedef double f64;
 #endif /* C89_TYPES_H */
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error Symptom | Common Root Cause | Compiler Flag / Error Code | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| `error: 'for' loop initial declarations are only allowed in C99 or C11 mode` | Variable declared inside loop header (e.g. `for (int i = 0...)`). | `GCC -std=c89` | Declare loop iterator `int i;` at top of function block. |
+| `warning: C++ style comments are not allowed in ISO C90` | Single-line `//` comment used in source file. | `GCC -pedantic` | Convert all single-line comments to block comments `/* ... */`. |
+| `error: ISO C90 forbids mixed declarations and code` | Variable declared after an executable assignment or function call. | `GCC -Wdeclaration-after-statement` | Move all variable declarations to the top of the enclosing block scope `{}`. |
+| `undefined reference to 'uint32_t'` | Inclusion of `<stdint.h>` on legacy pre-C99 toolchain. | `Linker error` | Include portable `c89_types.h` abstraction header instead of system `<stdint.h>`. |
+| `warning: implicit declaration of function` | Function used prior to header prototype or declaration. | `GCC -Wimplicit-function-declaration` | Add forward function declaration or include target header file. |
+| `error: variable length array in C89` | Array sized dynamically at runtime (e.g. `float buf[n];`). | `GCC -Wvla` | Use fixed static upper-bound array sizing or explicit memory buffers. |
+
 ## CLI examples
 
 Auditing source files for C89 compliance and symbol dependencies:
@@ -155,6 +187,7 @@ The following Python script defines a **FastMCP 3.1** server that wraps compiler
 
 ```python
 import subprocess
+from typing import List, Optional
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
@@ -163,16 +196,17 @@ mcp = FastMCP("C89 Code Audit Server")
 
 class AuditRequest(BaseModel):
     code_snippet: str = Field(..., min_length=10, description="C source code snippet to audit")
-    compiler_flags: str = Field("-std=c89 -pedantic -Wall -Werror", description="Compiler verification flags")
+    compiler_flags: str = Field("-std=c89 -pedantic -Wall -Wextra -Werror", description="Compiler verification flags")
+    target_architecture: str = Field("x86_64", description="Target compilation architecture")
 
 class AuditResult(BaseModel):
     is_compliant: bool
     compiler_output: str
+    violations: List[str] = Field(default_factory=list)
 
 @mcp.tool()
 def audit_c89_compliance(request: AuditRequest) -> AuditResult:
     """Compile-check C source snippet for strict ISO C89 compliance using GCC."""
-    # Write snippet to temporary file
     temp_file = "/tmp/c89_audit_temp.c"
     with open(temp_file, "w") as f:
         f.write(request.code_snippet)
@@ -180,9 +214,16 @@ def audit_c89_compliance(request: AuditRequest) -> AuditResult:
     cmd = f"gcc {request.compiler_flags} -fsyntax-only {temp_file}"
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
+    violations = []
+    if res.returncode != 0:
+        for line in res.stderr.splitlines():
+            if "error:" in line or "warning:" in line:
+                violations.append(line.strip())
+
     return AuditResult(
         is_compliant=(res.returncode == 0),
-        compiler_output=res.stderr if res.stderr else "C89 Syntax Audit Passed Successfully."
+        compiler_output=res.stderr if res.stderr else "C89 Syntax Audit Passed Successfully.",
+        violations=violations
     )
 
 if __name__ == "__main__":
@@ -193,7 +234,7 @@ if __name__ == "__main__":
 Use strict **Pydantic v2** validation to model compiler options for code generator scripts targeting embedded C89 targets:
 
 ```python
-from typing import Literal
+from typing import Literal, List
 from pydantic import BaseModel, Field, field_validator
 
 class C89BuildOptions(BaseModel):
@@ -202,6 +243,7 @@ class C89BuildOptions(BaseModel):
     allow_dynamic_alloc: bool = Field(False, description="Disallow malloc/free for deterministic memory")
     optimization_level: Literal["-O0", "-O1", "-O2", "-O3", "-Os"] = Field("-O3")
     target_arch: str = Field("cortex-m0", description="Target architecture family")
+    defined_macros: List[str] = Field(default_factory=lambda: ["NDEBUG", "C89_PORTABLE_BUILD"])
 
     @field_validator("target_arch")
     @classmethod
@@ -222,6 +264,41 @@ config = C89BuildOptions(
 
 print(f"Validated C89 Build Options: Target={config.target_arch}, Dialect={config.compiler_std}, Pedantic={config.pedantic_warnings}")
 ```
+
+## Automated Service Configuration (Systemd)
+
+Below is an operational systemd service configuration for running an automated C89 continuous auditing daemon that monitors source files and verifies strict ANSI compliance:
+
+```ini
+[Unit]
+Description=C89 Code Audit Continuous Verification Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=c89audit
+WorkingDirectory=/opt/c89-audit
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8089
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=GCC_PATH=/usr/bin/gcc
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Security & Coding Guardrails
+
+1. **Strict Variable Scope Isolation**: Always declare all local variables at the beginning of the function or compound block scope prior to any executable code.
+2. **Comment Syntax Standardization**: Never use `//` single-line C99/C++ comments. Always encapsulate comments within `/* ... */` blocks.
+3. **Avoid Dynamic Memory Allocation**: Avoid `malloc()` and `free()` in embedded C89 targets to prevent heap fragmentation and memory leaks; prefer statically sized buffers or caller-provided array pointers.
+4. **No Variable Length Arrays (VLAs)**: Use fixed array dimensions known at compile-time or stack buffers initialized with compile-time constants.
+5. **Pointer Alignment & Casting Guardrails**: Avoid unsafe pointer casting across struct types that violate architecture alignment rules (e.g. casting unaligned `u8*` to `u32*`).
 
 ## Related tools / concepts
 
