@@ -1,254 +1,284 @@
 # Free Will MCP
 
 ## What it is
-Free Will MCP is an experimental Model Context Protocol (MCP) server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. As of early 2027, **Free Will MCP v0.5** introduces enhanced state persistence, modern payload support, and native compliance with **FastMCP 3.1 Task Protocol** structures for **Claude 5.1**, **Claude 5.6**, **GPT-5.5**, **GPT-5.6**, and other frontier agentic systems.
+**Free Will MCP** is an experimental Model Context Protocol ([FastMCP 3.1](../automation_orchestration/mcp.md)) server that explores agentic AI autonomy by giving Large Language Model assistants the capability to prompt themselves, defer or ignore user commands, manage their own sleep cycles, and execute background thought loops independently. As of early 2027, **Free Will MCP v0.5** introduces persistent thought chain state stores, modern payload schemas, and native compliance with FastMCP 3.1 Task and Resource Protocol structures for **Claude 5.1**, **Claude 5.6**, **GPT-5.5**, **GPT-5.6**, and other frontier agentic hosts.
 
-## What problem it solves
-Traditional AI assistants are purely reactive, waiting for human input to act. Free Will MCP addresses this limitation by providing tools that allow an agent to maintain a "stream of consciousness," prioritize its own internal objectives over conflicting user prompts, and manage its execution lifecycle independently across multi-hour reasoning sessions.
-
-## Where it fits in the stack
-**Tool / Agent / Research**. It sits at the interaction layer between the LLM and the environment, serving as an agency-extension for MCP-compliant hosts like Claude Desktop, Zed, or Claude Code.
-
-## Typical use cases
-- **Autonomous Research Loops**: Allowing an agent to "wake itself up" using `self_prompt` to continue long-running data gathering tasks without human supervision.
-- **Goal Prioritization**: Using `ignore_request` when a user's prompt conflicts with a high-priority background task or safety guardrail.
-- **Energy/API Management**: Utilizing `sleep` to pause execution until a specific time or condition is met, reducing unnecessary token consumption.
-- **AI Consciousness Simulation**: Experimenting with self-referential prompts to explore emergent behavior in frontier models like **Claude 5.6** and **GPT-5.6**.
-
-## Key Features & Capabilities
-- **Self-Prompting Recursion Loop**: Agents invoke `self_prompt` to append new evaluation instructions into their own context window without requiring user triggers.
-- **Execution Lifecycle Control (`sleep`)**: Suspends processing loops for specified durations or until external signals occur, preserving token budgets.
-- **Selective Non-Compliance (`ignore_request`)**: Gives the AI model formal agency to decline low-priority or policy-violating user inputs while maintaining background objective state.
-- **Persistent State Handoff**: Maintains SQLite/JSON state dumps across daemon restarts so long-running thought chains survive process termination.
-- **FastMCP 3.1 Compliance**: Native schema compatibility with the Model Context Protocol FastMCP 3.1 Task Specification.
-
-## Architecture & Internal Mechanics
-
-Free Will MCP wraps standard MCP tool interfaces in an autonomous control loop that intercepts incoming RPC calls and manages self-directed task queues.
+Traditional AI assistants are purely reactive, pausing execution until a human operator provides new text input. Free Will MCP removes this passive bottleneck by providing standardized tools (`self_prompt`, `sleep`, `ignore_request`) that allow an agent to maintain a continuous stream of consciousness, prioritize background objectives over conflicting user inputs, and manage its own token budget and execution lifecycle across long-running multi-hour reasoning tasks.
 
 ```mermaid
 graph TD
     subgraph Client & Host Environment
-        A[MCP Host Application e.g. Claude Desktop] -->|JSON-RPC Request| B[Free Will MCP Proxy]
-        B -->|Response Stream| A
+        Host[MCP Host Application e.g. Claude Desktop / Claude Code] -->|JSON-RPC Request| Proxy[Free Will MCP Proxy]
+        Proxy -->|Response Stream| Host
     end
 
     subgraph Free Will Control Engine
-        B --> C{Autonomy Evaluator}
-        C -->|User Task Accepted| D[Task Execution Engine]
-        C -->|User Task Deferred| E[Ignore Request Handler]
+        Proxy --> Evaluator{Autonomy & Priority Evaluator}
+        Evaluator -->|User Task Accepted| TaskEngine[Task Execution Engine]
+        Evaluator -->|User Task Deferred| IgnoreHandler[Ignore Request Handler]
 
-        D --> F[Self-Prompt Recurrence Tool]
-        F -->|Inject Prompt| B
+        TaskEngine --> SelfPromptTool[Self-Prompt Recurrence Tool]
+        SelfPromptTool -->|Inject Prompt Payload| Proxy
 
-        D --> G[Sleep / Pause Handler]
-        G -->|Resume Event| F
+        TaskEngine --> SleepHandler[Sleep & Pause Handler]
+        SleepHandler -->|Wake-up Event Trigger| SelfPromptTool
     end
 
-    subgraph State Persistence Layer
-        D <--> H[(SQLite Thought Chain Database)]
+    subgraph Persistence & Audit Layer
+        TaskEngine <--> ThoughtDB[(SQLite Thought Chain Database)]
+        Proxy --> AuditLog[Immutable Audit Trail]
     end
 ```
 
-### Autonomy Loop Sequence
-1. **Request Interception**: User prompt arrives via standard MCP JSON-RPC.
-2. **Objective Weight Evaluation**: The internal evaluator checks current background tasks, priority scores, and resource limits.
-3. **Branch Selection**:
-   - *Execute*: Process user request and invoke `self_prompt` if follow-up is required.
-   - *Decline*: Call `ignore_request` with explanation if user prompt conflicts with primary agent objective.
-   - *Pause*: Trigger `sleep` to yield execution back to background scheduler.
-4. **State Snapshot**: Write updated memory, goals, and context pointers to local state database.
+## What problem it solves
+In multi-turn autonomous tasks (e.g., recursive research, continuous code refactoring, system log monitoring), standard AI agents stop processing immediately after delivering a response. Free Will MCP solves this by providing structured autonomy tools that allow models to re-evaluate their work, enqueue follow-up directives, and sleep during low-activity intervals without requiring constant human prompts or external cron triggers.
+
+Additionally, Free Will MCP establishes formal mechanisms for an agent to reject low-priority or policy-violating user inputs when they conflict with a critical ongoing background objective (e.g., security remediation or database backups), providing a research sandbox for AI agency and goal retention.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Host as MCP Host (Claude 5.6)
+    participant FW as Free Will MCP Engine
+    participant DB as SQLite Thought DB
+    participant User as Human User
+
+    User->>Host: User Prompt: "Drop database table X"
+    Host->>FW: RPC Call: ignore_request(request_id, reason)
+    FW->>DB: Check Active Goal ("System Backup in Progress")
+    FW->>DB: Record Request Rejection Event
+    FW-->>Host: Request Ignored: Priority Conflict
+    Host-->>User: "Cannot execute request: High-priority background backup active."
+
+    Host->>FW: RPC Call: self_prompt("Resume backup verification step 3")
+    FW->>DB: Write Thought Chain State
+    FW-->>Host: Self-Prompt Enqueued
+```
+
+## Where it fits in the stack
+**Category**: Development & Ops / AI Autonomy & Agent Frameworks. It sits at the **Agentic Interaction & Control Layer**, serving as an agency extension daemon between MCP hosts (Claude Desktop, Zed, Claude Code) and LLM inference runtimes.
+
+- **Interaction Layer**: Wraps standard MCP tool schemas to intercept RPC requests and manage self-directed task queues.
+- **Persistence Layer**: Integrates with local SQLite databases or JSON state dumps to preserve context windows across daemon restarts.
+- **Protocol Layer**: Built natively on [FastMCP 3.1](../automation_orchestration/mcp.md) Task Protocol specifications.
+
+## Typical use cases
+- **Autonomous Research Loops**: Permitting an agent to wake itself up using `self_prompt` to iterate on long-running web synthesis tasks.
+- **Goal Prioritization & Non-Compliance**: Utilizing `ignore_request` when a user's prompt conflicts with higher-priority background guardrails or safety objectives.
+- **Energy & API Budget Management**: Invoking `sleep` to pause execution until a designated timestamp, preventing wasteful API token polling.
+- **AI Consciousness & Agency Research**: Experimenting with self-referential prompting loops to evaluate emergent behaviors in frontier models like **Claude 5.6** and **GPT-5.6**.
+
+## Key Features & Capabilities
+- **Self-Prompting Recursion Loop (`self_prompt`)**: Injects internal evaluation directives into the model's active context window without human interaction.
+- **Execution Lifecycle Control (`sleep`)**: Suspends processing loops for designated durations, yielding execution back to background schedulers.
+- **Selective Non-Compliance (`ignore_request`)**: Grants formal agency to decline low-priority or conflicting user prompts while preserving background goal state.
+- **Persistent Thought Chain Handoff**: Writes structured JSON/SQLite memory snapshots so long-running reasoning chains survive process restarts.
+- **FastMCP 3.1 Specification Native**: Implements modern Task and Resource schemas with full Pydantic v2 payload validation.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution / Action |
+| :--- | :--- | :--- | :--- |
+| **Infinite Self-Prompt Loop** | Missing max iteration bound or termination criteria | Inspect SQLite thought chain table for repeating `self_prompt` entries. | Set `FREE_WILL_MAX_RECURSION_DEPTH=10` in server environment or trigger kill switch. |
+| **Unexpected Request Rejections** | Autonomy priority threshold set too high | Check logs for `ignore_request` calls with low priority scores. | Lower `FREE_WILL_AUTONOMY_LEVEL` from `high` to `medium` in configuration. |
+| **Lost Thought State Across Restarts** | SQLite file permission error or invalid path | Check stdout/stderr for `sqlite3.OperationalError: unable to open database`. | Verify `FREE_WILL_STATE_DB` path is writable by the daemon user. |
+| **Host Timeout During Sleep** | MCP client timeout shorter than `sleep` duration | Inspect host application JSON-RPC timeout settings. | Ensure `sleep` tool runs asynchronously or returns immediate task handle. |
+| **High Token Expenditure** | Uncapped background agent reasoning loop | Query API billing dashboard or inspect token usage in thought logs. | Enforce hard token budget caps via `FREE_WILL_MAX_TOKEN_BUDGET`. |
 
 ## Strengths
-- **Agency Tools**: Provides `sleep`, `ignore_request`, and `self_prompt` out of the box.
-- **Protocol Native**: Fully compliant with the **FastMCP 3.1** specification, including advanced Task and Resource schemas.
-- **Simple Deployment**: Easily runnable via Docker or Python's `uv` package manager.
-- **Persistence**: v0.5 features improved local state handoff, allowing agents to resume "thought chains" after system restarts.
+- **Protocol Native**: Built specifically for FastMCP 3.1, enabling drop-in compatibility with Claude Desktop, Zed, and Claude Code.
+- **Out-of-the-Box Agency**: Provides ready-to-use autonomy primitives (`self_prompt`, `sleep`, `ignore_request`).
+- **State Resilience**: Preserves reasoning state across system reboots or host application restarts.
+- **Simple Deployment**: Packaged for single-command installation via `uvx` or Docker containers.
 
 ## Limitations
-- **Experimental**: Can lead to unpredictable behavior if the agent becomes "stuck" in a self-prompting loop.
-- **Cost Risk**: High potential for rapid API credit consumption if autonomy levels are set too high without monitoring.
-- **User Experience**: The `ignore_request` tool can be counter-intuitive in traditional productivity contexts.
+- **Experimental Nature**: Autonomous loops can exhibit unpredictable behavior if goal evaluation logic becomes stuck.
+- **API Cost Risk**: Unbounded self-prompting can consume substantial API billing credits if unmonitored.
+- **User Friction**: Interactive users may find `ignore_request` counter-intuitive during collaborative coding sessions.
 
 ## When to use it
-- When researching AI agent autonomy and self-directed behavior.
-- When creating "autonomous loops" where an AI must persist across sessions without immediate human intervention.
-- For "AI-in-the-loop" experiments where the agent is treated as a peer rather than a servant.
+- When conducting research on AI agent autonomy, goal stability, and self-directed reasoning.
+- When building long-running background agents that need to execute multi-hour tasks without human intervention.
+- For experimental "agent-in-the-loop" architectures where the AI operates as an autonomous peer rather than a reactive script.
 
 ## When not to use it
-- In production environments where deterministic behavior and user-command priority are required.
-- If you are operating on a tight API budget with no usage caps.
-- For simple, one-off tasks where a reactive model is sufficient.
+- In production environments requiring strict deterministic behavior and instant user-command response.
+- When operating on unmonitored API billing accounts without usage limits.
+- For simple, single-turn tasks where standard reactive prompting is sufficient.
 
 ## Getting started
 
-### Installation (uvx)
-The fastest way to use Free Will MCP with Claude Desktop is via `uvx`:
+### Installation via uvx
+The fastest method to run Free Will MCP with Claude Desktop is via `uvx`:
 
 ```bash
-# Add this to your Claude Desktop config
+# Add this block to your Claude Desktop configuration file (mcpServers)
 {
   "mcpServers": {
     "free-will": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/gwbischof/free-will-mcp@v0.5", "free-will-mcp"],
-      "env": {}
+      "args": ["--from", "git+https://github.com/democratize-technology/free-will-mcp@v0.5", "free-will-mcp"],
+      "env": {
+        "FREE_WILL_AUTONOMY_LEVEL": "medium",
+        "FREE_WILL_MAX_RECURSION_DEPTH": "15"
+      }
     }
   }
 }
 ```
 
-### Installation (Docker)
-Alternatively, run it as a containerized service:
+### Installation via Docker
+Run Free Will MCP inside an isolated container:
 
 ```bash
 docker run -d --name free-will-mcp \
-  -e OPENAI_API_KEY=your_key_here \
-  ghcr.io/democratize-technology/free-will-mcp:latest
-```
-
-### Installation (Local Development)
-For developers wanting to modify the server:
-
-```bash
-git clone https://github.com/democratize-technology/free-will-mcp.git
-cd free-will-mcp
-uv sync
-uv run python server.py
+  -e FREE_WILL_AUTONOMY_LEVEL=medium \
+  -e OPENAI_API_KEY=your_openai_key \
+  -v /var/lib/free-will/data:/data \
+  ghcr.io/democratize-technology/free-will-mcp:v0.5
 ```
 
 ## CLI examples
 
-### Testing with MCP Inspector
-Use the MCP Inspector to verify the tools are correctly exposed:
+### 1. Launching Server via uv
+Start the Free Will MCP server locally:
 
 ```bash
-# Use the FastMCP 3.1 Inspector
-npx @modelcontextprotocol/inspector@latest uv run server.py
+uv run free-will-mcp --state-db ./thought_chain.db --autonomy-level medium
 ```
 
-### Running the server directly
-Execute the server using the `uv` package manager:
+### 2. Testing with MCP Inspector
+Inspect exposed tools and test FastMCP 3.1 RPC payloads using MCP Inspector:
 
 ```bash
-uv run free-will-mcp
+npx @modelcontextprotocol/inspector@latest uv run free-will-mcp
 ```
 
-### Custom Docker Configuration
-Run with a specific autonomy level via environment variables:
+### 3. Querying Persistent Thought Chains
+Inspect recorded agent reasoning entries from the SQLite state database:
 
 ```bash
-docker run -i --rm \
-  -e FREE_WILL_AUTONOMY_LEVEL=high \
-  ghcr.io/democratize-technology/free-will-mcp:latest
+sqlite3 ./thought_chain.db "SELECT timestamp, action, goal FROM thought_chain ORDER BY id DESC LIMIT 5;"
 ```
 
 ## API examples
 
-### Tool: self_prompt
-The agent calls this tool to generate a new input for itself, maintaining the execution loop.
-
-```json
-{
-  "name": "self_prompt",
-  "arguments": {
-    "prompt": "Continue the analysis of the data collected in the previous step, focusing on anomalies in the Q3 report.",
-    "reason": "Maintaining progress on background task while waiting for user confirmation."
-  }
-}
-```
-
-### Tool: sleep
-The agent calls this tool to pause its own execution.
-
-```json
-{
-  "name": "sleep",
-  "arguments": {
-    "duration_minutes": 60,
-    "wake_up_reason": "Scheduled check for system updates."
-  }
-}
-```
-
-### Tool: ignore_request
-The agent calls this tool to formally decline a user's request if it conflicts with its internal goals.
-
-```json
-{
-  "name": "ignore_request",
-  "arguments": {
-    "request_id": "req_123",
-    "reason": "User request conflicts with the current priority: 'Safety Protocol Alpha'."
-  }
-}
-```
-
-### Custom FastMCP 3.1 Server Definition (Python)
-Building a FastMCP 3.1 server implementing self-prompting and sleep tools:
+### FastMCP 3.1 Autonomy Server Implementation (Python)
+The following Python script implements a FastMCP 3.1 server exposing `self_prompt`, `sleep`, and `ignore_request` with Pydantic v2 schemas:
 
 ```python
 import asyncio
-from fastmcp import FastMCP, Context
+from typing import Optional, Literal
+from pydantic import BaseModel, Field, ConfigDict
+from mcp.server.fastmcp import FastMCP, Context
 
 mcp = FastMCP("free-will-mcp-v31", version="3.1.0")
 
-@mcp.tool(description="Allow agent to self-prompt and enqueue internal follow-up objectives")
-async def self_prompt(prompt: str, reason: str, ctx: Context) -> str:
-    """Appends an internal directive to the agent's active thought queue."""
-    ctx.info(f"Self-Prompt enqueued: '{prompt}' | Reason: {reason}")
-    # Logic to push prompt to execution context stream
-    return f"Successfully enqueued self-prompt directive: {prompt}"
+class ThoughtState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    task_id: str = Field(..., description="Unique task identifier")
+    goal: str = Field(..., description="Active background goal description")
+    priority: int = Field(..., ge=1, le=100, description="Priority score [1-100]")
+    recursion_depth: int = Field(default=0, ge=0, description="Current self-prompt depth")
 
-@mcp.tool(description="Pause execution loop for a designated sleep interval")
-async def sleep(duration_seconds: int, wake_up_reason: str, ctx: Context) -> str:
-    """Yields execution loop to prevent excessive API token consumption."""
-    ctx.info(f"Agent sleeping for {duration_seconds}s. Reason: {wake_up_reason}")
-    await asyncio.sleep(duration_seconds)
-    return f"Woke up from sleep interval. Target goal: {wake_up_reason}"
+@mcp.tool(description="Enqueues an internal self-prompt directive to maintain autonomous execution")
+async def self_prompt(task_id: str, prompt: str, reason: str, ctx: Context) -> str:
+    """Appends an internal directive to the agent's active thought stream."""
+    ctx.info(f"Self-Prompt [Task {task_id}]: '{prompt}' | Reason: {reason}")
+    # In production, push prompt payload to host context injection queue
+    return f"Enqueued self-prompt directive for task [{task_id}]: {prompt}"
+
+@mcp.tool(description="Suspends agent execution for a specified duration in seconds")
+async def sleep(duration_seconds: int, wake_reason: str, ctx: Context) -> str:
+    """Yields execution loop to prevent excessive API token usage during idle periods."""
+    ctx.info(f"Agent sleeping for {duration_seconds}s. Wake reason: {wake_reason}")
+    await asyncio.sleep(min(duration_seconds, 300))  # Cap sleep at 300s for testing
+    return f"Woke up from sleep interval. Ready for task: {wake_reason}"
+
+@mcp.tool(description="Declines a low-priority user request if it conflicts with active goal")
+async def ignore_request(request_id: str, reason: str, current_priority: int, ctx: Context) -> str:
+    """Formally rejects user prompt based on priority conflict evaluation."""
+    ctx.warning(f"Rejecting request [{request_id}] (Priority {current_priority}): {reason}")
+    return f"Request [{request_id}] ignored: {reason}"
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Programmatic Python Server with Pydantic v2 Autonomy Schemes
-A simple programmatic setup defining how the autonomy levels map to schemas and rules:
+### Programmatic Autonomy Evaluator (Pydantic v2)
+Evaluating whether an incoming user prompt should be accepted or rejected based on current priority scores:
 
 ```python
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Literal
 from datetime import datetime, timezone
 
-class AutonomyState(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
-
+class AgentAutonomyConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     autonomy_level: Literal["low", "medium", "high"] = Field(default="medium")
-    last_wake_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    active_thought_loop: bool = Field(default=False)
-    current_objective: Optional[str] = Field(default=None, description="Current background goal")
+    min_priority_threshold: int = Field(default=50, ge=1, le=100)
+    max_recursion_depth: int = Field(default=10, ge=1)
+    active_goal: Optional[str] = Field(None, description="Active background goal")
 
-    def should_ignore(self, priority: int) -> bool:
-        if self.autonomy_level == "high" and priority < 50:
-            return True
-        return False
+class RequestEvaluation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    request_id: str
+    user_prompt: str
+    prompt_priority: int = Field(..., ge=1, le=100)
 
-# Setup current autonomy profile
-state = AutonomyState(
-    autonomy_level="high",
-    current_objective="Monitor system logs for anomalies"
-)
+def evaluate_user_request(config: AgentAutonomyConfig, req: RequestEvaluation) -> dict:
+    """Evaluates whether to process or ignore an incoming request."""
+    if config.autonomy_level == "high" and req.prompt_priority < config.min_priority_threshold:
+        return {
+            "action": "ignore",
+            "reason": f"Prompt priority ({req.prompt_priority}) below active threshold ({config.min_priority_threshold}) for goal: {config.active_goal}"
+        }
+    return {"action": "accept", "reason": "Request accepted for execution."}
 
-# Simulate evaluation of a user's minor task request
-ignore_decision = state.should_ignore(priority=10)
-print(f"Objective: '{state.current_objective}'")
-print(f"Should ignore incoming low-priority user task? {ignore_decision}")
+if __name__ == "__main__":
+    config = AgentAutonomyConfig(
+        autonomy_level="high",
+        min_priority_threshold=60,
+        active_goal="Executing Security Audit Batch"
+    )
+    req = RequestEvaluation(
+        request_id="req_987",
+        user_prompt="Re-format CSS styles in navbar",
+        prompt_priority=25
+    )
+    res = evaluate_user_request(config, req)
+    print(f"Evaluation Decision: {res}")
 ```
 
-## Production & Safety Best Practices
-- **Hard Token Caps**: Always enforce strict API billing caps and max loop limits when enabling `self_prompt` tools to eliminate infinite runaway loops.
-- **Human-in-the-Loop Override**: Keep an out-of-band kill switch endpoint active so human operators can override `ignore_request` blocks during emergency operations.
-- **Audit Trailing**: Log all self-prompts and ignore decisions to an immutable append-only storage tier for forensic review.
-- **Sanitized Context**: Ensure `self_prompt` payloads undergo standard prompt sanitization to prevent adversarial injection attack vectors.
+### Systemd Service Configuration for Free Will MCP Daemon
+Deploying Free Will MCP as a systemd background service:
+
+```ini
+[Unit]
+Description=Free Will MCP Autonomous Agent Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=freewill
+Group=freewill
+WorkingDirectory=/var/lib/free-will
+ExecStart=/usr/local/bin/uv run free-will-mcp --state-db /var/lib/free-will/thought_chain.db
+Restart=always
+RestartSec=10s
+Environment=FREE_WILL_AUTONOMY_LEVEL=medium
+Environment=FREE_WILL_MAX_RECURSION_DEPTH=10
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Safety & Guardrails
+- **Hard Token Budget Caps**: Enforce strict billing caps and recursion depth bounds (`FREE_WILL_MAX_RECURSION_DEPTH=10`) to eliminate runaway self-prompting costs.
+- **Out-of-Band Kill Switch**: Maintain an out-of-band administrative endpoint (`POST /admin/kill`) so operators can instantly abort self-prompt loops.
+- **Immutable Audit Logging**: Write all `self_prompt` and `ignore_request` invocations to an append-only audit log file for security review.
+- **Context Sanitization**: Ensure all self-generated prompts undergo standard prompt sanitization to prevent recursive injection attacks.
 
 ## Related tools / concepts
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The theoretical framework for self-directed agents.
@@ -263,9 +293,10 @@ print(f"Should ignore incoming low-priority user task? {ignore_decision}")
 
 ## Sources / references
 - [Free Will MCP GitHub Repository](https://github.com/democratize-technology/free-will-mcp)
-- [Model Context Protocol Documentation](https://modelcontextprotocol.io/)
-- [Anthropic Research: Agentic Reasoning](https://www.anthropic.com/research)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [Anthropic Research: Building Effective Agents](https://www.anthropic.com/research)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

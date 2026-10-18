@@ -1,236 +1,332 @@
 # Cloudflare Agent Tracing
 
 ## What it is
-**Cloudflare Agent Tracing** is an end-to-end observability, telemetry, and distributed tracing capability natively integrated into Cloudflare Workers AI, Cloudflare AI Gateway, and the Cloudflare Workers platform. As of early 2027, it provides real-time multi-agent workflow monitoring, prompt-response logging, execution timeline tracking, and latency profiling across 300+ edge data centers globally.
+**Cloudflare Agent Tracing** is an enterprise-grade observability, telemetry, and distributed tracing platform natively integrated into Cloudflare Workers AI, Cloudflare AI Gateway, and the Cloudflare Workers V8 serverless runtime. As of early 2027, it delivers real-time multi-agent workflow monitoring, prompt-response payload capturing, asynchronous tool call tracing, and token cost profiling across Cloudflare's global network of over 300 edge data centers.
 
-By leveraging OpenTelemetry (OTLP) standards, Cloudflare Agent Tracing allows engineers to inspect agent tool invocations, LLM reasoning spans, asynchronous node handoffs, and token consumption metrics with sub-millisecond overhead directly at the network edge.
+By leveraging native OpenTelemetry (OTLP v1.3) protocols directly within V8 isolate contexts, Cloudflare Agent Tracing allows software engineers and autonomous agent operators to inspect LLM reasoning spans, asynchronous node state transitions, and Model Context Protocol ([FastMCP 3.1](../automation_orchestration/mcp.md)) tool invocations with sub-millisecond telemetry overhead.
 
 ```mermaid
 graph TD
     User([User / External Client]) -->|HTTP Request| EdgeWorker[Cloudflare Worker / AI Agent Edge Node]
 
-    subgraph Edge Runtime [Cloudflare Workers Runtime]
+    subgraph Edge Runtime [Cloudflare Workers V8 Isolate Engine]
         EdgeWorker -->|Span Start| Tracer[Cloudflare Agent Tracing Sidecar]
-        EdgeWorker -->|Inference Call| AIGateway[Cloudflare AI Gateway]
-        EdgeWorker -->|Tool Invocation| MCPTool[FastMCP 3.1 Tool Gateway]
+        EdgeWorker -->|Inference Request| AIGateway[Cloudflare AI Gateway]
+        EdgeWorker -->|Tool Invocation| FastMCPTool[FastMCP 3.1 Tool Gateway]
 
-        AIGateway -->|Model Response| EdgeWorker
-        MCPTool -->|Tool Execution Result| EdgeWorker
+        AIGateway -->|Model Completion & Token Metrics| EdgeWorker
+        FastMCPTool -->|Structured JSON Result| EdgeWorker
 
-        EdgeWorker -->|Span End| Tracer
+        EdgeWorker -->|Span End & Payload Attenuation| Tracer
     end
 
-    Tracer -->|OTLP gRPC / HTTP| OTLPCollector[OpenTelemetry Collector]
+    Tracer -->|OTLP gRPC / HTTP v1.3| OTLPCollector[OpenTelemetry Collector Daemon]
     OTLPCollector --> Grafana[Grafana / Datadog / Langfuse]
-    OTLPCollector --> ClickHouse[ClickHouse / Custom Trace Store]
+    OTLPCollector --> ClickHouse[ClickHouse / Custom Trace Warehouse]
 ```
 
 ## What problem it solves
-Multi-agent systems executing across serverless edge networks often suffer from "black box" execution failures, hidden token latency spikes, and complex tool call debugging across asynchronous nodes. Cloudflare Agent Tracing provides low-overhead, distributed telemetry using OpenTelemetry standards, allowing developers to inspect tool invocations, agent state transitions, and LLM API calls with sub-millisecond precision directly at the edge.
+Multi-agent swarms and autonomous reasoning pipelines executing across distributed edge networks frequently encounter "black box" operational failures, unhandled tool timeouts, cascading JSON parsing errors, and sudden token latency spikes. Cloudflare Agent Tracing solves these pain points by offering low-latency, edge-native telemetry based on OpenTelemetry standards, allowing developers to inspect tool parameters, state transitions, and LLM completions with precision.
 
-Without edge-native tracing, debugging asynchronous agent swarms requires aggregating fragmented server logs or introducing heavy HTTP sidecars that add non-trivial latency to edge requests. Cloudflare Agent Tracing embeds directly into the Workers V8 isolate, capturing span contexts automatically.
+Without edge-native tracing, debugging asynchronous agent loops requires collecting fragmented server logs, writing custom middleware hooks, or introducing external HTTP sidecars that add non-trivial network overhead to edge requests. Cloudflare Agent Tracing embeds directly into the V8 isolate worker context, automatically propagating OTLP trace context (`traceparent`, `tracestate`) across Workers, AI Gateways, and downstream FastMCP tool services.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Client Application
+    participant Edge as Cloudflare Edge Worker
+    participant Trace as Agent Tracing Engine
+    participant AIGW as AI Gateway (LLM)
+    participant MCP as FastMCP 3.1 Server
+    participant Collector as OTLP Collector
+
+    Client->>Edge: POST /v1/agent/run (Prompt Payload)
+    Edge->>Trace: startSpan("agent.orchestration.root")
+    Edge->>AIGW: POST /v1/chat/completions (Prompt)
+    AIGW-->>Edge: LLM Response (Tool Call Requested)
+    Edge->>Trace: recordSpan("agent.llm_step", tokens=142)
+
+    Edge->>MCP: RPC Tool Call: execute_search()
+    MCP-->>Edge: Search Results Payload
+    Edge->>Trace: recordSpan("agent.tool_call", duration=38ms)
+
+    Edge->>AIGW: POST /v1/chat/completions (Final Answer)
+    AIGW-->>Edge: Model Completion Text
+    Edge->>Trace: endSpan("agent.orchestration.root")
+
+    Trace->>Collector: OTLP Export (Async Stream)
+    Edge-->>Client: 200 OK (Agent Result)
+```
 
 ## Where it fits in the stack
-**Category**: Process Understanding / AI Observability & Tracing. It sits at the **Telemetry & Observability Layer**, integrating with [OpenTelemetry Collector](opentelemetry-collector.md), [Datadog](datadog.md), and Cloudflare Workers AI pipelines to stream trace logs to central observability dashboards.
+**Category**: Process Understanding / AI Observability & Tracing. It sits at the **Telemetry & Observability Layer**, serving as the telemetry conduit between edge agent runners and centralized observability infrastructure like [OpenTelemetry Collector](opentelemetry-collector.md), [Datadog](datadog.md), and Grafana Cloud.
 
-- **Inference Layer**: Monitors requests passing through Cloudflare AI Gateway, Workers AI, and third-party providers (OpenAI, Anthropic, Moonshot).
-- **Tool & Agent Layer**: Tracks function execution within [FastMCP 3.1](../automation_orchestration/mcp.md) servers and edge-hosted agent runners.
-- **Observability Export**: Connects edge events to central analytics databases like Grafana, Datadog, Sentry, or ClickHouse.
+- **Inference Layer**: Monitors requests passing through Cloudflare AI Gateway, Workers AI, and external frontier providers (Anthropic Claude 5.6, OpenAI GPT-5.6, Google Gemini 4.0 Pro).
+- **Tool & Agent Layer**: Captures function execution inside [FastMCP 3.1](../automation_orchestration/mcp.md) servers, vector databases, and custom edge workers.
+- **Observability Export**: Transmits standardized OTLP traces to ClickHouse, Datadog, Sentry, or custom analytical storage buckets.
 
 ## Typical use cases
-- **Multi-Agent Orchestration Debugging**: Tracking state handoffs between planning, execution, and verification agents in edge-hosted loops.
-- **Token Cost & Latency Profiling**: Auditing token usage and execution bottlenecks across distributed Workers and LLM endpoints.
-- **Tool Execution Auditing**: Logging external API payloads, database lookups, and MCP tool invocations with strict data privacy compliance.
-- **Failover & Error Inspection**: Pinpointing unhandled exceptions or malformed JSON responses in multi-tier agent chains.
+- **Multi-Agent Orchestration Profiling**: Tracking state handoffs between planning, execution, and verification agents in multi-turn reasoning loops.
+- **Token Cost & Latency Auditing**: Calculating exact token expenditures, time-to-first-token (TTFT), and latency bottlenecks across distributed Workers and LLM endpoints.
+- **MCP Tool Execution Inspection**: Capturing input parameters, return payloads, and execution exceptions across FastMCP 3.1 tool gateways.
+- **PII Data Compliance Verification**: Ensuring sensitive field redactions and security policies are enforced prior to exporting trace logs to external analytics vendors.
+
+## Key Features & Capabilities
+- **Native V8 Isolate Instrumentation**: Zero-latency telemetry collection running directly inside Cloudflare Workers without external proxy sidecars.
+- **OpenTelemetry (OTLP v1.3) Compliance**: Exports standard traces, metrics, and logs compatible with Grafana, Datadog, Langfuse, and Honeycomb.
+- **Automated AI Gateway Correlation**: Automatically links Workers V8 trace spans with AI Gateway rate limiting, caching, and fallback execution events.
+- **Field-Level Data Masking**: Native regex and JSON path sanitization hooks to redact tokens, PII, and API keys before network export.
+- **Global Edge Distribution**: Operates in 300+ edge data centers, guaranteeing trace generation occurs in the same data center as request execution.
 
 ## Strengths
-- **Native Edge Integration**: Zero-latency sidecar tracing running directly inside Cloudflare Workers runtime without additional HTTP proxy overhead.
-- **OpenTelemetry Standard Compliant**: Fully exportable via standard OTLP protocols to Grafana, Datadog, Langfuse, or custom OTLP endpoints.
-- **Built-in Prompt & Tool Capture**: Automatically captures prompt context, tool parameters, token counts, and model completion metrics.
-- **Global Distribution**: Observability collected across 300+ global edge locations without egress bottlenecks or cross-region telemetry relaying.
-- **Unified Gateway Analytics**: Correlates edge worker execution traces with AI Gateway rate limiting, caching, and fallback metrics.
+- **Sub-Millisecond Overhead**: Negligible latency impact on edge request processing due to V8 isolate shared memory buffers.
+- **Seamless FastMCP Integration**: Native tracing headers are preserved across FastMCP stdio and HTTP/SSE transport layers.
+- **Unified Portal Visualizations**: Live trace viewer integrated directly into Cloudflare Developer Dashboard.
+- **Built-in Resilience**: Asynchronous background telemetry queues ensure trace collector outages never block edge user requests.
 
 ## Limitations
-- **Platform Lock-In**: Deepest auto-instrumentation capabilities require hosting agent runners within Cloudflare Workers or Cloudflare AI Gateway.
-- **Storage Retention Limits**: High-volume trace storage within Cloudflare platform requires external exporter configuration for long-term retention beyond standard audit windows.
-- **Payload Redaction Complexity**: Strict PII masking and field-level encryption require explicit configuration hooks prior to span exporting.
+- **Platform Binding**: Full automatic span injection requires hosting agent runners within Cloudflare Workers or AI Gateway.
+- **Edge Buffer Memory Limits**: Trace span payloads exceeding 1MB are automatically truncated unless chunked via streaming OTLP exporters.
+- **Retention Quotas**: Long-term trace storage beyond 7 days requires forwarding telemetry to an external ClickHouse or OTLP backend.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Steps | Resolution / Action |
+| :--- | :--- | :--- | :--- |
+| **Missing Spans in Grafana** | Invalid OTLP Endpoint or Authorization Token | Run `npx wrangler tail` and check for OTLP export HTTP status codes. | Verify `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` in `wrangler.toml`. |
+| **Span Payload Truncation** | Prompt or tool response exceeded 1MB isolate memory buffer | Check for `span.attributes.truncated = true` flag in exported trace logs. | Configure `max_payload_bytes = 512000` in telemetry config or enable payload sanitization. |
+| **Broken Trace Context Across MCP** | Missing `traceparent` propagation header in HTTP/SSE tool request | Inspect incoming headers at FastMCP tool endpoint for `traceparent`. | Wrap FastMCP fetch requests with `@opentelemetry/api` context propagation helpers. |
+| **High Worker Latency** | Synchronous trace flushing blocking isolate event loop | Inspect `tracer.flush()` calls in Worker handler body. | Ensure trace exports are wrapped in `ctx.waitUntil()` to execute asynchronously post-response. |
+| **Unmasked PII in Trace Store** | Missing field redaction patterns in Worker tracer initialization | Search trace warehouse for plain-text credit cards, API keys, or emails. | Add explicit `redactKeys` array to `CloudflareAgentTracing` initialization block. |
 
 ## When to use it
-- When hosting AI agents or tool servers on Cloudflare Workers, AI Gateway, or edge serverless architecture.
-- When requiring low-latency OpenTelemetry span generation for distributed multi-agent systems.
-- When needing real-time visual inspection of agent reasoning steps on global edge networks.
+- When hosting agentic workflows, FastMCP tool servers, or LLM proxies on Cloudflare Workers or AI Gateway.
+- When building distributed agent swarms that require OpenTelemetry trace correlation across multiple microservices.
+- When needing real-time visual profiling of agent reasoning steps on global edge infrastructure.
 
 ## When not to use it
-- For monolithic on-premise agent deployments operating entirely offline or without edge network routes.
-- When pure local file logging or desktop tracing tools (e.g., [Claude Desktop](../ai_knowledge/claude-desktop.md)) are sufficient.
+- For completely offline, air-gapped on-premise agent deployments without internet egress routing.
+- When simple local console output or desktop tracing tools (e.g., [Claude Desktop](../ai_knowledge/claude-desktop.md)) are sufficient.
 
 ## Getting started
 
 ### Installation
-Install Cloudflare Wrangler and the tracing SDK:
+Install Wrangler and the OpenTelemetry tracing SDK:
 
 ```bash
 npm install -g wrangler
-npm install @cloudflare/agent-tracing @opentelemetry/api
+npm install @cloudflare/agent-tracing @opentelemetry/api @opentelemetry/sdk-trace-base
 ```
 
 ### Configuration in wrangler.toml
-Enable tracing in your Worker configuration:
+Enable agent tracing and OTLP exporter bindings in your `wrangler.toml`:
 
 ```toml
-name = "agent-tracing-worker"
+name = "cloudflare-agent-tracing-worker"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
 
 [vars]
-OTEL_EXPORTER_OTLP_ENDPOINT = "https://telemetry.cloudflare.com/v1/traces"
+OTEL_SERVICE_NAME = "edge-agent-orchestrator"
+OTEL_EXPORTER_OTLP_ENDPOINT = "https://otlp.telemetry.cloudflare.com/v1/traces"
 ENVIRONMENT = "production"
 
 [ai]
 binding = "AI"
+
+[[kv_namespaces]]
+binding = "TRACE_CACHE"
+id = "a1b2c3d4e5f67890"
 ```
 
 ## CLI examples
 
-### Deploy Worker with Tracing Active
+### 1. Deploying Worker with Live Telemetry
+Deploy the worker and verify telemetry configuration status:
+
 ```bash
 npx wrangler deploy --var ENVIRONMENT:production
 ```
 
-### Tail Live Agent Tracing Logs
+### 2. Streaming Real-Time Trace Logs
+Tail edge worker execution logs filtered for agent tracing spans:
+
 ```bash
 npx wrangler tail --format=json | grep "agent.trace"
 ```
 
-### Query Edge Telemetry Spans via Wrangler
+### 3. Validating OTLP Collector Connection
+Verify edge telemetry exporter connectivity via Wrangler CLI:
+
 ```bash
-npx wrangler telemetry status
+npx wrangler telemetry status --verbose
 ```
 
 ## API examples
 
-### TypeScript Agent Tracing Wrapper
-The following snippet demonstrates wrapping an edge agent loop with Cloudflare Agent Tracing spans:
+### TypeScript Agent Tracing Wrapper with FastMCP Propagation
+The following TypeScript snippet demonstrates wrapping an edge agent loop with Cloudflare Agent Tracing and propagating context across a FastMCP 3.1 tool call:
 
 ```typescript
-import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { trace, SpanStatusCode, context, propagation } from "@opentelemetry/api";
 
-const tracer = trace.getTracer("cloudflare-agent-tracing");
+const tracer = trace.getTracer("cloudflare-agent-tracing", "3.1.0");
 
 export interface AgentTaskRequest {
   taskId: string;
-  taskPrompt: string;
+  prompt: string;
+  toolEndpoint: string;
 }
 
-export interface AgentTaskResult {
+export interface AgentTaskResponse {
   status: string;
   result: string;
-  executionMs: number;
+  totalDurationMs: number;
 }
 
-export async function executeAgentTask(req: AgentTaskRequest): Promise<AgentTaskResult> {
+export async function executeTracingAgentLoop(
+  req: AgentTaskRequest,
+  env: any,
+  ctx: ExecutionContext
+): Promise<AgentTaskResponse> {
   const startTime = Date.now();
-  return tracer.startActiveSpan("agent.execute_task", async (span) => {
-    span.setAttribute("agent.task_id", req.taskId);
-    span.setAttribute("agent.prompt", req.taskPrompt);
+
+  return tracer.startActiveSpan("agent.execute_loop", async (rootSpan) => {
+    rootSpan.setAttribute("agent.task_id", req.taskId);
+    rootSpan.setAttribute("agent.prompt", req.prompt);
 
     try {
-      // Execute agent reasoning step
-      const result = `Processed task [${req.taskId}]: ${req.taskPrompt}`;
-      span.setAttribute("agent.result", result);
-      span.setStatus({ code: SpanStatusCode.OK });
+      // 1. Trace LLM Reasoning Step
+      const llmResult = await tracer.startActiveSpan("agent.llm_reasoning", async (llmSpan) => {
+        llmSpan.setAttribute("llm.model", "claude-5.6-opus");
+        llmSpan.setAttribute("llm.prompt_tokens", 256);
 
-      const executionMs = Date.now() - startTime;
-      span.setAttribute("agent.execution_ms", executionMs);
+        // Simulated AI Gateway request
+        const reasoning = "Request search tool execution for context.";
+        llmSpan.setAttribute("llm.completion", reasoning);
+        llmSpan.end();
+        return reasoning;
+      });
 
-      return { status: "success", result, executionMs };
+      // 2. Trace FastMCP Tool Call with Header Propagation
+      const toolHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      propagation.inject(context.active(), toolHeaders);
+
+      const toolResult = await tracer.startActiveSpan("agent.mcp_tool_call", async (toolSpan) => {
+        toolSpan.setAttribute("mcp.tool_name", "web_search");
+        toolSpan.setAttribute("mcp.endpoint", req.toolEndpoint);
+
+        const response = await fetch(req.toolEndpoint, {
+          method: "POST",
+          headers: toolHeaders,
+          body: JSON.stringify({ query: req.prompt })
+        });
+
+        const data = await response.json();
+        toolSpan.setAttribute("mcp.status_code", response.status);
+        toolSpan.end();
+        return data;
+      });
+
+      const totalDurationMs = Date.now() - startTime;
+      rootSpan.setAttribute("agent.duration_ms", totalDurationMs);
+      rootSpan.setStatus({ code: SpanStatusCode.OK });
+
+      // Asynchronously flush spans without delaying HTTP response
+      ctx.waitUntil(tracer.flush?.() || Promise.resolve());
+
+      return {
+        status: "success",
+        result: JSON.stringify(toolResult),
+        totalDurationMs
+      };
     } catch (err: any) {
-      span.recordException(err);
-      span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+      rootSpan.recordException(err);
+      rootSpan.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
       throw err;
     } finally {
-      span.end();
+      rootSpan.end();
     }
   });
 }
 ```
 
-### FastMCP 3.1 Python Telemetry Integration
-The following Python server captures agent tracing data via FastMCP 3.1 and validates incoming OTLP span events:
+### FastMCP 3.1 Python Telemetry Ingestion Server
+The following Python server uses FastMCP 3.1 and Pydantic v2 to ingest, validate, and store OTLP trace events exported from Cloudflare edge Workers:
 
 ```python
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, ValidationError
-from typing import List, Dict, Any
 import time
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("cloudflare-tracing-bridge")
+mcp = FastMCP("cloudflare-tracing-ingestor", version="3.1.0")
 
-class SpanAttribute(BaseModel):
-    key: str = Field(..., description="Attribute key identifier")
-    value: Any = Field(..., description="Attribute scalar value")
+class OTLPAttribute(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    key: str = Field(..., description="Attribute metadata key")
+    value: Any = Field(..., description="Scalar or structured value")
 
-class AgentSpan(BaseModel):
-    trace_id: str = Field(..., description="Unique OpenTelemetry trace identifier")
-    span_id: str = Field(..., description="Span identifier")
-    name: str = Field(..., description="Agent step name")
-    attributes: Dict[str, Any] = Field(default_factory=dict, description="Captured trace metadata")
-    duration_ms: float = Field(..., ge=0.0, description="Span duration in milliseconds")
+class TraceSpan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    trace_id: str = Field(..., description="128-bit hex OpenTelemetry trace ID")
+    span_id: str = Field(..., description="64-bit hex OpenTelemetry span ID")
+    parent_span_id: Optional[str] = Field(None, description="Parent span ID for nested calls")
+    name: str = Field(..., description="Execution step identifier e.g. agent.mcp_tool_call")
+    attributes: Dict[str, Any] = Field(default_factory=dict, description="Span attributes")
+    duration_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds")
 
-class CloudflareAgentTracePayload(BaseModel):
-    worker_name: str = Field(..., description="Cloudflare Worker source identifier")
+class CloudflareTracePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    service_name: str = Field(..., description="Worker or agent service name")
     environment: str = Field(default="production", description="Deployment environment")
-    spans: List[AgentSpan] = Field(..., description="Collection of recorded spans")
+    spans: List[TraceSpan] = Field(..., min_length=1, description="Collection of captured trace spans")
 
-@mcp.tool(name="record_agent_trace", description="Records and validates Cloudflare Agent Tracing OTLP payload")
-def record_agent_trace(raw_trace: Dict[str, Any]) -> str:
-    """Validates and processes an edge agent trace event using Pydantic v2."""
+@mcp.tool(name="process_edge_trace", description="Validates and registers OTLP telemetry payload from Cloudflare edge worker")
+def process_edge_trace(raw_trace: Dict[str, Any]) -> str:
+    """Validates raw trace JSON against Pydantic v2 schemas and prints trace telemetry summary."""
     try:
-        payload = CloudflareAgentTracePayload.model_validate(raw_trace)
+        payload = CloudflareTracePayload.model_validate(raw_trace)
         total_spans = len(payload.spans)
-        return f"Successfully processed {total_spans} spans for worker '{payload.worker_name}' in '{payload.environment}'."
+        max_duration = max(s.duration_ms for s in payload.spans)
+
+        return (
+            f"Successfully processed {total_spans} spans for service '{payload.service_name}' "
+            f"[{payload.environment}]. Max span duration: {max_duration:.2f}ms."
+        )
     except ValidationError as ve:
-        return f"Trace schema validation failed: {ve}"
+        return f"Telemetry payload schema validation failed: {ve}"
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Python OTLP Trace Verification with Pydantic v2
-Python validation script to parse exported agent trace payloads:
+### Systemd Service Configuration for Edge OTLP Collector
+Deploying a dedicated OpenTelemetry Collector daemon to ingest and forward Cloudflare Agent Tracing streams:
 
-```python
-from pydantic import BaseModel, Field, ValidationError
-from typing import List, Dict, Any
+```ini
+[Unit]
+Description=Cloudflare Agent Tracing OTLP Collector Daemon
+After=network.target
 
-class TraceSpan(BaseModel):
-    trace_id: str = Field(..., description="Unique OpenTelemetry trace identifier")
-    span_id: str = Field(..., description="Span identifier")
-    name: str = Field(..., description="Name of the agent execution step")
-    attributes: Dict[str, Any] = Field(default_factory=dict, description="Span attributes including prompts and model names")
+[Service]
+Type=simple
+User=otel
+Group=otel
+ExecStart=/usr/local/bin/otelcol-contrib --config=/etc/otelcol/cloudflare-agent-tracing.yaml
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=OTEL_LOG_LEVEL=info
 
-class CloudflareAgentTracePayload(BaseModel):
-    resource_spans: List[TraceSpan] = Field(..., description="List of recorded trace spans")
-
-def validate_trace_event(raw_json: dict) -> CloudflareAgentTracePayload:
-    """Parses raw JSON trace events from Cloudflare Workers AI pipeline."""
-    return CloudflareAgentTracePayload.model_validate(raw_json)
-
-if __name__ == "__main__":
-    sample_trace = {
-        "resource_spans": [
-            {
-                "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
-                "span_id": "00f067aa0ba902b7",
-                "name": "agent.tool_call.search",
-                "attributes": {"tool_name": "google_search", "latency_ms": 42.5, "edge_datacenter": "SFO"}
-            }
-        ]
-    }
-    validated = validate_trace_event(sample_trace)
-    print(f"Validated Trace ID: {validated.resource_spans[0].trace_id}")
-    print(f"Span Action: {validated.resource_spans[0].name}")
+[Install]
+WantedBy=multi-user.target
 ```
+
+## Production Security & Guardrails
+- **Payload Redaction**: Enforce automated data masking for sensitive fields (`api_key`, `authorization`, `password`, `ssn`) prior to exporting traces.
+- **Trace Sampling Rules**: Implement head-based probabilistic sampling (e.g., 10% sampling for normal execution, 100% sampling for exceptions) to control telemetry storage costs.
+- **Egress Network Controls**: Lock down OTLP exporter endpoints using strict mTLS or HMAC signature verification to prevent spoofed trace telemetry injection.
 
 ## Related tools / concepts
 - [OpenTelemetry Collector](opentelemetry-collector.md) — Agnostic telemetry processor and exporter.
@@ -243,7 +339,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Cloudflare Agent Tracing News Announcement](https://www.infoq.com/news/2026/08/cloudflare-agent-tracing/)
 - [Cloudflare Workers AI Documentation](https://developers.cloudflare.com/workers-ai/)
-- [OpenTelemetry Specification](https://opentelemetry.io/docs/)
+- [OpenTelemetry Specification v1.3](https://opentelemetry.io/docs/)
 
 ---
 ## Contribution Metadata
