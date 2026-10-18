@@ -3,11 +3,38 @@
 ## What it is
 ZenML is an open-source, extensible MLOps framework designed to create portable, production-ready AI pipelines and agentic workflows. It provides a standardized abstraction layer (the "Stack") that decouples pipeline logic from the underlying infrastructure. As of early 2027, **v1.3.x** is the stable release, featuring native **MLStack** management, robust **Experiment Tracking** integrations, and full support for the **Model Control Plane (FastMCP 3.1 Task Protocol)** to empower multi-agent autonomous operations.
 
+```mermaid
+graph TD
+    Client[ZenML Client / CLI / Claude Code] -->|Submits Pipeline Run| ControlPlane[ZenML Server Control Plane]
+    ControlPlane -->|Validates MLStack| Stack[Active ZenML MLStack]
+
+    subgraph StackComponents [ZenML MLStack Components]
+        Stack --> Orch[Orchestrator: K8s / Airflow / Local]
+        Stack --> Store[Artifact Store: S3 / GCS / Local]
+        Stack --> Tracker[Experiment Tracker: MLflow / W&B]
+        Stack --> Registry[Model Registry: MLflow / Custom]
+    end
+
+    Orch -->|Executes Steps| Execution[Step Execution Engine]
+    Execution -->|Log Metrics & Artifacts| Tracker
+    Execution -->|Save Binaries| Store
+    Execution -->|Publish State| ControlPlane
+```
+
 ## What problem it solves
 ZenML bridges the "production gap" and tackles tooling fragmentation in machine learning operations. It allows developers to write pipeline code once and run it anywhere—from a local machine to enterprise clusters like Kubernetes, Vertex AI, or AWS SageMaker. With its 2027 **MLStack** and **Experiment Tracking** specifications, ZenML eliminates the complexity of manually coordinating orchestrators, artifact stores, and tracking backends (such as MLflow and Weights & Biases), ensuring absolute repeatability and strict metadata lineage for every model run.
 
 ## Where it fits in the stack
 **Orchestration / MLOps Pipeline Framework**. It serves as the management and coordination layer that sits above specialized tools for data versioning, experiment tracking, and model registries. ZenML translates high-level pipeline declarations into target-specific execution steps while maintaining a unified control plane.
+
+## MLStack Architecture & Capability Comparison
+
+| MLOps Platform | Infrastructure Portability | Experiment Tracking Integration | FastMCP 3.1 Agent Support | Lineage & Artifact Versioning |
+| :--- | :--- | :--- | :--- | :--- |
+| **ZenML 1.3+** | Cloud Agnostic (K8s, SageMaker, Local) | Native Swappable MLStack | Built-in Task Protocol Gateway | Automated Immutable Artifact Store |
+| **Flyte** | K8s Native | Via Plugins / Extensions | Custom Container API | Strong Declarative Types |
+| **Kubeflow Pipelines** | Kubernetes Only | Requires External MLflow | REST Endpoint Only | Metadata Store (MLMD) |
+| **Apache Airflow** | General Workflow | Custom Python Callbacks | Custom Operators | Task State DB |
 
 ## Typical use cases
 - **MLStack Experiment Tracking**: Integrating unified experiment tracking components (e.g., MLflow, Weights & Biases, or TensorBoard) into swappable stacks to monitor model parameters, training metrics, and artifacts automatically.
@@ -43,7 +70,7 @@ ZenML bridges the "production gap" and tackles tooling fragmentation in machine 
 ### Installation
 To get started with ZenML and the MLStack experiment tracking tools, install the core library:
 ```bash
-pip install zenml
+pip install zenml pydantic mcp
 zenml init
 ```
 
@@ -107,6 +134,38 @@ python run.py
 zenml pipeline runs list
 ```
 
+## Systemd Production Service Configuration
+
+Below is a systemd unit configuration (`/etc/systemd/system/zenml-server.service`) for hosting the ZenML Server Control Plane in production:
+
+```ini
+[Unit]
+Description=ZenML MLOps Control Plane Server
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zenml
+Group=zenml
+WorkingDirectory=/var/lib/zenml
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="ZENML_STORE_URL=postgresql://zenml:secret@localhost:5432/zenmldb"
+Environment="ZENML_LOGGING_VERBOSITY=INFO"
+ExecStart=/usr/local/bin/zenml server up --port 8080 --blocking
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 The ZenML Python Client provides programmatic access to active MLStacks, run details, and experiment tracking logs.
 
@@ -128,6 +187,51 @@ for run in runs:
         step_run = run.steps["train_and_track_step"]
         # Retrieve and log metadata associated with the step run
         print(f"Step outputs: {step_run.outputs}")
+```
+
+### FastMCP 3.1 ZenML Pipeline Orchestrator Server
+The following module implements a FastMCP 3.1 server exposing ZenML stack inspections and pipeline triggering tools:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+import json
+
+mcp = FastMCP("zenml-orchestrator-mcp", version="3.1.0")
+
+class PipelineTriggerRequest(BaseModel):
+    pipeline_name: str = Field(..., description="Target ZenML pipeline name")
+    stack_name: str = Field(..., description="Target MLStack name")
+    parameters: dict = Field(default_factory=dict, description="Pipeline runtime hyper-parameters")
+
+    @field_validator("pipeline_name")
+    @classmethod
+    def validate_pipeline_name(cls, v: str) -> str:
+        if not v.isidentifier():
+            raise ValueError("pipeline_name must be a valid Python identifier")
+        return v
+
+@mcp.tool()
+def trigger_zenml_pipeline(request_json: str) -> str:
+    """Triggers a ZenML pipeline execution on a designated MLStack via FastMCP 3.1."""
+    try:
+        data = json.loads(request_json)
+        req = PipelineTriggerRequest.model_validate(data)
+
+        # Simulate pipeline execution trigger
+        return json.dumps({
+            "status": "triggered",
+            "run_id": f"run-{req.pipeline_name}-9912",
+            "active_stack": req.stack_name,
+            "params": req.parameters
+        }, indent=2)
+    except ValidationError as ve:
+        return json.dumps({"status": "invalid_schema", "errors": ve.errors()})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### MLStack Configuration Validation with Strict Pydantic v2 Schema
@@ -187,6 +291,21 @@ try:
 except ValidationError as e:
     print(f"Validation failed: {e.json()}")
 ```
+
+## Operational Safety & Infrastructure Guardrails
+
+1. **Role-Based Access Control (RBAC)**: Ensure ZenML Server API tokens are scoped per team environment (`staging` vs `production`) to prevent unauthorized stack modifications.
+2. **Immutable Artifact Encryption**: Enforce server-side KMS encryption on S3/GCS bucket artifact stores to protect model checkpoint weights and training sets.
+3. **Pipeline Failure Alerts**: Configure webhooks in ZenML Server settings to automatically notify Slack or PagerDuty upon step execution failures.
+
+## Systematic Troubleshooting Matrix
+
+| Issue Symptom / Error | Probable Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`StackValidationError`** | Incompatible component combination in active MLStack | `zenml stack describe` | Verify stack component compatibility matrix in ZenML docs |
+| **Artifact Store Write Timeout** | S3 bucket permissions or network egress quota exceeded | `zenml artifact-store describe` | Check IAM credentials and bucket CORS / network access policies |
+| **Experiment Tracker Connection Fail** | MLflow server endpoint down or unreachable | `zenml experiment-tracker describe` | Test HTTP connectivity to MLflow tracking URI and restart service |
+| **Pipeline Step Memory Crash (OOM)** | Step memory footprint exceeded orchestrator limits | `zenml pipeline runs describe <run_id>` | Increase step resource requests via `@step(resource_settings=...)` |
 
 ## Related tools / concepts
 - [Flyte](flyte.md) — For large-scale, containerized ML workflows and orchestrations.

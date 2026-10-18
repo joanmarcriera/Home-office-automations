@@ -40,6 +40,16 @@ Langflow bridges this gap by unifying a visual flow builder with a robust Python
 - **Protocol & Gateway Layer**: Exposes flows directly as [FastMCP 3.1](../automation_orchestration/mcp.md) tool servers or OpenAPI endpoints.
 - **Inference & Memory Layer**: Bridges frontier intelligence providers ([Anthropic](../providers/anthropic.md), [OpenAI](../ai_knowledge/openai.md), [DeepSeek](../providers/deepseek.md)) with vector databases ([LanceDB](../infrastructure/lancedb.md), [Pinecone](../infrastructure/pinecone.md), [Chroma](../infrastructure/chroma.md)).
 
+## Comprehensive Architecture & Feature Comparison
+
+| Feature Capability | Langflow 1.18+ | Flowise 2.x | Dify 1.x | LangGraph Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Protocol Support** | Native FastMCP 3.1 + OpenAPI | REST API only | REST API + Webhooks | LangGraph State API |
+| **Worker Isolation** | Linux CoW Memory Workers | Node.js Process Pool | Docker Container Pool | Python Async Loop |
+| **Visual Code Sync** | Bi-directional Python & Canvas | Canvas-only | Canvas + Jinja2 | Python Code Native |
+| **Agent Assistance** | Integrated Langflow Assistant | Prompt Wizard | AI Flow Generator | None |
+| **Policy Guardrails** | Compiles Business Rules to Guards | Basic Regex Filters | Input Validation Rules | Custom Guard Nodes |
+
 ## Typical use cases
 - **AI-Assisted Workflow Building**: Using the **Langflow Assistant** to generate custom components or entire multi-agent flows via natural language prompts.
 - **Production-Grade RAG & Memory**: Designing and deploying retrieval-augmented generation systems with **Memory Bases** for long-term semantic persistence, multi-modal ingestion, and hybrid search.
@@ -114,6 +124,38 @@ lfx mcp serve --flow-id "flow-uuid-9912" --port 8080
 lfx assist "Build a FastMCP 3.1 RAG flow using LanceDB and Claude 5.6"
 ```
 
+## Systemd Production Service Configuration
+
+Below is a production systemd unit file (`/etc/systemd/system/langflow.service`) for deploying Langflow as an isolated system service:
+
+```ini
+[Unit]
+Description=Langflow Visual Flow Orchestration Server
+After=network.target postgresql.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=langflow
+Group=langflow
+WorkingDirectory=/var/lib/langflow
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="LANGFLOW_DATABASE_URL=postgresql://langflow:secret@localhost:5432/langflowdb"
+Environment="LANGFLOW_NUM_WORKERS=4"
+ExecStart=/usr/local/bin/langflow run --host 0.0.0.0 --port 7860
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### Executing a Flow and Validating Output (V2 API + Pydantic v2)
@@ -122,7 +164,7 @@ This example shows how to query a Langflow workspace programmatically and strict
 ```python
 import os
 import requests
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from typing import List, Optional, Dict, Any
 
 class LangflowExecutionResult(BaseModel):
@@ -131,6 +173,13 @@ class LangflowExecutionResult(BaseModel):
     response_text: str = Field(..., description="The actual textual answer returned by the agent")
     tokens_used: int = Field(default=0, ge=0, description="Total tokens consumed during execution")
     execution_time_ms: float = Field(default=0.0, ge=0.0, description="Flow runtime in milliseconds")
+
+    @field_validator("flow_id")
+    @classmethod
+    def validate_flow_id_format(cls, v: str) -> str:
+        if len(v) < 4:
+            raise ValueError("Flow ID must be at least 4 characters long")
+        return v
 
 def run_langflow_flow(flow_id: str, query: str) -> LangflowExecutionResult:
     """Executes a Langflow workflow and parses the response payload with Pydantic v2."""
@@ -183,11 +232,12 @@ from pydantic import BaseModel, Field, ValidationError
 import requests
 import os
 
-mcp = FastMCP("langflow-mcp-bridge")
+mcp = FastMCP("langflow-mcp-bridge", version="3.1.0")
 
 class FlowExecutionRequest(BaseModel):
     flow_id: str = Field(..., description="Target Langflow workflow UUID")
     user_prompt: str = Field(..., description="Prompt or directive to send to the flow graph")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
 
 class FlowExecutionResponse(BaseModel):
     flow_id: str = Field(..., description="Executed flow identifier")
@@ -195,15 +245,15 @@ class FlowExecutionResponse(BaseModel):
     success: bool = Field(default=True, description="Execution success indicator")
 
 @mcp.tool(name="execute_langflow_graph", description="Executes a Langflow multi-agent flow via FastMCP 3.1")
-def execute_langflow_graph(flow_id: str, user_prompt: str) -> str:
+def execute_langflow_graph(flow_id: str, user_prompt: str, temperature: float = 0.7) -> str:
     """FastMCP 3.1 tool for invoking Langflow flows programmatically."""
     try:
-        req = FlowExecutionRequest(flow_id=flow_id, user_prompt=user_prompt)
+        req = FlowExecutionRequest(flow_id=flow_id, user_prompt=user_prompt, temperature=temperature)
 
         # Simulate interaction with local Langflow server
         res = FlowExecutionResponse(
             flow_id=req.flow_id,
-            output_message=f"Flow [{req.flow_id}] processed prompt: '{req.user_prompt}' successfully.",
+            output_message=f"Flow [{req.flow_id}] processed prompt: '{req.user_prompt}' successfully with temp {req.temperature}.",
             success=True
         )
 
@@ -214,6 +264,21 @@ def execute_langflow_graph(flow_id: str, user_prompt: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Operational Safety & Policy Guardrails
+
+1. **Deterministic Input Sanitization**: Always route user inputs through a Langflow Policy Guard component to strip prompt injections before passing queries to LLM nodes.
+2. **Worker Memory Quotas**: Limit Linux CoW worker pool memory limits in `/etc/langflow/config.yaml` to prevent rogue custom code components from causing system OOM errors.
+3. **API Key Isolation**: Store global provider API keys in environment variables or HashiCorp Vault rather than hardcoding them in exported JSON flow specifications.
+
+## Systematic Troubleshooting Matrix
+
+| Symptom / Error | Probable Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Flow Execution Timeout (504)** | Unresponsive custom LLM node or hanging vector query | `lfx logs --flow-id <UUID>` | Increase step timeout in `lfx` config or optimize vector query |
+| **FastMCP Tool Discovery Failure** | Port conflict or invalid FastMCP JSON-RPC response | `lfx mcp status` | Verify port availability and restart `lfx mcp serve` gateway |
+| **Worker CoW Memory Leak** | Unclosed database connections in custom Python node | `systemctl status langflow` | Ensure custom nodes use context managers (`with` blocks) for DB connection pools |
+| **Schema Validation Error on API Call** | Outdated API endpoint payload format | Inspect `/api/v2/docs` OpenAPI spec | Update caller Pydantic schema to match Langflow v2 API contract |
 
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md) — The underlying component framework for many Langflow abstractions.
@@ -230,7 +295,6 @@ if __name__ == "__main__":
 - [Langflow Releases & Documentation](https://www.langflow.org/blog)
 - [Langflow GitHub Repository](https://github.com/langflow-ai/langflow)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
