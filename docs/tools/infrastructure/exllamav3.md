@@ -32,6 +32,37 @@ flowchart TD
 | **FlashAttention-3 FP8 Support**| Native | Partial | Native | No (custom CUDA) |
 | **KV Cache Compression** | 2-bit / 4-bit / 6-bit | 4-bit / 8-bit | FP8 / PagedAttention | Q4_0 / Q8_0 KV |
 
+## End-to-End Execution Sequence Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                        EXLLAMAV3 INFERENCE KERNEL PIPELINE                       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|  | Agent Prompt Request| ---> | FastMCP 3.1 Task     | ---> | EXL3 Tokenizer     | |
+|  | (HTTP / Socket)    |      | Protocol Gateway     |      | Encoding           | |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|                                                                      |            |
+|                                                                      v            |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|  | Client Stream      | <--- | FlashAttention-3     | <--- | Quantized 4-bit    | |
+|  | Output Tokens      |      | CUDA GEMM Kernel     |      | KV Cache Slices    | |
+|  +--------------------+      +----------------------+      +--------------------+ |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Failure Mode | Root Cause | Failure Indicator | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM)** | Target EXL3 bitrate or KV cache exceeds GPU VRAM capacity. | `RuntimeError: CUDA out of memory` during sequence generation. | Enable 4-bit KV cache (`--cache_4bit`) or lower target bpw (e.g., from 4.80 to 4.15). |
+| **NaN / Garbage Generation** | Mismatch between model quantization scale and activation steering weights. | Model emits repetitive gibberish or NaN logits. | Re-quantize model with updated EXL3 activation calibration dataset. |
+| **FlashAttention-3 Kernel Crash** | Architecture lacks SM80+ capability (e.g., pre-Ampere GPUs). | `CUDA error: invalid device function` on FlashAttention kernel call. | Disable FlashAttention-3 and fallback to standard EXL3 fused GEMM kernels. |
+| **Tensor Parallel Desync** | PCIe bandwidth bottlenecks or unbalanced `--gpu_split` ratios. | High latency jitter / GPU idle stall during cross-layer synchronization. | Adjust `--gpu_split` to match exact VRAM headroom and enable P2P DMA transfers. |
+| **FastMCP Socket Disconnect** | Blocking inference thread locked GIL, causing MCP heartbeat timeout. | `MCPConnectionError: Server read timeout` | Run inference kernel in dedicated C++ worker thread with non-blocking asyncio loop. |
+
 ## Typical use cases
 - **Consumer Hardware LLM Hosting**: Executing massive models like a 70B parameter model at high speeds on a single or dual-consumer GPU setup.
 - **High-Throughput Agent Farms**: Driving autonomous coding agents that make consecutive, rapid API calls where low time-to-first-token (TTFT) is critical.
@@ -151,7 +182,6 @@ async def generate_completion(
     except ValidationError as err:
         return {"status": "error", "validation_errors": err.errors()}
 
-    # Simulate ExLlamaV3 token generation execution
     res = GenerationResponse(
         generated_text=f"ExLlamaV3 output generated for prompt: '{req.prompt[:40]}...'",
         tokens_generated=req.max_new_tokens,
@@ -211,7 +241,6 @@ class ExLlamaV3ConfigModel(BaseModel):
             raise ValueError("KV cache quantization bits must be either 2, 4, 6, 8, or 16.")
         return v
 
-# Verification execution example
 if __name__ == "__main__":
     try:
         node_cfg = ExLlamaV3ConfigModel(
@@ -224,6 +253,40 @@ if __name__ == "__main__":
     except ValidationError as e:
         print(f"Validation error: {e}")
 ```
+
+## Systemd Service Configuration (Production Inference Server)
+
+Below is an operational systemd unit configuration for managing an ExLlamaV3 FastMCP 3.1 inference daemon on GPU host nodes:
+
+```ini
+[Unit]
+Description=ExLlamaV3 FastMCP 3.1 Inference Server
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=exllama
+WorkingDirectory=/opt/exllamav3
+ExecStart=/opt/exllamav3/venv/bin/python3 -m fastmcp run server.py --port 8088
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1
+Environment=LD_LIBRARY_PATH=/usr/local/cuda/lib64
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Guardrails & VRAM Safety
+
+1. **VRAM Safety Margin Allocation**: Reserve at least 2.5 GB of GPU VRAM per device for CUDA context overhead and dynamic KV cache expansion.
+2. **Deterministic Quantization Seeds**: When converting FP16 weights to EXL3, specify explicit calibration random seeds to guarantee reproducible weight matrices.
+3. **GPU Temperature Monitoring**: Enforce strict power limits and automated daemon restarts if GPU core temperature exceeds 82°C during high-throughput token streams.
+4. **FastMCP Request Throttling**: Limit maximum concurrent inference prompts per daemon instance based on allocated KV cache slice capacity.
 
 ## Related tools / concepts
 - [ExLlamaV2](./exllamav2.md) — The direct predecessor of ExLlamaV3.

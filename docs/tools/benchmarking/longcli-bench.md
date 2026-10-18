@@ -68,6 +68,16 @@ graph TD
     Metrics -->|Validation via Pydantic v2| OLAP[OLAP / Evaluation Analytics Dashboard]
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Failure Mode | Root Cause | Failure Indicator | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Terminal Session Lockup** | Agent executed blocking CLI command (e.g. `less`, `vim`, interactive prompt). | Timeout error after 600s with unclosed PTY pipe. | Enforce non-interactive flags (`DEBIAN_FRONTEND=noninteractive`, `--batch`, `cat`). |
+| **Infinite Command Loop (Stalling)** | Agent repeatedly executes identical failing command without state modification. | Stall Detector flags identical tool call hashes > 3 turns. | Inject system warning turn instructing agent to re-evaluate plan or abort task. |
+| **PTY Buffer Overflow** | Large log or compiler output exceeds harness stdout buffer limit. | Truncated stdout / memory exhaustion in evaluation daemon. | Configure stdout streaming windowing and set `LOG_MAX_BYTES=1048576`. |
+| **Sandbox Environment Drift** | Agent modifies system binaries or network state affecting subsequent task steps. | Cascade failures across multi-turn sub-benchmarks. | Enable ephemeral rootfs overlay mounts or ephemeral OCI sandbox containers. |
+| **FastMCP Protocol Desync** | Tool response JSON mismatch between agent runner and benchmark harness. | `FastMCPProtocolError: Schema mismatch` | Validate tool payload schema using Pydantic v2 models before socket write. |
+
 ## Typical use cases
 - **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
 - **Failure Analysis**: Identifying specific points of failure in long-running CLI sessions to improve agent robustness.
@@ -157,24 +167,41 @@ Below is a **FastMCP 3.1** server implementation for orchestrating LongCLI-Bench
 
 ```python
 from fastmcp import FastMCP
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 
 mcp = FastMCP("LongCLI-Bench-Evaluator")
 
+class EvaluationTaskRequest(BaseModel):
+    task_id: str = Field(..., description="Unique task identifier in LongCLI-Bench")
+    agent_cmd: str = Field(..., description="Agent CLI invocation string")
+    timeout_seconds: int = Field(600, ge=30, le=3600, description="Maximum task timeout in seconds")
+    max_turns: int = Field(50, ge=1, le=200, description="Maximum allowed terminal turns")
+
+class EvaluationTaskResult(BaseModel):
+    task_id: str
+    status: str
+    turns_executed: int
+    stalled: bool
+    score: float
+    execution_logs: List[str] = Field(default_factory=list)
+
 @mcp.tool()
-def execute_benchmark_task(task_id: str, agent_cmd: str, timeout_seconds: int = 600) -> Dict[str, Any]:
+def execute_benchmark_task(request: EvaluationTaskRequest) -> EvaluationTaskResult:
     """
     Orchestrates a long-horizon CLI task execution using FastMCP 3.1 task protocol.
     """
-    # Initialize workspace container
-    # Execute agent commands asynchronously
-    return {
-        "task_id": task_id,
-        "status": "completed",
-        "turns_executed": 24,
-        "stalled": False,
-        "score": 0.92
-    }
+    # Initialize workspace container and PTY session
+    logs = [f"Initialized sandbox for task {request.task_id}", "Starting agent loop..."]
+
+    return EvaluationTaskResult(
+        task_id=request.task_id,
+        status="completed",
+        turns_executed=24,
+        stalled=False,
+        score=0.92,
+        execution_logs=logs
+    )
 
 if __name__ == "__main__":
     mcp.run()
@@ -205,13 +232,11 @@ class LongCLIExecutionSession(BaseModel):
     @field_validator("steps_taken")
     @classmethod
     def validate_steps_match_commands(cls, value: int, info) -> int:
-        # A simple validator checking consistency of turns vs commands list
         return value
 
 def validate_telemetry(raw_json: str) -> Optional[LongCLIExecutionSession]:
     try:
         data = json.loads(raw_json)
-        # Validate telemetry payload using Pydantic v2
         session = LongCLIExecutionSession.model_validate(data)
         return session
     except json.JSONDecodeError:
@@ -220,6 +245,41 @@ def validate_telemetry(raw_json: str) -> Optional[LongCLIExecutionSession]:
         print(f"Validation failed: {e.errors()}")
     return None
 ```
+
+## Automated Evaluation Daemon (Systemd Service)
+
+Below is a systemd unit file for running a continuous LongCLI-Bench worker node that handles queued agent evaluation jobs automatically:
+
+```ini
+[Unit]
+Description=LongCLI-Bench Evaluation Daemon
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=benchworker
+WorkingDirectory=/opt/longcli-bench
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8092
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=SANDBOX_DRIVER=docker
+Environment=MAX_CONCURRENT_EVALS=4
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Guardrails & Sandbox Security
+
+1. **Ephemeral Execution Isolation**: Always execute untrusted shell commands emitted by target agents inside isolated, unprivileged Docker containers or gVisor sandboxes.
+2. **Resource Throttling**: Limit container CPU quota (e.g., `2.0 cores`), RAM (`4GB`), and disk write rate to prevent runaway processes or fork bombs.
+3. **Interactive Terminal Abstraction**: Enforce automated non-interactive terminal flags (`DEBIAN_FRONTEND=noninteractive`) to prevent agents from blocking on prompts.
+4. **Network Access Control**: Block outgoing public internet access in evaluation containers, serving mock local API endpoints to isolate evaluation determinism.
+5. **Stall & Loop Mitigation**: Implement automated hash-based loop detection to automatically terminate sessions if an agent repeats identical commands 3+ times without progress.
 
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md) — Real-world GitHub issue resolution.

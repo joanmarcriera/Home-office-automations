@@ -24,8 +24,28 @@ DigitalOcean Provider refers to the cloud infrastructure and developer platform 
 ## What problem it solves
 Setting up cloud infrastructure for AI agents and developer workloads often introduces complex AWS/GCP/Azure IAM role management, opaque billing, and high administrative overhead. DigitalOcean Provider solves this by offering straightforward, highly accessible cloud primitives with flat-rate pricing, turnkey managed Kubernetes, GPU compute acceleration, and one-click agent runtime platforms.
 
+## Feature & Cloud Provider Comparison Matrix
+
+| Feature / Metric | DigitalOcean Provider | AWS Cloud | GCP (Google Cloud) | Azure |
+| :--- | :--- | :--- | :--- | :--- |
+| **Pricing Model** | Predictable Flat-Rate Monthly | Usage-Based Metered | Usage-Based Metered | Usage-Based Metered |
+| **Developer UX / CLI** | High Simplicity (`doctl`) | Complex (`aws-cli` / IAM) | Moderate (`gcloud`) | Complex (`az` / Entra ID) |
+| **Managed Kubernetes** | DOKS (Zero Control Plane Cost) | EKS ($0.10/hr control plane) | GKE ($0.10/hr control plane) | AKS (Free basic control plane) |
+| **GPU Compute Access** | GPU Droplets (H100/L40S) | EC2 P5/G5 Instances | Compute Engine GPUs | Azure NC/ND Series |
+| **FastMCP 3.1 Integration**| Turnkey App Platform & Agents | ECS / EKS / Lambda | Cloud Run / GKE | Container Apps / AKS |
+
 ## Where it fits in the stack
 **Providers / Cloud Infrastructure Provider**. DigitalOcean Provider operates at the cloud hosting and infrastructure-as-a-service (IaaS) / platform-as-a-service (PaaS) layer, beneath agent execution frameworks and MCP tool servers, provisioning virtual compute, GPU acceleration, object storage, and managed databases.
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Operational Failure | Root Cause | Failure Indicator / Log Error | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **API Rate Limit Exceeded** | Excessive automated tool polling from FastMCP server agents. | `HTTP 429 Too Many Requests` from DigitalOcean API | Implement request caching, backoff jitter, or request token limit increase. |
+| **Droplet SSH Connection Refused** | Cloud Firewall dropping port 22 or SSH key missing from Droplet metadata. | `ssh: connect to host ... port 22: Connection refused` | Attach Cloud Firewall SSH rule to tag or inject SSH key via DigitalOcean Console. |
+| **GPU Droplet OOM / Crash** | vLLM or ExLlamaV3 memory allocation exceeded physical GPU VRAM. | `CUDA error: out of memory` / container crash | Lower model context length or scale GPU Droplet size (e.g. from L40S to H100). |
+| **App Platform Build Timeout** | Container build step exceeded maximum execution time during deployment. | `App Platform Build Failed: Exceeded time limit 30m` | Pre-build container images and push to DigitalOcean Container Registry (DOCR). |
+| **Database Connection Exhaustion**| Unpooled client connections from distributed FastMCP agent workers. | `FATAL: remaining connection slots are reserved for non-replication connections` | Enable PgBouncer connection pooling on DigitalOcean Managed PostgreSQL database. |
 
 ## Typical use cases
 - **Hosting Agent Workloads**: Deploying FastMCP 3.1 servers and agent runners on DigitalOcean App Platform or Droplets.
@@ -200,6 +220,38 @@ async def get_provider_status(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Daemon Unit (Automated Provisioning Node)
+
+Below is an operational systemd unit file for running an automated DigitalOcean cloud resource management daemon on orchestration hosts:
+
+```ini
+[Unit]
+Description=DigitalOcean FastMCP 3.1 Provisioning Controller
+After=network.target
+
+[Service]
+Type=simple
+User=doadmin
+WorkingDirectory=/opt/do-controller
+ExecStart=/opt/do-controller/venv/bin/python3 -m fastmcp run server.py --port 8094
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=DIGITALOCEAN_TOKEN=dop_v1_example_token_hash
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Security & Cloud Guardrails
+
+1. **Least-Privilege API Tokens**: Issue read-only tokens for status monitoring services and restrict full Write/Delete tokens to secure deployment runners.
+2. **Mandatory Cloud Firewalls**: Ensure every compute Droplet is automatically attached to a DigitalOcean Cloud Firewall blocking all incoming traffic except HTTPS (443) and restricted SSH (22).
+3. **Database VPC Private Networking**: Enforce Private Network (VPC) binding for Managed PostgreSQL and Redis instances to isolate database traffic from public internet routes.
+4. **Automated Snapshot Backups**: Enable weekly automated Droplet snapshots and point-in-time recovery (PITR) on all production managed databases.
 
 ## Integration patterns
 - **DigitalOcean Managed Agents Deployment**: Pair cloud Droplet resources and managed databases with [DigitalOcean Managed Agents](digitalocean-managed-agents.md) for full-stack autonomous agent execution.
