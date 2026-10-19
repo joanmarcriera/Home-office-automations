@@ -12,6 +12,42 @@ As the volume of unstructured data grows, simple keyword search often fails to c
 - **Real-Time Synthesis**: Synthesizing answers from rapidly changing web data via Agentic Search providers like [Exa AI](../../tools/providers/exa_ai.md).
 - **Multi-Agent Coordination**: Routing and executing parallel search queries across federated data stores using MCP 3.1 / FastMCP 3.1 router architectures.
 
+## System Architecture
+
+```
+                                      Hybrid Search & Re-ranking Flow
+
+  +-----------------------+        +------------------------+        +--------------------------+
+  |  Natural Language     | ---->  |  Hybrid Search Router  | ---->  | Dense Vector Search      |
+  |  Query Input          |        |  (Lexical + Semantic)  |        | (Milvus / Pinecone HNSW) |
+  +-----------------------+        +------------------------+        +--------------------------+
+                                               |                                  |
+                                               v                                  v
+  +-----------------------+        +------------------------+        +--------------------------+
+  | LLM Context Window    | <----  | Cohere / Cross-Encoder | <----  | Sparse Lexical Search    |
+  | (Prompt Augmentation) |        | Re-ranking Engine      |        | (BM25 / SPLADE Index)    |
+  +-----------------------+        +------------------------+        +--------------------------+
+```
+
+## Search Pattern Architectural Matrix
+
+| Search Strategy | Retrieval Precision | Query Latency | Implementation Complexity | Primary Ideal Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Naive Dense Vector** | Moderate | Very Low (<20ms) | Low | Broad semantic clustering & topic search |
+| **Hybrid (BM25 + Vector)**| High | Low (<50ms) | Moderate | Enterprise document search with technical jargon |
+| **Late Interaction (ColBERT)**| Extremely High | Low-Moderate (<80ms)| High | Token-level exact match across dense corpora |
+| **Agentic Loop Search** | Highest | High (>500ms) | Very High | Autonomous research & multi-step web discovery |
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Check Command | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **Low Retrieval Precision** | Unbalanced dense vs lexical weighting in RRF | Inspect intermediate top_k BM25 vs vector recall | Adjust Reciprocal Rank Fusion (RRF) `k` parameter or re-tune dense alpha weights. |
+| **Re-ranking Latency Spike** | Passing too many candidate documents to Cross-Encoder | Measure Cohere/Cross-Encoder API round-trip | Prune initial retrieval candidate set from top_k=100 down to top_k=20 before re-ranking. |
+| **Out-Of-Memory (OOM) Vector DB**| Excessive HNSW M/efConstruction index parameters | `docker stats milvus-standalone` | Tune vector index configuration or switch to IVF-PQ quantization formats. |
+| **FastMCP Search Tool Timeout** | Concurrent query lock or network bottleneck | Check vector DB connection pool logs | Increase async connection pool limit and set query timeout guardrails to 15s. |
+| **Missing Technical Part Numbers**| Pure semantic embedding model smoothing out digits | Test BM25 keyword search directly | Force hybrid search mode with exact keyword match filters for alpha-numeric IDs. |
+
 ## Where it fits in the stack
 **Category**: Knowledge Base / AI Patterns. These patterns reside in the **Retrieval and Context layer** of an application, sitting between the [Vector Database](../../tools/infrastructure/index.md) and the [Inference Engine](../../tools/infrastructure/index.md).
 
@@ -52,6 +88,39 @@ As the volume of unstructured data grows, simple keyword search often fails to c
 4. **Implement a Hybrid Pipeline**: Use a framework like [LlamaIndex](../../tools/frameworks/index.md) or [LangChain](../../tools/frameworks/index.md) to combine BM25 (lexical) and Vector (semantic) search.
 5. **Add a Re-ranker**: Integrate a Cross-Encoder (e.g., Cohere Re-rank v3) to prune the final results for the LLM.
 
+## Systemd Service Unit Configuration
+
+To run the Hybrid Search & Re-ranking Router Service on a Linux host, create `/etc/systemd/system/search-mcp-router.service`:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Hybrid Search and Re-ranking Router Service
+After=network.target milvus.service
+
+[Service]
+Type=simple
+User=searchrouter
+Group=searchrouter
+WorkingDirectory=/opt/search-mcp-router
+Environment="PATH=/opt/search-mcp-router/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Environment="MILVUS_URI=http://localhost:19530"
+Environment="COHERE_API_KEY=your-cohere-api-key"
+ExecStart=/opt/search-mcp-router/venv/bin/fastmcp run /opt/search-mcp-router/server.py --port 8085
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now search-mcp-router.service
+sudo systemctl status search-mcp-router.service
+```
+
 ## CLI examples
 Using the [Ollama](../../services/ollama.md) CLI to generate embeddings for a local document:
 
@@ -78,21 +147,22 @@ curl -s -X POST "https://api.exa.ai/search" \
 ```
 
 ## API examples
-Implementation of a Hybrid Search and Re-ranking query using Python and the Cohere/Pinecone SDKs. The response is validated strictly using **Pydantic v2** models to ensure reliability in downstream multi-agent chains.
+Implementation of a Hybrid Search and Re-ranking query using Python and the Cohere/Pinecone SDKs. The response is validated strictly using **Pydantic v2** models and exposed as a **FastMCP 3.1** tool.
 
-### Python: Hybrid Search and Re-ranking Pipeline with strict Pydantic v2 typing
+### Python: FastMCP 3.1 Hybrid Search Tool with strict Pydantic v2 typing
 ```python
 import os
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 from pinecone import Pinecone
 import cohere
+from fastmcp import FastMCP
 
-# ---------------------------------------------------------------------------
-# Strict Validation Schemas using Pydantic v2
-# ---------------------------------------------------------------------------
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Search-Patterns-Router", version="3.1.0")
 
 class SearchQueryInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     query: str = Field(..., min_length=3, max_length=500, description="The natural language query string")
     index_name: str = Field(..., description="The target vector database index name")
     top_k: int = Field(default=5, ge=1, le=100, description="Number of re-ranked documents to return")
@@ -100,30 +170,26 @@ class SearchQueryInput(BaseModel):
     @field_validator("query")
     @classmethod
     def clean_query_text(cls, v: str) -> str:
-        # Strip trailing whitespaces and sanitize input text
         return v.strip()
 
 class RankedDocument(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     id: str = Field(..., description="Unique document hash or identifier")
     text: str = Field(..., description="The raw document snippet text")
     score: float = Field(..., description="Relevance score computed by Cohere Re-rank v3")
-    metadata: Optional[dict] = Field(default_factory=dict)
-
-# ---------------------------------------------------------------------------
-# Search Pipeline Function
-# ---------------------------------------------------------------------------
+    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 # Initialize clients (ensure API keys are injected)
 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY", "mock-key"))
 co = cohere.ClientV2(api_key=os.environ.get("COHERE_API_KEY", "mock-key"))
 
-def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
+@mcp.tool(name="hybrid_search_and_rerank", description="Executes hybrid vector + lexical search with Cohere Re-rank v3.")
+def hybrid_search_and_rerank(raw_input: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Executes a high-precision hybrid retrieval and Cohere Re-rank v3 pipeline,
     validated strictly with Pydantic v2 models.
     """
     try:
-        # Validate inputs strictly using Pydantic v2
         validated_input = SearchQueryInput.model_validate(raw_input)
     except ValidationError as err:
         raise ValueError(f"Invalid search parameters: {err}")
@@ -144,7 +210,6 @@ def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
         include_metadata=True
     )
 
-    # Extract text from matches
     documents = []
     for match in results.matches:
         doc_text = match.metadata.get("text", "") if match.metadata else ""
@@ -161,7 +226,6 @@ def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
         model="rerank-english-v3.0"
     )
 
-    # Reconstruct ranked documents and validate output schemas
     ranked_docs = []
     for result in rerank_results.results:
         original_doc = documents[result.index]
@@ -174,7 +238,6 @@ def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
             )
             ranked_docs.append(doc_obj.model_dump())
         except ValidationError as err:
-            # Log and skip single malformed record to keep retrieval fault-tolerant
             print(f"Skipping malformed retrieval record: {err}")
             continue
 
@@ -182,19 +245,7 @@ def hybrid_search_and_rerank(raw_input: dict) -> List[dict]:
 
 
 if __name__ == "__main__":
-    # Sample execution (late 2026 search parameters)
-    raw_params = {
-        "query": "  How does FastMCP 3.1 simplify tool-calling transport mechanisms?  ",
-        "index_name": "homelab-docs-index",
-        "top_k": 3
-    }
-    try:
-        results = hybrid_search_and_rerank(raw_params)
-        print(f"Retrieved and Re-ranked {len(results)} docs:")
-        for doc in results:
-            print(f"[{doc['score']:.4f}] Doc ID: {doc['id']} - Snippet: {doc['text'][:50]}...")
-    except Exception as e:
-        print(f"Search retrieval pipeline execution failed: {e}")
+    mcp.run()
 ```
 
 ## Related tools / concepts
