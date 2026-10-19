@@ -256,6 +256,36 @@ To safeguard enterprise-grade KnowledgeOps repositories from accidental corrupti
 2. **Deterministic Pre-Push Hooks**: Local git hooks prevent `git push` unless `scripts/audit_docs_quality.py` returns 100% compliance.
 3. **Model Attributable Signatures**: Every commit must explicitly denote the driving AI agent model signature in the git commit body.
 
+## Production Deployment & Systemd Service Architecture
+
+To run the KnowledgeOps FastMCP 3.1 Policy Engine as a resilient background service on enterprise Linux hosts or agent controller nodes, use the systemd unit template below:
+
+```ini
+[Unit]
+Description=Multi-Agent KnowledgeOps FastMCP 3.1 Policy Engine Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=knowledgeops
+Group=knowledgeops
+WorkingDirectory=/opt/knowledgeops-engine
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run knowledgeops_policy_engine.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=KNOWLEDGE_BASE_ROOT=/var/lib/knowledgeops/docs
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Related tools / concepts
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for KnowledgeOps.
 - [Automated Contributions](./automated_contributions.md) — Deep dive into the Ralph-loop implementation.
