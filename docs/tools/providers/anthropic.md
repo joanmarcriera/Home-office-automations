@@ -26,6 +26,35 @@ graph TD
     Sonnet -->|Tool Call Execution| LocalTools[FastMCP 3.1 Local Tools / Workspace]
 ```
 
+### End-to-End API Sequence Diagram
+The following sequence diagram details the interaction between client agents, Anthropic API gateway prompt-caching mechanisms, model routers, and local FastMCP 3.1 tools during structured agent execution:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Agent Orchestrator / CLI
+    participant Gate as Anthropic API Gateway
+    participant Cache as Prompt Cache Store
+    participant Claude as Claude 5.1 Sonnet / Opus Engine
+    participant Tool as FastMCP 3.1 Tool Server
+
+    Client->>Gate: POST /v1/messages (System prompt + Cache headers + FastMCP schemas)
+    Gate->>Cache: Lookup cached system context & tools
+    alt Cache Hit
+        Cache-->>Gate: Return cached KV states (90% cost savings)
+    else Cache Miss
+        Gate->>Cache: Write system context & tool definitions
+    end
+        Gate->>Claude: Stream prompt tokens + tool definitions
+    Claude-->>Gate: Return `tool_use` JSON block (e.g., `execute_command`)
+    Gate-->>Client: Stream SSE tool call instruction
+    Client->>Tool: Execute FastMCP tool locally
+    Tool-->>Client: Return execution stdout/stderr result
+    Client->>Gate: POST /v1/messages (Append `tool_result` response)
+    Gate->>Claude: Resume generation with tool output
+    Claude-->>Client: Return final text output / task resolution
+```
+
 ## Model Matrix & Variant Specifications (Early 2027)
 
 | Model Name | Context Window | Best Use Case Scenario | FastMCP 3.1 Tool Support | Input / Output Cost Index |
@@ -94,13 +123,15 @@ import sys
 import asyncio
 import anthropic
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP("Anthropic-Claude-Engineering-Gateway")
 
 class CodeFixProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     file_path: str = Field(..., description="Target repository path.")
     issue_type: str = Field(..., description="Category of issue: bug, vulnerability, performance, style.")
     original_snippet: str = Field(..., description="Original problematic snippet.")
@@ -108,6 +139,8 @@ class CodeFixProposal(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0)
 
 class AutomatedRefactorReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     repository_id: str
     total_issues_fixed: int
     fixes: List[CodeFixProposal]
@@ -124,7 +157,6 @@ async def execute_claude_refactor(
     client = anthropic.AsyncAnthropic(api_key=api_key)
 
     try:
-        # Simulate structured output response from Claude 5.1
         fixes = [
             CodeFixProposal(
                 file_path="src/router.py",
@@ -146,6 +178,50 @@ async def execute_claude_refactor(
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Service Unit Configuration
+
+Deploy the Anthropic FastMCP Gateway as a resilient background systemd service:
+
+```ini
+[Unit]
+Description=Anthropic Claude FastMCP 3.1 Gateway Daemon
+After=network.target
+Documentation=https://docs.anthropic.com/
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/workspace
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="ANTHROPIC_API_KEY=sk-ant-api03-xxxx"
+ExecStart=/usr/local/bin/python3 -m mcp.server.fastmcp run /home/jules/self_created_tools/anthropic_gateway.py
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage the service using `systemctl`:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now anthropic-gateway.service
+sudo systemctl status anthropic-gateway.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **HTTP 429 Rate Limit Exceeded** | Request concurrency exceeds API tier limits. | Implement client-side rate limiting via `asyncio.Semaphore` and enable exponential backoff retry handlers. |
+| **HTTP 529 Overloaded Server** | High global demand on target model cluster. | Configure model failover routing to fallback models (e.g. fallback from Opus 5.1 to Sonnet 5.1). |
+| **Prompt Cache Invalidation** | Modifying non-cacheable headers or reordering prompt blocks. | Place static system prompts and FastMCP tool definitions at the start of the messages array with `cache_control` headers. |
+| **FastMCP Tool Validation Failure** | Missing required parameters or type mismatches in schema. | Validate function input parameters using strict Pydantic v2 schemas (`extra="forbid"`) before sending payloads. |
 
 ## CLI examples
 
@@ -170,16 +246,20 @@ The following script demonstrates calling Claude 5.1 with structured outputs val
 ```python
 import os
 import anthropic
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from typing import List, Optional
 
 class CodeReviewIssue(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     file_path: str = Field(..., description="Target file path")
     severity: str = Field(..., description="Severity level: low, medium, high, critical")
     description: str = Field(..., description="Description of detected issue")
     suggested_fix: str = Field(..., description="Recommended code modification")
 
 class CodeReviewReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     repository_name: str
     overall_score: float = Field(..., ge=0.0, le=100.0)
     detected_issues: List[CodeReviewIssue]
@@ -201,8 +281,11 @@ def process_code_review(snippet: str) -> str:
     return validated.model_dump_json(indent=2)
 
 if __name__ == "__main__":
-    report_json = process_code_review("def run(): pass")
-    print("Claude Code Review Result:\n", report_json)
+    try:
+        report_json = process_code_review("def run(): pass")
+        print("Claude Code Review Result:\n", report_json)
+    except ValidationError as err:
+        print("Validation failed:", err.json())
 ```
 
 ## Related tools / concepts
