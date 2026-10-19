@@ -260,6 +260,39 @@ if __name__ == "__main__":
     print(f"FastMCP Tool Result: {result}")
 ```
 
+## Production Deployment & Systemd Service Architecture
+
+To run Tesseract FastMCP 3.1 OCR server workers as resilient background daemons on enterprise Linux hosts, use the systemd unit template below:
+
+```ini
+[Unit]
+Description=Tesseract FastMCP 3.1 OCR Tool Server
+After=network.target local-fs.target
+Requires=local-fs.target
+
+[Service]
+Type=simple
+User=tesseract-mcp
+Group=tesseract-mcp
+WorkingDirectory=/opt/tesseract-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run tesseract_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+Environment=OMP_THREAD_LIMIT=4
+
+# Security and Isolation Guardrails
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Enterprise Security & Air-Gap Privacy Guardrails
 
 1. **Air-Gapped Processing Enforcement**: Tesseract execution runs entirely in local memory or container sandbox environments without network socket binding.
