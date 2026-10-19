@@ -187,6 +187,12 @@ class IngestedDocument(BaseModel):
             logger.warning("Completed document returned zero visual bounding-box citations.")
         return v
 
+class DocumentParsingRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    file_path: str = Field(..., description="Local path to PDF or image document")
+    parser_config: Dict[str, Any] = Field(default_factory=dict, description="DeepDoc layout parser parameters")
+
 class RetrievalQuerySpec(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 

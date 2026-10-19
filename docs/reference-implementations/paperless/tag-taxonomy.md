@@ -250,6 +250,14 @@ if __name__ == "__main__":
 - [Vikunja](../../services/vikunja.md): The task manager used for `needs-action` routing.
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): The interface for agents to interact with Paperless.
 
+## Enterprise Governance & Audit Guardrails
+
+To prevent tag drift and unauthorized metadata mutation across multi-agent processing pipelines:
+
+1. **Strict Tag Namespace Reservation**: Standardized prefixes (`Finance/`, `Health/`, `Home/`, `Admin/`) are immutable across agent runtimes.
+2. **Automated Orphan Tag Pruning**: Nightly FastMCP 3.1 cron jobs flag unused ad-hoc tags for administrative approval before removal.
+3. **Pydantic Schema Validation**: All external tag creation payloads must validate against `PaperlessTagCreate` Pydantic models before REST API submission.
+
 ## Sources / References
 - [Paperless-ngx Tags Documentation](https://docs.paperless-ngx.com/usage/#tags)
 - [Tagging Strategies for Personal Documents](https://github.com/joanmarcriera/Home-office-automations)

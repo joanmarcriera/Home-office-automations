@@ -294,6 +294,34 @@ In compliance-focused environment setups, audio transcription metadata pipelines
 2. **PII Masking at Inference**: Segment transcripts undergo regex and NER filter passes before vector index persistence to remove credit card or identity tokens.
 3. **Retention & Expiration Limits**: Transcribed audio JSON documents retain TTL attributes (`expires_at`) aligned with enterprise data disposal policies.
 
+### Production Systemd Daemon Configuration
+
+```ini
+[Unit]
+Description=Audio Transcription FastMCP Service
+After=network.target
+
+[Service]
+Type=simple
+User=audio
+Group=audio
+WorkingDirectory=/opt/audio-transcription
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run audio_transcription_server.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=TRANSCRIPTION_CACHE_DIR=/var/cache/audio_transcription
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Related tools / concepts
 - [Audio Transcription Research](../../knowledge_base/audio-transcription-research.md) — Baseline research on Whisper and speaker diarization.
 - [Whisper Service](../../services/whisper.md) — The primary model used to generate these segments.

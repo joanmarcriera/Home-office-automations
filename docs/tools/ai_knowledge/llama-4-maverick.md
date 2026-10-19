@@ -303,6 +303,34 @@ if __name__ == "__main__":
     print(f"Result: {res.response_text} (Tokens: {res.tokens_used})")
 ```
 
+## Enterprise Deployment & Systemd Service Architecture
+
+```ini
+[Unit]
+Description=Llama 4 Maverick vLLM FastMCP Inference Service
+After=network.target nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=llama
+Group=llama
+WorkingDirectory=/opt/llama-maverick
+ExecStart=/usr/bin/python3 -m vllm.entrypoints.openai.api_server --model meta-llama/Llama-4-Maverick-70B-Instruct --port 8000
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Related tools / concepts
 - [Llama 4](llama-4.md) — Base foundational open-weights LLM architecture from Meta.
 - [Llama](llama.md) — Broader Meta Llama open model ecosystem overview.
