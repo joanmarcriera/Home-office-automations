@@ -244,36 +244,6 @@ RAGFlow exposes knowledge bases via Model Context Protocol (FastMCP 3.1), allowi
 | **FastMCP Timeout** | Long vision parsing queue delaying chunk fetching | `mcp-server --debug` | Implement asynchronous polling using `doc_id` status before query submission |
 | **MySQL Connection Pool Exhaustion** | Unclosed API query connections from concurrent agents | `docker logs ragflow-mysql \| grep "Too many connections"` | Increase `max_connections=500` in MySQL `my.cnf` configuration |
 
-## Enterprise Governance & Audit Logging Guardrails
-
-In high-compliance production deployments, RAGFlow must adhere to strict audit trail and data sovereignty principles:
-
-1. **Pixel-Level Citation Persistence**: Every chunk stored in Infinity or Elasticsearch includes metadata referencing the bounding box (`[x0, y0, x1, y1]`) and raw image hash to verify compliance during regulatory reviews.
-2. **PII Masking at Ingestion**: Ingest pipelines automatically pass parsed text through PII detection models prior to generating dense vector embeddings.
-3. **Role-Based Dataset Segmentation**: Knowledge base datasets must be partitioned using dataset UUID ACLs mapped directly to enterprise OIDC identities.
-
-## Related tools / concepts
-- [Dify](../ai_knowledge/dify.md)
-- [Docling](./docling.md)
-- [OCRmyPDF](./ocrmypdf.md)
-- [Unstructured](../intake_storage/unstructured.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
-- [Firecrawl](./firecrawl.md)
-- [AG2](../frameworks/ag2.md)
-- [Flowise](../ai_knowledge/flowise.md)
-- [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
-- [Crawl4AI](./crawl4ai.md)
-- [OvisOCR2](./ovisocr2.md)
-- [Tesseract](./tesseract.md)
-- [Ragas](./ragas.md)
-
-## Sources / References
-- [RAGFlow Official Site](https://ragflow.io/)
-- [GitHub: infiniflow/ragflow](https://github.com/infiniflow/ragflow)
-- [DeepDoc Architecture Deep Dive](https://ragflow.io/docs/dev/deepdoc)
-- [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
-
 ## Production Deployment & Systemd Service Architecture
 
 To run RAGFlow FastMCP 3.1 gateway background workers as resilient system services on enterprise Linux hosts, use the systemd unit template below:
@@ -306,6 +276,37 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Enterprise Governance & Audit Logging Guardrails
+
+In high-compliance production deployments, RAGFlow must adhere to strict audit trail and data sovereignty principles:
+
+1. **Pixel-Level Citation Persistence**: Every chunk stored in Infinity or Elasticsearch includes metadata referencing the bounding box (`[x0, y0, x1, y1]`) and raw image hash to verify compliance during regulatory reviews.
+2. **PII Masking at Ingestion**: Ingest pipelines automatically pass parsed text through PII detection models prior to generating dense vector embeddings.
+3. **Role-Based Dataset Segmentation**: Knowledge base datasets must be partitioned using dataset UUID ACLs mapped directly to enterprise OIDC identities.
+
+## Related tools / concepts
+- [Dify](../ai_knowledge/dify.md)
+- [Docling](./docling.md)
+- [OCRmyPDF](./ocrmypdf.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
+- [Firecrawl](./firecrawl.md)
+- [AG2](../frameworks/ag2.md)
+- [Flowise](../ai_knowledge/flowise.md)
+- [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
+- [Crawl4AI](./crawl4ai.md)
+- [OvisOCR2](./ovisocr2.md)
+- [Tesseract](./tesseract.md)
+- [Ragas](./ragas.md)
+
+## Sources / References
+- [RAGFlow Official Site](https://ragflow.io/)
+- [GitHub: infiniflow/ragflow](https://github.com/infiniflow/ragflow)
+- [DeepDoc Architecture Deep Dive](https://ragflow.io/docs/dev/deepdoc)
+- [RAGFlow Latest Release Notes](https://github.com/infiniflow/ragflow/releases)
+
+---
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high

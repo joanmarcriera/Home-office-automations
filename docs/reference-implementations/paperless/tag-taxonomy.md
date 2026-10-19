@@ -239,22 +239,6 @@ if __name__ == "__main__":
     print("FastMCP Paperless Taxonomy Server initialized successfully.")
 ```
 
-## Related tools / concepts
-- [Paperless-ngx](../../services/paperless-ngx.md): The implementation platform for this taxonomy.
-- [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): A workflow that uses these tags to trigger tasks.
-- [Warranty Extraction](../../reference-implementations/llm-prompts/warranty-extraction.md): Uses the `Admin/Warranty` tag as a trigger.
-- [Manual Metadata Schema](../../reference-implementations/metadata-schemas/manuals.md): Uses the `Admin/Manual` tag.
-- [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md): How documents and tags enter the system.
-- [n8n](../../services/n8n.md): The engine that processes tags and triggers actions.
-- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The "brain" that interacts with the tagged archive.
-- [Vikunja](../../services/vikunja.md): The task manager used for `needs-action` routing.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): The interface for agents to interact with Paperless.
-
-## Sources / References
-- [Paperless-ngx Tags Documentation](https://docs.paperless-ngx.com/usage/#tags)
-- [Tagging Strategies for Personal Documents](https://github.com/joanmarcriera/Home-office-automations)
-- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
-
 ## Production Deployment & Systemd Worker Architecture
 
 To execute taxonomy maintenance scripts and FastMCP 3.1 background sync daemons on Linux hosts managing Paperless-ngx instances, use the systemd unit template below:
@@ -286,6 +270,23 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Related tools / concepts
+- [Paperless-ngx](../../services/paperless-ngx.md): The implementation platform for this taxonomy.
+- [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): A workflow that uses these tags to trigger tasks.
+- [Warranty Extraction](../../reference-implementations/llm-prompts/warranty-extraction.md): Uses the `Admin/Warranty` tag as a trigger.
+- [Manual Metadata Schema](../../reference-implementations/metadata-schemas/manuals.md): Uses the `Admin/Manual` tag.
+- [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md): How documents and tags enter the system.
+- [n8n](../../services/n8n.md): The engine that processes tags and triggers actions.
+- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The "brain" that interacts with the tagged archive.
+- [Vikunja](../../services/vikunja.md): The task manager used for `needs-action` routing.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): The interface for agents to interact with Paperless.
+
+## Sources / References
+- [Paperless-ngx Tags Documentation](https://docs.paperless-ngx.com/usage/#tags)
+- [Tagging Strategies for Personal Documents](https://github.com/joanmarcriera/Home-office-automations)
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
+
+---
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high

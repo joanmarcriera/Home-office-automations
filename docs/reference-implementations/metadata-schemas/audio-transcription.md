@@ -286,6 +286,37 @@ metadata = AudioTranscriptionMetadata.model_validate_json(sample_payload)
 print(f"Validated transcription of title: {metadata.title} (duration: {metadata.duration_seconds}s)")
 ```
 
+## Production Deployment & Systemd Worker Architecture
+
+To execute continuous audio ingestion, transcription, and diarization workers as systemd daemons on Linux hosts, use the systemd unit configuration below:
+
+```ini
+[Unit]
+Description=Audio Transcription & Diarization FastMCP 3.1 Worker Daemon
+After=network.target whisper-service.service
+
+[Service]
+Type=simple
+User=audio-transcriber
+Group=audio-transcriber
+WorkingDirectory=/opt/audio-transcription
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run transcribe_worker.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=WHISPER_MODEL=distil-large-v3
+Environment=PYANNOTE_AUTH_TOKEN=hf_mock_token_key
+
+# Security & Sandboxing Guardrails
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Enterprise Governance & Privacy Guardrails
 
 In compliance-focused environment setups, audio transcription metadata pipelines must follow strict data protection rules:

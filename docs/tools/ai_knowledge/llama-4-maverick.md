@@ -303,6 +303,43 @@ if __name__ == "__main__":
     print(f"Result: {res.response_text} (Tokens: {res.tokens_used})")
 ```
 
+## Production Deployment & Systemd Service Architecture
+
+To run local vLLM / Ollama Llama 4 Maverick inference hosts as persistent background system services on enterprise Linux GPU nodes, use the systemd unit configuration template below:
+
+```ini
+[Unit]
+Description=Llama 4 Maverick vLLM Inference Host Daemon
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=llama
+Group=llama
+WorkingDirectory=/opt/llama4-maverick
+ExecStart=/usr/local/bin/vllm serve meta-llama/Llama-4-Maverick-70B-Instruct \
+  --port 8000 \
+  --max-model-len 32768 \
+  --enable-auto-tool-choice \
+  --tool-call-parser pythonic \
+  --enable-prefix-caching \
+  --tensor-parallel-size 2
+Restart=always
+RestartSec=15s
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1
+
+# Security & Sandboxing Guardrails
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Related tools / concepts
 - [Llama 4](llama-4.md) — Base foundational open-weights LLM architecture from Meta.
 - [Llama](llama.md) — Broader Meta Llama open model ecosystem overview.
@@ -319,6 +356,7 @@ if __name__ == "__main__":
 - [LocalLLaMA Llama 4 Benchmark & Engineering Discussions](https://www.reddit.com/r/LocalLLaMA/)
 - [vLLM Documentation and FastMCP Parsing Guidelines](https://docs.vllm.ai/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
 - Confidence: high
