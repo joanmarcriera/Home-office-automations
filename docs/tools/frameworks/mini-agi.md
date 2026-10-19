@@ -42,6 +42,34 @@ graph TD
     Observation --> LoopControl
 ```
 
+### Continual Learning Execution Sequence
+The sequence diagram below illustrates the recursive step-by-step loop between the mini-AGI Controller, internal micro-adapter update engine, FastMCP 3.1 tools, and checkpoint store:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as User / Orchestrator
+    participant Loop as mini-AGI Loop Controller
+    participant Engine as Transformer & KV Engine
+    participant Adapter as Micro-Adapter (LoRA) Engine
+    participant Tool as FastMCP 3.1 Tool Router
+    participant Store as State Checkpoint Store
+
+    Client->>Loop: Dispatch Task ("Refactor database schemas with learning")
+    loop Dynamic Trajectory Step
+        Loop->>Engine: Run Forward Pass (Context + Compressed KV Cache)
+        Engine-->>Loop: Return Next Action / Tool Call Intent
+        alt Action is Tool Invocation
+            Loop->>Tool: Execute Tool (`bash`, `db_query`, etc.)
+            Tool-->>Loop: Return Observation / Stderr / Stdout
+        end
+        Loop->>Adapter: Compute Trajectory Loss & Update Micro-Weights
+        Adapter-->>Loop: Confirm Gradient Step & Loss Telemetry
+        Loop->>Store: Snapshot State Vector & Adapter Tensor
+    end
+    Loop-->>Client: Return Completed Task Summary + Final Loss Metrics
+```
+
 ## Typical use cases
 - **Autonomous Continual-Learning Code Assistants**: Running background developer agents that learn code style guidelines, repository structures, and bug resolution patterns directly from execution traces.
 - **Low-Latency Recursive Symbolic Reasoning**: Executing tight, high-frequency reasoning loops for multi-step mathematical proofs, formal code verification, and complex logical analysis.
@@ -78,7 +106,7 @@ Install `mini-agi` and FastMCP dependencies via PyPI:
 
 ```bash
 # Install core package
-pip install mini-agi pydantic mcp
+pip install mini-agi pydantic mcp fastmcp
 
 # Optional GPU acceleration for online micro-adapter updates
 pip install torch vllm --extra-index-url https://download.pytorch.org/whl/cu124
@@ -140,12 +168,14 @@ The following production-ready script demonstrates integrating mini-AGI continua
 import json
 import time
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("mini-AGI Loop Gateway")
 
 class TaskRequestSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="Unique identifier for the task loop")
     prompt: str = Field(..., description="Main objective or prompt for the agent loop")
     max_steps: int = Field(default=15, ge=1, le=100, description="Maximum recursive loop iterations allowed")
@@ -153,13 +183,15 @@ class TaskRequestSchema(BaseModel):
     learning_rate: float = Field(default=1e-5, ge=1e-7, le=1e-3, description="Learning rate for dynamic adapter updates")
 
     @field_validator("prompt")
-
+    @classmethod
     def validate_prompt_length(cls, v: str) -> str:
         if len(v.strip()) < 5:
             raise ValueError("Task prompt must be at least 5 characters long")
         return v.strip()
 
 class LoopStepTelemetry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     step_number: int
     action_type: str
     tool_called: Optional[str]
@@ -167,6 +199,8 @@ class LoopStepTelemetry(BaseModel):
     step_duration_ms: float
 
 class LoopStatusSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str
     steps_completed: int
     status: str
@@ -180,7 +214,6 @@ def execute_mini_agi_task(request_json: str) -> str:
         data = json.loads(request_json)
         request = TaskRequestSchema(**data)
 
-        # Simulated recursive execution loop telemetry
         steps = []
         for step in range(1, min(request.max_steps + 1, 4)):
             steps.append(LoopStepTelemetry(
@@ -199,6 +232,8 @@ def execute_mini_agi_task(request_json: str) -> str:
             telemetry=steps
         )
         return result.model_dump_json(indent=2)
+    except ValidationError as ve:
+        return json.dumps({"status": "error", "validation_errors": ve.errors()})
     except Exception as e:
         return json.dumps({"status": "error", "message": str(e)})
 
@@ -220,6 +255,49 @@ def get_adapter_checkpoint_info(checkpoint_id: str) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Daemon Configuration
+
+Run mini-AGI continually in background server mode using `systemd`:
+
+```ini
+[Unit]
+Description=mini-AGI Continual Learning Agent Daemon
+After=network.target vllm.service
+Documentation=https://github.com/mini-agi/mini-agi
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/workspace
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+ExecStart=/usr/local/bin/python3 -m mcp.server.fastmcp run /home/jules/self_created_tools/mini_agi_server.py
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and inspect status:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now mini-agi.service
+sudo systemctl status mini-agi.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **Adapter Loss Explosion / Policy Drift** | Learning rate too high (`>1e-4`) during online adapter updates. | Lower learning rate to `1e-5` or `1e-6` and apply gradient clipping in `LoopConfig`. |
+| **GPU VRAM Allocation Failure** | Model KV-cache and backward gradient tensors exceed VRAM. | Enable CPU offloading for adapter weights or reduce LoRA rank (`adapter_rank=4`). |
+| **Tool Response Parsing Exception** | Tool output returned invalid JSON or unescaped string blocks. | Enforce strict Pydantic v2 schemas on tool output bridges. |
+| **Checkpoint Rollback Failure** | Missing state tensor file in checkpoint directory. | Ensure atomic file saving is configured for checkpoint directories. |
 
 ## Related tools / concepts
 - [LangGraph](langgraph.md) — Framework for building stateful, multi-actor applications with LLMs.

@@ -40,6 +40,28 @@ Local Embedding Models refer to offline, open-weights text and multimodal repres
   +-------------------------------------------------------------------------+
 ```
 
+### End-to-End Vector Indexing Sequence
+The sequence diagram below details the operational interactions between local ingestion pipelines, local embedding runtimes, FastMCP 3.1 vector servers, and local vector stores during document embedding:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Pipeline as Document Ingestion (Paperless / Docling)
+    participant FastMCP as FastMCP 3.1 Vector Gateway
+    participant Engine as Local Embedding Engine (Ollama / ONNX)
+    participant Quant as Matryoshka Slicer / L2 Normalizer
+    participant DB as Vector Store (Qdrant / LanceDB)
+
+    Pipeline->>FastMCP: Dispatch raw text chunks (`batch_embed_documents`)
+    FastMCP->>Engine: Post tokenized prompts to local inference runtime
+    Engine-->>FastMCP: Return raw float32 dense vector array (768/1024 dims)
+    FastMCP->>Quant: Apply Matryoshka dimension truncation & L2 norm
+    Quant-->>FastMCP: Return normalized sliced float32 vector
+    FastMCP->>DB: Upsert payload + vector embeddings + document metadata
+    DB-->>FastMCP: Confirm vector indexing & HNSW graph update
+    FastMCP-->>Pipeline: Return processing summary (throughput, dims, latencies)
+```
+
 ## What problem it solves
 Traditional cloud RAG architectures rely on remote embedding APIs (such as OpenAI `text-embedding-3-small` or Cohere Embed). This introduces latency, subscription/token costs, and data privacy risks when indexing confidential documents. Local embedding models allow complete air-gapped semantic search, vector indexing, and RAG document representation within a home-lab or enterprise edge boundary.
 
@@ -139,8 +161,8 @@ llama-embedding --model nomic-embed-text-v1.5.Q8_0.gguf --prompt "Batch embeddin
 
 ### 1. Pydantic v2 Schema for Local Embedding Requests
 ```python
-from typing import List, Optional, Dict
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
 class LocalEmbeddingBatchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -181,54 +203,69 @@ def process_local_embeddings(req: LocalEmbeddingBatchRequest) -> LocalEmbeddingR
     )
 
 if __name__ == "__main__":
-    request = LocalEmbeddingBatchRequest(
-        texts=["Paperless OCR document content", "Obsidian markdown note"],
-        target_dimensions=512,
-        normalize_embeddings=True,
-        metadata={"source": "rag_ingest_pipeline"}
-    )
-    response = process_local_embeddings(request)
-    print(f"Generated {response.count} vector(s) of dimension {response.dimensions} in {response.processing_time_ms}ms")
+    try:
+        request = LocalEmbeddingBatchRequest(
+            texts=["Paperless OCR document content", "Obsidian markdown note"],
+            target_dimensions=512,
+            normalize_embeddings=True,
+            metadata={"source": "rag_ingest_pipeline"}
+        )
+        response = process_local_embeddings(request)
+        print(f"Generated {response.count} vector(s) of dimension {response.dimensions} in {response.processing_time_ms}ms")
+    except ValidationError as err:
+        print("Validation error:", err.json())
 ```
 
-### 2. FastMCP 3.1 Task Protocol Integration
+### 2. FastMCP 3.1 Task Protocol Integration Server
 ```python
 from mcp.server.fastmcp import FastMCP, Context
 import time
+from typing import List, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field
 
 mcp = FastMCP("local-embeddings-service")
 
+class SingleEmbeddingResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    model: str
+    dimensions: int
+    elapsed_ms: float
+    vector: List[float]
+
 @mcp.tool()
 async def generate_local_vector(
-    ctx: Context,
     text: str,
     model: str = "nomic-embed-text",
-    dimensions: int = 768
-) -> dict:
+    dimensions: int = 768,
+    ctx: Context = None
+) -> SingleEmbeddingResult:
     """Generates an embedding vector using a local embedding model via Ollama/Sentence-Transformers."""
-    ctx.info(f"Generating embedding for text using model '{model}' ({dimensions} dims)")
+    if ctx:
+        await ctx.info(f"Generating embedding for text using model '{model}' ({dimensions} dims)")
 
     start_time = time.time()
-    # Simulated vector generation
     mock_vector = [0.0123] * dimensions
     elapsed_ms = (time.time() - start_time + 0.005) * 1000
 
-    return {
-        "status": "success",
-        "model": model,
-        "dimensions": dimensions,
-        "elapsed_ms": round(elapsed_ms, 2),
-        "vector": mock_vector
-    }
+    return SingleEmbeddingResult(
+        status="success",
+        model=model,
+        dimensions=dimensions,
+        elapsed_ms=round(elapsed_ms, 2),
+        vector=mock_vector
+    )
 
 @mcp.tool()
 async def batch_embed_documents(
-    ctx: Context,
-    chunks: list[str],
-    model: str = "bge-m3"
-) -> dict:
+    chunks: List[str],
+    model: str = "bge-m3",
+    ctx: Context = None
+) -> Dict[str, Any]:
     """Batch embeds multiple document chunks using local GPU or CPU inference."""
-    ctx.info(f"Batch embedding {len(chunks)} chunks with model '{model}'")
+    if ctx:
+        await ctx.info(f"Batch embedding {len(chunks)} chunks with model '{model}'")
     return {
         "status": "completed",
         "model": model,
@@ -236,7 +273,54 @@ async def batch_embed_documents(
         "vector_dimensions": 1024,
         "throughput_chunks_per_sec": 142.5
     }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
+
+## Systemd Service Unit Configuration
+
+Deploy local embedding model serving as a background daemon using the following production `systemd` unit file:
+
+```ini
+[Unit]
+Description=Local Embedding FastMCP 3.1 Server Daemon
+After=network.target ollama.service
+Documentation=https://github.com/nomic-ai/nomic
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/workspace
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="OLLAMA_HOST=http://127.0.0.1:11434"
+ExecStart=/usr/local/bin/python3 -m mcp.server.fastmcp run /home/jules/self_created_tools/local_embeddings_server.py
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and monitor the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now local-embeddings.service
+sudo systemctl status local-embeddings.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **High Latency on Batch Indexing** | CPU single-threading during vector matrix generation. | Increase worker threads (`OMP_NUM_THREADS=8`), switch runtime to ONNX Runtime with AVX-512, or offload to Ollama CUDA/Metal backend. |
+| **Cosine Similarity Distortion** | Vectors lack proper L2 normalization prior to index upsert. | Ensure L2 normalization step is applied after vector slicing (use `np.linalg.norm` division). |
+| **OOM Errors during Long Context Ingestion** | KV-cache allocation exceeded context limit (e.g. 8192 tokens). | Lower batch chunk size or set maximum sequence length (`max_seq_length=2048`) in model configuration. |
+| **Vector Store Dimension Mismatch** | Target collection dimension (e.g., 1024) differs from model output (e.g., 768). | Verify model dimensions prior to collection creation or re-create target collection schema. |
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Local model runner supporting embedding models.

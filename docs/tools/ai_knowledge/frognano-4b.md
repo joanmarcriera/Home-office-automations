@@ -28,6 +28,28 @@ Despite its compact parameter footprint, FrogNano 4B achieves competitive benchm
 +-----------------------------------------------------------------------------------+
 ```
 
+### Sensor Event Processing Sequence
+The sequence diagram below details the real-time interaction between physical edge sensors, the FrogNano 4B reasoning engine, FastMCP 3.1 dispatchers, and local actuators:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Sensor as IoT Sensor / User Event
+    participant Broker as Local MQTT / REST Bus
+    participant Engine as FrogNano 4B (Ollama / ONNX)
+    participant Dispatcher as FastMCP 3.1 Dispatcher
+    participant Actuator as Target Device (Home Assistant / SQLite)
+
+    Sensor->>Broker: Publish telemetry ("Temperature in nursery: 16°C")
+    Broker->>Engine: Post raw text event stream
+    Engine->>Engine: Run hybrid linear-attention inference (INT4)
+    Engine-->>Dispatcher: Output structured JSON tool call (`control_thermostat`)
+    Dispatcher->>Dispatcher: Validate arguments with Pydantic v2 schema
+    Dispatcher->>Actuator: Dispatch API call (`set_temperature(nursery, 21)`)
+    Actuator-->>Dispatcher: Confirm device execution response
+    Dispatcher-->>Broker: Publish execution log to local telemetry stream
+```
+
 ## What problem it solves
 - **High Resource Requirements for Edge Agents**: Replaces energy-intensive 14B+ models with a 4B parameter model capable of running entirely in under 2.5 GB of VRAM / RAM at INT4 quantization.
 - **Inference Latency Spikes in Local Automation**: Solves high-latency bottlenecks in local Home Assistant or IoT automation loops by providing prompt processing and generation speeds exceeding 120 tokens/second on Apple Silicon and consumer GPUs.
@@ -138,18 +160,22 @@ This example demonstrates serving FrogNano 4B as an inline tool-calling server v
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 import requests
 import json
 
 mcp = FastMCP("FrogNano-4B-Edge-Agent")
 
 class LightControlRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     room: str = Field(..., description="Target room name (e.g., living_room, office)")
     state: str = Field(..., description="Desired state: 'on' or 'off'")
     brightness_pct: int = Field(default=100, ge=0, le=100, description="Brightness level percentage")
 
 class DeviceControlResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     status: str = Field(..., description="Execution status ('success' or 'failed')")
     device_id: str = Field(..., description="Target device entity ID")
     message: str = Field(..., description="Execution summary message")
@@ -158,13 +184,6 @@ class DeviceControlResponse(BaseModel):
 def control_room_light(request: LightControlRequest) -> DeviceControlResponse:
     """Controls smart light state using FrogNano 4B edge dispatch logic."""
     entity_id = f"light.{request.room.lower().replace(' ', '_')}"
-
-    # Simulated execution payload to local Home Assistant API
-    payload = {
-        "entity_id": entity_id,
-        "state": request.state,
-        "brightness": request.brightness_pct
-    }
 
     return DeviceControlResponse(
         status="success",
@@ -178,9 +197,11 @@ if __name__ == "__main__":
 
 ### Pydantic v2 Schema Validation
 ```python
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
 class FrogNanoToolCall(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     tool_name: str = Field(..., description="Name of tool to execute")
     arguments: dict = Field(default_factory=dict, description="Extracted tool keyword arguments")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score of tool selection")
@@ -203,6 +224,49 @@ try:
 except ValidationError as e:
     print("Validation Error:", e.json())
 ```
+
+## Systemd Edge Service Unit Configuration
+
+Run FrogNano 4B FastMCP edge dispatchers as resilient background services on edge gateways:
+
+```ini
+[Unit]
+Description=FrogNano 4B FastMCP 3.1 Edge Dispatcher Service
+After=network.target ollama.service
+Documentation=https://huggingface.co/microsoft/frognano-4b
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/workspace
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+ExecStart=/usr/local/bin/python3 -m mcp.server.fastmcp run /home/jules/self_created_tools/frognano_dispatcher.py
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now frognano-dispatcher.service
+sudo systemctl status frognano-dispatcher.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **High Prompt Processing Latency on Pi 5** | Unquantized FP16 weights exceeding RAM bandwidth limits. | Quantize model to GGUF INT4 (`Q4_K_M`) and run with `llama.cpp` using NEON SIMD vector extensions. |
+| **Malformed Tool Argument Extraction** | Small model context drift on unformatted prompts. | Format prompts using strict system templates with explicit Pydantic v2 JSON schema definitions. |
+| **MQTT Sensor Dispatch Timeout** | FastMCP server event loop blocked by synchronous HTTP call. | Convert tool API handlers to `async def` with non-blocking HTTP client calls (`httpx` or `aiohttp`). |
+| **Out-of-Memory (OOM) Crash on Jetson** | Shared system memory limit hit during batch generation. | Set `max_new_tokens=256` and restrict context length window in inference engine settings. |
 
 ## Related tools / concepts
 - [Local LLMs](../ai_knowledge/local_llms.md) — Comprehensive guide to running local language models.

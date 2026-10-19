@@ -32,7 +32,7 @@ Aider eliminates these friction points by maintaining a dynamic AST-based "repos
 +-----------------------------------------------------------------------+
 ```
 
-## System architecture
+## System architecture & Execution Flow
 The internal execution flow of Aider separates high-level architectural planning from low-level file editing through its dual-model Architect-Editor architecture:
 
 ```mermaid
@@ -58,6 +58,40 @@ graph TD
         K -- Tests Fail --> M[Feed Error Output back to Editor]
         M --> H
         L --> N[Automated Git Commit]
+    end
+```
+
+### Detailed Sequence Diagram
+The sequence below illustrates the step-by-step communication between Aider, external FastMCP 3.1 context servers, frontier LLM providers, and the local Git workspace during an autonomous refactoring loop:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Developer / CLI
+    participant Core as Aider Core
+    participant Map as Tree-sitter RepoMap
+    participant MCP as FastMCP 3.1 Server
+    participant LLM as Frontier LLM (Claude 5.1)
+    participant Git as Local Git Repo
+
+    Dev->>Core: Launch task ("Refactor auth module to FastMCP 3.1")
+    Core->>Map: Scan AST symbols & generate dependency graph
+    Map-->>Core: Optimized repository map (2,048 tokens)
+    Core->>MCP: Query external schema specs & context tools
+    MCP-->>Core: Return structural specs & active tool schemas
+    Core->>LLM: Send prompt + RepoMap + MCP tool specs
+    LLM-->>Core: Return Architect plan & Edit Blocks (Search/Replace)
+    Core->>Git: Apply unified diffs to local source files
+    Core->>Core: Execute test command (`pytest tests/`)
+    alt Tests Pass
+        Core->>LLM: Request commit message generation
+        LLM-->>Core: Return structured commit message
+        Core->>Git: Execute `git commit -m "..."`
+        Core-->>Dev: Return success summary & diff status
+    else Tests Fail
+        Core->>LLM: Pipe test error traceback + file context
+        LLM-->>Core: Return revised Edit Blocks
+        Core->>Git: Re-apply diffs & re-run tests
     end
 ```
 
@@ -134,9 +168,7 @@ Connect Aider to external FastMCP 3.1 context servers during editing:
 aider --mcp-server "npx -y @upstash/mcp-server-context7"
 ```
 
-## API examples
-
-### Project Configuration (`.aider.conf.yml`)
+## Production Configuration (`.aider.conf.yml`)
 Standardize team configurations across repositories using a project config:
 
 ```yaml
@@ -150,79 +182,113 @@ mcp-servers:
   - "npx -y @upstash/mcp-server-context7"
 test-command: "pytest"
 auto-test: true
+cache-prompts: true
+voice-language: en
 ```
 
-### Python Session Validation & Automation (Pydantic v2)
-The following Python script uses Pydantic v2 to validate Aider execution parameters and invoke headless editing sessions:
+## API examples
+
+### Advanced Automation & Pydantic v2 Validation
+
+The following Python script uses Pydantic v2 to validate Aider execution parameters and invoke headless editing sessions with strict error handling and payload checking:
 
 ```python
 import subprocess
 import sys
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
 class AiderSessionConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     model: str = Field(default="claude-5-1-sonnet-20261022", description="Primary architect model")
+    editor_model: Optional[str] = Field(default="claude-3-5-haiku-20241022", description="Secondary fast editor model")
     architect: bool = Field(default=True, description="Enable Architect-Editor mode")
     auto_commits: bool = Field(default=True, description="Automatically commit git diffs")
     test_command: Optional[str] = Field(default="pytest", description="Test command to run after edits")
     mcp_servers: List[str] = Field(default_factory=list, description="List of active FastMCP servers")
+    map_tokens: int = Field(default=2048, ge=512, le=8192, description="Max tokens allocated for RepoMap")
 
     @field_validator("model")
     @classmethod
     def validate_model_name(cls, v: str) -> str:
-        if not v.startswith(("claude", "gpt", "gemini", "ollama")):
-            raise ValueError(f"Unsupported model provider in '{v}'")
+        allowed_prefixes = ("claude", "gpt", "gemini", "ollama", "deepseek")
+        if not v.startswith(allowed_prefixes):
+            raise ValueError(f"Unsupported model provider in '{v}'. Must start with one of {allowed_prefixes}")
         return v
 
-def run_headless_aider_task(config: AiderSessionConfig, prompt: str, target_files: List[str]) -> bool:
-    print(f"Initializing headless Aider session with model: {config.model}")
+class AiderExecutionTask(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-    cmd = ["aider", "--model", config.model]
-    if config.architect:
+    task_id: str = Field(..., description="Unique task identifier")
+    prompt: str = Field(..., min_length=10, description="Natural language prompt for Aider")
+    target_files: List[str] = Field(..., min_length=1, description="List of target relative file paths")
+    config: AiderSessionConfig = Field(default_factory=AiderSessionConfig)
+
+def run_headless_aider_task(task: AiderExecutionTask) -> Dict[str, Any]:
+    print(f"[{task.task_id}] Initializing headless Aider session with model: {task.config.model}")
+
+    cmd = ["aider", "--model", task.config.model]
+    if task.config.architect:
         cmd.append("--architect")
-    if config.auto_commits:
+    if task.config.editor_model:
+        cmd.extend(["--editor-model", task.config.editor_model])
+    if task.config.auto_commits:
         cmd.append("--auto-commits")
-    if config.test_command:
-        cmd.extend(["--test-command", config.test_command, "--auto-test"])
+    if task.config.test_command:
+        cmd.extend(["--test-command", task.config.test_command, "--auto-test"])
 
-    for server in config.mcp_servers:
+    for server in task.config.mcp_servers:
         cmd.extend(["--mcp-server", server])
 
-    cmd.extend(["--message", prompt])
-    cmd.extend(target_files)
+    cmd.extend(["--map-tokens", str(task.config.map_tokens)])
+    cmd.extend(["--message", task.prompt])
+    cmd.extend(task.target_files)
 
     print(f"Executing command: {' '.join(cmd)}")
-    return True
+    return {
+        "task_id": task.task_id,
+        "status": "dry_run_success",
+        "command": cmd
+    }
 
 if __name__ == "__main__":
-    cfg = AiderSessionConfig(
-        model="claude-5-1-sonnet-20261022",
-        mcp_servers=["npx -y @upstash/mcp-server-context7"]
-    )
-    run_headless_aider_task(
-        config=cfg,
-        prompt="Update auth schemas to enforce Pydantic v2 model_validate",
-        target_files=["src/auth.py", "tests/test_auth.py"]
-    )
+    try:
+        task_obj = AiderExecutionTask(
+            task_id="TASK-9021",
+            prompt="Update auth schemas to enforce Pydantic v2 model_validate and FastMCP session keys",
+            target_files=["src/auth.py", "tests/test_auth.py"],
+            config=AiderSessionConfig(
+                model="claude-5-1-sonnet-20261022",
+                mcp_servers=["npx -y @upstash/mcp-server-context7"]
+            )
+        )
+        res = run_headless_aider_task(task_obj)
+        print("Task Execution Result:", res)
+    except ValidationError as err:
+        print("Configuration validation failed:", err.json())
 ```
 
-## FastMCP 3.1 & Model Context Protocol Server
+## FastMCP 3.1 Protocol Integration Server
 
-The following complete Python script implements a FastMCP 3.1 server that allows external orchestrators or agents to query and trigger Aider pairing sessions programmatically:
+The complete Python script below implements a FastMCP 3.1 server that exposes Aider automated pair-programming sessions to external agent orchestrators:
 
 ```python
 import subprocess
+import asyncio
 from typing import List, Dict, Any
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 mcp = FastMCP("AiderBridgeServer")
 
 class AiderExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     prompt: str
     target_files: List[str]
+    return_code: int
     output_log: str
 
 @mcp.tool()
@@ -230,6 +296,8 @@ async def trigger_aider_refactor(
     prompt: str,
     target_files: List[str],
     run_tests: bool = True,
+    test_command: str = "pytest",
+    model: str = "claude-5-1-sonnet-20261022",
     ctx: Context = None
 ) -> AiderExecutionResult:
     """
@@ -239,36 +307,102 @@ async def trigger_aider_refactor(
         prompt: Natural language coding or refactoring instruction.
         target_files: List of file paths to load into Aider context.
         run_tests: Whether to execute auto-test validation after edits.
+        test_command: Custom test suite command to run.
+        model: Frontier model identifier to use for the session.
     """
     if ctx:
-        await ctx.info(f"Triggering Aider task across {len(target_files)} files.")
+        await ctx.info(f"Triggering Aider refactor task across {len(target_files)} file(s).")
 
-    cmd = ["aider", "--architect", "--message", prompt, "--yes"]
+    cmd = ["aider", "--model", model, "--architect", "--message", prompt, "--yes"]
     if run_tests:
-        cmd.extend(["--test-command", "pytest", "--auto-test"])
+        cmd.extend(["--test-command", test_command, "--auto-test"])
     cmd.extend(target_files)
 
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-        success = (proc.returncode == 0)
-        output = proc.stdout + proc.stderr
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=180.0)
+        output = stdout.decode() + "\n" + stderr.decode()
         return AiderExecutionResult(
-            success=success,
+            success=(proc.returncode == 0),
             prompt=prompt,
             target_files=target_files,
-            output_log=output if output else "Aider execution completed successfully."
+            return_code=proc.returncode or 0,
+            output_log=output.strip() if output.strip() else "Aider execution finished cleanly."
+        )
+    except asyncio.TimeoutError:
+        return AiderExecutionResult(
+            success=False,
+            prompt=prompt,
+            target_files=target_files,
+            return_code=-1,
+            output_log="Aider session timed out after 180 seconds."
         )
     except Exception as err:
         return AiderExecutionResult(
             success=False,
             prompt=prompt,
             target_files=target_files,
+            return_code=-1,
             output_log=f"Aider execution failed: {str(err)}"
         )
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Headless Daemon Service (`systemd`)
+
+For automated background refactoring or CI/CD runner environments, deploy Aider as a headless `systemd` service:
+
+```ini
+[Unit]
+Description=Aider Headless FastMCP 3.1 Bridge Daemon
+After=network.target target.target
+Documentation=https://aider.chat/docs/
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/home/jules/workspace
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="ANTHROPIC_API_KEY=sk-ant-api03-xxxx"
+Environment="OPENAI_API_KEY=sk-proj-xxxx"
+ExecStart=/usr/local/bin/python3 -m mcp.server.fastmcp run /home/jules/self_created_tools/aider_server.py
+Restart=on-failure
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To manage the daemon process:
+
+```bash
+# Reload systemd and enable daemon
+sudo systemctl daemon-reload
+sudo systemctl enable --now aider-daemon.service
+
+# Inspect service operational state
+sudo systemctl status aider-daemon.service
+journalctl -u aider-daemon.service -n 50 --no-pager
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **`RepoMap` Context Exceeded** | Tree-sitter map size exceeds default model token budget. | Reduce token allocation using `--map-tokens 1024` or configure `.aider.ignore` to exclude non-essential source paths. |
+| **Search/Replace Edit Block Mismatch** | LLM generated inexact indentation or whitespace in edit blocks. | Switch to `--architect` mode with `claude-5-1-sonnet` or enable strict `--edit-format diff` in `.aider.conf.yml`. |
+| **Infinite Test Repair Loop** | Test output contains non-deterministic errors or environment faults. | Limit test retries with `--auto-test-limit 3` and inspect test logs to ensure test mocks are deterministic. |
+| **FastMCP Server Connection Timeout** | External context server binary missing or unresponsive. | Verify FastMCP executable availability (`uvx` or `npx`) and test direct stdio transport connection prior to launching Aider. |
+| **Git Commit Hook Failure** | Pre-commit hooks (`pre-commit`, `eslint`) failing on auto-commit. | Ensure pre-commit dependencies are installed in the Aider execution environment or pass `--no-auto-commits` for manual hook verification. |
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Anthropic's official CLI agent.
