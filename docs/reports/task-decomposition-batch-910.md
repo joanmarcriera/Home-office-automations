@@ -14,8 +14,8 @@ Ralph-loop Batch 910 sequentially audits, deepens, and resolves the 5 oldest ope
 | **Issue 5** | `docs/tools/process_understanding/ragflow.md` | Verified & Closed | Deepened RAGFlow DeepDoc layout parsing flow, verified FastMCP 3.1 & Pydantic v2 bounding box citation code, added systemd unit template, and passed contract checks while preserving untouched review date. |
 
 ## Validation & Quality Verification Checklist
-- [ ] `python3 scripts/audit_docs_quality.py`
-- [ ] `python3 scripts/check_catalog_consistency.py`
-- [ ] `python3 scripts/validate_new_sources.py`
-- [ ] `python3 scripts/check_docs_contract.py`
-- [ ] `python3 scripts/growth_tracker.py`
+ - [x] `python3 scripts/audit_docs_quality.py`
+ - [x] `python3 scripts/check_catalog_consistency.py`
+ - [x] `python3 scripts/validate_new_sources.py`
+ - [x] `python3 scripts/check_docs_contract.py`
+ - [x] `python3 scripts/growth_tracker.py`
