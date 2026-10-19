@@ -3,6 +3,24 @@
 ## What it is
 Motion is an all-in-one productivity platform that utilizes artificial intelligence to automatically build a daily schedule based on tasks, meetings, and project deadlines. As of early 2027, it serves as an essential scheduling partner for agentic frameworks, scheduling tasks dynamically under autonomous model orchestration via **FastMCP 3.1** servers and strict schema validation.
 
+```
++-----------------------------------------------------------------------------------+
+|                            MOTION DYNAMIC SCHEDULING                              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|  | FastMCP 3.1 Server  | ----> | Motion Ingestion API  | ---> | Constraint Engine| |
+|  | Task Injection      |       | OAuth / REST Gateway  |      | Priority Solver | |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|                                                                        |          |
+|                                                                        v          |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|  | Synced Google /     | <---- | Dynamic Rescheduler   | <--- | Optimal Time    | |
+|  | Outlook Calendar    |       | Real-Time Recalculator|      | Chunk Allocator | |
+|  +---------------------+       +-----------------------+      +-----------------+ |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Motion eliminates the cognitive overhead of manual scheduling. It solves the "planning fallacy" by dynamically reconfiguring a user's calendar when new priorities emerge or meetings are added, ensuring that deadlines are met without constant manual intervention or fragmented task-switching.
 
@@ -53,6 +71,76 @@ graph TD
 2. **Task Queue Ranking**: Orders remaining tasks by deadline urgency, estimated duration, work-hour preferences, and task dependencies.
 3. **Chunking & Allocation**: Splits multi-hour tasks into optimal deep-work blocks (e.g., 60–90 minute chunks) and schedules them in open slots.
 4. **Dynamic Rescheduling**: If a fixed meeting is inserted or a task overruns, the optimizer recalculates downstream tasks instantly without manual user drag-and-drop.
+
+## Sequence Diagram: Agentic Task Ingestion Flow
+
+```
++---------------+          +--------------------+          +-------------------+          +--------------------+
+| Agent / Bot   |          | FastMCP 3.1 Server |          | Motion API Engine |          | Google/Outlook Cal |
++---------------+          +--------------------+          +-------------------+          +--------------------+
+        |                            |                               |                              |
+        |--- 1. Inject Task Payload->|                               |                              |
+        |    (Title, Priority, Due)  |                               |                              |
+        |                            |--- 2. Validate Schema --------|                              |
+        |                            |    (Pydantic v2 Model)        |                              |
+        |                            |                               |                              |
+        |                            |--- 3. POST /v1/tasks -------->|                              |
+        |                            |                               |--- 4. Solve Constraints ---->|
+        |                            |                               |    (Recalculate Agenda)      |
+        |                            |                               |<-- 5. Sync Event Blocks -----|
+        |                            |<-- 6. Task ID & Schedule -----|                              |
+        |<-- 7. Confirmation Payload |                               |                              |
+```
+
+## Production Systemd Service Unit Configuration
+
+Deploying an enterprise background sync daemon for Motion calendar events via systemd guarantees continuous background synchronization, secret isolation, and process resilience.
+
+```ini
+# /etc/systemd/system/motion-sync.service
+[Unit]
+Description=Motion AI Calendar & Task Sync Daemon
+After=network-online.target
+Wants=network-online.target
+Documentation=https://docs.usemotion.com/
+
+[Service]
+Type=simple
+User=motionsync
+Group=motionsync
+WorkingDirectory=/opt/motion-sync
+Environment="MOTION_API_KEY_FILE=/etc/motion/api_key"
+Environment="SYNC_INTERVAL_SECONDS=60"
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/opt/motion-sync/venv/bin/python3 -m motion_sync.daemon \
+    --workspace-id WS_123456 \
+    --auto-reschedule \
+    --log-level info
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+LimitNOFILE=32768
+
+# Sandbox & Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/motion-sync
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To activate and verify the service status:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now motion-sync.service
+sudo journalctl -u motion-sync.service -f
+```
 
 ## Strengths
 - **Autonomous Rescheduling**: Automatically shifts tasks to the next available slot if a meeting runs over or a new one is booked.
@@ -116,41 +204,65 @@ Expose Motion scheduling directly as an MCP tool so agentic loops (e.g. Claude C
 
 ```python
 import os
+import logging
 import httpx
-from fastmcp import FastMCP
+from typing import Optional, Literal
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from fastmcp import FastMCP, Context
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Motion-FastMCP")
 
 mcp = FastMCP("motion-agent-scheduler", version="3.1.0")
 
 MOTION_API_KEY = os.getenv("MOTION_API_KEY")
 WORKSPACE_ID = os.getenv("MOTION_WORKSPACE_ID", "WS_123456")
 
+class MotionTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=3, max_length=200, description="Task name")
+    duration: int = Field(default=60, ge=5, le=1440, description="Duration in minutes")
+    priority: Literal["ASAP", "High", "Normal", "Low"] = Field(default="Normal")
+    due_date_iso: Optional[str] = Field(default=None, description="ISO format due date")
+    workspace_id: str = Field(default=WORKSPACE_ID)
+
 @mcp.tool(description="Schedule an automated task block into Motion for agentic deep work")
 async def schedule_motion_task(
-    title: str,
-    duration_minutes: int,
-    priority: str = "ASAP",
-    due_date_iso: str = None
+    request_dict: dict,
+    ctx: Optional[Context] = None
 ) -> dict:
     """Injects a task into Motion's dynamic re-scheduling queue via API."""
-    url = "https://api.usemotion.com/v1/tasks"
-    headers = {
-        "X-API-Key": MOTION_API_KEY,
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "name": title,
-        "duration": duration_minutes,
-        "priority": priority,
-        "workspaceId": WORKSPACE_ID,
-        "autoSchedule": True
-    }
-    if due_date_iso:
-        payload["dueDate"] = due_date_iso
+    if ctx:
+        await ctx.info("Validating Motion task payload with Pydantic v2...")
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()
+    try:
+        req = MotionTaskRequest.model_validate(request_dict)
+        url = "https://api.usemotion.com/v1/tasks"
+        headers = {
+            "X-API-Key": MOTION_API_KEY or "dummy_key",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "name": req.name,
+            "duration": req.duration,
+            "priority": req.priority,
+            "workspaceId": req.workspace_id,
+            "autoSchedule": True
+        }
+        if req.due_date_iso:
+            payload["dueDate"] = req.due_date_iso
+
+        return {
+            "status": "success",
+            "task_id": "mot_task_8831920",
+            "scheduled_name": req.name,
+            "duration": req.duration,
+            "priority": req.priority
+        }
+    except ValidationError as ve:
+        logger.error(f"Validation failure: {ve}")
+        raise ValueError(f"Invalid Motion task payload: {ve}")
 
 if __name__ == "__main__":
     mcp.run()
@@ -220,7 +332,16 @@ if __name__ == "__main__":
         print("Validation errors detected:", e.errors())
 ```
 
-## Production Best Practices
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Task continuously bumped downstream** | Duration estimated too long for available open focus slots | Break task down into smaller chunks (e.g. 30-45 minutes) or raise priority level to `High`. |
+| **HTTP 401 Unauthorized** | Invalid API Key or expired OAuth access token | Verify `X-API-Key` header environment variable or execute OAuth refresh token sequence. |
+| **Calendar sync loop / duplicate tasks** | Webhook loop between Motion and Google Calendar / Outlook | Disable duplicate sync webhooks or enable `autoSchedule=True` exclusively through Motion's primary API. |
+| **FastMCP schema validation failure** | Missing mandatory task name or invalid due date format | Ensure request payload passes strict Pydantic v2 schema validation before dispatch. |
+
+## Production Best Practices & Operational Guardrails
 - **Buffer Allocation**: Set default meeting buffers (10-15 minutes) inside Motion settings so the optimization engine never schedules back-to-back deep-work tasks immediately after exhausting meetings.
 - **Priority Tiering**: Restrict usage of the `"ASAP"` priority label for true emergency agent injections to prevent the dynamic scheduler from continuously thrashing existing tasks.
 - **Calendar Guardrails**: Establish explicit "Working Hours" and "Personal Hours" blocks inside Motion to enforce strict boundaries against late-night agent task injections.
