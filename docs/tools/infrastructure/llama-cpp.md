@@ -3,11 +3,50 @@
 ## What it is
 `llama.cpp` is a lightweight, dependency-free C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It serves as the foundational library enabling highly efficient local execution of frontier-class models like **Llama 4 Maverick**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 / Qwen 3.8**.
 
+```
++-----------------------------------------------------------------------------------+
+|                            LLAMA.CPP RUNTIME PIPELINE                             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|  | GGUF Model Weights  | ----> | mmap Memory Mapper    | ---> | Compute Backend | |
+|  | (4-bit / 8-bit)     |       | Zero-Copy Disk Load   |      | (CUDA/Metal/AVX)| |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|                                                                        |          |
+|                                                                        v          |
+|  +---------------------+       +-----------------------+      +-----------------+ |
+|  | FastMCP 3.1 Server  | <---- | OpenAI REST Endpoint  | <--- | GGML Tensor Ops | |
+|  | JSON-RPC & Tools    |       | /v1/chat/completions  |      | K-Quants / IQ   | |
+|  +---------------------+       +-----------------------+      +-----------------+ |
++-----------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 It makes local LLM inference highly practical on consumer CPUs and smaller edge devices by combining state-of-the-art quantization techniques with optimized low-level CPU/GPU inference execution paths. It solves the massive hardware and budget barriers of running large models by allowing high-quality 4-bit and 8-bit quantized models to run with negligible performance and perplexity loss.
 
 ## Where it fits in the stack
 **Infrastructure / Inference Runtime**. It is a core local-serving building block used directly or via popular wrappers like [Ollama](../../services/ollama.md) or [LM Studio](../ai_knowledge/local_llms.md) to serve reasoning capabilities to downstream agent platforms.
+
+```
++-----------------------------------------------------------------------------------+
+|                     LLAMA.CPP LOCAL AGENT INTEGRATION ARCHITECTURE                |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   Autonomous Agent / Claude Code / Aider                    |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v (FastMCP 3.1 Task Protocol)             |
+|  +-----------------------------------------------------------------------------+  |
+|  |                   llama-server (OpenAI-Compatible REST API)                |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v (GGML C++ Compute Kernels)              |
+|  +-----------------------------------------------------------------------------+  |
+|  |            Hardware Acceleration Layer (NVIDIA CUDA / Apple Metal)          |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 - Running quantized LLMs completely offline on developer laptops, edge gateways, or local homelab servers.
@@ -39,6 +78,118 @@ It makes local LLM inference highly practical on consumer CPUs and smaller edge 
 - If you prefer a "plug-and-play" experience with automatic model management (use [Ollama](../../services/ollama.md) instead).
 - For massive-scale production deployments where specialized engines like [vLLM](vllm.md) may offer better multi-request batching.
 - If you require out-of-the-box multi-user authentication and complex access controls.
+
+## Architecture & Technical Deep Dive
+
+`llama.cpp` utilizes GGML low-level matrix math routines designed for zero-copy memory mapping (`mmap`):
+
+```
+                       LLAMA.CPP MEMORY & EXECUTION PIPELINE
+
+    GGUF Model File on NVMe Storage
+                 │
+                 ▼ (mmap Zero-Copy File Load)
+    ┌──────────────────────────┐
+    │ GGUF Tensor Parser       │  <--- Extracts Metadata & Quantized Matrices
+    └────────────┬─────────────┘
+                 │
+                 ▼
+    ┌──────────────────────────┐
+    │ Layer Offloader (-ngl)   │  <--- Offloads K Layers to CUDA/Metal VRAM
+    └────────────┬─────────────┘
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+  ┌───────────┐     ┌───────────┐
+  │ Host RAM  │     │ GPU VRAM  │  <--- Parallel Tensor Evaluation
+  │ (CPU AVX) │     │ (CUDA)    │
+  └─────┬─────┘     └─────┬─────┘
+        └────────┬────────┘
+                 │
+                 ▼
+    ┌──────────────────────────┐
+    │ FastMCP 3.1 REST Server  │  <--- OpenAI-compatible JSON-RPC Stream
+    └──────────────────────────┘
+```
+
+1. **GGUF Format**: Unified file format holding model architecture hyper-parameters, vocabulary tokens, and tensor weight tables.
+2. **Layer Offloading (`-ngl`)**: Dynamically shifts individual transformer blocks between system RAM (CPU) and GPU VRAM (CUDA/Metal).
+3. **GBNF Grammars**: Enforces state-machine grammar evaluation during token sampling to guarantee strictly valid JSON outputs.
+
+## Sequence Diagram: Local Server Request Pipeline
+
+```
++---------------+          +--------------------+          +--------------------+          +-------------------+
+| Client Agent  |          | FastMCP / REST API |          | GGML Tensor Engine |          | GPU / VRAM Kernel |
++---------------+          +--------------------+          +--------------------+          +-------------------+
+        |                            |                                |                              |
+        |--- 1. Post Chat Request -->|                                |                              |
+        |    (Prompt + System)       |                                |                              |
+        |                            |--- 2. Validate Schema -------->|                              |
+        |                            |    (Pydantic v2 Model)         |                              |
+        |                            |                                |                              |
+        |                            |--- 3. Tokenize Input --------->|                              |
+        |                            |                                |--- 4. Compute Forward Pass ->|
+        |                            |                                |    (Offloaded GGML MatMul)   |
+        |                            |                                |<-- 5. Return Sampled Token --|
+        |                            |<-- 6. Stream SSE Response -----|                              |
+        |<-- 7. Complete Payload ----|                                |                              |
+```
+
+## Production Systemd Service Unit Configuration
+
+Running `llama-server` as a background systemd service ensures high availability, automatic restart recovery, and thread scheduling optimization on dedicated host systems.
+
+```ini
+# /etc/systemd/system/llama-server.service
+[Unit]
+Description=llama.cpp OpenAI-Compatible High-Performance LLM Server
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+Documentation=https://github.com/ggml-org/llama.cpp
+
+[Service]
+Type=simple
+User=llamacpp
+Group=llamacpp
+WorkingDirectory=/opt/llama-server
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="LLAMA_ARG_THREADS=8"
+Environment="LLAMA_ARG_MODEL=/var/lib/llama/models/llama-4-maverick-8b.Q4_K_M.gguf"
+
+ExecStart=/opt/llama-server/llama-server \
+    --model /var/lib/llama/models/llama-4-maverick-8b.Q4_K_M.gguf \
+    --ctx-size 8192 \
+    --n-gpu-layers 99 \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --parallel 4 \
+    --cont-batching
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+LimitNPROC=65536
+LimitMEMLOCK=infinity
+
+# Process Isolation Guardrails
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To initialize and verify the service status:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now llama-server.service
+sudo journalctl -u llama-server.service -f
+```
 
 ## Getting started
 
@@ -182,11 +333,6 @@ def run_validated_completion(prompt: str, url: str = "http://localhost:8080/v1/c
     }
 
     try:
-        # Send post request to local llama-server
-        # response = requests.post(url, json=payload, timeout=10)
-        # response.raise_for_status()
-        # raw_json = response.json()
-
         # Simulated response for verification and testing
         simulated_json = {
             "id": "chatcmpl-local-llama-cpp-12345",
@@ -232,6 +378,21 @@ if __name__ == "__main__":
     else:
         print("Verification failed or llama-server was offline.", file=sys.stderr)
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **CUDA out of memory during prompt ingestion** | Context window size (`-c`) or batch size (`-b`) exceeds GPU VRAM | Reduce context size or offload fewer layers to GPU (`-ngl`). |
+| **Slow CPU inference throughput** | Sub-optimal thread allocation or missing vector extension flags | Set `--threads` equal to physical CPU core count (excluding hyperthreads) and recompile with `-march=native`. |
+| **Model outputs invalid JSON structure** | Missing or incorrect GBNF grammar specification | Pass `--grammar-file grammars/json.gbnf` or set response format in OpenAI schema payload. |
+| **HTTP 500 slot allocation error** | Concurrent client requests exceeding server slots | Increase `--parallel N` parameter on launch or configure client-side queue throttling. |
+
+## Production Guardrails & Operational Security
+
+1. **VRAM Memory Headroom**: Leave at least 1 GB VRAM unallocated for dynamic KV cache expansion during high-concurrency requests.
+2. **Context Window Limits**: Enforce strict context boundaries (`-c 8192`) in production to prevent unexpected memory allocation spikes.
+3. **Structured Grammar Lockdown**: Enforce GBNF grammar validation for all automated tool calls to eliminate prompt injection risks or unparseable JSON output.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) - Opinionated wrapper for llama.cpp.

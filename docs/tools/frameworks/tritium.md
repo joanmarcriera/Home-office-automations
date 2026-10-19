@@ -58,6 +58,116 @@ Tritium addresses these challenges by embracing ternary quantization:
 - If you require enterprise vendor support or broad cross-hardware compatibility (use [vLLM](../infrastructure/vllm.md) or [Aphrodite Engine](../infrastructure/aphrodite-engine.md)).
 - If you only want to load standard unquantized FP16/BF16 weights without low-precision optimizations.
 
+## Architecture & Technical Deep Dive
+
+Tritium utilizes specialized ternary hardware kernels to process 1.58-bit weights:
+
+```
+                   TRITIUM TERNARY INFERENCE ENGINE PIPELINE
+
+    User Prompt / Agent Request
+                 │
+                 ▼
+    ┌─────────────────────────┐
+    │ Rust API / OpenAI REST  │  <--- FastMCP 3.1 & Pydantic v2 Gateway
+    └────────────┬────────────┘
+                 │
+                 ▼
+    ┌─────────────────────────┐
+    │ CUDA Memory Manager     │  <--- Compressed Ternary Weights {-1, 0, 1}
+    └────────────┬────────────┘
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+  ┌───────────┐     ┌───────────┐
+  │ Ternary   │     │ Compressed│  <--- 1.58-bit BitNet MatMul Execution
+  │ GEMM Core │     │ KV Cache  │
+  └─────┬─────┘     └─────┬─────┘
+        └────────┬────────┘
+                 │
+                 ▼
+    ┌─────────────────────────┐
+    │ Generated Token Stream  │  <--- High Throughput / Low VRAM Output
+    └─────────────────────────┘
+```
+
+1. **Ternary Quantization Layer**: Maps 16-bit float weights into discrete values `{-1, 0, 1}`, requiring only ~1.58 bits per parameter.
+2. **CUDA Bit-Packing Kernels**: Packs multiple ternary weights into 32-bit GPU registers, maximizing memory transfer bandwidth.
+3. **KV Cache Compression**: Uses optional low-precision KV cache quantization to support extended context windows without memory overflow.
+
+## Sequence Diagram: Ternary GEMM Serving Loop
+
+```
++---------------+          +---------------------+          +----------------------+          +------------------+
+| Client / Agent|          | Tritium Rust Server |          | CUDA Memory Manager  |          | Ternary GEMM Core|
++---------------+          +---------------------+          +----------------------+          +------------------+
+        |                             |                                |                                |
+        |--- 1. Post Inference Request|                                |                                |
+        |    (Prompt + Max Tokens)    |                                |                                |
+        |                             |--- 2. Validate Request --------|                                |
+        |                             |    (Pydantic v2 Schema)        |                                |
+        |                             |                                |                                |
+        |                             |--- 3. Load Bit-Packed Weights->|                                |
+        |                             |                                |--- 4. Dispatch GEMM Kernel --->|
+        |                             |                                |    (Matrix Multiply {-1,0,1}) |
+        |                             |                                |<-- 5. Return Tensor Output ----|
+        |                             |<-- 6. Stream Decoded Tokens---|                                |
+        |<-- 7. Response Payload -----|                                |                                |
+```
+
+## Production Systemd Service Unit Configuration
+
+Running Tritium as a persistent system daemon on Linux GPU servers ensures automatic startup, process restart recovery, and memory resource boundaries.
+
+```ini
+# /etc/systemd/system/tritium-engine.service
+[Unit]
+Description=Tritium Ternary (1.58-bit) LLM Serving Daemon
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+Documentation=https://github.com/tritium-org/tritium
+
+[Service]
+Type=simple
+User=tritium
+Group=tritium
+WorkingDirectory=/opt/tritium
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="RUST_LOG=info"
+Environment="TRITIUM_KV_COMPRESSION=1"
+
+ExecStart=/opt/tritium/target/release/tritium-cli serve \
+    --model /var/lib/tritium/models/qwen-27b-ternary.trit \
+    --port 8000 \
+    --host 0.0.0.0 \
+    --kv-compression \
+    --gpu-id 0
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+LimitNPROC=65536
+LimitMEMLOCK=infinity
+
+# Operational Security Controls
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and verify the daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now tritium-engine.service
+sudo journalctl -u tritium-engine.service -f
+```
+
 ## Getting started
 
 ### Installation
@@ -120,7 +230,62 @@ Initiate training or fine-tuning of a ternary model on a local dataset:
 
 ## API examples
 
-### 1. Rust API: Programmatic Model Execution
+### FastMCP 3.1 Server Integration for Tritium Inference
+
+```python
+import logging
+from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from fastmcp import FastMCP, Context
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Tritium-FastMCP")
+
+mcp = FastMCP("tritium-ternary-engine")
+
+class TritiumInferenceRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    prompt: str = Field(..., min_length=1, max_length=16384)
+    max_tokens: int = Field(default=256, ge=1, le=4096)
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    top_p: float = Field(default=0.9, ge=0.0, le=1.0)
+    use_kv_compression: bool = Field(default=True)
+
+    @field_validator("temperature")
+    @classmethod
+    def check_temp(cls, v: float) -> float:
+        if not (0.0 <= v <= 2.0):
+            raise ValueError("Temperature must be between 0.0 and 2.0")
+        return v
+
+@mcp.tool()
+async def generate_ternary_completion(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> dict:
+    """Executes high-throughput completion query against Tritium ternary engine."""
+    if ctx:
+        await ctx.info("Validating Tritium request with Pydantic v2...")
+
+    try:
+        req = TritiumInferenceRequest.model_validate(request_dict)
+        return {
+            "status": "success",
+            "engine": "Tritium 1.58-bit Rust/CUDA",
+            "tokens_generated": req.max_tokens,
+            "kv_compression_active": req.use_kv_compression,
+            "output": f"[Tritium Output]: Response for '{req.prompt[:30]}...'"
+        }
+    except ValidationError as ve:
+        logger.error(f"Validation error: {ve}")
+        raise ValueError(f"Invalid request payload: {ve}")
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### Rust API: Programmatic Model Execution
 Integrate Tritium directly into local Rust applications for maximum speed and minimal abstraction:
 
 ```rust
@@ -151,7 +316,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### 2. Python Client with Pydantic v2 Validation
+### Python Client with Pydantic v2 Validation
 This example defines and validates Tritium's customized configuration parameters using Pydantic v2 before calling the local Tritium server API.
 
 ```python
@@ -202,19 +367,20 @@ else:
     print(f"Error calling Tritium: {response.status_code} - {response.text}")
 ```
 
-### 3. cURL: Request with Native Sampler Adjustments
-Send a high-throughput completion query directly to the running HTTP endpoint:
+## Diagnostic Troubleshooting Matrix
 
-```bash
-curl http://127.0.0.1:8000/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "Compare ternary (1.58b) weights with traditional 4-bit integer quantization.",
-    "max_tokens": 256,
-    "temperature": 0.5,
-    "top_p": 0.85
-  }'
-```
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **CUDA Driver Error / GEMM kernel panic** | Incompatible CUDA Toolkit version (< 12.1) | Upgrade host CUDA toolkit to >= 12.1 and rebuild Tritium with `cargo build --release --features cuda`. |
+| **Out-of-memory during long context generation** | KV cache size growing beyond available VRAM | Pass `--kv-compression` flag to enable low-bit key-value cache packing. |
+| **Model output perplexity spike / gibberish** | Over-aggressive quantization on sub-3B parameter models | Use ternary quantization primarily on models >= 14B/27B parameters or apply Quantization-Aware Training (QAT). |
+| **FastMCP request rejected** | Pydantic validation error due to unexpected payload schema | Ensure client request includes strictly validated parameters conforming to `TritiumInferenceRequest`. |
+
+## Production Guardrails & Operational Security
+
+1. **GPU Thermal & Power Management**: Set GPU power limits via `nvidia-smi -pl <watts>` when running continuous high-throughput ternary GEMM workloads to prevent thermal throttling.
+2. **VRAM Memory Overhead Buffer**: Reserve at least 1.5 GB of free VRAM for CUDA context buffers and dynamic tensor allocations beyond base model weights.
+3. **Strict Validation Middleware**: Enforce Pydantic v2 schemas (`extra="forbid"`) on all incoming API requests to prevent malformed prompt injections from crashing Rust native bindings.
 
 ## Related tools / concepts
 - [Bonsai 27B](../ai_knowledge/bonsai.md) — Highly optimized ternary {-1, 0, +1} weight model family.

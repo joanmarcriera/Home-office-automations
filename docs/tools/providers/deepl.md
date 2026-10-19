@@ -27,6 +27,27 @@ Global enterprise agent platforms and knowledge management systems frequently in
 ## Where it fits in the stack
 **Providers / Neural Translation & Multi-Lingual API Infrastructure**. DeepL operates as a specialized model provider alongside general-purpose LLM providers (such as [Anthropic](../providers/anthropic.md) or [OpenAI](../ai_knowledge/openai.md)), handling multi-lingual normalization during intake and response generation phases.
 
+```
++-----------------------------------------------------------------------------------+
+|                       DEEPL MULTI-LINGUAL RAG STACK                               |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Ingest Multi-Lingual Documents (German, Spanish, French, Japanese, etc.)   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | DeepL API Integration Gateway (Normalize to Uniform English or Target)      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Vector Store Indexing (Qdrant / Milvus) & LLM RAG Synthesis (Anthropic)    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Multi-lingual Vector Indexing**: Translating foreign language user documents into English prior to vector embedding generation to unify knowledge retrieval stores.
 - **Cross-Border Agent Communication**: Real-time translation of customer support queries and automated responses across regional agent deployment nodes.
@@ -89,6 +110,78 @@ DeepL's API integration relies on HTTPS REST endpoints with token authentication
 1. **Authentication & Payload Construction**: Clients construct requests containing target language codes, source text lists, and optional glossary IDs.
 2. **Neural Inference Execution**: DeepL's cloud infrastructure processes text chunks through specialized transformer translation models.
 3. **Response Parsing & Normalization**: Returns structured JSON responses detailing detected source languages, translated strings, and billed character counts.
+
+## Sequence Diagram: Translation Request Pipeline
+
+```
++---------------+          +--------------------+          +--------------------+          +------------------+
+| Client / Agent|          | FastMCP Gateway    |          | DeepL REST API     |          | Custom Glossary  |
++---------------+          +--------------------+          +--------------------+          +------------------+
+        |                            |                                |                             |
+        |--- 1. Translate Batch ---->|                                |                             |
+        |    (Text List + Target)    |                                |                             |
+        |                            |--- 2. Validate Request --------|                             |
+        |                            |    (Pydantic v2 Schema)        |                             |
+        |                            |                                |                             |
+        |                            |--- 3. Fetch Active Glossaries ->                             |
+        |                            |<-- 4. Apply Term Mapping ------------------------------------|
+        |                            |                                |                             |
+        |                            |--- 5. POST /v2/translate ----->|                             |
+        |                            |                                |                             |
+        |                            |<-- 6. Translated JSON Payload -|                             |
+        |<-- 7. Response Output -----|                                |                             |
+```
+
+## Production Systemd Service Unit Configuration
+
+Deploying a local DeepL translation proxy gateway service using systemd ensures secure API key injection, automatic retries, and character quota metrics collection.
+
+```ini
+# /etc/systemd/system/deepl-gateway.service
+[Unit]
+Description=DeepL API Translation Gateway Service
+After=network-online.target
+Wants=network-online.target
+Documentation=https://www.deepl.com/docs-api
+
+[Service]
+Type=simple
+User=deeplgateway
+Group=deeplgateway
+WorkingDirectory=/opt/deepl-gateway
+Environment="DEEPL_API_KEY_FILE=/etc/deepl/api_key"
+Environment="PORT=8080"
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/opt/deepl-gateway/venv/bin/python3 -m deepl_gateway.server \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --rate-limit 100 \
+    --log-level info
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/deepl-gateway
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To activate and verify the gateway service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now deepl-gateway.service
+sudo journalctl -u deepl-gateway.service -f
+```
 
 ## Getting started
 
@@ -210,6 +303,21 @@ async def get_deepl_status(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **HTTP 403 Forbidden** | Invalid API Key or mixing Free vs Pro endpoints | Free tier keys end in `:fx` and must target `api-free.deepl.com`; Pro keys target `api.deepl.com`. |
+| **HTTP 456 Quota Exceeded** | Character translation limit exceeded for the current billing cycle | Monitor character consumption via `/v2/usage` and implement client caching for repeated text strings. |
+| **HTTP 400 Bad Request** | Unsupported target language code or invalid glossary ID | Validate language code strings (e.g., `DE`, `EN-US`, `JA`) against the supported languages endpoint before request dispatch. |
+| **Pydantic Validation Error** | Invalid payload structure or extra fields provided | Verify incoming dictionary against `DeepLTranslationRequest` schema (`extra="forbid"`). |
+
+## Production Guardrails & Operational Security
+
+1. **Character Quota Safeguards**: Set soft billing threshold alerts at 80% character allocation to avoid unexpected translation pipeline shutdowns.
+2. **Text Anonymization & PII Scrubbing**: Filter sensitive fields (credit cards, personal identity numbers) prior to submitting payload strings to external DeepL endpoints.
+3. **Response Caching**: Store hash-keyed translation pairs in Redis to eliminate duplicate translation costs for common system messages or UI strings.
 
 ## Integration patterns
 - **Multi-Lingual RAG Pipeline**: Ingest multi-lingual documents, translate content to English via DeepL, and index in Qdrant for semantic vector search.
