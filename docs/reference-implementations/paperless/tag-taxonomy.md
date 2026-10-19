@@ -226,6 +226,25 @@ def sync_taxonomy_tags(config_dict: dict) -> dict:
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+class TaxonomyValidationRule(BaseModel):
+    required_namespaces: List[str] = Field(default_factory=lambda: ["Finance", "Medical", "Housing", "Vehicle", "Legal", "Personal"])
+    disallowed_unqualified_tags: List[str] = Field(default_factory=lambda: ["tax", "invoice", "receipt", "doc"])
+
+@mcp.tool()
+def validate_taxonomy_hierarchy(tags_list: List[str]) -> dict:
+    """
+    FastMCP 3.1 tool for auditing document tag collections against taxonomy rules.
+    """
+    rule = TaxonomyValidationRule()
+    invalid_unqualified = [t for t in tags_list if t.lower() in rule.disallowed_unqualified_tags]
+    valid_namespaced = [t for t in tags_list if "/" in t and t.split("/")[0] in rule.required_namespaces]
+
+    return {
+        "is_valid": len(invalid_unqualified) == 0,
+        "unqualified_violations": invalid_unqualified,
+        "namespaced_tag_count": len(valid_namespaced)
+    }
+
 if __name__ == "__main__":
     sample_config = {
         "api_url": "http://localhost:8000/api",

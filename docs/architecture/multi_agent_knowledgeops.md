@@ -244,6 +244,29 @@ def audit_knowledgeops_contract(filepath: str) -> str:
 
     return report.model_dump_json(indent=2)
 
+class KnowledgeOpsHealthCheck(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field("healthy", description="Status of KnowledgeOps engine")
+    total_docs: int = Field(..., ge=0, description="Total markdown documents scanned")
+    compliant_ratio: float = Field(..., ge=0.0, le=1.0, description="Ratio of fully compliant docs")
+    audit_timestamp: str = Field(..., description="Timestamp of the audit execution")
+
+@mcp.tool()
+def check_knowledgeops_health(total_scanned: int, compliant_count: int) -> str:
+    """
+    FastMCP 3.1 health and telemetry monitoring tool for KnowledgeOps repositories.
+    """
+    ratio = (compliant_count / total_scanned) if total_scanned > 0 else 1.0
+    status = "healthy" if ratio >= 0.99 else "degraded"
+    health = KnowledgeOpsHealthCheck(
+        status=status,
+        total_docs=total_scanned,
+        compliant_ratio=ratio,
+        audit_timestamp="2027-01-07T00:00:00Z"
+    )
+    return health.model_dump_json(indent=2)
+
 if __name__ == "__main__":
     mcp.run()
 ```

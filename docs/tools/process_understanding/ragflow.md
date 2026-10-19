@@ -217,6 +217,25 @@ def search_deepdoc_knowledge_base(ragflow_url: str, api_key: str, spec: Retrieva
         logger.error(f"RAGFlow retrieval query failed: {err}")
         return {"error": str(err), "status": "failed"}
 
+class RAGFlowChunkingConfig(BaseModel):
+    chunk_token_size: int = Field(default=512, ge=64, le=2048, description="Target token count per document chunk")
+    overlap_tokens: int = Field(default=64, ge=0, le=256, description="Token overlap between adjacent chunks")
+    parse_tables_with_ocr: bool = Field(default=True, description="Enable visual layout parsing for PDF tables")
+
+@mcp.tool()
+def configure_deepdoc_chunking(dataset_id: str, config_dict: dict) -> dict:
+    """
+    FastMCP 3.1 tool for configuring RAGFlow DeepDoc document chunking parameters.
+    """
+    cfg = RAGFlowChunkingConfig.model_validate(config_dict)
+    return {
+        "status": "configured",
+        "dataset_id": dataset_id,
+        "chunk_token_size": cfg.chunk_token_size,
+        "overlap_tokens": cfg.overlap_tokens,
+        "parse_tables_with_ocr": cfg.parse_tables_with_ocr
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```

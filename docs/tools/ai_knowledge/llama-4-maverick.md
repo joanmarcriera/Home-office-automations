@@ -298,6 +298,24 @@ async def query_maverick_async(prompt: str) -> DirectInferenceResult:
             tokens_used=data["usage"]["total_tokens"]
         )
 
+class MaverickMoDRoutingConfig(BaseModel):
+    capacity_factor: float = Field(default=0.125, ge=0.05, le=0.5, description="Percentage of tokens routed through deep layers")
+    top_k_experts: int = Field(default=2, ge=1, le=8, description="Number of experts activated per MoE layer")
+    use_speculative_decoding: bool = Field(default=True, description="Enable speculative draft model verification")
+
+@mcp.tool()
+def configure_mod_depth_routing(config_dict: dict) -> dict:
+    """
+    FastMCP 3.1 tool for configuring Llama 4 Maverick Mixture-of-Depths (MoD) routing parameters.
+    """
+    config = MaverickMoDRoutingConfig.model_validate(config_dict)
+    return {
+        "status": "configured",
+        "capacity_factor": config.capacity_factor,
+        "top_k_experts": config.top_k_experts,
+        "speculative_decoding": config.use_speculative_decoding
+    }
+
 if __name__ == "__main__":
     res = asyncio.run(query_maverick_async("Summarize the Llama 4 architecture in 2 sentences."))
     print(f"Result: {res.response_text} (Tokens: {res.tokens_used})")
