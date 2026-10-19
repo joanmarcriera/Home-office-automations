@@ -27,6 +27,28 @@ Enterprise AI adoption in European regulated sectors (finance, healthcare, legal
 ## Where it fits in the stack
 **Providers / LLM Model Families & Sovereign AI Infrastructure**. Kolibri-1 functions as a foundational model provider hosted on local or sovereign cloud GPU clusters via vLLM, TGI, or FastMCP controllers.
 
+```
++-----------------------------------------------------------------------------------+
+|                     KOLIBRI-1 SOVEREIGN STACK INTEGRATION                         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 Agentic Client / FastMCP 3.1 Controller                      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v (OpenAI REST / JSON-RPC)                |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 vLLM High-Throughput Inference Engine                       |  |
+|  |                 (Tensor Parallelism 2x H100 / A100)                         |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                         |                                         |
+|                                         v (CUDA Sparse MoE Kernels)               |
+|  +-----------------------------------------------------------------------------+  |
+|  |                 Kolibri-1 78B MoE Weights (EU VPC / On-Prem)                |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **European Legal & Regulatory Compliance Auditing**: Analyzing complex EU directives, cross-border contracts, and compliance filings across multiple EU languages.
 - **Sovereign Public Sector AI Agents**: Powering automated administrative services for municipal and national government portals.
@@ -63,7 +85,7 @@ Kolibri-1 utilizes a sparse Mixture-of-Experts architecture with top-2 gating:
                     │
                     ▼
      ┌──────────────────────────────┐
-     │ Sovereign Tokenizer          │  <--- Optimized European Vocabulary
+     │ Sovereign Tokenizer          │  <--- Optimized European Vocabulary (128k)
      └──────────────┬───────────────┘
                     │
                     ▼
@@ -84,10 +106,92 @@ Kolibri-1 utilizes a sparse Mixture-of-Experts architecture with top-2 gating:
      └──────────────────────────────┘
 ```
 
-1. **Sovereign Tokenizer**: Features a expanded 128k vocabulary specifically balanced for European language sub-word token efficiency.
+1. **Sovereign Tokenizer**: Features an expanded 128k vocabulary specifically balanced for European language sub-word token efficiency.
 2. **Top-2 Router Gating**: For every token, a dynamic routing network selects the 2 best expert sub-networks out of 8 total experts.
 3. **Sparse FFN Experts**: Expert blocks specialize in domain tasks (legal reasoning, code, multi-lingual translation, mathematical logic).
 4. **FastMCP Integration**: Exposes model routing metrics and prompt execution parameters to upstream agent orchestration frameworks.
+
+## Sequence Diagram: Sovereign Request Flow
+
+```
++---------------+          +--------------------+          +---------------------+          +-------------------+
+| Client Agent  |          | FastMCP 3.1 Server |          | Kolibri Router / MoE|          | Compliance Audit  |
++---------------+          +--------------------+          +---------------------+          +-------------------+
+        |                            |                                |                               |
+        |--- 1. Submit Request ----->|                                |                               |
+        |    (Prompt + Language)     |                                |                               |
+        |                            |--- 2. Validate Schema ------->|                               |
+        |                            |    (Pydantic v2 Strict)        |                               |
+        |                            |                                |                               |
+        |                            |--- 3. Top-2 Expert Route ----->|                               |
+        |                            |    (Dispatch to Expert 2 & 5)  |                               |
+        |                            |                                |                               |
+        |                            |<-- 4. Stream Generated Tokens--|                               |
+        |                            |                                |                               |
+        |                            |--------------------------------------------------------------->|
+        |                            |    5. Log EU AI Act Lineage Metrics                            |
+        |                            |<---------------------------------------------------------------|
+        |                            |                                |                               |
+        |<-- 6. Structured Output ---|                                |                               |
+        |    (Response + Lineage)    |                                |                               |
+```
+
+## Production Systemd Service Unit Configuration
+
+Deploying Kolibri-1 via `vLLM` in a production enterprise environment requires a robust `systemd` service unit to manage multi-GPU tensor parallel execution, automated health monitoring, and system limits.
+
+```ini
+# /etc/systemd/system/kolibri-vllm.service
+[Unit]
+Description=Kolibri-1 MoE Sovereign vLLM Inference Service
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+Documentation=https://github.com/aleph-alpha/kolibri-1
+
+[Service]
+Type=simple
+User=kolibri
+Group=kolibri
+WorkingDirectory=/opt/kolibri-serving
+Environment="CUDA_VISIBLE_DEVICES=0,1"
+Environment="VLLM_WORKER_MULTIPROC_METHOD=spawn"
+Environment="PYTHONUNBUFFERED=1"
+Environment="HF_HUB_ENABLE_HF_TRANSFER=1"
+
+ExecStart=/opt/kolibri-serving/venv/bin/python3 -m vllm.entrypoints.openai.api_server \
+    --model aleph-alpha/kolibri-1-78b-moe \
+    --tensor-parallel-size 2 \
+    --port 8000 \
+    --host 0.0.0.0 \
+    --max-model-len 16384 \
+    --gpu-memory-utilization 0.90 \
+    --trust-remote-code \
+    --download-dir /mnt/sovereign-models/hub
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+LimitNPROC=65536
+LimitMEMLOCK=infinity
+
+# Security Sandbox Parameters
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and monitor the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now kolibri-vllm.service
+sudo journalctl -u kolibri-vllm.service -f
+```
 
 ## Getting started
 
@@ -204,6 +308,25 @@ async def get_sovereign_status(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM) on startup** | vLLM allocated memory exceeds VRAM during expert weight initialization | Reduce `--gpu-memory-utilization` from 0.95 to 0.85 or enable tensor parallelism (`--tensor-parallel-size 2`). |
+| **High latency during MoE routing** | Non-optimal CUDA kernel loading for sparse top-2 expert matrices | Ensure NVIDIA CUDA toolkit version >= 12.4 is installed and set `VLLM_WORKER_MULTIPROC_METHOD=spawn`. |
+| **Language output quality degradation** | Non-standard tokenizer encoding for sub-word units | Explicitly pass system prompt indicating target EU language (e.g., German/French) and use `temperature=0.1`. |
+| **FastMCP 3.1 validation error** | Input payload includes prohibited fields or unsupported language codes | Verify incoming payload conforms to `KolibriInferenceRequest` Pydantic schema (`extra="forbid"`). |
+| **EU Audit logging dropped** | Disconnected syslog or compliance database endpoint | Set `sovereignty_audit_mode=True` and verify local audit buffer directory write permissions. |
+
+## Production Guardrails & Operational Security
+
+When deploying Kolibri-1 in sovereign European enterprise environments, enforce the following operational guardrails:
+
+1. **Strict Data Residency Boundary**: Route all inference queries through local EU VPCs. Never allow fallback to external cloud APIs without explicit encryption and anonymization.
+2. **Deterministic Legal Sampling**: Use `temperature <= 0.2` for legal, regulatory, and financial compliance tasks to ensure repeatable, factual outputs.
+3. **MoE Expert Balance Monitoring**: Periodically audit routing telemetry to verify even distribution across all 8 expert networks and prevent expert collapse.
+4. **FastMCP Schema Rigor**: Use strict Pydantic v2 schemas (`extra="forbid"`) to prevent prompt injection payloads or parameter smuggling in tool-calling loops.
 
 ## Integration patterns
 - **Sovereign RAG Pipeline**: Route legal queries from German/French enterprise portals to Kolibri-1 instances hosted within local data centers.

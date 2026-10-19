@@ -330,7 +330,7 @@ except ValidationError as e:
 
 ## Related tools / concepts
 - [K3s](../infrastructure/k3s.md) — Lightweight, single-binary Kubernetes distribution perfect for running Argo Workflows.
-- [Hera Python SDK](https://github.com/argoproj-labs/hera) — The premier Python SDK for declarative Argo Workflow construction.
+- [Hera Python SDK](hera.md) — The premier Python SDK for declarative Argo Workflow construction.
 - [FastMCP 3.1 Task Protocol](../automation_orchestration/mcp.md) — Standardized protocol for connecting agent execution environments to data contexts and tools.
 - [Claude 5.6](../ai_knowledge/claude.md) — State-of-the-art reasoning model utilized for parallel agentic orchestration loops.
 - [Gemma 4](../ai_knowledge/local_llms.md) — High-performance local reasoning model optimized for structured parameter generation in pipelines.

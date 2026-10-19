@@ -43,6 +43,16 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 | **Database Backend** | SQLite / Postgres / MariaDB | SQLite / Postgres | Proprietary DB | PostgreSQL |
 | **SSO / OIDC** | Native OIDC / LDAP | Native OIDC / LDAP | SAML / SSO (Enterprise) | Native OIDC / LDAP |
 
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Check Command | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **HTTP 500 Database Locked** | SQLite concurrent write lock during heavy CI/CD | `grep "database is locked" /data/gitea/log/gitea.log` | Migrate SQLite backend to PostgreSQL 16+ or enable WAL mode in `app.ini`. |
+| **Gitea Actions Runner Offline**| Secret registration token mismatch or network error | `docker logs act_runner` | Re-register the runner using `act_runner register` with a fresh admin token. |
+| **SSH Permission Denied** | Port collision with host SSH or missing SSH key | `ssh -T -p 222 git@localhost` | Remap Gitea SSH port to `2222` and verify public keys in Gitea user settings. |
+| **OIDC Redirect Loop** | Mismatched redirect URI in Authentik configuration | Inspect browser network headers on OAuth callback | Align `REDIRECT_URL` in `app.ini` with Authentik OAuth application settings. |
+| **LFS Push Rejection** | Exceeded local disk storage or bad authorization | `git lfs push origin main --verbose` | Verify `[lfs]` endpoint settings in `app.ini` or switch LFS backend to MinIO S3 bucket. |
+
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
 - **GitOps**: Storing infrastructure-as-code (Ansible, Terraform, K3s manifests) and triggering deployments.
@@ -119,6 +129,43 @@ ENABLED = true
 2. **Set up a Runner**: Gitea Actions requires a separate "Gitea Runner" (formerly `act_runner`).
 3. **Registration**: Registration tokens are managed via the administrative UI or CLI.
 
+## Systemd Service Unit Configuration
+
+To run Gitea as a native binary system service on Linux hosts, create `/etc/systemd/system/gitea.service`:
+
+```ini
+[Unit]
+Description=Gitea (Painless Self-Hosted Git Service)
+After=syslog.target
+After=network.target
+After=postgresql.service
+
+[Service]
+RestartSec=2s
+Type=simple
+User=git
+Group=git
+WorkingDirectory=/var/lib/gitea/
+ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
+Restart=always
+Environment=USER=git HOME=/home/git GITEA_WORK_DIR=/var/lib/gitea
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the Gitea service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now gitea.service
+sudo systemctl status gitea.service
+```
+
 ## Disaster Recovery & Operational Best Practices
 - **Automated Dumps**: Schedule nightly `gitea dump` commands via cron or n8n, saving archives (`gitea-dump-*.zip`) to offsite storage or encrypted S3 targets.
 - **Database Backends**: For environments hosting >50 repositories or heavy Gitea Actions workflows, migrate from SQLite to PostgreSQL 16+ to handle concurrent locking smoothly.
@@ -144,15 +191,30 @@ curl -s http://localhost:3000/api/v1/version
 
 ## API examples
 
-### Programmatic Webhook Validation with Pydantic v2 (Python)
-Defining and validating Gitea webhook configurations using modern Pydantic v2 syntax before registering hooks programmatically.
+### Programmatic Webhook & Issue Validation with FastMCP 3.1 (Python & Pydantic v2)
+Defining and validating Gitea webhook and issue payloads using modern FastMCP 3.1 and Pydantic v2 syntax.
 
 ```python
+import os
 import requests
-from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
+from fastmcp import FastMCP
+
+# Initialize FastMCP 3.1 Server for Gitea Management
+mcp = FastMCP("Gitea-Agentic-Server", version="3.1.0")
+
+class GiteaIssueCreatePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(..., min_length=3, max_length=200, description="Title of the issue.")
+    body: str = Field(..., min_length=5, description="Markdown body content of the issue.")
+    assignees: List[str] = Field(default_factory=list, description="Gitea usernames assigned to the issue.")
+    labels: List[int] = Field(default_factory=list, description="List of label IDs to attach.")
 
 class GiteaWebhookPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     webhook_id: int = Field(..., alias="id", description="Unique identifier of the webhook", ge=1)
     type: str = Field(..., description="Webhook payload format type (e.g. gitea, slack)")
     active: bool = Field(default=True, description="Whether the webhook is enabled")
@@ -165,22 +227,29 @@ class GiteaWebhookPayload(BaseModel):
             raise ValueError("Webhook config dictionary must contain a target payload URL")
         return v
 
-# Usage Example
-try:
-    webhook_json = {
-        "id": 42,
-        "type": "gitea",
-        "active": True,
-        "config": {
-            "url": "http://n8n-server:5678/webhook/gitea-trigger",
-            "content_type": "json"
-        }
-    }
+@mcp.tool()
+def create_gitea_issue(owner: str, repo: str, payload: Dict[str, Any]) -> str:
+    """Create a new issue on a Gitea repository via FastMCP 3.1."""
+    try:
+        validated = GiteaIssueCreatePayload.model_validate(payload)
+        gitea_url = os.getenv("GITEA_URL", "http://localhost:3000")
+        token = os.getenv("GITEA_TOKEN", "mock_token")
 
-    validated_hook = GiteaWebhookPayload.model_validate(webhook_json)
-    print("Validated Gitea Webhook:", validated_hook.model_dump(by_alias=True))
-except Exception as e:
-    print("Validation failed for webhook configuration:", e)
+        headers = {"Authorization": f"token {token}", "Content-Type": "application/json"}
+        response = requests.post(
+            f"{gitea_url}/api/v1/repos/{owner}/{repo}/issues",
+            json=validated.model_dump(),
+            headers=headers,
+            timeout=10
+        )
+        if response.status_code in (200, 201):
+            return f"Issue successfully created in {owner}/{repo}: {validated.title}"
+        return f"Gitea API returned HTTP {response.status_code}: {response.text}"
+    except Exception as err:
+        return f"Failed to create Gitea issue: {str(err)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Automated Code Review Pattern (Ollama Integration)

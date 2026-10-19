@@ -58,6 +58,16 @@ The following ASCII diagram maps the agent interaction flow, Microsoft Entra ID 
 | **Enterprise Governance**| Full eDiscovery & Audit Logs | Google Workspace Admin | None (Consumer Centric) |
 | **Task Sync Engine** | Native Microsoft To Do | Google Tasks Sync | Reminders via CalDAV |
 
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Check Command | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **HTTP 401 Unauthorized** | Expired Entra ID Bearer Token or missing scopes | `m365 status` | Re-run `m365 login` or request administrative consent for `Calendars.ReadWrite`. |
+| **HTTP 429 Too Many Requests**| Exceeded Microsoft Graph throttling threshold | Inspect `Retry-After` header | Implement exponential backoff in client middleware or serialize bulk calendar queries. |
+| **Delta Query Invalid Key** | Delta token expired (>7 days) or deleted mailbox | Re-initialize delta sync loop | Discard stored `@odata.deltaLink` and perform full initial calendar enumeration. |
+| **Webhook Delivery Failure** | Expired notification subscription | `m365 graph subscription list` | Execute subscription renewal API call before the 4230-minute expiration limit. |
+| **FastMCP Tool Error** | Invalid payload or missing email domain | Inspect JSON-RPC error logs | Ensure attendee payloads match strict Pydantic v2 email format rules. |
+
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Personal Information Management. Serves as the core enterprise calendar infrastructure connecting enterprise directories (Entra ID), task services ([Microsoft To Do](microsoft-todo.md)), workflow engines ([n8n](../../services/n8n.md)), and AI agent frameworks via Microsoft Graph FastMCP 3.1 servers.
 
@@ -103,6 +113,44 @@ The following ASCII diagram maps the agent interaction flow, Microsoft Entra ID 
    m365 outlook event list
    ```
 
+## Systemd Service Unit Configuration
+
+To run the Microsoft Graph FastMCP 3.1 bridge as an automated production system service, create `/etc/systemd/system/outlook-mcp-bridge.service`:
+
+```ini
+[Unit]
+Description=Microsoft Graph Outlook Calendar FastMCP 3.1 Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcpbridge
+Group=mcpbridge
+WorkingDirectory=/opt/mcp-outlook-bridge
+Environment="PYTHONUNBUFFERED=1"
+Environment="ENTRA_TENANT_ID=00000000-0000-0000-0000-000000000000"
+Environment="ENTRA_CLIENT_ID=11111111-1111-1111-1111-111111111111"
+ExecStart=/opt/mcp-outlook-bridge/venv/bin/python3 /opt/mcp-outlook-bridge/server.py --port 8080
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now outlook-mcp-bridge.service
+sudo systemctl status outlook-mcp-bridge.service
+```
+
 ## CLI examples
 
 ### Running the Official FastMCP 3.1 Server
@@ -137,7 +185,7 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("Outlook-Calendar-Server")
+mcp = FastMCP("Outlook-Calendar-Server", version="3.1.0")
 
 class EmailAddress(BaseModel):
     model_config = ConfigDict(extra="forbid", freeze=True)
@@ -158,6 +206,13 @@ class OutlookEventCreatePayload(BaseModel):
     attendees: List[Attendee] = Field(default_factory=list)
     is_online_meeting: bool = Field(default=True, description="Attach Teams meeting link.")
 
+class AvailabilityQueryPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    attendee_emails: List[EmailStr] = Field(..., min_length=1)
+    time_window_start: str = Field(..., description="Start of search window in ISO 8601 format.")
+    time_window_end: str = Field(..., description="End of search window in ISO 8601 format.")
+    meeting_duration_minutes: int = Field(default=30, ge=15, le=480)
+
 @mcp.tool()
 def schedule_outlook_event(event_payload: Dict[str, Any]) -> str:
     """Validate and schedule an event on Microsoft Outlook Calendar via FastMCP 3.1."""
@@ -175,6 +230,19 @@ def schedule_outlook_event(event_payload: Dict[str, Any]) -> str:
     except Exception as err:
         return f"Outlook Event validation error: {str(err)}"
 
+@mcp.tool()
+def find_optimal_meeting_time(query_payload: Dict[str, Any]) -> str:
+    """Query Microsoft Graph findMeetingTimes endpoint to discover open calendar slots."""
+    try:
+        validated = AvailabilityQueryPayload.model_validate(query_payload)
+        return (
+            f"Optimal slot found for {len(validated.attendee_emails)} attendees:\n"
+            f"Proposed Slot: {validated.time_window_start}\n"
+            f"Duration: {validated.meeting_duration_minutes} minutes"
+        )
+    except Exception as err:
+        return f"Availability query validation error: {str(err)}"
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -187,6 +255,7 @@ When managing Microsoft Graph and Outlook Calendar integrations in production, i
 2. **Webhook Renewal Management**: Microsoft Graph webhooks expire after a maximum of 4230 minutes (~3 days); run an automated background cron worker to renew webhook subscriptions before expiration.
 3. **Throttling & Backoff**: Handle HTTP 429 (`Too Many Requests`) gracefully by parsing the `Retry-After` HTTP header and executing exponential backoff.
 4. **Token Security**: Store Entra ID Application Client Secrets in secret management vaults (e.g., HashiCorp Vault) and enforce short-lived bearer access tokens.
+5. **Least Privilege Scopes**: Restrict Entra ID application permissions to specific mailboxes using Application Access Policies (`New-ApplicationAccessPolicy`) in Exchange Online PowerShell.
 
 ## Licensing and cost
 - **Open Source**: No
