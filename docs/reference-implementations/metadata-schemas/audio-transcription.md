@@ -242,6 +242,22 @@ def extract_speaker_segments(file_id: str, speaker_id: str) -> str:
     )
     return sample_segment.model_dump_json(indent=2)
 
+class AudioBatchProcessingConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    batch_id: str = Field(..., description="Unique batch processing task identifier")
+    audio_files: List[str] = Field(..., min_length=1, description="List of target audio paths")
+    language: str = Field("en", min_length=2, max_length=10)
+    enable_diarization: bool = Field(True, description="Enable pyannote-audio speaker diarization")
+
+@mcp.tool()
+def process_audio_batch(batch_config_json: str) -> str:
+    """
+    FastMCP 3.1 tool for batch processing audio transcription files with Pydantic v2 validation.
+    """
+    config = AudioBatchProcessingConfig.model_validate_json(batch_config_json)
+    return f"Batch {config.batch_id} queued for {len(config.audio_files)} files with diarization={config.enable_diarization}."
+
 if __name__ == "__main__":
     mcp.run()
 ```
