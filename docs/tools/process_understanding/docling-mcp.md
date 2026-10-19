@@ -31,6 +31,27 @@ Docling MCP addresses these problems through:
   +-----------------------+        +------------------------+        +--------------------------+
 ```
 
+## Feature & Performance Comparison Matrix
+
+| Feature / Metric | Docling MCP | Apache Tika | Unstructured.io | OCRmyPDF |
+| :--- | :--- | :--- | :--- | :--- |
+| **Parsing Engine** | Vision Layout AST + FastMCP | Java Text Stripper | Layout Detection API | Tesseract OCR Pipeline |
+| **FastMCP 3.1 Support** | Native First-Party | Custom Adapter Needed | Community MCP Server | Custom Wrapper Needed |
+| **Multi-Column Reading Order**| Native Visual Layout Detection| Scrambled / Linearized | Advanced Layout Model | Linearized OCR Text |
+| **Table Structure Extraction**| Native Table Span Detection | Plain Text Tables | Structured HTML/JSON | Border Alignment Loss |
+| **Processing Throughput** | Moderate (GPU Accelerated) | Fast (CPU Bound) | Heavy API / Cloud | Slow (Page-by-Page OCR)|
+| **Self-Hosted Privacy** | 100% Local / Air-Gapped | 100% Local | API / Self-Hosted Docker| 100% Local |
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Check Command | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out-Of-Memory (OOM)**| Insufficient GPU VRAM for vision model batching | `nvidia-smi` | Reduce `max_batch_size` in config or switch vision backends to CPU inference mode. |
+| **Model Weight Download Fail**| Network blocking initial HuggingFace model pull | `ls -la ~/.cache/huggingface/hub/` | Pre-download layout vision weights into local cache directory before air-gapped run. |
+| **FastMCP Server Timeout** | Heavy PDF page count exceeding client timeout | Check client `mcp_servers.json` config | Increase tool response timeout to 120s or enable page-chunk streaming mode. |
+| **Scrambled Table Rows** | Borderless table cells incorrectly segmented | Inspect AST JSON table element attributes | Enable `--force-ocr` and set table detection sensitivity threshold to high (`0.85`). |
+| **Missing Mathematical Formulas**| MathML / LaTeX rendering disabled in pipeline | `docling-mcp status --verify-plugins` | Enable EasyOCR / LaTeX plugin extensions in Docling server environment parameters. |
+
 ## Where it fits in the stack
 **Category**: [Process Understanding](index.md) / Document Parsing & Knowledge Ingestion.
 
@@ -93,6 +114,43 @@ Add Docling MCP to your client configuration file (`mcp_servers.json`):
 }
 ```
 
+## Systemd Service Unit Configuration
+
+To run Docling FastMCP service on a dedicated Linux document processing node, create `/etc/systemd/system/docling-mcp.service`:
+
+```ini
+[Unit]
+Description=Docling FastMCP 3.1 Layout Document Parsing Server
+After=network.target
+
+[Service]
+Type=simple
+User=docling
+Group=docling
+WorkingDirectory=/opt/docling-mcp
+Environment="PATH=/opt/docling-mcp/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="HF_HOME=/opt/docling-mcp/.cache"
+ExecStart=/opt/docling-mcp/venv/bin/fastmcp run /opt/docling-mcp/server.py --port 8080
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now docling-mcp.service
+sudo systemctl status docling-mcp.service
+```
+
 ## CLI examples
 
 ### 1. Convert Local Multi-Column PDF to Markdown
@@ -124,9 +182,9 @@ The following Python script demonstrates building a custom FastMCP 3.1 tool serv
 ```python
 import os
 import tempfile
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from docling.document_converter import DocumentConverter
 
 mcp = FastMCP(
@@ -136,11 +194,15 @@ mcp = FastMCP(
 )
 
 class ConversionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     file_path_or_url: str = Field(..., description="Local file path or remote URL to parse")
     export_format: str = Field(default="markdown", description="Format: markdown, json, or doctags")
     extract_tables: bool = Field(default=True, description="Extract tabular data into clean Markdown format")
 
 class ConversionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     success: bool
     title: str
     content: str
@@ -148,30 +210,33 @@ class ConversionResponse(BaseModel):
     error_message: Optional[str] = None
 
 @mcp.tool(description="Converts enterprise PDFs, DOCX, or PPTX files into layout-faithful Markdown or JSON.")
-def convert_document(request: ConversionRequest) -> ConversionResponse:
+def convert_document(request: Dict[str, Any]) -> Dict[str, Any]:
     """Parses document using Docling layout vision engine."""
     try:
+        req = ConversionRequest.model_validate(request)
         converter = DocumentConverter()
-        result = converter.convert(request.file_path_or_url)
+        result = converter.convert(req.file_path_or_url)
 
         md_output = result.document.export_to_markdown()
         num_tables = len(result.document.tables) if hasattr(result.document, "tables") else 0
 
-        return ConversionResponse(
+        res = ConversionResponse(
             success=True,
             title=result.document.name or "Parsed Document",
             content=md_output,
             table_count=num_tables,
             error_message=None
         )
+        return res.model_dump()
     except Exception as e:
-        return ConversionResponse(
+        res = ConversionResponse(
             success=False,
             title="Error",
             content="",
             table_count=0,
             error_message=str(e)
         )
+        return res.model_dump()
 
 if __name__ == "__main__":
     mcp.run()
@@ -182,15 +247,17 @@ Validate and transform Docling conversion outputs inside custom Python RAG inges
 
 ```python
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class ExtractedTable(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     table_index: int = Field(..., ge=0)
     rows_count: int = Field(..., ge=1)
     columns_count: int = Field(..., ge=1)
     markdown_representation: str
 
 class ParsedDoclingAST(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     document_name: str
     num_pages: int = Field(..., ge=1)
     markdown_full_text: str
@@ -244,6 +311,12 @@ Standard JSON-RPC 2.0 tool invocation format sent by MCP agents to Docling MCP:
   "id": 42
 }
 ```
+
+## Production Operational Hardening
+
+1. **Concurrency Controls**: Limit simultaneous layout vision inferences to prevent GPU memory saturation. Use an asynchronous queue (such as Celery or Redis Task Queue) when handling batch document drops.
+2. **File Size Boundaries**: Enforce maximum input file size limits (e.g., 50MB) and page limits (e.g., 200 pages) prior to passing binary buffers to the conversion engine.
+3. **Model Warmup**: Warm up the layout model weights during system container startup by executing a dummy 1-page conversion before accepting real-time agent requests.
 
 ## Related tools / concepts
 - [Docling](docling.md) — Underlying document parsing engine developed by IBM Research.
