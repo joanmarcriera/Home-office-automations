@@ -2,7 +2,7 @@
 
 ## What it is
 
-Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. As of **early January 2027**, it serves as a critical retrieval layer for local agents using **Gemma 3**, **Qwen 3.8**, **DeepSeek-V4**, and **Llama 4** via the **FastMCP 3.1** / **MCP 3.1** Task Protocol.
+Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, Stack Overflow, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. As of **early January 2027**, it serves as a critical retrieval layer for local agents using **Gemma 3**, **Qwen 3.8**, **DeepSeek-V4**, and **Llama 4** via the **FastMCP 3.1** / **MCP 3.1** Task Protocol.
 
 ## What problem it solves
 
@@ -62,6 +62,16 @@ flowchart TD
 | **Xowa** | Custom XML/DB | Built-in Index | High ($\sim 4 \text{ GB}$) | No Native Support | Offline Wikipedia Rendering |
 | **Local RAG Vector DB**| Parquet/Chroma | Vector Embedding | High ($\sim 8 \text{ GB}$) | Native FastMCP | Semantic Agent Search |
 
+## ZIM Library Content Catalog Types
+
+| ZIM Package Type | Description & Content Scope | Typical Disk Size | Recommended Search Mode |
+| :--- | :--- | :--- | :--- |
+| `wikipedia_en_all_maxi` | Complete English Wikipedia with full resolution images | ~110 GB - 130 GB | Xapian FTS / FastMCP 3.1 |
+| `wikipedia_en_all_nopic` | Full English Wikipedia text excluding all images | ~22 GB - 25 GB | Fast In-Memory Text Search |
+| `stackoverflow_en_all` | All Stack Overflow questions, accepted answers, & code | ~85 GB - 95 GB | Code Snippet & Error Lookup |
+| `gutenberg_en_all` | Over 70,000 public domain ebooks in EPUB/HTML | ~65 GB | Title & Author Search |
+| `devdocs_en_all` | Consolidated API documentation (Python, JS, Rust, Go) | ~8 GB - 12 GB | Developer Reference Search |
+
 ## Strengths
 
 - **High Compression**: ZIM files can shrink a massive website into a relatively small, portable file.
@@ -92,18 +102,33 @@ flowchart TD
 
 ## Getting started
 
-### Docker
-The easiest way to serve a ZIM file using `kiwix-serve` in Docker:
+### Docker Compose Setup
+Deploy `kiwix-serve` alongside a library manager using Docker Compose:
 
-```bash
-docker run -d \
-  --name kiwix \
-  -p 8080:80 \
-  -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-10.zim
+```yaml
+version: '3.8'
+
+services:
+  kiwix-serve:
+    image: ghcr.io/kiwix/kiwix-serve:latest
+    container_name: kiwix-serve
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - /opt/kiwix/zims:/data:ro
+      - /opt/kiwix/library.xml:/data/library.xml:ro
+    command: kiwix-serve --library /data/library.xml --port 80
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/catalog.xml"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    resources:
+      limits:
+        memory: 2G
+        cpus: '2.0'
 ```
-
-Access the content at `http://localhost:8080`.
 
 ### Local Installation (Linux)
 You can download pre-compiled binaries from the [releases page](https://download.kiwix.org/release/kiwix-tools/).
@@ -116,12 +141,6 @@ cd kiwix-tools_*
 # Run the server directly
 ./kiwix-serve --port=8080 /path/to/your_content.zim
 ```
-
-### Hello World
-1. Download a small `.zim` file (e.g., a "mini" version or a specific Wiktionary) from the [official Kiwix Wikipedia catalog](https://download.kiwix.org/zim/wikipedia/).
-2. Place it in a directory (e.g., `/home/user/zims`).
-3. Start the Kiwix server using the Docker command above, replacing the filename with your downloaded ZIM.
-4. Navigate to `http://localhost:8080` to read the offline content.
 
 ## CLI examples
 The `kiwix-tools` package includes several utilities:
@@ -140,106 +159,187 @@ kiwix-search /data/wikipedia.zim "Quantum Physics"
 ### Automated ZIM Updates
 ZIM files are snapshots. To keep your library relatively fresh, you can use a script to download the latest versions from the Kiwix library.
 
-**Example Update Script (`update_zims.sh`):**
 ```bash
 #!/bin/bash
-ZIM_DIR="/path/to/zims"
-# URL for the English Wikipedia 'mini' ZIM
+set -euo pipefail
+
+ZIM_DIR="/opt/kiwix/zims"
+LIBRARY_XML="/opt/kiwix/library.xml"
 WIKI_URL="https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_mini_latest.zim"
 
-echo "Checking for Wikipedia updates..."
+echo "Checking for Wikipedia ZIM updates..."
 aria2c -d "$ZIM_DIR" -N "$WIKI_URL"
 
-# Restart kiwix-serve to pick up the new file
-docker restart kiwix
+echo "Rebuilding Kiwix XML Library index..."
+kiwix-manage "$LIBRARY_XML" purge
+for zim in "$ZIM_DIR"/*.zim; do
+    kiwix-manage "$LIBRARY_XML" add "$zim"
+done
+
+echo "Restarting Kiwix server container..."
+systemctl restart kiwix-serve.service
 ```
 
 ## API examples
-`kiwix-serve` provides an OPDS (Open Publication Distribution System) catalog and a basic search API.
 
-### Fetch the OPDS Catalog
-```bash
-curl -X GET "http://localhost:8080/catalog.xml"
-```
-
-### Search via API (if supported by the ZIM)
-```bash
-curl -G "http://localhost:8080/search" --data-urlencode "content=wikipedia" --data-urlencode "pattern=Einstein"
-```
-
-### Python Example with Pydantic v2 & FastMCP 3.1
-This showcases a production-ready FastMCP 3.1 tool server configuration utilizing Pydantic v2 schemas to validate and manage offline search queries over Kiwix. This enables frontier models such as **Claude 5.6**, **Claude 5.1**, **GPT-5.6**, and **Gemini 4.0** to perform high-confidence offline research.
+This complete implementation provides a FastMCP 3.1 tool server configured with Pydantic v2 schemas to parse, query, and validate offline search queries over `kiwix-serve`.
 
 ```python
 import requests
 import json
-from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+import logging
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from fastmcp import FastMCP
 
-# Initialize FastMCP Server
-mcp = FastMCP("KiwixSearchEngine", version="3.1")
+# Setup logger for Kiwix FastMCP Server
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Kiwix-FastMCP-Server")
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("KiwixSearchEngine", version="3.1.0")
 
 class SearchQuerySchema(BaseModel):
-    query: str = Field(description="The terms or topic to search for in the Kiwix library")
-    max_results: int = Field(default=5, ge=1, le=50, description="Maximum number of offline results to return")
-    content_source: str = Field(default="wikipedia", description="Specific ZIM content archive name")
+    model_config = ConfigDict(extra="forbid")
 
-@mcp.tool()
+    query: str = Field(..., description="The terms or topic to search for in the Kiwix library")
+    max_results: int = Field(default=5, ge=1, le=50, description="Maximum number of offline results to return")
+    content_source: str = Field(default="wikipedia", description="Specific ZIM content archive identifier")
+
+class KiwixSearchResultItem(BaseModel):
+    title: str = Field(..., description="Article or item title")
+    path: str = Field(..., description="Relative path in ZIM archive")
+    snippet: Optional[str] = Field(None, description="Text preview or excerpt")
+
+class SearchResponseSchema(BaseModel):
+    status: str = Field(..., description="Query status: success, error, or offline_mode")
+    query: str = Field(...)
+    total_matches: int = Field(default=0, ge=0)
+    results: List[KiwixSearchResultItem] = Field(default_factory=list)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+@mcp.tool(
+    name="query_offline_kiwix",
+    description="Executes an offline search query against the local kiwix-serve instance using Pydantic v2."
+)
 def query_offline_kiwix(query_json: str) -> str:
-    """
-    Executes an offline search query against the local kiwix-serve instance,
-    validating the input arguments through Pydantic v2, and returning a structured summary.
-    """
+    """Parses search request, performs HTTP query against kiwix-serve, and returns structured response."""
     try:
         data = json.loads(query_json)
-        validated = SearchQuerySchema(**data)
+        req = SearchQuerySchema.model_validate(data)
+        logger.info(f"Executing Kiwix offline query: '{req.query}' in source '{req.content_source}'")
 
-        # Querying kiwix-serve search API
+        # Query kiwix-serve search endpoint
         url = "http://localhost:8080/search"
         params = {
-            "content": validated.content_source,
-            "pattern": validated.query
+            "content": req.content_source,
+            "pattern": req.query
         }
 
         response = requests.get(url, params=params, timeout=5)
         if response.status_code != 200:
-            return json.dumps({"status": "error", "message": f"Kiwix returned status code {response.status_code}"})
+            err_res = SearchResponseSchema(
+                status="error",
+                query=req.query,
+                results=[]
+            )
+            return err_res.model_dump_json(indent=2)
 
-        # Parse search results
-        results = response.json()
-        limited_results = results.get("results", [])[:validated.max_results]
+        raw_results = response.json()
+        raw_list = raw_results.get("results", [])[:req.max_results]
 
-        return json.dumps({
-            "status": "success",
-            "query": validated.query,
-            "total_matches": len(results.get("results", [])),
-            "results": limited_results
-        }, indent=2)
+        parsed_items = []
+        for item in raw_list:
+            parsed_items.append(
+                KiwixSearchResultItem(
+                    title=item.get("title", "Untitled"),
+                    path=item.get("path", ""),
+                    snippet=item.get("snippet", "")
+                )
+            )
+
+        res = SearchResponseSchema(
+            status="success",
+            query=req.query,
+            total_matches=len(raw_results.get("results", [])),
+            results=parsed_items
+        )
+        return res.model_dump_json(indent=2)
+
     except requests.exceptions.RequestException as re:
-        return json.dumps({"status": "offline_mode", "message": f"Kiwix server is not running or unreachable: {str(re)}"})
-    except Exception as e:
-        return json.dumps({"status": "error", "message": str(e)})
+        logger.warning(f"Kiwix server unreachable: {re}")
+        err_res = SearchResponseSchema(
+            status="offline_mode",
+            query=data.get("query", "") if isinstance(data, dict) else "",
+            results=[]
+        )
+        return err_res.model_dump_json(indent=2)
+
+    except ValidationError as e:
+        logger.error(f"Pydantic v2 Schema Error: {e}")
+        return json.dumps({"error": "Validation failed", "details": e.errors()})
 
 if __name__ == "__main__":
-    mcp.run()
+    sample_req = SearchQuerySchema(
+        query="Quantum Entanglement",
+        max_results=3,
+        content_source="wikipedia"
+    )
+    print(query_offline_kiwix(sample_req.model_dump_json()))
 ```
 
-### FastMCP 3.1 Integration
-Kiwix-serve supports the Model Context Protocol (MCP 3.1). This allows an agent (like Gemma 3, Qwen 3.8, or Claude 5.6) to use Kiwix as a tool for offline retrieval via the Task Protocol.
+## Production Systemd Service Unit (`kiwix-serve.service`)
 
-```bash
-# Example tool call via an MCP-compliant agent
-mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
+Deploy the `kiwix-serve` engine as a dedicated systemd service unit for local offline knowledge serving:
+
+```ini
+[Unit]
+Description=Kiwix Offline Knowledge Server Daemon
+After=network.target local-fs.target
+Documentation=https://github.com/kiwix/kiwix-tools
+
+[Service]
+Type=simple
+User=kiwix
+Group=kiwix
+WorkingDirectory=/opt/kiwix
+ExecStart=/usr/local/bin/kiwix-serve \
+    --library=/opt/kiwix/library.xml \
+    --port=8080 \
+    --threads=4
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/kiwix/zims /opt/kiwix/library.xml
+ReadWritePaths=/var/log/kiwix
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-## Production Hardening & Operational Safety
-- **Resource Constraints**: Limit Docker CPU and RAM usage (`--memory="1g"`) to prevent kiwix-serve from exhausting host resources when indexing massive ZIMs.
-- **Read-Only Volume Mounts**: Always mount `/data` as read-only (`-v /path/to/zims:/data:ro`) to ensure ZIM database integrity during server execution.
-- **Search Latency Optimization**: Keep ZIM index files on NVMe SSD storage for low-latency multi-threaded full-text queries.
+## Operational Best Practices & Troubleshooting
 
-## Troubleshooting & Common Pitfalls
-- **Missing Search Index**: If full-text search returns empty results, ensure the ZIM file includes pre-indexed Xapian tables (check file extension or catalog metadata).
-- **Port Conflict Errors**: If `kiwix-serve` fails on startup, verify no other service is bound to port `8080` using `lsof -i :8080`.
+### Production Hardening Rules
+1. **Resource Constraints**: Limit Docker CPU and RAM usage (`--memory="2g"`) to prevent kiwix-serve from exhausting host resources when indexing massive ZIMs.
+2. **Read-Only Volume Mounts**: Always mount ZIM directories as read-only (`-v /opt/kiwix/zims:/data:ro`) to ensure ZIM file integrity during server execution.
+3. **Search Latency Optimization**: Store ZIM files on NVMe SSD storage to ensure fast, sub-millisecond multi-threaded Xapian full-text search.
+
+### Diagnostic Troubleshooting Matrix
+
+| Symptom / Failure | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| `Empty search results returned` | ZIM archive lacks pre-indexed Xapian search tables | Ensure ZIM file was built with `--ft-index` or check catalog XML flags. |
+| `Port 8080 Address Already in Use` | Port conflict with existing web service | Bind `kiwix-serve` to alternate port (e.g., `--port=8089`) or update systemd unit. |
+| `High CPU load during search` | Multi-threaded Xapian indexing on rotational HDD | Move ZIM library storage to NVMe SSD and restrict threads via `--threads=2`. |
+| `Library XML Parse Failure` | Corrupted `library.xml` manifest file | Re-generate library XML using `kiwix-manage library.xml add /data/*.zim`. |
+| `Kiwix FastMCP request timeout` | `kiwix-serve` container down or restarting | Check systemd logs via `journalctl -u kiwix-serve.service` and check port. |
 
 ## Related tools / concepts
 
@@ -252,7 +352,7 @@ mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
 - [SearXNG](searXNG.md) — Can be configured to prioritize local Kiwix results.
 - [Internet-in-a-Box](https://internet-in-a-box.org/) — A full hardware/software stack for offline knowledge.
 
-## Sources / References
+## Sources / references
 
 - [Official Website](https://www.kiwix.org/)
 - [Kiwix Get (Downloads)](https://get.kiwix.org/)

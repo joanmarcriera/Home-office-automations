@@ -20,7 +20,7 @@ By leveraging native Linux kernel features—such as user namespaces, cgroups v2
 |  |  +--------------------+   +---------------------+   +--------------------+  |  |
 |  |  | OCI Runtime (crun) |   | FastMCP 3.1 Sandbox |   | SELinux / Seccomp  |  |  |
 |  |  | (Process Isolation)|   | (Isolated Code Run) |   | (Label Enforcer)   |  |  |
-|  |  +--------------------+   +---------------------+   +--------------------+  |  |
+|  +--------------------+   +---------------------+   +--------------------+  |  |
 |  +-----------------------------------------------------------------------------+  |
 +-----------------------------------------------------------------------------------+
 ```
@@ -49,6 +49,17 @@ Podman solves this security risk by adopting a daemonless architecture. Containe
 | **Systemd Quadlet Support**| Native Declarative Unit Files | None (Requires Compose) | Systemd Units | None |
 | **FastMCP 3.1 Sandboxing** | Zero-Root Air-Gapped Runner | Socket-Exposed Runner | Production K8s Runner | Desktop Runner |
 | **Kubernetes Compatibility**| Direct `play kube` Manifests | Requires Kind / Minikube | Native K8s CRI Engine | Native K8s Support |
+
+## Resource Isolation & Kernel Governance Matrix
+
+| Subsystem | Linux Mechanism | Podman Implementation | Security Guarantee |
+| :--- | :--- | :--- | :--- |
+| **User Identity** | User Namespaces (`subuid`/`subgid`) | Maps host non-root UID to container UID 0 | Root in container is host non-root UID 100000+ |
+| **CPU Control** | Cgroups v2 (`cpu.max`) | `--cpus 1.5` / `CPUQuota=150%` | Prevents CPU exhaustion from rogue agent code |
+| **Memory Ceiling** | Cgroups v2 (`memory.max`) | `--memory 512m` / `MemoryMax=512M` | Triggers OOM-killer without destabilizing host |
+| **Syscall Filter** | Seccomp BPF filters | Default profile blocks ~44 dangerous syscalls | Prevents kernel exploit attempts and raw sockets |
+| **Mandatory Access** | SELinux (`container_t`) | MCS labeling (`:z` / `:Z` volume mounts) | Prevents host path traversal outside volume |
+| **Network Boundary** | Passt / Slirp4netns | `--network none` or `--network pasta` | Air-gaps network or isolates unprivileged stack |
 
 ## Strengths
 - **Daemonless Architecture**: Directly executes containers as child processes, improving auditing, process isolation, and system reliability.
@@ -118,67 +129,23 @@ podman play kube ai-pod.yaml
 
 ## API examples
 
-### FastMCP 3.1 Rootless Containerized Execution Tool Server
-This example demonstrates a FastMCP 3.1 tool server executing LLM-generated Python code safely inside an air-gapped, rootless Podman sandbox container.
+This complete Python script implements a FastMCP 3.1 server that safely spawns ephemeral rootless Podman sandboxes to execute LLM code, using Pydantic v2 schemas for strict input validation and resource boundary enforcement.
 
 ```python
-from typing import Dict, Any
-from mcp.server.fastmcp import FastMCP
 import subprocess
 import json
+import logging
+from typing import List, Dict, Optional, Any
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from fastmcp import FastMCP
 
-mcp = FastMCP("Podman-Sandbox-Server")
+# Configure structured logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Podman-Sandbox-Server")
 
-@mcp.tool()
-def execute_in_podman_sandbox(code: str, language: str = "python") -> Dict[str, Any]:
-    """Executes untrusted code safely inside a rootless Podman container sandbox."""
-    if language != "python":
-        return {"status": "error", "message": "Only Python language supported in this sandbox."}
-
-    cmd = [
-        "podman", "run", "--rm",
-        "--network", "none",   # Air-gapped network isolation
-        "--memory", "512m",    # RAM limit
-        "--cpus", "1.0",       # CPU cap
-        "--security-opt", "no-new-privileges",
-        "python:3.11-slim",
-        "python3", "-c", code
-    ]
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-        return {
-            "status": "completed",
-            "exit_code": result.returncode,
-            "stdout": result.stdout,
-            "stderr": result.stderr
-        }
-    except subprocess.TimeoutExpired:
-        return {"status": "error", "message": "Execution timed out (limit: 15s)"}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-if __name__ == "__main__":
-    mcp.run()
-```
-
-### Programmatic REST API Connection via Python SDK
-```python
-# Connecting to Podman REST API service via podman-py SDK
-import podman
-
-# Establish connection with user-level Podman Unix socket
-client = podman.PodmanClient(base_url="unix:///run/user/1000/podman/podman.sock")
-
-# List active containers
-containers = client.containers.list()
-print("Active containers:", [c.name for c in containers])
-```
-
-### Pydantic v2 Schema for Podman Container Manifest
-```python
-from typing import List, Dict, Optional
-from pydantic import BaseModel, ConfigDict, Field
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("Podman-Rootless-Sandbox-Server", version="3.1.0")
 
 class ContainerPortBinding(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -192,27 +159,179 @@ class PodmanContainerSpec(BaseModel):
     name: str = Field(..., description="Unique container instance name")
     image: str = Field(..., description="OCI image tag or digest")
     rootless: bool = Field(True, description="Enforce rootless execution mode")
-    memory_limit_mb: int = Field(512, ge=128, description="Container RAM memory ceiling in MB")
+    memory_limit_mb: int = Field(512, ge=128, le=4096, description="Container RAM memory ceiling in MB")
+    cpu_limit: float = Field(1.0, ge=0.1, le=8.0, description="CPU cores cap")
     environment: Dict[str, str] = Field(default_factory=dict, description="Environment variables")
     ports: List[ContainerPortBinding] = Field(default_factory=list, description="Port mappings")
     command: Optional[List[str]] = Field(None, description="Container entrypoint command")
+    airgap_network: bool = Field(True, description="Disable outbound network access")
+
+class SandboxExecutionResponse(BaseModel):
+    status: str = Field(..., description="Execution state: completed, error, or timed_out")
+    exit_code: int = Field(default=0, description="Process exit code")
+    stdout: str = Field(default="", description="Standard output stream")
+    stderr: str = Field(default="", description="Standard error stream")
+    execution_time_sec: float = Field(default=0.0, ge=0.0)
+    spec_validated: bool = Field(True)
+
+@mcp.tool(
+    name="execute_in_podman_sandbox",
+    description="Executes python code safely inside an air-gapped, rootless Podman sandbox container."
+)
+def execute_in_podman_sandbox(spec_json: str, code: str) -> str:
+    """Parses PodmanContainerSpec via Pydantic v2 and runs code in an unprivileged container."""
+    try:
+        spec = PodmanContainerSpec.model_validate_json(spec_json)
+        logger.info(f"Launching Podman sandbox '{spec.name}' with image '{spec.image}'")
+
+        cmd = [
+            "podman", "run", "--rm",
+            "--name", f"sandbox-{spec.name}",
+            "--memory", f"{spec.memory_limit_mb}m",
+            "--cpus", str(spec.cpu_limit),
+            "--security-opt", "no-new-privileges",
+        ]
+
+        if spec.airgap_network:
+            cmd.extend(["--network", "none"])
+
+        for k, v in spec.environment.items():
+            cmd.extend(["--env", f"{k}={v}"])
+
+        cmd.extend([spec.image, "python3", "-c", code])
+
+        start_time = datetime.now()
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        elapsed = (datetime.now() - start_time).total_seconds()
+
+        response = SandboxExecutionResponse(
+            status="completed" if result.returncode == 0 else "error",
+            exit_code=result.returncode,
+            stdout=result.stdout,
+            stderr=result.stderr,
+            execution_time_sec=elapsed
+        )
+        return response.model_dump_json(indent=2)
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"Execution timed out in sandbox")
+        err_res = SandboxExecutionResponse(
+            status="timed_out",
+            exit_code=-1,
+            stdout="",
+            stderr="Execution exceeded 30s timeout threshold.",
+            execution_time_sec=30.0
+        )
+        return err_res.model_dump_json(indent=2)
+
+    except ValidationError as e:
+        logger.error(f"Pydantic validation failed: {e}")
+        return json.dumps({"error": "Pydantic v2 Spec Validation Failed", "details": e.errors()})
+
+    except Exception as e:
+        logger.error(f"Unexpected Podman execution error: {e}")
+        return json.dumps({"error": "System Error", "message": str(e)})
 
 if __name__ == "__main__":
-    spec = PodmanContainerSpec(
-        name="fastmcp-worker",
-        image="quay.io/homelab/fastmcp-server:latest",
-        ports=[ContainerPortBinding(host_port=8080, container_port=8000)],
-        environment={"LOG_LEVEL": "DEBUG"}
+    test_spec = PodmanContainerSpec(
+        name="test-agent-sandbox",
+        image="python:3.11-slim",
+        memory_limit_mb=256,
+        cpu_limit=0.5,
+        airgap_network=True
     )
-    print("Podman Container Spec Validated:\n", spec.model_dump_json(indent=2))
+    python_test_script = "import sys; print('Hello from Rootless Podman FastMCP 3.1 Sandbox!'); print('Python v' + sys.version.split()[0])"
+    print(execute_in_podman_sandbox(test_spec.model_dump_json(), python_test_script))
 ```
 
-## Operational Best Practices
+## Systemd Quadlet & Systemd Unit Configurations
 
-### Rootless Storage & Systemd Quadlets
+### Podman Systemd Quadlet (`~/.config/containers/systemd/fastmcp-sandbox.container`)
+Podman Quadlet allows defining containers directly using systemd-like unit syntax. Quadlet automatically generates native systemd service files at boot time.
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Rootless Sandbox Agent Container
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=quay.io/homelab/fastmcp-sandbox-server:latest
+ContainerName=fastmcp-agent-sandbox
+Exec=python3 -m fastmcp.server --port 8080
+PublishPort=8080:8080
+Environment=LOG_LEVEL=INFO
+Memory=1G
+CPUQuota=100%
+NoNewPrivileges=true
+ReadOnlyRootfs=true
+Volume=/var/run/user/1000/podman/podman.sock:/tmp/podman.sock:ro
+
+[Service]
+Restart=always
+TimeoutStartSec=60
+
+[Install]
+WantedBy=default.target
+```
+
+### Production Systemd Unit (`podman-mcp-sandbox.service`)
+
+For traditional systemd service deployment managing user-level Podman containers:
+
+```ini
+[Unit]
+Description=Podman Rootless MCP Sandbox Service
+After=network.target podman.socket
+Requires=podman.socket
+Documentation=https://docs.podman.io/
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/mcp-sandbox
+ExecStartPre=/usr/bin/podman system migrate
+ExecStart=/usr/bin/podman run --name podman-mcp-sandbox \
+    --rm \
+    --pids-limit 100 \
+    --memory 1024m \
+    --cpus 1.5 \
+    --network pasta \
+    -p 8080:8080 \
+    -v /home/jules/mcp-sandbox/data:/app/data:Z \
+    quay.io/homelab/podman-mcp-sandbox:v3.1
+ExecStop=/usr/bin/podman stop -t 10 podman-mcp-sandbox
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Systemd Security Isolation
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/mcp-sandbox/data
+
+[Install]
+WantedBy=default.target
+```
+
+## Operational Best Practices & Troubleshooting
+
+### Rootless Storage & Systemd Rules
 1. **SubUID/SubGID Mapping**: Verify that `/etc/subuid` and `/etc/subgid` assign a range of at least 65,536 subordinate IDs to your non-root user account (e.g., `jules:100000:65536`).
-2. **Systemd Quadlets**: Store container unit definitions in `~/.config/containers/systemd/my-service.container`. Quadlet automatically generates native systemd units without requiring manual `podman generate systemd` commands.
+2. **Systemd Quadlets**: Store container unit definitions in `~/.config/containers/systemd/my-service.container`. Run `systemctl --user daemon-reload` to update Quadlet unit generators.
 3. **SELinux Volume Relabeling**: When mounting host directories into rootless containers on SELinux-enforced Linux systems (Fedora/RHEL), append `:z` (shared) or `:Z` (private) flags to volume bind parameters (e.g., `-v /data/app:/app:Z`).
+
+### Diagnostic Troubleshooting Matrix
+
+| Symptom / Failure | Root Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| `Error: user code 100000 not in /etc/subuid` | Missing subordinate UID mapping for current user | Add entry `username:100000:65536` to `/etc/subuid` and `/etc/subgid` and run `podman system migrate`. |
+| `Permission denied: /app/data` inside container | SELinux blocking host volume directory access | Append `:z` (shared) or `:Z` (private) flag to the volume volume bind flag (e.g., `-v /host/dir:/app/data:Z`). |
+| `Cannot connect to Docker daemon socket` | Tool or SDK expects `/var/run/docker.sock` | Enable user Podman socket: `systemctl --user enable --now podman.socket` and export `DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock`. |
+| `Pasta / Slirp4netns network connection failed` | Missing unprivileged network driver binary | Install `pasta` (passt) or `slirp4netns` package (`apt install pasta` / `dnf install passt`). |
+| `Rootless container OOM killed immediately` | Memory limit smaller than container overhead | Ensure `--memory` is set to at least `256m` for Python / Node.js standard container runtimes. |
 
 ## Related tools / concepts
 - **[Docker](docker.md)**: Classical container engine runtime.
