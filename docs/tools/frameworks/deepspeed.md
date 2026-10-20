@@ -257,6 +257,62 @@ if __name__ == "__main__":
     initialize_deepspeed_pipeline(sample_config)
 ```
 
+## Production Deployment & Cluster Operations
+
+### Systemd Cluster Runner Configuration (`deepspeed-cluster.service`)
+Deploy DeepSpeed distributed training processes managed under systemd on compute worker nodes:
+
+```ini
+[Unit]
+Description=DeepSpeed Distributed Training Worker Node Service
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mlops
+Group=mlops
+WorkingDirectory=/opt/deepspeed-jobs
+ExecStart=/opt/deepspeed-jobs/venv/bin/deepspeed --hostfile=/etc/deepspeed/hosts --num_gpus=8 train_llm.py --deepspeed /etc/deepspeed/ds_config_zero3.json
+Restart=no
+LimitMEMLOCK=infinity
+LimitNOFILE=65536
+
+# Security Hardening & Hardware Access
+ReadWritePaths=/opt/deepspeed-jobs /tmp /var/log/deepspeed
+Environment="NCCL_DEBUG=INFO"
+Environment="NCCL_IB_DISABLE=0"
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Probable Cause | Impact | Mitigation / Action | Recovery Command |
+| :--- | :--- | :--- | :--- | :--- |
+| `CUDA Out of Memory (OOM)` | Model parameters/gradients exceed GPU VRAM | Training process aborts during backward pass | Upgrade from ZeRO-2 to ZeRO-3 or enable CPU/NVMe offloading | `deepspeed --num_gpus=4 train.py --deepspeed ds_zero3.json` |
+| `NCCL Network Timeout` | Inter-node InfiniBand/RoCE network degradation | Worker nodes hang during all-gather phase | Verify NCCL environment variables (`NCCL_IB_DISABLE=0`, `NCCL_DEBUG=INFO`) | `nccl-tests/build/all_reduce_perf -b 8M -e 1G -f 2 -g 8` |
+| `PCIe Bandwidth Bottleneck` | Excessive CPU offload data transfer over PCIe Gen4 | GPU compute utilization drops below 30% | Enable `pin_memory: true` and increase `gradient_accumulation_steps` | `lspci -vvv -s $(nvidia-smi --query-gpu=pci.bus_id --format=csv,noheader \| head -1)` |
+| `ZeRO-3 Parameter Prefetch Stalling` | Sub-optimal prefetch bucket size settings | Micro-stalls between forward pass layers | Set `stage3_prefetch_bucket_size: "auto"` in ds_config.json | `python3 -m deepspeed.env_report` |
+| `Rank Mismatch / Port In Use` | Ghost PyTorch distributed processes on worker nodes | Failed initialization on master port 29500 | Terminate orphaned PyTorch processes and reset network sockets | `pkill -9 -f train_llm.py || kill $(lsof -t -i:29500)` |
+
+### ZeRO Stage Sizing & Hardware Guardrails
+
+```
++-----------------------------------------------------------------------------------+
+|               DEEPSPEED ZERO MEMORY REDUCTION & HARDWARE MATRIX                   |
++-----------------------------------------------------------------------------------+
+| ZeRO Stage | Memory Reduction | Recommended Model Size | Min Network Interconnect  |
++------------+------------------+------------------------+--------------------------+
+| ZeRO-1     | 4x Optimizer     | 1B - 7B Parameters     | 10GbE / PCIe Gen4 x16    |
+| ZeRO-2     | 8x Grad + Opt    | 7B - 13B Parameters    | 25GbE / PCIe Gen5 x16    |
+| ZeRO-3     | Linear N-GPU     | 13B - 70B+ Parameters  | 100GbE / InfiniBand HDR  |
+| ZeRO-Infin | CPU/NVMe Offload | 70B - 500B+ Parameters | NVMe Gen4 SSD + PCIe Gen5|
++-----------------------------------------------------------------------------------+
+```
+
 ## Related tools / concepts
 - [Axolotl](axolotl.md) — Declarative LLM fine-tuning framework.
 - [Llama-Factory](llama-factory.md) — Unified LLM training dashboard and suite.

@@ -233,6 +233,64 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Operational Guardrails
+
+### Systemd Service Unit Configuration (`moonshot-worker.service`)
+To run Moonshot Kimi FastMCP task execution workers as a resilient daemon under systemd:
+
+```ini
+[Unit]
+Description=Moonshot Kimi K2.6 FastMCP Task Worker Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcpworkers
+Group=mcpworkers
+WorkingDirectory=/opt/moonshot-worker
+ExecStart=/opt/moonshot-worker/venv/bin/python -m mcp.server.fastmcp run /opt/moonshot-worker/server.py
+Restart=always
+RestartSec=5s
+
+# Security Hardening & Resource Isolation
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+Environment="MOONSHOT_API_KEY=sk-moonshot-production-vault-key"
+Environment="PYTHONUNBUFFERED=1"
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Diagnostic Troubleshooting Matrix
+
+| Error Code / Symptom | Probable Cause | Impact | Mitigation / Action | Recovery Command |
+| :--- | :--- | :--- | :--- | :--- |
+| `401 Unauthorized` | Invalid or expired `MOONSHOT_API_KEY` token | API requests rejected at edge gateway | Regenerate API credentials in Moonshot console and update systemd vault | `systemctl restart moonshot-worker` |
+| `429 Rate Limit Exceeded` | Concurrency or RPM limits exceeded on account tier | Requests throttled with exponential backoff | Implement client-side queueing with jittered retry in FastMCP client | `journalctl -u moonshot-worker --since "10m"` |
+| `400 Invalid Prompt Tokens` | Prompt context exceeds 256K native token window | Generation aborted with validation payload error | Trim input conversation history using token counter prior to dispatch | `python3 -m mcp.server.fastmcp inspect server.py` |
+| `504 Gateway Timeout` | Extreme context TTFT latency during peak hours | Connection drops on long multi-turn streams | Increase HTTP client timeout to 300s for 200K+ token payloads | `curl -i -X POST https://api.moonshot.ai/v1/healthcheck` |
+| `KV Cache OOM (Local K3)` | Local vLLM/SGLang runner depleted GPU memory | Local inference process crashes | Adjust `--gpu-memory-utilization` to 0.90 and reduce max sequence length | `systemctl restart kimi-k3-local` |
+
+### KV Cache Memory & Context Sizing Guardrails
+
+```
++-----------------------------------------------------------------------------------+
+|               KIMI K2.6 / K3 CONTEXT MEMORY ALLOCATION MATRIX                     |
++-----------------------------------------------------------------------------------+
+| Context Window Size | Target Memory Alloc  | Recommended KV Cache Paging Strategy |
++---------------------+----------------------+--------------------------------------+
+| 32K Tokens          | 4 GB GPU / Host RAM  | Standard FP16 KV Cache               |
+| 64K Tokens          | 8 GB GPU / Host RAM  | FP8 Quantized KV Cache               |
+| 128K Tokens         | 16 GB GPU / Host RAM | PagedAttention FP8 + Sliding Window  |
+| 256K Tokens         | 32 GB GPU / Host RAM | Chunked Prefill + FlashAttention-3   |
++-----------------------------------------------------------------------------------+
+```
+
 ## Related tools / concepts
 - [Dify](../ai_knowledge/dify.md) — Open-source LLM application development platform.
 - [LangChain](../ai_knowledge/langchain.md) — Framework for developing applications powered by language models.

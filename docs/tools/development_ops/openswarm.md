@@ -226,6 +226,86 @@ if __name__ == "__main__":
     print(f"Dispatched {len(config.tasks)} agents using model {config.model}")
 ```
 
+## Multi-Agent Swarm Execution Protocol
+
+```
++-----------------------------------------------------------------------------------+
+|                     OPENSWARM CONSENSUS & TASK DISPATCH PIPELINE                  |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [Linear / GitHub Event Trigger]                                                  |
+|                 |                                                                 |
+|                 v                                                                 |
+|  +-----------------------------------------------------------------------------+  |
+|  | OpenSwarm Daemon Service (openswarm-daemon.service)                           |  |
+|  | - Parses incoming payload with Pydantic v2 schema                             |  |
+|  | - Evaluates concurrency locks & LanceDB context embeddings                   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                 |                                                                 |
+|                 +-----------------------+-----------------------+                 |
+|                 |                       |                       |                 |
+|                 v                       v                       v                 |
+|        +-----------------+     +-----------------+     +-----------------+        |
+|        | Security Agent  |     | Style/Lint Agent|     | Perform. Agent  |        |
+|        | (Claude 5.6 CLI)|     | (DeepSeek-V4)   |     | (GPT-5.6)       |        |
+|        +-----------------+     +-----------------+     +-----------------+        |
+|                 |                       |                       |                 |
+|                 +-----------------------+-----------------------+                 |
+|                                         |                                         |
+|                                         v                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | Swarm Consensus Synthesizer                                                 |  |
+|  | - Merges parallel review findings                                           |  |
+|  | - Resolves conflicting recommendations via weighted quorum                  |  |
+|  | - Posts single unified GitHub PR comment or Linear update                   |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+## Production Deployment & Operational Guardrails
+
+### Systemd Service Unit Configuration (`openswarm-daemon.service`)
+Deploy OpenSwarm as a persistent background daemon for continuous Linear issue triage and GitHub pull request monitoring:
+
+```ini
+[Unit]
+Description=OpenSwarm Multi-Agent Orchestrator Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openswarm
+Group=openswarm
+WorkingDirectory=/opt/openswarm
+ExecStart=/usr/bin/openswarm daemon --config /etc/openswarm/config.json --db-path /var/lib/openswarm/lancedb
+Restart=always
+RestartSec=10s
+
+# Security Hardening & Isolation
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/openswarm /var/log/openswarm
+Environment="ANTHROPIC_API_KEY=sk-ant-production-key"
+Environment="LINEAR_API_KEY=lin_api_production_key"
+Environment="GITHUB_TOKEN=ghp_production_token"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Probable Cause | Impact | Mitigation / Action | Recovery Command |
+| :--- | :--- | :--- | :--- | :--- |
+| `LanceDB Lock Conflict` | Concurrent swarm sessions accessing vector DB | Task execution blocked or delayed | Enable WAL mode or isolate database paths per session | `openswarm db unlock --path /var/lib/openswarm/lancedb` |
+| `Linear API 429` | Exceeded Linear rate limits during batch triage | Issue tagging fails silently | Increase poll interval and configure jittered retries | `systemctl restart openswarm-daemon` |
+| `Claude CLI Binary Missing` | Claude executable not found in system PATH | Local agent execution fails | Install `@anthropic-ai/claude-code` globally or specify `CLAUDE_PATH` | `which claude || npm install -g @anthropic-ai/claude-code` |
+| `PR Review Timeout` | Large pull request diff exceeds duration limit | Agent session killed prematurely | Increase `timeout_seconds` in task spec or adjust max diff size | `openswarm config set task_timeout 600` |
+| `Token Quota Exhausted` | High concurrency swarm loops burning API tokens | Session terminated with provider error | Implement model routing (use lighter models for initial triage) | `openswarm router set-fallback --model claude-3-5-haiku` |
+
 ## Related tools / concepts
 - [Claude Code](./claude-code.md) — Anthropic's CLI tool that OpenSwarm orchestrates.
 - [Anthropic](../providers/anthropic.md) — The underlying LLM provider.
