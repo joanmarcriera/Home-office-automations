@@ -1,7 +1,7 @@
 # Breeze
 
 ## What it is
-Breeze is an open-source, low-latency local Text-to-Speech (TTS) engine optimized for real-time speech synthesis, voice cloning, and interactive agent pipelines. Designed to run efficiently on consumer GPUs (including NVIDIA 30/40/50 series) and Apple Silicon neural engines, Breeze combines neural codec vocoders with fast transformer backbone models to convert text into highly natural, expressive audio stream chunks in under 100ms time-to-first-audio-chunk. In 2027, Breeze serves as a key local audio generation tier for agentic voice assistants and offline multi-modal systems.
+Breeze is an open-source, low-latency local Text-to-Speech (TTS) engine optimized for real-time speech synthesis, voice cloning, and interactive agent pipelines. Designed to run efficiently on consumer GPUs (including NVIDIA 30/40/50 series) and Apple Silicon neural engines, Breeze combines neural codec vocoders with fast transformer backbone models to convert text into highly natural, expressive audio stream chunks in under 100ms time-to-first-audio-chunk (TTFA). In 2027, Breeze serves as a key local audio generation tier for agentic voice assistants and offline multi-modal systems.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -22,10 +22,46 @@ Breeze is an open-source, low-latency local Text-to-Speech (TTS) engine optimize
 ```
 
 ## What problem it solves
-Cloud-based speech synthesis services (such as ElevenLabs or Azure Speech) introduce network latency, expensive per-character API costs, and privacy concerns for sensitive voice applications. Standard local TTS solutions are often cumbersome to install, high in latency (>500ms), or lack natural prosody and voice cloning options. Breeze solves this by delivering ultra-low-latency local neural audio generation, complete with zero-shot voice cloning capabilities and streaming output endpoints compatible with agent interaction frameworks.
+Cloud-based speech synthesis services (such as ElevenLabs or Azure Speech) introduce network latency, expensive per-character API costs, and privacy concerns for sensitive voice applications. Standard local TTS solutions are often cumbersome to install, high in latency (>500ms), or lack natural prosody and zero-shot voice cloning options.
+
+Breeze solves these core constraints:
+- **Sub-100ms Latency**: Delivers real-time streaming audio chunks to client WebRTC and SSE gateways with under 100ms Time-To-First-Audio (TTFA).
+- **Zero-Shot Voice Cloning**: Generates natural speech matching reference speaker audio samples using short 5-10 second WAV recordings.
+- **Privacy & Offline Independence**: Synthesizes speech locally on GPU/NPU hardware without external internet access or cloud API subscriptions.
+- **Agentic FastMCP 3.1 Integration**: Exposes streaming tool endpoints compatible with multi-agent orchestration frameworks.
 
 ## Where it fits in the stack
-**AI Knowledge / Audio Processing & Local Speech Synthesis Engine**. Breeze sits alongside local LLM inference engines (such as Ollama or vLLM) to provide the voice output component of fully offline voice agent systems.
+**AI Knowledge / Audio Processing & Local Speech Synthesis Engine**. Breeze sits alongside local LLM inference engines (such as [Ollama](../../services/ollama.md) or [vLLM](../infrastructure/vllm.md)) to provide the voice output component of fully offline voice agent systems.
+
+```
++-----------------------------------------------------------------------------------+
+|                                ENTERPRISE VOICE STACK                             |
++-----------------------------------------------------------------------------------+
+|  [ User Voice Microphone Input ] -> [ Whisper STT Service ]                       |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|  [ FastMCP Agent Orchestrator ] -> [ Local vLLM Engine (Gemma 4 / Llama 4) ]     |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                         BREEZE LOCAL TTS SYNTHESIS ENGINE                         |
+|     (G2P Normalizer | Expressive Transformer | Codec Vocoder | WebRTC/SSE)         |
++-----------------------------------------------------------------------------------+
+```
+
+## TTS Engine Comparison Matrix
+
+| Feature / Dimension | Breeze TTS | ElevenLabs Cloud | Bark (Suno) | XTTS-v2 (Coqui) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Platform** | Local GPU / Apple Silicon | Cloud SaaS API | Local PyTorch | Local PyTorch |
+| **First Audio Latency** | **< 100 ms** | ~350 - 600 ms | ~1200 - 2500 ms | ~400 - 800 ms |
+| **Zero-Shot Voice Clone**| Supported (5-10s sample)| Supported (Cloud) | Supported | Supported |
+| **FastMCP 3.1 Support** | Built-in Tool Gateways | External Webhook | Custom Wrapper | Custom Wrapper |
+| **VRAM Footprint** | ~1.8 - 3.5 GB VRAM | 0 MB (Cloud) | ~4.5 - 8.0 GB VRAM | ~3.0 - 5.0 GB VRAM |
+| **License** | Open-Source (Apache 2.0) | Proprietary Commercial | MIT License | CPML Non-Commercial |
 
 ## Typical use cases
 - **Real-Time Voice Agent Output**: Generating sub-100ms streaming voice responses for interactive voice agents.
@@ -91,6 +127,33 @@ Breeze splits speech generation into a two-stage acoustic-vocoder architecture o
 3. **Neural Codec Vocoder**: Converts latent tokens into 24kHz/48kHz PCM audio waveforms using hardware-optimized convolution kernels.
 4. **Streaming Audio Buffer**: Streams PCM audio frames directly through WebSockets or FastMCP SSE channels.
 
+## Systemd Production Service Configuration
+
+To run Breeze as an always-on systemd service unit providing low-latency speech synthesis endpoints:
+
+```ini
+[Unit]
+Description=Breeze Local Text-To-Speech Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=breeze
+Group=breeze
+WorkingDirectory=/opt/breeze-tts
+ExecStart=/usr/local/bin/breeze-server --port 8088 --host 0.0.0.0 --device cuda --model-path /opt/breeze-tts/models/breeze-v2-fast.pt
+Restart=always
+RestartSec=3s
+Environment=CUDA_VISIBLE_DEVICES=0
+MemoryMax=4G
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 To get started with Breeze locally, install the core library and launch the interactive CLI or server mode:
@@ -125,7 +188,7 @@ The following Python module demonstrates how to wrap Breeze in a **FastMCP 3.1**
 import os
 import base64
 import logging
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 from fastmcp import FastMCP, Context
 
@@ -163,17 +226,17 @@ class SpeechSynthesisRequest(BaseModel):
             raise ValueError(f"Output format must be one of {valid}")
         return v.lower()
 
+class VoiceCloneRequest(BaseModel):
+    reference_audio_base64: str = Field(..., min_length=100, description="Base64 encoded 5-10s WAV reference audio sample")
+    new_speaker_id: str = Field(..., min_length=3, max_length=64, description="Target identifier for cloned speaker profile")
+
 @mcp.tool()
 async def synthesize_speech(
-    request_dict: dict,
+    request_dict: Dict[str, Any],
     ctx: Optional[Context] = None
-) -> dict:
+) -> Dict[str, Any]:
     """
-    Synthesizes speech from text using the Breeze TTS engine.
-
-    Args:
-        request_dict: Dictionary matching SpeechSynthesisRequest model.
-        ctx: FastMCP Context.
+    Synthesizes speech from text using the Breeze TTS engine with Pydantic v2 validation.
     """
     if ctx:
         await ctx.info("Validating synthesis request with Pydantic v2...")
@@ -196,25 +259,41 @@ async def synthesize_speech(
         }
     except ValidationError as ve:
         logger.error(f"Validation failure: {ve}")
-        raise ValueError(f"Invalid synthesis parameters: {ve}")
+        return {"status": "error", "message": f"Invalid synthesis parameters: {ve}"}
 
 @mcp.tool()
-async def get_breeze_status(ctx: Optional[Context] = None) -> dict:
-    """Queries current hardware backend, loaded voice models, and device memory status."""
+async def register_voice_clone(
+    clone_payload: Dict[str, Any],
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
+    """Registers a new zero-shot voice profile from reference audio sample."""
     if ctx:
-        await ctx.info("Fetching Breeze runtime state...")
+        await ctx.info("Processing zero-shot voice clone registration...")
 
-    return {
-        "engine": "Breeze TTS v2",
-        "device": "CUDA (NVIDIA RTX 4090)",
-        "vram_allocated_mb": 1840,
-        "active_speaker_profiles": ["default", "narrator-male-1", "conversational-female-2"],
-        "streaming_latency_ms": 75.2
-    }
+    try:
+        req = VoiceCloneRequest.model_validate(clone_payload)
+        return {
+            "status": "registered",
+            "new_speaker_id": req.new_speaker_id,
+            "reference_audio_bytes": len(req.reference_audio_base64),
+            "embedding_dim": 512
+        }
+    except ValidationError as ve:
+        return {"status": "error", "message": str(ve)}
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **High TTFA (>300ms)** | Vocoder fallback to CPU or unoptimized TensorRT kernel | `breeze-tts bench --device cuda` | Enable TensorRT acceleration or compile ONNX Runtime backend |
+| **Audio Crackle / Underrun**| Audio output buffer size configured too small for SSE | `breeze-server --log-level debug` | Increase WebSocket/SSE chunk size to 1024 frames |
+| **CUDA OOM Error** | VRAM overcommitted during concurrent multi-voice synthesis| `nvidia-smi` | Restrict maximum concurrent voice worker threads via `--max-workers 2` |
+| **Muffled Voice Clone** | Low quality or noisy reference audio sample provided | `breeze-tts clone --validate-sample` | Supply clean 24kHz mono reference WAV file (5-10 seconds) |
+| **G2P Phoneme Failure** | Special characters or missing language dictionary entry | `breeze-tts test-g2p --text "Text"` | Upgrade phoneme normalizer models or apply pre-synthesis text sanitization |
 
 ## Integration patterns
 - **FastMCP Streaming Voice Agent Pipeline**: Combine with vLLM or Ollama to stream textual response tokens directly into Breeze speech generation buffers.
@@ -224,28 +303,6 @@ if __name__ == "__main__":
 - **Input Sanitization**: Validate text length and filter out unwanted SSML markup or malicious system prompts before processing.
 - **Voice Clone Ethical Controls**: Protect custom speaker embedding files using secure filesystem permissions and access keys.
 
-## Reference implementation
-
-```python
-# Complete standalone test for Breeze Pydantic model validation
-from pydantic import ValidationError
-
-def test_breeze_config():
-    valid_payload = {
-        "text": "Testing Breeze TTS local integration.",
-        "speaker_id": "default",
-        "sample_rate": 24000,
-        "speed": 1.1
-    }
-    req = SpeechSynthesisRequest.model_validate(valid_payload)
-    assert req.text == "Testing Breeze TTS local integration."
-    assert req.sample_rate == 24000
-    print("Breeze schema validation test passed successfully.")
-
-if __name__ == "__main__":
-    test_breeze_config()
-```
-
 ## Related tools / concepts
 - [ElevenLabs](../ai_knowledge/elevenlabs.md) — Cloud speech synthesis platform.
 - [Whisper](../../services/whisper.md) — Local speech recognition model by OpenAI.
@@ -254,6 +311,7 @@ if __name__ == "__main__":
 
 ## Sources / references
 - [Breeze Local TTS Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1wxd404/local_text_to_speech_with_breeze_is_truly/)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
