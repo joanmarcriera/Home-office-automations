@@ -3,7 +3,7 @@
 A standardization pattern for building resilient, self-healing, and audit-ready automation workflows in n8n (supporting v1.65+ and FastMCP 3.1 specifications) as of early January 2027.
 
 ## What it is
-The n8n Error Handling Pattern is a centralized architectural framework for capturing, processing, logging, and remediating execution failures across automated workflow stacks. In complex production environments where n8n connects third-party REST APIs, local microservices, AI foundation models (**Claude 5.6**, **GPT-5.6**, **Ollama**), and **FastMCP 3.1** agent tools, unhandled workflow failures can result in silent data loss, duplicate actions, or cascading system outages.
+The n8n Error Handling Pattern is a centralized architectural framework for capturing, processing, logging, and remediating execution failures across automated workflow stacks. In complex production environments where n8n connects third-party REST APIs, local microservices, AI foundation models (**Claude 5.6**, **GPT-5.6**, **Ollama**, **DeepSeek-V4**), and **FastMCP 3.1** agent tools, unhandled workflow failures can result in silent data loss, duplicate actions, or cascading system outages.
 
 This pattern establishes dedicated "Error Trigger" nodes linked to global, reusable "Error Handler" sub-workflows that validate failure payloads via strict **Pydantic v2** schemas, route alerts to monitoring dashboards ([Home Assistant](../../services/home-assistant.md), Grafana, Gotify, Telegram), and optionally trigger autonomous LLM self-healing loops to diagnose and fix transient errors.
 
@@ -35,6 +35,37 @@ flowchart TD
         SelfHeal --> Action2
         Alert --> AuditDB[(InfluxDB / PostgreSQL Audit Log)]
     end
+```
+
+## System Execution Flow
+
+```
+[n8n Workflow Node Failure]
+           |
+           v
+(Error Trigger Node) ---> [Extract Error Context & Webhook]
+                                   |
+                                   v
+             [Global Error Handler Sub-Workflow]
+                                   |
+                                   v
+               [FastMCP 3.1 Error Ingestion Tool]
+                                   |
+                                   v
+                 [Pydantic v2 Payload Validation]
+                                   |
+                +------------------+------------------+
+                |                                     |
+                v                                     v
+   [Severity: Warning / Info]              [Severity: Critical]
+                |                                     |
+                v                                     v
+   [Log to InfluxDB / SQLite]              [Send Gotify Push / HA Sensor Alert]
+                |                                     |
+                +------------------+------------------+
+                                   |
+                                   v
+                   [Self-Healing LLM Fallback Loop]
 ```
 
 ## What problem it solves
@@ -138,7 +169,7 @@ import json
 import requests
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Initialize FastMCP 3.1 Error Monitor Server
@@ -178,7 +209,7 @@ class DispatchResult(BaseModel):
     name="ingest_n8n_error_event",
     description="Ingests and validates an n8n error payload before pushing to Home Assistant / Gotify"
 )
-def ingest_n8n_error_event_tool(payload: Dict[str, Any], gotify_url: Optional[str] = None) -> DispatchResult:
+def ingest_n8n_error_event_tool(payload: Dict[str, Any], gotify_url: Optional[str] = None) -> dict:
     # Strictly validate payload using Pydantic v2
     event = N8nErrorEvent.model_validate(payload)
 
@@ -195,12 +226,13 @@ def ingest_n8n_error_event_tool(payload: Dict[str, Any], gotify_url: Optional[st
     # Simulate Gotify notification dispatch if endpoint provided
     dispatch_target = gotify_url or "http://homeassistant.local:8123/api/states/sensor.n8n_last_error"
 
-    return DispatchResult(
+    result = DispatchResult(
         processed=True,
         target_endpoint=dispatch_target,
         workflow_id=event.workflow_id,
         logged_at=datetime.now(timezone.utc).isoformat()
     )
+    return result.model_dump(mode="json")
 
 if __name__ == "__main__":
     mcp.run()
@@ -221,6 +253,52 @@ content: >
 
   **Occurred At**: {{ state_attr('sensor.n8n_last_error', 'timestamp') }}
 ```
+
+## Production systemd Service Unit
+
+```ini
+[Unit]
+Description=n8n Workflow Engine Daemon
+After=docker.service postgresql.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homelab
+Group=homelab
+WorkingDirectory=/opt/n8n
+ExecStart=/usr/local/bin/n8n start
+Restart=always
+RestartSec=10
+Environment=N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+Environment=N8N_HOST=n8n.homelab.internal
+Environment=N8N_PORT=5678
+Environment=N8N_PROTOCOL=https
+Environment=N8N_LOG_LEVEL=warn
+Environment=N8N_DIAGNOSTICS_ENABLED=false
+
+# Operational Guardrails
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Error | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Error Trigger Node Not Executing** | Sub-workflow ID incorrect or workflow deactivated. | Open n8n Canvas, verify workflow active toggle is enabled and ID matches target in `Execute Workflow` node. |
+| **`ValidationError: extra fields forbidden`** | n8n payload sending unexpected root parameters not defined in `N8nErrorEvent` schema. | Adjust n8n JSON item transformation node or update Pydantic v2 `extra="ignore"` if additional fields are optional. |
+| **Gotify HTTP 401 Unauthorized** | Expired or invalid Gotify application token. | Generate new application token in Gotify web console and update `GOTIFY_APP_TOKEN` credential store in n8n. |
+| **Infinite Loop / Error Handler Cascade** | Error Handler sub-workflow itself threw an unhandled exception. | Add fallback error output node with simple local log file output (`/var/log/n8n/fallback.log`). |
+
+## Operational Guardrails & Best Practices
+
+- **Strict Loop Prevention**: Never connect an Error Trigger node to the Error Handler sub-workflow inside the Error Handler sub-workflow itself.
+- **Log Retention Policy**: Set automated n8n database execution cleanup rules (`EXECUTIONS_DATA_PRUNE=true`, `EXECUTIONS_DATA_MAX_AGE=168`) to prevent SQLite/PostgreSQL storage exhaustion.
+- **Credential Masking**: Sanitize all error payloads before dispatching to external webhooks or LLM endpoints to ensure secret environment keys or API tokens are removed (`error_message.replace(token, '[REDACTED]')`).
 
 ## Related tools / concepts
 - [n8n Service](../../services/n8n.md) — Self-hosted workflow automation platform.
