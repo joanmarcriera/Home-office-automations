@@ -3,9 +3,13 @@
 ## What it is
 Hailuo AI (developed by MiniMax) is a premier AI generative video and multimodal media creation platform. Driven by MiniMax's proprietary **Hailuo V3** and **Minimax-H3** video synthesis foundation models, Hailuo AI enables high-fidelity, cinematic text-to-video, image-to-video, and camera motion control generation for creative production, virtual avatars, and automated agentic media pipelines.
 
+In **early 2027**, Hailuo V3 natively integrates with **FastMCP 3.1 Task Protocols**, allowing autonomous agents (**Claude 5.6**, **Cursor**, **AutoGen**, **CrewAI**) to programmatically trigger 1080p high-definition video generation jobs, manage asynchronous render queues, and receive signed MP4 delivery URLs via Webhooks.
+
 ## What problem it solves
-Generative video models historically suffered from severe visual artifacts, anatomical unnaturalness, physics distortion, flickering frame transitions, and lack of controllable camera movements. Hailuo AI solves these core generative video constraints by offering:
-- **Cinematic Quality**: Produces high-definition 1080p output featuring fluid lighting dynamics and precise camera controls (pan, zoom, orbit, roll, tracking shot).
+Generative video models historically suffered from severe visual artifacts, anatomical unnaturalness, physics distortion, flickering frame transitions, and lack of controllable camera movements.
+
+Hailuo AI solves these core generative video constraints by offering:
+- **Cinematic Quality**: Produces high-definition 1080p output featuring fluid lighting dynamics and precise 6-axis camera controls (pan, zoom, orbit, roll, tracking shot).
 - **Physical Realism & Temporal Consistency**: Accurately simulates real-world physical dynamics (water flow, fabric motion, wind interaction) and maintains subject identity across multi-second clips.
 - **Programmatic FastMCP 3.1 & API Integration**: Provides structured REST endpoints and FastMCP 3.1 task protocol support for automated media rendering inside AI agent pipelines.
 - **Cost-Effective Token-Based Video Rendering**: Scalable API architecture designed for programmatic batch video generation at production scale.
@@ -65,6 +69,17 @@ graph TD
     G -->|Async Callback / Poll Response| A
 ```
 
+## Generative Video Provider Feature Comparison Matrix
+
+| Feature / Dimension | Hailuo AI (MiniMax) | OpenAI Sora | Runway Gen-3 Alpha | Luma Dream Machine |
+| :--- | :--- | :--- | :--- | :--- |
+| **Foundation Engine** | Hailuo V3 / Minimax-H3 | Sora Diffusion Transformer | Gen-3 Motion Model | Luma Dream Diffusion |
+| **Max Resolution** | **1080p HD (60fps)** | 1080p / 4K Upscale | 1080p HD | 1080p HD |
+| **Camera Controls** | Advanced 6-Axis Vectors | Natural Language Prompts | Direct Motion Brush / Pan | Camera Trajectory Presets |
+| **FastMCP 3.1 Tool Sync**| Built-in Task API Wrappers| Native OpenAI SDK | API Webhooks | API Webhooks |
+| **Ecosystem Synergy** | Text (M3), Voice (Music3) | ChatGPT / DALL-E 3 | Runway Studio Suite | Luma Interactive 3D |
+| **Average Render Time** | ~30-60 seconds | ~60-120 seconds | ~30-45 seconds | ~40-60 seconds |
+
 ## Typical use cases
 - **Automated Video Content Generation**: Generating marketing promotional clips, social media visual assets, and news snippets from text scripts.
 - **Agentic Media Production**: Animating static user-submitted images into 6-second high-resolution video clips via AI agents (e.g., Claude Code, AutoGen, CrewAI).
@@ -81,17 +96,6 @@ graph TD
 - **Render Latency**: High-definition video synthesis requires async GPU rendering time (typically 30-90 seconds per scene).
 - **Content Moderation Filters**: Strict safety filters applied to text prompts and reference keyframe images to prevent policy violations.
 
-## Generative Video Provider Feature Comparison Matrix
-
-| Feature / Dimension | Hailuo AI (MiniMax) | OpenAI Sora | Runway Gen-3 Alpha | Luma Dream Machine |
-| :--- | :--- | :--- | :--- | :--- |
-| **Foundation Engine** | Hailuo V3 / Minimax-H3 | Sora Diffusion Transformer | Gen-3 Motion Model | Luma Dream Diffusion |
-| **Max Resolution** | 1080p HD | 1080p / 4K Upscale | 1080p HD | 1080p HD |
-| **Camera Controls** | Advanced 6-Axis Vectors | Natural Language Prompts | Direct Motion Brush / Pan | Camera Trajectory Presets |
-| **FastMCP 3.1 Tool Sync**| Built-in Task API Wrappers| Native OpenAI SDK | API Webhooks | API Webhooks |
-| **Ecosystem Synergy** | Text (M3), Voice (Music3) | ChatGPT / DALL-E 3 | Runway Studio Suite | Luma Interactive 3D |
-| **Average Render Time** | ~30-60 seconds | ~60-120 seconds | ~30-45 seconds | ~40-60 seconds |
-
 ## When to use it
 - When you require photorealistic or cinematic video generation for media applications or AI agent outputs.
 - When animating static images into high-resolution clips using automated Python scripts or FastMCP 3.1 agent tools.
@@ -100,6 +104,33 @@ graph TD
 ## When not to use it
 - When requiring real-time sub-second text generation or code completion (use text-focused LLM APIs like [MiniMax](minimax.md) directly).
 - When operating under strict air-gapped local requirements without external cloud access to Hailuo API endpoints.
+
+## Systemd Queue Worker Configuration
+
+For robust production background rendering and webhook processing, Hailuo AI video generation tasks can be managed via a dedicated systemd queue worker daemon (`hailuo-video-worker.service`).
+
+```ini
+[Unit]
+Description=Hailuo AI Generative Video Queue Worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hailuo-worker
+Group=hailuo-worker
+WorkingDirectory=/opt/hailuo-worker
+EnvironmentFile=/etc/hailuo/hailuo.env
+ExecStart=/usr/bin/python3 -m worker.hailuo_task_processor --queue redis://localhost:6379/0 --max-concurrent 5
+Restart=always
+RestartSec=5s
+MemoryMax=2G
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -133,16 +164,17 @@ curl -X GET "https://api.minimax.chat/v1/video/tasks/$TASK_ID" \
 The following code snippet demonstrates implementing an async Hailuo AI video generation tool using FastMCP 3.1 and Pydantic v2:
 
 ```python
+import os
 import time
 import requests
 from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
-from fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from fastmcp import FastMCP, Context
 
 # Initialize FastMCP 3.1 server
 mcp = FastMCP("hailuo-video-generator")
 
-HAILUO_API_KEY = "YOUR_HAILUO_MINIMAX_API_KEY"
+HAILUO_API_KEY = os.getenv("HAILUO_API_KEY", "YOUR_HAILUO_MINIMAX_API_KEY")
 API_BASE = "https://api.minimax.chat/v1/video"
 
 class VideoGenerationRequest(BaseModel):
@@ -164,8 +196,19 @@ class VideoTaskResponse(BaseModel):
     download_url: Optional[str] = Field(default=None, description="Signed HTTP URL to download the generated MP4 video.")
 
 @mcp.tool()
-def generate_hailuo_video(request: VideoGenerationRequest) -> Dict[str, Any]:
+async def generate_hailuo_video(
+    request_dict: Dict[str, Any],
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
     """Submits an async video generation job to Hailuo AI (MiniMax) and polls until rendering completes."""
+    if ctx:
+        await ctx.info("Validating video generation request...")
+
+    try:
+        req = VideoGenerationRequest.model_validate(request_dict)
+    except ValidationError as ve:
+        return {"task_id": "validation_error", "status": "failed", "error": str(ve)}
+
     headers = {
         "Authorization": f"Bearer {HAILUO_API_KEY}",
         "Content-Type": "application/json"
@@ -173,12 +216,12 @@ def generate_hailuo_video(request: VideoGenerationRequest) -> Dict[str, Any]:
 
     payload = {
         "model": "hailuo-v3-cinematic",
-        "prompt": request.prompt,
-        "camera_motion": request.camera_motion,
-        "duration_seconds": request.duration_seconds
+        "prompt": req.prompt,
+        "camera_motion": req.camera_motion,
+        "duration_seconds": req.duration_seconds
     }
-    if request.reference_image_url:
-        payload["first_frame_image"] = request.reference_image_url
+    if req.reference_image_url:
+        payload["first_frame_image"] = req.reference_image_url
 
     try:
         # Trigger video generation task
@@ -188,6 +231,9 @@ def generate_hailuo_video(request: VideoGenerationRequest) -> Dict[str, Any]:
 
         if not task_id:
             return VideoTaskResponse(task_id="error", status="failed", download_url=None).model_dump()
+
+        if ctx:
+            await ctx.info(f"Video task submitted (ID: {task_id}). Polling status...")
 
         # Poll status until completed or timed out
         for _ in range(30):  # Poll up to 5 minutes (30 * 10s)
@@ -213,6 +259,16 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Method | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **HTTP 400 Prompt Safety Trigger** | Prompt contains restricted terms violating content policy | Inspect API response body for moderation code | Rephrase scene description to remove flagged terms or violence triggers |
+| **Task Status Stuck at 'Processing'** | Peak GPU cluster congestion during high-traffic windows | Poll `/v1/video/tasks/$TASK_ID` every 15s | Extend polling timeout window up to 10 minutes or use Webhook callbacks |
+| **Keyframe Aspect Ratio Distortion** | Input reference image ratio differs from target video (16:9) | Check source image resolution metadata | Pre-crop keyframe image to 1920x1080 before submitting URL |
+| **HTTP 401 Unauthorized** | Invalid or expired `HAILUO_API_KEY` environment token | Test key with curl request to MiniMax status API | Regenerate developer API key in MiniMax console and update secrets |
+| **Camera Motion Jitter** | Conflicting motion vector commands in prompt and camera JSON | Compare natural language text vs `camera_motion` field | Simplify camera command parameter (e.g., stick to single vector `pan_right`) |
+
 ## Related tools / concepts
 - [MiniMax](minimax.md) — Multi-modal foundation model provider ecosystem.
 - [Sora](../ai_knowledge/sora.md) — OpenAI generative video model.
@@ -222,6 +278,7 @@ if __name__ == "__main__":
 ## Sources / references
 - [Hailuo AI Web Portal](https://hailuo.ai)
 - [MiniMax Video API Documentation](https://platform.minimaxi.com/document/video-generation)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

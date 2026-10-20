@@ -12,7 +12,7 @@ Tailscale is a zero-config enterprise-grade VPN that builds a secure, WireGuard-
                                               v        v
    +---------------------------------+                  +---------------------------------+
    |      Cloud Orchestrator Node    |                  |        Edge GPU Inference Node   |
-   | (Claude 5.6 / FastMCP 3.1 Gateway)|                  |   (Ollama / vLLM / Gemma 3)     |
+   | (Claude 5.6 / FastMCP 3.1 Gateway)|                  |   (Ollama / vLLM / Gemma 4)     |
    |                                 |  Encrypted P2P   |                                 |
    |   [tailscaled Network Interface] |<================>|   [tailscaled Network Interface] |
    |          100.64.0.10            |  WireGuard Tunnel|          100.64.0.25            |
@@ -29,6 +29,26 @@ Managing remote node access and inter-service agent communication across dispara
 ## Where it fits in the stack
 **Category**: Service / Infrastructure / Networking & Security. Tailscale acts as the **private mesh transport layer**, establishing encrypted WireGuard tunnels across distributed nodes. It integrates with **FastMCP 3.1** and [LiteLLM](litellm.md) gateways to provide encrypted, authenticated low-latency tool and resource discovery across edge devices and remote inference clusters.
 
+```
++-----------------------------------------------------------------------------------+
+|                              ENTERPRISE MESH NETWORK LAYER                        |
++-----------------------------------------------------------------------------------+
+|  [ Cloud Agent Orchestrator ]     [ Homelab Edge Nodes ]     [ Private GPU Rack ] |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                        TAILSCALE ZERO-TRUST MESH (100.64.0.0/10)                   |
+|       (WireGuard P2P Tunnels | MagicDNS | HuJSON ACL Rules | Tailscale SSH)      |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         v
++-----------------------------------------------------------------------------------+
+|                           PRIVATE INFRASTRUCTURE SERVICES                         |
+|   [ FastMCP 3.1 Tools ]     [ Ollama / vLLM ]     [ PostgreSQL / Vector DB ]    |
++-----------------------------------------------------------------------------------+
+```
+
 ## Feature Matrix & Service Comparison
 
 | Feature / Metric | Tailscale | Self-Hosted Headscale | Traditional WireGuard | Cloudflare Tunnels |
@@ -42,7 +62,7 @@ Managing remote node access and inter-service agent communication across dispara
 | **Agent Tool Transport** | Native FastMCP Support | Native FastMCP Support | Manual IP Binding | HTTP Host Binding |
 
 ## Typical use cases
-- **Multi-Cloud & Edge Agent Mesh**: Connecting cloud-hosted orchestrators with edge GPU nodes running [Ollama](ollama.md) or vLLM for local **Gemma 3** or **DeepSeek-V4** inference.
+- **Multi-Cloud & Edge Agent Mesh**: Connecting cloud-hosted orchestrators with edge GPU nodes running [Ollama](ollama.md) or vLLM for local **Gemma 4** or **DeepSeek-V4** inference.
 - **Agentic Tool Execution**: Facilitating secure **FastMCP 3.1** tool calls between remote AI agents and private internal APIs.
 - **Zero-Trust SSH & Identity Management**: Streamlining server administration without static SSH keys via **Tailscale SSH**, backed by single sign-on (SSO) authentication.
 - **Secure Remote Access**: Connecting to internal services like [Paperless-ngx](paperless-ngx.md), [Nextcloud](nextcloud.md), and [Authentik](authentik.md) from anywhere.
@@ -63,7 +83,7 @@ Managing remote node access and inter-service agent communication across dispara
 ## When to use it
 - When connecting distributed agents, cloud instances, and local homelab hardware into an encrypted private mesh.
 - To enforce zero-trust access control policies and eliminate public port forwarding across sensitive infrastructure.
-- When local AI models (**Gemma 3**) or home automation systems ([Home Assistant](home-assistant.md)) require secure remote access from cloud services.
+- When local AI models (**Gemma 4**) or home automation systems ([Home Assistant](home-assistant.md)) require secure remote access from cloud services.
 - When stable, internal private domain names (MagicDNS) and automated TLS certificates are required across distributed nodes.
 
 ## When not to use it
@@ -103,19 +123,28 @@ Enforcing micro-segmentation between AI agents, database servers, and administra
 }
 ```
 
-## Getting started
+## Production Systemd & Container Configurations
 
-### Installation (Linux)
-Install the official Tailscale daemon with a single command:
+### Systemd Daemon Unit (`tailscaled.service`)
+```ini
+[Unit]
+Description=Tailscale node agent
+Documentation=https://tailscale.com/docs
+After=network-pre.target network.service
+Wants=network-pre.target
 
-```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-```
+[Service]
+ExecStart=/usr/sbin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/run/tailscale/tailscaled.sock --port=41641
+ExecStopPost=/usr/sbin/tailscaled --cleanup
+Restart=on-failure
+RuntimeDirectory=tailscale
+RuntimeDirectoryMode=0755
+StateDirectory=tailscale
+StateDirectoryMode=0700
+Type=notify
 
-Authenticate the node and connect to your tailnet:
-
-```bash
-sudo tailscale up --accept-routes --ssh
+[Install]
+WantedBy=multi-user.target
 ```
 
 ### Docker Compose Sidecar Deployment
@@ -143,6 +172,21 @@ volumes:
   ts-state:
 ```
 
+## Getting started
+
+### Installation (Linux)
+Install the official Tailscale daemon with a single command:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+Authenticate the node and connect to your tailnet:
+
+```bash
+sudo tailscale up --accept-routes --ssh
+```
+
 ## CLI examples
 The `tailscale` CLI provides management and diagnostic capabilities:
 
@@ -168,7 +212,11 @@ Queries the Tailscale REST API (v2) and parses device status using **Pydantic v2
 ```python
 import requests
 from pydantic import BaseModel, Field, ValidationError
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
+from fastmcp import FastMCP, Context
+
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("tailscale-mesh-tools")
 
 class TailscaleDevice(BaseModel):
     node_id: str = Field(..., alias="id", description="Unique device identifier")
@@ -193,37 +241,40 @@ def fetch_and_validate_devices(api_key: str, tailnet_domain: str) -> List[Tailsc
         return validated_data.devices
     except ValidationError as err:
         raise ValueError(f"Tailscale API payload validation error: {err}")
-```
-
-### FastMCP 3.1 Agent Tool over Private Tailnet Transport
-Exposing node diagnostics and tailnet device status to autonomous agents via FastMCP 3.1:
-
-```python
-from fastmcp import FastMCP
-import subprocess
-import json
-
-mcp = FastMCP("tailscale-mesh-tools")
 
 @mcp.tool()
-def get_peer_status(hostname: str) -> str:
-    """Queries current latency and status of a peer node on the Tailscale mesh."""
-    try:
-        cmd = ["tailscale", "status", "--json"]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        data = json.loads(result.stdout)
+async def audit_tailnet_peers(
+    api_key: str,
+    tailnet_domain: str,
+    ctx: Optional[Context] = None
+) -> Dict[str, Any]:
+    """Audits active devices on a Tailscale mesh network via API validation."""
+    if ctx:
+        await ctx.info(f"Auditing tailnet peers for domain {tailnet_domain}...")
 
-        peers = data.get("Peer", {})
-        for peer_id, peer_info in peers.items():
-            if peer_info.get("HostName") == hostname:
-                return f"Peer {hostname}: IP={peer_info.get('TailscaleIPs')}, Online={peer_info.get('Online')}"
-        return f"Host {hostname} not found on tailnet."
-    except Exception as err:
-        return f"Error querying tailnet: {str(err)}"
+    try:
+        devices = fetch_and_validate_devices(api_key, tailnet_domain)
+        return {
+            "status": "success",
+            "total_devices": len(devices),
+            "online_hosts": [d.hostname for d in devices if d.authorized]
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Diagnostic Method | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Relayed DERP Connection (High Latency)** | UDP firewall blocking WireGuard P2P direct hole-punching | Run `tailscale netcheck` | Open UDP port 41641 in firewall router to enable direct P2P connections |
+| **MagicDNS Resolution Failure** | Local DNS resolver (systemd-resolved) overriding tailnet DNS | Exec `tailscale status --dns` | Enable `tailscale up --accept-dns=true` and restart systemd-resolved |
+| **Subnet Router Offline / Failover Loss** | Subnet router node IP forwarding disabled in Linux kernel | Run `sysctl net.ipv4.ip_forward` | Set `net.ipv4.ip_forward=1` in `/etc/sysctl.conf` and re-apply |
+| **HTTP 403 ACL Access Denied** | Target port or IP restricted in HuJSON policy file | Inspect `tailscale status` and ACL rules | Grant `src` group permissions to `dst` tag/port in Tailscale console ACLs |
+| **High CPU Load in Container** | User-space WireGuard mode active without `/dev/net/tun` | Check logs for `using user-space networking` | Pass `/dev/net/tun` volume and `cap_add: [NET_ADMIN]` in docker compose |
 
 ## Related tools / concepts
 - [Headscale](headscale.md) — Self-hosted, open-source Tailscale control plane.
@@ -240,6 +291,7 @@ if __name__ == "__main__":
 - [Tailscale API v2 Reference](https://tailscale.com/api/)
 - [Tailscale SSH & Access Control Policies](https://tailscale.com/docs/acls)
 - [Headscale GitHub Repository](https://github.com/juanfont/headscale)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
