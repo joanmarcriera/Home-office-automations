@@ -96,6 +96,44 @@ graph TD
 | Llama 3.1 405B | Dense Transformer, Multi-Node | 128,000 tokens | Frontier Benchmark, Synthetic Data | Multi-GPU vLLM, TensorRT-LLM |
 | Llama 4 | MoE Architecture, Multimodal | 128,000+ tokens | Native Vision, FastMCP 3.1 Protocols | vLLM, SGLang, Ollama |
 
+## Production Systemd Service Unit (`vllm-llama.service`)
+
+For high-throughput enterprise deployments serving Llama 3.3 70B via vLLM:
+
+```ini
+[Unit]
+Description=vLLM Production Inference Engine - Llama 3.3
+After=network.target nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=vllm
+Group=vllm
+WorkingDirectory=/opt/vllm
+ExecStart=/opt/vllm/venv/bin/vllm serve meta-llama/Llama-3.3-70B-Instruct --tensor-parallel-size 4 --port 8000 --max-model-len 32768
+Restart=always
+RestartSec=10s
+Environment=CUDA_VISIBLE_DEVICES=0,1,2,3
+Environment=NCCL_DEBUG=INFO
+
+# Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `CUDA out of memory` during vLLM init | GPU memory allocation fraction or max model length exceeds VRAM | Reduce `--max-model-len` or set `--gpu-memory-utilization 0.90`. |
+| `401 Unauthorized` downloading Llama weights | Gated repository license terms not accepted on Hugging Face | Accept terms at Hugging Face model page and export valid `HF_TOKEN`. |
+| Slow generation on multi-GPU setups | Low NCCL inter-GPU interconnect bandwidth | Enable NVLink or adjust `--tensor-parallel-size` to match single socket domain. |
+| Malformed JSON output from local agent calls | Model failing to follow structured schema instructions | Enforce JSON output format via Pydantic v2 schemas or FastMCP 3.1 validators. |
+
 ## Getting started
 
 ### Installation via Hugging Face Transformers

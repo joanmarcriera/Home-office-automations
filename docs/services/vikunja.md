@@ -8,26 +8,35 @@ Managing tasks across fragmented devices, AI agents, and teams often leads to da
 
 ## Architecture & Data Flow
 
-```
-                                +----------------------------------+
-                                |  Autonomous Agentic Clusters     |
-                                |  (Claude 5.1, GPT-5.6, FastMCP)  |
-                                +----------------+-----------------+
-                                                 |
-                                                 | FastMCP 3.1 Tool Calls
-                                                 v
-+------------------+   OAuth2 / OIDC   +----------------------------------+
-| Authentik Mesh   | <---------------+ |      Vikunja API Gateway         |
-| (Identity Auth)  |                   |     (Go REST / WebSocket)        |
-+------------------+                   +----------------+-----------------+
-                                                        |
-                                       +----------------+----------------+
-                                       |                                 |
-                                       v                                 v
-                        +------------------------------+  +------------------------------+
-                        | Persistent Storage Engine    |  | Real-Time Event Bus          |
-                        | (PostgreSQL 16+ / SQLite)    |  | (Redis Pub/Sub & WebSockets) |
-                        +------------------------------+  +------------------------------+
+```mermaid
+graph TD
+    subgraph Client & Agent Surfaces
+        User[User Web/PWA Interface]
+        Agents[Autonomous Agentic Clusters\nClaude 5.1 / GPT-5.6 / FastMCP]
+    end
+
+    subgraph Identity & Gateway
+        Auth[Authentik Mesh / OIDC Provider]
+        Gateway[Vikunja API Gateway\nGo REST / WebSocket Service]
+    end
+
+    subgraph Data & Storage Engine
+        Postgres[(PostgreSQL 16+ Database)]
+        Redis[(Redis Pub/Sub & WebSockets)]
+    end
+
+    subgraph System Automation
+        Systemd[systemd Service Unit\nvikunja.service]
+        MCP[FastMCP 3.1 Task Server]
+    end
+
+    Agents -->|FastMCP 3.1 Tool Calls| MCP
+    MCP -->|Bearer JWT / API Key| Gateway
+    User -->|WebSockets / HTTP| Gateway
+    Auth -->|OAuth2 Token Validation| Gateway
+    Gateway -->|CRUD Operations| Postgres
+    Gateway -->|Real-time Events| Redis
+    Systemd -->|Process Lifecycle| Gateway
 ```
 
 ## Where it fits in the stack
@@ -73,6 +82,45 @@ Managing tasks across fragmented devices, AI agents, and teams often leads to da
 - If your requirements are limited to single-device, plain-text checklists (consider a simple Markdown file or Todo.txt).
 - In lightweight environments where hosting a database and backend service container is unfeasible.
 
+## Production Systemd Service Unit (`vikunja.service`)
+
+For bare-metal or systemd-managed linux environments, deploy Vikunja backend using the production service configuration below:
+
+```ini
+[Unit]
+Description=Vikunja Self-Hosted Task Engine
+After=network.target target=postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=simple
+User=vikunja
+Group=vikunja
+WorkingDirectory=/var/lib/vikunja
+ExecStart=/usr/local/bin/vikunja
+Restart=always
+RestartSec=5s
+Environment=VIKUNJA_SERVICE_PORT=3456
+Environment=VIKUNJA_DATABASE_TYPE=postgres
+Environment=VIKUNJA_DATABASE_HOST=localhost:5432
+Environment=VIKUNJA_DATABASE_USER=vikunja
+Environment=VIKUNJA_DATABASE_PASSWORD=secure_postgres_pass
+Environment=VIKUNJA_DATABASE_DATABASE=vikunja
+Environment=VIKUNJA_REDIS_ENABLED=true
+Environment=VIKUNJA_REDIS_HOST=localhost:6379
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vikunja
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Docker Compose
@@ -107,6 +155,20 @@ services:
 - **Backup Verification**: Implement daily automated database dumps (`docker exec vikunja /app/vikunja/vikunja dump`) and upload compressed snapshots to offsite object storage (e.g. S3/MinIO) with 30-day retention policies.
 - **Rate Limiting**: Configure reverse proxy rate limits (Nginx/Traefik) on `/api/v1/projects/*/tasks` to protect task state from runaway agent loops.
 
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` on FastMCP API call | Invalid or expired service account JWT token | Regenerate service token in Vikunja Settings -> API Tokens and verify `Bearer` prefix header. |
+| Tasks failing to push real-time updates to WebUI | Redis Pub/Sub disconnection or WebSocket proxy block | Check `VIKUNJA_REDIS_ENABLED` setting and ensure reverse proxy (Nginx/Traefik) allows WebSocket upgrades. |
+| Database lock timeouts (`database is locked`) | High concurrent writes from multiple agents using SQLite | Upgrade database backend to PostgreSQL 16+ with PgBouncer connection pooling. |
+| Subtask creation rejected with `HTTP 400` | Invalid target task ID or circular dependency loop | Audit dependency tree using `docker exec vikunja vikunja doctor` and verify parent task exists. |
+
+## Operational Security & Access Control Guardrails
+- **JWT Secret Rotation**: Rotate `VIKUNJA_SERVICE_JWTSECRET` every 90 days and ensure no hardcoded default secrets exist in environment files.
+- **Service Account Isolation**: Allocate dedicated API tokens for each agent workflow (e.g., `agent-code-refactor`, `agent-document-indexer`) to ensure precise audit tracking in access logs.
+- **CORS & Network Boundaries**: Restrict `VIKUNJA_SERVICE_CORS_ORIGINS` to trusted internal domain names and homelab proxy IP ranges.
+
 ## CLI examples
 Interact with the Vikunja instance using the internal CLI:
 
@@ -131,7 +193,7 @@ Using Python and Pydantic v2 to programmatically register and validate incoming 
 
 ```python
 import requests
-from pydantic import BaseModel, Field, conint
+from pydantic import BaseModel, Field, conint, field_validator
 from typing import Optional, List
 
 class VikunjaTask(BaseModel):
@@ -139,6 +201,13 @@ class VikunjaTask(BaseModel):
     description: Optional[str] = Field("", description="Detailed markdown task notes and context")
     priority: conint(ge=1, le=5) = Field(3, description="Task execution priority level (1=Lowest, 5=Highest)")
     labels: List[str] = Field(default_factory=list, description="Categorization labels")
+    due_date: Optional[str] = Field(None, description="ISO format due date timestamp")
+
+    @field_validator("title")
+    def validate_title_length(cls, v: str) -> str:
+        if len(v.strip()) < 3:
+            raise ValueError("Task title must contain at least 3 non-whitespace characters.")
+        return v.strip()
 
 def create_task(api_url: str, token: str, project_id: int, task_data: VikunjaTask) -> dict:
     url = f"{api_url}/projects/{project_id}/tasks"

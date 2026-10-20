@@ -1,7 +1,7 @@
 # Claude Hooks
 
 ## What it is
-Claude Hooks are deterministic middleware lifecycle event handlers, configuration schemas, and shell execution standards used to wrap autonomous agent sessions (such as **Claude Code**, **Claude 5.1**, and **GPT-5.5**) with verifiable, security-hardened guardrails. Claude Hooks allow developers and engineering teams to inject automated logic into agent execution pipelines via JSON definitions (`.claude/hooks.json`). They support lifecycle events including `PreToolUse`, `PostToolUse`, `PromptTransform`, and `SessionTermination`.
+Claude Hooks are deterministic middleware lifecycle event handlers, configuration schemas, and shell execution standards used to wrap autonomous agent sessions (such as **Claude Code**, **Claude 5.1**, **GPT-5.5/5.6**, and **Gemini 4.0 Pro**) with verifiable, security-hardened guardrails. Claude Hooks allow developers and engineering teams to inject automated logic into agent execution pipelines via JSON definitions (`.claude/hooks.json`). They support lifecycle events including `PreToolUse`, `PostToolUse`, `PromptTransform`, and `SessionTermination`.
 
 Natively compatible with **FastMCP 3.1** protocol schemas, Claude Hooks act as an interceptor layer between the AI agent's reasoning loop and the host operating system. They guarantee that safety policies, secret scanning, repository linting rules, and build validation checks are strictly enforced before or after any tool (such as file modifications, shell executions, or Git commits) is allowed to run.
 
@@ -45,6 +45,15 @@ graph TD
 - **Automatic Test Feedback Loops**: Triggering test runner execution (`pytest`, `npm test`) following major code edits and returning test stdout directly into the agent's context window for immediate bug fixing.
 - **Audit Logging & Slack/Webhook Alerts**: Dispatching telemetry events to internal logging dashboards or team messaging channels whenever an agent modifies sensitive infrastructure files.
 
+## Hook Lifecycle Comparison Matrix
+
+| Hook Event Phase | Trigger Timing | Primary Inspection Scope | Modifiable Data Payload | Common Interceptor Tools |
+| :--- | :--- | :--- | :--- | :--- |
+| **PreToolUse** | Immediately before tool execution | Tool arguments, file paths, shell commands | Arguments, environment variables | Gitleaks, TruffleHog, Custom Bash |
+| **PostToolUse** | Immediately after tool completion | Modified file contents, execution stdout/stderr | Tool output text returned to agent | Ruff, ESLint, Prettier, PyTest |
+| **PromptTransform** | Prior to prompt dispatch to LLM | System prompts, user queries, context notes | Prompt text and injection context | Anonymizers, PII Maskers |
+| **SessionTermination**| On agent session termination | Complete session git diff, tool metrics log | Summary status report | Audit Telemetry, Slack Webhooks |
+
 ## Strengths
 - **100% Deterministic Security**: Policy rules are executed via standard shell binaries and scripts, completely bypassing LLM non-determinism.
 - **FastMCP 3.1 Interoperability**: Seamlessly intercepts standard Model Context Protocol tool requests and responses.
@@ -66,6 +75,46 @@ graph TD
 - During early-stage, rapid prototyping where strict rules or linter failures slow down exploratory code discovery.
 - In minimal single-file scripts where natural language prompt instructions are sufficient and security risks are negligible.
 - In isolated, temporary sandbox environments where full container isolation already mitigates destructive risks.
+
+## Production Systemd Hook Guard Daemon (`claude-hooks-daemon.service`)
+
+For server environments or centralized agent execution nodes, run the Claude Hooks FastMCP interceptor daemon using the production service unit configuration:
+
+```ini
+[Unit]
+Description=Claude Hooks Security Interceptor Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=agentrunner
+Group=agentrunner
+WorkingDirectory=/opt/claude-hooks-daemon
+ExecStart=/usr/bin/python3 -m mcp_server_claude_hooks --port 9091
+Restart=always
+RestartSec=3s
+Environment=PYTHONUNBUFFERED=1
+Environment=HOOK_LOG_LEVEL=INFO
+Environment=PROTECTED_PATHS=/etc,/var/secrets,/prod
+
+# Hardening
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `PreToolUse hook script not found` | Relative path in `.claude/hooks.json` cannot be resolved | Use repo-relative pathing (`scripts/scan.sh`) or add script to system `$PATH`. |
+| Agent loop hanging on `write_file` tool call | Hook script waiting indefinitely on interactive `stdin` | Ensure all hook scripts are non-interactive (`set -e`, pass `--non-interactive` flags). |
+| `Permission denied (exit code 126)` | Executable bit not set on target hook shell script | Run `chmod +x scripts/*.sh` before executing agent session. |
+| False-positive secret blocks on sample test files | Gitleaks rule matching mock API key fixtures | Configure `.gitleaksignore` or exclude test directories in `hooks.json`. |
 
 ## Getting started
 
@@ -168,7 +217,7 @@ class HookPayloadSchema(BaseModel):
     environment: Optional[str] = Field(default="development", description="Execution context environment")
 
     @field_validator("arguments")
-    def inspect_protected_paths(cls, v: Dict[str, Any], info) -> Dict[str, Any]:
+    def inspect_protected_paths(cls, v: Dict[str, Any]) -> Dict[str, Any]:
         target_path = str(v.get("filepath") or v.get("path") or "")
         if "protected/" in target_path or "secrets/" in target_path:
             raise ValueError(f"Modification of protected path '{target_path}' is forbidden by hook security policy.")
