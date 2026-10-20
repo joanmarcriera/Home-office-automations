@@ -29,6 +29,54 @@ Before the Harness, developers had to manually write orchestration infrastructur
                                   +------------------------------------+
 ```
 
+## Detailed System Sequence Diagram
+
+```
++---------------+        +----------------------+        +-----------------------+        +----------------------+
+| Client / User |        | Agent Harness Binary |        | FastMCP 3.1 Server    |        | Frontier LLM Endpoint|
++-------+-------+        +----------+-----------+        +-----------+-----------+        +----------+-----------+
+        |                           |                                |                               |
+        |  Submit Task Execution    |                                |                               |
+        +-------------------------->|                                |                               |
+        |                           | Initialize Run Loop & State    |                               |
+        |                           +----------------------------+   |                               |
+        |                           |                            |   |                               |
+        |                           |<---------------------------+   |                               |
+        |                           |                                |                               |
+        |                           | Send Prompt + Context History  |                               |
+        |                           +--------------------------------------------------------------->|
+        |                           |                                |                               |
+        |                           | Return Tool Call Intent (FastMCP Task Protocol)                |
+        |                           |<---------------------------------------------------------------+
+        |                           |                                |                               |
+        |                           | Validate Tool Policy & Schema  |                               |
+        |                           +----------------------------+   |                               |
+        |                           |                            |   |                               |
+        |                           |<---------------------------+   |                               |
+        |                           |                                |                               |
+        |                           | Execute Tool Request (Async)   |                               |
+        |                           +------------------------------->|                               |
+        |                           |                                | Executing Tool Logic...       |
+        |                           |                                +--------------------------+    |
+        |                           |                                |                          |    |
+        |                           |                                |<-------------------------+    |
+        |                           | Return Structured Tool Output  |                               |
+        |                           |<-------------------------------+                               |
+        |                           |                                                                |
+        |                           | Perform Auto Context Compaction (if threshold reached)        |
+        |                           +----------------------------+                                   |
+        |                           |                            |                                   |
+        |                           |<---------------------------+                                   |
+        |                           |                                                                |
+        |                           | Send Observation & Final Synthesis Step                        |
+        |                           +--------------------------------------------------------------->|
+        |                           |                                                                |
+        |                           | Final Task Result Stream                                       |
+        |                           |<---------------------------------------------------------------+
+        |  Stream Task Response     |                                                                |
+        |<--------------------------+                                                                |
+```
+
 ## Where it fits in the stack
 **Category**: Frameworks & Orchestration.
 It represents the runtime execution layer that hosts, governs, and runs agent workflows. It sits directly on top of the Microsoft Agent Framework and Semantic Kernel SDKs, connecting agents with underlying inference layers (such as Azure OpenAI, Anthropic, or custom local model endpoints) and tool integrations (such as the **FastMCP 3.1 Protocol**).
@@ -42,6 +90,7 @@ It represents the runtime execution layer that hosts, governs, and runs agent wo
 | **Runaway Prevention** | Rigid Turn Limits & Braking | Application-level logic | Graph Loop Guards | Loop max_consecutive_auto_reply |
 | **MCP Protocol Support** | Native FastMCP 3.1 | MCP Connectors Plugin | Custom MCP Adapter | Custom Tool Functions |
 | **Telemetry & Audit** | OpenTelemetry Native | Application Insights | LangSmith Integration | System Event Logs |
+| **State Persistence** | SQLite / CosmosDB Native | Custom Memory Provider | PostgreSQL Checkpointer | SQLite Database |
 
 ## Typical use cases
 - **Fleet Governance**: Wrapping diverse model-based agents (e.g. specialized Azure OpenAI or Claude 5.6 agents) in a single unified execution harness to guarantee standard auditing, policy enforcement, and telemetry across the entire enterprise.
@@ -74,7 +123,7 @@ The Harness can be installed via standard package managers and executed locally 
 
 ### Installation
 ```bash
-pip install azure-ai-projects azure-identity pydantic>=2.0.0
+pip install azure-ai-projects azure-identity pydantic>=2.0.0 fastmcp
 ```
 
 ### Running the Harness Agent locally (Python)
@@ -97,6 +146,98 @@ project_client = AIProjectClient.from_connection_string(
 - **Human-in-the-Loop Approvals**: Enforce `require_approval: True` for tools with filesystem side-effects, shell execution, or database mutations.
 - **Compaction Strategy**: Tune the compaction memory buffer size so conversation history summarizes automatically prior to reaching 80% of the model's token limit.
 - **Trace Exporting**: Route OpenTelemetry traces directly to Azure Monitor or Grafana Tempo for real-time alerting on anomalous tool invocations.
+
+## FastMCP 3.1 Server Integration Pattern
+
+Below is a complete Python FastMCP 3.1 server implementation that exposes agent task delegation endpoints compatible with the Microsoft Agent Harness runtime:
+
+```python
+import asyncio
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, field_validator
+from fastmcp import FastMCP
+
+mcp = FastMCP("agent-harness-task-server", version="3.1.0")
+
+class AgentTaskPayload(BaseModel):
+    task_id: str = Field(..., description="Unique task tracking identifier")
+    agent_id: str = Field(..., description="Target Harness Agent ID")
+    prompt_query: str = Field(..., min_length=5, description="Instruction prompt for the agent")
+    max_turns: int = Field(default=30, ge=1, le=100, description="Runaway loop turn limit")
+
+class AgentTaskResult(BaseModel):
+    task_id: str
+    status: str = Field(..., description="Status: completed, loop_limit_reached, error")
+    turns_used: int
+    output_summary: str
+    telemetry_trace_id: str
+
+@mcp.tool()
+async def execute_harness_task(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """FastMCP 3.1 tool for invoking structured tasks inside Microsoft Agent Harness."""
+    try:
+        task_data = AgentTaskPayload.model_validate(payload)
+
+        # Simulate Harness run loop execution
+        await asyncio.sleep(0.5)
+
+        result = AgentTaskResult(
+            task_id=task_data.task_id,
+            status="completed",
+            turns_used=12,
+            output_summary=f"Successfully processed query '{task_data.prompt_query[:30]}...' via agent {task_data.agent_id}",
+            telemetry_trace_id="trace_az_harness_99824"
+        )
+        return result.model_dump()
+    except Exception as e:
+        return {
+            "task_id": payload.get("task_id", "unknown"),
+            "status": "error",
+            "turns_used": 0,
+            "output_summary": f"Task validation or execution failed: {str(e)}",
+            "telemetry_trace_id": "none"
+        }
+
+if __name__ == "__main__":
+    mcp.run(host="0.0.0.0", port=8080)
+```
+
+## Systemd Production Service Configuration
+
+To run the Microsoft Agent Harness binary as a managed Linux background service with automatic restarts and logging, save the following unit file to `/etc/systemd/system/agent-harness.service`:
+
+```ini
+[Unit]
+Description=Microsoft Agent Framework Harness Runtime Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=agentrunner
+Group=agentrunner
+WorkingDirectory=/opt/agent-harness
+ExecStart=/opt/agent-harness/bin/agent-harness-runtime \
+  --port 8080 \
+  --policy-config /etc/agent-harness/policy.json \
+  --telemetry-endpoint http://localhost:4317
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=AZURE_CLIENT_ID=00000000-0000-0000-0000-000000000000
+Environment=AZURE_TENANT_ID=00000000-0000-0000-0000-000000000000
+Environment=AZURE_FEDERATED_TOKEN_FILE=/var/run/secrets/tokens/azure-token
+
+# Security Sandbox Guardrails
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/agent-harness/state /var/log/agent-harness
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## CLI examples
 
@@ -163,6 +304,22 @@ harness_data = {
 
 validated_harness_config = validate_and_create_config(harness_data)
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`LoopLimitReachedException`** | Agent hitting `max_execution_loops` ceiling without solving task | Refine system prompt instructions, increase loop limit, or break prompt into multi-stage sub-agent calls. |
+| **`FastMCPToolTimeout`** | MCP tool server taking longer than 30s to respond | Increase `mcp_timeout_seconds` in policy config or check network connectivity to MCP daemon. |
+| **Context Overflow Error** | Automatic compaction engine disabled or buffer size set too high | Enable `auto_compaction: true` and set compaction threshold to 75% of model context window. |
+| **`UnauthorizedToolInvocation`** | Tool invoked is missing from `allowed_tools` whitelist | Update `ToolPolicy.allowed_tools` in configuration JSON or grant approval in interactive CLI mode. |
+| **OpenTelemetry Span Drop** | Exporter gRPC connection failing to connect to Azure Monitor collector | Verify `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` environment variables and gRPC port 4317 reachability. |
+
+## Operational Guardrails & Compliance
+
+1. **Strict Sandboxing**: Always run the compiled Harness binary inside restricted systemd units or isolated Docker containers (`--cap-drop ALL --read-only`).
+2. **Deterministic Stopping Brakes**: Set `max_execution_loops` in configuration files; never allow un-capped turn counts in non-interactive background background agents.
+3. **Audit Log Mirroring**: Forward stdout/stderr logs from `journalctl -u agent-harness.service` to an off-site SIEM or cloud logging hub (e.g. Azure Monitor / Elasticsearch) for security auditing.
 
 ## Related tools / concepts
 - [Microsoft Agent Framework](microsoft-agent-framework.md) - The SDK and conceptual library underlying the Harness.

@@ -6,8 +6,7 @@ JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judg
 ## What problem it solves
 It addresses the limitations of traditional, static evaluation metrics (like BLEU or ROUGE) which fail to capture the nuance, creativity, and semantic correctness of modern LLM outputs. JudgeGPT automates the labor-intensive process of human evaluation while providing more consistent and scalable results. It specifically solves the "subjectivity gap" in evaluating agentic tool-use and multi-step reasoning traces.
 
-## Where it fits in the stack
-**Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality or used within [Langsmith](langsmith.md) for production monitoring.
+## System Sequence & Evaluation Architecture
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -34,6 +33,43 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 |          (Overall Score, Criterion Breakdown, Rationale & Confidence)            |
 +-----------------------------------------------------------------------------------+
 ```
+
+## Detailed Evaluation Sequence Diagram
+
+```
++------------------+     +-------------------+     +---------------------+     +--------------------+
+| CI/CD Pipeline   |     | JudgeGPT Server   |     | Bias Calibrator     |     | Frontier LLM Judge |
++--------+---------+     +---------+---------+     +----------+----------+     +---------+----------+
+         |                         |                          |                          |
+         | Submit Evaluation Task  |                          |                          |
+         +------------------------>|                          |                          |
+         |                         | Parse Rubric & Candidates|                          |
+         |                         +----------------------+   |                          |
+         |                         |                      |   |                          |
+         |                         |<---------------------+   |                          |
+         |                         |                          |                          |
+         |                         | Generate Swapped Pairs   |                          |
+         |                         +------------------------->|                          |
+         |                         |                          | Return Order A/B & B/A   |
+         |                         |<-------------------------+                          |
+         |                         |                                                     |
+         |                         | Query Judge Model (Forward Request)                 |
+         |                         +---------------------------------------------------->|
+         |                         |                                                     |
+         |                         | Return Evaluation Rationales & Scores               |
+         |                         |<----------------------------------------------------+
+         |                         |                                                     |
+         |                         | Validate Output with Pydantic v2 Schema             |
+         |                         +----------------------+                              |
+         |                         |                      |                              |
+         |                         |<---------------------+                              |
+         |                         |                                                     |
+         | Return Score Report     |                                                     |
+         |<------------------------+                                                     |
+```
+
+## Where it fits in the stack
+**Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality or used within [Langsmith](langsmith.md) for production monitoring.
 
 ## Typical use cases
 - **Model Comparison**: Automatically scoring two different models on the same set of prompts to determine which performs better.
@@ -80,13 +116,49 @@ For critical benchmarks, JudgeGPT supports multi-model panel evaluation (e.g., c
 JudgeGPT can be installed via pip:
 
 ```bash
-pip install judgegpt-eval fastmcp pydantic
+pip install judgegpt-eval fastmcp pydantic>=2.0
 ```
 
 ### Basic Setup
 1. Define your evaluation rubric in YAML format.
 2. Provide the reference (gold standard) and model outputs.
 3. Select your judge model (e.g., `gpt-5.6` or `claude-5-6-sonnet`).
+
+## Systemd Production Daemon Configuration
+
+To run JudgeGPT as a persistent FastMCP 3.1 background evaluation service, configure `/etc/systemd/system/judgegpt-server.service`:
+
+```ini
+[Unit]
+Description=JudgeGPT Automated FastMCP 3.1 Evaluation Server
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=judgegpt
+Group=judgegpt
+WorkingDirectory=/opt/judgegpt-server
+ExecStart=/usr/local/bin/python3 -m judgegpt.server \
+  --port 8085 \
+  --default-model anthropic/claude-5-6 \
+  --swap-eval-default true
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=ANTHROPIC_API_KEY=sk-ant-prod-998124
+Environment=OPENAI_API_KEY=sk-proj-prod-887123
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/judgegpt /tmp/judgegpt-cache
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## FastMCP 3.1 Automated Scoring Server Pattern
 
@@ -224,6 +296,21 @@ if __name__ == "__main__":
         print(f"Overall Score: {result.overall_score}")
         print(f"Rationale: {result.final_rationale}")
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Inconsistent Scores Across Runs** | High judge model temperature or position bias | Set `temperature=0.0`, enable `--swap-eval`, or switch to peer-judge ensembling across multiple models. |
+| **`RateLimitError` on High-Volume Evals** | Parallel evaluation batch workers exceeding LLM API rate caps | Configure exponential backoff retry in `JudgeTaskRequest` or deploy local open-weights judge models. |
+| **`SchemaValidationError`** | Judge model returned markdown wrapped text instead of strict JSON | Enforce structured output / JSON mode parameters on provider API calls. |
+| **Self-Preference Bias Skew** | Judge model favoring outputs from its own model family | Use cross-provider evaluation panels (e.g. Claude 5.6 judging GPT-5.6 outputs). |
+
+## Operational Guardrails & Production Rules
+
+1. **Swap Evaluation Enforcement**: Always enable pairwise swap evaluation (`A vs B` and `B vs A`) in comparative benchmarks to eliminate position bias.
+2. **Deterministic Judge Seeding**: Enforce `temperature: 0.0` and fixed seed values on judge model calls to maximize evaluation reproducibility.
+3. **Budget Limit Brakes**: Cap batch evaluation runs with maximum token cost spending limits before triggering multi-thousand document evaluation runs.
 
 ## Matrix Comparison with Alternative Benchmarking Tools
 

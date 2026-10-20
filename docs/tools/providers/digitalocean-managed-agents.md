@@ -29,6 +29,33 @@ Built on DigitalOcean's developer-friendly cloud platform, Managed Agents combin
 +-----------------------------------------------------------------------------------+
 ```
 
+## Detailed System Sequence Diagram
+
+```
++------------------+     +-------------------+     +---------------------+     +--------------------+
+| External Client  |     | DO Ingress & TLS  |     | Serverless Pod      |     | DO Secret Vault    |
++--------+---------+     +---------+---------+     +----------+----------+     +---------+----------+
+         |                         |                          |                          |
+         | HTTP / SSE Invocation   |                          |                          |
+         +------------------------>|                          |                          |
+         |                         | Route to Active Instance |                          |
+         |                         +------------------------->|                          |
+         |                         |                          | Fetch Secret API Keys    |
+         |                         |                          +------------------------->|
+         |                         |                          | Return Secrets in Memory |
+         |                         |                          |<-------------------------+
+         |                         |                          |                          |
+         |                         |                          | Execute Agent Logic      |
+         |                         |                          +----------------------+   |
+         |                         |                          |                      |   |
+         |                         |                          |<---------------------+   |
+         |                         |                          |                          |
+         |                         | Forward Tool Response    |                          |
+         |                         |<-------------------------+                          |
+         | Return JSON Payload     |                                                     |
+         |<------------------------+                                                     |
+```
+
 ## What problem it solves
 - **Infrastructure Management Complexity for AI Agents**: Solves the operational friction of provisioning, hardening, and maintaining cloud VPS instances or Kubernetes clusters specifically to host background AI agent processes.
 - **Unsecured Agent Tool Execution**: Provides isolated sandboxed execution environments, preventing malicious code or prompt injection attacks from compromising underlying server infrastructure.
@@ -111,6 +138,42 @@ agents:
       - key: ANTHROPIC_API_KEY
         type: secret
         value: ${SECRET_ANTHROPIC_KEY}
+```
+
+## Systemd Proxy Gateway Configuration
+
+For homelab or hybrid-cloud architectures that forward local agent requests to DigitalOcean Managed Agents endpoints over persistent TLS tunnels, use this systemd service unit (`/etc/systemd/system/do-agent-proxy.service`):
+
+```ini
+[Unit]
+Description=DigitalOcean Managed Agents Local Proxy Gateway
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=doproxy
+Group=doproxy
+WorkingDirectory=/opt/do-agent-proxy
+ExecStart=/usr/local/bin/python3 -m doproxy.gateway \
+  --port 8090 \
+  --do-endpoint https://support-router-do-agents.ondigitalocean.app \
+  --timeout-sec 300
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=DO_API_TOKEN=dop_v1_sec_998124
+Environment=LOCAL_AUTH_KEY=local_sec_887123
+
+# Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/do-proxy
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -218,6 +281,21 @@ try:
 except ValidationError as e:
     print("Validation Error:", e.json())
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`504 Gateway Timeout` on FastMCP Call** | Agent execution turn taking longer than 15-minute connection ceiling | Refine agent prompt to use asynchronous sub-task scheduling or chunk work across turns. |
+| **`SecretNotFoundException` on Container Start** | App spec references secret variable name missing from DigitalOcean Secret Vault | Verify secret key name in DO Control Panel matching `${SECRET_NAME}` in `agent-app.yaml`. |
+| **Cold-Start Delay on First Invocation** | Scale-to-zero serverless pod initializing container environment | Set `min_instances: 1` in `agent-app.yaml` for zero-latency requirements. |
+| **`401 Unauthorized` on Ingress** | Missing or expired TLS/API authorization token in client request header | Regenerate DO app deployment token or update API proxy authorization header. |
+
+## Operational Guardrails & Compliance
+
+1. **Secret Scoping**: Never hardcode API keys or database connection strings in source code or `agent-app.yaml`; use DO Secret Vault variables.
+2. **Resource Capping**: Set CPU and memory limits (`instance_size_slug`) to prevent runaway sub-agent tasks from triggering unwanted billing consumption.
+3. **Log Retention**: Forward live logs from `doctl apps logs` to external S3 storage / DigitalOcean Spaces for long-term compliance storage.
 
 ## Related tools / concepts
 - [DigitalOcean Provider](digitalocean-provider.md) — DigitalOcean cloud provider overview.
