@@ -205,6 +205,71 @@ except ValidationError as e:
     print("Validation Error:", e.json())
 ```
 
+## Real-Time Trajectory Control Protocol & Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Sensor as Robot Vision/Tactile Sensors
+    participant Model as UniFolm-WLA10 (6B VLA Engine)
+    participant Safety as Kinematic Safety Watchdog
+    participant Motor as Unitree Motor Bus / ROS2 Node
+
+    Sensor->>Model: Interleaved Video Stream + Tactile Matrix (50Hz)
+    Model->>Model: Single-Stream Autoregressive Trajectory Generation
+    Model->>Safety: Send 6-DOF Delta Trajectory Token Candidates
+    alt Velocity & Joint Limits Passed
+        Safety->>Motor: Dispatch Actuator Commands via CAN/EtherCAT
+        Motor-->>Sensor: Motor State Feedback Loop
+    else Kinematic Constraint Exceeded
+        Safety->>Motor: Clamp Trajectory Delta to Safety Envelope
+        Safety->>Model: Trigger Force Limit / Emergency Stop Exception
+    end
+```
+
+## Production Deployment & Operational Guardrails
+
+### Systemd Service Unit Configuration (`unifolm-control.service`)
+Deploy UniFolm-WLA10 high-frequency motor trajectory generation worker as a persistent systemd daemon:
+
+```ini
+[Unit]
+Description=UniFolm-WLA10 Embodied VLA Trajectory Daemon
+After=network-online.target ros2.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=robotics
+Group=robotics
+WorkingDirectory=/opt/unifolm-control
+ExecStart=/opt/unifolm-control/venv/bin/python -m mcp.server.fastmcp run /opt/unifolm-control/server.py
+Restart=always
+RestartSec=3s
+
+# Real-Time Scheduling & Resource Isolation
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=80
+LimitMEMLOCK=infinity
+LimitNOFILE=65536
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="PYTHONUNBUFFERED=1"
+Environment="UNIFOLM_MODEL_PATH=unitree/unifolm-wla10"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Probable Cause | Impact | Mitigation / Action | Recovery Command |
+| :--- | :--- | :--- | :--- | :--- |
+| `Trajectory Jitter (>50Hz)` | GPU memory thrashing during autoregressive step | Robotic arm stutters during fine manipulation | Enable CUDA graphs and pin UniFolm-WLA10 weights in VRAM | `python3 -m unifolm.benchmark_latency --device cuda:0` |
+| `Joint Limit Violation` | Generated trajectory exceeds physical motor angles | Kinematic Watchdog clamps motor signal | Re-calibrate home position and update URDF joint limit limits | `ros2 run joint_state_publisher_gui joint_state_publisher` |
+| `Vision Frame Drop` | Camera feed drops below 30 FPS under load | Delayed sensory feedback causes trajectory overshoot | Reduce input video resolution or enable frame interpolation | `systemctl restart unifolm-control` |
+| `CAN Bus Buffer Overflow` | High-frequency 50Hz trajectory messages flood bus | Lost motor feedback telemetry packets | Increase socketCAN buffer size (`txqueuelen 10000`) | `ip link set can0 txqueuelen 10000` |
+| `VRAM Out of Memory` | Interleaved 4K video feeds exhaust GPU VRAM | Trajectory daemon crashes | Downsample camera stream to 720p 30fps before tokenization | `nvidia-smi -q -d MEMORY` |
+
 ## Related tools / concepts
 - [Gemini Robotics](../agents/gemini-robotics.md) — Multimodal embodied agents and robotics control framework.
 - [LeRobot](../frameworks/lerobot.md) — Open-source robotics framework from Hugging Face.

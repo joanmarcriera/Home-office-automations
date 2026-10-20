@@ -10,7 +10,7 @@ Synchronize internal checklists with the verification results from Batch 94.
 ## Sub-Batch 95.2: Service Backlog Population (Action C)
 Decompose "Service Maintenance" into quarterly audit tasks for long-term reliability.
 - [x] Identify 52 service files in `docs/services/` with missing or empty backlog items.
-- [x] Apply `- [ ] Perform quarterly technical freshness audit.` to all identified files.
+- [x] Perform quarterly technical freshness audit.
 
 ---
 - Status: Resolved.
