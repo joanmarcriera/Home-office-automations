@@ -34,6 +34,19 @@ It enables organizations and homelab operators to use standard Tailscale client 
 +-----------+   P2P Mesh Tunnels)   +-----------+   P2P Mesh Tunnels)   +-----------+
 ```
 
+### Protocol & Key Exchange Sequence
+
+```
+Client Node (Tailscale)               Headscale Server              DERP Relay Node
+    |                                        |                             |
+    |---- 1. Register / Auth (OIDC Key) ---->|                             |
+    |<--- 2. Assign WireGuard Mesh IP -------|                             |
+    |     & Peer Node Public Keys            |                             |
+    |                                        |                             |
+    |---- 3. P2P Direct Connection Probe --------------------------------->| (If NAT Traversal Fails)
+    |<=== 4. Direct Encrypted WireGuard Tunnel (P2P Mesh) ================>|
+```
+
 ## Typical use cases
 - **Zero-Trust Agentic Mesh**: Creating an encrypted, private mesh network for cross-cloud AI agent clusters and local microservices.
 - **Cross-Cloud Node Interconnect**: Safely linking remote edge devices, bare-metal servers, and [Docker](../tools/infrastructure/docker.md) containers across disparate networks.
@@ -120,6 +133,121 @@ docker exec headscale headscale nodes move --identifier 5 --user new-user
 docker exec headscale headscale nodes expire --identifier 12
 ```
 
+## FastMCP 3.1 Node & Pre-Auth Key Management Server
+
+Below is a complete FastMCP 3.1 server implementation for programmatic Headscale node registration, pre-auth key minting, and Pydantic v2 payload validation.
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Server Tool for Headscale Control Plane Orchestration
+"""
+
+import os
+import sys
+import httpx
+from datetime import datetime
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("headscale-control-plane", version="1.4.0")
+
+HEADSCALE_URL = os.getenv("HEADSCALE_URL", "https://headscale.example.com")
+HEADSCALE_API_KEY = os.getenv("HEADSCALE_API_KEY", "default-secret-token")
+
+class HeadscaleUser(BaseModel):
+    id: str
+    name: str
+    created_at: Optional[str] = Field(None, alias="createdAt")
+
+class HeadscaleNodeInfo(BaseModel):
+    id: str
+    name: str
+    given_name: str = Field(..., alias="givenName")
+    user: HeadscaleUser
+    ip_addresses: List[str] = Field(..., alias="ipAddresses")
+    online: bool
+    last_seen: Optional[str] = Field(None, alias="lastSeen")
+
+    @field_validator("ip_addresses")
+    @classmethod
+    def validate_ips(cls, v: List[str]) -> List[str]:
+        if not v:
+            raise ValueError("Headscale node must be assigned at least one IP address")
+        return v
+
+class PreAuthKeyResponse(BaseModel):
+    id: str
+    key: str
+    user: str
+    reusable: bool
+    expiration: str
+
+@mcp.tool()
+async def generate_agent_preauth_key(
+    user_name: str,
+    reusable: bool = False,
+    expiration_hours: int = 24
+) -> Dict[str, Any]:
+    """
+    Generates a new Headscale pre-authentication key for registering edge nodes or AI agents.
+    """
+    headers = {
+        "Authorization": f"Bearer {HEADSCALE_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "user": user_name,
+        "reusable": reusable,
+        "expiration": f"{expiration_hours}h",
+        "ephemeral": False
+    }
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            resp = await client.post(f"{HEADSCALE_URL}/api/v1/preauthkey", json=payload, headers=headers)
+            resp.raise_for_status()
+            data = resp.json().get("preAuthKey", {})
+
+            validated_key = PreAuthKeyResponse(
+                id=str(data.get("id", "0")),
+                key=data.get("key", ""),
+                user=data.get("user", user_name),
+                reusable=data.get("reusable", reusable),
+                expiration=str(data.get("expiration", ""))
+            )
+            return validated_key.model_dump()
+
+        except Exception as exc:
+            return {"error": f"Failed to generate pre-auth key: {str(exc)}"}
+
+@mcp.tool()
+async def list_registered_nodes() -> Dict[str, Any]:
+    """
+    Lists all nodes registered on the Headscale coordination mesh with active status.
+    """
+    headers = {"Authorization": f"Bearer {HEADSCALE_API_KEY}"}
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            resp = await client.get(f"{HEADSCALE_URL}/api/v1/node", headers=headers)
+            resp.raise_for_status()
+            raw_nodes = resp.json().get("nodes", [])
+
+            validated_nodes = [
+                HeadscaleNodeInfo.model_validate(n).model_dump()
+                for n in raw_nodes
+            ]
+            return {"nodes": validated_nodes, "total": len(validated_nodes)}
+
+        except Exception as exc:
+            return {"error": f"Failed to list Headscale nodes: {str(exc)}"}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## API examples
 
 ### Node and Pre-Auth Key Management (Python with Pydantic v2)
@@ -181,32 +309,6 @@ if __name__ == "__main__":
         print(f"Error querying Headscale API: {e}")
 ```
 
-### FastMCP 3.1 Tool Registration for Node Management
-Exposing Headscale node queries via FastMCP 3.1:
-
-```python
-from fastmcp import FastMCP, Context
-
-mcp = FastMCP("Headscale-Node-Manager")
-
-@mcp.tool()
-async def register_agent_node(task_id: str, user_namespace: str, node_name: str, ctx: Context) -> dict:
-    """Generates a Headscale pre-auth key and registers a new agentic node via FastMCP 3.1 Task Protocol."""
-    ctx.info(f" Creating preauthkey for node '{node_name}' under user '{user_namespace}' (Task: {task_id})")
-
-    # Mock preauth key generation
-    return {
-        "task_id": task_id,
-        "status": "created",
-        "user": user_namespace,
-        "preauth_key": "hs_key_mock_9876543210abc",
-        "expiration": "24h"
-    }
-
-if __name__ == "__main__":
-    mcp.run()
-```
-
 ### OIDC Integration (Authentik)
 To integrate with [Authentik](authentik.md):
 1. Configure an OAuth2 Provider in Authentik with redirect URI `https://<headscale-fqdn>/oidc/callback`.
@@ -219,6 +321,50 @@ oidc:
   client_secret: "<client-secret>"
   scope: ["openid", "profile", "email", "offline_access"]
 ```
+
+## Production Systemd Service Unit (`headscale.service`)
+
+For bare-metal and Linux VM hosting environments, run Headscale via systemd:
+
+```ini
+[Unit]
+Description=Headscale Open-Source Tailscale Control Server
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=headscale
+Group=headscale
+WorkingDirectory=/var/lib/headscale
+ExecStart=/usr/local/bin/headscale serve --config /etc/headscale/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/headscale /var/log/headscale
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Nodes Stuck in Direct Connection Failure** | UDP NAT Traversal blocked or missing STUN/DERP relay | `tailscale status` / `tailscale netcheck` | Open UDP port 3478 or ensure DERP relay endpoints are reachable over HTTPS. |
+| **OIDC Login Loop Callback Error** | Mismatched redirect URI in Authentik / Kanidm configuration | `journalctl -u headscale.service -f` | Verify `oidc.issuer` and client callback matching `https://headscale.domain.com/oidc/callback`. |
+| **Node Key Expiration Disconnects** | Pre-auth key expired or node key explicitly revoked | `headscale nodes list` | Re-issue pre-auth key via FastMCP 3.1 tool or execute `tailscale up --login-server`. |
+| **Database Lock contention (SQLite)** | High node re-auth concurrency locking SQLite file | `lsof /var/lib/headscale/db.sqlite` | Migrate database backend to PostgreSQL in `config.yaml` for production scale. |
+
+## Operational Guardrails & Security
+
+1. **gRPC / REST API Transport Encryption**: Expose Headscale endpoints exclusively behind an SSL-terminating reverse proxy (Nginx, Caddy, or Traefik) with TLS 1.3 enforced.
+2. **Database Backup Cadence**: Automate SQLite database snapshots or PostgreSQL WAL archiving before executing Headscale binary upgrades.
+3. **ACL Policy Validation**: Test HuJSON ACL policies locally before applying updates to prevent accidental administrative lockouts.
 
 ## Related tools / concepts
 - [Tailscale](tailscale.md) — The commercial counterpart and protocol origin.

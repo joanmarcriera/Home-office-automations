@@ -5,6 +5,51 @@ Qwen is a state-of-the-art series of open-weight causal large language models de
 
 Additionally, highly specialized community-driven quantization checkpoints have emerged, such as the **Qwen3.8-27B-GGUF** and **Qwen3.6-35B-A3B-Escha-W2** hosted on Hugging Face. The 27B GGUF variant provides Q4_K_M, Q5_K_M, and IQ4_XS quantizations that enable high-precision local execution on single consumer GPUs (16GB–24GB VRAM) or Apple Silicon Macs via [llama.cpp](../infrastructure/llama-cpp.md) and [ollama](../../services/ollama.md).
 
+## Architecture & System Data Flow
+
+```
++-----------------------------------------------------------------------------------+
+|                            Qwen 3.8 Execution Stack                               |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  [ Client / MCP Host ]                                                            |
+|          |                                                                        |
+|          v                                                                        |
+|  [ FastMCP 3.1 Gateway ] ---> ( Structured Tool / Pydantic Schema Validation )    |
+|          |                                                                        |
+|          v                                                                        |
+|  +-----------------------------------------------------------------------------+  |
+|  | Local Inference Backend (vLLM / llama.cpp / Ollama)                         |  |
+|  |                                                                             |  |
+|  |  +--------------------------+    +---------------------------------------+  |  |
+|  |  |  Active Mixture-of-       |    | Dynamic KV Cache & FlashAttention-3   |  |  |
+|  |  |  Experts (A3B Router)    |    | (Native 256K Context Window Support)  |  |  |
+|  |  +--------------------------+    +---------------------------------------+  |  |
+|  +-----------------------------------------------------------------------------+  |
+|          |                                                                        |
+|          +---> Thinking Trace (<think>...</think>) ---> Parsed Reasoning Log       |
+|          |                                                                        |
+|          +---> Structured Response Payload ----------> Consuming Application       |
++-----------------------------------------------------------------------------------+
+```
+
+### Inference & Reasoning Sequence
+
+```
+User/Agent               FastMCP 3.1 Gateway             vLLM / Qwen Engine
+    |                             |                              |
+    |---- Submit Request -------->|                              |
+    |                             |---- Format OpenAI Payload -->|
+    |                             |     (Enable thinking=True)   |
+    |                             |                              |---- MoE Active Routing
+    |                             |                              |---- Generate Thinking Trace
+    |                             |<--- Stream Token Chunks -----|---- Generate Final Response
+    |                             |
+    |                             |---- Extract <think> Trace    |
+    |                             |---- Validate Pydantic Schema |
+    |<--- Structured Output ------|                              |
+```
+
 ## What problem it solves
 It addresses the dependency on proprietary, cloud-hosted API providers by providing extremely competitive, open-weight reasoning alternatives that can be completely self-hosted. Qwen's highly optimized Mixture-of-Experts (MoE) architecture and GGUF low-precision quantization options resolve the local GPU compute bottleneck, enabling developers to execute highly advanced agentic planning, repository-wide indexing, and tool-calling on consumer-grade hardware.
 
@@ -68,6 +113,103 @@ llama-server -m ./models/Qwen3.8-27B-Q4_K_M.gguf --n-gpu-layers 99 --port 8080 -
 ```bash
 # Verify the active model loading and local VRAM allocation
 ollama ps
+```
+
+## FastMCP 3.1 Integration Server
+
+The following FastMCP 3.1 server implementation demonstrates routing inference requests to a local Qwen 3.8 instance (via Ollama or vLLM), extracting thinking traces, and parsing structural responses using Pydantic v2 schemas.
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Server Tool for Local Qwen 3.8 Inference & Reasoning Extraction
+"""
+
+import os
+import sys
+import httpx
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("qwen-reasoning-server")
+
+DEFAULT_QWEN_ENDPOINT = os.getenv("QWEN_ENDPOINT", "http://localhost:11434/v1")
+DEFAULT_QWEN_MODEL = os.getenv("QWEN_MODEL", "qwen3.8:27b")
+
+class QwenUsageMetrics(BaseModel):
+    prompt_tokens: int = Field(0, description="Tokens consumed in prompt input")
+    reasoning_tokens: int = Field(0, description="Tokens used in internal thinking trace")
+    completion_tokens: int = Field(0, description="Tokens generated in final answer")
+    total_tokens: int = Field(0, description="Total token footprint")
+
+class QwenInferenceResult(BaseModel):
+    model: str = Field(..., description="Name of the Qwen model checkpoint")
+    thinking_trace: Optional[str] = Field(None, description="Reasoning or thinking trace generated before output")
+    content: str = Field(..., description="Final response payload")
+    usage: QwenUsageMetrics
+
+@mcp.tool()
+async def query_qwen(
+    prompt: str,
+    system_prompt: str = "You are a helpful AI assistant.",
+    temperature: float = 0.2,
+    max_tokens: int = 4096,
+    model: str = DEFAULT_QWEN_MODEL
+) -> Dict[str, Any]:
+    """
+    Submits a prompt to local Qwen 3.8 instance, returning validated reasoning steps and output.
+    """
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "extra_body": {"thinking": True}
+    }
+
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        try:
+            response = await client.post(f"{DEFAULT_QWEN_ENDPOINT}/chat/completions", json=payload)
+            response.raise_for_status()
+            data = response.json()
+
+            choice = data.get("choices", [{}])[0].get("message", {})
+            raw_content = choice.get("content", "")
+            thinking = choice.get("thinking_content", "")
+
+            if "<think>" in raw_content and "</think>" in raw_content:
+                parts = raw_content.split("</think>")
+                thinking = parts[0].replace("<think>", "").strip()
+                final_text = parts[1].strip()
+            else:
+                final_text = raw_content.strip()
+
+            usage_raw = data.get("usage", {})
+            metrics = QwenUsageMetrics(
+                prompt_tokens=usage_raw.get("prompt_tokens", 0),
+                reasoning_tokens=usage_raw.get("reasoning_tokens", 0),
+                completion_tokens=usage_raw.get("completion_tokens", 0),
+                total_tokens=usage_raw.get("total_tokens", 0)
+            )
+
+            result = QwenInferenceResult(
+                model=data.get("model", model),
+                thinking_trace=thinking if thinking else None,
+                content=final_text,
+                usage=metrics
+            )
+
+            return result.model_dump()
+
+        except Exception as e:
+            return {"error": f"Failed to execute Qwen query: {str(e)}"}
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## API examples
@@ -197,6 +339,54 @@ if __name__ == "__main__":
     else:
         print("Validation failed.", file=sys.stderr)
 ```
+
+## Production Systemd Service Unit (`qwen-vllm.service`)
+
+To deploy a high-availability local Qwen serving endpoint backed by `vLLM` on Linux systems, manage the service using Systemd.
+
+```ini
+[Unit]
+Description=vLLM Qwen 3.8 High-Throughput Serving Engine
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ai-runner
+Group=ai-runner
+WorkingDirectory=/opt/qwen-server
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=HF_HOME=/opt/qwen-server/cache
+ExecStart=/usr/local/bin/vllm serve Qwen/Qwen3.8-27B \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --tensor-parallel-size 1 \
+    --max-model-len 32768 \
+    --gpu-memory-utilization 0.90 \
+    --trust-remote-code
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM)** | KV Cache or batch size exceeds VRAM limits | `nvidia-smi --query-gpu=memory.used,memory.free --format=csv` | Lower `--max-model-len` or switch from dense weights to `Q4_K_M` GGUF quantization. |
+| **Thinking Trace Truncated** | Max response tokens clipped before final generation completes | Check API output for `finish_reason: length` | Increase `max_tokens` or set `thinking_token_budget` explicitly. |
+| **Tokenizer Repetition Loops** | High context window without presence penalty or incorrect repetition penalty | Inspect raw completion stream logs | Set `repetition_penalty=1.05` or enforce stop sequences in model request payload. |
+| **Slow Prefill Performance** | FlashAttention disabled or sub-optimal CPU offloading | `journalctl -u qwen-vllm.service -n 50 --no-pager` | Ensure `flash-attn` is installed and tensor parallelism matches available physical GPU count. |
+
+## Operational Guardrails & Security
+
+1. **Local Sandboxing**: Run `vllm` or `llama-server` behind a loopback interface (`127.0.0.1`) and expose externally only via authenticated reverse proxies (e.g., Nginx with Bearer token authentication).
+2. **Resource Throttling**: Configure Systemd `MemoryMax` and `CPUQuota` or enforce GPU VRAM allocation limits (`--gpu-memory-utilization 0.90`) to prevent kernel OOM killer events on shared host systems.
+3. **Input Sanitization**: Always validate and sanitize user inputs before feeding context into code-executing agents powered by Qwen 3.8.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Standard delivery wrapper for local models.

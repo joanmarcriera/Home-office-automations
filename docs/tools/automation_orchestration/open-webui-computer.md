@@ -33,6 +33,22 @@ Managing and executing developer workflows on a local or remote host usually req
 +-------------------+       +-------------------+       +-------------------+
 ```
 
+### Agentic Loop & Computer Vision Event Flow
+
+```
+Agent Loop / FastMCP Gateway       cptr Workspace Runtime          OS Shell / Browser
+           |                                  |                               |
+           |---- 1. Dispatch OS Action ------>|                               |
+           |     (Click / Keypress / Shell)   |---- 2. Execute Shell/Input -->|
+           |                                  |                               |
+           |                                  |<--- 3. Command Output / Stderr|
+           |<--- 4. Capture Frame / Screenshot|                               |
+           |     & Screen Coordinates         |                               |
+           |                                  |                               |
+           |---- 5. Analyze Image/DOM --------|                               |
+           |     (Vision Reasoning Turn)      |                               |
+```
+
 ## Feature & Workstation Surface Comparison Matrix
 
 | Feature / Dimension | Open WebUI Computer (`cptr`) | Claude Desktop CLI | Devin / OpenHands Workspace |
@@ -121,6 +137,91 @@ cptr run --log-level debug --log-format json
 uvx cptr@latest run
 ```
 
+## FastMCP 3.1 Computer Interaction Server
+
+Below is a complete FastMCP 3.1 server implementation for programmatic computer action dispatching, terminal command validation, and screenshot capturing using Pydantic v2 schemas.
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Server Tool for Open WebUI Computer Automation & Control
+"""
+
+import os
+import sys
+import httpx
+from typing import Optional, Dict, Any, List
+from pydantic import BaseModel, Field, ValidationError
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("cptr-automation-gateway", version="1.4.0")
+
+CPTR_BASE_URL = os.getenv("CPTR_BASE_URL", "http://localhost:8000")
+CPTR_API_TOKEN = os.getenv("CPTR_API_TOKEN", "workspace-bearer-token")
+
+class ShellExecutionParams(BaseModel):
+    workspace_id: str = Field("default", pattern=r"^[a-zA-Z0-9_\-]+$")
+    command: str = Field(..., min_length=2, max_length=1000, description="Shell command payload")
+    timeout_seconds: int = Field(30, ge=1, le=300, description="Command execution timeout in seconds")
+
+class ExecutionOutputPayload(BaseModel):
+    workspace_id: str
+    exit_code: int = Field(0, description="Return code of shell process")
+    stdout: str = Field("", description="Standard output log")
+    stderr: str = Field("", description="Standard error log")
+    execution_time_ms: float = Field(..., description="Wall-clock execution time")
+
+@mcp.tool()
+async def run_workspace_terminal_command(
+    command: str,
+    workspace_id: str = "default",
+    timeout_seconds: int = 30
+) -> Dict[str, Any]:
+    """
+    Executes a shell command inside an Open WebUI Computer workspace with Pydantic v2 schema enforcement.
+    """
+    try:
+        params = ShellExecutionParams(
+            workspace_id=workspace_id,
+            command=command,
+            timeout_seconds=timeout_seconds
+        )
+    except ValidationError as err:
+        return {"error": f"Invalid parameter schema: {err.json()}"}
+
+    headers = {
+        "Authorization": f"Bearer {CPTR_API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    url = f"{CPTR_BASE_URL}/api/v1/workspaces/{params.workspace_id}/terminal/execute"
+    payload = {
+        "command": params.command,
+        "timeout": params.timeout_seconds
+    }
+
+    async with httpx.AsyncClient(timeout=float(params.timeout_seconds + 5)) as client:
+        try:
+            resp = await client.post(url, json=payload, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+
+            out_schema = ExecutionOutputPayload(
+                workspace_id=params.workspace_id,
+                exit_code=data.get("exitCode", 0),
+                stdout=data.get("stdout", ""),
+                stderr=data.get("stderr", ""),
+                execution_time_ms=data.get("executionTimeMs", 0.0)
+            )
+            return out_schema.model_dump()
+
+        except Exception as exc:
+            return {"error": f"Execution request failed: {str(exc)}"}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## API examples
 
 ### Gateway Chat Completion Request
@@ -195,6 +296,44 @@ if __name__ == "__main__":
     except Exception as e:
         pass
 ```
+
+## Production Systemd Service Unit (`open-webui-computer.service`)
+
+Deploying the Open WebUI Computer service on Linux workstations using systemd:
+
+```ini
+[Unit]
+Description=Open WebUI Computer Agent Workstation Daemon
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cptr-runner
+Group=cptr-runner
+WorkingDirectory=/home/cptr-runner/workspace
+Environment=OPENAI_API_BASE=http://127.0.0.1:4000/v1
+Environment=OPENAI_API_KEY=sk-local-litellm-key
+ExecStart=/usr/local/bin/cptr run --host 127.0.0.1 --port 8000 --log-format json
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Terminal Commands Hang indefinitely** | Subprocess waiting for interactive stdin input | `cptr run --log-level debug` | Pass `-y` or `--non-interactive` flags to shell tools (e.g., `apt-get -y install`). |
+| **Playwright Browser Launch Fails** | Missing system dependencies (X11 / Chromium libs) | `playwright install-deps` | Run `playwright install --with-deps chromium` in container / host runtime. |
+| **HTTP 401 Unauthorized Gateway Error** | API token mismatch in client request header | `curl -Iv http://localhost:8000/v1/models` | Verify Bearer token in request header matches `CPTR_API_TOKEN` environment variable. |
+| **Out of Memory on Vision Capture** | Concurrent high-res screenshot rendering consuming RAM | `free -h` / `dmesg \| grep oom` | Set lower resolution canvas limits in `cptr` configuration file. |
 
 ## Operational Security Hardening & Deployment Guidelines
 

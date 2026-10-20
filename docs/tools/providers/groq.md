@@ -155,10 +155,104 @@ curl -X POST "https://api.groq.com/openai/v1/audio/transcriptions" \
      -F "model=whisper-large-v3"
 ```
 
+## FastMCP 3.1 High-Throughput Streaming Server
+
+Below is a complete FastMCP 3.1 server integration for Groq, implementing low-latency streaming and strict response metrics validation using Pydantic v2 schemas:
+
+```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Server Tool for Groq High-Throughput LPU Stream Processing
+"""
+
+import os
+import sys
+import time
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
+from groq import Groq
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("groq-lpu-gateway", version="1.4.0")
+
+class GroqTelemetryData(BaseModel):
+    prompt_tokens: int = Field(0, description="Input prompt token count")
+    completion_tokens: int = Field(0, description="Generated completion token count")
+    total_tokens: int = Field(0, description="Total token footprint")
+    latency_ms: float = Field(..., description="Total wall-clock latency in milliseconds")
+    tokens_per_second: float = Field(..., description="LPU token generation throughput rate")
+
+class GroqValidatedStreamResult(BaseModel):
+    id: str = Field(..., description="Groq API transaction ID")
+    model: str = Field(..., description="LPU-hosted foundation model ID")
+    content: str = Field(..., description="Synthesized text payload")
+    telemetry: GroqTelemetryData
+
+@mcp.tool()
+async def execute_groq_inference(
+    prompt: str,
+    model: str = "llama-4-70b",
+    system_prompt: str = "You are an ultra-fast AI assistant powered by Groq LPU hardware.",
+    temperature: float = 0.2,
+    max_tokens: int = 2048
+) -> Dict[str, Any]:
+    """
+    Executes high-speed text completion via Groq's LPU API and returns validated telemetry metrics.
+    """
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return {"error": "GROQ_API_KEY environment variable is not configured."}
+
+    client = Groq(api_key=api_key)
+    start_time = time.perf_counter()
+
+    try:
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+
+        elapsed_seconds = time.perf_counter() - start_time
+        usage = response.usage
+
+        prompt_toks = usage.prompt_tokens if usage else 0
+        comp_toks = usage.completion_tokens if usage else 0
+        tot_toks = usage.total_tokens if usage else 0
+        tps = comp_toks / elapsed_seconds if elapsed_seconds > 0 else 0.0
+
+        telemetry = GroqTelemetryData(
+            prompt_tokens=prompt_toks,
+            completion_tokens=comp_toks,
+            total_tokens=tot_toks,
+            latency_ms=round(elapsed_seconds * 1000, 2),
+            tokens_per_second=round(tps, 2)
+        )
+
+        result = GroqValidatedStreamResult(
+            id=response.id,
+            model=response.model,
+            content=response.choices[0].message.content or "",
+            telemetry=telemetry
+        )
+
+        return result.model_dump()
+
+    except Exception as exc:
+        return {"error": f"Groq execution error: {str(exc)}"}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
 ## API examples
 
 ### Python (Low-Latency Streaming & FastMCP 3.1 Pydantic v2 Metrics Engine)
-This script demonstrates high-speed streaming response consumption and structured performance metrics validation using **Pydantic v2** and **FastMCP 3.1**:
+This script demonstrates high-speed streaming response consumption and structured performance metrics validation using **Pydantic v2**:
 
 ```python
 import os
@@ -167,7 +261,6 @@ import json
 from typing import List, Optional, Dict, Any
 from groq import Groq
 from pydantic import BaseModel, Field, ValidationError
-from mcp.server.fastmcp import FastMCP
 
 # 1. Define strict Pydantic v2 telemetry and metrics models
 class GroqUsageMetrics(BaseModel):
@@ -184,43 +277,6 @@ class GroqExecutionReport(BaseModel):
     status: str = Field("success", pattern="^(success|error)$")
     metrics: GroqUsageMetrics
     generated_content: str = Field(..., min_length=1)
-
-# 2. Instantiate FastMCP 3.1 server wrapping Groq low-latency engine
-mcp = FastMCP("Groq-LPU-TaskGateway", version="1.4.0")
-
-@mcp.tool()
-def stream_groq_completion(prompt_text: str, model_id: str = "llama-4-70b") -> Dict[str, Any]:
-    """Dispatches low-latency prompt execution to Groq LPU and validates telemetry."""
-    client = Groq(api_key=os.environ.get("GROQ_API_KEY", "mock-key"))
-
-    try:
-        response = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt_text}],
-            model=model_id,
-        )
-
-        content = response.choices[0].message.content or ""
-        usage = response.usage
-
-        # Construct Pydantic v2 metrics payload
-        report = GroqExecutionReport(
-            execution_id=response.id,
-            model=response.model,
-            status="success",
-            metrics=GroqUsageMetrics(
-                prompt_tokens=usage.prompt_tokens if usage else 10,
-                completion_tokens=usage.completion_tokens if usage else 50,
-                total_tokens=usage.total_tokens if usage else 60,
-                prompt_time_seconds=0.008,  # Sub-10ms TTFT
-                completion_time_seconds=0.085,
-                tokens_per_second=588.2
-            ),
-            generated_content=content
-        )
-
-        return report.model_dump()
-    except Exception as err:
-        return {"error": f"Groq Execution Failed: {str(err)}"}
 
 if __name__ == "__main__":
     print("--- Demonstrating Local Pydantic v2 Metrics Validation ---")
@@ -246,10 +302,49 @@ if __name__ == "__main__":
         print(f"Generation Speed: {report.metrics.tokens_per_second} tokens/sec")
     except ValidationError as err:
         print(f"Validation Error: {err.json()}")
-
-    if "--serve" in sys.argv:
-        mcp.run(port=8080)
 ```
+
+## Production Systemd Proxy Service Unit (`groq-proxy.service`)
+
+Deploying a local authentication and proxy daemon for local Groq requests:
+
+```ini
+[Unit]
+Description=Groq High-Speed API Proxy Gateway Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=groq-runner
+Group=groq-runner
+WorkingDirectory=/opt/groq-proxy
+Environment=GROQ_API_KEY=gsk_your_groq_api_key_here
+Environment=PORT=8085
+ExecStart=/usr/bin/python3 /opt/groq-proxy/groq_mcp_server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **HTTP 429 Rate Limit Exceeded** | Token Per Minute (TPM) or Request Per Minute (RPM) ceiling reached | Check response headers: `x-ratelimit-remaining-tokens` | Implement exponential backoff or balance requests across tier API keys. |
+| **Connection Timeout** | Network firewall or stale DNS resolving `api.groq.com` | `curl -Iv https://api.groq.com/openai/v1/models` | Verify outgoing HTTPS connectivity on port 443; update DNS resolvers. |
+| **Validation Error on JSON Output** | Model output deviated from required JSON schema structure | Inspect raw completion output text before schema parsing | Lower temperature to `0.0` or enforce strict JSON mode parameter (`response_format={"type": "json_object"}`). |
+| **Whisper Audio File Rejected** | Payload exceeds 25MB limits or uses unsupported codec | `file --mime-type sample_voice.mp3` | Re-encode audio to mono MP3 or split source files into <25MB segments. |
+
+## Operational Guardrails & Security
+
+1. **API Key Security**: Store `GROQ_API_KEY` exclusively in environment variables or hardware secrets managers (e.g., HashiCorp Vault); never hardcode credentials.
+2. **Rate Limit Circuit Breakers**: Wrap external Groq calls in retry loops with exponential backoff and jitter to gracefully absorb tier limits.
+3. **Payload Sanitization**: Ensure Pii data is scrubbed or encrypted prior to dispatching queries to external API endpoints.
 
 ## Related tools / concepts
 - [Together AI](together.md) — Serverless open-model inference provider.

@@ -28,6 +28,19 @@ flowchart TD
     end
 ```
 
+### Converse API Execution Sequence
+
+```
+Client App / MCP Host               Bedrock Runtime Gateway          Guardrails & Model Engine
+          |                                   |                                   |
+          |---- 1. Converse Request --------->|                                   |
+          |     (Messages + InferenceConfig)  |---- 2. IAM SigV4 Authentication ->|
+          |                                   |---- 3. PII & Safety Scan -------->|
+          |                                   |                                   |
+          |                                   |<--- 4. Stream Tokens -------------|
+          |<--- 5. Return Converse Response --|
+```
+
 ## AWS Bedrock Provider Comparison Matrix
 
 | Provider / Service | Hosted Models | Latency SLA | Private Link Support | Custom Fine-Tuning | Target Enterprise Tier |
@@ -50,21 +63,21 @@ It simplifies the process of building and scaling generative AI applications by 
 - **Hardware-Accelerated Inference**: Utilizing NVIDIA Rubin GPUs for ultra-low latency inference of frontier models.
 
 ## Strengths
-- **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
-- **Model Variety**: Access to [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and Llama 4 through a single API.
-- **NVIDIA Rubin Support**: Optimized for the latest GPU architectures to provide superior price-performance.
-- **AWS Integration**: Seamless integration with S3, DynamoDB Vector Search, Lambda, IAM, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
-- **Managed RAG**: Built-in support for automated vectorization and retrieval via Knowledge Bases.
+- **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, SOC2, FedRAMP High). Data is never used to train or refine underlying foundation models.
+- **Model Variety & Agility**: Direct unified access to [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1 Sonnet, Llama 4 Maverick, and Amazon Nova through a standardized endpoint contract.
+- **NVIDIA Rubin Acceleration**: Hardware-optimized infrastructure configurations delivering industry-leading time-to-first-token (TTFT) metrics.
+- **Native AWS Ecosystem Integration**: Direct integration with S3, DynamoDB Vector Search, AWS Lambda, IAM, KMS, and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) gateways.
+- **Managed RAG Pipelines**: Automated vectorization, hybrid chunking, and similarity retrieval via Knowledge Bases for Amazon Bedrock.
 
 ## Limitations
-- **Cloud Lock-in**: Deep integration with AWS IAM and KMS makes multi-cloud migrations complex.
-- **Model Availability Restrictions**: Specific model versions (e.g. Anthropic Claude Sonnet) may have regional quota caps or availability delays during peak capacity.
-- **API Cost Accumulation**: High-volume streaming context windows (>100k tokens) can incur significant usage costs compared to self-hosted hardware.
+- **AWS Cloud Dependency**: Deep coupling with AWS IAM, KMS, and CloudWatch can increase lock-in and complicate multi-cloud portability.
+- **Regional Model Allocation Limits**: Enterprise models (e.g., high-context Claude Sonnet variants) may experience regional quota caps or capacity restrictions during peak surges.
+- **Cost Accumulation at High Scale**: Deep context windows (>100k tokens) and streaming converse calls incur cumulative API costs compared to fixed self-hosted GPU infrastructure.
 
 ## When to use it
-- When your architecture is heavily invested in AWS and requires compliance frameworks (SOC2, FedRAMP).
-- When you require serverless access to multi-vendor state-of-the-art models without managing GPU clusters.
-- When building automated RAG pipelines connected directly to enterprise S3 buckets and DynamoDB tables.
+- When your architecture is heavily invested in AWS and requires strict compliance frameworks (HIPAA, SOC2, FedRAMP).
+- When you require serverless access to multi-vendor state-of-the-art models without managing physical GPU hardware clusters.
+- When building automated RAG pipelines connected directly to enterprise S3 buckets and transactional DynamoDB tables.
 
 ## When not to use it
 - For strict local-only or fully offline sovereign home lab deployments (use [Ollama](../../services/ollama.md) or [LiteLLM](../../services/litellm.md)).
@@ -97,29 +110,16 @@ aws bedrock-runtime converse \
 aws bedrock list-provisioned-model-throughputs --region us-east-1
 ```
 
-## API examples
-
-```python
-# Programmatic AWS Bedrock Runtime invocation using boto3
-import boto3
-import json
-
-client = boto3.client("bedrock-runtime", region_name="us-east-1")
-
-response = client.converse(
-    modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
-    messages=[{"role": "user", "content": [{"text": "Hello AWS Bedrock"}]}],
-    inferenceConfig={"maxTokens": 200, "temperature": 0.5}
-)
-
-print("Bedrock Output:", response["output"]["message"]["content"][0]["text"])
-```
-
 ## FastMCP 3.1 Server & Pydantic v2 AWS Bedrock Gateway
 
 The following Python script implements a complete FastMCP 3.1 server that interfaces with AWS Bedrock Runtime, utilizing Pydantic v2 schemas for strict request/response validation:
 
 ```python
+#!/usr/bin/env python3
+"""
+FastMCP 3.1 Server Tool for AWS Bedrock Runtime Converse Operations
+"""
+
 import sys
 import json
 import boto3
@@ -127,7 +127,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("aws-bedrock-gateway-server")
+mcp = FastMCP("aws-bedrock-gateway-server", version="1.4.0")
 
 class BedrockInvokeConfig(BaseModel):
     """Pydantic v2 validation schema for AWS Bedrock model invocation requests."""
@@ -159,22 +159,29 @@ def invoke_bedrock_model(req_dict: Dict[str, Any]) -> Dict[str, Any]:
     try:
         config = BedrockInvokeConfig.model_validate(req_dict)
 
-        # Boto3 client initialization:
-        # bedrock_client = boto3.client("bedrock-runtime", region_name="us-east-1")
-        # response = bedrock_client.converse(
-        #     modelId=config.model_id,
-        #     messages=[{"role": "user", "content": [{"text": config.prompt}]}],
-        #     inferenceConfig={"maxTokens": config.max_tokens, "temperature": config.temperature}
-        # )
+        client = boto3.client("bedrock-runtime", region_name="us-east-1")
+        response = client.converse(
+            modelId=config.model_id,
+            messages=[{"role": "user", "content": [{"text": config.prompt}]}],
+            inferenceConfig={
+                "maxTokens": config.max_tokens,
+                "temperature": config.temperature,
+                "topP": config.top_p
+            }
+        )
 
-        # Simulated response for validation testing
+        content_list = response.get("output", {}).get("message", {}).get("content", [])
+        completion_text = content_list[0].get("text", "") if content_list else ""
+        usage = response.get("usage", {})
+
         output = BedrockOutputPayload(
             model_id=config.model_id,
-            completion_text=f"Simulated Bedrock completion response for prompt: '{config.prompt[:30]}...'",
-            input_token_count=18,
-            output_token_count=35,
-            stop_reason="end_turn"
+            completion_text=completion_text,
+            input_token_count=usage.get("inputTokens", 0),
+            output_token_count=usage.get("outputTokens", 0),
+            stop_reason=response.get("stopReason", "end_turn")
         )
+
         return {
             "success": True,
             "data": output.model_dump()
@@ -194,11 +201,76 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## API examples
+
+```python
+# Programmatic AWS Bedrock Runtime invocation using boto3
+import boto3
+import json
+
+client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+response = client.converse(
+    modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
+    messages=[{"role": "user", "content": [{"text": "Hello AWS Bedrock"}]}],
+    inferenceConfig={"maxTokens": 200, "temperature": 0.5}
+)
+
+print("Bedrock Output:", response["output"]["message"]["content"][0]["text"])
+```
+
+## Production Systemd Gateway Service Unit (`aws-bedrock-gateway.service`)
+
+Deploying the Bedrock FastMCP gateway daemon on Linux enterprise systems:
+
+```ini
+[Unit]
+Description=AWS Bedrock FastMCP Gateway & Converse Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bedrock-runner
+Group=bedrock-runner
+WorkingDirectory=/opt/aws-bedrock-gateway
+Environment=AWS_DEFAULT_REGION=us-east-1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/aws-bedrock-gateway/bedrock_mcp_server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/aws-bedrock-gateway
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Safety & IAM Hardening
 
 1. **Least-Privilege IAM Policy Enforcement**:
    - Limit `bedrock:InvokeModel` permissions strictly to approved ARNs (e.g., `arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude*`).
    - Use condition keys like `aws:PrincipalTag` to prevent unauthorized cross-department model access.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BedrockLeastPrivilegeInvoke",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ],
+      "Resource": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-*"
+    }
+  ]
+}
+```
 
 2. **Data Guardrails & Safety Filters**:
    - Attach AWS Bedrock Guardrails to all public endpoint invocations to automatically censor PII (SSN, credit cards) and block prompt injection attempts before hitting foundation models.
