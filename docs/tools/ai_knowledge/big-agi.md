@@ -3,7 +3,7 @@
 ## What it is
 **big-AGI** is a local-first, vendor-neutral, professional AI workspace and multi-model orchestrator. Designed for power users, researchers, software engineers, and AI platform architects, it provides a high-density, ultra-low-latency web interface to query, compare, and orchestrate multiple LLMs simultaneously. Featuring the **Beam 2** multi-model synthesis engine, stateful code execution sandboxes, live web research tools, and native **FastMCP 3.1** protocol support, big-AGI turns individual LLM endpoints into an integrated multi-agent decision workspace.
 
-Rather than locking users into a single AI provider interface, big-AGI routes requests across 20+ commercial APIs (Claude 5.1, GPT-5.5, Gemini 4.0) and local inference servers (Ollama, LM Studio, vLLM, llama.cpp), while storing all conversation histories and API keys locally in browser storage or encrypted user volumes.
+Rather than locking users into a single AI provider interface, big-AGI routes requests across 20+ commercial APIs (**Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**) and local inference servers (**Ollama**, **LM Studio**, **vLLM**, **llama.cpp**), while storing all conversation histories and API keys locally in browser storage or encrypted user volumes.
 
 ## What problem it solves
 Operating across isolated vendor web interfaces introduces severe friction, cognitive overhead, and evaluation blind spots:
@@ -35,7 +35,7 @@ graph TD
     end
 
     subgraph Model Providers & Inference
-        CloudAPI[Anthropic / OpenAI / OpenRouter]
+        CloudAPI[Anthropic / OpenAI / OpenRouter / DeepSeek]
         LocalLLM[Ollama / vLLM / LM Studio]
     end
 
@@ -50,6 +50,35 @@ graph TD
     Cot --> Vote
 ```
 
+## System Execution Flow
+
+```
+[User Multi-Model Request]
+            |
+            v
+   (big-AGI Web Client) ---> [FastMCP 3.1 Tool Gateway Resolution]
+                                      |
+                                      v
+                          [Beam 2 Multi-Model Dispatch]
+                                      |
+               +----------------------+----------------------+
+               |                                             |
+               v                                             v
+    [Frontier APIs Parallel]                      [Local Inference Nodes]
+(Claude 5.6 / GPT-5.6 / DeepSeek-V4)              (vLLM / Ollama Llama 4)
+               |                                             |
+               +----------------------+----------------------+
+                                      |
+                                      v
+                      [CoT Consensus Voting & Synthesis]
+                                      |
+                                      v
+                 [Stateful Docker Code Sandbox Verification]
+                                      |
+                                      v
+                [Side-by-Side Unified Output & Local Persistence]
+```
+
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Professional AI Workspaces. Operating at the **Interface & Orchestration Layer**, big-AGI serves as a local-first control center connecting user browsers, FastMCP 3.1 tool servers, cloud API gateways ([OpenRouter](openrouter.md)), and local inference engines ([ollama](../../services/ollama.md), [vLLM](../infrastructure/vllm.md)).
 
@@ -61,7 +90,7 @@ graph TD
 - **Interactive Markdown & Diagramming**: Native rendering of Mermaid.js architecture diagrams, LaTeX mathematical formulas, interactive tables, and code diff views.
 
 ## Typical use cases
-- **Multi-Model Architecture Consensus**: Querying Claude 5.1, GPT-5.5, and Gemini 4.0 Pro in parallel to evaluate complex system design tradeoffs.
+- **Multi-Model Architecture Consensus**: Querying Claude 5.6, GPT-5.6, and Gemini 4.0 Ultra in parallel to evaluate complex system design tradeoffs.
 - **Interactive Code Debugging & Execution**: Executing generated Python scripts within stateful sandboxes to catch runtime errors immediately.
 - **Local RAG & Knowledge Retrieval**: Connecting local vector databases via FastMCP 3.1 to answer queries using private document repositories.
 - **Deep Technical Web Research**: Launching multi-step web searches with live URL citations and automated summary extraction.
@@ -136,8 +165,50 @@ npx vercel --prod
 
 ## API examples
 
-### 1. Python Beam 2 Multi-Model Synthesis Configuration & Pydantic v2 Validation
-This example validates a Beam 2 multi-model execution configuration using Pydantic v2 schemas before issuing orchestrator calls:
+### Production FastMCP 3.1 Implementation & FastMCP Server
+
+```python
+import asyncio
+from typing import List, Dict, Any, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP(
+    name="big-AGI Knowledge Gateway",
+    version="3.1.0",
+    description="FastMCP 3.1 server providing vector search and Beam 2 context to big-AGI workspace"
+)
+
+class SearchQuery(BaseModel):
+    query: str = Field(..., min_length=3, description="Search query string")
+    top_k: int = Field(default=3, ge=1, le=10)
+
+class SearchHit(BaseModel):
+    doc_id: str
+    content: str
+    relevance_score: float
+
+class SearchResponse(BaseModel):
+    status: str = Field(default="success")
+    results: List[SearchHit]
+
+@mcp.tool(
+    name="search_knowledge_base",
+    description="Executes semantic vector search across local homelab documents for big-AGI sessions"
+)
+def search_knowledge_base_tool(query: str, top_k: int = 3) -> dict:
+    req = SearchQuery(query=query, top_k=top_k)
+    hits = [
+        SearchHit(doc_id="arch-001", content="big-AGI local storage uses IndexedDB and browser storage.", relevance_score=0.95),
+        SearchHit(doc_id="arch-002", content="Beam 2 multi-model synthesis applies CoT consensus voting.", relevance_score=0.89)
+    ][:req.top_k]
+    return SearchResponse(results=hits).model_dump(mode="json")
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Programmatic API Examples (Python & Pydantic v2)
 
 ```python
 import asyncio
@@ -159,9 +230,9 @@ async def validate_beam_orchestration():
     raw_payload = {
         "synthesisMode": "majority-consensus-cot",
         "candidateModels": [
-            {"modelId": "anthropic/claude-5.1-sonnet", "weight": 1.0},
-            {"modelId": "openai/gpt-5.5", "weight": 0.9},
-            {"modelId": "google/gemini-4.0-pro", "weight": 0.8}
+            {"modelId": "anthropic/claude-5.6-sonnet", "weight": 1.0},
+            {"modelId": "openai/gpt-5.6", "weight": 0.9},
+            {"modelId": "google/gemini-4.0-ultra", "weight": 0.8}
         ],
         "maxTokens": 4096,
         "temperature": 0.3,
@@ -182,50 +253,46 @@ if __name__ == "__main__":
     asyncio.run(validate_beam_orchestration())
 ```
 
-### 2. FastMCP 3.1 Gateway Connection to big-AGI Workspace
-This script implements a FastMCP 3.1 tool server providing RAG vector search capabilities to big-AGI chat sessions:
+## Production systemd Service Unit
 
-```python
-import asyncio
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+```ini
+[Unit]
+Description=big-AGI Web Application Workspace (Docker Container)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
 
-class SearchQuery(BaseModel):
-    query: str = Field(..., min_length=3, description="Search query string")
-    top_k: int = Field(default=3, ge=1, le=10)
+[Service]
+Type=simple
+User=homelab
+WorkingDirectory=/opt/big-agi
+ExecStart=/usr/bin/docker run --rm --name big-agi-service -p 3000:3000 ghcr.io/enricoros/big-agi:latest
+ExecStop=/usr/bin/docker stop big-agi-service
+Restart=always
+RestartSec=10
 
-class SearchHit(BaseModel):
-    doc_id: str
-    content: str
-    relevance_score: float
+# Security Hardening Guardrails
+ProtectSystem=full
+PrivateTmp=true
 
-class BigAGIFastMCPGateway:
-    def __init__(self, server_name: str):
-        self.server_name = server_name
-
-    async def handle_tool_call(self, tool_name: str, args: Dict[str, Any]) -> List[Dict[str, Any]]:
-        if tool_name == "search_knowledge_base":
-            query_obj = SearchQuery.model_validate(args)
-            print(f"Processing FastMCP 3.1 query '{query_obj.query}' on {self.server_name}...")
-
-            # Simulate vector database lookup
-            await asyncio.sleep(0.04)
-            hits = [
-                SearchHit(doc_id="arch-001", content="big-AGI local storage uses IndexedDB.", relevance_score=0.95),
-                SearchHit(doc_id="arch-002", content="Beam 2 uses majority consensus voting.", relevance_score=0.89)
-            ][:query_obj.top_k]
-
-            return [hit.model_dump() for hit in hits]
-        raise ValueError(f"Unknown tool: {tool_name}")
-
-async def main():
-    gateway = BigAGIFastMCPGateway(server_name="homelab-rag-server")
-    results = await gateway.handle_tool_call("search_knowledge_base", {"query": "Beam 2 architecture", "top_k": 2})
-    print("FastMCP Gateway Results:", results)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+[Install]
+WantedBy=multi-user.target
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`HTTP 401 Unauthorized` on Model Calls** | Missing or invalid API keys in big-AGI browser settings. | Open settings drawer, re-enter model API keys (e.g. Anthropic/OpenAI), and verify network connectivity. |
+| **FastMCP 3.1 Gateway Connection Failed** | Target MCP server offline or blocked by browser CORS policy. | Ensure local FastMCP server running on localhost port with CORS origin `http://localhost:3000` enabled. |
+| **Docker Code Sandbox Timeouts** | Code execution container lacking allocated CPU/memory resources or hanging script. | Adjust Docker runtime limits (`--memory=2g --cpus=2.0`) in sandbox deployment configuration. |
+| **IndexedDB Quota Exceeded** | Browser storage quota reached due to hundreds of cached multi-model sessions. | Export chat sessions to JSON backup file via big-AGI settings, then clear old chat histories in browser. |
+
+## Operational Guardrails & Security Best Practices
+
+- **Local Key Storage Isolation**: API keys entered into big-AGI remain in local browser storage. Avoid syncing browser state across unsecured public machines.
+- **Docker Sandbox Isolation**: Always execute untrusted LLM-generated Python or Bash code within isolated Docker container sandboxes with network access disabled (`--network none`).
+- **Beam 2 Token Cost Control**: Running 4 frontier models simultaneously (e.g. Claude 5.6 + GPT-5.6) increases API usage by 4x. Configure `maxTokens` limits in Beam settings to control expense.
 
 ## Related tools / concepts
 - [LobeHub](lobehub.md) — Visual multi-agent chat interface.
