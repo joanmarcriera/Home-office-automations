@@ -33,6 +33,30 @@ Parea is an enterprise-grade AI developer platform tailored for debugging, testi
 +-----------------------------------------------------------------------------------+
 ```
 
+## Detailed Tracing Sequence Diagram
+
+```
++-----------------+     +-----------------------+     +-----------------------+     +-------------------+
+| Agent Execution |     | Parea SDK Decorator   |     | Async Span Buffer     |     | Parea Cloud Hub   |
++--------+--------+     +-----------+-----------+     +-----------+-----------+     +---------+---------+
+         |                          |                             |                           |
+         | Invoke LLM / Tool Call   |                             |                           |
+         +------------------------->|                             |                           |
+         |                          | Start Span Timer & Trace ID |                           |
+         |                          +-------------------------+   |                           |
+         |                          |                         |   |                           |
+         |                          |<------------------------+   |                           |
+         |                          |                             |                           |
+         | Return Execution Result  |                             |                           |
+         |<-------------------------+                             |                           |
+         |                          |                             |                           |
+         |                          | Enqueue Serialized Span     |                           |
+         |                          +---------------------------->|                           |
+         |                          |                             | Non-blocking Batch Flush  |
+         |                          |                             +-------------------------->|
+         |                          |                             |                           |
+```
+
 ## What problem it solves
 Developing agentic and multi-step LLM workflows is inherently non-deterministic, making them prone to silent regressions, loops, and quality degradation. Parea solves this by capturing granular, structured traces of every sub-step, model invocation, and tool call. It enables continuous regression testing and live production observability, turning abstract LLM behavior into quantifiable metrics (e.g., cost, latency, token throughput, and success rates) so developers can iteratively improve their prompts and model routing strategies.
 
@@ -49,6 +73,7 @@ Developing agentic and multi-step LLM workflows is inherently non-deterministic,
 | **LLM-as-a-Judge Evals**| Automated Judge Suites | Evals Engine | Prompt Evals | Evaluator Functions |
 | **Prompt Registry** | Versioned Prompt Hub | Versioned Prompts | Prompt Hub | Versioned Prompts |
 | **SDK Runtime** | Python / TypeScript | Python / TypeScript | Python / TypeScript | Python / JS / Go / Rust |
+| **Buffer Management** | Non-blocking Async Queue | Memory Queue | Async Exporter | Vector Exporter |
 
 ## Typical use cases
 - **Multi-Agent Flow Tracing**: Recording complex collaborative sessions where one agent delegates tasks to another to diagnose where execution loops or tool errors occur.
@@ -87,13 +112,49 @@ Developing agentic and multi-step LLM workflows is inherently non-deterministic,
 Parea requires Python >= 3.10 and can be installed via `pip`:
 ```bash
 # Install Parea SDK and Pydantic v2
-pip install parea-ai pydantic>=2.0
+pip install parea-ai pydantic>=2.0 fastmcp
 ```
 
 ### Configuration
 Log in to the Parea dashboard to generate your API key and export it to your shell:
 ```bash
 export PAREA_API_KEY="parea_sec_key_abc123"
+```
+
+## Systemd Production Forwarder Daemon Configuration
+
+For enterprise deployments where Parea spans are buffered locally before dispatching to Parea Cloud, use this systemd service unit (`/etc/systemd/system/parea-forwarder.service`):
+
+```ini
+[Unit]
+Description=Parea Observability Trace Forwarder Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=parealogger
+Group=parealogger
+WorkingDirectory=/opt/parea-forwarder
+ExecStart=/usr/local/bin/python3 -m parea.forwarder \
+  --port 9190 \
+  --buffer-size 1000 \
+  --flush-interval-sec 5
+Restart=always
+RestartSec=3s
+LimitNOFILE=65536
+Environment=PAREA_API_KEY=parea_sec_key_prod_998234
+Environment=PAREA_ENVIRONMENT=production
+
+# Security Hardening Directives
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/parea /tmp/parea-buffer
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -124,7 +185,7 @@ This example showcases a production-grade evaluation harness. It defines strict 
 ```python
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from parea import Parea
 
 # 1. Define strict Pydantic v2 schemas for tracing metrics and evaluation scores
@@ -165,7 +226,7 @@ async def verify_and_log_span(
     latency: float = 1.48,
     cost: float = 0.0125,
     task_id: str = "task-parea-001"
-) -> VerifiedTraceSpan:
+) -> Dict[str, Any]:
     """Verifies and logs a FastMCP 3.1 trace span using Pydantic v2 schema rules."""
     raw_payload = {
         "span_id": span_id,
@@ -188,19 +249,36 @@ async def verify_and_log_span(
     }
 
     try:
-        return VerifiedTraceSpan.model_validate(raw_payload)
+        span = VerifiedTraceSpan.model_validate(raw_payload)
+        return span.model_dump()
     except Exception as e:
-        return VerifiedTraceSpan(
+        fallback = VerifiedTraceSpan(
             span_id="span-fallback-1",
             trace_id="trace-fallback-1",
             model_name=model_name,
             task_id=task_id,
             metrics=TraceMetrics(latency_seconds=0.1, input_tokens=10, output_tokens=10, estimated_cost=0.0001)
         )
+        return fallback.model_dump()
 
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Missing Trace Spans in Dashboard** | Invalid `PAREA_API_KEY` or sync thread blocked during API teardown | Verify environment API key, set `PAREA_ENVIRONMENT`, and explicitly call `parea.flush()` before app exit. |
+| **High Latency Overhead in Tool Calls** | Synchronous span dispatch over HTTP blocking active thread | Enable async SDK decorators (`@parea.atrace`) and increase background worker batch size. |
+| **`ValidationError` on Judge Metrics** | Custom LLM judge returning unformatted or un-normalized score float | Enforce strict Pydantic schema validation wrappers on LLM-as-a-Judge outputs. |
+| **`BufferOverflowWarning`** | Local span event queue exceeding max buffer size (default 1000) | Adjust forwarder daemon buffer size or decrease trace sampling rate for high-volume logs. |
+
+## Operational Guardrails
+
+1. **Non-Blocking Telemetry**: Always run tracing dispatchers in decoupled background tasks to guarantee zero application downtime if tracing backends experience network partitions.
+2. **PII & Credential Masking**: Configure Parea SDK scrubbers to sanitize authorization headers, user emails, and API keys before span serialization.
+3. **Trace Retention Rules**: Set trace expiry lifecycle policies in the Parea control panel (e.g., 30-day purge for non-error spans) to maintain storage efficiency.
 
 ## Related tools / concepts
 - [Braintrust](braintrust.md) — Evaluation and tracing server for advanced agent workflows.

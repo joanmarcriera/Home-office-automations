@@ -31,6 +31,34 @@ Raw enterprise documents suffer from inconsistent formatting, complex visual ele
 +-----------------------------------------------------------------------------------+
 ```
 
+## Detailed Processing Flowchart
+
+```
++-------------------+     +-------------------------+     +------------------------+     +-------------------+
+| Document Ingestion|     | Partition & OCR Engine  |     | Chunking & Annotation  |     | FastMCP 3.1 Server|
++---------+---------+     +------------+------------+     +-----------+------------+     +---------+---------+
+          |                            |                              |                            |
+          | Read Binary Input File     |                              |                            |
+          +--------------------------->|                              |                            |
+          |                            | Inspect Layout & Strategy    |                            |
+          |                            +--------------------------+   |                            |
+          |                            |                          |   |                            |
+          |                            |<-------------------------+   |                            |
+          |                            |                              |                            |
+          |                            | Extract Elements & Metadata  |                            |
+          |                            +----------------------------->|                            |
+          |                            |                              | Chunk by Title & Heading   |
+          |                            |                              +------------------------+   |
+          |                            |                              |                        |   |
+          |                            |                              |<-----------------------+   |
+          |                            |                              |                            |
+          |                            |                              | Validate Pydantic Schema   |
+          |                            |                              +--------------------------->|
+          |                            |                              |                            |
+          |                            |                              | Return FastMCP Response    |
+          |<---------------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Enterprise RAG Ingestion**: Partitioning thousands of complex technical PDFs with multi-column layouts and embedded diagrams into structured vector embeddings.
 - **Data Lake Normalization**: Continuous batch intake converting heterogeneous file stores into unified Markdown/JSON schemas.
@@ -61,7 +89,7 @@ Raw enterprise documents suffer from inconsistent formatting, complex visual ele
 
 ### Installation
 ```bash
-pip install "unstructured[all-docs]" pydantic fastmcp
+pip install "unstructured[all-docs]" pydantic>=2.0 fastmcp
 ```
 
 ### Basic Usage
@@ -112,6 +140,42 @@ runner.run()
 | `hi_res` | Layout Model | Complex multi-column PDFs | High layout accuracy; higher CPU/GPU overhead. |
 | `ocr_only` | OCR Engine | Scanned PDFs & image files | Recovers text from rasterized pixels; requires Tesseract/Paddle. |
 | `vlm` | Vision LLM | Complex diagrams & tables | Maximum semantic recovery; relies on vision inference calls. |
+
+## Systemd Production Service Configuration
+
+To run the Unstructured FastMCP 3.1 partition server as a persistent Linux daemon, create `/etc/systemd/system/unstructured-mcp.service`:
+
+```ini
+[Unit]
+Description=Unstructured.io FastMCP 3.1 Document Ingestion Server
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=unstructured
+Group=unstructured
+WorkingDirectory=/opt/unstructured-mcp
+ExecStart=/usr/local/bin/python3 -m unstructured_mcp.server \
+  --port 8088 \
+  --num-processes 4 \
+  --temp-dir /tmp/unstructured-work
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+
+# Security Sandbox
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/unstructured /tmp/unstructured-work
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## CLI examples
 ```bash
@@ -230,6 +294,21 @@ def partition_document(payload: Dict[str, Any]) -> Dict[str, Any]:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`PDFInfoNotInstalledError` / `PopplerNotInstalled`** | Missing Poppler / `pdf2image` system C libraries | Install `poppler-utils` via `apt-get` or `brew install poppler`. |
+| **Out-Of-Memory (OOM) during `hi_res` PDF run** | Multi-page PDF layout model parsing exceeding RAM | Pass `strategy="fast"` for digital PDFs or set `num_processes=2` to limit parallel workers. |
+| **Garbled Output on Scanned Images** | Tesseract OCR missing required language traineddata files | Install `tesseract-ocr-eng` or set `TESSDATA_PREFIX` to point to valid language datasets. |
+| **`S3UploadTimeout` on Remote Connectors** | Large document payload failing AWS network socket timeout | Increase `ReadConfig.timeout` parameters or switch to multipart parallel uploads. |
+
+## Operational Guardrails & Production Rules
+
+1. **Format Fallback Chains**: Configure partition wrappers to default to `strategy="fast"`, automatically falling back to `strategy="ocr_only"` or `hi_res` if text element extraction yield is under 50 characters.
+2. **Ephemeral File Scrubbing**: Ensure background workers remove temporary extracted document images (`/tmp/unstructured-work/*`) immediately after partition completion to prevent disk space exhaustion.
+3. **Chunk Length Bounds**: Enforce strict `max_characters=1500` settings in `chunk_by_title` to align with vector embedding model context limits.
 
 ## Related tools / concepts
 - [LlamaParse](llamaparse.md) — Document parsing platform from LlamaIndex.
