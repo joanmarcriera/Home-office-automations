@@ -1,43 +1,56 @@
 # text-generation-webui
 
 ## What it is
-text-generation-webui (commonly known as Oobabooga) is a flexible, open-source Gradio web interface and inference server for hosting and interacting with local large language models. Designed as a power-user alternative to consumer desktop runners, it supports a wide variety of backend backends including `llama.cpp`, `ExLlamaV2`, `Transformers`, `AutoGPTQ`, `AutoAWQ`, and `Hugging Face`.
+text-generation-webui (commonly known as Oobabooga) is a flexible, open-source Gradio web interface and inference server for hosting and interacting with local large language models. Designed as a power-user alternative to consumer desktop runners, it supports a wide variety of backend loaders including `llama.cpp`, `ExLlamaV2`, `Transformers`, `AutoGPTQ`, `AutoAWQ`, and `Hugging Face`.
 
-```
-+-----------------------------------------------------------------------------------+
-|                   TEXT-GENERATION-WEBUI INFERENCE ARCHITECTURE                    |
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|  +-----------------------------------------------------------------------------+  |
-|  |                       CLIENT & INGESTION LAYER                              |  |
-|  |           (Gradio Web UI / OpenAI-Compatible API / WebSockets)              |  |
-|  +--------------------------------------+--------------------------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  |                 UNIFIED SERVER GATEWAY & SAMPLER PIPELINE                   |  |
-|  | - DRY / XTC / Min-P / Mirostat       - Extension Plugin Hooks (TTS/Whisper) |  |
-|  +--------+--------------------+--------------------+-----------------+--------+  |
-|           |                    |                    |                 |           |
-|           v                    v                    v                 v           |
-|  +-----------------+  +-----------------+  +-----------------+  +--------------+  |
-|  | LLAMA.CPP       |  | EXLLAMAV2       |  | TRANSFORMERS    |  | AUTOAWQ      |  |
-|  | (GGUF CPU/GPU)  |  | (EXL2 VRAM)     |  | (Safetensors)   |  | (AWQ Engine) |  |
-|  +--------+--------+  +--------+--------+  +--------+--------+  +-------+------+  |
-|           |                    |                    |                 |           |
-|           +--------------------+---------+----------+-----------------+           |
-|                                          |                                        |
-|                                          v                                        |
-|  +-----------------------------------------------------------------------------+  |
-|  |                     HARDWARE DRIVER & VRAM OFFLOAD                          |  |
-|  |                         (CUDA / ROCm / Metal)                               |  |
-|  +-----------------------------------------------------------------------------+  |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
+In the early 2027 local AI stack, text-generation-webui serves as a critical bridge for multi-model testing, complex sampler experimentation, and automated inference serving via OpenAI-compatible REST endpoints and FastMCP 3.1 protocol bridges.
+
+```mermaid
+graph TD
+    subgraph Client & Ingestion Layer
+        WebUI[Gradio Web UI / Notebook]
+        API[OpenAI-Compatible API / WebSockets]
+        FastMCPClient[FastMCP 3.1 Client Bridge]
+    end
+
+    subgraph Server Gateway & Sampler Pipeline
+        Gateway[Unified Server Gateway]
+        Samplers[DRY / XTC / Min-P / Mirostat / Temp]
+        Extensions[Extension Plugin Hooks: TTS / Whisper / ChromaDB]
+    end
+
+    subgraph Inference Backend Loaders
+        LlamaCPP[llama.cpp Engine\nGGUF CPU/GPU Offload]
+        ExLlama[ExLlamaV2 Engine\nEXL2 VRAM Stream]
+        HuggingFace[Transformers Engine\nSafetensors FP16/BF16]
+        AWQ[AutoAWQ Engine\nINT4 AWQ GPU]
+    end
+
+    subgraph Hardware Layer
+        GPU[CUDA / ROCm / Metal GPU Accelerators]
+    end
+
+    WebUI --> Gateway
+    API --> Gateway
+    FastMCPClient --> Gateway
+    Gateway --> Samplers
+    Gateway --> Extensions
+    Samplers --> LlamaCPP
+    Samplers --> ExLlama
+    Samplers --> HuggingFace
+    Samplers --> AWQ
+    LlamaCPP --> GPU
+    ExLlama --> GPU
+    HuggingFace --> GPU
+    AWQ --> GPU
 ```
 
 ## What problem it solves
 Local LLM power users and home-lab builders often need to run and compare models in diverse formats (GGUF, EXL2, AWQ, HF Safeguards/Safetensors) with deep control over sampling parameters, extension plugins, and API integration. Monolithic apps often constrain backend parameters. text-generation-webui solves this by providing unified parameter controls, chat and notebook interfaces, dynamic model swapping, and dual OpenAI/TGI-compatible API endpoints for home automation integration.
+
+- **Backend Loader Fragmentation**: Allows developers to switch between GGUF models on llama.cpp and high-throughput EXL2 models on ExLlamaV2 within a single server instance.
+- **Advanced Sampler Testing**: Exposes cutting-edge repetition penalties (DRY, XTC, Min-P) to eliminate infinite generation loops without degrading creativity.
+- **Headless API Automation**: Provides headless, multi-threaded REST and WebSocket endpoints for downstream AI agents, n8n workflows, and local orchestration pipelines.
 
 ## Where it fits in the stack
 **Infrastructure / Model Runners & User Interfaces**. text-generation-webui acts as a self-hosted inference hub and interactive laboratory for multi-backend local model execution.
@@ -61,15 +74,58 @@ text-generation-webui features a modular Python architecture designed around dyn
 - **Multi-Backend Inference Hosting**: Running GGUF models via llama.cpp or high-speed EXL2 models via ExLlamaV2 on local GPUs.
 - **API Endpoint Provider**: Exposing OpenAI-compatible (`/v1/chat/completions`) and native WebSocket APIs for home lab agents and n8n workflows.
 - **Model Evaluation & Fine-Tuning Sandbox**: Testing custom prompts, sampler configurations (DRY, XTC, Top-P, Temperature), and LoRA adapters.
+- **Voice-Enabled Local Assistants**: Integrating Whisper speech recognition and XTTS text-to-speech extensions for voice-driven local interaction.
 
 ## Strengths
 - **Broad Backend Support**: Native loader integration for llama.cpp, ExLlamaV2, Transformers, Hf, and AWQ.
 - **Rich Extension Ecosystem**: Modular extensions for TTS, Whisper speech recognition, vector memory, and web search.
 - **Dual Interface Modes**: Supports interactive Chat mode, Instruct mode, Default notebook mode, and headless API mode.
+- **Granular Sampler Control**: Deep control over DRY, XTC, Min-P, Mirostat, and temperature parameters.
 
 ## Limitations
 - **Configuration Complexity**: Power-user interface with numerous hyperparameter dials can be overwhelming for beginners compared to simplified apps like Ollama or LM Studio.
 - **Resource Footprint**: Gradio UI and Python environment require higher baseline RAM compared to C++ single binaries.
+
+## Production Systemd Service Unit (`textgen-webui.service`)
+
+Deploy text-generation-webui as a dedicated system service in headless API mode:
+
+```ini
+[Unit]
+Description=text-generation-webui Inference Engine
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=llmrunner
+Group=llmrunner
+WorkingDirectory=/opt/text-generation-webui
+ExecStart=/opt/text-generation-webui/venv/bin/python server.py --headless --api --listen --api-port 5000 --loader ExLlamaV2_HF --max_seq_len 16384
+Restart=always
+RestartSec=5s
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HOME=/opt/text-generation-webui/cache
+
+# Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `CUDA out of memory (OOM)` | Context length or model quantization size exceeds GPU VRAM | Enable `cache_4bit` in ExLlamaV2 or increase offloaded GPU layers in `llama.cpp`. |
+| `ModuleNotFoundError: extensions.openai` | Required API extension not enabled at launch | Pass `--api` or `--extensions openai` in launch flags. |
+| Slow token output on ExLlamaV2 loader | FlashAttention-2 not compiled for host GPU | Reinstall `flash-attn` wheel matched to host CUDA toolkit version. |
+| Port 7860 or 5000 bind failure | Ghost process holding web or API socket | Run `lsof -i :5000` and terminate lingering server instance. |
+| Endless repetition in model output | Sampler parameters defaulting to standard top-p | Enable DRY repetition penalty (`--dry_multiplier 0.8`) in sampler settings. |
 
 ## Operational Best Practices & Performance Tuning
 1. **ExLlamaV2 VRAM Optimization**: When loading EXL2 models, enable `max_seq_len` scaling alongside `cache_4bit` to double available context without exceeding VRAM allocation limits.
@@ -212,6 +268,7 @@ if __name__ == "__main__":
 - [ExLlamaV2](exllamav2.md) — High-performance GPU inference loader backend.
 - [llama.cpp](llama-cpp.md) — C++ GGUF inference backend.
 - [LM Studio](lm-studio.md) — Desktop GUI local model runner alternative.
+- [Ollama](../../services/ollama.md) — Lightweight local daemon for running quantized models.
 
 ## Sources / references
 - [text-generation-webui GitHub Repository](https://github.com/oobabooga/text-generation-webui)

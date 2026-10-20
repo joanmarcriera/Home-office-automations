@@ -11,25 +11,34 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 
 ## System Architecture
 
-```
-+-------------------------------------------------------------------+
-|               Editor / Host Surface (VS Code / Neovim)            |
-+---------------------------------+---------------------------------+
-                                  |
-                   JSON-RPC 2.0 / WebSocket Pipe
-                   (Capabilities Handshake & Events)
-                                  |
-+---------------------------------v---------------------------------+
-|                   AWS Kiro Transport Layer                        |
-|   - Task ID Correlation (FastMCP 3.1)                            |
-|   - File System Diff & Approval Buffers                           |
-|   - Terminal Execution Pipes                                      |
-+---------------------------------+---------------------------------+
-                                  |
-+---------------------------------v---------------------------------+
-|                   Decoupled Agent Runtime Engine                  |
-|   - Claude 5.6 / GPT-5.6 / Gemini 4.0 Reasoning Loop             |
-+-------------------------------------------------------------------+
+```mermaid
+graph TD
+    subgraph Editor / Host Surface
+        VSCode[VS Code Host Extension]
+        Neovim[Neovim Kiro Client Plugin]
+        Terminal[Web/CLI Terminal Console]
+    end
+
+    subgraph AWS Kiro Transport Layer
+        Bridge[Kiro Gateway / Bridge Engine]
+        JSONRPC[JSON-RPC 2.0 / WebSocket Pipe]
+        Handshake[FastMCP 3.1 Capabilities Handshake]
+        Buffers[File System Diff & Approval Buffers]
+    end
+
+    subgraph Decoupled Agent Runtime Engine
+        Reasoning[Agent Reasoning Loop\nClaude 5.6 / GPT-5.6 / Gemini]
+        Tools[FastMCP 3.1 Tool Servers]
+    end
+
+    VSCode -->|Capabilities Request| JSONRPC
+    Neovim -->|Capabilities Request| JSONRPC
+    Terminal -->|Stream Pipe| JSONRPC
+    JSONRPC --> Bridge
+    Bridge --> Handshake
+    Bridge --> Buffers
+    Handshake --> Reasoning
+    Buffers --> Tools
 ```
 
 ## Protocol & Client Abstraction Comparison Matrix
@@ -58,6 +67,45 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 - **Early Stage Adoption**: Editor ecosystems are still developing native Kiro clients, requiring separate plugin shells.
 - **Fringe Terminal Features**: Highly interactive or stateful custom terminal applications can be complex to sync via JSON-RPC.
 - **Slight Transport Overhead**: For extremely fast local operations, Kiro's serialization can add negligible microseconds compared to direct subprocess calls.
+
+## Production Systemd Service Unit (`aws-kiro-bridge.service`)
+
+For remote development nodes or persistent server bridges, run the AWS Kiro agent transport service using the systemd configuration below:
+
+```ini
+[Unit]
+Description=AWS Kiro Agent Transport Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=kirogateway
+Group=kirogateway
+WorkingDirectory=/opt/aws-kiro
+ExecStart=/opt/aws-kiro/venv/bin/python3 -m aws_kiro.server --port 9090 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+Environment=KIRO_LOG_LEVEL=INFO
+Environment=KIRO_ENFORCE_APPROVAL=true
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| Handshake rejection during startup | Capabilities mismatch between IDE client and Kiro server | Audit `kiro-cli ping --handshake` to verify expected protocol version (`1.1.0`). |
+| File edits failing silently | Host editor blocking unapproved writes | Ensure `user_approval_required` is handled or explicitly granted by client UI. |
+| Stream disconnect during long build | Idle socket timeout on WebSocket proxy bridge | Configure keep-alive ping intervals (15s) in Kiro transport configuration. |
+| Terminal stream output buffer overflow | Agent outputting high-frequency raw ANSI logs | Enable output truncation or buffer throttling in Kiro terminal pipe. |
 
 ## When to use it
 - When you are developing a coding or debugging agent and want to ensure it is immediately compatible with multiple IDEs and code editors.
