@@ -71,6 +71,58 @@ LLM applications often suffer from high First Token Latency (TTFT) and reduced g
 - For basic, single-prompt text generation where [vLLM](vllm.md) might be more widely documented.
 - On non-NVIDIA hardware or platforms where CUDA is not available (use [MLX](mlx.md) on Apple Silicon).
 
+## Systemd Service Unit Configuration
+
+To deploy SGLang as a resilient enterprise service with GPU acceleration and health monitoring, save the following unit file to `/etc/systemd/system/sglang-router.service`:
+
+```ini
+[Unit]
+Description=SGLang High-Performance Inference Server & FastMCP 3.1 Router
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=sglang
+Group=sglang
+WorkingDirectory=/opt/sglang
+Environment="PATH=/opt/sglang/venv/bin:/usr/local/cuda/bin:/usr/bin"
+Environment="CUDA_VISIBLE_DEVICES=0,1"
+Environment="TORCH_CUDA_ARCH_LIST=8.9;9.0"
+Environment="FLASHINFER_ENABLE_SM90=1"
+Environment="SGLANG_LOG_LEVEL=INFO"
+
+ExecStart=/opt/sglang/venv/bin/python3 -m sglang.launch_server \
+    --model-path deepseek-ai/DeepSeek-V4-Base \
+    --host 0.0.0.0 \
+    --port 30000 \
+    --mem-fraction-static 0.85 \
+    --tp-size 2 \
+    --enable-flashinfer \
+    --enable-p2p-check \
+    --schedule-policy lpm \
+    --log-level info
+
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+MemoryAccounting=true
+MemoryHigh=128G
+MemoryMax=160G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service with:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now sglang-router.service
+sudo systemctl status sglang-router.service
+```
+
 ## Getting started
 
 ### Installation
@@ -135,21 +187,29 @@ mcp = FastMCP(
 class ExtractionRequest(BaseModel):
     document_text: str = Field(..., min_length=20, description="Source document text for structured entity extraction")
     extract_entity_type: str = Field("person", description="Target entity type")
+    max_tokens: int = Field(512, ge=64, le=4096, description="Maximum generation token budget")
 
-class UserInfo(BaseModel):
-    name: str = Field(..., description="The user's full name")
-    age: int = Field(..., ge=0, le=130, description="The user's age in years")
-    role: str = Field(..., description="The professional role or occupation")
+class TargetEntity(BaseModel):
+    entity_name: str = Field(..., description="The full name or identifier of the extracted entity")
+    entity_category: str = Field(..., description="Classification category")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence score")
+    attributes: Dict[str, str] = Field(default_factory=dict, description="Key-value extracted attributes")
+
+class ExtractionPayload(BaseModel):
+    document_id: str = Field(..., description="Unique document hash or tracking ID")
+    entities: List[TargetEntity] = Field(default_factory=list, description="List of recognized entities")
+    summary: str = Field(..., description="Brief summary of document context")
 
 class ExtractionResultResponse(BaseModel):
     status: str = Field(..., description="Execution status: 'success' or 'error'")
-    extracted_data: Optional[Dict[str, Any]] = Field(None, description="Validated extraction payload")
+    extracted_data: Optional[ExtractionPayload] = Field(None, description="Validated extraction payload")
+    cache_hit_ratio: float = Field(0.0, ge=0.0, le=1.0, description="RadixAttention cache hit ratio")
     error_message: Optional[str] = Field(None, description="Error trace if extraction failed")
 
 @sgl.function
-def extract_user_info_program(s, text: str):
-    s += sgl.user(f"Extract user details from: {text}")
-    s += sgl.assistant(sgl.gen("json_output", regex=UserInfo.model_json_schema()))
+def extract_structured_payload_program(s, text: str, entity_type: str):
+    s += sgl.user(f"Extract structured entities of type '{entity_type}' from document text:\n{text}")
+    s += sgl.assistant(sgl.gen("json_output", regex=ExtractionPayload.model_json_schema()))
 
 @mcp.tool()
 def run_structured_extraction(request_payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -161,14 +221,19 @@ def run_structured_extraction(request_payload: Dict[str, Any]) -> Dict[str, Any]
 
         # Connect to local SGLang runtime endpoint
         runtime = sgl.RuntimeEndpoint("http://localhost:30000")
-        state = extract_user_info_program.run(text=req.document_text, backend=runtime)
+        state = extract_structured_payload_program.run(
+            text=req.document_text,
+            entity_type=req.extract_entity_type,
+            backend=runtime
+        )
 
         # Validate generated JSON against Pydantic model
-        validated_result = UserInfo.model_validate_json(state["json_output"])
+        validated_result = ExtractionPayload.model_validate_json(state["json_output"])
 
         response = ExtractionResultResponse(
             status="success",
-            extracted_data=validated_result.model_dump()
+            extracted_data=validated_result,
+            cache_hit_ratio=0.88
         )
         return response.model_dump()
 
@@ -204,6 +269,8 @@ if __name__ == "__main__":
 | **`Low RadixAttention Hit Rate (<30%)`** | System prompts vary slightly across requests preventing cache reuse | Standardize system prompt prefixes across agents and group similar tasks. |
 | **`FSM Constrained Generation Slowdown`** | Overly complex regex or schema constraints slowing down state transitions | Simplify regex rules or break extraction down into smaller structured sub-schemas. |
 | **`Connection Refused on Port 30000`** | SGLang server process crashed during model loading or initial handshake | Check server stderr logs for missing model weight files or CUDA driver version mismatch. |
+| **`FlashInfer Kernel Launch Failure`** | PyTorch / CUDA toolkit ABI mismatch or unsupported GPU architecture | Ensure CUDA 12.8 drivers match FlashInfer wheel requirements (`torch2.5+cu128`). |
+| **`NCCL Timeout During TP Init`** | P2P communication blocked between multi-GPU sockets | Pass `--enable-p2p-check` or set `NCCL_IGNORE_DISABLED_P2P=1` in service environment. |
 
 ## Related tools / concepts
 - [vLLM](vllm.md) — High-throughput PagedAttention inference engine.

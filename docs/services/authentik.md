@@ -37,6 +37,40 @@ Authentik addresses these challenges by centralizing authentication into a unifi
 
 Authentik sits at the **Security & Identity Gateway Layer**, acting as the authoritative single point of entry and token issuer for all internal services, external reverse proxies, and agentic workflows.
 
+## Authentication Sequence Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Agent Gateway
+    participant Proxy as Reverse Proxy / Outpost
+    participant Auth as Authentik Server (IdP)
+    participant Redis as Redis Cache
+    participant DB as PostgreSQL DB
+    participant App as Protected Service (Nextcloud / Gitea)
+
+    User->>Proxy: Access Request (https://service.internal.net)
+    Proxy->>Auth: Forward Auth Verification Header
+    Auth->>Redis: Check Active Session Token
+    alt Session Valid
+        Redis-->>Auth: Token Valid + User Claims
+        Auth-->>Proxy: HTTP 200 OK (X-Authentik-Username, Groups)
+        Proxy->>App: Forward Request with Identity Headers
+        App-->>User: HTTP 200 Content Response
+    else Session Invalid / Expired
+        Redis-->>Auth: Token Miss / Expired
+        Auth-->>Proxy: HTTP 302 Redirect to Authentik Login
+        Proxy-->>User: Redirect to Login Flow
+        User->>Auth: Authenticate (Passkey / WebAuthn / MFA)
+        Auth->>DB: Verify Credentials & Evaluate Stage Policies
+        DB-->>Auth: Policy Passed
+        Auth->>Redis: Store New Session State
+        Auth-->>User: Issue Set-Cookie / OAuth JWT Token
+        User->>Proxy: Retry Original Request with Session Token
+        Proxy-->>App: Forward Verified Request
+    end
+```
+
 ## Identity Protocols & Policy Matrix
 
 Authentik provides protocol translation and policy enforcement across five primary interfaces:
@@ -79,6 +113,30 @@ Authentik provides protocol translation and policy enforcement across five prima
 ## When not to use it
 - In minimal resource-constrained environments (e.g., low-memory edge devices with < 1GB RAM).
 - When protecting a single static HTML page without multi-user role requirements.
+
+## Systemd Service Unit & Container Setup
+
+To manage Authentik using systemd and Docker Compose, save the following unit file as `/etc/systemd/system/authentik.service`:
+
+```ini
+[Unit]
+Description=Authentik Enterprise Identity Governance & OAuth Gateway
+After=docker.service network-online.target
+Requires=docker.service network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/authentik
+ExecStartPre=/usr/bin/docker compose config
+ExecStart=/usr/bin/docker compose up --remove-orphans
+ExecStop=/usr/bin/docker compose down
+Restart=always
+RestartSec=10s
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -149,7 +207,7 @@ volumes:
 Execute administration and recovery tasks inside the Authentik server container:
 
 ```bash
-# Generate a emergency admin recovery key valid for 1 hour
+# Generate an emergency admin recovery key valid for 1 hour
 docker exec -it authentik-server ak create_recovery_key 1 akadmin
 
 # Flush cached system settings and policies in Redis
@@ -163,7 +221,7 @@ docker exec -it authentik-server ak migrate
 
 ### FastMCP 3.1 User Directory & Token Revocation Tool Server
 
-This FastMCP 3.1 server exposes Authentik user management to automated operations agents:
+This complete production code exposes Authentik user management to automated operations agents using **FastMCP 3.1** and **Pydantic v2**:
 
 ```python
 """
@@ -172,79 +230,73 @@ Enables operations agents to query user status and revoke compromised agent toke
 """
 
 import requests
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 
-mcp = FastMCP("authentik-ops-tools", version="3.1.0")
+mcp = FastMCP("authentik-ops-tools", instructions="FastMCP 3.1 tool gateway for Authentik identity management.")
+
+class UserQueryRequest(BaseModel):
+    user_id: int = Field(..., ge=1, description="Target user or agent ID in Authentik")
 
 class RevokeTokenRequest(BaseModel):
-    user_id: int = Field(..., description="Target user or agent ID in Authentik")
-    reason: str = Field(..., description="Audit reason for token revocation")
+    user_id: int = Field(..., ge=1, description="Target user or agent ID in Authentik")
+    reason: str = Field(..., min_length=5, description="Audit reason for token revocation")
 
 class UserStatusInfo(BaseModel):
     id: int
     username: str
     email: str
     is_active: bool
+    groups: List[str] = Field(default_factory=list)
 
-@mcp.tool(
-    name="get_user_status",
-    description="Retrieve user or agent account status from Authentik."
-)
-def get_user_status(user_id: int) -> UserStatusInfo:
+class OperationResponse(BaseModel):
+    status: str = Field(..., description="Execution status: 'success' or 'error'")
+    user_info: Optional[UserStatusInfo] = Field(None, description="Validated user information payload")
+    message: Optional[str] = Field(None, description="Detailed message or error trace")
+
+@mcp.tool()
+def get_user_status(request_payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Queries the Authentik REST API v3 for user metadata.
+    Queries the Authentik REST API v3 for user metadata and active claims.
     """
-    authentik_url = f"http://localhost:8000/api/v3/core/users/{user_id}/"
-    headers = {"Authorization": "Bearer YOUR_AUTHENTIK_API_TOKEN"}
+    try:
+        req = UserQueryRequest.model_validate(request_payload)
+        authentik_url = f"http://localhost:8000/api/v3/core/users/{req.user_id}/"
+        headers = {"Authorization": "Bearer YOUR_AUTHENTIK_API_TOKEN"}
 
-    response = requests.get(authentik_url, headers=headers, timeout=10)
-    response.raise_for_status()
-    data = response.json()
+        response = requests.get(authentik_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
 
-    return UserStatusInfo(
-        id=data["pk"],
-        username=data["username"],
-        email=data.get("email", ""),
-        is_active=data["is_active"]
-    )
+        user_info = UserStatusInfo(
+            id=data["pk"],
+            username=data["username"],
+            email=data.get("email", ""),
+            is_active=data["is_active"],
+            groups=[g["name"] for g in data.get("groups_obj", [])]
+        )
+
+        return OperationResponse(status="success", user_info=user_info).model_dump()
+
+    except ValidationError as val_err:
+        return OperationResponse(status="error", message=f"Pydantic v2 Error: {val_err.errors()}").model_dump()
+    except Exception as ex:
+        return OperationResponse(status="error", message=f"Authentik API Request Failed: {str(ex)}").model_dump()
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Pydantic v2 Authentik Application Registration Schema
+### Troubleshooting Matrix
 
-```python
-"""
-Pydantic v2 Schema for Authentik Application & Provider Configuration.
-Validates OIDC settings before registering downstream apps.
-"""
-
-from typing import Optional
-from pydantic import BaseModel, Field, HttpUrl
-
-class OIDCProviderConfig(BaseModel):
-    name: str = Field(..., min_length=3, description="Provider display name")
-    client_id: str = Field(..., description="OAuth2 Client ID")
-    client_secret: str = Field(..., description="OAuth2 Client Secret")
-    redirect_uris: list[str] = Field(..., description="Allowed OAuth2 redirect URIs")
-    jwt_validity_seconds: int = Field(default=3600, ge=300, le=86400, description="Token expiration window")
-
-# Validation Execution Example
-if __name__ == "__main__":
-    provider_data = {
-        "name": "Nextcloud OIDC Provider",
-        "client_id": "nextcloud-client-id-12345",
-        "client_secret": "super-secret-oidc-key-67890",
-        "redirect_uris": ["https://cloud.example.com/apps/user_oidc/code"],
-        "jwt_validity_seconds": 3600
-    }
-    validated = OIDCProviderConfig.model_validate(provider_data)
-    print("Successfully validated Authentik Provider config:")
-    print(validated.model_dump_json(indent=2))
-```
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`HTTP 502 Bad Gateway on Forward Proxy`** | Authentik Outpost process disconnected from core server | Check Outpost logs (`docker logs authentik-outpost`) and verify WebSocket connection to port 8000. |
+| **`OIDC Invalid Grant / Redirect Mismatch`** | Redirect URI in downstream service does not match Authentik Provider settings | Verify exact protocol (`https://`), port, and callback path match between provider and app config. |
+| **`LDAP Outpost Bind Failure`** | Invalid service account credentials or closed TCP 389/636 ports | Test bind via `ldapsearch -H ldap://localhost:389 -D "cn=akadmin,ou=users,dc=authentik,dc=local" -w password`. |
+| **`Passkey / WebAuthn Registration Error`** | Domain mismatch or missing HTTPS TLS certificates | Ensure service is accessed over valid HTTPS domain; WebAuthn browser specs prohibit insecure HTTP except on localhost. |
+| **`PostgreSQL Connection Exhaustion`** | High worker concurrency exhausting default database pool | Increase `max_connections` in Postgres config or scale up pgbouncer connection pooler. |
 
 ## Related tools / concepts
 - [Tailscale](tailscale.md) — Encrypted mesh network transport for Authentik endpoints.

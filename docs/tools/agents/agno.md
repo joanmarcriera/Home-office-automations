@@ -94,13 +94,60 @@ Agno solves this by decoupling agent intelligence from agent state, providing a 
 - If your development team works exclusively in Node.js/TypeScript (consider [Bee Agent Framework](bee-agent-framework.md)).
 - For complex graph-based agent topologies requiring state machine branching and manual breakpoint debugging (consider [LangGraph](../frameworks/langgraph.md)).
 
+## Systemd Service Unit Configuration
+
+To run the Agno Agent Gateway as a managed systemd unit on a Linux host, place the following configuration file at `/etc/systemd/system/agno-agent-gateway.service`:
+
+```ini
+[Unit]
+Description=Agno Agent Fleet Gateway & FastMCP 3.1 Server
+After=network-online.target postgresql.service redis.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=agno
+Group=agno
+WorkingDirectory=/opt/agno-gateway
+Environment="PATH=/opt/agno-gateway/venv/bin:/usr/bin"
+Environment="AGNO_ENV=production"
+Environment="AGNO_LOG_LEVEL=INFO"
+Environment="DATABASE_URL=postgresql://agno_user:secure_pass@localhost:5432/agno_db"
+Environment="REDIS_URL=redis://localhost:6379/0"
+
+ExecStart=/opt/agno-gateway/venv/bin/uvicorn server:app \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --workers 4 \
+    --loop uvloop \
+    --http h11
+
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+MemoryAccounting=true
+MemoryHigh=16G
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now agno-agent-gateway.service
+sudo systemctl status agno-agent-gateway.service
+```
+
 ## Getting started
 
 ### Installation
 Install Agno alongside required model providers and vector dependencies:
 
 ```bash
-pip install agno openai duckduckgo-search pydantic>=2.0 pgvector
+pip install agno openai duckduckgo-search pydantic>=2.0 pgvector fastmcp
 ```
 
 ### Basic Usage (Local Gemma 4 Agent)
@@ -149,14 +196,21 @@ agno sessions list --db-url "postgresql://user:pass@localhost:5432/agno_db" --li
 ## API examples
 
 ### Python (FastMCP 3.1 Server with Pydantic v2 Schema Validation)
-This example showcases how to build a production FastMCP 3.1 server using Agno, incorporating strict Pydantic v2 validation for structured inputs and outputs.
+This complete production code showcases how to build a FastMCP 3.1 server using Agno, incorporating strict Pydantic v2 validation for structured inputs and outputs.
 
 ```python
 import sys
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, ValidationError
+from fastmcp import FastMCP
 from agno.agent import Agent
 from agno.mcp.server import FastMCPServer
+
+# Initialize FastMCP 3.1 Tool Gateway
+mcp = FastMCP(
+    name="Agno-Security-Analysis-Gateway",
+    instructions="FastMCP 3.1 gateway hosting stateless Agno security analysis agents."
+)
 
 # 1. Define strict Pydantic v2 input and output schemas
 class AuditTarget(BaseModel):
@@ -177,6 +231,11 @@ class LogAnalysisReport(BaseModel):
     remediation_priority: str = Field("low", pattern="^(low|medium|high|critical)$")
     resolved: bool
 
+class AnalysisResponse(BaseModel):
+    status: str = Field(..., description="Execution status: 'success' or 'error'")
+    report: Optional[LogAnalysisReport] = Field(None, description="Validated security report payload")
+    error_message: Optional[str] = Field(None, description="Error message if validation or agent failed")
+
 # 2. Instantiate the Agno Agent with structured response modeling
 log_agent = Agent(
     name="SecureLogAnalyzer",
@@ -187,47 +246,57 @@ log_agent = Agent(
     response_model=LogAnalysisReport
 )
 
-# 3. Host the Agent within a FastMCP 3.1 compliant Server
-app = FastMCPServer(
-    name="SecurityAnalysisEngine",
-    version="3.1.0",
-    agents=[log_agent]
-)
+@mcp.tool()
+def analyze_security_logs(target_payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Executes security log analysis via Agno agent using FastMCP 3.1 and Pydantic v2 verification.
+    """
+    try:
+        audit_target = AuditTarget.model_validate(target_payload)
 
-def validate_and_process_report(raw_json: Dict[str, Any]) -> LogAnalysisReport:
-    """Utility function to demonstrate strict Pydantic v2 validation."""
-    report = LogAnalysisReport.model_validate(raw_json)
-    return report
+        # Execute agent query
+        raw_response = log_agent.run(
+            f"Perform level {audit_target.scan_depth} log audit for host {audit_target.hostname} in {audit_target.environment}"
+        )
+
+        validated_report = LogAnalysisReport.model_validate(raw_response.content)
+
+        return AnalysisResponse(
+            status="success",
+            report=validated_report
+        ).model_dump()
+
+    except ValidationError as val_err:
+        return AnalysisResponse(
+            status="error",
+            error_message=f"Pydantic v2 Schema Violation: {val_err.errors()}"
+        ).model_dump()
+    except Exception as ex:
+        return AnalysisResponse(
+            status="error",
+            error_message=f"Agno Agent Execution Error: {str(ex)}"
+        ).model_dump()
 
 if __name__ == "__main__":
-    # Local validation demonstration
-    sample_report_data = {
-        "metadata": {
-            "session_id": "sess_agno_9921",
-            "origin_ip": "192.168.1.100",
-            "confidence_score": 0.96
-        },
-        "target": {
-            "hostname": "sec-gateway-01.internal",
-            "environment": "production",
-            "scan_depth": 3
-        },
-        "total_lines_analyzed": 45000,
-        "critical_vulnerabilities": ["CVE-2027-1042: FastMCP Buffer Underflow"],
-        "remediation_priority": "high",
-        "resolved": False
-    }
-
-    validated_result = validate_and_process_report(sample_report_data)
-    print("--- Agno Log Report Validated ---")
-    print(f"Session ID: {validated_result.metadata.session_id}")
-    print(f"Target Host: {validated_result.target.hostname}")
-    print(f"Vulnerabilities: {validated_result.critical_vulnerabilities}")
-
-    # Launch server when specified
-    if "--serve" in sys.argv:
-        app.run(port=8080)
+    mcp.run()
 ```
+
+## Production Hardening & Operational Rules
+
+1. **Database Session Store**: Always configure PostgreSQL with `pgvector` for agent session storage; avoid relying solely on in-memory storage for multi-worker FastAPI deployments.
+2. **FastMCP Protocol Standard**: Use FastMCP 3.1 explicit tool signatures with Pydantic v2 schemas to ensure interoperability across remote agent clusters.
+3. **Connection Pooling**: Set PostgreSQL connection pool size (`pool_size=20`, `max_overflow=10`) in Agno storage settings to avoid database exhaustion under concurrent agent flows.
+4. **Error Boundaries**: Wrap all LLM and tool calls inside exception handling blocks returning structured JSON error payloads.
+
+## Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`PostgreSQL Session Lock Error`** | Concurrent workers attempting to modify the same session record simultaneously | Ensure unique session UUIDs per client or configure row-level optimistic locking. |
+| **`FastMCP 3.1 Schema Validation Failure`** | Agent tool payload missing required Pydantic v2 field or pattern match mismatch | Inspect input dictionary against Pydantic model schemas and add defaults for optional fields. |
+| **`High Initial Latency on Worker Startup`** | Model embedding weight loading or database migration check blocking startup | Pre-initialize model connections in FastAPI `lifespan` handler before listening. |
+| **`ImportError: No module named agno`** | Legacy package imports referencing `phidata` instead of `agno` | Replace `from phidata import ...` with `from agno import ...` in codebase. |
+| **`PGVector Distance Calculation Timeout`** | Missing vector index on knowledge base embedding columns | Execute `CREATE INDEX ON embeddings USING hnsw (embedding vector_cosine_ops);` in PostgreSQL. |
 
 ## Related tools / concepts
 - [Phidata](phidata.md) — Agno predecessor framework.
