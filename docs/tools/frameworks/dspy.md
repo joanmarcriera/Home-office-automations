@@ -35,6 +35,29 @@ DSPy solves these issues by separating the program's logic (Signatures and Modul
   +-----------------------+        +-----------------------------------+        +-----------------------------------+
 ```
 
+## Sequence Diagram: MIPROv2 Teleprompter Program Compilation & Runtime Execution
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Developer / CI Pipeline
+    participant Tele as MIPROv2 Teleprompter
+    participant Teacher as Teacher LLM (Claude 5.1 / GPT-5.5)
+    participant Eval as Metric Validation Engine
+    participant FastMCP as FastMCP 3.1 Production Server
+
+    Dev->>Tele: Submit Program (Signature + Uncompiled Module + Trainset)
+    Tele->>Teacher: Synthesize Candidate System Instructions & Select Demonstrations
+    loop Candidate Prompt Iteration
+        Teacher-->>Tele: Return Candidate Prompt Candidates
+        Tele->>Eval: Execute Program on Trainset Batch
+        Eval-->>Tele: Calculate Score (Pydantic Validation + F1 Score)
+    end
+    Tele-->>Dev: Export Compiled Program State JSON
+    Dev->>FastMCP: Load Compiled Program JSON into FastMCP Service Gateway
+    FastMCP-->>Dev: FastMCP Tool Server Active with Optimized Prompts
+```
+
 ## Where it fits in the stack
 In modern agentic architectures, DSPy functions as the **Declarative Agent Logic & Compilation Layer**:
 1. **Model Framework Layer**: Sits above raw provider APIs (Anthropic, OpenAI, Ollama) and alongside frameworks like [LangChain](../ai_knowledge/langchain.md) or [CrewAI](crewai.md).
@@ -47,6 +70,40 @@ In modern agentic architectures, DSPy functions as the **Declarative Agent Logic
 - **Structured JSON Synthesis**: Forcing models to generate Pydantic v2 schemas reliably across complex multi-turn reasoning chains.
 - **Multi-Step Chain-of-Thought (CoT)**: Programmatically composing reasoning modules (`dspy.ChainOfThought`, `dspy.ReAct`, `dspy.ProgramOfThought`) into unified execution graphs.
 - **Cross-Model Migration**: Re-compiling prompt pipelines automatically when switching between cloud models (Claude 5.1) and edge models (Llama 4 Maverick).
+
+## Systemd Service Unit Configuration
+
+### DSPy Program Optimizer Service (`/etc/systemd/system/dspy-optimizer.service`)
+```ini
+[Unit]
+Description=DSPy Continuous Program Compilation Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=dspy-agent
+Group=dspy-agent
+WorkingDirectory=/opt/dspy-services
+Environment="PATH=/opt/dspy-services/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="OPENAI_API_KEY=sk-proj-prod-key-here"
+ExecStart=/opt/dspy-services/venv/bin/python3 -m dspy.cli optimize --program ./agents/code_auditor.py --trainset ./data/train.json --teleprompter MIPROv2 --output ./compiled_auditor.json
+Restart=on-failure
+RestartSec=15s
+MemoryMax=8G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Symptom / Log Output | Likely Root Cause | Diagnostic & Resolution Steps |
+| :--- | :--- | :--- |
+| **Compiler Error**: `AttributeError: 'Prediction' object has no attribute 'rationale'` | DSPy Signature field mismatch or missing output definition in `ChainOfThought`. | Ensure signature inherits from `dspy.Signature` and field names match output properties expected by downstream code. |
+| **Optimization Failure**: `Teleprompter score zero across all candidate iterations` | Overly strict metric function or malformed Pydantic validation schema. | Relax metric assertions during initial compilation; debug by evaluating uncompiled program manually on 5 train samples. |
+| **API Rate Limit**: `429 Too Many Requests during MIPROv2 search` | High concurrency evaluation batches exhausting LLM provider RPM/TPM. | Configure `dspy.configure(lm=lm, max_tokens=1000, num_threads=2)` to limit concurrent API calls. |
+| **Serialization Warning**: `Unable to save compiled program state to disk` | Program contains unpicklable Python objects or custom Lambda functions in signatures. | Replace Lambda functions with standard named Functions; save via `program.save(filepath)` standard state JSON. |
 
 ## Strengths
 - **Modular and Declarative**: Program logic remains independent of specific prompt strings or model providers.

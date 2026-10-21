@@ -44,6 +44,32 @@ The MATH benchmark solves the evaluation saturation problem by presenting high-s
 +-----------------------------------------------------------------------------------+
 ```
 
+## Sequence Diagram: FastMCP 3.1 Automated MATH Evaluation Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Bench as Benchmark Runner / Service
+    participant Model as LLM Reasoning Engine
+    participant Parser as LaTeX & Brace Stack Extractor
+    participant SymPy as SymPy Computer Algebra Engine
+    participant Reporter as Pydantic v2 Scorecard Generator
+
+    Bench->>Model: Query AMC 12 Problem (CoT System Prompt)
+    Model-->>Bench: Return Step-by-Step Trajectory with \boxed{solution}
+    Bench->>Parser: Extract Target Substring from Output
+    Parser-->>Bench: Extracted Substring: "\frac{\sqrt{3}}{2}"
+    Bench->>SymPy: Simplify (Extracted - GroundTruth)
+    alt Symbolic Equivalence Equals Zero
+        SymPy-->>Bench: Equivalence Confirmed True
+        Bench->>Reporter: Record PASS (Symbolic Match)
+    else Symbolic Expression Non-Zero or Error
+        SymPy-->>Bench: Equivalence Failed
+        Bench->>Reporter: Record FAIL (Mismatch)
+    end
+    Reporter-->>Bench: Updated Aggregate Metric Scorecard
+```
+
 ## Comparison Matrix
 
 | Metric / Feature | MATH Benchmark | GSM8K | GPQA | SVAMP |
@@ -65,6 +91,42 @@ The MATH benchmark sits in the **model evaluation and quality assurance layer**,
 - **Program-Aided Language (PAL) Evaluation**: Measuring accuracy improvements when models are allowed to write and execute Python scripts (`SymPy`, `NumPy`) during problem solving.
 - **Chain-of-Thought (CoT) Prompt Tuning**: Testing whether zero-shot CoT, few-shot CoT, or tree-of-thought search strategies yield higher LaTeX extraction scores.
 - **Fine-Tuning Dataset Verification**: Utilizing the MATH train set (7,500 problems) to train mathematical specialization adapters via [Axolotl](../frameworks/axolotl.md) or [LLaMA-Factory](../frameworks/llama-factory.md).
+
+## Systemd Service Unit Configuration
+
+### Automated Benchmark Evaluation Daemon (`/etc/systemd/system/math-benchmark-eval.service`)
+```ini
+[Unit]
+Description=MATH Benchmark Continuous Evaluation Daemon
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcp-eval
+Group=mcp-eval
+WorkingDirectory=/opt/math-benchmark
+Environment="PATH=/opt/math-benchmark/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="CUDA_VISIBLE_DEVICES=0,1"
+ExecStart=/opt/math-benchmark/venv/bin/python3 -m lm_eval --model hf --model_args pretrained=meta-llama/Llama-3.3-70B-Instruct --tasks math --output_path /var/log/math_eval_report.json
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65536
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Symptom / Log Output | Likely Root Cause | Diagnostic & Resolution Steps |
+| :--- | :--- | :--- |
+| **Parsing Failure**: `Regex error: unclosed brace in \boxed{\frac{...}` | Non-greedy regex fails on nested LaTeX braces in complex algebraic fractions. | Replace simple regex with a stack-based brace-counting extractor function. |
+| **SymPy Timeout**: `SymPy.simplify() execution exceeded 5.0s threshold` | Non-linear polynomial or trigonometric identity simplification complexity explosion. | Wrap SymPy evaluations in `signal.alarm()` or `asyncio.wait_for()` with a 3s timeout fallback to exact string comparison. |
+| **Evaluation Saturation**: `Model output contains correct proof but missing \boxed{}` | Model prompt instruction following failure regarding strict LaTeX formatting. | Prepend explicit System 2 formatting instructions (`"Format final answer strictly as \boxed{canonical_latex}"`). |
+| **GPU OOM**: `CUDA Out of Memory during multi-turn CoT generation` | Model generation length exceeded context window or sequence batch size too large. | Reduce `batch_size` in `lm_eval` invocation to 1 or enable `vLLM` tensor parallel processing. |
 
 ## Strengths
 - **Substantial Reasoning Ceiling**: Uncontaminated competition problems prevent artificial benchmark score inflation.
@@ -155,9 +217,19 @@ class EvaluationReport(BaseModel):
     is_symbolic_match: bool
 
 def extract_boxed(text: str) -> Optional[str]:
-    match = re.search(r"\\boxed\{([^{}]+)\}", text)
-    if match:
-        return match.group(1).strip()
+    """Stack-based extractor for nested LaTeX braces inside \boxed{}."""
+    start_idx = text.find("\\boxed{")
+    if start_idx == -1:
+        return None
+    start_idx += 7
+    brace_count = 1
+    for i in range(start_idx, len(text)):
+        if text[i] == '{':
+            brace_count += 1
+        elif text[i] == '}':
+            brace_count -= 1
+            if brace_count == 0:
+                return text[start_idx:i].strip()
     return None
 
 def check_symbolic_equivalence(target: str, predicted: str) -> bool:
