@@ -1,7 +1,7 @@
 # Curiosity
 
 ## What it is
-Curiosity is a desktop-first AI search application and enterprise knowledge assistant that provides a unified interface for searching across local files, emails, cloud storage, and enterprise applications. As of early January 2027, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama, vLLM) and multi-model vector indexing powered by FastMCP 3.1 Task Protocols.
+Curiosity is a desktop-first AI search application and enterprise knowledge assistant that provides a unified interface for searching across local files, emails, cloud storage, and enterprise applications. Expanding into the **Curiosity Workspace** platform, it offers enterprise features, SSO support (OIDC/SAML2), and integration with local LLMs (via Ollama, vLLM) and multi-model vector indexing powered by FastMCP 3.1 Task Protocols.
 - **Licensing**: Proprietary (Freemium)
 - **Cost**: Free (Personal) / Paid (Pro & Workspace)
 - **Self-hostable**: Desktop app (Local data) / Workspace (On-premise option)
@@ -10,7 +10,7 @@ Curiosity is a desktop-first AI search application and enterprise knowledge assi
 It solves the problem of "information fragmentation" where data is scattered across multiple SaaS apps (Slack, Jira, Notion, Confluence, Google Drive, OneDrive) and local folders. Curiosity provides a single "source of truth" for search, combined with an AI assistant that reasons over indexed data locally, ensuring privacy and reducing the need to upload sensitive files to public clouds.
 
 ## Where it fits in the stack
-**Enterprise AI / Personal Productivity / Desktop Search**. It acts as a human-facing "Agentic Interface" that bridges the gap between local files and cloud-based knowledge.
+**Category**: [Enterprise](../enterprise/index.md) / Enterprise AI & Unified Search. Curiosity acts as a human-facing "Agentic Interface" that bridges the gap between local desktop files and enterprise cloud knowledge repositories.
 
 ## Architecture & System Flow
 
@@ -35,9 +35,33 @@ It solves the problem of "information fragmentation" where data is scattered acr
 |                                                                        ||         |
 |                                                                        \/         |
 |  +-----------------------------------------------------------------------------+  |
-|  | Reasoning Engine (Local Ollama / vLLM OR Cloud Claude 5.6 / GPT-5.6 Gateway)  |  |
+|  | Reasoning Engine (Local Ollama / vLLM OR Cloud Claude / GPT / Gemini Gateway)  |  |
 |  +-----------------------------------------------------------------------------+  |
 +-----------------------------------------------------------------------------------+
+```
+
+### Detailed Search & FastMCP 3.1 Data Flow Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Agent
+    participant Launcher as Curiosity Desktop Launcher
+    participant HybridSearch as Hybrid Search Engine (BM25 + Vector)
+    participant FastMCP as FastMCP 3.1 Search Server
+    participant Validator as Pydantic v2 Schema Gate
+    participant LocalLLM as Local LLM (Ollama / vLLM)
+
+    User->>Launcher: Type Query (e.g., "@slack 2027 Q1 roadmap")
+    Launcher->>HybridSearch: Dispatch Parallel Query (BM25 Keyword + Embedding)
+    HybridSearch->>HybridSearch: Execute Reciprocal Rank Fusion (RRF)
+    HybridSearch-->>Launcher: Return Ranked Document Nodes
+    Launcher->>FastMCP: Dispatch Search Results for Context Assembly
+    FastMCP->>Validator: Validate Document Metadata & Source Permissions
+    Validator-->>FastMCP: Approved Document Context Payload
+    FastMCP->>LocalLLM: Send Structured Context + RAG Prompt
+    LocalLLM-->>FastMCP: Stream Generated Answer Synthesis
+    FastMCP-->>Launcher: Render Answer + Source Citations in Launcher UI
 ```
 
 ## Typical use cases
@@ -56,11 +80,20 @@ It solves the problem of "information fragmentation" where data is scattered acr
 | **Agentic Questioning** | Supported via MCP 3.1 Task Protocols | None | Basic webhooks |
 | **Enterprise SSO & Audit** | OIDC/SAML2 & Token Usage Dashboard | None | Cloud SSO standard |
 
+## Key Technical Specifications & Architectural Standards
+
+| Dimension | Standard / Specification | Production Requirement |
+| :--- | :--- | :--- |
+| **Search Architecture** | Hybrid Reciprocal Rank Fusion (RRF) | Combination of BM25 sparse and HNSW vector dense indexing |
+| **Inter-Agent Protocol** | FastMCP 3.1 / Model Context Protocol | JSON-RPC 2.0 transport over Local Pipe or SSE |
+| **Authentication** | OIDC / SAML2 / PKCE | Enterprise Single Sign-On with automatic token rotation |
+| **Local LLM Integration** | Ollama / vLLM REST Endpoint | Native HTTP API compatibility with OpenAI / Ollama schemas |
+
 ## Strengths
 - **Privacy-First Architecture**: Most indexing and AI processing (with local LLMs) occur on the user's machine.
 - **Native Desktop Experience**: High-performance, keyboard-driven interface with instant "Launcher" access.
 - **Extensive Connectors**: Supports 50+ cloud and local sources including Microsoft 365, Google Workspace, GitHub, and Notion.
-- **Early 2027 SOTA Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support) utilizing FastMCP 3.1 Task Protocols.
+- **Enterprise Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support) utilizing FastMCP 3.1 Task Protocols.
 - **Advanced Filtering**: Robust inline filters (e.g., `@file`, `ext:`, `src:`) for precision search.
 
 ## Limitations
@@ -78,6 +111,15 @@ It solves the problem of "information fragmentation" where data is scattered acr
 - If you prefer a pure web-based experience and do not want to install a local agent.
 - For high-performance, cluster-wide enterprise search where a dedicated engine like [Elasticsearch](elastic.md) is required.
 
+## System Configuration & Operational Parameters
+
+| Environment Variable | Default Value | Description |
+| :--- | :--- | :--- |
+| `CURIOSITY_PORT` | `8093` | Network listener port for Curiosity FastMCP 3.1 search bridge. |
+| `CURIOSITY_WORKSPACE_URL` | `https://workspace.curiosity.ai` | Target Curiosity Workspace enterprise server URL. |
+| `CURIOSITY_OLLAMA_HOST` | `http://localhost:11434` | Endpoint for local Ollama LLM provider. |
+| `CURIOSITY_MAX_RESULTS` | `20` | Default maximum document nodes returned per hybrid search query. |
+
 ## Getting started
 
 ### Installation
@@ -90,18 +132,21 @@ Download the installer for your platform from [curiosity.ai](https://curiosity.a
 1. Ensure [Ollama](../../services/ollama.md) is running on your machine (`ollama serve`).
 2. In Curiosity, navigate to **Settings > AI Assistant**.
 3. Select **Local LLM (Ollama)** as the provider.
-4. Choose your preferred model (e.g., `gemma4:27b` or `deepseek-v4:32b`) and click **Connect**.
+4. Choose your preferred model (e.g., `gemma3:8b` or `llama4:scout`) and click **Connect**.
 
 ## CLI examples
-Curiosity Workspace includes a CLI for administrative tasks, and it supports the [Model Context Protocol](../../architecture/multi_agent_knowledgeops.md) for agentic integration.
 
+### 1. FastMCP 3.1 Service Registration & Management
 ```bash
 # Register Curiosity as a FastMCP 3.1 Task Protocol server for an agent
 mcp register curiosity-server --command "curiosity-mcp" --args "--workspace-url https://my-org.curiosity.ai"
 
 # Trigger a re-index of a specific source via Workspace CLI
 curiosity-cli index trigger --source "google-drive-shared" --workspace "enterprise-docs"
+```
 
+### 2. Status Auditing & Launcher Productivity
+```bash
 # Query the workspace index health
 curiosity-cli status --json
 
@@ -111,20 +156,22 @@ curiosity-cli status --json
 ```
 
 ## API examples
-Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using frontier reasoning models like [Claude 5.6](../providers/anthropic.md), GPT-5.6, Gemini 4.0 Ultra, Gemma 4, DeepSeek-V4, and Qwen 3.6 VL.
 
-### FastMCP 3.1 Tool Registration & Pydantic v2 Validation
-Using FastMCP 3.1 and Pydantic v2, we validate Curiosity search results before feeding them to downstream frontier agents.
+### 1. FastMCP 3.1 Tool Server & Pydantic v2 Search Validation
+The following FastMCP 3.1 server validates Curiosity Workspace search payloads using Pydantic v2 schemas:
 
 ```python
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-import requests
+import logging
+import json
 
-# FastMCP 3.1 Server Definition
-mcp = FastMCP("CuriositySearchBridge", version="3.1")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("CuriositySearchBridge")
+
+mcp = FastMCP("CuriositySearchBridge")
 
 class CuriosityDocument(BaseModel):
     id: str = Field(..., description="Unique document node ID in Curiosity")
@@ -135,7 +182,6 @@ class CuriosityDocument(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Custom document attributes")
 
     @field_validator("source")
-    @classmethod
     def validate_source(cls, v: str) -> str:
         valid_sources = {"slack", "github", "google-drive", "notion", "jira", "local-file", "email"}
         if v.lower() not in valid_sources:
@@ -143,18 +189,17 @@ class CuriosityDocument(BaseModel):
         return v.lower()
 
 class CuriositySearchResult(BaseModel):
-    query: str = Field(..., description="The original search string")
+    query: str = Field(..., description="Original search string")
     total_hits: int = Field(..., description="Total documents matching query", ge=0)
-    documents: List[CuriosityDocument] = Field(default_factory=list, description="List of matched documents")
+    documents: List[CuriosityDocument] = Field(default_factory=list, description="Matched document nodes")
     search_duration_ms: float = Field(default=0.0, ge=0.0)
 
-@mcp.tool(name="search_workspace", description="Perform high-speed hybrid search across Curiosity Workspace index")
-def search_workspace(query: str, max_results: int = 10) -> Dict[str, Any]:
+@mcp.tool(description="Perform high-speed hybrid search across Curiosity Workspace index.")
+def search_workspace(query: str, max_results: int = 10) -> str:
     """FastMCP 3.1 tool implementation querying Curiosity Workspace."""
-    api_token = "MOCK_WORKSPACE_TOKEN"
-    api_url = "https://your-workspace.curiosity.ai/api/v1/search"
+    logger.info(f"Executing hybrid search for query: '{query}' (limit {max_results})")
 
-    raw_response = {
+    mock_response = {
         "query": query,
         "total_hits": 1,
         "documents": [
@@ -170,17 +215,14 @@ def search_workspace(query: str, max_results: int = 10) -> Dict[str, Any]:
         "search_duration_ms": 14.2
     }
 
-    try:
-        validated = CuriositySearchResult.model_validate(raw_response)
-        return validated.model_dump(mode="json")
-    except ValidationError as e:
-        return {"error": f"Validation failed: {str(e)}"}
+    validated = CuriositySearchResult.model_validate(mock_response)
+    return validated.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Triggering Agentic Tasks via API
+### 2. Triggering AI Summary Tasks via REST API
 ```python
 import requests
 
@@ -195,34 +237,75 @@ headers = {
 payload = {
     "node_id": "slack-thread-12345",
     "prompt_template": "Executive Summary",
-    "model_override": "claude-5-6-sonnet"
+    "model_override": "claude-3-7-sonnet"
 }
 
 response = requests.post(API_URL, headers=headers, json=payload)
 print(response.json())
 ```
 
-## Operational Best Practices & Troubleshooting
+## Production Systemd Service Unit Configuration
 
-### Memory & Index Optimization
-- **Exclusion Filters**: Exclude large binary folders (e.g., `node_modules`, `.venv`, build targets) in Curiosity Settings > Exclusions to reduce CPU usage.
-- **Vector Model Allocation**: When utilizing multi-model vector indexing, restrict local embedding tasks to GPU-accelerated devices or allocate dedicated VRAM.
-- **SSO Re-authentication**: OIDC tokens refresh automatically, but SAML session state should be verified every 30 days in enterprise deployments.
+To host the Curiosity FastMCP 3.1 search bridge as a persistent system daemon, create `/etc/systemd/system/curiosity-bridge.service`:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Curiosity Workspace Search Bridge Service
+After=network.target
+
+[Service]
+Type=simple
+User=curiosity
+Group=curiosity
+WorkingDirectory=/opt/curiosity-bridge
+Environment="PATH=/opt/curiosity-bridge/venv/bin:/usr/local/bin:/usr/bin"
+Environment="CURIOSITY_PORT=8093"
+Environment="CURIOSITY_WORKSPACE_URL=https://my-org.curiosity.ai"
+ExecStart=/opt/curiosity-bridge/venv/bin/python3 -m curiosity_bridge.server
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and manage the service via systemctl:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now curiosity-bridge.service
+sudo systemctl status curiosity-bridge.service
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Issue | Primary Cause | Diagnostic Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **High System Memory Usage** | Local embedding models and continuous indexing consuming RAM. | `curiosity-cli status --json` | Add exclusion filters for heavy folders (`node_modules`, `.venv`). Restrict local vector model threads. |
+| **Local Ollama Disconnect** | Curiosity cannot connect to Ollama endpoint at `http://localhost:11434`. | `curl http://localhost:11434/api/tags` | Ensure `OLLAMA_ORIGINS="*" env` is set and Ollama background daemon is running (`ollama serve`). |
+| **FastMCP Tool Timeout** | Workspace API search query took over 10 seconds to return results. | `journalctl -u curiosity-bridge.service -n 50` | Re-index connector sources or reduce `CURIOSITY_MAX_RESULTS` to 10. |
+| **SSO Token Expiration** | SAML2/OIDC session expired for enterprise workspace connectors. | `curiosity-cli auth status` | Re-authenticate user session via `curiosity-cli auth login --provider oidc`. |
 
 ## Related tools / concepts
-- [AnythingLLM](../ai_knowledge/anythingllm.md) — For flexible local RAG management.
-- [Khoj](../intake_storage/khoj.md) — Open-source personal AI search.
-- [Msty](../infrastructure/msty.md) — Desktop-native local LLM interface.
+- [AnythingLLM](../ai_knowledge/anythingllm.md) — Flexible local RAG management suite.
+- [Khoj](../intake_storage/khoj.md) — Open-source personal AI search assistant.
+- [Msty](../infrastructure/msty.md) — Desktop-native local LLM workbench.
 - [Ollama](../../services/ollama.md) — Primary local model provider for Curiosity.
-- [Elasticsearch](elastic.md) — For large-scale enterprise search infrastructure.
-- [Authentik](../../services/authentik.md) — For OIDC/SAML integration with Curiosity Workspace.
-- [MCP Registry](../../architecture/multi_agent_knowledgeops.md) — For extending agentic context.
+- [Elasticsearch](elastic.md) — Scalable enterprise search infrastructure.
+- [Authentik](../../services/authentik.md) — OIDC/SAML identity provider for Curiosity Workspace.
 
-## Sources / References
+## Sources / references
 - [Curiosity.ai Official Site](https://curiosity.ai/)
 - [Curiosity Documentation](https://docs.curiosity.ai/)
 - [Curiosity Platform Release Notes](https://knowledge.curiositysoftware.ie/docs/curiosity-platform-release-notes)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
