@@ -235,6 +235,27 @@ def parse_and_verify_tesseract_output(raw_ocr_payload: dict) -> dict:
             "errors": e.errors(include_url=False)
         }
 
+class OcrQualityReport(BaseModel):
+    image_path: str
+    total_words: int = Field(..., ge=0)
+    low_confidence_word_count: int = Field(..., ge=0)
+    average_confidence: float = Field(..., ge=0.0, le=100.0)
+
+@mcp.tool()
+def audit_ocr_quality(report_json: str) -> dict:
+    """FastMCP 3.1 tool for auditing OCR character recognition quality metrics."""
+    try:
+        report = OcrQualityReport.model_validate_json(report_json)
+        is_acceptable = report.average_confidence >= 80.0 and report.low_confidence_word_count <= (report.total_words * 0.1)
+        return {
+            "status": "audited",
+            "image_path": report.image_path,
+            "pass_quality_gate": is_acceptable,
+            "average_confidence": report.average_confidence
+        }
+    except ValidationError as err:
+        return {"status": "error", "validation_errors": err.errors(include_url=False)}
+
 if __name__ == "__main__":
     # Simulated pytesseract raw dictionary extraction
     simulated_pytesseract_dict = {
