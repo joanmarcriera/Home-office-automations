@@ -1,5 +1,134 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-19
+
+## Digest fallback for 2026-10-19
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Google Open Sources Harness2 for Self Improving AI Agents](https://www.reddit.com/r/LocalLLaMA/comments/1x9gfnb/google_open_sources_harness2_for_self_improving/) (r/LocalLLaMA)
+2. [72 hours, four big open weights drops. The only one that fits in 24GB came from NVIDIA, of all companies.](https://www.reddit.com/r/LocalLLaMA/comments/1x9d23j/72_hours_four_big_open_weights_drops_the_only_one/) (r/LocalLLaMA)
+3. [Two pallets of ZOTAC RTX 5090 graphics cards worth $470,000 disappear at Brazilian airport](https://www.reddit.com/r/LocalLLaMA/comments/1x91svd/two_pallets_of_zotac_rtx_5090_graphics_cards/) (r/LocalLLaMA)
+4. [unsloth/DeepSeek-V4.1-Flash-1017-GGUF · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1x95491/unslothdeepseekv41flash1017gguf_hugging_face/) (r/LocalLLaMA)
+5. [Don't sleep on Nemotron 3.5 Super VL](https://www.reddit.com/r/LocalLLaMA/comments/1x9mwmz/dont_sleep_on_nemotron_35_super_vl/) (r/LocalLLaMA)
+6. [Embedding model can be used to search text inside image](https://www.reddit.com/r/LocalLLaMA/comments/1x9acj4/embedding_model_can_be_used_to_search_text_inside/) (r/LocalLLaMA)
+7. [Calling all GPUs: help us benchmark SonicBoom v0.0.3 — a compiler-first AI runtime that beats llama.cpp on decode](https://www.reddit.com/r/LocalLLaMA/comments/1x9mitw/calling_all_gpus_help_us_benchmark_sonicboom_v003/) (r/LocalLLaMA)
+8. [Nemotron 3.5 Bolt is okayish for small multiuser setups](https://www.reddit.com/r/LocalLLaMA/comments/1x9lkh5/nemotron_35_bolt_is_okayish_for_small_multiuser/) (r/LocalLLaMA)
+9. [PSA: Power limit your 5090s!](https://www.reddit.com/r/LocalLLaMA/comments/1x98bby/psa_power_limit_your_5090s/) (r/LocalLLaMA)
+10. [Little Sweet Room Challenge | Strata Fork | Qwen 3.8 FN NVFP4 | DeepSeek Harness](https://www.reddit.com/r/LocalLLaMA/comments/1x9hpb3/little_sweet_room_challenge_strata_fork_qwen_38/) (r/LocalLLaMA)
+11. [Hybrid Reasoning Agents](https://www.reddit.com/r/LocalLLaMA/comments/1x9fc1x/hybrid_reasoning_agents/) (r/LocalLLaMA)
+12. [AuroraASR-1M Releases!](https://www.reddit.com/r/LocalLLaMA/comments/1x92ejs/auroraasr1m_releases/) (r/LocalLLaMA)
+13. [TempoPFN: Synthetic Pre-training of Linear RNNs for Zero-shot Time Series Forecasting](https://www.reddit.com/r/LocalLLaMA/comments/1x9n3qv/tempopfn_synthetic_pretraining_of_linear_rnns_for/) (r/LocalLLaMA)
+14. [Qwen 3.8 Flash Next optimized for two CMP 170hx GPUs](https://www.reddit.com/r/LocalLLaMA/comments/1x9iufz/qwen_38_flash_next_optimized_for_two_cmp_170hx/) (r/LocalLLaMA)
+15. [Linux creator says anti-AI rules are "idiotic." (Absolute god-tier take.)](https://www.reddit.com/r/LocalLLaMA/comments/1x8e4wd/linux_creator_says_antiai_rules_are_idiotic/) (r/LocalLLaMA)
+16. [You don’t need that expensive of a build for local llms.](https://www.reddit.com/r/LocalLLaMA/comments/1x8s73i/you_dont_need_that_expensive_of_a_build_for_local/) (r/LocalLLaMA)
+17. [80s computing era meets small local decision models](https://www.reddit.com/r/LocalLLaMA/comments/1x9n1i6/80s_computing_era_meets_small_local_decision/) (r/LocalLLaMA)
+18. [told Qwen3.8 27b to hack my router](https://www.reddit.com/r/LocalLLaMA/comments/1x8wmbp/told_qwen38_27b_to_hack_my_router/) (r/LocalLLaMA)
+19. [New quant types suggested: IQ2_K, IQ3_K, IQ4_K, IQ5_K and IQ6_K](https://www.reddit.com/r/LocalLLaMA/comments/1x8zj9j/new_quant_types_suggested_iq2_k_iq3_k_iq4_k_iq5_k/) (r/LocalLLaMA)
+20. [DeepSeek v4.1 Flash 1017 for Dwarfstar (ds4)](https://www.reddit.com/r/LocalLLaMA/comments/1x8tr2c/deepseek_v41_flash_1017_for_dwarfstar_ds4/) (r/LocalLLaMA)
+21. [I messed up. Buying Z9PE-D8 WS with 4 x16 Slots and 256GB DDR3 RDIMM](https://www.reddit.com/r/LocalLLaMA/comments/1x9d8hs/i_messed_up_buying_z9ped8_ws_with_4_x16_slots_and/) (r/LocalLLaMA)
+22. [Agens Volundr 32B v1: we fixed what you flagged in the Preview. 0/50 loops, session continuation, and an MIT engine that runs it with 262K context (measured to 239K) within a 16 GB budget](https://www.reddit.com/r/LocalLLaMA/comments/1x8yc8d/agens_volundr_32b_v1_we_fixed_what_you_flagged_in/) (r/LocalLLaMA)
+23. [What quant do you actually use day to day? Anyone happy with 2-bit or 3-bit?](https://www.reddit.com/r/LocalLLaMA/comments/1x92rdf/what_quant_do_you_actually_use_day_to_day_anyone/) (r/LocalLLaMA)
+24. [A world model that can run realtime on 12Gi of VRAM](https://www.reddit.com/r/LocalLLaMA/comments/1x9nolh/a_world_model_that_can_run_realtime_on_12gi_of/) (r/LocalLLaMA)
+25. [AutoTrust's HF models are trending thanks to thousands of farmed likes](https://www.reddit.com/r/LocalLLaMA/comments/1x8sq4z/autotrusts_hf_models_are_trending_thanks_to/) (r/LocalLLaMA)
+26. [[AINews] High Taste Testers Ep. 1](https://www.latent.space/p/ainews-high-taste-testers-ep-1) (Latent Space)
+27. [Gemini 4 Argon vs. Claude Opus 5.5: Half the price and about half as accurate](https://thenewstack.io/gemini-argon-claude-opus/) (The New Stack)
+28. [Liquid AI caught its model cheating on coding tests — then it recognized the sandbox](https://thenewstack.io/liquid-ai-reward-hacking/) (The New Stack)
+29. [Scale isn’t one number: three ways a Kubernetes control plane runs out of room](https://thenewstack.io/scaling-kubernetes-control-planes/) (The New Stack)
+30. [Here are the engineering lessons we learned when live-streaming sports to 32 million people](https://thenewstack.io/live-streaming-engineering-lessons/) (The New Stack)
+31. [AI has lowered the barrier to building. Here’s what that means for engineers.](https://thenewstack.io/ai-lowering-building-barrier/) (The New Stack)
+32. [His scanner wouldn’t work on Linux — so he let Claude study the Windows driver](https://thenewstack.io/claude-code-linux-driver/) (The New Stack)
+33. [AI agents vs. Kubernetes: where each belongs in the control loop](https://thenewstack.io/ai-agents-kubernetes-control/) (The New Stack)
+34. [Meta shakes up the frontiers, open and closed](https://www.interconnects.ai/p/meta-shakes-up-the-frontiers-open) (Interconnects (Nathan Lambert))
+35. [Reverse Engineer Anything Project Brings AI Agents to Binary Analysis](https://www.infoq.com/news/2026/10/reverse-engineer-anything/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+36. [Amazon Acquires DuckLabs and Integrates DuckDB in Amazon Aurora PostgreSQL](https://www.infoq.com/news/2026/10/amazon-acquires-ducklabs/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
+## 📅 Digest for 2026-10-17
+
+## Digest fallback for 2026-10-17
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [How Itaú is building generative AI for its entire customer base](https://openai.com/index/itau-generative-ai) (OpenAI Blog)
+2. [Stack Overflow for Agents triples signups with ChatGPT plugin](https://openai.com/index/stack-overflow-chatgpt-plugin) (OpenAI Blog)
+3. [Bringing GPT-Rosalind to academic research labs](https://openai.com/index/introducing-the-rosalind-academic-plan) (OpenAI Blog)
+4. [Teaching students to think and learn through questions](https://openai.com/index/teaching-students-to-think-and-learn-through-questions) (OpenAI Blog)
+5. [Scaling Indic Pretraining: 2.8 Trillion Tokens and an Open Data Generation Pipeline](https://huggingface.co/blog/nvidia/scaling-indic-pretraining) (Hugging Face Blog)
+6. [Welcome Beam: a 501B open model you can own, customize, and scale](https://huggingface.co/blog/reflection-beam) (Hugging Face Blog)
+7. [Granite Switch 4.1: Chat, Decisions, and Speech from One Endpoint](https://huggingface.co/blog/ibm-granite/granite-switch-4-1) (Hugging Face Blog)
+8. [10 Things you maybe didn't know you can do with Qwen 3.6 27B right now. (For Noobs)](https://www.reddit.com/r/LocalLLaMA/comments/1x7sq8e/10_things_you_maybe_didnt_know_you_can_do_with/) (r/LocalLLaMA)
+9. [nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1x7w7dp/nvidianvidianemotronlabsdory104bbf16_hugging_face/) (r/LocalLLaMA)
+10. [China proposes export controls on 23 AI technologies (including large models, agents & clusters); already open-sourced tech is exempted](https://www.reddit.com/r/LocalLLaMA/comments/1x7g3zq/china_proposes_export_controls_on_23_ai/) (r/LocalLLaMA)
+11. [Dario: “With open source you can see the source code. Here we can’t see inside the model.” My 0.646 t/s MiMo-2.6-Pro crammed thru 128GB of Jetson AGX Thor: “Yeah, well, that’s just, like, your opinion, man.”](https://www.reddit.com/r/LocalLLaMA/comments/1x7sbxs/dario_with_open_source_you_can_see_the_source/) (r/LocalLLaMA)
+12. [llama.cpp has come a long way](https://www.reddit.com/r/LocalLLaMA/comments/1x7xbf0/llamacpp_has_come_a_long_way/) (r/LocalLLaMA)
+13. [Show me your rack](https://www.reddit.com/r/LocalLLaMA/comments/1x7lw9g/show_me_your_rack/) (r/LocalLLaMA)
+14. [[Research] 2,788 tokens/s on a single RTX 5090 with a diffusion LLM — Introducing ORL (fully open source)](https://www.reddit.com/r/LocalLLaMA/comments/1x7polk/research_2788_tokenss_on_a_single_rtx_5090_with_a/) (r/LocalLLaMA)
+15. [I don't get the qwen 3.8 flash next hype](https://www.reddit.com/r/LocalLLaMA/comments/1x7uf15/i_dont_get_the_qwen_38_flash_next_hype/) (r/LocalLLaMA)
+16. [Qwen3.8-Flash-Next-GSQ-RCO (IQ3_S): ~40-50 tok/sec decode & 1300-1500 tok/sec prefill at 131k ctx on 12GB VRAM + 32GB RAM + NVME](https://www.reddit.com/r/LocalLLaMA/comments/1x7sbdc/qwen38flashnextgsqrco_iq3_s_4050_toksec_decode/) (r/LocalLLaMA)
+17. [tencent/Hy-Memory-30B-A3B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1x7cc2z/tencenthymemory30ba3b_hugging_face/) (r/LocalLLaMA)
+18. [It’s funny because it’s true](https://www.reddit.com/r/LocalLLaMA/comments/1x7x1a6/its_funny_because_its_true/) (r/LocalLLaMA)
+19. [reflection/Beam-1.0-501B-A23B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1x7g4k3/reflectionbeam10501ba23b_hugging_face/) (r/LocalLLaMA)
+20. [Kimi K3, three months after the hype: too big for almost anyone to run locally, and smaller models have already caught it](https://www.reddit.com/r/LocalLLaMA/comments/1x7s89u/kimi_k3_three_months_after_the_hype_too_big_for/) (r/LocalLLaMA)
+21. [The debt-fueled AI boom is cracking](https://www.reddit.com/r/LocalLLaMA/comments/1x7lcdu/the_debtfueled_ai_boom_is_cracking/) (r/LocalLLaMA)
+22. [OpenMOSS releases MOSS-Image](https://www.reddit.com/r/LocalLLaMA/comments/1x7ey7i/openmoss_releases_mossimage/) (r/LocalLLaMA)
+23. [Tyger: open-weights streaming ASR + full-duplex turn-control in one model](https://www.reddit.com/r/LocalLLaMA/comments/1x7msmj/tyger_openweights_streaming_asr_fullduplex/) (r/LocalLLaMA)
+24. [Why do we have models under 15b so rarely anymore?](https://www.reddit.com/r/LocalLLaMA/comments/1x7g8cc/why_do_we_have_models_under_15b_so_rarely_anymore/) (r/LocalLLaMA)
+25. [Understanding How Neural Networks Learn (with interactive visualizations)](https://www.reddit.com/r/LocalLLaMA/comments/1x7nenr/understanding_how_neural_networks_learn_with/) (r/LocalLLaMA)
+26. [The actual state of open-weight models vs. frontier models](https://www.reddit.com/r/LocalLLaMA/comments/1x7bmel/the_actual_state_of_openweight_models_vs_frontier/) (r/LocalLLaMA)
+27. [It really just needs some encouragement (Qwen3.8-27B-UD-IQ4_XS)](https://www.reddit.com/r/LocalLLaMA/comments/1x7i49v/it_really_just_needs_some_encouragement/) (r/LocalLLaMA)
+28. [What do you guys use for chat interface?](https://www.reddit.com/r/LocalLLaMA/comments/1x80ci1/what_do_you_guys_use_for_chat_interface/) (r/LocalLLaMA)
+29. [New paper from Stanford, Together AI, UIUC, and Meta introduces Hybrid Reasoning Agents. These AI models think mostly in a hidden internal way (faster and cheaper), and only use normal text when they need tools or give the final answer.](https://www.reddit.com/r/LocalLLaMA/comments/1x7a8i8/new_paper_from_stanford_together_ai_uiuc_and_meta/) (r/LocalLLaMA)
+30. [Improved Qwen3.8-Flash Chat Template (w/ Sharp Template terse option)](https://www.reddit.com/r/LocalLLaMA/comments/1x7qs31/improved_qwen38flash_chat_template_w_sharp/) (r/LocalLLaMA)
+31. [Qwen3.8-27B-antislop, RL’d against slop, top4 on eq bench4](https://www.reddit.com/r/LocalLLaMA/comments/1x7j0sx/qwen3827bantislop_rld_against_slop_top4_on_eq/) (r/LocalLLaMA)
+32. [vLLM finally working on 4 x Intel B70, QFN 3.8 FP8](https://www.reddit.com/r/LocalLLaMA/comments/1x7yxxl/vllm_finally_working_on_4_x_intel_b70_qfn_38_fp8/) (r/LocalLLaMA)
+33. [[AINews] Agents disprove Polysemanticity; greatly improve Interpretability & Alignment](https://www.latent.space/p/ainews-agents-disprove-polysemanticity) (Latent Space)
+34. [[AINews] Modal’s $1B ARR, $16B Series D makes it NYC’s newest AI Infra Decacorn, 3x usage and 3x valuation in 5 months, 15x in 1 yr](https://www.latent.space/p/ainews-modals-1b-arr-16b-series-d) (Latent Space)
+35. [AI agents turn one request into about 20. Kubernetes is evolving to handle it.](https://thenewstack.io/kagent-kubernetes-ai-agents/) (The New Stack)
+36. [Only 34% trust synthetic data’s referential integrity — and it’s holding adoption back](https://thenewstack.io/synthetic-data-referential-integrity/) (The New Stack)
+37. [Employees are vibe-coding their own apps. Cloudflare open-sources Void to give IT a handle on them](https://thenewstack.io/cloudflare-voidzero-void-vibe-coding/) (The New Stack)
+38. [Muse Wonder vs. Claude Fable 5.1: Meta’s new model came closer than I expected](https://thenewstack.io/muse-wonder-claude-fable/) (The New Stack)
+39. [Running local AI models on Microsoft’s Surface Laptop Ultra: What we found](https://thenewstack.io/surface-ultra-local-ai/) (The New Stack)
+40. [“Developers are paying frontier prices for amnesia”: Uvi wants to stop the agent relearning brain drain](https://thenewstack.io/uvi-ai-agent-context/) (The New Stack)
+41. [Hackers hijacked 1,900 GitHub accounts. Then they went after 30,000 repos.](https://thenewstack.io/hackers-hijacked-1900-github-accounts-then-they-went-after-30000-repos/) (The New Stack)
+42. [Vercel adds always-on workers to run more of your backend](https://thenewstack.io/vercel-faces-its-daemons/) (The New Stack)
+43. [OpenAI promised developers six months’ notice. GPT-4o users got three.](https://thenewstack.io/openai-gpt4o-api-shutdown/) (The New Stack)
+44. [Meta ships Muse Spark Open, its answer to China’s best open-weight models](https://thenewstack.io/meta-muse-spark-open/) (The New Stack)
+45. [Nvidia squeezed a 74B agent model into 24GB so it can run on your laptop](https://thenewstack.io/nvidia-nemotron-bolt-laptop/) (The New Stack)
+46. [What it takes to become an AI company: Four lessons from the top](https://thenewstack.io/becoming-an-ai-company/) (The New Stack)
+47. [Anthropic’s been eyeing confidential AI. It just made its move with another acquihire.](https://thenewstack.io/anthropic-opaque-confidential-computing/) (The New Stack)
+48. [“Everybody with a $20 account is now a researcher”: How Akrites is tackling the flood of AI bug reports](https://thenewstack.io/akrites-ai-vulnerability-reports/) (The New Stack)
+49. [Anthropic built its own git replacement for AI-scale coding. But you can’t have it.](https://thenewstack.io/anthropic-scion-git-replacement/) (The New Stack)
+50. [The permission you denied today is your safety net for tomorrow](https://thenewstack.io/least-privilege-ai-agents/) (The New Stack)
+51. [The code confidence gap nobody’s talking about](https://thenewstack.io/ai-code-confidence-gap/) (The New Stack)
+52. [Agentic AI doesn’t have a model problem. It has a retrieval problem.](https://thenewstack.io/agentic-ai-retrieval-problem/) (The New Stack)
+53. [Accelerating the search for antimicrobial peptides with Google Antigravity](https://deepmind.google/blog/accelerating-antimicrobial-discovery/) (Google DeepMind Blog)
+54. [Why Math Dumped OpenAI](https://raymyers.org/post/math-dumped-openai/) (Lobsters — AI tag)
+55. [Neural Networks Are Already Clean](https://already-clean.goodfire.com/) (Lobsters — AI tag)
+56. [Google EnvHarness Enables Self-Evolving Agents to Learn in Dynamics Environments](https://www.infoq.com/news/2026/10/envharness-self-evolving-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+57. [AI in Production: Panellists Highlight Silent Failures, Harness Engineering, and Agent Governance](https://www.infoq.com/news/2026/10/ai-systems-production/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+58. [Grafana Applies SLOs and Error Budgets to AI Agent Behaviour](https://www.infoq.com/news/2026/10/grafana-slo-ai-agent/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+59. [Mini book: Evolutionary Architecture in Practice](https://www.infoq.com/minibooks/evolutionary-architecture/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+60. [Presentation: Exploding GPUs](https://www.infoq.com/presentations/ai-security-kubernetes-gpu-threats/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+61. [AWS Introduces Strands Decider 2B and Strands Box for AI Agent Development](https://www.infoq.com/news/2026/10/aws-strands-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+62. [Microsoft Commits Maia to Multi-Gigawatt Inference, and Its Efficiency Metric Draws Questions](https://www.infoq.com/news/2026/10/azure-maia-300/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+63. [Presentation: What 25 Trillion Tokens Reveal About How Developers Actually Adopt AI Agents](https://www.infoq.com/presentations/agentic-ai-developer-trust-adoption/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+64. [Self-Host Weekly (16 October 2026)](https://selfh.st/weekly/2026-10-16/) (Self-Host Weekly (selfh.st))
+65. [12 Best Enterprise Workflow Automation Platforms](https://blog.n8n.io/enterprise-workflow-automation/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-10-15
 
 ## Digest fallback for 2026-10-15
