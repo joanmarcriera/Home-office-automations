@@ -1,5 +1,81 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-21
+
+## Digest fallback for 2026-10-21
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Franchisee reconciles cash in 94% less time with ChatGPT Work](https://openai.com/index/ted-taylor-restaurant) (OpenAI Blog)
+2. [Terminal X matches senior investor judgment 88.6% with GPT-6.1](https://openai.com/index/terminal-x) (OpenAI Blog)
+3. [OpenAI acquires Orchestra Bio](https://openai.com/index/openai-to-acquire-orchestra-bio) (OpenAI Blog)
+4. [Advancing coding in low‑resource programming languages](https://openai.com/index/low-resource-programming-languages) (OpenAI Blog)
+5. [Southeast Asia’s digital economy to hit $368 billion](https://blog.google/company-news/inside-google/around-the-globe/google-asia/e-conomy-sea-report-2026/) (Google AI Blog)
+6. [NVIDIA Cosmos3-H-Dreams: Bringing Clinical Surgery to Life Through Generative Simulation](https://huggingface.co/blog/nvidia/cosmos3-h-dreams) (Hugging Face Blog)
+7. [FairStress: A deeper evaluation of fairness in LLM decision-making](https://huggingface.co/blog/allenai/fairstress) (Hugging Face Blog)
+8. [ALTK-Evolve: How learned memory tops the τ²-bench leaderboard on customer service tasks without a frontier model](https://huggingface.co/blog/ibm-research/altk-evolve-bc) (Hugging Face Blog)
+9. [Hugging Face ❤️ TorchTPU: TPUs, Natively](https://huggingface.co/blog/hf-torchtpu) (Hugging Face Blog)
+10. [AnyLanguageModel 1.0: One Year of Local Models on Apple Platforms](https://huggingface.co/blog/anylanguagemodel-1-0) (Hugging Face Blog)
+11. [MPS in PyTorch 2.15](https://huggingface.co/blog/mps-pytorch-2-15) (Hugging Face Blog)
+12. [[Bi-Weekly Megathread] Project Showcase](https://www.reddit.com/r/LocalLLaMA/comments/1x9yg86/biweekly_megathread_project_showcase/) (r/LocalLLaMA)
+13. [EXCLUSIVE: ByteDance, Alibaba, Tencent place over $35 billion worth of Nvidia chip orders](https://www.reddit.com/r/LocalLLaMA/comments/1xb9z8e/exclusive_bytedance_alibaba_tencent_place_over_35/) (r/LocalLLaMA)
+14. [Eagle-4 Released: Faster than DFlash2 & DSpark](https://www.reddit.com/r/LocalLLaMA/comments/1xb6zds/eagle4_released_faster_than_dflash2_dspark/) (r/LocalLLaMA)
+15. [Pocket TTS which supports voice cloning is now just 1.9 million parameters](https://www.reddit.com/r/LocalLLaMA/comments/1xauekr/pocket_tts_which_supports_voice_cloning_is_now/) (r/LocalLLaMA)
+16. [Deepseek released DeepInfer - Open Source high-performance, large-scale inference framework for DeepSeek models!](https://www.reddit.com/r/LocalLLaMA/comments/1xanm55/deepseek_released_deepinfer_open_source/) (r/LocalLLaMA)
+17. [XHToken/Spark-X2.6-4B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1xb0nr9/xhtokensparkx264b_hugging_face/) (r/LocalLLaMA)
+18. [ornith-ai/Ornith-1.5-122B (Qwen finetune)](https://www.reddit.com/r/LocalLLaMA/comments/1xatebw/ornithaiornith15122b_qwen_finetune/) (r/LocalLLaMA)
+19. [Phonon is now open-source, 31M and 40M TTS models designed to run on the edge](https://www.reddit.com/r/LocalLLaMA/comments/1xaw2vt/phonon_is_now_opensource_31m_and_40m_tts_models/) (r/LocalLLaMA)
+20. [I use local AI to generate personal value on my massive NAS-based archive / library](https://www.reddit.com/r/LocalLLaMA/comments/1xbd1hp/i_use_local_ai_to_generate_personal_value_on_my/) (r/LocalLLaMA)
+21. [Qwen3.8-Flash-Next vs Opus 5.5: Six-way benchmark on a real Rust feature with Claude Code and Pi](https://www.reddit.com/r/LocalLLaMA/comments/1xatxqk/qwen38flashnext_vs_opus_55_sixway_benchmark_on_a/) (r/LocalLLaMA)
+22. [I built an RK3588 NPU runtime without any proprietary inference libraries: Qwen3.5-4B at ~10 tok/s, ~2x faster than vendor SDK.](https://www.reddit.com/r/LocalLLaMA/comments/1xb45bq/i_built_an_rk3588_npu_runtime_without_any/) (r/LocalLLaMA)
+23. [qev-0.8b · New SOTA tiny local decision model](https://www.reddit.com/r/LocalLLaMA/comments/1xazrvd/qev08b_new_sota_tiny_local_decision_model/) (r/LocalLLaMA)
+24. [Vals AI found DeepSeek V4.1 Flash 1017 beats GPT 6 Sol on their multi-step offensive cybersecurity task. Sol was tested via the Daybreak trusted access program.](https://www.reddit.com/r/LocalLLaMA/comments/1xap2aq/vals_ai_found_deepseek_v41_flash_1017_beats_gpt_6/) (r/LocalLLaMA)
+25. [KFlash: Benchmarks of newly released versions of Apple Silicon optimized engines: 1.4.0 Splash (DFlash2 ~ 50 tok/s) vs 0.2 Kapitsa (KFlash ~65 tok/s), MLX(MTP) & more on Qwen 3.8 27b/4b/35b 4Q on Macbook Pro M4 Pro 48 GB 2024, 48GB & Macbook Pro M1 Pro 16GB 2021](https://www.reddit.com/r/LocalLLaMA/comments/1xbdxg3/kflash_benchmarks_of_newly_released_versions_of/) (r/LocalLLaMA)
+26. [Improve Qwen3.8-27b low quants by using a prefiller model that streams from SSD](https://www.reddit.com/r/LocalLLaMA/comments/1xao7kx/improve_qwen3827b_low_quants_by_using_a_prefiller/) (r/LocalLLaMA)
+27. [Hardly any benchmarks for Intel B65, so I got 4x and tested them. Long Context Sweeps for Flash-Next and other models](https://www.reddit.com/r/LocalLLaMA/comments/1xavy8t/hardly_any_benchmarks_for_intel_b65_so_i_got_4x/) (r/LocalLLaMA)
+28. [24GB is plenty if your engines take turns](https://www.reddit.com/r/LocalLLaMA/comments/1xahi82/24gb_is_plenty_if_your_engines_take_turns/) (r/LocalLLaMA)
+29. [[Paper] The COUNT: Counting N-grams Unlocks Scaling on Host Memory and Training-Free Adaptation](https://www.reddit.com/r/LocalLLaMA/comments/1xat6o7/paper_the_count_counting_ngrams_unlocks_scaling/) (r/LocalLLaMA)
+30. [FairStress: A deeper evaluation of fairness in LLM decision-making](https://www.reddit.com/r/LocalLLaMA/comments/1xbcnrf/fairstress_a_deeper_evaluation_of_fairness_in_llm/) (r/LocalLLaMA)
+31. [Short report from Lithuanian conference on AI Technologies in Medicine](https://www.reddit.com/r/LocalLLaMA/comments/1xaxffx/short_report_from_lithuanian_conference_on_ai/) (r/LocalLLaMA)
+32. [Qwen 3.8 Flash Next: drastically faster and much more precise in reaching the result.](https://www.reddit.com/r/LocalLLaMA/comments/1xapakf/qwen_38_flash_next_drastically_faster_and_much/) (r/LocalLLaMA)
+33. [MiMo 2.6 is reasoning is like the crash test dummies](https://www.reddit.com/r/LocalLLaMA/comments/1xawa17/mimo_26_is_reasoning_is_like_the_crash_test/) (r/LocalLLaMA)
+34. [Agnes-AI/Agnes-3.0-Qwen (QFN finetune)](https://www.reddit.com/r/LocalLLaMA/comments/1xaxz80/agnesaiagnes30qwen_qfn_finetune/) (r/LocalLLaMA)
+35. [Running 35B MoE models on a Tesla K80 (2014) at ~21 tok/s, in plain C](https://www.reddit.com/r/LocalLLaMA/comments/1xaz06x/running_35b_moe_models_on_a_tesla_k80_2014_at_21/) (r/LocalLLaMA)
+36. [[Paper] REMORY: Learning Residual Memory for Context Compaction](https://www.reddit.com/r/LocalLLaMA/comments/1xasp90/paper_remory_learning_residual_memory_for_context/) (r/LocalLLaMA)
+37. [Battle Drones - a vibe coded RTS with audio-based multiplayer](https://simonwillison.net/2026/Oct/20/battledrones/) (Simon Willison's Weblog)
+38. [AI for the Fortune 2000: How Tenex Builds an AI-Native SDLC — Alex Lieberman & CJ Hess](https://www.latent.space/p/tenex) (Latent Space)
+39. [The Programmable Data Center — Evan Conrad, SF Compute](https://www.latent.space/p/sfcompute2) (Latent Space)
+40. [[AINews] not much happened today](https://www.latent.space/p/ainews-not-much-happened-today-f09) (Latent Space)
+41. [Respan spent two years building on LiteLLM. One upgrade made it start over.](https://thenewstack.io/respan-rust-ai-gateway/) (The New Stack)
+42. [“We are not forking TypeScript”: Cloudflare spearheads Rust port written by agents, for agents](https://thenewstack.io/cloudflare-rust-typescript-tsrs/) (The New Stack)
+43. [Assess the entire inference stack — not just open model benchmarks](https://thenewstack.io/open-model-benchmarks-production/) (The New Stack)
+44. [ElevenLabs wants to run your voice agent. Here’s what developers give up.](https://thenewstack.io/elevenlabs-voice-agent-tradeoffs/) (The New Stack)
+45. [Scripted tests can’t keep up with AI-written code. Datadog is betting agents can.](https://thenewstack.io/datadog-propolis-agentic-testing/) (The New Stack)
+46. [How to review AI code without reading the code](https://thenewstack.io/review-decisions-not-code/) (The New Stack)
+47. [DeepSeek open-sources the inference engine behind its API. And Huawei gets equal billing with Nvidia.](https://thenewstack.io/deepseek-deepinfer-huawei-nvidia/) (The New Stack)
+48. [Beam pulls single app windows off the Mac Mini running your agents](https://thenewstack.io/beam-mac-mini-agents/) (The New Stack)
+49. [AI’s Midas problem: When code is free, features are worthless](https://thenewstack.io/ai-commoditizes-software-value/) (The New Stack)
+50. [MiniMax just halved its token prices. Your AI agent bill may not follow.](https://thenewstack.io/minimax-flash-agent-costs/) (The New Stack)
+51. [Researchers removed one instruction from Claude Code. Out-of-scope actions jumped.](https://thenewstack.io/coding-agents-overstep-scope/) (The New Stack)
+52. [DeepSeek made its name with cheap AI models. Now it’s undercutting search API rivals, too.](https://thenewstack.io/deepseek-web-search-api/) (The New Stack)
+53. [The distroless security gap: Why bottom-up containers are the next evolution in OCI images](https://thenewstack.io/distroless-container-security-gap/) (The New Stack)
+54. [Latest open artifacts (#25): DeepSeek V4.1 Flash 1017, American-made models, and new regulatory controls in the US & China](https://www.interconnects.ai/p/latest-open-artifacts-25-deepseek) (Interconnects (Nathan Lambert))
+55. [Timestral: Mistral's time-series foundation models](https://mistral.ai/news/timestral/) (Lobsters — AI tag)
+56. [TornadoVM 7 Enables GPU-Native Workloads From Java Applications](https://www.infoq.com/news/2026/10/tornadovm-7-gpu/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+57. [Presentation: Beyond the Prototype: Scaling Framework Agnostic AI Agent Infrastructure with Ray](https://www.infoq.com/presentations/scale-llm-agents-production-ray/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+58. [Article: From Microservices to Agents: the Next Evolution of Distributed Systems](https://www.infoq.com/articles/distributed-systems-microservices-agentic-ai/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+59. [Podcast: The Future of Web Apps: Will AI Agents Generate UIs on the Fly?](https://www.infoq.com/podcasts/future-web-apps/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+60. [EmbeddingGemma 2 Expands beyond Text to Support Code, Images, Video, and Audio](https://www.infoq.com/news/2026/10/embeddinggemma-2-multimodal/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+61. [Why we refreshed the n8n brand](https://blog.n8n.io/n8n-brand-refresh-2026/) (n8n Blog)
+62. [Run your n8n AI workflows on NVIDIA DGX Spark, with no cloud API](https://blog.n8n.io/n8n-nvidia-dgx-spark/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-10-19
 
 ## Digest fallback for 2026-10-19
