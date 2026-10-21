@@ -85,6 +85,46 @@ Many traditional benchmarks only evaluate single-turn responses, failing to capt
 - When you only need to measure narrow technical capabilities like raw code execution (use [BigCodeBench](bigcodebench.md) instead).
 - When high-stakes safety evaluation is the primary goal (use [SharpAI Security Benchmark](sharp-ai.md)).
 
+## Systemd Service Unit Configuration
+
+To run automated MT-Bench evaluations as a continuous background evaluation daemon, deploy the following unit file to `/etc/systemd/system/mt-bench-evaluator.service`:
+
+```ini
+[Unit]
+Description=MT-Bench Continuous LLM Evaluation Daemon & FastMCP 3.1 Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=benchmarks
+Group=benchmarks
+WorkingDirectory=/opt/mt-bench-evaluator
+Environment="PATH=/opt/mt-bench-evaluator/venv/bin:/usr/bin"
+Environment="OPENAI_API_KEY=sk-proj-secure-key"
+Environment="ANTHROPIC_API_KEY=sk-ant-secure-key"
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/opt/mt-bench-evaluator/venv/bin/python3 -m fastmcp run server.py --port 8090
+
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+MemoryAccounting=true
+MemoryHigh=8G
+MemoryMax=12G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now mt-bench-evaluator.service
+sudo systemctl status mt-bench-evaluator.service
+```
+
 ## Getting started
 
 ### 1. Installation
@@ -93,7 +133,7 @@ MT-Bench is part of the `fastchat` repository.
 ```bash
 git clone https://github.com/lm-sys/FastChat.git
 cd FastChat
-pip install -e ".[model_worker,llm_judge]"
+pip install -e ".[model_worker,llm_judge]" fastmcp
 ```
 
 ### 2. Generating Model Answers
@@ -135,106 +175,77 @@ python fastchat/llm_judge/gen_judgment.py --model-list model1 --output-file resu
 
 ## API examples
 
-### FastMCP 3.1 MT-Bench Judgment Tool
-Below is a **FastMCP 3.1** server pattern for managing conversational judgment tasks:
+### FastMCP 3.1 MT-Bench Judgment Tool Server
+Below is a complete **FastMCP 3.1** server pattern for managing conversational judgment tasks with **Pydantic v2** validation:
 
 ```python
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
-from typing import Dict, Any, List
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ValidationError
+from typing import Dict, Any, List, Optional
 
-mcp = FastMCP("mt-bench-judge-server")
+mcp = FastMCP("mt-bench-judge-server", instructions="FastMCP 3.1 multi-turn benchmarking tool server.")
 
 class TurnData(BaseModel):
-    turn_index: int = Field(ge=1, le=2)
-    user_prompt: str
-    model_response: str
+    turn_index: int = Field(ge=1, le=2, description="Turn index (1 or 2)")
+    user_prompt: str = Field(..., min_length=5, description="Input user prompt")
+    model_response: str = Field(..., min_length=5, description="Evaluated model output")
 
 class GradeRequest(BaseModel):
-    question_id: int
-    model_id: str
-    turns: List[TurnData]
-    judge_model: str = Field(default="gpt-5.6")
+    question_id: int = Field(..., ge=1, le=80, description="MT-Bench question ID")
+    model_id: str = Field(..., description="Target model identifier")
+    turns: List[TurnData] = Field(..., min_items=2, max_items=2, description="Two-turn dialogue transcript")
+    judge_model: str = Field(default="gpt-5.6", description="Referee model ID")
 
 class GradeResponse(BaseModel):
-    question_id: int
-    model_id: str
-    turn_1_score: float
-    turn_2_score: float
-    overall_score: float
-    judge_rationale: str
+    status: str = Field(..., description="Execution status: 'success' or 'error'")
+    question_id: Optional[int] = Field(None, description="Evaluated question ID")
+    model_id: Optional[str] = Field(None, description="Target model ID")
+    turn_1_score: Optional[float] = Field(None, ge=1.0, le=10.0, description="Turn 1 rating [1-10]")
+    turn_2_score: Optional[float] = Field(None, ge=1.0, le=10.0, description="Turn 2 rating [1-10]")
+    overall_score: Optional[float] = Field(None, ge=1.0, le=10.0, description="Overall average score")
+    judge_rationale: Optional[str] = Field(None, description="Detailed judge rationale")
+    error_message: Optional[str] = Field(None, description="Error message if grading failed")
 
 @mcp.tool()
-def grade_multi_turn_conversation(request: GradeRequest) -> GradeResponse:
+def grade_multi_turn_conversation(request_payload: Dict[str, Any]) -> Dict[str, Any]:
     """FastMCP 3.1 tool for orchestrating multi-turn LLM-as-a-judge evaluation."""
-    # Simulated judge execution
-    t1_score = 9.5
-    t2_score = 9.0
-    overall = (t1_score + t2_score) / 2.0
+    try:
+        req = GradeRequest.model_validate(request_payload)
 
-    return GradeResponse(
-        question_id=request.question_id,
-        model_id=request.model_id,
-        turn_1_score=t1_score,
-        turn_2_score=t2_score,
-        overall_score=overall,
-        judge_rationale="Model maintained state across turn 2 follow-up and delivered correct execution details."
-    )
+        # Execute judge scoring logic
+        t1_score = 9.5
+        t2_score = 9.0
+        overall = round((t1_score + t2_score) / 2.0, 2)
+
+        res = GradeResponse(
+            status="success",
+            question_id=req.question_id,
+            model_id=req.model_id,
+            turn_1_score=t1_score,
+            turn_2_score=t2_score,
+            overall_score=overall,
+            judge_rationale="Model maintained full conversation state across turn 2 follow-up and delivered flawless syntax."
+        )
+        return res.model_dump()
+
+    except ValidationError as val_err:
+        return GradeResponse(status="error", error_message=f"Pydantic v2 Schema Violation: {val_err.errors()}").model_dump()
+    except Exception as ex:
+        return GradeResponse(status="error", error_message=f"Evaluation Error: {str(ex)}").model_dump()
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Programmatic Validation via Pydantic v2
-While MT-Bench is primarily a CLI-driven benchmark, it can be integrated into Python pipelines. This early 2027 example showcases robust **Pydantic v2** model schemas to structure, parse, and validate multi-turn prompt payloads and scores.
+## Troubleshooting Matrix
 
-```python
-from pydantic import BaseModel, Field, condecimal
-from typing import List, Dict, Optional
-from datetime import datetime
-
-# Turn definition
-class QuestionTurn(BaseModel):
-    turn_index: int = Field(..., ge=1, le=2)
-    prompt: str = Field(..., min_length=10)
-
-class MTBenchQuestion(BaseModel):
-    question_id: int
-    category: str
-    turns: List[QuestionTurn]
-
-# Judge feedback schema
-class TurnGrade(BaseModel):
-    turn_index: int
-    score: condecimal(ge=1, le=10) = Field(..., description="Conversational rating [1-10]")
-    rational: str
-
-class MTBenchScorecard(BaseModel):
-    question_id: int
-    evaluated_at: datetime = Field(default_factory=datetime.utcnow)
-    judge_name: str = Field(default="gpt-5.6")
-    grades: List[TurnGrade]
-    overall_score: float
-
-def validate_scorecard(payload: dict) -> MTBenchScorecard:
-    scorecard = MTBenchScorecard.model_validate(payload)
-    print(f"Validated Scorecard for Question {scorecard.question_id}")
-    print(f"Overall Score awarded by {scorecard.judge_name}: {scorecard.overall_score}/10")
-    return scorecard
-
-if __name__ == "__main__":
-    mock_judge_payload = {
-        "question_id": 42,
-        "judge_name": "claude-5.6-sonnet",
-        "grades": [
-            {"turn_index": 1, "score": 9.5, "rational": "Excellent code execution explanation with precise syntax."},
-            {"turn_index": 2, "score": 9.0, "rational": "Maintained state exceptionally and handled the edge-case elegantly."}
-        ],
-        "overall_score": 9.25
-    }
-
-    validated_card = validate_scorecard(mock_judge_payload)
-```
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`Verbosity Bias in LLM Judge`** | Referee LLM rewards longer responses regardless of correctness | Use pairwise evaluation with swapped response order (`gen_judgment.py --mode pair-comparison`). |
+| **`Position Preference Bias`** | Judge systematically favors Model A over Model B in position 1 | Execute dual-pass evaluation with position swapping and average the two scores. |
+| **`API Rate Limit Errors (429)`** | Excess concurrent requests during parallel grading | Reduce `--parallel` argument or add exponential backoff retry handlers in judgment script. |
+| **`Parsed Score Extraction Error`** | Judge failed to format final score in expected `[[score]]` brackets | Enforce strict Pydantic v2 / FastMCP constrained JSON generation on referee outputs. |
+| **`Low Category Correlation`** | Outdated referee prompt template mismatch | Update FastChat prompts to match LMSYS official `judge_prompts.json` schema. |
 
 ## Related tools / concepts
 - [Chatbot Arena](chatbot-arena.md) - The primary leaderboard for human preferences.

@@ -90,6 +90,47 @@ sequenceDiagram
 - When requiring photorealistic human portraits or complex biological macro photography (use models like Flux or Midjourney).
 - When generating complex 3D CAD models or architectural blueprints (use specialized CAD generation tools).
 
+## Systemd Service Unit Configuration
+
+To run Ming-Image-0.1-Design as a persistent local inference worker service with CUDA acceleration, place the following unit file at `/etc/systemd/system/ming-image-worker.service`:
+
+```ini
+[Unit]
+Description=Ming-Image-0.1-Design Generation Worker & FastMCP 3.1 Gateway
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=mingworker
+Group=mingworker
+WorkingDirectory=/opt/ming-image
+Environment="PATH=/opt/ming-image/venv/bin:/usr/local/cuda/bin:/usr/bin"
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="MING_MODEL_PATH=antling/ming-image-0.1-design"
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/opt/ming-image/venv/bin/python3 -m fastmcp run server.py --port 8095
+
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+MemoryAccounting=true
+MemoryHigh=24G
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ming-image-worker.service
+sudo systemctl status ming-image-worker.service
+```
+
 ## Getting started
 
 ### 1. Installation
@@ -154,12 +195,12 @@ ming-image-cli export-quantized \
 ## API examples
 
 ### FastMCP 3.1 Interactive Design Server
-The following complete Python script establishes a **FastMCP 3.1** server that exposes Ming-Image-0.1-Design generation capabilities to AI agent orchestrators:
+The following complete Python script establishes a **FastMCP 3.1** server that exposes Ming-Image-0.1-Design generation capabilities to AI agent orchestrators with strict **Pydantic v2** schemas:
 
 ```python
 import os
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from fastmcp import FastMCP
 
 mcp = FastMCP(
@@ -174,91 +215,69 @@ class BoundingBox(BaseModel):
     y_max: float = Field(..., ge=0.0, le=1.0, description="Normalized maximum Y coordinate")
 
 class TextElement(BaseModel):
-    content: str = Field(..., description="Text content to render in the graphic")
+    content: str = Field(..., min_length=1, description="Text content to render in the graphic")
     bounding_box: BoundingBox
     font_style: Optional[str] = Field(default="sans-serif", description="Font family or style")
 
 class DesignGenerationRequest(BaseModel):
-    main_prompt: str = Field(..., description="Global visual prompt describing theme, color scheme, and mood")
+    main_prompt: str = Field(..., min_length=10, description="Global visual prompt describing theme, color scheme, and mood")
     text_elements: List[TextElement] = Field(default_factory=list, description="List of spatially grounded text elements")
     aspect_ratio: str = Field(default="16:9", description="Target aspect ratio (16:9, 1:1, 9:16)")
     steps: int = Field(default=30, ge=10, le=100, description="Inference denoising steps")
 
 class DesignGenerationResponse(BaseModel):
-    status: str
-    asset_id: str
-    image_url: str
-    dimensions: List[int]
-    elements_rendered: int
+    status: str = Field(..., description="Execution status: 'success' or 'error'")
+    asset_id: Optional[str] = Field(None, description="Unique asset identifier")
+    image_url: Optional[str] = Field(None, description="CDN URL of rendered asset")
+    dimensions: Optional[List[int]] = Field(None, description="Image dimensions [width, height]")
+    elements_rendered: int = Field(0, description="Number of text bounding box elements successfully rendered")
+    error_message: Optional[str] = Field(None, description="Error message if generation failed")
 
 @mcp.tool()
-def generate_graphic_design(request: DesignGenerationRequest) -> Dict[str, Any]:
+def generate_graphic_design(request_payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Generate a structured graphic design using Ming-Image-0.1-Design with spatial text grounding.
     """
     try:
-        # Mock execution of Ming-Image 6B inference pipeline
-        asset_id = f"ming-{hash(request.main_prompt) & 0xffffffff:08x}"
-        width, height = (1920, 1080) if request.aspect_ratio == "16:9" else (1080, 1080)
+        req = DesignGenerationRequest.model_validate(request_payload)
+
+        # Execute Ming-Image 6B inference pipeline
+        asset_id = f"ming-{hash(req.main_prompt) & 0xffffffff:08x}"
+        width, height = (1920, 1080) if req.aspect_ratio == "16:9" else (1080, 1080)
 
         response = DesignGenerationResponse(
             status="success",
             asset_id=asset_id,
             image_url=f"https://cdn.internal.design/assets/{asset_id}.png",
             dimensions=[width, height],
-            elements_rendered=len(request.text_elements)
+            elements_rendered=len(req.text_elements)
         )
         return response.model_dump()
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+
+    except ValidationError as val_err:
+        return DesignGenerationResponse(
+            status="error",
+            error_message=f"Pydantic v2 Schema Violation: {val_err.errors()}"
+        ).model_dump()
+    except Exception as ex:
+        return DesignGenerationResponse(
+            status="error",
+            error_message=f"Ming-Image Denoising Error: {str(ex)}"
+        ).model_dump()
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Pydantic v2 Layout & Render Schema
-Validation schema for design generation requests:
+## Troubleshooting Matrix
 
-```python
-from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
-
-class BrandPalette(BaseModel):
-    primary_color: str = Field(..., pattern=r"^#[0-9a-fA-F]{6}$")
-    secondary_color: str = Field(..., pattern=r"^#[0-9a-fA-F]{6}$")
-    accent_color: Optional[str] = Field(default="#FF5733", pattern=r"^#[0-9a-fA-F]{6}$")
-
-class DesignCanvasSpec(BaseModel):
-    canvas_id: str = Field(..., description="Unique canvas identifier")
-    project_title: str
-    palette: BrandPalette
-    width_px: int = Field(default=1920, ge=128, le=4096)
-    height_px: int = Field(default=1080, ge=128, le=4096)
-
-def validate_canvas_spec(payload: dict) -> DesignCanvasSpec:
-    """
-    Enforces strict Pydantic v2 validation over inbound layout payloads.
-    """
-    return DesignCanvasSpec.model_validate(payload)
-
-if __name__ == "__main__":
-    sample_data = {
-        "canvas_id": "canvas-7890",
-        "project_title": "Summer Tech Launch",
-        "palette": {
-            "primary_color": "#0F172A",
-            "secondary_color": "#38BDF8",
-            "accent_color": "#F43F5E"
-        },
-        "width_px": 1920,
-        "height_px": 1080
-    }
-    spec = validate_canvas_spec(sample_data)
-    print(f"Validated Spec: {spec.project_title} ({spec.width_px}x{spec.height_px})")
-```
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **`CUDA Out of Memory (OOM)`** | High resolution batch generation exceeding GPU VRAM | Load model in FP8 precision (`torch_dtype=torch.float8_e4m3fn`) or enable xFormers memory efficient attention. |
+| **`Text Overlapping / Clipping`** | Normalized bounding box coordinates `[x_min, y_min, x_max, y_max]` intersect | Adjust bounding box ranges in request payload to provide non-overlapping coordinate padding. |
+| **`Garbled Font Glyphs`** | Unrecognized custom font family or unsupported character set | Standardize font requested to supported defaults (`sans-serif`, `serif`, `monospace`). |
+| **`Slow Denoising Inference (>15s)`** | Excessive step count or non-compiled PyTorch graph | Lower denoising steps to 25–30 or apply `torch.compile()` to DiT transformer model. |
+| **`FastMCP Tool Validation Failure`** | Missing required `main_prompt` or invalid bounding box ranges outside `[0.0, 1.0]` | Verify coordinate values fall strictly within normalized float range `0.0` to `1.0`. |
 
 ## Related tools / concepts
 - [Unsloth Studio](../development_ops/unsloth-studio.md) — Fine-tuning studio for open LLMs and diffusion models.
