@@ -278,6 +278,24 @@ def extract_grounded_facts(topic_prompt: str) -> dict:
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+class CohereEmbeddingBatchRequest(BaseModel):
+    texts: List[str] = Field(..., min_length=1, max_length=96, description="List of texts to embed (max 96 per call)")
+    input_type: str = Field(default="search_document", description="search_document or search_query")
+
+@mcp.tool()
+def batch_embed_texts(request_json: str) -> dict:
+    """FastMCP 3.1 tool for generating Cohere Embed v3 vectors with Pydantic v2 validation."""
+    try:
+        req = CohereEmbeddingBatchRequest.model_validate_json(request_json)
+        res = co.embed(texts=req.texts, model="embed-multilingual-v3.0", input_type=req.input_type)
+        return {
+            "status": "success",
+            "embedded_count": len(res.embeddings),
+            "vector_dimension": len(res.embeddings[0]) if res.embeddings else 0
+        }
+    except Exception as err:
+        return {"status": "error", "message": str(err)}
+
 if __name__ == "__main__":
     result = extract_grounded_facts("Cohere Command R+ specifications")
     print(f"FastMCP Extraction Result: {result}")

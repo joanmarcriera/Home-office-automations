@@ -218,6 +218,29 @@ def validate_and_process_event(raw_event: dict, state_store: dict) -> dict:
         "source": event.source
     }
 
+class WorkflowExecutionMetrics(BaseModel):
+    workflow_id: str = Field(..., description="Unique Pipedream workflow ID")
+    total_invocations: int = Field(..., ge=0)
+    failed_steps_count: int = Field(default=0, ge=0)
+    average_duration_ms: float = Field(..., ge=0.0)
+
+@mcp.tool()
+def report_workflow_telemetry(metrics_payload: dict) -> dict:
+    """
+    FastMCP 3.1 tool for auditing Pipedream workflow execution metrics and step latency.
+    """
+    try:
+        data = WorkflowExecutionMetrics.model_validate(metrics_payload)
+        error_rate = (data.failed_steps_count / data.total_invocations) if data.total_invocations > 0 else 0.0
+        return {
+            "status": "reported",
+            "workflow_id": data.workflow_id,
+            "error_rate": round(error_rate, 4),
+            "healthy": error_rate < 0.05
+        }
+    except ValidationError as err:
+        return {"status": "error", "validation_errors": err.errors(include_url=False)}
+
 if __name__ == "__main__":
     sample_event = {
         "event_id": "evt_998124",

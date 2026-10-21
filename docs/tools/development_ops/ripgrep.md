@@ -213,6 +213,24 @@ def search_repository(spec: SearchQuerySpec) -> str:
     except Exception as e:
         return json.dumps({"error": str(e)})
 
+class BatchSearchSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    patterns: List[str] = Field(..., min_length=1, description="List of regex patterns to query in parallel")
+    target_dir: str = Field(default=".", description="Target workspace directory")
+    max_matches_per_pattern: int = Field(default=50, ge=1, le=500)
+
+@mcp.tool()
+def batch_search_patterns(batch_spec: BatchSearchSpec) -> str:
+    """
+    FastMCP 3.1 tool for parallel multi-pattern ripgrep execution across workspace repositories.
+    """
+    summary = {}
+    for pat in batch_spec.patterns:
+        query_spec = SearchQuerySpec(pattern=pat, search_dir=batch_spec.target_dir)
+        res_raw = search_repository(query_spec)
+        summary[pat] = json.loads(res_raw)
+    return json.dumps({"batch_results": summary}, indent=2)
+
 if __name__ == "__main__":
     mcp.run()
 ```

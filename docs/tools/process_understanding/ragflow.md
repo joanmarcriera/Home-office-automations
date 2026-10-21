@@ -236,6 +236,25 @@ def configure_deepdoc_chunking(dataset_id: str, config_dict: dict) -> dict:
         "parse_tables_with_ocr": cfg.parse_tables_with_ocr
     }
 
+class DocumentParsingJobSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    dataset_id: str = Field(..., description="Target dataset UUID")
+    document_ids: List[str] = Field(..., min_length=1, description="List of RAGFlow document IDs to parse")
+    run_ocr: bool = Field(default=True, description="Enable visual layout OCR pass")
+
+@mcp.tool()
+def trigger_deepdoc_parsing_job(spec: DocumentParsingJobSpec) -> Dict[str, Any]:
+    """
+    FastMCP 3.1 tool for triggering async DeepDoc vision parsing tasks on queued documents.
+    """
+    return {
+        "status": "queued",
+        "dataset_id": spec.dataset_id,
+        "job_count": len(spec.document_ids),
+        "ocr_enabled": spec.run_ocr
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```
