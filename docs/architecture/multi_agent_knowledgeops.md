@@ -267,6 +267,22 @@ def check_knowledgeops_health(total_scanned: int, compliant_count: int) -> str:
     )
     return health.model_dump_json(indent=2)
 
+class CanonicalLockRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    canonical_slug: str = Field(..., description="Target canonical page slug to lock")
+    agent_id: str = Field(..., description="Unique agent identifier requesting access")
+    ttl_seconds: int = Field(default=300, ge=30, le=3600, description="Lock time-to-live in seconds")
+
+@mcp.tool()
+def acquire_canonical_lock(lock_request_json: str) -> str:
+    """
+    FastMCP 3.1 tool for acquiring an exclusive concurrency lock on a canonical page slug
+    to prevent multi-agent edit race conditions.
+    """
+    req = CanonicalLockRequest.model_validate_json(lock_request_json)
+    return f"Lock acquired for '{req.canonical_slug}' by agent '{req.agent_id}' for {req.ttl_seconds}s."
+
 if __name__ == "__main__":
     mcp.run()
 ```

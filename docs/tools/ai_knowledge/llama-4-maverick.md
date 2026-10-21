@@ -316,6 +316,25 @@ def configure_mod_depth_routing(config_dict: dict) -> dict:
         "speculative_decoding": config.use_speculative_decoding
     }
 
+class MoEVRAMStatus(BaseModel):
+    gpu_count: int = Field(..., ge=1)
+    vram_per_gpu_gb: float = Field(..., gt=0.0)
+    context_length: int = Field(..., ge=1024)
+    fits_in_memory: bool
+
+@mcp.tool()
+def check_moe_vram_allocation(gpu_count: int, vram_gb: float, context_tokens: int) -> str:
+    """
+    FastMCP 3.1 tool for auditing VRAM requirements for Llama 4 Maverick sparse MoE inference.
+    """
+    status = MoEVRAMStatus(
+        gpu_count=gpu_count,
+        vram_per_gpu_gb=vram_gb,
+        context_length=context_tokens,
+        fits_in_memory=(gpu_count * vram_gb) >= 48.0
+    )
+    return status.model_dump_json(indent=2)
+
 if __name__ == "__main__":
     res = asyncio.run(query_maverick_async("Summarize the Llama 4 architecture in 2 sentences."))
     print(f"Result: {res.response_text} (Tokens: {res.tokens_used})")

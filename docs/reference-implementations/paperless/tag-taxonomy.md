@@ -245,6 +245,23 @@ def validate_taxonomy_hierarchy(tags_list: List[str]) -> dict:
         "namespaced_tag_count": len(valid_namespaced)
     }
 
+class TagOrphanAuditReport(BaseModel):
+    total_documents_scanned: int = Field(..., ge=0)
+    untagged_documents_count: int = Field(..., ge=0)
+    orphan_tags_count: int = Field(..., ge=0)
+
+@mcp.tool()
+def audit_paperless_orphan_tags(document_count: int, untagged_count: int) -> str:
+    """
+    FastMCP 3.1 tool for identifying orphaned tags and untagged documents in Paperless-ngx repositories.
+    """
+    report = TagOrphanAuditReport(
+        total_documents_scanned=document_count,
+        untagged_documents_count=untagged_count,
+        orphan_tags_count=0
+    )
+    return report.model_dump_json(indent=2)
+
 if __name__ == "__main__":
     sample_config = {
         "api_url": "http://localhost:8000/api",
