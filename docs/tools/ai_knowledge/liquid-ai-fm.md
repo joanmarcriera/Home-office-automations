@@ -216,6 +216,46 @@ except ValidationError as e:
     print("Validation Error:", e.json())
 ```
 
+## Diagnostic Troubleshooting Matrix
+
+| Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`ValueError: trust_remote_code=True required`** | Attempting to load Liquid custom architecture via default Hugging Face model registry without custom code execution flag. | Model instantiation fails immediately. | Pass `trust_remote_code=True` during `AutoModel.from_pretrained()` initialization. |
+| **Embedding Normalization Shift on Short Tokens** | Evaluating single-word queries without sequence context in continuous state-space models. | Reduced vector cosine similarity accuracy on short phrases. | Prepend task context prompts (e.g. `search query: ...`) or batch queries into sequential blocks. |
+| **State Space Memory Leakage in Long Loops** | Persisting state hidden vectors across non-sequential input streams without explicit state resets. | Accumulated state noise degrades embedding quality over time. | Reset hidden state tensors between unrelated document streams (`model.reset_state()`). |
+| **Quantization Precision Loss in INT8 ONNX Export** | Naive post-training INT8 quantization of continuous-time differential weights. | Loss of fine-grained precision in vector embedding space. | Use FP16 or INT8 with dynamic range quantization calibrated on domain-specific telemetry logs. |
+
+## Systemd Service Configuration (LFM-2.5 Streaming Encoder Worker)
+
+Run an automated background streaming encoder daemon for IoT telemetry and vector embedding generation:
+
+```ini
+[Unit]
+Description=Liquid AI LFM-2.5 Streaming Continuous Encoder Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=mlops
+Group=mlops
+WorkingDirectory=/opt/liquid-encoder
+Environment="PYTHONUNBUFFERED=1"
+Environment="TORCH_NUM_THREADS=4"
+ExecStart=/usr/local/bin/python3 /opt/liquid-encoder/encoder_worker.py --model liquidai/lfm-2.5-encoder-350m
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Guardrails for Continuous State-Space Encoders
+1. **Explicit State Resets**: Always clear intermediate hidden states when transitioning between distinct document domains or independent user chat sessions.
+2. **Context Padding Optimization**: Unlike Transformers where padding tokens consume quadratic compute, state-space models bypass padding; strip unnecessary trailing pad tokens before passing inputs.
+3. **Security Auditing on Custom Model Code**: Since Liquid models currently require `trust_remote_code=True`, audit checkpoint repository commits and freeze SHA hashes in production environments.
+
 ## Related tools / concepts
 - [Liquid AI Provider](../providers/liquid-ai.md) — Company and provider profile for Liquid AI.
 - [LFM-2.5 Encoders](../providers/lfm-encoders.md) — Deep dive into Liquid AI encoder model specs.
