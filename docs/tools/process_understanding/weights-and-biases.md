@@ -84,6 +84,96 @@ sequenceDiagram
 | Base Host Endpoint | `WANDB_BASE_URL` | `https://api.wandb.ai` | Custom URL for self-hosted enterprise deployments. |
 | Run Log Directory | `WANDB_DIR` | `./wandb` | Local disk directory for buffering run logs and artifacts. |
 
+## Diagnostic Troubleshooting & Operational Matrix
+
+| Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`wandb.errors.UsageError: API key not configured`** | Missing `WANDB_API_KEY` or unauthenticated CLI session in containerized execution. | Run aborts immediately during `wandb.init()`. | Set `WANDB_API_KEY` environment variable or execute `wandb login --relogin` in entrypoint scripts. |
+| **Offline Sync Queue Disk Overflow** | `WANDB_MODE=offline` enabled indefinitely on multi-epoch cluster runs without periodic purge. | Local disk fills up with un-synced protobuf run logs (`./wandb/offline-run-*`). | Provision an automated `wandb sync --clean` daemon or configure systemd timer for background syncing. |
+| **High Latency / Network Timeout on `wandb.log()`** | Synchronous network connection bottlenecks or proxy firewall drops. | GPU compute stalls while waiting for metric upload acknowledgments. | Ensure asynchronous mode is active (`WANDB_SILENT=true`); verify `WANDB_BASE_URL` routing for enterprise servers. |
+| **Artifact SHA256 Checksum Mismatch** | Concurrent write operations modifying checkpoint weight files during artifact creation. | Artifact upload rejected or corrupted in Model Registry. | Flushes weights to disk (`torch.save()`) and acquire file locks before invoking `wandb.log_artifact()`. |
+| **GPU Telemetry Missing in Dashboard** | `pynvml` or `nvidia-smi` drivers unavailable inside unprivileged Docker containers. | Loss curves present but GPU VRAM, temperature, and utilization graphs remain blank. | Mount NVIDIA GPU drivers into container (`--gpus all`) and install `pynvml` in Python runtime environment. |
+
+## Systemd Service Configuration (Background Offline Sync Daemon)
+
+When running distributed training in air-gapped or intermittent network environments, a systemd daemon automatically syncs local offline W&B runs whenever network connectivity is re-established:
+
+```ini
+[Unit]
+Description=Weights & Biases Offline Telemetry Synchronization Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mlops
+Group=mlops
+WorkingDirectory=/var/log/wandb
+Environment="WANDB_API_KEY=your_wandb_api_key_here"
+Environment="WANDB_BASE_URL=https://wandb.internal.homelab.net"
+ExecStart=/usr/local/bin/wandb sync --sync-all /var/log/wandb/offline-runs
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## FastMCP 3.1 MLOps Tool Server Integration
+
+The following FastMCP 3.1 Python tool server exposes W&B experiment status and artifact metadata directly to autonomous AI agents:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field
+import wandb
+from typing import List, Optional
+
+mcp = FastMCP("WandbMLOpsServer")
+
+class RunQueryRequest(BaseModel):
+    entity: str = Field(description="W&B Entity or Team name")
+    project: str = Field(description="W&B Project name")
+    max_runs: int = Field(default=5, ge=1, le=20)
+
+class RunSummary(BaseModel):
+    run_id: str
+    name: str
+    state: str
+    loss: Optional[float] = None
+    created_at: str
+
+@mcp.tool()
+def query_project_runs(request: RunQueryRequest) -> List[RunSummary]:
+    """Queries W&B Core project runs and retrieves top metric summaries for AI agent reasoning."""
+    api = wandb.Api()
+    runs = api.runs(f"{request.entity}/{request.project}", order="-created_at")
+
+    results = []
+    for run in list(runs)[:request.max_runs]:
+        summary_loss = run.summary.get("train/loss") or run.summary.get("loss")
+        results.append(
+            RunSummary(
+                run_id=run.id,
+                name=run.name,
+                state=run.state,
+                loss=float(summary_loss) if summary_loss is not None else None,
+                created_at=str(run.created_at)
+            )
+        )
+    return results
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Operational Hardening & Guardrails
+1. **API Key Security**: Never hardcode `WANDB_API_KEY` in source code or dockerfiles. Inject keys via secret managers (e.g., Vault, SOPS, or Kubernetes Secrets).
+2. **Rate Limit Management**: When running hundreds of sweep agents simultaneously, configure `WANDB_HTTP_TIMEOUT=30` and limit sweep concurrency to avoid hitting cloud rate limits.
+3. **Artifact Data Hygiene**: Define automated artifact retention policies (e.g. keep tagged production artifacts, delete un-tagged intermediate step artifacts older than 14 days) to prevent storage expansion.
+
 ## Getting started
 
 ### Installation

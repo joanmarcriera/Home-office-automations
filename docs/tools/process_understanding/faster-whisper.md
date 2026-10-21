@@ -193,6 +193,72 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Diagnostic Troubleshooting Matrix
+
+| Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`Library cuDNN not found` Error** | Missing cuDNN v8/v9 library files in Linux host path when initializing CUDA device mode. | `WhisperModel(device="cuda")` falls back to CPU or crashes runtime. | Install `nvidia-cudnn-cu12` via pip or set `LD_LIBRARY_PATH` to include CUDA library paths. |
+| **Hallucination Loops in Silent Audio** | Decoding silence without Voice Activity Detection (VAD) filtering. | Infinite repeating text loops (e.g. "Thank you. Thank you.") generated in output transcript. | Enable `vad_filter=True` with `vad_parameters=dict(min_silence_duration_ms=500)`. |
+| **CUDA Out of Memory (OOM)** | Large beam size (`beam_size > 5`) or long audio chunks on 4GB-8GB VRAM GPUs. | CUDA allocation failure during decoding steps. | Switch `compute_type` from `float16` to `int8_float16` or reduce `beam_size=1`. |
+| **CPU Thread Contention / High CPU Load** | Default `cpu_threads=0` spawning threads across all physical host cores. | Starves concurrent processes on shared homelab virtual machines. | Explicitly constrain CPU threads in code: `WhisperModel(..., cpu_threads=4)`. |
+| **Word Timestamps Drifting** | Variable sample rate or un-resampled audio streams (e.g. 8kHz telephony audio). | Subtitle alignments mismatch visual video frame timings. | Pre-process audio streams to 16kHz mono WAV via ffmpeg (`ffmpeg -i input.wav -ar 16000 -ac 1 output.wav`). |
+
+## Systemd Service Configuration (Local Transcription Worker Daemon)
+
+Run an automated background transcription worker for inbound audio directories using a systemd service unit:
+
+```ini
+[Unit]
+Description=faster-whisper Local Audio Transcription Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=transcribe
+Group=media
+WorkingDirectory=/opt/transcription
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="HF_HUB_ENABLE_HF_TRANSFER=1"
+ExecStart=/usr/local/bin/python3 /opt/transcription/worker.py --model large-v3-turbo --watch-dir /data/inbound_audio
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment Configuration
+
+For containerized environments, deploy faster-whisper with local model volume caching and GPU Passthrough:
+
+```yaml
+version: '3.8'
+
+services:
+  faster-whisper-service:
+    image: ghcr.io/fedirz/faster-whisper-server:latest
+    container_name: faster_whisper_server
+    restart: unless-stopped
+    ports:
+      : "8000:8000"
+    environment:
+      - WHISPER_MODEL=large-v3-turbo
+      - WHISPER_DEVICE=cuda
+      - WHISPER_COMPUTE_TYPE=float16
+    volumes:
+      - ./model_cache:/root/.cache/huggingface
+      - ./audio_data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
+
 ## Production Operational Hardening
 
 To run faster-whisper reliably in production environments, implement the following operational safeguards:

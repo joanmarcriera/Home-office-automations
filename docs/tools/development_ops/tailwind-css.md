@@ -248,6 +248,45 @@ export const AgentStatusCard: React.FC<AgentCardProps> = ({
 };
 ```
 
+## Production Build & Optimization Diagnostic Matrix
+
+| Diagnostic Scenario | Root Cause | Impact | Mitigation / Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Missing Utility Classes in Production** | Dynamic string concatenation (e.g. `bg-${color}-500`) prevents Oxide template scanner from matching static classes. | Class omitted from output CSS bundle; component renders unstyled. | Use complete class strings or lookup objects (`const colors = { cyan: 'bg-cyan-500' }`). |
+| **Styles Dropped in Dynamically Injected HTML** | Templates stored outside default scanned paths (e.g., node_modules or external component libraries). | Classes used in external package fail to generate in CSS. | Specify explicit source files using `@source "../node_modules/@my-org/ui";` in CSS entry file. |
+| **CSS Bundle Size Inflation (>500KB)** | Importing legacy `@import "tailwindcss/utilities";` or un-purged third-party CSS stylesheets. | Slow page load metrics and high Web Vitals latency. | Use `@import "tailwindcss";` and verify minification (`--minify` flag in CLI build script). |
+| **CSS Variable Scope Collisions** | Duplicate `@theme` definitions across micro-frontend apps or global stylesheet imports. | Unintended theme color overriding across components. | Scope custom design tokens with unique prefixes (`--color-app-primary: #06b6d4;`). |
+| **Container Query Modifier Not Functioning** | Container element missing `@container` parent utility declaration. | Child `@sm:` or `@md:` container queries fail to compute. | Add `@container` utility class to parent wrapper element. |
+
+## Systemd Service Configuration (Tailwind Oxide Build Daemon)
+
+For automated frontend staging servers or homelab dashboards, run continuous asset compilation via a systemd background service:
+
+```ini
+[Unit]
+Description=Tailwind CSS v4 Oxide Continuous Build Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=frontend
+Group=www-data
+WorkingDirectory=/var/www/dashboard
+ExecStart=/usr/bin/npx @tailwindcss/cli -i ./src/styles.css -o ./public/dist/styles.css --watch
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Guardrails for Asset Pipelines
+1. **Never Use String Concatenation for Classes**: Always supply explicit, uninterrupted utility class strings so the Rust template parser can index tokens.
+2. **Standardize Design Token Palette**: Define central brand colors inside `@theme` blocks rather than scattering arbitrary hex codes (`bg-[#06b6d4]`).
+3. **CI Asset Validation**: Include a bundle size check in GitHub Actions to ensure compiled `output.css` remains under 50KB gzip.
+
 ## Related tools / concepts
 - [Vercel OSS](vercel-oss.md) — Hosting and deployment for Next.js and Tailwind applications.
 - [Next.js](nextjs.md) — React framework with first-class Tailwind CSS integration.
