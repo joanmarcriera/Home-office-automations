@@ -37,6 +37,29 @@ LangGraph is an open-source framework built on top of LangChain for creating sta
     [ MemorySaver / Postgres Checkpointer ] <---> [ Inspect & Replay Past State ]
 ```
 
+## Sequence Diagram: Human-in-the-Loop Interruption & State Replay
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Application Client / API
+    participant Graph as LangGraph State Engine
+    participant CP as Postgres Checkpointer Storage
+    participant Human as Human Reviewer / UI
+
+    Client->>Graph: Invoke State Graph (Initial Query)
+    Graph->>CP: Checkpoint State (Step 1: Planning)
+    Graph->>Graph: Execute Tool Nodes
+    Graph->>CP: Checkpoint State (Step 2: Action Pending)
+    Note over Graph: Trigger Interrupt Breakpoint (High-Risk Action)
+    Graph-->>Client: Return Status: PAUSED_FOR_HUMAN_APPROVAL (Thread ID: session_99)
+    Human->>Graph: Review State & Approve Action (or Edit State Payload)
+    Graph->>CP: Update Checkpoint State (Step 3: Human Override Applied)
+    Graph->>Graph: Resume Execution from Breakpoint
+    Graph->>CP: Final Checkpoint Saved
+    Graph-->>Client: Return 200 OK Execution Result
+```
+
 ## What problem it solves
 While standard Directed Acyclic Graph (DAG) pipelines excel at linear tasks, autonomous AI agents require loops ("reason-act-observe" cycles) to reflect, retry tools, and recover from execution errors. LangGraph provides fine-grained control over cyclic execution while maintaining full state persistence, human-in-the-loop breakpoints, and "time travel" state editing across long-running sessions. It eliminates infinite recursion risks through configurable recursion limits and explicit conditional state routing.
 
@@ -61,6 +84,42 @@ While standard Directed Acyclic Graph (DAG) pipelines excel at linear tasks, aut
 - **Complex Hierarchical RAG**: Iterative retrieval, re-ranking, and query expansion loops to ensure zero-hallucination document synthesis.
 - **Multi-Agent Handoffs**: Routing execution state across specialized sub-graphs (e.g., Researcher -> Drafter -> Auditor).
 - **FastMCP Protocol Orchestration**: Managing parallel tool calls across multiple **Model Context Protocol (FastMCP 3.1)** servers with strict transactional rollback capabilities.
+
+## Systemd Service Unit Configuration
+
+### LangGraph Development Server (`/etc/systemd/system/langgraph-dev.service`)
+```ini
+[Unit]
+Description=LangGraph API Server and State Checkpointer Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=langgraph
+Group=langgraph
+WorkingDirectory=/opt/langgraph-app
+Environment="PATH=/opt/langgraph-app/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="DATABASE_URI=postgresql://langgraph:secure_pass@localhost:5432/langgraph_db"
+ExecStart=/opt/langgraph-app/venv/bin/langgraph dev --host 0.0.0.0 --port 8123
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+MemoryMax=16G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Symptom / Log Output | Likely Root Cause | Diagnostic & Resolution Steps |
+| :--- | :--- | :--- |
+| **Recursion Limit Error**: `GraphRecursionError: Recursion limit of 25 reached` | Infinite loop in conditional router or tool node failing to set completion state. | Increase recursion limit in `app.invoke(..., config={"recursion_limit": 50})` or add circuit-breaker edge. |
+| **Checkpointer Error**: `TypeError: Object of type X is not JSON serializable` | State dictionary contains non-serializable objects (e.g., raw API response objects). | Enforce Pydantic v2 schemas for graph state or implement a custom JsonEncoder checkpointer. |
+| **Router Deadlock**: `KeyError: 'node_name' in conditional edge mapping` | Edge function returned a string target not registered in conditional router dictionary. | Check return statements in conditional router functions to ensure all target keys match `.add_conditional_edges()` mappings. |
+| **State Desync**: `State graph thread ID missing checkpoint state` | PostgreSQL checkpointer table migration missing or database connection dropped. | Verify DB migrations with `langgraph checkpointer migrate`. Check connection string parameters. |
 
 ## Strengths
 - **Native Cycles & Recursion Controls**: Engineered specifically for loops with configurable maximum recursion depths and explicit error boundaries.

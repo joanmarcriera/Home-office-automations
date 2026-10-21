@@ -75,6 +75,67 @@ sequenceDiagram
 - **Local Smart Home Automation**: Integrating speech-to-text (Whisper), reasoning (Gemma 4), and text-to-speech (Piper) directly into [Home Assistant](../../services/home-assistant.md) or [n8n](../../services/n8n.md).
 - **Offline Software Engineering**: Running local coding assistants with [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) while disconnected from public networks.
 
+## Systemd Service Unit Configuration
+
+### LocalAI Native Service (`/etc/systemd/system/localai.service`)
+```ini
+[Unit]
+Description=LocalAI OpenAI-Compatible Inference Server
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=localai
+Group=localai
+WorkingDirectory=/var/lib/localai
+Environment="MODELS_PATH=/var/lib/localai/models"
+Environment="THREADS=16"
+Environment="DEBUG=true"
+Environment="CUDA_VISIBLE_DEVICES=0"
+ExecStart=/usr/local/bin/localai --address 0.0.0.0:8080
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Symptom / Log Output | Likely Root Cause | Diagnostic & Resolution Steps |
+| :--- | :--- | :--- |
+| **GPU Error**: `CUDA out of memory in ggml_cuda_op_flatten` | VRAM allocation exceeded due to excessive layer offloading or large context length (`n_ctx`). | Reduce `gpu_layers` or lower `context_size` in the model's YAML card. Run `nvidia-smi` to monitor memory usage. |
+| **Backend Error**: `llama_model_load: failed to load model (invalid GGUF version)` | GGUF quantization format revision incompatibility with local `llama.cpp` runtime binary. | Upgrade LocalAI binary to latest release or re-quantize model weights using updated `quantize` utility. |
+| **FastMCP Timeout**: `504 Gateway Timeout during tool execution` | Sandboxed tool handler execution exceeded maximum RPC response window. | Increase timeout setting in tool registration schema or set `MCP_TIMEOUT=30s` in LocalAI environment. |
+| **Port Conflict**: `bind: address already in use: 8080` | Port 8080 occupied by existing web server or another inference backend. | Identify process with `lsof -i :8080` and adjust port flag `--address 0.0.0.0:8090` in `/etc/systemd/system/localai.service`. |
+
+## Advanced Model Card YAML Configuration
+
+LocalAI allows declaratively specifying prompt templates, GPU layer offloading, and FastMCP tool definitions via YAML configuration files inside `MODELS_PATH`:
+
+```yaml
+name: gemma-4
+backend: llama-cpp
+parameters:
+  model: gemma-4-9b-it.Q8_0.gguf
+  temperature: 0.2
+  top_p: 0.95
+  context_size: 16384
+  gpu_layers: 35
+template:
+  chat_message: |
+    <start_of_turn>{{ .Role }}
+    {{ .Content }}<end_of_turn>
+  chat: |
+    {{ .Input }}
+    <start_of_turn>model
+f16: true
+mmap: true
+```
+
 ## Strengths
 - **Standardized Drop-In API**: Full parity with OpenAI chat completions, embeddings, transcriptions, audio speech, and image generation endpoints.
 - **Multi-Backend Architecture**: Dynamically manages llama.cpp, diffusers, whisper.cpp, stablediffusion-cpp, and bark backends in a single runtime binary.

@@ -34,6 +34,26 @@ SSO sits in the **Identity and Access** layer of the infrastructure stack. It ty
 +-----------------------------------------------------------------------------------+
 ```
 
+## Sequence Diagram: FastMCP 3.1 OIDC Agent Authentication Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Claude 5.6 / GPT-5.6 Agent
+    participant FastMCP as FastMCP 3.1 Service Gateway
+    participant IdP as Identity Provider (Authentik / Kanidm)
+    participant Resource as Protected Service (Gitea / Nextcloud API)
+
+    Agent->>FastMCP: Task Request with Client ID & Assertion Scope
+    FastMCP->>IdP: OAuth2 Client Credentials / JWT Exchange Grant
+    IdP-->>FastMCP: Return Signed RS256 JWT Access Token (Short-Lived)
+    FastMCP->>Resource: HTTP GET /api/v1/user (Authorization: Bearer JWT)
+    Resource->>IdP: Validate Token Public Key (JWKS / .well-known/openid-configuration)
+    IdP-->>Resource: Claims Valid (sub: agent-jules, scope: read:repo)
+    Resource-->>FastMCP: 200 OK Response Data
+    FastMCP-->>Agent: Task Completed Execution Output
+```
+
 ## Typical use cases
 - **Homelab Consolidation**: Unifying access to Gitea, Nextcloud, and Home Assistant dashboards.
 - **Enterprise-Lite**: Providing OIDC/SAML for small business internal tools with professional-grade security.
@@ -110,6 +130,61 @@ Run the LLDAP container and access the management interface:
 ```bash
 docker run -p 17170:17170 -p 3890:3890 lldap/lldap:latest
 ```
+
+## Systemd Service Unit Configurations
+
+### 1. Kanidm Daemon (`/etc/systemd/system/kanidm.service`)
+```ini
+[Unit]
+Description=Kanidm Identity Management Daemon
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=notify
+User=kanidm
+Group=kanidm
+ExecStart=/usr/sbin/kanidmd server -c /etc/kanidm/server.toml
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 2. LLDAP Service (`/etc/systemd/system/lldap.service`)
+```ini
+[Unit]
+Description=Lightweight LDAP Directory Service
+After=network.target
+
+[Service]
+Type=simple
+User=lldap
+Group=lldap
+ExecStart=/usr/bin/lldap run -c /etc/lldap/lldap_config.toml
+Restart=on-failure
+RestartSec=3s
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Error Symptom / Log Output | Likely Root Cause | Diagnostic & Resolution Steps |
+| :--- | :--- | :--- |
+| **Authentik**: `Worker node lost connection to PostgreSQL / Redis` | Out of Memory (OOM) or database connection pool exhaustion. | Check `dmesg \| grep -i oom`. Increase container RAM reservation to minimum 2GB; tune `AUTHENTIK_POSTGRESQL__MAX_CONNECTIONS`. |
+| **Kanidm**: `Fatal: TLS Certificate rejected or domain mismatch` | Kanidm requires valid TLS certificates and explicit domain binding. | Verify cert paths in `/etc/kanidm/server.toml`. Run `kanidmd verify-config /etc/kanidm/server.toml`. Ensure reverse proxy passes SNI header. |
+| **LLDAP**: `Invalid Credentials on LDAP Bind (Code 49)` | Base DN mismatch or user DN formatting issue. | Verify user DN format (`uid=admin,ou=people,dc=example,dc=com`). Use `ldapsearch -vvv` to inspect server response error logs. |
+| **FastMCP Token Verification**: `JWT Signature Verification Failed` | JWKS endpoint unreachable or public key cache stale. | Check HTTP connectivity from FastMCP runner to IdP `/.well-known/jwks.json`. Refresh public key keyring on proxy gateway. |
 
 ## CLI examples
 
