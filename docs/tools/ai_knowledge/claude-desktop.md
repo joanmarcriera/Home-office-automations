@@ -3,27 +3,29 @@
 ## What it is
 Claude Desktop is a native application for macOS and Windows that brings Anthropic's Claude AI models directly to the user's workspace. It serves as the primary host for the Model Context Protocol (MCP), allowing Claude to interact with local files, data, and tools securely. As of early January 2027, it is the reference implementation for "Agentic Desktop" workflows, natively supporting **MCP 3.1 / FastMCP 3.1 Task Protocol** and frontier models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
-## System Architecture
+## System Architecture & Interaction Flow
 
-```
-                                +-------------------------------------------------------+
-                                |                   Claude Desktop Host                 |
-                                |       (macOS / Windows Native GUI Application)        |
-                                +---------------------------+---------------------------+
-                                                            |
-                                                            v  IPC / JSON-RPC Channel
-                                +-------------------------------------------------------+
-                                |               FastMCP 3.1 Gateway Client              |
-                                |       (Local File Manager & Stdio MCP Server Host)    |
-                                +---------------------------+---------------------------+
-                                                            |
-                                        +-------------------+-------------------+
-                                        |                                       |
-                                        v                                       v
-                     +-------------------------------------+   +-------------------------------------+
-                     |     Anthropic API / Claude 5.6      |   |       Local MCP Stdio Servers       |
-                     |  (Cloud LLM Reasoning & Vision)     |   |   (Filesystem / SQLite / Playwright) |
-                     +-------------------------------------+   +-------------------------------------+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as User / GUI Interface
+    participant App as Claude Desktop Client
+    participant Router as FastMCP 3.1 Gateway
+    participant Stdio as Local Stdio MCP Servers
+    participant Cloud as Anthropic Claude API
+
+    User->>App: Submits Prompt / Request
+    App->>Router: Query Active MCP Capability Registry
+    Router-->>App: Return Registered Tools & Schemas
+    App->>Cloud: Send Conversation Context + Tool Schemas
+    Cloud-->>App: Return Tool Call Request (JSON-RPC)
+    App->>Router: Execute Tool (FastMCP 3.1 Task)
+    Router->>Stdio: Dispatch Stdio Command Execution
+    Stdio-->>Router: Return Raw Tool Output
+    Router-->>App: Format & Validate Tool Response
+    App->>Cloud: Send Final Tool Response Slice
+    Cloud-->>App: Stream Final Reasoning & Synthesis
+    App-->>User: Render Structured Markdown Response
 ```
 
 ## What problem it solves
@@ -83,17 +85,105 @@ It overcomes the limitations of browser-based AI by providing a secure, local ex
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+## Service & Daemon Management (systemd Unit Configuration)
+
+When hosting local headless proxy gateways or background MCP servers that integrate with Claude Desktop on Linux enterprise bridge systems, the standard systemd unit configuration ensures persistent execution, auto-restart capabilities, and structured logging.
+
+```ini
+[Unit]
+Description=Claude Desktop Local FastMCP Gateway Daemon
+Documentation=https://modelcontextprotocol.io/introduction
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/.config/claude-mcp
+ExecStart=/usr/bin/python3 -m fastmcp run /home/jules/.config/claude-mcp/gateway.py --port 8765
+Restart=always
+RestartSec=5s
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=MCP_PROTOCOL_VERSION=FastMCP-3.1
+Environment=LOG_LEVEL=INFO
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-desktop-mcp
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/.config/claude-mcp /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## FastMCP 3.1 Server Integration Tool
+
+Below is a production-grade Python server tool implementation built with `FastMCP` (v3.1) that provides custom local system diagnostic metrics directly to Claude Desktop over Stdio.
+
+```python
+import os
+import psutil
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+# Initialize FastMCP Server for Claude Desktop
+mcp = FastMCP("claude-desktop-diagnostics", version="3.1.0")
+
+class SystemMetricsResponse(BaseModel):
+    cpu_percent: float = Field(..., description="Current total CPU utilization percentage")
+    memory_used_gb: float = Field(..., description="RAM memory used in Gigabytes")
+    memory_total_gb: float = Field(..., description="Total system RAM in Gigabytes")
+    disk_free_gb: float = Field(..., description="Free disk space in Gigabytes on primary mount")
+    status: str = Field(..., description="Operational status assessment")
+
+@mcp.tool(
+    name="get_system_health",
+    description="Retrieves local system CPU, RAM, and Disk metrics for Claude Desktop context analysis."
+)
+def get_system_health() -> SystemMetricsResponse:
+    cpu = psutil.cpu_percent(interval=0.5)
+    mem = psutil.virtual_memory()
+    disk = psutil.disk_usage('/')
+
+    mem_used_gb = round(mem.used / (1024 ** 3), 2)
+    mem_total_gb = round(mem.total / (1024 ** 3), 2)
+    disk_free_gb = round(disk.free / (1024 ** 3), 2)
+
+    status = "nominal" if cpu < 85.0 and mem.percent < 90.0 else "degraded"
+
+    return SystemMetricsResponse(
+        cpu_percent=cpu,
+        memory_used_gb=mem_used_gb,
+        memory_total_gb=mem_total_gb,
+        disk_free_gb=disk_free_gb,
+        status=status
+    )
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **MCP Tools hammer CPU or hang GUI** | Unbounded recursive directory scanning in `filesystem` MCP server | Run `ps aux \| grep mcp` and inspect file handle open count | Limit allowed path boundaries in `claude_desktop_config.json` arguments |
+| **Tools missing from hammer icon** | Syntax error or invalid key in `claude_desktop_config.json` | Run `python3 -m json.tool claude_desktop_config.json` | Correct trailing commas or unescaped backslashes in JSON configuration |
+| **`EACCES` permission denied error** | MCP server script or node binary lacks execute permissions | Execute `ls -la /path/to/server` in terminal | Apply executable rights using `chmod +x /path/to/server` |
+| **Sub-agent background task timeout** | Model Context Protocol task socket severed during heavy operations | Check `~/Library/Logs/Claude/mcp*.log` for connection dropouts | Increase task timeout parameter or check FastMCP keep-alive heartbeat |
+| **Environment variables not detected** | Environment variables declared in `.bashrc` not loaded by GUI daemon | Run `env` inside an MCP tool invocation to dump active environment | Explicitly declare environment variables inside the `env` JSON block |
+
 ## Operational Best Practices & Troubleshooting
 
 ### Operational Guidance
 1. **JSON Formatting**: Ensure `claude_desktop_config.json` remains strictly valid JSON without trailing commas or unescaped backslashes (especially on Windows paths).
 2. **Environment Inheritance**: Explicitly declare needed environment variables (`PATH`, `API_KEY`) under the `env` dictionary block for each MCP server, as desktop daemons do not inherit full terminal shell profiles automatically.
 3. **Log Monitoring**: Inspect MCP server standard error logs generated at `~/Library/Logs/Claude/mcp*.log` on macOS when tools fail to appear in the UI.
-
-### Common Troubleshooting Scenarios
-- **MCP Tool Missing in UI**: Verify process execution path (`command`) exists and is executable in the system environment.
-- **Connection Refused**: Ensure stdio-based MCP servers are not attempting to bind to network sockets unless configured with SSE endpoints.
-- **High CPU Usage**: Restrict filesystem MCP server scope paths to specific project folders rather than root directories.
 
 ## CLI examples
 
