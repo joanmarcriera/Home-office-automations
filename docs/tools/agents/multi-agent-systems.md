@@ -33,6 +33,31 @@ Multi-Agent Systems (MAS) represent an architectural pattern and execution parad
 +-----------------------------------------------------------------------------------+
 ```
 
+### Inter-Agent Collaboration & State Transition Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as User / Orchestrator
+    participant Architect as Architect Agent
+    participant Coder as Developer Agent
+    participant FastMCP as FastMCP 3.1 State Bus
+    participant Reviewer as Security QA Agent
+
+    Client->>Architect: Submit Task Goal / Specification
+    Architect->>FastMCP: Post Decomposed DAG Plan (Pydantic v2)
+    FastMCP->>Coder: Dispatch Subtask 101 (Code Execution)
+    Coder->>FastMCP: Register Implementation Payload
+    FastMCP->>Reviewer: Route Code Artifact for QA Audit
+    alt Verification Pass
+        Reviewer->>FastMCP: Approve Payload & Set State COMPLETED
+        FastMCP->>Client: Deliver Verified Output / PR
+    else Verification Fail (Loop < Max Retries)
+        Reviewer->>FastMCP: Reject Payload & Post Revision Directive
+        FastMCP->>Coder: Re-dispatch Task with Delta Feedback
+    end
+```
+
 ## What problem it solves
 Monolithic single-agent LLM executions suffer from severe constraints when confronted with enterprise-scale complexity:
 - **Context Window Degeneration**: Monolithic prompts loaded with entire codebases, database schemas, and long interaction histories suffer from degraded instruction-following and attention saturation.
@@ -88,6 +113,46 @@ A standard Multi-Agent System architecture consists of:
 ### 2. Multi-Agent Inter-Agent Communication
 Agents exchange structured JSON payloads via standardization protocols like Model Context Protocol (MCP).
 
+## Systemd Service Unit Configuration
+For production multi-agent orchestration, run the task router daemon as a resilient background service managed by `systemd`:
+
+```ini
+[Unit]
+Description=Multi-Agent System Orchestration Task Router (FastMCP 3.1)
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mas-orchestrator
+Group=mas-orchestrator
+WorkingDirectory=/opt/mas-orchestrator
+Environment="PATH=/opt/mas-orchestrator/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_LOG_LEVEL=INFO"
+Environment="MAX_AGENT_RECURSION_DEPTH=5"
+ExecStart=/opt/mas-orchestrator/venv/bin/python -m mas_orchestrator.router_server
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting & Failure Matrix
+
+| Failure Symptom | Probable Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Infinite Agent Critique Loop** | Missing max turn guardrail or conflicting evaluation criteria | `openclaw trace list --workflow multi-agent-pipeline` | Set `max_turns = 5` in Pydantic schema and add explicit termination conditions. |
+| **Worker Context Desynchronization** | Stale context payload in inter-agent bus | `journalctl -u mas-router.service -n 100 --no-pager` | Force state reset on task dispatch using immutable task IDs and state snapshots. |
+| **FastMCP Tool Permission Denied** | Insufficient capability scope on worker node | `mcp inspect worker-coder-01 --tools` | Adjust RBAC tool flags in worker configuration file. |
+| **Token Budget Exhaustion** | Unfiltered prompt pass-through across agent turns | `agentops export --session_id <ID> --format json` | Implement prompt summarization gates between agent handoffs. |
+
 ## CLI examples
 
 ### Inspect Multi-Agent Span Traces
@@ -102,13 +167,19 @@ openclaw trace list --workflow multi-agent-pipeline
 openswarm run --config agents.yaml --task "Refactor authentication module to Pydantic v2"
 ```
 
+### Check Orchestrator Daemon Status
+```bash
+# Verify systemd service status for multi-agent router
+systemctl status mas-router.service --no-pager
+```
+
 ## API examples
 
 ### Pydantic v2 Task Delegation Engine
 The following Python script utilizes **Pydantic v2** to define a structured multi-agent message routing and task delegation schema.
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Literal, Optional, Dict, Any
 import json
 
@@ -117,6 +188,14 @@ class AgentTask(BaseModel):
     assigned_role: Literal["architect", "coder", "tester", "reviewer"] = Field(..., description="Target agent role.")
     instructions: str = Field(..., description="Specific instructions for the target agent.")
     context_payload: Dict[str, Any] = Field(default_factory=dict, description="Isolated context data.")
+    recursion_depth: int = Field(0, ge=0, le=10, description="Current depth of subtask delegation.")
+
+    @field_validator("instructions")
+    @classmethod
+    def validate_instructions(cls, v: str) -> str:
+        if len(v.strip()) < 10:
+            raise ValueError("Instructions must be at least 10 characters long.")
+        return v
 
 class AgentResponse(BaseModel):
     task_id: str = Field(..., description="Matching task identifier.")
@@ -127,7 +206,12 @@ class AgentResponse(BaseModel):
 
 def dispatch_multi_agent_workflow(task: AgentTask) -> str:
     """Dispatches tasks across multi-agent topologies with validated schemas."""
-    # Simulate worker execution
+    if task.recursion_depth >= 5:
+        return json.dumps({
+            "error": "Max recursion depth exceeded. Escalating to human operator.",
+            "task_id": task.task_id
+        })
+
     response = AgentResponse(
         task_id=task.task_id,
         agent_role=task.assigned_role,
@@ -137,7 +221,8 @@ def dispatch_multi_agent_workflow(task: AgentTask) -> str:
             task_id=f"{task.task_id}-review",
             assigned_role="reviewer",
             instructions="Verify generated implementation for compliance and correctness.",
-            context_payload={"parent_task_id": task.task_id}
+            context_payload={"parent_task_id": task.task_id},
+            recursion_depth=task.recursion_depth + 1
         )
     )
     return response.model_dump_json(indent=2)
@@ -159,7 +244,7 @@ from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 
-mcp = FastMCP("MultiAgentTaskRouter")
+mcp = FastMCP("MultiAgentTaskRouter", version="3.1.0")
 
 class DispatchRequest(BaseModel):
     workflow_id: str = Field(..., description="Unique workflow run ID")
@@ -171,7 +256,7 @@ class DispatchStatus(BaseModel):
     acknowledged: bool = Field(True, description="Receipt status")
     assigned_worker_id: str = Field(..., description="ID of worker container handling task")
 
-@mcp.tool()
+@mcp.tool(description="Routes multi-agent subtasks to specialized containers.")
 def route_agent_task(request: DispatchRequest) -> str:
     """Routes an agent task to a specialized worker node via FastMCP 3.1 task protocol."""
     status = DispatchStatus(

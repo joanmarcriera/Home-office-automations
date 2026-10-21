@@ -7,7 +7,7 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 
 ```
 +-----------------------------------------------------------------------------------+
-|                        SELF-HEAVY AGENT REMEDIATION FLOW                          |
+|                        SELF-HEALING AGENT REMEDIATION FLOW                         |
 +-----------------------------------------------------------------------------------+
                                           |
   +----------------------+      +-----------------------+      +--------------------+
@@ -39,6 +39,32 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 +---------+
 ```
 
+### Self-Healing Sequence & Safety Boundary Verification
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Alert as Uptime Kuma / Prometheus
+    participant Agent as Self-Healing Agent
+    participant LLM as Edge Reasoning Model (Gemma 3)
+    participant Validator as Pydantic v2 Safety Gate
+    participant Target as Docker / K8s Runtime
+
+    Alert->>Agent: Send Failure Alert (HTTP 500 / Timeout)
+    Agent->>Target: Fetch Recent Container Logs (tail 100)
+    Target-->>Agent: Return Raw Log Stream
+    Agent->>LLM: Analyze Log Stream for Failure Pattern
+    LLM-->>Agent: Suggest Remediation Command & Confidence
+    Agent->>Validator: Validate Command against Cooldown & Risk Rules
+    alt Safety Criteria Met & Retry Count < Max
+        Validator-->>Agent: Approve Action Execution
+        Agent->>Target: Execute Remediation (Restart / Clear Lock)
+    else Safety Threshold Exceeded / High Risk Command
+        Validator-->>Agent: Reject Action & Enforce Human Escalation
+        Agent->>Alert: Dispatch Urgent Operator Escalation Alert
+    end
+```
+
 ## What problem it solves
 - **Manual Monitoring Overhead**: Reduces the need for humans to constantly check dashboards.
 - **Extended Downtime**: Shortens the "Mean Time To Recovery" (MTTR) by acting immediately.
@@ -62,6 +88,43 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 | **Out of Memory (OOM)** | Exit code 137 / Kernel OOM log | Temporary pod/container restart | Alert operator on 1st occurrence | Memory usage exceeds node alloc |
 | **Upstream Network Blip** | HTTP 502 Bad Gateway | Exponential backoff retry | Non-destructive polling only | Downstream service down > 5m |
 | **Config Syntax Error** | Container crashloop | GitOps rollback to previous commit | Revert 1 commit max | Rollback fails to clear error |
+
+## Systemd Service Unit Configuration
+Run the autonomous self-healing monitoring agent as a systemd background service:
+
+```ini
+[Unit]
+Description=Self-Healing Homelab Monitoring & Remediation Agent
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/self-healing-agent
+Environment="PATH=/opt/self-healing-agent/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8090"
+Environment="MAX_AUTOMATED_RETRIES=3"
+ExecStart=/opt/self-healing-agent/venv/bin/python3 -m self_healing.server
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting & Operational Guardrails
+
+| Diagnostic Symptom | Possible Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Repeated Container Restart Loop** | Configuration error causing crashloop on restart | `docker inspect --format='{{.State.ExitCode}}' paperless-ngx` | Halt automated retries after 3 attempts and notify operator via Matrix/Webhook. |
+| **Remediation Agent Permission Denied** | Missing Docker socket access or Kubeconfig permission | `ls -la /var/run/docker.sock` | Ensure agent process group has socket read/write permissions or valid ServiceAccount token. |
+| **Local LLM Timeout during RCA** | Ollama / Gemma 3 process saturated on edge node | `curl -s http://localhost:11434/api/tags` | Increase LLM request timeout to 30s or fallback to lightweight regex rule engine. |
+| **False Positive Webhook Ingestion** | Flapping HTTP endpoint triggering alerts | `journalctl -u self-healing-agent.service -n 50` | Implement alert hysteresis requiring 2 consecutive failed health checks before action. |
 
 ## Strengths
 - **Low Latency**: Responses happen in seconds, not minutes, especially when using local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
@@ -120,7 +183,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("SelfHealingAgent")
+mcp = FastMCP("SelfHealingAgent", version="3.1.0")
 
 class LogPatternRequest(BaseModel):
     service_name: str = Field(description="Name of the service that triggered an alert (e.g. 'paperless-ngx', 'vikunja')")
@@ -145,7 +208,7 @@ class DiagnosticReport(BaseModel):
     recommended_action: RemediationAction = Field(description="Remediation action validated via Pydantic v2")
     requires_human: bool = Field(default=False, description="Whether human intervention is required")
 
-@mcp.tool()
+@mcp.tool(description="Analyzes failure logs and executes safe automated recovery actions.")
 def analyze_logs_and_remediate(request: LogPatternRequest) -> str:
     """
     Analyzes container logs using SOTA patterns to detect known failures

@@ -33,6 +33,30 @@ GPQA addresses these challenges by:
   +-----------------------+        +------------------------+        +--------------------------+
 ```
 
+### Evaluation Harness & Reasoning Verification Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Harness as LM-Eval Harness
+    participant Orchestrator as FastMCP 3.1 Evaluator
+    participant Model as Frontier Reasoning Model (Claude 5.1 / GPT-5.5)
+    participant Validator as Pydantic v2 Schema Validator
+
+    Harness->>Orchestrator: Fetch GPQA Question Batch (Diamond Subset)
+    loop For Each Expert Question
+        Orchestrator->>Model: Dispatch Question with Chain-of-Thought Prompt
+        Model-->>Orchestrator: Return Detailed Multi-Step Reasoning & Final Choice
+        Orchestrator->>Validator: Pass Response Output for Option Parsing
+        alt Choice Parsed & Verified
+            Validator-->>Orchestrator: Return Validated Choice (A/B/C/D)
+            Orchestrator->>Harness: Log Score & Disciplinary Metric
+        else Choice Ambiguous / Bad Formatting
+            Validator-->>Orchestrator: Trigger Re-parsing Regex / Re-prompt
+        end
+    end
+```
+
 ## Where it fits in the stack
 **Category**: [Benchmarking](index.md) / High-Order Reasoning & Scientific Competence.
 
@@ -55,6 +79,44 @@ GPQA functions as the premier evaluation target for reasoning-dense LLM architec
 - **Narrow Discipline Range**: Strictly focused on hard natural sciences (Physics, Chemistry, Biology); excludes computer science, law, and social sciences.
 - **Multiple-Choice Format**: Does not evaluate open-ended scientific report writing, multi-step lab protocol execution, or code implementation.
 - **High Human Verification Cost**: Creating new questions requires compensating PhD experts, making benchmark expansion expensive.
+
+## Systemd Evaluation Daemon Configuration
+Automate daily model regression benchmarks on GPQA Diamond using a `systemd` daemon:
+
+```ini
+[Unit]
+Description=GPQA Diamond Model Regression Evaluator Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=eval-runner
+Group=eval-runner
+WorkingDirectory=/opt/eval-harness
+Environment="PATH=/opt/eval-harness/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="OPENAI_API_KEY_FILE=/etc/eval-runner/keys/openai.key"
+Environment="ANTHROPIC_API_KEY_FILE=/etc/eval-runner/keys/anthropic.key"
+ExecStart=/opt/eval-harness/venv/bin/python3 -m lm_eval --model anthropic --model_args model=claude-5-1-opus-20261031 --tasks gpqa_diamond --output_path /var/log/eval/gpqa-latest.json
+Restart=no
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/eval
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting & Failure Matrix
+
+| Failure Symptom | Probable Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Model Fails to Output Choice Format** | Insufficient prompt formatting or CoT output truncation | `jq '.results.gpqa_diamond' /var/log/eval/gpqa-latest.json` | Append explicit formatting instructions (`"End response with 'Answer: X'"`) or increase max generation tokens. |
+| **HuggingFace Dataset Rate Limited** | High-concurrency dataset downloading from HF Hub | `huggingface-cli env` | Set `HF_HUB_ENABLE_HF_TRANSFER=1` and authenticate via `huggingface-cli login`. |
+| **CUDA Out-of-Memory on Local Eval** | Excessive context batching during multi-shot evaluation | `nvidia-smi --query-gpu=memory.used --format=csv` | Reduce `--batch_size` to 1 and enable flash attention flags (`use_flash_attention_2=True`). |
+| **Discipline Accuracy Variance** | Small sample size skew in sub-categories | `python3 scripts/analyze_gpqa_breakdown.py --input /var/log/eval/gpqa-latest.json` | Report aggregated `gpqa_diamond` total alongside bootstrapped confidence intervals. |
 
 ## When to use it
 - When evaluating frontier LLMs or reasoning models on graduate-level scientific problem-solving.

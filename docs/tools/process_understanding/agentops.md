@@ -41,6 +41,30 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 +-----------------------------------------------------------------------------------+
 ```
 
+### Telemetry Pipeline & FastMCP 3.1 Tracing Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous Agent (CrewAI / AutoGen)
+    participant FastMCP as FastMCP 3.1 Tool Router
+    participant AgentOps as AgentOps Telemetry SDK
+    participant Guardrail as PII / Prompt Security Gate
+    participant Dashboard as AgentOps Cloud / Self-Hosted Dashboard
+
+    Agent->>FastMCP: Invoke MCP Tool Action
+    FastMCP->>AgentOps: Emit Tool Call Event Payload
+    AgentOps->>Guardrail: Pass Payload for Redaction & Injection Check
+    alt Guardrail Safe
+        Guardrail-->>AgentOps: Confirm Clean Payload
+        AgentOps->>Dashboard: Stream Session Span & Token Metrics
+        FastMCP-->>Agent: Execute Tool & Return Output Payload
+    else Injection / PII Detected
+        Guardrail-->>AgentOps: Flag Security Violation
+        AgentOps->>Dashboard: Raise Security Alert & Intercept Span
+    end
+```
+
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and task handoffs between agents in frameworks like [CrewAI](../frameworks/crewai.md), AG2 ([AutoGen](../frameworks/autogen.md)), or [LangGraph](../frameworks/langgraph.md).
 - **FastMCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency, payload sizes, and failure rates under FastMCP 3.1.
@@ -57,6 +81,44 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 | **FastMCP 3.1 Tool Tracing** | Native payload & latency breakdown | Unstructured string | HTTP level |
 | **Recursive Loop Detection** | Automatic alert triggers | None | None |
 | **PII & Guardrail Defense** | Native redactor & prompt defender | Custom Regex | Proxy level |
+
+## Systemd Daemon Configuration
+Run the AgentOps local telemetry aggregator as a systemd background service:
+
+```ini
+[Unit]
+Description=AgentOps Local Telemetry Collector & Proxy Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=agentops-telemetry
+Group=agentops-telemetry
+WorkingDirectory=/opt/agentops-collector
+Environment="PATH=/opt/agentops-collector/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="AGENTOPS_PROXY_PORT=8089"
+ExecStart=/opt/agentops-collector/venv/bin/python3 -m agentops.collector
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting & Failure Matrix
+
+| Failure Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Missing Session Spans** | `AGENTOPS_API_KEY` uninitialized or invalid | `python -c "import agentops; print(agentops.get_api_key())"` | Ensure valid key is set in environment or call `agentops.init(api_key=...)`. |
+| **Uncaptured Tool Exceptions** | Async function not instrumented with `@operation` | `journalctl -u agentops-collector.service -n 50` | Wrap async tool methods with `@operation` decorator or `agentops.record_action()`. |
+| **High Tracing Latency Overhead** | Synchronous HTTP trace posting on agent thread | `curl -s http://localhost:8089/health` | Enable async batch reporting mode via `agentops.init(async_mode=True)`. |
+| **PII Data Leakage in Logs** | PII redaction rules disabled in SDK config | `agentops export --session_id <ID> --format json` | Pass `mask_pii=True` in `agentops.init()` settings. |
 
 ## Strengths
 - **Framework Native**: Deep, multi-framework integrations with [CrewAI](../frameworks/crewai.md), [AutoGen](../frameworks/autogen.md), LangChain, LlamaIndex, and Smolagents.
@@ -162,7 +224,7 @@ import agentops
 from pydantic import BaseModel, Field, field_validator
 from fastmcp import FastMCP
 
-mcp = FastMCP("AgentOpsFastMCPBridge", version="3.1")
+mcp = FastMCP("AgentOpsFastMCPBridge", version="3.1.0")
 
 class FastMCPToolCall(BaseModel):
     tool_name: str = Field(description="Name of the MCP tool")

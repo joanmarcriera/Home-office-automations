@@ -40,6 +40,26 @@ It solves the problem of "information fragmentation" where data is scattered acr
 +-----------------------------------------------------------------------------------+
 ```
 
+### Search Query & Agentic Context Retrieval Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as Desktop User / Agent
+    participant Launcher as Curiosity UI / Global Hotkey
+    participant Index as Hybrid Vector + BM25 Engine
+    participant FastMCP as FastMCP 3.1 Workspace Bridge
+    participant LLM as Local Ollama / Claude 5.6
+
+    User->>Launcher: Invoke Search Query / Task Prompt
+    Launcher->>Index: Execute High-Speed Query across Local & Cloud Cache
+    Index-->>Launcher: Return Document Candidates with BM25 Scores
+    Launcher->>FastMCP: Pass Filtered Document Nodes for Validation
+    FastMCP->>LLM: Dispatch Aggregated Context for RAG Synthesis
+    LLM-->>FastMCP: Generate Summarized Answer with Citations
+    FastMCP-->>Launcher: Deliver Validated Payload to User Interface
+```
+
 ## Typical use cases
 - **Unified Global Search**: Finding a specific email attachment, Slack thread, or Jira ticket using a single global keyboard shortcut.
 - **Private Local RAG**: Asking questions about your local PDF library or code documentation using a local model via [Ollama](../../services/ollama.md).
@@ -67,6 +87,43 @@ It solves the problem of "information fragmentation" where data is scattered acr
 - **Closed Source**: The core application and Workspace server are proprietary.
 - **Resource Intensity**: Indexing large datasets and running local LLMs can significantly impact system CPU and RAM.
 - **Desktop Focus**: While a web version exists for Workspace, the primary power and local indexing require the desktop agent.
+
+## Systemd User Service Unit Configuration
+For Linux desktop deployments, run the Curiosity indexing agent as a systemd user daemon:
+
+```ini
+[Unit]
+Description=Curiosity Desktop Search & Indexing Service
+After=graphical-session.target network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/curiosity-agent --background --mcp-server-port=8095
+Restart=on-failure
+RestartSec=3s
+Environment="DISPLAY=:0"
+Environment="FASTMCP_LOG_LEVEL=INFO"
+ProtectSystem=full
+
+[Install]
+WantedBy=graphical-session.target
+```
+
+## Operational Best Practices & Troubleshooting
+
+### Memory & Index Optimization
+- **Exclusion Filters**: Exclude large binary folders (e.g., `node_modules`, `.venv`, build targets) in Curiosity Settings > Exclusions to reduce CPU usage.
+- **Vector Model Allocation**: When utilizing multi-model vector indexing, restrict local embedding tasks to GPU-accelerated devices or allocate dedicated VRAM.
+- **SSO Re-authentication**: OIDC tokens refresh automatically, but SAML session state should be verified every 30 days in enterprise deployments.
+
+### Diagnostic Matrix & Common Failure Modes
+
+| Failure Symptom | Probable Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Connector Authentication Fail** | Stale OAuth refresh token for SaaS integration | `curiosity-cli status --source google-drive` | Re-authenticate connector in Settings > Integrations. |
+| **High GPU VRAM Spikes** | Concurrent local embedding & LLM generation | `nvidia-smi` | Offload vector embedding model to CPU or assign low VRAM quantization (Q4_K_M). |
+| **MCP Bridge Timeout** | FastMCP task router port conflict or firewall block | `curl -s http://localhost:8095/health` | Verify port 8095 is open and restart `curiosity-agent.service`. |
+| **Incomplete File Indexing** | Missing read permissions on target filesystem directory | `ls -la ~/Documents/Protected` | Grant Curiosity background daemon disk read permissions under system privacy settings. |
 
 ## When to use it
 - If you value privacy and want to search local files alongside cloud data without centralized storage.
@@ -124,7 +181,7 @@ from datetime import datetime
 import requests
 
 # FastMCP 3.1 Server Definition
-mcp = FastMCP("CuriositySearchBridge", version="3.1")
+mcp = FastMCP("CuriositySearchBridge", version="3.1.0")
 
 class CuriosityDocument(BaseModel):
     id: str = Field(..., description="Unique document node ID in Curiosity")
@@ -201,13 +258,6 @@ payload = {
 response = requests.post(API_URL, headers=headers, json=payload)
 print(response.json())
 ```
-
-## Operational Best Practices & Troubleshooting
-
-### Memory & Index Optimization
-- **Exclusion Filters**: Exclude large binary folders (e.g., `node_modules`, `.venv`, build targets) in Curiosity Settings > Exclusions to reduce CPU usage.
-- **Vector Model Allocation**: When utilizing multi-model vector indexing, restrict local embedding tasks to GPU-accelerated devices or allocate dedicated VRAM.
-- **SSO Re-authentication**: OIDC tokens refresh automatically, but SAML session state should be verified every 30 days in enterprise deployments.
 
 ## Related tools / concepts
 - [AnythingLLM](../ai_knowledge/anythingllm.md) — For flexible local RAG management.
