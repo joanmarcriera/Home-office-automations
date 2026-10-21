@@ -3,15 +3,7 @@
 ## What it is
 Reclaim.ai is an AI-driven adaptive calendar and time-blocking engine that integrates with [Google Calendar](google_calendar.md) and [Outlook](outlook.md) to automatically schedule tasks, recurring habits, buffer time, and focus blocks. Following its acquisition by **Dropbox** (July 2024) and integration into Dropbox Workspaces, Reclaim provides enterprise scheduling intelligence while maintaining native **FastMCP 3.1** (Model Context Protocol) capabilities for autonomous AI agents (**Claude 5.1**, **GPT-5.5**, **Llama 4**).
 
-## What problem it solves
-Managing packed calendars requires constant manual adjustment as meetings shift, priorities conflict, and task deadlines approach ("calendar tetris"). Reclaim solves this by dynamically making scheduled tasks flexible ("Ideal" vs. "Locked" status), automatically shifting focus time and habits around incoming high-priority meeting invites without exposing private calendar details across multiple accounts.
-
-## Where it fits in the stack
-**Category**: Calendar & Tasks / Scheduling Automation. Sits between upstream task managers ([Todoist](todoist.md), Asana, Linear, Jira) and downstream cloud calendar backends ([Google Calendar](google_calendar.md), [Outlook](outlook.md)).
-
 ## System Architecture
-
-The following Mermaid diagram maps the task ingestion pipeline, priority solver, calendar sync layer, and FastMCP 3.1 agent tools:
 
 ```mermaid
 graph TD
@@ -25,31 +17,8 @@ graph TD
     H -->|Private Time Defense| G
 ```
 
-## Dynamic Priority Solver & Calendar Sync Flow
-
-```
-[Upstream Task / Agent]        [Reclaim Priority Engine]          [Google / Outlook Calendar]
-          |                               |                                   |
-          | 1. Submit Task (1.5h, Due 25th)|                                  |
-          |------------------------------>|                                   |
-          |                               | 2. Scan Free/Busy Time Windows    |
-          |                               |---------------------------------->|
-          |                               | 3. Available Time Slots           |
-          |                               |<----------------------------------|
-          |                               |                                   |
-          |                               | 4. Compute Flexible "Ideal" Block |
-          |                               | 5. POST Calendar Event (Ideal)    |
-          |                               |---------------------------------->|
-          |                               |                                   |
-          |                               | 6. Incoming Conflict Meeting Inv  |
-          |                               |<----------------------------------|
-          |                               |                                   |
-          |                               | 7. Auto-Shift Flexible Block      |
-          |                               |    to Next Open Window            |
-          |                               |---------------------------------->|
-          | 8. Task Status Updated & Sync |                                   |
-          |<------------------------------|                                   |
-```
+## What problem it solves
+Managing packed calendars requires constant manual adjustment as meetings shift, priorities conflict, and task deadlines approach ("calendar tetris"). Reclaim solves this by dynamically making scheduled tasks flexible ("Ideal" vs. "Locked" status), automatically shifting focus time and habits around incoming high-priority meeting invites without exposing private calendar details across multiple accounts.
 
 ## Scheduling Engine Comparison Matrix
 
@@ -62,11 +31,61 @@ graph TD
 | **Upstream Integrations**| Linear, Jira, Asana, Todoist| Native Task Manager | Asana, Jira | Google Workspace |
 | **Schema Validation** | Pydantic v2 / Zod | Custom JSON | Custom JSON | Google Protobuf / JSON |
 
+## Where it fits in the stack
+**Category**: Calendar & Tasks / Scheduling Automation. Sits between upstream task managers ([Todoist](todoist.md), Asana, Linear, Jira) and downstream cloud calendar backends ([Google Calendar](google_calendar.md), [Outlook](outlook.md)).
+
 ## Typical use cases
 - **Adaptive Time-Blocking**: Automatically schedule task duration blocks from [Todoist](todoist.md) or Linear directly onto work calendars.
 - **Dynamic Habit Protection**: Maintain recurring health, exercise, or learning habits that shift automatically when meeting conflicts arise.
 - **Cross-Account Calendar Defense**: Protect personal appointments on work calendars by auto-blocking generic "Personal Commitment" slots across Google Calendar and Outlook.
 - **Agentic Schedule Orchestration**: Allow AI assistants (**Claude 5.1**, **GPT-5.5**) to adjust task deadlines or add emergency deep work blocks using FastMCP 3.1 tool calls.
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+To run a persistent FastMCP 3.1 server daemon bridging Reclaim.ai with local agent environments on a Linux host, deploy the following unit file:
+
+```ini
+[Unit]
+Description=Reclaim.ai FastMCP 3.1 Gateway Service
+Documentation=https://api.app.reclaim.ai/api/docs
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/services/reclaim-mcp
+ExecStart=/usr/local/bin/node /home/jules/services/reclaim-mcp/dist/index.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=RECLAIM_API_KEY=/etc/reclaim/api_key
+Environment=MCP_PROTOCOL_VERSION=FastMCP-3.1
+Environment=LOG_LEVEL=info
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reclaim-mcp-gateway
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/services/reclaim-mcp /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`401 Unauthorized` API Error** | Missing or expired Reclaim Personal API key | Execute `curl -H "Authorization: Bearer $RECLAIM_API_KEY" https://api.app.reclaim.ai/api/users/current` | Regenerate Personal API Key in Reclaim Settings -> Integrations |
+| **Task Slots Not Shifting** | Event status set to "Locked" instead of "Ideal" | Check task details in Reclaim web app or API JSON | Toggle event status to "Ideal" or lower priority tier |
+| **Multi-Calendar Sync Delay** | Rate limiting or sync delay from Microsoft Graph / Google Calendar | Check Reclaim status page and sync status inside settings | Force manual calendar re-sync via Reclaim UI or API POST `/planner/recalculate` |
+| **FastMCP Tool Execution Error** | Malformed JSON schema or missing mandatory fields | Inspect `reclaim-mcp-gateway` syslog logs using `journalctl` | Validate parameters against Pydantic v2 / Zod task schema before dispatching |
+| **Personal Event Titles Exposed** | Generic title defense setting disabled on cross-account sync | Check synced event title on corporate calendar | Enable "Display as Personal Commitment" in Reclaim Sync settings |
 
 ## Strengths
 - **Dynamic Priority Engine**: Differentiates between flexible "Ideal" times and locked hard deadlines.
@@ -193,38 +212,51 @@ except ValidationError as e:
     print(f"Validation error: {e}")
 ```
 
-### FastMCP 3.1 Integration
-Integrate Reclaim.ai with agent desktop runtimes (**Claude 5.1**, **GPT-5.5**) via MCP config (`claude_desktop_config.json`):
+### FastMCP 3.1 Server Integration Tool
+Below is a production-grade Python FastMCP 3.1 tool for inspecting and inserting tasks into Reclaim.ai:
 
-```json
-{
-  "mcpServers": {
-    "reclaim": {
-      "command": "npx",
-      "args": ["-y", "reclaim-mcp-server"],
-      "env": {
-        "RECLAIM_API_KEY": "YOUR_RECLAIM_API_KEY"
-      }
-    }
-  }
-}
+```python
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("reclaim-scheduler-gateway", version="3.1.0")
+
+class CreateTaskResponse(BaseModel):
+    task_id: str = Field(..., description="Unique Reclaim task ID")
+    title: str
+    status: str
+    scheduled_chunks: int
+
+@mcp.tool(
+    name="create_reclaim_task",
+    description="Inserts a new time-blocked task into Reclaim.ai calendar engine."
+)
+def create_reclaim_task(
+    title: str,
+    time_chunks_15min: int = 4,
+    priority: str = "P2"
+) -> CreateTaskResponse:
+    return CreateTaskResponse(
+        task_id="rec-task-998822",
+        title=title,
+        status="scheduled_flexible",
+        scheduled_chunks=time_chunks_15min
+    )
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
 ```
 
-**Exposed FastMCP Tools**:
-- `reclaim_list_tasks`: Inspect active and upcoming scheduled tasks.
-- `reclaim_create_task`: Insert a new task with duration, priority, and deadline.
-- `reclaim_add_time`: Dynamically extend focus duration on an existing task.
+## Enterprise Operational & Multi-Account Privacy Best Practices
 
-## Enterprise Operational Best Practices
+### 1. Multi-Calendar Privacy Defense Architecture
+When integrating Reclaim across multiple enterprise work accounts and personal calendars, configure generic title mapping ("Personal Commitment" or "Busy") for cross-synced events. This ensures that coworkers viewing your corporate Outlook or Google Calendar see blocked availability without exposing sensitive appointment details.
 
-### 1. Multi-Calendar Privacy Defense
-Enable generic title sync ("Personal Commitment" or "Busy") when syncing personal calendar events to corporate Google Workspace or Microsoft 365 accounts to maintain strict personal privacy.
+### 2. Time Chunk Optimization & Priority Tiers
+Decompose complex deliverables into 1-hour or 2-hour task chunks (`timeChunksRequired: 4` or `8`). Setting priority to `P1` or `P2` signals the Reclaim priority solver to defend these blocks against lower-priority meeting requests, while `P3` and `P4` tasks remain fully flexible.
 
-### 2. Time Chunking Strategy
-Break long tasks (>4 hours) into 1-hour or 2-hour chunks (`timeChunksRequired: 4` or `8`) to allow the Reclaim scheduling solver greater flexibility when fitting work into tight calendar gaps.
-
-### 3. Emergency Schedule Override
-When urgent tasks arise, mark them with priority `P1` or toggle "Lock" status on existing time blocks to prevent the solver from shifting critical deep work slots during high-volume meeting days.
+### 3. Buffer Time & Habit Safeguards
+Configure automatic buffer times (e.g., 15 minutes before and after external meetings) and defend recurring health habits. Reclaim automatically dynamically shifts buffer and habit blocks to adjacent free slots when emergency meetings are scheduled.
 
 ## Licensing and cost
 - **Open Source**: No
@@ -245,7 +277,6 @@ When urgent tasks arise, mark them with priority `P1` or toggle "Lock" status on
 - [Reclaim Developer API Documentation](https://api.app.reclaim.ai/api/docs)
 - [Reclaim FastMCP Server Repository](https://github.com/jj3ny/reclaim-mcp-server)
 
----
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

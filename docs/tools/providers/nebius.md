@@ -3,6 +3,8 @@
 ## What it is
 Nebius Group (Nebius AI Cloud) is an AI infrastructure and cloud platform provider delivering high-performance GPU clusters (NVIDIA H100, H200, B200), managed Kubernetes, managed databases, and AI developer services (including [Tavily](tavily.md) for agentic web search). As of early January 2027, Nebius operates enterprise AI data centers across Europe and North America, supporting frontier model training, fine-tuning, and high-throughput FastMCP 3.1 inference workloads.
 
+## Architecture & Protocol Flow
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -83,6 +85,59 @@ Nebius AI Cloud is built specifically for large-scale GPU workloads:
 - **Agentic Search Integration**: Deploying agent search workloads via Tavily API hosted on Nebius AI Cloud.
 - **High-Throughput Inference Clusters**: Provisioning vLLM or Aphrodite Engine deployments on Nebius Kubernetes with FastMCP 3.1 streaming support.
 - **Private Enterprise Deployment**: Hosting air-gapped AI workloads with GDPR and SOC2 compliance.
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+To run a headless vLLM FastMCP 3.1 inference worker daemon on a Nebius MK8S / Bare-Metal Linux GPU instance, deploy the following unit file:
+
+```ini
+[Unit]
+Description=Nebius vLLM FastMCP 3.1 Inference Worker Daemon
+Documentation=https://docs.nebius.com/
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/services/nebius-vllm
+ExecStart=/usr/local/bin/python3 -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen2.5-72B-Instruct \
+  --tensor-parallel-size 8 \
+  --port 8000 \
+  --enable-chunked-prefill \
+  --max-num-seqs 256
+Restart=always
+RestartSec=10s
+Environment=PATH=/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin
+Environment=CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+Environment=NCCL_DEBUG=INFO
+Environment=NCCL_IB_DISABLE=0
+Environment=MCP_PROTOCOL_VERSION=FastMCP-3.1
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nebius-vllm-worker
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/services/nebius-vllm /tmp /cache
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`NCCL WARN: Call to connect failed`** | InfiniBand subnet manager offline or PCI rail mismatch | Run `ibstat` and `nvidia-smi topo -m` | Verify InfiniBand network interface status and ensure topology matching |
+| **`CUDA Out of Memory (OOM)`** | KV cache size or max batch size exceeds H100 80GB VRAM | Inspect vLLM startup log memory allocation profile | Reduce `--gpu-memory-utilization` or enable `--enable-chunked-prefill` |
+| **Tavily API Latency Spikes** | Rate limit throttling on shared cloud API gateway | Inspect HTTP status code responses in agent logs | Migrate to dedicated Nebius Tavily enterprise token with reserved quota |
+| **K8s Node Pending State** | Insufficient GPU quota in target Nebius cloud region | Run `kubectl describe node` and check Nebius console quotas | Request GPU quota increase via Nebius Cloud Console |
+| **FastMCP Stream Disconnect** | HTTP keep-alive timeout severed by Ingress proxy | Check load balancer proxy timeout settings | Set `keep_alive_timeout` to 300s in Ingress gateway configuration |
 
 ## Strengths
 - **Bare-Metal & Managed GPU Compute**: Native InfiniBand connectivity with minimal virtualization overhead.
@@ -222,50 +277,39 @@ if __name__ == "__main__":
 
 ### 3. FastMCP 3.1 Task Protocol Integration
 ```python
-from mcp.server.fastmcp import FastMCP, Context
-import time
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
-mcp = FastMCP("nebius-cloud-controller")
+mcp = FastMCP("nebius-cloud-controller", version="3.1.0")
 
-@mcp.tool()
-async def provision_gpu_cluster(
-    ctx: Context,
+class ProvisionClusterResponse(BaseModel):
+    status: str = Field(..., description="Provisioning state outcome")
+    cluster_name: str
+    gpu_type: str
+    total_gpus: int
+    infiniband: str
+    cluster_endpoint: str
+
+@mcp.tool(
+    name="provision_gpu_cluster",
+    description="Provisions an InfiniBand-connected GPU cluster on Nebius AI Cloud."
+)
+def provision_gpu_cluster(
     cluster_name: str,
     gpu_type: str = "gpu-h100-sxm5",
     node_count: int = 1
-) -> dict:
-    """Provisions an InfiniBand-connected GPU cluster on Nebius AI Cloud."""
-    ctx.info(f"Provisioning {node_count}x {gpu_type} nodes for cluster '{cluster_name}'")
+) -> ProvisionClusterResponse:
+    return ProvisionClusterResponse(
+        status="provisioned",
+        cluster_name=cluster_name,
+        gpu_type=gpu_type,
+        total_gpus=node_count * 8,
+        infiniband="active",
+        cluster_endpoint=f"https://{cluster_name}.k8s.nebius.cloud"
+    )
 
-    # Simulate API orchestration call
-    time.sleep(0.1)
-
-    return {
-        "status": "provisioned",
-        "cluster_name": cluster_name,
-        "gpu_type": gpu_type,
-        "total_gpus": node_count * 8,
-        "infiniband": "active",
-        "cluster_endpoint": f"https://{cluster_name}.k8s.nebius.cloud"
-    }
-
-@mcp.tool()
-async def query_tavily_agent_search(
-    ctx: Context,
-    query: str,
-    search_depth: str = "advanced"
-) -> dict:
-    """Executes a search query using Nebius-integrated Tavily Agentic Search API."""
-    ctx.info(f"Executing Tavily search on Nebius Cloud: {query}")
-    return {
-        "query": query,
-        "depth": search_depth,
-        "results_count": 5,
-        "grounding_sources": [
-            "https://nebius.com/docs/ai-cloud",
-            "https://tavily.com/mcp"
-        ]
-    }
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
 ```
 
 ## Related tools / concepts

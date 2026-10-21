@@ -3,42 +3,30 @@
 ## What it is
 **Puppeteer** is an industry-standard Node.js library developed by the Google Chrome DevTools team that provides a high-level API for programmatically controlling Chromium, Chrome, and Chrome for Testing browsers over the Chrome DevTools Protocol (CDP) or W3C WebDriver BiDi protocol. Running in headless mode by default, Puppeteer functions in the 2027 ecosystem as a foundational browser execution driver for AI agents ([Stagehand](stagehand.md), [Skyvern](skyvern.md), [OpenHands](../development_ops/openhands.md)), providing native **FastMCP 3.1** tool interfaces for visual DOM navigation, stealth scraping, and automated web interaction.
 
+## Architecture & Protocol Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Agent Server
+    participant Driver as Puppeteer Core Driver
+    participant Interceptor as Request Interceptor & Stealth Filters
+    participant Engine as Chromium / Chrome Engine (CDP)
+    participant Web as Target Web Application
+
+    Agent->>Driver: Dispatch Page Action (navigate / click / scrape)
+    Driver->>Interceptor: Apply Request Interception Rules
+    Interceptor->>Engine: Forward Dispatched DevTools Protocol Command (CDP)
+    Engine->>Web: Execute HTTP/WebSocket Network Request
+    Web-->>Engine: Return HTML / JS / Asset Response
+    Engine->>Driver: Render DOM State & Emit CDP Events
+    Driver->>Agent: Return Validated Screenshot / Extraction Payload
+```
+
 ## What problem it solves
 Modern web applications rely heavily on client-side JavaScript rendering, Single-Page Application (SPA) state machines, shadow DOMs, dynamic reCAPTCHA/Cloudflare challenges, and WebSocket sessions. Static HTTP client libraries (`fetch`, `axios`, `requests`) cannot execute JavaScript or render dynamic DOM states.
 
 Puppeteer solves the browser execution gap for AI agents and data processing pipelines by executing a full-featured Chromium browser engine. It allows automated systems to authenticate via SSO, click interactive elements, intercept network payloads, solve visual challenges, generate deterministic PDF artifacts, and export clean DOM representations for LLM consumption.
-
-## Architecture & Communication Protocol
-
-```
-+-----------------------------------------------------------------------------------+
-|                           AI Agent / Orchestrator Runtime                         |
-|                   (FastMCP 3.1 Tool Server / Node.js Runner)                      |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                                Puppeteer Core Driver                              |
-|   +----------------------------+     +-----------------------------------------+  |
-|   | Page / Browser Controller  |     | Request Interceptor & Stealth Filters   |  |
-|   +----------------------------+     +-----------------------------------------+  |
-+-----------------------------------------------------------------------------------+
-                     |                                       |
-  (CDP / WebSocket)  v                                       v  (WebDriver BiDi)
-+---------------------------------------+  +----------------------------------------+
-| Chrome DevTools Protocol (CDP)        |  | W3C WebDriver BiDi Protocol            |
-| - Low-Level Chrome Engine Access      |  | - Cross-Browser Bidirectional Control  |
-| - Memory Profiling & Heap Snapshots   |  | - Parallel Event-Driven Automation     |
-+---------------------------------------+  +----------------------------------------+
-                     |                                       |
-                     +-------------------+-------------------+
-                                         |
-                                         v
-+-----------------------------------------------------------------------------------+
-|                        Chromium / Chrome for Testing Instance                     |
-|            (Headless Shell Engine, V8 JS Runtime, Blink Rendering)                |
-+-----------------------------------------------------------------------------------+
-```
 
 ## Comparison Matrix
 
@@ -61,6 +49,54 @@ Puppeteer forms the **browser execution and web vision layer**, enabling autonom
 - **Stealth Data Scraping**: Scraping dynamic single-page applications behind complex JavaScript anti-bot protection systems.
 - **Automated PDF & Artifact Generation**: Producing pixel-perfect, CSS-rendered PDF documents and screenshot logs for legal and compliance auditing.
 - **Visual Regression Testing**: Capturing baseline screenshots and running automated pixel comparison tests across deployments.
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+To operate headless Puppeteer browser pool workers reliably as background daemons on Linux enterprise systems, deploy the systemd service configuration below:
+
+```ini
+[Unit]
+Description=Puppeteer Headless Browser Pool Service
+Documentation=https://pptr.dev/
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/services/puppeteer-pool
+ExecStart=/usr/bin/node /home/jules/services/puppeteer-pool/server.js --port 8085
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+Environment=PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+Environment=MCP_PROTOCOL_VERSION=FastMCP-3.1
+Environment=LOG_LEVEL=info
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=puppeteer-pool
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/services/puppeteer-pool /tmp /dev/shm
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`TargetCloseError: Target closed`** | Chromium crashed due to exhaustion of shared memory (`/dev/shm`) | Inspect `dmesg` or system logs for kernel OOM killer events | Add `--disable-dev-shm-usage` flag to Puppeteer launch configuration |
+| **`TimeoutError: Navigation timeout exceeded`** | Target website hanging or waiting on unblocked analytics scripts | Inspect network tab or page logs for blocked pending requests | Change `waitUntil` option to `domcontentloaded` instead of `networkidle0` |
+| **`HTTP 403 Forbidden / Cloudflare Block`** | Standard headless User-Agent string detected by anti-bot scanner | Check `navigator.webdriver` status on browser target | Integrate `puppeteer-extra-plugin-stealth` and override User-Agent |
+| **`Failed to launch the browser process!`** | Missing underlying system shared libraries in minimal OS image | Run `ldd /path/to/chrome` inside execution environment | Install missing Linux packages (`libnss3`, `libgbm`, `libasound2`) |
+| **High RAM consumption in node pool** | Browser page instances opened without explicit `.close()` handling | Monitor node process heap and Chromium process count using `top` | Implement strict `try...finally` blocks calling `await page.close()` and `await browser.close()` |
 
 ## Strengths
 - **Direct Chrome Team Maintenance**: First-party alignment with every Chromium update and security release.

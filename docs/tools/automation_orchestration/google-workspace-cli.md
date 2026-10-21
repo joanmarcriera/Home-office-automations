@@ -3,42 +3,29 @@
 ## What it is
 Google Workspace CLI (`gws`) is a dynamic, high-performance command-line interface designed to facilitate programmatic interaction with the complete suite of Google Workspace API services (Google Drive, Gmail, Google Calendar, Google Sheets, Admin Directory, and more). Purpose-built to serve both human engineers and advanced autonomous AI agent systems like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**, `gws` turns standard terminal environments into powerful SaaS integration engines leveraging **FastMCP 3.1** task protocol context parameters.
 
-```
-+-----------------------------------------------------------------------------------+
-|                        Google Workspace CLI (gws) Architecture                    |
-+-----------------------------------------------------------------------------------+
-|  Agent / Human Invocation (Terminal CLI / MCP Agent Server / FastMCP 3.1 Pipeline)|
-|  +-----------------------------------------------------------------------------+  |
-|  | CLI Router & Subcommand Parser (gws drive / gws gmail / gws calendar / gws +)|  |
-|  +-----------------------------------------------------------------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | Dynamic API Discovery Service Engine (Parses Official GCP Discovery Specs)   |  |
-|  +-----------------------------------------------------------------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | OAuth 2.0 / Service Account Credentials Keyring & Refresh Token Manager     |  |
-|  +-----------------------------------------------------------------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | Google Cloud Platform Workspace APIs (Drive v3 / Gmail v1 / Calendar v3)     |  |
-|  +-----------------------------------------------------------------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  | Structured JSON Output Stream -> FastMCP 3.1 Task Context & Pydantic v2      |  |
-|  +-----------------------------------------------------------------------------+  |
-+-----------------------------------------------------------------------------------+
+## Architecture & Protocol Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Orchestrator / Agent
+    participant CLI as gws CLI Router
+    participant Discovery as GCP Discovery Engine
+    participant Auth as GCP Keyring / Service Account
+    participant Workspace as Google Workspace API
+
+    Agent->>CLI: Invokes gws subcommand with JSON params
+    CLI->>Discovery: Query API Schema & Discovery Spec
+    Discovery-->>CLI: Return Endpoint Route & Parameters
+    CLI->>Auth: Request OAuth 2.0 Access Token
+    Auth-->>CLI: Return Valid OAuth Bearer Token
+    CLI->>Workspace: Dispatch HTTPS REST/gRPC API Call
+    Workspace-->>CLI: Return Google Cloud API Payload
+    CLI->>Agent: Stream Standardized JSON Output (Task Context)
 ```
 
 ## What problem it solves
 It eradicates the complexity of writing custom OAuth 2.0 layers, token lifecycle managers, or sprawling `curl` API wrappers. By dynamically constructing its command architecture using Google's official API Discovery Service, `gws` guarantees 100% endpoint coverage with zero lag time for newly introduced Google Workspace features. Furthermore, it outputs clean, structured JSON payloads directly to standard output, making it highly compatible with LLM parsers and workflow scripts.
-
-## Where it fits in the stack
-**Automation & Orchestration / SaaS Automation CLI**. It operates as an optimized command bridge between shell scripts, continuous integration pipelines, local developer environments, and frontier agents looking to manipulate cloud assets via the [Model Context Protocol](mcp.md).
 
 ## Feature Comparison Matrix
 
@@ -51,11 +38,72 @@ It eradicates the complexity of writing custom OAuth 2.0 layers, token lifecycle
 | **Auth Support** | OAuth 2.0 & Service Accounts| OAuth 2.0 & Service Accounts| OAuth 2.0 & Service Accounts| Managed OAuth SaaS |
 | **Execution Speed** | Ultra-fast Rust binary / Node | Python Execution | Native Python | Cloud Queue Latency |
 
+## Where it fits in the stack
+**Automation & Orchestration / SaaS Automation CLI**. It operates as an optimized command bridge between shell scripts, continuous integration pipelines, local developer environments, and frontier agents looking to manipulate cloud assets via the [Model Context Protocol](mcp.md).
+
 ## Typical use cases
-- **Headless Workspace Administration**: Bulk user onboarding, group permissions management, and security audits.
+- **Headless Workspace Administration**: Bulk user onboarding, group permissions management, security audits, and domain access policy compliance.
 - **Enterprise Scripting**: Programmatically querying Google Drive directories, pulling Sheets data, or generating automated PDF summaries.
 - **Agent Skill-Mapping**: Exposing structured actions (e.g., adding calendar events, listing inbox messages) directly to autonomous agents using MCP adapters.
 - **Automated Data Migration**: Mirroring localized structures or templates directly into Google Drive shared paths during CI/CD steps.
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+When running `gws` as a headless background daemon or local API proxy service inside an enterprise Linux infrastructure environment, use the following systemd unit file configuration:
+
+```ini
+[Unit]
+Description=Google Workspace CLI (gws) Headless Agent Gateway
+Documentation=https://github.com/googleworkspace/cli
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/home/jules/.config/gws
+ExecStart=/usr/local/bin/gws daemon --port 9090 --config /home/jules/.config/gws/daemon.json
+Restart=always
+RestartSec=5s
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=GOOGLE_APPLICATION_CREDENTIALS=/home/jules/.config/gws/service-account.json
+Environment=MCP_PROTOCOL_VERSION=FastMCP-3.1
+Environment=LOG_LEVEL=INFO
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gws-agent-daemon
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/jules/.config/gws /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`HTTP 403: Access blocked`** | Google OAuth application in Testing mode without registered test user | Check GCP Console -> OAuth Consent Screen -> Test Users | Register user email in GCP OAuth consent test user list |
+| **`HTTP 429: Rate Limit Exceeded`** | Exceeded Workspace API quota during directory scans | Run command with `--verbose` and check retry parameters | Apply `--retry 5` with exponential backoff algorithm |
+| **`Token Expired / Missing`** | OAuth refresh token invalid or revoked | Execute `gws auth status` | Re-run `gws auth login --scopes drive,gmail` |
+| **`Service Account Scope Error`** | Domain-wide delegation missing for target Workspace tenant | Query Workspace Admin Console -> Security -> API Controls | Grant target service account Client ID required API scopes |
+| **`FastMCP Task Correlation Timeout`** | Execution exceeded standard FastMCP tool timeout during heavy downloads | Check stdout JSON for partial `task_id` log output | Increase `timeout_seconds` parameter in FastMCP wrapper configuration |
+
+## Enterprise Operational & Token Refresh Guidance
+
+### 1. Automated Refresh Token Rotations
+When executing `gws` inside headless enterprise CI/CD runners or background agent daemons, configure periodic token refreshes using `gws auth refresh`. Store tokens inside a secure OS keyring or secret store (`secret-tool` on Linux, Keychain on macOS) rather than plain-text files.
+
+### 2. Service Account Domain-Wide Delegation
+For domain-wide administrative operations across all tenant users, pair `gws` with a Google Cloud Service Account that has Domain-Wide Delegation enabled. Pass the delegated user identity dynamically via `--impersonate-user admin@example.com`.
+
+### 3. Log Redaction & Security Audit Controls
+Ensure standard output streams containing Workspace API responses do not leak Sensitive Personal Information (PII) or security keys into public job logs. Pipe `gws` stdout through redactor scripts or use `--redact-pii` when running in high-visibility environments.
 
 ## Strengths
 - **Instantaneous API Sync**: Built dynamically from Google's API Discovery Service maps.
@@ -149,7 +197,7 @@ import subprocess
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError, field_validator
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Define strict schemas for Google Drive File representations (Pydantic v2) with FastMCP 3.1 support
 class GWSFileMeta(BaseModel):
@@ -167,18 +215,20 @@ class GWSDriveListResponse(BaseModel):
     task_id: str = Field(..., description="FastMCP 3.1 Task Protocol correlation identifier")
     files: List[GWSFileMeta] = Field(..., description="List of drive files returned by the command")
 
-mcp = FastMCP("gws-drive-server")
+mcp = FastMCP("gws-drive-server", version="3.1.0")
 
-@mcp.tool()
-async def list_drive_files(limit: int = 5, task_id: str = "task-gws-2027-0107") -> GWSDriveListResponse:
-    """Invokes gws drive CLI command programmatically and returns validated file metadata."""
+@mcp.tool(
+    name="list_drive_files",
+    description="Invokes gws drive CLI command programmatically and returns validated file metadata."
+)
+def list_drive_files(limit: int = 5, task_id: str = "task-gws-2027-0107") -> GWSDriveListResponse:
     cmd = ["gws", "drive", "files", "list", "--params", json.dumps({"pageSize": limit})]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         raw_json = json.loads(result.stdout)
         raw_json["task_id"] = task_id
         return GWSDriveListResponse.model_validate(raw_json)
-    except Exception as e:
+    except Exception:
         # Graceful fallback for mock/offline testing
         return GWSDriveListResponse(
             task_id=task_id,
@@ -189,7 +239,7 @@ async def list_drive_files(limit: int = 5, task_id: str = "task-gws-2027-0107") 
         )
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")
 ```
 
 ## Related tools / concepts
