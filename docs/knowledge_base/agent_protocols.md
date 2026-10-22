@@ -44,6 +44,27 @@ Protocols act as the **Communication Layer** in the AI stack. They sit between a
 +-----------------------------------------------------------------------------------+
 ```
 
+## MCP 3.1 Session Negotiation & Tool Call Sequence
+
+```
+[Agent Host / IDE Client]                 [MCP 3.1 Router Gateway]                 [FastMCP Server]
+           |                                         |                                     |
+           |---- 1. initialize (Capabilities, Auth) ->|                                     |
+           |                                         |---- 2. Negotiate Protocol 3.1 ----->|
+           |<--- 3. session_established (SessionID) --|<--- 4. Capabilities Matrix ----------|
+           |                                         |                                     |
+           |---- 5. tools/list (Discovery Query) --->|                                     |
+           |                                         |---- 6. Fetch Available Tools ------>|
+           |<--- 7. JSON-RPC Tool Schema List -------|<--- 8. Tool Definitions --------------|
+           |                                         |                                     |
+           |---- 9. tools/call (Tool, Args, Auth) ->|                                     |
+           |                                         |-- 10. Enforce Token / Perm Policy ->|
+           |                                         |                                     |
+           |                                         |-- 11. Execute Tool Handler -------->|
+           |                                         |<-- 12. Tool Result Output -----------|
+           |<--- 13. Tool Execution Response -------|                                     |
+```
+
 ## Typical use cases
 - **Universal Tool Access**: Using a single MCP 3.1 server for Google Calendar or home automation in both terminal-based agents and visual IDEs.
 - **Local-First Development**: Running local MCP 3.1 servers to give [Gemma 4](../tools/ai_knowledge/local_llms.md) or DeepSeek-V4 access to private project files without cloud data leakage.
@@ -185,12 +206,44 @@ if __name__ == "__main__":
     asyncio.run(run_agent())
 ```
 
+## Systemd Service Configuration
+
+For production deployment on Linux hosts, deploy the MCP 3.1 Gateway Router as a systemd service:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Router & Agent Protocol Gateway
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=mcp-gateway
+Group=mcp-gateway
+WorkingDirectory=/opt/mcp-gateway
+ExecStart=/opt/mcp-gateway/venv/bin/python -m mcp_router.server --port 8090
+Restart=always
+RestartSec=5s
+
+# Hardening settings
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/mcp-gateway/logs
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Best Practices & Troubleshooting
 
-### Security & Governance
-- **Token Budget Constraints**: Always define explicit `max_tokens_budget` in MCP 3.1 headers to prevent recursive LLM tool calls from exhausting API usage limits.
-- **Identity Isolation**: Use session tokens to tie tool executions (e.g., file writes or database queries) to authenticated user identities.
-- **Protocol Version Negotiating**: Ensure clients gracefully handle fallback modes when connecting to older MCP 2.x endpoints.
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `JSON-RPC (-32601): Method not found` | Client tool name mismatch or unregistered FastMCP tool | Run `mcp-cli list` to verify registered `@mcp.tool()` function names. |
+| Stdio pipe deadlocks / hanging response | Unbuffered stdout in sub-process tool scripts | Use `sys.stdout.flush()` or launch server in SSE / WebSocket mode. |
+| Token Budget Exceeded (`ERR_TOKEN_OVERFLOW`) | Recursive agent tool loop exhausting budget | Increase `max_tokens_budget` or restrict tool search step depth. |
+| Protocol negotiation failure (`406 Not Acceptable`) | Client / Server version mismatch (2.x vs 3.1) | Ensure server uses `mcp[fastmcp]>=3.1.0` and client passes `MCP-Version: 3.1`. |
 
 ## Related tools / concepts
 - [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)

@@ -32,6 +32,32 @@ A guide and reference implementation for programmatically uploading documents to
                      +-------------------------------------+   +-------------------------------------+
 ```
 
+## Ingestion Event Handling & Retry Lifecycle
+
+```
+[External Scanner / Webhook Source]
+               |
+               v
+  [FastMCP 3.1 Ingestion Router]
+               |
+               +---> Validate Payload Schema (Pydantic v2)
+               |           |
+               |           +---> (Schema Error) -> Return HTTP 400 Bad Request
+               |
+               v
+  [Paperless REST Endpoint] (/api/documents/post_document/)
+               |
+               +---> Transmit Multipart Body + Authorization Header
+               |           |
+               |           +---> (413 / 500 Error) -> Retry Exponential Backoff (3x)
+               |
+               v
+  [Celery Redis Task Queue]
+               |
+               v
+  [OCR Processing & FastMCP Dispatch Signal] ---> [Agent Trigger Engine]
+```
+
 ## What problem it solves
 Standard Paperless-ngx ingestion relies on consumption folder polling, which introduces delays (up to several minutes) between scanning a document and its availability in the index. Webhook ingestion enables a real-time "push" architecture, providing instantaneous document ingestion, immediate HTTP feedback, and synchronous metadata application (tags, correspondent, document type, created date).
 
@@ -47,6 +73,8 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 | **Network Direction** | Inbound Push (HTTP POST) | Local File IO Mount | Inbound IMAP Polling | Bidirectional JSON-RPC |
 | **Error Handling** | Synchronous HTTP status | Log file inspection | Email bounce notification | Structured JSON response |
 | **Authentication** | Bearer / Token Auth Header | Filesystem permissions | IMAP Credentials | FastMCP Auth Header |
+| **Throughput Capacity** | 100+ req/min parallel | Bound by FS I/O scan rate | Dependent on IMAP Server | High-concurrency Async IO |
+| **Payload Security** | TLS + Token Verification | Local ACL File Permissions | TLS IMAP Connection | Token / Mutual TLS |
 
 ## Typical use cases
 - **Mobile Scan-to-Cloud**: iOS Shortcuts or Android shares POSTing image/PDF payloads directly to Paperless via secure tunnel.
@@ -80,18 +108,6 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 3. Perform a test upload using `curl` or the provided FastMCP 3.1 Python integration.
 4. Integrate the payload format into n8n or your agent framework.
 
-## Operational Best Practices & Troubleshooting
-
-### Operational Guidance
-1. **Reverse Proxy Configuration**: Ensure reverse proxies (Nginx/Traefik) have `client_max_body_size` set to at least `100M` to accommodate multi-page high-resolution PDF uploads.
-2. **Token Security**: Store API authorization tokens in environment variables or secret vaults rather than hardcoding in client scripts.
-3. **Queue Health**: Monitor Redis queue depth on Paperless-ngx instances when receiving heavy concurrent webhook spikes.
-
-### Common Troubleshooting Scenarios
-- **413 Payload Too Large**: Increase `client_max_body_size` in the reverse proxy configuration.
-- **401 Unauthorized**: Check that the API token header follows the `Authorization: Token <token_hash>` format.
-- **OCR Delays**: Ensure Paperless worker containers have sufficient CPU core allocations for Tesseract/OCRmyPDF processing.
-
 ## CLI examples
 
 ### 1. Basic Ingestion via Curl
@@ -121,10 +137,14 @@ The following Python script uses **Pydantic v2** for schema validation and FastM
 
 ```python
 import asyncio
+import json
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import httpx
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("paperless-webhook-gateway", version="3.1.0")
 
 
 class PaperlessIngestRequest(BaseModel):
@@ -137,6 +157,13 @@ class PaperlessIngestRequest(BaseModel):
     correspondent: Optional[int] = Field(default=None, description="Correspondent ID.")
     document_type: Optional[int] = Field(default=None, description="Document type ID.")
     created_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="ISO date YYYY-MM-DD.")
+
+    @field_validator("file_path")
+    @classmethod
+    def validate_path(cls, v: Path) -> Path:
+        if not v.exists():
+            raise ValueError(f"File path does not exist: {v}")
+        return v
 
 
 class PaperlessIngestResponse(BaseModel):
@@ -156,9 +183,6 @@ class PaperlessWebhookClient:
 
     async def upload_document(self, request: PaperlessIngestRequest) -> PaperlessIngestResponse:
         """Uploads a document with validated metadata via multipart/form-data."""
-        if not request.file_path.exists():
-            raise FileNotFoundError(f"Document file not found: {request.file_path}")
-
         endpoint = f"{self.base_url}/api/documents/post_document/"
 
         data = {}
@@ -171,7 +195,6 @@ class PaperlessWebhookClient:
         if request.created_date:
             data["created"] = request.created_date
 
-        # Tags must be passed as repeated form fields or comma-separated depending on endpoint
         form_data = []
         for tag in request.tags:
             form_data.append(("tags", str(tag)))
@@ -184,34 +207,82 @@ class PaperlessWebhookClient:
                 response = await client.post(endpoint, headers=self.headers, data=form_data, files=files)
                 response.raise_for_status()
 
-                # Paperless returns task ID string on success
                 task_id = response.text.strip('" \n\r')
                 return PaperlessIngestResponse(task_id=task_id, status="queued")
 
 
-async def main():
-    # Example execution
-    client = PaperlessWebhookClient(
-        base_url="https://paperless.home.arpa",
-        api_token="9f8a3b1c2d3e4f5a6b7c8d9e0f1a2b3c"
-    )
+@mcp.tool()
+async def ingest_paperless_document(request_json: str) -> str:
+    """FastMCP tool endpoint to validate and upload a document to Paperless-ngx."""
+    try:
+        data = json.loads(request_json)
+        req = PaperlessIngestRequest.model_validate(data)
 
-    req = PaperlessIngestRequest(
-        file_path=Path("/tmp/sample_invoice.pdf"),
-        title="Automated Ingestion - Claude 5.6",
-        tags=[2, 5],
-        correspondent=10,
-        document_type=1,
-        created_date="2027-01-07"
-    )
-
-    # Note: Requires a valid file at /tmp/sample_invoice.pdf when executing against live target
-    print(f"Validated upload request payload for: {req.file_path.name}")
+        # In production, replace with vault environment lookup
+        client = PaperlessWebhookClient(
+            base_url="https://paperless.home.arpa",
+            api_token="9f8a3b1c2d3e4f5a6b7c8d9e0f1a2b3c"
+        )
+        res = await client.upload_document(req)
+        return res.model_dump_json(indent=2)
+    except Exception as e:
+        return json.dumps({"status": "ERROR", "error": str(e)})
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run()
 ```
+
+## Systemd Ingestion Gateway Service
+
+For production environment execution, run the Paperless FastMCP Ingestion Gateway as a systemd service:
+
+```ini
+[Unit]
+Description=Paperless-ngx Webhook Ingestion FastMCP Gateway
+After=network.target paperless-webserver.service
+Wants=paperless-webserver.service
+
+[Service]
+Type=simple
+User=paperless-gateway
+Group=paperless-gateway
+WorkingDirectory=/opt/paperless-gateway
+ExecStart=/opt/paperless-gateway/venv/bin/python -m gateway.server
+Restart=always
+RestartSec=5s
+
+# Environment secrets
+Environment=PAPERLESS_URL=https://paperless.home.arpa
+EnvironmentFile=/etc/default/paperless-gateway
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/paperless-gateway/tmp /var/log/paperless-gateway
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Best Practices & Troubleshooting
+
+### Operational Guidance
+1. **Reverse Proxy Configuration**: Ensure reverse proxies (Nginx/Traefik) have `client_max_body_size` set to at least `100M` to accommodate multi-page high-resolution PDF uploads.
+2. **Token Security**: Store API authorization tokens in environment variables or secret vaults rather than hardcoding in client scripts.
+3. **Queue Health**: Monitor Redis queue depth on Paperless-ngx instances when receiving heavy concurrent webhook spikes.
+
+### Common Troubleshooting Scenarios
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `HTTP 413 Payload Too Large` | Reverse proxy body size limit exceeded | Increase `client_max_body_size 100M;` in Nginx / Traefik config. |
+| `HTTP 401 Unauthorized` | Invalid or missing token header | Verify token header format (`Authorization: Token <token_hash>`). |
+| Celery task execution backlog | High concurrent document ingest rate | Scale Celery worker threads (`PAPERLESS_WEBSERVER_WORKERS=4`). |
+| Ingestion metadata tags ignored | Form parameter name mismatch | Pass `tags` as repeated form fields or array indices (`tags=1&tags=2`). |
+| Webhook connection timeout | Unreachable Paperless hostname | Verify Tailscale / Cloudflare tunnel routing to local container port. |
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): Target document management system.

@@ -47,6 +47,32 @@ Ramalama encapsulates local model execution into unprivileged OCI container inst
 +---------------------------------------------------------------------------------+
 ```
 
+## Detailed OCI Model Lifecycle & Request Flow
+
+```
+[User / MCP Client Request]
+            |
+            v
+[Ramalama CLI / Python API]
+            |
+            +---> Check Local OCI Cache (~/.local/share/containers)
+            |           |
+            |           +--> (Cache Miss) --> Pull OCI Artifact Image
+            |           |
+            |           +--> (Cache Hit)  --> Mount GGUF Weight Volumes
+            v
+[Podman / Container Engine Sandbox]
+            |
+            +---> Enable Hardware Driver Passthrough (--device /dev/kfd or nvidia-ctk)
+            +---> Spawn Containerized C++ Inference Runtime (llama.cpp / vLLM)
+            |
+            v
+[Containerized REST Endpoint] (http://127.0.0.1:8080/v1/chat/completions)
+            |
+            +---> Token Streaming Response Generation
+            +---> Automatic Clean Teardown / Volatile State Disposal
+```
+
 ## What problem it solves
 Managing local AI model binaries, dependencies, Python virtual environments, CUDA/ROCm driver incompatibilities, and runtime versions manually creates environment drift, security vulnerabilities, and deployment friction across home-lab nodes and edge hardware. Different models often require conflicting C++ library versions or distinct backend execution engines.
 
@@ -65,6 +91,8 @@ Ramalama solves this problem by packaging local model execution into standard OC
 | **GPU Acceleration** | CUDA, ROCm, Metal, OneAPI | CUDA, ROCm, Metal | CUDA, ROCm | CUDA, ROCm, Metal |
 | **Kubernetes / K3s Native** | Native OCI Pod Specs | Custom Helm Charts | Native K8s Operator | Static Pod Spec |
 | **FastMCP 3.1 Integration** | Native FastMCP Tooling | Community Adapters | Python Client Wrappers | Shell Script Gateway |
+| **Storage Layer** | Standard OCI Layers | Custom Blob Store | HuggingFace Cache | Local Directory |
+| **Distribution Format** | OCI Registries (quay.io, ghcr) | Ollama Registry | Docker Hub | Raw Binaries |
 
 ## Operational Best Practices & Container Management
 1. **Rootless Podman Configuration**: Run Ramalama under unprivileged user namespaces with Podman to prevent potential container breakout vulnerabilities during untrusted model execution.
@@ -195,23 +223,47 @@ def list_cached_models() -> Dict[str, Any]:
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@mcp.tool()
+def inspect_container_health(container_name: str = "ramalama-serve") -> Dict[str, Any]:
+    """Queries Podman container health status and resource consumption."""
+    try:
+        res = subprocess.run(["podman", "inspect", container_name], capture_output=True, text=True, check=True)
+        data = json.loads(res.stdout)
+        state = data[0].get("State", {})
+        return {
+            "status": "success",
+            "running": state.get("Running", False),
+            "exit_code": state.get("ExitCode", -1),
+            "started_at": state.get("StartedAt", "")
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 if __name__ == "__main__":
     mcp.run()
 ```
 
 ### 3. Pydantic v2 Schema for Ramalama Execution Parameters
 ```python
-from typing import Optional
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional, Literal
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class RamalamaServeConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model_tag: str = Field(..., description="OCI model tag or reference (e.g., granite-3.1-dense)")
     port: int = Field(8080, ge=1024, le=65535, description="Host port for OpenAI API server")
-    runtime: str = Field("podman", description="OCI container engine runtime (podman or docker)")
-    gpu_backend: Optional[str] = Field("cuda", description="Hardware acceleration backend (cuda, rocm, metal)")
+    runtime: Literal["podman", "docker"] = Field("podman", description="OCI container engine runtime")
+    gpu_backend: Optional[Literal["cuda", "rocm", "metal", "oneapi", "cpu"]] = Field("cuda", description="Hardware acceleration backend")
     vram_limit_gb: Optional[float] = Field(None, ge=1.0, description="Optional VRAM memory limit")
+    threads: int = Field(8, ge=1, le=128, description="CPU worker threads for fallback execution")
+
+    @field_validator("model_tag")
+    @classmethod
+    def validate_tag(cls, v: str) -> str:
+        if not v or ":" in v and not v.split(":")[0]:
+            raise ValueError("Invalid OCI model tag specification")
+        return v
 
 if __name__ == "__main__":
     cfg = RamalamaServeConfig(
@@ -222,6 +274,42 @@ if __name__ == "__main__":
     )
     print("Ramalama Config Validated:\n", cfg.model_dump_json(indent=2))
 ```
+
+## Systemd Quadlet Service Configuration
+
+For production deployment on Linux hosts using Podman Quadlet, save this file as `/etc/containers/systemd/ramalama-granite.container`:
+
+```ini
+[Unit]
+Description=Ramalama Containerized Granite 3.1 Model Server
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=quay.io/ramalama/ramalama:latest
+Exec=ramalama serve -p 8080 granite-3.1-dense
+PublishPort=8080:8080
+AddDevice=/dev/nvidia0 /dev/nvidiactl /dev/nvidia-uvm
+Environment=RAMALAMA_RUNTIME=podman
+Volume=ramalama-cache:/root/.local/share/ramalama:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Podman runtime error: permission denied` | SELinux blocking container host volume access | Append `:Z` flag to volume mounts or set `chcon -Rt container_file_t /path`. |
+| `CUDA driver initialization failed` | Missing GPU device node passthrough in container | Pass `--device /dev/nvidia0` or enable `nvidia-container-toolkit` for Podman. |
+| `OCI image pull authentication error` | Private registry requires credentials | Execute `podman login quay.io` before running `ramalama run`. |
+| Port 8080 bind failure | Existing service bound to target host port | Specify an alternate port via `ramalama serve -p 8085 <model>`. |
+| High swap usage / out of RAM | Container VRAM limit not enforced | Configure `vram_limit_gb` parameter and limit container memory in Podman config. |
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) — Popular local model runner.
