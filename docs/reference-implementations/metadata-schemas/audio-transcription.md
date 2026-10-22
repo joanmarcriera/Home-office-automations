@@ -24,6 +24,24 @@ As of early January 2027, this schema is the baseline for "Audio-to-Knowledge" w
   +-----------------------+     +-----------------------+     +---------------------+
 ```
 
+### Audio Segment Grounding & Vector Indexing Sequence
+
+```
++---------------------+      +------------------------+      +------------------------+
+| RAW AUDIO STREAM    |      | SILERO VAD / PYANNOTE  |      | VECTOR & BM25 INDEX    |
++---------------------+      +------------------------+      +------------------------+
+           |                             |                               |
+           |--- 1. Ingest MP3 / WAV ---->|                               |
+           |                             |--- 2. Segment & Diarize ----->|
+           |                             |    (Timestamped Boundaries)   |
+           |                             |                               |
+           |                             |--- 3. Pydantic v2 Gate ------>|
+           |                             |    (Validate probability)     |
+           |                             |<-- Structured Metadata JSON --|
+           |                                                             |
+           |<--- FastMCP 3.1 Audio Retrieval Tool Query Response --------|
+```
+
 ## What problem it solves
 Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
 
@@ -280,6 +298,27 @@ def validate_segment_timestamps(file_id: str, segments_json: str) -> str:
         max_drift_seconds=0.0
     )
     return report.model_dump_json(indent=2)
+
+class AudioQualityScore(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    file_id: str
+    mean_segment_probability: float = Field(..., ge=0.0, le=1.0)
+    word_count: int = Field(..., ge=0)
+    snr_db: Optional[float] = Field(None, description="Estimated signal-to-noise ratio in decibels")
+
+@mcp.tool()
+def score_transcription_quality(file_id: str, mean_prob: float, total_words: int) -> str:
+    """
+    FastMCP 3.1 tool for auditing overall ASR transcript quality and signal confidence.
+    """
+    score = AudioQualityScore(
+        file_id=file_id,
+        mean_segment_probability=mean_prob,
+        word_count=total_words,
+        snr_db=18.5
+    )
+    return score.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()

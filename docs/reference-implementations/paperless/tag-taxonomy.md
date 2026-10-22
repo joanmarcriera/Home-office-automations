@@ -36,6 +36,25 @@ A hierarchical tagging system designed for Paperless-ngx that organizes personal
 +---------------------------------------------------------------------------------------------------+
 ```
 
+### Paperless Tag State Transition Sequence
+
+```
++-------------------+      +---------------------------+      +--------------------------+
+| PAPERLESS CONSUME |      | FASTMCP 3.1 AGENT ENGINE  |      | VIKUNJA / N8N WORKFLOW   |
++-------------------+      +---------------------------+      +--------------------------+
+          |                              |                                 |
+          |--- 1. Document Ingest ------>|                                 |
+          |    (Apply `inbox` tag)       |--- 2. Classify Document ------->|
+          |                              |    (Finance/Bill, needs-action) |
+          |                              |                                 |
+          |                              |--- 3. Create Task Payload ----->|
+          |                              |<-- Task Created Confirmation ---|
+          |                              |                                 |
+          |<-- 4. PATCH Tags ------------|                                 |
+          |    (Remove `inbox`,          |                                 |
+          |     Apply `processed`)       |                                 |
+```
+
 ## What problem it solves
 Flat document storage quickly becomes unmanageable as volume grows. Without a standardized taxonomy, users struggle to find files, and automated agents cannot reliably trigger specific workflows (like paying a bill or extracting a warranty). This taxonomy provides the "semantic hooks" necessary for both humans and machines to navigate the archive, ensuring that "Invisible Kubernetes" and "Agentic Workflows" have structured data to act upon.
 
@@ -261,6 +280,24 @@ def audit_paperless_orphan_tags(document_count: int, untagged_count: int) -> str
         orphan_tags_count=0
     )
     return report.model_dump_json(indent=2)
+
+class RetentionCalculationResult(BaseModel):
+    category: str
+    retention_tag: str
+    expiration_year: int
+
+@mcp.tool()
+def calculate_retention_expiry(category: str, document_year: int) -> str:
+    """
+    FastMCP 3.1 tool for calculating legal document retention expiry dates based on document classification.
+    """
+    retention_years = 7 if "Finance" in category or "Tax" in category else 3
+    result = RetentionCalculationResult(
+        category=category,
+        retention_tag=f"Keep-{retention_years}-years",
+        expiration_year=document_year + retention_years
+    )
+    return result.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     sample_config = {

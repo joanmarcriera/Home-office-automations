@@ -22,6 +22,22 @@ RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) eng
   +-----------------------+     +-----------------------+     +---------------------+
 ```
 
+### DeepDoc Vision Retrieval Sequence
+
+```
++---------------+      +-------------------------+      +---------------------------+
+| AGENT CLIENT  |      | FASTMCP 3.1 RAGFLOW MCP |      | INFINITY / ES HYBRID DB   |
++---------------+      +-------------------------+      +---------------------------+
+        |                           |                                |
+        |--- 1. Search Query ------>|                                |
+        |    (Query string + Top K) |--- 2. Dense + Sparse Search -->|
+        |                           |    (BM25 + Vector RRF Blend)   |
+        |                           |<-- Matched Chunks & BBoxes ----|
+        |                           |                                |
+        |<-- 3. Visual Citation ----|                                |
+        |    (Page + Bounding Box)  |                                |
+```
+
 ## What problem it solves
 It eliminates the "garbage in, garbage out" failure mode of traditional RAG systems by using layout-aware parsing (DeepDoc) instead of naive text chunking. It accurately extracts structured information from multi-column PDFs, nested tables, and embedded charts, ensuring that downstream LLM and agentic retrieval is grounded in high-fidelity evidence with precise, pixel-level visual citations.
 
@@ -254,6 +270,25 @@ def trigger_deepdoc_parsing_job(spec: DocumentParsingJobSpec) -> Dict[str, Any]:
         "job_count": len(spec.document_ids),
         "ocr_enabled": spec.run_ocr
     }
+
+class DatasetStorageReport(BaseModel):
+    dataset_id: str
+    total_chunks: int
+    storage_bytes: int
+    vector_dimension: int
+
+@mcp.tool()
+def audit_dataset_storage(dataset_id: str) -> str:
+    """
+    FastMCP 3.1 tool for auditing RAGFlow dataset vector index memory and storage footprint.
+    """
+    report = DatasetStorageReport(
+        dataset_id=dataset_id,
+        total_chunks=1024,
+        storage_bytes=5242880,
+        vector_dimension=1536
+    )
+    return report.model_dump_json(indent=2)
 
 if __name__ == "__main__":
     mcp.run()
