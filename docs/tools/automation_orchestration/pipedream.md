@@ -41,6 +41,29 @@ Pipedream is a low-code integration platform for developers that allows you to c
 +---------------------------------------------------------------------------------------------------+
 ```
 
+### Event Processing & FastMCP 3.1 Task Execution Sequence
+
+```
++---------------+        +-------------------+        +--------------------+        +-------------------+        +--------------------+
+| External App  |        | Pipedream Trigger |        | Step Python Engine |        | FastMCP 3.1 Server|        | Key-Value Store    |
++---------------+        +-------------------+        +--------------------+        +-------------------+        +--------------------+
+        |                          |                            |                             |                          |
+        |--- 1. HTTP Webhook ----->|                            |                             |                          |
+        |    (HMAC Signed)         |--- 2. Ingest & Verify ---->|                             |                          |
+        |                          |    OAuth Token Refresh     |                             |                          |
+        |                          |                            |--- 3. Pydantic v2 Schema -->|                          |
+        |                          |                            |    Payload Validation       |                          |
+        |                          |                            |                             |                          |
+        |                          |                            |--- 4. FastMCP Task Exec --->|                          |
+        |                          |                            |    (JSON-RPC 2.0 / SSE)     |                          |
+        |                          |                            |<-- 5. Return Task Outcome --|                          |
+        |                          |                            |                             |                          |
+        |                          |                            |--- 6. Sync Session State ---------------------------->|
+        |                          |                            |                                                        |
+        |<-- 7. HTTP 200 Ack ------|<-- 8. Return Step Res -----|                                                        |
+        |                          |                            |                                                        |
+```
+
 ## What problem it solves
 It simplifies the process of connecting disparate services by handling authentication (OAuth), event sourcing, and serverless execution infrastructure. It allows developers to focus on the logic of their integrations—and the orchestration of AI agents—rather than the boilerplate code required to talk to various APIs or manage persistent state.
 
@@ -105,6 +128,16 @@ The table below compares Pipedream with other automation platforms:
 - When you require a strictly self-hosted environment for privacy or compliance (use [n8n](../../services/n8n.md)).
 - For very simple, non-technical "if this then that" tasks where [Zapier](zapier.md) might be faster.
 - For extremely high-throughput, low-latency data processing where the serverless cold-start or proxy overhead is prohibitive.
+
+## Troubleshooting & Diagnostics Matrix
+
+| Issue / Error Symptom | Probable Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Webhook Signature Mismatch` | Pipedream automatic body parser modified raw bytes prior to HMAC verification | Access `pd.steps["trigger"]["event"]["headers"]` and validate against raw request body before parsing. |
+| `Python Step Timeout (>30s)` | Importing heavy C-extension dependencies (`pandas`, `scipy`) during cold start | Use lightweight standard library packages or optimize imports inside inner functions. |
+| `Data Store Concurrent Race` | Asynchronous parallel webhooks writing to shared Key-Value store key | Implement optimistic lock tokens (`version_tag`) or enforce queue concurrency limit (`max: 1`). |
+| `OAuth Refresh Failure` | Expired target SaaS client refresh token or revoked grant permissions | Re-authenticate connected app in Pipedream Account Settings to regenerate OAuth grants. |
+| `FastMCP 3.1 Task Schema Error` | Payload structure mismatch against Pydantic v2 model contract | Wrap step inputs with `WebhookTriggerEvent.model_validate()` and trap validation errors. |
 
 ### Failure Modes & Mitigation Strategies
 

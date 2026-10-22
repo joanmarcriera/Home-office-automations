@@ -33,6 +33,25 @@ Tesseract is a highly versatile, open-source Optical Character Recognition (OCR)
 +---------------------------------------------------------------------------------------------------+
 ```
 
+### FastMCP 3.1 OCR Extraction & Validation Sequence
+
+```
++---------------+        +----------------------+        +---------------------+        +--------------------+
+| FastMCP Agent |        | FastMCP Tool Server  |        | Image Preprocessor  |        | Tesseract Engine   |
++---------------+        +----------------------+        +---------------------+        +--------------------+
+        |                           |                               |                             |
+        |--- 1. OCR Request ------->|                               |                             |
+        |    (Image Path / PSM)     |--- 2. Deskew & Binarize ----->|                             |
+        |                           |<-- 3. Preprocessed Bitmap ----|                             |
+        |                           |                                                             |
+        |                           |--- 4. Execute LSTM OCR Pass (--psm 6 -l eng) -------------->|
+        |                           |<-- 5. Return TSV / Word BBoxes + Confidence ----------------|
+        |                           |                                                             |
+        |                           |--- 6. Validate Pydantic v2 Contract                         |
+        |                           |    (Check overall confidence >= 70%)                        |
+        |<-- 7. Verified OCR Output-|                                                             |
+```
+
 ## What problem it solves
 It solves the problem of extracting machine-readable text from raw images (e.g., PNGs, JPGs, TIFFs) or non-searchable PDF pages. For autonomous agents, image files are flat binary data; Tesseract transforms this data into semantic text strings, layout tables, and structured coordinates. This enables local LLMs to reason over physical mail, receipts, screenshots, and visual interfaces without resorting to high-latency or high-cost cloud vision APIs.
 
