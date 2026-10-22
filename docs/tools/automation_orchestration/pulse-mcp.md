@@ -36,6 +36,29 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 +-----------------------------------------------------------------------------------+
 ```
 
+## Architecture & Dynamic Discovery Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous Agent (Claude 5.6 / Cline)
+    participant Registry as PulseMCP Registry API
+    participant Validator as FastMCP 3.1 Compatibility Gate
+    participant Server as Discovered MCP Server Container
+    participant User as Human Supervisor
+
+    Agent->>Registry: GET /api/v1/tools/search?query=postgresql&protocol=3.1
+    Registry->>Validator: Verify Tool JSON Schema & Protocol Compliance
+    Validator-->>Registry: Verification Passed (Rating: 4.9, Verified Badge)
+    Registry-->>Agent: Return Tool Package Metadata & Install Spec
+    Agent->>User: Request Permission: "Launch postgresql-mcp server?"
+    User-->>Agent: Approved
+    Agent->>Server: Spawn FastMCP 3.1 Stdio/SSE Subprocess
+    Server-->>Agent: Handshake Complete & Capabilities Registered
+    Agent->>Server: Execute Task Tool Call (task_id: "task-9021")
+    Server-->>Agent: Structured Tool Response
+```
+
 ## Typical use cases
 - **Tool Discovery**: Finding specific MCP servers for tasks like web scraping, database interaction, or specialized API management.
 - **Integration Research**: Exploring how different MCP servers can be combined to form complex agentic workflows using the [MCP 3.1](mcp.md) Task Protocol.
@@ -213,7 +236,7 @@ Exposing PulseMCP discovery search via FastMCP 3.1 tool protocol:
 ```python
 from fastmcp import FastMCP, Context
 
-mcp = FastMCP("PulseMCP-Registry-Listener")
+mcp = FastMCP("PulseMCP-Registry-Listener", version="3.1")
 
 @mcp.tool()
 async def discover_mcp_tool(task_id: str, query: str, ctx: Context) -> dict:
@@ -231,6 +254,55 @@ async def discover_mcp_tool(task_id: str, query: str, ctx: Context) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Production Local Mirror Service Unit
+To run a local cached mirror of the PulseMCP tool discovery service inside enterprise environments, place the following systemd unit definition at `/etc/systemd/system/pulse-mcp-gateway.service`:
+
+```ini
+[Unit]
+Description=PulseMCP Local Registry & Discovery Mirror Service
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pulsemcp-gateway
+Group=pulsemcp-gateway
+WorkingDirectory=/opt/pulsemcp/mirror
+Environment="PULSEMCP_CACHE_TTL=3600"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 /opt/pulsemcp/mirror/gateway.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening Directives
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/opt/pulsemcp/mirror/cache
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now pulse-mcp-gateway.service
+sudo systemctl status pulse-mcp-gateway.service
+```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Issue Symptom | Underlying Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Tool Registry Timeout** | Upstream API network block or rate limit | `curl -Iv https://pulsemcp.com/api/v1/health` | Use local systemd cached mirror (`pulse-mcp-gateway.service`) |
+| **MCP Handshake Failed** | Stdio subprocess missing required node runtime | `node --version` and `npx --version` | Install Node.js 20+ runtime in system PATH |
+| **Schema Validation Error** | Community server returned non-compliant FastMCP 3.1 JSON | `mcp-cli validate --server @pulsemcp/unverified-tool` | Use only "Verified" listings or wrap calls in Pydantic v2 models |
+| **Missing Task Protocol ID** | Legacy MCP server lacks `task_id` correlation support | `grep "task_id" /var/log/mcp-executor.log` | Inject synthetic `task_id` wrapper in FastMCP 3.1 proxy layer |
+| **Permission Denied Execution** | Untrusted NPX execution blocked by OS security policy | `ls -la ~/.npm/_npx` | Add container isolation wrapper via Docker |
 
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - The underlying protocol.

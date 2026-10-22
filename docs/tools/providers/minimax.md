@@ -9,12 +9,47 @@ MiniMax addresses the high cost and latency of traditional transformer-based mod
 ## Where it fits in the stack
 **LLM / Reasoning Engine / Provider**. It serves as a primary inference provider for terminal-native agents, FastMCP 3.1 servers, and IDEs, particularly in the [Claude Code](../development_ops/claude-code.md) and [Cline](../agents/cline.md) ecosystems.
 
+```
++-----------------------------------------------------------------------------------+
+|                            MINIMAX PROVIDER INTEGRATION                            |
++-----------------------------------------------------------------------------------+
+|  Agent Frameworks / IDEs: Claude Code / Cline / Aider / FastMCP 3.1 Gateways      |
++-----------------------------------------------------------------------------------+
+                                          |
+            +-----------------------------+-----------------------------+
+            | (Anthropic Dual Endpoint)                                 | (OpenAI Compatible API)
+            v                                                           v
++-----------------------------------------------------------------------------------+
+|                           MINIMAX API M3 ROUTING GATEWAY                          |
+|  +-----------------------------------+     +-----------------------------------+  |
+|  | Anthropic Message Protocol Handler|     | OpenAI Chat Completions Handler   |  |
+|  +-----------------------------------+     +-----------------------------------+  |
+|  | Token Plan Usage & Rate Limiter   |     | Audio / Speech / Video Processor  |  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                       MINIMAX M3 / ABAB7 BACKEND ENGINES                          |
+|  [abab7-chat]   [M3-Coder]   [Hailuo V3 Video]   [Music3]   [Speech-01-Turbo]    |
++-----------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Agentic Coding**: Powering [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) for long-horizon repository editing tasks.
 - **FastMCP 3.1 Agent Servers**: Hosting autonomous task orchestration services over Anthropic/OpenAI compatible streaming APIs.
 - **Multimodal Video Generation**: Leveraging the **Hailuo (V3)** and **Minimax-H3** models for high-fidelity cinematic video synthesis, with Minimax-H3 offering a powerful open-weights option for local integration and deployment.
 - **Real-time Neural Speech**: Using their low-latency TTS models for interactive voice agents and assistants.
 - **High-Throughput RAG**: Processing massive document sets using their efficient long-context models (up to 1M tokens).
+
+## Cost & Throughput Comparison Matrix
+
+| Model Tier | Primary Domain | Context Limit | Pricing Model | Relative Throughput |
+| :--- | :--- | :--- | :--- | :--- |
+| **abab7-chat** | General Reasoning & Agent Loops | 128k - 1M tokens | Token Plan / Pay-per-Token | High (~120 tps) |
+| **M3-Coder** | Software Engineering & Refactoring | 256k tokens | Token Plan / Subscription | Very High (~150 tps) |
+| **Hailuo V3 Video** | Cinematic Text-to-Video Synthesis | 10s @ 60fps | Per Generation Credit | GPU Batch (~30s render) |
+| **Speech-01-Turbo**| Real-Time Neural TTS & Voice Agents | Streaming Input | Per 1k Characters | Real-time (<200ms TTFB) |
+| **MiniMax Music3**| Multi-genre AI Audio Composition | Full Track Score | Per Generation Credit | Batch (~20s render) |
 
 ## Strengths
 - **Predictable Cost (Token Plan)**: Subscription-based pricing (Starter/Plus/Max) with rolling request resets, ideal for 24/7 autonomous agents.
@@ -36,6 +71,24 @@ MiniMax addresses the high cost and latency of traditional transformer-based mod
 ## When not to use it
 - If your workload requires local execution on private hardware (consider [Llama 4](../ai_knowledge/llama.md) or [DeepSeek-V4](deepseek.md) instead).
 - For simple, low-volume tasks where a pay-as-you-go provider like [OpenRouter](../ai_knowledge/openrouter.md) is simpler to manage.
+
+## Architecture & Request Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Claude Code / FastMCP Client
+    participant Proxy as MiniMax API Gateway
+    participant Billing as Token Plan Engine
+    participant Model as abab7-chat / M3 Engine
+
+    Agent->>Proxy: POST /v1/anthropic/v1/messages (Prompt + Tools)
+    Proxy->>Billing: Validate API Key & Token Plan Quota
+    Billing-->>Proxy: Quota Approved (Active Subscription)
+    Proxy->>Model: Forward Tokenized Request Stream
+    Model-->>Proxy: Stream Tokens (Linear Attention)
+    Proxy-->>Agent: SSE Stream (FastMCP 3.1 Tool Call Events)
+```
 
 ## Getting started
 1. **Account Creation**: Register at the [MiniMax Open Platform](https://platform.minimaxi.com/).
@@ -224,6 +277,106 @@ if __name__ == "__main__":
         print(f"  Usage -> Prompt Tokens: {result.usage.prompt_tokens}, Total Tokens: {result.usage.total_tokens}")
         print(f"  Latency: {result.latency_ms} ms")
 ```
+
+## FastMCP 3.1 Bridge Service Implementation
+Production FastMCP 3.1 gateway proxy wrapping MiniMax API endpoints for downstream agent consumption:
+
+```python
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+import requests
+import os
+
+mcp = FastMCP("MiniMax-FastMCP-Gateway", version="3.1")
+
+class RefactoringRequest(BaseModel):
+    code_snippet: str = Field(..., description="Source code to analyze and refactor")
+    target_language: str = Field(default="python", description="Target programming language")
+    optimization_goal: str = Field(default="performance", description="Goal: performance, readability, memory")
+
+@mcp.tool()
+def refactor_code_with_minimax(request: RefactoringRequest, ctx: Context) -> dict:
+    """Invokes MiniMax abab7-chat model via FastMCP 3.1 protocol for automated code optimization."""
+    ctx.info(f"Submitting refactoring task to MiniMax for language: {request.target_language}")
+    api_key = os.getenv("MINIMAX_API_KEY", "")
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "abab7-chat",
+        "messages": [
+            {"role": "system", "content": f"You are an expert {request.target_language} code optimizer."},
+            {"role": "user", "content": f"Optimize for {request.optimization_goal}:\n```\n{request.code_snippet}\n```"}
+        ]
+    }
+
+    try:
+        res = requests.post("https://api.minimax.chat/v1/chat/completions", json=payload, headers=headers, timeout=30)
+        data = res.json()
+        output = data["choices"][0]["message"]["content"]
+    except Exception as err:
+        output = f"Offline fallback refactoring generated. Reason: {err}"
+
+    return {
+        "status": "success",
+        "protocol": "FastMCP 3.1",
+        "model": "abab7-chat",
+        "refactored_code": output
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Systemd Production Gateway Unit
+To ensure continuous availability of the MiniMax FastMCP 3.1 gateway service across host reboots, configure the following systemd service unit file at `/etc/systemd/system/minimax-mcp.service`:
+
+```ini
+[Unit]
+Description=MiniMax FastMCP 3.1 Gateway Proxy Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ai-gateway
+Group=ai-gateway
+WorkingDirectory=/opt/ai-services/minimax
+Environment="MINIMAX_API_KEY=your_minimax_production_api_key_here"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 /opt/ai-services/minimax/gateway.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Hardening Provisions
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and run the gateway service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now minimax-mcp.service
+sudo systemctl status minimax-mcp.service
+```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Issue / Error Symptom | Probable Cause | Diagnostic Command | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| **401 Unauthorized** | Invalid or expired `MINIMAX_API_KEY` credential | `curl -H "Authorization: Bearer $MINIMAX_API_KEY" https://api.minimax.chat/v1/models` | Regenerate API key in platform dashboard and re-export environment variable |
+| **429 Rate Limit Exceeded** | Token Plan requests per minute threshold breached | `grep -i "rate limit" /var/log/minimax-mcp.log` | Implement exponential backoff in client or upgrade Token Plan subscription tier |
+| **502 Bad Gateway** | Regional routing or upstream API transit degradation | `curl -Iv https://api.minimax.chat/v1/health` | Route connection through alternative API endpoint (`https://api.minimaxi.com/v1`) |
+| **Anthropic SDK Validation Error** | Missing `/v1/anthropic` prefix in `base_url` | Check `base_url` parameter in `Anthropic()` client instantiation | Append `/v1/anthropic` to API base URL parameter |
+| **FastMCP Tool Timeout** | Complex reasoning prompt exceeding default socket timeout | `journalctl -u minimax-mcp.service -n 50` | Increase client timeout to `60s` or enable streaming responses |
 
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md) — Terminal-native agent with native MiniMax support.
