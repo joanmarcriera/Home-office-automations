@@ -81,6 +81,27 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
    +----------------+     +-------------------+     +-------------------------+
 ```
 
+### FastMCP 3.1 Multi-Agent Handshake & Concurrency Topology
+
+```
++--------------+        +--------------------------+        +--------------------------+
+| AGENT WORKER |        | FASTMCP 3.1 LOCK ENGINE  |        | GIT REPOSITORY POLICY    |
++--------------+        +--------------------------+        +--------------------------+
+       |                             |                                   |
+       |--- 1. acquire_lock(slug) -->|                                   |
+       |    {agent_id, ttl=300}      |--- 2. Verify Mutex Availability -->|
+       |                             |<-- Lock Granted ------------------|
+       |<-- Lock Confirmation -------|                                   |
+       |                             |                                   |
+       |--- 3. Execute Document Deepening & Pydantic Validation -------->|
+       |                             |                                   |
+       |--- 4. audit_contract() ---->|                                   |
+       |<-- Compliant Report (JSON) -|                                   |
+       |                             |                                   |
+       |--- 5. release_lock(slug) -->|                                   |
+       |<-- Lock Released -----------|                                   |
+```
+
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
 - **FastMCP 3.1 Integration**: Low-latency execution and standardized agent discovery for rapid tooling validation.
@@ -282,6 +303,22 @@ def acquire_canonical_lock(lock_request_json: str) -> str:
     """
     req = CanonicalLockRequest.model_validate_json(lock_request_json)
     return f"Lock acquired for '{req.canonical_slug}' by agent '{req.agent_id}' for {req.ttl_seconds}s."
+
+class TelemetryEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    agent_id: str = Field(..., description="Agent model signature")
+    event_type: str = Field(..., description="Type of audit or curation event")
+    target_path: str = Field(..., description="Target markdown file path")
+    duration_ms: float = Field(..., ge=0.0, description="Execution duration in milliseconds")
+
+@mcp.tool()
+def record_agent_telemetry_event(event_json: str) -> str:
+    """
+    FastMCP 3.1 tool for recording structured agent execution metrics and operational audit trails.
+    """
+    event = TelemetryEvent.model_validate_json(event_json)
+    return f"Telemetry recorded for {event.agent_id} on {event.target_path} ({event.duration_ms:.2f}ms)."
 
 if __name__ == "__main__":
     mcp.run()
