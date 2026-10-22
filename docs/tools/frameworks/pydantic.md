@@ -50,6 +50,17 @@ Pydantic solves these challenges by providing:
 - **Enterprise Application Settings**: Managing environment variables, secrets, and connection strings safely using `pydantic-settings`.
 - **Synthetic Data Pipeline Generation**: Defining data contracts for multi-stage LLM data processing pipelines with field-level constraints and custom validators.
 
+## Pydantic V1 vs V2 Feature Comparison Matrix
+
+| Capability / Feature | Pydantic V1 (Legacy) | Pydantic V2 (Current 2027 Standard) | Speed & Ergonomic Benefit |
+| :--- | :--- | :--- | :--- |
+| **Validation Core** | Pure Python implementation | Compiled Rust (`pydantic-core`) | **10x - 50x Faster** parsing & validation |
+| **Serialization API** | `.dict()`, `.json()` | `.model_dump()`, `.model_dump_json()` | Native JSON string generation without Python dict intermediate step |
+| **Field Validation** | `@validator` (lax mode default) | `@field_validator` (`mode='before'/'after'`) | Explicit validation lifecycle stages |
+| **Root/Model Validation** | `@root_validator` | `@model_validator` (`mode='wrap'/'after'`) | Full control over model construction wrapping |
+| **Dynamic Fields** | Custom `@property` | `@computed_field` | Automatic inclusion in JSON Schema & dump outputs |
+| **Strict Mode** | Limited per-field support | Global or Model-level `strict=True` | Disables silent type coercion for high-security applications |
+
 ## Strengths
 - **Rust-Powered Core (`pydantic-core`)**: Blazing-fast performance for JSON parsing and serialization, handling tens of thousands of complex model validations per second.
 - **Seamless Python Type Annotations**: Works directly with native Python typing features, including generics, unions (`Union`, `|`), literal types, and Annotated types (`Annotated[str, Field(...)]`).
@@ -102,19 +113,28 @@ print(f"Validated user: {user.username} ({user.email})")
 print("JSON Representation:\n", user.model_dump_json(indent=2))
 ```
 
-## Architecture / Key Components
+## Architecture & Processing Workflow
 
 ```mermaid
-graph TD
-    A[Raw Input Data / JSON / Dict] --> B[Pydantic BaseModel API]
-    B --> C[pydantic-core Rust Engine]
-    C --> D{Validation Check}
-    D -- Success --> E[Python Validated Model Object]
-    D -- Failure --> F[ValidationError Object with Detailed Field Locations]
+sequenceDiagram
+    autonumber
+    participant Input as Raw Input Payload (JSON String / Dict)
+    participant ModelAPI as Pydantic BaseModel API
+    participant RustCore as pydantic-core (Rust Engine)
+    participant FieldVal as Custom @field_validator
+    participant ModelVal as Custom @model_validator
+    participant Output as Validated Python Model / JSON Schema
 
-    E --> G[model_dump / model_dump_json]
-    E --> H[model_json_schema]
-    H --> I[LLM Function Calling / FastMCP 3.1 Schema]
+    Input->>ModelAPI: model_validate_json(raw_json)
+    ModelAPI->>RustCore: Pass raw buffer to C-Extension boundary
+    RustCore->>RustCore: Recursive Type Coercion & Schema Verification
+    alt Validation Failure
+        RustCore-->>ModelAPI: Raise ValidationError with location trace
+    else Validation Success
+        RustCore->>FieldVal: Execute pre/post field hooks
+        FieldVal->>ModelVal: Execute model-level invariant checks
+        ModelVal-->>Output: Instantiated, Immutable Python Model Object
+    end
 ```
 
 ### Core Architecture Components
@@ -223,6 +243,54 @@ def process_agent_action():
 if __name__ == "__main__":
     process_agent_action()
 ```
+
+## Systemd Production Validation Gateway Unit
+To run a persistent FastMCP 3.1 validation gateway powered by Pydantic V2 as a system daemon, create the service file `/etc/systemd/system/pydantic-validation-service.service`:
+
+```ini
+[Unit]
+Description=Pydantic V2 FastMCP 3.1 Validation & Schema Gateway
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcp-validator
+Group=mcp-validator
+WorkingDirectory=/opt/ai-services/validation-gateway
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 /opt/ai-services/validation-gateway/server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security Sandbox Configuration
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/opt/ai-services/validation-gateway/logs
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the validation gateway:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now pydantic-validation-service.service
+sudo systemctl status pydantic-validation-service.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Symptom / Trace | Root Cause | Diagnostic Method | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| **`ValidationError: 1 validation error for Model`** | Input payload missing required key or failed type check | `print(err.errors())` or `err.json()` | Inspect missing keys or coerce field input to declared schema type |
+| **`AttributeError: 'Model' object has no attribute 'dict'`** | Calling deprecated Pydantic V1 method in V2 runtime | Search codebase for `.dict()` or `.json()` | Update to V2 syntax: replace `.dict()` with `.model_dump()` |
+| **`UserWarning: Field name 'X' shadows attribute`** | Field name clashes with standard BaseModel attributes | Run `python3 -W error script.py` | Rename field or configure `Field(..., alias="X")` |
+| **`RecursionError` in Self-Referencing Models** | Circular reference without `TypeAdapter` or deferred evaluation | Check model definitions for recursive references | Use `from __future__ import annotations` and `model_rebuild()` |
+| **Type Coercion Failure in Strict Mode** | Passing string `"100"` when integer is expected with `strict=True` | Inspect model `ConfigDict(strict=True)` | Pass exact data type matching annotation or disable strict mode |
 
 ## Related tools / concepts
 - [Pydantic AI](pydantic-ai.md)

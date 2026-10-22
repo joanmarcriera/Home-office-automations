@@ -21,6 +21,32 @@ graph TD
     E -->|Mission Completion Signal| I[Final Verification & Output Report]
 ```
 
+## Detailed Execution Sequence & Checkpoint Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as Human Supervisor
+    participant Supervisor as Antigravity Runtime Supervisor
+    participant Planner as Gemini Spark 2.5 Planner
+    participant Executor as Sandboxed Mission Executor
+    participant FastMCP as FastMCP 3.1 Tools
+    participant DB as Checkpoint DB (SHA-256)
+
+    User->>Supervisor: Launch Mission Spec (e.g. "Security Audit")
+    Supervisor->>Planner: Request Task DAG & Tool Permissions
+    Planner-->>Supervisor: Return Execution Graph & Sub-agent Assignments
+    Supervisor->>Executor: Initialize Isolated Memory & Process Boundary
+    loop Long-Horizon Step Iteration
+        Executor->>FastMCP: Execute Tool Call (task_id: "m-1002")
+        FastMCP-->>Executor: Return Output Telemetry
+        Executor->>DB: Compute SHA-256 State Hash & Persist Memory
+        DB-->>Executor: Checkpoint Saved
+    end
+    Executor-->>Supervisor: Mission Completion Signal
+    Supervisor-->>User: Present Final Audit Report & Checkpoint History
+```
+
 ## What problem it solves
 Traditional conversational agents are fundamentally stateless and ephemeral, rendering them incapable of managing complex, nested, long-running processes without losing state, losing planning alignment, or failing on security boundaries. Antigravity Agent solves these operational limitations by introducing secure, sandboxed session persistence, dynamic model-swapping, and structured multi-step planning loops, enabling robust, sovereign automation that can safely interact with local file systems and remote servers.
 
@@ -219,6 +245,55 @@ def run_secure_audit():
 if __name__ == "__main__":
     run_secure_audit()
 ```
+
+## Systemd Production Runtime Supervisor Service Unit
+To deploy the Antigravity Agent Runtime Supervisor as a background daemon managing mission persistence on enterprise host servers, save the following unit definition to `/etc/systemd/system/antigravity-supervisor.service`:
+
+```ini
+[Unit]
+Description=Google Antigravity Agent Stateful Mission Supervisor Service
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=antigravity-admin
+Group=antigravity-admin
+WorkingDirectory=/opt/antigravity/supervisor
+Environment="GEMINI_API_KEY=your_gemini_4_pro_api_key_here"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 /opt/antigravity/supervisor/supervisor_daemon.py
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+# Security Hardening & Isolation Directives
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/antigravity/checkpoints
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and activate the supervisor daemon:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now antigravity-supervisor.service
+sudo systemctl status antigravity-supervisor.service
+```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Issue Symptom / Error | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`Checkpoint Hash Mismatch`** | File system state modified external to Antigravity runtime | `antigravity-agent audit --hash <hash>` | Rewind mission state to previous SHA-256 hash using `attach --hash` |
+| **`Sandbox Memory Limit Exceeded`** | Sub-agent worker process breached `max_memory_mb` limit | `journalctl -u antigravity-supervisor -n 100` | Increase memory limit in `SandboxSettings` configuration schema |
+| **`FastMCP 3.1 Tool Timeout`** | External MCP server failed to complete task within timeout | `antigravity-agent inspect-tools` | Adjust `execution_timeout_sec` in FastMCP tool configuration envelope |
+| **`Vertex AI Quota Exceeded (429)`** | Multi-agent DAG generated excess token queries | Check Google Cloud Console Vertex AI quotas | Enable token request batching in Gemini Spark 2.5 planner settings |
+| **`Mission Execution Stalled`** | Sub-agent awaiting unfulfilled human approval gate | `antigravity-agent list --status pending_approval` | Approve pending action gate via CLI or web supervisor interface |
 
 ## Related tools / concepts
 - [Gemini](./gemini.md) — Google's enterprise-grade cloud-native multimodal AI reasoning model.

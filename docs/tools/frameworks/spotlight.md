@@ -53,6 +53,38 @@ Traditional vision-language architectures (such as standard LLaVA, CLIP, or Qwen
 +-----------------------------------------------------------------------------------+
 ```
 
+## Architecture & Processing Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Input as 4K/8K High-Res Source Image
+    participant Overview as Global Low-Res Encoder
+    participant Router as Focal Regional Attention Router (FRA)
+    participant PatchZoom as Sub-Region High-Res Zoom Engine
+    participant Fusion as Feature Token Fusion Layer
+    participant LLM as VLM Reasoning Head
+
+    Input->>Overview: Downsample to Coarse Grid (e.g. 448x448)
+    Overview->>Router: Compute Coarse Feature Map & Query Match
+    Router->>Router: Identify Top-K Informative Patch Regions
+    Input->>PatchZoom: Crop Full-Resolution Target Sub-Patches
+    PatchZoom->>PatchZoom: Process High-Density Tokens (FlashAttention-3)
+    PatchZoom->>Fusion: High-Res Sub-Region Tokens
+    Overview->>Fusion: Global Low-Res Tokens
+    Fusion->>LLM: Concatenated Sparse Visual Token Sequence
+    LLM-->>Input: Grounded Coordinate Bounds & Text
+```
+
+## Vision Token Efficiency Benchmark Comparison
+
+| Architecture Model | Resolution Handling | Total Vision Tokens (4K) | VRAM Overhead | Bounding Box Accuracy (IoU > 0.5) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Standard LLaVA-1.6** | Fixed Grid (336x336) | 576 tokens | 6.2 GB | 42.1% |
+| **Qwen2.5-VL-7B** | Dynamic Naive Tiling | 3,136 tokens | 18.5 GB | 78.4% |
+| **OvisOCR2** | High-Res Document Crop | 1,800 tokens | 12.4 GB | 81.2% |
+| **Spotlight-7B (FRA)** | **Focal Regional Attention** | **784 tokens** | **7.8 GB** | **89.6%** |
+
 ## Typical use cases
 - **GUI Computer Use Grounding**: Pinpointing minute UI elements, icons, and text fields on high-DPI desktop displays for autonomous computer use agents.
 - **High-Density Document Parsing**: Extracting dense tables, mathematical formulas, and fine print from 300+ DPI PDF document scans.
@@ -152,7 +184,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 import time
 
-mcp = FastMCP("Spotlight-Visual-Grounding-Server")
+mcp = FastMCP("Spotlight-Visual-Grounding-Server", version="3.1")
 
 class GroundingRequest(BaseModel):
     image_path: str = Field(..., description="Absolute file path to source image (supports up to 8K resolution)")
@@ -221,6 +253,54 @@ try:
 except ValidationError as ex:
     print("Configuration Error:", ex.json())
 ```
+
+## Systemd Production Server Unit
+To deploy Spotlight as a background visual grounding microservice on GPU hardware hosts, save the following unit definition to `/etc/systemd/system/spotlight-vlm.service`:
+
+```ini
+[Unit]
+Description=Spotlight VLM High-Resolution Grounding FastMCP 3.1 Server
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vlm-runner
+Group=vlm-runner
+WorkingDirectory=/opt/vlm-services/spotlight
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 /opt/vlm-services/spotlight/server.py
+Restart=always
+RestartSec=10s
+LimitCORE=infinity
+
+# Security Containment Directives
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the server:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now spotlight-vlm.service
+sudo systemctl status spotlight-vlm.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error / Symptom | Primary Cause | Verification Command | Corrective Action |
+| :--- | :--- | :--- | :--- |
+| **CUDA Out of Memory (OOM)** | Exceeded max focal patch limit on 8K image | `nvidia-smi --query-gpu=memory.used --format=csv` | Reduce `max_focal_patches` parameter in config or use FP16 precision |
+| **FRA Router Target Miss** | Low contrast or tiny element below router threshold | `spotlight-cli inspect-router --image input.png` | Decrease `focal_threshold` or increase initial global grid resolution |
+| **FlashAttention Kernel Error** | Mismatched CUDA toolkit or PyTorch version | `python3 -c "import flash_attn; print(flash_attn.__version__)"` | Reinstall `flash-attn` with `--no-build-isolation` against local CUDA toolkit |
+| **Slow Tile Crop Latency** | CPU image preprocessing bottleneck | `python3 -m cProfile server.py` | Enable PyTorch CUDA Tensor image cropping pipelines |
+| **Invalid Coordinate Bounds** | Unnormalized bounding box projection | `spotlight-cli test-coords --bbox "[320,140,480,180]"` | Normalize outputs using original image width/height scaling multipliers |
 
 ## Related tools / concepts
 - [OvisOCR2](../process_understanding/ovisocr2.md) — High-precision multimodal document and OCR perception architecture.
