@@ -80,6 +80,26 @@ It resolves the high-latency search bottleneck in massive, multi-gigabyte code r
    +----------------+     +-------------------+     +-------------------------+
 ```
 
+### FastMCP 3.1 Subprocess Search Execution Sequence
+
+```
++---------------+        +---------------------+        +--------------------+        +--------------------+
+| FastMCP Agent |        | FastMCP Search Tool |        | Subprocess Handler |        | Ripgrep Binary (rg)|
++---------------+        +---------------------+        +--------------------+        +--------------------+
+        |                           |                              |                             |
+        |--- 1. Search Query ------>|                              |                             |
+        |    (Pattern & Directory)  |--- 2. Validate Spec -------->|                             |
+        |                           |    Pydantic v2 Schema        |                             |
+        |                           |                              |--- 3. Spawn rg Process ---->|
+        |                           |                              |    (--json --threads N)     |
+        |                           |                              |                             |--- 4. SIMD Memory Scan
+        |                           |                              |<-- 5. Line-Buffered JSON ---|
+        |                           |                              |    Match Event Stream       |
+        |                           |<-- 6. Filter & Structure ----|                             |
+        |<-- 7. JSON-RPC Response --|                              |                             |
+        |    Matched Symbols List   |                              |                             |
+```
+
 ## Strengths
 - **AVX-512 SIMD Acceleration**: Leverages modern CPU instruction sets for SOTA raw pattern-matching throughput.
 - **Strict Ignore Compliance**: Honors `.gitignore` hierarchies natively, saving inputs from token bloat and scanning noise.

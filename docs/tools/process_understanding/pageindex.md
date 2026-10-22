@@ -45,6 +45,25 @@ PageIndex eliminates vector databases entirely for single-document and structure
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### AST Tree Navigation & Proof Path Sequence
+
+```
++---------------+        +----------------------+        +-----------------------+        +-------------------+
+| Agent / LLM   |        | FastMCP Server       |        | PageIndex Tree Engine |        | Local AST Cache   |
++---------------+        +----------------------+        +-----------------------+        +-------------------+
+        |                           |                                |                              |
+        |--- 1. Query Document ---->|                                |                              |
+        |                           |--- 2. Load AST Tree Index ----------------------------------->|
+        |                           |<-- 3. Return JSON-LD AST Tree --------------------------------|
+        |                           |                                |                              |
+        |                           |--- 4. Traversal Evaluation --->|                              |
+        |                           |    (Prune Irrelevant Leaves)   |                              |
+        |                           |<-- 5. Target Node Payload -----|                              |
+        |                           |    (Text, Tables, Bounding Box)|                              |
+        |<-- 6. Answer + Proof -----|                                |                              |
+        |    Path List (Node ID, p.)|                                |                              |
+```
+
 ## Where it fits in the stack
 **Process Understanding & Document Retrieval Layer**. PageIndex sits directly between raw ingestion engines (such as [Docling](../process_understanding/docling.md) or [Unstructured](../intake_storage/unstructured.md)) and frontier LLMs (such as [Claude 5.1](../providers/anthropic.md), [GPT-5.5](../ai_knowledge/openai.md), or [Gemini 4.0 Pro](../providers/gemini.md)). It serves as an agentic indexing proxy, exposing FastMCP 3.1 tools that allow orchestration frameworks ([LangChain](../frameworks/langchain.md), [AutoGen](../frameworks/autogen.md), [CrewAI](../agents/crewai.md)) to interact with complex documents without loading entire context windows or relying on lossy vector embeddings.
 
@@ -345,6 +364,40 @@ if __name__ == "__main__":
 - [PageIndex GitHub Repository](https://github.com/VectifyAI/PageIndex)
 - [FinanceBench RAG Evaluation Benchmark](https://github.com/patronus-ai/financebench)
 - [Model Context Protocol FastMCP 3.1 Spec](https://modelcontextprotocol.io/)
+
+---
+## Production Deployment & Systemd Service Architecture
+
+When running PageIndex AST indexing and tree reasoning daemons on production infrastructure, deploy the following hardened `systemd` service configuration:
+
+```ini
+[Unit]
+Description=PageIndex AST Document Reasoning Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=pageindex-agent
+Group=pageindex-agent
+WorkingDirectory=/opt/pageindex-mcp
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run pageindex_server.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=PAGEINDEX_MAX_TREE_DEPTH=5
+Environment=PAGEINDEX_VISUAL_PARSING=True
+
+# Hardened Security Guardrails
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ReadOnlyPaths=/var/pageindex_cache
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-12
