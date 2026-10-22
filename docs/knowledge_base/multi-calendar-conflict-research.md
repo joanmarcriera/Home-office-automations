@@ -1,7 +1,7 @@
 # Multi-Calendar Conflict Detection Research
 
 ## What it is
-Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **early January 2027**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, and Gemma 3 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
+Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **early January 2027**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Llama 4, and Gemma 4 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
 
 ## System Architecture
 
@@ -32,8 +32,31 @@ Multi-calendar conflict detection is the process of identifying overlapping even
   +-----------------------------------------------------------------------------------+
 ```
 
+### Multi-Calendar Sync & Conflict Resolution Sequence Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Users as End User / Inbound Invite
+    participant Chronos as Chronos MCP Ingestion Engine
+    participant FastMCP as FastMCP 3.1 Conflict Resolver
+    participant LLM as Claude 5.6 Agentic Negotiator
+    participant Calendars as Target Calendar APIs (GCal / Outlook / CalDAV)
+
+    Users->>Chronos: New Meeting Event Triggered
+    Chronos->>Calendars: Fetch Free/Busy Vectors across All Accounts
+    Calendars-->>Chronos: Return Time Slot Blocks
+    Chronos->>FastMCP: Execute Interval Tree Overlap Scan
+    FastMCP-->>Chronos: Detect 1 Hard Conflict & 2 Soft Conflicts
+    Chronos->>LLM: Evaluate Conflict Priority & Soft Event Reschedule Rules
+    LLM->>FastMCP: Request Reschedule Slot Proposal for Soft Event
+    FastMCP-->>LLM: Confirm Available Slot 14:00-15:00
+    LLM->>Calendars: Patch Calendar Event via API
+    Calendars-->>Users: Send Event Update Notification
+```
+
 ## What problem it solves
-It prevents double-booking and "calendar sprawl" by providing a unified, unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
+It prevents double-booking and "calendar sprawl" by providing a unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Pattern. It informs the logic layer of automation platforms like [n8n](../services/n8n.md) and [Home Assistant](../services/home-assistant.md). It serves as the primary data ingestion strategy for AI scheduling agents and "Focus Time" optimizers.
@@ -192,7 +215,7 @@ print(f"Validated '{validated_event.summary}' event successfully (Flexible={vali
 from mcp.server.fastmcp import FastMCP, Context
 from typing import List, Dict, Any
 
-mcp = FastMCP("Chronos-Conflict-Resolver")
+mcp = FastMCP("Chronos-Conflict-Resolver", version="3.1")
 
 @mcp.tool()
 async def scan_and_resolve_conflicts(
@@ -230,6 +253,42 @@ body = {
 }
 result = service.freebusy().query(body=body).execute()
 ```
+
+## Systemd Daemon Setup for Multi-Calendar Conflict Sync
+
+```ini
+[Unit]
+Description=Chronos FastMCP 3.1 Multi-Calendar Sync Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=chronos-sync
+Group=chronos-sync
+WorkingDirectory=/opt/chronos-sync
+ExecStart=/opt/chronos-sync/venv/bin/python /opt/chronos-sync/calendar_sync_daemon.py
+Restart=always
+RestartSec=15s
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **OAuth Token Refresh Failure** | Expired Google/Outlook refreshToken | `journalctl -u chronos-sync.service -n 50` | Re-authenticate via `gcalcli` or re-issue OAuth client secret |
+| **CalDAV Sync Lock Stalled** | Radicale database locked by concurrent sync | `radicale --check` | Restart Radicale service and verify file lock permissions on `/var/lib/radicale` |
+| **Overlapping Time Slots Missed** | Recurrence expansion ceiling exceeded | `python3 -m unittest test_interval_tree.py` | Ensure timezone offsets are standardized to UTC before running interval overlap scan |
+| **FastMCP Resolver Error** | Context timeout during LLM negotiation | `tail -f /var/log/chronos-fastmcp.log` | Increase tool execution timeout to 30s in FastMCP server initialization |
 
 ## Related tools / concepts
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md) — Primary cloud provider.
