@@ -1,7 +1,7 @@
 # Sweep
 
 ## What it is
-Sweep is an autonomous AI developer agent that transforms GitHub issues into fully tested pull requests. Operating as a headless, event-driven PR worker, Sweep monitors repository issue trackers and, when invoked via issue labels (`sweep`) or comment tags (`@sweepai`), parses issue descriptions, builds an AST-aware repository context map, plans code changes using frontier reasoning models (**Claude 5.1**, **GPT-5.5**, or **Gemini 4 Pro**), executes multi-file modifications, and publishes pull requests complete with unit tests and passing CI checks.
+Sweep is an autonomous AI developer agent that transforms GitHub issues into fully tested pull requests. Operating as a headless, event-driven PR worker, Sweep monitors repository issue trackers and, when invoked via issue labels (`sweep`) or comment tags (`@sweepai`), parses issue descriptions, builds an AST-aware repository context map, plans code changes using frontier reasoning models (**Claude 5.6**, **GPT-5.6**, or **Gemini 4.0 Ultra**), executes multi-file modifications, and publishes pull requests complete with unit tests and passing CI checks.
 
 As of early 2027, Sweep integrates natively with the **FastMCP 3.1** Task Protocol standard, allowing developers to expose repository linters, custom verification scripts, and staging database sandboxes directly to Sweep's execution runtime via `.sweep.yaml`.
 
@@ -23,7 +23,7 @@ graph TD
     end
 
     SubGraph_AIProvider[AI Reasoning & Output Generation]
-        LLM[Frontier LLM - Claude 5.1 / GPT-5.5 / Gemini 4 Pro]
+        LLM[Frontier LLM - Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra]
         DiffGen[Git Multi-File Diff Generator]
     end
 
@@ -48,12 +48,45 @@ graph TD
     PR --> Actions
 ```
 
+### Sweep Code Generation Sequence Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Developer as Developer / GitHub Issue
+    participant Webhook as GitHub Webhook Receiver
+    participant Sweep as Sweep Dispatcher & AST Engine
+    participant FastMCP as FastMCP 3.1 Verification Tools
+    participant GitHub as GitHub PR API
+
+    Developer->>Webhook: Label Issue with 'sweep' or Tag '@sweepai'
+    Webhook->>Sweep: Ingest Issue Metadata & Code Context
+    Sweep->>Sweep: Parse AST & Select Target Files
+    Sweep->>FastMCP: Execute Pre-execution Rules & Lint Checks
+    FastMCP-->>Sweep: Return Tool Verification Constraints
+    Sweep->>Sweep: Generate Code Diff (Claude 5.6 / GPT-5.6)
+    Sweep->>FastMCP: Run Local Unit Tests (`pytest`)
+    FastMCP-->>Sweep: Verification Successful (0 Errors)
+    Sweep->>GitHub: Create Branch `sweep/issue-id` & Push Pull Request
+    GitHub-->>Developer: Notify Reviewer of Ready PR
+```
+
 ## What problem it solves
 Sweep eliminates the operational burden of triaging and resolving low-to-medium complexity developer backlog items:
 1. **Backlog Bloat**: Resolves minor bug fixes, documentation gaps, and dependency upgrades autonomously, preventing low-priority tasks from accumulating.
 2. **Context Switching Overhead**: Eliminates the manual developer loop of creating git feature branches, locating relevant source modules, and authoring boilerplate code for straightforward fixes.
 3. **Repository Standard Compliance**: Enforces project-specific coding conventions and testing mandates automatically through `.sweep.yaml` policy definitions.
 4. **Interactive Iteration**: Enables code reviewers to request changes directly inside GitHub PR comments, prompting Sweep to adjust diffs in real time without human intervention.
+
+## Feature Comparison Matrix
+
+| Feature / Metric | Sweep Dev | Aider | Claude Code CLI | GitHub Copilot Workspace |
+| :--- | :--- | :--- | :--- | :--- |
+| **Execution Mode** | Headless Event-Driven Agent | Interactive Terminal CLI | Autonomous Terminal Agent | Browser-based IDE / PR |
+| **Trigger Mechanism** | Issue Label (`sweep`) / `@sweepai` | Terminal Prompt Command | Terminal Shell Command | Web UI Prompt / GitHub Issue |
+| **FastMCP 3.1 Support** | Native Task Protocol Engine | Custom Script Hook | Native MCP Client | Cloud Tool Integration |
+| **GitHub PR Lifecycle** | End-to-End Automated PRs | Manual `git commit` / PR | Autonomous Git Operations | Native GitHub PR Generation |
+| **Custom Sandbox / Systemd** | Systemd Daemon Support | Local Terminal Sandbox | Local Shell Environment | Cloud Container Sandbox |
 
 ## Where it fits in the stack
 **Development & Ops / Autonomous AI PR Worker**. Sweep sits directly between GitHub Issue management systems and Git version control, functioning as an automated background team member that responds to issue assignments and converts natural language task specifications into code changes.
@@ -149,7 +182,7 @@ import os
 import subprocess
 
 # Initialize FastMCP 3.1 Server for Sweep Execution Tasks
-mcp = FastMCP("SweepTaskServer")
+mcp = FastMCP("SweepTaskServer", version="3.1")
 
 class RuleValidationResult(BaseModel):
     filepath: str = Field(description="File checked for Sweep rule compliance")
@@ -248,35 +281,45 @@ print(f"Validated Sweep Target Branch: {config.branch}")
 print(f"Active Repository Rules ({len(config.rules)}): {config.rules[0]}")
 ```
 
-### GitHub Actions Automation Workflow
-Trigger Sweep tasks automatically upon issue assignment via GitHub Actions:
+## Systemd Daemon Setup for Local Sweep Worker Dispatcher
 
-```yaml
-name: Sweep Issue Worker
+When hosting a self-hosted Sweep webhook handler and local worker daemon, deploy via systemd service units:
 
-on:
-  issues:
-    types: [labeled]
+```ini
+[Unit]
+Description=Self-Hosted Sweep AI GitHub Worker Dispatcher
+After=network.target
 
-jobs:
-  sweep-execution:
-    if: github.event.label.name == 'sweep'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+[Service]
+Type=simple
+User=sweep-runner
+Group=sweep-runner
+WorkingDirectory=/opt/sweep-runner
+ExecStart=/opt/sweep-runner/venv/bin/python /opt/sweep-runner/sweep_dispatcher.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=SWEEP_API_KEY=secret_sweep_key_2027
+Environment=FASTMCP_LOG_LEVEL=INFO
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+# Hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
 
-      - name: Execute Sweep Action
-        uses: sweepai/sweep-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          sweep_api_key: ${{ secrets.SWEEP_API_KEY }}
+[Install]
+WantedBy=multi-user.target
 ```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Sweep Webhook Fails to Trigger** | GitHub App permission revoked or invalid secret | `gh api /repos/:owner/:repo/hooks` | Re-authenticate GitHub App and verify webhook URL accessibility |
+| **FastMCP Verification Timeout** | Pre-PR test suite execution exceeded timeout | `journalctl -u sweep-worker.service -e` | Increase timeout in `sweep_task_tools.py` or optimize test suite execution |
+| **Infinite Review Comment Loop** | Vague reviewer feedback causing repeating diffs | `gh pr view --comments` | Provide specific code lines in review comments or manually merge PR |
+| **YAML Schema Validation Failure** | Missing required `rules` field in `.sweep.yaml` | `python3 scripts/validate_sweep_config.py` | Add required coding rules array to `.sweep.yaml` |
 
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-native pair programmer for developer-led editing.

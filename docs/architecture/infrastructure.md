@@ -32,6 +32,26 @@ flowchart TD
     end
 ```
 
+### Storage Protocol & Storage Sequence Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP 3.1 Agent
+    participant K8s as K3s API / Karpenter
+    participant GPU as GPU Worker Node
+    participant NVMe as TrueNAS NVMe-oF Target
+    participant S3 as Cold Storage S3
+
+    Agent->>K8s: Submit AI Inference Task Payload (FastMCP 3.1)
+    K8s->>GPU: Provision/Assign Pod with RTX 5090 VRAM Request
+    GPU->>NVMe: Attach NVMe-oF Target via RDMA (RoCEv2)
+    NVMe-->>GPU: Stream Model Weights (DeepSeek-V4 / Llama 4) at 100Gbps
+    GPU->>GPU: Compute Inference Token Streams
+    GPU-->>Agent: Streaming Token Output Payload
+    NVMe->>S3: Nightly ZFS Encrypted Differential Replication Snapshot
+```
+
 ## What problem it solves
 
 Self-hosting a complex stack of AI and automation tools requires a stable, scalable, and secure environment. This architecture solves the problem of "service sprawl" by centralizing compute and storage, ensuring data integrity through ZFS, and providing a standardized way to deploy, network, and backup local services using automated [Karpenter](../knowledge_base/invisible_kubernetes.md) scaling.
@@ -85,11 +105,53 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 
 To deploy the standard early January 2027 infrastructure:
 
-1.  **Hardware Provisioning**: Setup a server with at least 128GB RAM and dual NVIDIA RTX 5090/4090 GPUs.
-2.  **OS Installation**: Install TrueNAS SCALE (Cobia or Dragonfish releases).
-3.  **Cluster Setup**: Deploy K3s using the [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) playbook.
-4.  **Networking**: Configure [Tailscale](../services/tailscale.md) and [Cilium v1.18+](https://cilium.io/) for secure mesh connectivity.
-5.  **Storage**: Configure [NFS CSI](../playbooks/nfs-csi-setup.md) for dynamic persistent volume provisioning.
+1. **Hardware Provisioning**: Setup a server with at least 128GB RAM and dual NVIDIA RTX 5090/4090 GPUs.
+2. **OS Installation**: Install TrueNAS SCALE (Cobia or Dragonfish releases).
+3. **Cluster Setup**: Deploy K3s using the [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) playbook.
+4. **Networking**: Configure [Tailscale](../services/tailscale.md) and [Cilium v1.18+](https://cilium.io/) for secure mesh connectivity.
+5. **Storage**: Configure [NFS CSI](../playbooks/nfs-csi-setup.md) for dynamic persistent volume provisioning.
+
+## Detailed Subsystem Configurations
+
+### ZFS Dataset Optimization for AI Weights
+When storing massive AI model weights (such as DeepSeek-V4, Llama 4, or Qwen 3.6 VL), standard 128KB record sizes induce high read amplification and slow model initialization. Configure the dedicated NVMe ZFS pool with the following dataset tuning parameters:
+
+```bash
+# Create dedicated dataset for model weights with 1MB record size
+zfs create -o recordsize=1M -o compression=lz4 -o atime=off -o xattr=sa nvme-pool/ai-weights
+
+# Disable secondary cache overhead for immutable binary tensor files
+zfs set primarycache=all secondarycache=none nvme-pool/ai-weights
+```
+
+### Cilium Network Policy for Secure Microsegmentation
+To protect local AI infrastructure and persistent ZFS datasets from unauthorized agent pod access, enforce Cilium Network Policies at the eBPF layer:
+
+```yaml
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: restrict-fastmcp-ingress
+  namespace: ai-agents
+spec:
+  endpointSelector:
+    matchLabels:
+      app: fastmcp-dispatcher
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        io.kubernetes.pod.namespace: kube-system
+    - matchLabels:
+        role: tailscale-ingress
+    toPorts:
+    - ports:
+      - port: "8000"
+        protocol: TCP
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: ollama-gpu
+```
 
 ## CLI examples
 
@@ -143,7 +205,7 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("homelab-infrastructure-server")
+mcp = FastMCP("homelab-infrastructure-server", version="3.1")
 
 class ClusterStatusRequest(BaseModel):
     namespace: str = Field(default="default", description="Kubernetes namespace to audit.")
@@ -228,6 +290,37 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Daemon Configuration for FastMCP Infrastructure Dispatcher
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Home Lab Infrastructure Dispatcher Service
+After=network.target local-fs.target k3s.service
+Wants=k3s.service
+
+[Service]
+Type=simple
+User=homelab-orchestrator
+Group=homelab-orchestrator
+WorkingDirectory=/opt/homelab/infrastructure
+ExecStart=/opt/homelab/venv/bin/python /opt/homelab/infrastructure/fastmcp_infrastructure_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Security & Sandboxing Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Hardening & Safety Guidelines
 
 1. **ZFS Storage Protection & Scrubbing**:
@@ -236,7 +329,7 @@ if __name__ == "__main__":
 
 2. **Cilium eBPF Network Security Policies**:
    - Enforce strict `CiliumNetworkPolicy` manifests restricting inter-pod traffic.
-   - Isolate public-facing ingress ingress pods from internal storage NFS mounts and raw NVMe-oF devices.
+   - Isolate public-facing ingress pods from internal storage NFS mounts and raw NVMe-oF devices.
 
 3. **Node Resource Isolation & GPU Allocation**:
    - Taint GPU compute worker nodes (`nvidia.com/gpu=true:NoSchedule`) to prevent non-AI workload pods from consuming VRAM.
@@ -254,6 +347,7 @@ if __name__ == "__main__":
 | **Cilium Map Full / Network Loss** | Exceeded default eBPF BPF map limits | `cilium status --verbose` | Increase `bpf-ct-global-any-max` in Cilium Helm config and restart agents |
 | **NVMe-oF Target Disconnected** | RDMA link flap or network MTU mismatch | `nvme list-subsys` | Verify 100GbE NIC MTU setting (9000 jumbo frames) and re-establish nvme connect |
 | **ZFS Degradation Warning** | Drive sector read errors or NVMe wear out | `zpool status -v` | Replace degraded NVMe drive and execute `zpool replace` to rebuild mirror |
+| **FastMCP Dispatcher OOM Kill** | Excessive concurrent status poll requests | `journalctl -u fastmcp-infrastructure.service -e` | Increase systemd memory ceiling or throttle client polling intervals |
 
 ## Related tools / concepts
 

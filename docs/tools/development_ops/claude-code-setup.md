@@ -1,7 +1,7 @@
 # Claude Code — Project Setup Guide
 
 ## What it is
-A reproducible setup, environment blueprint, and workspace execution specification for the Anthropic Claude Code CLI environment in production engineering repos. It defines the workspace orchestration layer where **Claude 5.1** (`claude-5-1-20261101`) and hybrid multi-model agent systems operate. This includes global skill definitions, official and custom plugins, **FastMCP 3.1** Model Context Protocol server configurations, and repository lifecycle hooks (`.claude/settings.json`).
+A reproducible setup, environment blueprint, and workspace execution specification for the Anthropic Claude Code CLI environment in production engineering repos. It defines the workspace orchestration layer where **Claude 5.6** (`claude-5-6-20270105`) and hybrid multi-model agent systems operate. This includes global skill definitions, official and custom plugins, **FastMCP 3.1** Model Context Protocol server configurations, and repository lifecycle hooks (`.claude/settings.json`).
 
 Rather than relying on uncommitted, workstation-specific setups, this guide specifies how to configure reproducible, containerized, or local developer workspaces where agentic execution is strictly governed by automated verification hooks, permission policies, and FastMCP tool boundaries.
 
@@ -28,8 +28,8 @@ graph TD
     end
 
     SubGraph_Models[Cloud Reasoning Services]
-        Claude5[Claude 5.1 Extended Reasoning Engine]
-        Router[Claude Code Router - Hybird Multi-Model Dispatch]
+        Claude5[Claude 5.6 Extended Reasoning Engine]
+        Router[Claude Code Router - Hybrid Multi-Model Dispatch]
     end
 
     CLI --> Config
@@ -45,6 +45,28 @@ graph TD
     Router --> Claude5
 ```
 
+### Claude Code Workspace Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Developer as Developer / CLI Terminal
+    participant CLI as Claude Code Agent Runtime
+    participant PreHook as PreToolUse Hook (`check_docs_contract.py`)
+    participant Claude as Claude 5.6 Extended Thinking
+    participant PostHook as PostToolUse Audit
+
+    Developer->>CLI: Issue Natural Language Prompt (`claude --prompt "..."`)
+    CLI->>PreHook: Execute Security & Syntax Audit Hook
+    PreHook-->>CLI: Pre-execution Clearance Granted
+    CLI->>Claude: Send Prompt & Workspace Context
+    Claude->>Claude: extended thinking & Plan Multi-file Diff
+    Claude-->>CLI: Propose File Edit / Tool Call Payload
+    CLI->>PostHook: Run Post-execution Quality Audit
+    PostHook-->>CLI: Quality Audit Passed (0 Errors)
+    CLI-->>Developer: Output Final Plan & Render File Modifications
+```
+
 ## What problem it solves
 Claude Code's autonomous file editing, shell command execution, and multi-step reasoning capabilities rely heavily on project-level configurations, custom tools, and strict execution guardrails:
 1. **"Works on My Machine" Divergence**: Solves environment drift by storing project settings, hook scripts, and plugin lists directly inside Git version control (`.claude/settings.json`).
@@ -52,8 +74,18 @@ Claude Code's autonomous file editing, shell command execution, and multi-step r
 3. **Context Isolation**: Bridges external documentation systems, local database schemas, and pull request management platforms into Claude Code sessions via **FastMCP 3.1** servers.
 4. **Token & Permission Management**: Establishes transparent token budgeting (`/usage`) and explicit permission prompts for destructive system actions.
 
+## Feature Matrix & CLI Workspace Comparison
+
+| Feature / Metric | Claude Code CLI | Cursor Composer | Aider Terminal | GitHub Copilot CLI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Focus** | Autonomous CLI Development | Graphical IDE Agent | Terminal Pair Programmer | Shell Command Assistant |
+| **Model Engine** | Claude 5.6 / Extended Thinking | Claude 5.6 / GPT-5.6 | Claude 5.6 / GPT-5.5 | GitHub Copilot Models |
+| **FastMCP 3.1 Integration** | Native First-Class Client | Internal Extensions | Custom Hooks | Limited Extension |
+| **Lifecycle Hooks** | Native `preToolUse` & `postToolUse` | IDE Event Hooks | Git Commit Hooks | None |
+| **Versioned Workspace Config** | `.claude/settings.json` | `.cursor/rules` | `.aider.conf.yml` | User Settings |
+
 ## Where it fits in the stack
-**Development & Ops / Tooling Configuration & Execution Environment**. It acts as the local or containerized workbench for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md), linking high-reasoning models (**Claude 5.1**) to shell commands, git operations, and local filesystems under strict security boundaries.
+**Development & Ops / Tooling Configuration & Execution Environment**. It acts as the local or containerized workbench for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md), linking high-reasoning models (**Claude 5.6**) to shell commands, git operations, and local filesystems under strict security boundaries.
 
 ## Typical use cases
 - **Developer Onboarding**: Bootstrapping new team workstations or ephemeral devcontainers with identical Claude Code skills, tools, and hooks in under 2 minutes.
@@ -65,7 +97,7 @@ Claude Code's autonomous file editing, shell command execution, and multi-step r
 - **Fully Version-Controlled Workspaces**: Keeps workspace settings (`.claude/settings.json`) committed alongside application source code.
 - **Real-Time Hook Execution**: Executes `preToolUse` and `postToolUse` hooks before and after tool calls, enforcing instant verification.
 - **FastMCP 3.1 First-Class Integration**: Seamlessly discovers, mounts, and executes Model Context Protocol context servers.
-- **Frontier extended thinking**: Leverages Claude 5.1's extended thinking and multi-step plan generation natively in the CLI shell.
+- **Frontier extended thinking**: Leverages Claude 5.6's extended thinking and multi-step plan generation natively in the CLI shell.
 - **Zero-Trust Permission Model**: Requires explicit user consent before executing destructive system calls or modifying sensitive files.
 
 ## Limitations
@@ -164,7 +196,7 @@ import os
 import subprocess
 
 # Initialize FastMCP 3.1 Server for Claude Code Workspaces
-mcp = FastMCP("ClaudeCodeWorkspaceBridge")
+mcp = FastMCP("ClaudeCodeWorkspaceBridge", version="3.1")
 
 class AuditResponse(BaseModel):
     filepath: str = Field(description="Target file audited")
@@ -230,7 +262,7 @@ class HookConfig(BaseModel):
     create: Optional[str] = Field(None, description="Shell command run before or after file creation")
 
 class ClaudeProjectSettings(BaseModel):
-    preferred_model: str = Field(default="claude-5-1-20261101", alias="preferredModel")
+    preferred_model: str = Field(default="claude-5-6-20270105", alias="preferredModel")
     hooks: Dict[str, HookConfig] = Field(default_factory=dict, description="Pre/Post tool hooks")
     mcp_servers: List[str] = Field(default_factory=list, alias="mcpServers")
     allowed_tools: List[str] = Field(default_factory=list, alias="allowedTools")
@@ -247,7 +279,7 @@ class ClaudeProjectSettings(BaseModel):
 
 # Validate sample project configuration payload
 raw_settings = {
-    "preferredModel": "claude-5-1-20261101",
+    "preferredModel": "claude-5-6-20270105",
     "hooks": {
         "preToolUse": {
             "edit": "python3 scripts/security_audit.py {{file}}"
@@ -270,7 +302,7 @@ Below is a production `.claude/settings.json` file configuring model selection, 
 
 ```json
 {
-  "preferredModel": "claude-5-1-20261101",
+  "preferredModel": "claude-5-6-20270105",
   "allowedTools": [
     "Bash",
     "Edit",
@@ -293,6 +325,44 @@ Below is a production `.claude/settings.json` file configuring model selection, 
   ]
 }
 ```
+
+## Systemd Service Unit for Claude Code Headless Runner
+
+When executing headless Claude Code background tasks on local server nodes:
+
+```ini
+[Unit]
+Description=Claude Code Headless Execution Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=claude-runner
+Group=claude-runner
+WorkingDirectory=/opt/claude-workspace
+ExecStart=/usr/local/bin/claude --headless --settings /opt/claude-workspace/.claude/settings.json
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Sandboxing
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`preToolUse` Hook Hangs** | Non-terminating bash command in hook definition | `claude /doctor` | Ensure hook scripts specify explicit subshell timeout flags |
+| **FastMCP Connection Refused** | Local MCP bridge server not running or port blocked | `claude mcp list` | Verify local FastMCP Python server status and `$PATH` configuration |
+| **OAuth Auth Failure** | Stale session token in `~/.claude/auth.json` | `claude auth login --force` | Force re-authentication and re-issue OAuth token |
+| **Pydantic Model Error** | Non-Claude 5 model defined in `settings.json` | `python3 scripts/validate_settings.py` | Update `preferredModel` to `claude-5-6-20270105` in `.claude/settings.json` |
 
 ## Related tools / concepts
 - [Claude Code Router](./claude-code-router.md) — Multi-model routing engine for Claude Code.

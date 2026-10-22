@@ -50,6 +50,28 @@ graph TD
     E -->|Sub-15ms Motor Commands| F[Hardware Actuators & Grippers]
 ```
 
+### Visual Control Loop Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Camera as Stereo Vision / LiDAR (60fps)
+    participant Edge as Edge Runtime (NVIDIA Thor)
+    participant Cloud as Gemini ER 3 Cloud Planner
+    participant Actuator as 7-DoF Motor Controllers
+
+    Camera->>Edge: Stream Frame Array & Depth Map
+    Edge->>Cloud: Send Workspace Telemetry Payload (FastMCP 3.1)
+    Cloud->>Cloud: Compute Spatial 3D Bounding Boxes & Subgoals
+    Cloud-->>Edge: Return Trajectory Task Plan & Force Limits
+    loop 15ms Motor Control Loop
+        Edge->>Edge: Read Joint Torques & Force Feedback
+        Edge->>Actuator: Send 7-DoF PWM Target Angles
+        Actuator-->>Edge: Confirm Motor Positions
+    end
+    Edge-->>Cloud: Task Complete Notification
+```
+
 ## Where it fits in the stack
 **Category**: Agents / Embodied AI & MCP Hardware Tools. Gemini Robotics bridges high-level cognitive agent orchestration (such as Claude 5.6, GPT-5.6, or Gemini 4.0 Ultra planning agents) with physical hardware actuators. It consumes real-time workspace telemetry via FastMCP 3.1 streams, reasons about multi-step spatial orchestration using `gemini-robotics-er-3`, and streams native joint motor commands to edge runtimes (`gemini-robotics-on-device-3`).
 
@@ -107,7 +129,7 @@ gcloud ai custom-jobs create \
   --args="--model=gemini-robotics-er-3,--instruction='Scan bin B, locate object ID-492, and pass to AMR-02 using force-limited grasp.'"
 ```
 
-## Operational Best Practices & Troubleshooting
+## Operational Best Practices & Safety Guidelines
 
 ### E-Stop and Hardware Safety Guards
 Physical execution models require deterministic safety interlocks in front of hardware controllers.
@@ -122,6 +144,15 @@ Miscalibrated stereo vision feeds degrade 3D bounding box accuracy:
 ### Handling Network Drops During Cloud ER Planning
 When using cloud-hosted `gemini-robotics-er-3` for long-horizon task planning:
 - Implement fallbacks to `gemini-robotics-on-device-3` for local collision avoidance and stationary holding patterns whenever cloud latency spikes past 100ms.
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Subgoal Trajectory Stalled** | Inverse kinematics singular configuration | `ros2 topic echo /joint_states` | Reset manipulator arm to home pose and request plan re-evaluation |
+| **High Perception Latency (>50ms)** | Unthrottled 4K video frame stream to edge node | `v4l2-ctl --list-formats-ext` | Lower camera resolution to 1080p @ 60fps and enable hardware NVENC H.265 encoding |
+| **Gripper Force Threshold Triggered** | Object resistance exceeded Newtons ceiling | `journalctl -u gemini-robotics.service -e` | Re-evaluate object weight or increase `gripper_force_n` in Pydantic schema within safety guidelines |
+| **FastMCP Stream Disconnection** | Serial or network socket drop on edge gateway | `systemctl status gemini-edge-daemon` | Verify USB-C/Ethernet hardware connections and restart edge daemon service |
 
 ## API examples
 
@@ -195,6 +226,39 @@ if __name__ == "__main__":
     print(f"Plan generated: Task '{plan.task_id}' with {len(plan.steps)} physical execution subgoals.")
     for step in plan.steps:
         print(f"  Step {step.step_id}: {step.action} -> {step.target_object} at XYZ {step.spatial_target_3d}")
+```
+
+## Systemd Service Daemon for Edge Gemini Robotics Daemon
+
+```ini
+[Unit]
+Description=Gemini Robotics 3 Edge Control Daemon
+After=network.target ros2-core.service
+Wants=ros2-core.service
+
+[Service]
+Type=simple
+User=robot-operator
+Group=robot-operator
+WorkingDirectory=/opt/gemini-robotics
+ExecStart=/opt/gemini-robotics/venv/bin/python /opt/gemini-robotics/edge_daemon.py
+Restart=always
+RestartSec=3s
+Environment=PYTHONUNBUFFERED=1
+Environment=NVIDIA_VISIBLE_DEVICES=all
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Real-time scheduling privileges
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=80
+
+# Hardening
+ProtectSystem=full
+ProtectHome=false
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Related tools / concepts
