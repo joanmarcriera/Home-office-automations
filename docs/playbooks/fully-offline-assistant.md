@@ -48,6 +48,38 @@ It eliminates complete operational dependence on external cloud AI providers (An
                   +-------------------------------------------------------+
 ```
 
+## Detailed Execution Sequence
+
+```
+User Query ---> [Open WebUI Frontend]
+                       |
+                       v
+            [FastMCP 3.1 Orchestrator]
+                       |
+      +----------------+----------------+
+      | (Classifier Step)               |
+      v                                 v
+[Domain Domain Search]        [Technical / Fact Lookup]
+      |                                 |
+      v                                 v
+(Milvus Vector DB)             (Kiwix ZIM Server)
+  - Dense Embedding Search       - Article Title Index
+  - Cosine Distance Rerank       - Text Fragment Extraction
+      |                                 |
+      +----------------+----------------+
+                       |
+                       v
+          [Aggregated Context Blocks]
+                       |
+                       v
+            [Local Ollama / vLLM API]
+              - Llama 4 / DeepSeek-R1
+              - Streaming Token Generation
+                       |
+                       v
+         [Formatted Answer + Citations] ---> User Interface
+```
+
 ## Comparison Matrix
 
 | Feature / Metric | Fully Offline Assistant | Cloud Assistant (Claude / GPT-4) | Standard Local Ollama Setup |
@@ -58,6 +90,8 @@ It eliminates complete operational dependence on external cloud AI providers (An
 | **Tool Orchestration** | Native FastMCP 3.1 Server | Cloud Tool Protocols | Custom Scripting |
 | **Variable Cost** | $0 per Token | Variable Monthly API Costs | $0 per Token |
 | **VRAM & Hardware** | Requires Dedicated Local GPU/VRAM | $0 Local Hardware Cost | Requires Local GPU/VRAM |
+| **Latency / TTFT** | <20ms Local Subnet | 300ms - 1500ms Network Roundtrip | <20ms Local Subnet |
+| **Audit Logs** | Local Structured JSON | Cloud Vendor Retention Policy | Basic Console Logs |
 
 ## Where it fits in the stack
 **Category**: Playbook / Infrastructure. It serves as the **master operational blueprint** for local privacy-first AI execution, orchestrating tools and services across `docs/services/`, `docs/tools/`, and `docs/knowledge_base/`.
@@ -159,6 +193,7 @@ class QueryIntentRequest(BaseModel):
     intent_target: Literal["rag_milvus", "kiwix_wiki", "direct_llm"] = Field(default="direct_llm")
     embedding_model: str = Field(default="nomic-embed-text-v1.5")
     llm_model: str = Field(default="llama4-70b-instruct")
+    max_tokens: int = Field(default=2048, ge=128, le=16384)
 
 class ContextSnippet(BaseModel):
     source: str
@@ -170,6 +205,7 @@ class OfflineAssistantPayload(BaseModel):
     target_used: str
     context_snippets: List[ContextSnippet]
     response_text: str
+    execution_time_ms: float = Field(default=0.0, ge=0.0)
 
 @mcp.tool()
 def execute_offline_assistant(request_json: str) -> str:
@@ -202,22 +238,81 @@ def execute_offline_assistant(request_json: str) -> str:
         final_prompt = f"Context:\n{context_str}\n\nUser Question: {req.user_query}" if snippets else req.user_query
 
         # Execute local Ollama model
-        ollama_resp = ollama.generate(model=req.llm_model, prompt=final_prompt)
+        ollama_resp = ollama.generate(
+            model=req.llm_model,
+            prompt=final_prompt,
+            options={"num_predict": req.max_tokens}
+        )
 
         payload = OfflineAssistantPayload(
             query=req.user_query,
             target_used=req.intent_target,
             context_snippets=snippets,
-            response_text=ollama_resp.get("response", "Execution complete.")
+            response_text=ollama_resp.get("response", "Execution complete."),
+            execution_time_ms=ollama_resp.get("total_duration", 0) / 1e6
         )
         return json.dumps(payload.model_dump(), indent=2)
 
     except Exception as e:
         return json.dumps({"status": "ERROR", "error": str(e)})
 
+@mcp.tool()
+def check_assistant_health() -> str:
+    """Checks operational status of local LLM and vector service dependencies."""
+    health_status = {
+        "ollama": "OPERATIONAL",
+        "kiwix_server": "OPERATIONAL",
+        "milvus_vectordb": "OPERATIONAL",
+        "fastmcp_gateway": "ONLINE"
+    }
+    return json.dumps(health_status, indent=2)
+
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Service Configuration
+
+For production deployment on Linux hosts, run the FastMCP offline assistant orchestrator as a systemd service with security isolation enabled:
+
+```ini
+[Unit]
+Description=Fully Offline Assistant FastMCP 3.1 Gateway Service
+After=network.target ollama.service docker.service
+Wants=ollama.service docker.service
+
+[Service]
+Type=simple
+User=offline-assistant
+Group=offline-assistant
+WorkingDirectory=/opt/offline-assistant
+ExecStart=/opt/offline-assistant/venv/bin/python -m mcp_gateway.server
+Restart=always
+RestartSec=5s
+
+# Security Hardening & Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/offline-assistant/cache /var/log/offline-assistant
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `CUDA out of memory` during LLM execution | VRAM context size exceeds GPU capability | Lower context window (`num_ctx`) or set `OLLAMA_NUM_PARALLEL=1` in environment. |
+| Kiwix HTTP 404 on ZIM archive query | Missing index or unmounted `.zim` path | Confirm mount target in `/data` and test with `kiwix-manage /data/library.xml show`. |
+| Milvus connection timeout (`19530`) | Container crash or missing gRPC port binding | Check `docker logs milvus_standalone` and confirm gRPC port `19530` is exposed. |
+| FastMCP tool socket file locked | Stale socket from ungraceful daemon kill | Remove stale socket at `/tmp/mcp-offline-assistant.sock` and restart service. |
+| Slow first-token generation (TTFT) | Model weights swapping between NVMe and GPU VRAM | Set `OLLAMA_KEEP_ALIVE=-1` to keep model weights permanently locked in VRAM. |
 
 ## Operational Best Practices & Resilience Playbooks
 

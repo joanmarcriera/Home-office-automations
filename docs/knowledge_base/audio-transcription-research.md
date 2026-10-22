@@ -18,19 +18,42 @@ This research document compares optimized versions of OpenAI's Whisper model and
 |   +--------------------------+       |   +---------------+----------------+   |   |
 |   | FastMCP 3.1 Task Server  |<======|===================>                    |   |
 |   | (Queue / Chunking Engine)|       |   +--------------------------------+   |   |
-|   +------------+-------------+       |   | Quantized Inference Engine     |   |   |
-|                |                     |   | (Faster-Whisper FP8 / MLX)     |   |   |
-|                v                     |   +---------------+----------------+   |   |
-|   +--------------------------+       |                   |                    |   |
-|   | Pydantic v2 Transcript   |       |                   v                    |   |
-|   | Validation & Schema      |       |   +--------------------------------+   |   |
-|   +------------+-------------+       |   | SenseVoice Diarization / Intent|   |   |
-|                |                     |   +--------------------------------+   |   |
-|                v                     +----------------------------------------+   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | Quantized Inference Engine     |   |   |
+|                v                     |   | (Faster-Whisper FP8 / MLX)     |   |   |
+|   +--------------------------+       |   +---------------+----------------+   |   |
+|   | Pydantic v2 Transcript   |       |                   |                    |   |
+|   | Validation & Schema      |       |                   v                    |   |
+|   +------------+-------------+       |   +--------------------------------+   |   |
+|                |                     |   | SenseVoice Diarization / Intent|   |   |
+|                v                     |   +--------------------------------+   |   |
 |   +---------------------------------------------------------------------------+   |
 |   | Destination Knowledge Stores (Obsidian / Paperless-ngx / Audiobookshelf)   |   |
 |   +---------------------------------------------------------------------------+   |
 +-----------------------------------------------------------------------------------+
+```
+
+## Detailed Ingestion Sequence Flow
+
+```
+[Audio File Upload] ---> [FastMCP 3.1 Ingestion Gateway]
+                                    |
+                                    v
+                    [Silero V6 Voice Activity Filter]
+                                    |
+            +-----------------------+-----------------------+
+            | (Speech Detected)                             | (Silence / Hum)
+            v                                               v
+[Faster-Whisper FP8 Engine]                        [Discard / Fast Forward]
+            |
+            v
+[SenseVoice Diarizer & Emotion Engine]
+            |
+            v
+[Pydantic v2 Transcript Validator]
+            |
+            v
+[Structured Output JSON / Markdown] ---> [Obsidian / Paperless-ngx Storage]
 ```
 
 ### Key Findings (Early January 2027)
@@ -109,23 +132,33 @@ The following Python script can be used to benchmark `faster-whisper` performanc
 ```python
 import os
 import time
+import json
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from mcp.server.fastmcp import FastMCP
 from faster_whisper import WhisperModel
 
-mcp = FastMCP("AudioTranscriptionBench")
+mcp = FastMCP("AudioTranscriptionBench", version="3.1.0")
 
 class IngestionRequest(BaseModel):
-    audio_path: str = Field(description="Local path to the source audio file")
+    audio_path: str = Field(..., description="Local path to the source audio file")
     model_size: str = Field(default="large-v3-turbo", description="Model name to run (e.g. 'large-v3-turbo', 'medium')")
     enable_vad: bool = Field(default=True, description="Enable Silero-VAD filtering")
+    compute_type: str = Field(default="float16", description="Quantization precision type (float16, int8, float8)")
+
+    @field_validator("audio_path")
+    @classmethod
+    def validate_path(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Audio path cannot be empty")
+        return v
 
 class SpeakerSegment(BaseModel):
     speaker_id: str = Field(..., description="Speaker identifier tag (e.g. 'SPEAKER_00')")
     start_sec: float = Field(..., description="Segment start timestamp in seconds")
     end_sec: float = Field(..., description="Segment end timestamp in seconds")
     text: str = Field(..., description="Transcribed spoken segment text")
+    confidence: float = Field(default=0.95, ge=0.0, le=1.0)
 
 class AudioMetadata(BaseModel):
     duration_sec: float = Field(description="Audio duration in seconds")
@@ -139,76 +172,112 @@ class IngestionResult(BaseModel):
     metadata: AudioMetadata = Field(description="Performance and file metrics validated via Pydantic v2")
 
 @mcp.tool()
-def transcribe_and_benchmark(request: IngestionRequest) -> str:
+def transcribe_and_benchmark(request_json: str) -> str:
     """
     Transcribes audio utilizing Faster-Whisper with Silero-VAD V6 filtering,
     benchmarks processing performance, and returns a validated JSON payload.
     """
-    device = "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
-    compute_type = "float16" if device == "cuda" else "int8"
+    try:
+        data = json.loads(request_json)
+        req = IngestionRequest.model_validate(data)
 
-    # Initialize Whisper model
-    model = WhisperModel(request.model_size, device=device, compute_type=compute_type)
+        device = "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+        compute_type = req.compute_type if device == "cuda" else "int8"
 
-    start_time = time.time()
-    segments, info = model.transcribe(
-        request.audio_path,
-        beam_size=5,
-        vad_filter=request.enable_vad,
-        vad_parameters=dict(
-            threshold=0.35,              # Lower for high-noise home recordings
-            min_speech_duration_ms=100,  # V6 is more precise
-            min_silence_duration_ms=200,
-            window_size_samples=512      # V6 optimized window
-        )
-    )
+        # Initialize Whisper model
+        model = WhisperModel(req.model_size, device=device, compute_type=compute_type)
 
-    # Exhaust generator
-    parsed_segments = []
-    text_parts = []
-    for segment in segments:
-        text_parts.append(segment.text)
-        parsed_segments.append(
-            SpeakerSegment(
-                speaker_id=getattr(segment, "speaker", "SPEAKER_00"),
-                start_sec=segment.start,
-                end_sec=segment.end,
-                text=segment.text.strip()
+        start_time = time.time()
+        segments, info = model.transcribe(
+            req.audio_path,
+            beam_size=5,
+            vad_filter=req.enable_vad,
+            vad_parameters=dict(
+                threshold=0.35,              # Lower for high-noise home recordings
+                min_speech_duration_ms=100,  # V6 is more precise
+                min_silence_duration_ms=200,
+                window_size_samples=512      # V6 optimized window
             )
         )
 
-    full_text = "".join(text_parts).strip()
-    processing_time = time.time() - start_time
-    realtime_factor = info.duration / processing_time if processing_time > 0 else 0.0
+        # Exhaust generator
+        parsed_segments = []
+        text_parts = []
+        for segment in segments:
+            text_parts.append(segment.text)
+            parsed_segments.append(
+                SpeakerSegment(
+                    speaker_id=getattr(segment, "speaker", "SPEAKER_00"),
+                    start_sec=segment.start,
+                    end_sec=segment.end,
+                    text=segment.text.strip(),
+                    confidence=getattr(segment, "avg_logprob", 0.95)
+                )
+            )
 
-    result = IngestionResult(
-        text=full_text,
-        segments=parsed_segments,
-        metadata=AudioMetadata(
-            duration_sec=info.duration,
-            language_code=info.language,
-            processing_time_sec=processing_time,
-            realtime_factor=realtime_factor
+        full_text = "".join(text_parts).strip()
+        processing_time = time.time() - start_time
+        realtime_factor = info.duration / processing_time if processing_time > 0 else 0.0
+
+        result = IngestionResult(
+            text=full_text,
+            segments=parsed_segments,
+            metadata=AudioMetadata(
+                duration_sec=info.duration,
+                language_code=info.language,
+                processing_time_sec=processing_time,
+                realtime_factor=realtime_factor
+            )
         )
-    )
-    return result.model_dump_json(indent=2)
+        return result.model_dump_json(indent=2)
+    except Exception as e:
+        return json.dumps({"status": "ERROR", "error": str(e)})
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-## Operational Guidelines & Performance Tuning
+## Systemd Batch Transcription Worker Service
 
-1. **VAD Parameter Calibration**:
-   - Set `threshold=0.35` for room microphone recordings with active background noise (HVAC, computer fans).
-   - Increase `min_silence_duration_ms` to `300ms` for long-form podcasts to prevent chopping sentences in multi-speaker banter.
+For automated background audio transcription in homelabs, deploy this systemd worker service:
 
-2. **Hardware Acceleration Best Practices**:
-   - On NVIDIA RTX 40/50 series GPUs, run `faster-whisper` with `--compute_type int8_float16` or `--compute_type float8` to double batch processing speed while retaining full WER accuracy.
-   - On Apple Silicon nodes (M2/M3/M4/M5 Pro/Max), allocate at least 16GB Unified Memory for `mlx-whisper` to maintain zero swap overhead during parallel batch ingestion.
+```ini
+[Unit]
+Description=Homelab Audio Transcription Batch FastMCP Worker
+After=network.target sound.target
 
-3. **Hallucination Prevention**:
-   - Set `no_speech_threshold=0.6` and `logprob_threshold=-1.0` in Whisper options to abort endless repetition loops on low-volume background tracks or music interludes.
+[Service]
+Type=simple
+User=transcribe-worker
+Group=transcribe-worker
+WorkingDirectory=/opt/transcription-worker
+ExecStart=/opt/transcription-worker/venv/bin/python -m worker.daemon --watch-dir /data/incoming_audio
+Restart=always
+RestartSec=10s
+
+# Environment and limits
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/data/incoming_audio /data/transcripts /var/log/transcribe
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Guidelines & Diagnostic Troubleshooting
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| Repetitive hallucination loops ("Thank you for watching...") | Low audio signal or silence without VAD | Enable Silero-VAD V6 and set `no_speech_threshold=0.6` in Faster-Whisper. |
+| High CUDA VRAM exhaustion crash | Unquantized FP32 model or large batch size | Switch compute type to `int8_float16` or `--compute_type float8` in CUDA config. |
+| Cut-off speech initial syllables | VAD threshold set too high | Lower VAD threshold from `0.5` to `0.35` and set `min_speech_duration_ms=100`. |
+| Speaker diarization overlap confusion | Single audio channel mix down | Enable multi-channel pre-processing or apply SenseVoice acoustic diarization. |
+| Slow execution factor (<2x realtime) | Default CPU fallback or missing CUDA drivers | Confirm CUDA visibility with `nvidia-smi` and set `--compute_type float16`. |
 
 ## Related tools / concepts
 - [Whisper](../services/whisper.md) — The base model and service.
