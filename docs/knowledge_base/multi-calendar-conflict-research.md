@@ -231,6 +231,77 @@ body = {
 result = service.freebusy().query(body=body).execute()
 ```
 
+## Systemd Service Configuration
+
+To deploy the FastMCP 3.1 Multi-Calendar Chronos Conflict Engine as a background daemon on local homelab automation nodes, use the following systemd service configuration:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Chronos Multi-Calendar Conflict Resolution Engine
+After=network-online.target radicale.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chronos
+Group=chronos
+WorkingDirectory=/opt/chronos-engine
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run chronos_conflict_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CHRONOS_CONFIG=/etc/chronos/config.json
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Security Isolation & Protection
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/chronos-engine/cache /tmp
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Agentic Schedule Negotiation Sequence
+
+The following sequence diagram illustrates how Chronos ingest calendar streams, detects overlapping slots via Interval Tree analysis, and negotiates conflict resolutions with Claude 5.6:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Cal as External Calendars (GCal / Outlook / CalDAV)
+    participant Chronos as Chronos MCP Ingestion Engine
+    participant Tree as Interval Tree Overlap Scanner
+    participant Agent as Claude 5.6 / FastMCP 3.1 Negotiator
+    participant User as User Checkpoint (n8n / Home Assistant)
+
+    Cal->>Chronos: Fetch Event Feeds (OAuth / CalDAV Sync)
+    Chronos->>Tree: Load Event Intervals
+    Tree->>Tree: Execute O(N log N) Overlap Scan
+    alt Overlap Detected (Hard Conflict)
+        Tree->>Agent: Send Conflict Context (Hard vs. Soft Constraints)
+        Agent->>Agent: Evaluate Alternative Free Slots & Flexible Rules
+        Agent-->>User: Propose Reschedule Action (e.g., Move Dentist to 11:30)
+        User->>Agent: Approve Proposed Slot Adjustment
+        Agent->>Cal: Execute Patch Event Request (API Call)
+        Cal-->>Agent: Confirmation OK
+    else No Overlap
+        Tree-->>Chronos: Calendar Availability Clean
+    end
+```
+
+## Systematic Troubleshooting Matrix
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Missed Overlap Detection** | Timezone offset mismatch between raw event feed and local clock | `python3 -m chronos.cli check-tz --cal work@company.com` | Ensure all incoming ISO 8601 timestamps are parsed into UTC before interval insertion |
+| **OAuth Token Expiration** | Refresh token revoked or expired in secret store | `journalctl -u chronos-engine.service -n 30` | Re-authenticate OAuth consent flow and update secret vault token |
+| **CalDAV Sync Latency** | High poll interval on local Radicale or Nextcloud instance | `curl -i -X PROPFIND https://calendar.example.com/dav/` | Configure Webhook/push notifications (RFC 6578) to eliminate polling delay |
+| **Soft Event Over-Rescheduling** | `is_flexible` property flag set incorrectly on high-priority blocks | `python3 -m chronos.cli audit-rules` | Update Pydantic event rules to strictly tag immovable meetings as `is_flexible=False` |
+
 ## Related tools / concepts
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md) — Primary cloud provider.
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) — Agentic CalDAV orchestration.

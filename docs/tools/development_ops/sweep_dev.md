@@ -278,6 +278,78 @@ jobs:
           sweep_api_key: ${{ secrets.SWEEP_API_KEY }}
 ```
 
+## Systemd Service Configuration
+
+To run the Sweep FastMCP 3.1 task worker as a dedicated, sandboxed background daemon in production environments, deploy the following systemd service unit:
+
+```ini
+[Unit]
+Description=Sweep FastMCP 3.1 Autonomous Developer Agent Service
+After=network-online.target github-webhook.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sweepagent
+Group=sweepagent
+WorkingDirectory=/opt/sweep-runner
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/sweep_task_tools.py
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=SWEEP_API_KEY=sk-sweep-live-mcp-key
+Environment=GITHUB_TOKEN=ghp_sweep_bot_token_2027
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Hardening & Container-like Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/sweep-runner/workspace /tmp
+NoNewPrivileges=true
+CapabilityBoundingSet=
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Autonomous PR Generation Sequence
+
+The following sequence diagram illustrates the lifecycle of a Sweep task, from GitHub issue tagging through FastMCP 3.1 tool verification to PR publication:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Maintainer / User
+    participant GH as GitHub Webhook Engine
+    participant Sweep as Sweep Task Orchestrator
+    participant FastMCP as FastMCP 3.1 Task Server
+    participant LLM as Claude 5.1 / GPT-5.5 Reasoning
+    participant CI as GitHub Actions CI
+
+    Dev->>GH: Add 'sweep' label or tag '@sweepai'
+    GH->>Sweep: Webhook Payload (Issue Body + AST Context)
+    Sweep->>FastMCP: Load Repository Rules & Tool Schemas
+    FastMCP-->>Sweep: Rules Verified (.sweep.yaml)
+    Sweep->>LLM: Send Task Prompt + Tree-Sitter AST Context Map
+    LLM-->>Sweep: Propose Multi-File Git Diff & Unit Tests
+    Sweep->>FastMCP: Execute verify_sweep_rule_compliance(file)
+    FastMCP-->>Sweep: Verification Result (PASSED)
+    Sweep->>GH: Push Branch `sweep/issue-42` & Create Pull Request
+    GH->>CI: Trigger Test Execution Pipeline
+    CI-->>GH: CI Status (Success)
+    GH-->>Dev: Notify Reviewer of Ready PR
+```
+
+## Systematic Troubleshooting Matrix
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Contract Verification Failure** | Modified Markdown or Python file violates formatting schema | `python3 scripts/check_docs_contract.py <file>` | Correct missing headers/metadata fields and re-run FastMCP tool |
+| **Webhook Delivery Timeout** | Large repository size delay in Tree-Sitter AST indexing | `journalctl -u sweep-agent.service -n 50` | Add large generated directories to `exclude` in `.sweep.yaml` |
+| **Permission Denied on Branch Push** | GitHub App token missing `contents: write` or `pull_requests: write` | `gh auth status` | Re-authorize Sweep GitHub App with required repository permissions |
+| **CI Test Regressions on Sweep PR** | LLM generated code missing edge-case mock definitions | `gh pr view 108 --comments` | Comment `@sweepai add mock for API timeouts in test_suite.py` |
+
 ## Related tools / concepts
 - [Aider](aider.md) — Terminal-native pair programmer for developer-led editing.
 - [Mentat](./mentat.md) — Terminal AI editing assistant for multi-file transformations.

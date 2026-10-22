@@ -197,6 +197,81 @@ if __name__ == "__main__":
         print(f"  Step {step.step_id}: {step.action} -> {step.target_object} at XYZ {step.spatial_target_3d}")
 ```
 
+## Systemd Service Configuration
+
+To run the Gemini Robotics FastMCP 3.1 Hardware ROS2 Bridge as a resilient, real-time background service on edge nodes (e.g., NVIDIA Jetson Thor / Orin AGX), deploy the following systemd service unit:
+
+```ini
+[Unit]
+Description=Gemini Robotics ER 3 FastMCP 3.1 ROS2 Hardware Bridge
+After=network-online.target ros2.service
+Wants=network-online.target
+Requires=ros2.service
+
+[Service]
+Type=simple
+User=robotics
+Group=robotics
+WorkingDirectory=/opt/gemini-robotics-bridge
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run gemini_robotics_bridge_server.py
+Restart=always
+RestartSec=3s
+Environment=PYTHONUNBUFFERED=1
+Environment=GEMINI_API_KEY=AIzaSy_gemini_robotics_er3_key
+Environment=ROS_DOMAIN_ID=42
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Hardening & Real-Time Hardware Privileges
+ProtectSystem=full
+ProtectHome=false
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_SYS_NICE CAP_NET_BIND_SERVICE
+LimitRTPRIO=99
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Real-Time Perception-to-Action Execution Sequence
+
+The following sequence diagram details the closed-loop control cycle between multimodal stereo sensors, the FastMCP 3.1 task protocol engine, Gemini Robotics ER 3 VLA reasoning, and ROS2 actuator motor controllers:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Camera as 60fps Stereo / LiDAR
+    participant FastMCP as FastMCP 3.1 Hardware Gateway
+    participant ER3 as Gemini ER 3 VLA Engine
+    participant Edge as gemini-robotics-on-device-3
+    participant ROS2 as ROS2 Control Driver / Motors
+
+    Camera->>FastMCP: Stream Multimodal Telemetry Frame (JPEG + PointCloud)
+    FastMCP->>ER3: Forward Telemetry Frame + Task Instruction
+    ER3->>ER3: Perform 3D Spatial Reasoning & Trajectory Generation
+    ER3-->>FastMCP: Return Validated RoboticsPlan (Pydantic v2)
+    FastMCP->>Edge: Dispatch Subgoals & Joint Angles (15ms Interval)
+    loop Closed-Loop 7-DoF Control Step
+        Edge->>ROS2: Publish `/joint_trajectory_controller/command`
+        ROS2-->>Edge: Joint Telemetry & Force-Torque Feedback
+        alt Force Limit Exceeded (>50N)
+            Edge->>ROS2: Issue Hardware E-Stop Command
+            Edge-->>FastMCP: Signal Emergency Stop Triggered
+        end
+    end
+    Edge-->>FastMCP: Goal Reached Notification
+    FastMCP-->>Camera: Await Next Perception Cycle Frame
+```
+
+## Systematic Troubleshooting Matrix
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Trajectory Force Limit Exceeded** | Gripper contacting obstacle or miscalibrated object mass | `ros2 topic echo /joint_states` | Re-calibrate force-torque sensor array or increase compliance limit |
+| **High Perception Latency (>100ms)** | Network bandwidth bottleneck on 60fps video feed | `ping -c 10 vertex-ai.googleapis.com` | Enable JPEG hardware compression on Jetson Thor or switch to local edge VLA |
+| **ROS2 Node Disconnection** | Mismatched `ROS_DOMAIN_ID` or daemon crash | `ros2 node list` | Ensure `ROS_DOMAIN_ID=42` is set in service environment and restart `ros2.service` |
+| **FastMCP Schema Validation Error** | Invalid 3D spatial coordinate offset format | `journalctl -u gemini-robotics-bridge.service -n 20` | Ensure `spatial_target_3d` is formatted as exact `[X, Y, Z]` floating point array |
+
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md) — Base multimodal LLM and Google Vertex AI model portfolio.
 - [Gemini API Managed Agents](gemini-managed-agents.md) — Autonomous agent orchestration framework.

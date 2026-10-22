@@ -228,6 +228,71 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Service Configuration
+
+To run the FastMCP 3.1 Infrastructure Controller as a resilient background service on K3s control nodes, deploy the following systemd service unit:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Home Lab Infrastructure Orchestration Service
+After=network-online.target remote-fs.target k3s.service
+Wants=network-online.target
+Requires=k3s.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/homelab/infrastructure
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run homelab_infrastructure_server.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Security and Isolation Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SYS_ADMIN
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Workload Provisioning & Execution Sequence
+
+The following sequence diagram details the interaction flow between the FastMCP 3.1 Task Protocol agent, Cilium eBPF networking, TrueNAS NVMe-oF target storage, and Karpenter autoscaling nodes during dynamic AI model workload requests:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP Client / AI Agent
+    participant FastMCP as FastMCP 3.1 Orchestrator
+    participant Cilium as Cilium eBPF Service Mesh
+    participant K3s as K3s / EKS Auto Mode API
+    participant Karpenter as Karpenter Autoscaler
+    participant TrueNAS as TrueNAS NVMe-oF Storage
+
+    Client->>FastMCP: Dispatch Task Payload (Scale / Deploy Model)
+    FastMCP->>FastMCP: Validate Payload via Pydantic v2 Schema
+    FastMCP->>K3s: Query Node Resource & VRAM Availability
+    alt Insufficient GPU VRAM
+        FastMCP->>Karpenter: Patch NodePool CRD (Request RTX 5090 / H100 Node)
+        Karpenter->>K3s: Provision New Compute Worker Node
+        K3s-->>FastMCP: Node Ready Notification
+    end
+    FastMCP->>TrueNAS: Attach High-IOPS NVMe-oF Storage Volume
+    TrueNAS-->>K3s: RDMA Storage Volume Mount Complete
+    FastMCP->>Cilium: Apply eBPF Network Security Policy & Ingress
+    Cilium-->>FastMCP: Security Rules Synchronized
+    FastMCP->>K3s: Deploy Model Pod (DeepSeek-V4 / Qwen-3.6-VL)
+    K3s-->>FastMCP: Pod Running & Healthcheck Passed
+    FastMCP-->>Client: Task Execution Success Response
+```
+
 ## Operational Hardening & Safety Guidelines
 
 1. **ZFS Storage Protection & Scrubbing**:

@@ -294,6 +294,81 @@ Below is a production `.claude/settings.json` file configuring model selection, 
 }
 ```
 
+## Systemd Service Configuration
+
+To run the Claude Code FastMCP 3.1 Developer Sandbox Bridge as a background daemon inside local devcontainers or development servers, deploy the following systemd service unit:
+
+```ini
+[Unit]
+Description=Claude Code FastMCP 3.1 Sandbox Runner Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/opt/claude-code-sandbox
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run scripts/claude_mcp_bridge.py
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CLAUDE_CONFIG_DIR=/home/developer/.claude
+Environment=FASTMCP_LOG_LEVEL=INFO
+
+# Hardening & Container Execution
+ProtectSystem=full
+ProtectHome=false
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Lifecycle Execution Sequence
+
+The following sequence diagram details the interaction between the Claude Code CLI, `.claude/settings.json` lifecycle hooks, FastMCP 3.1 tools, and Claude 5.1 extended reasoning model during an automated file edit task:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Developer / User
+    participant CLI as Claude Code CLI Tool
+    participant Config as .claude/settings.json
+    participant Hook as preToolUse / postToolUse Hooks
+    participant FastMCP as FastMCP 3.1 Server Bridge
+    participant Claude as Claude 5.1 Reasoning Engine
+
+    Dev->>CLI: Issue Shell Prompt (`claude "refactor API route"`)
+    CLI->>Config: Load Project Settings & FastMCP Server Connections
+    CLI->>Claude: Dispatch Prompt + Workspace Context Map
+    Claude-->>CLI: Propose File Edit Tool Call (`Edit`)
+    CLI->>Hook: Execute `preToolUse` Hook (`python3 scripts/security_audit.py`)
+    alt Hook Audit Passed
+        Hook-->>CLI: Exit Code 0 (Allowed)
+        CLI->>CLI: Apply File Modification to Working Directory
+        CLI->>Hook: Execute `postToolUse` Hook (`python3 scripts/check_docs_contract.py`)
+        Hook-->>CLI: Exit Code 0 (Verification Passed)
+        CLI->>FastMCP: Execute `run_project_docs_audit(filepath)`
+        FastMCP-->>CLI: Audit Result Output (PASSED)
+        CLI-->>Dev: Confirm Execution Success & Print Diff Summary
+    else Hook Audit Failed
+        Hook-->>CLI: Exit Code 1 (Security Alert)
+        CLI->>Claude: Abort Tool Execution & Send Error Context
+        Claude-->>Dev: Report Aborted Action & Suggest Safe Alternative
+    end
+```
+
+## Systematic Troubleshooting Matrix
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`preToolUse` Hook Execution Blocked** | Verification script returned non-zero exit code due to syntax error | `python3 scripts/check_docs_contract.py <file>` | Correct syntax/formatting error in target file or update hook command in `.claude/settings.json` |
+| **FastMCP Server Connection Timeout** | FastMCP bridge script failed to start or missing dependencies | `claude mcp list` | Verify python `fastmcp` package is installed and execute bridge script manually |
+| **OAuth Authentication Loss** | Stale OAuth token in local key store | `claude auth status` | Execute `claude auth login` to refresh browser session token |
+| **Model Version Rejection** | Deprecated model string specified in `.claude/settings.json` | `cat .claude/settings.json \| grep preferredModel` | Update `preferredModel` field to valid string (e.g. `claude-5-1-20261101`) |
+
 ## Related tools / concepts
 - [Claude Code Router](./claude-code-router.md) — Multi-model routing engine for Claude Code.
 - [FastMCP 3.1](../automation_orchestration/mcp.md) — Standardized tool protocol framework.
