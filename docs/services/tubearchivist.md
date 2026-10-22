@@ -44,7 +44,30 @@ Tube Archivist uses an asynchronous, task-queued architecture connecting a Djang
  |  Organized Local Disk Volume  |           |  Elasticsearch / OpenSearch   |
  |  - /youtube/<channel>/<video> |---------->|  - Full-Text Search Index     |
  |  - Embedded NFO / Subtitles   |           |  - Comments / Subtitle Search |
- +-------------------------------+           +-------------------------------+
+ +---------------+---------------+           +-------------------------------+
+```
+
+### Async Video Download & Indexing Sequence
+The detailed runtime sequence between FastMCP 3.1 client agents, the Tube Archivist Django API, Redis async workers, `yt-dlp`/Deno, and Elasticsearch/OpenSearch is illustrated below:
+
+```
++-------------------------------------------------------------------------------------------------------+
+|                                TUBE ARCHIVIST ASYNC DOWNLOAD SEQUENCE                                 |
++-------------------------------------------------------------------------------------------------------+
+  FastMCP Agent / UI             Tube Archivist API              Redis / Celery Worker           Elasticsearch Index
+          |                              |                                 |                             |
+          |--- 1. Download Video Request |                                 |                             |
+          |    (URL, Quality, Cookies) ->|                                 |                             |
+          |                              |--- 2. Enqueue Download Task --->|                             |
+          |<-- 3. Return Task ID JSON ---|                                 |                             |
+          |                              |                                 |--- 4. Extract Video Content
+          |                              |                                 |    (yt-dlp / Deno Runtime)
+          |                              |                                 |--- 5. Write Files & NFO
+          |                              |                                 |       to Disk Storage       |
+          |                              |                                 |                             |
+          |                              |                                 |--- 6. Index Video Metadata,
+          |                              |                                 |       Subtitles & Comments->|
+          |<-- 7. Poll Task / Webhook ---|                                 |                             |
 ```
 
 ## Where it fits in the stack
@@ -79,6 +102,36 @@ It serves as a **content preservation layer** within the media management stack.
 | **API & Agent Integration** | REST + FastMCP 3.1 Tools | Webhooks / REST API | None (Scripted execution) | Webhooks / REST API |
 | **Multi-Container Stack** | High (Django, ES, Redis) | Low-Medium (Single DB) | None (CLI binary) | Low (Python/Redis) |
 | **Channel Auto-Sync** | Built-in Scheduled Rescan | Plugins required | Cron-based scripts | Native page check |
+
+## Systemd Production Container Service Management
+
+For Linux hosts running Tube Archivist outside Docker Compose via standard systemd container units:
+
+```ini
+[Unit]
+Description=Tube Archivist Media Management Container
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10s
+ExecStartPre=/usr/bin/docker pull bbilly1/tubearchivist:latest
+ExecStart=/usr/bin/docker run --rm --name tubearchivist \
+  -p 8000:8000 \
+  -v /mnt/media/youtube:/youtube \
+  -v /mnt/media/cache:/cache \
+  -e ES_URL=http://archivist-es:9200 \
+  -e REDIS_HOST=archivist-redis \
+  -e HOST_UID=1000 \
+  -e HOST_GID=1000 \
+  bbilly1/tubearchivist:latest
+ExecStop=/usr/bin/docker stop tubearchivist
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## When to use it
 - When you want to ensure permanent, offline access to specific YouTube content.
@@ -156,7 +209,7 @@ This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2
 
 ```python
 import requests
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, field_validator, ConfigDict
 from fastmcp import FastMCP
 from typing import Dict, Any, Optional
 
@@ -166,10 +219,14 @@ TA_URL = "http://localhost:8000/api"
 HEADERS = {"Authorization": "Token YOUR_API_TOKEN"}
 
 class ArchivalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     url: HttpUrl = Field(description="The valid YouTube video or channel URL to archive")
     bypass_cache: bool = Field(default=False, description="Whether to bypass local cache and force download")
 
 class ArchivalResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     success: bool = Field(description="Whether the archival task was successfully queued")
     message: str = Field(description="Response message from the Tube Archivist API")
     task_id: str = Field(default="", description="The unique ID of the triggered download task")
@@ -216,17 +273,19 @@ if __name__ == "__main__":
 Validate archived YouTube video metadata payloads ingested into Elastic/OpenSearch indices:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
 class VideoMetadata(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
     youtube_id: str = Field(..., alias="youtubeId")
     title: str
     channel_name: str = Field(..., alias="channelName")
     published_at: datetime = Field(..., alias="publishedAt")
     duration_seconds: int = Field(..., alias="durationSeconds", ge=0)
-    view_count: int = Field(default=0, alias="viewCount")
+    view_count: int = Field(default=0, alias="viewCount", ge=0)
     tags: List[str] = Field(default_factory=list)
     description: Optional[str] = None
 
@@ -236,9 +295,6 @@ class VideoMetadata(BaseModel):
         if len(v) != 11:
             raise ValueError("YouTube video ID must be exactly 11 characters")
         return v
-
-    class Config:
-        populate_by_name = True
 
 # Sample validation
 raw_meta = {
@@ -254,6 +310,15 @@ raw_meta = {
 meta = VideoMetadata.model_validate(raw_meta)
 print(f"Validated Video Metadata: {meta.title} by {meta.channel_name}")
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Potential Root Cause | Verification Command | Resolution Step |
+| :--- | :--- | :--- | :--- |
+| `HTTP 403 Forbidden` on video download | YouTube bot detection or outdated `yt-dlp` binary | `docker exec tubearchivist yt-dlp --version` | Upgrade `yt-dlp` in container (`pip install -U yt-dlp`) or configure PO Token / cookies in TA setting. |
+| Elasticsearch Connection Error (`ES_URL`) | ES container starting slower than TA Django app | `docker logs archivist-es` | Ensure `depends_on` healthcheck condition in `docker-compose.yml` or restart `tubearchivist` container. |
+| Redis queue stalled / tasks stuck | Redis container memory limit exceeded | `docker exec archivist-redis redis-cli ping` | Flush stale keys or increase Redis memory budget in compose limits. |
+| Disk space full (`/youtube` volume) | High video resolution downloads filling storage | `df -h /mnt/media/youtube` | Set maximum resolution limit in Tube Archivist settings or add external storage volume. |
 
 ## Related tools / concepts
 - [Plex](plex.md) — For streaming your YouTube archive to smart TVs and mobile devices.

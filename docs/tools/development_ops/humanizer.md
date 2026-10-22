@@ -43,6 +43,39 @@ Humanizer operates at the **Output Gate** of agentic text workflows. Situated be
 +-----------------------------------------------------------------------+
 ```
 
+### FastMCP Refinement Sequence
+The runtime sequence for automated agentic text post-processing via Humanizer FastMCP tool servers is shown below:
+
+```
++-------------------------------------------------------------------------------------------------------+
+|                                  HUMANIZER FASTMCP TEXT REFINEMENT SEQUENCE                           |
++-------------------------------------------------------------------------------------------------------+
+  LLM Generation Agent           Humanizer FastMCP Gateway         Pattern Registry / Rules        Output Publisher
+           |                                |                              |                       |
+           |--- 1. Submit Raw Draft -------->|                              |                       |
+           |    (Markdown / Article)        |--- 2. Fetch Brand Profile ->|                       |
+           |                                |<-- 3. Return Avoid List -----|                       |
+           |                                |                              |                       |
+           |                                |--- 4. Scan AI Clichés & Jargon (e.g. "delve", "pivotal")
+           |                                |--- 5. Dynamic Cadence & Sentence Length Filtering      |
+           |                                |--- 6. Lexical Substitution & Persona Alignment         |
+           |                                |                              |                       |
+           |<-- 7. Return Refined Copy -----|                              |                       |
+           |                                |----------------------------------------------------->|
+           |                                   8. Publish Natural Article / PR Description
+```
+
+## Feature Comparison Matrix
+
+| Feature / Dimension | Humanizer (v3.5+) | Undetectable AI / Quillbot | Custom Prompt Engineering | Grammatical Linter (ProseLint) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | AI Clichés & Cadence Smoothing | Commercial AI Bypassing | In-Prompt System Directives | Static Grammar Rules |
+| **FastMCP 3.1 Support**| Native Task Server | REST API Only | Inherent to Prompt | None |
+| **Execution Privacy** | 100% Local Workspace | Cloud Third-Party Service | Provider Endpoint | Local CLI |
+| **CLI & Slash Binding**| Direct `/humanizer` in Claude | Web UI / API | Prompt Template | CLI Binary |
+| **Voice Persona Sync** | Sample-Based Calibration | Fixed Tone Selectors | Custom In-Prompt Persona | Fixed Ruleset |
+| **Schema Validation** | Strict Pydantic v2 Models | Standard JSON payload | None (Unstructured) | Text Output |
+
 ## Typical use cases
 - **Automated Technical Documentation Polish**: Refining AI-generated API references, changelogs, and architectural decision records to eliminate repetitive filler words.
 - **Brand Voice Alignment ("Soul Injection")**: Calibrating generated drafts against a writer's sample text to adopt their exact sentence length variations and stylistic habits.
@@ -61,6 +94,34 @@ Humanizer operates at the **Output Gate** of agentic text workflows. Situated be
 - **Frontier Model Dependency**: Achieving subtle tone shifts without losing factual precision requires advanced reasoning models (e.g., Claude 5.6 Sonnet or GPT-5.6).
 - **Domain Over-Smoothing**: Over-humanizing strictly regulated legal or technical compliance specifications can accidentally reduce precision if strict thresholds are not configured.
 - **Pattern Registry Drift**: As AI writing habits evolve over time, the cliché detection registries must be periodically updated.
+
+## Systemd Production Unit Configuration
+
+To deploy Humanizer as a local FastMCP daemon in enterprise workspaces:
+
+```ini
+[Unit]
+Description=Humanizer FastMCP Refinement Engine
+After=network.target
+Documentation=https://github.com/blader/humanizer
+
+[Service]
+Type=simple
+User=humanizer
+Group=humanizer
+WorkingDirectory=/opt/humanizer-engine
+ExecStart=/opt/humanizer-engine/venv/bin/python3 -m humanizer.mcp_server
+Restart=always
+RestartSec=3s
+Environment=PATH=/opt/humanizer-engine/venv/bin:/usr/local/bin:/usr/bin
+Environment=HUMANIZER_CONFIG=/etc/humanizer/config.json
+Environment=FASTMCP_PORT=8092
+Environment=PYTHONUNBUFFERED=1
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## When to use it
 - When automated agent pipelines generate public-facing copy, articles, or customer support responses.
@@ -121,7 +182,7 @@ import os
 import re
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 mcp = FastMCP(
     "Humanizer Engine",
@@ -135,6 +196,8 @@ DEFAULT_CLICHES = [
 ]
 
 class HumanizeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     text: str = Field(..., min_length=10, description="Raw text to be analyzed and humanized")
     strict_mode: bool = Field(default=True, description="Strictly strip all flagged clichés")
     custom_avoid_words: Optional[List[str]] = Field(default_factory=list, description="Additional buzzwords to eliminate")
@@ -207,6 +270,8 @@ class BrandVoiceProfile(BaseModel):
     """
     Pydantic v2 schema defining custom target tone and sentence length rules.
     """
+    model_config = ConfigDict(extra="ignore")
+
     profile_name: str = Field(..., description="Unique label for the author or brand voice profile")
     target_sentence_length_avg: int = Field(default=16, ge=8, le=30, description="Target average words per sentence")
     preferred_tone: str = Field(default="conversational_technical", description="Tone style identifier")
@@ -240,6 +305,15 @@ if __name__ == "__main__":
     print("Humanizer payload validated successfully against Pydantic v2 schema!")
     print(payload.model_dump_json(indent=2))
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Potential Root Cause | Verification Command | Resolution Step |
+| :--- | :--- | :--- | :--- |
+| Slash command `/humanizer` not recognized | Skill directory not properly registered in `~/.claude/skills/` | `claude-code skill list` | Ensure repository is cloned into `~/.claude/skills/humanizer` and restart terminal agent session. |
+| Essential technical terms altered | Strict mode threshold over-smoothing technical domain jargon | `cat ~/.claude/skills/humanizer/config.json` | Add domain specific terms to `allow_list` in Humanizer JSON configuration. |
+| `ValidationError` on empty text input | Empty string piped into CLI or FastMCP tool endpoint | Check CLI piping source output | Ensure raw text generator produces non-empty string before passing to Humanizer pipeline. |
+| High latency on long Markdown files | Document processed in single prompt pass without chunking | `wc -w draft.md` | Enable paragraph chunking mode in Humanizer CLI configuration file. |
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Terminal-native developer agent that uses Humanizer as an embedded skill.

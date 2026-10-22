@@ -21,11 +21,47 @@ GLiNER (Generalist Model for Named Entity Recognition) is a compact, high-perfor
 +-----------------------------------------------------------------------------------+
 ```
 
+### FastMCP & TensorRT Execution Sequence
+The detailed runtime sequence between FastMCP 3.1 callers, the GLiNER inference service, CUDA/TensorRT acceleration kernels, and downstream knowledge graph stores is outlined below:
+
+```
++-------------------------------------------------------------------------------------------------------+
+|                                    GLINER INFERENCE & EXTRACTION SEQUENCE                             |
++-------------------------------------------------------------------------------------------------------+
+  FastMCP Client Agent          GLiNER Service Controller        CUDA / TensorRT Kernel        Knowledge Graph Store
+           |                                |                              |                       |
+           |--- 1. Extract Entities Request |                              |                       |
+           |    (Text, Labels, Threshold) ->|                              |                       |
+           |                                |--- 2. Validate Inputs -------|                       |
+           |                                |       (Pydantic v2 Schema)   |                       |
+           |                                |                              |                       |
+           |                                |--- 3. Run Bi-Encoder Span -->|                       |
+           |                                |       Matching Pass          |                       |
+           |                                |<-- 4. Bilinear Score Matrix -|                       |
+           |                                |                              |                       |
+           |                                |--- 5. Non-Max Suppression ---|                       |
+           |                                |       & Threshold Filter     |                       |
+           |                                |                              |                       |
+           |<-- 6. Validated Entities JSON -|                              |                       |
+           |                                |--- 7. Index Entity Nodes & Links ------------------->|
+```
+
 ## What problem it solves
 Traditional Named Entity Recognition relies on rigid, pre-trained classification heads limited to standard categories (such as PER, ORG, LOC, DATE). When custom entity types are needed for domain-specific knowledge bases (e.g., "GPU model", "software license", "genomic sequence"), developers traditionally had to annotate expensive custom datasets and re-train models. Alternatively, using full LLMs for entity extraction is slow, expensive, and non-deterministic. GLiNER solves this by performing zero-shot extraction across arbitrary user-specified entity classes at fraction-of-a-millisecond latencies per document.
 
 ## Where it fits in the stack
 **Process Understanding / Structured Information & Entity Extraction**. GLiNER functions as an intermediate text analysis stage between unstructured document ingestion and knowledge graph indexing or vector storage.
+
+## Feature Matrix & Comparison
+
+| Feature / Dimension | GLiNER (287M) | spaCy (en_core_web_trf) | LLM Zero-Shot (Claude/GPT) | Traditional CRF / BERT |
+| :--- | :--- | :--- | :--- | :--- |
+| **Zero-Shot NER** | Native Open-Vocabulary | No (Fixed Types) | Native Open-Vocabulary | No (Fixed Types) |
+| **Inference Latency** | Ultra-Fast (~10-25ms) | Fast (~15-30ms) | Slow (500-2000ms+) | Fast (~10-20ms) |
+| **Custom Label Retrain**| None Required | Annotate + Fine-Tune | None Required | Annotate + Retrain |
+| **Overlapping Entities**| Native Support | Limited Span Groups | Variable Output Quality| None (Single Tag) |
+| **Memory Footprint** | Low (~1.2 GB VRAM) | Very Low (~400 MB) | Cloud API / Large VRAM | Low (~800 MB VRAM) |
+| **FastMCP 3.1 Support**| Native Server Wrapper | Custom Pipeline | API Call Gateway | Custom Wrapper |
 
 ## Typical use cases
 - **Automated Knowledge Graph Construction**: Extracting custom relationships and entity nodes from unstructured technical documentation.
@@ -42,6 +78,34 @@ Traditional Named Entity Recognition relies on rigid, pre-trained classification
 ## Limitations
 - **Token Sequence Limits**: Native context window is optimized for short to mid-sized text spans (up to 512–1024 tokens per chunk).
 - **Label Formatting Sensitivity**: Entity prompt descriptions need clear naming conventions to achieve optimal precision.
+
+## Systemd Microservice Unit Configuration
+
+Production deployment of GLiNER as a persistent background daemon serving FastMCP entity extraction endpoints:
+
+```ini
+[Unit]
+Description=GLiNER FastMCP Entity Extraction Daemon
+After=network.target nvidia-persistenced.service
+Documentation=https://github.com/urchade/GLiNER
+
+[Service]
+Type=simple
+User=gliner
+Group=gliner
+WorkingDirectory=/opt/gliner-service
+ExecStart=/opt/gliner-service/venv/bin/python3 -m service.mcp_server
+Restart=always
+RestartSec=3s
+Environment=PATH=/opt/gliner-service/venv/bin:/usr/local/cuda/bin:/usr/bin
+Environment=GLINER_MODEL_NAME=urchade/gliner_medium-v2.1
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=PYTHONUNBUFFERED=1
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## When to use it
 - When requiring real-time, zero-shot entity extraction for custom categories without fine-tuning a custom model.
@@ -91,7 +155,7 @@ Install GLiNER via PyPI and execute zero-shot entity extraction in Python:
 
 ```bash
 # Install GLiNER library
-pip install gliner
+pip install gliner fastmcp pydantic
 ```
 
 ```python
@@ -147,7 +211,7 @@ mcp = FastMCP("gliner-entity-extractor")
 
 # Pydantic v2 Entity Extraction Request Model
 class EntityExtractionRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     text: str = Field(..., min_length=1, max_length=10000, description="Input text for entity extraction")
     entity_types: List[str] = Field(..., min_items=1, description="List of target entity type labels")
@@ -214,6 +278,15 @@ async def get_gliner_status(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Potential Root Cause | Verification Command | Resolution Step |
+| :--- | :--- | :--- | :--- |
+| `CUDA out of memory` during batch extraction | Batch size or document sequence length too large | `nvidia-smi` | Lower batch size in GLiNER prediction calls or split text into max 512-token chunks. |
+| Low Precision / Unrelated Spans Extracted | Labels are overly ambiguous (e.g. "thing", "item") | `python3 -c "import gliner; print(gliner.__file__)"` | Refine label names to explicit natural language concepts (e.g. "software application"). |
+| `ValidationError: min_length` on text field | Empty or space-only text string sent in payload | Check upstream text chunking function logs | Add input string guards in text pre-processing pipeline before calling GLiNER tool. |
+| Low extraction recall on specialized acronyms | Label encoder missing domain Context | Verify label syntax in request payload | Pass expanded entity descriptions alongside label string (e.g. "SaaS product name"). |
 
 ## Integration patterns
 - **RAG Chunk Metadata Enrichment**: Process incoming document chunks through GLiNER before inserting into Qdrant/Weaviate to populate structured payload filtering fields.

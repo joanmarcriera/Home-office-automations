@@ -37,6 +37,30 @@ It solves the "scalability bottleneck" of manual evaluation. As AI systems becom
 +-----------------------------------------------------------------------------------+
 ```
 
+### Async FastMCP Evaluation Sequence
+The detailed runtime sequence between FastMCP 3.1 tool agents, the LastMile evaluation engine, and judge models during continuous quality gates:
+
+```
++-------------------------------------------------------------------------------------------------------+
+|                                  LASTMILE AI FASTMCP EVALUATION SEQUENCE                              |
++-------------------------------------------------------------------------------------------------------+
+  FastMCP Agent Worker            LastMile AI Evaluator Core         Judge LLM Service         CI/CD Quality Gate
+           |                                  |                              |                       |
+           |--- 1. Post Tool Trace ---------->|                              |                       |
+           |    (Prompt, Tool Calls, Output)  |--- 2. Parse Evaluation Suite |                       |
+           |                                  |       & Metric Thresholds    |                       |
+           |                                  |                              |                       |
+           |                                  |--- 3. Prompt Grounding Check------------>|           |
+           |                                  |<-- 4. Faithfulness Score (0.0-1.0) -------|           |
+           |                                  |                              |                       |
+           |                                  |--- 5. Tool Call Argument Audit --------->|           |
+           |                                  |<-- 6. Correctness Evaluation ------------|           |
+           |                                  |                              |                       |
+           |                                  |--- 7. Generate Evaluation Summary Report ------------>|
+           |                                  |       (Pass / Fail SLA Status)                       |
+           |<-- 8. Return Eval ID & Metrics --|                                                      |
+```
+
 ## Where it fits in the stack
 **Category**: Process & Understanding / AI Evaluation.
 LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. It typically sits between the development environment and the production deployment, serving as a quality gate in the CI/CD pipeline.
@@ -50,6 +74,7 @@ LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. 
 | **Deployment Model** | Managed Cloud & VPC | Self-Hosted Python Package | Managed Cloud & Enterprise VPC | Managed Cloud & Enterprise Self-Host |
 | **CLI Capabilities** | Rich CLI for Local Execs & CI/CD | Python Library Scripting | Python / TS SDK Integrations | CLI & Web UI Tracing |
 | **Auto-Eval Judges** | Pre-built Fine-Tuned Judge Models | LLM Prompt-Based Judges | Multi-Model Judge Suite | Custom LLM Prompt Judges |
+| **Schema Enforcement** | Strict Pydantic v2 Contract Validation | Dataclass / Dictionary | Custom TypeScript / Py Schemas | LangChain Pydantic Integration |
 
 ## Typical use cases
 - **Golden Set Benchmarking**: Running every version of a system prompt against a curated set of "perfect" answers to measure accuracy.
@@ -69,6 +94,34 @@ LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. 
 - **Cost of Judges**: Running automated evaluations using frontier models (as judges) can incur significant token costs.
 - **Complexity of Setup**: Defining robust "Golden Sets" and custom evaluators requires a structured approach to data engineering.
 
+## Systemd Evaluator Daemon Configuration
+
+To run LastMile evaluation workers continuously as background daemons in CI/CD self-hosted runner environments:
+
+```ini
+[Unit]
+Description=LastMile AI FastMCP Evaluation Daemon
+After=network.target
+Documentation=https://docs.lastmileai.dev/
+
+[Service]
+Type=simple
+User=lastmile
+Group=lastmile
+WorkingDirectory=/opt/lastmile-eval
+ExecStart=/opt/lastmile-eval/venv/bin/python3 -m lastmile.eval_server
+Restart=always
+RestartSec=3s
+Environment=PATH=/opt/lastmile-eval/venv/bin:/usr/local/bin:/usr/bin
+Environment=LASTMILE_API_TOKEN=/etc/lastmile/token
+Environment=EVAL_PORT=8095
+Environment=PYTHONUNBUFFERED=1
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## When to use it
 - When you are building production-ready RAG applications where accuracy and safety are non-negotiable.
 - When you need to provide stakeholders with quantitative evidence of AI performance improvements.
@@ -83,7 +136,7 @@ LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. 
 Install the LastMile Python client:
 
 ```bash
-pip install lastmile-ai pydantic
+pip install lastmile-ai pydantic fastmcp
 ```
 
 Configure your API credentials:
@@ -120,20 +173,31 @@ Expose LastMile AI evaluation suite checks as an MCP tool for developer agents:
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Dict, Any, List
 
 mcp = FastMCP("lastmile-eval-mcp")
 
 class EvalSuiteInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     suite_name: str = Field(..., description="Name of the LastMile golden evaluation suite")
     model_name: str = Field(..., description="Target model name evaluated")
     sample_limit: int = Field(default=10, ge=1, le=100)
 
+    @field_validator("suite_name")
+    @classmethod
+    def validate_suite_name(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("suite_name cannot be empty")
+        return v
+
 class EvalSuiteOutput(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     suite_name: str
-    pass_rate: float
-    faithfulness_score: float
+    pass_rate: float = Field(..., ge=0.0, le=1.0)
+    faithfulness_score: float = Field(..., ge=0.0, le=1.0)
     status: str
 
 @mcp.tool()
@@ -157,20 +221,26 @@ The following example demonstrates how to parse and strictly validate LastMile e
 ```python
 import os
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class ToolCallEvaluation(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     tool_name: str = Field(..., description="The name of the tool called by the agent.")
     arguments: Dict[str, Any] = Field(..., description="The parameters passed to the tool.")
     is_correct: bool = Field(..., description="Whether the tool selection and arguments were correct.")
-    latency_ms: float = Field(..., description="Execution latency of the tool call.")
+    latency_ms: float = Field(..., ge=0.0, description="Execution latency of the tool call.")
 
 class RAGEvalMetrics(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     faithfulness: float = Field(..., ge=0.0, le=1.0, description="Response is fully grounded in the context.")
     answer_relevance: float = Field(..., ge=0.0, le=1.0, description="The response directly answers the user prompt.")
     context_recall: float = Field(..., ge=0.0, le=1.0, description="The retrieved context contains the ground truth info.")
 
 class LastMileEvalResult(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     eval_id: str = Field(..., description="Unique evaluation session ID.")
     target_model: str = Field(..., description="The frontier model evaluated (e.g., Claude 5.6, GPT-5.6).")
     prompt: str = Field(..., description="Input query submitted to the model.")
@@ -208,7 +278,7 @@ raw_api_response = {
 
 if __name__ == "__main__":
     try:
-        eval_report = LastMileEvalResult(**raw_api_response)
+        eval_report = LastMileEvalResult.model_validate(raw_api_response)
         print(f"Successfully validated LastMile Eval ID: {eval_report.eval_id}")
         print(f"Target Model: {eval_report.target_model}")
         print(f"Faithfulness Score: {eval_report.metrics.faithfulness}")
@@ -216,6 +286,15 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Validation failed: {e}")
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Potential Root Cause | Verification Command | Resolution Step |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Invalid Token` | Missing or expired `LASTMILE_API_TOKEN` | `lastmile login --check` | Set `LASTMILE_API_TOKEN` environment variable or re-authenticate via CLI. |
+| Low Faithfulness Score (<0.7) | RAG Context retrieval containing irrelevant chunks | `lastmile eval trace --eval-id <ID> --verbose` | Adjust chunk size, increase top-k vector retrieval, or refine query expansion prompts. |
+| FastMCP Trace Eval Failure | Mismatch between expected tool argument types and trace | `python3 -c "import lastmile; print(lastmile.__version__)"` | Verify tool schema definition and update FastMCP tool parameters to conform to Pydantic models. |
+| Judge LLM Timeout in CI/CD | High payload concurrency exceeding rate limits on Judge API | `systemctl status lastmile-eval.service` | Decrease worker batch concurrency or configure secondary fallback judge endpoints. |
 
 ## Related tools / concepts
 - [Ragas](./ragas.md) — Open-source framework for RAG evaluation.

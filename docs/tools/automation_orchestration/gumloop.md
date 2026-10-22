@@ -4,7 +4,7 @@
 Gumloop is a visual AI automation and orchestration platform designed for building, testing, and scaling complex agentic workflows through a visual canvas. It provides a drag-and-drop interface to connect foundation models, SaaS APIs, databases, and custom tools into automated "flows." As of late 2026 / early 2027, Gumloop fully integrates with the **MCP 3.1** and **FastMCP 3.1 Task Protocol** standards, enabling seamless tool orchestration across diverse agent execution environments using models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **Gemma 4**, **DeepSeek-V4**, and **Qwen 3.6 VL**.
 
 ## Architecture & Workflow Execution Pipeline
-Gumloop executes visual flows by parsing workflow node graphs into async task execution queues. In FastMCP 3.1 environments, Gumloop functions as an orchestration orchestrator, coordinating requests across external FastMCP tool servers and cloud foundation models.
+Gumloop executes visual flows by parsing workflow node graphs into async task execution queues. In FastMCP 3.1 environments, Gumloop functions as an orchestration layer, coordinating requests across external FastMCP tool servers and cloud foundation models.
 
 ```mermaid
 graph TD
@@ -22,6 +22,30 @@ graph TD
     H -- No --> J
 ```
 
+### Async Task Execution Sequence
+The detailed runtime sequence between Gumloop client agents, the Gumloop orchestrator, and FastMCP 3.1 task endpoints is illustrated below:
+
+```
++-------------------------------------------------------------------------------------------------------+
+|                                    GUMLOOP ASYNC EXECUTION SEQUENCE                                   |
++-------------------------------------------------------------------------------------------------------+
+  Client Agent / Trigger          Gumloop Pipeline Engine          FastMCP 3.1 Server          Frontier LLM
+            |                                |                              |                       |
+            |--- 1. Trigger Flow Run ------->|                              |                       |
+            |    (Webhook / REST API)        |--- 2. Parse DAG & Inputs --->|                       |
+            |                                |                              |                       |
+            |                                |--- 3. Prompt Evaluation ----------------------------->|
+            |                                |<-- 4. Structured Output JSON ------------------------|
+            |                                |                              |                       |
+            |                                |--- 5. Call Tool (FastMCP 3.1)|                       |
+            |                                |    Task Protocol Request --->|                       |
+            |                                |                              |--- 6. Execute Task -->|
+            |                                |<-- 7. Task Progress / Result |                       |
+            |                                |                              |                       |
+            |<-- 8. Async Poll / Webhook ----|                              |                       |
+            |    (Run Output & Telemetry)    |                              |                       |
+```
+
 ## What problem it solves
 Gumloop bridges the gap between sophisticated LLM capabilities and production-ready business automation. It eliminates the need for managing custom cloud infrastructure, complex Python pipelines, manual retry logic, or custom webhooks. It simplifies multi-step agentic reasoning, enabling teams to move from a prompt or workflow design to a deployed, scalable AI pipeline—such as automated PDF data extraction followed by structured synthesis—in minutes rather than weeks.
 
@@ -37,6 +61,7 @@ Gumloop bridges the gap between sophisticated LLM capabilities and production-re
 | **Hosting Model** | Cloud SaaS (Managed) | Self-Hosted & Cloud | Self-Hosted & Cloud | Self-Hosted & Local |
 | **Human-in-Loop** | Native Pause & Approve | Wait / Webhook Nodes | Form Input Nodes | Manual Intervention |
 | **Code Node Sandbox** | Isolated Cloud Python | Node.js / Python Runtime | Python Execution Engine | Local Python Virtualenv |
+| **Telemetry & Auditing**| Built-in Step Logs & Token Cost | Webhook / Execution DB | Log Analytics Dashboard | Local Terminal Trace |
 
 ## Typical use cases
 - **Automated Lead Enrichment & Qualification**: Extracting, summarizing, and qualifying leads from multi-source web inputs into CRM systems.
@@ -51,6 +76,36 @@ Gumloop bridges the gap between sophisticated LLM capabilities and production-re
 3. **Structured Payload Logging**: Route output execution states into central telemetry stores (e.g. Datadog, OpenTelemetry) for latency monitoring and token cost tracking.
 4. **Fallback Model Chains**: Configure multi-provider model routing rules (e.g. failover from Claude 5.6 to GPT-5.6 or DeepSeek-V4 during provider outages).
 5. **Secure Credential Injection**: Encrypt external SaaS credentials and API tokens in Gumloop Vault before referencing them inside visual node graphs.
+
+## Systemd Production Daemon Configuration
+
+For hybrid enterprise deployments where a local gateway service bridges on-premises FastMCP tools with Gumloop visual workflows, the gateway is managed via systemd:
+
+```ini
+[Unit]
+Description=Gumloop FastMCP Gateway Service
+After=network.target remote-fs.target
+Documentation=https://docs.gumloop.com/api-reference
+
+[Service]
+Type=simple
+User=gumloop
+Group=gumloop
+WorkingDirectory=/opt/gumloop-gateway
+ExecStart=/opt/gumloop-gateway/venv/bin/python3 -m gateway.fastmcp_server
+Restart=always
+RestartSec=5s
+Environment=PATH=/opt/gumloop-gateway/venv/bin:/usr/local/bin:/usr/bin
+Environment=GUMLOOP_API_KEY=/etc/gumloop/api.key
+Environment=FASTMCP_PORT=8090
+Environment=PYTHONUNBUFFERED=1
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Strengths
 - **Visual Canvas & Flow Builder**: An intuitive visual canvas for constructing complex branching logic, parallel loops, and conditional agent execution.
@@ -81,7 +136,7 @@ Gumloop bridges the gap between sophisticated LLM capabilities and production-re
 Integrate with the Gumloop ecosystem using the official Python SDK:
 
 ```bash
-pip install gumloop pydantic mcp
+pip install gumloop pydantic mcp fastmcp
 ```
 
 ### Setup
@@ -117,15 +172,25 @@ The following Python script illustrates how to construct a FastMCP 3.1 tool endp
 
 ```python
 import mcp.server.fastmcp as fastmcp
-from pydantic import BaseModel, Field
-from typing import Dict, Any
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import Dict, Any, List
 
 mcp_server = fastmcp.FastMCP("Gumloop FastMCP Bridge", version="3.1")
 
 class DocumentProcessInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     document_url: str = Field(..., description="Public or presigned URL of document")
     extract_tables: bool = Field(default=True, description="Extract tabular data")
     target_language: str = Field(default="en", description="ISO language code")
+    max_pages: int = Field(default=50, ge=1, le=500, description="Maximum pages to process")
+
+    @field_validator("document_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if not (v.startswith("http://") or v.startswith("https://")):
+            raise ValueError("document_url must be an HTTP or HTTPS URL")
+        return v
 
 @mcp_server.tool()
 def process_gumloop_document(payload: DocumentProcessInput) -> Dict[str, Any]:
@@ -135,11 +200,12 @@ def process_gumloop_document(payload: DocumentProcessInput) -> Dict[str, Any]:
         "processed_url": payload.document_url,
         "tables_found": 3,
         "language": payload.target_language,
+        "max_pages": payload.max_pages,
         "mcp_version": "3.1"
     }
 
 @mcp_server.tool()
-def format_gumloop_output(summary_text: str, categories: list[str]) -> Dict[str, Any]:
+def format_gumloop_output(summary_text: str, categories: List[str]) -> Dict[str, Any]:
     """Formats raw model output for downstream Gumloop webhook targets."""
     return {
         "status": "formatted",
@@ -157,17 +223,21 @@ In production applications, invoking external workflows via Gumloop requires str
 
 ```python
 from typing import Dict, Any, Optional, List
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 from gumloop import GumloopClient
 
 # 1. Define strict schemas for Gumloop Flow Outputs using Pydantic v2
 class GumloopFlowOutput(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     summary: str = Field(description="A brief text summary returned from the flow execution")
-    token_usage: int = Field(default=0, description="The total number of tokens consumed during flow execution")
+    token_usage: int = Field(default=0, ge=0, description="The total number of tokens consumed during flow execution")
     generated_links: List[str] = Field(default_factory=list, description="Links or resources generated by the flow")
-    execution_time_seconds: float = Field(default=0.0, description="Total execution duration")
+    execution_time_seconds: float = Field(default=0.0, ge=0.0, description="Total execution duration")
 
 class GumloopRunResult(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     run_id: str = Field(description="The unique identifier for this flow execution")
     status: str = Field(description="The state of the run, e.g. 'completed', 'failed'")
     outputs: GumloopFlowOutput = Field(description="Structured dictionary of flow outputs")
@@ -207,6 +277,15 @@ if __name__ == "__main__":
         print(f"Run ID: {result.run_id} completed successfully.")
         print(f"Summary output: {result.outputs.summary}")
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Error | Potential Root Cause | Verification Command | Resolution Step |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` on flow trigger | Invalid or expired `GUMLOOP_API_KEY` | `curl -H "Authorization: Bearer $GUMLOOP_API_KEY" https://api.gumloop.com/api/v1/user` | Regenerate API key in Gumloop Studio settings and update environment secrets. |
+| FastMCP node timeout in Gumloop Canvas | Gateway port blocked or endpoint unreachable | `curl -v http://localhost:8090/mcp/health` | Check firewall rules, verify FastMCP systemd service state, and verify public URL ingress. |
+| `ValidationError: Field required` in SDK response | Schema mismatch between visual flow output and Pydantic model | `python3 -c "import pydantic; print(pydantic.__version__)"` | Update visual flow output variable names or mark non-critical fields as `Optional` in Pydantic. |
+| Rate-limiting error `HTTP 429` during batch runs | Concurrency cap exceeded on LLM provider nodes | `grep "429 Too Many Requests" /var/log/gumloop/gateway.log` | Configure concurrency throttling in Gumloop flow settings or set up fallback provider chains. |
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md) — The leading self-hosted alternative for workflow automation.
