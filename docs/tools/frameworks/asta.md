@@ -110,6 +110,47 @@ print("Research Summary:\n", response.summary)
 print("Generated Code:\n", response.generated_code)
 ```
 
+### Production systemd Service Unit (`asta-daemon.service`)
+
+To deploy ASTA as a persistent background scientific agent daemon listening for literature indexing tasks and laboratory job requests, run the following unit:
+
+```ini
+[Unit]
+Description=ASTA Adaptive Scientific Task Assistant Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=asta
+Group=asta
+WorkingDirectory=/var/lib/asta
+ExecStart=/usr/bin/python3 -m asta.daemon --config /etc/asta/agent.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=15s
+
+# Security hardening directives
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/asta /var/log/asta /tmp/asta_sandbox
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `Semantic Scholar 429` | Rate limit exceeded on paper graph queries | `python3 -m asta.verify_api_key` | Configure `S2_API_KEY` in environment variables to access high-throughput partner endpoints. |
+| `RDKit ModuleNotFoundError` | Python scientific sandbox environment missing C-extension dependencies | `python3 -c "import rdkit"` | Re-build sandbox container or install `rdkit` wheel via system package manager. |
+| `Sandbox Memory Limit Exceeded` | PyTorch Geometric matrix multiplication allocating excessive RAM | `journalctl -u asta-daemon -n 50 | grep -i oom` | Set `sandbox_memory_limit_gb: 16` in `/etc/asta/agent.yaml` or reduce mini-batch size. |
+| `FastMCP Tool Timeout (>30s)` | Molecular docking or SMILES parsing pipeline blocking async event loop | `asta sandbox run --code "..."` | Wrap long-running C-extensions in non-blocking threadpool executors within FastMCP tool handlers. |
+| `Invalid Hypothesis Schema` | Pydantic v2 validation error on generated research plan | `python3 -m asta.validate_schema --input plan.json` | Ensure hypothesis text satisfies minimum string length requirements (>20 chars) before passing to downstream agents. |
+
 ## CLI examples
 
 ### Executing Literature Query via ASTA CLI

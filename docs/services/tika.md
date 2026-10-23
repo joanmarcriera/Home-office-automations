@@ -118,6 +118,49 @@ services:
       - JAVA_TOOL_OPTIONS=-Xms512m -Xmx2048m -XX:+UseG1GC
 ```
 
+### Production systemd Service Unit (`tika.service`)
+
+For direct Linux host deployments with native systemd management, run Apache Tika REST server as a standalone daemon:
+
+```ini
+[Unit]
+Description=Apache Tika REST Document Extraction Daemon
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=tika
+Group=tika
+WorkingDirectory=/opt/tika
+Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+Environment="JAVA_TOOL_OPTIONS=-Xms512m -Xmx2048m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
+ExecStart=/usr/bin/java -jar /opt/tika/tika-server-standard-3.1.0.jar --host 0.0.0.0 --port 9998
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=10s
+
+# Security hardening directives
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/tika /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `java.lang.OutOfMemoryError: Java heap space` | Processing large embedded PDF archives exceeding 2 GB heap allocation | `journalctl -u tika -n 50 | grep -i memory` | Increase JVM memory in `JAVA_TOOL_OPTIONS` to `-Xmx4096m` and restart systemd unit. |
+| `504 Gateway Timeout` on OCR scan | Tesseract 5.x engine hanging on high-resolution image scan | `curl -i -X PUT http://localhost:9998/rmeta/text -H "X-Tika-PDFOcrStrategy: no_ocr"` | Disable inline OCR by setting `-H "X-Tika-PDFOcrStrategy: no_ocr"` or configure Tesseract timeout limit in `tika-config.xml`. |
+| `Content-Type: application/octet-stream` | File extension/magic bytes unrecognized by MIME detector | `curl -s -X PUT http://localhost:9998/detect/stream --data-binary "@sample.dat"` | Register custom XML mime pattern definition in `/opt/tika/custom-mimetypes.xml`. |
+| `HTTP 422 Unprocessable Entity` | Damaged or encrypted PDF container missing passphrases | `pdfinfo damaged.pdf` | Pre-verify PDF permissions with `qpdf` or configure Tika PDF decryptor credentials. |
+| `PDFBox 3.x Font Render Warning` | Missing TrueType system fonts (`msttcorefonts`) required for font metric calculation | `fc-list : file` | Install `ttf-mscorefonts-installer` and execute `fc-cache -f -v` on server host. |
+
 ## CLI examples
 
 ### Extract Text & Metadata via REST API
