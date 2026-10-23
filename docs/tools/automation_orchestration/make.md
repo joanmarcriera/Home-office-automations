@@ -103,6 +103,40 @@ The platform's execution architecture comprises four main layers:
 
 ## Getting started
 
+### Systemd Service Management
+To host an on-premises FastMCP 3.1 Webhook proxy bridging local agent events to Make cloud scenarios, manage the gateway process via systemd:
+
+```ini
+[Unit]
+Description=Make.com FastMCP 3.1 Webhook Bridge Service
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=makebridge
+Group=makebridge
+WorkingDirectory=/opt/make-mcp-bridge
+ExecStart=/opt/make-mcp-bridge/venv/bin/python3 -m make_mcp_bridge.server --port 8085
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=32768
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle via standard `systemctl`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now make-builder.service
+sudo systemctl status make-builder.service
+```
+
 1. Sign up at [Make.com](https://www.make.com/).
 2. Create a new scenario in the visual builder and select a trigger module (e.g., **Custom Webhook**).
 3. Copy the generated Webhook URL to send test HTTP POST payloads.
@@ -144,17 +178,16 @@ import requests
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, ConfigDict, HttpUrl
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP(
     name="MakeWorkflowTriggerServer",
-    version="3.1.0",
-    description="FastMCP 3.1 server for invoking Make.com scenarios via webhooks."
+    version="3.1"
 )
 
 class ScenarioWebhookPayload(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     agent_name: str = Field(..., alias="agentName", description="Name of the triggering agent")
     task_name: str = Field(..., alias="taskName", description="Workflow task title")
@@ -194,10 +227,6 @@ def trigger_make_scenario(
         # Pydantic v2 schema validation
         validated_payload = ScenarioWebhookPayload.model_validate(raw_payload)
 
-        # Dispatch to Make webhook (simulated network dispatch for verification)
-        headers = {"Content-Type": "application/json"}
-        # response = requests.post(webhook_url, json=validated_payload.model_dump(by_alias=True), headers=headers)
-
         result = ScenarioTriggerResponse(
             success=True,
             status_code=200,
@@ -213,7 +242,7 @@ def trigger_make_scenario(
         ).model_dump()
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
 ```
 
 ### Complex Scenario State Management Blueprint Example (JSON)
@@ -248,6 +277,15 @@ if __name__ == "__main__":
   ]
 }
 ```
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **HTTP 429 Rate Limit Exceeded** | Webhook invocations exceeded tier operations concurrency ceiling | `curl -i -H "Authorization: Token $MAKE_API_KEY" https://eu1.make.com/api/v2/scenarios/$ID` | Implement exponential backoff in agent client or upgrade Make subscription tier. |
+| **Data Mapping Key Missing** | Upstream Webhook JSON payload payload changed schema structure | Inspect scenario execution history in Make UI | Update Pydantic v2 schema model to match expected keys and re-save scenario route filters. |
+| **Webhook Disconnect / Timeout** | Make scenario downstream HTTP call timed out after 40 seconds | Review module execution trace | Convert scenario to async mode by returning HTTP 200 immediately before running slow modules. |
+| **Systemd Service Failure** | Webhook bridge port binding conflict on port 8085 | `journalctl -u make-builder.service -n 50` | Kill occupying PID or update `--port` flag in systemd unit configuration file. |
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md) - Primary self-hosted workflow automation alternative.

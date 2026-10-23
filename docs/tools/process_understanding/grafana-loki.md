@@ -68,6 +68,41 @@ In autonomous AI agent setups, agents generate massive volumes of structured JSO
 
 ## Getting started
 
+### Systemd Service Management
+Manage the standalone Grafana Loki server process via systemd:
+
+```ini
+[Unit]
+Description=Grafana Loki Log Aggregation Service
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=loki
+Group=loki
+ExecStart=/usr/local/bin/loki -config.file=/etc/loki/loki-config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle via `systemctl`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now loki.service
+sudo systemctl status loki.service
+```
+
 ### Installation via Helm (Kubernetes)
 Deploy Grafana Loki and Alloy/Promtail collector using Helm:
 ```bash
@@ -120,9 +155,15 @@ The following FastMCP 3.1 server exposes log analysis tools to AI agents over st
 ```python
 from typing import Dict, Any, List, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
-mcp = FastMCP(name="grafana-loki-logql")
+mcp = FastMCP(name="grafana-loki-logql", version="3.1")
+
+class LogQLSearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    logql_query: str = Field(..., description="Valid LogQL selector string")
+    limit: int = Field(default=50, ge=1, le=1000)
+    start_time_offset: str = Field(default="1h", description="Time window offset (e.g., 15m, 1h, 24h)")
 
 class LogQueryResult(BaseModel):
     timestamp_ns: str = Field(..., description="Nanosecond timestamp of log entry")
@@ -135,14 +176,10 @@ class LogQLSearchResponse(BaseModel):
     results: List[LogQueryResult]
     execution_time_ms: float
 
-@mcp.tool()
-def search_loki_logql(
-    logql_query: str,
-    limit: int = 50,
-    start_time_offset: str = "1h",
-) -> LogQLSearchResponse:
+@mcp.tool(name="search_loki_logql", description="Execute LogQL queries against Loki server for agent log inspection")
+def search_loki_logql(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Executes a LogQL search query against Grafana Loki endpoint."""
-    # Simulated query response for demonstration
+    req = LogQLSearchRequest.model_validate(payload)
     sample_results = [
         LogQueryResult(
             timestamp_ns="1704628800000000000",
@@ -156,14 +193,15 @@ def search_loki_logql(
         ),
     ]
 
-    return LogQLSearchResponse(
-        query=logql_query,
+    resp = LogQLSearchResponse(
+        query=req.logql_query,
         total_matches=len(sample_results),
-        results=sample_results[:limit],
+        results=sample_results[:req.limit],
         execution_time_ms=18.5,
     )
+    return resp.model_dump()
 
-@mcp.tool()
+@mcp.tool(name="compute_log_error_rate", description="Calculate stream error rate percentage from Loki logs")
 def compute_log_error_rate(app_label: str, window_minutes: int = 15) -> Dict[str, Any]:
     """Calculates error rate metrics using LogQL stream aggregations."""
     return {
@@ -187,14 +225,16 @@ The following code demonstrates pushing structured JSON logs formatted for Loki 
 import json
 import time
 import requests
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict, Any, List, Optional
 
 class LokiLogStream(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     stream: Dict[str, str] = Field(..., description="Label set identifying the stream")
     values: List[List[str]] = Field(..., description="List of [nanosecond_timestamp, log_message] entries")
 
 class LokiPushPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     streams: List[LokiLogStream] = Field(..., description="List of log streams to push")
 
 def push_log_to_loki(loki_url: str, app_name: str, message: str, level: str = "info") -> bool:
@@ -223,7 +263,6 @@ def push_log_to_loki(loki_url: str, app_name: str, message: str, level: str = "i
     return response.status_code == 204
 
 if __name__ == "__main__":
-    # Test payload validation
     test_payload = {
         "streams": [
             {
@@ -250,8 +289,9 @@ if __name__ == "__main__":
 | Symptom | Probable Cause | Diagnostic Command | Remediation Action |
 | :--- | :--- | :--- | :--- |
 | **HTTP 429 "Entry Too Far Behind"** | Log lines submitted with nanosecond timestamps older than `reject_old_samples_max_age` | `logcli status` / check Loki ingester logs | Ensure NTP time synchronization on forwarder nodes or increase `reject_old_samples_max_age` (e.g., 168h) |
-| **High Memory / OOM on Ingester** | High label cardinality (e.g. adding unique user_id or transaction_id as a Loki label) | `curl http://loki:3100/loki/api/v1/label` | Remove high-cardinality attributes from labels; move them inside the raw JSON payload and parse via LogQL `| json` |
+| **High Memory / OOM on Ingester** | High label cardinality (e.g. adding unique user_id or transaction_id as a Loki label) | `curl http://loki:3100/loki/api/v1/label` | Remove high-cardinality attributes from labels; move them inside the raw JSON payload and parse via LogQL `\| json` |
 | **Slow Query Execution Time** | Query searching unindexed raw text across large time ranges without label constraints | Inspect query with LogQL `query_range` stats | Narrow down initial label selector `{app="..."}` before appending text filters |
+| **Systemd Service Startup Fail** | Insufficient file descriptors or permission denied on `/var/lib/loki` | `journalctl -u loki.service -n 50` | Ensure `LimitNOFILE=65536` in systemd unit and verify ownership of data directory. |
 
 ## Related tools / concepts
 - [Grafana Cloud](grafana-cloud.md)
