@@ -32,6 +32,24 @@ Changedetection.io is a self-hosted open-source tool designed to monitor website
 +-----------------------------------------------------------------------------------+
 ```
 
+### Event Dispatch & Agent Trigger Sequence
+
+```
+[Target Web Page] --------> (1) Playwright Headless Browser Fetch --------> [Changedetection Engine]
+                                                                                  |
+                                                                                  v
+                                                                   (2) Run CSS/XPath & Regex Filter
+                                                                                  |
+                                                                                  v
+                                                                   (3) Compute Visual / Text Diff
+                                                                                  |
+                                                                                  v
+[FastMCP 3.1 Server] <-------- (5) Dispatch FastMCP Webhook Event <------------ (4) Trigger Apprise Dispatcher
+       |
+       v
+(6) Wake Agentic Workflow / n8n Pipeline
+```
+
 ## What problem it solves
 It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [Gemini 4.0 Flash](../tools/providers/index.md), and [Claude 5.6](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
 
@@ -190,6 +208,51 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Systemd Service Unit Configuration
+
+Save the following file to `/etc/systemd/system/changedetection-bridge.service` to run the FastMCP bridge daemon:
+
+```ini
+[Unit]
+Description=Changedetection.io FastMCP 3.1 Agent Bridge Service
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=changedetection
+Group=changedetection
+WorkingDirectory=/opt/changedetection-bridge
+ExecStart=/opt/changedetection-bridge/venv/bin/python3 -m fastmcp run server.py --port 8093
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=CHANGEDETECTION_URL=http://localhost:5000
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the systemd service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now changedetection-bridge.service
+sudo systemctl status changedetection-bridge.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `Browser execution connection failed` | Playwright socket container unavailable or crashed | Verify `sockpuppetbrowser` container health via `docker ps` and restart if needed. |
+| False positive change alerts | Dynamic timestamps or ads rendering on page | Add CSS filter selectors (e.g. `div.article-body`) and regex replace rules. |
+| `HTTP 403 Forbidden / Bot Blocked` | Cloudflare Turnstile or WAF blocking requests | Configure rotating proxy settings or enable Playwright browser fetch mode. |
+| High RAM consumption | Stale Playwright browser processes accumulating | Set `MAX_PLAYWRIGHT_WORKERS=2` and limit container memory in `docker-compose.yml`. |
+
 ## Related tools / concepts
 - [n8n](n8n.md) — For orchestrating advanced workflows triggered by detected changes.
 - [Linkwarden](linkwarden.md) — For archiving and managing links discovered during monitoring.
@@ -208,6 +271,7 @@ if __name__ == "__main__":
 - [Apprise Documentation](https://github.com/caronc/apprise)
 - [Changedetection.io REST API Docs](https://github.com/dgtlmoon/changedetection.io/wiki/API)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
