@@ -41,6 +41,61 @@ Within a self-hosted media infrastructure, Navidrome serves as the **High-Perfor
 2. **Subsonic Gateway**: Acts as the backend server for various Subsonic-compatible mobile, desktop, and automotive audio clients.
 3. **Agentic Music Assistant Gateway**: Connects with [FastMCP 3.1](../tools/automation_orchestration/mcp.md) to enable conversational agents to generate custom playlists, discover unplayed tracks, and scrobble listening metrics.
 
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                             HOMELAB MEDIA INFRASTRUCTURE                         │
+└──────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                            FRONTEND CLIENT & AGENT GATEWAY                       │
+│        Symfonium / Amperfy ── FastMCP 3.1 Agent Bridge ── Web Browser UI         │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Subsonic API / REST / SSE
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                           NAVIDROME CORE ENGINE (Go)                             │
+│   ┌──────────────────────────────────────────────────────────────────────────┐   │
+│   │ • Subsonic / OpenSubsonic API Engine                                     │   │
+│   │ • TagLib Embedded Tag Extraction                                         │   │
+│   │ • Integrated ffmpeg Transcoding Engine                                   │   │
+│   │ • SQLite Database (`/data/navidrome.db`)                                 │   │
+│   └──────────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Read-Only Storage Mounts
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                          LOCAL MUSIC STORAGE & ARCHIVE                           │
+│              `/music` (FLAC / ALAC / MP3 / AAC / Opus Audio Files)               │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Sequence Flow: FastMCP 3.1 Smart Playlist Generation
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous AI Agent
+    participant Bridge as FastMCP 3.1 Navidrome Bridge
+    participant Pydantic as Pydantic v2 Validator
+    participant Navidrome as Navidrome Core Engine
+    participant Storage as SQLite / Music Storage
+
+    Agent->>Bridge: POST /tools/call ("create_agent_playlist")
+    Bridge->>Pydantic: Validate PlaylistCreateSchema Payload
+    alt Schema Validation Failure
+        Pydantic-->>Bridge: Raised ValidationError
+        Bridge-->>Agent: 422 Unprocessable Entity
+    else Validation Succeeded
+        Pydantic-->>Bridge: Validated Playlist Object
+        Bridge->>Navidrome: GET /rest/createPlaylist.view (Subsonic API)
+        Navidrome->>Storage: Insert Playlist & Link Track IDs
+        Storage-->>Navidrome: Transaction Success
+        Navidrome-->>Bridge: Subsonic XML/JSON OK Response
+        Bridge-->>Agent: JSON Confirmation with Playlist ID & Track Count
+    end
+```
+
 ## Typical use cases
 - **Personal High-Resolution Music Streaming**: Streaming owned FLAC, ALAC, MP3, and AAC audio files across desktop and mobile devices.
 - **Subsonic Ecosystem Integration**: Connecting mobile apps (Symfonium, Amperfy, DSub) for offline music sync, Android Auto, and Apple CarPlay streaming.
@@ -100,6 +155,49 @@ services:
 
 Run `docker compose up -d` and navigate to `http://localhost:4533` to set up the admin username and password.
 
+## Production Systemd Service Unit
+
+To run Navidrome as a native background service daemon directly on host hardware (`/etc/systemd/system/navidrome.service`), use the following unit file:
+
+```ini
+[Unit]
+Description=Navidrome Music Server Daemon
+After=remote-fs.target network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=navidrome
+Group=navidrome
+WorkingDirectory=/var/lib/navidrome
+ExecStart=/usr/local/bin/navidrome --configfile /etc/navidrome/navidrome.toml
+Restart=always
+RestartSec=5
+Environment=ND_MUSICFOLDER=/srv/music
+Environment=ND_DATAFOLDER=/var/lib/navidrome/data
+Environment=ND_PORT=4533
+
+# Hardened Security Sandboxing
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/navidrome
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code / Error | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` | Invalid Subsonic API token or salt computation mismatch. | `curl "http://localhost:4533/rest/ping.view?u=admin&f=json"` | Verify MD5 hashing formula (`md5(password + salt)`) in client authentication code. |
+| `Transcoding error: ffmpeg missing` | `ffmpeg` package absent on system path when attempting on-the-fly streaming. | `which ffmpeg` | Install `ffmpeg` via host package manager (`apt-get install ffmpeg`) or use Docker image. |
+| `Scan Timeout / Unindexed Files` | Corrupted audio metadata tag or permission restrictions on `/music` mount. | `journalctl -u navidrome -n 50 --no-pager` | Fix folder permissions (`chmod -R 755 /srv/music`) or trigger manual scan CLI. |
+| `ValidationError: track_ids empty` | FastMCP playlist request passed empty list of tracks. | `python3 -c "import pydantic"` | Ensure `track_ids` array contains at least one valid string ID before calling tool. |
+| `Database Locked: sqlite3_busy` | Concurrent SQLite write operations occurring during background scan. | `docker exec -it navidrome sqlite3 /data/navidrome.db "PRAGMA journal_mode;"` | Set `ND_DATAFOLDER` to fast NVMe SSD storage and enable WAL mode (`PRAGMA journal_mode=WAL`). |
+
 ## CLI examples
 
 ### 1. Manual Rescan and Database Maintenance
@@ -130,15 +228,19 @@ curl -s "http://localhost:4533/rest/ping.view?u=admin&t=$TOKEN&s=$SALT&v=1.16.1&
 The following complete Python service exposes Navidrome music management tools to AI agents using **FastMCP 3.1** and **Pydantic v2**:
 
 ```python
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, ConfigDict
-import requests
-import hashlib
 import os
 import secrets
+import hashlib
+import logging
+import requests
 from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from fastmcp import FastMCP, Context
 
-mcp = FastMCP("Navidrome-Music-Agent")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Navidrome-MCP")
+
+mcp = FastMCP("Navidrome-Music-Agent", version="3.1")
 
 NAVIDROME_URL = os.getenv("NAVIDROME_URL", "http://localhost:4533")
 NAV_USER = os.getenv("NAVIDROME_USER", "admin")
@@ -168,12 +270,20 @@ class TrackSchema(BaseModel):
     genre: Optional[str] = Field("Unknown", description="Primary music genre")
 
 class PlaylistCreateSchema(BaseModel):
-    name: str = Field(..., description="Playlist display name")
-    track_ids: List[str] = Field(..., description="List of track IDs to include")
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1, description="Playlist display name")
+    track_ids: List[str] = Field(..., min_length=1, description="List of track IDs to include")
 
 @mcp.tool()
-def search_music_library(query: str) -> str:
+async def search_music_library(
+    query: str,
+    ctx: Optional[Context] = None
+) -> str:
     """Search Navidrome library for artists, albums, and tracks matching a query."""
+    if ctx:
+        await ctx.info(f"Searching Navidrome library for query: '{query}'...")
+
     params = get_subsonic_params()
     params["query"] = query
     url = f"{NAVIDROME_URL}/rest/search3.view"
@@ -200,20 +310,30 @@ def search_music_library(query: str) -> str:
     return f"Found {len(tracks)} matching tracks:\n" + "\n".join([t.model_dump_json() for t in tracks])
 
 @mcp.tool()
-def create_agent_playlist(req: PlaylistCreateSchema) -> str:
+async def create_agent_playlist(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> str:
     """Create a new playlist in Navidrome containing specified track IDs."""
-    params = get_subsonic_params()
-    params["name"] = req.name
+    if ctx:
+        await ctx.info("Validating playlist payload with Pydantic v2...")
 
-    # Pass track ID list as repeated query parameters
-    url = f"{NAVIDROME_URL}/rest/createPlaylist.view"
-    for tid in req.track_ids:
-        url += f"&songId={tid}" if "?" in url or "&" in url else f"?songId={tid}"
+    try:
+        req = PlaylistCreateSchema.model_validate(request_dict)
+        params = get_subsonic_params()
+        params["name"] = req.name
 
-    resp = requests.get(url, params=params)
-    if resp.status_code == 200 and resp.json().get("subsonic-response", {}).get("status") == "ok":
-        return f"Successfully created playlist '{req.name}' with {len(req.track_ids)} tracks."
-    return f"Failed to create playlist: {resp.text}"
+        url = f"{NAVIDROME_URL}/rest/createPlaylist.view"
+        for tid in req.track_ids:
+            url += f"&songId={tid}" if "?" in url or "&" in url else f"?songId={tid}"
+
+        resp = requests.get(url, params=params)
+        if resp.status_code == 200 and resp.json().get("subsonic-response", {}).get("status") == "ok":
+            return f"Successfully created playlist '{req.name}' with {len(req.track_ids)} tracks."
+        return f"Failed to create playlist: {resp.text}"
+    except ValidationError as ve:
+        logger.error(f"Validation failure in Navidrome FastMCP tool: {ve}")
+        raise ValueError(f"Invalid request parameters: {ve}")
 
 if __name__ == "__main__":
     mcp.run()

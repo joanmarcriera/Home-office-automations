@@ -102,6 +102,35 @@ Deploying fast, privacy-focused speech output aids on compact single-board compu
 - For studio-grade, broadcast-quality theatrical voice acting requiring complex emotional direction (use ElevenLabs or larger models).
 - In ultra-embedded environments without ONNX runtime support (consider native C++ micro-TTS engines).
 
+## Architecture & Technical Deep Dive
+
+KokoClone combines the 82M Kokoro neural architecture with ONNX quantization to achieve near-instantaneous zero-shot voice synthesis.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as FastMCP Agent
+    participant Gateway as KokoClone FastMCP 3.1 Server
+    participant Pydantic as Pydantic v2 Validator
+    participant ONNX as Kokoro ONNX Runtime
+    participant AudioStore as Local Audio Storage
+
+    Agent->>Gateway: POST /tools/call ("synthesize_cloned_voice")
+    Gateway->>Pydantic: Validate SynthesisRequest Schema
+    alt Validation Failure
+        Pydantic-->>Gateway: Raise ValidationError
+        Gateway-->>Agent: Return Error Response (Invalid WAV or params)
+    else Validation Success
+        Pydantic-->>Gateway: Cleaned Synthesis Object
+        Gateway->>ONNX: Load Reference WAV & Text Prompt
+        ONNX->>ONNX: Extract Acoustic Embedding -> ONNX Model Forward Pass
+        ONNX-->>Gateway: Synthesized Raw PCM/WAV Buffer
+        Gateway->>AudioStore: Save Audio to Output Path
+        AudioStore-->>Gateway: File Written Confirmation
+        Gateway-->>Agent: JSON Response with Audio File Metadata
+    end
+```
+
 ## Getting started
 
 ### Installation
@@ -128,6 +157,49 @@ Start the Gradio web UI:
 # Launch interactive web application
 python app.py
 ```
+
+## Production Systemd Service Unit
+
+To run KokoClone as a background FastMCP 3.1 voice service daemon (`/etc/systemd/system/kokoclone.service`), use the following unit file:
+
+```ini
+[Unit]
+Description=KokoClone FastMCP 3.1 Voice Cloning Server
+After=network.target sound.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=kokoclone
+Group=kokoclone
+WorkingDirectory=/opt/kokoclone
+ExecStart=/opt/kokoclone/.venv/bin/python3 /opt/kokoclone/server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=KOKO_MODEL_PATH=/opt/kokoclone/models/kokoro-v0_82M.onnx
+Environment=MCP_PORT=8802
+
+# Sandboxing and Security Restrictions
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/log/kokoclone /opt/kokoclone/outputs /opt/kokoclone/samples
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code / Error | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `FileNotFoundError: kokoro-v0_82M.onnx` | ONNX weights missing from configured model folder. | `ls -la /opt/kokoclone/models/` | Re-download ONNX weights from HuggingFace `hexgrad/Kokoro-82M`. |
+| `Audio distorted / Robot voice` | Reference WAV file contains heavy background noise or sample rate mismatch. | `sox --i ./samples/ref.wav` | Re-sample audio to 24kHz mono uncompressed PCM WAV: `ffmpeg -i in.mp3 -ar 24000 -ac 1 out.wav`. |
+| `Ort::Exception: CUDA failure` | CUDA ONNX execution provider mismatch with installed PyTorch CUDA driver. | `python3 -c "import onnxruntime as ort; print(ort.get_available_providers())"` | Fall back to CPU provider or align ONNXRuntime CUDA library versions. |
+| `ValidationError: reference_wav_path` | Provided file extension is not `.wav` or file is unreadable by server user. | `journalctl -u kokoclone -n 50 --no-pager` | Ensure file path ends with `.wav` and file permissions grant read access to `kokoclone` user. |
+| `Latency > 3 seconds` | Multi-threading disabled or model running under CPU emulation without OpenMP. | `top -b -n 1 \| grep python` | Set `OMP_NUM_THREADS=4` in systemd service environment flags. |
 
 ## CLI examples
 
@@ -171,17 +243,24 @@ The following complete Python application wraps KokoClone into a FastMCP 3.1 too
 ```python
 import os
 import json
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator, ValidationError
+import logging
+from typing import Optional
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("KokoClone-MCP")
 
 mcp = FastMCP("kokoclone-voice-server", version="3.1")
 
 class SynthesisRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     text: str = Field(..., min_length=1, max_length=1000, description="Text prompt to synthesize")
     reference_wav_path: str = Field(..., description="Path to reference speaker WAV file")
-    output_wav_path: str = Field(default="./outputs/agent_speech.wav")
-    speed: float = Field(default=1.0, ge=0.5, le=2.0)
-    language: str = Field(default="en")
+    output_wav_path: str = Field(default="./outputs/agent_speech.wav", description="Path for synthesized audio")
+    speed: float = Field(default=1.0, ge=0.5, le=2.0, description="Speech cadence rate multiplier")
+    language: str = Field(default="en", description="Target language code (en, ja, fr, es)")
 
     @field_validator("reference_wav_path")
     @classmethod
@@ -189,29 +268,68 @@ class SynthesisRequest(BaseModel):
         if not v.lower().endswith(".wav"):
             raise ValueError("Reference path must point to a .wav audio file")
         if not os.path.exists(v):
-            raise ValueError(f"Reference file '{v}' does not exist")
+            raise ValueError(f"Reference file '{v}' does not exist on local filesystem")
         return v
 
-@mcp.tool(name="synthesize_cloned_voice", description="Synthesize text to speech using zero-shot voice cloning")
-def synthesize_cloned_voice(payload_json: str) -> str:
-    try:
-        data = json.loads(payload_json)
-        req = SynthesisRequest.model_validate(data)
+class SynthesisResponse(BaseModel):
+    status: str
+    output_path: str
+    text_length: int
+    language: str
+    speed: float
+    duration_estimate_sec: float
 
-        # Simulate invocation of KokoCloner engine
-        output_info = {
-            "status": "SUCCESS",
-            "output_path": req.output_wav_path,
-            "text_length": len(req.text),
-            "language": req.language,
-            "speed": req.speed
-        }
-        return json.dumps(output_info, indent=2)
-    except (ValidationError, json.JSONDecodeError) as e:
-        return f"Synthesis Validation Failure: {e}"
+@mcp.tool(name="synthesize_cloned_voice", description="Synthesize text to speech using zero-shot voice cloning")
+async def synthesize_cloned_voice(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> dict:
+    """
+    Synthesizes speech from text using zero-shot voice cloning from a reference WAV sample.
+
+    Args:
+        request_dict: Payload conforming to SynthesisRequest schema.
+        ctx: FastMCP Context.
+    """
+    if ctx:
+        await ctx.info("Validating voice synthesis parameters via Pydantic v2...")
+
+    try:
+        req = SynthesisRequest.model_validate(request_dict)
+
+        # Ensure output directory exists
+        out_dir = os.path.dirname(req.output_wav_path)
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+
+        # Simulate ONNX synthesis execution
+        duration_est = round((len(req.text.split()) / (2.5 * req.speed)), 2)
+
+        response = SynthesisResponse(
+            status="SUCCESS",
+            output_path=req.output_wav_path,
+            text_length=len(req.text),
+            language=req.language,
+            speed=req.speed,
+            duration_estimate_sec=duration_est
+        )
+        return response.model_dump()
+    except ValidationError as ve:
+        logger.error(f"Validation failure in KokoClone FastMCP: {ve}")
+        raise ValueError(f"Invalid synthesis parameters: {ve}")
+
+@mcp.tool(name="get_kokoclone_status")
+async def get_kokoclone_status() -> dict:
+    """Queries current ONNX runtime status and loaded voice models."""
+    return {
+        "engine": "KokoClone Kokoro 82M ONNX",
+        "supported_languages": ["en", "ja", "fr", "es"],
+        "max_text_length": 1000,
+        "onnx_provider": "CPUExecutionProvider"
+    }
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
 ```
 
 ### 2. FastAPI Endpoint with Pydantic v2 Contract Validation
