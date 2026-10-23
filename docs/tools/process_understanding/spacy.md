@@ -1,7 +1,7 @@
 # spaCy
 
 ## What it is
-spaCy is an open-source, industrial-strength Natural Language Processing (NLP) library written in Python and Cython. Designed specifically for production use, spaCy provides pre-trained statistical and transformer-based pipeline models for tokenization, part-of-speech (POS) tagging, named entity recognition (NER), dependency parsing, text classification, vector representations, and lemmatization across dozens of languages. In 2027, spaCy serves as a core, low-latency preprocessing and chunk-level linguistic extraction engine powering retrieval-augmented generation (RAG) pipelines, agent memory indexing, and structured data extraction workflows.
+spaCy is an open-source, industrial-strength Natural Language Processing (NLP) library written in Python and Cython. Designed specifically for high-throughput production environments, spaCy provides pre-trained statistical and transformer-based pipeline models for tokenization, part-of-speech (POS) tagging, named entity recognition (NER), dependency parsing, text classification, vector representations, and lemmatization across dozens of languages. In 2027, spaCy serves as a core, low-latency preprocessing and chunk-level linguistic extraction engine powering retrieval-augmented generation (RAG) pipelines, agent memory indexing, entity masking, and structured data extraction workflows.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -26,6 +26,35 @@ Raw text ingestion into vector databases or LLM reasoning frameworks often suffe
 
 ## Where it fits in the stack
 **Process Understanding / Natural Language Processing & Text Preprocessing Engine**. spaCy operates directly at the ingestion and normalization layer, sitting between raw document input streams and downstream vector stores, LLM prompt builders, or knowledge graph extractors.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                             KNOWLEDGE INGESTION STACK                            │
+└──────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                             RAW INGESTION LAYER                                  │
+│             Crawl4AI / Apache Tika / Paperless-ngx / Unstructured                │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Raw Text / Markdown
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                         SPACY LINGUISTIC PROCESSING LAYER                        │
+│   ┌──────────────────────────────────────────────────────────────────────────┐   │
+│   │ • Sentence Boundaries (senter/parser)                                    │   │
+│   │ • Lemmatization & POS Tagging                                            │   │
+│   │ • Entity Extraction (NER) & PII Redaction                                │   │
+│   │ • FastMCP 3.1 Tool Gateway & Pydantic v2 Validation Model               │   │
+│   └──────────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Standardized Spans & Chunks
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                        DOWNSTREAM AGENTS & STORAGE                               │
+│       Qdrant / Weaviate Vector Store ── Open-WebUI ── FastMCP Agent Pool        │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Typical use cases
 - **Semantic Sentence Segmentation**: Splitting long technical manuals or articles into grammatically intact sentence boundaries for optimal vector embedding chunking.
@@ -91,13 +120,40 @@ spaCy's processing pipeline revolves around the central `Language` class and a s
 2. **Pipeline Components**: Sequentially process the `Doc` object in-place, annotating token-level attributes (`token.pos_`, `token.dep_`, `doc.ents`).
 3. **Cython Architecture**: Core data structures (`StringStore`, `Vocab`, `Doc`) reference 64-bit integer hashes, bypassing Python object creation overhead during loop iterations.
 
+### Sequence Flow: FastMCP 3.1 Agent Request Lifecycle
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as FastMCP Agent Client
+    participant Controller as FastMCP 3.1 Gateway
+    participant Pydantic as Pydantic v2 Validator
+    participant Pipeline as spaCy Pipeline Engine
+    participant Output as Structured Payload
+
+    Client->>Controller: POST /tools/call ("analyze_text_linguistics")
+    Controller->>Pydantic: Validate NLPAnalysisRequest Payload
+    alt Validation Failed
+        Pydantic-->>Controller: Raised ValidationError
+        Controller-->>Client: 422 Unprocessable Entity
+    else Validation Succeeded
+        Pydantic-->>Controller: Cleaned Analysis Model
+        Controller->>Pipeline: Pass Text to spaCy nlp(text)
+        Pipeline->>Pipeline: Tokenize -> POS Tag -> Parse -> NER
+        Pipeline-->>Controller: Processed Doc Object
+        Controller->>Output: Extract Entities, Sentences, POS Spans
+        Output-->>Controller: Standardized Dict
+        Controller-->>Client: JSON Response with Tokens & Spans
+    end
+```
+
 ## Getting started
 
 Install spaCy via PyPI and download a standard pre-trained language pipeline:
 
 ```bash
-# Install spaCy
-pip install spacy
+# Install spaCy with transformer support
+pip install "spacy[transformers]"
 
 # Download English medium pipeline model
 python -m spacy download en_core_web_md
@@ -121,6 +177,49 @@ for ent in doc.ents:
 for token in doc[:5]:
     print(f"Token: {token.text:<10} Lemma: {token.lemma_:<10} POS: {token.pos_}")
 ```
+
+## Production Systemd Service Unit
+
+To run spaCy as a background FastMCP 3.1 service daemon (`/etc/systemd/system/spacy-mcp.service`), use the following unit file:
+
+```ini
+[Unit]
+Description=spaCy FastMCP 3.1 NLP Processing Daemon
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=spacy
+Group=spacy
+WorkingDirectory=/opt/spacy-service
+ExecStart=/opt/spacy-service/venv/bin/python3 /opt/spacy-service/spacy_mcp_server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=SPACY_MODEL=en_core_web_sm
+Environment=MCP_PORT=8801
+
+# Hardening Sandboxing Options
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/log/spacy-service /opt/spacy-service/cache
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code / Error | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `Can't find model 'en_core_web_sm'` | Model pipeline package not installed in active environment. | `python3 -m spacy info` | Execute `python3 -m spacy download en_core_web_sm` inside virtual environment. |
+| `CUDA error: out of memory` | Batch size too large for PyTorch/transformer backbone in spacy-transformers. | `nvidia-smi` | Reduce batch size in `nlp.pipe(texts, batch_size=32)` or set `spacy.require_cpu()`. |
+| `UserWarning: [W008] Component 'ner' produced no output` | Disable parameter omitted while processing non-annotated corpora. | `spacy validate` | Explicitly specify components or check pipeline initialization with `nlp.pipe_names`. |
+| `ValidationError: text max_length exceeded` | Incoming payload exceeded 15,000 character limit in Pydantic schema. | `journalctl -u spacy-mcp -n 50 --no-pager` | Pre-chunk input document before sending to FastMCP gateway or adjust request schema limit. |
+| `MemoryLeak: Doc Bin Accumulation` | Holding `Doc` objects in global lists retains references to underlying `Vocab`. | `python3 -m memory_profiler script.py` | Store string attributes (`ent.text`, `token.lemma_`) instead of raw `Doc` or `Span` instances. |
 
 ## CLI examples
 
@@ -161,9 +260,12 @@ _nlp_model = None
 def get_nlp():
     global _nlp_model
     if _nlp_model is None:
+        model_name = os.getenv("SPACY_MODEL", "en_core_web_sm")
         try:
-            _nlp_model = spacy.load("en_core_web_sm")
-        except Exception:
+            _nlp_model = spacy.load(model_name)
+            logger.info(f"Successfully loaded spaCy model: {model_name}")
+        except Exception as e:
+            logger.warning(f"Failed loading model '{model_name}': {e}. Falling back to blank 'en'")
             _nlp_model = spacy.blank("en")
     return _nlp_model
 
@@ -174,6 +276,7 @@ class NLPAnalysisRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=15000, description="Raw text passage to analyze")
     extract_entities: bool = Field(default=True, description="Whether to extract named entities")
     extract_noun_chunks: bool = Field(default=False, description="Whether to extract noun phrases")
+    redact_pii: bool = Field(default=False, description="Whether to mask PERSON, GPE, and DATE entities")
 
     @field_validator("text")
     @classmethod
@@ -182,6 +285,20 @@ class NLPAnalysisRequest(BaseModel):
         if not s:
             raise ValueError("Input text cannot be blank")
         return s
+
+class EntitySpan(BaseModel):
+    text: str
+    label: str
+    start_char: int
+    end_char: int
+
+class NLPAnalysisResponse(BaseModel):
+    status: str
+    token_count: int
+    sentence_count: int
+    sentences: List[str]
+    entities: List[EntitySpan]
+    redacted_text: Optional[str] = None
 
 @mcp.tool()
 async def analyze_text_linguistics(
@@ -206,19 +323,36 @@ async def analyze_text_linguistics(
         entities = []
         if req.extract_entities and doc.has_annotation("ENT_IOB"):
             entities = [
-                {"text": ent.text, "label": ent.label_, "start_char": ent.start_char, "end_char": ent.end_char}
+                EntitySpan(
+                    text=ent.text,
+                    label=ent.label_,
+                    start_char=ent.start_char,
+                    end_char=ent.end_char
+                )
                 for ent in doc.ents
             ]
 
         sentences = [sent.text.strip() for sent in doc.sents] if doc.has_annotation("SENT_START") else [req.text]
 
-        return {
-            "status": "success",
-            "token_count": len(doc),
-            "sentence_count": len(sentences),
-            "sentences": sentences,
-            "entities": entities
-        }
+        redacted_text = None
+        if req.redact_pii:
+            redacted_chars = list(req.text)
+            pii_labels = {"PERSON", "GPE", "ORG", "DATE"}
+            for ent in doc.ents:
+                if ent.label_ in pii_labels:
+                    for i in range(ent.start_char, ent.end_char):
+                        redacted_chars[i] = "*"
+            redacted_text = "".join(redacted_chars)
+
+        response = NLPAnalysisResponse(
+            status="success",
+            token_count=len(doc),
+            sentence_count=len(sentences),
+            sentences=sentences,
+            entities=entities,
+            redacted_text=redacted_text
+        )
+        return response.model_dump()
     except ValidationError as ve:
         logger.error(f"Validation failure: {ve}")
         raise ValueError(f"Invalid request parameters: {ve}")
@@ -228,10 +362,11 @@ async def get_spacy_status(ctx: Optional[Context] = None) -> dict:
     """Queries currently loaded spaCy pipeline and language components."""
     nlp = get_nlp()
     return {
-        "engine": "spaCy Industrial NLP",
+        "engine": "spaCy Industrial NLP Engine",
         "pipeline_components": nlp.pipe_names,
         "lang": nlp.lang,
-        "is_blank": len(nlp.pipe_names) == 0
+        "is_blank": len(nlp.pipe_names) == 0,
+        "vocab_size": len(nlp.vocab)
     }
 
 if __name__ == "__main__":
@@ -256,7 +391,8 @@ def test_spacy_schema():
     payload = {
         "text": "spaCy simplifies NLP in production environments.",
         "extract_entities": True,
-        "extract_noun_chunks": False
+        "extract_noun_chunks": False,
+        "redact_pii": True
     }
     req = NLPAnalysisRequest.model_validate(payload)
     assert req.extract_entities is True

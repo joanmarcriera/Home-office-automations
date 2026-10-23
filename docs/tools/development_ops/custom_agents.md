@@ -28,6 +28,30 @@ Full enterprise agent platforms often bring heavy framework dependencies, comple
 ## Where it fits in the stack
 **Category**: [Development & Ops](index.md) / Agent Execution & Orchestration. It functions as a custom tool-calling micro-agent layer that bridges LLM reasoning engines to host systems over SSH or local command environments.
 
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                         FRONTIER LLM ORCHESTRATION LAYER                         │
+│           Claude 5.6 / GPT-5.6 / Gemini 4.0 Ultra / FastMCP 3.1 Host            │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ MCP 3.1 Tool Request
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                        CUSTOM AGENT FASTMCP MICRO-SERVICE                        │
+│   ┌──────────────────────────────────────────────────────────────────────────┐   │
+│   │ • Command Regex & Prefix Allowlist Engine                                │   │
+│   │ • Paramiko Persistent SSH Key-Based Connection Pool                      │   │
+│   │ • Interactive Human-in-the-Loop Approval Gateway                         │   │
+│   │ • Pydantic v2 Schema & Telemetry Audit Logger                            │   │
+│   └──────────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Encrypted SSH Tunnel
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                         TARGET INFRASTRUCTURE NODES                              │
+│       Homelab Cluster ── Edge Nodes ── k3s Workstation ── Paperless Server      │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Feature Matrix & Framework Comparison
 
 | Feature | Custom Agent (SSH + FastMCP) | Aider | Claude Code | Ansible / SaltStack |
@@ -81,8 +105,51 @@ ssh-copy-id admin@192.168.1.50
 
 ### 2. Install Python Dependencies
 ```bash
-pip install paramiko mcp pydantic
+pip install paramiko mcp pydantic fastmcp
 ```
+
+## Production Systemd Service Unit
+
+To run a Custom Agent FastMCP 3.1 micro-service as a background daemon (`/etc/systemd/system/custom-agent.service`), use the following unit file:
+
+```ini
+[Unit]
+Description=Custom SSH Micro-Agent FastMCP 3.1 Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=customagent
+Group=customagent
+WorkingDirectory=/opt/custom-agent
+ExecStart=/opt/custom-agent/.venv/bin/python3 /opt/custom-agent/mcp_server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=SSH_KEY_PATH=/etc/custom-agent/id_ed25519
+Environment=MCP_PORT=8804
+
+# Hardened Security Options
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/log/custom-agent /opt/custom-agent/telemetry
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code / Error | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `SSHException: Authentication failed` | Private key file `/etc/custom-agent/id_ed25519` unreadable or missing public key in target `authorized_keys`. | `ssh -i /etc/custom-agent/id_ed25519 admin@192.168.1.50` | Copy agent public key to target host or update `SSH_KEY_PATH` in service environment. |
+| `SecurityBlock: Command Not Allowed` | Issued shell command failed regex/prefix allowlist check. | `journalctl -u custom-agent -n 50 --no-pager` | Update `allowed_commands` list in `CustomAgentConfig` or adjust prefix matches. |
+| `TimeoutError: SSH connection timed out` | Target host unreachable over SSH port 22 or firewall blocking connection. | `nc -zv 192.168.1.50 22` | Check host power status, network routing, and UFW/iptables rules. |
+| `ValidationError: Directory traversal` | `key_path` field contained forbidden `..` relative path elements. | `python3 -c "import pydantic"` | Supply absolute filesystem path starting with `/` without relative references. |
+| `PermissionDenied: sudo requires tty` | Command requiring sudo failed because target `/etc/sudoers` enforces `requiretty`. | `ssh admin@192.168.1.50 "sudo -l"` | Add `Defaults:admin !requiretty` or NOPASSWD rules for specific commands in `/etc/sudoers`. |
 
 ## CLI examples
 
@@ -100,60 +167,110 @@ python custom_agent.py --nodes-file ./nodes.json --action "apt-get update" --req
 The following Python script demonstrates how to implement a custom SSH administration tool exposed via FastMCP 3.1:
 
 ```python
-import mcp.server.fastmcp as fastmcp
+import os
+import logging
 import paramiko
 from typing import Optional, Dict, Any
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
+from fastmcp import FastMCP, Context
 
-mcp_server = fastmcp.FastMCP("SSH Host MicroAgent", version="3.1")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Custom-SSH-Agent")
+
+mcp_server = FastMCP("SSH Host MicroAgent", version="3.1")
+
+class CommandRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    host: str = Field(..., pattern=r"^([a-zA-Z0-9.-]+|[0-9.]+)$", description="Target node IP or hostname")
+    command: str = Field(..., min_length=1, description="Shell command string to execute")
+    require_sudo: bool = Field(default=False, description="Whether to execute via sudo")
+
+    @field_validator("command")
+    @classmethod
+    def validate_command_allowlist(cls, v: str) -> str:
+        s = v.strip()
+        allowed_prefixes = ["systemctl status", "df -h", "docker ps", "uptime", "free -m", "journalctl"]
+        if not any(s.startswith(prefix) for prefix in allowed_prefixes):
+            raise ValueError(f"Command '{s}' violates security allowlist policy.")
+        return s
+
+class CommandResponse(BaseModel):
+    status: str
+    host: str
+    stdout: str
+    stderr: str
+    exit_code: int
+    protocol_version: str = "3.1"
 
 @mcp_server.tool()
-def execute_host_command(host: str, command: str, require_sudo: bool = False) -> Dict[str, Any]:
-    """Executes an allowed command on a target host via SSH using FastMCP 3.1 protocol."""
-    allowed_prefixes = ["systemctl status", "df -h", "docker ps", "uptime", "free -m", "journalctl"]
-    if not any(command.startswith(prefix) for prefix in allowed_prefixes):
-        return {
-            "status": "error",
-            "message": f"Command '{command}' is not in the allowed command list.",
-            "protocol_version": "3.1"
-        }
+async def execute_host_command(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> dict:
+    """
+    Executes an allowed command on a target host via SSH using FastMCP 3.1 protocol.
 
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    Args:
+        request_dict: Dictionary matching CommandRequest schema.
+        ctx: FastMCP Context.
+    """
+    if ctx:
+        await ctx.info("Validating command payload via Pydantic v2...")
+
     try:
-        ssh.connect(host, username='admin', timeout=10)
-        full_command = f"sudo {command}" if require_sudo else command
-        stdin, stdout, stderr = ssh.exec_command(full_command)
-        out = stdout.read().decode()
-        err = stderr.read().decode()
-        return {
-            "status": "success",
-            "host": host,
-            "stdout": out,
-            "stderr": err,
-            "exit_code": stdout.channel.recv_exit_status(),
-            "protocol_version": "3.1"
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"SSH Connection Failed: {str(e)}",
-            "protocol_version": "3.1"
-        }
-    finally:
-        ssh.close()
+        req = CommandRequest.model_validate(request_dict)
+        key_path = os.getenv("SSH_KEY_PATH", "/etc/custom-agent/id_ed25519")
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            ssh.connect(req.host, username="admin", key_filename=key_path if os.path.exists(key_path) else None, timeout=10)
+            full_command = f"sudo {req.command}" if req.require_sudo else req.command
+            stdin, stdout, stderr = ssh.exec_command(full_command)
+            out = stdout.read().decode()
+            err = stderr.read().decode()
+            exit_code = stdout.channel.recv_exit_status()
+
+            response = CommandResponse(
+                status="success",
+                host=req.host,
+                stdout=out,
+                stderr=err,
+                exit_code=exit_code
+            )
+            return response.model_dump()
+        except Exception as e:
+            logger.error(f"SSH execution failure on {req.host}: {e}")
+            return {
+                "status": "error",
+                "host": req.host,
+                "message": f"SSH Connection Failed: {str(e)}",
+                "protocol_version": "3.1"
+            }
+        finally:
+            ssh.close()
+    except ValidationError as ve:
+        logger.error(f"Validation failure: {ve}")
+        raise ValueError(f"Invalid request parameters: {ve}")
 
 @mcp_server.tool()
-def audit_host_health(host: str) -> Dict[str, Any]:
+async def audit_host_health(host: str, ctx: Optional[Context] = None) -> dict:
     """Runs a multi-step host health diagnostic sweep via SSH."""
+    if ctx:
+        await ctx.info(f"Auditing host health for {host}...")
+
     commands = {
-        "disk_space": "df -h /",
+        "disk_space": "df -h",
         "memory": "free -m",
         "uptime": "uptime",
-        "containers": "docker ps --format '{{.Names}}\t{{.Status}}'"
+        "containers": "docker ps"
     }
     results = {}
     for key, cmd in commands.items():
-        res = execute_host_command(host, cmd)
+        res = await execute_host_command({"host": host, "command": cmd})
         results[key] = res.get("stdout", res.get("message", "N/A")).strip()
 
     return {

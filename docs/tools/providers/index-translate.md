@@ -27,6 +27,35 @@ Generic neural machine translation (NMT) models often break technical document f
 ## Where it fits in the stack
 **Providers / Multilingual Translation & LLM Model Family**. Index-Translate operates as a specialized model provider hosted on top of standard inference engines (vLLM, Ollama, llama.cpp, or TGI) to service localization workflows.
 
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                             KNOWLEDGE & MEDIA LOCALIZATION                        │
+└──────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                            DOCUMENT & SUBTITLE INGESTION                         │
+│           Markdown Repos / WebVTT Media / Subtitle Streams / Technical Specs     │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      INDEX-TRANSLATE STRUCTURE MASKING ENGINE                     │
+│   ┌──────────────────────────────────────────────────────────────────────────┐   │
+│   │ • AST Parsing & Code Block Protection                                    │   │
+│   │ • WebVTT / SRT Timecode Locking                                          │   │
+│   │ • Domain Glossary & Terminology Injection                                │   │
+│   │ • FastMCP 3.1 Tool Gateway & Pydantic v2 Contract Validation             │   │
+│   └──────────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │ Preserved Structure Tokens
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                       LOCAL GPU INFERENCE ENGINE (vLLM)                          │
+│               Qwen 3.5 Fine-Tuned Weights (1.8B / 7B / 14B)                     │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Typical use cases
 - **Software Documentation Localization**: Translating Markdown repositories while automatically preserving code blocks, YAML frontmatter, and liquid tags.
 - **Subtitle & Media Translation**: Translating SRT/WebVTT media subtitle files while strictly preserving timing timestamps and speaker identifiers.
@@ -91,6 +120,33 @@ Index-Translate introduces a specialized multi-task training objective and struc
 3. **Qwen 3.5 Backbone**: Processes target translation pairs with specialized multi-token attention layers fine-tuned on multilingual technical corpora.
 4. **Structure Re-injector**: Verifies that all protected tags and markers match the source document layout before output generation.
 
+### Sequence Flow: FastMCP 3.1 Translation Request Execution
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Local Agent Client
+    participant Controller as FastMCP 3.1 Translation Gateway
+    participant Pydantic as Pydantic v2 Validator
+    participant vLLM as vLLM Inference Server
+    participant PostProc as AST Structure Verifier
+
+    Client->>Controller: POST /tools/call ("translate_document")
+    Controller->>Pydantic: Validate TranslationRequest Payload
+    alt Validation Failed
+        Pydantic-->>Controller: Raised ValidationError
+        Controller-->>Client: 422 Unprocessable Entity
+    else Validation Succeeded
+        Pydantic-->>Controller: Validated Request Model
+        Controller->>vLLM: Submit Prompt + Protected Mask Tokens
+        vLLM->>vLLM: Qwen 3.5 Forward Pass with Glossary Constraints
+        vLLM-->>Controller: Raw Translated Stream
+        Controller->>PostProc: Re-inject Markdown / Code Syntax & Check AST
+        PostProc-->>Controller: Verified Structured Output
+        Controller-->>Client: JSON Response with Translated Text & Metadata
+    end
+```
+
 ## Getting started
 
 To get started with Index-Translate, download the model weights from HuggingFace and run inference via vLLM or Ollama:
@@ -105,6 +161,50 @@ python3 -m vllm.entrypoints.openai.api_server \
   --port 8000 \
   --gpu-memory-utilization 0.85
 ```
+
+## Production Systemd Service Unit
+
+To run Index-Translate as a background FastMCP 3.1 translation daemon backed by vLLM (`/etc/systemd/system/index-translate.service`), use the following unit file:
+
+```ini
+[Unit]
+Description=Index-Translate FastMCP 3.1 Server Daemon
+After=network.target nvidia-persistenced.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=indextrans
+Group=indextrans
+WorkingDirectory=/opt/index-translate
+ExecStart=/opt/index-translate/.venv/bin/python3 /opt/index-translate/mcp_server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=INDEX_MODEL_NAME=bilibili/index-translate-7b
+Environment=VLLM_ENDPOINT=http://127.0.0.1:8000/v1
+Environment=MCP_PORT=8803
+
+# Security Sandboxing Options
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/var/log/index-translate /opt/index-translate/cache
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code / Error | Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `HTTP 500: vLLM Connection Refused` | Local vLLM inference backend is not running on port 8000. | `curl http://127.0.0.1:8000/health` | Verify vLLM service status: `systemctl status vllm`. |
+| `CUDA OOM: Out of Memory` | Batch size or sequence length too large for GPU VRAM footprint. | `nvidia-smi` | Lower `--gpu-memory-utilization` or use `index-translate-1.8b` model variant. |
+| `SyntaxError: Corrupted Code Block` | Ast parser detected mismatched backticks post-translation. | `journalctl -u index-translate -n 50 --no-pager` | Enable `preserve_code_blocks=True` in request payload to enforce structure isolation. |
+| `ValidationError: Invalid language code` | Non-standard language code supplied in payload. | `python3 -c "import langcodes; print(langcodes.is_valid('xyz'))"` | Pass standard 2-letter ISO 639-1 language code (e.g., `zh`, `ja`, `es`). |
+| `High Latency > 10s per page` | Processing long documents synchronously without token streaming. | `top -b -n 1 \| grep python` | Chunk documents into 2,000 character paragraphs before dispatching. |
 
 ## CLI examples
 
@@ -152,9 +252,19 @@ class TranslationRequest(BaseModel):
     @field_validator("source_lang", "target_lang")
     @classmethod
     def validate_lang_code(cls, v: str) -> str:
-        if len(v.strip()) not in [2, 5]:
+        s = v.strip().lower()
+        if len(s) not in [2, 5]:
             raise ValueError("Language code must be a valid 2-letter or 5-letter locale string")
-        return v.lower().strip()
+        return s
+
+class TranslationResponse(BaseModel):
+    status: str
+    source_lang: str
+    target_lang: str
+    character_count: int
+    code_blocks_preserved: bool
+    glossary_terms_applied: int
+    translated_text: str
 
 @mcp.tool()
 async def translate_document(
@@ -176,18 +286,19 @@ async def translate_document(
         if ctx:
             await ctx.info(f"Translating {len(req.source_text)} chars from {req.source_lang} -> {req.target_lang}")
 
-        # Simulated translation response preserving structural integrity
+        # Simulated structure-aware translation
         translated_text = f"[Translated to {req.target_lang}]: {req.source_text}"
 
-        return {
-            "status": "success",
-            "source_lang": req.source_lang,
-            "target_lang": req.target_lang,
-            "character_count": len(req.source_text),
-            "code_blocks_preserved": req.preserve_code_blocks,
-            "glossary_terms_applied": len(req.glossary),
-            "translated_text": translated_text
-        }
+        response = TranslationResponse(
+            status="success",
+            source_lang=req.source_lang,
+            target_lang=req.target_lang,
+            character_count=len(req.source_text),
+            code_blocks_preserved=req.preserve_code_blocks,
+            glossary_terms_applied=len(req.glossary),
+            translated_text=translated_text
+        )
+        return response.model_dump()
     except ValidationError as ve:
         logger.error(f"Validation failure: {ve}")
         raise ValueError(f"Invalid translation request: {ve}")
