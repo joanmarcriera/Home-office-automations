@@ -84,6 +84,47 @@ pip install teamout-sdk pydantic>=2.0
 export TEAMOUT_API_KEY="to_live_998124719283719"
 ```
 
+### Production systemd Service Unit (`teamout-sync.service`)
+
+To automate continuous polling for offsite venue availability, flight cost fluctuations, and attendee registration sync across HR systems, run the following background daemon:
+
+```ini
+[Unit]
+Description=TeamOut Retreat Logistics & HR Sync Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=teamout
+Group=teamout
+WorkingDirectory=/opt/teamout_sync
+ExecStart=/usr/bin/python3 -m teamout_sync.daemon --config /etc/teamout/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=20s
+
+# Security hardening directives
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/teamout /var/log/teamout
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` | Expired or invalid `TEAMOUT_API_KEY` token | `teamout mcp verify` | Regenerate API credentials in TeamOut Enterprise Portal and update `/etc/teamout/config.yaml`. |
+| `HTTP 422 Unprocessable Entity` | Budget per head violates minimum threshold ($300/head) | `python3 -m teamout_sync.validate_schema --config ./query.json` | Adjust `max_total_budget_usd` or lower `team_size` in input payload before re-submitting request. |
+| `GDS Flight Quote Timeout` | Flight availability query timed out during high-density multi-origin routing | `journalctl -u teamout-sync -n 30 | grep -i transit` | Increase API request timeout to 60s or restrict origin airport list to major hubs. |
+| `FastMCP 3.1 Transport Drop` | stdio stream interrupted by unhandled stdout prints in tool script | `teamout mcp verify --transport stdio` | Redirect all non-JSON logging output to `sys.stderr` or file-based loggers. |
+| `Venue Hold Lock Expiration` | Soft room block hold window expired after 72 hours without deposit confirmation | `teamout status --retreat-id RETREAT_ID` | Trigger auto-renewal via `teamout_renew_hold` tool or re-query venue availability. |
+
 ## Architecture / Key Components
 
 ```mermaid

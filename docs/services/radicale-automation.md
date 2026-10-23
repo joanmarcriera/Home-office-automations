@@ -67,6 +67,38 @@ flowchart TD
 - Access to the Radicale storage directory (usually `~/.var/lib/radicale/collections`).
 - (Optional) [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) for agentic access.
 
+### Production systemd Service Unit (`radicale-automation.service`)
+
+To execute scheduled CalDAV/CardDAV synchronization, filesystem backups, and vector index updates in background environments, deploy the following systemd service unit:
+
+```ini
+[Unit]
+Description=Radicale Automation Daemon & Restic Backup Service
+After=network.target radicale.service
+Wants=radicale.service
+
+[Service]
+Type=simple
+User=radicale
+Group=radicale
+WorkingDirectory=/var/lib/radicale
+ExecStart=/usr/bin/python3 -m radicale_automation.sync_engine --config /etc/radicale/automation.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=10s
+
+# Security hardening directives
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/radicale/collections /var/log/radicale
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### Automated Backup Script
 Create a simple bash script to backup your collections:
 
@@ -85,6 +117,16 @@ rm -rf "$BACKUP_DIR"
 3. URL: `http://your-radicale-server:5232/user/`.
 4. Authentication: Basic Auth (Radicale credentials).
 5. This node will return the list of available collections in XML format.
+
+## Production Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` on PROPFIND | Missing or invalid htpasswd credentials in HTTP Basic Auth header | `curl -i -u user:pass http://localhost:5232/user/` | Regenerate htpasswd hash using `htpasswd -B` and verify permissions on `/etc/radicale/users`. |
+| `409 Conflict` on PUT | File lock contention or concurrent writes by multiple agent threads | `lsof /var/lib/radicale/collections/` | Enforce atomic updates with isolated workspace folders or queue write actions through Chronos MCP. |
+| `Malformed VCALENDAR entity` | Invalid iCalendar formatting missing mandatory `UID` or `DTSTAMP` fields | `python3 -m radicale --verify-storage` | Sanitize input payload with Pydantic v2 validation before executing HTTP PUT request. |
+| `500 Internal Server Error` | File system permission mismatch or read-only storage directory | `ls -ld /var/lib/radicale/collections` | Execute `chown -R radicale:radicale /var/lib/radicale` and verify permissions. |
+| `Sync Latency Timeout (>5s)` | Large collection folder containing thousands of historical `.ics` files | `find /var/lib/radicale/collections -type f | wc -l` | Archive obsolete events older than 365 days into an archived CalDAV collection. |
 
 ## Operational Best Practices & Safety
 1. **Conflict Avoidance**: Utilize UUID v4 event identifiers when creating `.ics` objects to avoid overwriting existing events during parallel agent executions.

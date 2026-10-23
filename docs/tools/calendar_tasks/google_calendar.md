@@ -83,6 +83,47 @@ Install the required Google client and Pydantic libraries:
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib pydantic fastmcp
 ```
 
+### Production systemd Service Unit (`gcal-sync.service`)
+
+To maintain automated background synchronization, refresh expired OAuth tokens, and listen for incoming push notifications from Google Calendar, run the following daemon unit:
+
+```ini
+[Unit]
+Description=Google Calendar OAuth Sync & Event Listener Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=calendar-sync
+Group=calendar-sync
+WorkingDirectory=/opt/gcal_sync
+ExecStart=/usr/bin/python3 -m gcal_sync.daemon --config /etc/gcal_sync/config.json
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=15s
+
+# Security hardening directives
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/gcal_sync /var/log/gcal_sync
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Production Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error Code | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized / Token Expired` | OAuth 2.0 refresh token revoked or expired | `python3 -m gcal_sync.verify_token` | Re-run `google-oauthlib` authentication flow to generate a fresh `token.json`. |
+| `403 Rate Limit Exceeded` | Surpassed API quota limits (1,000,000 queries/day or per-user burst) | `gcloud logging read "resource.type=gce_instance"` | Implement exponential backoff retry policy or request quota increase in GCP console. |
+| `409 Resource Conflict` | Simultaneous event updates on the same `eventId` without matching `etag` | `python3 -m gcal_sync.check_etag --event-id EVT_ID` | Retrieve latest event state via `events().get()` to extract updated `etag` before retrying `events().patch()`. |
+| `400 Invalid Time Format` | Missing ISO 8601 offset or incorrect timeZone identifier string | `python3 -m gcal_sync.validate_iso --iso STAMP` | Validate event start/end timestamps through Pydantic v2 `EventDateTime` model prior to sending request. |
+| `Push Notification Drop` | Expired Webhook channel subscription (`X-Goog-Channel-Expiration`) | `curl -i -X POST https://api.example.com/gcal-webhook/` | Implement scheduled systemd timer to renew channel watch subscriptions every 24 hours. |
+
 ## CLI examples
 
 ### Listing Events via CLI
