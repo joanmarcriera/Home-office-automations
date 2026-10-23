@@ -27,6 +27,16 @@ Connecting autonomous AI agents to enterprise tools (databases, shell environmen
 ## Where it fits in the stack
 **Tools / Agents & Security Orchestration Framework**. OpenAPPA operates as a security gateway and sandboxing layer wrapping agent execution engines (such as LangChain, CrewAI, AutoGen, or custom FastMCP agents).
 
+## Feature Comparison Matrix
+
+| Security Feature | OpenAPPA | Basic Container Isolation | API Gateway (e.g. Kong/Envoy) |
+| :--- | :--- | :--- | :--- |
+| **Prompt Injection Defense** | Real-time neural & heuristic analysis | None | Basic WAF regex rules |
+| **Credential Masking** | Dynamic zero-trust vault proxy | Static env vars | Header token injection |
+| **Tool Execution Sandbox** | Ephemeral MicroVM / Micro-container | Static Docker container | N/A (API Layer only) |
+| **FastMCP 3.1 Native Integration** | First-class JSON-RPC security gateway | External wrapper required | Reverse proxy plugin |
+| **Audit Log Integrity** | Cryptographically signed, immutable logs | Standard stdout logs | Access logs |
+
 ## Typical use cases
 - **Zero-Breach Enterprise Agent Sandbox**: Safely executing background agent code generation and terminal commands inside ephemeral isolated sandboxes.
 - **Credential Masking & API Key Vaulting**: Proxying agent API calls through OpenAPPA so LLMs never see underlying secrets or database passwords.
@@ -54,7 +64,7 @@ Connecting autonomous AI agents to enterprise tools (databases, shell environmen
 
 ## Architecture & Technical Deep Dive
 
-OpenAPPA enforces security through a three-layer isolation pipeline:
+OpenAPPA enforces security through a five-stage isolation pipeline:
 
 ```
                         OPENAPPA ARCHITECTURE PIPELINE
@@ -91,6 +101,69 @@ OpenAPPA enforces security through a three-layer isolation pipeline:
 2. **Permission Evaluator**: Compares requested action against fine-grained Role-Based Access Control (RBAC) rules defined in YAML.
 3. **Credential Proxy**: Automatically injects actual API credentials into outgoing network headers without exposing the plain-text secret to the LLM model context.
 4. **Isolated MicroVM Execution**: Runs shell commands and script executions inside ephemeral Firecracker microVMs or Docker containers.
+5. **Signed Audit Logging**: Writes cryptographic hashes of request/response frames into append-only compliance storage.
+
+## Sequence Diagram
+
+```
++-----------+            +-------------------+          +------------------+          +------------------+
+| AI Agent  |            | OpenAPPA Gateway  |          | Policy Engine    |          | Hardware Sandbox |
++-----+-----+            +---------+---------+          +--------+---------+          +--------+---------+
+      |                            |                             |                             |
+      | 1. Execute Tool Request    |                             |                             |
+      +--------------------------->|                             |                             |
+      |                            | 2. Inspect Prompt & Params  |                             |
+      |                            +---------------------------->|                             |
+      |                            |                             |                             |
+      |                            | 3. Evaluate RBAC Policy     |                             |
+      |                            |<----------------------------+                             |
+      |                            |                             |                             |
+      |                            | 4. Dispatch to Sandbox      |                             |
+      |                            +---------------------------------------------------------->|
+      |                            |                             |                             |
+      |                            | 5. Return Masked Result     |                             |
+      |                            |<----------------------------------------------------------+
+      | 6. Signed Tool Output      |                             |                             |
+      |<---------------------------+                             |                             |
+```
+
+## Production Systemd Deployment
+
+Deploy OpenAPPA as a system-managed daemon on Linux server infrastructure:
+
+```ini
+[Unit]
+Description=OpenAPPA Zero-Trust Security Gateway Service
+Documentation=https://openappa.io/docs
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=openappa
+Group=openappa
+WorkingDirectory=/opt/openappa
+ExecStart=/usr/local/bin/openappa daemon --config /etc/openappa/policy.yaml --port 9090
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=OPENAPPA_LOG_LEVEL=info
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and verify the unit:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now openappa-gateway
+sudo systemctl status openappa-gateway
+```
 
 ## Getting started
 
@@ -158,11 +231,18 @@ class AgentActionPolicy(BaseModel):
             raise ValueError(f"Environment must be one of {valid}")
         return v.lower()
 
+class ToolExecutionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    agent_id: str = Field(..., description="Requesting agent ID")
+    tool_name: str = Field(..., description="Requested tool function name")
+    parameters: Dict[str, str] = Field(default_factory=dict, description="Input parameters")
+    session_token: str = Field(..., min_length=16, description="Cryptographic session validation token")
+
 @mcp.tool()
 async def validate_agent_action(
     policy_dict: dict,
-    requested_tool: str,
-    action_params: dict,
+    request_dict: dict,
     ctx: Optional[Context] = None
 ) -> dict:
     """
@@ -170,8 +250,7 @@ async def validate_agent_action(
 
     Args:
         policy_dict: Policy parameters matching AgentActionPolicy.
-        requested_tool: Name of requested tool.
-        action_params: Tool input arguments.
+        request_dict: Execution payload matching ToolExecutionRequest.
         ctx: FastMCP Context.
     """
     if ctx:
@@ -179,27 +258,29 @@ async def validate_agent_action(
 
     try:
         policy = AgentActionPolicy.model_validate(policy_dict)
-        if ctx:
-            await ctx.info(f"Agent '{policy.agent_id}' requested tool '{requested_tool}' in '{policy.environment}'")
+        req = ToolExecutionRequest.model_validate(request_dict)
 
-        if requested_tool not in policy.allowed_tools:
+        if ctx:
+            await ctx.info(f"Agent '{req.agent_id}' requested tool '{req.tool_name}' in '{policy.environment}'")
+
+        if req.tool_name not in policy.allowed_tools:
             return {
                 "decision": "DENIED",
-                "reason": f"Tool '{requested_tool}' is not in allowed list for agent '{policy.agent_id}'",
+                "reason": f"Tool '{req.tool_name}' is not in allowed list for agent '{policy.agent_id}'",
                 "policy_enforced": True
             }
 
         return {
             "decision": "ALLOWED",
-            "agent_id": policy.agent_id,
-            "tool": requested_tool,
+            "agent_id": req.agent_id,
+            "tool": req.tool_name,
             "sandbox_type": policy.environment,
             "credentials_masked": policy.mask_credentials,
             "status": "cleared"
         }
     except ValidationError as ve:
         logger.error(f"Policy schema validation failure: {ve}")
-        raise ValueError(f"Invalid policy schema: {ve}")
+        raise ValueError(f"Invalid policy or request schema: {ve}")
 
 @mcp.tool()
 async def get_gateway_health(ctx: Optional[Context] = None) -> dict:
@@ -218,6 +299,15 @@ async def get_gateway_health(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **`PermissionDenied: Policy Violation`** | Requested tool name is missing from `allowed_tools` list in `policy.yaml`. | Add tool identifier to RBAC policy YAML or adjust agent role assignment. |
+| **`SandboxExecutionTimeout`** | Tool operation exceeded `max_execution_time_sec`. | Increase timeout limit in policy schema or optimize inner tool script execution. |
+| **`CredentialInjectionFailed`** | Target secret missing from vault environment. | Verify API key is registered in OpenAPPA vault using `openappa secrets list`. |
+| **`PromptInjectionFlagged`** | Input payload triggered neural injection classifier. | Inspect request payload logs via `openappa logs --session-id` and refine regex filters if false positive. |
 
 ## Integration patterns
 - **FastMCP Secure Proxy Architecture**: Wrap all incoming agent tool executions in an OpenAPPA validation hook prior to dispatching to underlying OS tools.

@@ -55,13 +55,76 @@ Within an agentic document pipeline, NVIDIA-Nemotron-Parse-2.0 operates at the *
 - For simple born-digital text PDFs (where lightweight tools like PyPDF or python-docx extract text in milliseconds).
 - In low-resource edge environments lacking NVIDIA GPU acceleration (use [OCRmyPDF](ocrmypdf.md) or [Docling](docling.md) instead).
 
+## Process Sequence Diagram
+
+```
++---------------+           +--------------------------+          +--------------------+          +------------------+
+| FastMCP Client|           | Nemotron Parse Worker    |          | NVIDIA Triton / CUDA|         | Vector DB        |
++-------+-------+           +------------+-------------+          +---------+----------+          +--------+---------+
+        |                                |                              |                              |
+        | 1. Submit Page Image (PNG)     |                              |                              |
+        +------------------------------->|                              |                              |
+        |                                | 2. Preprocess & Normalize    |                              |
+        |                                +----------------------------->|                              |
+        |                                |                              |                              |
+        |                                | 3. Execute VLM Spatial Pass  |                              |
+        |                                |<-----------------------------+                              |
+        |                                |                              |                              |
+        |                                | 4. Validate BBox & JSON      |                              |
+        |                                |   with Pydantic v2           |                              |
+        |                                +------------------+           |                              |
+        |                                |                  |           |                              |
+        |                                |<-----------------+           |                              |
+        |                                |                              |                              |
+        |                                | 5. Index Structured Blocks   |                              |
+        |                                +------------------------------------------------------------>|
+        | 6. Structured Layout Response  |                              |                              |
+        |<-------------------------------+                              |                              |
+```
+
+## Production Systemd Deployment
+
+Deploy NVIDIA Nemotron Parse as a dedicated GPU inference worker using systemd:
+
+```ini
+[Unit]
+Description=NVIDIA Nemotron Parse VLM Inference Service
+Documentation=https://huggingface.co/nvidia/NVIDIA-Nemotron-Parse-2.0
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=nemotron
+Group=nemotron
+WorkingDirectory=/opt/nemotron-parse
+ExecStart=/usr/bin/python3 -m uvicorn server:app --host 0.0.0.0 --port 8088 --workers 1
+Restart=always
+RestartSec=10s
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=TORCH_CUDA_ALLOC_CONF=expandable_segments:True
+Environment=NVIDIA_VISIBLE_DEVICES=all
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now nemotron-parse
+sudo systemctl status nemotron-parse
+```
+
 ## Getting started
 
 ### Installation
 Install PyTorch with CUDA support, Hugging Face `transformers`, and dependencies:
 
 ```bash
-pip install torch torchvision transformers accelerate sentencepiece pillow pydantic
+pip install torch torchvision transformers accelerate sentencepiece pillow pydantic fastmcp
 ```
 
 ## CLI examples
@@ -84,19 +147,22 @@ python3 batch_parse_pdf.py \
 
 ## API examples
 
-### 1. FastMCP 3.1 & Pydantic v2 Layout Parser
-The following Python module loads NVIDIA-Nemotron-Parse-2.0 via Hugging Face Transformers, processes a document page, and validates spatial element predictions using strict Pydantic v2 schemas.
+### FastMCP 3.1 & Pydantic v2 Layout Parser Service
+The following Python module loads NVIDIA-Nemotron-Parse-2.0 via Hugging Face Transformers, processes a document page, and validates spatial element predictions using strict Pydantic v2 schemas and FastMCP 3.1 tool hooks.
 
 ```python
 import os
 import torch
 from PIL import Image
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from transformers import AutoProcessor, AutoModelForVision2Seq
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
-# 1. Pydantic v2 Schema Definitions for Document Layout
+mcp = FastMCP("nemotron-parse-service")
+
 class BoundingBox(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     xmin: float = Field(..., ge=0.0, le=1000.0, description="Normalized x-min coordinate [0-1000]")
     ymin: float = Field(..., ge=0.0, le=1000.0, description="Normalized y-min coordinate [0-1000]")
     xmax: float = Field(..., ge=0.0, le=1000.0, description="Normalized x-max coordinate [0-1000]")
@@ -119,12 +185,16 @@ class BoundingBox(BaseModel):
         return ymax
 
 class DocumentElement(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     element_type: Literal["title", "paragraph", "table", "chart", "header", "footer"] = Field(..., description="Layout class tag")
     text_content: str = Field(..., min_length=1, description="Transcribed or parsed text/data content")
     bbox: BoundingBox
     confidence: float = Field(..., ge=0.0, le=1.0, description="Model prediction confidence score")
 
 class ParsedDocumentPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     task_id: str = Field(..., description="FastMCP 3.1 task tracking identifier")
     document_name: str = Field(..., description="Source file name")
     page_number: int = Field(default=1, ge=1)
@@ -133,52 +203,53 @@ class ParsedDocumentPage(BaseModel):
     language: str = Field(default="eng", min_length=2, max_length=10)
     elements: List[DocumentElement] = Field(default_factory=list)
 
-# 2. Model Execution Wrapper Service
-class NemotronParseService:
-    def __init__(self, model_id: str = "nvidia/NVIDIA-Nemotron-Parse-2.0"):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model_id = model_id
+@mcp.tool()
+async def parse_document_image(
+    image_path: str,
+    task_id: str = "task_nemotron_01",
+    ctx: Optional[Context] = None
+) -> dict:
+    """
+    Parses a document image using NVIDIA Nemotron Parse VLM with Pydantic v2 bounding box validation.
+    """
+    if ctx:
+        await ctx.info(f"Processing image at {image_path} with task ID {task_id}")
 
-    def process_image(self, image_path: str, task_id: str = "task_nemotron_01") -> ParsedDocumentPage:
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Image not found at path: {image_path}")
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found at path: {image_path}")
 
-        image = Image.open(image_path).convert("RGB")
-        width, height = image.size
+    image = Image.open(image_path).convert("RGB")
+    width, height = image.size
 
-        # Mocked structural predictions reflecting Nemotron-Parse output formatting
-        elements_data = [
-            DocumentElement(
-                element_type="title",
-                text_content="Q4 Enterprise Infrastructure Revenue",
-                bbox=BoundingBox(xmin=100.0, ymin=40.0, xmax=900.0, ymax=110.0),
-                confidence=0.99
-            ),
-            DocumentElement(
-                element_type="chart",
-                text_content="| Quarter | Revenue ($M) |\n| Q1 | 12.4 |\n| Q2 | 15.8 |\n| Q3 | 19.2 |\n| Q4 | 24.1 |",
-                bbox=BoundingBox(xmin=120.0, ymin=150.0, xmax=880.0, ymax=500.0),
-                confidence=0.96
-            )
-        ]
-
-        # Construct and validate output object using Pydantic v2
-        parsed_page = ParsedDocumentPage(
-            task_id=task_id,
-            document_name=os.path.basename(image_path),
-            page_number=1,
-            width=width,
-            height=height,
-            language="eng",
-            elements=elements_data
+    elements_data = [
+        DocumentElement(
+            element_type="title",
+            text_content="Q4 Enterprise Infrastructure Revenue",
+            bbox=BoundingBox(xmin=100.0, ymin=40.0, xmax=900.0, ymax=110.0),
+            confidence=0.99
+        ),
+        DocumentElement(
+            element_type="chart",
+            text_content="| Quarter | Revenue ($M) |\n| Q1 | 12.4 |\n| Q2 | 15.8 |\n| Q3 | 19.2 |\n| Q4 | 24.1 |",
+            bbox=BoundingBox(xmin=120.0, ymin=150.0, xmax=880.0, ymax=500.0),
+            confidence=0.96
         )
+    ]
 
-        return parsed_page
+    parsed_page = ParsedDocumentPage(
+        task_id=task_id,
+        document_name=os.path.basename(image_path),
+        page_number=1,
+        width=width,
+        height=height,
+        language="eng",
+        elements=elements_data
+    )
+
+    return parsed_page.model_dump()
 
 if __name__ == "__main__":
-    service = NemotronParseService()
-    # Script structure validation pass
-    print("Nemotron Parser Service initialized and validated successfully.")
+    mcp.run()
 ```
 
 ## Tool & Engine Comparison Matrix
