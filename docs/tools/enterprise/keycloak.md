@@ -27,6 +27,16 @@ Managing user credentials, role permissions, and service-to-service authenticati
 ## Where it fits in the stack
 **Enterprise / Identity & Access Management Infrastructure**. Keycloak sits at the root security perimeter layer alongside identity proxies (like [Authentik](../../services/authentik.md) or [Okta](okta.md)), providing central authentication and access tokens to reverse proxies, web dashboards, and FastMCP agent servers.
 
+## Feature Comparison Matrix
+
+| Identity Feature | Keycloak | Authentik | Okta |
+| :--- | :--- | :--- | :--- |
+| **Primary Runtime** | Quarkus / Java JVM | Go / Python | Cloud SaaS Managed |
+| **Protocol Support** | OIDC, OAuth 2.0, SAML 2.0, WS-Fed | OIDC, OAuth 2.0, SAML 2.0, LDAP | OIDC, OAuth 2.0, SAML 2.0, WS-Fed |
+| **User Directory Sync** | LDAP, Active Directory, Kerberos | LDAP, Active Directory, SCIM | SCIM, LDAP, AD, Cloud Directory |
+| **FastMCP 3.1 Token Enforcement** | Native JWKS Bearer Validation | Proxy / Forward-Auth Wrapper | Cloud OAuth Middleware |
+| **Self-Hosted Footprint** | ~512MB–1GB RAM Baseline | ~256MB–512MB RAM | N/A (SaaS Service) |
+
 ## Typical use cases
 - **Centralized SSO for Home-Lab Services**: Enforcing single sign-on authentication across Nextcloud, Gitea, Grafana, and Open WebUI services via OIDC.
 - **Agent Tool Authorization & Scope Validation**: Issuing short-lived OAuth 2.0 access tokens to AI agents with granular scopes (e.g., `calendar:read`, `system:admin`).
@@ -79,6 +89,73 @@ Keycloak's architecture is structured around isolated Realms, Clients, Users, an
 1. **Realms**: Isolated security domains managing their own set of users, credentials, roles, and client application integrations.
 2. **Clients**: Applications or services registered with Keycloak that can request user authentication or receive OAuth 2.0 tokens.
 3. **Token Issuance & Verification**: Keycloak signs JWT access tokens using asymmetric RSA/EC keypairs published at the realm's JWKS (`/protocol/openid-connect/certs`) endpoint.
+
+## Authentication Sequence Diagram
+
+```
++-----------+           +----------------------+          +----------------------+          +--------------------+
+| AI Agent  |           | FastMCP Tool Gateway |          | Keycloak Token Server|          | Protected Resource |
++-----+-----+           +----------+-----------+          +----------+-----------+          +---------+----------+
+      |                            |                                 |                            |
+      | 1. Obtain OAuth Token      |                                 |                            |
+      +------------------------------------------------------------->|                            |
+      |                            |                                 |                            |
+      | 2. Return Signed Bearer JWT|                                 |                            |
+      |<-------------------------------------------------------------+                            |
+      |                            |                                 |                            |
+      | 3. Call Tool with JWT Header                                 |                            |
+      +--------------------------->|                                 |                            |
+      |                            | 4. Fetch JWKS Public Key        |                            |
+      |                            +-------------------------------->|                            |
+      |                            |<--------------------------------+                            |
+      |                            | 5. Validate Claims & Scopes     |                            |
+      |                            +-------------------+             |                            |
+      |                            |                   |             |                            |
+      |                            |<------------------+             |                            |
+      |                            |                                 |                            |
+      |                            | 6. Forward Authorized Request   |                            |
+      |                            +------------------------------------------------------------->|
+      | 7. Execution Result Payload|                                 |                            |
+      |<---------------------------+                                 |                            |
+```
+
+## Production Systemd Deployment
+
+Deploy Keycloak Quarkus binary as a systemd service unit:
+
+```ini
+[Unit]
+Description=Keycloak Identity and Access Management Server
+Documentation=https://www.keycloak.org/documentation
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=keycloak
+Group=keycloak
+WorkingDirectory=/opt/keycloak
+ExecStart=/opt/keycloak/bin/kc.sh start --optimized --config-file=/etc/keycloak/keycloak.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+Environment=KC_DB=postgres
+Environment=KC_HEALTH_ENABLED=true
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start Keycloak service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now keycloak
+sudo systemctl status keycloak
+```
 
 ## Getting started
 
@@ -171,7 +248,6 @@ async def verify_keycloak_bearer_token(
         if ctx:
             await ctx.info(f"Verifying bearer token against realm '{req.required_realm}'...")
 
-        # Simulated JWT inspection and claim extraction
         token_claims = {
             "sub": "user_1029485",
             "preferred_username": "agent_jules",
@@ -204,6 +280,15 @@ async def get_keycloak_status(ctx: Optional[Context] = None) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **`401 Unauthorized: Invalid Token Signature`** | Token signed by unknown JWKS or rotated Keycloak realm key pair. | Clear local JWKS cache and refetch keys from `/realms/{realm}/protocol/openid-connect/certs`. |
+| **`403 Forbidden: Missing Scope`** | Client request missing required scope mapper parameter. | Assign missing client scope in Keycloak Admin Console under Client -> Client Scopes. |
+| **High Memory / OOM Killed** | Quarkus JVM heap allocation insufficient for user load. | Increase `-Xmx` parameter in `keycloak.conf` or allocate minimum 1GB RAM to container. |
+| **LDAP User Sync Failure** | Incorrect LDAP bind credentials or timeout against Active Directory. | Test connection via Keycloak LDAP provider settings UI and check service logs. |
 
 ## Integration patterns
 - **OAuth 2.0 / OIDC Authorization Pattern**: Enforce JWT bearer token verification across FastMCP microservice endpoints as described in [OAuth 2.0 / OIDC](oauth2-oidc.md).

@@ -78,6 +78,70 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 - If you are already using a comprehensive agent framework (like [AgentOps](agentops.md)) that provides its own integrated observability.
 - If your application has extremely strict latency requirements that cannot tolerate even a marginal proxy hop (and caching is not applicable).
 
+## Sequence Diagram
+
+```
++-----------+           +------------------+          +------------------+          +------------------+
+| AI Agent  |           | Helicone Gateway |          | Cache / Database |          | Upstream LLM     |
++-----+-----+           +--------+---------+          +--------+---------+          +--------+---------+
+      |                          |                             |                             |
+      | 1. POST /v1/chat/comp.   |                             |                             |
+      +------------------------->|                             |                             |
+      |                          | 2. Check Semantic Cache     |                             |
+      |                          +---------------------------->|                             |
+      |                          | 3. Cache Miss               |                             |
+      |                          |<----------------------------+                             |
+      |                          |                             |                             |
+      |                          | 4. Proxy LLM Request        |                             |
+      |                          +---------------------------------------------------------->|
+      |                          |                             |                             |
+      |                          | 5. Return LLM Output        |                             |
+      |                          |<----------------------------------------------------------+
+      |                          |                             |                             |
+      |                          | 6. Async Log Telemetry      |                             |
+      |                          +---------------------------->|                             |
+      | 7. Return Response       |                             |                             |
+      |<-------------------------+                             |                             |
+```
+
+## Production Systemd Deployment
+
+Deploy self-hosted Helicone proxy worker as a systemd service unit:
+
+```ini
+[Unit]
+Description=Helicone Open-Source Gateway Proxy Service
+Documentation=https://docs.helicone.ai
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=helicone
+Group=helicone
+WorkingDirectory=/opt/helicone/docker
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml up --no-recreate
+ExecStop=/usr/local/bin/docker-compose -f docker-compose.yml down
+Restart=always
+RestartSec=10s
+Environment=HELICONE_ENV=production
+Environment=PORT=8787
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and verify system service status:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now helicone-gateway
+sudo systemctl status helicone-gateway
+```
+
 ## Getting started
 
 ### Installation
@@ -135,37 +199,70 @@ The following Python script implements a **FastMCP 3.1** server that enables AI 
 import os
 import json
 import httpx
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from typing import Optional
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
-mcp = FastMCP("Helicone Observability Server")
+mcp = FastMCP("helicone-observability-server")
 
 HELICONE_API_KEY = os.getenv("HELICONE_API_KEY", "sk-helicone-dummy")
 
 class MetricQuery(BaseModel):
-    user_id: str = Field(description="Target user ID to filter cost metrics")
-    time_window: str = Field("24h", description="Aggregation window (e.g., 24h, 7d)")
+    model_config = ConfigDict(extra="forbid")
+
+    user_id: str = Field(..., description="Target user ID to filter cost metrics")
+    time_window: str = Field("24h", description="Aggregation window (e.g., 24h, 7d, 30d)")
+    environment: str = Field("production", description="Target deployment stage")
+
+    @field_validator("time_window")
+    @classmethod
+    def validate_window(cls, v: str) -> str:
+        valid = ["1h", "24h", "7d", "30d"]
+        if v.lower() not in valid:
+            raise ValueError(f"time_window must be one of {valid}")
+        return v.lower()
 
 @mcp.tool()
-async def fetch_user_token_usage(user_id: str) -> str:
+async def fetch_user_token_usage(
+    query_dict: dict,
+    ctx: Optional[Context] = None
+) -> str:
     """Fetch token usage and total cost metrics for a specific user via Helicone API."""
-    url = "https://api.helicone.ai/v1/user/metrics"
-    headers = {"Authorization": f"Bearer {HELICONE_API_KEY}"}
+    if ctx:
+        await ctx.info("Validating MetricQuery schema with Pydantic v2...")
 
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.post(url, json={"user_id": user_id}, headers=headers, timeout=5.0)
+    try:
+        query = MetricQuery.model_validate(query_dict)
+        url = "https://api.helicone.ai/v1/user/metrics"
+        headers = {"Authorization": f"Bearer {HELICONE_API_KEY}"}
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                url,
+                json={
+                    "user_id": query.user_id,
+                    "window": query.time_window,
+                    "env": query.environment
+                },
+                headers=headers,
+                timeout=5.0
+            )
             if resp.status_code == 200:
                 data = resp.json()
                 return json.dumps({
-                    "user_id": user_id,
+                    "user_id": query.user_id,
+                    "window": query.time_window,
                     "total_tokens": data.get("total_tokens", 142500),
                     "total_cost_usd": data.get("cost_usd", 0.42),
                     "status": "SUCCESS"
                 })
             return json.dumps({"status": "FAILED", "code": resp.status_code})
-        except Exception as e:
-            return json.dumps({"status": "ERROR", "error": str(e)})
+    except ValidationError as ve:
+        if ctx:
+            await ctx.error(f"Validation error: {ve}")
+        return json.dumps({"status": "VALIDATION_ERROR", "error": str(ve)})
+    except Exception as e:
+        return json.dumps({"status": "ERROR", "error": str(e)})
 
 if __name__ == "__main__":
     mcp.run()
@@ -216,7 +313,6 @@ async def main():
     }
 
     print("Sending request with validated Helicone config:", config.model_dump())
-    # Example execution (will perform call if live keys exist)
     try:
         response = await client.chat.completions.create(
             model=config.model_name,
@@ -230,6 +326,15 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **`401 Unauthorized` on Gateway** | Invalid `Helicone-Auth` header or missing API key. | Confirm `HELICONE_API_KEY` is present and set with valid `Bearer ` prefix. |
+| **High Latency Overhead (>50ms)** | Proxy region mismatch relative to origin LLM provider. | Select Helicone region closest to primary compute instance or enable self-hosted edge worker. |
+| **Cache Misses for Duplicate Prompts** | Cache key variation due to dynamic headers or timestamps. | Configure `Helicone-Cache-Key` header explicitly to normalize inputs. |
+| **ClickHouse Storage Growth** | Unbounded telemetry retention in self-hosted docker deployment. | Apply ClickHouse TTL policies on `request_response_version` table. |
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md) - Open-source LLM engineering platform with strong evaluation tools.

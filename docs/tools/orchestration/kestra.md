@@ -68,6 +68,69 @@ Kestra bridges the gap between infrastructure automation and data orchestration.
 - If your team strictly requires a code-only (e.g., pure Python) orchestration library without a central server.
 - For simple, isolated scripts where the overhead of a platform isn't justified.
 
+## Workflow Sequence Diagram
+
+```
++---------------+           +--------------------+          +--------------------+          +--------------------+
+| Event / Agent |           | Kestra Server UI   |          | Task Executor Pool |          | FastMCP 3.1 Server |
++-------+-------+           +---------+----------+          +---------+----------+          +---------+----------+
+        |                             |                               |                               |
+        | 1. Trigger Flow Execution   |                               |                               |
+        +---------------------------->|                               |                               |
+        |                             | 2. Parse YAML & Evaluate DAG  |                               |
+        |                             +------------------+            |                               |
+        |                             |                  |            |                               |
+        |                             |<-----------------+            |                               |
+        |                             |                               |                               |
+        |                             | 3. Dispatch Task Payload      |                               |
+        |                             +------------------------------>|                               |
+        |                             |                               | 4. Invoke MCP Agent Tool Call |
+        |                             |                               +------------------------------>|
+        |                             |                               |                               |
+        |                             |                               | 5. Tool Output Payload        |
+        |                             |                               |<------------------------------+
+        |                             | 6. Flow State Success/Log     |                               |
+        |                             |<------------------------------+                               |
+        | 7. Execution Finished API   |                               |                               |
+        |<----------------------------+                               |                               |
+```
+
+## Production Systemd Deployment
+
+Deploy Kestra as a systemd managed background daemon on Linux hosts:
+
+```ini
+[Unit]
+Description=Kestra Declarative Workflow Server
+Documentation=https://kestra.io/docs
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=kestra
+Group=kestra
+WorkingDirectory=/opt/kestra
+ExecStart=/usr/bin/java -Dkestra.configuration=/etc/kestra/application.yml -jar /opt/kestra/kestra-server.jar server standalone
+Restart=always
+RestartSec=10s
+Environment=KESTRA_CONFIGURATION=/etc/kestra/application.yml
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload and activate service daemon:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now kestra
+sudo systemctl status kestra
+```
+
 ## Getting started
 
 ### Docker Compose
@@ -117,33 +180,49 @@ kestra flow list dev
 Kestra provides a REST API for programmatic interaction.
 
 ### FastMCP 3.1 Kestra Flow Orchestrator Tool Server
-The Python snippet below implements a **FastMCP 3.1** tool server that exposes Kestra flow execution and status tracking endpoints directly to AI agents:
+The Python snippet below implements a **FastMCP 3.1** tool server that exposes Kestra flow execution and status tracking endpoints directly to AI agents with strict **Pydantic v2** parameters:
 
 ```python
 import os
 import json
 import httpx
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from typing import Optional
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
 
-mcp = FastMCP("Kestra Workflow Orchestrator")
+mcp = FastMCP("kestra-workflow-orchestrator")
 
 KESTRA_API_URL = os.getenv("KESTRA_API_URL", "http://127.0.0.1:8080/api/v1")
 
 class ExecutionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     namespace: str = Field("dev", description="Target Kestra namespace")
-    flow_id: str = Field(description="Target flow identifier")
+    flow_id: str = Field(..., description="Target flow identifier")
     inputs: dict = Field(default_factory=dict, description="Execution input parameters")
 
-@mcp.tool()
-async def trigger_kestra_workflow(namespace: str, flow_id: str, payload_json: str = "{}") -> str:
-    """Trigger a Kestra declarative flow execution programmatically."""
-    inputs = json.loads(payload_json)
-    url = f"{KESTRA_API_URL}/executions/{namespace}/{flow_id}"
+    @field_validator("flow_id")
+    @classmethod
+    def validate_flow_id(cls, v: str) -> str:
+        if not v.isidentifier():
+            raise ValueError("flow_id must be a valid alphanumeric identifier")
+        return v
 
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.post(url, json=inputs, timeout=5.0)
+@mcp.tool()
+async def trigger_kestra_workflow(
+    request_dict: dict,
+    ctx: Optional[Context] = None
+) -> str:
+    """Trigger a Kestra declarative flow execution programmatically."""
+    if ctx:
+        await ctx.info("Validating ExecutionRequest schema with Pydantic v2...")
+
+    try:
+        req = ExecutionRequest.model_validate(request_dict)
+        url = f"{KESTRA_API_URL}/executions/{req.namespace}/{req.flow_id}"
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, json=req.inputs, timeout=5.0)
             if resp.status_code in (200, 201):
                 data = resp.json()
                 return json.dumps({
@@ -152,21 +231,15 @@ async def trigger_kestra_workflow(namespace: str, flow_id: str, payload_json: st
                     "status": "SUCCESS"
                 })
             return json.dumps({"status": "FAILED", "code": resp.status_code, "text": resp.text})
-        except Exception as e:
-            return json.dumps({"status": "ERROR", "error": str(e)})
+    except ValidationError as ve:
+        if ctx:
+            await ctx.error(f"Validation error: {ve}")
+        return json.dumps({"status": "VALIDATION_ERROR", "error": str(ve)})
+    except Exception as e:
+        return json.dumps({"status": "ERROR", "error": str(e)})
 
 if __name__ == "__main__":
     mcp.run()
-```
-
-```bash
-# Trigger a flow via curl
-curl -X POST "http://localhost:8080/api/v1/executions/dev/hello_world" \
-     -H "Content-Type: application/json" \
-     -d '{"parameters": {"env": "prod"}}'
-
-# Fetch logs for a specific execution
-curl -X GET "http://localhost:8080/api/v1/logs/EXECUTION_ID"
 ```
 
 ### Flow Validation with Strict Pydantic v2 Schema
@@ -226,6 +299,15 @@ try:
 except ValidationError as e:
     print(f"Validation failed with errors: {e.json()}")
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **`FlowNotFoundException`** | Flow ID or namespace mismatch in execution request. | Verify flow exists using `kestra flow list <namespace>` via CLI or UI. |
+| **`ScriptRunnerException`** | Docker or Python script task failed due to missing binary or image. | Confirm task container image has pre-installed runtime dependencies. |
+| **Database Connection Failure** | PostgreSQL backend unreachable or connection pool exhausted. | Increase `kestra.jdbc.postgres.maximum-pool-size` in `/etc/kestra/application.yml`. |
+| **FastMCP Tool Timeout** | Agentic task exceeded execution timeout limit. | Set `timeout` parameter explicitly on the task in Kestra YAML flow schema. |
 
 ## Related tools / concepts
 - [Apache Airflow](apache-airflow.md) — The Python-based alternative.
