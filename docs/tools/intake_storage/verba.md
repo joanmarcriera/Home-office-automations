@@ -67,6 +67,32 @@ Verba addresses these engineering challenges by providing:
 - When you require a non-Weaviate vector store (e.g., Pinecone, LanceDB, or pgvector) as your core database backend.
 - When building a simple, flat text-search tool where basic BM25 search without vector embeddings is sufficient.
 
+## Systemd Service Configuration
+For Linux servers and production homelabs running native Python environments without Docker, Verba can be managed as a systemd background daemon:
+
+```ini
+[Unit]
+Description=Verba RAG Knowledge Engine Service
+After=network.target weaviate.service
+Wants=weaviate.service
+
+[Service]
+Type=simple
+User=verba
+Group=verba
+WorkingDirectory=/opt/verba
+Environment="PATH=/opt/verba/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+Environment="WEAVIATE_URL_VERBA=http://127.0.0.1:8080"
+Environment="OPENAI_API_KEY=sk-proj-xxxxxxxx"
+ExecStart=/opt/verba/venv/bin/verba start --port 8000 --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Installation via PyPI
@@ -151,6 +177,9 @@ import json
 import requests
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("VerbaRAGKnowledgeServer")
 
 # 1. Pydantic V2 Models for Request & Response Verification
 class VerbaSearchFilter(BaseModel):
@@ -177,15 +206,14 @@ class VerbaRAGResponse(BaseModel):
     model_used: str
 
 # 2. FastMCP 3.1 Agent Tool Execution
+@mcp.tool()
 def execute_verba_rag_query(raw_json_input: str) -> str:
     """FastMCP 3.1 tool handler for querying local Verba RAG instance."""
     try:
         # Validate input schema via Pydantic V2
         query_input = VerbaQueryPayload.model_validate_json(raw_json_input)
-        print(f"Querying Verba RAG: '{query_input.query}' (Alpha: {query_input.hybrid_alpha})...")
 
         # Mock API invocation targeting Verba backend endpoint
-        # Real call: response = requests.post("http://localhost:8000/api/query", json=query_input.model_dump())
         mock_response = VerbaRAGResponse(
             query=query_input.query,
             answer="To configure OIDC authentication in Traefik, update the middleware YAML definition with your issuer URL and client ID.",
@@ -207,21 +235,17 @@ def execute_verba_rag_query(raw_json_input: str) -> str:
         return json.dumps({"error": f"Verba RAG query failed: {str(e)}"})
 
 if __name__ == "__main__":
-    sample_agent_request = """
-    {
-        "query": "How do I configure Traefik OIDC middleware?",
-        "top_k": 3,
-        "hybrid_alpha": 0.8,
-        "filters": {
-            "document_type": "markdown",
-            "tags": ["traefik", "oidc", "security"]
-        }
-    }
-    """
-    result_json = execute_verba_rag_query(sample_agent_request)
-    print("\n=== FastMCP 3.1 Verba RAG Response ===")
-    print(result_json)
+    mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Weaviate Connection Refused** | Weaviate container or service is down or binding to wrong port | `curl -v http://localhost:8080/v1/.well-known/ready` | Verify Weaviate container is healthy (`docker ps`) and `WEAVIATE_URL_VERBA` environment variable is set. |
+| **Empty Search Results** | Embedding dimension mismatch between ingested vector index and query model | `verba status` / check Weaviate logs for dimension errors | Ensure the active embedder model (e.g. MiniLM vs. OpenAI text-embedding-3) matches the index embedder used during document import. |
+| **High Memory Usage / OOM** | Large PDF files overloading in-memory reader parser | `dmesg -T \| grep -i oom` or `docker stats verba` | Increase container RAM limits or pre-split multi-hundred-page PDFs prior to batch import. |
+| **FastMCP 3.1 Validation Error** | Malformed JSON input or missing required `query` string | Check FastMCP stderr or inspect Pydantic `ValidationError` trace | Ensure query JSON payload contains valid string with `min_length >= 3`. |
 
 ## Related tools / concepts
 - [Weaviate](../infrastructure/weaviate.md) — Vector database powering Verba.
