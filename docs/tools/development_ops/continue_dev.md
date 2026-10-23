@@ -23,6 +23,16 @@ Continue solves the problem of vendor lock-in by providing a flexible, open-sour
 - **Tab Autocomplete with Specialized Small Models**: High-speed, sub-50ms code completion powered by specialized small language models like StarCoder2, DeepSeek-Coder, or Qwen 2.5-Coder.
 - **Fine-Grained Telemetry & Privacy Controls**: Complete control over token logging, local privacy filtering, and enterprise audit trails without forced remote analytics.
 
+## Feature Matrix & Comparison
+
+| Capability / Feature | Continue.dev | Cursor IDE | GitHub Copilot | Claude Code |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Interface** | Extension (VS Code / JetBrains) | Forked VS Code IDE | Extension (VS Code / JetBrains) | Terminal CLI Daemon |
+| **Model Agnosticism** | 100% Open (Local + 20+ APIs) | Proprietary Router + Major APIs | Closed (Microsoft / OpenAI) | Anthropic Claude API |
+| **FastMCP 3.1 Support** | Native Context Providers & Tools | Native MCP Support | Basic MCP Beta | Native System MCP |
+| **Codebase Indexing** | Local LanceDB / AST Vectors | Server-side / Local RAG | Remote Indexing | Local Context Search |
+| **Privacy / Self-Hosting** | Fully Offline / On-Prem | Partial Offline Support | Cloud Required | Cloud Required |
+
 ## Architecture & Internal Mechanics
 
 The core architecture of Continue separates the IDE extension host, the background indexing daemon, the FastMCP 3.1 Context Engine, and the unified model routing layer.
@@ -251,6 +261,50 @@ print(f"First model title: {parsed_config.models[0].title}")
 print(f"Custom command registered: {parsed_config.custom_commands[0].name}")
 ```
 
+## Systemd Service Unit Configuration
+
+Save the following unit file to `/etc/systemd/system/continue-mcp-context.service` to deploy the FastMCP context server for Continue:
+
+```ini
+[Unit]
+Description=Continue.dev FastMCP 3.1 Context Server
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=continue
+Group=continue
+WorkingDirectory=/opt/continue-context-server
+ExecStart=/opt/continue-context-server/venv/bin/python3 -m fastmcp run server.py --port 8095
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now continue-mcp-context.service
+sudo systemctl status continue-mcp-context.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| Autocomplete latency exceeding 200ms | Remote LLM provider used instead of local small model | Configure `provider: "ollama"` with `qwen2.5-coder:1.5b` or `starcoder2:3b`. |
+| Context provider connection timeout | FastMCP server port blocked or daemon offline | Check status of `continue-mcp-context.service` and verify port 8095 accessibility. |
+| AST Codebase index build hanging | Large binary files or node_modules indexed | Add `.continueignore` file specifying heavy directories (`node_modules/`, `dist/`, `.venv/`). |
+| Invalid API key error in IDE sidebar | Missing environment variable interpolation | Export `ANTHROPIC_API_KEY` in environment or specify directly in local `config.json`. |
+
 ## Enterprise & Production Best Practices
 - **Shared Team Configurations**: Check in a standardized `.continue/config.json` into project root directories to enforce identical model routing, context providers, and prompt conventions across developer workstations.
 - **Isolated Local Indexing**: For confidential enterprise repositories, host a central LanceDB/FastMCP 3.1 context server internally to eliminate duplicate AST indexing overhead on individual developer laptops.
@@ -275,6 +329,7 @@ print(f"Custom command registered: {parsed_config.custom_commands[0].name}")
 - [Continue GitHub Repository](https://github.com/continuedev/continue)
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

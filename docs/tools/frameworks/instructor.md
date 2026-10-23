@@ -38,6 +38,30 @@ Instructor is a multi-language library (Python, TypeScript, Go, Ruby, Rust) desi
                         +--------------------+      +----------------------------+
 ```
 
+### Self-Correction Validation & Retry Sequence
+
+```
+[FastMCP Client] --------> (1) Execute Extraction Tool Request --------> [Instructor Client Engine]
+                                                                                |
+                                                                                v
+                                                                 (2) Generate Structured Response
+                                                                                |
+                                                                                v
+                                                                 (3) Pydantic v2 Field Validation
+                                                                                |
+                                         +--------------------------------------+
+                                         |
+                       [Validation Failure / Retry]
+                                         |
+                                         v
+[Instructor Client Engine] <--- (4) Send Error Traceback back to Model
+                                         |
+                       [Validation Pass / Success]
+                                         |
+                                         v
+[FastMCP Client] <-------- (5) Return Validated Schema Model Output <-----------+
+```
+
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
 
@@ -245,6 +269,51 @@ for task in tasks:
     print(f"[{task.priority}] {task.task_id}: {task.command}")
 ```
 
+## Systemd Service Unit Configuration
+
+Save the following systemd unit file to `/etc/systemd/system/instructor-extraction-server.service`:
+
+```ini
+[Unit]
+Description=Instructor FastMCP 3.1 Structured Extraction Server
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=instructor
+Group=instructor
+WorkingDirectory=/opt/instructor-service
+ExecStart=/opt/instructor-service/venv/bin/python3 -m fastmcp run server.py --port 8094
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxx
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now instructor-extraction-server.service
+sudo systemctl status instructor-extraction-server.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `ValidationError: Field required` | LLM omitted mandatory field from response | Set `max_retries=3` or provide detailed field descriptions in Pydantic schema. |
+| `MaxRetriesExceededError` | LLM repeatedly failing complex semantic validation | Simplify validation rules, break into multi-step pipelines, or use stronger model (e.g. Claude 5.6). |
+| `JSONDecodeError` during streaming | Non-strict provider mode emitting partial JSON | Use `create_iterable` or `create_partial` methods designed specifically for stream parsing. |
+| `Extra fields not permitted` | Provider JSON mode returning unrequested fields | Include `model_config = ConfigDict(extra="forbid")` and update system prompt instructions. |
+
 ## Related tools / concepts
 - [PydanticAI](pydantic-ai.md) — higher-level agentic framework built on Pydantic.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — TypeScript alternative for structured output.
@@ -262,6 +331,7 @@ for task in tasks:
 - [What's new in Instructor v2?](https://python.useinstructor.com/blog/2026/05/11/whats-new-in-instructor-v2/)
 - [Semantic Validation Guide](https://python.useinstructor.com/concepts/validation/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

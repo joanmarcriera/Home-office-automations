@@ -13,6 +13,16 @@ Key problems addressed by HumanEval include:
 - **Training Data Contamination Reduction**: Because all 164 tasks were manually written specifically for evaluation rather than scraped from GitHub, early evaluations provided an uncontaminated metric of zero-shot coding ability.
 - **Variance Management via Pass@k**: Introduces unbiased mathematical estimation of model generation quality across multiple random completions, balancing deterministic accuracy with creative code sampling.
 
+## Key Features & Functional Matrix
+
+| Capability / Feature | HumanEval Standard | HumanEval+ (EvalPlus) | SWE-bench / BigCodeBench |
+| :--- | :--- | :--- | :--- |
+| **Primary Focus** | Standalone Python functions | Edge-case test-augmented functions | Multi-file repos / Library APIs |
+| **Dataset Size** | 164 handwritten tasks | 164 tasks (80x more test inputs) | 2,294 SWE issues / 1,140 functions |
+| **Execution Sandbox** | Subprocess / Pytest isolation | FastMCP / Containerized execution | Full Docker / Container sandbox |
+| **Evaluation Metric** | Unbiased Pass@k ($k=1, 10, 100$) | Strict Pass@1 (Edge-case expanded) | Repository issue pass rate / Unit tests |
+| **Target Model Domain** | Base LLMs & Code Foundation Models | Code LLMs & Alignment Guardrails | Agentic Software Engineering Systems |
+
 ## System Architecture
 
 ```
@@ -28,6 +38,27 @@ Key problems addressed by HumanEval include:
   | Pass@k Metric &       | <----  | Pydantic v2 Pass@k     | <----  | Isolated Execution       |
   | Leaderboard Telemetry |        | Calculation Pipeline   |        | Sandbox (Pytest Subproc) |
   +-----------------------+        +------------------------+        +--------------------------+
+```
+
+### Evaluation & Execution Sequence
+
+```
+[Agent / Harness] --------> (1) Request Task Specs (HumanEval/0-163) --------> [FastMCP Orchestrator]
+                                                                                       |
+                                                                                       v
+[Agent / Harness] <-------- (2) Return Prompt & Function Header <-------------- [FastMCP Orchestrator]
+       |
+       v
+(3) Generate Solutions (n samples)
+       |
+       v
+[Agent / Harness] --------> (4) Submit Synthesized Completion Code ----------> [FastMCP Orchestrator]
+                                                                                       |
+                                                                                       v
+                                                                        (5) Spawn Pytest Sandbox
+                                                                                       |
+                                                                                       v
+[Agent / Harness] <-------- (6) Return Pass/Fail & Exception Telemetry <-------- [Sandbox Subprocess]
 ```
 
 ## Where it fits in the stack
@@ -124,9 +155,9 @@ The following complete FastMCP 3.1 Python server exposes a sandboxed HumanEval t
 import sys
 import tempfile
 import subprocess
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 mcp = FastMCP(
     name="HumanEval Verifier",
@@ -139,10 +170,18 @@ class EvaluationRequest(BaseModel):
     prompt_docstring: str = Field(..., description="The problem function header and docstring specification")
     completion_code: str = Field(..., description="LLM-generated code snippet to evaluate")
     unit_tests: List[str] = Field(..., description="List of assertion statements to run against the code")
+    timeout_seconds: int = Field(default=5, ge=1, le=30, description="Execution timeout limit")
+
+    @field_validator("task_id")
+    def validate_task_id_format(cls, v: str) -> str:
+        if not v.startswith("HumanEval/"):
+            raise ValueError("task_id must follow format 'HumanEval/{id}'")
+        return v
 
 class EvaluationResponse(BaseModel):
     task_id: str
     passed: bool
+    execution_time_ms: float
     stdout: str
     stderr: str
     error_message: str = ""
@@ -150,11 +189,13 @@ class EvaluationResponse(BaseModel):
 @mcp.tool(description="Executes synthesized code against HumanEval unit test assertions in a sandbox.")
 def verify_humaneval_completion(request: EvaluationRequest) -> EvaluationResponse:
     """Safely executes code in a temporary subprocess script."""
+    import time
     full_script = f"{request.prompt_docstring}\n{request.completion_code}\n\n"
     full_script += "if __name__ == '__main__':\n"
     for test in request.unit_tests:
         full_script += f"    {test}\n"
 
+    start_time = time.time()
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=True) as tmp:
         tmp.write(full_script)
         tmp.flush()
@@ -164,23 +205,27 @@ def verify_humaneval_completion(request: EvaluationRequest) -> EvaluationRespons
                 [sys.executable, tmp.name],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=request.timeout_seconds
             )
+            elapsed_ms = (time.time() - start_time) * 1000.0
             passed = (res.returncode == 0)
             return EvaluationResponse(
                 task_id=request.task_id,
                 passed=passed,
+                execution_time_ms=elapsed_ms,
                 stdout=res.stdout,
                 stderr=res.stderr,
                 error_message="" if passed else f"Subprocess exited with code {res.returncode}"
             )
         except subprocess.TimeoutExpired:
+            elapsed_ms = (time.time() - start_time) * 1000.0
             return EvaluationResponse(
                 task_id=request.task_id,
                 passed=False,
+                execution_time_ms=elapsed_ms,
                 stdout="",
                 stderr="Timeout",
-                error_message="Execution timed out after 5 seconds"
+                error_message=f"Execution timed out after {request.timeout_seconds} seconds"
             )
 
 if __name__ == "__main__":
@@ -231,6 +276,51 @@ if __name__ == "__main__":
 | **Llama 4 Maverick (70B)** | Meta AI | 93.5% | Mid 2026 |
 | **DeepSeek V3 / R1** | DeepSeek | 92.8% | Early 2025 |
 | Claude 3.5 Sonnet | Anthropic | 92.0% | June 2024 |
+
+## Systemd Service Unit: HumanEval FastMCP Worker
+
+To deploy the FastMCP HumanEval verification server as a resilient daemon service in evaluation infrastructure, save the following unit file to `/etc/systemd/system/humaneval-verifier.service`:
+
+```ini
+[Unit]
+Description=HumanEval FastMCP 3.1 Code Verification Engine
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcp
+Group=mcp
+WorkingDirectory=/opt/humaneval-verifier
+ExecStart=/opt/humaneval-verifier/venv/bin/python3 -m fastmcp run server.py --port 8080
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=MCP_ENV=production
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and manage the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now humaneval-verifier.service
+sudo systemctl status humaneval-verifier.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Possible Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| `NameError` or missing library in sandbox | Code requires external packages not present in execution env | Restrict evaluation to standard library, or pre-install dependencies into virtual environment. |
+| Process timeout during evaluation | Infinite loop or heavy recursion in synthesized completion | Set hard process timeout in `subprocess.run` (e.g. 5 seconds) and flag output as failed. |
+| Inconsistent `Pass@k` calculations | Division by zero or $n < k$ configuration error | Use the unbiased combinatorial formula $1 - \frac{\binom{n-c}{k}}{\binom{n}{k}}$ validated by `PassAtKEstimator`. |
+| Memory leaks or orphan processes | Unfinished thread pools or infinite background tasks in candidate code | Wrap candidate code execution inside Docker containers or systemd `PrivateTmp=true` isolates. |
 
 ## Related tools / concepts
 - [MBPP (Mostly Basic Python Problems)](mbpp.md) — Complementary dataset of basic Python tasks.
