@@ -27,6 +27,25 @@ Processing extensive documentation sets, long codebases, or complex multi-turn c
 ## Where it fits in the stack
 **Infrastructure / Model Runners & Inference Engines**. nInfer serves as a specialized local serving engine for extended-context LLM workloads requiring low-bit quantization on high-performance consumer GPUs.
 
+```mermaid
+flowchart TD
+    subgraph ClientLayer["Agent & Application Layer"]
+        AiderCLI["Aider CLI / Agent Harness"] -->|FastMCP 3.1 Tool Request| FastMCPGateway["FastMCP 3.1 Agent Gateway"]
+        WebUI["Chat UI / Open WebUI"] -->|OpenAI-Compatible REST| FastMCPGateway
+    end
+
+    subgraph nInferEngine["nInfer Serving Engine Runtime"]
+        FastMCPGateway --> EngineRouter["nInfer Request Router & Tokenizer"]
+        EngineRouter --> YaRNScaler["YaRN Dynamic RoPE Scaling Engine"]
+        YaRNScaler --> KVCacheManager["Paged KV-Cache Memory Chunk Manager"]
+        KVCacheManager --> FP4QuantKernel["FP4 Tensor Core Quantization Execution Kernel"]
+    end
+
+    subgraph HardwareAcceleration["GPU Hardware Layer"]
+        FP4QuantKernel --> BlackwellGPU["NVIDIA RTX 5090 / Blackwell SM_100 Tensor Cores"]
+    end
+```
+
 ## Architecture & Technical Deep Dive
 
 nInfer re-architects key attention and memory management layers to enable massive sequence lengths on consumer flagships:
@@ -65,6 +84,16 @@ nInfer re-architects key attention and memory management layers to enable massiv
 2. **Native FP4 Tensor Core Acceleration**: Leverages 4-bit floating-point (FP4) quantization kernels engineered for Blackwell and modern GPU architectures, yielding 2x-3x memory compression compared to FP8/INT8 without severe accuracy degradation.
 3. **Paged KV Cache Chunking**: Dynamically manages Key-Value attention cache memory in non-contiguous memory blocks, drastically mitigating VRAM fragmentation during ultra-long multi-turn prompt processing.
 4. **FlashAttention-3 Integration**: Optimized kernel dispatch tailored for SM_100 SMs, accelerating key-value dot products across massive context spans.
+
+## Technical Specifications & Feature Matrix
+
+| Feature / Metric | nInfer Engine | vLLM Engine | llama.cpp Engine | ExLlamaV2 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Max Context Window** | Up to 555,000 Tokens | 128,000 Tokens | 128,000 Tokens | 64,000 Tokens |
+| **Quantization Support** | Native FP4 / FP8 / INT4 | FP8 / INT8 / AWQ | GGUF (Q4_K_M, Q8_0) | EXL2 |
+| **Attention Kernel** | FlashAttention-3 + YaRN | FlashAttention-2 / PagedAttention | Custom C++ CPU/CUDA | Custom CUDA |
+| **Target Hardware** | NVIDIA Blackwell SM_100 / RTX 5090 | Enterprise A100/H100/H200 | CPU / Metal / CUDA | NVIDIA Ada / Ampere |
+| **Protocol Support** | OpenAI REST + FastMCP 3.1 | OpenAI REST + vLLM API | OpenAI REST / Custom CLI | Custom Python C-Ext |
 
 ## Typical use cases
 - **Long-Document Code Base & Document RAG**: Processing full project repositories or long books within a single prompt context window without chunk fragmentation.
@@ -115,16 +144,42 @@ cmake .. -DENABLE_CUDA=ON -DARCH=sm_100 -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
 ```
 
-### Launching nInfer Server
-```bash
-# Launch server with 555k context window and FP4 precision
-./bin/ninfer-server \
+### Systemd Service Deployment (`/etc/systemd/system/ninfer-server.service`)
+To ensure high availability and automated restart of the nInfer inference daemon on Linux servers:
+
+```ini
+[Unit]
+Description=nInfer Long-Context FP4 Inference Engine Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=ninfer
+Group=ninfer
+WorkingDirectory=/opt/ninfer
+ExecStart=/opt/ninfer/bin/ninfer-server \
   --model /models/Llama-3-70B-FP4 \
   --context-size 555000 \
   --yarn-factor 16.0 \
   --quant fp4 \
   --port 8000 \
   --host 0.0.0.0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="NINFER_CACHE_DIR=/var/cache/ninfer"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ninfer-server.service
+sudo systemctl status ninfer-server.service
 ```
 
 ## Getting started
@@ -170,7 +225,7 @@ import time
 import logging
 from typing import Optional, Dict
 from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationError
-from fastmcp import FastMCP, Context
+from mcp.server.fastmcp import FastMCP, Context
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -254,6 +309,15 @@ async def query_ninfer_status(
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Step | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| `CUDA Error: Out of Memory` during 300k+ token prompt | KV cache allocation exceeds GPU VRAM | Run `ninfer-info --device 0` to check available VRAM | Reduce `--context-size` or increase `--quant fp4` compression ratio |
+| Severe perplexity explosion at >200k tokens | Incorrect YaRN RoPE scaling factor | Execute `./bin/ninfer-diag --eval-tokens 250000` | Ensure `--yarn-factor 16.0` or higher is enabled |
+| Slow generation speed (<5 tokens/s) on RTX 5090 | SM architecture fallback / incorrect build flags | Check `cmake` build output for `ARCH=sm_100` | Recompile with `-DARCH=sm_100` for native Blackwell FP4 Tensor Core kernels |
+| `FastMCP 3.1 Tool Timeout` on long queries | Agent gateway timeout shorter than inference latency | Inspect `ninfer-server` log output for request duration | Increase client timeout to 120s or use FastMCP streaming response mode |
 
 ## Related tools / concepts
 - [vLLM](vllm.md) — High-throughput local inference engine.

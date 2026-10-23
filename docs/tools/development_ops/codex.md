@@ -35,6 +35,24 @@ OpenAI Codex was the original specialized coding model that paved the way for mo
                                 +-----------------------------------+
 ```
 
+```mermaid
+flowchart TD
+    subgraph ClientWorkspace["Developer Client Environment"]
+        IDE["Cursor / Aider CLI / VS Code"] -->|MCP Transport| AgentTaskServer["FastMCP 3.1 Agent Task Server"]
+    end
+
+    subgraph ReasoningCore["OpenAI Cloud Reasoning Engine"]
+        AgentTaskServer -->|OpenAI API Request| GPTEngine["GPT-5.5 / o4 Reasoning Series"]
+        GPTEngine -->|Structured Code Edits| AgentTaskServer
+    end
+
+    subgraph ExecutionSandbox["Sandboxed Execution Workspace"]
+        AgentTaskServer -->|Apply Git Diff| GitTarget["Target Codebase Repository"]
+        GitTarget -->|Run Verification Tests| TestRunner["Pytest / Cargo Test Execution"]
+        TestRunner -->|Pass/Fail Diagnostics| AgentTaskServer
+    end
+```
+
 ## What problem it solves
 It bridges the gap between natural language intent and executable source code. By understanding complex syntax, design patterns, and cross-file dependencies, these models reduce the cognitive load of boilerplate implementation, complex refactoring, and debugging. The o4 series specifically solves the "reasoning gap" in complex architectural migrations that previously required senior human intervention.
 
@@ -86,6 +104,36 @@ It bridges the gap between natural language intent and executable source code. B
 2. **Library Installation**: `pip install openai` or `npm install openai`.
 3. **Model Selection**: Choose `gpt-5.5-preview` for general coding or `o4-reasoning` for complex logic.
 4. **Tool Integration**: Plug your key into [Cursor](cursor.md) or [Aider](aider.md) for an immediate productivity boost.
+
+### Systemd Agent Gateway Service (`/etc/systemd/system/openai-codex-gateway.service`)
+For running a persistent FastMCP 3.1 agent gateway background service connecting OpenAI Codex models to local dev tooling:
+
+```ini
+[Unit]
+Description=OpenAI Codex FastMCP 3.1 Agent Gateway Service
+After=network.target
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/opt/codex-gateway
+ExecStart=/opt/codex-gateway/venv/bin/python3 /opt/codex-gateway/server.py
+Restart=always
+RestartSec=5s
+Environment="OPENAI_API_KEY=sk-proj-YOUR_API_KEY"
+Environment="FASTMCP_PORT=8080"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the gateway service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now openai-codex-gateway.service
+sudo systemctl status openai-codex-gateway.service
+```
 
 ## FastMCP 3.1 Task Protocol Integration
 
@@ -233,6 +281,15 @@ if __name__ == "__main__":
     }
     print(validate_openai_response(payload))
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Step | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| `InvalidRequestError: Context length exceeded` | Repository prompt exceeds 2M context limit | Measure prompt token count via `tiktoken` | Exclude build artifacts or split code imports across multiple FastMCP tool steps |
+| Model hallucinating invalid non-existent API parameters | Using high temperature on complex logic tasks | Check completion parameters in API request | Set `temperature=0.0` or enforce structured outputs with Pydantic v2 |
+| `API rate limit reached (HTTP 429)` | Exceeded organization token per minute limit | Inspect response headers (`x-ratelimit-remaining`) | Implement exponential backoff or scale API tier |
+| FastMCP 3.1 tool call failure during code edit | Git merge diff search block mismatch | Verify target file version against search block | Re-index local repository context before dispatching edit task |
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The parent organization and platform provider.
