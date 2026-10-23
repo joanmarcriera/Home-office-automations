@@ -46,6 +46,40 @@ Traditional note-taking apps force users into rigid, hierarchy-bound file system
 
 ## Getting started
 
+### Systemd Service Management
+To maintain background synchronization, automated Git backups, and FastMCP 3.1 graph bridge availability for Logseq graphs across enterprise workcells, manage the bridge service with systemd:
+
+```ini
+[Unit]
+Description=Logseq FastMCP 3.1 Graph Sync Bridge Service
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=logseq
+Group=logseq
+WorkingDirectory=/opt/logseq-sync
+ExecStart=/opt/logseq-sync/venv/bin/python3 -m logseq_mcp.server --graph /home/logseq/Documents/logseq --port 8088
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=32768
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle using standard `systemctl` commands:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now logseq-sync.service
+sudo systemctl status logseq-sync.service
+```
+
 ### Installation
 Download Logseq for macOS, Linux, or Windows from the official site or package manager:
 ```bash
@@ -100,7 +134,7 @@ from typing import List, Dict, Any, Optional
 from fastmcp import FastMCP, Context
 from pydantic import BaseModel, Field, ConfigDict
 
-mcp = FastMCP("logseq-knowledge-graph", version="3.1.0")
+mcp = FastMCP(name="logseq-knowledge-graph", version="3.1")
 GRAPH_DB_PATH = pathlib.Path.home() / ".logseq/graphs/default/db.sqlite"
 GRAPH_JOURNALS_PATH = pathlib.Path.home() / "Documents/logseq/journals"
 
@@ -111,23 +145,31 @@ class LogseqBlock(BaseModel):
     content: str = Field(..., description="Raw Markdown content of the block")
     is_todo: bool = Field(default=False)
 
+class SearchBlocksRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    query_term: str = Field(..., min_length=2, description="Search term to query across Logseq blocks")
+
 class JournalBlockAppendRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     date_str: Optional[str] = Field(default=None, description="YYYY_MM_DD date string. Defaults to today")
     block_text: str = Field(..., min_length=3, description="Bullet text to append to journal")
 
-@mcp.tool(description="Search Logseq blocks matching keyword query via Datalog SQLite index")
-async def search_logseq_blocks(query_term: str, ctx: Context) -> list[dict]:
+@mcp.tool(name="search_logseq_blocks", description="Search Logseq blocks matching keyword query via Datalog SQLite index")
+def search_logseq_blocks(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Retrieves Logseq atomic blocks matching the search term."""
+    req = SearchBlocksRequest.model_validate(payload)
     if not GRAPH_DB_PATH.exists():
         return [{"error": f"Logseq DB not found at {GRAPH_DB_PATH}"}]
 
-    conn = sqlite3.connect(GRAPH_DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT uuid, content FROM blocks WHERE content LIKE ? LIMIT 20", (f"%{query_term}%",))
-    rows = cursor.fetchall()
-    conn.close()
-
-    return [{"uuid": r[0], "content": r[1]} for r in rows]
+    try:
+        conn = sqlite3.connect(GRAPH_DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT uuid, content FROM blocks WHERE content LIKE ? LIMIT 20", (f"%{req.query_term}%",))
+        rows = cursor.fetchall()
+        conn.close()
+        return [{"uuid": r[0], "content": r[1]} for r in rows]
+    except Exception as e:
+        return [{"error": str(e)}]
 
 if __name__ == "__main__":
     mcp.run()
@@ -178,7 +220,6 @@ def parse_journal_file(file_path: pathlib.Path) -> JournalEntry:
     date_part = file_path.stem
     return JournalEntry(date_str=date_part, blocks=blocks)
 
-# Example execution
 journal_path = pathlib.Path.home() / "Documents/logseq/journals/2027_01_07.md"
 if journal_path.exists():
     entry = parse_journal_file(journal_path)
@@ -215,6 +256,7 @@ if journal_path.exists():
 | FastMCP queries return empty block list | Graph index re-parse in progress or database path wrong | Verify `GRAPH_DB_PATH` exists on filesystem | Re-index graph inside Logseq desktop (`Re-index` menu button) |
 | Git merge conflict across journal files | Simultaneous write to same `YYYY_MM_DD.md` date by multiple agents | Inspect `git status` in graph root folder | Use line-append strategy or append timestamp headers to entries |
 | Datalog query syntax error | Invalid Datalog clause or unescaped bracket in query | Test query directly in Logseq developer tools console | Wrap page references in proper `[?b :block/content]` clauses |
+| Systemd Sync Unit Failure | Permission denied accessing `/home/logseq/Documents` | `journalctl -u logseq-sync.service -n 50` | Grant read/write permissions to `logseq` system user or adjust unit directives. |
 
 ## Related tools / concepts
 - [Obsidian](obsidian.md) - Non-outliner local Markdown knowledge base alternative.

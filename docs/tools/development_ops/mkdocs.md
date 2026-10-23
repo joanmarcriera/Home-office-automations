@@ -73,6 +73,40 @@ MkDocs operates at the **Publishing & Presentation Layer** of the agentic docume
 
 ## Getting started
 
+### Systemd Service Management
+To serve a persistent, auto-reloading MkDocs preview server on local developer workcells or build servers, manage the process with systemd:
+
+```ini
+[Unit]
+Description=MkDocs Live Documentation Preview Server
+After=network.target local-fs.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=mkdocs
+Group=mkdocs
+WorkingDirectory=/opt/docs-repository
+ExecStart=/opt/docs-repository/venv/bin/mkdocs serve --dev-addr 0.0.0.0:8000
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3s
+LimitNOFILE=32768
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage lifecycle via `systemctl`:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now mkdocs-serve.service
+sudo systemctl status mkdocs-serve.service
+```
+
 ### 1. Installation
 Install MkDocs along with the Material theme using pip:
 
@@ -129,14 +163,22 @@ import os
 import subprocess
 import yaml
 from typing import Dict, Any, List
-from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
-    "MkDocs Operations Server",
-    version="3.1.0",
-    description="FastMCP tool server for inspecting, validating, and building MkDocs sites."
+    name="MkDocs Operations Server",
+    version="3.1"
 )
+
+class ValidateConfigRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    config_path: str = Field(default="mkdocs.yml", description="Path to mkdocs.yml file")
+
+class BuildSiteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    strict: bool = Field(default=True, description="Enforce strict build failure on broken links")
+    clean: bool = Field(default=True, description="Remove old site directory prior to build")
 
 class ValidateConfigResponse(BaseModel):
     is_valid: bool
@@ -144,16 +186,17 @@ class ValidateConfigResponse(BaseModel):
     pages_count: int
     errors: List[str] = Field(default_factory=list)
 
-@mcp.tool()
-async def validate_mkdocs_config(config_path: str = "mkdocs.yml") -> Dict[str, Any]:
+@mcp.tool(name="validate_mkdocs_config", description="Validate syntax and navigation integrity of mkdocs.yml")
+def validate_mkdocs_config(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Parses and validates an mkdocs.yml configuration file for syntax errors and broken navigation paths.
     """
-    if not os.path.exists(config_path):
-        return {"is_valid": False, "errors": [f"File not found: {config_path}"]}
+    req = ValidateConfigRequest.model_validate(payload)
+    if not os.path.exists(req.config_path):
+        return {"is_valid": False, "site_name": "", "pages_count": 0, "errors": [f"File not found: {req.config_path}"]}
 
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(req.config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         site_name = config.get("site_name", "Unnamed Site")
@@ -165,23 +208,27 @@ async def validate_mkdocs_config(config_path: str = "mkdocs.yml") -> Dict[str, A
         if not nav:
             errors.append("Warning: 'nav' section is empty or missing.")
 
-        return {
-            "is_valid": len(errors) == 0,
-            "site_name": site_name,
-            "nav_entries_count": len(nav),
-            "errors": errors
-        }
+        resp = ValidateConfigResponse(
+            is_valid=len(errors) == 0,
+            site_name=site_name,
+            pages_count=len(nav),
+            errors=errors
+        )
+        return resp.model_dump()
     except Exception as e:
-        return {"is_valid": False, "errors": [str(e)]}
+        return {"is_valid": False, "site_name": "", "pages_count": 0, "errors": [str(e)]}
 
-@mcp.tool()
-async def build_mkdocs_site(strict: bool = True) -> Dict[str, Any]:
+@mcp.tool(name="build_mkdocs_site", description="Execute static site compilation using mkdocs CLI")
+def build_mkdocs_site(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Executes the mkdocs build process in the current workspace.
     """
+    req = BuildSiteRequest.model_validate(payload)
     cmd = ["mkdocs", "build"]
-    if strict:
+    if req.strict:
         cmd.append("--strict")
+    if req.clean:
+        cmd.append("--clean")
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -214,6 +261,7 @@ class MkDocsNavEntry(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 class MkDocsThemeConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: str = Field(..., description="Theme name (e.g. 'material', 'mkdocs')")
     language: Optional[str] = Field(default="en", description="Primary site language")
     palette: Optional[Union[Dict, List[Dict]]] = Field(None, description="Color palette settings")
@@ -222,6 +270,7 @@ class MkDocsManifest(BaseModel):
     """
     Strict Pydantic v2 model for verifying mkdocs.yml structural contract.
     """
+    model_config = ConfigDict(extra="allow")
     site_name: str = Field(..., min_length=1, description="Site display title")
     site_url: Optional[HttpUrl] = Field(None, description="Canonical deployed site URL")
     site_description: Optional[str] = Field(None, description="SEO site meta summary")
@@ -258,6 +307,15 @@ if __name__ == "__main__":
     print(f"Theme: {validated.theme.name}")
     print(f"Nav items: {len(validated.nav)}")
 ```
+
+## Operational Troubleshooting & Diagnostics
+
+| Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Build Failure: Relative File Not Found** | Broken internal page link in Markdown navigation tree | `mkdocs build --strict` | Verify target Markdown file exists and fix case-sensitive relative path in `mkdocs.yml`. |
+| **Plugin NotFoundError (`mermaid2`/`search`)** | Missing Python plugin package in current venv | `pip list \| grep mkdocs` | Run `pip install mkdocs-material mkdocs-mermaid2-plugin` to install missing extension packages. |
+| **Port Binding Conflict (`Address already in use`)** | Port 8000 occupied by another background process | `lsof -i :8000` | Kill occupying PID or specify an alternate dev port (`mkdocs serve -a 127.0.0.1:8080`). |
+| **Systemd Service Preview Timeout** | Non-zero exit code due to missing `mkdocs.yml` in working directory | `journalctl -u mkdocs-serve.service -n 50` | Update `WorkingDirectory` in `mkdocs-serve.service` to repository root containing `mkdocs.yml`. |
 
 ## Related tools / concepts
 - [GitHub Pages](github-pages.md) — Common static hosting provider for MkDocs websites.

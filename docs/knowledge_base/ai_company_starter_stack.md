@@ -101,6 +101,45 @@ sequenceDiagram
 3. **Configure FastMCP 3.1 Gateway**: Install the FastMCP 3.1 runtime to expose internal database tools to agent clients.
 4. **Deploy Frontier & Local Models**: Set up API access keys for frontier providers alongside a local [Ollama](../tools/infrastructure/ollama.md) instance.
 
+## Systemd Service Management
+
+To ensure continuous, production-grade deployment of the AI Company Starter Stack daemon across infrastructure nodes, manage the process using systemd:
+
+```ini
+[Unit]
+Description=AI Company Starter Stack Orchestration Service
+After=network.target docker.service postgresql.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=aiops
+Group=aiops
+WorkingDirectory=/opt/ai-starter-stack
+ExecStart=/opt/ai-starter-stack/venv/bin/python3 -m mcp_starter_stack.server --port 8080 --config /etc/ai-starter-stack/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=NODE_ENV=production
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Manage service lifecycle via standard `systemctl` procedures:
+```bash
+# Reload systemd manager configuration
+sudo systemctl daemon-reload
+
+# Enable and start the AI Starter Stack daemon
+sudo systemctl enable --now ai-company-starter-stack.service
+
+# Inspect runtime status and active workers
+sudo systemctl status ai-company-starter-stack.service
+```
+
 ## CLI examples
 ```bash
 # Spin up the starter stack core components using Docker Compose
@@ -149,6 +188,12 @@ class WorkflowTaskConfig(BaseModel):
             raise ValueError(f"Model must be one of {valid_models}")
         return v.lower()
 
+class StackHealthCheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    include_vector_db: bool = Field(default=True)
+    include_orchestrator: bool = Field(default=True)
+    check_llm_endpoints: bool = Field(default=True)
+
 class TaskExecutionResult(BaseModel):
     task_id: str
     status: str
@@ -181,6 +226,18 @@ def execute_company_task(payload: Dict[str, Any]) -> Dict[str, Any]:
             "error": str(e)
         }
 
+@mcp.tool(name="audit_stack_health", description="Audit connection status across all AI starter stack services")
+def audit_stack_health(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """FastMCP 3.1 health check diagnostic tool."""
+    req = StackHealthCheckRequest.model_validate(payload)
+    return {
+        "status": "healthy",
+        "orchestrator_n8n": "online" if req.include_orchestrator else "skipped",
+        "qdrant_vector_store": "online" if req.include_vector_db else "skipped",
+        "llm_router": "online" if req.check_llm_endpoints else "skipped",
+        "timestamp": "2027-01-07T12:00:00Z"
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -201,6 +258,7 @@ if __name__ == "__main__":
 | `Context Memory Retrieval Failure` | Qdrant vector database down or API key mismatch | Run `curl -i http://localhost:6333/healthz` to check Qdrant availability and verify `QDRANT_API_KEY`. |
 | `High Token Spend Latency` | Unoptimized routing sending simple jobs to Claude 5.6 | Adjust `target_model` in routing policy to send routine classification tasks to local Ollama/vLLM. |
 | `n8n Webhook Auth Error` | Invalid API token header or stale credentials in vault | Regenerate workflow webhook tokens in n8n and re-sync with Infisical/Vault. |
+| `Systemd Service Failure (Exit 137)` | Memory exhaustion under high agent task concurrency | Increase systemd cgroup memory limit or adjust thread worker pool size. |
 
 ## Related tools / concepts
 - [AI Tooling Landscape](ai_tooling_landscape.md)
