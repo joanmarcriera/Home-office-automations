@@ -3,6 +3,8 @@
 ## What it is
 MLX is an array framework designed specifically for machine learning research on Apple Silicon. Developed by Apple's machine learning research team, it is optimized to leverage the unified memory architecture of M-series chips (M1 through M5 Ultra as of early 2027). It supports advanced execution graphs and provides first-class model loading, KV cache quantization, and evaluation wrappers for local Large Language Models (LLMs).
 
+In early 2027, MLX acts as the foundational inference and fine-tuning runtime for Apple hardware, enabling researchers and autonomous agent runtimes ([Claude 5.6](../providers/anthropic.md), [GPT-5.6](../ai_knowledge/openai.md), [Gemini 4.0 Ultra](../providers/google-ai-studio.md), [DeepSeek-V4](../providers/deepseek.md)) to execute frontier open-weights models locally at extreme throughput.
+
 ## System Architecture
 
 The following flowchart illustrates MLX's zero-copy architecture on Apple Silicon unified memory, showing direct access between Metal 3 GPU kernels, Apple Neural Engine (ANE), and CPU cores without PCIe bandwidth bottlenecks:
@@ -13,9 +15,9 @@ flowchart TD
         UnifiedRAM[Unified LPDDR5X Memory Pool - up to 512GB]
 
         subgraph Hardware Processors
-            CPU[CPU Cores: General Orchestration]
-            GPU[Metal 3 GPU Cores: Parallel Matrix Ops]
-            ANE[Apple Neural Engine: INT8 / FP16 Matrix Engines]
+            CPU[CPU Cores: General Orchestration & Host Scheduling]
+            GPU[Metal 3 GPU Cores: Parallel Matrix Ops & FP16 Acceleration]
+            ANE[Apple Neural Engine: INT8 / FP16 Matrix Multiplication Engines]
         end
 
         UnifiedRAM <-->|Zero-Copy 800GB/sec Bandwidth| CPU
@@ -24,9 +26,9 @@ flowchart TD
     end
 
     subgraph MLX Software & Runtime Layer
-        MLXPrimitives[MLX Array Primitives & Lazy Graphs]
-        MLXLM[MLX-LM High Level Inference Wrapper]
-        FastMCP[FastMCP 3.1 Local Tool Server]
+        MLXPrimitives[MLX Array Primitives & Lazy Graph Evaluator]
+        MLXLM[MLX-LM High Level Inference & Fine-Tuning Engine]
+        FastMCP[FastMCP 3.1 Local Server Daemon]
 
         FastMCP --> MLXLM
         MLXLM --> MLXPrimitives
@@ -35,20 +37,38 @@ flowchart TD
     end
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Agent / Local Client
+    participant FastMCP as FastMCP 3.1 Tool Gateway
+    participant MLXLM as MLX-LM Runtime
+    participant UMA as Apple Silicon Unified Memory
+    participant Metal as Metal 3 GPU Shader Engine
+
+    Client->>FastMCP: Execute Tool Call (`execute_mlx_inference`)
+    FastMCP->>MLXLM: Validate & Submit Config Payload
+    MLXLM->>UMA: Map Quantized Weights & KV Cache (Zero-Copy)
+    MLXLM->>Metal: Dispatch Matrix Multiplication Kernels
+    Metal-->>UMA: Compute Token Output Stream Directly in Shared VRAM
+    MLXLM-->>FastMCP: Stream Generated Tokens + Telemetry (TPS, Memory)
+    FastMCP-->>Client: Return Validated Response Payload
+```
+
 ## Inference Engine Comparison Matrix
 
-| Framework | Target Platform | Memory Sharing | Quantization Formats | Peak TPS (8B Model) | Fine-Tuning Support |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **MLX / MLX-LM** | macOS (Apple Silicon M-series) | Unified Zero-Copy | 2-bit, 3-bit, 4-bit, 8-bit, FP16 | 165+ TPS (M5 Ultra) | LoRA, QLoRA, DoRA Native |
-| **llama.cpp** | Cross-Platform (CPU/Metal/CUDA) | Copy Required | GGUF (K-quants) | 120 TPS (Metal) | Basic LoRA |
-| **vLLM** | Linux / CUDA | Discrete VRAM | AWQ, GPTQ, FP8 | 180+ TPS (CUDA) | External (Unsloth / Axolotl) |
-| **ExLlamaV2** | Windows / Linux CUDA | Discrete VRAM | EXL2 | 200+ TPS (CUDA) | External |
+| Framework | Target Platform | Memory Sharing | Quantization Formats | Peak TPS (8B Model) | Fine-Tuning Support | Threading Model |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **MLX / MLX-LM** | macOS (Apple Silicon M-series) | Unified Zero-Copy | 2-bit, 3-bit, 4-bit, 8-bit, FP16 | 165+ TPS (M5 Ultra) | LoRA, QLoRA, DoRA Native | Async Metal Buffers |
+| **llama.cpp** | Cross-Platform (CPU/Metal/CUDA) | Copy Required | GGUF (K-quants) | 120 TPS (Metal) | Basic LoRA | OpenMP C++ Threads |
+| **vLLM** | Linux / CUDA | Discrete VRAM | AWQ, GPTQ, FP8 | 180+ TPS (CUDA) | External (Unsloth / Axolotl) | Async CUDA Streams |
+| **ExLlamaV2** | Windows / Linux CUDA | Discrete VRAM | EXL2 | 200+ TPS (CUDA) | External | Custom CUDA Kernels |
 
 ## What problem it solves
-Standard ML frameworks like PyTorch or TensorFlow often face significant overhead when moving data between CPU and GPU. MLX solves this by using Apple Silicon's unified memory, allowing arrays to exist in a shared memory space where both the CPU and GPU perform operations without expensive data transfers. This design eliminates redundant copy latency, vastly improving local execution speed and memory bounds for frontier-class open models.
+Standard ML frameworks like PyTorch or TensorFlow often face significant overhead when moving data between CPU and GPU over PCIe buses. MLX solves this by taking full advantage of Apple Silicon's unified memory, allowing array buffers to exist in a shared memory pool where CPU, GPU, and Neural Engine operate concurrently without expensive data duplication. This design eliminates redundant copy latency, vastly improving local execution speed and memory bounds for frontier-class open models.
 
 ## Where it fits in the stack
-**Infrastructure / Inference Framework**. It sits at the foundation of the Apple Silicon AI stack, providing primitive operations for higher-level libraries like `mlx-lm`, and integrating with orchestrators and local agents (interfacing with Claude 5.6, GPT-5.6, DeepSeek-V4, and Gemini 4.0 Ultra) running natively on macOS.
+**Infrastructure / Inference Framework**. It sits at the foundation of the Apple Silicon AI stack, providing primitive operations for higher-level libraries like `mlx-lm`, and integrating with orchestrators and local agents running natively on macOS.
 
 ## Typical use cases
 - **Local LLM Inference**: Running frontier-class open models (such as Gemma 3, Llama 4, and Qwen 3.6) at extreme throughput on Mac hardware.
@@ -57,9 +77,9 @@ Standard ML frameworks like PyTorch or TensorFlow often face significant overhea
 - **Agentic Workflows**: Powering local multi-agent sessions that require low-latency tool-calling and reasoning loops via Model Context Protocol (MCP 3.1 / FastMCP 3.1) without hitting cloud API limits or latency.
 
 ## Strengths
-- **Unified Memory Architecture**: Zero-copy data sharing between CPU, GPU, and ANE for maximum throughput and efficiency.
-- **Familiar API**: Python API closely follows NumPy, PyTorch, and JAX conventions, making it easy for researchers to migrate.
-- **Lazy Computation**: Operations are only materialized when needed, optimizing memory allocation and execution graphs on macOS devices.
+- **Unified Memory Architecture**: Zero-copy data sharing between CPU, GPU, and ANE for maximum throughput and memory efficiency.
+- **Familiar API**: Python API closely follows NumPy, PyTorch, and JAX conventions, making it easy for researchers to migrate existing models.
+- **Lazy Computation**: Operations are only materialized when explicitly required, optimizing memory allocation and execution graphs on macOS devices.
 - **Native M5 / Metal 3 Optimization**: Explicit support for modern hardware accelerators, matrix math units, and increased memory bandwidth of the M4/M5 generation.
 - **Dynamic Graph Compilation**: Compilation and execution graphs compile dynamically, allowing rapid-fire kernel execution and performance caching.
 
@@ -83,7 +103,7 @@ Standard ML frameworks like PyTorch or TensorFlow often face significant overhea
 ### Installation
 Install the primary MLX and high-level MLX-LM library via `pip`:
 ```bash
-pip install mlx mlx-lm mcp
+pip install mlx mlx-lm fastmcp pydantic
 ```
 
 ### Simple Inference Example
@@ -101,6 +121,65 @@ response = generate(
     verbose=True
 )
 print(response)
+```
+
+## Systemd / Launchd Daemon Unit Template
+
+Because macOS utilizes `launchd` instead of `systemd` for daemon management, the following Launchd Plist configuration manages an automated background MLX FastMCP 3.1 inference daemon on macOS workstations:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mlx.fastmcp.daemon</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/localuser/mlx-env/bin/python3</string>
+        <string>/Users/localuser/services/mlx_mcp_server.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>WorkingDirectory</key>
+    <string>/Users/localuser/services</string>
+    <key>StandardOutPath</key>
+    <string>/Users/localuser/Library/Logs/mlx_mcp_out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/localuser/Library/Logs/mlx_mcp_err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>MLX_MAX_MEM_GB</key>
+        <string>96</string>
+    </dict>
+</dict>
+</plist>
+```
+
+For Linux environments running testing setups or virtualized Apple Silicon containers, the equivalent systemd service unit is as follows:
+
+```ini
+[Unit]
+Description=MLX FastMCP 3.1 Local Inference Service
+Documentation=https://github.com/ml-explore/mlx
+After=network.target
+
+[Service]
+Type=simple
+User=mlx
+WorkingDirectory=/opt/mlx-service
+ExecStart=/opt/mlx-service/venv/bin/python3 /opt/mlx-service/mlx_mcp_server.py
+Restart=always
+RestartSec=3s
+Environment=MLX_MAX_MEM_GB=64
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## CLI examples
@@ -145,13 +224,15 @@ The following executable Python module defines a complete FastMCP 3.1 server hos
 import sys
 import os
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
+from fastmcp import FastMCP
 
-mcp = FastMCP("mlx-local-inference-server")
+mcp = FastMCP(name="mlx-local-inference-server", version="3.1")
 
 class MLXGenerationConfig(BaseModel):
     """Configuration settings for high-performance MLX generation endpoints."""
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     model_name: str = Field(..., description="HF repo or local path of the MLX community model.")
     prompt: str = Field(..., min_length=3, description="Input text prompt for local generation.")
     temperature: float = Field(default=0.7, ge=0.0, le=1.5, description="Sampling temperature.")
@@ -167,11 +248,14 @@ class MLXGenerationConfig(BaseModel):
 
 class MLXOutputPayload(BaseModel):
     """Validated schema for LLM response from the local MLX engine."""
+    model_config = ConfigDict(extra="forbid")
+
     generated_text: str = Field(..., description="The raw returned text.")
     tokens_per_second: float = Field(..., ge=0.0, description="Tokens per second throughput.")
     total_tokens: int = Field(..., ge=0)
+    memory_used_gb: float = Field(..., ge=0.0)
 
-@mcp.tool()
+@mcp.tool(name="execute_mlx_inference", description="Execute unified memory local LLM inference via MLX engine")
 def execute_mlx_inference(config_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Executes unified memory MLX local generation with strict schema validation."""
     try:
@@ -186,7 +270,8 @@ def execute_mlx_inference(config_dict: Dict[str, Any]) -> Dict[str, Any]:
         output = MLXOutputPayload(
             generated_text=simulated_text,
             tokens_per_second=168.5,
-            total_tokens=42
+            total_tokens=42,
+            memory_used_gb=12.4
         )
         return {
             "success": True,
@@ -195,7 +280,7 @@ def execute_mlx_inference(config_dict: Dict[str, Any]) -> Dict[str, Any]:
     except ValidationError as e:
         return {
             "success": False,
-            "error": e.errors()
+            "error": str(e)
         }
 
 if __name__ == "__main__":
@@ -205,7 +290,7 @@ if __name__ == "__main__":
 ## Operational Safety & macOS Hardening
 
 1. **Unified Memory Allocation Headroom**:
-   - Do not allocate more than 75% of total system RAM to MLX model weights (`sysctl sysctl iogpu.wired_mem_limit`). Reserving 25% prevents macOS system UI freezes and kernel panics.
+   - Do not allocate more than 75% of total system RAM to MLX model weights (`sysctl iogpu.wired_mem_limit`). Reserving 25% prevents macOS system UI freezes and kernel panics.
    - Use 4-bit KV Cache quantization (`--q-bits 4`) when running long-context window models (>32k tokens).
 
 2. **Thermal & Power Throttling Monitoring**:
@@ -223,6 +308,7 @@ if __name__ == "__main__":
 | **ImportError: `libmetal.dylib not found`** | Attempting to run MLX on Intel Mac or Linux x86 | `uname -m` | Ensure execution environment is Apple Silicon (`arm64`) running macOS 13.5+ |
 | **Low TPS Performance (<30 TPS)** | Model loading using fallback CPU kernels rather than Metal GPU | `powermetrics --samplers gpu_power` | Reinstall MLX ensuring Xcode Command Line Tools and Metal headers are active |
 | **Kernel Crash / System Reboot** | Exceeded macOS hard wired memory safety ceiling | `sysctl hw.memsize` | Set `export MLX_MAX_MEM_GB=<SAFE_LIMIT>` prior to executing model script |
+| **KV Cache Overflow Error** | Unbounded prompt sequence exceeding context window allocation | `python3 -m mlx_lm.generate --help` | Enable `--quantized-kv-cache` flag or reduce max batch size. |
 
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Cross-platform alternative for local CPU/GPU inference.
