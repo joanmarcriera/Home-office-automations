@@ -32,6 +32,16 @@ graph TD
 
 At the top layer, LLMs and FastMCP 3.1 servers generate structured automation payloads (`value1`, `value2`, `value3`). At the middleware layer, IFTTT executes JavaScript Filter Code rules to format data and enforce conditionals. At the output layer, actions are routed across smart home hardware, mobile push channels, or cloud database integrations.
 
+## Technical Feature Matrix & Platform Comparison
+
+| Dimension / Feature | IFTTT | Zapier | n8n | Home Assistant |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target** | Consumer IoT & Mobile OS | Enterprise Cloud SaaS | Open-Source Self-Hosted | Local Smart Home Hardware |
+| **Deployment Model** | Managed Cloud | Managed Cloud | Self-Hosted / Managed Cloud | Self-Hosted On-Premises |
+| **IoT Hardware Support** | 1,000+ Consumer Brands | Limited Smart Home | Custom Webhooks | Native Zigbee / Z-Wave / Matter |
+| **Mobile OS Sensors** | Native iOS & Android Sensors | Mobile App Notifications | Via Mobile Webhooks | Native Home Assistant App |
+| **FastMCP 3.1 Support** | Native Gateway | Community Integration | Native Node Extension | Native MCP Server Integration |
+
 ## Typical use cases
 - **AI Agent Real-World Notifications**: Dispatching physical notifications (e.g., flashing smart lights red, sounding a smart chime) when an AI agent detects a critical system alert.
 - **Smart Home Physical Control**: Triggering HVAC adjustments, robotic vacuum cleaning cycles, or smart door lock routines based on AI agent decision loops.
@@ -76,6 +86,36 @@ Establish your IFTTT Webhook credentials:
 1. Create an account at [ifttt.com](https://ifttt.com/).
 2. Navigate to [IFTTT Webhooks Service](https://ifttt.com/maker_webhooks) and click **Connect**.
 3. Go to **Documentation** to retrieve your unique Webhooks secret key (`https://maker.ifttt.com/use/YOUR_WEBHOOK_KEY`).
+
+### Systemd Relay Service (`/etc/systemd/system/ifttt-gateway.service`)
+For running a persistent local Webhook relay background service connecting FastMCP 3.1 agents to IFTTT Maker Webhooks:
+
+```ini
+[Unit]
+Description=IFTTT FastMCP 3.1 Webhook Gateway Relay
+After=network.target
+
+[Service]
+Type=simple
+User=ifttt
+Group=ifttt
+WorkingDirectory=/opt/ifttt-gateway
+ExecStart=/opt/ifttt-gateway/venv/bin/python3 /opt/ifttt-gateway/server.py
+Restart=always
+RestartSec=5s
+Environment="IFTTT_WEBHOOK_KEY=YOUR_IFTTT_MAKER_KEY"
+Environment="FASTMCP_PORT=8085"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the relay service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ifttt-gateway.service
+sudo systemctl status ifttt-gateway.service
+```
 
 ### Creating a Custom Webhook Applet
 1. Click **Create** in the IFTTT interface.
@@ -207,6 +247,15 @@ if (source.includes("Agent")) {
   IFTTT.email.skip("Non-agent event ignored.");
 }
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Step | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` on Webhook trigger | Invalid or revoked IFTTT Maker Key | Verify Webhook URL in cURL command | Regenerate Maker Key under IFTTT Webhooks documentation settings |
+| Applet fails to trigger smart home device | Third-party OAuth service disconnected | Check Applet Activity Log in IFTTT dashboard | Re-authenticate target service (e.g. Philips Hue / Nest) in IFTTT |
+| Delay of 5–15 minutes between event and action | Polling-based trigger vs Webhook Instant | Inspect trigger type in Applet builder | Switch trigger mechanism to Instant Webhook POST |
+| Missing `value2` or `value3` in output | Malformed JSON or unescaped quotes | Test raw POST payload via cURL CLI | Pass parameter strings cleanly formatted through FastMCP 3.1 Pydantic v2 |
 
 ## Related tools / concepts
 - [Zapier](./zapier.md) — Cloud-native SaaS enterprise workflow platform.

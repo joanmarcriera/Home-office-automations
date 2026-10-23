@@ -52,6 +52,16 @@ This playbook operates in the **Data Engineering & AI Preparation Layer**:
 - **Reasoning Engine**: Ollama (Llama 4 / Gemma 4) or API Providers (Claude 5.6, GPT-5.6).
 - **Output Targets**: Vector Stores (LanceDB, Qdrant, Chroma), Fine-Tuning JSON-L, [PageIndex](../tools/process_understanding/pageindex.md).
 
+## Technical Specifications & Pipeline Stage Comparison
+
+| Pipeline Stage | Primary Tools | Throughput / Latency | Key Output Format | Validation Mechanism |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Ingestion & Discovery** | File Inspector / Python `hashlib` | >1,000 files/min | Raw Binary + Hash Manifest | SHA-256 Checksum Match |
+| **2. Extraction & OCR** | OCRmyPDF / Docling FastMCP 3.1 | 5–15 sec/page | Raw Markdown + GFM Tables | Pydantic v2 Structural Guard |
+| **3. Normalization** | Regex Rules / BeautifulSoup4 | <100 ms/file | Clean GFM Markdown | Heading Hierarchy Validator |
+| **4. Deduplication** | Semantic Clustering (Llama 4) | ~500 ms/doc | Deduplicated Corpus | MinHash / Cosine Similarity |
+| **5. Dataset Export** | FastMCP 3.1 Export Service | >5,000 items/min | JSON-L / Parquet / Vector Index | Schema Integrity Assertion |
+
 ## Typical use cases
 
 ### 1. Fine-Tuning Corpus Construction
@@ -97,6 +107,38 @@ doc-prep-workspace/
 ├── 03_normalized/      # Markdown extractions
 ├── 04_manifests/       # Pydantic v2 JSON sidecar manifests
 └── 05_final_corpus/    # Deduplicated, verified JSON-L / RAG export
+```
+
+### Systemd Service Deployment (`/etc/systemd/system/docprep-pipeline.service`)
+To automate continuous background ingestion and document normalization across incoming repositories:
+
+```ini
+[Unit]
+Description=Document Preparation Ingestion Pipeline Daemon
+After=network.target paperless-ngx.service
+
+[Service]
+Type=simple
+User=docprep
+Group=docprep
+WorkingDirectory=/opt/docprep
+ExecStart=/opt/docprep/venv/bin/python3 /opt/docprep/scripts/run_pipeline.py \
+  --watch-dir /data/doc-prep-workspace/01_raw \
+  --output-dir /data/doc-prep-workspace/05_final_corpus \
+  --fastmcp-endpoint http://localhost:8000
+Restart=always
+RestartSec=10s
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the pipeline background service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now docprep-pipeline.service
+sudo systemctl status docprep-pipeline.service
 ```
 
 ### Execution Steps
@@ -240,6 +282,15 @@ sample_manifest = {"checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934c
 jsonl_row = format_doc_for_sft("2027 Travel Policy", "All corporate travel requires advance manager sign-off...", sample_manifest)
 print("Generated JSON-L Row:", jsonl_row[:120], "...")
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Symptom | Root Cause | Diagnostic Step | Resolution Procedure |
+| :--- | :--- | :--- | :--- |
+| Garbled text output from PDF extraction | Non-standard font encoding / missing OCR | Inspect PDF text layer using `pdfimages -list` | Run OCRmyPDF with `--force-ocr` to rebuild font map |
+| Tables formatted as jumbled inline text | Plain Tika / un-structured text extraction | Inspect converted Markdown for `\|` table delimiters | Switch conversion engine to Docling FastMCP 3.1 |
+| High rate of duplicate rows in final JSON-L | Missing semantic deduplication pass | Run SHA-256 manifest check across source files | Execute semantic MinHash deduplication prior to dataset export |
+| Pydantic v2 validation error during manifest generation | Invalid file extension or hash string | Inspect FastMCP 3.1 tool error log | Ensure file extension matches `^(pdf\|docx\|pptx\|xlsx\|html\|txt)$` |
 
 ## Related tools / concepts
 - [Docling MCP](../tools/process_understanding/docling-mcp.md) — Document parsing service for Markdown extraction.
