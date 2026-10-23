@@ -73,6 +73,32 @@ graph TD
 - When interactive multi-modal image generation, canvas manipulation, or audio voice chat is required.
 - When enterprise governance policies require strict web-based SAML/SSO login screens with visual admin dashboards.
 
+## Systemd Service Configuration
+When deploying open-terminal daemon background listeners on Linux developer workstations or SSH server jump-hosts, systemd manages session sockets and background logging:
+
+```ini
+[Unit]
+Description=Open Terminal Daemon & FastMCP Server Bridge
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=developer
+Group=developer
+WorkingDirectory=/home/developer
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="OPEN_TERMINAL_CONFIG=/home/developer/.config/open-terminal/config.toml"
+Environment="TERM=xterm-256color"
+ExecStart=/usr/local/bin/open-terminal daemon --listen 127.0.0.1:9090
+Restart=on-failure
+RestartSec=3s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Installation
@@ -248,6 +274,15 @@ def audit_terminal_history(session_name: str, max_entries: int = 20) -> str:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Garbled / Monochromatic TUI Display** | Terminal emulator lacking truecolor support or invalid `TERM` env | `echo $TERM` / `echo $COLORTERM` | Set `export TERM=xterm-256color` and `export COLORTERM=truecolor` in shell profile (`.bashrc`/`.zshrc`). |
+| **Inference Backend Connection Timeout** | Ollama or vLLM daemon not running or blocked by firewall | `curl -s http://localhost:11434/api/version` | Verify local inference server status (`systemctl status ollama`) and check `endpoint` in `config.toml`. |
+| **FastMCP Tool Exec Failures** | Misconfigured executable path in `config.toml` or missing Python package | `open-terminal mcp list` | Validate `command` paths and ensure virtual environments have `mcp` / `pydantic` installed. |
+| **Vim Keybindings Not Responding** | Focus lost or vim_mode disabled in `config.toml` | Check `~/.config/open-terminal/config.toml` | Ensure `vim_mode = true` is set under `[general]` section. |
 
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md) — Comprehensive web UI counterpart to open-terminal.

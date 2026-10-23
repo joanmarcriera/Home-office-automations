@@ -73,6 +73,32 @@ sequenceDiagram
 - For non-Python software stacks (e.g., pure TypeScript/Node.js or Go microservices).
 - When simple stdout file logging without trace aggregation or dashboard visualization meets all requirements.
 
+## Systemd Service Configuration
+When self-hosting an OpenTelemetry Collector or local Logfire OTLP relay daemon on Linux servers, systemd manages background exporter services:
+
+```ini
+[Unit]
+Description=Logfire OTLP Telemetry Collector Service
+After=network.target
+
+[Service]
+Type=simple
+User=logfire
+Group=logfire
+WorkingDirectory=/opt/logfire
+Environment="PATH=/opt/logfire/venv/bin:/usr/local/bin:/usr/bin"
+Environment="LOGFIRE_PROJECT_NAME=enterprise-agent-core"
+Environment="LOGFIRE_TOKEN=lfr_live_xxxxxxxxxxxx"
+Environment="LOGFIRE_ADVANCED_OTLP_ENDPOINT=http://127.0.0.1:4318"
+ExecStart=/opt/logfire/venv/bin/python3 -m logfire_collector_daemon
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Configuration & Feature Summary
 
 | Feature / Setting | Parameter / Env Variable | Default Value | Description |
@@ -198,6 +224,9 @@ import asyncio
 import logfire
 from pydantic import BaseModel, Field
 from typing import Dict, Any
+from mcp.server.fastmcp import FastMCP
+
+mcp_server = FastMCP("LogfireFastMCPTracingServer")
 
 # Configure Logfire with custom OTLP exporter support
 logfire.configure(
@@ -215,41 +244,41 @@ class MCPToolResponse(BaseModel):
     matches_found: int
     data: list
 
-class FastMCPObservableTool:
-    def __init__(self, name: str):
-        self.name = name
+@mcp_server.tool()
+async def execute_kb_vector_search(raw_params_json: str) -> str:
+    """FastMCP 3.1 tool handler instrumented with Logfire OpenTelemetry spans."""
+    with logfire.span("fastmcp.tool_invocation", tool_name="kb_vector_search") as span:
+        # Validate parameters through Pydantic v2
+        params = MCPToolParams.model_validate_json(raw_params_json)
+        span.set_attribute("validated_query", params.query)
+        span.set_attribute("max_results", params.max_results)
 
-    async def execute_tool(self, raw_params: Dict[str, Any]) -> MCPToolResponse:
-        with logfire.span("fastmcp.tool_invocation", tool_name=self.name) as span:
-            # Validate parameters through Pydantic v2
-            params = MCPToolParams.model_validate(raw_params)
-            span.set_attribute("validated_query", params.query)
-            span.set_attribute("max_results", params.max_results)
+        logfire.info("Executing FastMCP 3.1 tool with query: {query}", query=params.query)
 
-            logfire.info("Executing FastMCP 3.1 tool {name} with query: {query}", name=self.name, query=params.query)
+        # Simulate external vector DB query
+        await asyncio.sleep(0.05)
+        results = ["doc_101", "doc_202", "doc_303"][:params.max_results]
 
-            # Simulate external vector DB query
-            await asyncio.sleep(0.05)
-
-            results = ["doc_101", "doc_202", "doc_303"][:params.max_results]
-
-            response = MCPToolResponse(
-                query=params.query,
-                matches_found=len(results),
-                data=results
-            )
-            logfire.info("FastMCP tool completed successfully. Matches: {count}", count=response.matches_found)
-            return response
-
-async def main():
-    tool = FastMCPObservableTool(name="kb_vector_search")
-    payload = {"query": "OpenTelemetry Pydantic v2 integration", "max_results": 3, "filters": {"category": "docs"}}
-    res = await tool.execute_tool(payload)
-    print("Result:", res.model_dump_json(indent=2))
+        response = MCPToolResponse(
+            query=params.query,
+            matches_found=len(results),
+            data=results
+        )
+        logfire.info("FastMCP tool completed successfully. Matches: {count}", count=response.matches_found)
+        return response.model_dump_json(indent=2)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp_server.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Spans Missing in Logfire UI** | Invalid `LOGFIRE_TOKEN` or blocked outbound OTLP HTTP/4318 connection | `logfire check` / verify standard error logs for 401 Unauthorized | Run `logfire auth` to generate new token or verify firewall allows outbound HTTPS to `logfire-api.pydantic.dev`. |
+| **High Memory / Overhead in Async Loop** | Unbatched span processing overloading asyncio event loop | Check OTLP exporter batch queue settings in `logfire.configure()` | Enable background batching processors (`send_to_logfire=True`) or adjust sampling rate for high-frequency logs. |
+| **Pydantic Validation Spans Truncated** | Record mode set to `minimal` or `summary` instead of `all` | Check `logfire.configure(pydantic_plugin=...)` setup | Set `pydantic_plugin=logfire.PydanticPlugin(record='all')` to capture full model payload attributes. |
+| **Duplicate Spans in Multi-Process Workers** | Forked Gunicorn/Uvicorn processes sharing single Logfire client instance | Check tracer provider initialization in worker process logs | Call `logfire.configure()` inside post-fork worker hooks (`post_fork` in Gunicorn config) rather than root module. |
 
 ## Related tools / concepts
 - [Datadog](datadog.md) — Enterprise APM and log management platform.

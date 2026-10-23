@@ -89,6 +89,32 @@ Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosyste
 - In environments with no internet access (Plex can be configured for offline use, but it is not its primary design).
 - If you want to avoid centralized account dependencies and telemetry.
 
+## Systemd Service Configuration
+For bare-metal Linux installations (Ubuntu/Debian/RHEL) outside Docker containers, Plex Media Server runs as a native systemd daemon:
+
+```ini
+[Unit]
+Description=Plex Media Server
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR=/var/lib/plexmediaserver/Library/Application Support"
+Environment="PLEX_MEDIA_SERVER_HOME=/usr/lib/plexmediaserver"
+Environment="PLEX_MEDIA_SERVER_MAX_PLUGIN_PROCS=6"
+Environment="PLEX_MEDIA_SERVER_TMPDIR=/tmp"
+ExecStart=/bin/sh -c 'LD_LIBRARY_PATH=/usr/lib/plexmediaserver/lib "/usr/lib/plexmediaserver/Plex Media Server"'
+User=plex
+Group=plex
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Docker installation
@@ -143,7 +169,7 @@ This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2
 from typing import List
 from plexapi.server import PlexServer
 from pydantic import BaseModel, Field
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP Server
 mcp = FastMCP("PlexServerManager", version="3.1.0")
@@ -212,6 +238,15 @@ if __name__ == "__main__":
   }
 }
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Hardware Transcoding Unavailable** | Missing GPU drivers, incorrect `/dev/dri` pass-through, or no Plex Pass | `ls -la /dev/dri` / check `Plex Media Server.log` for `[Transcoder]` errors | Verify GPU pass-through in Docker Compose (`devices: - /dev/dri:/dev/dri`), ensure NVENC/QuickSync drivers are active, and confirm active Plex Pass subscription. |
+| **Remote Streams Restricted to 1-2 Mbps** | Direct connection failed; stream falling back to Plex Relay proxies | Check **Settings > Remote Access** status red indicator | Forward external port 32400 on router, verify public IP alignment, or route remote traffic via [Tailscale](tailscale.md) mesh network. |
+| **Database Corruption / Scan Hangs** | SQLite database lockup or unclean shutdown during scanner indexing | `sqlite3 /config/.../com.plexapp.plugins.library.db "PRAGMA integrity_check;"` | Run SQLite repair scripts (`PRAGMA integrity_check`), restore database backup from `/config/.../Plug-in Support/Databases/`, or optimize DB via Plex Web. |
+| **Unmatched Media Metadata** | Non-standard directory naming or file release tags missing | Inspect **Plex Media Scanner.log** for regex match failures | Rename files according to Plex conventions (`Show Name (Year)/Season 01/Show Name - S01E01.ext`) or use Sonarr/Radarr for file organization. |
 
 ## Operational Best Practices & Troubleshooting
 

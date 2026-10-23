@@ -39,12 +39,38 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 - In multi-cloud or AWS/Azure-centric environments where GCP is not an option (consider [OpenHands](./openhands.md) instead).
 - If your architecture requires a completely open-source, local-first orchestrator (consider [LangGraph](../frameworks/langgraph.md)).
 
+## Systemd Service Configuration
+For managing local Anti-Gravity FastMCP Surface listener daemons on hybrid development environments, systemd provides background process lifecycle control:
+
+```ini
+[Unit]
+Description=Anti-Gravity FastMCP Surface Bridge Service
+After=network.target gcloud.service
+Wants=gcloud.service
+
+[Service]
+Type=simple
+User=antigravity
+Group=antigravity
+WorkingDirectory=/opt/antigravity
+Environment="PATH=/opt/antigravity/venv/bin:/usr/local/bin:/usr/bin"
+Environment="GOOGLE_CLOUD_PROJECT=my-agentic-sandbox-project"
+Environment="ANTIGRAVITY_SURFACE_PORT=8080"
+ExecStart=/opt/antigravity/venv/bin/antigravity surfaces serve --id "default-surface" --protocol mcp --port 8080
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### 1. Installation
 The Anti-Gravity SDK is available as part of the Google Cloud AI library:
 ```bash
-pip install google-cloud-antigravity
+pip install google-cloud-antigravity pydantic>=2.0
 ```
 
 ### 2. Authentication and Setup
@@ -134,13 +160,17 @@ mission = client.create_mission(
 print(f"Mission {mission.name} launched. Status: {mission.status}")
 ```
 
-### Robust Mission Config Validation with Pydantic v2
-The following example shows how to programmatically model, validate, and verify an Anti-Gravity mission and sandbox profile using Pydantic v2 to ensure proper formatting prior to execution.
+### Programmatic Gemini 4.0 Pro Mission with FastMCP 3.1 Tool Server
+This example shows how to launch and orchestrate a long-horizon software engineering mission using FastMCP 3.1 and Pydantic v2 schemas:
 
 ```python
+import json
+from google.cloud import antigravity
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Optional
-import json
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("AntiGravitySurfaceServer")
 
 class SandboxProfile(BaseModel):
     profile_name: str = Field(..., min_length=3, max_length=50)
@@ -163,30 +193,17 @@ class MissionConfig(BaseModel):
     model_name: str = Field("gemini-4.0-pro")
     mcp_version: str = Field("3.1", pattern=r"^3\.1$")
 
-    model_config = {
-        "populate_by_name": True,
-        "json_schema_extra": {
-            "example": {
-                "name": "legacy-to-pytest-migration",
-                "goal": "Migrate all legacy unittest files to pytest under /tests directory.",
-                "sandbox_profile": {
-                    "profile_name": "secure-isolation",
-                    "vpc_isolated": True,
-                    "allowed_ports": [443, 8080],
-                    "resource_limits": {"cpu": "4", "memory": "8Gi"}
-                },
-                "model_name": "gemini-4.0-pro",
-                "mcp_version": "3.1"
-            }
-        }
-    }
-
-def validate_and_parse_mission(payload: dict) -> str:
-    """Validates Anti-Gravity mission configuration using Pydantic v2."""
+@mcp.tool()
+def launch_antigravity_mission(config_json: str) -> str:
+    """Validates Anti-Gravity mission payload and triggers GCP Vertex Agent execution."""
     try:
-        mission = MissionConfig.model_validate(payload)
+        data = json.loads(config_json)
+        mission = MissionConfig.model_validate(data)
+
+        # Simulate Google Cloud Anti-Gravity Mission invocation
         return json.dumps({
             "status": "success",
+            "mission_id": f"mission-{mission.name}-9982",
             "validated_payload": mission.model_dump()
         }, indent=2)
     except Exception as e:
@@ -196,20 +213,17 @@ def validate_and_parse_mission(payload: dict) -> str:
         }, indent=2)
 
 if __name__ == "__main__":
-    payload = {
-        "name": "legacy-to-pytest-migration",
-        "goal": "Migrate all legacy unittest files to pytest under /tests directory.",
-        "sandbox_profile": {
-            "profile_name": "secure-isolation",
-            "vpc_isolated": True,
-            "allowed_ports": [443, 8080],
-            "resource_limits": {"cpu": "4", "memory": "8Gi"}
-        },
-        "model_name": "gemini-4.0-pro",
-        "mcp_version": "3.1"
-    }
-    print(validate_and_parse_mission(payload))
+    mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Issue | Root Cause | Diagnostic Command / Log Check | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **GCP IAM Permission Denied** | Service account missing `roles/aiplatform.user` or VPC Service Control block | `gcloud auth list` / `gcloud projects get-iam-policy` | Grant `roles/aiplatform.user` and `roles/antigravity.agentRunner` to service account in GCP Console. |
+| **VPC Perimeter Egress Blocked** | Mission attempting outbound git fetch on non-whitelisted IP | Check Google Cloud Logging for `VPC_SERVICE_CONTROLS_VIOLATION` | Add git repository domain/IP range to VPC Service Control egress rules or use mirror repository within VPC boundary. |
+| **Sandbox Resource Exhaustion** | Refactoring mission exceeding 4Gi RAM during multi-service AST build | `antigravity missions status <id>` | Increase `resource_limits` in `sandbox_profile` (e.g. `memory: "16Gi"`, `cpu: "8"`). |
+| **FastMCP Stream Disconnection** | Telemetry websocket port timeout between local agent and Surface | `netstat -tulpn \| grep 8080` | Ensure `ANTIGRAVITY_SURFACE_PORT` is open and increase keep-alive ping interval in MCP client. |
 
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/gemini.md) — Multi-modal foundational models underpinning Google agent systems.
