@@ -170,6 +170,50 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Systemd Service Unit
+To host the FastMCP 3.1 MMLU Evaluation service as a persistent background daemon for automated model benchmark pipelines, configure the following systemd service unit:
+
+```ini
+# /etc/systemd/system/mmlu-eval.service
+[Unit]
+Description=MMLU Benchmark FastMCP Evaluation Server
+After=network.target
+
+[Service]
+Type=simple
+User=benchmarks
+Group=benchmarks
+WorkingDirectory=/opt/mmlu-eval
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8010"
+ExecStart=/usr/bin/python3 -m mmlu_mcp_server
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now mmlu-eval.service
+sudo systemctl status mmlu-eval.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause | Diagnostic & Resolution Strategy |
+| :--- | :--- | :--- |
+| `ERR_LOGPROB_EXTRACTION_FAILED` | Inference backend provider API did not expose target token choice log probabilities. | Enable `logprobs=True` parameter in model configuration or switch backend provider. |
+| `HTTP 504 Gateway Timeout` | Large batch inference across 57 subjects exceeded default proxy request limits. | Partition request by subject clusters (e.g., `mmlu_stem`, `mmlu_humanities`) or decrease batch size. |
+| `ERR_INCOMPLETE_CHOICE_SET` | Raw generation output did not yield clear match for options `[A, B, C, D]`. | Enforce strict logprob probability extraction on choice tokens rather than relying on free-text parsing. |
+| `SCHEMA_MISMATCH_RECORD` | Invalid payload formatting in saved result record when pushing to ClickHouse database. | Run payload through `MMLUEvalResult` Pydantic v2 validation model prior to OLAP ingestion. |
+| `MEMORY_OOM_VLLM` | GPU VRAM saturation during multi-tenant parallel evaluation runs. | Reduce `gpu_memory_utilization` or set lower `max_model_len` parameters in vLLM execution arguments. |
+
 ### Programmatic Question and Evaluation Validation using Pydantic v2
 This Python script validates MMLU benchmark question structures and evaluation execution logs using **Pydantic v2** prior to storing or analyzing results:
 

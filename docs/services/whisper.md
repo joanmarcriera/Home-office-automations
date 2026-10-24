@@ -243,6 +243,50 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Systemd Service Unit
+To host the FastMCP 3.1 Whisper Speech Recognition Gateway as a persistent background system daemon, configure the following systemd service unit:
+
+```ini
+# /etc/systemd/system/whisper-api.service
+[Unit]
+Description=Whisper Speech Recognition FastMCP Gateway Service
+After=network.target nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=whisper
+Group=whisper
+WorkingDirectory=/opt/whisper-mcp
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="FASTMCP_PORT=8020"
+ExecStart=/usr/bin/python3 -m whisper_mcp_server
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service with standard systemctl commands:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now whisper-api.service
+sudo systemctl status whisper-api.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause | Diagnostic & Resolution Strategy |
+| :--- | :--- | :--- |
+| `ERR_CUDA_OUT_OF_MEMORY` | GPU VRAM saturation during large batch inference or multiple concurrent streams. | Pass `compute_type="int8_float16"` or enforce batch size limits (`batch_size=8`). |
+| `ERR_HALLUCINATION_REPETITION` | Model looped on silent or background acoustic noise regions without speech. | Enable Silero-VAD filtering (`vad_filter=True`) and set `temperature=0.0` for deterministic parsing. |
+| `ERR_UNSUPPORTED_CONTAINER` | Audio container codec format not decoded by ffmpeg backend bindings. | Transcode source file to standard 16kHz mono PCM WAV via ffmpeg prior to model execution. |
+| `ERR_COREML_COMPILATION_FAIL` | Missing or mismatched Apple CoreML model binaries on macOS execution node. | Execute `whisper.cpp/models/generate-coreml-model.sh` to compile native Apple Silicon models. |
+| `FASTMCP_PAYLOAD_TOO_LARGE` | Inline raw binary audio submission exceeded FastMCP message length threshold. | Pass local filesystem paths (`FilePath`) or pre-uploaded S3/HTTP URLs rather than raw byte blobs. |
+
 ## Operational Best Practices & Troubleshooting
 
 ### 1. Hallucination Reduction via Silero-VAD
