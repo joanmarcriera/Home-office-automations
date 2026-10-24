@@ -149,12 +149,12 @@ python -m personaplex.benchmarks.full_duplex_latency \
 ## API examples
 
 ### FastMCP 3.1 Full-Duplex Voice Server Implementation
-The following code demonstrates a complete **FastMCP 3.1** server integrating NVIDIA PersonaPlex session lifecycle management, tool dispatch, and live vocal state telemetry using **Pydantic v2**.
+The following code demonstrates a complete **FastMCP 3.1** server integrating NVIDIA PersonaPlex session lifecycle management, tool dispatch, persona switching, and live vocal state telemetry using **Pydantic v2**.
 
 ```python
 import asyncio
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
@@ -165,6 +165,8 @@ mcp = FastMCP(
 )
 
 class VoiceSessionSpec(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     session_id: str = Field(..., alias="sessionId", description="Unique UUID for the voice session")
     system_prompt: str = Field(..., alias="systemPrompt", min_length=20, description="Base persona behavior definition")
     voice_embedding_path: str = Field(..., alias="voiceEmbedding", description="Path to .pt voice embedding file")
@@ -186,6 +188,16 @@ class VoiceSessionSpec(BaseModel):
         if v not in allowed:
             raise ValueError(f"Latency mode must be one of {allowed}")
         return v
+
+class PersonaSwitchRequest(BaseModel):
+    session_id: str = Field(..., alias="sessionId")
+    new_voice_embedding: str = Field(..., alias="newVoiceEmbedding")
+    new_system_prompt: Optional[str] = Field(None, alias="newSystemPrompt")
+
+class BackchannelEvent(BaseModel):
+    session_id: str = Field(..., alias="sessionId")
+    backchannel_type: str = Field(default="nod_affirmation", alias="backchannelType") # e.g., "mhm", "yeah", "I see"
+    trigger_source: str = Field(default="vad_pause", alias="triggerSource")
 
 class AudioTelemetry(BaseModel):
     session_id: str
@@ -215,6 +227,38 @@ async def initialize_voice_session(spec_payload: Dict[str, Any]) -> Dict[str, An
         "config": spec.model_dump(by_alias=True)
     }
 
+@mcp.tool(name="switch_voice_persona", description="Hot-swaps the active voice embedding and system prompt mid-stream")
+async def switch_voice_persona(req_payload: Dict[str, Any]) -> Dict[str, Any]:
+    req = PersonaSwitchRequest.model_validate(req_payload)
+    if req.session_id not in ACTIVE_SESSIONS:
+        return {"status": "error", "message": f"Session {req.session_id} not found"}
+
+    session = ACTIVE_SESSIONS[req.session_id]
+    session["spec"].voice_embedding_path = req.new_voice_embedding
+    if req.new_system_prompt:
+        session["spec"].system_prompt = req.new_system_prompt
+
+    return {
+        "status": "persona_swapped",
+        "session_id": req.session_id,
+        "active_embedding": req.new_voice_embedding
+    }
+
+@mcp.tool(name="emit_backchannel_audio", description="Triggers a low-latency non-verbal backchannel vocal response (e.g. 'mhm', 'right')")
+async def emit_backchannel_audio(event_payload: Dict[str, Any]) -> Dict[str, Any]:
+    event = BackchannelEvent.model_validate(event_payload)
+    if event.session_id not in ACTIVE_SESSIONS:
+        return {"status": "error", "message": f"Session {event.session_id} not found"}
+
+    session = ACTIVE_SESSIONS[event.session_id]
+    session["backchannels_emitted"] += 1
+
+    return {
+        "status": "backchannel_emitted",
+        "type": event.backchannel_type,
+        "total_backchannels": session["backchannels_emitted"]
+    }
+
 @mcp.tool(name="record_interruption_event", description="Logs a user interruption event and updates stream state")
 async def record_interruption_event(session_id: str, elapsed_ms: float) -> Dict[str, Any]:
     if session_id not in ACTIVE_SESSIONS:
@@ -237,9 +281,61 @@ async def record_interruption_event(session_id: str, elapsed_ms: float) -> Dict[
         "telemetry": telemetry.model_dump()
     }
 
+@mcp.tool(name="get_session_telemetry", description="Retrieves performance metrics, latency stats, and interruption counts")
+async def get_session_telemetry(session_id: str) -> Dict[str, Any]:
+    if session_id not in ACTIVE_SESSIONS:
+        return {"status": "error", "message": f"Session {session_id} not found"}
+
+    session = ACTIVE_SESSIONS[session_id]
+    return {
+        "session_id": session_id,
+        "interruption_count": session["interruption_count"],
+        "backchannels_emitted": session["backchannels_emitted"],
+        "status": session["status"]
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Systemd Service Unit Configuration
+
+For production deployment on dedicated GPU worker nodes, PersonaPlex should be managed via systemd to ensure automated failure recovery, CUDA memory clearing, and continuous full-duplex WebSocket stream availability:
+
+```ini
+# /etc/systemd/system/personaplex-worker.service
+[Unit]
+Description=NVIDIA PersonaPlex Full-Duplex Voice Inference Worker
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=personaplex
+Group=personaplex
+WorkingDirectory=/opt/personaplex
+Environment=PATH=/opt/personaplex/venv/bin:/usr/local/cuda/bin:/usr/bin
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
+ExecStart=/opt/personaplex/venv/bin/python3 -m personaplex.server     --model-path nvidia/personaplex-7b-v1     --precision bf16     --port 8080     --device cuda:0
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+MemoryMax=32G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution & Workaround Strategy |
+| :--- | :--- | :--- | :--- |
+| **High voice latency (>250ms roundtrip)** | CUDA kernel initialization delay or unoptimized audio frame chunks | `python -m personaplex.benchmarks.full_duplex_latency` | Set `--latency-mode ultra_low`, reduce WebRTC frame buffer from 80ms to 20ms chunks, and enable TensorRT-LLM engine compilation. |
+| **CUDA Out-of-Memory (OOM) during full-duplex session** | Multi-session KV-cache accumulation on target GPU | `nvidia-smi --query-gpu=memory.used,memory.free --format=csv` | Enable PagedAttention in vLLM backend and restrict max concurrent WebSocket streams per GPU instance to 8. |
+| **Clipping or robotic audio synthesis** | Voice embedding mismatch or sample rate conversion dropouts | `python -m personaplex.tools.validate_embedding --input persona.pt` | Ensure input voice reference WAV is 24kHz/48kHz PCM uncompressed and re-encode voice embedding using 128-dim format. |
+| **Interruption detection fails (duplex overlap)** | Sensitivity threshold on Voice Activity Detection (VAD) set too low | `journalctl -u personaplex-worker \| grep -i vad` | Lower VAD threshold dB in server config and enable acoustic echo cancellation (AEC) on client side. |
+| **FastMCP 3.1 tool execution timeout mid-dialogue** | Async tool execution blocking main event loop during voice stream | `curl http://localhost:8080/health` | Run tool execution handlers in dedicated `asyncio.to_thread` pools to keep audio streaming thread unblocked. |
 
 ## Related tools / concepts
 - [Synthesia](synthesia.md) — Video-based avatar generation platform.
