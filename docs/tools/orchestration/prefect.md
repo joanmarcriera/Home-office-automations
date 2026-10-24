@@ -36,6 +36,29 @@ It simplifies the challenges associated with pipeline durability—including rob
             +-----------------------+                           +-----------------------+
 ```
 
+## Flow Execution & FastMCP 3.1 Correlation Lifecycle
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Agent / FastMCP Client
+    participant API as Prefect Server API
+    participant DB as PostgreSQL Database
+    participant Worker as Prefect Worker Node
+    participant Task as Executing Flow Task
+
+    Agent->>API: POST /deployments/{id}/create_flow_run (task_id)
+    API->>DB: Insert flow run record with FastMCP correlation ID
+    DB-->>API: Flow run scheduled
+    API-->>Agent: Return FlowRunResponse
+    Worker->>API: Poll work pool queue
+    API-->>Worker: Dispatch scheduled flow run
+    Worker->>Task: Execute @flow function with context
+    Task->>API: Report task state updates (RUNNING -> COMPLETED)
+    API->>DB: Update state history & telemetry
+    API-->>Agent: Notify state change via FastMCP 3.1 event bus
+```
+
 ## Feature & Tooling Comparison Matrix
 
 | Feature / Dimension | Prefect 3.1 | Apache Airflow 2.10 | Dagster 1.9 | Temporal.io | Kestra |
@@ -65,16 +88,73 @@ It simplifies the challenges associated with pipeline durability—including rob
 - **Work-Pool Configuration Density**: Defining enterprise-scale deployments with Work Pools, workers, and custom base images can introduce a significant learning curve.
 
 ## When to use it
-- When you want to add production features (retries, alerts, UI dashboards) to existing Python scripts with minimal changes.
-- If your workflows incorporate dynamic logic (like model routing or prompt generation) that is difficult to describe in traditional static structures.
-- When you require an elegant, real-time UI dashboard to monitor and debug concurrent pipelines.
-- When managing multi-agent systems that require reliable logging, persistence, and error handling.
+- When adding production features (retries, alerts, UI dashboards) to existing Python scripts with minimal code changes.
+- When orchestrating dynamic agent execution pipelines that require real-time state tracking and failure recovery.
+- When managing multi-tenant worker pools with isolated execution permissions across cloud and on-premise clusters.
 
 ## When not to use it
-- For trivial, low-risk local scripts that do not require observability, alerts, or retries.
-- If your team's software engineering ecosystem is primarily built around non-Python runtimes (Go, Java, Rust).
-- If your users need a visual, code-free workflow design interface (use [n8n](../../services/n8n.md)).
-- For high-frequency, sub-millisecond API request/response handling.
+- For lightweight shell commands that do not require retries, state persistence, or central dashboard monitoring.
+- In low-level embedded hardware environments where Python runtime overhead is prohibitive.
+
+## Troubleshooting & Diagnostics
+
+| Failure Mode / Error | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`Crashed` State on Worker** | Worker node exceeded memory limits or process terminated unexpectedly. | Scale worker container cgroups or enable task retries with backoff settings. |
+| **Database Pool Exhaustion** | Prefect server PostgreSQL connection limit reached during high-concurrency runs. | Increase `max_connections` in `postgresql.conf` and adjust `PREFECT_SERVER_DATABASE_CONNECTION_MIN_SIZE`. |
+| **Work Pool Polling Timeout** | Worker pool misconfigured or worker process loses network route to API server. | Verify API health (`prefect server status`) and inspect firewall ports on port 4200. |
+| **FastMCP Correlation Loss** | Missing `task_id` header in custom deployment payloads. | Enforce Pydantic v2 schema validation on all incoming API request handlers. |
+
+## Systemd Service Configuration
+Deploy Prefect Server and Worker processes as reliable background systemd services on Linux nodes:
+
+### 1. Prefect Server Systemd Unit (`/etc/systemd/system/prefect-server.service`)
+```ini
+[Unit]
+Description=Prefect 3.1 Server Daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=prefect
+WorkingDirectory=/var/lib/prefect
+ExecStart=/usr/local/bin/prefect server start --host 0.0.0.0 --port 4200
+Restart=always
+RestartSec=5
+Environment=PREFECT_SERVER_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:secret@localhost:5432/prefect_db
+Environment=PYTHONUNBUFFERED=1
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 2. Prefect Agent Worker Systemd Unit (`/etc/systemd/system/prefect-worker.service`)
+```ini
+[Unit]
+Description=Prefect 3.1 Agent Worker Service
+After=network.target prefect-server.service
+Wants=prefect-server.service
+
+[Service]
+Type=simple
+User=prefect
+WorkingDirectory=/var/lib/prefect
+ExecStart=/usr/local/bin/prefect worker start --pool agent-execution-pool
+Restart=always
+RestartSec=5
+Environment=PREFECT_API_URL=http://127.0.0.1:4200/api
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 

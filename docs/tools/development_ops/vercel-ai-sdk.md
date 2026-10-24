@@ -65,6 +65,28 @@ The Vercel AI SDK sits at the **Application & Presentation Layer**, bridging use
 +-----------------------------------+   +-------------------------------+
 ```
 
+## Detailed Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Frontend Client (useChat)
+    participant Next as Next.js API Route / Node.js Backend
+    participant SDK as Vercel AI SDK Core
+    participant LLM as Frontier Model (Claude 5.6)
+    participant MCP as FastMCP 3.1 Tool Server
+
+    Client->>Next: POST /api/chat (prompt, conversation_history)
+    Next->>SDK: streamText({ model, tools, maxSteps: 5 })
+    SDK->>LLM: Send prompt & tool definitions
+    LLM-->>SDK: Request tool call (tool: searchVectorDB)
+    SDK->>MCP: Execute tool via FastMCP 3.1 Task Protocol
+    MCP-->>SDK: Return structured tool output
+    SDK->>LLM: Append tool output & request final token generation
+    LLM-->>SDK: Stream output tokens
+    SDK-->>Client: Stream SSE chunks (Text & Generative UI components)
+```
+
 ## Typical use cases
 - **Generative UI Applications**: Dynamically rendering interactive React components (charts, forms, dashboards) on the fly based on streamed model output.
 - **Autonomous Multi-Step Agent Backends**: Constructing server-side agentic loops (`maxSteps: 10`) that automatically execute tools until a complex workflow reaches completion.
@@ -92,6 +114,64 @@ The Vercel AI SDK sits at the **Application & Presentation Layer**, bridging use
 - For Python-exclusive backend microservices (use [Pydantic AI](../frameworks/pydantic-ai.md) or [FastAPI](../frameworks/fastapi.md) wrappers).
 - For simple CLI utility scripts where a lightweight direct fetch request is sufficient.
 - When working on offline-only embedded C/C++ applications without JavaScript runtime support.
+
+## Troubleshooting & Edge Diagnostic Matrix
+
+| Failure Mode / Error | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **`AI_JSONParseError`** | Model generated malformed JSON string during `generateObject` or `streamObject`. | Increase model temperature control or add Zod validation repair retries. |
+| **`TOOL_CALL_LIMIT_REACHED`** | Agent loop exceeded `maxSteps` count before arriving at final answer. | Increase `maxSteps` parameter or break multi-step task into smaller sub-agent calls. |
+| **SSE Stream Dropped on Edge** | Response buffer header missing `Content-Type: text/event-stream`. | Configure Next.js Route Segment Config with `export const dynamic = 'force-dynamic'`. |
+| **FastMCP Tool Auth Failure** | Missing or expired bearer token in `FastMCPClient` headers. | Refresh OAuth tokens prior to initializing `streamText` context. |
+
+## Systemd Production Process Unit
+For self-hosted Node.js / Next.js AI SDK backend deployments outside Vercel Cloud, manage application runtimes using systemd:
+
+```ini
+[Unit]
+Description=Vercel AI SDK Node.js Backend Application
+After=network.target nodejs.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/opt/ai-sdk-app
+ExecStart=/usr/bin/node /opt/ai-sdk-app/dist/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=MCP_PROTOCOL_VERSION=3.1
+Environment=OPENAI_API_KEY=env_openai_secret
+Environment=ANTHROPIC_API_KEY=env_anthropic_secret
+
+# Security Settings
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## OpenTelemetry & Observability Setup
+When monitoring production Vercel AI SDK applications, configure OpenTelemetry exporters to track token consumption, request latency, and FastMCP tool call durations:
+
+```typescript
+import { experimental_telemetry as telemetry } from 'ai';
+
+// Enable OpenTelemetry instrumentation across AI SDK stream handlers
+export const customTelemetryConfig = {
+  isEnabled: true,
+  functionId: 'customer-agent-chat',
+  metadata: {
+    environment: process.env.NODE_ENV || 'production',
+    mcpProtocolVersion: '3.1',
+  },
+};
+```
 
 ## Getting started
 
