@@ -164,12 +164,14 @@ for row in results:
 ```
 
 ### 2. FastMCP 3.1 Embedded Memory Server Integration
+
 ```python
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 import lancedb
 import pyarrow as pa
+from datetime import datetime, timedelta
 
 mcp = FastMCP("lancedb-memory-server", version="3.1.0")
 DB_PATH = "./data/mcp_lancedb_memory"
@@ -182,6 +184,13 @@ class DocumentRecord(BaseModel):
     category: str = Field(default="default", description="Classification category for metadata filtering")
     vector: List[float] = Field(..., description="Dense float vector embedding")
     source_url: Optional[str] = Field(None, description="Optional canonical URL or document file path")
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="ISO UTC timestamp of record creation")
+
+class BatchInsertRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    records: List[DocumentRecord] = Field(..., description="List of document records to insert in bulk")
+    table_name: str = Field(default="agent_memories", description="Target LanceDB table name")
 
 class QueryRequest(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -189,6 +198,22 @@ class QueryRequest(BaseModel):
     vector: List[float] = Field(..., description="Query vector embedding")
     top_k: int = Field(default=5, ge=1, le=100, description="Number of nearest neighbors to retrieve")
     filter_sql: Optional[str] = Field(None, description="Optional SQL filter clause")
+
+class HybridQueryRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    query_text: str = Field(..., description="Text query string for FTS BM25 search")
+    vector: List[float] = Field(..., description="Dense float vector embedding for vector similarity search")
+    top_k: int = Field(default=5, ge=1, le=100, description="Number of combined hybrid results")
+    alpha: float = Field(default=0.5, ge=0.0, le=1.0, description="Weighting factor between vector (1.0) and FTS (0.0)")
+
+class IndexConfig(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    table_name: str = Field(default="agent_memories", description="Target table name for index creation")
+    num_partitions: int = Field(default=256, ge=1, description="Number of IVF centroids/partitions")
+    num_sub_vectors: int = Field(default=96, ge=1, description="Number of sub-vectors for PQ quantization")
+    metric: str = Field(default="cosine", description="Distance metric: cosine, L2, or dot product")
 
 def get_db():
     return lancedb.connect(DB_PATH)
@@ -210,6 +235,18 @@ def store_memory(record: DocumentRecord) -> str:
     return f"Successfully stored memory ID '{record.id}' in LanceDB."
 
 @mcp.tool()
+def batch_store_memories(req: BatchInsertRequest) -> Dict[str, Any]:
+    """Inserts multiple document records into LanceDB in a single zero-copy Arrow batch."""
+    db = get_db()
+    data = [r.model_dump() for r in req.records]
+    if req.table_name in db.table_names():
+        tbl = db.open_table(req.table_name)
+        tbl.add(data)
+    else:
+        tbl = db.create_table(req.table_name, data=data)
+    return {"inserted_count": len(req.records), "table": req.table_name, "status": "success"}
+
+@mcp.tool()
 def search_memories(req: QueryRequest) -> List[Dict[str, Any]]:
     """Retrieves top-k relevant agent memories from LanceDB based on vector similarity."""
     db = get_db()
@@ -225,6 +262,33 @@ def search_memories(req: QueryRequest) -> List[Dict[str, Any]]:
     return query.to_list()
 
 @mcp.tool()
+def hybrid_search_memories(req: HybridQueryRequest) -> List[Dict[str, Any]]:
+    """Performs hybrid BM25 full-text and dense vector similarity search with Reciprocal Rank Fusion (RRF)."""
+    db = get_db()
+    if "agent_memories" not in db.table_names():
+        return []
+
+    table = db.open_table("agent_memories")
+    results = table.search(req.vector, query_type="hybrid").text(req.query_text).limit(req.top_k).to_list()
+    return results
+
+@mcp.tool()
+def create_vector_index(cfg: IndexConfig) -> Dict[str, Any]:
+    """Builds an IVF-PQ vector index on the target LanceDB table for fast approximate search."""
+    db = get_db()
+    if cfg.table_name not in db.table_names():
+        return {"error": f"Table '{cfg.table_name}' does not exist."}
+
+    tbl = db.open_table(cfg.table_name)
+    tbl.create_index(
+        metric=cfg.metric,
+        num_partitions=cfg.num_partitions,
+        num_sub_vectors=cfg.num_sub_vectors,
+        replace=True
+    )
+    return {"status": "indexed", "table": cfg.table_name, "metric": cfg.metric, "partitions": cfg.num_partitions}
+
+@mcp.tool()
 def compact_memory_tables() -> Dict[str, Any]:
     """Triggers file compaction and old version cleanup on embedded LanceDB tables."""
     db = get_db()
@@ -232,8 +296,23 @@ def compact_memory_tables() -> Dict[str, Any]:
     for t_name in db.table_names():
         tbl = db.open_table(t_name)
         tbl.compact_files()
+        tbl.cleanup_old_versions(older_than=timedelta(days=1))
         compacted.append(t_name)
     return {"status": "completed", "compacted_tables": compacted}
+
+@mcp.tool()
+def get_table_health() -> Dict[str, Any]:
+    """Returns table metadata, vector index stats, and file fragment counts for health reporting."""
+    db = get_db()
+    stats = {}
+    for t_name in db.table_names():
+        tbl = db.open_table(t_name)
+        stats[t_name] = {
+            "row_count": len(tbl),
+            "schema": [f.name for f in tbl.schema],
+            "version": tbl.version
+        }
+    return {"database_path": DB_PATH, "tables": stats}
 
 if __name__ == "__main__":
     mcp.run()
