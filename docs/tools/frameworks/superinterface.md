@@ -96,6 +96,64 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 - For backend-only AI tasks that do not require a user interface (use [LangGraph](langgraph.md) or [Agno](../agents/agno.md)).
 - If you are building a non-React application (e.g., Vue, Svelte, Flutter, or native mobile without WebView).
 
+## Systemd Service Units & Deployment Setup
+
+For production self-hosted setups running on Linux hosts, deploy Superinterface Server Core using the following systemd service unit (`superinterface-server.service`):
+
+```ini
+# /etc/systemd/system/superinterface-server.service
+[Unit]
+Description=Superinterface Assistant Server Core Engine
+After=network.target postgresql.service redis.service
+Requires=postgresql.service redis.service
+
+[Service]
+Type=simple
+User=superinterface
+Group=superinterface
+WorkingDirectory=/opt/superinterface
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DATABASE_URL="postgresql://super_user:secure_pass@127.0.0.1:5432/superinterface_db?sslmode=disable"
+Environment=REDIS_URL="redis://127.0.0.1:6379/0"
+Environment=SUPERINTERFACE_SECRET_KEY="super-secret-production-encryption-key-phrase"
+Environment=FASTMCP_GATEWAY_URL="http://127.0.0.1:8080/mcp"
+ExecStart=/usr/bin/node /opt/superinterface/dist/server/index.js
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To complement the core server, run an automated maintenance watchdog unit (`superinterface-watchdog.service`):
+
+```ini
+# /etc/systemd/system/superinterface-watchdog.service
+[Unit]
+Description=Superinterface Health Watchdog & Session Garbage Collector
+
+[Service]
+Type=oneshot
+User=superinterface
+ExecStart=/usr/bin/curl -f -X POST http://127.0.0.1:3000/api/v1/health/maintenancecheck -H "Authorization: Bearer super-secret-production-encryption-key-phrase"
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`SSE Streaming Interruption` / HTTP 504 Gateway Timeout** | Reverse proxy (Nginx/Traefik) buffering streaming SSE responses or aggressive read timeouts | `curl -i -N -H "Accept: text/event-stream" http://localhost:3000/api/v1/threads/th_123/stream` | Disable proxy buffering (`proxy_buffering off;` in Nginx) and increase proxy read timeouts to 3600 seconds. |
+| **`FastMCP Gateway Timeout` during tool execution** | Sub-10ms tool call target exceeded due to blocking synchronous FastMCP server execution | `journalctl -u superinterface-server -n 100 \| grep "FastMCP"` | Convert FastMCP tool handlers to async execution loops and ensure non-blocking IO for external HTTP calls. |
+| **`Hydration Mismatch Error` in Next.js App Router** | Superinterface React components rendered on server side without required client context boundary | `npm run build` or browser console log inspection | Wrap components in `"use client"` directives and avoid accessing `window` or local storage during initial render. |
+| **`PostgreSQL Connection Exhaustion` under peak traffic** | Unpooled client connections opened per concurrent WebSocket/SSE streaming session | `psql -c "SELECT count(*) FROM pg_stat_activity WHERE datname='superinterface_db';"` | Enable PgBouncer connection pooling in transaction mode and update `DATABASE_URL` port to 6432. |
+| **`Computer Use Sandbox Allocation Failed`** | Headless browser container or QEMU virtual machine target unavailable or out of sockets | `docker ps \| grep "computer-use-sandbox"` | Ensure docker socket permissions are granted and adjust max container resource limits in `superinterface.config.json`. |
+
 ## Getting started
 
 ### Installation
@@ -120,11 +178,6 @@ docker run -d \
 2. **Database Pooling**: Ensure PgBouncer or server-side connection pooling is enabled on PostgreSQL instances supporting high-concurrency Superinterface thread streams.
 3. **State Sync Enforcements**: Keep component client-side state synchronized by avoiding direct mutation of message objects outside the `@superinterface/react` hook lifecycle.
 
-### Common Troubleshooting Scenarios
-- **Streaming Interruptions**: Verify reverse proxy buffer settings (`proxy_buffering off;`) to prevent SSE response chunking delay.
-- **FastMCP Tool Connection Errors**: Inspect network reachability between the Superinterface backend container and FastMCP tool servers.
-- **Hydration Mismatches**: Ensure server-rendered Next.js pages wrapping Superinterface components specify client component directives (`"use client"`).
-
 ## CLI examples
 
 ### Deployment via CLI
@@ -144,34 +197,89 @@ superinterface mcp register --url http://localhost:8080/mcp --auth-token "mcp_to
 
 ## API examples
 
-### Python FastMCP 3.1 Server Integration & Pydantic v2 Tool Validation
+### 1. React / Next.js Component Integration (@superinterface/react)
+```tsx
+"use client";
+
+import React from "react";
+import { SuperinterfaceProvider, Thread, useThread } from "@superinterface/react";
+import "@superinterface/react/styles.css";
+
+export function AssistantChatView({ assistantId, threadId }: { assistantId: string; threadId: string }) {
+  return (
+    <SuperinterfaceProvider
+      baseUrl="http://localhost:3000/api/v1"
+      assistantId={assistantId}
+    >
+      <div className="flex flex-col h-screen max-w-4xl mx-auto p-4">
+        <header className="border-b pb-4 mb-4">
+          <h1 className="text-xl font-bold text-gray-800">Superinterface Interactive Agent Thread</h1>
+          <p className="text-sm text-gray-500">Connected to FastMCP 3.1 & Computer Use Engine</p>
+        </header>
+        <div className="flex-1 overflow-y-auto">
+          <Thread
+            threadId={threadId}
+            onFormSubmit={(formId, values) => {
+              console.log(`Interactive Form Submit [${formId}]:`, values);
+            }}
+            initialMessages={[
+              {
+                id: "msg_init_01",
+                role: "assistant",
+                content: "Hello! I am your Superinterface assistant. How can I assist you with your workflows today?",
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </SuperinterfaceProvider>
+  );
+}
+```
+
+### 2. Python FastMCP 3.1 Server Integration & Pydantic v2 Tool Validation
 This example demonstrates configuring a **FastMCP 3.1** tool server that interfaces with Superinterface to process interactive component events and validate payloads using **Pydantic v2**:
 
 ```python
 import os
 from typing import Dict, Any, Optional, List
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
 
 # Initialize FastMCP 3.1 Server for Superinterface
-mcp = FastMCP("Superinterface-Interactive-Gateway")
+mcp = FastMCP("Superinterface-Interactive-Gateway", version="3.1.0")
 
 class InteractiveFormSubmission(BaseModel):
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)
+
     form_id: str = Field(..., description="Unique ID of the interactive component form")
     user_id: str = Field(..., description="ID of the submitting user")
     field_values: Dict[str, Any] = Field(..., description="Key-value dictionary of form input data")
     client_timestamp: float = Field(..., description="Client-side submit timestamp")
 
+    @field_validator("form_id")
+    @classmethod
+    def validate_form_id(cls, value: str) -> str:
+        if not value.startswith("form_") and not value.endswith("_form"):
+            raise ValueError("form_id must begin with 'form_' or end with '_form'")
+        return value
+
 class ComponentOption(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     label: str = Field(..., description="Human readable selection label")
     value: str = Field(..., description="Internal key value string")
 
 class InteractiveComponentSpec(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     component_type: str = Field(..., pattern="^(form|carousel|action_card|survey)$", description="Type of UI element")
     title: str = Field(..., min_length=3, description="Component header title")
     options: List[ComponentOption] = Field(default_factory=list, description="Selection options")
 
 class SuperinterfaceToolConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]+$", description="Alpha-numeric name of the tool")
     description: str = Field(..., min_length=10, description="Detailed tool description for LLM prompting")
     type: str = Field("custom", description="The tool execution type")
@@ -193,25 +301,35 @@ def handle_form_submit(payload: dict) -> dict:
     except ValidationError as err:
         return {"status": "validation_error", "details": err.errors()}
 
-if __name__ == "__main__":
-    # Test local validation logic
-    sample_payload = {
-        "form_id": "retreat_booking_form_01",
-        "user_id": "usr_9876",
-        "field_values": {"location": "Lake Tahoe", "guests": 25, "dates": "2027-06-12"},
-        "client_timestamp": 1772188800.0
+@mcp.tool()
+def generate_interactive_card(title: str, actions: List[str]) -> Dict[str, Any]:
+    """Generates an interactive action card component definition for streaming back to Superinterface UI."""
+    spec = InteractiveComponentSpec(
+        component_type="action_card",
+        title=title,
+        options=[ComponentOption(label=act, value=act.lower().replace(" ", "_")) for act in actions]
+    )
+    return {
+        "status": "rendered",
+        "spec": spec.model_dump(),
+        "ui_directive": "STREAM_INTERACTIVE_COMPONENT"
     }
 
-    result = handle_form_submit(sample_payload)
-    print("FastMCP Superinterface Form Submission Result:", result)
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### Configuring Message Truncation & Context Limits
+### 3. Message Truncation & Server Context Configuration
 ```json
 {
   "truncationType": "LAST_MESSAGES",
   "truncationLastMessagesCount": 15,
-  "maxTokens": 4096
+  "maxTokens": 4096,
+  "fastmcp_gateway": {
+    "enabled": true,
+    "endpoint": "http://127.0.0.1:8080/mcp",
+    "timeout_ms": 10000
+  }
 }
 ```
 

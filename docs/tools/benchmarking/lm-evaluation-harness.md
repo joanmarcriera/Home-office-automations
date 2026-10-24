@@ -77,6 +77,58 @@ Eliminates the need for researchers to implement individual, often inconsistent,
 - **Compute Intensive**: Running the full suite of benchmarks can take hours or days on high-end GPUs without pipeline optimization.
 - **Complexity**: The YAML configuration for new tasks can have a steep learning curve for complex multi-choice reasoning or visual RAG tasks.
 
+## Systemd Service Units & Automated Benchmarking Daemon
+
+For automated continuous evaluation (CI/CD) pipelines running on dedicated GPU benchmark servers, deploy the LM Evaluation Harness using `lm-eval-runner.service` and scheduled trigger `lm-eval-runner.timer`:
+
+```ini
+# /etc/systemd/system/lm-eval-runner.service
+[Unit]
+Description=LM Evaluation Harness Continuous Evaluation Service
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=evalrunner
+Group=evalrunner
+WorkingDirectory=/opt/lm-evaluation-harness
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1,2,3
+Environment=HF_HOME=/var/cache/huggingface
+ExecStart=/opt/lm-evaluation-harness/venv/bin/python3 -m lm_eval --model vllm --model_args pretrained=meta-llama/Llama-4-70b,tensor_parallel_size=4,dtype=auto --tasks mmlu_pro,gsm8k,human_eval --output_path /var/log/eval_results/
+Restart=on-failure
+RestartSec=30s
+LimitNOFILE=65536
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+# /etc/systemd/system/lm-eval-runner.timer
+[Unit]
+Description=Nightly Model Benchmark Evaluation Schedule
+
+[Timer]
+OnCalendar=02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Failure | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`CUDA Out Of Memory (OOM)` during batch inference** | KV-cache allocation or sequence length exceeding VRAM | `nvidia-smi` & `journalctl -u lm-eval-runner` | Enable `--batch_size auto` or specify `gpu_memory_utilization=0.85` in `--model_args`. |
+| **`TaskNotFoundException` on custom benchmarks** | Task name misspelled or custom YAML task specification not registered in `tasks/` directory | `lm_eval --tasks list \| grep "custom"` | Verify YAML syntax and ensure task definition path is included in `--include_path`. |
+| **FastMCP Gateway Timeout during agent eval** | Sub-10ms FastMCP tool server heartbeat lost during heavy GPU tensor computation | `python3 -m mcp.cli ping http://localhost:18789` | Execute evaluation subprocess in isolated worker threads with async event loop detachment. |
+| **`Pydantic.ValidationError` on metric export** | Metric dictionary containing `NaN` or unnormalized score floats (>1.0) | Inspect JSON output via `python3 -m json.tool` | Ensure custom task evaluators apply bounds clipping (`max(0.0, min(1.0, score))`) before returning. |
+| **vLLM Engine Initialization Failure** | Missing CUDA drivers or conflicting PyTorch ABI versions | `python3 -c "import torch; print(torch.cuda.is_available())"` | Reinstall PyTorch with matching CUDA toolkit wheel version (e.g. CUDA 12.4+). |
+
 ## When to use it
 - When you need to evaluate a model across many standard benchmarks at once.
 - When comparing a local or fine-tuned model against baseline results from the Open LLM Leaderboard.
@@ -143,17 +195,19 @@ lm_eval --model mcp \
 
 ## API examples
 
-### FastMCP 3.1 Harness Evaluation Gateway
+### 1. FastMCP 3.1 Harness Evaluation Gateway
 Exposing evaluation harness task triggers over FastMCP 3.1 Task Protocol:
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from typing import List
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
+from typing import List, Dict, Any
 
-mcp = FastMCP("LM Evaluation Harness Server", version="3.1")
+mcp = FastMCP("LM Evaluation Harness Server", version="3.1.0")
 
 class EvalTaskRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     model_name: str = Field(..., description="Target model string (e.g., vllm/meta-llama/Llama-4-70b)")
     tasks: List[str] = Field(default_factory=lambda: ["mmlu_pro", "gsm8k"])
     num_fewshot: int = Field(5, ge=0, le=50)
@@ -166,9 +220,12 @@ class EvalTaskRequest(BaseModel):
         return value
 
 class EvalTaskResult(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     model_name: str
     completed_tasks: List[str]
-    mmlu_score: float
+    mmlu_score: float = Field(..., ge=0.0, le=1.0)
+    scores_by_task: Dict[str, float] = Field(default_factory=dict)
 
 @mcp.tool()
 async def run_harness_evaluation(req: EvalTaskRequest, ctx: Context) -> EvalTaskResult:
@@ -178,25 +235,30 @@ async def run_harness_evaluation(req: EvalTaskRequest, ctx: Context) -> EvalTask
     return EvalTaskResult(
         model_name=req.model_name,
         completed_tasks=req.tasks,
-        mmlu_score=0.884
+        mmlu_score=0.884,
+        scores_by_task={"mmlu_pro": 0.884, "gsm8k": 0.912}
     )
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-### Advanced Pipeline Optimization on Llama 4 and Gemma 3 with Pydantic v2 validation
+### 2. Advanced Pipeline Optimization on Llama 4 and Gemma 3 with Pydantic v2 validation
 This script runs programmatic evaluation with local sandboxing and multi-GPU tensor/pipeline parallelism, validating the resulting score payload using strict Pydantic v2 schemas.
 
 ```python
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ConfigDict, ValidationError
 
 class MetricValue(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     metric_name: str = Field(..., alias="metric")
     value: float = Field(..., ge=0.0, le=1.0)
 
 class HarnessEvalResult(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
     model_name: str = Field(..., alias="model")
     task_name: str = Field(..., alias="task")
     scores: Dict[str, float]
@@ -234,7 +296,7 @@ if __name__ == "__main__":
         print(f"Successfully validated scores for {result.model_name}: {result.scores}")
 ```
 
-### Using with LiteLLM Proxy
+### 3. Using with LiteLLM Proxy
 Evaluate multiple models via a unified proxy:
 
 ```python
@@ -253,15 +315,6 @@ results = lm_eval.simple_evaluate(
     limit=100
 )
 ```
-
-## Diagnostic & Operational Troubleshooting Matrix
-
-| Symptom / Failure | Root Cause | Remediation Action |
-| :--- | :--- | :--- |
-| `CUDA_Out_Of_Memory` | Large model / batch size exceeds VRAM | Enable `--batch_size auto` or use `--model vllm` with tensor parallelism. |
-| `TaskNotFoundException` | Task name misspelled or YAML task file missing | Verify task name against `lm_eval --tasks list`. |
-| `FastMCP_Timeout_Error` | Harness runner failed to send heartbeat to FastMCP | Increase connection timeout or decrease eval batch limit. |
-| `Validation_Error_Score_Range` | Metric value output improperly scaled | Ensure custom scorers return normalized scores between 0.0 and 1.0. |
 
 ## Related tools / concepts
 

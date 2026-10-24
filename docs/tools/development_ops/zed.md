@@ -69,6 +69,56 @@ Zed addresses the fundamental performance and resource constraints of modern dev
 - **Rust/Wasm Plugin Curve**: Writing custom plugins requires Rust knowledge and WebAssembly compilation targets (`wasm32-wasip1`).
 - **Niche Legacy Enterprise Tooling**: Specialized visual drag-and-drop design tools for legacy enterprise platforms are less prevalent compared to VS Code.
 
+## Systemd Service Units & Headless Remote Agent Setup
+
+When using Zed in remote development mode over SSH or headless dev-containers, deploy `zed-remote-server.service` on the Linux development host to manage workspace indexing and FastMCP bridge proxies:
+
+```ini
+# /etc/systemd/system/zed-remote-server.service
+[Unit]
+Description=Zed Remote Headless Workspace Server & FastMCP Daemon
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=developer
+WorkingDirectory=/home/developer
+Environment=ZED_SERVER_PORT=7070
+Environment=RUST_LOG=info
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/local/bin/zed-remote-server --listen 127.0.0.1:7070 --mcp-config /home/developer/.config/zed/mcp.json
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To maintain clean workspace indexing caches across large projects, enable the companion maintenance timer (`zed-cache-cleaner.service`):
+
+```ini
+# /etc/systemd/system/zed-cache-cleaner.service
+[Unit]
+Description=Zed Workspace AST Index Cache Cleaner
+
+[Service]
+Type=oneshot
+User=developer
+ExecStart=/usr/local/bin/zed-remote-server --prune-cache --older-than-days 7
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **`GPU Shader Compile Error` / Black Screen on Startup** | Outdated Vulkan/Mesa drivers or missing hardware GPU acceleration | `zed --no-gpu` or `glxinfo \| grep "OpenGL vendor"` | Launch with software fallback (`zed --no-gpu`) or update host GPU Mesa/NVIDIA display drivers. |
+| **FastMCP Context Tools Unresponsive** | Python stdio stream buffering or process crash in background FastMCP tool process | `zed --mcp-status` or `journalctl -u zed-remote-server` | Set `PYTHONUNBUFFERED=1` in `settings.json` command environment or test tool CLI directly (`python3 -m servers.zed_tools`). |
+| **CRDT Collaboration Disconnects / Latency** | Network NAT traversal failure or WebSocket ping timeout during multiplayer sessions | `zed --collab-diagnostics` | Ensure port 443/WebSocket egress is permitted and verify server latency via `ping collab.zed.dev`. |
+| **`Tree-sitter AST Parsing Timeout` on Mega-Files** | Parsing extremely large minified single-line source files (>50MB) | `zed src/minified_bundle.js` | Disable Tree-sitter syntax highlighting for minified assets in `settings.json` via file size match rule. |
+| **Inline AI Completion Latency spikes** | High latency or rate limits on external LLM provider API endpoints | `curl -i -X POST https://api.anthropic.com/v1/messages` | Switch fallback provider to local Ollama/vLLM instance running `llama4:8b` for zero-latency local completion. |
+
 ## When to use it
 - When requiring maximum editor speed, minimal RAM usage, and long battery life on mobile development rigs.
 - For pair programming sessions where zero latency multi-user editing is required.
@@ -170,26 +220,35 @@ zed --mcp-status
 
 ## API examples
 
-### FastMCP 3.1 Python Context Server Integration
+### 1. FastMCP 3.1 Python Context Server Integration
 Zed communicates with tools using standard FastMCP 3.1. Below is a complete Python FastMCP server implementation that exposes repository analysis and linting tools to Zed Assistant sessions:
 
 ```python
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 import os
 import subprocess
 
 # Initialize FastMCP 3.1 Server for Zed Assistant
-mcp = FastMCP("ZedContextTools")
+mcp = FastMCP("ZedContextTools", version="3.1.0")
 
 class SyntaxCheckResult(BaseModel):
-    filepath: str = Field(description="Target file checked")
-    is_valid: bool = Field(description="True if syntax check passed")
+    model_config = ConfigDict(extra="ignore")
+
+    filepath: str = Field(..., description="Target file checked")
+    is_valid: bool = Field(..., description="True if syntax check passed")
     errors: str = Field(default="", description="Compiler or linter error output")
 
 class ProjectSearchRequest(BaseModel):
-    query: str = Field(description="Search string or regex")
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., description="Search string or regex")
     extension: str = Field(default="rs", description="File extension filter")
+
+    @field_validator("extension")
+    @classmethod
+    def strip_dot(cls, v: str) -> str:
+        return v.lstrip(".")
 
 @mcp.tool()
 def run_cargo_check(project_dir: str) -> str:
@@ -213,7 +272,7 @@ def run_cargo_check(project_dir: str) -> str:
 
 @mcp.tool()
 def search_codebase(project_dir: str, search_req: ProjectSearchRequest) -> str:
-    """Searches files in project directory for specific text queries for Zed context context injection."""
+    """Searches files in project directory for specific text queries for Zed context injection."""
     matches = []
     for root, _, files in os.walk(project_dir):
         if "target" in root or ".git" in root:
@@ -237,23 +296,29 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### Validating Zed Config Schemas with Pydantic v2
+### 2. Validating Zed Config Schemas with Pydantic v2
 Ensure local Zed configuration files and MCP server definitions comply with strict Pydantic v2 schemas before syncing:
 
 ```python
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Dict, List, Optional
 
 class MCPCommand(BaseModel):
-    path: str = Field(description="Path to executable binary")
+    model_config = ConfigDict(extra="ignore")
+
+    path: str = Field(..., description="Path to executable binary")
     args: List[str] = Field(default_factory=list, description="Command line arguments")
     env: Dict[str, str] = Field(default_factory=dict, description="Environment flags")
 
 class ContextServerConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     source: str = Field(default="custom")
     command: MCPCommand
 
 class ZedSettingsSchema(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
     theme: str = Field(default="One Dark")
     buffer_font_size: int = Field(default=14, alias="buffer_font_size")
     context_servers: Dict[str, ContextServerConfig] = Field(default_factory=dict, alias="context_servers")
@@ -264,9 +329,6 @@ class ZedSettingsSchema(BaseModel):
         if v < 8 or v > 48:
             raise ValueError("Font size must be between 8 and 48 pt")
         return v
-
-    class Config:
-        populate_by_name = True
 
 # Validate active Zed settings payload
 sample_zed_settings = {
@@ -289,7 +351,7 @@ print(f"Validated Zed Theme: {config.theme}")
 print(f"Registered MCP Tool: {list(config.context_servers.keys())[0]}")
 ```
 
-### Authoring Wasm Extensions for Zed in Rust
+### 3. Authoring Wasm Extensions for Zed in Rust
 Zed plugins compile to `wasm32-wasip1`. Below is an example plugin skeleton that registers language grammar support and FastMCP tools:
 
 ```rust
@@ -308,7 +370,7 @@ impl zed::Extension for FastMcpZedExtension {
         _worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
         Ok(zed::Command {
-            command: "fastmcp-lsp".string(),
+            command: "fastmcp-lsp".to_string(),
             args: vec!["--stdio".to_string()],
             env: Default::default(),
         })
