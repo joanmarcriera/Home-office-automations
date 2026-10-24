@@ -45,6 +45,28 @@ The Model Context Protocol establishes a bidirectional client-server relationshi
    - **stdio**: Standard Input/Output streaming for local desktop applications and local agent subprocesses.
    - **SSE (Server-Sent Events)**: HTTP-based streaming for remote or containerized MCP server deployments across local networks or internal VPCs.
 
+## Multi-Server Protocol Initialization Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Agent Client (Claude Code)
+    participant Hub as FastMCP 3.1 Tool Hub
+    participant DBServer as SQLite MCP Server
+    participant HomeServer as Home Assistant MCP Server
+
+    Client->>Hub: Connect stdio transport & negotiate JSON-RPC 2.0
+    Hub->>DBServer: Initialize stdio transport & request tools/list
+    DBServer-->>Hub: Return SQLite tool definitions (query, schema)
+    Hub->>HomeServer: Initialize SSE connection to http://127.0.0.1:8090/sse
+    HomeServer-->>Hub: Return Home Assistant tool definitions (turn_on, get_state)
+    Hub-->>Client: Aggregate & return unified tools/list catalog
+    Client->>Hub: Call tools/call (name: query, params)
+    Hub->>DBServer: Forward JSON-RPC request to SQLite server
+    DBServer-->>Hub: Return JSON-RPC result payload
+    Hub-->>Client: Stream tool response back to client session
+```
+
 ## Typical use cases
 - **Homelab System Control**: Controlling Home Assistant lights, smart plugs, and automation scenes via dedicated MCP tools.
 - **Document & Task Operations**: Querying, staging, and indexing documents in Paperless-ngx or updating Vikunja and Todoist task backlogs.
@@ -61,6 +83,52 @@ The Model Context Protocol establishes a bidirectional client-server relationshi
 - **State Management**: MCP servers are stateless by default and rely on clients or external state stores for long-running workflows.
 - **Transport Latency**: Remote SSE transport adds network latency compared to local stdio communication.
 - **Schema Overhead**: Complex nested tool schemas require rigorous client-side schema validation to prevent model tool-calling failures.
+
+## Systemd Multi-Server Daemon Setup
+For local Linux AI workstations or homelab servers, manage FastMCP 3.1 SSE servers using dedicated systemd units:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Homelab Operations Daemon
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcpuser
+WorkingDirectory=/opt/mcp-hub
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run server_hub.py --transport sse --port 8090 --host 0.0.0.0
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=MCP_PROTOCOL_VERSION=3.1
+Environment=LOG_LEVEL=INFO
+Environment=SQLITE_DB_PATH=/data/homelab.db
+
+# Security Sandbox
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Advanced Security & Sandbox Enforcement
+To prevent rogue MCP tools from accessing unauthorized host resources when executing third-party tool servers, apply strict Podman/Docker container security profiles:
+
+```bash
+# Run remote MCP server in read-only Podman sandbox container
+podman run -d \
+  --name mcp-sqlite-sandbox \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  -v /data/sqlite_readonly:/data:ro \
+  -p 127.0.0.1:8091:8090 \
+  mcp-server-sqlite:v3.1
+```
 
 ## When to use it
 - When connecting AI agents (Claude Code, Cursor, Open WebUI) to homelab APIs, local databases, and custom CLI utilities.

@@ -3,7 +3,7 @@
 A paperless automation playbook for transforming physical documents (mail, receipts, invoices, tax forms) into structured, actionable digital tasks linked to searchable archives under early January 2027 standards.
 
 ## What it is
-Scan to Task is an end-to-end operational automation pattern that bridge physical paper documents and digital task management systems. Utilizing modern Optical Character Recognition (OCR), Vision-Language Models (**Claude 5.6 Vision**, **Qwen 3.6 VL**, **GPT-5.6**), and workflow engines ([n8n](../services/n8n.md)), physical documents placed on a feeder scanner or photographed via mobile app are automatically ingested, parsed for actionable items (due dates, financial amounts, follow-up actions), and injected directly into task platforms ([Vikunja](../services/vikunja.md), Todoist) with deep links back to document storage ([Paperless-ngx](../services/paperless-ngx.md)).
+Scan to Task is an end-to-end operational automation pattern that bridges physical paper documents and digital task management systems. Utilizing modern Optical Character Recognition (OCR), Vision-Language Models (**Claude 5.6 Vision**, **Qwen 3.6 VL**, **GPT-5.6**), and workflow engines ([n8n](../services/n8n.md)), physical documents placed on a feeder scanner or photographed via mobile app are automatically ingested, parsed for actionable items (due dates, financial amounts, follow-up actions), and injected directly into task platforms ([Vikunja](../services/vikunja.md), Todoist) with deep links back to document storage ([Paperless-ngx](../services/paperless-ngx.md)).
 
 ```mermaid
 flowchart TD
@@ -48,6 +48,31 @@ Scan to Task sits in the **Operations & Playbooks Layer**, orchestrating interac
 - **Reasoning Layer**: Ollama (local Llama 4 / Gemma 4 Vision) or Cloud Vision APIs (Claude 5.6 Vision, GPT-5.6).
 - **Target Execution System**: Vikunja, Todoist, Google Tasks, Outlook Tasks.
 
+## Operational Lifecycle Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Scanner as Fujitsu / Brother Scanner
+    participant Paperless as Paperless-ngx Engine
+    participant n8n as n8n Orchestrator
+    participant Gateway as FastMCP 3.1 Gateway
+    participant Vikunja as Vikunja REST API
+
+    User->>Scanner: Drop mail/invoice in feeder
+    Scanner->>Paperless: Save PDF to /consume directory
+    Paperless->>Paperless: Run OCRmyPDF & save archive
+    Paperless->>n8n: Emit Webhook event (document_id=402)
+    n8n->>Gateway: POST parse_scan_to_task(doc_id, ocr_text)
+    Gateway->>Gateway: Validate with Pydantic v2 schema
+    Gateway-->>n8n: Return structured TaskCreationPayload
+    n8n->>Vikunja: PUT /api/v1/projects/1/tasks
+    Vikunja-->>n8n: 201 Created (task_id=981)
+    n8n->>Paperless: Add tag 'task-created' & task_id custom field
+    n8n-->>User: Mobile notification with Paperless & Vikunja links
+```
+
 ## Typical use cases
 
 ### 1. Automated Utility & Supplier Bill Processing
@@ -85,6 +110,47 @@ Scan to Task sits in the **Operations & Playbooks Layer**, orchestrating interac
 ## When not to use it
 - For high-security classified documents that are strictly prohibited from digital storage or OCR processing.
 - For extremely low-volume workflows (1-2 documents per month) where manual task creation takes less time than automated pipeline maintenance.
+
+## Troubleshooting & Diagnostics
+
+| Symptom / Failure Mode | Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Paperless Webhook Timeout** | n8n instance offline or network firewall blocking port 5678. | Verify systemd service status (`systemctl status n8n`) and check UFW firewall rules. |
+| **Extraction Schema Rejection** | Multimodal LLM produced non-conforming JSON missing required due_date fields. | Set fallback default in Pydantic v2 model using `Field(default_factory=...)`. |
+| **Vikunja 401 Unauthorized** | Expired or revoked API token in n8n HTTP Request node. | Re-generate Vikunja API token and update n8n credentials vault. |
+| **OCR Quality Degradation** | Low DPI scanner settings or blurred lens on mobile device. | Enforce minimum 300 DPI scan profiles on hardware scanner settings. |
+
+## Systemd Background Service Configuration
+Deploy the Scan-to-Task FastMCP 3.1 Gateway as a systemd background daemon on the Paperless server host:
+
+```ini
+[Unit]
+Description=Scan-to-Task FastMCP 3.1 Ingestion Service
+After=network.target paperless-webserver.service
+Wants=paperless-webserver.service
+
+[Service]
+Type=simple
+User=paperless
+WorkingDirectory=/opt/scan-to-task
+ExecStart=/opt/scan-to-task/venv/bin/python3 -m mcp.server.fastmcp run gateway_server.py --port 8095
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=MCP_PROTOCOL_VERSION=3.1
+Environment=PAPERLESS_URL=http://127.0.0.1:8000
+Environment=VIKUNJA_URL=http://127.0.0.1:3456
+
+# Security Isolation
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/scan-to-task
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 

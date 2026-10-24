@@ -48,6 +48,33 @@ Matt Pocock Skills addresses this problem by embedding explicit critical-thinkin
 
 Operating at the reasoning and execution layer, these skills inject structured execution guidelines into agent runtimes like [Jules](jules.md) or [Claude Code](../development_ops/claude-code.md).
 
+## Detailed Interaction Sequence
+
+The sequence diagram below details the multi-turn interaction protocol enforced by the `/grill-me` scaffold within FastMCP 3.1 agent session runtimes:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer
+    participant Agent as IDE Agent / Claude Code
+    participant MCP as FastMCP 3.1 Server
+    participant Validator as Pydantic v2 Schema
+    participant FileSystem as Repository Worktree
+
+    Developer->>Agent: Request complex refactor (/grill-me)
+    Agent->>MCP: Call grill_me_plan(proposal, target_files)
+    MCP->>Validator: Validate payload & target file list
+    Validator-->>MCP: Payload verified
+    MCP-->>Agent: Return 3-5 adversarial technical questions
+    Agent->>Developer: Present grilling questions & pause mutation
+    Developer->>Agent: Provide explicit risk mitigations & architectural decisions
+    Agent->>MCP: Submit verified answer session
+    MCP-->>Agent: Set authorized = True
+    Agent->>FileSystem: Execute safe code refactor
+    FileSystem-->>Agent: Modifications written
+    Agent-->>Developer: Present completed & verified diff
+```
+
 ## Typical use cases
 - **Plan Pressure-Testing (`/grill-me`)**: Requiring agents to answer 3 to 5 challenging architectural questions before executing complex code changes.
 - **Strict Test-Driven Development (`/tdd`)**: Forcing agents to write failing unit tests first, verify red status, write minimal implementation, and refactor cleanly.
@@ -100,6 +127,46 @@ Add the setup hook to your agent's system prompt or configuration file (`CLAUDE.
 ## Agent Skills Configuration
 - Always run `/grill-me` before executing multi-file refactors or schema changes.
 - Use `/tdd` for new feature implementations.
+```
+
+## Systemd Service Configuration
+For team-wide shared development servers or local AI workstation daemons, deploy the FastMCP 3.1 Pocock Skills server as a background systemd service:
+
+```ini
+[Unit]
+Description=Matt Pocock Skills FastMCP 3.1 Engine Daemon
+After=network.target daemon.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=developer
+WorkingDirectory=/opt/pocock-skills
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run pocock_skills_server.py --port 8092 --host 127.0.0.1
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=MCP_PROTOCOL_VERSION=3.1
+Environment=LOG_LEVEL=INFO
+
+# Security Hardening Settings
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Advanced Telemetry & Inspection Setup
+When running Pocock Skills across team development clusters, export telemetry traces to OpenTelemetry collector backends to evaluate grill session completion rates:
+
+```bash
+# Export FastMCP 3.1 telemetry variables for Pocock Skills daemon
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+export OTEL_SERVICE_NAME="matt-pocock-skills-engine"
+export MCP_SKILLS_TELEMETRY_ENABLED="true"
 ```
 
 ## CLI examples
