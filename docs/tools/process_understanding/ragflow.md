@@ -24,18 +24,22 @@ RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) eng
 
 ### DeepDoc Vision Retrieval Sequence
 
-```
-+---------------+      +-------------------------+      +---------------------------+
-| AGENT CLIENT  |      | FASTMCP 3.1 RAGFLOW MCP |      | INFINITY / ES HYBRID DB   |
-+---------------+      +-------------------------+      +---------------------------+
-        |                           |                                |
-        |--- 1. Search Query ------>|                                |
-        |    (Query string + Top K) |--- 2. Dense + Sparse Search -->|
-        |                           |    (BM25 + Vector RRF Blend)   |
-        |                           |<-- Matched Chunks & BBoxes ----|
-        |                           |                                |
-        |<-- 3. Visual Citation ----|                                |
-        |    (Page + Bounding Box)  |                                |
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Agent as FastMCP 3.1 Agent Client
+    participant RAGFlowMCP as FastMCP 3.1 RAGFlow Server
+    participant DeepDoc as DeepDoc Layout Parsing Engine
+    participant HybridDB as Elasticsearch / Infinity Hybrid Vector DB
+    participant CitationEngine as Bounding-Box Visual Grounder
+
+    Agent->>RAGFlowMCP: search_knowledge_base(query="Transformer attention formula", top_k=5)
+    RAGFlowMCP->>HybridDB: Execute Hybrid Search (BM25 Keyword + BGE-M3 Dense RRF)
+    HybridDB-->>RAGFlowMCP: Return High-Scoring Chunks with Bounding-Box Coordinates
+    RAGFlowMCP->>DeepDoc: Verify Chunk Bounding-Box & Table Cell Layout Context
+    DeepDoc-->>RAGFlowMCP: Layout Context & Pixel Bounding Boxes
+    RAGFlowMCP->>CitationEngine: Format Visual Citations (Page Num + Bounding Box JSON)
+    CitationEngine-->>Agent: Grounded Text Chunks + Pixel Citations (`x0, y0, x1, y1`)
 ```
 
 ## What problem it solves

@@ -26,20 +26,25 @@ As of early January 2027, this schema is the baseline for "Audio-to-Knowledge" w
 
 ### Audio Segment Grounding & Vector Indexing Sequence
 
-```
-+---------------------+      +------------------------+      +------------------------+
-| RAW AUDIO STREAM    |      | SILERO VAD / PYANNOTE  |      | VECTOR & BM25 INDEX    |
-+---------------------+      +------------------------+      +------------------------+
-           |                             |                               |
-           |--- 1. Ingest MP3 / WAV ---->|                               |
-           |                             |--- 2. Segment & Diarize ----->|
-           |                             |    (Timestamped Boundaries)   |
-           |                             |                               |
-           |                             |--- 3. Pydantic v2 Gate ------>|
-           |                             |    (Validate probability)     |
-           |                             |<-- Structured Metadata JSON --|
-           |                                                             |
-           |<--- FastMCP 3.1 Audio Retrieval Tool Query Response --------|
+```mermaid
+sequenceDiagram
+    autonumber
+    actor AudioStream as Raw Audio Stream (MP3 / WAV)
+    participant VADEngine as Silero VAD / Pyannote Diarization
+    participant WhisperEngine as Faster-Whisper / Insanely-Fast-Whisper
+    participant PydanticGate as Pydantic v2 Validation Gate
+    participant VectorDB as Qdrant / BM25 Hybrid Index
+    actor Agent as FastMCP 3.1 Retrieval Client
+
+    AudioStream->>VADEngine: Ingest Audio Stream
+    VADEngine->>VADEngine: Segment Speech Blocks & Speaker Clustering
+    VADEngine->>WhisperEngine: Forward Timestamped Segment Audio
+    WhisperEngine->>WhisperEngine: Transcribe & Generate Word-Level Confidence
+    WhisperEngine->>PydanticGate: Output Raw Segment JSON
+    PydanticGate->>PydanticGate: Validate AudioTranscriptionDocument Schema
+    PydanticGate-->>VectorDB: Store Structured Metadata & Dense Embeddings
+    Agent->>VectorDB: query_audio_segments(query="systemd setup", speaker_id="SPEAKER_01")
+    VectorDB-->>Agent: Return Grounded Segments (Start/End Time, Text, Confidence)
 ```
 
 ## What problem it solves

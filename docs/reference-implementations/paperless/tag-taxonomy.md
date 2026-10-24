@@ -3,37 +3,29 @@
 ## What it is
 A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of January 2027, it is optimized for high-reasoning models like **Claude 5.6**, **GPT-5.6**, **Gemini 4.0 Ultra**, **DeepSeek-V4**, and **Llama 4** to perform autonomous classification and lifecycle management via **FastMCP 3.1** interfaces.
 
-```
-+---------------------------------------------------------------------------------------------------+
-|                                PAPERLESS TAXONOMY LIFECYCLE TOPOLOGY                              |
-+---------------------------------------------------------------------------------------------------+
-|                                                                                                   |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|  | Document Ingestion Stream | ----> | Inbox State Processing Engine                           |  |
-|  | (Scanner, Email, Webhook) |       | (Tag: `inbox` / Unprocessed Storage Path)              |  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|                                                                  |                                |
-|                                                                  v                                |
-|                                      +---------------------------------------------------------+  |
-|                                      | FastMCP 3.1 Agent Classification Engine                  |  |
-|                                      | (Claude 5.6 / GPT-5.6 / DeepSeek-V4 Metadata Extraction)|  |
-|                                      +---------------------------------------------------------+  |
-|                                         /                      |                      \           |
-|                                        v                       v                       v          |
-|                       +------------------+    +------------------+    +------------------+        |
-|                       | Status: Action   |    | Category Tagging |    | Retention Tagging|        |
-|                       | `needs-action`   |    | `Finance/Bill`   |    | `Keep-7-years`   |        |
-|                       +------------------+    +------------------+    +------------------+        |
-|                                        \                       |                      /           |
-|                                         +----------------------+---------------------+            |
-|                                                                |                                  |
-|                                                                v                                  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|  | Downstream Integration    | <---- | State Transition & Archival Emitter                     |  |
-|  | Vikunja Task / n8n Flow   |       | (Tag: `processed` / Long-Term Paperless Storage Template)|  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|                                                                                                   |
-+---------------------------------------------------------------------------------------------------+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Scanner as Physical Scanner / Email Webhook
+    participant PaperlessInbox as Paperless-ngx Inbox (`tag: inbox`)
+    participant Agent as FastMCP 3.1 Taxonomy Agent
+    participant PydanticGate as Pydantic v2 Tag Validator
+    participant VikunjaAPI as Vikunja Task Management API
+    participant Archive as Paperless Storage Path (`tag: processed`)
+
+    Scanner->>PaperlessInbox: Upload Document PDF
+    PaperlessInbox->>Agent: Webhook Trigger (`document_created`)
+    Agent->>PaperlessInbox: Fetch Content & OCR Text
+    Agent->>Agent: Classify Document (Category, Status, Retention)
+    Agent->>PydanticGate: Validate Metadata (`PaperlessTaxonomyClassification`)
+    PydanticGate-->>Agent: Validated Tag List
+    Agent->>PaperlessInbox: Update Tags (`Finance/Bill`, `status: needs-review`, `retention: 7yr`)
+    alt Has Action Item (`status: needs-review` or `status: to-pay`)
+        Agent->>VikunjaAPI: Create Task ("Pay Electric Bill", due_date="2027-01-20")
+        VikunjaAPI-->>Agent: Task ID Acknowledged
+    end
+    Agent->>PaperlessInbox: Remove `inbox` Tag & Set `status: processed`
+    PaperlessInbox->>Archive: Move to Archive Storage Directory Structure
 ```
 
 ### Paperless Tag State Transition Sequence

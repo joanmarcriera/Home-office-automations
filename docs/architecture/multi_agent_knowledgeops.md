@@ -83,23 +83,27 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 
 ### FastMCP 3.1 Multi-Agent Handshake & Concurrency Topology
 
-```
-+--------------+        +--------------------------+        +--------------------------+
-| AGENT WORKER |        | FASTMCP 3.1 LOCK ENGINE  |        | GIT REPOSITORY POLICY    |
-+--------------+        +--------------------------+        +--------------------------+
-       |                             |                                   |
-       |--- 1. acquire_lock(slug) -->|                                   |
-       |    {agent_id, ttl=300}      |--- 2. Verify Mutex Availability -->|
-       |                             |<-- Lock Granted ------------------|
-       |<-- Lock Confirmation -------|                                   |
-       |                             |                                   |
-       |--- 3. Execute Document Deepening & Pydantic Validation -------->|
-       |                             |                                   |
-       |--- 4. audit_contract() ---->|                                   |
-       |<-- Compliant Report (JSON) -|                                   |
-       |                             |                                   |
-       |--- 5. release_lock(slug) -->|                                   |
-       |<-- Lock Released -----------|                                   |
+```mermaid
+sequenceDiagram
+    autonumber
+    actor AgentWorker as Agent Worker (Claude 5.6 / GPT-5.6)
+    participant LockEngine as FastMCP 3.1 Lock Engine
+    participant RepoPolicy as Git Repository Policy Guard
+    participant CIBatch as CI Quality Pipeline
+
+    AgentWorker->>LockEngine: acquire_lock(canonical_slug, agent_id, ttl=300)
+    LockEngine->>RepoPolicy: verify_mutex_availability(canonical_slug)
+    RepoPolicy-->>LockEngine: lock_granted(token_id)
+    LockEngine-->>AgentWorker: lock_confirmation(token_id, expiry_ts)
+
+    AgentWorker->>AgentWorker: Execute Document Deepening & Pydantic v2 Schema Validation
+    AgentWorker->>LockEngine: audit_contract(file_path, schema_model)
+    LockEngine->>CIBatch: check_docs_contract.py + audit_docs_quality.py
+    CIBatch-->>LockEngine: compliance_report(status=SUCCESS, violations=0)
+    LockEngine-->>AgentWorker: contract_passed(audit_hash)
+
+    AgentWorker->>LockEngine: release_lock(canonical_slug, token_id)
+    LockEngine-->>AgentWorker: lock_released_ack()
 ```
 
 ## Strengths
