@@ -45,6 +45,26 @@ The following ASCII diagram illustrates NeMo AutoModel's distributed 3D parallel
 +-----------------------------------------------------------------------------------+
 ```
 
+```mermaid
+graph TD
+    subgraph FastMCP 3.1 Orchestration Layer
+        Agent[Training Agent / Claude 5.6] -->|Task Protocol Payload| Gateway[NeMo FastMCP Gateway Server]
+        Gateway -->|Validate Pydantic v2 Spec| SpecValidator[Job Parameter Schema Validator]
+    end
+
+    subgraph Distributed Engine
+        SpecValidator -->|Torchrun Multi-GPU Dispatch| Orchestrator[3D Parallel Orchestrator]
+        Orchestrator -->|TP Group| TP[Tensor Parallel Workers]
+        Orchestrator -->|PP Group| PP[Pipeline Parallel Workers]
+        Orchestrator -->|DP Group| DP[Data Parallel Workers]
+    end
+
+    subgraph Hardware & Export
+        TP & PP & DP -->|NVLink Interconnect| Hardware[NVIDIA H100/H200/Blackwell Pods]
+        Hardware -->|Async Checkpoint Export| Storage[TensorRT-LLM / vLLM Storage]
+    end
+```
+
 ## Feature Comparison Matrix
 
 | Metric / Capability | NeMo AutoModel | vLLM Engine | HuggingFace Accelerate / Deepspeed |
@@ -75,6 +95,46 @@ The following ASCII diagram illustrates NeMo AutoModel's distributed 3D parallel
 - **Hard NVIDIA Dependency**: Unusable on non-NVIDIA hardware, lacking native support for AMD GPUs or Apple Silicon unified memory architectures.
 - **Steep Learning Curve**: Requires robust understanding of distributed training concepts, multi-node configurations, and SLURM or PyTorch distributed runners.
 - **Setup Complexity**: Overkill for standard single-GPU hobbyist fine-tuning where simpler huggingface/diffusers scripts are sufficient.
+
+## Systemd Service Units & Automated Training Service
+
+For enterprise GPU servers or DGX pods running continuous background training workers, deploy NeMo AutoModel using `nemo-automodel-worker.service` and systemd health watchdog:
+
+```ini
+# /etc/systemd/system/nemo-automodel-worker.service
+[Unit]
+Description=NVIDIA NeMo AutoModel Distributed Training Worker Node
+After=network.target nvidia-persistenced.service
+Requires=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=nemo
+Group=nemo
+WorkingDirectory=/opt/nemo-automodel
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+Environment=NCCL_DEBUG=INFO
+Environment=NCCL_IB_DISABLE=0
+ExecStart=/opt/nemo-automodel/venv/bin/torchrun --nproc_per_node=8 -m nemo_automodel.trainers.diffusion_lora --config_path /etc/nemo/diffusion_job.yaml
+Restart=on-failure
+RestartSec=15s
+LimitNOFILE=65536
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **`CUDA Out of Memory (OOM)` during FP8 forward pass** | Tensor parallel size or batch size exceeding GPU VRAM capacity | `nvidia-smi` & `dmesg \| grep -i oom` | Increase `tensor_parallel_size` or enable FlashAttention-3 memory saving in job config. |
+| **`NCCL Ring AllReduce Timeout` across multi-node runs** | InfiniBand or NVLink interconnect dropped packets or misconfigured subnet | `nccl-tests/build/all_reduce_perf -b 8M -e 128M -f 2 -g 8` | Verify NVLink fabric status via `nvidia-smi topo -m` and check `NCCL_IB_DISABLE=0`. |
+| **FastMCP Gateway Timeout on training job submission** | FastMCP tool handler blocked waiting synchronously for long-running `torchrun` process | `journalctl -u nemo-automodel-worker` | Execute training launcher subprocess in detached non-blocking async loops and stream job status via logs. |
+| **`Pydantic.ValidationError` on Job Config** | Invalid model architecture string or tensor parallel factor not divisible by available GPU count | Inspect log output from `model_validate()` | Ensure total GPU count is divisible by `tensor_parallel_size * pipeline_parallel_size`. |
+| **FP8 Loss Divergence / Gradient Overflow** | Underflow in FP8 quantized transformer weights during backpropagation | `python3 -c "import nemo_automodel; print(nemo_automodel.get_cuda_capability())"` | Enable dynamic loss scaling monitors or fallback precision to `bf16` for sensitive layers. |
 
 ## When to use it
 - When training or fine-tuning massive generative vision, video, or multi-modal models locally on high-density multi-GPU setups.
@@ -138,10 +198,10 @@ The following example implements a **FastMCP 3.1** server that validates distrib
 ```python
 from typing import Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("NeMo-AutoModel-Orchestrator")
+mcp = FastMCP("NeMo-AutoModel-Orchestrator", version="3.1.0")
 
 class DistributedParallelConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", freeze=True)

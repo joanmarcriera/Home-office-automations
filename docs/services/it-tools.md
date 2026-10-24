@@ -74,6 +74,61 @@ IT-Tools occupies the **Client-Side Utility Service Layer** within a self-hosted
 - **Interactive UI Bias**: Out-of-the-box installation is optimized for interactive human use; CLI and API automation require additional wrapper tools or FastMCP server bridges.
 - **Client Processing Limits**: Heavy cryptographic ops (e.g., high-iteration PBKDF2 or large key generation) depend directly on the client machine's CPU speed.
 
+## Systemd Service Units & Production Container Deployment
+
+For bare-metal Linux or virtual machine hosts, run IT-Tools using Podman/Docker systemd integration via `it-tools.service` and periodic auto-update timer `it-tools-updater.service`:
+
+```ini
+# /etc/systemd/system/it-tools.service
+[Unit]
+Description=IT-Tools Developer Utility Suite (Nginx Static Container)
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+ExecStartPre=-/usr/bin/docker stop it-tools
+ExecStartPre=-/usr/bin/docker rm it-tools
+ExecStart=/usr/bin/docker run --name it-tools \
+  --rm \
+  -p 8080:80 \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid \
+  --tmpfs /var/cache/nginx:rw,noexec,nosuid \
+  --tmpfs /var/run:rw,noexec,nosuid \
+  corentinth/it-tools:latest
+ExecStop=/usr/bin/docker stop it-tools
+Restart=always
+RestartSec=10s
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+# /etc/systemd/system/it-tools-updater.service
+[Unit]
+Description=IT-Tools Container Image Pull & Restart Watchdog
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker pull corentinth/it-tools:latest
+ExecStartPost=/bin/systemctl restart it-tools.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Browser Tab Crash on Large Files** | Client WebAssembly or V8 heap exhaustion when parsing >100MB JSON/XML payloads | Browser DevTools Console / `chrome://discards` | Split input payload into smaller chunks or use CLI utilities (`jq`, `xmlstarlet`) for large batch processing. |
+| **HTTP 502 Bad Gateway via Reverse Proxy** | Container unreachable on internal port 80 or Nginx socket permission error | `docker exec -it it-tools curl -I http://127.0.0.1:80` | Ensure proxy points to mapped host port (`8080`) and verify container read-only tmpfs mounts are active. |
+| **`WebAssembly compilation failed` in Air-Gapped Network** | Browser CSP (Content Security Policy) blocking inline WASM execution | `curl -sI http://localhost:8080 \| grep -i "content-security-policy"` | Update reverse proxy headers to include `script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'` in Content Security Policy. |
+| **FastMCP Gateway Tool Timeout** | Local FastMCP proxy worker process blocked by CPU-intensive keypair generation | `journalctl -u it-tools-mcp.service -n 50` | Execute heavy RSA/Ed25519 key generation in thread pools using `asyncio.to_thread` in PythonFastMCP gateway. |
+| **PWA Offline Caching Incomplete** | Service worker asset caching failing due to missing HTTPS TLS termination | Browser Application tab -> Service Workers | Ensure IT-Tools web endpoint is served over valid TLS/HTTPS or `http://localhost` loopback. |
+
 ## When to use it
 - When handling production secrets, API credentials, or PII that must remain within local trust boundaries.
 - When working in restricted, air-gapped, or low-bandwidth network environments.
@@ -125,13 +180,6 @@ services:
         memory: 64M
 ```
 
-### TrueNAS SCALE Installation
-1. Navigate to **Apps** -> **Discover Apps** -> **Custom App**.
-2. Application Name: `it-tools`.
-3. Image repository: `corentinth/it-tools`, Tag: `latest`.
-4. Port Forwarding: Host Port `30080` -> Container Port `80`.
-5. CPU Limit: `0.5 Cores`, Memory Limit: `512 MiB`.
-
 ## CLI examples
 
 ### Lifecycle Management and Version Auditing
@@ -173,9 +221,9 @@ The following Python implementation registers IT-Tools utilities as Model Contex
 import json
 import base64
 import hashlib
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 # Initialize FastMCP 3.1 Server
 mcp = FastMCP(
@@ -189,7 +237,15 @@ class JWTDecodeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     token: str = Field(..., description="Encoded JWT string (header.payload.signature)")
 
+    @field_validator("token")
+    @classmethod
+    def validate_jwt_structure(cls, v: str) -> str:
+        if v.count(".") < 2:
+            raise ValueError("JWT string must contain at least two period separators (header.payload.signature)")
+        return v
+
 class JWTDecodeResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     header: Dict[str, Any] = Field(..., description="Decoded JWT header")
     payload: Dict[str, Any] = Field(..., description="Decoded JWT claims payload")
     signature_present: bool = Field(..., description="Whether a signature block exists")
@@ -199,6 +255,7 @@ class SubnetCalcRequest(BaseModel):
     cidr: str = Field(..., description="IPv4 CIDR block (e.g. 192.168.1.0/24)")
 
 class SubnetCalcResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     network_address: str
     netmask: str
     broadcast_address: str
@@ -208,11 +265,8 @@ class SubnetCalcResponse(BaseModel):
     name="it_tools_jwt_decode",
     description="Decodes JWT tokens locally without external HTTP calls"
 )
-
 def jwt_decode_tool(payload: JWTDecodeRequest) -> JWTDecodeResponse:
     parts = payload.token.split(".")
-    if len(parts) < 2:
-        raise ValueError("Invalid JWT token format. Must contain at least header and payload.")
 
     def _pad_base64(data: str) -> bytes:
         missing_padding = len(data) % 4
@@ -249,10 +303,12 @@ if __name__ == "__main__":
 Use this validation script to verify deployment settings before spinning up IT-Tools instances:
 
 ```python
-from pydantic import BaseModel, HttpUrl, Field, field_validator
+from pydantic import BaseModel, HttpUrl, Field, field_validator, ConfigDict
 from typing import Optional, List
 
 class ITToolsDeploymentSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     service_name: str = Field(default="it-tools", description="Docker container or service identifier")
     endpoint_url: HttpUrl = Field(..., description="Internal reachable URL")
     port: int = Field(default=8080, ge=1, le=65535)
