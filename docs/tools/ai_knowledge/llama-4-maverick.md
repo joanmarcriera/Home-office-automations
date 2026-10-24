@@ -3,41 +3,28 @@
 ## What it is
 **Llama 4 Maverick** is Meta's high-capacity, fine-tuned agentic foundation model within the Llama 4 open-weights family. Purpose-built for multi-step reasoning, autonomous tool orchestration, complex code generation, and low-latency structured output synthesis, Llama 4 Maverick integrates native FastMCP 3.1 tool-calling primitives and a sparse Mixture-of-Experts (MoE) execution architecture. Optimized for enterprise agentic runtimes and privacy-first local infrastructure, it delivers frontier-class intelligence while operating within self-hosted parameter regimes.
 
-```
-+---------------------------------------------------------------------------------------------------+
-|                                  LLAMA 4 MAVERICK RUNTIME ARCHITECTURE                            |
-+---------------------------------------------------------------------------------------------------+
-|                                                                                                   |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|  | Agent Host / Client App   | ----> | Llama 4 Maverick Ingest Router                          |  |
-|  | (FastMCP 3.1 Protocol)    |       | (RoPE Positional Embeddings & 128k Context Tokenizer)   |  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|                                                                  |                                |
-|                                                                  v                                |
-|                                      +---------------------------------------------------------+  |
-|                                      | Sparse Mixture-of-Experts (MoE) Routing Layer           |  |
-|                                      +---------------------------------------------------------+  |
-|                                         /                      |                      \           |
-|                                        v                       v                       v          |
-|                       +------------------+    +------------------+    +------------------+        |
-|                       | Expert Sub-Net 1 |    | Expert Sub-Net 2 |    | Expert Sub-Net N |        |
-|                       | Code & Logic     |    | FastMCP 3.1 Tool |    | Multimodal/Vis   |        |
-|                       +------------------+    +------------------+    +------------------+        |
-|                                        \                       |                      /           |
-|                                         +----------------------+---------------------+            |
-|                                                                |                                  |
-|                                                                v                                  |
-|                                      +---------------------------------------------------------+  |
-|                                      | KV-Cache FlashAttention-3 Token Denoising Engine        |  |
-|                                      +---------------------------------------------------------+  |
-|                                                                |                                  |
-|                                                                v                                  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|  | FastMCP 3.1 Execution     | <---- | Native FastMCP 3.1 JSON-RPC Token Emitter Engine         |  |
-|  | Tool Host / Local Runtime |       | (Strict Schema Enforcement & Automatic Retries)         |  |
-|  +---------------------------+       +---------------------------------------------------------+  |
-|                                                                                                   |
-+---------------------------------------------------------------------------------------------------+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Agent Host / FastMCP 3.1 Client
+    participant Router as Llama 4 Maverick Ingest Router
+    participant MoE as Sparse MoE Top-K Router
+    participant Experts as Active MoE Expert Sub-nets
+    participant ToolEngine as Native FastMCP 3.1 Tool Execution Engine
+    participant OutputGate as Pydantic v2 Output Stream
+
+    Client->>Router: Transmit Prompt & FastMCP 3.1 Tool Declarations
+    Router->>MoE: Tokenize & Compute Gating Coefficients
+    MoE->>Experts: Dispatch Tokens to Specialized Experts (Code, Reasoning, Tool-Calling)
+    Experts->>Experts: Compute KV-Cache FlashAttention-3 Token Layers
+    alt Tool Call Generated
+        Experts->>ToolEngine: Emit Tool Call Spec (`call_tool(name, args)`)
+        ToolEngine-->>Client: Execute FastMCP 3.1 Tool via Stdio/SSE
+        Client-->>ToolEngine: Return Tool Output Payload
+        ToolEngine->>Experts: Inject Tool Response into KV Context
+    end
+    Experts->>OutputGate: Stream Denoised Output Tokens
+    OutputGate-->>Client: Return Verified Structured SSE Stream
 ```
 
 ### FastMCP 3.1 Tool Call Sequence Diagram
