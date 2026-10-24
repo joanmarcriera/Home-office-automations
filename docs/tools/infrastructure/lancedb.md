@@ -32,6 +32,45 @@ graph TD
 - **Multimodal Media Search**: Indexing combined image and text embeddings (such as CLIP or Whisper transcripts) for personal photo/video archives with hybrid metadata filtering.
 - **FastMCP Agent Memory**: Serving as an embedded, persistent semantic memory store for FastMCP tool servers that save conversation turns and user preferences.
 
+## Systemd Compactor & Maintenance Timer Configuration
+
+For persistent local installations, run `lancedb-compactor.service` and `lancedb-compactor.timer` to execute background table compaction and snapshot pruning:
+
+```ini
+# /etc/systemd/system/lancedb-compactor.service
+[Unit]
+Description=LanceDB Embedded Table Compactor & Snapshot Cleaner
+After=network.target
+
+[Service]
+Type=oneshot
+User=lancedb
+Group=lancedb
+WorkingDirectory=/var/lib/lancedb
+ExecStart=/usr/local/bin/python3 -c "import lancedb; db=lancedb.connect('/var/lib/lancedb'); [db.open_table(t).compact_files() for t in db.table_names()]"
+
+# /etc/systemd/system/lancedb-compactor.timer
+[Unit]
+Description=Daily LanceDB Table Compaction Timer
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution & Workaround Strategy |
+| :--- | :--- | :--- | :--- |
+| **`Commit Conflict Error` on multi-process writes** | Concurrent write processes attempting simultaneous table append operations | `journalctl -u lancedb-compactor` | Implement file-lock synchronization or designate a single write worker process queue. |
+| **Slow query speeds on multi-million row tables** | Search running unindexed flat brute-force scan (`Flat` index) | `python3 -c "print(tbl.index_stats())"` | Create an IVF-PQ index (`table.create_index(metric='cosine', num_partitions=256)`) to build clustered vector centroids. |
+| **High disk bloat after frequent row updates** | LanceDB retaining historical version snapshots | `du -sh /var/lib/lancedb/*.lance` | Run `table.cleanup_old_versions(older_than=timedelta(days=1))` to purge obsolete data files. |
+| **`PyArrow.ArrowInvalid: Schema mismatch`** | Appending record dicts with missing or mismatched field types | `python3 -c "print(tbl.schema)"` | Validate incoming document objects using Pydantic v2 schemas before appending to LanceDB tables. |
+| **Memory spike during IVF-PQ index creation** | Insufficient VRAM/RAM available for multi-subvector training | `free -h` & `dmesg \| grep -i oom` | Reduce `num_partitions` or set `max_train_samples` parameter during `create_index()` execution. |
+
 ## Strengths
 - **Serverless & Embedded**: Runs in-process with zero client-server network overhead, eliminating background daemon management and socket connection pools.
 - **Disk-Native Columnar Performance**: Built on the Lance format, enabling random-access vector similarity queries over datasets larger than system RAM with millisecond latency.
@@ -126,29 +165,41 @@ for row in results:
 
 ### 2. FastMCP 3.1 Embedded Memory Server Integration
 ```python
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
 import lancedb
 import pyarrow as pa
 
-mcp = FastMCP("lancedb-memory-server")
+mcp = FastMCP("lancedb-memory-server", version="3.1.0")
 DB_PATH = "./data/mcp_lancedb_memory"
+
+class DocumentRecord(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    id: str = Field(..., description="Unique document identifier")
+    text: str = Field(..., description="Text content or excerpt")
+    category: str = Field(default="default", description="Classification category for metadata filtering")
+    vector: List[float] = Field(..., description="Dense float vector embedding")
+    source_url: Optional[str] = Field(None, description="Optional canonical URL or document file path")
+
+class QueryRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    vector: List[float] = Field(..., description="Query vector embedding")
+    top_k: int = Field(default=5, ge=1, le=100, description="Number of nearest neighbors to retrieve")
+    filter_sql: Optional[str] = Field(None, description="Optional SQL filter clause")
 
 def get_db():
     return lancedb.connect(DB_PATH)
 
 @mcp.tool()
-def store_memory(memory_id: str, text: str, vector: List[float], category: str = "general") -> str:
+def store_memory(record: DocumentRecord) -> str:
     """Stores a semantic vector memory entry in embedded LanceDB."""
     db = get_db()
     table_name = "agent_memories"
 
-    data = [{
-        "id": memory_id,
-        "text": text,
-        "category": category,
-        "vector": vector
-    }]
+    data = [record.model_dump()]
 
     if table_name in db.table_names():
         table = db.open_table(table_name)
@@ -156,20 +207,20 @@ def store_memory(memory_id: str, text: str, vector: List[float], category: str =
     else:
         table = db.create_table(table_name, data=data)
 
-    return f"Successfully stored memory ID '{memory_id}' in LanceDB."
+    return f"Successfully stored memory ID '{record.id}' in LanceDB."
 
 @mcp.tool()
-def search_memories(query_vector: List[float], category_filter: str = None, top_k: int = 3) -> List[Dict[str, Any]]:
+def search_memories(req: QueryRequest) -> List[Dict[str, Any]]:
     """Retrieves top-k relevant agent memories from LanceDB based on vector similarity."""
     db = get_db()
     if "agent_memories" not in db.table_names():
         return []
 
     table = db.open_table("agent_memories")
-    query = table.search(query_vector).limit(top_k)
+    query = table.search(req.vector).limit(req.top_k)
 
-    if category_filter:
-        query = query.where(f"category = '{category_filter}'")
+    if req.filter_sql:
+        query = query.where(req.filter_sql)
 
     return query.to_list()
 
@@ -188,38 +239,6 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### 3. Pydantic v2 Schema for Vector Document Ingestion
-```python
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict, Field
-
-class DocumentRecord(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    id: str = Field(..., description="Unique document identifier")
-    text: str = Field(..., description="Text content or excerpt")
-    category: str = Field(default="default", description="Classification category for metadata filtering")
-    vector: List[float] = Field(..., description="Dense float vector embedding")
-    source_url: Optional[str] = Field(None, description="Optional canonical URL or document file path")
-
-class QueryRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    vector: List[float] = Field(..., description="Query vector embedding")
-    top_k: int = Field(default=5, ge=1, le=100, description="Number of nearest neighbors to retrieve")
-    filter_sql: Optional[str] = Field(None, description="Optional SQL filter clause")
-
-if __name__ == "__main__":
-    doc = DocumentRecord(
-        id="doc_101",
-        text="FastMCP server deployment instructions",
-        category="ops",
-        vector=[0.01, 0.05, 0.88],
-        source_url="https://docs.homelab.local/fastmcp"
-    )
-    print("Ingestion record validated:", doc.model_dump_json(indent=2))
-```
-
 ## Architectural Comparison & Vector Database Matrix
 
 | Vector Store | Primary Architecture | Daemon Required | Memory Footprint | Full-Text Search (FTS) | Best Use Case |
@@ -228,21 +247,6 @@ if __name__ == "__main__":
 | **Qdrant** | Standalone Service / Cluster | Yes (`qdrant` daemon) | High (In-Memory HNSW graphs) | Payload text indexing | Enterprise multi-tenant cloud vector search & microservices |
 | **ChromaDB** | Embedded SQLite + HNSW / Server | Optional | Medium (In-memory index) | Basic metadata filter | Simple prototype RAG & Python experiment scripts |
 | **Milvus** | Distributed Kubernetes Cluster | Yes (Multi-container etcd/MinIO) | Heavy | Supported via plugins | High-throughput distributed enterprise vector search at billion scale |
-
-## Production Hardening & Operational Best Practices
-- **Storage Directory Locking**: Ensure local filesystem paths (`./data/lancedb_store`) are configured with appropriate POSIX file permissions (`0700`) to prevent unauthorized cross-user reading of raw embedded vectors.
-- **Index Optimization for Large Collections**: When dataset size exceeds 100,000 vectors, explicitly invoke `table.create_index(metric="cosine", num_partitions=256, num_sub_vectors=96)` (IVF-PQ) to accelerate ANN retrieval speeds.
-- **Concurrent Write Serialization**: Use file-based locks or a single worker queue when writing to LanceDB tables from multi-threaded FastMCP web servers to avoid table schema update contention.
-- **Compaction & Cleanup**: Periodically call `table.compact_files()` and `table.cleanup_old_versions()` on long-lived tables to merge micro-append files and reclaim NVMe storage space.
-
-## Diagnostic & Troubleshooting Guide
-
-| Issue / Symptom | Root Cause | Resolution Strategy |
-| :--- | :--- | :--- |
-| `Commit Conflict Error` on multi-process writes | Multiple processes attempting simultaneous table append operations | Implement file-lock synchronization or designate a single write worker process. |
-| Slow query speeds on multi-million row tables | Search running unindexed flat brute-force scan (`Flat` index) | Create an IVF-PQ index (`table.create_index()`) to build clustered vector centroids. |
-| High disk usage after frequent row deletions | LanceDB retaining historical version snapshots | Run `table.cleanup_old_versions(older_than=timedelta(days=1))` to purge obsolete data files. |
-| `PyArrow.ArrowInvalid: Schema mismatch` | Appending record dicts with missing or mismatched field types | Validate incoming document objects using Pydantic v2 schemas before appending to LanceDB tables. |
 
 ## Related tools / concepts
 - [ChromaDB](chroma.md) — Embedded vector database comparison.

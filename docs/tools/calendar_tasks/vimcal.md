@@ -81,6 +81,42 @@ The internal NLP parser breaks down unstructured meeting requests into determini
 - **Agentic Scheduling Workflows**: Coordinate agent-managed calendar slots via underlying Google Calendar or Microsoft Graph MCP servers using **FastMCP 3.1**.
 - **Cross-Calendar Unified Overview**: Merging personal Google Calendar events with enterprise Outlook calendars in a unified single-keyboard interface.
 
+## Systemd Service Configuration
+
+For background sync daemons and FastMCP 3.1 provider bridge instances maintaining real-time calendar synchronization, run `vimcal-bridge.service` as a user unit:
+
+```ini
+# ~/.config/systemd/user/vimcal-bridge.service
+[Unit]
+Description=Vimcal FastMCP 3.1 Provider Synchronization Bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/services/vimcal-bridge
+Environment="PYTHONUNBUFFERED=1"
+Environment="VIMCAL_CALENDAR_BACKEND=google"
+Environment="VIMCAL_SYNC_INTERVAL_SEC=30"
+ExecStart=%h/services/vimcal-bridge/venv/bin/python3 -m vimcal_bridge.server
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=default.target
+```
+
+## Comprehensive Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution & Workaround Strategy |
+| :--- | :--- | :--- | :--- |
+| **OAuth Token Expiration (Error 401)** | Refresh token revoked or expired after password change | `systemctl --user status vimcal-bridge` & check logs | Run `vimcal-bridge --reauth` to re-trigger browser OAuth handshake for Google/Microsoft Graph. |
+| **Cross-Timezone DST Drift** | System local timezone definition mismatched with IANA identifier | `timedatectl` & `date +%Z` | Force explicit IANA timezone in request payload (`America/New_York` instead of generic `EST`). |
+| **Double-Booking Edge Case** | Concurrent meeting reservation during high latency window | Check Google Calendar sync status via API | Enable pessimistic free-busy locking in FastMCP bridge or force pre-write free-busy re-query. |
+| **NLP Temporal Parsing Failure** | Ambiguous date expression (e.g., "next Friday" when today is Friday) | `vimcal-cli parse "next Friday at 2pm"` | Specify explicit dates or modify default NLP ambiguity setting in Vimcal Preferences (`Cmd+,`). |
+| **FastMCP Gateway Disconnect** | Local RPC port collision or background worker crash | `netstat -tlpn \| grep 8088` | Kill orphaned process on port 8088 and restart `vimcal-bridge.service`. |
+
 ## Strengths
 - **Keyboard-First Design**: Vim-inspired navigation keys and command palette (`Cmd+K`) maximize cognitive efficiency.
 - **Superior Time Zone Support**: Real-time conversion, visual drag-and-drop overlays, and automated daylight savings adjustment.
@@ -141,27 +177,33 @@ Because Vimcal functions over Google Calendar and Microsoft Graph backends, agen
 import os
 import logging
 from datetime import datetime, timezone
-from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr, ValidationError
-from fastmcp import FastMCP, Context
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, ValidationError
+from mcp.server.fastmcp import FastMCP, Context
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Vimcal-Provider-Bridge")
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("vimcal-calendar-bridge")
+mcp = FastMCP("vimcal-calendar-bridge", version="3.1.0")
 
 # Pydantic v2 Models
 class EventAttendee(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     email: EmailStr
     response_status: Optional[str] = Field(default="needsAction", description="Status: accepted, declined, tentative, needsAction")
 
 class EventTime(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     date_time: datetime = Field(..., description="ISO 8601 formatted timestamp")
     time_zone: str = Field(default="UTC", description="IANA timezone identifier e.g. America/New_York")
 
 class CalendarEventRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+
     summary: str = Field(..., min_length=1, max_length=255, description="Event title")
     location: Optional[str] = Field(default=None, description="Meeting location or video URL")
     description: Optional[str] = Field(default=None, description="Event body or agenda")
@@ -170,17 +212,23 @@ class CalendarEventRequest(BaseModel):
     attendees: List[EventAttendee] = Field(default_factory=list)
 
 class CalendarEventResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     event_id: str
     status: str
     html_link: str
     created_at: datetime
 
 class FreeBusySlot(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     start_time: datetime
     end_time: datetime
     is_free: bool
 
 class FreeBusyQueryRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     time_min: datetime
     time_max: datetime
     timezone: str = Field(default="UTC")
@@ -188,24 +236,18 @@ class FreeBusyQueryRequest(BaseModel):
 
 @mcp.tool()
 async def create_vimcal_compatible_event(
-    event_payload: dict,
+    event_payload: CalendarEventRequest,
     ctx: Optional[Context] = None
 ) -> CalendarEventResponse:
     """
     Validates and schedules a calendar event compatible with Vimcal provider backends.
-
-    Args:
-        event_payload: Raw event dictionary from LLM tool call.
-        ctx: FastMCP Context object.
     """
     if ctx:
         await ctx.info("Validating calendar event payload with Pydantic v2...")
 
     try:
-        validated_event = CalendarEventRequest.model_validate(event_payload)
-
         if ctx:
-            await ctx.info(f"Event validated: '{validated_event.summary}' at {validated_event.start.date_time}")
+            await ctx.info(f"Event validated: '{event_payload.summary}' at {event_payload.start.date_time}")
 
         # Simulate provider insertion API response
         return CalendarEventResponse(
@@ -215,33 +257,28 @@ async def create_vimcal_compatible_event(
             created_at=datetime.now(timezone.utc)
         )
 
-    except ValidationError as ve:
-        logger.error(f"Calendar event validation failed: {ve}")
+    except Exception as ve:
+        logger.error(f"Calendar event creation failed: {ve}")
         raise ValueError(f"Invalid calendar event schema: {ve}")
 
 @mcp.tool()
 async def query_free_busy_slots(
-    query_payload: dict,
+    req: FreeBusyQueryRequest,
     ctx: Optional[Context] = None
 ) -> List[FreeBusySlot]:
     """
     Queries attendee free/busy status for automated slot selection.
-
-    Args:
-        query_payload: Dictionary containing time_min, time_max, and attendee_emails.
-        ctx: FastMCP Context object.
     """
     if ctx:
         await ctx.info("Querying attendee availability across provider accounts...")
 
     try:
-        req = FreeBusyQueryRequest.model_validate(query_payload)
         # Mock free slot response
         return [
             FreeBusySlot(start_time=req.time_min, end_time=req.time_max, is_free=True)
         ]
-    except ValidationError as ve:
-        logger.error(f"FreeBusy query validation failed: {ve}")
+    except Exception as ve:
+        logger.error(f"FreeBusy query failed: {ve}")
         raise ValueError(f"Invalid freebusy request: {ve}")
 
 if __name__ == "__main__":

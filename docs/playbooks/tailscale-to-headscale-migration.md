@@ -154,7 +154,66 @@ If not using OIDC or if a node requires manual registration:
 - [x] Execute `tailscale logout` followed by `tailscale up --login-server ...`.
 - [x] Re-verify HA external access if proxied through Tailscale.
 
-#### Step 5: Verification
+#### Step 5: Systemd Service Unit Configuration
+
+To ensure zero downtime and auto-reconnection on reboot or network recovery across Linux edge nodes, configure `headscale.service` and the client reconnect daemon `/etc/systemd/system/tailscale-headscale-watchdog.service`:
+
+```ini
+# /etc/systemd/system/headscale.service
+[Unit]
+Description=Headscale Open Source Tailscale Control Plane Server
+After=network-online.target authentik.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=headscale
+Group=headscale
+WorkingDirectory=/var/lib/headscale
+ExecStart=/usr/local/bin/headscale serve --config /etc/headscale/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/headscale /var/run/headscale
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+# /etc/systemd/system/tailscale-headscale-watchdog.service
+[Unit]
+Description=Tailscale to Headscale Auto-Reconnect Watchdog
+After=tailscaled.service
+Wants=tailscaled.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tailscale-headscale-watchdog.sh
+Restart=on-failure
+RestartSec=15s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Step 6: Comprehensive Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **OIDC Callback Error 500** | Client ID / Secret mismatch in `config.yaml` or Authentik redirect URI invalid | `headscale log` & `journalctl -u authentik` | Ensure Authentik redirect URL matches `https://headscale.domain.com/oidc/callback`. Re-issue client secret in Authentik. |
+| **Split-DNS Loop** | Node local resolver pointing to Tailnet MagicDNS while Headscale DNS is unreachable | `dig @100.100.100.100 mynode.headscale.net` | Set `override_local_dns: false` in Headscale config or temporary fallback to `/etc/resolv.conf`. |
+| **DERP Relay Fallback Latency** | Direct STUN UDP port 3478 blocked by upstream firewall | `tailscale netcheck` | Open UDP 3478 on firewall. Ensure custom DERP map in `config.yaml` points to valid local/external DERP server. |
+| **Node Key Expired / Rejected** | Node key TTL elapsed without auto-renewal | `headscale nodes list` | Re-issue `headscale preauthkeys create` or authenticate via OIDC interactive browser flow (`tailscale up --force-reauth`). |
+| **Subnet Route Not Advertising** | `extra_records` or Linux IP forwarding disabled | `sysctl net.ipv4.ip_forward` | Execute `echo 'net.ipv4.ip_forward = 1' \| sudo tee -a /etc/sysctl.conf && sudo sysctl -p`. Approve route in Headscale: `headscale routes enable -i <node-id> -r <cidr>`. |
+
+#### Step 7: Verification
 1. List nodes on Headscale: `headscale nodes list`.
 2. Verify connectivity between nodes: `tailscale ping <other-node-ip>`.
 3. Ensure ACLs are correctly migrated if using a custom `policy.hujson`.
@@ -202,7 +261,7 @@ Provides automated node key registration, OIDC audit logging, and migration orch
 """
 
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 import requests
 import logging
@@ -213,6 +272,8 @@ logger = logging.getLogger("HeadscaleMigrationMCP")
 mcp = FastMCP("Headscale-Migration-Controller", version="3.1.0")
 
 class MigrationNodeSpec(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+
     hostname: str = Field(..., description="Target node FQDN or hostname")
     user_owner: str = Field(..., description="User account responsible for the node")
     node_key: str = Field(..., pattern=r"^(nodekey|mkey):[a-f0-9]{64}$", description="Node registration key")
@@ -227,10 +288,18 @@ class MigrationNodeSpec(BaseModel):
         return value
 
 class PreAuthKeyRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     user: str = Field(..., description="Headscale user namespace")
     reusable: bool = Field(default=False, description="Allow key reuse across multi-node clusters")
     ephemeral: bool = Field(default=False, description="Auto-remove node on disconnect")
     expiration_hours: int = Field(default=24, ge=1, le=168, description="Key validity in hours")
+
+class NodeHealthCheckSpec(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    target_ip: str = Field(..., description="Tailscale 100.x.y.z IP address to ping")
+    max_latency_ms: float = Field(default=100.0, description="Latency threshold for health validation")
 
 @mcp.tool()
 def generate_migration_preauth_key(server_url: str, api_key: str, req: PreAuthKeyRequest) -> Dict[str, Any]:
@@ -273,6 +342,27 @@ def approve_migrated_node(server_url: str, api_key: str, spec: MigrationNodeSpec
     except Exception as err:
         logger.error(f"Failed node registration: {err}")
         return {"error": str(err), "status": "rejected"}
+
+@mcp.tool()
+def audit_migrated_headscale_fleet(server_url: str, api_key: str) -> Dict[str, Any]:
+    """Audits active Headscale nodes and verifies OIDC assignment and active WireGuard sessions."""
+    endpoint = f"{server_url.rstrip('/')}/api/v1/node"
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    try:
+        res = requests.get(endpoint, headers=headers, timeout=10)
+        res.raise_for_status()
+        nodes = res.json().get("nodes", [])
+        total_nodes = len(nodes)
+        online_nodes = sum(1 for n in nodes if n.get("online", False))
+        return {
+            "total_nodes": total_nodes,
+            "online_nodes": online_nodes,
+            "nodes": [{"id": n.get("id"), "givenName": n.get("givenName"), "ipAddresses": n.get("ipAddresses")} for n in nodes]
+        }
+    except Exception as err:
+        logger.error(f"Fleet audit failed: {err}")
+        return {"error": str(err), "status": "audit_failed"}
 
 if __name__ == "__main__":
     mcp.run()
