@@ -35,6 +35,25 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 
 ## Architectural Topology & Message Routing
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Element Web / Mobile Client
+    participant Proxy as Sliding Sync Proxy / Router
+    participant HS as Synapse Homeserver 1.170.0+
+    participant E2EE as Megolm / Olm Key Engine
+    participant Agent as FastMCP 3.1 Room Agent
+
+    Client->>Proxy: Request Sync Stream (sliding_sync filter)
+    Proxy->>HS: Pull Delta Events / Room State
+    HS-->>Proxy: Return Room Event Delta
+    Proxy-->>Client: Stream Encrypted Event Payload
+    Client->>E2EE: Decrypt Event via Megolm Session Key
+    HS->>Agent: Dispatch Room Event Webhook / Async Loop
+    Agent->>Agent: Pydantic v2 Payload Validation & Task Extraction
+    Agent->>HS: Send Signed Room Message Response
+```
+
 ```
 +-----------------------------------------------------------------------------------+
 |                              USER INTERFACE & BRIDGES                             |
@@ -87,6 +106,47 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 | **Data Ownership** | 100% Self-Hosted Sovereign | Vendor Controlled | Client Only (Centralized Server) | Vendor Controlled Cloud |
 | **Agent / Bot Integration** | Native FastMCP 3.1 / Webhooks | Custom Apps / Webhooks | Strictly Limited APIs | Bot API / Webhooks |
 | **Multi-Device Support** | High (Sliding Sync) | High | High (Linked Devices) | High |
+
+## Production Systemd Service Units (`element-web.service` & `matrix-sfu.service`)
+
+To deploy Element Web and the Matrix RTC SFU sidecar as managed systemd daemons, deploy the unit file below:
+
+```ini
+[Unit]
+Description=Element Web Frontend Container Service
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=element
+Group=element
+WorkingDirectory=/opt/element-web
+ExecStart=/usr/bin/docker run --rm --name element-web \
+    -p 8080:80 \
+    -v /opt/element-web/config.json:/app/config.json:ro \
+    vectorim/element-web:latest
+ExecStop=/usr/bin/docker stop element-web
+Restart=always
+RestartSec=5s
+
+# Hardening
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Verification Procedure | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Sliding Sync connection failure** | Misconfigured proxy header or expired auth token | Execute `curl -i https://matrix.example.com/_matrix/client/unstable/org.matrix.msc3575/sync` | Verify proxy reverse host headers and restart `sliding-sync-proxy.service` |
+| **Unable to decrypt message (E2EE)** | Out-of-sync Megolm session keys or unverified device | Check room encryption settings and active key backups in Element | Re-verify user session via cross-signing or import recovery key backup |
+| **Federation timeout to remote homeserver** | Broken TLS certificates or port 8448 blockage | Run `curl -v https://remote-homeserver.com:8448/_matrix/federation/v1/version` | Audit firewall rules and verify SRV records (`_matrix._tcp.domain.com`) |
+| **High latency during large room joins** | PostgreSQL memory exhaustion or unindexed state tables | Monitor DB query latency via `pg_stat_activity` | Run Synapse database vacuuming and optimize shared buffer caches |
+| **FastMCP Bot missing room messages** | Insufficient room permission or unaccepted invite | Check room power levels using `matrix-commander --room-info` | Promote agent bot power level to `50` (Moderator) and accept pending invite |
 
 ## When to use it
 - When you need secure, encrypted communication that you fully control.
@@ -158,18 +218,21 @@ import asyncio
 import json
 import os
 from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from nio import AsyncClient
 
-# Initialize FastMCP Server
-mcp = FastMCP("ElementAlertManager")
+# Initialize FastMCP 3.1 Server
+mcp = FastMCP("ElementAlertManager", version="3.1.0")
 
 class MatrixAlertSchema(BaseModel):
     room_id: str = Field(description="The Matrix Room ID to dispatch the message to")
     message: str = Field(description="The text body of the alert/notification")
     alert_level: str = Field(default="INFO", description="Level of severity: INFO, WARNING, or CRITICAL")
 
-@mcp.tool()
+@mcp.tool(
+    name="send_matrix_alert",
+    description="Dispatches a structured alert message to a Matrix room via AsyncClient."
+)
 async def send_matrix_alert(alert_json: str) -> str:
     """
     Establishes an async connection to a Matrix homeserver, validates credentials,
@@ -210,7 +273,7 @@ async def send_matrix_alert(alert_json: str) -> str:
         return json.dumps({"status": "error", "message": str(e)})
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")
 ```
 
 ### Curl example

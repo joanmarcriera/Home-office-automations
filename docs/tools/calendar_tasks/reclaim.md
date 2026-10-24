@@ -3,7 +3,29 @@
 ## What it is
 Reclaim.ai is an AI-driven adaptive calendar and time-blocking engine that integrates with [Google Calendar](google_calendar.md) and [Outlook](outlook.md) to automatically schedule tasks, recurring habits, buffer time, and focus blocks. Following its acquisition by **Dropbox** (July 2024) and integration into Dropbox Workspaces, Reclaim provides enterprise scheduling intelligence while maintaining native **FastMCP 3.1** (Model Context Protocol) capabilities for autonomous AI agents (**Claude 5.1**, **GPT-5.5**, **Llama 4**).
 
-## System Architecture
+## System Architecture & Scheduling Engine Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Autonomous AI Agent (Claude 5.1 / FastMCP 3.1)
+    participant Gateway as Reclaim FastMCP Gateway
+    participant Solver as Reclaim Adaptive Priority Solver
+    participant GCal as Google Calendar API v3
+    participant MSFT as Microsoft Graph API v1.0
+
+    Agent->>Gateway: Submit Task / Habit Payload (Pydantic v2 validated)
+    Gateway->>Solver: POST /api/tasks (Priority, Duration, Due Date)
+    Solver->>Solver: Calculate Free/Busy Time Windows & Buffer Guards
+    alt Conflict with Lower-Priority Meeting
+        Solver->>GCal: Shift Flexible Focus Slot to Next Available Window
+        Solver->>MSFT: Update Busy Slot on Enterprise Outlook Account
+    else High-Priority Meeting Incursion
+        Solver->>GCal: Lock Hard Deadline & Notify User
+    end
+    Solver-->>Gateway: Task Scheduled Metadata (Ideal -> Locked)
+    Gateway-->>Agent: JSON-RPC Execution Result
+```
 
 ```mermaid
 graph TD
@@ -86,6 +108,7 @@ WantedBy=multi-user.target
 | **Multi-Calendar Sync Delay** | Rate limiting or sync delay from Microsoft Graph / Google Calendar | Check Reclaim status page and sync status inside settings | Force manual calendar re-sync via Reclaim UI or API POST `/planner/recalculate` |
 | **FastMCP Tool Execution Error** | Malformed JSON schema or missing mandatory fields | Inspect `reclaim-mcp-gateway` syslog logs using `journalctl` | Validate parameters against Pydantic v2 / Zod task schema before dispatching |
 | **Personal Event Titles Exposed** | Generic title defense setting disabled on cross-account sync | Check synced event title on corporate calendar | Enable "Display as Personal Commitment" in Reclaim Sync settings |
+| **OAuth2 Token Expiration on Graph API** | Stale OAuth2 refresh token for Microsoft Outlook sync | Run `curl -i -H "Authorization: Bearer $MSFT_TOKEN" https://graph.microsoft.com/v1.0/me` | Re-authenticate Microsoft account inside Reclaim Integrations console |
 
 ## Strengths
 - **Dynamic Priority Engine**: Differentiates between flexible "Ideal" times and locked hard deadlines.

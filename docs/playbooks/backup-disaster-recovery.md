@@ -67,6 +67,60 @@ flowchart TD
 - **Passphrase Dependency**: Losing backup encryption keys results in unrecoverable snapshot loss.
 - **Verification Requirement**: Backup archives require regular automated restore drills to guarantee data integrity.
 
+## Production Systemd Service Unit & Timer (`restic-backup.service`)
+
+Deploy scheduled background backup jobs using systemd service units and timers:
+
+```ini
+[Unit]
+Description=Automated Restic Zero-Trust Backup Engine
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=restic
+Group=restic
+ExecStartPre=/usr/local/bin/backup-pre-hook.sh
+ExecStart=/usr/bin/restic backup \
+    --config /etc/restic/backup.conf \
+    --exclude-file=/etc/restic/excludes.txt \
+    /opt/paperless/media /var/backups/pg_dump.sql
+ExecPost=/usr/bin/restic forget --keep-daily 7 --keep-weekly 4 --prune
+EnvironmentFile=/etc/restic/env.conf
+
+# Systemd Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/log/restic /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+[Unit]
+Description=Timer for Daily Automated Restic Backups
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Verification Procedure | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **`repository is already locked` error** | Stale lock file left by previous interrupted backup | Run `restic list locks` to view lock IDs | Unlock repository safely via `restic unlock` after ensuring no active jobs |
+| **Storage index corruption / missing pack** | Interrupted write or underlying disk/object storage fault | Execute `restic check --read-data-subset=5%` | Rebuild repo index using `restic rebuild-index` or restore from offsite secondary |
+| **S3 connection timeout during upload** | Network instability or bucket rate limits | Trace HTTP traffic via `RESTIC_DEBUG=1 restic backup` | Set retry parameters (`RESTIC_CONNECT_TIMEOUT=30`) and adjust chunk size |
+| **`wrong password` or auth failure** | Invalid passphrase or modified key file | Verify environment variables via `echo $RESTIC_PASSWORD` | Test password against repository keys (`restic key list`) |
+| **High CPU utilization during pruning** | Garbage collection indexing large deduplication tree | Inspect process load with `htop` or `systemd-cgtop` | Schedule `restic prune` on separate weekly off-peak timer |
+
 ## When to use it
 - Protecting any self-hosted service, production database, or local vector store containing non-ephemeral data.
 - Creating pre-upgrade checkpoints before major infrastructure or schema migrations.
@@ -135,10 +189,10 @@ import asyncio
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Initialize FastMCP 3.1 Server
-mcp = FastMCP("Backup-Disaster-Recovery-Orchestrator")
+mcp = FastMCP("Backup-Disaster-Recovery-Orchestrator", version="3.1.0")
 
 class BackupJobRequest(BaseModel):
     repository_uri: str = Field(..., description="Target backup repository URI (sftp://, s3://, or local path).")
@@ -162,7 +216,10 @@ class SnapshotMetadata(BaseModel):
     deduplicated_bytes: int = Field(..., ge=0)
     status: str = Field(default="SUCCESS")
 
-@mcp.tool()
+@mcp.tool(
+    name="trigger_automated_backup",
+    description="FastMCP 3.1 tool endpoint for triggering deduplicated restic/kopia snapshots."
+)
 async def trigger_automated_backup(
     repository_uri: str,
     source_paths: List[str],
@@ -191,7 +248,7 @@ async def trigger_automated_backup(
     return snapshot.model_dump()
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")
 ```
 
 ## CLI examples
