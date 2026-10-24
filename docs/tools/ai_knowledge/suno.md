@@ -223,6 +223,50 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Systemd Service Unit
+To host the FastMCP 3.1 Suno generation bridge as a persistent system daemon, configure the following systemd service unit:
+
+```ini
+# /etc/systemd/system/suno-api.service
+[Unit]
+Description=Suno Audio Generation FastMCP Gateway Service
+After=network.target
+
+[Service]
+Type=simple
+User=suno
+Group=suno
+WorkingDirectory=/opt/suno-mcp
+Environment="SUNO_API_KEY=your_suno_api_key_here"
+Environment="FASTMCP_PORT=8000"
+ExecStart=/usr/bin/python3 -m suno_mcp_server
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service with standard systemctl commands:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now suno-api.service
+sudo systemctl status suno-api.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause | Diagnostic & Resolution Strategy |
+| :--- | :--- | :--- |
+| `ERR_PROMPT_TRUNCATION` | Genre prompt exceeds maximum token budget or contains unescaped special syntax. | Shorten prompt descriptors to essential style tags; sanitize custom bracket notations in lyrics. |
+| `HTTP 429 Too Many Requests` | Concurrency threshold or rate limits exceeded for active subscription tier. | Implement exponential backoff algorithms during polling; throttle concurrent job submissions. |
+| `ERR_VOCAL_ALIGNMENT_TIMEOUT` | Severe mismatch between lyric tag structure (`[Verse]`, `[Chorus]`) and musical cadence. | Reformat lyric sheets using standard tags (`[Verse 1]`, `[Chorus]`, `[Bridge]`, `[Outro]`). |
+| `STEM_EXPORT_UNAVAILABLE` | Account subscription tier lacks permission for multi-track stem isolation exports. | Upgrade subscription level or pass audio artifacts to offline demixing utilities. |
+| `FASTMCP_TIMEOUT_EXCEEDED` | Async synthesis duration surpassed MCP client timeout interval (default 30 seconds). | Enable background asynchronous polling mode with webhook status notifications. |
+
 ## Related tools / concepts
 - [google-lyria](google-lyria.md) — Google DeepMind's music generation foundation model.
 - [elevenlabs](elevenlabs.md) — Voice synthesis and audio generation platform.

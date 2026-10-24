@@ -163,6 +163,51 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+## Production Deployment & Systemd Service Unit
+To run the FastMCP 3.1 Everything Claude Code supervisor server as a persistent system service daemon, configure the following systemd service unit:
+
+```ini
+# /etc/systemd/system/claude-code-daemon.service
+[Unit]
+Description=Everything Claude Code FastMCP Supervisor Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=ecc
+Group=ecc
+WorkingDirectory=/opt/everything-claude-code
+Environment="PYTHONUNBUFFERED=1"
+Environment="FASTMCP_PORT=8040"
+Environment="MAX_THINKING_TOKENS=16000"
+ExecStart=/usr/bin/python3 -m ecc_mcp_server
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the background daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now claude-code-daemon.service
+sudo systemctl status claude-code-daemon.service
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Root Cause | Diagnostic & Resolution Strategy |
+| :--- | :--- | :--- |
+| `ERR_AGENTSHIELD_BLOCKED` | AgentShield triggered false positive on configuration template paths (`.env.example`). | Add target file pattern to `agentshield.exemptions` list in `ecc_config.json`. |
+| `ERR_HOOK_RECURSION_LOOP` | Post-edit formatting script (`ruff format`) triggered recursive execution hooks. | Add strict exit compliance check inside post-edit script before re-writing file contents. |
+| `ERR_TOKEN_WINDOW_EXHAUSTION` | High subagent registration count saturated available prompt token context limits. | Unload inactive persona skills via `/plugin disable ecc:all-skills` command. |
+| `FASTMCP_HANDSHAKE_TIMEOUT` | Local FastMCP server failed response handshake within terminal agent timeout. | Verify process health via `systemctl status claude-code-daemon.service` and restart daemon. |
+| `ERR_MAX_THINKING_EXCEEDED` | Target model rejected requested `MAX_THINKING_TOKENS` configuration value. | Lower `max_thinking_tokens` value in `SubagentPersona` Pydantic schema configuration. |
+
 ### Strict ECC Configuration & Subagent Validation (Pydantic v2)
 ECC configurations are verified and mapped to local development environments using strict schemas.
 
