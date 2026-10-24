@@ -56,6 +56,32 @@ The core innovation of Roo Code is its **Custom Mode Framework** (`.roomodes`). 
 +-------------------+-----------------------------------+--------------------------------------------+
 ```
 
+### Execution Sequence & Tool Permission Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Developer / CLI Trigger
+    participant Engine as Roo Code Engine
+    participant ModeConfig as .roomodes Loader
+    participant Gate as HITL Permission Gate
+    participant MCP as FastMCP 3.1 Gateway
+    participant Model as LLM Provider (Claude 5.6 / DeepSeek)
+
+    Dev->>Engine: Initiate task ("Refactor auth module")
+    Engine->>ModeConfig: Load active mode rules & allowed tool groups
+    ModeConfig-->>Engine: Active Mode: `code` (Tools: read, edit, execute)
+    Engine->>Model: Send workspace context + system persona prompt
+    Model-->>Engine: Proposed Action: `write_to_file` (src/auth/jwt.ts)
+    Engine->>Gate: Evaluate proposed action against mode permissions
+    Gate->>Dev: Prompt for visual diff confirmation
+    Dev-->>Gate: User Approves Diff
+    Gate->>Engine: Grant execution token
+    Engine->>MCP: Invoke FastMCP tool / File mutation
+    MCP-->>Engine: Return execution stdout / diff payload
+    Engine->>Model: Append execution results & continue reasoning loop
+```
+
 ### `.roomodes` Configuration Lifecycle
 1. **Mode Initialization**: On project load, Roo Code parses `.roomodes` at the workspace root.
 2. **Permission Gate Enforcement**: Tools outside the defined `groups` array for the active mode are disabled in the agent's tool declaration block.
@@ -105,11 +131,49 @@ roo-code --version
 # Run a project workspace audit using a custom mode definition
 roo-code audit --mode security-audit --workspace .
 
+# Execute an autonomous refactoring task in headless mode
+roo-code run --mode code --task "Refactor database pool handling to use async connections" --auto-approve
+
 # List registered FastMCP 3.1 servers available to Roo Code
 mcp-server-manager list
 
 # Execute test suite to verify agent code changes
 pytest tests/ -v --tb=short
+```
+
+## Production Systemd Service Unit
+
+For headless continuous integration, automated background agent workers, or scheduled codebase maintenance tasks, deploy Roo Code as a systemd background service:
+
+```ini
+[Unit]
+Description=Roo Code Headless Agent Daemon
+After=network-online.target mcp-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=builder
+Group=builder
+WorkingDirectory=/opt/services/app-workspace
+Environment="NODE_ENV=production"
+Environment="ROO_CODE_MODE=code"
+Environment="ANTHROPIC_API_KEY=sk-ant-api03-xxxxxx"
+ExecStart=/usr/local/bin/roo-code daemon --workspace /opt/services/app-workspace --listen 127.0.0.1:9090
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=roo-code-daemon
+
+# Hardening Measures
+ProtectSystem=strict
+ReadWritePaths=/opt/services/app-workspace /var/log/roo-code
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## API examples
@@ -138,6 +202,10 @@ class TableColumnInfo(BaseModel):
     data_type: str
     nullable: bool
 
+class QueryExecutionRequest(BaseModel):
+    sql_query: str = Field(..., description="Read-only SQL SELECT query to execute")
+    limit: int = Field(default=50, ge=1, le=500, description="Maximum row limit")
+
 @mcp.tool(
     name="inspect_table_schema",
     description="Retrieve table column definitions and types for database design tasks."
@@ -146,7 +214,6 @@ def inspect_table_schema(request: SchemaInspectionRequest) -> List[TableColumnIn
     """
     Simulates retrieving table metadata for Roo Code architect or coding modes.
     """
-    # Sample schema registry
     schemas = {
         "users": [
             TableColumnInfo(column_name="id", data_type="uuid", nullable=False),
@@ -160,6 +227,26 @@ def inspect_table_schema(request: SchemaInspectionRequest) -> List[TableColumnIn
         ]
     }
     return schemas.get(request.table_name, [])
+
+@mcp.tool(
+    name="execute_readonly_query",
+    description="Executes a safe SELECT query against the workspace development database."
+)
+def execute_readonly_query(request: QueryExecutionRequest) -> Dict[str, Any]:
+    """
+    Validates read-only status and executes query against target database.
+    """
+    if not request.sql_query.strip().lower().startswith("select"):
+        return {"error": "Security Violation: Only SELECT queries are allowed."}
+
+    return {
+        "status": "success",
+        "row_count": 2,
+        "rows": [
+            {"id": "usr-001", "email": "dev@example.local", "created_at": "2027-01-01T00:00:00Z"},
+            {"id": "usr-002", "email": "admin@example.local", "created_at": "2027-01-02T00:00:00Z"}
+        ]
+    }
 
 if __name__ == "__main__":
     mcp.run()
@@ -212,6 +299,16 @@ if __name__ == "__main__":
     print("Successfully validated Roo Code configuration:")
     print(validated.model_dump_json(indent=2))
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Operational Issue | Probable Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Tool Permission Rejected** | Action requested by model is outside allowed `groups` in current mode. | Switch to `code` mode or edit `.roomodes` to grant the target tool group (`execute`, `edit`). |
+| **FastMCP Connection Timeout** | FastMCP server binary crashed or stdin/stdout pipe stalled. | Verify server binary in terminal (`python3 server.py`) and check `mcp-server-manager list`. |
+| **Context Window Exhaustion** | Unpruned terminal outputs or large multi-file diffs in session. | Use context pinning to lock critical files, then clear session context history. |
+| **Invalid `.roomodes` Schema** | Malformed JSON/YAML or illegal group identifier in `.roomodes`. | Validate payload against Pydantic schema using `roo-code check-config`. |
+| **Headless Daemon Crash** | Missing API keys or permission denied writing to workspace directory. | Check `journalctl -u roo-code-daemon` and confirm `ReadWritePaths` environment rules. |
 
 ## Related tools / concepts
 - [Cline](cline.md) — The foundation open-source autonomous coding agent.
