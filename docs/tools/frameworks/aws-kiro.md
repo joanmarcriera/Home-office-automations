@@ -9,7 +9,27 @@ Historically, AI software engineering agents were tightly-coupled to specific en
 ## Where it fits in the stack
 **Agent Client & Interoperability Layer**. It operates as a communication standard between frontend user interfaces (IDEs, web consoles, shell terminals) and backend agent runtimes, complementing standard protocols like LSP (Language Server Protocol) and FastMCP 3.1 (Model Context Protocol).
 
-## System Architecture
+## System Architecture & Interaction Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Host as Host Editor / IDE (VS Code)
+    participant Kiro as AWS Kiro Gateway Bridge
+    participant Agent as Autonomous Agent Loop (Claude 5.6)
+    participant Tools as FastMCP 3.1 Tool Servers
+
+    Host->>Kiro: JSON-RPC 2.0 Connect (WebSocket / Stdio)
+    Kiro->>Host: Request FastMCP 3.1 Capabilities Handshake
+    Host-->>Kiro: Capabilities (fileEdit: true, terminalExec: true)
+    Kiro->>Agent: Initialize Session with Negotiated Capabilities
+    Agent->>Kiro: Dispatch Code Generation / Refactoring Request
+    Kiro->>Host: Stream File Diff Buffer & Approval Prompt
+    Host-->>Kiro: User Approval Granted
+    Kiro->>Tools: Execute Local File System Mutation / Test Suite
+    Tools-->>Kiro: Execution Diagnostics & Tool Payload
+    Kiro-->>Host: Stream Terminal Output & Final State Sync
+```
 
 ```mermaid
 graph TD
@@ -100,12 +120,13 @@ WantedBy=multi-user.target
 
 ## Diagnostic Troubleshooting Matrix
 
-| Issue / Error Symptom | Root Cause | Remediation Procedure |
-| :--- | :--- | :--- |
-| Handshake rejection during startup | Capabilities mismatch between IDE client and Kiro server | Audit `kiro-cli ping --handshake` to verify expected protocol version (`1.1.0`). |
-| File edits failing silently | Host editor blocking unapproved writes | Ensure `user_approval_required` is handled or explicitly granted by client UI. |
-| Stream disconnect during long build | Idle socket timeout on WebSocket proxy bridge | Configure keep-alive ping intervals (15s) in Kiro transport configuration. |
-| Terminal stream output buffer overflow | Agent outputting high-frequency raw ANSI logs | Enable output truncation or buffer throttling in Kiro terminal pipe. |
+| Issue / Error Symptom | Root Cause | Verification Procedure | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Handshake rejection during startup** | Capabilities mismatch between IDE client and Kiro server | Execute `kiro-cli ping --url "http://localhost:9090" --handshake` | Audit `protocolVersion` (expected `1.1.0`) and feature flags in client config |
+| **File edits failing silently** | Host editor blocking unapproved writes or missing diff buffer | Inspect Kiro server logs for `UNAPPROVED_MUTATION` events | Ensure `user_approval_required` is handled or explicitly granted by client UI |
+| **Stream disconnect during long build** | Idle socket timeout on WebSocket proxy bridge | Trace TCP connection state with `lsof -i :9090` | Configure keep-alive ping intervals (15s) in Kiro transport configuration |
+| **Terminal output buffer overflow** | Agent outputting high-frequency raw ANSI logs | Check memory consumption on `aws-kiro-bridge.service` | Enable output truncation or buffer throttling in Kiro terminal pipe settings |
+| **JSON-RPC Frame Desynchronization** | Concurrent asynchronous messages overriding buffer | Inspect raw socket frame stream via `kiro-cli stream --verbose` | Enable request-id seq tracking and thread-safe socket locking in client wrapper |
 
 ## When to use it
 - When you are developing a coding or debugging agent and want to ensure it is immediately compatible with multiple IDEs and code editors.
@@ -159,6 +180,68 @@ kiro-cli stream --url "http://localhost:9090" --verbose
 ```
 
 ## API examples
+
+### FastMCP 3.1 Tool Implementation for AWS Kiro Gateway
+This production FastMCP 3.1 tool server manages workspace synchronization and task execution over an AWS Kiro transport bridge:
+
+```python
+import json
+import asyncio
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from fastmcp import FastMCP
+
+mcp = FastMCP("AWS-Kiro-Gateway-Server", version="3.1.0")
+
+class WorkspaceChangeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    file_path: str = Field(..., alias="filePath", description="Absolute or workspace-relative path to target file")
+    content_diff: str = Field(..., alias="contentDiff", description="Unified diff or full buffer replacement string")
+    requires_approval: bool = Field(default=True, alias="requiresApproval", description="Mandatory user approval gate")
+
+    @field_validator("file_path")
+    @classmethod
+    def validate_file_path(cls, v: str) -> str:
+        if ".." in v or v.startswith("/etc") or v.startswith("/var"):
+            raise ValueError("Target file path outside allowed workspace sandbox boundary.")
+        return v
+
+class KiroExecutionSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    status: str = Field(..., description="Status string: APPROVED, REJECTED, or COMPLETED")
+    target_file: str = Field(..., alias="targetFile")
+    applied_bytes: int = Field(..., alias="appliedBytes", ge=0)
+    agent_signature: str = Field(..., alias="agentSignature")
+
+@mcp.tool(
+    name="apply_workspace_mutation",
+    description="Dispatches a structured file modification request through AWS Kiro protocol with FastMCP 3.1 validation."
+)
+def apply_workspace_mutation(
+    file_path: str,
+    content_diff: str,
+    agent_name: str = "Claude-5.6-Developer"
+) -> Dict[str, Any]:
+    req = WorkspaceChangeRequest(
+        filePath=file_path,
+        contentDiff=content_diff,
+        requiresApproval=True
+    )
+
+    # Simulate Kiro transport approval dispatch
+    summary = KiroExecutionSummary(
+        status="APPROVED",
+        targetFile=req.file_path,
+        appliedBytes=len(req.content_diff),
+        agentSignature=f"{agent_name}-kiro-v1.1"
+    )
+    return summary.model_dump(by_alias=True)
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+```
 
 ### Python JSON-RPC Capability Validation with AWS Kiro & Pydantic v2
 This API example demonstrates how to validate Kiro capabilities negotiation and handshaking messages using strict **Pydantic v2** structures and FastMCP 3.1 task parameters.

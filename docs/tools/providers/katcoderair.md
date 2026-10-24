@@ -67,6 +67,54 @@ Proprietary cloud-based coding assistants often suffer from latency issues, high
 - **High Concurrency VRAM Footprint**: Though active parameters are small, loading the full MoE weights requires substantial VRAM if running multiple concurrent streams.
 - **Setup Complexity**: Requires local model execution setup, which can be more complex than subscribing to a SaaS provider.
 
+## Production Systemd Service Unit (`katcoderair-inference.service`)
+
+To deploy KatCoderAir as a persistent local inference daemon with OpenAI-compatible API endpoints, deploy the following unit configuration:
+
+```ini
+[Unit]
+Description=KatCoderAir v2.5 MoE Inference Gateway
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=katcoder
+Group=katcoder
+WorkingDirectory=/opt/katcoderair
+ExecStart=/opt/katcoderair/bin/llama-server \
+    --model /opt/katcoderair/models/katcoderair-2.5-q4_k_m.gguf \
+    --host 127.0.0.1 \
+    --port 8080 \
+    --ctx-size 16384 \
+    --n-gpu-layers 99 \
+    --threads 8 \
+    --batch-size 512
+Restart=always
+RestartSec=5s
+Environment=LLAMA_ARG_MODEL=/opt/katcoderair/models/katcoderair-2.5-q4_k_m.gguf
+Environment=CUDA_VISIBLE_DEVICES=0
+
+# Systemd Hardening Parameters
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause | Verification Procedure | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **`CUDA out of memory` during startup** | MoE weights exceed allocated VRAM | Check GPU VRAM via `nvidia-smi` or `rocm-smi` | Lower `--n-gpu-layers` or switch to `Q4_K_M` GGUF quantization |
+| **Sub-optimal token generation speed (< 20 TPS)** | CPU fallback for active expert calculations | Inspect llama.cpp layer offloading output in `journalctl -u katcoderair-inference` | Ensure all MoE router gating layers are offloaded to GPU (`--n-gpu-layers 99`) |
+| **Malformed JSON schema responses in FastMCP** | System prompt missing explicit schema constraints | Verify raw curl completions output from `http://localhost:8080/v1/chat/completions` | Enforce JSON Schema parameters in response_format and use Kat Coder 2.5 Dev |
+| **Context truncation on multi-file queries** | Default context window too small for large prompt | Inspect active context length parameter | Increase context limit (`--ctx-size 16384` or `32768`) with KV cache quantization |
+| **Gating Router Misrouting** | Out-of-distribution input causing wrong expert routing | Trace expert activation via llama-bench or debug logs | Add explicit category system tags (e.g. `[PYTHON_AST]`) in user prompt |
+
 ## When to use it
 - When you require complete, local data privacy for sensitive corporate codebases.
 - When you need a reliable offline coding assistant on a consumer GPU or unified memory Mac.
