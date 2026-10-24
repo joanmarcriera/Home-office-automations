@@ -82,6 +82,46 @@ Synchronizing learned facts and intermediate investigation findings between spec
 ### 4. On-Premise Privacy-First Local Memory
 Running Mem0 locally alongside local vector stores (e.g., Qdrant or Supabase) and local models (e.g., Gemma 4) to ensure user context never leaves private infrastructure.
 
+## Systemd Service Configuration
+
+Run `mem0-engine.service` as a systemd unit for persistent background memory indexing and vector store synchronization:
+
+```ini
+# /etc/systemd/system/mem0-engine.service
+[Unit]
+Description=Mem0 Intelligent Long-Term Memory Engine & FastMCP Gateway
+After=network-online.target qdrant.service
+Wants=network-online.target qdrant.service
+
+[Service]
+Type=simple
+User=mem0
+Group=mem0
+WorkingDirectory=/opt/mem0
+Environment="PYTHONUNBUFFERED=1"
+Environment="MEM0_VECTOR_STORE_PROVIDER=qdrant"
+Environment="QDRANT_HOST=localhost"
+Environment="QDRANT_PORT=6333"
+ExecStart=/opt/mem0/venv/bin/python3 -m mem0.server --port 8090
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Comprehensive Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Verification Command | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Qdrant Connection Refused** | Vector store daemon not running or port 6333 unreachable | `curl http://localhost:6333/healthz` | Start Qdrant (`systemctl start qdrant`) or update `QDRANT_HOST` in service config. |
+| **Fact Extraction Collisions** | Contradictory facts written under same `user_id` without conflict resolution trigger | `mem0 list --user-id dev_user --format json` | Enable automatic fact deduplication in Mem0 config (`"deduplicate": True`) or call `mem0.update()`. |
+| **High Retrieval Latency (>200ms)** | Dense vector similarity search scanning unindexed collection | `curl http://localhost:6333/collections/mem0_memories` | Re-create Qdrant payload index on `user_id` and `categories` fields for payload filtering. |
+| **FastMCP Transport Disconnect** | Process stdio buffer closure or JSON-RPC format validation error | `journalctl -u mem0-engine -f` | Ensure Pydantic v2 schemas match `ConfigDict(arbitrary_types_allowed=True)`. |
+| **Memory Leak / VRAM Pressure** | Local embedding model retaining cached tensors in PyTorch CUDA pool | `nvidia-smi` | Set `TORCH_CUDA_ALLOC_CONF=max_split_size_mb:128` or switch to CPU inference for memory extraction. |
+
 ## Strengths
 - **Hierarchical Memory Scoping**: Native support for User, Session, and Agent-level isolation.
 - **FastMCP 3.1 Native Protocol**: Seamlessly exposes memory search, addition, and update capabilities as standardized MCP tools.
@@ -175,19 +215,23 @@ The following complete Python script creates a FastMCP 3.1 server exposing Mem0 
 ```python
 import json
 from typing import Dict, Any, List, Optional
-from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mem0 import Memory
 
-mcp = FastMCP("mem0-memory-server", version="3.1")
+mcp = FastMCP("mem0-memory-server", version="3.1.0")
 memory_engine = Memory()
 
 class AddMemoryRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+
     user_id: str = Field(..., description="Unique user identifier")
     text_content: str = Field(..., min_length=5, description="Fact or conversation to store")
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 class SearchMemoryRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     user_id: str = Field(..., description="Unique user identifier")
     query: str = Field(..., min_length=2, description="Search query string")
     limit: int = Field(default=5, ge=1, le=20)
@@ -203,7 +247,7 @@ def search_user_memory(req: SearchMemoryRequest) -> List[Dict[str, Any]]:
     return results
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
 ```
 
 ### 2. Strict Pydantic v2 Memory Payload Validation
@@ -211,17 +255,21 @@ Validate memory records retrieved from vector backends using **Pydantic v2**:
 
 ```python
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict, field_validator, ValidationError
+from datetime import datetime, timezone
 
 class MemoryItemSchema(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     id: str = Field(..., description="Unique memory ID")
     text: str = Field(..., min_length=1, description="Captured fact text")
     score: float = Field(..., ge=0.0, le=1.0, description="Relevance score")
     categories: List[str] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class MemorySearchResultPayload(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     user_id: str = Field(..., description="User ID scope")
     session_id: Optional[str] = Field(None)
     memories: List[MemoryItemSchema] = Field(default_factory=list)

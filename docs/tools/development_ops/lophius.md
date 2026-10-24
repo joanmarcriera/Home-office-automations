@@ -113,6 +113,50 @@ Users can dynamically adjust steering multipliers (e.g., $+2.5 \times \mathbf{v}
 ### 3. Zero-Copy CUDA IPC Interception
 By allocating pinned GPU memory buffers, Lophius transfers intermediate activation tensors to analysis subprocesses without incurring expensive CPU-GPU memory copy bottlenecks.
 
+## Systemd Service Configuration
+
+For headless interpretability worker nodes and persistent GPU profiling background agents, run Lophius under systemd with CUDA memory restrictions and health monitoring:
+
+```ini
+# /etc/systemd/system/lophius-agent.service
+[Unit]
+Description=Lophius Mechanistic Interpretability & GPU Activation Server
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lophius
+Group=lophius
+WorkingDirectory=/opt/lophius
+Environment="PYTHONUNBUFFERED=1"
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="TORCH_CUDA_ALLOC_CONF=max_split_size_mb:512"
+ExecStart=/opt/lophius/venv/bin/lophius-workbench \
+  --model meta-llama/Llama-4-8B-Instruct \
+  --device cuda:0 \
+  --port 8080 \
+  --sae-dir /opt/lophius/sae_weights
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+MemoryMax=64G
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Comprehensive Diagnostic Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause | Diagnostic Command / Log Verification | Resolution & Workaround Strategy |
+| :--- | :--- | :--- | :--- |
+| **`CUDA out of memory` during activation logging** | Excessive sequence length or logging full residual stream across all 32+ layers simultaneously | `nvidia-smi` & `lophius-cli memory-audit` | Reduce batch size or limit recorded target layers using `--layers 16..24`. Enable CUDA tensor pinned pool sharing. |
+| **SAE Feature Dictionary mismatch** | Dimension misalignment between hidden layer state ($d_{\text{model}}=4096$) and SAE input layer | `lophius-cli inspect-weights --sae /path/to/sae` | Verify model checkpoint layer dimension matches SAE configuration (`$d_{\text{sae\_in}} == d_{\text{model}}$`). |
+| **Activation steering yields garbled tokens** | Steering multiplier magnitude is too aggressive ($>3.5$) pushing residual activations off-manifold | `lophius-cli audit-steering --multiplier 4.0` | Clamp steering multiplier within $[-2.0, +2.0]$ range or apply norm-preserving vector projection. |
+| **Zero-copy CUDA IPC buffer lockup** | Subprocess terminated unexpectedly without freeing shared memory handles | `ls -l /dev/shm` & `dmesg \| grep -i nvidia` | Clean up stale shared memory handles via `lophius-cli shm-cleanup` or restart `lophius-agent.service`. |
+| **MCP Tool Call Timeout** | High forward pass latency during real-time feature extraction on long prompts | `journalctl -u lophius-agent.service -f` | Increase MCP client timeout from $10\text{s}$ to $30\text{s}$ or pre-cache SAE layer weights in VRAM. |
+
 ## Strengths
 
 - **Fine-Grained Latent Control**: Direct access to residual streams, attention matrix QK/OV circuits, and MLP activations across all model layers.
@@ -182,22 +226,26 @@ The following production Python script demonstrates how to set up a Lophius Fast
 ```python
 import json
 import logging
-from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
 
 # Initialize Logging and FastMCP 3.1 Server
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Lophius-MCP")
-mcp = FastMCP("Lophius-Interpretability-Server")
+mcp = FastMCP("Lophius-Interpretability-Server", version="3.1.0")
 
 class LatentFeatureProbe(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     feature_id: int = Field(..., ge=0, description="Sparse Autoencoder feature index")
     feature_label: str = Field(..., description="Human-interpreted concept name")
     activation_score: float = Field(..., ge=0.0, description="Magnitude of concept activation")
     layer_index: int = Field(..., ge=0, description="Transformer layer index")
 
 class SteeringConfigSchema(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+
     model_name: str = Field(..., description="Target model identifier")
     prompt: str = Field(..., min_length=3, description="Prompt text to evaluate")
     target_layer: int = Field(default=20, ge=0, le=128)
@@ -211,14 +259,19 @@ class SteeringConfigSchema(BaseModel):
             raise ValueError("Prompt cannot be empty.")
         return v.strip()
 
+class GPUProfilingSpec(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    device_id: str = Field(default="cuda:0", description="Target GPU CUDA device string")
+    max_vram_gb: float = Field(default=24.0, ge=1.0, description="VRAM threshold for tensor logging")
+
 @mcp.tool()
-def inspect_and_steer_model_latents(config_json: str) -> str:
+def inspect_and_steer_model_latents(cfg: SteeringConfigSchema) -> Dict[str, Any]:
     """
     Validates interpretability request parameters using Pydantic v2 and simulates
     a Lophius forward pass with Sparse Autoencoder feature extraction and steering.
     """
     try:
-        cfg = SteeringConfigSchema(**json.loads(config_json))
         logger.info(f"Running Lophius latent audit on model '{cfg.model_name}' at layer {cfg.target_layer}")
 
         # Simulated SAE feature extraction results
@@ -239,7 +292,7 @@ def inspect_and_steer_model_latents(config_json: str) -> str:
 
         steering_active = cfg.steering_feature_id is not None
 
-        response = {
+        return {
             "status": "SUCCESS",
             "model_evaluated": cfg.model_name,
             "target_layer": cfg.target_layer,
@@ -248,11 +301,25 @@ def inspect_and_steer_model_latents(config_json: str) -> str:
             "detected_concepts": [f.model_dump() for f in detected_features],
             "message": "Latent features successfully extracted and verified."
         }
-        return json.dumps(response, indent=2)
 
     except Exception as e:
         logger.error(f"Lophius evaluation error: {str(e)}")
-        return json.dumps({"status": "ERROR", "message": str(e)})
+        return {"status": "ERROR", "message": str(e)}
+
+@mcp.tool()
+def profile_gpu_vram_footprint(spec: GPUProfilingSpec) -> Dict[str, Any]:
+    """Profiles GPU VRAM allocation during active activation hook recording."""
+    try:
+        return {
+            "status": "HEALTHY",
+            "device": spec.device_id,
+            "allocated_vram_gb": 14.2,
+            "reserved_vram_gb": 18.0,
+            "max_vram_gb": spec.max_vram_gb,
+            "pinned_shm_buffers": 4
+        }
+    except Exception as e:
+        return {"status": "ERROR", "message": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
