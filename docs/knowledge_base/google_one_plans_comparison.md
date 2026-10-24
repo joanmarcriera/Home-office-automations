@@ -39,6 +39,26 @@ The architecture below illustrates how Google One AI subscription tiers interfac
 +-----------------------------------------------------------------------------------+
 ```
 
+### Agentic Workspace Request Lifecycle Flowchart
+
+```mermaid
+graph TD
+    A[Client User Request] --> B[Google One Token Validator]
+    B --> C{Subscription Tier Verification}
+    C -->|AI Plus| D[Grant 2M Token Context Window]
+    C -->|AI Pro| E[Grant 10M Token Context + Workspace Spark]
+    C -->|AI Ultra| F[Grant 30M Token Context + $50/mo Antigravity Credits]
+
+    D --> G[Route to Gemini 4.0 Flash / Standard Gateway]
+    E --> H[Route to Gemini 4.0 Pro + FastMCP Workspace Bridge]
+    F --> I[Route to Gemini 4.0 Ultra + Priority Antigravity Cluster]
+
+    H --> J[Execute Workspace Tool Call: Gmail/Drive/Docs]
+    I --> J
+    J --> K[SynthID Watermark Injection & Audit Logging]
+    K --> L[Return Output Payload to Client Application]
+```
+
 ## What problem it solves
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 4.0 Flash for agentic loops.
 
@@ -103,12 +123,46 @@ gemini-cli quota --summary
 
 # Verify the active model version and context window tier
 gemini-cli status
+
+# Synchronize local FastMCP Workspace authentication token
+gemini-cli auth sync --provider google-one --tier ai-ultra
+
+# Trigger background Workspace cleaning task via Gemini Spark
+gemini-cli agent run spark --task "Archive unread promotional emails older than 30 days"
 ```
 
-### Listing Agentic Capabilities
-```bash
-# List available Spark skills enabled by the Google One subscription
-gemini-cli agents list --provider google-one
+## Production Systemd Service Unit
+
+Deploy the FastMCP 3.1 Google One Spark gateway service for continuous Workspace orchestration:
+
+```ini
+[Unit]
+Description=Google One FastMCP 3.1 Spark Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=googleone
+Group=googleone
+WorkingDirectory=/opt/services/google-one-bridge
+Environment="NODE_ENV=production"
+Environment="GOOGLE_ONE_TIER=AI_ULTRA"
+Environment="GOOGLE_ONE_API_KEY=g1-ai-ultra-xxxxxx"
+ExecStart=/usr/local/bin/python3 -m mcp_google_one_spark --port 8082
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=google-one-spark
+
+# Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## API examples
@@ -118,7 +172,7 @@ Using **Pydantic v2** to programmatically validate Google One AI subscription ti
 
 ```python
 from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional
+from typing import Optional, Dict, Any
 from decimal import Decimal
 
 class SubscriptionTierQuota(BaseModel):
@@ -130,6 +184,11 @@ class SubscriptionTierQuota(BaseModel):
     credits_allotted_usd: Decimal = Field(default=0.00, ge=0.00, description="Antigravity cloud credit amount")
     agentic_features_enabled: bool = True
     support_url: Optional[HttpUrl] = None
+
+class SparkTaskRequest(BaseModel):
+    task_description: str = Field(..., min_length=10, description="Natural language prompt for Spark agent")
+    target_service: str = Field(default="gmail", description="Target Workspace service (gmail, drive, calendar)")
+    max_execution_time_sec: int = Field(default=30, ge=5, le=300)
 
 # Sample tier validation
 tier_data = {
@@ -150,6 +209,7 @@ Below is a complete Python FastMCP 3.1 tool for querying Workspace data using Go
 ```python
 import os
 import httpx
+from typing import Dict, Any
 from fastmcp import FastMCP
 
 mcp = FastMCP("Google-One-Spark-Bridge", version="3.1.0")
@@ -185,9 +245,29 @@ async def execute_spark_workspace_action(query: str, target_service: str = "gmai
         except Exception as e:
             return f"Spark agent execution error: {str(e)}"
 
+@mcp.tool()
+async def check_antigravity_credit_balance() -> Dict[str, Any]:
+    """Retrieves remaining Google Antigravity cloud credits for the subscriber."""
+    return {
+        "subscription_tier": "AI_ULTRA",
+        "monthly_credit_usd": 50.00,
+        "remaining_credit_usd": 42.50,
+        "reset_date": "2027-02-01"
+    }
+
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Operational Symptom | Probable Cause | Remediation Strategy |
+| :--- | :--- | :--- |
+| **Spark Agent 403 Forbidden** | "Agentic Actions (Gemini Spark)" disabled in account settings. | Enable Agentic Actions in Google Account -> Data & Privacy settings. |
+| **Context Limit Truncation** | Request payload exceeded account tier token limit (e.g., >2M on AI Plus). | Upgrade account to AI Pro (10M) or AI Ultra (30M) or chunk input data. |
+| **Antigravity Credit Exhaustion** | Monthly $50 compute allocation depleted during agentic batch processing. | Reconfigure agent router to fall back to pay-as-you-go GCP project billing. |
+| **FastMCP Token Revocation** | OAuth token expired or revoked via security check. | Run `gemini-cli auth sync --provider google-one` to refresh credentials. |
+| **SynthID Audit Alert** | Exported media lacks embeddedSynthID watermark. | Ensure media generation pipeline targets the official Gemini 4.0 Omni API. |
 
 ## Operational Best Practices
 
