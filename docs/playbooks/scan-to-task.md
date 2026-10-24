@@ -3,7 +3,7 @@
 A paperless automation playbook for transforming physical documents (mail, receipts, invoices, tax forms) into structured, actionable digital tasks linked to searchable archives under early January 2027 standards.
 
 ## What it is
-Scan to Task is an end-to-end operational automation pattern that bridge physical paper documents and digital task management systems. Utilizing modern Optical Character Recognition (OCR), Vision-Language Models (**Claude 5.6 Vision**, **Qwen 3.6 VL**, **GPT-5.6**), and workflow engines ([n8n](../services/n8n.md)), physical documents placed on a feeder scanner or photographed via mobile app are automatically ingested, parsed for actionable items (due dates, financial amounts, follow-up actions), and injected directly into task platforms ([Vikunja](../services/vikunja.md), Todoist) with deep links back to document storage ([Paperless-ngx](../services/paperless-ngx.md)).
+Scan to Task is an end-to-end operational automation pattern that bridges physical paper documents and digital task management systems. Utilizing modern Optical Character Recognition (OCR), Vision-Language Models (**Claude 5.6 Vision**, **Qwen 3.6 VL**, **GPT-5.6**), and workflow engines ([n8n](../services/n8n.md)), physical documents placed on a feeder scanner or photographed via mobile app are automatically ingested, parsed for actionable items (due dates, financial amounts, follow-up actions), and injected directly into task platforms ([Vikunja](../services/vikunja.md), Todoist) with deep links back to document storage ([Paperless-ngx](../services/paperless-ngx.md)).
 
 ```mermaid
 flowchart TD
@@ -28,6 +28,26 @@ flowchart TD
         TaskMgr -->|Return Task ID| Orchestrator
         Orchestrator -->|Add Custom Field & Tag| DB
     end
+```
+
+```
++-----------------------------------------------------------------------------------------------------------+
+|                                    Scan to Task Detailed Pipeline Sequence                                 |
++-----------------------------------------------------------------------------------------------------------+
+|                                                                                                           |
+| Scanner Dropzone         Paperless-ngx            n8n Orchestrator          FastMCP 3.1 LLM      Vikunja API  |
+|    |                           |                          |                        |                 |    |
+|    |--- 1. Deposit File ------>|                          |                        |                 |    |
+|    |                           |-- 2. Run OCRmyPDF ------>|                        |                 |    |
+|    |                           |-- 3. Webhook (Doc ID) -->|                        |                 |    |
+|    |                           |                          |-- 4. FastMCP Tool ---->|                 |    |
+|    |                           |                          |                        |-- 5. Parse ---->|    |
+|    |                           |                          |<-- 6. Task Payload ----|                 |    |
+|    |                           |                          |--------------------------------- 7. POST -->|    |
+|    |                           |                          |<----------------- 8. Task ID Created -------|    |
+|    |                           |<-- 9. Attach Task Link -|                        |                 |    |
+|                                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
 ```
 
 ## What problem it solves
@@ -142,7 +162,7 @@ mcp = FastMCP(
 
 # Pydantic v2 Models for Task Payload Validation
 class ExtractedTaskItem(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     title: str = Field(..., min_length=3, description="Concise task title summarizing action required")
     description: str = Field(..., description="Detailed description including extracted document details")
     due_date: Optional[str] = Field(None, description="ISO 8601 formatted due date (YYYY-MM-DD)")
@@ -152,7 +172,7 @@ class ExtractedTaskItem(BaseModel):
     vendor_or_sender: Optional[str] = Field(None, description="Extracted vendor or sender name")
 
 class ScanToTaskRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     document_id: int = Field(..., description="Paperless-ngx document ID")
     paperless_url: HttpUrl = Field(..., description="Base URL of Paperless-ngx instance")
     ocr_content: str = Field(..., min_length=10, description="Full OCR text extracted from document")
@@ -237,6 +257,54 @@ if __name__ == "__main__":
     print("Task payload prepared for Vikunja API submission.")
 ```
 
+### Systemd Service Unit Configuration
+
+To run the Scan-to-Task FastMCP gateway service as a daemon (`/etc/systemd/system/scan-to-task.service`):
+
+```ini
+[Unit]
+Description=Scan-to-Task FastMCP 3.1 Gateway Service
+After=network.target paperless.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=scan-worker
+Group=scan-worker
+WorkingDirectory=/opt/scan-to-task
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run gateway.py --port 8093
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=LOG_LEVEL=INFO
+Environment=PAPERLESS_URL=http://localhost:8000
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/scan-to-task/logs /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Troubleshooting & Failure Modes
+
+| Failure Mode / Error | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Paperless Webhook Miss** | n8n instance offline or webhook path mismatch during ingestion event. | Configure Paperless document consume retry queue; verify n8n webhook listener URL. |
+| **LLM Date Extraction Error** | Handwritten or non-standard date format misparsed by vision pass. | Enforce ISO 8601 validation in Pydantic schema with regex pattern matchers. |
+| **Vikunja Auth Token Expiry** | Expired API token results in HTTP 401 Unauthorized responses. | Use long-lived service account tokens or automated bearer token refresh headers in n8n. |
+| **OCR Text Truncation** | Multi-page document exceeds default FastMCP input token limits. | Chunk OCR text by page or pass page-1 thumbnail directly to vision LLM pass. |
+
+## Operational Best Practices & Guardrails
+
+1. **Duplicate Prevention**: Store Paperless `document_id` as a custom field in Vikunja to prevent duplicate task creation on re-scans.
+2. **Manual Review Queue**: Routing low-confidence LLM parsing results (confidence < 80%) to a dedicated "Scan Review" Vikunja project.
+3. **Data Security & Privacy**: Scrub sensitive PII (Social Security Numbers, full account numbers) before forwarding payloads to external LLM APIs.
+
 ## Related tools / concepts
 - [Paperless-ngx](../services/paperless-ngx.md) — Self-hosted document archival system.
 - [Vikunja](../services/vikunja.md) — Open-source self-hosted task management platform.
@@ -253,6 +321,7 @@ if __name__ == "__main__":
 - [n8n Workflow Automation Docs](https://docs.n8n.io/)
 - [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

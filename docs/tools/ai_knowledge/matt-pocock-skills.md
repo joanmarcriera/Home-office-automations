@@ -48,6 +48,28 @@ Matt Pocock Skills addresses this problem by embedding explicit critical-thinkin
 
 Operating at the reasoning and execution layer, these skills inject structured execution guidelines into agent runtimes like [Jules](jules.md) or [Claude Code](../development_ops/claude-code.md).
 
+```
++-----------------------------------------------------------------------------------------------------------+
+|                                    Grill-Me Plan Verification Sequence Flow                                |
++-----------------------------------------------------------------------------------------------------------+
+|                                                                                                           |
+| Developer                Agent Runtime               FastMCP 3.1 Server           Plan Mutator            |
+|    |                           |                            |                          |                  |
+|    |---- 1. Submit Proposal -->|                            |                          |                  |
+|    |                           |---- 2. Request Grilling -->|                          |                  |
+|    |                           |                            |-- 3. Evaluate Risk ---->|                  |
+|    |                           |<-- 4. Return Questions ----|                          |                  |
+|    |<-- 5. Interrogate User ---|                            |                          |                  |
+|    |                           |                            |                          |                  |
+|    |-- 6. Clarifications ----->|                            |                          |                  |
+|    |                           |---- 7. Validate Answers -->|                          |                  |
+|    |                           |                            |-- 8. Authorize Plan ---->|                  |
+|    |                           |<-- 9. Status: Approved ----|                          |                  |
+|    |                           |                            |                          |-- 10. Execute -->|
+|                                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Plan Pressure-Testing (`/grill-me`)**: Requiring agents to answer 3 to 5 challenging architectural questions before executing complex code changes.
 - **Strict Test-Driven Development (`/tdd`)**: Forcing agents to write failing unit tests first, verify red status, write minimal implementation, and refactor cleanly.
@@ -125,6 +147,7 @@ The Python code below demonstrates a complete **FastMCP 3.1** server that execut
 
 ```python
 import asyncio
+import uuid
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from mcp.server.fastmcp import FastMCP
@@ -136,12 +159,12 @@ mcp = FastMCP(
 )
 
 class PlanGrillRequest(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, populate_by_name=True)
 
-    proposal_title: str = Field(..., alias="title", min_length=5)
-    plan_description: str = Field(..., alias="description", min_length=20)
-    target_files: List[str] = Field(default_factory=list, alias="targetFiles")
-    question_depth: int = Field(default=3, alias="questionDepth", ge=1, le=5)
+    proposal_title: str = Field(..., alias="title", min_length=5, description="Title of the technical proposal")
+    plan_description: str = Field(..., alias="description", min_length=20, description="Detailed architectural plan")
+    target_files: List[str] = Field(default_factory=list, alias="targetFiles", description="Files affected by proposed changes")
+    question_depth: int = Field(default=3, alias="questionDepth", ge=1, le=5, description="Depth level of probing questions")
 
     @field_validator("target_files")
     @classmethod
@@ -161,33 +184,48 @@ class GrillSessionResult(BaseModel):
     status: str
     questions: List[GrillQuestion]
     authorized: bool = False
+    verification_score: float = Field(default=0.0, ge=0.0, le=100.0)
+
+class GrillResponseEvaluation(BaseModel):
+    session_id: str
+    answers: Dict[int, str]
+    evaluator_comments: Optional[str] = None
 
 @mcp.tool(name="grill_me_plan", description="Interrogates a proposed technical plan using the /grill-me scaffold")
 async def grill_me_plan(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Validate payload using Pydantic v2
     request = PlanGrillRequest.model_validate(payload)
 
-    # Generate structured interrogation questions
+    session_id = f"grill-{uuid.uuid4().hex[:8]}"
+
+    # Generate structured interrogation questions based on input scope
     questions = [
         GrillQuestion(
             question_id=1,
-            topic="Data Integrity",
-            question_text=f"How will target files {request.target_files} handle database rollback on unexpected termination?",
+            topic="Data Integrity & Rollback",
+            question_text=f"How will target files {request.target_files} handle transactional rollback on unexpected exception during schema mutation?",
             risk_level="high"
         ),
         GrillQuestion(
             question_id=2,
             topic="Performance Boundary",
-            question_text="What is the expected latency penalty when context size grows past 32k tokens?",
+            question_text="What is the expected latency overhead when context size or payload volume grows past threshold?",
             risk_level="medium"
+        ),
+        GrillQuestion(
+            question_id=3,
+            topic="Regression Risk",
+            question_text="Which automated test suites will be run to ensure zero backward-compatibility regressions occur?",
+            risk_level="high"
         )
     ]
 
     result = GrillSessionResult(
-        session_id="grill-session-9082",
+        session_id=session_id,
         status="awaiting_user_clarification",
-        questions=questions,
-        authorized=False
+        questions=questions[:request.question_depth],
+        authorized=False,
+        verification_score=0.0
     )
 
     return {
@@ -195,8 +233,58 @@ async def grill_me_plan(payload: Dict[str, Any]) -> Dict[str, Any]:
         "result": result.model_dump()
     }
 
+@mcp.tool(name="evaluate_grill_answers", description="Evaluates developer answers to grill questions and computes authorization score")
+async def evaluate_grill_answers(payload: Dict[str, Any]) -> Dict[str, Any]:
+    evaluation = GrillResponseEvaluation.model_validate(payload)
+
+    # Assess completeness of answers provided
+    answered_count = len(evaluation.answers)
+    score = min(100.0, (answered_count / 3.0) * 100.0)
+    authorized = score >= 80.0
+
+    return {
+        "session_id": evaluation.session_id,
+        "score": score,
+        "authorized": authorized,
+        "status": "approved" if authorized else "rejected_insufficient_clarification"
+    }
+
 if __name__ == "__main__":
     mcp.run()
+```
+
+### Systemd Service Unit Configuration
+
+To run the FastMCP 3.1 Pocock Skills engine as a persistent local background daemon (`/etc/systemd/system/pocock-skills.service`):
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Matt Pocock Skills Agent Engine
+After=network.target daemon.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pocock-agent
+Group=pocock-agent
+WorkingDirectory=/opt/pocock-skills
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp run server.py --port 8092
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=LOG_LEVEL=INFO
+Environment=MCP_SERVER_PORT=8092
+
+# System Security & Sandboxing Guardrails
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/pocock-skills/logs /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Troubleshooting & Failure Modes
@@ -208,6 +296,7 @@ if __name__ == "__main__":
 | **FastMCP Schema Mismatch** | Agent runtime tool payload missing required `targetFiles` alias field. | Use Pydantic v2 `populate_by_name=True` or enforce alias validation in tool wrappers. |
 | **Context Window Overflow** | Long `/tdd` test runs accumulate excessive test log output in agent context. | Pipe test output through log filter scripts (`/tdd --quiet`) to preserve context. |
 | **Permission Denied Mutator** | Agent attempts file modifications prior to plan verification approval. | Configure IDE system prompts to strictly require `grill_session_result.authorized == True`. |
+| **Port Conflict on FastMCP Start** | Port 8092 is occupied by another local agent sidecar process. | Verify active ports via `lsof -i :8092` or change `MCP_SERVER_PORT` in unit configuration. |
 
 ## Production Deployment Guardrails
 

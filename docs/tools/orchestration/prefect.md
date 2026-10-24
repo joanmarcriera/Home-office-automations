@@ -36,6 +36,28 @@ It simplifies the challenges associated with pipeline durability—including rob
             +-----------------------+                           +-----------------------+
 ```
 
+```
++-----------------------------------------------------------------------------------------------------------+
+|                                    Prefect Flow Execution Sequence Flow                                   |
++-----------------------------------------------------------------------------------------------------------+
+|                                                                                                           |
+| Agent / Client           Prefect Server API          Worker Node / Pool          FastMCP 3.1 Task Logger  |
+|    |                           |                             |                             |              |
+|    |--- 1. Submit Flow Run --->|                             |                             |              |
+|    |                           |-- 2. Enqueue Run (Scheduled)|                             |              |
+|    |                           |                             |                             |              |
+|    |                           |<-- 3. Poll Work Queue ------|                             |              |
+|    |                           |--- 4. Assign Flow Run ----->|                             |              |
+|    |                           |                             |-- 5. Execute @flow ------->|              |
+|    |                           |                             |                             |-- 6. Log --->|
+|    |                           |<-- 7. Report State (Running)|                             |              |
+|    |                           |                             |-- 8. Complete @task ------>|              |
+|    |                           |<-- 9. Report State (Completed)                            |              |
+|    |<-- 10. Run Result --------|                             |                             |              |
+|                                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
+```
+
 ## Feature & Tooling Comparison Matrix
 
 | Feature / Dimension | Prefect 3.1 | Apache Airflow 2.10 | Dagster 1.9 | Temporal.io | Kestra |
@@ -48,7 +70,7 @@ It simplifies the challenges associated with pipeline durability—including rob
 
 ## Typical use cases
 - **Agentic Loop Orchestration**: Tracking, persisting, and scaling multi-turn autonomous loops where execution pathways can change based on AI reasoning.
-- **Dynamic Data Scraping & ETLa**: Managing dynamic pipelines that determine ingestion paths at runtime based on real-time feedback.
+- **Dynamic Data Scraping & ETL**: Managing dynamic pipelines that determine ingestion paths at runtime based on real-time feedback.
 - **Heterogeneous Machine Learning Training**: Managing distributed ML tasks across on-premise GPUs, cloud-based training pools, and validation servers.
 - **Event-Triggered Infrastructure**: Automatically executing computational pipelines in response to Webhooks, message queues, or storage events.
 
@@ -137,18 +159,17 @@ Prefect provides a comprehensive REST API to enable programmatic integration wit
 import os
 import requests
 from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 # Define strict schemas for programmatic Prefect API interaction (Pydantic v2) with FastMCP 3.1 Task Protocol support
 class FlowRunResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
     task_id: str = Field(..., description="FastMCP 3.1 Task Protocol identifier for correlation tracking.")
     id: str = Field(..., description="Unique UUID identifying the flow run")
     name: str = Field(..., description="The generated or custom name of the flow run")
     state_type: str = Field(..., alias="state_type", description="The current state (e.g. SCHEDULED, RUNNING)")
     flow_id: str = Field(..., description="The parent flow ID")
-
-    class Config:
-        populate_by_name = True
 
 def trigger_prefect_run(api_url: str, deployment_id: str, task_id: str = "task-prefect-2027-0107") -> Optional[FlowRunResponse]:
     endpoint = f"{api_url}/deployments/{deployment_id}/create_flow_run"
@@ -196,6 +217,48 @@ if __name__ == "__main__":
         print("Flow execution trigger or validation failed.")
 ```
 
+### Systemd Service Unit Configuration
+
+To run a persistent Prefect Worker daemon on a host server (`/etc/systemd/system/prefect-worker.service`):
+
+```ini
+[Unit]
+Description=Prefect 3.1 Work Pool Agent Worker
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=prefect
+Group=prefect
+WorkingDirectory=/opt/prefect
+ExecStart=/usr/local/bin/prefect worker start --pool agent-execution-pool
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=PREFECT_API_URL=http://127.0.0.1:4200/api
+Environment=PREFECT_LOGGING_LEVEL=INFO
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/prefect /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Troubleshooting & Failure Modes
+
+| Failure Mode / Error | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Worker Unreachable (`Late` State)** | Prefect worker process crashed or lost network connection to API. | Check systemd service status (`systemctl status prefect-worker`); ensure API URL is reachable. |
+| **Database Lock Deadlock** | SQLite storage backend overwhelmed by high task concurrency. | Migrate server backend to PostgreSQL (`PREFECT_API_DATABASE_CONNECTION_URL`). |
+| **Flow Run Crash on Serialization** | Task return value contains non-pickleable object or complex C-extension. | Enable Pydantic v2 JSON serialization on task payload returns. |
+| **Work Pool Mismatch** | Flow deployment submitted to a work pool without active polling workers. | Verify active worker listeners via `prefect worker ls` and align deployment `-p` flag. |
+
 ## Operational Best Practices & Production Hardening
 
 - **Work Pool Isolation**: Separate high-priority agent decision flows from background bulk ETL flows into distinct Work Pools (`agent-execution-pool` vs `batch-data-pool`).
@@ -220,6 +283,7 @@ if __name__ == "__main__":
 - [PrefectHQ Public GitHub Repository](https://github.com/PrefectHQ/prefect)
 - [Prefect Orchestration Patterns for Agentic Workflows](https://www.prefect.io/guide/ai-agents)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: High

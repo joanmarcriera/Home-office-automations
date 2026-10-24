@@ -25,6 +25,28 @@ graph TD
     SchemaValidator -->|Token SSE Stream| User
 ```
 
+```
++-----------------------------------------------------------------------------------------------------------+
+|                                  Vercel AI SDK Multi-Step Tool Execution Stream                           |
++-----------------------------------------------------------------------------------------------------------+
+|                                                                                                           |
+| Browser / UI Client          Next.js Server / SDK           Frontier Model API       FastMCP 3.1 Server    |
+|    |                                |                               |                        |            |
+|    |--- 1. POST /api/chat --------->|                               |                        |            |
+|    |                                |--- 2. prompt + tool schema -->|                        |            |
+|    |                                |                               |                        |            |
+|    |                                |<-- 3. tool_call request ------|                        |            |
+|    |                                |                                                        |            |
+|    |                                |--- 4. Execute MCP Tool ------------------------------->|            |
+|    |                                |<-- 5. Tool Output Payload -----------------------------|            |
+|    |                                |                                                        |            |
+|    |                                |--- 6. tool_result feedback -->|                        |            |
+|    |                                |<-- 7. Final Completion Text --|                        |            |
+|    |<-- 8. SSE Token Stream --------|                                                        |            |
+|                                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Developing web applications powered by LLMs often involves wrestling with disparate provider APIs, fragmented streaming protocols, brittle custom JSON parsers, and vendor lock-in. Switching models from OpenAI to Anthropic or Google typically requires rewriting API handlers, streaming parsers, and tool-calling interfaces.
 
@@ -210,11 +232,13 @@ export async function runAgenticTask(userPrompt: string) {
 When a Vercel AI SDK Node.js application passes structured JSON responses (`generateObject`) to a Python analytics service, define matching Pydantic v2 schemas for verification:
 
 ```python
-from pydantic import BaseModel, Field, conint, field_validator
+from pydantic import BaseModel, Field, conint, field_validator, ConfigDict
 from typing import List, Literal, Optional
 import json
 
 class TaskAssignmentSchema(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
     task_id: str = Field(..., alias="taskId", pattern=r"^TASK-[0-9]+$")
     title: str = Field(..., min_length=3)
     priority: Literal["critical", "high", "medium", "low"]
@@ -222,10 +246,9 @@ class TaskAssignmentSchema(BaseModel):
     estimated_hours: conint(ge=1, le=100) = Field(..., alias="estimatedHours")
     mcp_tool_required: bool = Field(default=True, alias="mcpToolRequired")
 
-    class Config:
-        populate_by_name = True
-
 class VercelAIObjectPayload(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
     timestamp: str
     generated_tasks: List[TaskAssignmentSchema] = Field(..., alias="generatedTasks")
 
@@ -254,6 +277,48 @@ if __name__ == "__main__":
         print(f"Task: [{task.task_id}] {task.title} | Priority: {task.priority} | Est. Hours: {task.estimated_hours}")
 ```
 
+### Systemd Service Unit Configuration
+
+To deploy a Node.js Vercel AI SDK backend service as a persistent Linux daemon (`/etc/systemd/system/vercel-ai-backend.service`):
+
+```ini
+[Unit]
+Description=Vercel AI SDK Web Node.js Server Daemon
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ai-app
+Group=ai-app
+WorkingDirectory=/opt/vercel-ai-backend
+ExecStart=/usr/bin/node dist/server.js --port 3000
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=OPENAI_API_KEY=sk-proj-key
+
+# Security & Sandboxing
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/vercel-ai-backend/logs /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Troubleshooting & Failure Modes
+
+| Failure Mode / Error | Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| **Max Steps Exceeded** | Agent runtime hits `maxSteps` limit before completing complex multi-tool workflow. | Increase `maxSteps` (e.g. 10) or refine tool instructions to guide model toward convergence. |
+| **API Key Leak Vulnerability** | Instantiating AI SDK provider on browser client rather than server component/route. | Move provider initialization strictly into Next.js Server Actions or `/api` routes. |
+| **Zod Schema Mismatch** | LLM generated JSON output fails `generateObject` Zod schema validation rules. | Add detailed descriptions to Zod schema fields; enforce model JSON mode or retry passes. |
+| **Edge Function Timeout** | Long multi-tool agent execution exceeds Vercel 30-second edge function execution cap. | Migrate long-running agent workflows to background Node.js processes or streaming route handlers. |
+
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Universal protocol for LLM tool integration.
 - [Pydantic AI](../frameworks/pydantic-ai.md) — Python agent and validation framework.
@@ -267,6 +332,7 @@ if __name__ == "__main__":
 - [GitHub - Vercel AI Repository](https://github.com/vercel/ai)
 - [FastMCP 3.1 Specification](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

@@ -37,6 +37,30 @@ The Model Context Protocol establishes a bidirectional client-server relationshi
                               +-----------------------+
 ```
 
+```
++-----------------------------------------------------------------------------------------------------------+
+|                                    FastMCP 3.1 JSON-RPC Handshake & Tool Call                             |
++-----------------------------------------------------------------------------------------------------------+
+|                                                                                                           |
+| Agent Host / Client          Transport (stdio / SSE)          FastMCP 3.1 Server         Backend System   |
+|    |                                   |                              |                         |         |
+|    |--- 1. initialize request -------->|                              |                         |         |
+|    |                                   |--- 2. JSON-RPC (init) ------>|                         |         |
+|    |<-- 3. initialize result ----------|                              |                         |         |
+|    |                                   |<-- 4. Protocol Capabilities -|                         |         |
+|    |                                   |                              |                         |         |
+|    |--- 5. tools/list request -------->|                              |                         |         |
+|    |<-- 6. Array of Tool Schemas ------|                              |                         |         |
+|    |                                   |                              |                         |         |
+|    |--- 7. tools/call (arguments) ---->|                              |                         |         |
+|    |                                   |--- 8. Execute Handler ------>|                         |         |
+|    |                                   |                              |--- 9. Execute API ----->|         |
+|    |                                   |                              |<-- 10. API Data --------|         |
+|    |<-- 11. JSON-RPC Result Output ----|                              |                         |         |
+|                                                                                                           |
++-----------------------------------------------------------------------------------------------------------+
+```
+
 ### Core Primitives
 1. **Tools**: Executable functions exposed to the LLM with typed JSON schemas for input parameters and structured response payloads.
 2. **Resources**: Read-only context endpoints (URI scheme `protocol://...`) providing documentation, configuration files, live telemetry, or file attachments to the agent prompt.
@@ -141,17 +165,21 @@ Defining custom tools, resources, and prompt templates with strict Pydantic v2 i
 
 ```python
 from typing import List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from fastmcp import FastMCP
 
 mcp = FastMCP("homelab-ops-mcp")
 
 class NodeHealthCheckInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, populate_by_name=True)
+
     node_id: str = Field(description="Unique node identifier (e.g., k3s-worker-01)")
     check_disk: bool = Field(default=True, description="Whether to include disk utilization checks")
     check_memory: bool = Field(default=True, description="Whether to include RAM usage checks")
 
 class HealthStatusOutput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, populate_by_name=True)
+
     node_id: str
     healthy: bool
     metrics: Dict[str, Any]
@@ -198,15 +226,19 @@ The following script validates JSON-RPC 2.0 tool-call messages used internally b
 
 ```python
 from typing import Dict, Any, Optional, Literal
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 class JSONRPCRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     jsonrpc: Literal["2.0"] = "2.0"
     id: int | str = Field(..., description="Request identifier matching response")
     method: str = Field(..., description="MCP JSON-RPC method (e.g., tools/call, tools/list)")
     params: Dict[str, Any] = Field(default_factory=dict, description="Method parameters")
 
 class JSONRPCResponse(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     jsonrpc: Literal["2.0"] = "2.0"
     id: int | str
     result: Optional[Dict[str, Any]] = None
@@ -222,6 +254,38 @@ if __name__ == "__main__":
     }
     validated_req = JSONRPCRequest.model_validate(req_json)
     print(f"Validated JSON-RPC call for method: {validated_req.method}")
+```
+
+### Systemd Service Unit Configuration
+
+To run a persistent FastMCP SSE server as a system service (`/etc/systemd/system/fastmcp-sse.service`):
+
+```ini
+[Unit]
+Description=FastMCP 3.1 SSE Server Daemon
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcp-agent
+Group=mcp-agent
+WorkingDirectory=/opt/mcp-servers
+ExecStart=/usr/local/bin/fastmcp run server.py --transport sse --port 8000
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=LOG_LEVEL=INFO
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/mcp-servers/logs /tmp
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Transport Layer & Protocol Capability Matrix
@@ -260,6 +324,7 @@ if __name__ == "__main__":
 - [FastMCP GitHub Repository](https://github.com/jlowin/fastmcp)
 - [MCP Server Examples Repository](https://github.com/modelcontextprotocol/servers)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high
