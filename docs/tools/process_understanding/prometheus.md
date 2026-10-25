@@ -65,6 +65,54 @@ Prometheus is an open-source, CNCF-graduated systems monitoring and alerting too
 - **No Event Logs or Traces**: Strictly focused on numeric time-series metrics; logs (Loki) and distributed traces (Tempo) require complementary tools in the Grafana LGTM stack.
 - **Pull Model Edge Challenges**: Short-lived transient batch jobs or edge devices require a Pushgateway proxy for metric collection.
 
+## Service & Daemon Management (systemd Unit Configuration)
+
+To operate Prometheus as a high-availability background monitoring service on enterprise Linux servers, deploy the systemd service configuration below:
+
+```ini
+[Unit]
+Description=Prometheus Time-Series Monitoring Daemon
+Documentation=https://prometheus.io/docs/
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+WorkingDirectory=/var/lib/prometheus
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus/data \
+  --storage.tsdb.retention.time=15d \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries \
+  --web.listen-address=0.0.0.0:9090 \
+  --web.enable-lifecycle
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+
+# Process Hardening Measures
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+ReadWritePaths=/var/lib/prometheus/data
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Scrape Target Down (`up == 0`)** | Target endpoint down or firewalled | Run `curl -v http://<target>:8000/metrics` from Prometheus host | Verify network security rules, service port, and container health |
+| **TSDB Memory Spike / OOM** | High metric cardinality due to dynamic labels | Execute `topk(10, count by (__name__) ({__name__=~".+"}))` in PromQL | Remove high-cardinality labels (e.g., user IDs, tokens) from exporter |
+| **Out of Order Samples Dropped** | Clock skew between target exporter and Prometheus host | Inspect `prometheus_tsdb_out_of_order_samples_total` metric | Synchronize system clock using `chrony` or `ntpdate` across nodes |
+| **PromQL Query Timeout** | Unindexed long-range regex aggregation | Inspect Prometheus logs for `query execution timed out` | Define pre-aggregated recording rules for frequent heavy dashboard queries |
+
 ## When to use it
 - When building cloud-native observability for Kubernetes infrastructure and microservice architectures.
 - When tracking real-time performance indicators and operational metrics for LLM inference servers and AI agent runtimes.
@@ -265,7 +313,7 @@ if __name__ == "__main__":
 - [Prometheus Official Documentation](https://prometheus.io/docs/introduction/overview/)
 - [CNCF Prometheus Project Page](https://www.cncf.io/projects/prometheus/)
 - [Prometheus Python Client GitHub Repository](https://github.com/prometheus/client_python)
-- [PromQL Query Language Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+- [Prometheus Query Language Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
 
 ## Contribution Metadata
 - Last reviewed: 2027-01-07

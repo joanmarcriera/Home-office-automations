@@ -44,6 +44,64 @@ Managing multiple autonomous agents on complex codebases often leads to context 
 - **Continuous Documentation & Compliance Sync**: Deploying background agents that monitor code commits and automatically update documentation, OpenAPI specs, and security audit logs.
 - **Incident Mitigation**: Running automated triage crews that collect telemetry, analyze log streams, run diagnostic commands, and propose hotfixes.
 
+## Performance & Feature Benchmark Matrix
+
+| Feature / Metric | Kiro Crew | CrewAI | Agency Swarm | LangGraph |
+| :--- | :--- | :--- | :--- | :--- |
+| **Topology** | Hierarchical / Supervisor | Sequential & Hierarchical | Swarm / Directed Graph | Arbitrary Stateful Graph |
+| **FastMCP 3.1 Support** | Native First-Class | Extension Adapter | Custom Wrapper | MCP Agent Nodes |
+| **Workspace Isolation**| Native Git Worktrees | Directory Sandboxing | None | Virtual File System |
+| **Model Heterogeneity**| Multi-Model Dynamic Routing | Multi-Model Support | OpenAI Focused | Any LLM Model |
+| **State Persistence** | SQLite / Redis Sync | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer |
+| **Target Scale** | Enterprise Codebases | Lightweight Agent Teams | Conversational Swarms | Production Workflows |
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+To run Kiro Crew orchestrator workers as resilient background services under systemd on enterprise servers, deploy the unit file configuration below:
+
+```ini
+[Unit]
+Description=Kiro Crew Multi-Agent Daemon Service
+Documentation=https://github.com/kiro-crew
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kirocrew
+Group=kirocrew
+WorkingDirectory=/opt/kiro-crew
+ExecStart=/usr/local/bin/kiro-crew daemon --config /etc/kiro-crew/crew.yaml --port 8092
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_PORT=8092
+Environment=LOG_LEVEL=info
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kiro-crew
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/kiro-crew /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **Git Worktree Lock Conflict** | Stale `.git/worktrees/<agent>/index.lock` left after process crash | Run `git worktree list` to inspect lock state | Execute `kiro-crew workspace unlock --crew-id <id> --force` |
+| **Agent Handoff Context Truncation** | Accumulated raw chat history exceeded model context window | Check `total_token_count` in telemetry output | Enable `summarize_on_handoff` in `crew.yaml` config |
+| **FastMCP Tool Execution Timeout** | Integration test suite exceeded default 30s tool response timeout | Inspect stderr log for `MCPToolTimeoutError` | Set `mcp_tool_timeout: 120` in agent role declaration |
+| **Role Permission Denial** | Agent attempted to invoke tool outside assigned `allowed_tools` | Check role policy log for `UnauthorizedToolCall` | Add target tool ID to agent persona definition in `crew.yaml` |
+
 ## Strengths
 - **FastMCP 3.1 Task Protocol Support**: Native support for task decomposition, progress reporting, and tool execution across distributed MCP servers.
 - **Git Workspace Isolation**: Automated worktree branch isolation prevents concurrent agents from overwriting uncommitted code modifications.
@@ -206,49 +264,6 @@ sample_result = {
 validated_output = AgentExecutionResult.model_validate(sample_result)
 print("Validated Agent Result:", validated_output.model_dump_json(indent=2))
 ```
-
-## Performance & Feature Benchmark Matrix
-
-| Feature / Metric | Kiro Crew | CrewAI | Agency Swarm | LangGraph |
-| :--- | :--- | :--- | :--- | :--- |
-| **Topology** | Hierarchical / Supervisor | Sequential & Hierarchical | Swarm / Directed Graph | Arbitrary Stateful Graph |
-| **FastMCP 3.1 Support** | Native First-Class | Extension Adapter | Custom Wrapper | MCP Agent Nodes |
-| **Workspace Isolation**| Native Git Worktrees | Directory Sandboxing | None | Virtual File System |
-| **Model Heterogeneity**| Multi-Model Dynamic Routing | Multi-Model Support | OpenAI Focused | Any LLM Model |
-| **State Persistence** | SQLite / Redis Sync | In-Memory / ChromaDB | Local JSON File | Postgres / Redis Checkpointer |
-| **Target Scale** | Enterprise Codebases | Lightweight Agent Teams | Conversational Swarms | Production Workflows |
-
-## Operational & Troubleshooting Guide
-
-### 1. Concurrent Git Worktree Lock Conflicts
-- **Symptom**: Agent worker throws `Git Worktree Locked` exception during task initialization.
-- **Cause**: A previously crashed agent process left a stale index lock file `.git/worktrees/<agent>/index.lock`.
-- **Resolution**:
-  Execute lock cleanup command before launching the crew:
-  ```bash
-  kiro-crew workspace unlock --crew-id crew-auth-dev --force
-  ```
-
-### 2. Context Window Exhaustion in Long Multi-Turn Handoffs
-- **Symptom**: Developer Agent truncates code patches or loses track of initial architectural requirements.
-- **Cause**: Shared context buffer accumulated raw chat messages without summarization across multiple agent handoffs.
-- **Resolution**: Enable state compression in `crew.yaml`:
-  ```yaml
-  context_management:
-    compression_strategy: "summarize_on_handoff"
-    max_context_tokens: 32000
-  ```
-
-### 3. FastMCP 3.1 Tool Timeout During Integration Tests
-- **Symptom**: QA Agent times out when triggering automated test runner tools.
-- **Cause**: Test suite execution exceeded default FastMCP response timeout (30s).
-- **Resolution**: Adjust `mcp_tool_timeout` setting in agent tool configuration:
-  ```python
-  mcp_config = {
-      "timeout_seconds": 120,
-      "retry_attempts": 3
-  }
-  ```
 
 ## Related tools / concepts
 - [Agency Swarm](agency-swarm.md) — Collaborative multi-agent framework built on OpenAI Assistants API.

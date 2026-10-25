@@ -61,6 +61,52 @@ TrellisCPP solves these problems by rewriting the model's forward path, attentio
 | **PBR Texture Output** | Native 2K/4K Procedural | Cloud Generated | Cloud Generated | High-Res PBR Set |
 | **Cost Profile** | $0 (Zero Cloud Fees) | Pay-per-mesh token | Monthly SaaS | Enterprise License |
 
+## Service & Daemon Management (systemd Unit Configuration)
+
+To run TrellisCPP high-speed 3D asset generation workers as background systemd daemons on Linux GPU hosts, deploy the service unit configuration below:
+
+```ini
+[Unit]
+Description=TrellisCPP Native C++23 3D Asset Server
+Documentation=https://github.com/trellis-cpp/trellis.cpp
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=trelliscpp
+Group=trelliscpp
+WorkingDirectory=/opt/trelliscpp
+ExecStart=/usr/local/bin/trellis-server --model /models/trellis-base-q8.bin --port 8094 --threads 8
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3s
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=FASTMCP_SERVER_PORT=8094
+Environment=LOG_LEVEL=info
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=trelliscpp
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/trelliscpp /tmp /models
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Possible Cause | Verification Procedure | Resolution Strategy |
+| :--- | :--- | :--- | :--- |
+| **CUDA Kernel Launch Fail (`CUDA_ERROR_OUT_OF_MEMORY`)** | High resolution 4K PBR texture mesh exceeds GPU VRAM | Run `nvidia-smi` to inspect active GPU memory consumption | Pass `--decimate 0.4` or switch to INT4 quantized weights `--bits 4` |
+| **Sparse Convolution Alignment Fault** | Incompatible CUDA architecture flags passed during CMake compile | Check compute capability via `deviceQuery` | Rebuild with matching arch flag e.g., `-DCUDA_ARCH_NAME=Ada` |
+| **Invalid GLTF Output Geometry** | Non-manifold input mesh in source 2D sketch preprocessor | Inspect mesh geometry using `gltf-pipeline --stats` | Enable pre-repair topological cleanup pass in generation config |
+| **FastMCP IPC Pipe Breakdown** | Async worker thread blocked by heavy CPU marching cubes pass | Inspect process list for un-yielding thread workers | Increase worker thread count using `--threads 16` in daemon args |
+
 ## Strengths
 - **Bare-Metal C++23 Execution**: Bypasses the Python interpreter entirely, reducing cold starts to milliseconds.
 - **Unrivaled Memory Efficiency**: Advanced 4-bit and 8-bit model weight quantization allows high-fidelity generation on low-end consumer hardware.
