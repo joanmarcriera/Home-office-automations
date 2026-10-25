@@ -39,6 +39,27 @@ Residing at the **AI Model / Multimodal Foundation Layer**, Gemini serves as the
 └────────────────────────────────────┘  └──────────────────────────────────┘
 ```
 
+## Multimodal Task Sequence & Caching Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as Agent Developer / System
+    participant Gateway as Gemini FastMCP 3.1 Gateway
+    participant Cache as Vertex AI Context Cache Store
+    participant Engine as Gemini 4.0 Pro Engine
+    participant Guard as Pydantic v2 Output Validator
+
+    Developer->>Gateway: Submit multi-file codebase / video payload
+    Gateway->>Cache: Create or reuse structured context cache (TTL: 86400s)
+    Cache-->>Gateway: Cache Handle (`cachedContents/123456`)
+    Gateway->>Engine: Stream prompt + Cache Handle + FastMCP tools
+    Engine->>Engine: Execute thinking loop & spatial/multimodal reasoning
+    Engine-->>Gateway: Return structured token response stream
+    Gateway->>Guard: Validate response against Pydantic v2 schema
+    Guard-->>Developer: Deliver verified schema object
+```
+
 ## Typical use cases
 - **Full-Codebase Automated Refactoring**: Feed multi-million-line repositories into Gemini 4.0 Pro's 4M context window to execute automated dependency upgrades, framework migrations, and architecture audits (scoring 68.2% on MLE Bench and 55% on DeepSWE).
 - **Automated Security Patching**: Deploy Gemini 4.0 Flash Cyber within continuous integration pipelines to identify vulnerabilities, generate exploit proofs, and submit validated pull request patches.
@@ -69,10 +90,10 @@ Residing at the **AI Model / Multimodal Foundation Layer**, Gemini serves as the
 ## Getting started
 
 ### Installation
-Install the unified Google GenAI SDK and Pydantic v2:
+Install the unified Google GenAI SDK, FastMCP 3.1, and Pydantic v2:
 
 ```bash
-pip install google-genai pydantic
+pip install google-genai fastmcp pydantic
 ```
 
 ### Environment Setup
@@ -105,7 +126,89 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/cachedContents?ke
 
 ## API examples
 
-### 1. Pydantic v2 Schema Enforcement with Unified SDK
+### 1. FastMCP 3.1 Server Integration with Gemini 4.0 Pro
+
+Below is a complete FastMCP 3.1 server implementation that connects Gemini 4.0 Pro to local agent tool execution and context caching.
+
+```python
+"""
+FastMCP 3.1 Server for Gemini 4.0 Pro Tool Execution & Context Caching
+"""
+
+import os
+import json
+from typing import Dict, Any, List, Optional
+from google import genai
+from google.genai import types
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, ConfigDict
+
+mcp = FastMCP("Gemini-FastMCP-Bridge", version="3.1.0")
+
+class ContextCacheRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    model: str = Field("models/gemini-4.0-pro", description="Target Gemini model identifier")
+    display_name: str = Field(..., description="Human-readable cache label")
+    contents: str = Field(..., description="Large text or code payload to cache")
+    ttl_seconds: int = Field(86400, ge=300, le=604800, description="Cache retention in seconds")
+
+class QueryCacheRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cache_name: str = Field(..., description="Context cache handle (e.g. cachedContents/123456)")
+    prompt: str = Field(..., description="Prompt query to execute against cached context")
+    thinking_budget: int = Field(1024, ge=0, le=8192, description="Reasoning thinking budget in tokens")
+
+@mcp.tool()
+def create_codebase_context_cache(request: ContextCacheRequest) -> Dict[str, Any]:
+    """Creates a Gemini 4.0 Pro context cache for large codebase representations."""
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    try:
+        cache = client.cached_contents.create(
+            model=request.model,
+            config=types.CreateCachedContentConfig(
+                display_name=request.display_name,
+                contents=[request.contents],
+                ttl=f"{request.ttl_seconds}s"
+            )
+        )
+        return {
+            "status": "success",
+            "cache_name": cache.name,
+            "expire_time": str(cache.expire_time),
+            "model": cache.model
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@mcp.tool()
+def query_cached_codebase(request: QueryCacheRequest) -> Dict[str, Any]:
+    """Queries an existing Gemini 4.0 Pro context cache with configurable thinking budget."""
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    try:
+        config = types.GenerateContentConfig(
+            cached_content=request.cache_name,
+            thinking_config=types.ThinkingConfig(thinking_budget=request.thinking_budget)
+        )
+        response = client.models.generate_content(
+            model="gemini-4.0-pro",
+            contents=request.prompt,
+            config=config
+        )
+        return {
+            "status": "success",
+            "response_text": response.text
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+### 2. Pydantic v2 Schema Enforcement with Unified SDK
+
 The following Python script enforces structured JSON schema responses from Gemini 4.0 Pro using Pydantic v2 models.
 
 ```python
@@ -167,7 +270,7 @@ except ValidationError as e:
     print(f"Schema Validation Error: {e.json()}")
 ```
 
-### 2. Large Multimodal Ingestion & Context Caching
+### 3. Large Multimodal Ingestion & Context Caching
 ```python
 import os
 from google import genai
@@ -189,6 +292,32 @@ response = client.models.generate_content(
 
 print("\n--- Video Analysis Response ---")
 print(response.text)
+```
+
+## Production Systemd Service Unit (`gemini-fastmcp.service`)
+
+For continuous background execution in production environments, deploy the Gemini FastMCP 3.1 bridge service using systemd:
+
+```ini
+[Unit]
+Description=Gemini FastMCP 3.1 Agent Tool Server
+After=network.target
+
+[Service]
+Type=simple
+User=mcp-agent
+WorkingDirectory=/opt/gemini-fastmcp
+ExecStart=/opt/gemini-fastmcp/venv/bin/python3 /opt/gemini-fastmcp/server.py
+Restart=always
+RestartSec=5s
+Environment=GEMINI_API_KEY=/etc/gemini/api_key.env
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## Model Ecosystem Comparison Matrix
