@@ -12,6 +12,20 @@ Autonomous systems can often feel like "black boxes." This catalogue solves the 
 
 **Category**: Architecture / Governance. It sits in the **metacognition and orchestration** layer, documenting the workflows that manage all other content in the repository.
 
+```
++------------------------------------------------------------------------------------+
+|                         PROMPT CATALOGUE ARCHITECTURE                              |
+|                                                                                    |
+|  [GitHub Actions Trigger] ---> [Prompt Catalogue Registry]                         |
+|                                         |                                          |
+|                                         v                                          |
+|  [Agent Execution: Jules] <---> [FastMCP 3.1 Task Protocol]                        |
+|                                         |                                          |
+|                                         v                                          |
+|  [Quality Gates: audit_docs_quality] -> [Docs & Reports Catalog Commit]             |
++------------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 
 - **Prompt Versioning**: Tracking changes to the system prompts used by the [Daily Jules Maintenance](#ga-3-daily-jules-maintenance) workflow.
@@ -222,6 +236,46 @@ counts, most-connected tools, and new additions.
 Run CI checks and scan for empty sections or broken links.
 ```
 
+## Systemd Service Specs
+The following background service manages system prompt dispatching and execution under FastMCP 3.1:
+
+```ini
+[Unit]
+Description=Prompt Catalogue Dispatch Service (FastMCP 3.1)
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/opt/home-office-automations
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 -m scripts.jules_issue_watcher --catalogue /opt/home-office-automations/docs/architecture/prompt-catalogue.md
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prompt-catalogue-daemon
+
+# Security Isolation
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/home-office-automations/docs /opt/home-office-automations/data
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code | Symptom | Diagnostic Command | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| `PROMPT_PARSE_FAIL` | LLM returns non-JSON structure | `python3 scripts/digest_to_intake.py --debug` | Check prompt template for missing explicit JSON output directives |
+| `SCHEMA_VALIDATION_ERR` | Pydantic validation fails on prompt output | `python3 scripts/test_jules_issue_watcher.py` | Verify output schema matches `PromptCatalogueRegistry` field constraints |
+| `WORKFLOW_DISPATCH_TIMEOUT` | GitHub API dispatch returns 504 | `gh run list --workflow daily-jules-maintenance.yml` | Retry dispatch or check GitHub Action status page for service degradation |
+| `MODEL_FALLBACK_TRIGGERED` | Primary model rate limited | `journalctl -u prompt-catalogue-daemon -n 50` | Fallback chain (Claude 5.6 -> GPT-5.6 -> Gemini 4.0 Ultra -> DeepSeek-V4) executed automatically |
+
 ## CLI examples
 Automations can be triggered or inspected using the GitHub CLI (`gh`).
 
@@ -324,6 +378,7 @@ if __name__ == "__main__":
 - [Automated Contributions (Jules setup)](automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
 
+---
 ## Contribution Metadata
 
 - Last reviewed: 2027-01-07

@@ -98,6 +98,53 @@ Legacy dense foundation models activate every parameter for every generated toke
 2. **Context Window Optimization**: Enable FlashAttention-3 KV-cache quantization (`--kv-cache-dtype fp8`) to double concurrent user throughput under long 128k context sessions.
 3. **Structured Tool Calling Safety**: Always enforce JSON schema validation at the inference gateway layer to intercept malformed tool calls before execution.
 
+## Systemd Service Specs
+Deploy Llama 4 as a system daemon serving an OpenAI-compatible endpoint with vLLM:
+
+```ini
+[Unit]
+Description=Llama 4 MoE Inference Service (vLLM Engine)
+After=network.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/opt/vllm
+Environment="CUDA_VISIBLE_DEVICES=0,1"
+Environment="VLLM_WORKER_MULTIPROC_METHOD=spawn"
+ExecStart=/usr/local/bin/vllm serve meta-llama/Llama-4-70B-Instruct \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --tensor-parallel-size 2 \
+  --max-model-len 32768 \
+  --enable-auto-tool-choice \
+  --kv-cache-dtype fp8
+Restart=always
+RestartSec=15s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=llama4-vllm
+
+# Security Isolation
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue Code | Symptom | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `ERR_EXPERT_OOM` | CUDA Out of Memory during expert routing | `nvidia-smi` | Enable `--kv-cache-dtype fp8` or add `--cpu-offload-gb 16` to reduce VRAM pressure |
+| `ERR_ROUTING_MISMATCH` | Model output degrades after heavy quantization | `python3 scripts/audit_docs_quality.py` | Upgrade model quantization from `Q3` to AWQ or MoE-aware `Q4_K_M` GGUF |
+| `ERR_MCP_SCHEMA_FAIL` | Tool call output fails JSON schema validation | `journalctl -u llama4-vllm -n 50` | Enforce strict Pydantic v2 validation schema models on API input gateways |
+| `ERR_HTTP_504` | Gateway request timeout during long context processing | `curl -i http://localhost:8000/health` | Increase client HTTP read timeout to >120s and enable context chunking |
+
 ## Getting started
 
 ### Installation via Ollama

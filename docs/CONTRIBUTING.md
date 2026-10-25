@@ -107,6 +107,80 @@ Before requesting review, AI-authored PRs must satisfy:
 - [ ] `data/all_tools.json` and `mkdocs.yml` updated when applicable.
 - [ ] `scripts/audit_docs_quality.py` and `scripts/check_docs_contract.py` pass with 100% compliance.
 
+## Comprehensive Contribution Architecture & Pipeline
+
+```
++---------------------------------------------------------------------------------------+
+|                               CONTRIBUTION PIPELINE FLOW                              |
+|                                                                                       |
+|  [Contributor / Agent]                                                                |
+|         |                                                                             |
+|         v                                                                             |
+|  (1. Search Canonical Docs) ---> Match Found? ---> YES ---> Edit Existing File        |
+|         |                                                      |                      |
+|         NO                                                     v                      |
+|         v                                            (Apply 13-Section Schema)        |
+|  (2. Create New Doc from Template)                             |                      |
+|         |                                                      v                      |
+|         +---------------------------------------------> (Update Catalog & Nav)        |
+|                                                                |                      |
+|                                                                v                      |
+|                                                    (3. Execute Quality Gates)         |
+|                                                                |                      |
+|                                                                v                      |
+|                                                    [audit_docs_quality.py]            |
+|                                                    [check_catalog_consistency.py]     |
+|                                                    [validate_new_sources.py]          |
+|                                                    [check_docs_contract.py]           |
+|                                                                |                      |
+|                                                                v                      |
+|                                                    (4. Submit PR & Merge)             |
++---------------------------------------------------------------------------------------+
+```
+
+## Maintenance & Systemd Service Specs
+For automated contribution runners and KnowledgeOps agent daemons running locally, the following systemd unit manages background execution.
+
+```ini
+[Unit]
+Description=KnowledgeOps Automated Contribution Worker (FastMCP 3.1)
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/opt/home-office-automations
+Environment="PYTHONUNBUFFERED=1"
+Environment="KNOWLEDGEOPS_ENV=production"
+ExecStart=/usr/bin/python3 -m scripts.jules_issue_watcher --interval 60
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=knowledgeops-worker
+
+# Security Sandbox
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/home-office-automations/docs /opt/home-office-automations/data
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Error Code / Symptom | Possible Root Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `DOC_CONTRACT_INVALID` | Missing required metadata fields or 13-section headers | `python3 scripts/check_docs_contract.py <path>` | Add missing metadata (`Last reviewed`, `Confidence`) or missing standard headers |
+| `CATALOG_MISMATCH` | Canonical page not present in `data/all_tools.json` or `mkdocs.yml` | `python3 scripts/check_catalog_consistency.py` | Add entry to `data/all_tools.json` and sync `mkdocs.yml` navigation structure |
+| `INTAKE_VALIDATION_FAIL` | Unresolved `Status = new` rows in intake files | `python3 scripts/validate_new_sources.py` | Process intake row, set status to `integrated`, and link canonical doc |
+| `METADATA_DATE_STALE` | `Last reviewed` date older than minimum threshold | `python3 scripts/check_doc_freshness.py` | Audit technical content and update `Last reviewed` timestamp |
+| `MCP_PROTOCOL_TIMEOUT` | FastMCP tool execution timed out during automated PR check | `journalctl -u knowledgeops-worker -n 50` | Restart background service and verify network connectivity to MCP host |
+
 ## CLI examples
 Verify contribution quality and identify tasks using the repository's internal toolset:
 

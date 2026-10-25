@@ -45,6 +45,35 @@ graph TD
     AWQ --> GPU
 ```
 
+```
++------------------------------------------------------------------------------------+
+|                   text-generation-webui Modular Architecture                      |
++------------------------------------------------------------------------------------+
+|  Client Ingestion: Gradio UI / OpenAI REST API / WebSockets / FastMCP 3.1 Bridge   |
+|  +------------------------------------------------------------------------------+  |
+|  | Unified Server Gateway (`server.py`)                                         |  |
+|  +------------------------------------------------------------------------------+  |
+|                                          |                                         |
+|                                          v                                         |
+|  +------------------------------------------------------------------------------+  |
+|  | Advanced Sampler Pipeline: DRY / XTC / Min-P / Mirostat / Temp Scaling        |  |
+|  +------------------------------------------------------------------------------+  |
+|                                          |                                         |
+|                                          v                                         |
+|  +------------------------------------------------------------------------------+  |
+|  | Multi-Backend Loader Wrapper Layer (`modules/models.py`)                      |  |
+|  | +----------------+ +----------------+ +----------------+ +-----------------+ |  |
+|  | | llama.cpp (GGUF| | ExLlamaV2 (EXL2| | Transformers FP16| | AutoAWQ (INT4)  | |  |
+|  | +----------------+ +----------------+ +----------------+ +-----------------+ |  |
+|  +------------------------------------------------------------------------------+  |
+|                                          |                                         |
+|                                          v                                         |
+|  +------------------------------------------------------------------------------+  |
+|  | Hardware Acceleration: CUDA / ROCm / Metal GPU Accelerators & VRAM Allocation   |  |
+|  +------------------------------------------------------------------------------+  |
++------------------------------------------------------------------------------------+
+```
+
 ## What problem it solves
 Local LLM power users and home-lab builders often need to run and compare models in diverse formats (GGUF, EXL2, AWQ, HF Safeguards/Safetensors) with deep control over sampling parameters, extension plugins, and API integration. Monolithic apps often constrain backend parameters. text-generation-webui solves this by providing unified parameter controls, chat and notebook interfaces, dynamic model swapping, and dual OpenAI/TGI-compatible API endpoints for home automation integration.
 
