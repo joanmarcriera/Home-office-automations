@@ -10,6 +10,30 @@ Most traditional LLM benchmarks evaluate atomic capabilities, such as isolated c
 **Category**: [Benchmarking](index.md) / [Agentic Evaluations](../../knowledge_base/README.md).
 It functions as a high-level performance and capability auditing layer, typically orchestrated via modular evaluation frameworks like the UK AISI's `inspect-ai` and integrated into development workflows to compare agent planning architectures (e.g., ReAct, plan-and-solve, or custom state-machines).
 
+```
++-----------------------------------------------------------------------------------+
+|                     ASSISTANTBENCH AGENTIC EVALUATION STACK                      |
++-----------------------------------------------------------------------------------+
+|  [Benchmark Dataset: Long-Horizon Open-Web Real World Tasks]                       |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Inspect-AI / UK AISI Framework Orchestration Engine]                            |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [FastMCP 3.1 Task Protocol & Agent Controller Bridge]                            |
+|        │                                               │                          |
+|        ▼ (Playwright Browser Loop)                     ▼ (Frontier Reasoning VLM) |
+|  [Headless Chromium / DOM Tree & Screenshot Engine]   [Claude 5.6 / GPT-5.6 / Gemini 4] |
+|        │                                               │                          |
+|        └───────────────────────┬───────────────────────┘                          |
+|                                ▼                                                  |
+|  [Pydantic v2 Trajectory Metric Validation & Ground Truth Assertion]              |
+|                │                                                                  |
+|                ▼                                                                  |
+|  [Performance Report: Accuracy %, Agentic Latency, Step Trajectory Analytics]     |
++-----------------------------------------------------------------------------------+
+```
+
 ## Multi-Step Tool Execution & Browser Loop Architecture
 
 ```mermaid
@@ -75,7 +99,7 @@ AssistantBench evaluations are primarily orchestrated using the `inspect-ai` fra
 ### 1. Installation
 Install the required packages utilizing pip:
 ```bash
-pip install inspect-ai inspect-evals pydantic
+pip install inspect-ai inspect-evals pydantic fastmcp
 ```
 
 ### 2. Live Web Driver Dependencies
@@ -192,7 +216,31 @@ for run in evaluation_results:
     print(f"Task Success Accuracy: {run.metrics['accuracy'].value * 100:.2f}%")
 ```
 
-### Failure Analysis & Troubleshooting Matrix
+## Production Systemd Service Unit (`assistantbench-eval.service`)
+
+For running automated nightly batch evaluation sweeps against live web benchmarks, deploy the following systemd service configuration:
+
+```ini
+[Unit]
+Description=AssistantBench Nightly FastMCP 3.1 Evaluation Runner
+After=network.target
+
+[Service]
+Type=oneshot
+User=eval-agent
+WorkingDirectory=/opt/assistantbench-runner
+ExecStart=/opt/assistantbench-runner/venv/bin/inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-5.6 --limit 20
+Environment=ANTHROPIC_API_KEY=/etc/assistantbench/anthropic.env
+Environment=OPENAI_API_KEY=/etc/assistantbench/openai.env
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
 
 | Symptom / Failure Mode | Underlying Root Cause | Diagnostic Method | Remediation / Countermeasure |
 | :--- | :--- | :--- | :--- |

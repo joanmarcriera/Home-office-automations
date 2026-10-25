@@ -27,6 +27,29 @@ Home Assistant is the world's leading open-source smart home automation platform
 +-----------------------------------------------------------------------------------+
 ```
 
+## Physical Actuation & Event Bus Sequence Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Sensor as IoT Sensor / User Speech
+    participant Bus as HA Core Event Bus
+    participant MCP as FastMCP 3.1 Server Bridge
+    participant Agent as Agentic Reasoning Engine
+    participant Guard as Pydantic v2 Safety Validator
+    participant Hardware as Physical Actuator (Z-Wave / Matter)
+
+    Sensor->>Bus: Fire event state_changed (e.g. motion_detected)
+    Bus->>MCP: Stream event payload via FastMCP 3.1 Task Protocol
+    MCP->>Agent: Query next action decision
+    Agent-->>MCP: Tool call request (`lock_door`, `set_climate_temp`)
+    MCP->>Guard: Validate payload against physical safety schema
+    Guard-->>MCP: Schema approved
+    MCP->>Bus: Dispatch call_service command
+    Bus->>Hardware: Transmit wireless actuation command (Zigbee / Matter)
+    Hardware-->>Bus: State updated feedback
+```
+
 ## What problem it solves
 The consumer smart home market suffers from fragmented "walled gardens" and cloud provider lock-in that compromises user privacy and operational reliability during Internet outages. Home Assistant solves this by providing a unified, local-first interface integrating over 3,200 device standards (Matter 1.4+, Zigbee 3.0, Z-Wave Long Range, Wi-Fi, Bluetooth LE). It enables complex, cross-brand automations that run entirely within the user's private network, shielding physical hardware from cloud latency and data harvesting.
 
@@ -166,14 +189,14 @@ import requests
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class EntityAttributes(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     friendly_name: Optional[str] = Field(None, alias="friendly_name")
     unit_of_measurement: Optional[str] = Field(None, alias="unit_of_measurement")
     battery_level: Optional[int] = Field(None, ge=0, le=100)
 
 class EntityState(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     entity_id: str = Field(..., alias="entity_id")
     state: str
@@ -221,6 +244,32 @@ if __name__ == "__main__":
         print(f"Failed to query Home Assistant state: {e}")
 ```
 
+## Production Systemd Service Unit (`homeassistant.service`)
+
+In bare-metal Linux deployment setups, manage Home Assistant Core via systemd:
+
+```ini
+[Unit]
+Description=Home Assistant Core Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homeassistant
+WorkingDirectory=/srv/homeassistant
+ExecStart=/srv/homeassistant/bin/hass -c "/srv/homeassistant/config"
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Best Practices & Homelab Hardening
 
 ### 1. Multi-Factor Authentication & SSO Gateway
@@ -230,7 +279,7 @@ Do not expose the Home Assistant web portal directly to public port forwarding. 
 Configure the official **Google Drive Backup** or **S3 Storage** add-on to perform daily encrypted snapshots of the `/config` directory before core platform updates.
 
 ### 3. Database Maintenance & Recorder Tuning
-In high-entity environments, exclude high-frequency sensor streams (such as CPU usage or energy watts updates) from the default SQLite/MariaDB recorder in `configuration.yaml` to prevent database bloat and disk Wear:
+In high-entity environments, exclude high-frequency sensor streams (such as CPU usage or energy watts updates) from the default SQLite/MariaDB recorder in `configuration.yaml` to prevent database bloat and disk wear:
 
 ```yaml
 recorder:
@@ -241,6 +290,15 @@ recorder:
     entity_globs:
       - sensor.processor_use*
 ```
+
+## Operational Diagnostic Troubleshooting Matrix
+
+| Symptom / Fault | Probable Underlying Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Zigbee/Z-Wave Mesh Unresponsive** | USB serial coordinator interference or drop | `dmesg \| grep -i tty` | Relocate USB coordinator via extension cable away from 2.4GHz Wi-Fi routers. |
+| **FastMCP Tool Response Timeout** | HA API Token expired or network firewalled | `curl -H "Authorization: Bearer $HA_TOKEN" http://localhost:8123/api/` | Regenerate long-lived access token and verify port 8123 binding. |
+| **Database Bloat / High Disk I/O** | Recorder logging unneeded high-frequency entity states | `du -sh /config/home-assistant_v2.db` | Add noisy entities to `recorder.exclude` and run `recorder.purge` service. |
+| **Voice Assist Pipeline Delay** | Local Whisper / Piper model lagging on host CPU | `docker logs homeassistant-whisper` | Offload speech recognition to GPU container or local [Ollama](ollama.md) endpoint. |
 
 ## Related tools / concepts
 - [Ollama](ollama.md) — For hosting local LLMs driving Home Assistant Assist offline voice pipelines.

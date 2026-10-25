@@ -45,6 +45,28 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 ## Where it fits in the stack
 **Inference Provider**. Fireworks AI sits in the **Infrastructure** layer, providing the raw compute and model serving capability that powers higher-level agentic frameworks. It serves as a performance-optimized alternative to self-hosting via [vLLM](../infrastructure/vllm.md) or using general-purpose providers like [Together AI](together.md).
 
+## Sequence Diagram Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Agentic Client / FastMCP 3.1
+    participant Gateway as Fireworks API Gateway
+    participant Router as FireAttention Multi-LoRA Router
+    participant Engine as Tensor Core GPU Cluster (H200/B200)
+    participant NVMe as NVMe Adapter Store
+
+    Client->>Gateway: POST /v1/chat/completions (model, lora_adapter)
+    Gateway->>Router: Parse Request & Identify LoRA Adapter
+    alt Adapter in GPU SRAM Cache
+        Router->>Engine: Stream Input Tokens directly
+    else Adapter in NVMe Store
+        Router->>NVMe: Dynamic Zero-Cold-Start Adapter Injection
+        NVMe-->>Engine: Load LoRA Weights (< 5ms)
+    end
+    Engine-->>Client: Stream SSE Tokens via FastMCP 3.1 Protocol
+```
+
 ## Feature & Performance Comparison Matrix
 
 | Provider / Metric | Fireworks AI | Groq | Together AI | vLLM (Self-Hosted) | Anyscale / Ray |
@@ -85,6 +107,54 @@ It provides reliable, low-latency, and cost-effective access to the latest open-
 - If your application requires proprietary "frontier" models like `claude-5-6-sonnet` or `gpt-5-6`.
 - For extremely niche or research models that are not included in their curated performance-optimized list.
 - If strict data sovereignty requires 100% on-premises local hosting (see [TGI](../infrastructure/tgi.md)).
+
+## Systemd Service Unit Configuration
+
+To run a local FastMCP 3.1 Gateway proxy to Fireworks AI as a background daemon on Linux servers, deploy the following unit to `/etc/systemd/system/fireworks-mcp-gateway.service`:
+
+```ini
+[Unit]
+Description=Fireworks AI FastMCP 3.1 Gateway Service
+After=network-online.target
+Wants=network-online.target
+Documentation=https://docs.fireworks.ai
+
+[Service]
+Type=simple
+User=fireworks
+Group=fireworks
+WorkingDirectory=/opt/fireworks-gateway
+ExecStart=/usr/bin/python3 -m gateway.fireworks_mcp_server
+Restart=always
+RestartSec=5s
+
+# Environment settings
+Environment=PYTHONUNBUFFERED=1
+Environment=FIREWORKS_API_KEY=fw_3z...your_api_key_here
+Environment=DEFAULT_MODEL=accounts/fireworks/models/llama-v4-maverick-70b-instruct
+Environment=PORT=8089
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/fireworks-gateway/logs
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now fireworks-mcp-gateway.service
+sudo systemctl status fireworks-mcp-gateway.service
+```
 
 ## Getting started
 To start using Fireworks AI, install the official Python SDK or use the OpenAI-compatible SDK:
@@ -251,6 +321,15 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Generate code in my specific style."}]
 )
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom / Error | Root Cause | Diagnostic Command / Inspection | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` | Missing or invalid `FIREWORKS_API_KEY` | `echo $FIREWORKS_API_KEY` | Generate valid key in Fireworks Console; export in `.env` or systemd service unit. |
+| `ModelNotFoundError` | Invalid model account path or model unlisted | `curl https://api.fireworks.ai/inference/v1/models` | Verify account prefix (e.g. `accounts/fireworks/models/...`) from official directory. |
+| `FastMCP Connection Refused` | Gateway daemon stopped or port 8089 blocked | `journalctl -u fireworks-mcp-gateway.service -n 50` | Restart systemd unit (`systemctl restart fireworks-mcp-gateway.service`); verify port 8089 binding. |
+| `LoRA Adapter Swap Delay` | Adapter rank > 64 or NVMe store access throttling | Check Fireworks dashboard execution metrics | Retrain LoRA adapter with rank <= 64 for instant FireAttention SRAM swapping. |
 
 ## Operational Best Practices & Troubleshooting
 

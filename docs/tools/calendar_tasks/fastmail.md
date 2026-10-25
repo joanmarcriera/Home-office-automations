@@ -151,7 +151,7 @@ import os
 import requests
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 mcp = FastMCP(
     name="Fastmail JMAP Engine",
@@ -162,6 +162,19 @@ mcp = FastMCP(
 FASTMAIL_TOKEN = os.getenv("FASTMAIL_API_TOKEN", "mock_token")
 JMAP_SESSION_URL = "https://api.fastmail.com/.well-known/jmap"
 
+class MaskedEmailRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    site_domain: str = Field(..., description="Target service domain for the alias")
+    description: str = Field(..., description="Purpose or label for the alias")
+
+class CalendarQueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    calendar_id: str = Field(..., description="Target Fastmail JMAP calendar ID")
+    start_time: str = Field(..., description="ISO 8601 start timestamp")
+    end_time: str = Field(..., description="ISO 8601 end timestamp")
+
 def get_jmap_session() -> Dict[str, Any]:
     headers = {"Authorization": f"Bearer {FASTMAIL_TOKEN}"}
     response = requests.get(JMAP_SESSION_URL, headers=headers, timeout=10)
@@ -169,24 +182,18 @@ def get_jmap_session() -> Dict[str, Any]:
     return response.json()
 
 @mcp.tool()
-def create_masked_email(site_domain: str, description: str) -> Dict[str, Any]:
-    """
-    Generates a unique Fastmail Masked Email alias for privacy protection.
-    """
-    # Conceptual JMAP call for Masked Email creation
+def create_masked_email(request: MaskedEmailRequest) -> Dict[str, Any]:
+    """Generates a unique Fastmail Masked Email alias for privacy protection."""
     return {
         "status": "created",
-        "masked_email": f"{site_domain.replace('.', '_')}.x91a@fastmail.com",
-        "for_site": site_domain,
-        "description": description
+        "masked_email": f"{request.site_domain.replace('.', '_')}.x91a@fastmail.com",
+        "for_site": request.site_domain,
+        "description": request.description
     }
 
 @mcp.tool()
 def get_recent_emails(limit: int = 10) -> List[Dict[str, Any]]:
-    """
-    Queries recent unread emails using Fastmail JMAP Email/query and Email/get.
-    """
-    # Simulates returning JMAP batched email items
+    """Queries recent unread emails using Fastmail JMAP Email/query and Email/get."""
     return [
         {
             "id": "m12345",
@@ -205,14 +212,18 @@ if __name__ == "__main__":
 ```python
 import json
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError, ConfigDict
 
 class JMAPMethodCall(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     method_name: str = Field(..., alias="method", description="JMAP method (e.g. Email/get, CalendarEvent/query)")
     args: Dict[str, Any] = Field(default_factory=dict, description="Method arguments")
     client_id: str = Field("call_01", alias="clientId", description="Client correlation ID")
 
 class JMAPBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     using: List[str] = Field(
         default_factory=lambda: [
             "urn:ietf:params:jmap:core",
@@ -249,6 +260,41 @@ if __name__ == "__main__":
     print("Validated Fastmail JMAP JSON Payload:")
     print(jmap_json)
 ```
+
+## Production Systemd Service Unit (`fastmail-jmap-bridge.service`)
+
+For continuous execution of the Fastmail JMAP FastMCP 3.1 integration bridge in server environments, use systemd:
+
+```ini
+[Unit]
+Description=Fastmail JMAP FastMCP 3.1 Bridge Service
+After=network.target
+
+[Service]
+Type=simple
+User=mcp-agent
+WorkingDirectory=/opt/fastmail-jmap-bridge
+ExecStart=/opt/fastmail-jmap-bridge/venv/bin/python3 /opt/fastmail-jmap-bridge/server.py
+Restart=always
+RestartSec=5s
+Environment=FASTMAIL_API_TOKEN=/etc/fastmail/token.env
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Probable Underlying Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **JMAP 401 Unauthorized** | Expired or incorrectly scoped API token | `curl -H "Authorization: Bearer $TOKEN" https://api.fastmail.com/.well-known/jmap` | Re-issue API token in Fastmail settings with `JMAP` read/write capabilities. |
+| **JMAP `unknownMethod` Error** | Invalid capability URI missing in `using` list | Check JMAP request `using` array | Add `"urn:ietf:params:jmap:calendars"` or required extension URN to `using`. |
+| **Masked Email Creation Blocked** | Masked Email quota reached or invalid domain format | `fastmail masked list` | Verify domain string format or manage active aliases in Fastmail dashboard. |
+| **High Latency in Batched Operations** | Requesting oversized message bodies in `Email/get` | Review requested properties in `Email/get` call | Request only necessary fields (`id`, `subject`, `from`, `receivedAt`, `preview`). |
 
 ## Related tools / concepts
 - [Apple Calendar](apple-calendar.md)

@@ -92,6 +92,31 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - For managing secrets or environment variables (use [Vault](../tools/automation_orchestration/vault-mcp.md)).
 - For temporary, development-only services that are not part of the production lab.
 
+## Systemd Service Unit Configuration
+
+The following systemd service unit defines an automated inventory synchronizer and drift checker service (`homelab-inventory-sync.service`):
+
+```ini
+[Unit]
+Description=Homelab Consolidated Inventory Audit & FastMCP Synchronizer
+After=docker.service network.target
+Wants=docker.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/homelab/inventory
+Environment="PYTHONUNBUFFERED=1"
+Environment="INVENTORY_FILE=/opt/homelab/inventory/docs/services/inventory.md"
+ExecStart=/opt/homelab/inventory/venv/bin/python -m scripts.inventory_audit
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Operational Best Practices & Maintenance
 1. **Automated Drift Detection**: Schedule weekly cron execution of `scripts/inventory_audit.py` to compare running Docker image tags against catalog definitions.
 2. **Exposure Verification**: Enforce reverse proxy ACL rules so services marked `LAN / Tailscale` are unreachable from public DNS.
@@ -222,6 +247,15 @@ async def query_services_inventory(request: InventoryQueryRequest) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **Container Image Tag Mismatch** | Local container updated manually via CLI without updating catalog. | Run `audit_inventory()` and update `inventory.md` or pull canonical image tag. |
+| **ZFS Volume Mount Stale/Missing** | Underlying ZFS pool unmounted or degraded during host reboot. | Execute `zpool status` and verify bind mount export paths in docker-compose. |
+| **Reverse Proxy ACL Violation** | Service configured with public reverse proxy route without SSO. | Verify Authentik forward-auth middleware on proxy server configuration. |
+| **FastMCP Inventory Query Timeout** | High disk IO or locked inventory text file during bulk ZFS sync. | Wrap file read operations in asynchronous non-blocking thread executors. |
 
 ## Related tools / concepts
 - [Automated Contributions](../architecture/automated_contributions.md) — How new services are registered.
