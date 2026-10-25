@@ -47,6 +47,30 @@ Rivet bridges visual node-graph orchestration with stateful edge runtime executi
  +-------------------------------+           +-------------------------------+
 ```
 
+## Visual Graph Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as Developer / Agent
+    participant Designer as Rivet Visual UI
+    participant Compiler as Graph Compiler
+    participant FastMCP as FastMCP 3.1 Orchestrator
+    participant Isolate as agentOS V8/Wasm Sandbox
+    participant Actor as Rivet Actor (SQLite DB)
+
+    Developer->>Designer: Edit visual node graph & prompt connections
+    Designer->>Compiler: Compile to `.rivet-project` AST JSON
+    Compiler-->>FastMCP: Export compiled graph AST
+    FastMCP->>Isolate: Spawn near-instant V8 isolate (~6ms cold start)
+    Isolate->>Actor: Fetch per-actor state from SQLite
+    Actor-->>Isolate: Hydrate memory context
+    Isolate->>Isolate: Execute graph node chain & model reasoning
+    Isolate->>Actor: Commit updated actor state
+    Isolate-->>FastMCP: Return execution output payload
+    FastMCP-->>Developer: Stream result to client
+```
+
 ## Where it fits in the stack
 **Framework / Visual Orchestrator / Agent Runtime / Edge Infrastructure**. Rivet fits as the graphical execution engine that runs either in local browser/desktop environments or scaled on edge compute nodes.
 
@@ -154,19 +178,23 @@ Exposing Rivet project graphs as FastMCP 3.1 agent tools for seamless multi-agen
 
 ```python
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict, Any, Optional
 import subprocess
 import json
 
-mcp = FastMCP("Rivet-Graph-Orchestrator")
+mcp = FastMCP("Rivet-Graph-Orchestrator", version="3.1.0")
 
 class RivetExecutionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     project_path: str = Field(..., description="Path to .rivet-project file")
     graph_name: str = Field("Main Graph", description="Target graph inside the project")
     inputs: Dict[str, Any] = Field(default_factory=dict, description="Input parameters for the graph execution")
 
 class RivetExecutionResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     success: bool
     graph_name: str
     outputs: Dict[str, Any]
@@ -216,27 +244,35 @@ Since Rivet projects compile to highly structured JSON configurations, they can 
 ```python
 import json
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class RivetNode(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     id: str = Field(..., description="Unique ID of the node in the graph.")
     type: str = Field(..., description="The type of Rivet node (e.g., chat, prompt, code).")
     title: str = Field(..., description="User-assigned label of the node.")
     config: Dict[str, Any] = Field(default_factory=dict, description="Configuration settings.")
 
 class RivetConnection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     from_node_id: str = Field(..., serialization_alias="fromNodeId", validation_alias="fromNodeId")
     from_pin: str = Field(..., serialization_alias="fromPin", validation_alias="fromPin")
     to_node_id: str = Field(..., serialization_alias="toNodeId", validation_alias="toNodeId")
     to_pin: str = Field(..., serialization_alias="toPin", validation_alias="toPin")
 
 class RivetGraph(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     graph_id: str = Field(..., serialization_alias="graphId", validation_alias="graphId")
     name: str = Field(..., description="Friendly name of the graph.")
     nodes: List[RivetNode] = Field(..., description="List of nodes in the graph.")
     connections: List[RivetConnection] = Field(default_factory=list)
 
 class RivetProjectSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     project_name: str = Field(..., serialization_alias="projectName", validation_alias="projectName")
     version: str = Field(default="2.0.0")
     graphs: List[RivetGraph] = Field(...)
@@ -290,6 +326,41 @@ try:
 except Exception as e:
     print(f"Project schema validation failed: {e}")
 ```
+
+## Production Systemd Service Unit (`rivet-orchestrator.service`)
+
+For continuous execution of Rivet graph orchestration in production environments, deploy the following systemd unit:
+
+```ini
+[Unit]
+Description=Rivet Visual Graph FastMCP 3.1 Orchestrator Service
+After=network.target
+
+[Service]
+Type=simple
+User=mcp-agent
+WorkingDirectory=/opt/rivet-orchestrator
+ExecStart=/usr/bin/node /opt/rivet-orchestrator/dist/server.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=OPENAI_API_KEY=/etc/rivet/keys.env
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Operational Troubleshooting Matrix
+
+| Symptom / Error | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| **Wasm Cold Start Latency > 50ms** | Cold V8 isolate pool depleted under heavy request spike | `rivet-actor status --metrics` | Increase pre-warmed isolate pool size in `agentos.config.json`. |
+| **SQLite Locking Error (`database is locked`)** | Concurrent write transactions across non-isolated actor instances | `sqlite3 actor.db "PRAGMA journal_mode;"` | Enable WAL journal mode (`PRAGMA journal_mode=WAL;`) or isolate actors per session ID. |
+| **FastMCP Tool Call Disconnect** | MCP 3.1 protocol timeout or invalid payload schema | `journalctl -u rivet-orchestrator.service -n 50` | Validate incoming JSON arguments against `RivetExecutionRequest` Pydantic v2 schema. |
+| **Graph Node Type Mismatch** | Custom node extension missing in deployed runtime engine | `rivet run --validate-only my-project.rivet-project` | Install missing custom node plugins via `npm install @ironclad/rivet-plugin-*`. |
 
 ## Related tools / concepts
 - [Langflow](langflow.md) — Visual workflow builder.
