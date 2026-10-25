@@ -63,10 +63,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=jules
-Group=jules
-WorkingDirectory=/home/jules/services/puppeteer-pool
-ExecStart=/usr/bin/node /home/jules/services/puppeteer-pool/server.js --port 8085
+User=puppeteer
+Group=puppeteer
+WorkingDirectory=/opt/puppeteer-pool
+ExecStart=/usr/bin/node /opt/puppeteer-pool/server.js --port 8085
 Restart=always
 RestartSec=5s
 Environment=NODE_ENV=production
@@ -81,7 +81,7 @@ SyslogIdentifier=puppeteer-pool
 # Hardening measures
 ProtectSystem=full
 ProtectHome=read-only
-ReadWritePaths=/home/jules/services/puppeteer-pool /tmp /dev/shm
+ReadWritePaths=/opt/puppeteer-pool /tmp /dev/shm
 NoNewPrivileges=true
 
 [Install]
@@ -200,6 +200,55 @@ export async function scrapeUrl(targetUrl: string): Promise<ScrapeResult> {
     await browser.close();
   }
 }
+```
+
+### FastMCP 3.1 Bridge Server Pattern (Python + FastMCP)
+The following Python integration exposes Puppeteer browser automation tools over **FastMCP 3.1** via Node sub-process execution:
+
+```python
+import asyncio
+import json
+from typing import Optional
+from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel, Field, HttpUrl
+
+mcp = FastMCP("Puppeteer-Bridge-Server", version="3.1")
+
+class PuppeteerScrapeRequest(BaseModel):
+    url: HttpUrl = Field(..., description="Target webpage URL to inspect")
+    capture_screenshot: bool = Field(True, description="Save PNG screenshot artifact")
+    wait_until: str = Field("domcontentloaded", description="Navigation wait state")
+
+class PuppeteerScrapeResponse(BaseModel):
+    status: str
+    url: str
+    title: str
+    screenshot_path: Optional[str] = None
+
+@mcp.tool()
+async def invoke_puppeteer_scrape(request: PuppeteerScrapeRequest) -> str:
+    """Executes Node.js Puppeteer scraper sub-process and returns structured payload."""
+    proc = await asyncio.create_subprocess_exec(
+        "node", "puppeteer_runner.js", str(request.url),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await proc.communicate()
+
+    if proc.returncode != 0:
+        return f"Scrape failed: {stderr.decode()}"
+
+    data = json.loads(stdout.decode())
+    response = PuppeteerScrapeResponse(
+        status="success",
+        url=data["url"],
+        title=data["title"],
+        screenshot_path=data.get("screenshot")
+    )
+    return response.model_dump_json(indent=2)
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Python Execution Trace Validator (Pydantic v2)

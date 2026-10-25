@@ -43,6 +43,54 @@ Addresses the "saturation" of existing benchmarks like MMLU and GPQA. As frontie
 | **DeepSeek-V4** | 25.9% | 24.0% | 28.2% | Non-standard symbolic notation parsing |
 | **Qwen 3.6 VL** | 22.1% | 28.4% | 19.5% | Long-chain multi-modal reasoning drift |
 
+## Benchmark Suite Comparison Matrix
+
+| Feature / Benchmark | Humanity's Last Exam (HLE) | GPQA Diamond | MMLU-Pro | SWE-bench Verified |
+| :--- | :--- | :--- | :--- | :--- |
+| **Focus Domain** | Multi-Disciplinary Frontier | Graduate Science & Reasoning | Academic & Professional | Software Engineering |
+| **Total Question Count**| 3,000 Questions | 198 Questions | 12,000 Questions | 500 Software Issues |
+| **Multimodal Percent**| 14% (ColQwen Vision) | Text-Only | ~5% Images | Code/Diff Centric |
+| **Top Model Accuracy** | < 30% Pass Rate | > 75% Pass Rate | > 85% Pass Rate | > 70% Resolution |
+| **Evaluation Method** | LLM Judge / Equivalence | Direct Multiple Choice | Multi-Choice / Prompt | Pytest Execution Sandbox |
+| **FastMCP 3.1 Native** | First-Party Task Protocol | Custom Wrapper | Harness Adapter | Native Agent Sandbox |
+
+## Service & Daemon Management (systemd Unit Configuration)
+
+To run automated, scheduled HLE benchmark runs via FastMCP 3.1 task protocol on Linux evaluation clusters, deploy the systemd service configuration below:
+
+```ini
+[Unit]
+Description=HLE Benchmark FastMCP Task Runner Daemon
+Documentation=https://humanityslastexam.org/
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hlerunner
+Group=hlerunner
+WorkingDirectory=/opt/hle-runner
+ExecStart=/usr/local/bin/python3 /opt/hle-runner/hle_mcp_server.py --port 8096
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10s
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_PORT=8096
+Environment=INSPECT_EVAL_MAX_CONCURRENCY=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hle-runner
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/hle-runner /tmp
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Limitations
 - **Not for Everyday Tasks**: Does not measure "helpful assistant" capabilities or basic instruction following.
 - **Low Signal for Small Models**: Smaller or older models often score near zero, making it difficult to distinguish between them.
