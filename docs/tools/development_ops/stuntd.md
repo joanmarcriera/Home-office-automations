@@ -26,6 +26,30 @@ graph TD
     end
 ```
 
+```
++------------------------------------------------------------------------------------+
+|                         stuntd Network Proxy Architecture                          |
++------------------------------------------------------------------------------------+
+|  Agent / Client Application Request (HTTP / gRPC / MCP Transport)                   |
+|  +------------------------------------------------------------------------------+  |
+|  | Interception Layer (`localhost:8080` Proxy Socket)                           |  |
+|  +------------------------------------------------------------------------------+  |
+|                                          |                                         |
+|                                          v                                         |
+|  +------------------------------------------------------------------------------+  |
+|  | Jev Pattern Learner & Schema Extractor Core                                  |  |
+|  +------------------------------------------------------------------------------+  |
+|                                          |                                         |
+|                 +------------------------+------------------------+                |
+|                 |                                                 |                |
+|                 v                                                 v                |
+|  +------------------------------+               +-------------------------------+  |
+|  | Upstream Passthrough Engine  |               | Local Synthetic Replay Engine |  |
+|  | (Online Mode / Cloud Fallback|               | (Sub-millisecond Mock Output) |  |
+|  +------------------------------+               +-------------------------------+  |
++------------------------------------------------------------------------------------+
+```
+
 ## Feature Matrix & Proxy Operational Modes
 
 | Feature / Mode | Passthrough Mode | Learn Mode | Replay / Synthetic Mode | Offline Fallback Mode |
@@ -97,6 +121,36 @@ sequenceDiagram
 ## When not to use it
 - In production load-balancer setups requiring distributed multi-region proxy clusters (use Envoy or Traefik for enterprise production edge routing).
 - For simple single-file scripts with no external network dependencies.
+
+## Production Systemd Daemon Specs (`stuntd.service`)
+Run stuntd as a dedicated background sidecar daemon:
+
+```ini
+[Unit]
+Description=stuntd Traffic Interception & Learning Daemon
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jules
+Group=jules
+WorkingDirectory=/opt/stuntd
+ExecStart=/usr/local/bin/stuntd daemon --port 8080 --mode learn --upstream-gateway http://localhost:8000
+Restart=always
+RestartSec=5s
+Environment="PYTHONUNBUFFERED=1"
+Environment="STUNTD_LOG_LEVEL=info"
+
+# Security Sandbox
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/log/stuntd /opt/stuntd/cache
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
