@@ -81,6 +81,56 @@ graph TD
 - When coding tasks rely entirely on repo-local source files and internal helper functions without external package dependencies.
 - When general non-technical web research (news, market analysis, general web content) is required (use [Tavily](../providers/tavily.md) or general search instead).
 
+## Systemd Service Unit Configuration
+
+To run the Context7 FastMCP 3.1 Gateway as a managed background daemon on Linux infrastructure (or self-hosted agent hubs), deploy the following systemd service unit definition to `/etc/systemd/system/context7.service`:
+
+```ini
+[Unit]
+Description=Context7 FastMCP 3.1 Documentation RAG Gateway
+After=network.target remote-fs.target
+Wants=network-online.target
+Documentation=https://github.com/upstash/context7
+
+[Service]
+Type=simple
+User=context7
+Group=context7
+WorkingDirectory=/opt/context7
+ExecStart=/usr/bin/npx -y @upstash/mcp-server-context7
+Restart=always
+RestartSec=5s
+
+# Environment settings
+Environment=NODE_ENV=production
+Environment=PORT=8087
+Environment=UPSTASH_REDIS_REST_URL=https://your-upstash-redis-url.upstash.io
+Environment=UPSTASH_REDIS_REST_TOKEN=your-upstash-rest-token
+
+# Security Sandboxing & Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/context7/cache
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=false
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service using standard systemctl commands:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now context7.service
+sudo systemctl status context7.service
+```
+
 ## Getting started
 
 ### Environment & MCP Installation
@@ -270,6 +320,16 @@ async def fetch_package_context(
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom / Error | Root Cause | Diagnostic Command / Inspection | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| `HTTP 401 Unauthorized` during search calls | Invalid or missing Upstash REST token in environment variable | `echo $UPSTASH_REDIS_REST_TOKEN` | Verify credentials in Upstash console; export valid REST token in `.env` or systemd service unit. |
+| `FastMCP Connection Timeout` in Claude Code | Gateway service unresponsive or blocked by local egress rules | `curl -Iv https://context7.upstash.io/health` | Check firewall rules; ensure Node/uvx process has internet access to Upstash vector REST endpoints. |
+| `PackageNotFoundException` for newly released SDK | Library index build still queued or non-standard package alias | `mcp-cli call context7 list_packages --filter <pkg>` | Verify PyPI/npm name alignment; submit package indexing request via Context7 CLI or repository issue. |
+| `PydanticValidationError` in Python agent bridge | Mismatched payload schema or unexpected null field from API | `python3 -m pytest tests/test_context7_bridge.py` | Update local Pydantic models to accept optional URLs/version strings; enforce model fallbacks. |
+| `Systemd service fail-loop` on startup | Missing Node.js runtime environment or incorrect binary path | `journalctl -u context7.service -n 50 --no-pager` | Ensure Node.js 20+ is installed in `/usr/bin/node` or adjust `ExecStart` path in service unit. |
 
 ## Operational Workflows & IDE Playbooks
 

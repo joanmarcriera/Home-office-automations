@@ -70,6 +70,55 @@ sequenceDiagram
 - For single-user, local-only scripts where local environment variables or static local API keys suffice.
 - For internal microservice meshes operating inside a fully isolated, zero-trust network perimeter where mutual TLS (mTLS) is preferred.
 
+## Systemd Service Unit Configuration
+
+To deploy an enterprise OAuth2/OIDC Token Broker / FastMCP Auth Gateway as a background daemon on Linux servers, define `/etc/systemd/system/oidc-auth-gateway.service`:
+
+```ini
+[Unit]
+Description=OAuth2 / OIDC Token Broker & FastMCP Auth Gateway
+After=network-online.target authentik.service
+Wants=network-online.target
+Documentation=https://goauthentik.io/docs/providers/oauth2/
+
+[Service]
+Type=simple
+User=oidcgateway
+Group=oidcgateway
+WorkingDirectory=/opt/oidc-auth-gateway
+ExecStart=/usr/bin/python3 -m gateway.oidc_broker_server
+Restart=always
+RestartSec=5s
+
+# Environment settings
+Environment=NODE_ENV=production
+Environment=PORT=8086
+Environment=OIDC_ISSUER_URL=https://auth.homelab.local/application/o/ai-agent/
+Environment=OIDC_CLIENT_ID=fastmcp-gateway-app
+Environment=OIDC_JWKS_CACHE_TTL=3600
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/oidc-auth-gateway/cache
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now oidc-auth-gateway.service
+sudo systemctl status oidc-auth-gateway.service
+```
+
 ## Grant Types & Usage Matrix
 
 | Grant Type / Flow | Target Client Type | Primary Use Case | Security Requirement |
@@ -246,6 +295,15 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue Symptom / Error | Root Cause | Diagnostic Inspection Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| `invalid_grant` / `PKCE verification failed` | Mismatched code_verifier string or invalid S256 SHA-256 base64url encoding | Test PKCE hash: `echo -n "verifier" \| openssl dgst -sha256 -binary \| base64` | Recalculate PKCE challenge using strict S256 base64url encoding without padding chars. |
+| `ExpiredSignatureError` | System clock drift between IdP server and API microservice host | `timedatectl status` | Synchronize NTP time daemons on all hosts (`chrony` or `systemd-timesyncd`). |
+| `JWKS Fetch Failed` | Firewall or DNS preventing API gateway from reaching IdP `/.well-known/jwks.json` | `curl -Iv https://auth.homelab.local/application/o/jwks/` | Verify internal egress routing; implement local in-memory JWKS caching with 1-hour TTL. |
+| `InsufficientScopeError` | Access token missing required FastMCP scope (`tools:execute`) | `echo $TOKEN \| jq -R 'split(".") \| .[1] \| @base64d \| fromjson'` | Update client request scopes; verify user group scope mappings in Authentik / Keycloak. |
 
 ## Related tools / concepts
 - [Okta](okta.md) — Enterprise Identity-as-a-Service (IDaaS) platform.

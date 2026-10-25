@@ -46,6 +46,30 @@ In enterprise IT and security operations, auditing SaaS utility tool usage is a 
 ## Where it fits in the stack
 Omni Tools belongs in the **Self-Hosted Productivity & Developer Utilities** layer, operating alongside tools like [IT-Tools](it-tools.md), CyberChef, and Stirling PDF. It is typically deployed behind a private reverse proxy (Caddy, Traefik, Nginx Proxy Manager) and secured with SSO authentication (Authentik, Authelia) for fast access across team devices.
 
+## Sequence Diagram Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as Developer / Agent
+    participant Proxy as Caddy / Authentik Proxy
+    participant OmniUI as Omni Tools Web UI (Static Nginx)
+    participant WASM as In-Browser WASM Processing Engine
+    participant FastMCP as Local FastMCP 3.1 Bridge
+
+    Developer->>Proxy: Request http://omni.local/#/json-formatter
+    Proxy->>OmniUI: Validate OIDC Session & Route Request
+    OmniUI-->>Developer: Serve Static HTML/JS Assets (< 25MB)
+    Developer->>WASM: Paste Sensitive JSON / Video Payload
+    WASM-->>Developer: Return Formatted Result (Zero Data Outbound)
+
+    opt FastMCP Agent Execution Path
+        Developer->>FastMCP: FastMCP 3.1 Tool Call: process_omni_transformation
+        FastMCP->>FastMCP: Pydantic v2 Payload Validation
+        FastMCP-->>Developer: Stream Validated Transformed Result
+    end
+```
+
 ## Typical use cases
 - **Data Formatting & Validation**: Formatting, validating, or minifying JSON, XML, YAML, CSV, and SQL query snippets.
 - **Client-Side Media Processing**: Converting PNG/JPG images to WebP, cropping images, merging/splitting PDFs, and trimming video clips without uploading files to remote servers.
@@ -78,6 +102,45 @@ Omni Tools belongs in the **Self-Hosted Productivity & Developer Utilities** lay
 
 ## When not to use it
 Do not use Omni Tools as an automated batch pipeline for high-throughput background processing. Use CyberChef for complex multi-step data recipes, and dedicated background services like Paperless-ngx, Stirling PDF, or ImageMagick CLI scripts for scheduled server-side processing.
+
+## Systemd Service Unit Configuration
+
+For bare-metal Linux hosts, podman setups, or dedicated agent gateways, Omni Tools container lifecycle and systemd bridge service can be managed using `/etc/systemd/system/omni-tools.service`:
+
+```ini
+[Unit]
+Description=Omni Tools Static Web Container & Local Utility Server
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+Documentation=https://github.com/iib0011/omni-tools
+
+[Service]
+Type=simple
+User=root
+ExecStartPre=/usr/bin/docker pull iib0011/omni-tools:latest
+ExecStart=/usr/bin/docker run --rm --name omni-tools-systemd -p 8080:80 iib0011/omni-tools:latest
+ExecStop=/usr/bin/docker stop omni-tools-systemd
+Restart=always
+RestartSec=5s
+
+# Hardening
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now omni-tools.service
+sudo systemctl status omni-tools.service
+```
 
 ## Getting started
 
@@ -222,29 +285,14 @@ def format_json_via_browser(raw_json: str) -> str:
 print(format_json_via_browser('{"name":"OmniTools","version":"2027.1"}'))
 ```
 
-## Troubleshooting & Common Configurations
+## Diagnostic Troubleshooting Matrix
 
-### Reverse Proxy Header Configuration (Nginx)
-When hosting behind Nginx reverse proxy, ensure standard static caching headers and MIME type mapping are preserved:
-
-```nginx
-server {
-    listen 80;
-    server_name omni.local;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        add_header Cross-Origin-Opener-Policy "same-origin";
-        add_header Cross-Origin-Embedder-Policy "require-corp";
-    }
-}
-```
-
-### WebAssembly Memory Error in Restricted Browsers
-- **Cause**: SharedArrayBuffer cross-origin isolation headers (`COOP`/`COEP`) missing from web server response.
-- **Solution**: Configure reverse proxy headers as shown above to enable high-performance client-side WASM threading.
+| Issue / Error Symptom | Root Cause | Diagnostic Inspection Command | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| `COOP/COEP Headers Missing` in console | Reverse proxy stripping cross-origin headers required for WASM threads | `curl -Iv http://localhost:8080` | Add `Cross-Origin-Opener-Policy "same-origin"` and `Cross-Origin-Embedder-Policy "require-corp"` in proxy config. |
+| `Out of Memory (OOM)` during PDF conversion | Large file exceeding in-browser WebAssembly RAM allocation limits | Check browser devtools Performance / Memory tab | Split input PDF into smaller chunk sizes or process via Stirling PDF background server. |
+| `FastMCP Connection Timeout` | Local FastMCP Python bridge missing or port conflict on agent host | `python3 -m scripts.test_omni_tools_health` | Verify Python environment dependencies (`pydantic>=2.0`, `mcp>=1.0`); check process port bindings. |
+| `Container Fail-Loop on Port 8080` | Port 8080 already bound by another container (e.g. Traefik, Authentik) | `sudo lsof -i :8080` | Rebind host port in Docker run command (e.g., `-p 8089:80`). |
 
 ## Related tools / concepts
 - [IT-Tools](it-tools.md) — Feature-rich developer utility web app.
