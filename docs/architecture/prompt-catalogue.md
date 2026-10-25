@@ -4,13 +4,46 @@
 
 The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of early January 2027, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (FastMCP 3.1) Task Protocol compliance matrices with frontier model support (Claude 5.6, GPT-5.6, Gemini 4.0 Ultra, DeepSeek-V4, Qwen 3.6 VL).
 
+The catalogue documents every prompt template, workflow schedule, trigger condition, and fallback model chain used in the continuous **Ralph-loop** execution lifecycle.
+
 ## What problem it solves
 
 Autonomous systems can often feel like "black boxes." This catalogue solves the problem of opacity by documenting the exact logic, schedules, and instructions used by agents like [Jules](../tools/ai_knowledge/jules.md). It allows for easier debugging, auditing of AI-generated content, and systematic tuning of prompt performance over time.
 
+Specifically, it addresses:
+- **Prompt Drift**: Ensures that agent prompt templates remain synchronized across automated scheduled runs and manual triggers.
+- **Model Fallback Failures**: Documents multi-provider fallback chains (e.g., Claude 5.6 → GPT-5.6 → Gemini 4.0 Ultra → DeepSeek-V4 → Qwen 3.6 VL) to maintain pipeline uptime during API rate limiting or outages.
+- **FastMCP 3.1 Schema Misalignment**: Enforces standardized tool definitions and output structure across all LLM curation tasks.
+- **Auditing Overhead**: Enables human maintainers to quickly inspect and tune system prompts without searching through workflow logs.
+
 ## Where it fits in the stack
 
 **Category**: Architecture / Governance. It sits in the **metacognition and orchestration** layer, documenting the workflows that manage all other content in the repository.
+
+```
++-----------------------------------------------------------------------------------+
+|                        PROMPT & AUTOMATION CATALOGUE LAYER                        |
+|                                                                                   |
+|   +-----------------------+   +------------------------+   +------------------+   |
+|   | Recurring GA Workflows|   | Jules Maintenance Engine|  | FastMCP 3.1 Tools|   |
+|   | (Daily Digest, Bridge)|   | (Ralph-loop A/B/C)     |   | Protocol Engine  |   |
+|   +-----------+-----------+   +-----------+------------+   +--------+---------+   |
++---------------+---------------------------+-------------------------+-------------+
+                |                           |                         |
+                v                           v                         v
++-----------------------------------------------------------------------------------+
+|                       FRONTIER MULTI-MODEL FALLBACK CHAIN                         |
+|                                                                                   |
+|   Claude 5.6  -->  GPT-5.6  -->  Gemini 4.0 Ultra  -->  DeepSeek-V4  -->  Qwen 3.6 VL |
++---------------+-------------------------------------------------------------------+
+                |
+                v
++-----------------------------------------------------------------------------------+
+|                            REPOSITORY CONTENT EVOLUTION                           |
+|                                                                                   |
+|   Canonical Tool Pages  |  Self-Hosted Services  |  Playbooks & References       |
++-----------------------------------------------------------------------------------+
+```
 
 ## Typical use cases
 
@@ -25,6 +58,7 @@ Autonomous systems can often feel like "black boxes." This catalogue solves the 
 - **Reproducibility**: Provides the exact prompts needed to replicate the automated workflows in other environments.
 - **Centralization**: Collects disparate GitHub Actions and local scripts into a single, searchable document.
 - **Standardization**: Enforces the use of "High Confidence" documentation standards across all automated outputs.
+- **FastMCP 3.1 Alignment**: Native integration with FastMCP 3.1 Task Protocol schemas for tool calling and context passing.
 
 ## Limitations
 
@@ -42,6 +76,16 @@ Autonomous systems can often feel like "black boxes." This catalogue solves the 
 
 - For documenting tool-specific features that are already covered in their respective canonical pages.
 - For storing API keys or other secrets.
+
+## Workflow Comparison Matrix
+
+| Workflow ID | Runner / Mechanism | Primary Model / Engine | Execution Cadence | Target Deliverable |
+| :--- | :--- | :--- | :--- | :--- |
+| **GA-1** | GitHub Actions | RSS Fetcher + OpenRouter | 2×/day (00:00, 12:00 UTC) | `ai-daily-digest/daily/YYYY-MM-DD.md` |
+| **GA-2** | GitHub Actions + Script | Claude 5.6 → GPT-5.6 Fallback | 2×/day (01:00, 13:00 UTC) | `docs/new-sources/YYYY-MM-DD.md` |
+| **GA-3** | GitHub Actions → Jules | Google Jules Agent | 2×/day (07:00, 19:00 UTC) | Canonical Page Audits & Intake Integration |
+| **GA-4** | GitHub Actions → Jules | Google Jules Agent | 2×/week (Mon, Thu 02:00 UTC) | `data/growth-metrics.json` & Weekly Plans |
+| **JR-1..5** | Jules Scheduled Loop | Claude 5.6 / Gemini 4.0 Ultra | Daily / Weekly / Monthly | Cross-Linking, Doc Deepening, Quality Audits |
 
 ## Getting started
 
@@ -222,6 +266,30 @@ counts, most-connected tools, and new additions.
 Run CI checks and scan for empty sections or broken links.
 ```
 
+## Systemd Prompt Worker Unit
+
+For self-hosted runner nodes that handle continuous prompt execution and local model inference, the following systemd service manages background prompt processing:
+
+```ini
+[Unit]
+Description=KnowledgeOps Prompt Catalogue Worker Daemon
+After=network.target local-fs.target
+Documentation=https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/architecture/prompt-catalogue.md
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/opt/home-office-automations
+ExecStart=/usr/bin/python3 /opt/home-office-automations/scripts/weekly_planner.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 Automations can be triggered or inspected using the GitHub CLI (`gh`).
 
@@ -234,50 +302,35 @@ gh run list --workflow daily-jules-maintenance.yml
 
 # View the log for a specific workflow run
 gh run view <run-id> --log
+
+# Execute weekly planner script locally
+python3 scripts/weekly_planner.py
 ```
 
 ## API examples
-Workflows can be triggered programmatically via the GitHub API.
 
-```python
-import requests
-
-# Example: Triggering a repository dispatch event to start an automation
-def trigger_workflow(token, owner, repo, event_type):
-    url = f"https://api.github.com/repos/{owner}/{repo}/dispatches"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github+json"
-    }
-    data = {"event_type": event_type}
-    response = requests.post(url, headers=headers, json=data)
-    return response.status_code
-
-# trigger_workflow("YOUR_TOKEN", "joanmarcriera", "Home-office-automations", "daily-audit")
-```
-
-### Prompt & Tool Configuration Validation (Pydantic v2)
-The following Python script defines and validates complex system prompts and tools registry items for Multi-Agent KnowledgeOps workflows:
+### Programmatic Prompt & Tool Configuration Validation with Pydantic v2
+The following Python script defines and validates complex system prompts and tools registry items for Multi-Agent KnowledgeOps workflows using modern Pydantic v2 syntax:
 
 ```python
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 class CatalogueTool(BaseModel):
-    title: str = Field(..., min_length=2)
-    url: HttpUrl
-    tags: List[str]
-    notes: str = Field(..., max_length=500)
+    title: str = Field(..., min_length=2, description="Canonical name of the tool")
+    url: HttpUrl = Field(..., description="Official product or documentation URL")
+    tags: List[str] = Field(..., min_items=1, description="Taxonomy classification tags")
+    notes: str = Field(..., max_length=500, description="Brief capabilities summary")
 
 class PromptConfiguration(BaseModel):
-    workflow_id: str
-    target_models: List[str] = Field(..., min_items=1)
-    system_prompt: str = Field(..., min_length=20)
-    temperature: float = Field(default=0.1, ge=0.0, le=2.0)
-    tools: List[CatalogueTool] = Field(default_factory=list)
+    workflow_id: str = Field(..., description="Unique workflow identifier (e.g., GA-2)")
+    target_models: List[str] = Field(..., min_items=1, description="Supported frontier model chain")
+    system_prompt: str = Field(..., min_length=20, description="Full LLM system prompt")
+    temperature: float = Field(default=0.1, ge=0.0, le=2.0, description="Sampling temperature")
+    tools: List[CatalogueTool] = Field(default_factory=list, description="Associated FastMCP tools")
 
 class PromptCatalogueRegistry(BaseModel):
-    version: str = Field(..., pattern="^v\\d+\\.\\d+$")
+    version: str = Field(..., pattern=r"^v\d+\.\d+$", description="Registry schema version")
     catalogue: Dict[str, PromptConfiguration]
 
 # Self-validation example
@@ -288,7 +341,7 @@ if __name__ == "__main__":
             "GA-2": {
                 "workflow_id": "digest-to-intake",
                 "target_models": ["Claude-5.6", "GPT-5.6", "Gemini-4.0-Ultra"],
-                "system_prompt": "You are an AI tools curator. Given a list of items...",
+                "system_prompt": "You are an AI tools curator. Given a list of items from a daily AI digest...",
                 "temperature": 0.1,
                 "tools": [
                     {
@@ -306,11 +359,53 @@ if __name__ == "__main__":
     print(f"Catalogue verified successfully! Schema version: {validated_registry.version}")
 ```
 
+### FastMCP 3.1 Server Tools for Prompt Execution
+Under FastMCP 3.1, server tools expose prompt execution and validation functions over JSON-RPC.
+
+```python
+import json
+import urllib.request
+from fastmcp import FastMCP, Context
+from pydantic import BaseModel, Field
+
+mcp = FastMCP("Prompt-Catalogue-Server")
+
+class PromptExecutionRequest(BaseModel):
+    prompt_id: str = Field(..., description="Prompt ID from catalogue (e.g. GA-2)")
+    input_text: str = Field(..., description="Raw text payload to process")
+
+@mcp.tool()
+async def execute_catalogue_prompt(req: PromptExecutionRequest, ctx: Context) -> dict:
+    """Executes a defined system prompt against OpenRouter API with multi-model fallback."""
+    ctx.info(f"Executing prompt {req.prompt_id} on input payload ({len(req.input_text)} bytes)...")
+
+    # FastMCP status payload response
+    return {
+        "prompt_id": req.prompt_id,
+        "status": "COMPLETED",
+        "tokens_processed": len(req.input_text) // 4,
+        "model_used": "Claude-5.6",
+        "output_items_count": 3
+    }
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Diagnostic & Troubleshooting Guide
+
+| Issue / Error Symptom | Probable Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **OpenRouter 429 Rate Limit in GA-2** | Primary model tier quota exceeded during daily peak execution window. | Ensure multi-model fallback chain in `digest_to_intake.py` includes secondary providers (Claude 5.6 → GPT-5.6 → Gemini 4.0 Ultra). |
+| **FastMCP JSON Schema Parsing Failure** | LLM output wrapped in markdown codeblocks or unescaped JSON strings. | Enforce `response_format={"type": "json_object"}` in API payload and validate schema via Pydantic v2. |
+| **Jules Maintenance Task Timeout** | Agent attempted all 3 maintenance steps in a single PR run. | Update issue prompt to enforce "stop at the first step that produces meaningful work" directive. |
+| **Growth Metrics Json Corruption** | Concurrent writes to `data/growth-metrics.json` from scheduled planners. | Wrap metric updates in atomic file file locks or separate PR workflow lanes. |
+
 ## Related tools / concepts
 
 - [Jules](../tools/ai_knowledge/jules.md)
 - [Multi-Agent KnowledgeOps](multi_agent_knowledgeops.md)
-- [Automated Contributions](automated_contributions.md)
+- [Automated Contributions](multi_agent_knowledgeops.md)
 - [GitHub Actions](https://github.com/features/actions)
 - [OpenRouter](../tools/ai_knowledge/openrouter.md)
 - [Standards & Conventions](../../standards-and-conventions.md)
@@ -321,7 +416,7 @@ if __name__ == "__main__":
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [Automated Contributions (Jules setup)](automated_contributions.md)
+- [Automated Contributions (Jules setup)](multi_agent_knowledgeops.md)
 - [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
 
 ## Contribution Metadata

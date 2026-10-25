@@ -98,6 +98,30 @@ sequenceDiagram
 - In production load-balancer setups requiring distributed multi-region proxy clusters (use Envoy or Traefik for enterprise production edge routing).
 - For simple single-file scripts with no external network dependencies.
 
+## Systemd Service Unit Integration
+
+For Linux workstation nodes and homelab infrastructure maintaining background proxy learning daemons, the following systemd unit manages service lifecycle and environment configuration:
+
+```ini
+[Unit]
+Description=stuntd Traffic Learning & Interception Proxy Daemon
+After=network.target local-fs.target
+Documentation=https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/tools/development_ops/stuntd.md
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/opt/stuntd
+ExecStart=/usr/local/bin/stuntd daemon --port 8080 --mode learn --upstream https://api.openai.com
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### 1. Installation

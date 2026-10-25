@@ -66,13 +66,38 @@ Residing at the **AI Model / Multimodal Foundation Layer**, Gemini serves as the
 - For strict 100% offline, air-gapped execution environments (use [Gemma 4](local_llms.md) or Llama 4 via [Ollama](../../services/ollama.md) instead).
 - For simple single-turn text prompts that do not leverage multimodal reasoning or context caching benefits.
 
+## Systemd Background Inference Unit
+
+For server infrastructure maintaining automated background ingestion loops powered by Gemini 4.0 Flash endpoints, the following systemd unit manages service restarts and API key environment isolation:
+
+```ini
+[Unit]
+Description=Gemini 4.0 Continuous Multimodal Ingestion Worker
+After=network.target local-fs.target
+Documentation=https://ai.google.dev/gemini-api/docs
+
+[Service]
+Type=simple
+User=jules
+WorkingDirectory=/opt/gemini-worker
+Environment="GEMINI_API_KEY=/etc/gemini/api_key"
+ExecStart=/usr/bin/python3 /opt/gemini-worker/multimodal_ingest_daemon.py --model gemini-4.0-flash
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Installation
 Install the unified Google GenAI SDK and Pydantic v2:
 
 ```bash
-pip install google-genai pydantic
+pip install google-genai pydantic fastmcp
 ```
 
 ### Environment Setup
@@ -167,28 +192,37 @@ except ValidationError as e:
     print(f"Schema Validation Error: {e.json()}")
 ```
 
-### 2. Large Multimodal Ingestion & Context Caching
+### 2. FastMCP 3.1 Server Integration for Gemini Tool Calling
+Under FastMCP 3.1, Gemini agents can interact directly with local system tools over standard protocol messages.
+
 ```python
-import os
+import asyncio
+from fastmcp import FastMCP, Context
 from google import genai
+from google.genai import types
 
-client = genai.Client()
+mcp = FastMCP("Gemini-FastMCP-Tool-Bridge")
 
-# Upload a large video file using Unified File API
-print("Uploading video walkthrough for Gemini analysis...")
-video_file = client.files.upload(file="system_architecture_walkthrough.mp4")
+@mcp.tool()
+async def analyze_multimodal_asset(asset_path: str, prompt: str, ctx: Context) -> dict:
+    """FastMCP 3.1 tool wrapper for Gemini 4.0 Pro multimodal ingestion."""
+    ctx.info(f"Ingesting asset {asset_path} for Gemini analysis...")
 
-# Query Gemini 4.0 Flash with video token stream
-response = client.models.generate_content(
-    model='gemini-4.0-flash',
-    contents=[
-        video_file,
-        "Analyze the architectural whiteboard sequence at 04:15 in the video and summarize the FastMCP 3.1 streaming loop."
-    ]
-)
+    client = genai.Client()
+    response = client.models.generate_content(
+        model='gemini-4.0-pro',
+        contents=[f"Asset Path: {asset_path}", prompt]
+    )
 
-print("\n--- Video Analysis Response ---")
-print(response.text)
+    return {
+        "asset_path": asset_path,
+        "summary": response.text[:300],
+        "status": "ANALYZED",
+        "mcp_version": "3.1"
+    }
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Model Ecosystem Comparison Matrix
