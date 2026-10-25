@@ -43,21 +43,15 @@ Orchestrating multi-service applications manually via isolated `docker run` comm
 
 ## Multi-Container Stack Lifecycle & Network Architecture
 
-```
-[Operator / Agent]              [Docker Compose v2]                 [Docker Runtime]
-        |                                |                                   |
-        | 1. docker compose up -d        |                                   |
-        |------------------------------->|                                   |
-        |                                | 2. Read & Parse docker-compose.yml|
-        |                                | 3. Create Bridge Network          |
-        |                                |---------------------------------->|
-        |                                | 4. Mount Persistent Volumes       |
-        |                                |---------------------------------->|
-        |                                | 5. Spawn Containers with Healthcheck
-        |                                |---------------------------------->|
-        |                                | 6. DNS Service Resolution Active  |
-        | 7. Stack Active & Healthy      |<----------------------------------|
-        |<-------------------------------|                                   |
+```mermaid
+graph TD
+    A[Operator / FastMCP Agent] -->|1. docker compose up -d| B[Docker Compose v2 Engine]
+    B -->|2. Read & Parse YAML| C[Manifest Inspector]
+    B -->|3. Create Bridge Network| D[Docker Daemon Runtime]
+    B -->|4. Mount ZFS / Persistent Volumes| D
+    B -->|5. Spawn Containers with Healthchecks| D
+    D -->|6. Inter-container DNS Resolution Active| E[Containerized Services Topology]
+    E -->|7. Stack Active & Healthy| A
 ```
 
 ## Container Orchestration Comparison Matrix
@@ -76,6 +70,15 @@ Orchestrating multi-service applications manually via isolated `docker run` comm
 - **FastMCP Server Environments**: Running Model Context Protocol servers alongside supporting caching layers (Redis, Valkey) and relational storage (PostgreSQL).
 - **Homelab Application Management**: Managing self-hosted web applications (Nextcloud, Paperless-ngx, Authentik, Immich) with automated restart policies.
 - **Reproducible CI/CD Integration Testing**: Spawning ephemeral multi-container environments in GitHub Actions or GitLab CI for integration test runs.
+
+## Detailed Multi-Container Production Topology Architecture
+
+| Component Layer | Container Service | Primary Storage Path | Health Check Mechanism | Restart Policy |
+| :--- | :--- | :--- | :--- | :--- |
+| **Inference Engine** | `ollama/ollama:latest` | `/mnt/tank/apps/ollama` | `curl -f http://localhost:11434/api/version` | `unless-stopped` |
+| **Vector Index** | `qdrant/qdrant:latest` | `/mnt/tank/apps/qdrant` | `curl -f http://localhost:6333/healthz` | `unless-stopped` |
+| **Workflow Engine** | `n8nio/n8n:latest` | `/mnt/tank/apps/n8n` | `curl -f http://localhost:5678/healthz` | `unless-stopped` |
+| **MCP Agent Bridge** | `custom/fastmcp:3.1` | `/mnt/tank/apps/fastmcp` | `python -m mcp.healthcheck` | `always` |
 
 ## Strengths
 - **Declarative Infrastructure-as-Code**: Defines all service configurations, ports, networks, and environment variables in a readable YAML manifest.
@@ -96,6 +99,33 @@ Orchestrating multi-service applications manually via isolated `docker run` comm
 ## When not to use it
 - For enterprise multi-node production clusters requiring advanced ingress routing, service meshes, zero-downtime rolling updates, and horizontal auto-scaling (use Kubernetes/K3s).
 - For isolated single-container applications where a simple `docker run` command or systemd unit file is sufficient.
+
+## Systemd Service Unit Configuration
+
+The following systemd service unit defines an automated, scheduled Docker Compose stack manager daemon (`docker-compose-stack.service`):
+
+```ini
+[Unit]
+Description=Docker Compose AI Services Stack Daemon
+After=docker.service network.target
+Wants=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+WorkingDirectory=/opt/ai-stack
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+ExecReload=/usr/bin/docker compose pull && /usr/bin/docker compose up -d
+Restart=on-failure
+RestartSec=15s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -169,7 +199,8 @@ docker compose ps
 
 ## API examples
 
-### Python FastMCP 3.1 & Pydantic v2 Docker Compose Stack Manager
+### FastMCP 3.1 & Pydantic v2 Docker Compose Stack Manager
+
 The following code snippet demonstrates managing Docker Compose stacks programmatically via Python within a FastMCP 3.1 server with Pydantic v2 schemas:
 
 ```python
@@ -236,6 +267,15 @@ async def manage_docker_stack(request: StackManageRequest) -> StackManageRespons
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **CUDA Driver Error / Device Not Found** | Missing `nvidia-container-toolkit` plugin on Docker host. | Install `nvidia-container-toolkit` and restart Docker daemon. |
+| **Port Collision / Already Allocated** | Host port bound in `ports:` section is in use by another daemon. | Modify host port mapping in `docker-compose.yml` (e.g., `8080:80`). |
+| **Container Fails Healthcheck Loop** | Service startup time exceeds healthcheck retries or threshold. | Increase `start_period` or `retries` parameter in compose file. |
+| **ZFS Volume Mount Permission Denied** | UID/GID mismatch between container user and ZFS host dataset path. | Chown target host path to match container UID (e.g. `1000:1000`). |
 
 ## Production Operational Best Practices
 

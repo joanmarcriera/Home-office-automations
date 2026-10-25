@@ -3,6 +3,23 @@
 ## What it is
 Model comparison and evaluation is the systematic process of measuring the performance, reliability, reasoning depth, and cost-efficiency of Large Language Models (LLMs) and Vision-Language Models (VLMs). In early 2027, this extends beyond standard static benchmarks to encompass **Agentic Latency**, **Reasoning CoT Transparency**, **Multi-turn Context Retention**, and **Tool-Calling Precision** under the **Model Context Protocol (MCP) 3.1** specification. It utilizes specialized benchmark suites (MMLU-Pro, SWE-bench Verified, Terminal-Bench 2.0, LiveCodeBench, HLE) and human preference matrices (Chatbot Arena) to guide dynamic model selection across major model families (e.g., FastMCP 3.1, Claude 5.1/5.6, GPT-5.5/5.6, Gemini 4.0 Pro/Ultra, DeepSeek-V4, Llama 4, Gemma 3, and Qwen 3.8).
 
+## Enterprise Evaluation Engine Workflow
+
+```mermaid
+graph TD
+    A[Benchmark Ingestion Request] --> B[Evaluation Engine Controller]
+    B --> C1[Static Benchmarks: MMLU-Pro, GPQA, HLE]
+    B --> C2[Agentic Sandboxes: Terminal-Bench 2.0, SWE-bench]
+    B --> C3[Tool Integration: FastMCP 3.1 Tool Schema Suite]
+    C1 --> D[Metric Aggregator & Pydantic v2 Validator]
+    C2 --> D
+    C3 --> D
+    D --> E[Model Routing Policy Engine]
+    E --> F1[Frontier Tier: Claude 5.6 / GPT-5.6]
+    E --> F2[Utility Tier: DeepSeek-V4 / Qwen 3.8]
+    E --> F3[Local Edge Tier: Gemma 3 / Llama 4]
+```
+
 ## What problem it solves
 It solves the opaque "black box" problem of AI model selection by providing verifiable, objective metrics for enterprise routing. Without quantitative evaluation, organizations risk over-allocating budget to expensive frontier reasoning models (such as Claude 5.6 or GPT-5.6) when a lightweight, high-throughput model (like Gemma 3-27B, DeepSeek-V4-Distill, or Qwen 3.8-32B) achieves equivalent accuracy. It also mitigates autonomous agent failures by detecting hallucination drift, tool schema violation rates, and degradation in long-context retrieval ([Agentic Workflows](patterns/agentic-workflows.md)).
 
@@ -72,6 +89,35 @@ Evaluation operates within the **Quality, Observability & Governance Layer** of 
 | **Humanity's Last Exam (HLE)** | Frontier Reasoning / STEM | Accuracy (%) | Automated / Model-as-Judge | DeepSeek-V4, OpenAI o5 |
 | **Chatbot Arena** | General Human Preference | Bradley-Terry Elo | Blind Pairwise Human Votes | All Foundation Models |
 | **FastMCP 3.1 Tool-Eval** | Schema Adherence & Tools | Schema Violation Rate (%) | Pydantic v2 Contract Auditing | FastMCP 3.1 Servers |
+
+## Systemd Service Unit Configuration
+
+The following systemd service unit defines an automated model evaluation runner service (`eval-engine-runner.service`) managed via systemd:
+
+```ini
+[Unit]
+Description=Automated Model Evaluation & Benchmark Engine Daemon
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=evalrunner
+Group=ai-evals
+WorkingDirectory=/opt/eval-engine
+Environment="PYTHONUNBUFFERED=1"
+Environment="OPENAI_API_BASE=https://api.openai.com/v1"
+Environment="FASTMCP_SERVER_URI=http://localhost:8000/mcp"
+ExecStart=/opt/eval-engine/venv/bin/python -m inspect_evals.cli --suite terminal_bench_v2 --model anthropic/claude-5-6-sonnet --output-dir /var/log/eval-reports
+Restart=on-failure
+RestartSec=30s
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Getting started
 
@@ -204,6 +250,15 @@ print(f"Validated Model: {validated_eval.model_name}")
 print(f"Faithfulness Score: {validated_eval.faithfulness_score:.4f}")
 print(f"Relevancy Score: {validated_eval.relevancy_score:.4f}")
 ```
+
+## Diagnostic & Operational Troubleshooting Matrix
+
+| Symptom / Error | Root Cause | Remediation Step |
+| :--- | :--- | :--- |
+| **High Model-as-Judge Variance** | Unseeded prompts or prompt order bias in pairwise judge evaluation. | Enforce zero temperature, mask model identities, and average inverted candidate pairs. |
+| **Eval Timeout in Terminal Sandbox** | Non-deterministic long-running subprocess spawned in test container. | Set strict per-command execution timeout (e.g., 30s) in Docker runner. |
+| **Rate Limit / HTTP 429 During Eval** | Excessive parallel threads querying cloud model endpoint during benchmark. | Implement token bucket rate-limiting or route through LiteLLM load balancer. |
+| **Pydantic Validation Failures** | Evaluated model output violates requested JSON output schema contract. | Wrap model output parser with retry hooks or lower temperature setting. |
 
 ## Operational Best Practices & Troubleshooting
 
