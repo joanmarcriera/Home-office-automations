@@ -29,6 +29,27 @@ It addresses the reliability gap in autonomous agents by providing a "simulation
 ## Where it fits in the stack
 **Frontier LLM Provider**. Occupies the "highest intelligence" tier for reasoning-heavy workloads, multi-agent orchestration, and large-scale codebase analysis.
 
+## Sequence Diagram Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Developer as Lead Engineer / CI Engine
+    participant Mythos as Claude Mythos 2.0 Supervisor
+    participant FastMCP as FastMCP 3.1 Gateway
+    participant Sandbox as Virtual Verification Sandbox
+    participant SubAgent as Specialized Sub-Agent Cohort
+
+    Developer->>Mythos: Submit Architecture Refactoring Task
+    Mythos->>FastMCP: FastMCP 3.1 Tool Call: init_simulation_sandbox
+    FastMCP->>Sandbox: Spin up isolated Docker/gVisor environment
+    Sandbox-->>FastMCP: Sandbox Ready (URL & OAuth Session)
+    Mythos->>SubAgent: Dispatch Sub-Agent 1 (Refactor) & Sub-Agent 2 (Audit)
+    SubAgent->>Sandbox: Execute code modifications & security checks
+    Sandbox-->>Mythos: Stream execution traces & Pydantic validation reports
+    Mythos-->>Developer: Return verified production execution commit
+```
+
 ## Typical use cases
 - **Full Cyberattack Simulation**: Testing enterprise defense mechanisms by simulating complex, multi-stage attacks in controlled environments.
 - **Multi-Agent Orchestration**: Acting as a "primary architect" to manage and synchronize dozens of specialized sub-agents for software engineering or research.
@@ -55,6 +76,55 @@ It addresses the reliability gap in autonomous agents by providing a "simulation
 - For simple customer support chat or basic text summarization (use Haiku instead).
 - In real-time applications where low latency is critical (use Sonnet instead).
 - For local-only tasks where privacy requires on-premises execution (use [Mistral](../providers/mistral.md) or [Ollama](../../services/ollama.md)).
+
+## Systemd Service Unit Configuration
+
+To deploy an autonomous Mythos multi-agent simulation supervisor daemon as a managed Linux system service, save the following unit definition to `/etc/systemd/system/claude-mythos-supervisor.service`:
+
+```ini
+[Unit]
+Description=Claude Mythos Multi-Agent Simulation Daemon
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+Documentation=https://docs.anthropic.com
+
+[Service]
+Type=simple
+User=mythos
+Group=mythos
+WorkingDirectory=/opt/claude-mythos
+ExecStart=/usr/bin/python3 -m agents.mythos_supervisor_daemon
+Restart=always
+RestartSec=10s
+
+# Environment settings
+Environment=PYTHONUNBUFFERED=1
+Environment=ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+Environment=MYTHOS_MODEL_NAME=claude-mythos-2
+Environment=MAX_CONCURRENT_SUBAGENTS=15
+Environment=SANDBOX_ENGINE_URL=http://localhost:8088
+
+# Security & Sandboxing
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/claude-mythos/logs /opt/claude-mythos/runs
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now claude-mythos-supervisor.service
+sudo systemctl status claude-mythos-supervisor.service
+```
 
 ## Getting started
 
@@ -270,21 +340,14 @@ Evaluations conducted on early 2027 v2.0 releases across enterprise agent and co
 | **TAU-bench (Multi-tool Orchestration)** | 91.8% | 69.2% | 86.4% |
 | **HumanEval / MBPP Combined** | 96.5% | 92.0% | 95.8% |
 
-## Troubleshooting & Orchestration Patterns
+## Diagnostic Troubleshooting Matrix
 
-### Common Issues and Resolutions
-
-#### 1. High Sub-Agent Coordination Drift
-- **Symptom**: Sub-agents spawned by Mythos begin deviating from the master architectural directive or repeating work.
-- **Resolution**: Enforce Pydantic v2 structured outputs for all sub-agent return payloads. Set Mythos `temperature` parameter to `0.0` during primary orchestration dispatches.
-
-#### 2. Simulation Sandbox Timeout
-- **Symptom**: Long-running virtual test steps time out before Mythos can process the execution trace.
-- **Resolution**: Chunk simulation traces into intermediate evaluation checkpoints using FastMCP 3.1 progress notifications.
-
-#### 3. API Rate Limit / Concurrent Token Limits
-- **Symptom**: `429 Rate Limit Exceeded` during intense multi-agent fan-out.
-- **Resolution**: Implement exponential backoff algorithms and cap maximum active sub-agents to 15 per batch in client-side queues.
+| Issue Symptom / Error | Root Cause | Diagnostic Command / Inspection | Resolution Path |
+| :--- | :--- | :--- | :--- |
+| `429 Rate Limit Exceeded` during sub-agent fan-out | Exceeded concurrent API token rate limits during multi-agent dispatch | `journalctl -u claude-mythos-supervisor.service -n 50` | Implement client-side token bucket; cap concurrent sub-agents to 15 per batch. |
+| `Sub-Agent State Drift` | Sub-agents deviating from core directive or repeating loop steps | `python3 -m pytest tests/test_agent_drift.py` | Enforce Pydantic v2 JSON output schemas; set Mythos orchestration `temperature` to `0.0`. |
+| `Sandbox Verification Timeout` | Long-running test steps exceeding default 30s timeout | `curl -Iv http://localhost:8088/health` | Chunk test execution traces into intermediate checkpoints; use FastMCP progress callbacks. |
+| `Authentication Failure (401)` | Invalid or expired Anthropic API Key for Tier 4 access | `echo $ANTHROPIC_API_KEY` | Verify Mythos API access privileges in Anthropic Console; update credentials in systemd unit. |
 
 ## Related tools / concepts
 - [Claude](claude.md)
