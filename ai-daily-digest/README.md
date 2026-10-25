@@ -1,5 +1,66 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-10-25
+
+## Digest fallback for 2026-10-25
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Rapidly scaling online storage to serve over 1 billion ChatGPT users (Part II)](https://openai.com/index/scaling-storage-one-billion-users-part-two) (OpenAI Blog)
+2. [Securing our frontier model training environment](https://openai.com/index/securing-our-frontier-model-training-environment) (OpenAI Blog)
+3. [LitPivot: Developing research ideas through dynamic contextualization within the literature landscape](https://huggingface.co/blog/allenai/litpivot) (Hugging Face Blog)
+4. [OpenAI and Anthropic blocked the reverse engineering of smart TVs spying on us](https://www.reddit.com/r/LocalLLaMA/comments/1xer30z/openai_and_anthropic_blocked_the_reverse/) (r/LocalLLaMA)
+5. [Kimi K3.1 removes cyberattack training data from open weight release](https://www.reddit.com/r/LocalLLaMA/comments/1xecgrf/kimi_k31_removes_cyberattack_training_data_from/) (r/LocalLLaMA)
+6. [KLD is misunderstood](https://www.reddit.com/r/LocalLLaMA/comments/1xeim3m/kld_is_misunderstood/) (r/LocalLLaMA)
+7. [CMP170HX inspiration unlocks 30x/40x also, up to 2X Prefill speedup --> NVIDIA RTX 30 & RTX 40 GPUs Get Impressively Fast In AI LLMs As Compute Doubles With New Unlock Tool But Prices Surge Too](https://www.reddit.com/r/LocalLLaMA/comments/1xelhpj/cmp170hx_inspiration_unlocks_30x40x_also_up_to_2x/) (r/LocalLLaMA)
+8. [Too good to be true? ISTA's GSQ-RCO 2-bit DeepSeek-V4.1-Flash scoring the same as the base model](https://www.reddit.com/r/LocalLLaMA/comments/1xes5x0/too_good_to_be_true_istas_gsqrco_2bit/) (r/LocalLLaMA)
+9. [Meta trained small AI models to read raw bytes instead of tokens. They start out worse, but the paper predicts they end up better](https://www.reddit.com/r/LocalLLaMA/comments/1xe88ja/meta_trained_small_ai_models_to_read_raw_bytes/) (r/LocalLLaMA)
+10. [8 GB GPU, 262K context 3.5 BPW Qwen-Flash-Next Coder 70 T/s using llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1xebdzl/8_gb_gpu_262k_context_35_bpw_qwenflashnext_coder/) (r/LocalLLaMA)
+11. [Made a rhythm game where 4 small neural nets listen to your song right in the browser tab (open source)](https://www.reddit.com/r/LocalLLaMA/comments/1xeia9o/made_a_rhythm_game_where_4_small_neural_nets/) (r/LocalLLaMA)
+12. [M6 Mac Mini owners (32GB): now you can run Qwen3.8-27B in high quality on the Apple Neural Engine](https://www.reddit.com/r/LocalLLaMA/comments/1xejv61/m6_mac_mini_owners_32gb_now_you_can_run_qwen3827b/) (r/LocalLLaMA)
+13. [Is it just me or Kimi K3.1 Pro don’t look much better than DeepSeek 4.1 Flash?](https://www.reddit.com/r/LocalLLaMA/comments/1xemxoq/is_it_just_me_or_kimi_k31_pro_dont_look_much/) (r/LocalLLaMA)
+14. [Artificial Analysis Index is non-representative of real-world performance. Tested Kimi 3.1 Pro through OpenRouter, the number 4 model in AAI, it's not even close to MiMo 2.6 or DeepSeek 4.1 Flash](https://www.reddit.com/r/LocalLLaMA/comments/1xercio/artificial_analysis_index_is_nonrepresentative_of/) (r/LocalLLaMA)
+15. [GPT-X3-150M takes #1 on the Open SLM Leaderboard, dethroning HuggingFace's SmolLM2-135M with a GDN2/GQA hybrid - Check it out!](https://www.reddit.com/r/LocalLLaMA/comments/1xerxtr/gptx3150m_takes_1_on_the_open_slm_leaderboard/) (r/LocalLLaMA)
+16. [The RTX 5090 Isn't Gone, It's In Chinese Labs, Where Technicians Rip Off Its Die And 32GB VRAM For AI Servers](https://www.reddit.com/r/LocalLLaMA/comments/1xe1zsr/the_rtx_5090_isnt_gone_its_in_chinese_labs_where/) (r/LocalLLaMA)
+17. [model: DSV4.1 flash by am17an · Pull Request #31086 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1xeqf7k/model_dsv41_flash_by_am17an_pull_request_31086/) (r/LocalLLaMA)
+18. [Small model good for reverse engineering that can run on a 3090 and 32GB RAM.](https://www.reddit.com/r/LocalLLaMA/comments/1xeipmm/small_model_good_for_reverse_engineering_that_can/) (r/LocalLLaMA)
+19. [[Benchmark] Strata/Basalt runs Qwen3.8 Flash Next IQ3_S with 16GB VRAM and 55GB RAM with up to 250 tok/s generation and 5,600 tok/s prompt processing (5080, Concurrency 1)](https://www.reddit.com/r/LocalLLaMA/comments/1xesda1/benchmark_stratabasalt_runs_qwen38_flash_next_iq3/) (r/LocalLLaMA)
+20. [big cloud models like opus 5.5 get all the motion graphics praise, but i made this with local qwen3.8 flash next. it's very possible!](https://www.reddit.com/r/LocalLLaMA/comments/1xebkti/big_cloud_models_like_opus_55_get_all_the_motion/) (r/LocalLLaMA)
+21. [Qwen4-27B PR found](https://www.reddit.com/r/LocalLLaMA/comments/1xdwrak/qwen427b_pr_found/) (r/LocalLLaMA)
+22. [AbliteratedOutTheBox Strata Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1xe8x9c/abliteratedoutthebox_strata_announcement/) (r/LocalLLaMA)
+23. [UK to invest £100m in 'world first' AI Biosecurity Lab](https://www.reddit.com/r/LocalLLaMA/comments/1xem3kc/uk_to_invest_100m_in_world_first_ai_biosecurity/) (r/LocalLLaMA)
+24. [[Release] ISTA GSQ-RCO GGUFs for DeepSeek-V4.1-Flash-1017](https://www.reddit.com/r/LocalLLaMA/comments/1xe2wg8/release_ista_gsqrco_ggufs_for_deepseekv41flash1017/) (r/LocalLLaMA)
+25. [High-Performance llama.cpp fork for Legacy GPUs: Kepler Support, CUDA Graphs & Windows NCCL!](https://www.reddit.com/r/LocalLLaMA/comments/1xeicw2/highperformance_llamacpp_fork_for_legacy_gpus/) (r/LocalLLaMA)
+26. [Raon is better than Flint.](https://www.reddit.com/r/LocalLLaMA/comments/1xehs52/raon_is_better_than_flint/) (r/LocalLLaMA)
+27. [10 tok/s Deepseek V4.1 Flash 8K with Strata on a 5090 with 64GB DDR5 Ram](https://www.reddit.com/r/LocalLLaMA/comments/1xed2xx/10_toks_deepseek_v41_flash_8k_with_strata_on_a/) (r/LocalLLaMA)
+28. [[AINews] Kimi 3.1 Pro 104BA-2.8T: Fable-5.1-Class Open Weights narrows Closed-AI lead to 1 month... and Pro Highspeed API with 2-3× speed](https://latent.space/p/ainews-kimi-31/) (Latent Space)
+29. [AI Is Getting Good at Math. Here’s Why.](https://latent.space/p/ai-is-getting-good-at-math/) (Latent Space)
+30. [[AINews] Black October](https://latent.space/p/ainews-black-october/) (Latent Space)
+31. [AWS says its AI security agent fixes 89% of bugs — but there’s a catch](https://thenewstack.io/aws-says-its-ai-security-agent-fixes-89-of-bugs-but-theres-a-catch/) (The New Stack)
+32. [Building an agentic software factory? Start with the sensor.](https://thenewstack.io/agentic-software-factory-sensor/) (The New Stack)
+33. [Why Kubernetes autoscalers keep fighting each other (and why the solution must be autonomous)](https://thenewstack.io/why-kubernetes-autoscalers-fight/) (The New Stack)
+34. [Before you expand your GPU pool, measure the outcome](https://thenewstack.io/optimize-kubernetes-gpu-pools/) (The New Stack)
+35. [Vercel moved to kill static credentials. Then developers spotted its own deployment token.](https://thenewstack.io/vercel-oidc-static-credentials/) (The New Stack)
+36. [AI jobs are waiting while GPUs sit idle. Kubernetes has a new plan.](https://thenewstack.io/kubernetes-agentic-ai-inference/) (The New Stack)
+37. [A few engineers asked IT for Linux. Then it spread to 200 machines.](https://thenewstack.io/linux-developer-device-management/) (The New Stack)
+38. [PHP2Shell was only the beginning: AI is accelerating the patch race](https://thenewstack.io/php2shell-ai-patch-race/) (The New Stack)
+39. [Microsoft’s new voice AI can start working out what you want before you finish speaking](https://thenewstack.io/microsoft-streaming-speech-models/) (The New Stack)
+40. [Building Reasoning Models from the Ground Up: A Full Video Course](https://magazine.sebastianraschka.com/p/building-reasoning-models) (Ahead of AI (Sebastian Raschka))
+41. [Next-Concept Modeling: Fast, Parallel Coarse-to-Fine Text Generation](https://arxiv.org/abs/2610.14162) (Lobsters — AI tag)
+42. [AI: EU Member States approve “digital expropriation” of Europeans for AI companies](https://noyb.eu/en/ai-eu-member-states-approve-digital-expropriation-europeans-ai-companies) (Lobsters — AI tag)
+43. [Google Optimizes Agent Development Kit's 200K-line Python Codebase Overnight with Gemini 4 Argon](https://www.infoq.com/news/2026/10/google-argon-optimizes-adk/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+44. [Google’s Data Agent Kit Hits GA, Splitting Agent Guardrails Between Skills and IAM](https://www.infoq.com/news/2026/10/data-agent-kit-ga/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+45. [Anthropic Adds Opt-In Security Scanning for Critical Open-Source Projects](https://www.infoq.com/news/2026/10/anthropic-oss-security-scanner/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+46. [Self-Host Weekly (23 October 2026)](https://selfh.st/weekly/2026-10-23/) (Self-Host Weekly (selfh.st))
+47. [AI Agent Memory: How LLM Agents Manage State in Production](https://blog.n8n.io/ai-agent-memory-how-llm-agents-manage-state-in-production/) (n8n Blog)
+
+
+---
+
+
 ## 📅 Digest for 2026-10-23
 
 ## Digest fallback for 2026-10-23
