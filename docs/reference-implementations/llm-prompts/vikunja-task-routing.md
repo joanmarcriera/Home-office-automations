@@ -133,7 +133,7 @@ from datetime import datetime, date
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("vikunja-task-router-server")
+mcp = FastMCP("vikunja-task-router-server", version="3.1.0")
 
 class VikunjaTaskPayload(BaseModel):
     """Pydantic v2 validated schema for Vikunja task creation."""
@@ -287,6 +287,76 @@ Rules:
 }
 ```
 
+## Production Deployment & System Infrastructure
+
+### Production Systemd Service Unit (`vikunja-task-router.service`)
+Deploy the FastMCP 3.1 task triage engine as a continuous systemd background service unit:
+
+```ini
+[Unit]
+Description=Vikunja Task Routing FastMCP 3.1 Service
+After=network.target vikunja.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vikunja-agent
+Group=vikunja-agent
+WorkingDirectory=/opt/vikunja-task-router
+Environment="VIKUNJA_URL=http://localhost:3456"
+Environment="VIKUNJA_TOKEN=vk_pat_..."
+Environment="FASTMCP_PORT=8802"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/vikunja-task-router/venv/bin/python3 task_router_server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vikunja-task-router
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Production Docker Compose Setup (`docker-compose.yml`)
+Containerized Vikunja Task Router service paired with local Vikunja instance:
+
+```yaml
+version: "3.8"
+
+services:
+  vikunja-task-router:
+    image: vikunja-task-router:3.1.0
+    container_name: vikunja-task-router
+    restart: unless-stopped
+    environment:
+      - VIKUNJA_URL=http://vikunja:3456
+      - VIKUNJA_TOKEN=${VIKUNJA_TOKEN}
+      - FASTMCP_PORT=8802
+    ports:
+      - "127.0.0.1:8802:8802"
+    depends_on:
+      - vikunja
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8802/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - vikunja_net
+
+networks:
+  vikunja_net:
+    driver: bridge
+```
+
 ## Operational Safety & Production Guardrails
 
 1. **Authentication Token Management**:
@@ -300,6 +370,8 @@ Rules:
 3. **Fallback Destination & Monitoring**:
    - All unclassifiable inputs or schema validation failures must automatically default to `project_id = 1` (Inbox).
    - Emit Prometheus metrics (`vikunja_routing_fallback_total`) when fallbacks occur to trigger prompt re-tuning alerts if rates exceed 5%.
+4. **Idempotency & Deduplication Engine**:
+   - Compute SHA-256 hashes of incoming task request titles within a rolling 5-minute window to avoid duplicate entries during network retries.
 
 ## Systematic Troubleshooting Guide
 
@@ -320,6 +392,7 @@ Rules:
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.org/)
 
+---
 ## Contribution Metadata
 - Last reviewed: 2027-01-07
 - Confidence: high

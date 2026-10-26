@@ -255,6 +255,89 @@ export async function POST(req: Request) {
 }
 ```
 
+## Production Deployment & System Infrastructure
+
+### Production Systemd Service Unit (`nextjs-app.service`)
+Deploy a standalone Next.js standalone build production server as a systemd daemon:
+
+```ini
+[Unit]
+Description=Next.js Production Web Application
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nextjs
+Group=nextjs
+WorkingDirectory=/opt/nextjs-app
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+Environment="HOSTNAME=0.0.0.0"
+Environment="DATABASE_URL=postgresql://user:pass@localhost:5432/nextdb"
+ExecStart=/usr/bin/node /opt/nextjs-app/server.js
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nextjs-app
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Production Docker Multi-Stage Deployment (`docker-compose.yml`)
+Standalone production Next.js build container using multi-stage Dockerfile isolation:
+
+```yaml
+version: "3.8"
+
+services:
+  nextjs-app:
+    image: nextjs-app:15.2.0
+    container_name: nextjs-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - nextjs_net
+
+networks:
+  nextjs_net:
+    driver: bridge
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **`EventSource / ReadableStream` Stream Fails** | Proxy buffering (Nginx / Cloudflare) interfering with HTTP stream | `curl -i -N http://localhost:3000/api/chat` | Add `X-Accel-Buffering: no` response header in Route Handler |
+| **`Unhandled Runtime Error: Text content does not match`** | Server-Client Hydration mismatch due to dynamic dates or window object access | Inspect browser console for React SSR warning | Wrap client-only window/date operations inside `useEffect()` or `dynamic(..., { ssr: false })` |
+| **`ISR Cache Stale / Not Revalidating`** | Missing `revalidatePath()` call or incorrect secret token | `curl -X POST http://localhost:3000/api/revalidate?secret=TOKEN&path=/docs` | Verify secret key match and check FastMCP ISR revalidation server logs |
+| **Next.js Standalone Docker Container Exit** | Missing `output: 'standalone'` in `next.config.js` | `docker logs nextjs-app` | Enable `module.exports = { output: 'standalone' }` in `next.config.js` |
+
 ## Related tools / concepts
 - [Vercel](vercel.md) — Cloud platform designed specifically for Next.js deployments.
 - [Tailwind CSS](tailwind-css.md) — Utility-first CSS framework natively supported in Next.js.

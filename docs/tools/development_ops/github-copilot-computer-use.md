@@ -219,6 +219,90 @@ except ValidationError as ex:
     print("Validation Error:", ex.json())
 ```
 
+## Production Deployment & System Infrastructure
+
+### Production Systemd Service Unit (`copilot-computer-use-agent.service`)
+To ensure continuous background availability for Linux desktop virtual display workers running Copilot Computer Use tasks:
+
+```ini
+[Unit]
+Description=GitHub Copilot Computer Use Desktop Worker Agent
+After=network.target graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+User=copilotagent
+Group=copilotagent
+Environment="DISPLAY=:99"
+Environment="XAUTHORITY=/run/user/1000/gdm/Xauthority"
+Environment="GITHUB_TOKEN=ghp_..."
+Environment="PYTHONUNBUFFERED=1"
+WorkingDirectory=/opt/copilot-computer-use
+ExecStartPre=/usr/bin/Xvfb :99 -screen 0 1920x1080x24 -ac &
+ExecStart=/opt/copilot-computer-use/venv/bin/python3 agent_daemon.py
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=copilot-computer-use
+
+# Sandboxing & Resource Isolation
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=graphical.target
+```
+
+### Production Docker Environment Setup (`docker-compose.yml`)
+Containerized headless virtual framebuffer (Xvfb) desktop environment for isolated Computer Use visual UI testing and automation:
+
+```yaml
+version: "3.8"
+
+services:
+  copilot-computer-use-worker:
+    image: ghcr.io/github/copilot-computer-use-worker:3.1.0
+    container_name: copilot-computer-use-worker
+    restart: unless-stopped
+    environment:
+      - DISPLAY=:99
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1080
+      - FASTMCP_BRIDGE_PORT=8805
+    ports:
+      - "127.0.0.1:8805:8805"
+    shm_size: "2gb" # Required for Chrome/VLM desktop rendering buffers
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8805/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - computer_use_net
+
+networks:
+  computer_use_net:
+    driver: bridge
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Mouse Click Target Off by Offset** | Display DPI scaling or multi-monitor coordinate mismatch | `gh copilot config list --section computer-use` | Force 100% DPI scaling (`1.0`) and target primary display index `0` |
+| **`Permission Denied` OS Accessibility** | Missing OS Screen Recording / AT-SPI permissions | `gh copilot status` | Grant system accessibility permissions in macOS Security Settings or Linux AT-SPI daemon |
+| **Headless Framebuffer Blank Screen** | Xvfb display server crashed or uninitialized | `xdotool getdisplaygeometry` | Verify `Xvfb :99 -screen 0 1920x1080x24` is active in systemd service or Docker setup |
+| **Copilot Vision Latency High (>3s)** | High-resolution image encoding overhead | `gh copilot logs --type computer-use` | Downsample screenshot crops or reduce capture resolution to 1080p |
+
 ## Related tools / concepts
 - [GitHub Copilot](../development_ops/github_copilot.md) — Enterprise AI pair programmer and developer workflow platform.
 - [Browser-Use](../automation_orchestration/browser-use.md) — Open-source browser automation agent library.
