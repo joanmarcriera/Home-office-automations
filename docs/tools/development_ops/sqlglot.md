@@ -14,6 +14,44 @@ Deploying autonomous Text-to-SQL agents against production enterprise databases 
 
 SQLGlot solves these issues by parsing SQL strings into an Abstract Syntax Tree (AST) that can be inspected, transpiled, optimized, modified, and validated deterministically before any database connection receives the query.
 
+## Core Compiler Architecture & Pipeline Flow
+
+SQLGlot processes SQL statements through a deterministic four-stage compiler architecture: Tokenization, AST Parsing, Expression Transformation/Optimization, and Dialect Code Generation.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                                 SQLGLOT COMPILER ARCHITECTURE                                     |
+|                                                                                                   |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | 1. TOKENIZER (Rust Engine)                                                                  |  |
+|  | - Lexical analysis of raw query string into dialect-aware token stream                      |  |
+|  | - Handles quote semantics, identifier escaping, and literal type annotations                |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|                                                 v                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | 2. ABSTRACT SYNTAX TREE (AST) PARSER                                                        |  |
+|  | - Converts token stream into hierarchical expression node tree (sqlglot.exp.Expression)     |  |
+|  | - Resolves table references, aliases, subqueries, CTEs, and function invocations            |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|                                                 v                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | 3. AST TRANSFORMER & OPTIMIZER                                                              |  |
+|  | - Injects mandatory predicates (e.g., tenant_id isolation filters, default LIMITs)          |  |
+|  | - Eliminates dead subqueries, unused JOIN clauses, and constant mathematical expressions      |  |
+|  | - Performs schema qualification and column lineage tracing                                  |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|                                                 v                                                 |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | 4. DIALECT GENERATOR (TRANSPILER)                                                           |  |
+|  | - Emits target-dialect SQL string (e.g., Postgres, Snowflake, BigQuery, DuckDB, ClickHouse)  |  |
+|  | - Formats identifier quoting, date arithmetic syntax, and window function expressions        |  |
+|  +---------------------------------------------------------------------------------------------+  |
++---------------------------------------------------------------------------------------------------+
+```
+
 ## Where it fits in the stack
 **Category**: [Development & Ops](index.md) / Data Layer & Database Security Gateway.
 
@@ -56,7 +94,7 @@ SQLGlot operates as an **In-Transit SQL Compiler Gateway** positioned directly b
 ## Strengths
 - **Zero Heavy External Dependencies**: Lightweight pure Python footprint with optional ultra-fast Rust accelerators.
 - **Extensive Dialect Parity**: Supports over 25 dialects including Snowflake, Postgres, DuckDB, BigQuery, ClickHouse, Spark, SQLite, Databricks, Oracle, MySQL, T-SQL, and Presto/Trino.
-- **Full AST Traversals & Mutations**: Developer-friendly expression graph enabling deep node traversal, inspection, replacement, and programatic generation.
+- **Full AST Traversals & Mutations**: Developer-friendly expression graph enabling deep node traversal, inspection, replacement, and programmatic generation.
 - **Built-in Query Engine**: Includes a lightweight Python-based query execution engine for testing AST queries directly in memory without installing a database server.
 - **Sub-Millisecond Parsing Performance**: Optimized hot-path parsing suitable for inline request-reply microservices and agent loops.
 
@@ -80,7 +118,7 @@ SQLGlot operates as an **In-Transit SQL Compiler Gateway** positioned directly b
 Install SQLGlot with optional Rust performance extensions:
 
 ```bash
-pip install "sqlglot[rs]" pydantic fastmcp
+pip install "sqlglot[rs]" pydantic fastmcp uvicorn
 ```
 
 ### 2. Basic Transpilation Example
@@ -118,6 +156,66 @@ Inspect the raw AST structure generated by SQLGlot:
 python3 -c "import sqlglot; print(repr(sqlglot.parse_one('SELECT x FROM t WHERE y = 1')))"
 ```
 
+## Advanced Python AST Manipulation Examples
+
+### 1. Programmatic Tenant Isolation & AST Mutation
+Inject tenant filters into complex multi-table JOIN queries without regex:
+
+```python
+import sqlglot
+from sqlglot import parse_one, exp
+
+def enforce_tenant_isolation(raw_sql: str, tenant_id: int, max_limit: int = 500) -> str:
+    """
+    Parses raw SQL, inspects all table sources, appends tenant predicates, and enforces max LIMIT.
+    """
+    expression = parse_one(raw_sql)
+
+    # 1. Inject tenant_id predicate into main WHERE clause
+    tenant_condition = exp.condition(f"tenant_id = {tenant_id}")
+    expression = expression.where(tenant_condition)
+
+    # 2. Enforce maximum query result row limit
+    existing_limit = expression.args.get("limit")
+    if existing_limit is None:
+        expression = expression.limit(max_limit)
+    else:
+        current_val = int(existing_limit.expression.this)
+        if current_val > max_limit:
+            expression = expression.limit(max_limit)
+
+    return expression.sql()
+
+query = "SELECT u.id, u.name, o.total FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'COMPLETED'"
+safe_query = enforce_tenant_isolation(query, tenant_id=4092)
+print("Sanitized SQL:")
+print(safe_query)
+```
+
+### 2. Extracting Data Lineage & Column Reference Graphs
+
+```python
+import sqlglot
+from sqlglot.lineage import lineage
+
+sql_query = """
+WITH regional_sales AS (
+    SELECT region, SUM(amount) AS total_revenue
+    FROM raw_orders
+    WHERE order_date >= '2026-01-01'
+    GROUP BY region
+)
+SELECT region, total_revenue * 0.15 AS estimated_tax
+FROM regional_sales
+WHERE total_revenue > 100000
+"""
+
+# Extract lineage for column 'estimated_tax'
+node = lineage("estimated_tax", sql_query)
+print("Lineage Node Representation:")
+print(node)
+```
+
 ## API examples
 
 ### 1. FastMCP 3.1 SQL Translation & Security Gateway Server (Python)
@@ -126,7 +224,7 @@ Expose SQLGlot parsing, transpilation, and security auditing as a FastMCP 3.1 to
 ```python
 import os
 import sqlglot
-from sqlglot import parse_one, exp
+from sqlglot import parse_one, exp, optimizer
 from typing import Dict, Any, List, Optional
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator
@@ -145,9 +243,13 @@ class TranspileRequest(BaseModel):
 class SecurityAuditRequest(BaseModel):
     sql: str = Field(..., min_length=5, description="The agent-generated SQL query to inspect")
     prohibited_ops: List[str] = Field(
-        default_factory=lambda: ["drop", "delete", "truncate", "alter"],
+        default_factory=lambda: ["drop", "delete", "truncate", "alter", "update", "insert"],
         description="Forbidden statement types"
     )
+
+class LineageRequest(BaseModel):
+    sql: str = Field(..., min_length=5, description="SQL query to analyze for column lineage")
+    target_column: str = Field(..., description="Target output column name")
 
 @mcp.tool()
 async def transpile_sql(request: TranspileRequest) -> Dict[str, Any]:
@@ -194,6 +296,22 @@ async def audit_and_inject_tenant_filter(request: SecurityAuditRequest, tenant_i
     except Exception as e:
         return {"is_safe": False, "error": f"AST Analysis failed: {str(e)}"}
 
+@mcp.tool()
+async def optimize_sql_query(sql: str, dialect: str = "postgres") -> Dict[str, Any]:
+    """
+    Optimizes SQL queries using SQLGlot AST semantic optimizer rules.
+    """
+    try:
+        parsed = parse_one(sql, read=dialect)
+        optimized_ast = optimizer.optimize(parsed)
+        return {
+            "success": True,
+            "original_sql": sql,
+            "optimized_sql": optimized_ast.sql(dialect=dialect)
+        }
+    except Exception as e:
+        return {"success": False, "error": f"Optimization error: {str(e)}"}
+
 if __name__ == "__main__":
     mcp.run()
 ```
@@ -226,7 +344,7 @@ class AgentSQLPayload(BaseModel):
 
             # Scan for dangerous mutations
             for expr in expressions:
-                if isinstance(expr, (sqlglot.exp.Drop, sqlglot.exp.Delete, sqlglot.exp.TruncateTable)):
+                if isinstance(expr, (sqlglot.exp.Drop, sqlglot.exp.Delete, sqlglot.exp.TruncateTable, sqlglot.exp.Insert, sqlglot.exp.Update)):
                     raise ValueError(f"Dangerous mutating statement detected: {type(expr).__name__}")
 
             return raw_sql
@@ -240,6 +358,76 @@ if __name__ == "__main__":
     print("Agent SQL query successfully verified against Pydantic v2 & SQLGlot contract!")
     print(f"Validated Query: {validated_payload.query}")
 ```
+
+## Production Deployment & Operational Management
+
+### Systemd Service Configuration
+For running SQLGlot as a background FastMCP 3.1 translation microservice, create `/etc/systemd/system/sqlglot-gateway.service`:
+
+```ini
+[Unit]
+Description=SQLGlot FastMCP 3.1 Gateway Microservice
+After=network.target
+
+[Service]
+Type=simple
+User=mcp
+Group=mcp
+WorkingDirectory=/opt/sqlglot-gateway
+Environment=PYTHONUNBUFFERED=1
+Environment=PORT=8090
+ExecStart=/opt/sqlglot-gateway/venv/bin/python -m mcp.server.fastmcp run server.py --port 8090
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/sqlglot-gateway/logs
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Deployment
+Deploy SQLGlot as an isolated microservice container:
+
+```yaml
+version: '3.8'
+
+services:
+  sqlglot-gateway:
+    image: python:3.12-slim
+    container_name: sqlglot-gateway
+    restart: always
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./server.py:/app/server.py
+    command: >
+      sh -c "pip install --no-cache-dir 'sqlglot[rs]' fastmcp pydantic uvicorn &&
+             python /app/server.py"
+    environment:
+      - PORT=8090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Symptom / Error | Probable Root Cause | Resolution Command or Remediation |
+| :--- | :--- | :--- |
+| `ParseError: Unexpected token` during transpilation | Source SQL contains custom vendor dialect syntax not specified in `read` argument. | Pass explicit `read="<dialect>"` parameter (e.g., `read="snowflake"` or `read="databricks"`). |
+| `UnsupportedError: Unknown expression type` | SQLGlot AST generator encountered an unmapped custom SQL function or operator. | Register custom expression using `sqlglot.Parser.FUNCTIONS.update({"CUSTOM_FUNC": ...})` or fallback to generic AST node. |
+| Slow parsing throughput on large queries (>1MB SQL) | Pure Python tokenizer fallback active instead of Rust core compiler binary. | Install Rust bindings: `pip install "sqlglot[rs]" --force-reinstall`. |
+| Column quotes stripped after transpiling to Postgres | Dialect generator default setting standardizes lower-case unquoted identifiers. | Set `normalize_identifiers=False` or pass `quoted=True` to `exp.to_identifier()`. |
+| `KeyError` when traversing AST nodes | Direct dictionary key access on AST arguments without checking existence. | Use safe helper methods like `expr.args.get("where")` or `expr.find(exp.Where)`. |
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Terminal developer agent for managing data transformation scripts.

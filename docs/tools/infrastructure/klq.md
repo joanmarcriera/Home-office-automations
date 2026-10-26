@@ -91,7 +91,7 @@ Standard sub-4-bit quantization techniques (like basic INT4 PTQ) suffer severe a
 Install KLQ quantization tools alongside PyTorch and FastMCP dependencies:
 
 ```bash
-pip install klq-quant torch pydantic fastmcp
+pip install klq-quant torch pydantic fastmcp uvicorn
 ```
 
 ### Quantizing a Local Model Checkpoint
@@ -132,6 +132,38 @@ klq-cli calibrate \
 
 # 3. Inspect KL loss metrics on a pre-quantized checkpoint
 klq-cli inspect --checkpoint ./qwen3.8-klq.gguf --verbose
+```
+
+## Production Systemd Service Unit
+
+To run a background KLQ quantization proxy server as a systemd service, create `/etc/systemd/system/klq-quantizer.service`:
+
+```ini
+[Unit]
+Description=KLQ Quantization FastMCP 3.1 Proxy Microservice
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=klq
+Group=klq
+WorkingDirectory=/opt/klq-server
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0
+ExecStart=/opt/klq-server/venv/bin/python3 -m mcp.server.fastmcp run server.py --port 8096
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+# Hardware access & security hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## API examples
@@ -239,6 +271,15 @@ async def trigger_klq_quantization(request: QuantJobRequest) -> dict:
 if __name__ == "__main__":
     mcp.run()
 ```
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Issue | Probable Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| Perplexity spike after 2-bit quantization | Calibration dataset sample count too small (< 128 samples) or unrepresentative. | Increase calibration sample size (`--calib-samples 512`) and use domain-matched text. |
+| Out of CUDA VRAM during rotation optimization | Large hidden dimension (d > 8192) matrix multiplication exceeding GPU memory. | Pass `--chunk-layers` to process transformer blocks sequentially rather than loading entire model. |
+| Incompatible GGUF quantization format error in llama.cpp | Older llama.cpp binary lacking support for KL-rotated bit packing headers. | Recompile llama.cpp from latest master source (`make -j GGUF_VERSION=v3`). |
+| High export latency (>30 mins) | Single-threaded CPU matrix inverse operation during Hadamard rotation phase. | Enable PyTorch CUDA acceleration (`--device cuda:0`) for matrix multiplications. |
 
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md) — Inference engine supporting quantized GGUF checkpoints.

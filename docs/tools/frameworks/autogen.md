@@ -38,6 +38,39 @@ Complex real-world tasks require specialized domain roles, multi-turn reasoning 
 ## Where it fits in the stack
 **Framework / Multi-Agent Orchestration**. It operates between foundation models and downstream business applications, coordinating agent interactions, sandbox execution environments, and state management. It directly implements [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design architectures.
 
+## Event-Driven Asynchronous Message Protocol Engine
+
+AutoGen v0.4+ utilizes an asynchronous actor-model runtime where agents communicate via strongly typed message channels, state events, and RPC dispatch handles.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                              AUTOGEN ASYNCHRONOUS ACTOR ENGINE                                    |
+|                                                                                                   |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | EVENT BUS / MESSAGE ROUTER (Redis / In-Memory PubSub)                                        |  |
+|  | - Dispatches typed TopicEvent, AgentMessage, and ToolCallRequest envelopes                   |  |
+|  | - Enforces distributed state serialization and idempotency tracing                           |  |
+|  +----------------------------------------------+----------------------------------------------+  |
+|                                                 |                                                 |
+|          +--------------------------------------+--------------------------------------+          |
+|          | Message Dispatch                     | State Subscription                   |          |
+|          v                                      v                                      v          |
+|  +-----------------------+              +-----------------------+              +------------------+  |
+|  | Agent Actor: Coder    |              | Agent Actor: Critic   |              | Human Proxy      |  |
+|  | - System Prompt Engine|              | - Security Auditing   |              | - Interrupt Hook |  |
+|  | - Tool Invocation     |              | - LLM-as-Judge        |              | - CLI/Web UI     |  |
+|  +-----------+-----------+              +-----------+-----------+              +--------+---------+  |
+|              |                                      |                                   |         |
+|              +--------------------------------------+-----------------------------------+         |
+|                                                     |                                             |
+|                                                     v                                             |
+|  +---------------------------------------------------------------------------------------------+  |
+|  | DISTRIBUTED CHECKPOINT STORE (PostgreSQL / SQLite / Redis)                                  |  |
+|  | - Persists conversation turn history, tool result caching, and actor execution state        |  |
+|  +---------------------------------------------------------------------------------------------+  |
++---------------------------------------------------------------------------------------------------+
+```
+
 ## Typical use cases
 - **Automated Software Engineering**: A team of Coder, Reviewer, and Test Runner agents collaboratively writing, debugging, and executing code in sandboxes.
 - **Hierarchical Group Chat**: Specialized agents (e.g., Domain Expert, Analyst, Project Manager) engaging in multi-turn discussions to reach structured consensus.
@@ -69,7 +102,7 @@ Complex real-world tasks require specialized domain roles, multi-turn reasoning 
 ### Installation
 Install AutoGen / AG2 via pip:
 ```bash
-pip install pyautogen fastmcp pydantic
+pip install pyautogen fastmcp pydantic uvicorn
 ```
 
 ### Configuration
@@ -122,7 +155,7 @@ AutoGen agents can seamlessly bind to **FastMCP 3.1** servers to invoke external
 
 ```python
 import os
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator
 
@@ -140,6 +173,10 @@ class CodeExecutionRequest(BaseModel):
             raise ValueError("Dangerous execution command blocked by safety policy.")
         return v
 
+class AgentTaskRoutingRequest(BaseModel):
+    task_description: str = Field(..., min_length=10)
+    required_capabilities: List[str] = Field(default_factory=list)
+
 @mcp.tool()
 def execute_sandboxed_code(req: CodeExecutionRequest) -> dict:
     """FastMCP 3.1 tool endpoint for sandboxed agent code execution."""
@@ -149,6 +186,15 @@ def execute_sandboxed_code(req: CodeExecutionRequest) -> dict:
         "exit_code": 0,
         "stdout": "Execution completed successfully.\nResult: [2, 3, 5, 7, 11]",
         "execution_time_sec": 0.42
+    }
+
+@mcp.tool()
+def route_agent_subtask(req: AgentTaskRoutingRequest) -> Dict[str, Any]:
+    """FastMCP 3.1 tool endpoint for routing subtasks to specialized AutoGen agents."""
+    return {
+        "assigned_agent": "Security_Critic_Agent",
+        "priority": "HIGH",
+        "routing_status": "DISPATCHED"
     }
 
 if __name__ == "__main__":
@@ -214,6 +260,76 @@ if __name__ == "__main__":
     print("Validated Consensus Output:", res.model_dump_json(indent=2))
 ```
 
+## Production Deployment & Systemd Configuration
+
+To run an AutoGen multi-agent orchestration service with persistent state as a systemd background daemon, create `/etc/systemd/system/autogen-orchestrator.service`:
+
+```ini
+[Unit]
+Description=AutoGen Multi-Agent FastMCP 3.1 Orchestration Service
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=autogen
+Group=autogen
+WorkingDirectory=/opt/autogen-service
+Environment=PYTHONUNBUFFERED=1
+Environment=AUTOGEN_ENV=production
+Environment=OPENAI_API_KEY=sk-prod-key-here
+ExecStart=/opt/autogen-service/venv/bin/python main.py
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+# Hardening measures
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Docker Compose Deployment Strategy
+
+Deploy AutoGen alongside Redis checkpoint store and FastMCP 3.1 proxy server:
+
+```yaml
+version: '3.8'
+
+services:
+  autogen-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autogen-orchestrator
+    restart: always
+    environment:
+      - REDIS_URL=redis://redis-store:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - redis-store
+    volumes:
+      - ./workspace:/app/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  redis-store:
+    image: redis:7-alpine
+    container_name: autogen-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+```
+
 ## Multi-Agent Framework Benchmark Comparison
 
 | Feature / Dimension | AutoGen (AG2) | LangGraph | CrewAI | Smolagents |
@@ -227,32 +343,13 @@ if __name__ == "__main__":
 
 ## Operational & Troubleshooting Guide
 
-### 1. Infinite Conversational Loops Between Agents
-- **Symptom**: Coder and Critic agents continuously send repetitive correction messages without reaching completion.
-- **Cause**: Missing explicit termination condition phrase or unconstrained `max_rounds`.
-- **Resolution**:
-  1. Always define `is_termination_msg` callback in agent config checking for `TERMINATE`.
-  2. Cap `max_rounds` in `GroupChat` definition (e.g., `max_round=15`).
-
-### 2. Context Window Overflow in GroupChats
-- **Symptom**: Agents throw `InvalidRequestError: context length exceeded` after 8-10 turns.
-- **Cause**: Multi-agent message history accumulates all turns across all agents.
-- **Resolution**: Enable message transform filters or summary compression:
-  ```python
-  from autogen.agentchat.contrib.capabilities import transforms
-
-  context_handling = transforms.LimitChatMessageCount(max_messages=10)
-  coder.register_capability(context_handling)
-  ```
-
-### 3. Docker Socket Permission Error
-- **Symptom**: UserProxyAgent fails with `docker.errors.DockerException: Error while fetching server API version`.
-- **Cause**: Current user lacks read/write access to `/var/run/docker.sock`.
-- **Resolution**:
-  Add user to docker group or pass `use_docker=False` during local development testing:
-  ```bash
-  sudo usermod -aG docker $USER
-  ```
+| Symptom / Error | Probable Root Cause | Resolution Command or Remediation |
+| :--- | :--- | :--- |
+| Infinite conversational loops between agents | Missing explicit termination condition phrase or unconstrained `max_rounds`. | Define `is_termination_msg` callback in agent config and cap `max_round=15` in `GroupChat`. |
+| Context window overflow in GroupChats (`context length exceeded`) | Multi-agent message history accumulated all turns across all agents. | Enable message transform capabilities via `transforms.LimitChatMessageCount(max_messages=10)`. |
+| Docker Socket Permission Error (`DockerException`) | User lacks read/write access to `/var/run/docker.sock`. | Add service user to docker group (`sudo usermod -aG docker $USER`) or pass `use_docker=False` during local dev. |
+| Non-deterministic agent speaker selection | Default `auto` speaker selection picking incorrect specialized agent. | Set explicit transition matrix: `GroupChat(..., speaker_selection_method="round_robin")` or use FSM graphs. |
+| Unhandled tool output serialization crash | Custom tool return object is not JSON-serializable. | Wrap tool outputs in Pydantic v2 `BaseModel` or return standard `dict` payloads. |
 
 ## Related tools / concepts
 - [CrewAI](crewai.md) — Role-based multi-agent framework.

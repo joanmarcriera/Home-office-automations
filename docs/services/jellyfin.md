@@ -129,6 +129,41 @@ docker logs --tail 100 -f jellyfin
 docker exec -it jellyfin /jellyfin/jellyfin-scanner -scan
 ```
 
+## Production Systemd Service Unit
+
+For bare-metal or virtual machine Linux deployments without Docker containers, create `/etc/systemd/system/jellyfin.service`:
+
+```ini
+[Unit]
+Description=Jellyfin Media Server Daemon
+After=network-online.target mount.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jellyfin
+Group=jellyfin
+WorkingDirectory=/usr/lib/jellyfin
+ExecStart=/usr/bin/jellyfin \
+    --datadir /var/lib/jellyfin \
+    --cachedir /var/cache/jellyfin \
+    --configdir /etc/jellyfin \
+    --logdir /var/log/jellyfin
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+# Hardware access & security hardening
+SupplementaryGroups=video render
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### Python: AI-Assisted Metadata Enrichment with Pydantic v2
@@ -179,32 +214,36 @@ def update_jellyfin_item(item_id: str, api_token: str, payload: dict, base_url: 
 # })
 ```
 
-### FastMCP 3.1 Media Search Tool (Python)
-Exposing Jellyfin media discovery as an agentic tool using FastMCP 3.1:
+### FastMCP 3.1 Media Server Tool Suite (Python)
+Exposing Jellyfin media discovery and playback control as agentic tools using FastMCP 3.1:
 
 ```python
 import os
 import httpx
+from typing import Dict, Any, List, Optional
 from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
 mcp = FastMCP("Jellyfin-Media-Server", version="3.1.0")
 
 JELLYFIN_URL = os.getenv("JELLYFIN_URL", "http://localhost:8096")
 JELLYFIN_TOKEN = os.getenv("JELLYFIN_TOKEN", "your_jellyfin_api_token")
 
-@mcp.tool()
-async def search_jellyfin_library(search_term: str) -> str:
-    """Searches for movies, TV shows, and media items in Jellyfin.
+class MediaItemQuery(BaseModel):
+    search_term: str = Field(..., min_length=2, description="Media title or keyword")
+    include_genres: bool = Field(True, description="Retrieve assigned genre tags")
+    limit: int = Field(5, ge=1, le=20)
 
-    Args:
-        search_term: Title or keyword to search for in the media library.
-    """
+@mcp.tool()
+async def search_jellyfin_library(query: MediaItemQuery) -> str:
+    """Searches for movies, TV shows, and media items in Jellyfin library."""
     url = f"{JELLYFIN_URL}/Items"
     headers = {"X-Emby-Token": JELLYFIN_TOKEN}
     params = {
-        "searchTerm": search_term,
-        "Limit": 5,
-        "Recursive": "true"
+        "searchTerm": query.search_term,
+        "Limit": query.limit,
+        "Recursive": "true",
+        "Fields": "Overview,Genres,ProductionYear" if query.include_genres else "Overview"
     }
 
     async with httpx.AsyncClient() as client:
@@ -214,18 +253,33 @@ async def search_jellyfin_library(search_term: str) -> str:
             items = res.json().get("Items", [])
 
             if not items:
-                return f"No media items found matching '{search_term}'."
+                return f"No media items found matching '{query.search_term}'."
 
             formatted = []
             for item in items:
                 name = item.get("Name", "Unknown")
                 item_type = item.get("Type", "Unknown")
                 year = item.get("ProductionYear", "N/A")
-                formatted.append(f"- {name} ({year}) [{item_type}] - ID: {item.get('Id')}")
+                genres = ", ".join(item.get("Genres", []))
+                formatted.append(f"- {name} ({year}) [{item_type}] (Genres: {genres}) - ID: {item.get('Id')}")
 
             return "\n".join(formatted)
         except Exception as e:
             return f"Jellyfin search error: {str(e)}"
+
+@mcp.tool()
+async def trigger_jellyfin_library_scan() -> Dict[str, Any]:
+    """Triggers an asynchronous media library refresh scan across all Jellyfin mounts."""
+    url = f"{JELLYFIN_URL}/Library/Refresh"
+    headers = {"X-Emby-Token": JELLYFIN_TOKEN}
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(url, headers=headers, timeout=5.0)
+            res.raise_for_status()
+            return {"status": "SUCCESS", "message": "Jellyfin library refresh scan initiated."}
+        except Exception as e:
+            return {"status": "FAILED", "error": str(e)}
 
 if __name__ == "__main__":
     mcp.run()
@@ -236,6 +290,16 @@ if __name__ == "__main__":
 1. **QuickSync GPU Permissions**: Ensure the host user running the Jellyfin container belongs to the `video` and `render` groups (typically GID 44 or 109 on Linux systems) to avoid permission denied errors when accessing `/dev/dri/renderD128`.
 2. **Cache Directory Offloading**: Allocate high-speed NVMe storage for Jellyfin's `/cache` directory to prevent micro-stutters during dynamic trickplay thumbnail generation and active transcoding chunks.
 3. **Automated Library Scanning Rate Limits**: Configure webhooks from intake tools (e.g., qBittorrent or Sonarr/Radarr) rather than setting periodic automated library scans every 15 minutes, preserving CPU/IOPS for playback.
+
+## Troubleshooting & Diagnostic Matrix
+
+| Symptom / Issue | Probable Root Cause | Resolution Strategy |
+| :--- | :--- | :--- |
+| Transcoding fails immediately (`Playback Error`) | Lacking read/write permissions on `/dev/dri/renderD128` or missing GPU drivers inside container. | Verify host group ownership (`ls -la /dev/dri`) and append `group_add: ["44", "109"]` in `docker-compose.yml`. |
+| High CPU usage (>90%) during 4K streaming | Hardware acceleration disabled; falling back to software CPU encoding. | Navigate to **Dashboard > Playback > Transcoding** and select Intel QuickSync (QSV) or NVENC explicitly. |
+| Subtitles out of sync or rendering as plain text | Client player does not support native ASS/SSA subtitle rendering, forcing full video burn-in. | Enable **Extract Subtitles** in Client Playback settings or convert ASS subtitles to SRT using automated scripts. |
+| Remote clients cannot connect (`Connection Timed Out`) | Missing port forwarding or reverse proxy header configuration. | Ensure reverse proxy passes `Host`, `X-Real-IP`, and `X-Forwarded-For` HTTP headers and WebSocket upgrades (`Upgrade: $http_upgrade`). |
+| Library scan misses newly added media files | Incorrect directory permission masks (`umask`) set by download client. | Set directory permissions to `755` and file permissions to `644` in downstream download tools (qBittorrent/Sabnzbd). |
 
 ## Related tools / concepts
 - [Plex](plex.md) — Proprietary media server alternative.
