@@ -120,6 +120,55 @@ Obtain an architectural summary of the codebase:
 cody explain --high-level
 ```
 
+## Production Deployment & System Infrastructure
+
+### Docker Setup for FastMCP Cody Bridge
+```yaml
+version: '3.8'
+services:
+  cody-mcp-bridge:
+    image: sourcegraph/cody-mcp-bridge:latest
+    container_name: cody-mcp-bridge
+    ports:
+      - "3180:3180"
+    environment:
+      SRC_ENDPOINT: "https://sourcegraph.company.com"
+      SRC_ACCESS_TOKEN: "sgp_39b362198fa064_example"
+      MCP_PORT: "3180"
+    restart: unless-stopped
+```
+
+### Systemd Service Unit (`cody-mcp-bridge.service`)
+For enterprise Linux developer servers or CI/CD runners providing continuous Cody context bridges to multi-agent pipelines:
+
+```ini
+[Unit]
+Description=Sourcegraph Cody FastMCP 3.1 Context Bridge Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=cody
+Group=cody
+WorkingDirectory=/opt/cody-mcp
+ExecStart=/usr/bin/node /opt/cody-mcp/bin/cody-mcp-server.js --port 3180
+Restart=always
+RestartSec=5s
+Environment="SRC_ENDPOINT=https://sourcegraph.company.com"
+Environment="SRC_ACCESS_TOKEN=sgp_39b362198fa064_example"
+Environment="NODE_ENV=production"
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### FastMCP 3.1 Context Provider Server Pattern
@@ -128,7 +177,7 @@ The python example below exposes Cody's code graph query capability as a FastMCP
 ```python
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import requests
 
 mcp = FastMCP("sourcegraph-cody-mcp")
@@ -151,7 +200,6 @@ class CodeGraphQueryOutput(BaseModel):
 @mcp.tool()
 def search_code_graph(input_data: CodeGraphQueryInput) -> CodeGraphQueryOutput:
     """Queries Sourcegraph Cody's global code graph and returns SCIP/vector-matched code snippets."""
-    # Simulated connection to Sourcegraph Enterprise REST/GraphQL endpoint
     headers = {"Authorization": "Bearer sgp_39b362198fa064_example"}
     payload = {
         "query": input_data.query,
@@ -159,7 +207,6 @@ def search_code_graph(input_data: CodeGraphQueryInput) -> CodeGraphQueryOutput:
         "repo": input_data.repository_filter
     }
 
-    # Example snippet payload returned from Sourcegraph API
     snippets = [
         CodeSnippet(
             repository="github.com/enterprise/core-services",
@@ -240,6 +287,17 @@ Hook Cody's indexing engine up to other agentic platforms like OpenHands or Clau
   }
 }
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized: Invalid Access Token` | Invalid, expired, or revoked Sourcegraph personal access token. | Generate a new token in Sourcegraph web UI under User Settings -> Access Tokens and update `SRC_ACCESS_TOKEN`. |
+| `Empty Context / 0 Chunks Returned` | Repository embeddings not generated or SCIP index missing for target branch. | Run `cody index create` or check Sourcegraph admin panel to verify repo indexing status and LSIF graph build logs. |
+| `FastMCP 3.1 Bridge Connection Timeout` | Firewall or CORS restriction blocking port 3180 on context server. | Verify local port binding with `netstat -tuln \| grep 3180` and ensure host firewall permits inbound agent traffic. |
+| `High Latency during Cross-Repo Search` | Unbounded search query scanning across >1,000 repositories without filters. | Add `repo:` or `lang:` filter parameters in `CodeGraphQueryInput` to restrict candidate search scope. |
+| `Rate Limit Exceeded (429)` | Too many concurrent automated agent queries flooding Cody API. | Increase rate limits in Sourcegraph Enterprise admin panel or add request throttling/queueing in agent framework. |
+| `Syntax Context Mismatch` | Outdated local code index relative to remote Git HEAD. | Trigger index re-sync via `cody index update` or enable automated webhooks on Git push events. |
 
 ## Related tools / concepts
 - [Codeium](./codeium.md) — High-performance AI coding platform.

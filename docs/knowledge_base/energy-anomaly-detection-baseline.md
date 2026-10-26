@@ -93,6 +93,56 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 3. **Automation Trigger**: Create an n8n workflow that triggers when `current_power > baseline + (2 * std_dev)`.
 4. **Agent Handoff**: Pass the current power state, time of day, and recent appliance states to a Home Admin Agent for final classification.
 
+## Production Deployment & System Infrastructure
+
+### Docker Setup for Energy Anomaly Engine
+```yaml
+version: '3.8'
+services:
+  energy-anomaly-detector:
+    image: homelab/energy-anomaly-detector:latest
+    container_name: energy-anomaly-detector
+    ports:
+      - "8085:8085"
+    environment:
+      HA_URL: "http://home-assistant.local:8123"
+      HA_TOKEN: "eyJhbGciOi..."
+      MQTT_BROKER: "mqtt://mosquitto.local:1883"
+      MCP_PORT: "8085"
+    restart: unless-stopped
+```
+
+### Systemd Service Unit (`energy-anomaly-detector.service`)
+For Linux homelab hosts running continuous energy telemetry monitoring and FastMCP 3.1 event handling:
+
+```ini
+[Unit]
+Description=Home Energy Anomaly Detection Baseline Service
+After=network.target mosquitto.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=energy-monitor
+Group=energy-monitor
+WorkingDirectory=/opt/energy-anomaly-detector
+ExecStart=/usr/bin/python3 /opt/energy-anomaly-detector/main.py --port 8085
+Restart=always
+RestartSec=5s
+Environment="HA_URL=http://home-assistant.local:8123"
+Environment="PYTHONUNBUFFERED=1"
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## FastMCP 3.1 Task Protocol Integration
 
 In early 2027, FastMCP 3.1 provides native Task Protocol tooling to handle real-time sensor streams and execute agentic remediation tools:
@@ -253,14 +303,25 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
      https://home-assistant.local/api/states/input_number.anomaly_threshold
 ```
 
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Persistent False Positive Alerts` | Standard deviation window ($\sigma$) too narrow or threshold multiplier too low. | Increase sensitivity multiplier to $2.5\sigma$ or $3.0\sigma$ in `AnomalyBaselineConfig` or lengthen moving window to 7 days. |
+| `Missing Real-time Sensor Triggers` | MQTT broker disconnect or Home Assistant websocket polling timeout. | Restart Mosquitto broker, inspect HA sensor status via `ha sensor info`, and ensure QoS 1 delivery on MQTT topics. |
+| `High Latency in Agentic Remediations` | External LLM API rate limit or slow local VLM inference execution. | Route critical automated isolation rules to local deterministic code and delegate non-time-sensitive classification to agent. |
+| `Pydantic Validation Error on Reading` | Sensor payload missing `current_power_w` float or invalid timestamp formatting. | Validate incoming JSON stream using `EnergySensorReading.model_validate_json` and add field alias mappings for vendor payloads. |
+| `Home Assistant Circuit Control Refused` | Home Assistant Long-Lived Access Token expired or missing switch domain write permissions. | Re-issue HA token with admin write scope and test HTTP POST endpoint using `curl`. |
+| `Database Storage Exhaustion` | High frequency telemetry sampling (1Hz) overloading local SQLite/PostgreSQL log tables. | Configure Home Assistant recorder purge rules (`purge_keep_days: 7`) and stream long-term metrics to Prometheus/TimescaleDB. |
+
 ## Related tools / concepts
 - [Home Assistant](../services/home-assistant.md) — The primary source of energy telemetry and local automation.
 - [n8n](../services/n8n.md) — Orchestrates the anomaly detection and AI classification workflow.
 - [Ollama](../services/ollama.md) — Enables local, private inference for energy pattern analysis.
 - [Habitica](../services/habitica.md) — Automatically create "Investigate Anomaly" tasks for the user.
 - [Paperless-ngx](../services/paperless-ngx.md) — Stores appliance manuals for RAG-based failure diagnosis.
-- [Home Admin Agent Architecture](../knowledge_base/home-admin-agent-architecture.md) — The reasoning framework behind the baseline.
-- [Self-Healing Agentic Loops](../knowledge_base/patterns/agentic-workflows.md) — For autonomous remediation of detected energy issues.
+- [Home Admin Agent Architecture](./home-admin-agent-architecture.md) — The reasoning framework behind the baseline.
+- [Self-Healing Agentic Loops](./patterns/agentic-workflows.md) — For autonomous remediation of detected energy issues.
 - [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — For persistent logging of long-term energy data.
 
 ## Sources / references

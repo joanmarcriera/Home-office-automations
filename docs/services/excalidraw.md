@@ -184,7 +184,7 @@ if __name__ == "__main__":
 ## Getting started
 
 ### Self-Hosting via Docker Compose
-To host an isolated Excalidraw instance locally:
+To host an isolated Excalidraw web instance locally:
 
 ```yaml
 version: "3.8"
@@ -203,6 +203,38 @@ docker compose up -d
 ```
 
 Access the UI at `http://localhost:3000`.
+
+## Production Deployment & System Infrastructure
+
+### Systemd Service Unit (`excalidraw-export.service`)
+For Linux hosts running headlessly to export Excalidraw JSON scenes into PNG/SVG image artifacts via automated CLI pipeline:
+
+```ini
+[Unit]
+Description=Excalidraw Automated SVG/PNG Export Service
+After=network.target
+
+[Service]
+Type=simple
+User=excalidraw
+Group=excalidraw
+WorkingDirectory=/opt/excalidraw-exporter
+ExecStart=/usr/bin/node /opt/excalidraw-exporter/server.js --port 3080
+Restart=always
+RestartSec=5s
+Environment="NODE_ENV=production"
+Environment="PORT=3080"
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## CLI examples
 
@@ -259,6 +291,17 @@ def audit_excalidraw_file(file_path: str) -> None:
     except FileNotFoundError:
         print("Diagram file not found on disk.")
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `Canvas Load Failure / Blank White Screen` | Corrupted JSON structure or unsupported element schema version. | Run `audit_excalidraw_file()` Pydantic validator script to locate invalid fields or missing `version` keys. |
+| `Browser DOM Performance Degradation` | Scene contains excessive individual elements (>5,000 objects). | Group related shapes, flatten static sub-diagrams into PNG images, or split canvas into multiple separate `.excalidraw` files. |
+| `WebSocket Real-Time Sync Failure` | E2EE collaboration room relay server disconnected or blocked by reverse proxy. | Ensure reverse proxy (Caddy/Nginx) supports WebSocket upgrading (`Upgrade $http_upgrade; Connection "upgrade";`). |
+| `FastMCP Tool Generation Overlap` | AI agent generating shapes at identical `x/y` coordinates without offset. | Implement auto-incrementing coordinate offsets (e.g. `x += width + 40`) in FastMCP layout builder tools. |
+| `Export Server SVG Render Error` | Missing system canvas fonts (e.g., Virgil hand-drawn font) in headless Docker container. | Install `fonts-freefont-ttf` or `ttf-mscorefonts-installer` packages in headless rendering environment. |
+| `Obsidian Plugin Sync Conflict` | Concurrent edits between desktop Obsidian app and web browser session. | Enable auto-merge in Obsidian Excalidraw plugin settings and rely on Git versioning for scene backups. |
 
 ## Related tools / concepts
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent visual canvas integration via community plugin.
