@@ -90,19 +90,28 @@ Managing multiple autonomous agent systems (Aider, Claude Code, Roo Code, OpenHa
 
 ## Getting started
 
-### Deployment (Docker Compose)
+### Installation
+Install the LiteLLM Python package:
+```bash
+pip install litellm
+```
+
+### Hello-World Example
+Call any model provider with a single unified interface:
+```python
+from litellm import completion
+
+response = completion(
+    model="gpt-5.5-turbo",
+    messages=[{"role": "user", "content": "Hello LiteLLM!"}]
+)
+print(response.choices[0].message.content)
+```
+
+### Docker Proxy Deployment
 ```yaml
 version: '3.8'
 services:
-  litellm-db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: litellm
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secretpassword
-    ports:
-      - "5432:5432"
-
   litellm-proxy:
     image: ghcr.io/berriai/litellm:main-latest
     ports:
@@ -110,46 +119,28 @@ services:
     volumes:
       - ./litellm-config.yaml:/app/config.yaml
     environment:
-      DATABASE_URL: "postgresql://postgres:secretpassword@litellm-db:5432/litellm"
       LITELLM_MASTER_KEY: "sk-master-key-2027"
-    command: ["--config", "/app/config.yaml", "--detailed_debug"]
-```
-
-### Core Configuration (`litellm-config.yaml`)
-```yaml
-model_list:
-  - model_name: gemma-3
-    litellm_params:
-      model: ollama/gemma-3
-      api_base: http://local-gpu:11434
-  - model_name: claude-5-1
-    litellm_params:
-      model: anthropic/claude-5-1-sonnet
-      api_key: os.environ/ANTHROPIC_API_KEY
-  - model_name: gpt-5-5
-    litellm_params:
-      model: openai/gpt-5.5-turbo
-      api_key: os.environ/OPENAI_API_KEY
-
-router_settings:
-  routing_strategy: least-busy
-  fallback_model: gemma-3
-  allowed_fails: 3
-  cooldown_time: 30
+    command: ["--config", "/app/config.yaml"]
 ```
 
 ## CLI examples
-LiteLLM can be inspected and managed via its CLI interface:
 
+### 1. Start Direct Local Proxy
+Spin up an OpenAI-compatible proxy pointing to a model:
 ```bash
-# Start a direct proxy with local Ollama Gemma 3 backend
 litellm --model ollama/gemma-3 --port 4000
+```
 
-# Execute database schema migrations
-litellm --migrate
-
-# Run system health diagnostics and model check
+### 2. Run System Health Diagnostic
+Validate gateway connectivity and model endpoint availability:
+```bash
 litellm --health
+```
+
+### 3. Execute Database Migrations
+Run PostgreSQL database schema migrations for LiteLLM key and budget tracking:
+```bash
+litellm --migrate
 ```
 
 ## API examples

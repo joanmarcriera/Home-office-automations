@@ -71,30 +71,59 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 - When local-only data privacy is a strict requirement (consider [Obsidian](./obsidian.md) or [AnyType](../intake_storage/anytype.md)).
 
 ## Getting started
-Users can trigger AI features directly in the Notion UI:
-1. Press `Space` on a new line to start writing with AI.
-2. Highlight text and select **Ask AI** to edit, summarize, or translate.
-3. Use **Notion Q&A** (the sparkle icon in the sidebar) to ask questions across your entire workspace.
-4. **Agent Templates**: Use the Notion Template Gallery to deploy pre-built AI agents for common workflows.
-5. **MCP Integration**: Enable the FastMCP 3.1 connector in Settings > Integrations to allow external agents to interact with your workspace.
+
+> [!NOTE]
+> Notion AI is built directly into the Notion desktop, web, and mobile clients. No standalone package installation is required for general UI usage.
+
+### Installation / Integration Setup
+To interact with Notion AI and workspace data programmatically, install the official Notion SDK or cURL helper:
+```bash
+npm install @notionhq/client
+```
+
+### Hello-World Example
+Query a Notion page or workspace database using the official JavaScript/Node SDK:
+```javascript
+import { Client } from "@notionhq/client";
+
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+async function main() {
+  const response = await notion.search({ query: "Hello Notion AI" });
+  console.log("Workspace Search Results:", response.results.length);
+}
+
+main();
+```
 
 ## CLI examples
 > [!NOTE]
-> As of 2027, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API. However, developers often use the [Claude Code](../development_ops/claude-code.md) CLI with a FastMCP 3.1 connector to interact with Notion data.
+> Notion does not maintain an official standalone CLI for Notion AI features. API interactions are conducted via HTTP cURL commands or client SDKs.
 
+### 1. Search Workspace via REST API
+Query Notion pages and databases using cURL:
 ```bash
-# Query Notion pages via cURL using official REST API
 curl -s -X POST "https://api.notion.com/v1/search" \
   -H "Authorization: Bearer ${NOTION_API_KEY}" \
   -H "Notion-Version: 2022-06-28" \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "FastMCP 3.1 Architecture",
-    "sort": {
-      "direction": "descending",
-      "timestamp": "last_edited_time"
-    }
-  }' | jq '.results[] | {id: .id, title: .properties.Name.title[0].text.content}'
+  -d '{"query": "Architecture", "page_size": 5}'
+```
+
+### 2. Fetch User Profile Context
+Retrieve current user account details and API integration identity:
+```bash
+curl -s "https://api.notion.com/v1/users/me" \
+  -H "Authorization: Bearer ${NOTION_API_KEY}" \
+  -H "Notion-Version: 2022-06-28"
+```
+
+### 3. List Accessible Workspace Users
+Retrieve members and bot integration permissions across the active workspace:
+```bash
+curl -s "https://api.notion.com/v1/users" \
+  -H "Authorization: Bearer ${NOTION_API_KEY}" \
+  -H "Notion-Version: 2022-06-28"
 ```
 
 ## API examples

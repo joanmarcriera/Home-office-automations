@@ -76,31 +76,32 @@ Mistral provides a high-performance, efficient alternative to American providers
 - For edge deployment on memory-constrained mobile hardware (use Gemma 3 or Llama 4 3B instead).
 
 ## Getting started
-To start using Mistral, install the official Python SDK:
 
+### Installation
+Install the official Mistral AI Python SDK:
 ```bash
 pip install mistralai
 ```
 
-Then, run a basic completion using the updated 2027 SDK:
-
+### Hello-World Example
+Generate your first chat completion with the Mistral SDK:
 ```python
-from mistralai import Mistral
 import os
+from mistralai import Mistral
 
-client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
+client = Mistral(api_key=os.environ.get("MISTRAL_API_KEY", "your_api_key"))
 
 response = client.chat.complete(
     model="mistral-large-latest",
-    messages=[{"role": "user", "content": "Hello Mistral in 2027!"}]
+    messages=[{"role": "user", "content": "Hello Mistral!"}]
 )
 print(response.choices[0].message.content)
 ```
 
 ## CLI examples
-Interactions with Mistral's API can be executed via `curl` for testing, continuous integration, and lightweight bash scripting.
 
 ### 1. Basic Chat Completion
+Send a prompt to the Mistral API via cURL:
 ```bash
 curl https://api.mistral.ai/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -111,13 +112,15 @@ curl https://api.mistral.ai/v1/chat/completions \
   }'
 ```
 
-### 2. Retrieve Available Models
+### 2. List Available Models
+Retrieve all available models from the Mistral API catalog:
 ```bash
 curl https://api.mistral.ai/v1/models \
   -H "Authorization: Bearer $MISTRAL_API_KEY"
 ```
 
-### 3. Embeddings Generation for RAG
+### 3. Generate Vector Embeddings
+Compute embeddings for text retrieval:
 ```bash
 curl https://api.mistral.ai/v1/embeddings \
   -H "Content-Type: application/json" \
