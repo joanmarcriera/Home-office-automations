@@ -252,6 +252,47 @@ if __name__ == "__main__":
         mcp.run(port=8080)
 ```
 
+## Production Operational Best Practices
+- **Token Budget Management**: Set strict limits on `dom_token_count` to avoid overwhelming agent context windows when passing raw web page snapshots.
+- **Extension Health Supervision**: Use the `/mcp/v1/health` endpoint to monitor active WebSocket and SSE connections between HoloTab browser side panels and local agent hosts.
+- **Data Isolation**: Configure domain exclusion rules inside HoloTab options to automatically suspend DOM indexing on sensitive internal domains (e.g., password managers, internal banking portals).
+
+## Production Systemd Service Unit (`holotab-gateway.service`)
+
+For continuous enterprise deployments hosting local FastMCP 3.1 gateway backends for HoloTab browser extensions:
+
+```ini
+[Unit]
+Description=HoloTab FastMCP 3.1 Gateway Service
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=holotab
+Group=holotab
+WorkingDirectory=/opt/holotab-gateway
+ExecStart=/opt/holotab-gateway/venv/bin/python3 -m services.holotab_gateway --serve --port 8080
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=FASTMCP_PORT=8080
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Error Symptom | Root Cause Analysis | Remediation Procedure |
+| :--- | :--- | :--- |
+| **WebSocket Connection Closed (1006)** | Local FastMCP 3.1 gateway process crashed or port 8080 is blocked by local firewall. | Verify gateway status via `systemctl status holotab-gateway` and ensure port 8080 loopback access is permitted. |
+| **`Telemetry Validation Failed`** | Browser extension payload missing required fields due to extension version drift. | Upgrade HoloTab Chrome Extension to v1.4.0+ and verify Pydantic schema version matching. |
+| **High Latency (>1500ms) on DOM Sync** | Active web tab contains massive unminified DOM trees exceeding context boundaries. | Enable DOM truncation mode (`max_text_bytes: 4096`) in HoloTab side panel settings. |
+| **`CORS Preflight Rejected`** | Chrome extension origin `chrome-extension://...` not whitelisted in FastMCP server headers. | Add `Access-Control-Allow-Origin: chrome-extension://*` header to FastMCP gateway config. |
+
 ## Related tools / concepts
 - [Browser Use](../automation_orchestration/browser-use.md) — Headless web automation framework.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Universal agent context standard.

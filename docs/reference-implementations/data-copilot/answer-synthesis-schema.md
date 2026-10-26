@@ -154,6 +154,34 @@ except ValidationError as err:
     print("Validation failure during answer synthesis:", err.json())
 ```
 
+## Systemd Service Unit Configuration (`data-copilot-synthesis.service`)
+
+Run the Data Copilot answer synthesis gateway service under systemd supervision:
+
+```ini
+[Unit]
+Description=Data Copilot Answer Synthesis Gateway Service (FastMCP 3.1)
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=copilot
+Group=copilot
+WorkingDirectory=/opt/data-copilot
+ExecStart=/opt/data-copilot/venv/bin/python3 -m services.synthesis_gateway --port 8100
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=SYNTHESIS_CONFIDENCE_THRESHOLD=0.50
+Environment=FASTMCP_PORT=8100
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## CLI examples
 
 ```bash
@@ -214,6 +242,32 @@ def load_legacy_synthesis_payload(raw_data: dict) -> SynthesisResponse:
     if "needs_human_review" not in raw_data:
         raw_data["needs_human_review"] = raw_data.get("confidence_score", 1.0) < 0.50
     return SynthesisResponse.model_validate(raw_data)
+```
+
+### Automated Retry and Fallback Orchestration
+When an LLM fails to output valid JSON matching the `SynthesisResponse` Pydantic v2 schema, the synthesis gateway automatically re-invokes the model with the validation error feedback payload before routing to human-in-the-loop review.
+
+```python
+async def execute_synthesis_with_retry(prompt: str, context: dict, max_retries: int = 2) -> SynthesisResponse:
+    attempts = 0
+    feedback = ""
+    while attempts <= max_retries:
+        raw_output = await call_llm_synthesis_api(prompt, context, error_feedback=feedback)
+        try:
+            return SynthesisResponse.model_validate_json(raw_output)
+        except ValidationError as ve:
+            attempts += 1
+            feedback = f"Your previous output failed Pydantic validation: {ve.errors()}. Correct the JSON structure."
+
+    # Fallback response for unresolvable validation errors
+    return SynthesisResponse(
+        answer_summary="Synthesis validation failed after retries.",
+        key_metrics=[],
+        explanation="The model failed to produce structured JSON matching schema specification.",
+        sources=[],
+        confidence_score=0.10,
+        needs_human_review=True
+    )
 ```
 
 ## Troubleshooting & Common Issues

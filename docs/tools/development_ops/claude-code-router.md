@@ -274,6 +274,50 @@ if __name__ == "__main__":
 - **Failover Chain Configuration**: Always define a fallback policy in `rules.yaml` that includes at least one local or cloud fallback model (e.g., `anthropic/claude-5-1` -> `deepseek/deepseek-chat` -> `ollama/qwen3.8-coder`).
 - **Telemetry & Monitoring**: Enable JSON-formatted logging in CCR (`CCR_LOG_FORMAT=json`) and stream stdout to standard log collectors (Datadog, Grafana Loki) to monitor token consumption rates and latency per model route.
 
+## Production Systemd Service Configuration
+
+For production deployments, execute the Claude Code Router daemon as a supervised `systemd` user service unit to maintain uninterrupted local loopback listening on port 3456 with automatic failover recovery.
+
+```ini
+# ~/.config/systemd/user/claude-code-router.service
+[Unit]
+Description=Claude Code Router Proxy Daemon (Port 3456)
+Documentation=https://github.com/musistudio/claude-code-router
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ccr start --daemon --port 3456 --config %h/.config/ccr/rules.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=CCR_LOG_FORMAT=json
+Environment=CCR_DAEMON_URL=http://127.0.0.1:3456
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target
+```
+
+Enable and start the service with standard systemd controls:
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now claude-code-router.service
+systemctl --user status claude-code-router.service
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **HTTP 502 Bad Gateway** | Upstream target model endpoint is unreachable or returning invalid credentials. | `ccr health --verbose` | Verify provider API key in `~/.config/ccr/config.json` and check external endpoint status. |
+| **Tool Argument Schema Mismatch** | Target LLM model format differs from standard Anthropic tool call schema. | `ccr logs --tail 50` | Enable API Transformer middleware in `rules.yaml` (`transformers: ["tooluse"]`). |
+| **Port 3456 Conflict** | Local daemon port is blocked by another existing CCR daemon or loopback process. | `lsof -i :3456` | Terminate stale daemon process via `kill $(lsof -t -i:3456)` or rebind CCR to alternate port via `CCR_PORT=3457`. |
+| **Streaming Response Truncation** | Buffer overflow occurred during high-frequency token streaming from local Ollama endpoint. | `curl -i http://localhost:3456/v1/chat/completions` | Upgrade CCR to v1.8+ and set `stream_buffer_size: 65536` in global configuration. |
+| **Rule Matching Failure** | Query regex pattern failed to trigger intended model route override. | `ccr eval-rule --query "refactor module"` | Adjust regex syntax in `rules.yaml` to ensure non-greedy case-insensitive matching (`/refactor/i`). |
+
 ## Sources / references
 - [Official GitHub](https://github.com/musistudio/claude-code-router)
 - [Project Motivation Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/project-motivation-and-how-it-works.md)

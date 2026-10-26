@@ -250,6 +250,55 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
+## Production Operational Best Practices
+- **Strict Token Limits**: Always set `max_total_tokens` inside interaction configurations to prevent unexpected costs from infinite loop execution.
+- **Hook Verification**: Thoroughly unit-test custom `.agents/hooks.json` pre/post execution scripts to prevent unexpected tool blocking or sandbox execution hangs.
+- **Protocol Standardization**: Ensure all exposed internal services implement FastMCP 3.1 endpoints to guarantee seamless portability across Claude 5.6, GPT-5.6, and Gemini control planes.
+
+## Production Systemd Service Configuration
+
+Deploy the Gemini Managed Agent gateway orchestrator as a background `systemd` user service unit to maintain high availability and automatic restart capabilities.
+
+```ini
+# ~/.config/systemd/user/gemini-managed-agent.service
+[Unit]
+Description=Gemini Managed Agent Gateway Daemon (FastMCP 3.1)
+Documentation=https://ai.google.dev/gemini-api/docs
+After=network.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m scripts.gemini_managed_agent_daemon --config %h/.config/gemini/agent_config.json
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=GEMINI_API_KEY_FILE=%h/.config/gemini/api_key
+Environment=FASTMCP_PORT=8080
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target
+```
+
+Reload unit files and enable the background daemon service:
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now gemini-managed-agent.service
+systemctl --user status gemini-managed-agent.service
+```
+
+## Diagnostic Troubleshooting Matrix
+
+| Symptom / Failure Mode | Root Cause Analysis | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Hook Pre-Execution Error** | Pre-tool intercept script exited non-zero or timed out (>5s). | `antigravity-cli hooks verify --config .agents/hooks.json` | Correct script execution permissions (`chmod +x`) or increase `timeout_seconds` in `hooks.json`. |
+| **Token Budget Exceeded** | Interaction reached `max_total_tokens` limit before task completion. | `antigravity-cli session inspect <SESSION_ID> --tokens` | Increase `max_total_tokens` in interaction configuration or break query into multi-step agent passes. |
+| **FastMCP Gateway Timeout** | Remote FastMCP 3.1 tool server failed to respond within RPC timeout window. | `curl -i http://localhost:8080/health` | Check FastMCP server logs and ensure backend tool process is running. |
+| **Sandbox Environment Drift** | Installed Python package dependencies missing in new ephemerally created sandbox. | `antigravity-cli sandbox list-packages` | Add required package installation commands to `pre_tool_execution` initialization hooks. |
+| **API Key Unauthenticated** | Invalid or expired Google Gemini API token supplied to interactions endpoint. | `curl -H "x-goog-api-key: $GEMINI_API_KEY" https://generativelanguage.googleapis.com/v1beta/models` | Regenerate API key in Google AI Studio and update `GEMINI_API_KEY` environment variable. |
+
 ## Related tools / concepts
 - [Gemini](../../tools/ai_knowledge/gemini.md) — Core Google Gemini AI model ecosystem.
 - [Antigravity Agent](../../tools/ai_knowledge/antigravity-agent.md) — Autonomous task agent framework.
