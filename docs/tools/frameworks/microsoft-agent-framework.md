@@ -230,6 +230,89 @@ raw_config = """
 validated_config = load_and_validate_agent(raw_config)
 ```
 
+## Production Deployment & System Infrastructure
+
+### Production Systemd Service Unit (`ms-agent-framework.service`)
+Deploy the Microsoft Agent Framework FastMCP 3.1 orchestrator daemon as a systemd service unit:
+
+```ini
+[Unit]
+Description=Microsoft Agent Framework Gateway Daemon
+After=network.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=msagent
+Group=msagent
+WorkingDirectory=/opt/ms-agent-framework
+Environment="AZURE_AI_FOUNDRY_CONN_STR=Endpoint=https://ai-foundry.azure.com;..."
+Environment="AZURE_TENANT_ID=00000000-0000-0000-0000-000000000000"
+Environment="FASTMCP_PORT=8803"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/ms-agent-framework/venv/bin/python3 agent_gateway_server.py
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ms-agent-framework
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Production Docker Environment Setup (`docker-compose.yml`)
+Containerized Microsoft Agent Framework multi-agent orchestration stack:
+
+```yaml
+version: "3.8"
+
+services:
+  ms-agent-framework-gateway:
+    image: ms-agent-framework-gateway:3.1.0
+    container_name: ms-agent-framework-gateway
+    restart: unless-stopped
+    environment:
+      - AZURE_AI_FOUNDRY_CONN_STR=${AZURE_AI_FOUNDRY_CONN_STR}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - FASTMCP_PORT=8803
+    ports:
+      - "127.0.0.1:8803:8803"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8803/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - azure_agent_net
+
+networks:
+  azure_agent_net:
+    driver: bridge
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **Entra ID Authentication Failure** | Missing Managed Identity or expired OAuth token | `az account show` | Re-authenticate using `az login` or verify DefaultAzureCredential RBAC policies |
+| **Agent Chat State Partition Lost** | Cosmos DB connectivity failure or collection missing | `az cosmosdb check-name-exists --name <db-name>` | Check network security rules and verify Cosmos DB container connection string |
+| **Cross-Agent Handoff Loop Hang** | Missing termination condition in AgentChat configuration | Inspect systemd logs: `journalctl -u ms-agent-framework` | Define max round-trips (`max_turns=10`) or explicit handoff termination strings |
+| **FastMCP 3.1 Plugin Tool Timeout** | Tool execution exceeding gateway HTTP timeout | `curl -i http://localhost:8803/healthz` | Increase plugin timeout limit to 30s or convert long tasks to async background execution |
+
 ## Related tools / concepts
 - [AutoGen](autogen.md) - The experimental multi-agent framework from Microsoft Research.
 - [Semantic Kernel](semantic-kernel.md) - The underlying orchestration SDK.

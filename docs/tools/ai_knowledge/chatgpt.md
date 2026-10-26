@@ -217,6 +217,88 @@ def validate_openai_response(raw_json: str) -> Optional[OpenAICompletionResponse
         return None
 ```
 
+## Production Deployment & System Infrastructure
+
+### Production Systemd Service Unit (`chatgpt-fastmcp-bridge.service`)
+To ensure reliable background hosting for FastMCP 3.1 tools integrated with ChatGPT Desktop for Linux or enterprise web agents:
+
+```ini
+[Unit]
+Description=ChatGPT FastMCP 3.1 System Bridge Daemon
+After=network.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcpbridge
+Group=mcpbridge
+WorkingDirectory=/opt/openai-fastmcp-bridge
+Environment="OPENAI_API_KEY=sk-proj-..."
+Environment="FASTMCP_PORT=8800"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/openai-fastmcp-bridge/venv/bin/python3 -m mcp_server.server
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=chatgpt-fastmcp
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Production Docker Compose Setup (`docker-compose.yml`)
+Deploy a containerized OpenAI FastMCP 3.1 gateway stack with healthchecks and network isolation:
+
+```yaml
+version: "3.8"
+
+services:
+  openai-fastmcp-bridge:
+    image: openai-fastmcp-bridge:3.1.0
+    container_name: openai-fastmcp-bridge
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FASTMCP_PORT=8800
+      - LOG_LEVEL=INFO
+    ports:
+      - "127.0.0.1:8800:8800"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8800/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - mcp_internal
+
+networks:
+  mcp_internal:
+    driver: bridge
+```
+
+## Systematic Troubleshooting Guide
+
+| Issue Symptom | Probable Cause | Diagnostic Command | Remediation Step |
+| :--- | :--- | :--- | :--- |
+| **FastMCP 3.1 Tool Discovery Fails in ChatGPT** | Gateway port mismatch or missing healthz endpoint | `curl -i http://127.0.0.1:8800/healthz` | Verify `FASTMCP_PORT=8800` is exposed on `127.0.0.1` and systemd daemon is active |
+| **`429 Too Many Requests` or Rate Limit** | Tier threshold exceeded or concurrent stream saturation | `openai api chat_completions.create ...` | Implement exponential backoff or request usage limit increase on OpenAI Platform Dashboard |
+| **Invalid JSON Output from GPT-5.5 / GPT-5.6** | System prompt missing explicit schema constraints | `python3 -c "import pydantic..."` | Pass Pydantic v2 `response_format={"type": "json_schema", ...}` in API request payload |
+| **Desktop Hotkeys Unresponsive on Linux** | Wayland display server policy missing desktop shortcuts | `journalctl -u chatgpt-desktop -n 50` | Enable global desktop shortcut permissions in GNOME/KDE settings for ChatGPT Linux package |
+
 ## Related tools / concepts
 - [Claude](claude.md) — Anthropic's flagship reasoning model family.
 - [Gemini](gemini.md) — Google's multimodal AI platform.
