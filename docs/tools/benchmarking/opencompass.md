@@ -83,7 +83,7 @@ conda activate opencompass
 git clone https://github.com/open-compass/opencompass.git
 cd opencompass
 pip install -e .
-pip install pydantic fastmcp vllm
+pip install pydantic fastmcp vllm uvicorn
 ```
 
 ### Dataset Download
@@ -114,6 +114,38 @@ python run.py \
 ### 2. Generating Scorecard Summaries
 ```bash
 python tools/summarize.py outputs/default/20270107_120000
+```
+
+## Production Systemd Service Unit
+
+To run an OpenCompass evaluation worker pool background daemon, create `/etc/systemd/system/opencompass-evaluator.service`:
+
+```ini
+[Unit]
+Description=OpenCompass Distributed Evaluation Worker Daemon
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=evaluator
+Group=evaluator
+WorkingDirectory=/opt/opencompass
+Environment=PYTHONUNBUFFERED=1
+Environment=CUDA_VISIBLE_DEVICES=0,1,2,3
+ExecStart=/opt/opencompass/venv/bin/python3 -m mcp.server.fastmcp run server.py --port 8095
+Restart=always
+RestartSec=10s
+LimitNOFILE=65536
+
+# Hardware access & security hardening
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## API examples
@@ -216,6 +248,7 @@ if __name__ == "__main__":
 | **`DatasetNotFoundError`** | Dataset files not downloaded to registry | Run `python tools/download_dataset.py --dataset <name>` prior to job dispatch. |
 | **`CompassJudger` API Timeout** | API rate limits or network latency on judge endpoint | Implement exponential backoff retries and set `--judge-concurrency 4`. |
 | **Regex Metric Parsing Failure** | Model output format deviated from expected structure | Use zero-shot CoT prompting templates or adjust post-processing regex parsers. |
+| **vLLM Distributed Worker Desync** | Ray cluster IP mismatch across worker nodes | Verify `RAY_HEAD_IP` environment variables and check firewall rules on port 6379. |
 
 ## Operational Guardrails & Best Practices
 1. **Isolated Execution Sandboxes**: Always execute untrusted code evaluation benchmarks (e.g., SWE-bench, HumanEval) inside isolated Docker containers.
