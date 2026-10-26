@@ -124,6 +124,60 @@ View all active model exclusions currently configured in ClawRouter:
 clawrouter exclude
 ```
 
+## Production Deployment & System Infrastructure
+
+### Docker Compose Daemon Setup
+```yaml
+version: '3.8'
+services:
+  clawrouter:
+    image: blockrun/clawrouter:latest
+    container_name: clawrouter-daemon
+    ports:
+      - "8402:8402"
+    environment:
+      CLAWRTOUTER_PORT: "8402"
+      X402_NETWORK: "base-mainnet"
+      AGENT_WALLET_KEY_PATH: "/root/.clawrouter/wallet.key"
+    volumes:
+      - clawrouter_data:/root/.clawrouter
+    restart: unless-stopped
+
+volumes:
+  clawrouter_data:
+```
+
+### Systemd Service Unit (`clawrouter.service`)
+For Linux hosts hosting autonomous agent daemons requiring background proxy persistence and automatic restart capabilities:
+
+```ini
+[Unit]
+Description=ClawRouter Agentic LLM Smart Proxy Daemon
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=clawrouter
+Group=clawrouter
+WorkingDirectory=/opt/clawrouter
+ExecStart=/usr/bin/npx @blockrun/clawrouter --port 8402 --network base-mainnet
+Restart=always
+RestartSec=3s
+Environment="NODE_ENV=production"
+Environment="CLAWRTOUTER_HOME=/var/lib/clawrouter"
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### Smart Routing Call
@@ -280,6 +334,17 @@ if __name__ == "__main__":
     else:
         print("Running fallback diagnostics. Ensure 'npx @blockrun/clawrouter' is running locally.")
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `x402 Authorization Failed (402 Payment Required)` | Agent local wallet has insufficient USDC balance for on-chain micropayment. | Fund the agent's Base or Solana wallet with USDC or add free-tier model overrides (`blockrun/free-auto`) in config. |
+| `ECONNREFUSED 127.0.0.1:8402` | ClawRouter proxy daemon is not running locally. | Launch the daemon using `npx @blockrun/clawrouter` or start `clawrouter.service` via `systemctl start clawrouter`. |
+| `SLA Exceeded Timeout (504)` | Target LLM provider latency exceeded specified `latency_sla_ms`. | Adjust SLA metadata thresholds in request payload or exclude high-latency backends using `clawrouter exclude add <model>`. |
+| `Invalid Wallet Signature Error` | Wallet secret key corrupted or mismatch between network environments. | Re-generate keypair using `clawrouter wallet reset` and verify `X402_NETWORK` matches target chain ID (e.g. `base-mainnet`). |
+| `FastMCP Tool Handshake Failure` | MCP client and ClawRouter daemon version protocol mismatch. | Upgrade `@blockrun/clawrouter` and `mcp` SDK packages to latest FastMCP 3.1 supported versions. |
+| `High Memory Consumption in Router Daemon` | Large prompt context caching memory leak. | Restart `clawrouter.service` and configure max context window limits in `clawrouter.config.json`. |
 
 ## Related tools / concepts
 - [OpenClaw](../development_ops/openclaw.md)

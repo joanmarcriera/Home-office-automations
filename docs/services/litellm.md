@@ -108,19 +108,38 @@ response = completion(
 print(response.choices[0].message.content)
 ```
 
-### Docker Proxy Deployment
+### Production Docker Proxy Setup
 ```yaml
 version: '3.8'
 services:
+  litellm-db:
+    image: postgres:16-alpine
+    container_name: litellm-db
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_USER: litellm_user
+      POSTGRES_PASSWORD: litellm_secure_password
+    volumes:
+      - litellm_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   litellm-proxy:
     image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-proxy
     ports:
       - "4000:4000"
     volumes:
       - ./litellm-config.yaml:/app/config.yaml
     environment:
+      DATABASE_URL: "postgresql://litellm_user:litellm_secure_password@litellm-db:5432/litellm"
       LITELLM_MASTER_KEY: "sk-master-key-2027"
-    command: ["--config", "/app/config.yaml"]
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8"]
+    depends_on:
+      - litellm-db
+    restart: unless-stopped
+
+volumes:
+  litellm-db_data:
 ```
 
 ## CLI examples
@@ -143,6 +162,40 @@ Run PostgreSQL database schema migrations for LiteLLM key and budget tracking:
 litellm --migrate
 ```
 
+## Production Deployment & System Infrastructure
+
+### Systemd Service Unit (`litellm-proxy.service`)
+For standalone Linux host deployments requiring automated daemon management, restart behavior, and system logger integration:
+
+```ini
+[Unit]
+Description=LiteLLM AI Gateway Service Proxy
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=litellm
+Group=litellm
+WorkingDirectory=/opt/litellm
+ExecStart=/usr/local/bin/litellm --config /opt/litellm/litellm-config.yaml --port 4000 --num_workers 4
+Restart=always
+RestartSec=5s
+Environment="LITELLM_MASTER_KEY=sk-master-key-2027"
+Environment="DATABASE_URL=postgresql://litellm_user:litellm_secure_password@localhost:5432/litellm"
+Environment="PYTHONUNBUFFERED=1"
+LimitNOFILE=65536
+
+# Security Hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## API examples
 
 ### Virtual Key Generation with Budget Cap
@@ -159,7 +212,7 @@ curl -X POST http://localhost:4000/key/generate \
 ```
 
 ### Python: FastMCP 3.1 & Pydantic v2 LiteLLM Completion Server
-Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `model_validate`) and **FastMCP 3.1** for structured output parsing and type-safe tool execution.
+Using LiteLLM with **Pydantic v2** (`BaseModel`, `Field`, `model_validate`, `field_validator`) and **FastMCP 3.1** for structured output parsing and type-safe tool execution.
 
 ```python
 import json
@@ -186,19 +239,25 @@ class PlanRequest(BaseModel):
     prompt: str = Field(..., description="Instruction prompt for the plan generator")
     task_id: str = Field(default="task-plan-001", description="FastMCP 3.1 Task Protocol ID")
 
+class AgentModelRouting(BaseModel):
+    primary_model: str = Field(default="claude-5-1")
+    fallback_model: str = Field(default="ollama/gemma-3")
+    max_tokens: int = Field(default=4096, ge=1, le=128000)
+
 mcp = FastMCP("litellm-plan-server")
 
 @mcp.tool()
-async def generate_agent_plan(request: PlanRequest) -> ActionPlan:
+async def generate_agent_plan(request: PlanRequest, routing: AgentModelRouting) -> ActionPlan:
     """Invokes LiteLLM gateway to return a validated, structured ActionPlan."""
     try:
         response = litellm.completion(
-            model="claude-5-1",
+            model=routing.primary_model,
             messages=[
                 {"role": "system", "content": "Return valid JSON matching the ActionPlan schema."},
                 {"role": "user", "content": request.prompt}
             ],
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
+            fallbacks=[routing.fallback_model]
         )
         content = response.choices[0].message.content
         parsed_json = json.loads(content)
@@ -216,7 +275,7 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
-### FastMCP 3.1 Server Integration
+### FastMCP 3.1 Server Integration Configuration
 ```yaml
 # In litellm-config.yaml under mcp_servers
 mcp_servers:
@@ -225,6 +284,17 @@ mcp_servers:
     command: "uv"
     args: ["run", "fastmcp", "run", "server.py"]
 ```
+
+## Diagnostic Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| `HTTP 401 Unauthorized: Invalid Virtual Key` | Virtual key expired, exceeded budget cap, or master key mismatch. | Verify bearer key against PostgreSQL database with `curl http://localhost:4000/key/info?key=sk-...` or generate a new key using `$LITELLM_MASTER_KEY`. |
+| `HTTP 429 Too Many Requests (Provider)` | Upstream LLM provider rate limits exhausted. | Configure model fallbacks and set `cooldown_time: 60` in `litellm-config.yaml` to trigger automatic routing to alternative backends. |
+| `PostgreSQL PoolExhaustedError` | Max database connections exceeded under heavy agent concurrency. | Increase `DATABASE_POOL_SIZE` in environment variables or deploy PgBouncer connection pooler in front of PostgreSQL. |
+| `FastMCP 3.1 Tool Timeout` | Agent tool call execution exceeded Gateway proxy timeout. | Increase tool call timeout in `litellm-config.yaml` under `request_timeout: 120` or optimize target MCP tool server execution speed. |
+| `Model Fallback Loop Failure` | All primary and fallback models in router list failed health check. | Run `litellm --health` CLI diagnostic to identify unreachable backend endpoints (e.g., local vLLM or Ollama instance down). |
+| `High Latency Spikes (>500ms proxy time)` | Large prompt payload audit logging or unindexed database queries. | Enable Redis caching (`LITELLM_REDIS_URL`), index PostgreSQL key tables, and set `disable_master_key_return: true`. |
 
 ## Related tools / concepts
 - [OpenRouter](../tools/ai_knowledge/openrouter.md) — Managed public cloud model routing network.
