@@ -84,45 +84,44 @@ It solves the "autonomous agent payment gap" by leveraging the **x402 protocol**
 
 ## Getting started
 
-To set up ClawRouter in January 2027:
+### Installation
+Launch ClawRouter directly using Node/npx:
+```bash
+npx @blockrun/clawrouter
+```
 
-1. **Installation**:
-   ```bash
-   npx @blockrun/clawrouter
-   ```
-2. **Wallet Setup**: On first run, a BIP-39 mnemonic and wallet (Base/Solana) are generated automatically. Your address is printed to stdout.
-3. **Funding**: Optional for free models (6 free models included). For paid frontier models, deposit USDC on Base or Solana.
-4. **Integration**: Point your OpenAI SDK, Cursor, or FastMCP client to `http://localhost:8402/v1/`.
+### Hello-World Example
+Query the ClawRouter local proxy using the OpenAI Python client:
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:8402/v1", api_key="x402")
+
+response = client.chat.completions.create(
+    model="blockrun/auto",
+    messages=[{"role": "user", "content": "Hello ClawRouter!"}]
+)
+print(response.choices[0].message.content)
+```
 
 ## CLI examples
 
-### Diagnostic Check
-Run the diagnostic suite to verify routing engine health, wallet balances, and upstream model availability:
-
+### 1. Run Diagnostic Health Check
+Verify routing engine health, wallet balances, and upstream model endpoints:
 ```bash
 npx @blockrun/clawrouter doctor
 ```
 
-### Managing Model Routing Rules
-Exclude expensive or latency-sensitive models from the auto-router evaluation pool:
-
+### 2. Exclude High-Cost Models
+Manage model routing rules by adding exclusions to the auto-router evaluation pool:
 ```bash
-# Exclude specific high-cost models
 clawrouter exclude add gpt-5.5-pro
-
-# List active exclusions
-clawrouter exclude
 ```
 
-### Phone & Voice Operations
-Manage wallet-owned virtual phone numbers for automated AI outbound and inbound calls:
-
+### 3. List Model Exclusions
+View all active model exclusions currently configured in ClawRouter:
 ```bash
-# Purchase a US phone number for agentic calls
-clawrouter phone numbers buy US --area-code 415
-
-# List active numbers and expiration dates
-clawrouter phone numbers list
+clawrouter exclude
 ```
 
 ## API examples

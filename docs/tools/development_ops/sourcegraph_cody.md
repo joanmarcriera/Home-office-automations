@@ -81,37 +81,43 @@ It solves the "context fragmentation" and "knowledge silo" problem in massive en
 
 ## Getting started
 
-### Extension Installation
-1. Install the official **Cody AI** extension from your IDE's marketplace (VS Code, JetBrains, or Cursor).
-2. Connect the extension to your **Sourcegraph Enterprise** portal URL, or log in to **Sourcegraph Cloud**.
-3. Once authenticated, Cody will read the server-side code index and begin offering context-aware autocomplete and chat.
-
-### Building a Local Index
-For individual developers wanting local-first repository embeddings without a central server:
+### Installation
+Install the official Cody CLI helper globally:
 ```bash
-# Install the Cody CLI helper
 npm install -g @sourcegraph/cody
+```
 
-# Build local vector embeddings for the active project
+### Hello-World Example
+Ask Cody to explain the active codebase or respond to a quick greeting:
+```bash
+cody chat -m "Hello Cody! What are the primary features of this codebase?"
+```
+
+### IDE Extension & Local Indexing
+1. Install the official **Cody AI** extension in VS Code, JetBrains, or Cursor.
+2. Build local vector embeddings for local-first repository search:
+```bash
 cody index create --src ./my-project-root
 ```
 
 ## CLI examples
 
-### Conversational Repository Querying
-Query your indexed codebase directly from your terminal using standard model overrides:
-```bash
-# Query S3 integration logic within the indexed repos
-cody chat -m "Where is the retry logic for the S3 intake service?"
-
-# Ask Cody to explain high-level project structure and flow
-cody explain --high-level
-```
-
-### Server Token Authentication
-Authenticate your terminal helper against your enterprise instance headlessly:
+### 1. Authenticate Terminal Helper
+Authenticate against your Sourcegraph instance:
 ```bash
 cody login --endpoint https://sourcegraph.company.com --token sgp_39b362198fa064_example
+```
+
+### 2. Conversational Repository Search
+Query indexed codebase logic directly from your terminal:
+```bash
+cody chat -m "Where is the retry logic for the S3 intake service?"
+```
+
+### 3. Generate High-Level Code Structure Explanation
+Obtain an architectural summary of the codebase:
+```bash
+cody explain --high-level
 ```
 
 ## API examples
