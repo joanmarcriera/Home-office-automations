@@ -125,6 +125,46 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ```
 
+## Containerized Docker Compose Configuration (`docker-compose.yml`)
+
+For containerized microservice deployments, run vLLM serving Llama 3.1 8B Instruct with NVIDIA Container Toolkit integration:
+
+```yaml
+version: "3.8"
+
+services:
+  llama-vllm-engine:
+    image: vllm/vllm-openai:v0.6.2
+    container_name: llama_vllm_engine
+    restart: always
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - CUDA_VISIBLE_DEVICES=0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      --model meta-llama/Llama-3.1-8B-Instruct
+      --host 0.0.0.0
+      --port 8000
+      --max-model-len 16384
+      --gpu-memory-utilization 0.90
+```
+
+## Production Operational Best Practices
+
+- **VRAM Capacity Planning**: Compute total VRAM requirements based on model weights plus KV cache allocation (`VRAM = Model_Bytes + (Context_Length * Layers * Heads * Precision_Bytes)`).
+- **Quantization Selection**: Use AWQ or GPTQ 4-bit quantization for production GPU deployment to double throughput with negligible perplexity degradation.
+- **Health Check Probing**: Configure Kubernetes liveness and readiness probes pointing to `GET http://localhost:8000/health` to automate pod restarts during GPU memory fragmentation.
+
 ## Diagnostic Troubleshooting Matrix
 
 | Issue / Error Symptom | Root Cause | Remediation Procedure |
