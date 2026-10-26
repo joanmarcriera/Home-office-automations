@@ -54,11 +54,13 @@ Furthermore, Dream Machine offers precise camera path control, allowing users to
 - **Cinematic Rendering**: Generates up to 4K widescreen video outputs with cinematic depth-of-field and realistic camera movements.
 - **Temporal Stability**: High frame-to-frame coherence across multi-second video generations, preventing structural morphing artifacts.
 - **Agentic Integration**: Native **FastMCP 3.1** support enables autonomous AI agents to manage generation pipelines programmatically.
+- **Zero-Shot Prompt Alignment**: Translates nuanced natural language cues into precise visual keyframes without requiring manual keyframe interpolation.
 
 ## Limitations
 - **Multi-Subject Complexity**: Highly intricate interactions between multiple subjects or fine hand movements can occasionally present rendering anomalies.
 - **API Resource Costs**: Commercial high-resolution generation requires cloud credits and paid subscriptions.
 - **Asynchronous Execution**: Video synthesis requires processing time, making it asynchronous rather than real-time interactive.
+- **Text Rendering Constraints**: In-scene rendered signage or legibility of fine printed typography remains challenging in complex dynamic motion shots.
 
 ## When to use it
 - When producing cinematic video content without physical location filming or heavy CGI rendering pipelines.
@@ -79,6 +81,70 @@ Furthermore, Dream Machine offers precise camera path control, allowing users to
 | **FastMCP 3.1 Support** | Native Server | REST Adapter | Native API | Webhook Adapter |
 | **Camera Control** | Native Motion Vector | Brush & Motion Controls | Direct Prompting | Fixed Studio Camera |
 | **Generation Time** | ~45-90 seconds | ~60-120 seconds | ~90-180 seconds | ~30-60 seconds |
+
+## Production Deployment & Systemd Unit Setup
+
+For automated video generation pipelines and agentic media servers in home office environments, Luma Dream Machine MCP bridges can be deployed as an autonomous background daemon managed by `systemd`.
+
+### Systemd Service Configuration (`/etc/systemd/system/luma-mcp-bridge.service`)
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Luma Dream Machine Video Generation Bridge
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lumabridge
+Group=lumabridge
+WorkingDirectory=/opt/luma-mcp-bridge
+ExecStart=/usr/bin/python3 -m mcp.server.fastmcp /opt/luma-mcp-bridge/server.py --port 15600
+Restart=on-failure
+RestartSec=10s
+
+# Security Hardening & Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/luma-bridge /opt/luma-mcp-bridge/cache
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+# Environment Variables
+Environment="PYTHONUNBUFFERED=1"
+EnvironmentFile=/etc/luma-bridge/env
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack Configuration (`docker-compose.yml`)
+
+```yaml
+version: '3.8'
+
+services:
+  luma-mcp-bridge:
+    image: python:3.11-slim
+    container_name: luma-dream-machine-bridge
+    restart: unless-stopped
+    ports:
+      - "15600:15600"
+    environment:
+      - LUMAAI_API_KEY=${LUMAAI_API_KEY}
+      - MCP_PORT=15600
+    volumes:
+      - ./src:/app
+      - ./cache:/app/cache
+    working_dir: /app
+    command: python3 server.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15600/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
 
 ## Getting started
 
@@ -240,28 +306,22 @@ When an AI agent executing via **Claude 5.1** or **GPT-5.5** invokes Luma Dream 
 | **Complex Action / Multi-Subject** | 4K Widescreen | 5 seconds | 78 seconds | 2 credits |
 | **Image-to-Video Animation** | 4K Widescreen | 10 seconds | 115 seconds | 3 credits |
 
-## Troubleshooting & Diagnostics
+## Comprehensive Diagnostic & Troubleshooting Matrix
 
-### 1. Generation Timeout / Stale Job Status
-- **Symptom**: Polling Luma API returns `processing` state for longer than 5 minutes.
-- **Cause**: Cloud GPU cluster queuing during peak service demand periods.
-- **Resolution**:
-  - Implement exponential backoff retry in client polling loop.
-  - Set FastMCP tool invocation timeout to 300 seconds.
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Generation Timeout / Stale Job Status** | Cloud GPU cluster queuing during peak service demand periods. | Implement exponential backoff retry with jitter in client polling loop; set FastMCP tool invocation timeout to 300s. |
+| **Physical Rendering Artifacts / Morphing** | Overly ambiguous prompt description or conflicting camera movement keywords. | Explicitly specify lighting conditions and single camera vectors (e.g., "slow pan right"); use anchor image reference for Image-to-Video generation. |
+| **FastMCP Payload Rate Limiting (429)** | Exceeding concurrent generation job limits on the developer API key tier. | Implement token bucket rate limiting on the FastMCP server bridge (`max_concurrency: 2`); upgrade developer account tier on Luma AI Portal. |
+| **Schema Validation Error** | FastMCP request payload mismatch or invalid aspect ratio string. | Validate incoming JSON against `VideoRequestSchema.model_validate(json_payload)` before dispatching HTTP request. |
+| **Authentication Failure (401/403)** | Missing or invalid `LUMAAI_API_KEY` in server environment. | Verify `/etc/luma-bridge/env` permissions and ensure valid Bearer token environment key loading. |
 
-### 2. Physical Rendering Artifacts / Morphing
-- **Symptom**: Subject shape or background lighting warps unnatural during camera motion.
-- **Cause**: Overly ambiguous prompt description or conflicting camera movement keywords.
-- **Resolution**:
-  - Explicitly specify lighting conditions and single camera vectors (e.g., "slow pan right").
-  - Use an anchor image reference for Image-to-Video generation.
+## Operational Hardening & Production Best Practices
 
-### 3. FastMCP Payload Rate Limiting
-- **Symptom**: Agent framework receives HTTP 429 Too Many Requests during automated generation loops.
-- **Cause**: Exceeding concurrent generation job limits on the developer API key tier.
-- **Resolution**:
-  - Implement token bucket rate limiting on the FastMCP server bridge.
-  - Upgrade account tier on Luma AI Portal.
+1. **Strict Input Schema Enforcements**: Always validate prompt length, aspect ratio parameters, and resolution constraints using Pydantic v2 schemas before sending requests to the Luma API cluster.
+2. **FastMCP Rate-Limiting**: Configure max concurrent jobs (`max_concurrency: 2`) to prevent quota exhaustion when multiple AI agents request video generation simultaneously.
+3. **Webhook Callback Verification**: Use HMAC signature validation on Luma API webhooks to verify completion payloads before triggering downstream processing workflows.
+4. **Asset Caching & Deduplication**: Cache generated MP4 assets in object storage (AWS S3 or MinIO) keyed by prompt hash to avoid redundant generation costs for identical requests.
 
 ## Related tools / concepts
 - [Runway ML](runwayml.md) — Generative AI platform for video and creative media.
