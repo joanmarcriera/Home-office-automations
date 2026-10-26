@@ -98,6 +98,72 @@ Vercel's AI SDK 6.x provides unified streaming primitives for multi-provider age
 - When you require a persistent backend or long-running raw TCP websocket connections (consider [Docker](../infrastructure/docker.md) or AWS instead).
 - If your architecture requires strict data residency inside a custom, isolated physical hardware perimeter.
 
+## Production Deployment & Systemd Unit Setup
+
+For enterprise self-hosted environments proxying traffic to Vercel, or local home-lab staging setups where FastMCP 3.1 Vercel proxy bridges run on local server hardware, systemd daemons can manage background relay operations.
+
+### Systemd Service Configuration (`/etc/systemd/system/vercel-mcp-proxy.service`)
+
+```ini
+[Unit]
+Description=FastMCP 3.1 Vercel Edge Proxy Bridge Daemon
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vercelbridge
+Group=vercelbridge
+WorkingDirectory=/opt/vercel-mcp-proxy
+ExecStart=/usr/bin/node /opt/vercel-mcp-proxy/dist/server.js --port 15800
+Restart=on-failure
+RestartSec=10s
+
+# Hardening & Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/vercel-bridge /opt/vercel-mcp-proxy/cache
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+# Environment Configuration
+Environment="NODE_ENV=production"
+Environment="VERCEL_PROXY_PORT=15800"
+EnvironmentFile=/etc/vercel-bridge/env
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack Definition (`docker-compose.yml`)
+
+```yaml
+version: '3.8'
+
+services:
+  vercel-mcp-proxy:
+    image: node:22-alpine
+    container_name: vercel-mcp-proxy-bridge
+    restart: unless-stopped
+    ports:
+      - "15800:15800"
+    environment:
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - FASTMCP_SERVER_URI=${FASTMCP_SERVER_URI}
+      - PORT=15800
+    volumes:
+      - ./src:/app/src:ro
+      - ./logs:/var/log/vercel-bridge:rw
+    working_dir: /app
+    command: ["node", "src/server.js"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15800/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
 ## Installation / setup
 
 ### Prerequisites
@@ -253,6 +319,23 @@ if __name__ == "__main__":
     token = os.environ.get("VERCEL_TOKEN", "mock-token")
     verify_vercel_deployment(token, "dpl_mock_123")
 ```
+
+## Comprehensive Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Serverless Function Execution Timeout (504)** | LLM token generation or downstream database query exceeded 30s limit. | Move long-running model calls to Edge Functions with streaming enabled or use background task queues (e.g., QStash/Inngest). |
+| **Cold Start Latency (>500ms)** | Large heavy npm package dependencies imported into serverless handler. | Tree-shake unused imports; migrate latency-sensitive APIs to Vercel Edge Middleware runtime (`export const runtime = 'edge'`). |
+| **Environment Variable Missing in Preview** | Key added only to Production scope in Vercel project settings. | Add key to Preview/Development scopes via `vercel env add KEY preview` or pull locally via `vercel env pull`. |
+| **FastMCP SSE Transport Connection Dropped** | Edge proxy closed idle connection after 45s of silence. | Send periodic FastMCP ping heartbeat frames (`{"jsonrpc":"2.0","method":"ping"}`) every 15s over SSE stream. |
+| **Pydantic Validation Error in CI Pipeline** | API payload schema changed between Vercel deployment preview and test runner. | Sync `VercelDeploymentResponse` schema models with Vercel API v13 specification in Python test suite. |
+
+## Operational Hardening & Edge Best Practices
+
+1. **Edge Middleware Authentication**: Enforce bearer token or JWT validation in Vercel Edge Middleware before requests reach serverless functions.
+2. **Environment Variable Scope Isolation**: Keep production API keys strictly isolated from preview branch environments.
+3. **Streaming Route Headers**: Ensure `Content-Type: text/event-stream` and `Cache-Control: no-cache, no-transform` headers are set on all agentic streaming endpoints.
+4. **Vercel Analytics & Observability**: Enable Web Vitals and Vercel Speed Insights to catch frontend rendering bottlenecks in real time.
 
 ## Related tools / concepts
 - [Vercel OSS](vercel-oss.md) — The open-source libraries (AI SDK 6.x, v0) driving the ecosystem.

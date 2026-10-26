@@ -71,6 +71,45 @@ Within a self-hosted homelab or enterprise knowledge architecture, Audiobookshel
 - When seeking a video streaming or full-featured home theater solution (use [Jellyfin](jellyfin.md) or [Plex](plex.md)).
 - When exclusively reading static EPUB or PDF e-books without audio components (use Calibre-Web or Kavita).
 
+## Production Deployment & Systemd Service Configuration
+
+For production bare-metal environments or dedicated Linux homelab nodes, Audiobookshelf and its associated FastMCP 3.1 agent bridge can be managed via `systemd` background services.
+
+### Systemd Service Setup (`/etc/systemd/system/audiobookshelf.service`)
+
+```ini
+[Unit]
+Description=Audiobookshelf Media Server & FastMCP 3.1 Connector
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=audiobookshelf
+Group=audiobookshelf
+WorkingDirectory=/opt/audiobookshelf
+ExecStart=/usr/bin/node /opt/audiobookshelf/index.js --port 1337
+Restart=on-failure
+RestartSec=10s
+
+# Security Hardening & Process Isolation
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/audiobookshelf /var/log/audiobookshelf /srv/audiobooks
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+# Environment Variables
+Environment="NODE_ENV=production"
+Environment="CONFIG_PATH=/var/lib/audiobookshelf/config"
+Environment="METADATA_PATH=/var/lib/audiobookshelf/metadata"
+EnvironmentFile=/etc/audiobookshelf/env
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Getting started
 
 ### Docker Compose Setup
@@ -232,6 +271,22 @@ if __name__ == "__main__":
 | `GET` | `/api/items/{id}` | Get detailed metadata, chapters, and audio files for an item | Bearer Token |
 | `PATCH` | `/api/me/progress/{id}` | Update listening progress, duration, and completion status | Bearer Token |
 | `POST` | `/api/podcasts/feed` | Add a new podcast subscription feed URL | Bearer Token / Admin |
+
+## Comprehensive Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Audio Transcoding Buffering / High CPU** | On-the-fly transcoding requested by mobile client without hardware acceleration. | Enable direct play on mobile client app or configure VAAPI/NVDEC hardware transcoding path in ABS settings. |
+| **Chapter Markers Missing in M4B** | Embedded chapter metadata absent or non-standard ID3 atom tag structure. | Run `ffmpeg -i input.m4b -f ffmetadata metadata.txt` or execute ABS silence-detection chapter generator tool. |
+| **FastMCP 3.1 Bearer Token Denied (401)** | `ABS_API_TOKEN` expired or missing required `user` authorization scopes. | Generate a fresh API token in ABS User Settings -> API Tokens and verify header formatting (`Bearer <token>`). |
+| **Progress Sync Collision Between Devices** | Multi-device playback without WebSocket progress broadcast lock. | Ensure port 1337 WebSocket connections are enabled through reverse proxies (e.g., `proxy_set_header Upgrade $http_upgrade;`). |
+| **SQLite Database Lock (`SQLITE_BUSY`)** | Concurrent background library rescan and SQLite maintenance write operations. | Increase SQLite timeout or isolate backup cron triggers to non-peak scanning windows. |
+
+## Backup & Recovery Operational Procedures
+
+1. **Daily Database Snapshots**: Run automated nightly backups of `/config/abs.sqlite` using SQLite online backup API (`sqlite3 /config/abs.sqlite ".backup /metadata/backups/abs_daily.sqlite"`).
+2. **Metadata Export Enforcement**: Enable "Save Metadata to Item Directory" in ABS library settings to mirror `.json` and cover artwork alongside original audio files.
+3. **Restoration Protocol**: Stop the container (`docker compose stop audiobookshelf`), restore `/config` and `/metadata` directories from archive, and verify file permissions before starting.
 
 ## Related tools / concepts
 - [Navidrome](navidrome.md) — Dedicated Subsonic-compatible music streaming server.

@@ -72,6 +72,71 @@ Sits directly between human operational requests (or scheduled cron triggers) an
 
 ## Getting started
 
+## Production Deployment & Systemd Unit Setup
+
+For enterprise agent swarms and scheduled home-lab automation, OpenClaw workflow prompt engines can be run as autonomous background services managed by `systemd`.
+
+### Systemd Service Configuration (`/etc/systemd/system/openclaw-prompt-engine.service`)
+
+```ini
+[Unit]
+Description=FastMCP 3.1 OpenClaw Workflow Prompt Engine Daemon
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openclaw
+Group=openclaw
+WorkingDirectory=/opt/openclaw-prompts
+ExecStart=/usr/bin/python3 /opt/openclaw-prompts/server.py --port 15700
+Restart=on-failure
+RestartSec=10s
+
+# Security Isolation & Hardening
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/openclaw /opt/openclaw-prompts/cache
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+
+# Environment Setup
+Environment="PYTHONUNBUFFERED=1"
+Environment="OPENCLAW_CONFIG_PATH=/etc/openclaw/prompts.json"
+EnvironmentFile=/etc/openclaw/env
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack Definition (`docker-compose.yml`)
+
+```yaml
+version: '3.8'
+
+services:
+  openclaw-prompt-engine:
+    image: python:3.11-slim
+    container_name: openclaw-prompt-server
+    restart: unless-stopped
+    ports:
+      - "15700:15700"
+    environment:
+      - MCP_PORT=15700
+      - OPENCLAW_ENV=production
+    volumes:
+      - ./prompts:/opt/openclaw-prompts/templates:ro
+      - ./logs:/var/log/openclaw:rw
+    working_dir: /opt/openclaw-prompts
+    command: python3 server.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15700/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
 ### Quickstart Integration
 1. Install OpenClaw CLI and Python runtime requirements:
    ```bash
@@ -241,6 +306,16 @@ if __name__ == "__main__":
 | **Protocol Compatibility** | FastMCP 3.1 / Model Context Protocol 3.1 |
 | **Schema Validation** | Strict runtime Pydantic v2 type checking |
 | **Safety Default** | Mandatory `dry_run=True` on all file/resource modifications |
+
+## Comprehensive Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Root Cause | Remediation Procedure |
+| :--- | :--- | :--- |
+| **Template Placeholder Mismatch** | Prompt variables not provided in payload or key name typo. | Validate incoming arguments with `WorkflowPromptParams.model_validate(payload)` before template substitution. |
+| **Instruction Drift / Output Failure** | Overly loose prompt wording or missing format constraints in template. | Pin target model version (e.g., `claude-5.6-sonnet`) and add explicit Pydantic v2 JSON output schema instructions. |
+| **FastMCP Server Unreachable (15700)** | Service container down or port blocked by local firewall. | Check systemd status (`systemctl status openclaw-prompt-engine`) or container logs (`docker logs openclaw-prompt-server`). |
+| **Unsafe Command Execution** | `dry_run` flag omitted or bypassed during prompt hydration. | Enforce default `dry_run: True` at Pydantic schema level; require explicit operational override headers. |
+| **Context Window Exceeded** | Log output or task payloads embedded directly into prompt template exceed model limits. | Implement truncation helpers in Python hydration function (e.g., cap `log_lines` to max 1000). |
 
 ## Related tools / concepts
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
