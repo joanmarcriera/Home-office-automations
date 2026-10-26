@@ -51,6 +51,35 @@ As of early January 2027, the pattern has evolved beyond static "Search-then-Gen
 +-----------------------------------------------------------------------------------+
 ```
 
+## Retrieval & Reranking Sequence Flowchart
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as Agent / User Query
+    participant Router as FastMCP 3.1 RAG Router
+    participant VectorDB as Vector Index (Qdrant / Milvus)
+    participant GraphDB as Graph Store (Neo4j / GraphRAG)
+    participant Reranker as Cohere / BGE Cross-Encoder
+    participant LLM as Frontier Model (Claude 5.6 / GPT-5.6)
+
+    User->>Router: Send Complex Multi-Hop Query
+    Router->>Router: HyDE Query Expansion & Sub-Query Decomposition
+    par Parallel Vector Search
+        Router->>VectorDB: Query Dense Vector Embeddings (HNSW)
+        VectorDB-->>Router: Return Top-50 Vector Chunks
+    and Parallel Graph Search
+        Router->>GraphDB: Traversal Entity Nodes & Relationships
+        GraphDB-->>Router: Return Entity Subgraph Triples
+    end
+    Router->>Reranker: Reciprocal Rank Fusion (RRF) + Cross-Encoder Scoring
+    Reranker-->>Router: Return Top-5 Highly Relevant Filtered Chunks
+    Router->>Router: Evaluate Context Completeness (Self-Correction Check)
+    Router->>LLM: Dispatch Prompt (System Context + Filtered Chunks + Query)
+    LLM-->>Router: Return Grounded Response with Citations
+    Router-->>User: Synthesized Answer + Source Links
+```
+
 ## What problem it solves
 RAG addresses fundamental architectural limitations inherent in static neural network models:
 1. **Hallucination Mitigation**: Prevents the generation of plausible yet false claims by constraining model outputs to explicitly supplied context passages.
@@ -97,6 +126,52 @@ RAG addresses fundamental architectural limitations inherent in static neural ne
 - **Retrieval Quality Dependency**: System accuracy is strictly bounded by retrieval quality; poor vector matches produce weak or hallucinated outputs.
 - **Added Query Latency**: Multi-hop retrieval, cross-encoder re-ranking, and context synthesis add ~150-500 ms overhead.
 - **Context Window Management**: High chunk volume requires active deduplication and re-ranking to prevent "Lost in the Middle" attention degradation.
+
+## Systemd Service Configuration (`rag-indexer.service`)
+
+To host a continuous document embedding, vector indexing, and FastMCP 3.1 RAG server daemon on Linux hosts, configure the following systemd service unit:
+
+```ini
+[Unit]
+Description=RAG Continuous Document Indexer & FastMCP 3.1 Server
+After=network.target qdrant.service
+Wants=qdrant.service
+
+[Service]
+Type=simple
+User=rag-service
+Group=rag-service
+WorkingDirectory=/opt/rag-pipeline
+Environment="PYTHONUNBUFFERED=1"
+Environment="QDRANT_HOST=localhost"
+Environment="QDRANT_PORT=6333"
+Environment="EMBEDDING_MODEL=BAAI/bge-m3"
+ExecStart=/usr/local/bin/python3 -m rag_engine.server --port 8096
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and inspect the systemd daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable rag-indexer.service
+sudo systemctl start rag-indexer.service
+sudo journalctl -u rag-indexer.service -f
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| High retrieval latency (> 600ms) | Unindexed vector search or unoptimized Cross-Encoder batch size | `curl -w "@curl-format.txt" http://localhost:6333/collections/knowledge` | Ensure HNSW indexing is active in Qdrant/Milvus and limit re-ranking batch size to Top-20 chunks. |
+| Relevant documents missing from top results | Pure dense vector search failing on exact keyword/code identifier matches | Execute BM25 vs Dense vector similarity checks | Upgrade pipeline to Hybrid Search combining BM25 sparse lexical matching with dense vector embeddings via RRF. |
+| LLM ignores retrieved context ("Lost in the Middle") | Excessive chunk payload (> 10 chunks) overwhelming context attention | Inspect formatted prompt token length | Implement cross-encoder re-ranking to filter context to Top-3/Top-5 chunks and place key citations at top/bottom. |
+| Vector collection drift or duplicate entries | Incremental ingestion missing document hash deduplication | Query collection count `qdrant-cli collection info` | Implement MD5/SHA256 chunk hashing prior to insertion to upsert existing record IDs. |
 
 ## When to use it
 - When answering queries requiring up-to-date, proprietary, or private domain knowledge.

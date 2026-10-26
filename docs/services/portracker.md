@@ -74,6 +74,53 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 - **Privilege Requirements**: Continuous monitoring of host processes requires elevated privileges (`SYS_PTRACE`).
 - **Read-only TrueNAS VMs**: VMs discovered via the TrueNAS API are read-only; full monitoring requires a local agent.
 
+## Systemd Service Configuration (`portracker-agent.service`)
+
+To run Portracker as a native Linux systemd daemon alongside Docker or host networking on homelab servers:
+
+```ini
+[Unit]
+Description=Portracker Network Service & FastMCP Discovery Agent
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/portracker
+Environment="DATA_DIR=/var/lib/portracker"
+Environment="PORT=4999"
+Environment="FASTMCP_ENABLED=true"
+Environment="ENABLE_AUTH=true"
+Environment="SESSION_SECRET=production-random-secret-key-32chars"
+ExecStart=/usr/local/bin/portracker --config /etc/portracker/config.yaml
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and inspect the systemd daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable portracker-agent.service
+sudo systemctl start portracker-agent.service
+sudo journalctl -u portracker-agent.service -f
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `Permission denied` accessing `/var/run/docker.sock` | Daemon process user lacks docker group privileges | `ls -la /var/run/docker.sock` | Add service user to `docker` group or run under root with `:ro` mount. |
+| Port scan timeout or `EACCES` socket bind error | Host firewall / iptables blocking raw socket probing | `sudo iptables -L -n -v` | Grant `CAP_NET_RAW` capabilities or adjust local iptables allow list. |
+| High CPU usage during subnet sweep | CIDR range set too broadly (e.g., `/16` instead of `/24`) | Inspect `config.yaml` subnets block | Constrain subnet probe scope to `192.168.1.0/24` and increase probe interval. |
+| FastMCP tool returns empty service array | Agent authentication header missing or invalid API key | `curl -H "Authorization: Bearer <key>" http://localhost:4999/api/v1/ports` | Verify bearer token in `SESSION_SECRET` configuration and match client headers. |
+
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
 - To discover new services running in Docker containers or on TrueNAS SCALE.

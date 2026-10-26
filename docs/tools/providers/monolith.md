@@ -36,6 +36,26 @@ Standard general-purpose large language models are highly prone to formatting er
 +-------------------------------+                               +-------------------+
 ```
 
+## Tool Calling & Execution Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent as Agent Loop / IDE
+    participant Monolith as Monolith-10 (vLLM Engine)
+    participant FastMCP as FastMCP 3.1 Server
+    participant Target as Target Local System / Tool
+
+    Agent->>Monolith: Send Request + JSON Schema / FastMCP Spec
+    Monolith->>Monolith: Apply Constrained BNF Grammar Decoding
+    Monolith-->>Agent: Return Validated Tool Call Payload
+    Agent->>FastMCP: Dispatch Tool Execution Request
+    FastMCP->>Target: Execute Native Command / API Action
+    Target-->>FastMCP: Return Execution Outcome
+    FastMCP-->>Agent: Format Tool Output Response
+    Agent->>Monolith: Submit Result for Step Evaluation
+```
+
 ## Typical use cases
 - **High-Speed Autonomous Coding**: Serving as the task-routing and structural code-generation planner in multi-agent software engineering workflows.
 - **Rigid Structured JSON Generation**: Powering backend automation pipelines that require guaranteed compliance with Pydantic v2 structured schema templates.
@@ -73,6 +93,57 @@ python3 -m vllm.entrypoints.openai.api_server \
     --guided-decoding-backend outline \
     --port 8000
 ```
+
+## Systemd Service Configuration (`monolith-vllm.service`)
+
+To host Monolith-10 as a persistent background daemon managed by systemd on Linux workstations or servers, utilize the following service unit configuration:
+
+```ini
+[Unit]
+Description=Monolith-10 vLLM Local Inference Engine & FastMCP Server
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+User=llm-service
+Group=llm-service
+WorkingDirectory=/opt/monolith-vllm
+Environment="CUDA_VISIBLE_DEVICES=0"
+Environment="VLLM_ATTENTION_BACKEND=FLASH_ATTN"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/local/bin/python3 -m vllm.entrypoints.openai.api_server \
+    --model basaltlabs/monolith-10 \
+    --guided-decoding-backend outline \
+    --tensor-parallel-size 1 \
+    --gpu-memory-utilization 0.85 \
+    --max-model-len 16384 \
+    --port 8000
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and inspect the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable monolith-vllm.service
+sudo systemctl start monolith-vllm.service
+sudo journalctl -u monolith-vllm.service -f
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `Out of Memory (OOM)` during high-batch requests | KV cache allocation exceeds available GPU VRAM | `nvidia-smi` / `journalctl -u monolith-vllm` | Reduce `--gpu-memory-utilization` to `0.80` or decrease `--max-model-len` to `8192`. |
+| `Guided decoding syntax error` on custom schema | Unsupported regex/BNF construct in Pydantic schema | `curl http://localhost:8000/v1/chat/completions` test payload | Simplify nested Union types; ensure outline grammar parser handles Pydantic regex strings. |
+| Slow Time-To-First-Token (> 300ms) | FlashAttention disabled or fallback to CPU GEMM | `python3 -c "import torch; print(torch.cuda.is_available())"` | Reinstall PyTorch with CUDA 12.x wheels and verify FlashAttention v2 drivers. |
+| Tool call JSON truncated or incomplete | Max completion tokens too low for large schema response | Inspect `max_tokens` argument in client request | Set `max_tokens` to at least 2048 in agent prompt dispatch configurations. |
 
 ## When to use it
 - When building local autonomous agent workforces (such as specialized coding or maintenance sub-agents).
