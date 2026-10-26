@@ -40,6 +40,22 @@ Distilabel sits in the **Frameworks / Data-Generation** layer. It serves as the 
 +-------------------------------+                               +-------------------+
 ```
 
+## Distilabel Execution Pipeline DAG
+
+```mermaid
+graph TD
+    A[Seed Prompts / Hugging Face Dataset] --> B[EvolInstruction Step]
+    B --> C{Generator Backend Choice}
+    C -->|Local GPU| D[vLLM Inference Engine]
+    C -->|Cloud API| E[Anthropic / OpenAI API]
+    D --> F[Candidate Responses Batch]
+    E --> F
+    F --> G[LLM-as-a-Judge Scoring Step]
+    G --> H[MinHash Deduplication & Quality Filter]
+    H --> I[FastMCP 3.1 Synthetic Dataset Exporter]
+    I --> J[Hugging Face Hub / Unsloth Trainer]
+```
+
 ## Typical use cases
 - **Evol-Instruct Pipelines**: Taking simple prompt seeds and evolving them into highly complex multi-turn instructions using frontier models.
 - **Preference Dataset Creation (RLHF/DPO)**: Generating multiple responses to a prompt and using Claude 5.6 as a judge to score and output structured pairwise preferences.
@@ -55,6 +71,51 @@ Distilabel sits in the **Frameworks / Data-Generation** layer. It serves as the 
 ## Limitations
 - **Cost Accumulation**: Running large-scale data generation using commercial frontier model APIs can result in very high token costs.
 - **Prompt Sensitivity**: Quality is deeply tied to system prompt engineering; subtle model updates can alter generation distributions.
+
+## Systemd Service Configuration (`distilabel-pipeline.service`)
+
+To deploy long-running Distilabel batch pipelines as background daemons on Linux GPU nodes, configure the following systemd unit:
+
+```ini
+[Unit]
+Description=Distilabel Synthetic Data Pipeline Daemon
+After=network.target vllm.service
+Wants=vllm.service
+
+[Service]
+Type=simple
+User=data-engine
+Group=data-engine
+WorkingDirectory=/opt/distilabel-pipelines
+Environment="HF_HOME=/opt/cache/huggingface"
+Environment="DISTILABEL_CACHE_DIR=/opt/cache/distilabel"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/local/bin/distilabel pipeline run --config /opt/distilabel-pipelines/evol_instruct_pipeline.yaml
+Restart=on-failure
+RestartSec=15
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and monitor the background pipeline:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable distilabel-pipeline.service
+sudo systemctl start distilabel-pipeline.service
+sudo journalctl -u distilabel-pipeline.service -f
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| `HTTP 429 Too Many Requests` during step generation | Provider rate limit exceeded on generator or judge LLM | `journalctl -u distilabel-pipeline -f` | Increase step retry backoff multipliers or configure vLLM local backend. |
+| Pipeline step times out during LLM-as-a-judge | Unbounded response generation or hanging API request | Check `distilabel pipeline status` | Set explicit `timeout=120.0` in `AnthropicLLM` or `OpenAILLM` step initializations. |
+| Memory leak / Disk full during large batch | Cache directory accumulating uncompressed intermediate step outputs | `df -h /opt/cache/distilabel` | Enable `pipeline.run(clean_cache=True)` or run periodic cache cleanup scripts. |
+| Schema validation failure on generated output | LLM output missing mandatory Pydantic fields | Inspect failed row logs in `/opt/cache/distilabel` | Provide explicit JSON schema system prompts or enable strict guided-decoding backend. |
 
 ## When to use it
 - When you need to scale fine-tuning data from hundreds of seeds to tens of thousands of highly varied instruction-response pairs.

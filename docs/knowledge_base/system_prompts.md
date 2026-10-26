@@ -16,7 +16,27 @@ Unstructured or missing system prompts introduce severe operational risks in AI-
 
 System prompts solve these issues by establishing non-negotiable execution contracts, boundary constraints, and structural enforcement schemas.
 
-## System Architecture
+## System Architecture & Compilation Lifecycle
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Application / RAG Engine
+    participant Compiler as FastMCP 3.1 System Prompt Compiler
+    participant Guard as Injection Defense Middleware
+    participant Model as LLM Execution Core (Claude 5.1 / GPT-5.6)
+    participant Client as User / External API
+
+    App->>Compiler: Request System Prompt Compilation (Agent Rules + Pydantic Schema)
+    Compiler->>Compiler: Render Jinja2 Template & Inject Pydantic v2 JSON Schema
+    Compiler->>Guard: Forward Raw Compiled Prompt
+    Guard->>Guard: Enforce Delimiter Boundaries & XML Guardrail Isolation
+    Guard-->>App: Return Privileged System Prompt String
+    Client->>App: Send User Query / Untrusted Payload
+    App->>Model: Dispatch API Call (System Prompt + Untrusted User Query)
+    Model->>Model: Prioritize System Directives Over Untrusted Context
+    Model-->>App: Output Validated Response / Structured Function Call
+```
 
 ```
                                       Dynamic System Prompt Compilation Architecture
@@ -58,6 +78,49 @@ In enterprise AI architectures, System Prompts function as the **Behavioral Gove
 - **Context Window Consumption**: Elaborate system prompts consume valuable prompt tokens, increasing latency and API costs.
 - **Inadvertent Override Risk**: Highly complex or contradictory system prompt rules can cause reasoning confusion or model hallucination.
 - **Not 100% Injection-Proof**: Sophisticated indirect prompt injection attacks can occasionally bypass system instructions, requiring multi-layered defense-in-depth.
+
+## Systemd Service Configuration (`system-prompt-compiler.service`)
+
+Deploying a centralized dynamic system prompt compilation engine and FastMCP prompt server as a Linux daemon:
+
+```ini
+[Unit]
+Description=FastMCP 3.1 System Prompt Compiler & Governance Server
+After=network.target
+
+[Service]
+Type=simple
+User=prompt-engine
+Group=prompt-engine
+WorkingDirectory=/opt/prompt-compiler
+Environment="PYTHONUNBUFFERED=1"
+Environment="PROMPT_TEMPLATE_DIR=/opt/prompt-compiler/templates"
+ExecStart=/usr/local/bin/python3 -m prompt_compiler.server --port 8095
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and inspect the system prompt compilation daemon:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable system-prompt-compiler.service
+sudo systemctl start system-prompt-compiler.service
+sudo journalctl -u system-prompt-compiler.service -f
+```
+
+## Diagnostic & Troubleshooting Matrix
+
+| Issue / Symptom | Probable Cause | Diagnostic Command | Remediation Action |
+| :--- | :--- | :--- | :--- |
+| Prompt token overflow (> 4,000 tokens) | Excessive nested Pydantic schema descriptions or duplicated rules | Inspect compiled length in `DynamicSystemPrompt.token_estimate` | Strip redundant docstrings and condense tool schemas using compact JSON representation. |
+| Model persona drift or hallucination | Conflicting or contradictory rules in system prompt sections | Test prompt variants with `promptfoo eval` | Restructure prompt into modular headings: PERSONA, BOUNDARIES, SCHEMAS. |
+| Indirect prompt injection leak | Untrusted input executed as system commands | Run jailbreak benchmark suite against delimiter tags | Enforce strict XML isolation `<user_data>...</user_data>` and privilege separation notices. |
+| Schema mismatch on function call | Pydantic v2 field alias mismatch in rendered system prompt | Validate output JSON against `PydanticValidationError` | Ensure `by_alias=True` is enabled when serializing Pydantic schemas into system prompts. |
 
 ## When to use it
 - When building production agentic systems requiring deterministic tool usage and structured output parsing.
@@ -243,7 +306,7 @@ print("GPT Output:", gpt_response.choices[0].message.content)
 ## Sources / references
 - [Anthropic System Prompts Documentation](https://docs.anthropic.com/claude/docs/system-prompts)
 - [OpenAI System Message Best Practices](https://platform.openai.com/docs/guides/prompt-engineering)
-- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+- [OWASP Top 10 for Large Language Model Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 - [FastMCP 3.1 Specification & Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
