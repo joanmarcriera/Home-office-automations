@@ -41,16 +41,6 @@ Autonomous agents often need to run shell commands, compile binaries, or test un
 ## Where it fits in the stack
 **Development & Operations / Infrastructure Security Layer**. Docker MCP sits between higher-level AI agent orchestrators ([Agency Swarm](../agents/agency-swarm.md), [Claude Code Container MCP](claude-code-container-mcp.md)) and the low-level Docker container daemon.
 
-## Feature Matrix & Framework Comparison
-
-| Feature | Docker MCP | Claude Code Container MCP | Kubernetes MCP | Podman MCP |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Target Engine** | Docker Engine API / Daemon | Docker / Finch Containers | K8s API Server / Pods | Podman Socket |
-| **Protocol Standard** | FastMCP 3.1 / MCP Native | Anthropic MCP Standard | Custom K8s MCP Server | FastMCP Standard |
-| **Isolation Boundary** | Container Namespaces / CGroups | Micro-VM / Docker Sandbox | Pod / Namespace Guard | Rootless Podman |
-| **Volume Mount Guard** | Strict Workspace Bounding | Sandbox File Sync | Persistent Volume Claims | Rootless User Mounts |
-| **FastMCP 3.1 Ready** | Native Built-in Server | Native Built-in | Custom Wrapper | Native Built-in |
-
 ## Typical use cases
 - **Sandboxed Agent Code Execution**: Spawning temporary containers to run dynamic Python, Node.js, or Rust code without host side-effects.
 - **Container Infrastructure Management**: Allowing dev agents to build Dockerfiles, list active containers, inspect system health, and inspect container logs.
@@ -64,6 +54,26 @@ Autonomous agents often need to run shell commands, compile binaries, or test un
 ## Limitations
 - **Daemon Access Requirement**: Requires access to the Docker socket (`/var/run/docker.sock`), demanding careful socket permissions setup.
 - **Image Pull Latency**: Spawning containers with non-cached images can introduce initial network download delays.
+
+## When to use it
+- Executing untrusted AI agent generated code or dynamic scripts in isolated container environments.
+- Managing containers, images, volumes, and micro-services through FastMCP tool protocols.
+- Building, inspecting, and debugging Docker containers autonomously during dev loops.
+
+## When not to use it
+- Environments where Docker daemon access is restricted or unavailable (e.g. strict serverless functions).
+- Simple file or text manipulation tasks where container startup latency overhead is unnecessary.
+- Workloads requiring direct host system hardware access (e.g. specialized PCIe devices without pass-through).
+
+## Feature Matrix & Framework Comparison
+
+| Feature | Docker MCP | Claude Code Container MCP | Kubernetes MCP | Podman MCP |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Target Engine** | Docker Engine API / Daemon | Docker / Finch Containers | K8s API Server / Pods | Podman Socket |
+| **Protocol Standard** | FastMCP 3.1 / MCP Native | Anthropic MCP Standard | Custom K8s MCP Server | FastMCP Standard |
+| **Isolation Boundary** | Container Namespaces / CGroups | Micro-VM / Docker Sandbox | Pod / Namespace Guard | Rootless Podman |
+| **Volume Mount Guard** | Strict Workspace Bounding | Sandbox File Sync | Persistent Volume Claims | Rootless User Mounts |
+| **FastMCP 3.1 Ready** | Native Built-in Server | Native Built-in | Custom Wrapper | Native Built-in |
 
 ## Getting started
 1. **Prerequisites**: Ensure Docker Engine or Docker Desktop is installed and active.
@@ -85,7 +95,30 @@ Autonomous agents often need to run shell commands, compile binaries, or test un
    }
    ```
 
-## CLI & FastMCP 3.1 Examples
+## CLI examples
+```bash
+# Run Docker MCP Server via NPX CLI
+npx @docker/mcp-server
+
+# Build Docker image using local Docker CLI
+docker build -t my-agent-sandbox:latest .
+
+# Inspect running Docker MCP containers
+docker ps --filter "label=mcp-server"
+```
+
+## API examples
+```python
+import docker
+
+client = docker.from_env()
+# List running containers via Docker Engine API
+containers = client.containers.list()
+for container in containers:
+    print(f"Container: {container.name} - Status: {container.status}")
+```
+
+## API & FastMCP 3.1 Examples
 
 ### FastMCP 3.1 Python Gateway for Docker Operations
 ```python

@@ -46,16 +46,6 @@ Static type checkers (like mypy or pyright) verify structural types but cannot c
 ## Where it fits in the stack
 **Development & Operations / Verification Layer**. CrossHair sits alongside static checkers and dynamic test runners in automated CI/CD pipelines or FastMCP agent tool verification layers. It intercepts agent-generated Python tool code before execution to guarantee safety contracts.
 
-## Feature Matrix & Framework Comparison
-
-| Feature | CrossHair | Hypothesis | Mypy / Pyright | KLEE |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Approach** | Symbolic Execution (SMT) | Property-based Fuzzing | Static Type Analysis | Symbolic Execution (C/C++) |
-| **Contract Language** | Python PEP 316 / Type Hints | Python `@given` Decorators | Type Annotations | C Assertions |
-| **Solver Backend** | Z3 Solver | Random/Heuristic Generators | None (AST Type Graph) | STP / Z3 |
-| **Counterexample Generation** | Deterministic Concrete Input | Random Concrete Input | N/A | Deterministic Input |
-| **FastMCP 3.1 Ready** | Native Python Import / API | Native Python Import | Type Checker Gate | Binary Interop |
-
 ## Typical use cases
 - **Symbolic Tool Validation**: Verifying that AI agent tool implementations handle edge cases (e.g. division by zero, empty strings, boundary conditions) before registering them with FastMCP servers.
 - **Contract Enforcement**: Enforcing postconditions on data transformations, financial calculations, and cryptographic operations.
@@ -69,6 +59,26 @@ Static type checkers (like mypy or pyright) verify structural types but cannot c
 ## Limitations
 - **Path Explosion**: Highly complex functions with deep recursion or massive loops can cause path exploration timeouts.
 - **C-Extension Constraints**: Symbolic execution through unannotated C-extension modules (e.g. NumPy) can be restricted without stubs.
+
+## When to use it
+- Verifying complex Python functions with non-trivial mathematical or logical invariants.
+- Testing AI-generated or dynamically synthesized Python tool endpoints before registering them in FastMCP 3.1 agent runtimes.
+- Proving edge-case correctness and contract compliance for safety-critical modules.
+
+## When not to use it
+- Evaluating functions that rely heavily on un-stubbed C extensions or third-party binary libraries.
+- Static analysis on non-Python codebases or dynamic untyped Python code missing docstrings or PEP 316 contracts.
+- High-frequency real-time execution loops where symbolic path exploration latency is prohibitive.
+
+## Feature Matrix & Framework Comparison
+
+| Feature | CrossHair | Hypothesis | Mypy / Pyright | KLEE |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Approach** | Symbolic Execution (SMT) | Property-based Fuzzing | Static Type Analysis | Symbolic Execution (C/C++) |
+| **Contract Language** | Python PEP 316 / Type Hints | Python `@given` Decorators | Type Annotations | C Assertions |
+| **Solver Backend** | Z3 Solver | Random/Heuristic Generators | None (AST Type Graph) | STP / Z3 |
+| **Counterexample Generation** | Deterministic Concrete Input | Random Concrete Input | N/A | Deterministic Input |
+| **FastMCP 3.1 Ready** | Native Python Import / API | Native Python Import | Type Checker Gate | Binary Interop |
 
 ## Getting started
 1. **Installation**:
@@ -88,6 +98,28 @@ Static type checkers (like mypy or pyright) verify structural types but cannot c
    ```bash
    crosshair check safe_divide.py
    ```
+
+## CLI examples
+```bash
+# Check a single Python file for contract violations
+crosshair check safe_divide.py
+
+# Check all functions in a module with custom timeout per condition
+crosshair check --per_condition_timeout 3.0 my_module.py
+
+# Watch directory for changes and continuously analyze contracts
+crosshair watch /opt/crosshair/tools/
+```
+
+## API examples
+```python
+import crosshair.main as ch_main
+
+# Run CrossHair programmatically on a file
+violations = list(ch_main.check_program("safe_divide.py", max_sec=5.0))
+for violation in violations:
+    print(f"Contract violation found: {violation}")
+```
 
 ## API & FastMCP 3.1 Examples
 

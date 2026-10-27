@@ -1,24 +1,24 @@
 {
   "snapshot_date": "2026-10-27",
-  "total_docs": 601,
-  "tool_docs": 548,
+  "total_docs": 605,
+  "tool_docs": 552,
   "service_docs": 53,
   "by_category": {
-    "agents": 36,
+    "agents": 37,
     "ai_knowledge": 111,
     "automation_orchestration": 34,
     "benchmarking": 42,
     "calendar_tasks": 22,
-    "development_ops": 77,
+    "development_ops": 78,
     "enterprise": 17,
-    "frameworks": 39,
+    "frameworks": 41,
     "infrastructure": 63,
     "intake_storage": 10,
     "orchestration": 10,
     "process_understanding": 43,
     "providers": 44
   },
-  "docs_with_code_examples": 601,
+  "docs_with_code_examples": 605,
   "docs_without_code_examples": 0,
   "shallow_docs": [
     "docs/tools/frameworks/fastmcp.md",
@@ -26,7 +26,7 @@
     "docs/tools/development_ops/docker-mcp.md"
   ],
   "underdeveloped_categories": [],
-  "weekly_additions": 3,
+  "weekly_additions": 4,
   "intake_items_7d": 15,
   "intake_integrated_7d": 0,
   "intake_conversion_rate": 0.0
