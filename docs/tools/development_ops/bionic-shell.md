@@ -268,6 +268,75 @@ if __name__ == "__main__":
     print(validated_json)
 ```
 
+## Deployment & Sandbox Infrastructure
+
+### Systemd Service Unit (`bionic-shell-daemon.service`)
+Deploy Bionic Shell AST Security Service as a background system service:
+
+```ini
+[Unit]
+Description=Bionic Shell AST Command Security & Snapshot Daemon
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/bionic-shell
+ExecStart=/usr/local/bin/bionic-sh --daemon --policy /etc/bionic/policy.yaml --port 8092
+Restart=always
+RestartSec=5s
+Environment=BIONIC_LOG_LEVEL=info
+Environment=BIONIC_SNAPSHOT_ENGINE=overlayfs
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Stack Setup (`docker-compose.yml`)
+Run isolated Bionic Shell AST analysis gate alongside FastMCP tool server:
+
+```yaml
+version: "3.8"
+
+services:
+  bionic-sandbox-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bionic-shell-mcp
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    environment:
+      - FASTMCP_PORT=8092
+      - BIONIC_POLICY_PATH=/app/policy.yaml
+    volumes:
+      - ./policy.yaml:/app/policy.yaml:ro
+      - ./workspace:/app/workspace
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+    networks:
+      - sandbox-net
+
+networks:
+  sandbox-net:
+    driver: bridge
+```
+
+## Troubleshooting & Command Safety Diagnostic Matrix
+
+| Failure Symptom | Underlying Cause | Mitigation / Resolution |
+| :--- | :--- | :--- |
+| `Error 403: Blocked Path Mutation` | Command attempting writes to restricted path tree (e.g. `/etc`) | Add authorized directory path to `allowed_paths` in `policy.yaml` |
+| `OverlayFS Checkpoint Restore Failed` | Insufficient kernel mount permissions or missing FUSE module | Ensure container has `SYS_ADMIN` capabilities or run on supported Linux kernel |
+| `AST Parsing Ambiguity Error` | Obfuscated nested subshell command or base64 shell string | Require clear POSIX shell command syntax or add binary to whitelist |
+| `Secret Leak Interception Warning` | Command stdout contained unmasked sensitive API key string | Update regex patterns under `secret_masking` in policy configuration |
+
 ## Related tools / concepts
 - [Claude Code Container MCP](claude-code-container-mcp.md)
 - [Axiom Guardian](axiom-guardian.md)

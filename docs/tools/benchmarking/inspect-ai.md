@@ -285,6 +285,74 @@ if __name__ == "__main__":
         print(f"Task '{summary.task_name}' completed with status: {summary.status}")
 ```
 
+## Deployment & Production Infrastructure
+
+### Systemd Service Unit (`inspect-ai-eval.service`)
+Deploy Inspect AI Evaluation Server & Trace Log Daemon as a background systemd service:
+
+```ini
+[Unit]
+Description=Inspect AI Safety & Evaluation FastMCP Daemon
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=inspecteval
+Group=inspecteval
+WorkingDirectory=/opt/inspect-ai
+ExecStart=/usr/bin/python3 -m fastmcp run server.py --port 8094
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+Environment=INSPECT_LOG_DIR=/var/log/inspect_ai
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Docker Compose Benchmark Stack (`docker-compose.yml`)
+Run Inspect AI evaluation runner alongside `inspect view` web dashboard and sandbox container:
+
+```yaml
+version: "3.8"
+
+services:
+  inspect-eval-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inspect-ai-runner
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      - FASTMCP_PORT=8094
+      - INSPECT_LOG_DIR=/app/eval_logs
+    volumes:
+      - ./eval_logs:/app/eval_logs
+      - ./datasets:/app/datasets:ro
+    networks:
+      - eval-net
+
+  inspect-view-dashboard:
+    image: python:3.11-slim
+    container_name: inspect-ai-web-ui
+    restart: unless-stopped
+    ports:
+      - "7575:7575"
+    volumes:
+      - ./eval_logs:/app/eval_logs
+    command: ["sh", "-c", "pip install inspect-ai && inspect view --log-dir /app/eval_logs --port 7575 --host 0.0.0.0"]
+    networks:
+      - eval-net
+
+networks:
+  eval-net:
+    driver: bridge
+```
+
 ## Operational Hardening Guidelines
 - **Sandboxed Execution**: Always enforce containerized Docker or gVisor sandboxing when running code solver evaluations to isolate untrusted agent code execution.
 - **Rate Limit Safeguards**: Set `--max-connections` appropriately for target API provider tiers to prevent HTTP 429 throttling and dropped log traces.
